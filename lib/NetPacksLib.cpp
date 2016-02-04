@@ -223,7 +223,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
+						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), o->tempOwner, 1);
 					break;
 				}
 			}
@@ -1057,6 +1057,23 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 	for(NewTurn::Hero h : heroes) //give mana/movement point
 	{
 		CGHeroInstance *hero = gs->getHero(h.id);
+		if(!hero)
+		{
+			// retreated or surrendered hero who has not been reset yet
+			for(auto& hp : gs->hpool.heroesPool)
+			{
+				if(hp.second->id == h.id)
+				{
+					hero = hp.second;
+					break;
+				}
+			}
+		}
+		if(!hero)
+		{
+			logGlobal->errorStream() << "Hero " << h.id << " not found in NewTurn::applyGs";
+			continue;
+		}
 		hero->movement = h.move;
 		hero->mana = h.mana;
 	}
@@ -1616,7 +1633,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID(255), pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 

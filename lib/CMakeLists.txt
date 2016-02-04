@@ -19,6 +19,7 @@ set(lib_SRCS
 		filesystem/CZipLoader.cpp
                 filesystem/CZipSaver.cpp
 		filesystem/Filesystem.cpp
+		filesystem/FileStream.cpp
 		filesystem/ResourceID.cpp
                 filesystem/MinizipExtensions.cpp
 

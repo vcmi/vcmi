@@ -6,6 +6,7 @@
 #include "CAdvmapInterface.h"
 #include "GUIClasses.h"
 #include "InfoWindows.h"
+#include "CCastleInterface.h"
 
 #include "../CBitmapHandler.h"
 #include "../CDefHandler.h"
@@ -109,7 +110,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
-		
+
 		s.forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
 		{
 			++sitesPerOurTab[(ui8)school.id];
@@ -156,9 +157,9 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 
 	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
 	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
-	
+
 	spells = new CAnimation("Spells.def");
-		
+
 	spellTab = CDefHandler::giveDef("SpelTab.def");
 	schools = CDefHandler::giveDef("Schools.def");
 	schoolBorders[0] = CDefHandler::giveDef("SplevA.def");
@@ -380,9 +381,9 @@ public:
 		if(A.level<B.level)
 			return true;
 		if(A.level>B.level)
-			return false;		
-		
-		
+			return false;
+
+
 		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
 		{
 			if(A.school.at((ESpellSchool)schoolId) && !B.school.at((ESpellSchool)schoolId))
@@ -390,7 +391,7 @@ public:
 			if(!A.school.at((ESpellSchool)schoolId) && B.school.at((ESpellSchool)schoolId))
 				return false;
 		}
-		
+
 		return A.name < B.name;
 	}
 } spellsorter;
@@ -400,8 +401,8 @@ void CSpellWindow::computeSpellsPerArea()
 	std::vector<SpellID> spellsCurSite;
 	for(const SpellID & spellID : mySpells)
 	{
-		CSpell * s = spellID.toSpell(); 
-		
+		CSpell * s = spellID.toSpell();
+
 		if(s->combatSpell ^ !battleSpellsOnly
 			&& ((selectedTab == 4) || (s->school[(ESpellSchool)selectedTab]))
 			)
@@ -533,7 +534,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 	{
 		fexitb();
 		return;
-	}		
+	}
 
 	if(key.state == SDL_PRESSED)
 	{
@@ -622,10 +623,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			owner->myInt->showInfoDialog(std::string(msgBuf));
 			return;
 		}
-
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
 		if((sp->isCombatSpell() && !owner->myInt->battleInt)
-			|| (sp->isAdventureSpell() && owner->myInt->battleInt))
+		   || (sp->isAdventureSpell() && (owner->myInt->battleInt || owner->myInt->castleInt)))
 		{
 			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->getLevelInfo(schoolLevel).description, hlp);
@@ -705,26 +705,26 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		{
 			const CGHeroInstance *h = owner->myHero;
 			GH.popInt(owner);
-			
-			auto guard = vstd::makeScopeGuard([this]								
+
+			auto guard = vstd::makeScopeGuard([this]
 			{
 				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
-				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;				
+				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;
 				delete owner;
-			}); 
+			});
 
 			if(mySpell == SpellID::TOWN_PORTAL)
 			{
 				//special case
 				//todo: move to mechanics
-				
+
 				std::vector <int> availableTowns;
 				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
 
 				vstd::erase_if(Towns, [this](const CGTownInstance * t)
 				{
-					const auto relations = owner->myInt->cb->getPlayerRelations(t->tempOwner, owner->myInt->playerID);	
-					return relations == PlayerRelations::ENEMIES; 				
+					const auto relations = owner->myInt->cb->getPlayerRelations(t->tempOwner, owner->myInt->playerID);
+					return relations == PlayerRelations::ENEMIES;
 				});
 
 				if (Towns.empty())
@@ -776,13 +776,13 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							availableTowns.push_back(t->id.getNum());//add to the list
 						}
 					}
-					
+
 					auto castTownPortal = [h](int townId)
 					{
 						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
-						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());					
+						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
 					};
-					
+
 					if (availableTowns.empty())
 						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					else
@@ -791,13 +791,13 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
 							castTownPortal));
 				}
-				return;	
+				return;
 			}
-			
+
 			if(mySpell == SpellID::SUMMON_BOAT)
 			{
 				//special case
-				//todo: move to mechanics				
+				//todo: move to mechanics
 				int3 pos = h->bestLocation();
 				if(pos.x < 0)
 				{
@@ -805,10 +805,10 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					return;
 				}
 			}
-			
+
 			if(sp->getTargetType() == CSpell::LOCATION)
 			{
-				adventureInt->enterCastingMode(sp);		
+				adventureInt->enterCastingMode(sp);
 			}
 			else if(sp->getTargetType() == CSpell::NO_TARGET)
 			{
@@ -817,7 +817,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			else
 			{
 				logGlobal->error("Invalid spell target type");
-			}			
+			}
 		}
 	}
 }
@@ -865,11 +865,11 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = mySpell.toSpell();	
+	const CSpell * spell = mySpell.toSpell();
 	owner->spells->load(mySpell);
-	
+
 	IImage * icon = owner->spells->getImage(mySpell,0,false);
-	
+
 	if(icon != nullptr)
 		icon->draw(to, pos.x, pos.y);
 	else

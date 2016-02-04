@@ -1128,7 +1128,7 @@ bool CRmgTemplateZone::createTreasurePile(CMapGenerator* gen, int3 &pos, float m
 				info.occupiedPositions.insert(blockPos);
 				info.blockedPositions.insert(blockPos);
 			}
-			info.occupiedPositions.insert(visitablePos);
+			info.occupiedPositions.insert(visitablePos + oi.templ.getVisitableOffset());
 
 			currentValue += oi.value;
 

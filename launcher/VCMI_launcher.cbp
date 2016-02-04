@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="VCMI_launcher" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../VCMI_launcher" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/debug" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../VCMI_launcher" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../" />
+				<Option object_output=".objs/release" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-flto" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-flto" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
+			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
+			<Add option="-D_WIN32" />
+			<Add directory="." />
+			<Add directory="../include" />
+			<Add directory="$(#boost.include)" />
+			<Add directory="$(#qt.include)" />
+			<Add directory="$(#qt.include)/QtGui" />
+			<Add directory="$(#qt.include)/QtCore" />
+			<Add directory="$(#qt.include)/QtWidgets" />
+		</Compiler>
+		<Linker>
+			<Add option="-lVCMI_lib" />
+			<Add option="-lQt5Core" />
+			<Add option="-lQt5Gui" />
+			<Add option="-lQt5Widgets" />
+			<Add option="-lQt5Network" />
+			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
+			<Add directory="../" />
+			<Add directory="$(#qt.lib)" />
+			<Add directory="$(#boost.lib)" />
+		</Linker>
+		<Unit filename="StdInc.cpp" />
+		<Unit filename="StdInc.h">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="VCMI_launcher.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="jsonutils.cpp" />
+		<Unit filename="jsonutils.h" />
+		<Unit filename="launcherdirs.cpp" />
+		<Unit filename="launcherdirs.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="mainwindow_moc.cpp" />
+		<Unit filename="mainwindow_moc.h" />
+		<Unit filename="modManager/cdownloadmanager_moc.cpp" />
+		<Unit filename="modManager/cdownloadmanager_moc.h" />
+		<Unit filename="modManager/cmodlist.cpp" />
+		<Unit filename="modManager/cmodlist.h" />
+		<Unit filename="modManager/cmodlistmodel_moc.cpp" />
+		<Unit filename="modManager/cmodlistmodel_moc.h" />
+		<Unit filename="modManager/cmodlistview_moc.cpp" />
+		<Unit filename="modManager/cmodlistview_moc.h" />
+		<Unit filename="modManager/cmodmanager.cpp" />
+		<Unit filename="modManager/cmodmanager.h" />
+		<Unit filename="modManager/imageviewer_moc.cpp" />
+		<Unit filename="modManager/imageviewer_moc.h" />
+		<Unit filename="modManager/qrc_cdownloadmanager_moc.cpp" />
+		<Unit filename="modManager/qrc_cmodlistmodel_moc.cpp" />
+		<Unit filename="modManager/qrc_cmodlistview_moc.cpp" />
+		<Unit filename="modManager/qrc_imageviewer_moc.cpp" />
+		<Unit filename="qrc_mainwindow_moc.cpp" />
+		<Unit filename="settingsView/csettingsview_moc.cpp" />
+		<Unit filename="settingsView/csettingsview_moc.h" />
+		<Unit filename="settingsView/qrc_csettingsview_moc.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

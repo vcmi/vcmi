@@ -646,10 +646,10 @@ void CPathfinder::initializePatrol()
 	auto state = PATROL_NONE;
 	if(hero->patrol.patrolling && !getPlayer(hero->tempOwner)->human)
 	{
-		if(hero->patrol.patrolRadious)
+		if(hero->patrol.patrolRadius)
 		{
 			state = PATROL_RADIUS;
-			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadious, boost::optional<PlayerColor>(), 0, true);
+			gs->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, boost::optional<PlayerColor>(), 0, true);
 		}
 		else
 			state = PATROL_LOCKED;

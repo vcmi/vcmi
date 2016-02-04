@@ -2,6 +2,7 @@
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "JsonNode.h"
+#include "filesystem/FileStream.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
@@ -554,7 +555,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 	std::string paths;
 	for(auto& p : CResourceHandler::get()->getResourceNames(ResourceID("config/" + name)))
 	{
-		paths += p + ", ";
+		paths += p.string() + ", ";
 	}
 	paths = paths.substr(0, paths.size() - 2);
 	logGlobal->debugStream() << "Loading hardcoded features settings from [" << paths << "], result:";
@@ -902,7 +903,7 @@ void CModHandler::afterLoad()
 	}
 	modSettings["core"] = coreMod.saveLocalData();
 
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << modSettings;
 }
 

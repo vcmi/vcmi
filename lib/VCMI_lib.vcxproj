@@ -188,6 +188,7 @@
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />
+    <ClCompile Include="filesystem\FileStream.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\ISpellMechanics.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="filesystem\CInputStream.h" />
     <ClInclude Include="filesystem\CMemoryStream.h" />
     <ClInclude Include="filesystem\CZipLoader.h" />
+    <ClInclude Include="filesystem\FileStream.h" />
     <ClInclude Include="filesystem\Filesystem.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
     <ClInclude Include="filesystem\ResourceID.h" />

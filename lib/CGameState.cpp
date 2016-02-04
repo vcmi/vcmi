@@ -988,10 +988,10 @@ void CGameState::initGrailPosition()
 {
 	logGlobal->debugStream() << "\tPicking grail position";
 	//pick grail location
-	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
+	if(map->grailPos.x < 0 || map->grailRadius) //grail not set or set within a radius around some place
 	{
-		if(!map->grailRadious) //radius not given -> anywhere on map
-			map->grailRadious = map->width * 2;
+		if(!map->grailRadius) //radius not given -> anywhere on map
+			map->grailRadius = map->width * 2;
 
 		std::vector<int3> allowedPos;
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
@@ -1008,7 +1008,7 @@ void CGameState::initGrailPosition()
 						&& !t.visitable
 						&& t.terType != ETerrainType::WATER
 						&& t.terType != ETerrainType::ROCK
-						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadious * map->grailRadious))
+						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
 			}
@@ -1638,7 +1638,7 @@ void CGameState::initFogOfWar()
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
 			std::unordered_set<int3, ShashInt3> tiles;
-			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadious(), obj->tempOwner, 1);
+			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
 				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;

@@ -18,3 +18,12 @@ inline QString pathToQString(const boost::filesystem::path & path)
 	return QString::fromStdString(path.string());
 #endif
 }
+
+inline boost::filesystem::path qstringToPath(const QString & path)
+{
+#ifdef VCMI_WINDOWS
+	return boost::filesystem::path(path.toStdWString());
+#else
+	return boost::filesystem::path(path.toUtf8().data());
+#endif
+}

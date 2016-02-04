@@ -37,8 +37,11 @@ public:
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources; //TODO: use resourceset?
 
-	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
+	// following fields are used only for kill creature/hero missions, the original
+	// objects became inaccessible after their removal, so we need to store info
+	// needed for messages / hover text
 	ui8 textOption;
+	ui8 completedOption;
 	CStackBasicDescriptor stackToKill;
 	ui8 stackDirection;
 	std::string heroName; //backup of hero name
@@ -66,7 +69,16 @@ public:
 	{
 		h & qid & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
 			& textOption & stackToKill & stackDirection & heroName & heroPortrait
-			& firstVisitText & nextVisitText & completedText & isCustomFirst & isCustomNext & isCustomComplete;
+			& firstVisitText & nextVisitText & completedText & isCustomFirst
+			& isCustomNext & isCustomComplete;
+		if(version >= 757)
+		{
+			h & completedOption;
+		}
+		else if(!h.saving)
+		{
+			completedOption = 1;
+		}
 	}
 };
 
@@ -118,6 +130,8 @@ public:
 		h & rewardType & rID & rVal & seerName;
 	}
 protected:
+	static const int OBJPROP_VISITED = 10;
+
 	void setPropertyDer(ui8 what, ui32 val) override;
 };
 

@@ -233,6 +233,9 @@
     <ClCompile Include="registerTypes\TypesMapObjects3.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
+    <ClCompile Include="filesystem\FileStream.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -573,6 +576,9 @@
     </ClInclude>
     <ClInclude Include="mapping\CDrawRoadsOperation.h">
       <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\FileStream.h">
+      <Filter>filesystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

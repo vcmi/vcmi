@@ -187,11 +187,11 @@ TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate, bool in
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
-	
+
 	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), [=](const CStack * s){
 		return predicate(s) && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
 	});
-	
+
 	return ret;
 }
 
@@ -784,23 +784,23 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	
+
 	if(battleTacticDist())
 		return false;
-	
+
 	if (!stack || !target)
 		return false;
-	
+
 	if (stack->owner == target->owner)
 		return false;
-	
+
 	auto &id = stack->getCreature()->idNumber;
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
-	
+
 	if (!target->alive())
 		return false;
-	
+
 	return true;
 }
 
@@ -997,7 +997,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	const bool distPenalty = !info.attackerBonuses->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY) && battleHasDistancePenalty(info.attackerBonuses, info.attackerPosition, info.defenderPosition);
 	const bool obstaclePenalty = battleHasWallPenalty(info.attackerBonuses, info.attackerPosition, info.defenderPosition);
 
-	if (info.shooting)
+	if(info.shooting)
 	{
 		if (distPenalty || info.defenderBonuses->hasBonus(isAdvancedAirShield))
 		{
@@ -1013,9 +1013,14 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		multBonus *= 0.5;
 	}
 
+	// psychic elementals versus mind immune units 50%
+	if(attackerType->idNumber == CreatureID::PSYCHIC_ELEMENTAL
+	   && info.defenderBonuses->hasBonusOfType(Bonus::MIND_IMMUNITY))
+	{
+		multBonus *= 0.5;
+	}
 
 	// TODO attack on petrified unit 50%
-	// psychic elementals versus mind immune units 50%
 	// blinded unit retaliates
 
 	minDmg *= additiveBonus * multBonus;
@@ -1265,8 +1270,8 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 	// I hate std::pairs with their undescriptive member names first / second
 	struct DistStack
 	{
-		int distanceToPred;	
-		BattleHex destination;	
+		int distanceToPred;
+		BattleHex destination;
 		const CStack *stack;
 	};
 
@@ -1276,7 +1281,7 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 	{
 		return s != closest && s->alive() && (boost::logic::indeterminate(attackerOwned) || s->attackerOwned == attackerOwned);
 	}, false);
-	
+
 	for(const CStack * st : possibleStacks)
 		for(BattleHex hex : avHexes)
 			if(CStack::isMeleeAttackPossible(closest, st, hex))
@@ -1628,9 +1633,9 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
 	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCast(this, player);
-	
+
 	if(specificProblem != ESpellCastProblem::OK)
-		return specificProblem;	
+		return specificProblem;
 
 	if(spell->isNegative() || spell->hasEffects())
 	{
@@ -1667,7 +1672,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			{
 				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
-				
+
                 if(!immune)
                 {
 					switch (spell->positiveness)
@@ -1716,12 +1721,12 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(playerToSide(player)); //TODO
 			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
-			
+
 			for(const CStack * stack : battleAliveStacks())
 			{
 				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
-				
+
 				if(!immune)
 					switch (spell->positiveness)
 					{
@@ -1784,7 +1789,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	{
 		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpellHere: no spellcaster.";
 		return ESpellCastProblem::INVALID;
-	}	
+	}
 	const PlayerColor player = caster->getOwner();
 	ESpellCastProblem::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(caster, spell, mode);
 	if(moreGeneralProblem != ESpellCastProblem::OK)
@@ -1894,19 +1899,19 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	//This is complete list. No spells from mods.
 	//todo: this should be Spellbook of caster Stack
-	static const std::set<SpellID> allPossibleSpells = 
+	static const std::set<SpellID> allPossibleSpells =
 	{
 		SpellID::AIR_SHIELD,
 		SpellID::ANTI_MAGIC,
-		SpellID::BLESS,		
+		SpellID::BLESS,
 		SpellID::BLOODLUST,
 		SpellID::COUNTERSTRIKE,
 		SpellID::CURE,
-		SpellID::FIRE_SHIELD,		
+		SpellID::FIRE_SHIELD,
 		SpellID::FORTUNE,
 		SpellID::HASTE,
 		SpellID::MAGIC_MIRROR,
-		SpellID::MIRTH,				
+		SpellID::MIRTH,
 		SpellID::PRAYER,
 		SpellID::PRECISION,
 		SpellID::PROTECTION_FROM_AIR,
@@ -1918,7 +1923,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 		SpellID::STONE_SKIN
 	};
 	std::vector<SpellID> beneficialSpells;
-	
+
 	auto getAliveEnemy = [=](const std::function<bool(const CStack * )> & pred)
 	{
 		return getStackIf([=](const CStack * stack)
@@ -1938,7 +1943,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 		{
 		case SpellID::SHIELD:
 		case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
-			{				
+			{
 				auto walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 				{
 					return !stack->shots;
@@ -1963,7 +1968,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 		case SpellID::PROTECTION_FROM_AIR:
 		case SpellID::PROTECTION_FROM_EARTH:
 		case SpellID::PROTECTION_FROM_FIRE:
-		case SpellID::PROTECTION_FROM_WATER:				
+		case SpellID::PROTECTION_FROM_WATER:
 			{
 				const ui8 enemySide = (ui8)subject->attackerOwned;
 				//todo: only if enemy has spellbook
@@ -2006,7 +2011,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 			}
 			break;
 		}
-		beneficialSpells.push_back(spellID);		
+		beneficialSpells.push_back(spellID);
 	}
 
 	if(!beneficialSpells.empty())
@@ -2190,13 +2195,13 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AN
 	{
 		ASSERT_IF_CALLED_WITH_PLAYER
 	}
-	
+
 	return battleGetStacksIf([=](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
 			|| (whose == ONLY_MINE && s->owner == player)
 			|| (whose == ONLY_ENEMY && s->owner != player);
 		const bool alivenessMatches = s->alive()  ||  !onlyAlive;
-		return ownerMatches && alivenessMatches;		
+		return ownerMatches && alivenessMatches;
 	});
 }
 

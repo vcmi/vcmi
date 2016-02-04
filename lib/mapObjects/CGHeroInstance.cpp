@@ -1067,7 +1067,7 @@ int3 CGHeroInstance::getSightCenter() const
 	return getPosition(false);
 }*/
 
-int CGHeroInstance::getSightRadious() const
+int CGHeroInstance::getSightRadius() const
 {
 	return 5 + getSecSkillLevel(SecondarySkill::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
 }
@@ -1078,6 +1078,20 @@ si32 CGHeroInstance::manaRegain() const
 		return manaLimit();
 
 	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
+}
+
+si32 CGHeroInstance::getManaNewTurn() const
+{
+	if(visitedTown && visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+	{
+		//if hero starts turn in town with mage guild - restore all mana
+		return std::max(mana, manaLimit());
+	}
+	si32 res = mana + manaRegain();
+	res = std::min(res, manaLimit());
+	res = std::max(res, mana);
+	res = std::max(res, 0);
+	return res;
 }
 
 // /**

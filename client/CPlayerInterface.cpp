@@ -2170,7 +2170,7 @@ void CPlayerInterface::showPuzzleMap()
 
 	//TODO: interface should not know the real position of Grail...
 	double ratio = 0;
-	int3 grailPos = cb->getGrailPos(ratio);
+	int3 grailPos = cb->getGrailPos(&ratio);
 
 	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
 }
