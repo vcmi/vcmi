@@ -21,7 +21,21 @@ CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 st
 }
 
 CFileInputStream::CFileInputStream(const CFileInfo & file, si64 start, si64 size)
-	: CFileInputStream{file.getName(), start, size} {}
+  : dataStart{start},
+	dataSize{size},
+	fileStream{file.getName(), std::ios::in | std::ios::binary}
+{
+	if (fileStream.fail())
+		throw std::runtime_error("File " + file.getName() + " isn't available.");
+
+	if (dataSize == 0)
+	{
+		fileStream.seekg(0, std::ios::end);
+		dataSize = tell();
+	}
+
+	fileStream.seekg(dataStart, std::ios::beg);
+}
 
 si64 CFileInputStream::read(ui8 * data, si64 size)
 {

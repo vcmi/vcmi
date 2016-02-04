@@ -598,7 +598,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		pos.x = configuration["x"].Float();
 		pos.y = configuration["y"].Float();
 		pos.z = configuration["l"].Float();
-		owner->map->grailRadious = configuration["options"]["grailRadius"].Float();
+		owner->map->grailRadius = configuration["options"]["grailRadius"].Float();
 	}
 
 	handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
@@ -879,7 +879,7 @@ void CMapSaverJson::writeObjects()
 		grail["y"].Float() = map->grailPos.y;
 		grail["l"].Float() = map->grailPos.z;
 
-		grail["options"]["radius"].Float() = map->grailRadious;
+		grail["options"]["radius"].Float() = map->grailRadius;
 
 		std::string grailId = boost::str(boost::format("grail_%d") % map->objects.size());
 

@@ -28,7 +28,7 @@ public:
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz_file_pos filepos);
+	CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;

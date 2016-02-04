@@ -80,7 +80,7 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & name & description & eventText & image & large & advMapDef & iconIndex &
 			price & possibleSlots & constituents & constituentOf & aClass & id;
-		if(version>=756)
+		if(version>=759)
 		{
 			h & identifier;
 		}
