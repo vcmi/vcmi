@@ -28,6 +28,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
+#include "../mapHandler.h"
 
 /*
  * CHeroWindow.cpp, part of VCMI engine
@@ -275,6 +276,9 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
 		noDismiss = true;
 
+	if(curHero->isMissionCritical())
+		noDismiss = true;
+
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
 	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
@@ -343,10 +347,10 @@ void CHeroWindow::commanderWindow()
 void CHeroWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	 
+
 	//printing hero's name
 	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::YELLOW, to);
-	 
+
 	//printing hero's level
 	std::string secondLine= CGI->generaltexth->allTexts[342];
 	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
@@ -360,14 +364,14 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 	primarySkill << primSkillAreas[m]->bonusValue;
 	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::WHITE, to);
 	}
-	 
+
 	//secondary skills
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], (v%2) ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	}
-	 
+
 	//printing special ability
 	printAtLoc(curHero->type->specName, 69, 205, FONT_SMALL, Colors::WHITE, to);
 	std::ostringstream expstr;

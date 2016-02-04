@@ -223,7 +223,7 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 				case Obj::TOWN:
 				case Obj::ABANDONED_MINE:
 					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadious(), o->tempOwner, 1);
+						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), o->tempOwner, 1);
 					break;
 				}
 			}
@@ -340,7 +340,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
-			node->removeBonus(b);			
+			node->removeBonus(b);
 			break;
 		}
 	}
@@ -362,6 +362,10 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		p->heroes -= h;
 		h->detachFrom(h->whereShouldBeAttached(gs));
 		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
+		vstd::erase_if(h->artifactsInBackpack, [](const ArtSlotInfo& asi)
+		{
+			return asi.artifact->artType->id == ArtifactID::GRAIL;
+		});
 
 		if(h->visitedTown)
 		{
@@ -590,7 +594,11 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 
 	h->setOwner(player);
 	h->pos = tile;
-	h->movement =  h->maxMovePoints(true);
+	bool fresh = !h->isInitialized();
+	if(fresh)
+	{ // this is a fresh hero who hasn't appeared yet
+		h->movement = h->maxMovePoints(true);
+	}
 
 	gs->hpool.heroesPool.erase(hid);
 	if(h->id == ObjectInstanceID())
@@ -604,7 +612,10 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
 	h->attachTo(p);
-	h->initObj();
+	if(fresh)
+	{
+		h->initObj();
+	}
 	gs->map->addBlockVisTiles(h);
 
 	if(t)
@@ -754,7 +765,7 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 			return s->artifact;
 		else
 		{
-            logNetwork->warnStream() << "ArtifactLocation::getArt: That location is locked!";
+			logNetwork->warnStream() << "ArtifactLocation::getArt: This location is locked!";
 			return nullptr;
 		}
 	}
@@ -914,6 +925,32 @@ DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
 
 DLL_LINKAGE void EraseArtifact::applyGs( CGameState *gs )
 {
+	auto slot = al.getSlot();
+	if(slot->locked)
+	{
+		logGlobal->debugStream() << "Erasing locked artifact: " << slot->artifact->artType->Name();
+		DisassembledArtifact dis;
+		dis.al.artHolder = al.artHolder;
+		auto aset = al.getHolderArtSet();
+		bool found = false;
+		for(auto& p : aset->artifactsWorn)
+		{
+			auto art = p.second.artifact;
+			if(art->canBeDisassembled() && art->isPart(slot->artifact))
+			{
+				dis.al.slot = aset->getArtPos(art);
+				found = true;
+				break;
+			}
+		}
+		assert(found && "Failed to determine the assembly this locked artifact belongs to");
+		logGlobal->debugStream() << "Found the corresponding assembly: " << dis.al.getSlot()->artifact->artType->Name();
+		dis.applyGs(gs);
+	}
+	else
+	{
+		logGlobal->debugStream() << "Erasing artifact " << slot->artifact->artType->Name();
+	}
 	al.removeArtifact();
 }
 
@@ -1010,9 +1047,33 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;
+
+	// Update bonuses before doing anything else so hero don't get more MP than needed
+	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
+	gs->globalEffects.updateBonuses(Bonus::NDays);
+	gs->globalEffects.updateBonuses(Bonus::OneWeek);
+	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
+
 	for(NewTurn::Hero h : heroes) //give mana/movement point
 	{
 		CGHeroInstance *hero = gs->getHero(h.id);
+		if(!hero)
+		{
+			// retreated or surrendered hero who has not been reset yet
+			for(auto& hp : gs->hpool.heroesPool)
+			{
+				if(hp.second->id == h.id)
+				{
+					hero = hp.second;
+					break;
+				}
+			}
+		}
+		if(!hero)
+		{
+			logGlobal->errorStream() << "Hero " << h.id << " not found in NewTurn::applyGs";
+			continue;
+		}
 		hero->movement = h.move;
 		hero->mana = h.mana;
 	}
@@ -1025,11 +1086,6 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 
 	for(auto creatureSet : cres) //set available creatures in towns
 		creatureSet.second.applyGs(gs);
-
-	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-	gs->globalEffects.updateBonuses(Bonus::NDays);
-	gs->globalEffects.updateBonuses(Bonus::OneWeek);
-	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	for(CGTownInstance* t : gs->map->towns)
 		t->builded = 0;
@@ -1260,7 +1316,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	{
 		//"hide" killed creatures instead so we keep info about it
 		at->state.insert(EBattleStackState::DEAD_CLONE);
-		
+
 		for(CStack * s : gs->curB->stacks)
 		{
 			if(s->cloneID == at->ID)
@@ -1373,7 +1429,7 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
 		}
 	}
-	CBonusSystemNode::treeHasChanged();	
+	CBonusSystemNode::treeHasChanged();
 }
 
 void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
@@ -1577,7 +1633,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID(255), pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 

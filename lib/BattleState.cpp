@@ -201,9 +201,7 @@ void BattleInfo::localInitStack(CStack * s)
 
 namespace CGH
 {
-	using namespace std;
-
-	static void readBattlePositions(const JsonNode &node, vector< vector<int> > & dest)
+	static void readBattlePositions(const JsonNode &node, std::vector< std::vector<int> > & dest)
 	{
 		for(const JsonNode &level : node.Vector())
 		{
@@ -375,7 +373,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 			try
 			{
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -424,7 +422,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 				RangeGenerator posgenerator(18, 168, ourRand);
 
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->ID = obid;
 				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -471,7 +469,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID(255), hex));
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
 		};
 
 		handleWarMachine(0, ArtifactPosition::MACH1, CreatureID::BALLISTA, 52);
@@ -528,20 +526,20 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -2);
 		stacks.push_back(stack);
 
 		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -3);
 			stacks.push_back(stack);
 		}
 
 		//moat
-		auto moat = make_shared<MoatObstacle>();
+		auto moat = std::make_shared<MoatObstacle>();
 		moat->ID = curB->town->subID;
 		moat->obstacleType = CObstacleInstance::MOAT;
 		moat->uniqueID = curB->obstacles.size();
@@ -586,19 +584,19 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 	case BFieldType::HOLY_GROUND:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
 	case BFieldType::CLOVER_FIELD:
 		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
+			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
 			break;
 		}
 	case BFieldType::EVIL_FOG:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
+			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
 	case BFieldType::CURSED_GROUND:
@@ -614,7 +612,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
+	auto nativeTerrain = std::make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
 	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
@@ -703,18 +701,18 @@ int BattleInfo::getIdForNewStack() const
 	return 0;
 }
 
-shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
+std::shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
 	for(auto &obs : obstacles)
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
-	return shared_ptr<CObstacleInstance>();
+	return std::shared_ptr<CObstacleInstance>();
 }
 
 BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
 {
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = 
+	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap =
 	{
 		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
 		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
@@ -1143,7 +1141,7 @@ bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 
 ui8 CStack::counterAttacksTotal() const
 {
-	//after dispell bonus should remain during current round 
+	//after dispell bonus should remain during current round
 	ui8 val = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 	vstd::amax(counterAttacksTotalCache, val);
 	return counterAttacksTotalCache;
@@ -1185,9 +1183,9 @@ ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) cons
 ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
 {
 	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
-	
+
 	vstd::abetween(skill, 0, 3);
-	
+
 	return skill;
 }
 

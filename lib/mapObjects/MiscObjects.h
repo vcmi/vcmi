@@ -28,6 +28,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & players;
 	}
+
+	static const int OBJPROP_VISITED = 10;
 };
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
@@ -90,6 +92,7 @@ private:
 	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
+	void giveReward(const CGHeroInstance * h) const;
 
 };
 
@@ -291,7 +294,7 @@ public:
 	static bool isTeleport(const CGObjectInstance * dst);
 	static bool isConnected(const CGTeleport * src, const CGTeleport * dst);
 	static bool isConnected(const CGObjectInstance * src, const CGObjectInstance * dst);
-	static void addToChannel(std::map<TeleportChannelID, shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
+	static void addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
 	static std::vector<ObjectInstanceID> getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
 	static bool isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj);
 
@@ -450,12 +453,14 @@ class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 class DLL_LINKAGE CGObelisk : public CPlayersVisited
 {
 public:
+	static const int OBJPROP_INC = 20;
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	std::string getHoverText(PlayerColor player) const override;
+	static void reset();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

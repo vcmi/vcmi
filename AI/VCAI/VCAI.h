@@ -92,7 +92,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
-	shared_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
+	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
@@ -128,7 +128,7 @@ public:
 
 	friend class FuzzyHelper;
 
-	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > knownTeleportChannels;
+	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	ObjectInstanceID destinationTeleport;
 	int3 destinationTeleportPos;
@@ -152,9 +152,9 @@ public:
 	AIStatus status;
 	std::string battlename;
 
-	shared_ptr<CCallback> myCb;
+	std::shared_ptr<CCallback> myCb;
 
-	unique_ptr<boost::thread> makingTurn;
+	std::unique_ptr<boost::thread> makingTurn;
 
 	VCAI(void);
 	~VCAI(void);
@@ -179,7 +179,7 @@ public:
 
 	virtual std::string getBattleAIName() const override;
 
-	virtual void init(shared_ptr<CCallback> CB) override;
+	virtual void init(std::shared_ptr<CCallback> CB) override;
 	virtual void yourTurn() override;
 
 	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id

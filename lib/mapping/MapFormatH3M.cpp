@@ -1350,7 +1350,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::GRAIL:
 			{
 				map->grailPos = objPos;
-				map->grailRadious = reader.readUInt32();
+				map->grailRadius = reader.readUInt32();
 				continue;
 			}
 		case Obj::RANDOM_DWELLING: //same as castle + level range
@@ -1650,8 +1650,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 
 	nhi->formation = reader.readUInt8();
 	loadArtifactsOfHero(nhi);
-	nhi->patrol.patrolRadious = reader.readUInt8();
-	if(nhi->patrol.patrolRadious == 0xff)
+	nhi->patrol.patrolRadius = reader.readUInt8();
+	if(nhi->patrol.patrolRadius == 0xff)
 	{
 		nhi->patrol.patrolling = false;
 	}

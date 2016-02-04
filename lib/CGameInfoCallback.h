@@ -91,7 +91,7 @@ public:
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
-	shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
+	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	bool isInTheMap(const int3 &pos) const;
 
 	//town
@@ -125,7 +125,7 @@ class DLL_LINKAGE CPlayerSpecificInfoCallback : public CGameInfoCallback
 public:
 	int howManyTowns() const;
 	int howManyHeroes(bool includeGarrisoned = true) const;
-	int3 getGrailPos(double &outKnownRatio);
+	int3 getGrailPos(double *outKnownRatio);
 	boost::optional<PlayerColor> getMyColor() const;
 
 	std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
@@ -139,7 +139,7 @@ public:
 
 	int getResourceAmount(Res::ERes type) const;
 	TResources getResourceAmount() const;
-	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map 
+	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map
 	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 
@@ -154,4 +154,3 @@ public:
 
 	virtual void showInfoDialog(const std::string &msg, PlayerColor player);
 };
-

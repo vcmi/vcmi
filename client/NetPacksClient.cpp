@@ -809,7 +809,7 @@ void SaveGame::applyCl(CClient *cl)
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME))->string());
 		cl->saveCommonState(save);
 		save << *cl;
 	}

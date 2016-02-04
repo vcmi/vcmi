@@ -989,10 +989,10 @@ void CGameState::initGrailPosition()
 {
 	logGlobal->debugStream() << "\tPicking grail position";
 	//pick grail location
-	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
+	if(map->grailPos.x < 0 || map->grailRadius) //grail not set or set within a radius around some place
 	{
-		if(!map->grailRadious) //radius not given -> anywhere on map
-			map->grailRadious = map->width * 2;
+		if(!map->grailRadius) //radius not given -> anywhere on map
+			map->grailRadius = map->width * 2;
 
 		std::vector<int3> allowedPos;
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
@@ -1009,7 +1009,7 @@ void CGameState::initGrailPosition()
 						&& !t.visitable
 						&& t.terType != ETerrainType::WATER
 						&& t.terType != ETerrainType::ROCK
-						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadious * map->grailRadious))
+						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
 			}
@@ -1220,8 +1220,8 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-					crossoverHeroes.heroesFromAnyPreviousScenarios.erase(range::remove_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
-						CGObjectInstanceBySubIdFinder(hero)), crossoverHeroes.heroesFromAnyPreviousScenarios.end());
+					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
+					               CGObjectInstanceBySubIdFinder(hero));
 				}
 
 				// now add heroes which completed the scenario
@@ -1639,7 +1639,7 @@ void CGameState::initFogOfWar()
 			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
 
 			std::unordered_set<int3, ShashInt3> tiles;
-			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadious(), obj->tempOwner, 1);
+			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
 				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
@@ -1659,15 +1659,16 @@ void CGameState::initStartingBonus()
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += rand.nextInt(500, 1000);
+			elem.second.resources[Res::GOLD] += rand.nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->factions[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == Res::WOOD_AND_ORE)
 				{
-					elem.second.resources[Res::WOOD] += rand.nextInt(5, 10);
-					elem.second.resources[Res::ORE] += rand.nextInt(5, 10);
+					int amount = rand.nextInt(5, 10);
+					elem.second.resources[Res::WOOD] += amount;
+					elem.second.resources[Res::ORE] += amount;
 				}
 				else
 				{
@@ -2268,7 +2269,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 
 	for (const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if ((event.trigger.test(evaluateEvent)))
+		if (event.trigger.test(evaluateEvent))
 		{
 			if (event.effect.type == EventEffect::VICTORY)
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
@@ -2285,7 +2286,7 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 	return EVictoryLossCheckResult();
 }
 
-bool CGameState::checkForVictory( PlayerColor player, const EventCondition & condition ) const
+bool CGameState::checkForVictory(PlayerColor player, const EventCondition & condition) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	switch (condition.condition)
@@ -3178,7 +3179,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 	for(const JsonNode &n : duelData["obstacles"].Vector())
 	{
-		auto oi = make_shared<CObstacleInstance>();
+		auto oi = std::make_shared<CObstacleInstance>();
 		if(n.getType() == JsonNode::DATA_VECTOR)
 		{
 			oi->ID = n.Vector()[0].Float();

@@ -95,7 +95,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2,
 								   const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 								   const SDL_Rect & myRect,
-								   shared_ptr<CPlayerInterface> att, shared_ptr<CPlayerInterface> defen)
+								   std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
       activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(nullptr), sp(nullptr),
@@ -1017,7 +1017,7 @@ void CBattleInterface::stackRemoved(int stackID)
 			setActiveStack(nullptr);
 		}
 	}
-	
+
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
 	creDir.erase(stackID);
@@ -1201,18 +1201,18 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 		for(auto attackInfo : ca.attackedParts)
 		{
 			addNewAnim(new CShootingAnimation(this, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
-		}		
+		}
 	}
 	else
 	{
-		//no attacker stack, assume spell-related (earthquake) - only hit animation 
+		//no attacker stack, assume spell-related (earthquake) - only hit animation
 		for(auto attackInfo : ca.attackedParts)
 		{
 			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
-	
+
 			addNewAnim(new CSpellEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
 		}
-	}	
+	}
 
 	waitForAnims();
 
@@ -1323,9 +1323,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	//displaying message in console
 	std::vector<std::string> logLines;
-	
+
 	spell.prepareBattleLog(curInt->cb.get(), sc, logLines);
-	
+
 	for(auto line : logLines)
 		console->addText(line);
 
@@ -1427,15 +1427,15 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
 }
 
 void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect)
-{	
+{
 	if(animation.pause > 0)
 	{
-		addNewAnim(new CDummyAnimation(this, animation.pause));	
+		addNewAnim(new CDummyAnimation(this, animation.pause));
 	}
 	else
 	{
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));	
-	}	
+		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+	}
 }
 
 void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect)
@@ -1444,11 +1444,11 @@ void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTi
 
 	if(spell == nullptr)
 		return;
-		
+
 	for(const CSpell::TAnimation & animation : spell->animationInfo.cast)
 	{
 		displaySpellAnimation(animation, destinationTile, areaEffect);
-	}	
+	}
 }
 
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
@@ -1933,7 +1933,7 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= nullptr*/)
 	waitForAnims();
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
-	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile), stacksOfMine.end());
+	vstd::erase_if(stacksOfMine, &immobile);
 	auto it = vstd::find(stacksOfMine, current);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
 		stackActivated(*it);
@@ -2072,7 +2072,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case ANY_CREATURE:
 				if (shere && shere->alive() && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
-				break;				
+				break;
 			case HOSTILE_CREATURE_SPELL:
 				if (shere && shere->alive() && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
@@ -2163,7 +2163,15 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RISE_DEMONS:
 				if (shere && ourStack && !shere->alive())
-					legalAction = true;
+				{
+					if(!(shere->hasBonusOfType(Bonus::UNDEAD) 
+						|| shere->hasBonusOfType(Bonus::NON_LIVING) 
+						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
+						|| vstd::contains(shere->state, EBattleStackState::CLONED)
+						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
+						))
+						legalAction = true;
+				}					
 				break;
 		}
 		if (legalAction)
@@ -2320,7 +2328,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
-				realizeAction = [=]{ giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+				realizeAction = [=]
+				{ 
+					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); 
+				};
 				break;
 			case CATAPULT:
 				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
@@ -3260,7 +3271,7 @@ void CBattleInterface::showStacks(SDL_Surface * to, std::vector<const CStack *> 
 	}
 }
 
-void CBattleInterface::showObstacles(SDL_Surface *to, std::vector<shared_ptr<const CObstacleInstance> > &obstacles)
+void CBattleInterface::showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance> > &obstacles)
 {
 	for (auto & obstacle : obstacles)
 	{

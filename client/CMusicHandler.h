@@ -114,11 +114,11 @@ private:
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
 
-	unique_ptr<MusicEntry> current;
-	unique_ptr<MusicEntry> next;
+	std::unique_ptr<MusicEntry> current;
+	std::unique_ptr<MusicEntry> next;
 	
 	void queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
-	void queueNext(unique_ptr<MusicEntry> queued);
+	void queueNext(std::unique_ptr<MusicEntry> queued);
 
 	std::map<std::string, std::map<int, std::string> > musicsSet;
 public:

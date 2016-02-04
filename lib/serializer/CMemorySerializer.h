@@ -31,12 +31,12 @@ public:
 	CMemorySerializer();
 
 	template <typename T>
-	static unique_ptr<T> deepCopy(const T &data)
+	static std::unique_ptr<T> deepCopy(const T &data)
 	{
 		CMemorySerializer mem;
 		mem.oser & &data;
 
-		unique_ptr<T> ret;
+		std::unique_ptr<T> ret;
 		mem.iser & ret;
 		return ret;
 	}

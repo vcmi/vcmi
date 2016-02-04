@@ -39,9 +39,6 @@
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-using namespace boost;
-using namespace boost::asio;
-using namespace boost::asio::ip;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #endif
@@ -60,7 +57,7 @@ boost::program_options::variables_map cmdLineOptions;
  *
  */
 
-static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error)
+static void vaccept(boost::asio::ip::tcp::acceptor *ac, boost::asio::ip::tcp::socket *s, boost::system::error_code *error)
 {
 	ac->accept(*s,*error);
 }
@@ -315,7 +312,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 }
 
 CVCMIServer::CVCMIServer()
-: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(nullptr)
+: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))), firstConnection(nullptr)
 {
     logNetwork->debugStream() << "CVCMIServer created!";
 }
@@ -415,7 +412,7 @@ void CVCMIServer::start()
 
 	boost::system::error_code error;
     logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
-	auto  s = new tcp::socket(acceptor->get_io_service());
+	auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
 	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 #ifndef VCMI_ANDROID
 	sr->setToTrueAndNotify();
@@ -500,7 +497,7 @@ void CVCMIServer::loadGame()
 		}
 		else
 		{
-			auto  s = new tcp::socket(acceptor->get_io_service());
+			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{
@@ -611,7 +608,7 @@ int main(int argc, char** argv)
 	srand ( (ui32)time(nullptr) );
 	try
 	{
-		io_service io_service;
+		boost::asio::io_service io_service;
 		CVCMIServer server;
 
 		try

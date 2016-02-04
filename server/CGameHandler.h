@@ -68,13 +68,16 @@ public:
 struct CasualtiesAfterBattle
 {
 	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
+	typedef std::map<CreatureID, TQuantity> TSummoned;
 	enum {ERASE = -1};
+	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
-	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack loactions
+	TSummoned summoned;
+	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
-	void takeFromArmy(CGameHandler *gh);
+	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
+	void updateArmy(CGameHandler *gh);
 };
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
@@ -257,9 +260,9 @@ public:
 	struct FinishingBattleHelper
 	{
 		FinishingBattleHelper();
-		FinishingBattleHelper(shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
+		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
 
-		//shared_ptr<const CBattleQuery> query;
+		//std::shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 		bool duel;
@@ -272,7 +275,7 @@ public:
 		}
 	};
 
-	unique_ptr<FinishingBattleHelper> finishingBattle;
+	std::unique_ptr<FinishingBattleHelper> finishingBattle;
 
 	void battleAfterLevelUp(const BattleResult &result);
 

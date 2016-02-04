@@ -28,7 +28,7 @@ CZoneGraphGenerator::CZoneGraphGenerator()// : gen(nullptr)
 
 }
 
-unique_ptr<CZoneGraph> CZoneGraphGenerator::generate(const CMapGenOptions & options, CRandomGenerator * gen)
+std::unique_ptr<CZoneGraph> CZoneGraphGenerator::generate(const CMapGenOptions & options, CRandomGenerator * gen)
 {
 	return make_unique<CZoneGraph>();
 }

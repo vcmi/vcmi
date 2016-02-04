@@ -48,7 +48,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 	return ret;
 }
 
-unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
+std::unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 {
 	primaryFile->serializer.loadedPointers = this->serializer.loadedPointers;
 	primaryFile->serializer.loadedPointersTypes = this->serializer.loadedPointersTypes;

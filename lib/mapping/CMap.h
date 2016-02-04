@@ -306,7 +306,7 @@ public:
 	std::vector<bool> allowedAbilities;
 	std::list<CMapEvent> events;
 	int3 grailPos;
-	int grailRadious;
+	int grailRadius;
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
@@ -317,12 +317,12 @@ public:
 
 	//Helper lists
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
-	std::map<TeleportChannelID, shared_ptr<TeleportChannel> > teleportChannels;
+	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
-	unique_ptr<CMapEditManager> editManager;
+	std::unique_ptr<CMapEditManager> editManager;
 
 	int3 ***guardingCreaturePositions;
 

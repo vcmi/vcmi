@@ -100,7 +100,7 @@ struct DLL_LINKAGE RumorState
 	ERumorType type;
 	std::map<ERumorType, std::pair<int, int>> last;
 
-	RumorState(){type = TYPE_NONE; last = {};};
+	RumorState(){type = TYPE_NONE;};
 	bool update(int id, int extra);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -149,7 +149,7 @@ struct DLL_EXPORT DuelParameters
 		}
 	} sides[2];
 
-	std::vector<shared_ptr<CObstacleInstance> > obstacles;
+	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 
 	static DuelParameters fromJSON(const std::string &fname);
 

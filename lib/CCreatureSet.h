@@ -200,7 +200,8 @@ public:
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength() const; //sum of AI values of creatures
 	ui64 getPower (SlotID slot) const; //value of specific stack
-	std::string getRoughAmount (SlotID slot) const; //rough size of specific stack
+	std::string getRoughAmount(SlotID slot, int mode = 0) const; //rough size of specific stack
+	std::string getArmyDescription() const;
 	bool hasStackAtSlot(SlotID slot) const;
 
 	bool contains(const CStackInstance *stack) const;

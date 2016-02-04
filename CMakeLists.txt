@@ -64,7 +64,7 @@ endif()
 if (WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 	add_definitions(-D_WIN32_WINNT=0x0501)
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "") 

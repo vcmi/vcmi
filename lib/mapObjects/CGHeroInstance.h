@@ -20,6 +20,7 @@
 class CHero;
 class CGBoat;
 class CGTownInstance;
+class CMap;
 struct TerrainTile;
 struct TurnInfo;
 
@@ -64,6 +65,9 @@ public:
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
 
+	static const ui32 UNINITIALIZED_PORTRAIT = -1;
+	static const ui32 UNINITIALIZED_MANA = -1;
+	static const ui32 UNINITIALIZED_MOVEMENT = -1;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -72,10 +76,10 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;initialPos=int3();patrolRadious=-1;};
+		Patrol(){patrolling=false;initialPos=int3();patrolRadius=-1;};
 		bool patrolling;
 		int3 initialPos;
-		ui32 patrolRadious;
+		ui32 patrolRadius;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
@@ -88,7 +92,7 @@ public:
 				patrolling = false;
 				initialPos = int3();
 			}
-			h & patrolRadious;
+			h & patrolRadius;
 		}
 	} patrol;
 
@@ -124,8 +128,13 @@ public:
 		}
 	} skillsInfo;
 
+	inline bool isInitialized() const
+	{ // has this hero been on the map at least once?
+		return movement != UNINITIALIZED_MOVEMENT && mana != UNINITIALIZED_MANA;
+	}
+
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const override; //sight distance (should be used if player-owned structure)
+	int getSightRadius() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
 	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
@@ -142,6 +151,7 @@ public:
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
+	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
@@ -177,7 +187,7 @@ public:
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	
+
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
@@ -201,23 +211,25 @@ public:
 	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
-	
+
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
+	/// If this hero perishes, the scenario is failed
+	bool isMissionCritical() const;
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	
+
 	///ArtBearer
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
-	
+
 	///ISpellCaster
 	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
-	
+
 	///default spell school level for effect calculation
 	int getEffectLevel(const CSpell * spell) const override;
 
@@ -229,9 +241,9 @@ public:
 
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	int getEffectValue(const CSpell * spell) const override;
-	
+
 	const PlayerColor getOwner() const override;
-	
+
 	void deserializationFix();
 
 	void initObj() override;

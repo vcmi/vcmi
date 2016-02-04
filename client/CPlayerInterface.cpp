@@ -121,7 +121,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	isAutoFightOn = false;
 
 	duringMovement = false;
-	ignoreEvents = false;	
+	ignoreEvents = false;
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -135,7 +135,7 @@ CPlayerInterface::~CPlayerInterface()
 	if(LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(shared_ptr<CCallback> CB)
+void CPlayerInterface::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	if(observerInDuelMode)
@@ -649,6 +649,8 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
+		// Player shouldn't be able to move on adventure map if quick combat is going
+		adventureInt->quickCombatLock();
 	}
 
 	//Don't wait for dialogs when we are non-active hot-seat player
@@ -824,16 +826,16 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
 	vstd::clear_pointer(b->givenCommand->data);
-	
+
 	if(ret.actionType == Battle::CANCEL)
 	{
 		if(stackId != ret.stackNumber)
 			logGlobal->error("Not current active stack action canceled");
-		logGlobal->traceStream() << "Canceled command for " << stackName;			
+		logGlobal->traceStream() << "Canceled command for " << stackName;
 	}
 	else
 		logGlobal->traceStream() << "Giving command for " << stackName;
-		
+
 	return ret;
 }
 
@@ -845,6 +847,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
+		adventureInt->quickCombatUnlock();
 
 		if(!battleInt)
 		{
@@ -1334,7 +1337,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if(showingDialog->get() || !dialogs.empty())
 		return;
 
-	duringMovement = true;
+	setMovementStatus(true);
 
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
@@ -1346,8 +1349,6 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	}
 
 	boost::thread moveHeroTask(std::bind(&CPlayerInterface::doMoveHero,this,h,path));
-
-
 }
 
 bool CPlayerInterface::shiftPressed() const
@@ -1558,6 +1559,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
+	CCS->curh->hide();
 	adventureInt->centerOn (pos);
 	if(focusTime)
 	{
@@ -1568,6 +1570,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 			SDL_Delay(focusTime);
 		}
 	}
+	CCS->curh->show();
 }
 
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
@@ -1609,11 +1612,11 @@ void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-	
-	// While mutexes were locked away we may be have stopped being the active interface	
+
+	// While mutexes were locked away we may be have stopped being the active interface
 	if(LOCPLINT != this)
 		return;
-	
+
 	//if there are any waiting dialogs, show them
 	if((howManyPeople <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
@@ -2169,7 +2172,7 @@ void CPlayerInterface::showPuzzleMap()
 
 	//TODO: interface should not know the real position of Grail...
 	double ratio = 0;
-	int3 grailPos = cb->getGrailPos(ratio);
+	int3 grailPos = cb->getGrailPos(&ratio);
 
 	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
 }
@@ -2194,7 +2197,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		int level = caster->getSpellSchoolLevel(spell);
 		adventureInt->worldViewOptions.showAllTerrain = (level>2);
 	}
-	
+
 	auto castSoundPath = spell->getCastSound();
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
@@ -2509,9 +2512,20 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 	garrisonsChanged(objects);
 }
 
+void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
+{
+	auto hero = dynamic_cast<const CGHeroInstance*>(al.relatedObj());
+	if(hero)
+	{
+		CArtPlace::askToAssemble(hero->getArt(al.slot), al.slot, hero);
+	}
+}
+
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	adventureInt->infoBar.showSelection();
+	askToAssembleArtifact(al);
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
@@ -2536,6 +2550,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if(artWin)
 			artWin->artifactMoved(src, dst);
 	}
+	askToAssembleArtifact(dst);
 }
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
@@ -2629,6 +2644,19 @@ bool CPlayerInterface::capturedAllEvents()
 	}
 
 	return false;
+}
+
+void CPlayerInterface::setMovementStatus(bool value)
+{
+	duringMovement = value;
+	if(value)
+	{
+		CCS->curh->hide();
+	}
+	else
+	{
+		CCS->curh->show();
+	}
 }
 
 void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
@@ -2775,15 +2803,15 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 		adventureInt->updateNextHero(h);
 	}
 
-	duringMovement = false;
+	setMovementStatus(false);
 }
 
 void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectPositions)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//TODO: showWorldViewEx
-	
+
 	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
-	
+
 	viewWorldMap();
 }

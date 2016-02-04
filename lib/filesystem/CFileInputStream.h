@@ -11,6 +11,7 @@
  */
 
 #include "CInputStream.h"
+#include "FileStream.h"
 
 class CFileInfo;
 
@@ -23,21 +24,20 @@ public:
 	/**
 	 * C-tor. Opens the specified file.
 	 *
-	 * @see CFileInputStream::open
+	 * @param file Path to the file.
+	 * @param start - offset from file start where real data starts (e.g file on archive)
+	 * @param size - size of real data in file (e.g file on archive) or 0 to use whole file
+	 *
+	 * @throws std::runtime_error if file wasn't found
 	 */
 	CFileInputStream(const boost::filesystem::path & file, si64 start = 0, si64 size = 0);
 
 	/**
 	 * C-tor. Opens the specified file.
 	 *
-	 * @see CFileInputStream::open
+	 * @see CFileInputStream::CFileInputStream(const boost::filesystem::path &, si64, si64)
 	 */
 	CFileInputStream(const CFileInfo & file, si64 start=0, si64 size=0);
-
-	/**
-	 * D-tor. Calls the close method implicitely, if the file is still opened.
-	 */
-	~CFileInputStream();
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -79,20 +79,9 @@ public:
 	si64 getSize() override;
 
 private:
-	/**
-	 * Opens a file. If a file is currently opened, it will be closed.
-	 *
-	 * @param file Path to the file.
-	 * @param start - offset from file start where real data starts (e.g file on archive)
-	 * @param size - size of real data in file (e.g file on archive) or 0 to use whole file
-	 *
-	 * @throws std::runtime_error if file wasn't found
-	 */
-	void open(const boost::filesystem::path & file, si64 start, si64 size);
-
 	si64 dataStart;
 	si64 dataSize;
 
 	/** Native c++ input file stream object. */
-	boost::filesystem::ifstream fileStream;
+	FileStream fileStream;
 };

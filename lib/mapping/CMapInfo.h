@@ -1,8 +1,8 @@
 #pragma once
 
 // Forward class declarations aren't enough here. The compiler
-// generated CMapInfo d-tor, generates the unique_ptr d-tor as well here
-// as a inline method. The unique_ptr d-tor requires a complete type. Defining
+// generated CMapInfo d-tor, generates the std::unique_ptr d-tor as well here
+// as a inline method. The std::unique_ptr d-tor requires a complete type. Defining
 // the CMapInfo d-tor to let the compiler add the d-tor stuff in the .cpp file
 // would work with one exception. It prevents the generation of the move
 // constructor which is needed. (Writing such a c-tor is nasty.) With the
@@ -20,8 +20,8 @@ struct StartInfo;
 class DLL_LINKAGE CMapInfo
 {
 public:
-	unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
-	unique_ptr<CCampaignHeader> campaignHeader; //may be nullptr if scenario
+	std::unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
+	std::unique_ptr<CCampaignHeader> campaignHeader; //may be nullptr if scenario
 	StartInfo * scenarioOpts; //options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string date;

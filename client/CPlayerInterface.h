@@ -105,7 +105,7 @@ public:
 	static CBattleInterface * battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
-	shared_ptr<CCallback> cb; //to communicate with engine
+	std::shared_ptr<CCallback> cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -116,7 +116,7 @@ public:
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	//During battle is quick combat mode is used
-	shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
+	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
 
 	const CArmedInstance * getSelection();
@@ -236,7 +236,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(shared_ptr<CCallback> CB) override;
+	void init(std::shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 
 	// show dialogs
@@ -295,6 +295,8 @@ private:
 	bool ignoreEvents;
 
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
+	void setMovementStatus(bool value);
+	void askToAssembleArtifact(const ArtifactLocation &al);
 };
 
 extern CPlayerInterface * LOCPLINT;

@@ -49,6 +49,7 @@
 		<Compiler>
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
 			<Add option="-fexceptions" />
 			<Add option="-Wpointer-arith" />
 			<Add option="-Wno-switch" />

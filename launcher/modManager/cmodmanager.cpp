@@ -11,7 +11,7 @@
 
 static QString detectModArchive(QString path, QString modName)
 {
-	auto files = ZipArchive::listFiles(path.toUtf8().data());
+	auto files = ZipArchive::listFiles(qstringToPath(path));
 
 	QString modDirName;
 
@@ -69,8 +69,8 @@ void CModManager::loadMods()
 		ResourceID resID(CModInfo::getModFile(modname));
 		if (CResourceHandler::get()->existsResource(resID))
 		{
-			std::string name = *CResourceHandler::get()->getResourceName(resID);
-			auto mod = JsonUtils::JsonFromFile(QString::fromUtf8(name.c_str()));
+			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
+			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}
@@ -243,7 +243,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if (!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 
-	if (!ZipArchive::extract(archivePath.toUtf8().data(), destDir.toUtf8().data()))
+	if (!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
 	{
 		QDir(destDir + modDirName).removeRecursively();
 		return addError(modname, "Failed to extract mod data");
@@ -262,7 +262,7 @@ bool CModManager::doUninstallMod(QString modname)
 {
 	ResourceID resID(std::string("Mods/") + modname.toUtf8().data(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
-	QString modDir = QString::fromUtf8(CResourceHandler::get()->getResourceName(resID)->c_str());
+	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
 	if (!QDir(modDir).exists())
 		return addError(modname, "Data with this mod was not found");

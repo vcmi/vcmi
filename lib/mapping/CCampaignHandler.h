@@ -144,7 +144,7 @@ public:
 class DLL_LINKAGE CCampaignState
 {
 public:
-	unique_ptr<CCampaign> camp;
+	std::unique_ptr<CCampaign> camp;
 	std::string campaignName; 
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	boost::optional<si32> currentMap;
@@ -159,7 +159,7 @@ public:
 	ui8 currentBonusID() const;
 
 	CCampaignState();
-	CCampaignState(unique_ptr<CCampaign> _camp);
+	CCampaignState(std::unique_ptr<CCampaign> _camp);
 	~CCampaignState(){};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -184,5 +184,5 @@ public:
 
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 
-	static unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
+	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
 };

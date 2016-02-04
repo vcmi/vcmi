@@ -200,9 +200,9 @@ void Queries::popIfTop(const CQuery &query)
 			popQuery(color, topQuery(color));
 }
 
-std::vector<shared_ptr<const CQuery>> Queries::allQueries() const
+std::vector<std::shared_ptr<const CQuery>> Queries::allQueries() const
 {
-	std::vector<shared_ptr<const CQuery>> ret;
+	std::vector<std::shared_ptr<const CQuery>> ret;
 	for(auto &playerQueries : queries)
 		for(auto &query : playerQueries.second)
 			ret.push_back(query);
@@ -210,10 +210,10 @@ std::vector<shared_ptr<const CQuery>> Queries::allQueries() const
 	return ret;
 }
 
-std::vector<shared_ptr<CQuery>> Queries::allQueries()
+std::vector<std::shared_ptr<CQuery>> Queries::allQueries()
 {
 	//TODO code duplication with const function :(
-	std::vector<shared_ptr<CQuery>> ret;
+	std::vector<std::shared_ptr<CQuery>> ret;
 	for(auto &playerQueries : queries)
 		for(auto &query : playerQueries.second)
 		ret.push_back(query);
@@ -321,7 +321,8 @@ CBlockingDialogQuery::CBlockingDialogQuery(const BlockingDialog &bd)
 
 void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
-	auto obj = dynamic_ptr_cast<const CGTeleport>(objectVisit.visitedObject);
+	// do not change to dynamic_ptr_cast - SIGSEGV!
+	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
 	obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
 }
 

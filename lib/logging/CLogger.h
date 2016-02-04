@@ -12,6 +12,7 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
+#include "../filesystem/FileStream.h"
 
 class CLogger;
 struct LogRecord;
@@ -105,7 +106,7 @@ public:
 
 	inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
 
-	void addTarget(unique_ptr<ILogTarget> && target);
+	void addTarget(std::unique_ptr<ILogTarget> && target);
 	void clearTargets();
 
 	/// Returns true if a debug/trace log message will be logged, false if not.
@@ -121,7 +122,7 @@ private:
 	CLoggerDomain domain;
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
-	std::vector<unique_ptr<ILogTarget> > targets;
+	std::vector<std::unique_ptr<ILogTarget> > targets;
 	mutable boost::mutex mx;
 	static boost::recursive_mutex smx;
 };
@@ -147,9 +148,9 @@ private:
 
 /// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
-/// 
+///
 #define RAII_TRACE(logger, onEntry, onLeave)			\
-	unique_ptr<CTraceLogger> ctl00;						\
+	std::unique_ptr<CTraceLogger> ctl00;						\
 	if(logger->isTraceEnabled())						\
 		ctl00 = make_unique<CTraceLogger>(logger, onEntry, onLeave);
 
@@ -217,7 +218,7 @@ public:
 	CLogFormatter(CLogFormatter && move);
 
 	CLogFormatter(const std::string & pattern);
-	
+
 	CLogFormatter & operator=(const CLogFormatter & copy);
 	CLogFormatter & operator=(CLogFormatter && move);
 
@@ -302,7 +303,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	boost::filesystem::ofstream file;
+	FileStream file;
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };

@@ -146,7 +146,9 @@
 			"mageGuild" : 3,
 			"warMachine" : "firstAidTent",
 			"moatDamage" : 90,
-			"primaryResource":"ore",
+			"moatHexes" : [ 10, 11, 27, 28, 43, 44, 60, 61, 76, 77, 94, 110, 111, 128, 129, 145, 146, 163, 164, 180, 181 ],
+			// primaryResource not specified so town get both Wood and Ore for resource bonus
+
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },

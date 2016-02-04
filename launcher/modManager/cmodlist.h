@@ -2,6 +2,7 @@
 
 #include <QVariantMap>
 #include <QVariant>
+#include <QVector>
 
 class JsonNode;
 

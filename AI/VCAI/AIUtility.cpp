@@ -361,7 +361,7 @@ bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater)
 int3 whereToExplore(HeroPtr h)
 {
 	TimeCheck tc ("where to explore");
-	int radius = h->getSightRadious();
+	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
 
 	auto sm = ai->getCachedSectorMap(h);

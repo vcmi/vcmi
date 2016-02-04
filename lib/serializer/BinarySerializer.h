@@ -239,13 +239,13 @@ public:
 	}
 
 	template <typename T>
-	void save(const shared_ptr<T> &data)
+	void save(const std::shared_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
 		save(internalPtr);
 	}
 	template <typename T>
-	void save(const unique_ptr<T> &data)
+	void save(const std::unique_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
 		save(internalPtr);
@@ -352,7 +352,7 @@ public:
 	BinarySerializer serializer;
 
 	std::string fName;
-	unique_ptr<std::ofstream> sfile;
+	std::unique_ptr<std::ofstream> sfile;
 
 	CSaveFile(const std::string &fname); //throws!
 	~CSaveFile();

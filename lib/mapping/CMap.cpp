@@ -220,7 +220,7 @@ CMapHeader::~CMapHeader()
 
 }
 
-CMap::CMap() : checksum(0), grailPos(-1, -1, -1), grailRadious(0), terrain(nullptr)
+CMap::CMap() : checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
