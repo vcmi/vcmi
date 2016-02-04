@@ -480,7 +480,7 @@
 			"sandWalker" :
 			{
 				"type" : "NO_TERRAIN_PENALTY",
-				"subtype" : 1,
+				"subtype" : "terrain.sand",
 				"propagator" : "HERO"
 			}
 		},
