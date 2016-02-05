@@ -27,20 +27,20 @@ class DLL_LINKAGE CIOApi
 {
 public:
 	virtual ~CIOApi(){};
-	
+
 	virtual zlib_filefunc64_def getApiStructure() const;
 
-protected:	
-	virtual CInputOutputStream * openFile(const std::string & filename, int mode) const = 0;
-	
+protected:
+	virtual CInputOutputStream * openFile(const boost::filesystem::path & filename, int mode) const = 0;
+
 	///default implementation deletes stream object
 	virtual void closeFile(CInputOutputStream * stream) const;
-	
+
 private:
 	static voidpf ZCALLBACK openFileProxy(voidpf opaque, const void * filename, int mode);
 	static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size);
 	static uLong ZCALLBACK writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size);
-	static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream);	
+	static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream);
 	static long ZCALLBACK seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin);
 	static int ZCALLBACK closeFileProxy(voidpf opaque, voidpf stream);
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
@@ -53,11 +53,11 @@ class DLL_LINKAGE CDefaultIOApi: public CIOApi
 public:
 	CDefaultIOApi();
 	~CDefaultIOApi();
-	
+
 	zlib_filefunc64_def getApiStructure() const override;
-	
+
 protected:
-	CInputOutputStream * openFile(const std::string & filename, int mode) const override;
+	CInputOutputStream * openFile(const boost::filesystem::path & filename, int mode) const override;
 };
 
 ///redirects all file IO to single stream
@@ -67,7 +67,7 @@ public:
 	CProxyIOApi(CInputOutputStream * buffer);
 	~CProxyIOApi();
 protected:
-	CInputOutputStream * openFile(const std::string & filename, int mode) const override;
+	CInputOutputStream * openFile(const boost::filesystem::path & filename, int mode) const override;
 	void closeFile(CInputOutputStream * stream) const override;
 private:
 	CInputOutputStream * data;

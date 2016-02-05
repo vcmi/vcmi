@@ -11,28 +11,28 @@
 #include "MinizipExtensions.h"
 
 #include "CMemoryBuffer.h"
-
+#include "FileStream.h"
 
 ///CIOApi
 voidpf ZCALLBACK CIOApi::openFileProxy(voidpf opaque, const void * filename, int mode)
 {
 	assert(opaque != nullptr);
-	
-	std::string filename_s;
-	
+
+	boost::filesystem::path path;
+
 	if(filename != nullptr)
-		filename_s = (const char *)filename;
-	
-	return ((CIOApi *)opaque)->openFile(filename_s, mode);
+		path =  static_cast<const boost::filesystem::path::value_type *>(filename);
+
+	return ((CIOApi *)opaque)->openFile(path, mode);
 }
 
 uLong ZCALLBACK CIOApi::readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
-	
+
 	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
-	
+
 	return actualStream->read((ui8 *)buf, size);
 }
 
@@ -49,8 +49,8 @@ ZPOS64_T ZCALLBACK CIOApi::tellFileProxy(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
-	
-	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);	
+
+	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
     return actualStream->tell();
 }
 
@@ -58,8 +58,8 @@ long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T off
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
-		
-	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);	
+
+	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
 
     long ret = 0;
     switch (origin)
@@ -73,7 +73,7 @@ long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T off
     		const si64 pos = actualStream->getSize() - offset;
     		if(actualStream->seek(pos) != pos)
 				ret = -1;
-    	}    	
+    	}
         break;
     case ZLIB_FILEFUNC_SEEK_SET :
 		if(actualStream->seek(offset) != offset)
@@ -82,7 +82,7 @@ long ZCALLBACK CIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T off
     default: ret = -1;
     }
     if(ret == -1)
-		logGlobal->error("CIOApi::seekFileProxy: seek failed");			
+		logGlobal->error("CIOApi::seekFileProxy: seek failed");
     return ret;
 }
 
@@ -90,11 +90,11 @@ int ZCALLBACK CIOApi::closeFileProxy(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
-		
+
 	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
-	
+
 	((CIOApi *)opaque)->closeFile(actualStream);
-	
+
     return 0;
 }
 
@@ -113,8 +113,8 @@ zlib_filefunc64_def CIOApi::getApiStructure() const
 	api.ztell64_file = &tellFileProxy;
 	api.zseek64_file = &seekFileProxy;
 	api.zclose_file = &closeFileProxy;
-	api.zerror_file = &errorFileProxy;	
-	
+	api.zerror_file = &errorFileProxy;
+
 	return api;
 }
 
@@ -126,44 +126,40 @@ void CIOApi::closeFile(CInputOutputStream * stream) const
 ///CDefaultIOApi
 CDefaultIOApi::CDefaultIOApi()
 {
-	
+
 }
 
 CDefaultIOApi::~CDefaultIOApi()
 {
-	
+
 }
 
 zlib_filefunc64_def CDefaultIOApi::getApiStructure() const
 {
-	zlib_filefunc64_def api;
-	
-	fill_fopen64_filefunc(&api);
-	
-	return api;	
+	return * FileStream::GetMinizipFilefunc();
 }
 
-CInputOutputStream * CDefaultIOApi::openFile(const std::string& filename, int mode) const
+CInputOutputStream * CDefaultIOApi::openFile(const boost::filesystem::path & filename, int mode) const
 {
-	throw new std::runtime_error("CDefaultIOApi::openFile call not expected.");	
+	throw new std::runtime_error("CDefaultIOApi::openFile call not expected.");
 }
 
 ///CProxyIOApi
 CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer):
 	data(buffer)
 {
-	
+
 }
 
 CProxyIOApi::~CProxyIOApi()
 {
-	
+
 }
 
-CInputOutputStream * CProxyIOApi::openFile(const std::string& filename, int mode) const
+CInputOutputStream * CProxyIOApi::openFile(const boost::filesystem::path & filename, int mode) const
 {
-	logGlobal->traceStream() << "CProxyIOApi: stream opened for " <<filename<<" with mode "<<mode; 
-	
+	logGlobal->traceStream() << "CProxyIOApi: stream opened for " <<filename.string() <<" with mode "<<mode;
+
 	data->seek(0);
 	return data;
 }
