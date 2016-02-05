@@ -605,7 +605,7 @@ void CGCreature::writeJsonOptions(JsonNode& json) const
 
 	if(hasStackAtSlot(SlotID(0)))
 	{
-		auto sta = getStack(SlotID(0));
+		const auto & sta = getStack(SlotID(0));
 		json["amount"].Float() = sta.count;
 	}
 
