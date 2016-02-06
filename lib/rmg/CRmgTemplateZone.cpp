@@ -2073,13 +2073,6 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 			gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
 		}
 	}
-	if (object->ID == Obj::SEER_HUT) //debug
-	{
-		CGSeerHut * sh = dynamic_cast<CGSeerHut *>(object);
-		auto artid = sh->quest->m5arts.front();
-		logGlobal->warnStream() << boost::format("Placed Seer Hut at %s, quest artifact %d is %s") % object->pos % artid % VLC->arth->artifacts[artid]->Name();
-	}
-
 	
 	switch (object->ID)
 	{
