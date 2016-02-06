@@ -4,6 +4,7 @@
 #include "Fuzzy.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 /*
  * Goals.cpp, part of VCMI engine

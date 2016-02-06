@@ -17,8 +17,13 @@
 #include "../mapping/CCampaignHandler.h"
 #include "../NetPacks.h"
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "../rmg/CMapGenOptions.h"
 
-template void registerTypesPregamePacks<CISer>(CISer & s);
-template void registerTypesPregamePacks<COSer>(COSer & s);
+#include "../serializer/BinaryDeserializer.h"
+#include "../serializer/BinarySerializer.h"
+#include "../serializer/CTypeList.h"
+
+template void registerTypesPregamePacks<BinaryDeserializer>(BinaryDeserializer & s);
+template void registerTypesPregamePacks<BinarySerializer>(BinarySerializer & s);
 template void registerTypesPregamePacks<CTypeList>(CTypeList & s);
 

@@ -11,7 +11,6 @@
  */
  #include "../lib/ConstTransitivePtr.h"
  #include "VCMI_Lib.h"
- //#include "CModHandler.h"
 
 class JsonNode;
 

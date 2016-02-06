@@ -1,8 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "ObjectTemplate.h"
 
-//#include "../IGameCallback.h"
 #include "../int3.h"
 #include "../HeroBonus.h"
 

@@ -7,7 +7,8 @@
 #include "Client.h"
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -808,7 +809,7 @@ void SaveGame::applyCl(CClient *cl)
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME))->string());
 		cl->saveCommonState(save);
 		save << *cl;
 	}

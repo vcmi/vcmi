@@ -12,7 +12,6 @@
 #include "lib/mapObjects/CObjectClassesHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
-#include "lib/Connection.h"
 #include "lib/NetPacks.h"
 #include "client/mapHandler.h"
 #include "lib/spells/CSpellHandler.h"

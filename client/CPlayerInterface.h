@@ -195,9 +195,9 @@ public:
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
-	void saveGame(COSer & h, const int version) override; //saving
-	void loadGame(CISer & h, const int version) override; //loading
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
+	void saveGame(BinarySerializer & h, const int version) override; //saving
+	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;	
 
 	//for battles
 	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero

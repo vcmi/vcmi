@@ -18,6 +18,10 @@
 #include "../NetPacks.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
-template void registerTypesServerPacks<CISer>(CISer & s);
-template void registerTypesServerPacks<COSer>(COSer & s);
+#include "../serializer/BinaryDeserializer.h"
+#include "../serializer/BinarySerializer.h"
+#include "../serializer/CTypeList.h"
+
+template void registerTypesServerPacks<BinaryDeserializer>(BinaryDeserializer & s);
+template void registerTypesServerPacks<BinarySerializer>(BinarySerializer & s);
 template void registerTypesServerPacks<CTypeList>(CTypeList & s);
