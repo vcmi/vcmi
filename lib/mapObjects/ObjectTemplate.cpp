@@ -262,7 +262,7 @@ ui32 ObjectTemplate::getWidth() const
 	ui32 ret = 0;
 	for (auto row : usedTiles)
 	{
-		ret = std::max(ret, row.size());
+		ret = std::max<ui32>(ret, row.size());
 	}
 	return ret;
 }
