@@ -1060,6 +1060,65 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
 
+		// check if gate need to be open or closed at some point
+		BattleHex openGateAtHex, gateMayCloseAtHex;
+		auto dbState = gs->curB->si.drawbridgeState;
+		if(battleGetSiegeLevel() > 0 && dbState != EDrawbridgeState::LOWERED_BORKED &&
+			dbState != EDrawbridgeState::RAISED_BLOCKED)
+		{
+			for(int i = path.first.size()-1; i >= 0; i--)
+			{
+				auto hex = path.first[i];
+				if(!openGateAtHex.isValid() && dbState != EDrawbridgeState::LOWERED)
+				{
+					if(gs->curB->town->subID == ETownType::FORTRESS)
+					{
+						if(hex == BattleHex(93) &&
+							i-1 >= 0 && path.first[i-1] == BattleHex(94))
+						{
+							openGateAtHex = path.first[i+1];
+						}
+					}
+					if(hex == BattleHex(94) && i-1 >= 0 && path.first[i-1] == BattleHex(95))
+					{
+						openGateAtHex = path.first[i+1];
+					}
+					else if(hex == BattleHex(95) || hex == BattleHex(96))
+					{
+						openGateAtHex = path.first[i+1];
+					}
+
+					if(openGateAtHex.isValid())
+						dbState = EDrawbridgeState::LOWERED;
+				}
+
+				if(!gateMayCloseAtHex.isValid() && dbState != EDrawbridgeState::RAISED)
+				{
+					if(hex == BattleHex(96) && i-1 >= 0 && path.first[i-1] != BattleHex(95))
+					{
+						gateMayCloseAtHex = path.first[i-1];
+					}
+					if(gs->curB->town->subID == ETownType::FORTRESS)
+					{
+						if(hex == BattleHex(94) && i-1 >= 0 && path.first[i-1] != BattleHex(95))
+						{
+							gateMayCloseAtHex = path.first[i-1];
+						}
+						else if(hex == BattleHex(95) && i-1 >= 0 &&
+							path.first[i-1] != BattleHex(96) &&
+							path.first[i-1] != BattleHex(94))
+						{
+							gateMayCloseAtHex = path.first[i-1];
+						}
+					}
+					else if(hex == BattleHex(95) && i-1 >= 0 && path.first[i-1] != BattleHex(96))
+					{
+						gateMayCloseAtHex = path.first[i-1];
+					}
+				}
+			}
+		}
+
 		bool stackIsMoving = true;
 
 		while(stackIsMoving)
@@ -1070,10 +1129,17 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				break;
 			}
 
-			for(bool obstacleHit = false; (!obstacleHit) && (v >= tilesToMove); --v)
+			bool gateStateChanging = false;
+			for(bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
 			{
 				BattleHex hex = path.first[v];
 				tiles.push_back(hex);
+
+				if((openGateAtHex.isValid() && openGateAtHex == hex) ||
+					(gateMayCloseAtHex.isValid() && gateMayCloseAtHex == hex))
+				{
+					gateStateChanging = true;
+				}
 
 				//if we walked onto something, finalize this portion of stack movement check into obstacle
 				if((obstacle = battleGetObstacleOnPos(hex, false)))
@@ -1121,6 +1187,18 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				processObstacle(obstacle);
 				if(curStack->alive())
 					processObstacle(obstacle2);
+
+				if(curStack->alive() && gateStateChanging)
+				{
+					if(curStack->position == openGateAtHex)
+					{
+						BattleDrawbridgeStateChanged db;
+						db.state = EDrawbridgeState::LOWERED;
+						sendAndApply(&db);
+					}
+					else
+						updateDrawbridgeState();
+				}
 			}
 			else
 				//movement finished normally: we reached destination
@@ -3460,28 +3538,20 @@ void CGameHandler::updateDrawbridgeState()
 	}
 	else if(db.state == EDrawbridgeState::LOWERED)
 	{
-		if(gs->curB->battleGetStackByPos(BattleHex(94), false) ||
-			gs->curB->battleGetStackByPos(BattleHex(95), false) ||
-			gs->curB->battleGetStackByPos(BattleHex(96), false))
+		if((gs->curB->town->subID != ETownType::FORTRESS || !gs->curB->battleGetStackByPos(BattleHex(94), false)) &&
+			!gs->curB->battleGetStackByPos(BattleHex(95), false) &&
+			!gs->curB->battleGetStackByPos(BattleHex(96), false))
 		{
-			db.state = EDrawbridgeState::LOWERED;
-		}
-		else
 			db.state = EDrawbridgeState::RAISED;
-	}
-	else if(db.state == EDrawbridgeState::RAISED || db.state == EDrawbridgeState::RAISED_BLOCKED)
-	{
-		if(gs->curB->battleGetStackByPos(BattleHex(94), false))
-			db.state = EDrawbridgeState::RAISED_BLOCKED;
-		else if(gs->curB->battleGetStackByPos(BattleHex(95), false) ||
-			gs->curB->battleGetStackByPos(BattleHex(96), false))
-		{
-			db.state = EDrawbridgeState::LOWERED;
 		}
-		else
-			db.state = EDrawbridgeState::RAISED;
 	}
-	sendAndApply(&db);
+	else if(gs->curB->battleGetStackByPos(BattleHex(94), false))
+		db.state = EDrawbridgeState::RAISED_BLOCKED;
+	else
+		db.state = EDrawbridgeState::RAISED;
+
+	if(db.state != gs->curB->si.drawbridgeState)
+		sendAndApply(&db);
 }
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
