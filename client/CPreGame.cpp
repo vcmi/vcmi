@@ -2,7 +2,6 @@
 #include "CPreGame.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
 #include "../lib/filesystem/CCompressedStream.h"
 
 #include "../lib/CStopWatch.h"

@@ -1,8 +1,6 @@
 #include "StdInc.h"
 #include "Filesystem.h"
 
-#include "CFileInfo.h"
-
 #include "CArchiveLoader.h"
 #include "CFilesystemLoader.h"
 #include "AdapterLoaders.h"
