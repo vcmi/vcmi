@@ -126,6 +126,8 @@
 		<Unit filename="Graphics.h" />
 		<Unit filename="NetPacksClient.cpp" />
 		<Unit filename="SDLMain.h" />
+		<Unit filename="SDLRWwrapper.cpp" />
+		<Unit filename="SDLRWwrapper.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />
 		</Unit>

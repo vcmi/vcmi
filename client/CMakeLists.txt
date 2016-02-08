@@ -57,6 +57,7 @@ set(client_SRCS
 		Graphics.cpp
 		mapHandler.cpp
 		NetPacksClient.cpp
+		SDLRWwrapper.cpp
 )
 
 set(client_HEADERS
