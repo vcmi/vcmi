@@ -13,7 +13,6 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
-class CFileInfo;
 class CInputStream;
 class JsonNode;
 

@@ -3,6 +3,7 @@
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
+#include "SDLRWwrapper.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/JsonNode.h"
@@ -86,7 +87,7 @@ CSoundHandler::CSoundHandler():
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
-	pickupSounds = 
+	pickupSounds =
 	{
 		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
@@ -303,7 +304,7 @@ void CMusicHandler::release()
 
 void CMusicHandler::playMusic(std::string musicURI, bool loop)
 {
-	if (current && current->isTrack( musicURI))
+	if (current && current->isTrack(musicURI))
 		return;
 
 	queueNext(this, "", musicURI, loop);
@@ -342,7 +343,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 		return;
 	}
 
-	if (current && current->isTrack( selectedEntry->second))
+	if (current && current->isTrack(selectedEntry->second))
 		return;
 
 	// in this mode - play specific track from set
@@ -421,12 +422,11 @@ void CMusicHandler::musicFinishedCallback(void)
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
 	owner(owner),
 	music(nullptr),
-    musicFile(nullptr),
 	loop(looped ? -1 : 1),
-    setName(setName)
+    setName(std::move(setName))
 {
 	if (!musicURI.empty())
-		load(musicURI);
+		load(std::move(musicURI));
 }
 MusicEntry::~MusicEntry()
 {
@@ -448,15 +448,12 @@ void MusicEntry::load(std::string musicURI)
 
 	logGlobal->traceStream()<<"Loading music file "<<musicURI;
 
-	data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
-	musicFile = SDL_RWFromConstMem(data.first.get(), data.second);
-	
-	music = Mix_LoadMUS_RW(musicFile, SDL_FALSE);
+	auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
+
+	music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 
 	if(!music)
 	{
-		SDL_FreeRW(musicFile);
-		musicFile = nullptr;
 		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
 		return;
 	}

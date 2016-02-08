@@ -5,7 +5,6 @@
 #include "CCompressedStream.h"
 
 #include "CBinaryReader.h"
-#include "CFileInfo.h"
 
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
@@ -140,13 +139,13 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 
 	if (entry.compressedSize != 0) //compressed data
 	{
-		std::unique_ptr<CInputStream> fileStream(new CFileInputStream(archive, entry.offset, entry.compressedSize));
+		auto fileStream = make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
 
-		return std::unique_ptr<CInputStream>(new CCompressedStream(std::move(fileStream), false, entry.fullSize));
+		return make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
 	}
 	else
 	{
-		return std::unique_ptr<CInputStream>(new CFileInputStream(archive, entry.offset, entry.fullSize));
+		return make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
 	}
 }
 

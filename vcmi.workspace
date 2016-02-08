@@ -6,8 +6,8 @@
 			<Depends filename="lib/minizip/minizip.cbp" />
 		</Project>
 		<Project filename="client/VCMI_client.cbp">
-			<Depends filename="server/VCMI_server.cbp" />
 			<Depends filename="lib/VCMI_lib.cbp" />
+			<Depends filename="server/VCMI_server.cbp" />
 		</Project>
 		<Project filename="server/VCMI_server.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
@@ -31,7 +31,6 @@
 			<Depends filename="client/VCMI_client.cbp" />
 			<Depends filename="server/VCMI_server.cbp" />
 			<Depends filename="AI/EmptyAI/EmptyAI.cbp" />
-			<Depends filename="AI/VCAI/VCAI.cbp" />
 			<Depends filename="AI/StupidAI/StupidAI.cbp" />
 			<Depends filename="AI/BattleAI/BattleAI.cbp" />
 		</Project>

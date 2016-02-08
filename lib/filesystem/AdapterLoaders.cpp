@@ -8,7 +8,8 @@ CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonN
 {
 	for(auto entry : config.Struct())
 	{
-		fileList[ResourceID(mountPoint + entry.first)] = ResourceID(mountPoint + entry.second.String());
+		//fileList[ResourceID(mountPoint + entry.first)] = ResourceID(mountPoint + entry.second.String());
+		fileList.emplace(ResourceID(mountPoint + entry.first), ResourceID(mountPoint + entry.second.String()));
 	}
 }
 

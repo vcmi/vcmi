@@ -70,12 +70,11 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-fpermissive" />
+			<Add option="-isystem $(#boost.include)" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
-			<Add directory="$(#boost.include)" />
-			<Add directory="../include" />
 			<Add directory="../client" />
 			<Add directory="$(#ffmpeg.include)" />
 			<Add directory="$(#sdl2.include)" />
@@ -126,6 +125,8 @@
 		<Unit filename="Graphics.h" />
 		<Unit filename="NetPacksClient.cpp" />
 		<Unit filename="SDLMain.h" />
+		<Unit filename="SDLRWwrapper.cpp" />
+		<Unit filename="SDLRWwrapper.h" />
 		<Unit filename="StdInc.h">
 			<Option weight="0" />
 		</Unit>

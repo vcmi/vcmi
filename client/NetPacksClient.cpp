@@ -2,7 +2,7 @@
 #include "../lib/NetPacks.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
+#include "../lib/filesystem/FileInfo.h"
 #include "../CCallback.h"
 #include "Client.h"
 #include "CPlayerInterface.h"
@@ -636,8 +636,8 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 	PlayerColor playerToCall; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
-		playerToCall = ( GS(cl)->curB->sides[0].color == activated->owner 
-			? GS(cl)->curB->sides[1].color 
+		playerToCall = ( GS(cl)->curB->sides[0].color == activated->owner
+			? GS(cl)->curB->sides[1].color
 			: GS(cl)->curB->sides[0].color );
 	}
 	else
@@ -803,12 +803,12 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	CFileInfo info(fname);
-	CResourceHandler::get("local")->createResource(info.getStem() + ".vcgm1");
+	const auto stem = FileInfo::GetPathStem(fname);
+	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::CLIENT_SAVEGAME)));
 		cl->saveCommonState(save);
 		save << *cl;
 	}

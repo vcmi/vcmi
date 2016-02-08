@@ -348,11 +348,18 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 
 ui32 ObjectTemplate::getWidth() const
 {
-	return usedTiles.empty() ? 0 : usedTiles.front().size();
+	//TODO: Use 2D array
+	ui32 ret = 0;
+	for (auto row : usedTiles)
+	{
+		ret = std::max<ui32>(ret, row.size());
+	}
+	return ret;
 }
 
 ui32 ObjectTemplate::getHeight() const
 {
+	//TODO: Use 2D array
 	return usedTiles.size();
 }
 

@@ -1,10 +1,10 @@
 {
 	"stoneGaze" : {
 		"index" : 70,
-		"targetType": "NO_TARGET",		
+		"targetType": "NO_TARGET",
 		"animation":{
 			//need special animation
-		},		
+		},
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -26,8 +26,18 @@
 						"val" : 0,
 						"type" : "NO_RETALIATION",
 						"duration" : "UNITL_BEING_ATTACKED"
+					},
+					"defenceBoost" : {
+						"type" : "PRIMARY_SKILL",
+						"subtype" : "primSkill.defence",
+						"val" : 50,
+						"valueType" : "PERCENT_TO_ALL",
+						"duration" : [
+						    "UNITL_BEING_ATTACKED",
+						    "N_TURNS"
+						]
 					}
-				}				
+				}
 			}
 		},
 		"flags" : {
@@ -37,10 +47,10 @@
 	"poison" : {
 		"index" : 71,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["SP11_"]
-		},		
+		},
 		"sounds": {
 			"cast": "POISON"
 		},
@@ -61,7 +71,7 @@
 						"valueType" : "PERCENT_TO_ALL",
 						"duration" : "N_TURNS"
 					}
-				}			
+				}
 			}
 		},
 		"immunity" : {
@@ -75,10 +85,10 @@
 	"bind" : {
 		"index" : 72,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["SP02_"]
-		},		
+		},
 		"sounds": {
 			"cast": "BIND"
 		},
@@ -92,7 +102,7 @@
 						"duration" : "PERMANENT",
 						"addInfo" : -1
 					}
-				}			
+				}
 			}
 		},
 		"flags" : {
@@ -102,10 +112,10 @@
 	"disease" : {
 		"index" : 73,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["SP05_"]
-		},		
+		},
 		"sounds": {
 			"cast": "DISEASE"
 		},
@@ -126,7 +136,7 @@
 						"subtype" : "primSkill.defence",
 						"duration" : "N_TURNS"
 					}
-				}		
+				}
 			}
 		},
 		"immunity" : {
@@ -140,10 +150,10 @@
 	"paralyze" : {
 		"index" : 74,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			//missing
-		},		
+		},
 		"sounds": {
 			"cast": "PARALYZE"
 		},
@@ -176,10 +186,10 @@
 	"age" : {
 		"index" : 75,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["SP01_"]
-		},		
+		},
 		"sounds": {
 			"cast": "AGE"
 		},
@@ -208,10 +218,10 @@
 	"deathCloud" : {
 		"index" : 76,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"hit":["SP04_"]
-		},		
+		},
 		"sounds": {
 			"cast": "DEATHCLD"
 		},
@@ -231,10 +241,10 @@
 	"thunderbolt" : {
 		"index" : 77,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
-		},		
+		},
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
@@ -252,10 +262,10 @@
 	"dispelHelpful" : {
 		"index" : 78,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["C05SPW"]
-		},		
+		},
 		"sounds": {
 			"cast": "DISPELL"
 		},
@@ -272,10 +282,10 @@
 	"deathStare" : {
 		"index" : 79,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["C07SPE0"]
-		},		
+		},
 		"sounds": {
 			"cast": "DEATHSTR"
 		},
@@ -295,10 +305,10 @@
 	"acidBreath" : {
 		"index" : 80,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			//???
-		},		
+		},
 		"sounds": {
 			"cast": "ACID"
 		},
@@ -324,10 +334,10 @@
 	"acidBreathDamage" : {
 		"index" : 81,
 		"targetType": "NO_TARGET",
-		
+
 		"animation":{
 			"affect":["C17SPW0"]
-		},		
+		},
 		"sounds": {
 			"cast": "ACID"
 		},

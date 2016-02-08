@@ -11,17 +11,17 @@ set(lib_SRCS
 		filesystem/CCompressedStream.cpp
 		filesystem/CFilesystemLoader.cpp
 		filesystem/CArchiveLoader.cpp
-		filesystem/CFileInfo.cpp
-                filesystem/CMemoryBuffer.cpp
-                filesystem/CMemoryStream.cpp
+		filesystem/CMemoryBuffer.cpp
+		filesystem/CMemoryStream.cpp
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
-                filesystem/CZipSaver.cpp
+		filesystem/CZipSaver.cpp
+		filesystem/FileInfo.cpp
 		filesystem/Filesystem.cpp
 		filesystem/FileStream.cpp
 		filesystem/ResourceID.cpp
-                filesystem/MinizipExtensions.cpp
+		filesystem/MinizipExtensions.cpp
 
 		mapObjects/CArmedInstance.cpp
 		mapObjects/CBank.cpp

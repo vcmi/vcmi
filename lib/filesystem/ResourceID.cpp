@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "ResourceID.h"
-
-#include "CFileInfo.h"
+#include "FileInfo.h"
 
 // trivial to_upper that completely ignores localization and only work with ASCII
 // Technically not a problem since
@@ -23,30 +22,47 @@ static inline void toUpper(std::string & string)
 	for (char & symbol : string)
 		toUpper(symbol);
 }
-
+#else
+static inline void toUpper(std::string & string)
+{
+	boost::to_upper(string);
+}
 #endif
 
+static inline EResType::Type readType(const std::string& name)
+{
+	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
+}
 
+static inline std::string readName(std::string name)
+{
+	const auto dotPos = name.find_last_of('.');
+
+	if (dotPos != std::string::npos)
+		name.resize(dotPos);
+
+	toUpper(name);
+
+	return name;
+}
+
+#if 0
 ResourceID::ResourceID()
 	:type(EResType::OTHER)
 {
 }
+#endif
 
-ResourceID::ResourceID(std::string name)
-	:type(EResType::UNDEFINED)
-{
-	CFileInfo info(std::move(name));
-	setType(info.getType());
-	setName(info.getStem());
-}
+ResourceID::ResourceID(std::string name_):
+	type{readType(name_)},
+	name{readName(std::move(name_))}
+{}
 
-ResourceID::ResourceID(std::string name, EResType::Type type)
-	:type(EResType::UNDEFINED)
-{
-	setType(type);
-	setName(std::move(name));
-}
-
+ResourceID::ResourceID(std::string name_, EResType::Type type_):
+	type{type_},
+	name{readName(std::move(name_))}
+{}
+#if 0
 std::string ResourceID::getName() const
 {
 	return name;
@@ -72,26 +88,17 @@ void ResourceID::setName(std::string name)
 		this->name.erase(dotPos);
 	}
 
-#ifdef ENABLE_TRIVIAL_TOUPPER
 	toUpper(this->name);
-#else
-	// strangely enough but this line takes 40-50% of filesystem loading time
-	boost::to_upper(this->name);
-#endif
 }
 
 void ResourceID::setType(EResType::Type type)
 {
 	this->type = type;
 }
-
+#endif
 EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 {
-#ifdef ENABLE_TRIVIAL_TOUPPER
 	toUpper(extension);
-#else
-	boost::to_upper(extension);
-#endif
 
 	static const std::map<std::string, EResType::Type> stringToRes =
 	{
