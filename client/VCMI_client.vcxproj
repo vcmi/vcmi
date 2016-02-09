@@ -203,6 +203,7 @@
     <ClCompile Include="gui\SDL_Extensions.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
+    <ClCompile Include="SDLRWwrapper.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -256,6 +257,7 @@
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SDLMain.h" />
+    <ClInclude Include="SDLRWwrapper.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="widgets\AdventureMapClasses.h" />
     <ClInclude Include="widgets\Buttons.h" />
