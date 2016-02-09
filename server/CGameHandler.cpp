@@ -1240,7 +1240,6 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				handleDamageFromObstacle(*theLastObstacle, curStack);
 			}
 	}
-	updateDrawbridgeState();
 	return ret;
 }
 
@@ -1807,8 +1806,13 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 	sendAndApply(&bs);
 }
 
-void CGameHandler::checkForBattleEnd()
+void CGameHandler::checkBattleStateChanges()
 {
+	//check if drawbridge state need to be changes
+	if(battleGetSiegeLevel() > 0)
+		updateDrawbridgeState();
+
+	//check if battle ended
 	if(auto result = battleIsFinished())
 	{
 		setBattleResult(BattleResult::NORMAL, *result);
@@ -4326,7 +4330,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			{
 				battleMadeAction.setn(true);
 			}
-			checkForBattleEnd();
+			checkBattleStateChanges();
 			if(battleResult.get())
 			{
 				battleMadeAction.setn(true);
@@ -5713,7 +5717,7 @@ void CGameHandler::runBattle()
 					break;
 				}
 				//we're after action, all results applied
-				checkForBattleEnd(); //check if this action ended the battle
+				checkBattleStateChanges(); //check if this action ended the battle
 
 				if(next != nullptr)
 				{
@@ -5765,7 +5769,7 @@ bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 	sendAndApply(&bsa);
 
 	bool ret = makeBattleAction(ba);
-	checkForBattleEnd();
+	checkBattleStateChanges();
 	return ret;
 }
 
