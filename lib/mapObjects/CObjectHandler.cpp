@@ -367,20 +367,10 @@ void CGObjectInstance::readJson(const JsonNode & json)
 void CGObjectInstance::writeJsonOptions(JsonNode & json) const
 {
 	json.setType(JsonNode::DATA_STRUCT);
-
-//	//todo: move up to descendants
-//	if(tempOwner != PlayerColor::UNFLAGGABLE)
-//	{
-//		PlayerColor p (tempOwner);
-//		if(p.isValidPlayer())
-//			json["owner"].String() = GameConstants::PLAYER_COLOR_NAMES[p.getNum()];
-//	}
 }
 
 void CGObjectInstance::readJsonOptions(const JsonNode & json)
 {
-//	if(json["owner"].getType() == JsonNode::DATA_STRING)
-//		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
 }
 
 void CGObjectInstance::writeOwner(JsonNode & json) const

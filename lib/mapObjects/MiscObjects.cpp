@@ -1660,14 +1660,22 @@ std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 
 void CGShrine::writeJsonOptions(JsonNode& json) const
 {
-
+	if(spell != SpellID::NONE)
+	{
+		json["spell"].String() = spell.toSpell()->identifier;
+	}
 }
 
 void CGShrine::readJsonOptions(const JsonNode& json)
 {
-
+	spell = SpellID::NONE;
+	if(json["spell"].String() != "")
+	{
+		auto raw = VLC->modh->identifiers.getIdentifier("core", "spell",json["spell"].String());
+		if(raw)
+			spell = SpellID(raw.get());
+	}
 }
-
 
 void CGSignBottle::initObj()
 {
@@ -2017,14 +2025,13 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGShipyard::writeJsonOptions(JsonNode& json) const
 {
-
+	CGObjectInstance::writeOwner(json);
 }
 
 void CGShipyard::readJsonOptions(const JsonNode& json)
 {
-
+	CGObjectInstance::readOwner(json);
 }
-
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 {
