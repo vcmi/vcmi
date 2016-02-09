@@ -510,7 +510,7 @@ namespace EWallState
 	};
 }
 
-enum class EDrawbridgeState
+enum class EDrawbridgeState : ui8
 {
 	NONE,
 	RAISED,
@@ -518,6 +518,20 @@ enum class EDrawbridgeState
 	LOWERED,
 	LOWERED_BORKED //gate is destroyed
 };
+
+namespace ESiegeHex
+{
+	enum ESiegeHex : si16
+	{
+		DESTRUCTIBLE_WALL_1 = 29,
+		DESTRUCTIBLE_WALL_2 = 78,
+		DESTRUCTIBLE_WALL_3 = 130,
+		DESTRUCTIBLE_WALL_4 = 182,
+		GATE_BRIDGE = 94,
+		GATE_OUTER = 95,
+		GATE_INNER = 96
+	};
+}
 
 namespace ETileType
 {

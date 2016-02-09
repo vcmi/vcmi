@@ -1210,7 +1210,8 @@ DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
 
 DLL_LINKAGE void BattleDrawbridgeStateChanged::applyGs(CGameState *gs)
 {
-	gs->curB->si.drawbridgeState = state;
+	if(gs->curB)
+		gs->curB->si.drawbridgeState = state;
 }
 
 void BattleResult::applyGs( CGameState *gs )

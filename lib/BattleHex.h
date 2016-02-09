@@ -16,13 +16,6 @@
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex
 {
-	enum ESiegeHexes : si16
-	{
-		GATE_BRIDGE = 94,
-		GATE_OUTER = 95,
-		GATE_INNER = 96
-	};
-
 	static const si16 INVALID = -1;
 	enum EDir { RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT };
 

@@ -1151,7 +1151,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			accessability = EAccessibility::UNAVAILABLE;
 			break;
 		}
-		ret[95] = ret[96] = accessability;
+		ret[ESiegeHex::GATE_OUTER] = ret[ESiegeHex::GATE_INNER] = accessability;
 	}
 
 	//tiles occupied by standing stacks
@@ -1172,14 +1172,19 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	//walls
 	if(battleGetSiegeLevel() > 0)
 	{
-		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 165};
+		static const int permanentlyLocked[] = {12, 45, 62, 112, 147, 165};
 		for(auto hex : permanentlyLocked)
 			ret[hex] = EAccessibility::UNAVAILABLE;
 
 		//TODO likely duplicated logic
-		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
-			{std::make_pair(2, BattleHex(182)), std::make_pair(3, BattleHex(130)),
-			std::make_pair(4, BattleHex(62)), std::make_pair(5, BattleHex(29))};
+		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] =
+		{
+			//which part of wall, which hex is blocked if this part of wall is not destroyed
+			std::make_pair(2, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_4)),
+			std::make_pair(3, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_3)),
+			std::make_pair(4, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_2)),
+			std::make_pair(5, BattleHex(ESiegeHex::DESTRUCTIBLE_WALL_1))
+		};
 
 		for(auto & elem : lockedIfNotDestroyed)
 		{

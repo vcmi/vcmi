@@ -1050,11 +1050,11 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
 	{
-		if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex::GATE_BRIDGE)
+		if(gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
 			return true;
-		if(hex == BattleHex::GATE_OUTER)
+		if(hex == ESiegeHex::GATE_OUTER)
 			return true;
-		if(hex == BattleHex::GATE_INNER)
+		if(hex == ESiegeHex::GATE_INNER)
 			return true;
 
 		return false;
@@ -1114,11 +1114,11 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
-					if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex::GATE_BRIDGE)
+					if(gs->curB->town->subID == ETownType::FORTRESS && hex == ESiegeHex::GATE_BRIDGE)
 						return true;
-					if(hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
+					if(hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == ESiegeHex::GATE_OUTER)
 						return true;
-					else if(hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
+					else if(hex == ESiegeHex::GATE_OUTER || hex == ESiegeHex::GATE_INNER)
 						return true;
 
 					return false;
@@ -1146,24 +1146,24 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 				if(!gateMayCloseAtHex.isValid() && dbState != EDrawbridgeState::RAISED)
 				{
-					if(hex == BattleHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
+					if(hex == ESiegeHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
 					if(gs->curB->town->subID == ETownType::FORTRESS)
 					{
-						if(hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_OUTER)
+						if(hex == ESiegeHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
-						else if(hex == BattleHex::GATE_OUTER && i-1 >= 0 &&
-							path.first[i-1] != BattleHex::GATE_INNER &&
-							path.first[i-1] != BattleHex::GATE_BRIDGE)
+						else if(hex == ESiegeHex::GATE_OUTER && i-1 >= 0 &&
+							path.first[i-1] != ESiegeHex::GATE_INNER &&
+							path.first[i-1] != ESiegeHex::GATE_BRIDGE)
 						{
 							gateMayCloseAtHex = path.first[i-1];
 						}
 					}
-					else if(hex == BattleHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != BattleHex::GATE_INNER)
+					else if(hex == ESiegeHex::GATE_OUTER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_INNER)
 					{
 						gateMayCloseAtHex = path.first[i-1];
 					}
@@ -3608,21 +3608,21 @@ void CGameHandler::updateDrawbridgeState()
 	}
 	else if(db.state == EDrawbridgeState::LOWERED)
 	{
-		if(!gs->curB->battleGetStackByPos(BattleHex(BattleHex::GATE_OUTER), false) &&
-			!gs->curB->battleGetStackByPos(BattleHex(BattleHex::GATE_INNER), false))
+		if(!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) &&
+			!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false))
 		{
 			if(gs->curB->town->subID == ETownType::FORTRESS)
 			{
-				if(!gs->curB->battleGetStackByPos(BattleHex(BattleHex::GATE_BRIDGE), false))
+				if(!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
 					db.state = EDrawbridgeState::RAISED;
 			}
-			else if(gs->curB->battleGetStackByPos(BattleHex(BattleHex::GATE_BRIDGE)))
+			else if(gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE)))
 				db.state = EDrawbridgeState::RAISED_BLOCKED;
 			else
 				db.state = EDrawbridgeState::RAISED;
 		}
 	}
-	else if(gs->curB->battleGetStackByPos(BattleHex(BattleHex::GATE_BRIDGE), false))
+	else if(gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
 		db.state = EDrawbridgeState::RAISED_BLOCKED;
 	else
 		db.state = EDrawbridgeState::RAISED;
