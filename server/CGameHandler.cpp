@@ -1048,14 +1048,39 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	int creSpeed = gs->curB->tacticDistance ? GameConstants::BFIELD_SIZE : curStack->Speed();
 
+	auto isGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	{
+		if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex(94))
+			return true;
+		if(hex == BattleHex(95))
+			return true;
+		if(hex == BattleHex(96))
+			return true;
+
+		return false;
+	};
+
+	auto occupyGateDrawbridgeHex = [&](BattleHex hex) -> bool
+	{
+		if(isGateDrawbridgeHex(hex))
+			return true;
+
+		if(curStack->doubleWide())
+		{
+			BattleHex otherHex = curStack->occupiedHex(hex);
+			if(otherHex.isValid() && isGateDrawbridgeHex(otherHex))
+				return true;
+		}
+
+		return false;
+	};
+
 	if(curStack->hasBonusOfType(Bonus::FLYING))
 	{
 		if(path.second <= creSpeed && path.first.size() > 0)
 		{
-			if(canUseDrawbridge && dbState != EDrawbridgeState::LOWERED && (
-				(gs->curB->town->subID == ETownType::FORTRESS && dest == BattleHex(94)) ||
-				dest == BattleHex(95) ||
-				dest == BattleHex(96)))
+			if(canUseDrawbridge && dbState != EDrawbridgeState::LOWERED &&
+				occupyGateDrawbridgeHex(dest))
 			{
 				BattleDrawbridgeStateChanged db;
 				db.state = EDrawbridgeState::LOWERED;
