@@ -215,7 +215,8 @@ enum EMapFormat
 	AB  = 0x15, // 21
 	SOD = 0x1c, // 28
 // HOTA = 0x1e ... 0x20 // 28 ... 30
-	WOG = 0x33  // 51
+	WOG = 0x33,  // 51
+	VCMI = 0xF0
 };
 }
 

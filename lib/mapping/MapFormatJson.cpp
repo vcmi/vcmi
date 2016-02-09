@@ -299,8 +299,7 @@ void CMapLoaderJson::readHeader()
 	//do not use map field here, use only mapHeader
 	const JsonNode header = readJson(HEADER_FILE_NAME);
 
-	//TODO: read such data like map name & size
-	//mapHeader->version = ??? //todo: new version field
+	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 
 	//todo: multilevel map load support
 	const JsonNode levels = header["mapLevels"];

@@ -578,7 +578,7 @@ void CMapGenerator::createConnections()
 
 void CMapGenerator::addHeaderInfo()
 {
-	map->version = EMapFormat::SOD;
+	map->version = EMapFormat::VCMI;
 	map->width = mapGenOptions->getWidth();
 	map->height = mapGenOptions->getHeight();
 	map->twoLevel = mapGenOptions->getHasTwoLevels();

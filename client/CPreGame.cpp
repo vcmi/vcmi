@@ -1117,8 +1117,9 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 			CMapInfo mapInfo;
 			mapInfo.mapInit(file.getName());
 
-			// ignore unsupported map versions (e.g. WoG maps without WoG
-			if (mapInfo.mapHeader->version <= CGI->modh->settings.data["textData"]["mapVersion"].Float())
+			// ignore unsupported map versions (e.g. WoG maps without WoG)
+			// but accept VCMI maps
+			if((mapInfo.mapHeader->version >= EMapFormat::VCMI) || (mapInfo.mapHeader->version <= CGI->modh->settings.data["textData"]["mapVersion"].Float()))
 				allItems.push_back(std::move(mapInfo));
 		}
 		catch(std::exception & e)
@@ -1283,7 +1284,9 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 
 	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
 	slider->addUsedEvents(WHEEL);
-	format =  CDefHandler::giveDef("SCSELC.DEF");
+
+	formatIcons = new CAnimation("SCSELC.DEF");
+	formatIcons->load();
 
 	sortingBy = _format;
 	ascending = true;
@@ -1312,7 +1315,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 
 SelectionTab::~SelectionTab()
 {
-	delete format;
+	delete formatIcons;
 }
 
 void SelectionTab::sortBy( int criteria )
@@ -1437,27 +1440,34 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			}
 			printAtMiddleLoc(temp2, 70, 128 + line * 25, FONT_SMALL, itemColor, to);
 
-			int temp=-1;
+			int frame = -1, group = 0;
 			switch (currentItem->mapHeader->version)
 			{
 			case EMapFormat::ROE:
-				temp=0;
+				frame = 0;
 				break;
 			case EMapFormat::AB:
-				temp=1;
+				frame = 1;
 				break;
 			case EMapFormat::SOD:
-				temp=2;
+				frame = 2;
 				break;
 			case EMapFormat::WOG:
-				temp=3;
+				frame = 3;
+				break;
+			case EMapFormat::VCMI:
+				frame = 0;
+				group = 1;
 				break;
 			default:
 				// Unknown version. Be safe and ignore that map
                 logGlobal->warnStream() << "Warning: " << currentItem->fileURI << " has wrong version!";
 				continue;
 			}
-			blitAtLoc(format->ourImages[temp].bitmap, 88, 117 + line * 25, to);
+			IImage * icon = formatIcons->getImage(frame,group);
+			if(icon)
+				icon->draw(to, pos.x + 88, pos.y + 117 + line * 25);
+
 
 			//victory conditions
 			blitAtLoc(CGP->victory->ourImages[currentItem->mapHeader->victoryIconIndex].bitmap, 306, 117 + line * 25, to);
