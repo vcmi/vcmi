@@ -1005,7 +1005,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		assert(gs->curB->isInTacticRange(dest));
 	}
 
-	if(curStack->position == dest)
+	auto start = curStack->position;
+	if(start == dest)
 		return 0;
 
 	//initing necessary tables
@@ -1032,7 +1033,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		return 0;
 	}
 
-	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(curStack->position, dest, curStack);
+	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(start, dest, curStack);
 
 	ret = path.second;
 
@@ -1059,11 +1060,13 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		std::vector<BattleHex> tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
+		path.first.push_back(start);
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
 		auto dbState = gs->curB->si.drawbridgeState;
-		if(battleGetSiegeLevel() > 0 && dbState != EDrawbridgeState::LOWERED_BORKED &&
+		if(battleGetSiegeLevel() > 0 && !curStack->attackerOwned &&
+			dbState != EDrawbridgeState::LOWERED_BORKED &&
 			dbState != EDrawbridgeState::RAISED_BLOCKED)
 		{
 			for(int i = path.first.size()-1; i >= 0; i--)
@@ -1071,13 +1074,9 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				auto hex = path.first[i];
 				if(!openGateAtHex.isValid() && dbState != EDrawbridgeState::LOWERED)
 				{
-					if(gs->curB->town->subID == ETownType::FORTRESS)
+					if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex(94))
 					{
-						if(hex == BattleHex(93) &&
-							i-1 >= 0 && path.first[i-1] == BattleHex(94))
-						{
-							openGateAtHex = path.first[i+1];
-						}
+						openGateAtHex = path.first[i+1];
 					}
 					if(hex == BattleHex(94) && i-1 >= 0 && path.first[i-1] == BattleHex(95))
 					{
@@ -1088,6 +1087,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 						openGateAtHex = path.first[i+1];
 					}
 
+					//gate may be opened and then closed during stack movement, but not other way around
 					if(openGateAtHex.isValid())
 						dbState = EDrawbridgeState::LOWERED;
 				}
@@ -1130,28 +1130,34 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			}
 
 			bool gateStateChanging = false;
-			for(bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
+			//special handling for opening gate on from starting hex
+			if(openGateAtHex.isValid() && openGateAtHex == start)
+				gateStateChanging = true;
+			else
 			{
-				BattleHex hex = path.first[v];
-				tiles.push_back(hex);
-
-				if((openGateAtHex.isValid() && openGateAtHex == hex) ||
-					(gateMayCloseAtHex.isValid() && gateMayCloseAtHex == hex))
+				for(bool obstacleHit = false; (!obstacleHit) && (!gateStateChanging) && (v >= tilesToMove); --v)
 				{
-					gateStateChanging = true;
-				}
+					BattleHex hex = path.first[v];
+					tiles.push_back(hex);
 
-				//if we walked onto something, finalize this portion of stack movement check into obstacle
-				if((obstacle = battleGetObstacleOnPos(hex, false)))
-					obstacleHit = true;
+					if((openGateAtHex.isValid() && openGateAtHex == hex) ||
+						(gateMayCloseAtHex.isValid() && gateMayCloseAtHex == hex))
+					{
+						gateStateChanging = true;
+					}
 
-				if(curStack->doubleWide())
-				{
-					BattleHex otherHex = curStack->occupiedHex(hex);
-
-					//two hex creature hit obstacle by backside
-					if(otherHex.isValid() && ((obstacle2 = battleGetObstacleOnPos(otherHex, false))))
+					//if we walked onto something, finalize this portion of stack movement check into obstacle
+					if((obstacle = battleGetObstacleOnPos(hex, false)))
 						obstacleHit = true;
+
+					if(curStack->doubleWide())
+					{
+						BattleHex otherHex = curStack->occupiedHex(hex);
+
+						//two hex creature hit obstacle by backside
+						if(otherHex.isValid() && ((obstacle2 = battleGetObstacleOnPos(otherHex, false))))
+							obstacleHit = true;
+					}
 				}
 			}
 
@@ -1188,16 +1194,24 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				if(curStack->alive())
 					processObstacle(obstacle2);
 
-				if(curStack->alive() && gateStateChanging)
+				if(gateStateChanging)
 				{
 					if(curStack->position == openGateAtHex)
 					{
-						BattleDrawbridgeStateChanged db;
-						db.state = EDrawbridgeState::LOWERED;
-						sendAndApply(&db);
+						openGateAtHex = BattleHex();
+						//only open gate if stack is still alive
+						if(curStack->alive())
+						{
+							BattleDrawbridgeStateChanged db;
+							db.state = EDrawbridgeState::LOWERED;
+							sendAndApply(&db);
+						}
 					}
-					else
+					else if(curStack->position == gateMayCloseAtHex)
+					{
+						openGateAtHex = BattleHex();
 						updateDrawbridgeState();
+					}
 				}
 			}
 			else
@@ -3538,11 +3552,18 @@ void CGameHandler::updateDrawbridgeState()
 	}
 	else if(db.state == EDrawbridgeState::LOWERED)
 	{
-		if((gs->curB->town->subID != ETownType::FORTRESS || !gs->curB->battleGetStackByPos(BattleHex(94), false)) &&
-			!gs->curB->battleGetStackByPos(BattleHex(95), false) &&
+		if(!gs->curB->battleGetStackByPos(BattleHex(95), false) &&
 			!gs->curB->battleGetStackByPos(BattleHex(96), false))
 		{
-			db.state = EDrawbridgeState::RAISED;
+			if(gs->curB->town->subID == ETownType::FORTRESS)
+			{
+				if(!gs->curB->battleGetStackByPos(BattleHex(94), false))
+					db.state = EDrawbridgeState::RAISED;
+			}
+			else if(gs->curB->battleGetStackByPos(BattleHex(94)))
+				db.state = EDrawbridgeState::RAISED_BLOCKED;
+			else
+				db.state = EDrawbridgeState::RAISED;
 		}
 	}
 	else if(gs->curB->battleGetStackByPos(BattleHex(94), false))
