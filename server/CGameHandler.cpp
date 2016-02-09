@@ -1033,6 +1033,15 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		return 0;
 	}
 
+	bool canUseDrawbridge = false;
+	auto dbState = gs->curB->si.drawbridgeState;
+	if(battleGetSiegeLevel() > 0 && !curStack->attackerOwned &&
+		dbState != EDrawbridgeState::LOWERED_BORKED &&
+		dbState != EDrawbridgeState::RAISED_BLOCKED)
+	{
+		canUseDrawbridge = true;
+	}
+
 	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(start, dest, curStack);
 
 	ret = path.second;
@@ -1043,6 +1052,16 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	{
 		if(path.second <= creSpeed && path.first.size() > 0)
 		{
+			if(canUseDrawbridge && dbState != EDrawbridgeState::LOWERED && (
+				(gs->curB->town->subID == ETownType::FORTRESS && dest == BattleHex(94)) ||
+				dest == BattleHex(95) ||
+				dest == BattleHex(96)))
+			{
+				BattleDrawbridgeStateChanged db;
+				db.state = EDrawbridgeState::LOWERED;
+				sendAndApply(&db);
+			}
+
 			//inform clients about move
 			BattleStackMoved sm;
 			sm.stack = curStack->ID;
@@ -1064,10 +1083,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
-		auto dbState = gs->curB->si.drawbridgeState;
-		if(battleGetSiegeLevel() > 0 && !curStack->attackerOwned &&
-			dbState != EDrawbridgeState::LOWERED_BORKED &&
-			dbState != EDrawbridgeState::RAISED_BLOCKED)
+		if(canUseDrawbridge)
 		{
 			for(int i = path.first.size()-1; i >= 0; i--)
 			{
