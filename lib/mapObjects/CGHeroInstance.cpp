@@ -1472,14 +1472,14 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 
 void CGHeroInstance::writeJsonOptions(JsonNode& json) const
 {
-	CArmedInstance::writeJsonOptions(json);
+	CCreatureSet::writeJson(json["army"]);
 	CGObjectInstance::writeOwner(json);
 	CArtifactSet::writeJson(json["artifacts"]);
 }
 
 void CGHeroInstance::readJsonOptions(const JsonNode& json)
 {
-	CArmedInstance::readJsonOptions(json);
+	CCreatureSet::readJson(json["army"]);
 	CGObjectInstance::readOwner(json);
 	CArtifactSet::readJson(json["artifacts"]);
 }

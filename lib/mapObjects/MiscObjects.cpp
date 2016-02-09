@@ -792,7 +792,7 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 
 void CGMine::writeJsonOptions(JsonNode & json) const
 {
-	CArmedInstance::writeJsonOptions(json);
+	CCreatureSet::writeJson(json["army"]);
 
 	if(isAbandoned())
 	{
@@ -814,7 +814,7 @@ void CGMine::writeJsonOptions(JsonNode & json) const
 
 void CGMine::readJsonOptions(const JsonNode & json)
 {
-	CArmedInstance::readJsonOptions(json);
+	CCreatureSet::readJson(json["army"]);
 
 	if(isAbandoned())
 	{
@@ -1874,14 +1874,14 @@ void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &
 
 void CGGarrison::writeJsonOptions(JsonNode& json) const
 {
-	CArmedInstance::writeJsonOptions(json);
+	CCreatureSet::writeJson(json["army"]);
 	CGObjectInstance::writeOwner(json);
 	json["removableUnits"].Bool() = removableUnits;
 }
 
 void CGGarrison::readJsonOptions(const JsonNode& json)
 {
-	CArmedInstance::readJsonOptions(json);
+	CCreatureSet::readJson(json["army"]);
 	CGObjectInstance::readOwner(json);
 	removableUnits = json["removableUnits"].Bool();
 }

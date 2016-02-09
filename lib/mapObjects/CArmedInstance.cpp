@@ -135,10 +135,10 @@ CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
 
 void CArmedInstance::writeJsonOptions(JsonNode& json) const
 {
-	CCreatureSet::writeJson(json["army"]);
+	CGObjectInstance::writeJsonOptions(json);
 }
 
 void CArmedInstance::readJsonOptions(const JsonNode& json)
 {
-	CCreatureSet::readJson(json["army"]);
+	CGObjectInstance::readJsonOptions(json);
 }
