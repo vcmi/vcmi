@@ -370,7 +370,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 // 			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
 // 		else
 // 			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
-// 	}f
+// 	}
 }
 #endif
 
