@@ -1780,12 +1780,52 @@ void CGScholar::initObj()
 
 void CGScholar::writeJsonOptions(JsonNode& json) const
 {
-
+	switch(bonusType)
+	{
+	case PRIM_SKILL:
+		json["rewardPrimSkill"].String() = PrimarySkill::names[bonusID];
+		break;
+	case SECONDARY_SKILL:
+		json["rewardSkill"].String() = NSecondarySkill::names[bonusID];
+		break;
+	case SPELL:
+		json["rewardSpell"].String() = VLC->spellh->objects.at(bonusID)->identifier;
+		break;
+	case RANDOM:
+		break;
+	}
 }
 
 void CGScholar::readJsonOptions(const JsonNode& json)
 {
-
+	bonusType = RANDOM;
+	if(json["rewardPrimSkill"].String() != "")
+	{
+		auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
+		if(raw)
+		{
+			bonusType = PRIM_SKILL;
+			bonusID = raw.get();
+		}
+	}
+	else if(json["rewardSkill"].String() != "")
+	{
+		auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
+		if(raw)
+		{
+			bonusType = SECONDARY_SKILL;
+			bonusID = raw.get();
+		}
+	}
+	else if(json["rewardSpell"].String() != "")
+	{
+		auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
+		if(raw)
+		{
+			bonusType = SPELL;
+			bonusID = raw.get();
+		}
+	}
 }
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
