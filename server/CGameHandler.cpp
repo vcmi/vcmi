@@ -1112,20 +1112,31 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		{
 			for(int i = path.first.size()-1; i >= 0; i--)
 			{
+				auto needOpenGates = [&](BattleHex hex) -> bool
+				{
+					if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex::GATE_BRIDGE)
+						return true;
+					if(hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
+						return true;
+					else if(hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
+						return true;
+
+					return false;
+				};
+
 				auto hex = path.first[i];
 				if(!openGateAtHex.isValid() && dbState != EDrawbridgeState::LOWERED)
 				{
-					if(gs->curB->town->subID == ETownType::FORTRESS && hex == BattleHex::GATE_BRIDGE)
-					{
+					if(needOpenGates(hex))
 						openGateAtHex = path.first[i+1];
-					}
-					if(hex == BattleHex::GATE_BRIDGE && i-1 >= 0 && path.first[i-1] == BattleHex::GATE_OUTER)
+
+					//TODO we need find batter way to handle double-wide stacks
+					//currently if only second occupied stack part is standing on gate / bridge hex then stack will start to wait for bridge to lower before it's needed. Though this is just a visual bug.
+					if(curStack->doubleWide())
 					{
-						openGateAtHex = path.first[i+1];
-					}
-					else if(hex == BattleHex::GATE_OUTER || hex == BattleHex::GATE_INNER)
-					{
-						openGateAtHex = path.first[i+1];
+						BattleHex otherHex = curStack->occupiedHex(hex);
+						if(otherHex.isValid() && needOpenGates(otherHex))
+							openGateAtHex = path.first[i+2];
 					}
 
 					//gate may be opened and then closed during stack movement, but not other way around
@@ -1250,7 +1261,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					}
 					else if(curStack->position == gateMayCloseAtHex)
 					{
-						openGateAtHex = BattleHex();
+						gateMayCloseAtHex = BattleHex();
 						updateDrawbridgeState();
 					}
 				}
