@@ -1693,6 +1693,8 @@ struct BattleDrawbridgeStateChanged : public CPackForClient//3021
 {
 	BattleDrawbridgeStateChanged(){type = 3021;};
 
+	void applyFirstCl(CClient *cl);
+
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	EDrawbridgeState state;

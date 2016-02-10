@@ -1218,9 +1218,14 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 
 	for(auto attackInfo : ca.attackedParts)
 	{
-		SDL_FreeSurface(siegeH->walls[attackInfo.attackedPart + 2]);
-		siegeH->walls[attackInfo.attackedPart + 2] = BitmapHandler::loadBitmap(
-			siegeH->getSiegeName(attackInfo.attackedPart + 2, curInt->cb->battleGetWallState(attackInfo.attackedPart)));
+		int wallId = attackInfo.attackedPart + 2;
+		//gate state changing handled separately
+		if(wallId == 9)
+			continue;
+
+		SDL_FreeSurface(siegeH->walls[wallId]);
+		siegeH->walls[wallId] = BitmapHandler::loadBitmap(
+			siegeH->getSiegeName(wallId, curInt->cb->battleGetWallState(attackInfo.attackedPart)));
 	}
 }
 
@@ -2724,6 +2729,38 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//CCS->soundh->playSound(sound);
 }
 
+void CBattleInterface::drawbridgeStateChanged(const EDrawbridgeState state)
+{
+	auto oldState = curInt->cb->battleGetDrawbridgeState();
+	bool playSound = false;
+	int stateId = EWallState::NONE;
+	switch(state)
+	{
+	case EDrawbridgeState::RAISED:
+		if(oldState != EDrawbridgeState::RAISED_BLOCKED)
+			playSound = true;
+		break;
+	case EDrawbridgeState::RAISED_BLOCKED:
+		if(oldState != EDrawbridgeState::RAISED)
+			playSound = true;
+		break;
+	case EDrawbridgeState::LOWERED:
+		playSound = true;
+		stateId = EWallState::DAMAGED;
+		break;
+	case EDrawbridgeState::LOWERED_BORKED:
+		stateId = EWallState::DESTROYED;
+		break;
+	}
+
+	SDL_FreeSurface(siegeH->walls[9]);
+	siegeH->walls[9] = nullptr;
+	if(stateId != EWallState::NONE)
+		siegeH->walls[9] = BitmapHandler::loadBitmap(siegeH->getSiegeName(9, stateId));
+	if(playSound)
+		CCS->soundh->playSound(soundBase::DRAWBRG);
+}
+
 const CGHeroInstance * CBattleInterface::currentHero() const
 {
 	if(attackingHeroInstance->tempOwner == curInt->playerID)
@@ -2784,7 +2821,11 @@ CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, cons
 {
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		walls[g] = BitmapHandler::loadBitmap( getSiegeName(g) );
+		//drawbridge have no displayed bitmap when raised
+		if(g == 9)
+			walls[g] = nullptr;
+		else
+			walls[g] = BitmapHandler::loadBitmap( getSiegeName(g) );
 	}
 }
 
@@ -2892,7 +2933,8 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 
 	if(pos.x != -1)
 	{
-		blitAt(walls[what], pos.x, pos.y, to);
+		if(walls[what])
+			blitAt(walls[what], pos.x, pos.y, to);
 	}
 }
 
@@ -3412,7 +3454,7 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		sorted.hex[62].walls.push_back(6);    // 6. wall over gate
 		sorted.hex[12].walls.push_back(7);    // 7. upper wall
 		sorted.beforeAll.walls.push_back(8);  // 8. upper tower
-		//sorted.hex[94].walls.push_back(9);  // 9. gate // Not implemented it seems
+		sorted.hex[94].walls.push_back(9);  // 9. gate
 		sorted.hex[112].walls.push_back(10);  // 10. gate arch
 		sorted.hex[165].walls.push_back(11);  // 11. bottom static wall
 		sorted.hex[45].walls.push_back(12);   // 12. upper static wall

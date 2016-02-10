@@ -220,6 +220,7 @@ public:
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) override; //called when certain stack is completely removed from battlefield
 	void battleObstaclePlaced(const CObstacleInstance &obstacle) override;
+	void battleDrawbridgeStateChanged(const EDrawbridgeState state) override;
 	void yourTacticPhase(int distance) override;
 
 	//-------------//
