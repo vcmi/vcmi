@@ -92,6 +92,31 @@ public:
 		return false;
 	}
 
+	enum EDistanceFormula
+	{
+		DIST_2D = 0,
+		DIST_MANHATTAN, // patrol distance
+		DIST_CHEBYSHEV, // ambient sound distance
+		DIST_2DSQ
+	};
+
+	ui32 dist(const int3 & o, EDistanceFormula formula) const
+	{
+		switch(formula)
+		{
+		case DIST_2D:
+			return dist2d(o);
+		case DIST_MANHATTAN:
+			return mandist2d(o);
+		case DIST_CHEBYSHEV:
+			return chebdist2d(o);
+		case DIST_2DSQ:
+			return dist2dSQ(o);
+		default:
+			return 0;
+		}
+	}
+
 	//returns squared distance on Oxy plane (z coord is not used)
 	ui32 dist2dSQ(const int3 & o) const
 	{
@@ -108,6 +133,11 @@ public:
 	double mandist2d(const int3 & o) const
 	{
 		return abs(o.x - x) + abs(o.y - y);
+	}
+	//chebyshev distance used for ambient sounds (z coord is not used)
+	double chebdist2d(const int3 & o) const
+	{
+		return std::max(std::abs(o.x - x), std::abs(o.y - y));
 	}
 
 	bool areNeighbours(const int3 & o) const
