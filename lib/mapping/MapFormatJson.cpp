@@ -39,13 +39,26 @@ namespace TriggeredEventsDetail
 
 	static EventCondition JsonToCondition(const JsonNode & node)
 	{
+		//todo: support of new condition format
 		EventCondition event;
-		event.condition = EventCondition::EWinLoseType(vstd::find_pos(conditionNames, node.Vector()[0].String()));
+
+		const auto & conditionName = node.Vector()[0].String();
+
+		auto pos = vstd::find_pos(conditionNames, conditionName);
+
+		event.condition = EventCondition::EWinLoseType(pos));
 		if (node.Vector().size() > 1)
 		{
 			const JsonNode & data = node.Vector()[1];
 			if (data["type"].getType() == JsonNode::DATA_STRING)
-				event.objectType = VLC->modh->identifiers.getIdentifier(data["type"]).get();
+			{
+				auto identifier = VLC->modh->identifiers.getIdentifier(data["type"]);
+				if(identifier)
+					event.objectType = identifier.get();
+				else
+					throw std::runtime_error("Identifier resolution failed in event condition");
+			}
+
 			if (data["type"].getType() == JsonNode::DATA_FLOAT)
 				event.objectType = data["type"].Float();
 
