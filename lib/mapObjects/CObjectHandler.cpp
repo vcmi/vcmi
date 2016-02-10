@@ -386,7 +386,9 @@ void CGObjectInstance::writeOwner(JsonNode & json) const
 void CGObjectInstance::readOwner(const JsonNode & json)
 {
 	if(json["owner"].getType() == JsonNode::DATA_STRING)
+	{
 		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
+	}
 }
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)

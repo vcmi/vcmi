@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 
 	#if 1
 	{
-		auto path = VCMIDirs::get().userDataPath()/"test.zip";
+		auto path = VCMIDirs::get().userDataPath()/"test.vmap";
 		boost::filesystem::remove(path);
 		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
 

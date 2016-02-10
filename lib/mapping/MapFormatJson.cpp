@@ -244,6 +244,7 @@ si32 CMapLoaderJson::getIdentifier(const std::string& type, const std::string& n
 
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
+	LOG_TRACE(logGlobal);
 	map = new CMap();
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
 	readMap();
@@ -252,6 +253,7 @@ std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 
 std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
+	LOG_TRACE(logGlobal);
 	mapHeader.reset(new CMapHeader);
 	readHeader();
 	return std::move(mapHeader);
@@ -274,6 +276,7 @@ const JsonNode CMapLoaderJson::readJson(const std::string & archiveFilename)
 
 void CMapLoaderJson::readMap()
 {
+	LOG_TRACE(logGlobal);
 	readHeader();
 	map->initTerrain();
 	readTerrain();
@@ -575,11 +578,13 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	if(typeName.empty())
 	{
 		logGlobal->errorStream() << "Object type missing";
+		logGlobal->traceStream() << configuration;
 		return;
 	}
 	if(subTypeName.empty())
 	{
 		logGlobal->errorStream() << "Object subType missing";
+		logGlobal->traceStream() << configuration;
 		return;
 	}
 
