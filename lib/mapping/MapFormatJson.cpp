@@ -221,18 +221,11 @@ void CMapPatcher::readPatchData()
 	readTriggeredEvents(input);
 }
 
-///CMapFormatZip
-CMapFormatZip::CMapFormatZip(CInputOutputStream * stream):
-	buffer(stream),
-	ioApi(new CProxyIOApi(buffer))
-{
-
-}
-
 
 ///CMapLoaderJson
-CMapLoaderJson::CMapLoaderJson(CInputOutputStream * stream):
-	CMapFormatZip(stream),
+CMapLoaderJson::CMapLoaderJson(CInputStream * stream):
+	buffer(stream),
+	ioApi(new CProxyROIOApi(buffer)),
 	loader("", "_", ioApi)
 {
 
@@ -342,7 +335,7 @@ void CMapLoaderJson::readPlayerInfo(const JsonNode & input)
 
 	for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
 	{
-		PlayerInfo & info = map->players.at(player);
+		PlayerInfo & info = mapHeader->players.at(player);
 
 		const JsonNode & playerSrc = src[GameConstants::PLAYER_COLOR_NAMES[player]];
 
@@ -412,15 +405,15 @@ void CMapLoaderJson::readTeams(const JsonNode& input)
 				PlayerColor player = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, playerData.String()));
 				if(player.isValidPlayer())
 				{
-					if(map->players[player.getNum()].canAnyonePlay())
+					if(mapHeader->players[player.getNum()].canAnyonePlay())
 					{
-						map->players[player.getNum()].team = TeamID(team);
+						mapHeader->players[player.getNum()].team = TeamID(team);
 					}
 				}
 			}
 		}
 
-		for(PlayerInfo & player : map->players)
+		for(PlayerInfo & player : mapHeader->players)
 		{
 			if(player.canAnyonePlay() && player.team == TeamID::NO_TEAM)
 				player.team = TeamID(mapHeader->howManyTeams++);
@@ -654,7 +647,8 @@ void CMapLoaderJson::readObjects()
 
 ///CMapSaverJson
 CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
-	CMapFormatZip(stream),
+	buffer(stream),
+	ioApi(new CProxyIOApi(buffer)),
 	saver(ioApi, "_")
 {
 

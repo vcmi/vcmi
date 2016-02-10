@@ -90,16 +90,7 @@ private:
 	const JsonNode input;
 };
 
-class DLL_LINKAGE CMapFormatZip : public CMapFormatJson
-{
-public:
-	CMapFormatZip(CInputOutputStream * stream);
-protected:
-	CInputOutputStream * buffer;
-	std::shared_ptr<CIOApi> ioApi;
-};
-
-class DLL_LINKAGE CMapLoaderJson : public CMapFormatZip, public IMapLoader
+class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader
 {
 public:
 	/**
@@ -107,7 +98,7 @@ public:
 	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderJson(CInputOutputStream * stream);
+	CMapLoaderJson(CInputStream * stream);
 
 	/**
 	 * Loads the VCMI/Json map file.
@@ -184,10 +175,13 @@ private:
 
 	const JsonNode readJson(const std::string & archiveFilename);
 
+	CInputStream * buffer;
+	std::shared_ptr<CIOApi> ioApi;
+
 	CZipLoader loader;///< object to handle zip archive operations
 };
 
-class DLL_LINKAGE CMapSaverJson : public CMapFormatZip, public IMapSaver
+class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
 {
 public:
 	/**
@@ -255,5 +249,7 @@ private:
 	 */
 	void writeObjects();
 
+	CInputOutputStream * buffer;
+	std::shared_ptr<CIOApi> ioApi;
 	CZipSaver saver;///< object to handle zip archive operations
 };
