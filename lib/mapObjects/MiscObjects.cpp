@@ -1443,6 +1443,13 @@ void CGArtifact::writeJsonOptions(JsonNode& json) const
 {
 	CCreatureSet::writeJson(json["guards"]);
 	json["guardMessage"].String() = message;
+	if(ID == Obj::SPELL_SCROLL)
+	{
+		const Bonus * b = storedArtifact->getBonusLocalFirst(Selector::type(Bonus::SPELL));
+		SpellID spellId(b->subtype);
+
+		json["spell"].String() = SpellID(b->subtype).toSpell()->identifier;
+	}
 }
 
 void CGArtifact::readJsonOptions(const JsonNode& json)

@@ -23,6 +23,7 @@
 #include "CRandomGenerator.h"
 
 #include "mapObjects/CObjectClassesHandler.h"
+#include "mapping/CMap.h"
 
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
@@ -962,6 +963,40 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
 {
 	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
 }
+
+CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int spellID)
+{
+	CArtifactInstance * a = nullptr;
+	if(aid >= 0)
+	{
+		if(spellID < 0)
+		{
+			a = CArtifactInstance::createNewArtifactInstance(aid);
+		}
+		else
+		{
+			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
+		}
+	}
+	else //FIXME: create combined artifact instance for random combined artifacts, just in case
+	{
+		a = new CArtifactInstance(); //random, empty
+	}
+
+	map->addNewArtifactInstance(a);
+
+	//TODO make it nicer
+	if(a->artType && (!!a->artType->constituents))
+	{
+		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
+		for(CCombinedArtifactInstance::ConstituentInfo & ci : comb->constituentsInfo)
+		{
+			map->addNewArtifactInstance(ci.art);
+		}
+	}
+	return a;
+}
+
 
 void CArtifactInstance::deserializationFix()
 {

@@ -25,6 +25,7 @@ struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 class CRandomGenerator;
+class CMap;
 
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
@@ -152,6 +153,15 @@ public:
 	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
 	static CArtifactInstance *createNewArtifactInstance(int aid);
+
+	/**
+	 * Creates an artifact instance.
+	 *
+	 * @param aid the id of the artifact
+	 * @param spellID optional. the id of a spell if a spell scroll object should be created
+	 * @return the created artifact instance
+	 */
+	static CArtifactInstance * createArtifact(CMap * map, int aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance

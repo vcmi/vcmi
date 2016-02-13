@@ -125,15 +125,6 @@ private:
 	bool loadArtifactToSlot(CGHeroInstance * hero, int slot);
 
 	/**
-	 * Creates an artifact instance.
-	 *
-	 * @param aid the id of the artifact
-	 * @param spellID optional. the id of a spell if a spell scroll object should be created
-	 * @return the created artifact instance
-	 */
-	CArtifactInstance * createArtifact(int aid, int spellID = -1);
-
-	/**
 	 * Read rumors.
 	 */
 	void readRumors();

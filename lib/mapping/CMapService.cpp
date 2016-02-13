@@ -5,6 +5,7 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
+
 #include "CMap.h"
 
 #include "MapFormatH3M.h"

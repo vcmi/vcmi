@@ -657,10 +657,35 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	{
 		owner->map->towns.push_back(static_cast<CGTownInstance *>(instance));
 	}
-	if(instance->ID == Obj::HERO)
+	else if(instance->ID == Obj::HERO)
 	{
 		logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[instance->subID]->name << " at " << instance->pos;
 		owner->map->heroesOnMap.push_back(static_cast<CGHeroInstance *>(instance));
+	}
+	else if(auto art = dynamic_cast<CGArtifact *>(instance))
+	{
+		//todo: find better place for this code
+
+		int artID = ArtifactID::NONE;
+		int spellID = -1;
+
+		if(art->ID == Obj::SPELL_SCROLL)
+		{
+			auto spellIdentifier = configuration["options"]["spell"].String();
+			auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", spellIdentifier);
+			if(rawId)
+				spellID = rawId.get();
+			else
+				spellID = 0;
+			artID = ArtifactID::SPELL_SCROLL;
+		}
+		else if(art->ID  == Obj::ARTIFACT)
+		{
+			//specific artifact
+			artID = art->subID;
+		}
+
+		art->storedArtifact = CArtifactInstance::createArtifact(owner->map, artID, spellID);
 	}
 }
 

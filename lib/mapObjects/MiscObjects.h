@@ -14,6 +14,8 @@
  *
  */
 
+class CMap;
+
 class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 {
 public:
