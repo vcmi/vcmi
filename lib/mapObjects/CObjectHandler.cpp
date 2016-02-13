@@ -359,8 +359,6 @@ void CGObjectInstance::readJson(const JsonNode & json)
 
 	appearance.readJson(json["template"], false);
 
-	logGlobal->debugStream() <<"Loading: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
-
 	readJsonOptions(json["options"]);
 }
 

@@ -1852,7 +1852,7 @@ void CGameState::initMapObjects()
 	{
 		if(obj)
 		{
-			//logGlobal->traceStream() << boost::format ("Calling Init for object %d, %d") % obj->ID % obj->subID;
+			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %s, %s") % obj->id.getNum() % obj->typeName % obj->subTypeName;
 			obj->initObj();
 		}
 	}

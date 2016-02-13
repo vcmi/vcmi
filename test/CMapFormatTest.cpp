@@ -35,13 +35,15 @@ public:
 	{
 		CMapGenOptions opt;
 
-		opt.setHeight(CMapHeader::MAP_SIZE_SMALL);
-		opt.setWidth(CMapHeader::MAP_SIZE_SMALL);
+		opt.setHeight(CMapHeader::MAP_SIZE_LARGE);
+		opt.setWidth(CMapHeader::MAP_SIZE_LARGE);
 		opt.setHasTwoLevels(true);
-		opt.setPlayerCount(2);
+		opt.setPlayerCount(4);
 
 		opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
-		opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::HUMAN);
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(2), EPlayerType::AI);
+		opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
 
 		CMapGenerator gen;
 

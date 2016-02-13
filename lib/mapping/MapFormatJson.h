@@ -123,7 +123,6 @@ private:
 		MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type & json);
 		CMapLoaderJson * owner;
 		CGObjectInstance * instance;
-		std::shared_ptr<AObjectTypeHandler> handler;
 		ObjectInstanceID id;
 		std::string jsonKey;//full id defined by map creator
 		const JsonNode & configuration;

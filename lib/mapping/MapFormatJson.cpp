@@ -602,13 +602,15 @@ void CMapLoaderJson::readTerrain()
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type& json):
-	owner(_owner), instance(nullptr),handler(nullptr),id(-1), jsonKey(json.first), configuration(json.second), internalId(extractNumber(jsonKey, '_'))
+	owner(_owner), instance(nullptr),id(-1), jsonKey(json.first), configuration(json.second), internalId(extractNumber(jsonKey, '_'))
 {
 
 }
 
 void CMapLoaderJson::MapObjectLoader::construct()
 {
+	logGlobal->debugStream() <<"Loading: " <<jsonKey;
+
 	//TODO:consider move to ObjectTypeHandler
 	//find type handler
 	std::string typeName = configuration["type"].String(), subTypeName = configuration["subType"].String();
@@ -618,12 +620,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		logGlobal->traceStream() << configuration;
 		return;
 	}
-	if(subTypeName.empty())
-	{
-		logGlobal->errorStream() << "Object subType missing";
-		logGlobal->traceStream() << configuration;
-		return;
-	}
+
 
 	//special case for grail
     if(typeName == "grail")
@@ -633,9 +630,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		pos.y = configuration["y"].Float();
 		pos.z = configuration["l"].Float();
 		owner->map->grailRadius = configuration["options"]["grailRadius"].Float();
+		return;
+	}
+	else if(subTypeName.empty())
+	{
+		logGlobal->errorStream() << "Object subType missing";
+		logGlobal->traceStream() << configuration;
+		return;
 	}
 
-	handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
+	auto handler = VLC->objtypeh->getHandlerFor(typeName, subTypeName);
 
 	instance = handler->create(ObjectTemplate());
 	instance->id = ObjectInstanceID(owner->map->objects.size());
