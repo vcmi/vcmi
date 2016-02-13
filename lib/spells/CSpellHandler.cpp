@@ -115,7 +115,7 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastP
 }
 
 void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
-{	
+{
 	assert(env);
 	if(parameters.destinations.size()<1)
 	{
@@ -141,7 +141,7 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 	//check if spell really does damage - if not, return 0
 	if(!isDamageSpell())
 		return 0;
-	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));	
+	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
@@ -395,7 +395,7 @@ int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affected
 
 int CSpell::calculateRawEffectValue(int effectLevel, int effectPower) const
 {
-	return effectPower * power + getPower(effectLevel);	
+	return effectPower * power + getPower(effectLevel);
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster * caster, const CStack *obj) const
@@ -420,7 +420,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster
 		std::stringstream cachingStr;
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
 
-		TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());	
+		TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());
 
 		if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
 		{
@@ -433,19 +433,19 @@ ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster
 		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << id.toEnum() << "addInfo_1";
 		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, id.toEnum(), 1), cachingStr.str()))
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}	
+	}
 
 	//check receptivity
 	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 		return ESpellCastProblem::OK;
-		
+
 	//3. Check negation
 	//Orb of vulnerability
 	//FIXME: Orb of vulnerability mechanics is not such trivial (issue 1791)
 	const bool battleWideNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
 	const bool heroNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
 	//anyone can cast on artifact holder`s stacks
-	if(heroNegation) 
+	if(heroNegation)
 		return ESpellCastProblem::NOT_DECIDED;
 	//this stack is from other player
 	//todo: check that caster is always present (not trivial is this case)
@@ -520,9 +520,9 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const ISpellCaster 
 void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpellCast * packet, std::vector<std::string> & logLines) const
 {
 	bool displayDamage = true;
-	
+
 	std::string casterName("Something"); //todo: localize
-	
+
 	if(packet->castByHero)
 		casterName = cb->battleGetHeroInfo(packet->side).name;
 
@@ -536,13 +536,13 @@ void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpell
 				casterName = casterStack->type->namePl;
 		}
 	}
-	
+
 	if(packet->affectedCres.size() == 1)
 	{
 		const CStack * attackedStack = cb->battleGetStackByID(*packet->affectedCres.begin(), false);
-		
+
 		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
-		
+
 		if(packet->castByHero)
 		{
 			const std::string fmt = VLC->generaltexth->allTexts[195];
@@ -550,17 +550,17 @@ void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpell
 		}
 		else
 		{
-			mechanics->battleLogSingleTarget(logLines, packet, casterName, attackedStack, displayDamage);		
+			mechanics->battleLogSingleTarget(logLines, packet, casterName, attackedStack, displayDamage);
 		}
 	}
 	else
 	{
 		boost::format text(VLC->generaltexth->allTexts[196]);
 		text % casterName % this->name;
-		logLines.push_back(text.str());		
+		logLines.push_back(text.str());
 	}
-	
-	
+
+
 	if(packet->dmgToDisplay > 0 && displayDamage)
 	{
 		boost::format dmgInfo(VLC->generaltexth->allTexts[376]);
@@ -611,7 +611,7 @@ void CSpell::setupMechanics()
 CSpell::AnimationItem::AnimationItem()
 	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
 {
-	
+
 }
 
 
@@ -804,6 +804,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	using namespace SpellConfig;
 
 	CSpell * spell = new CSpell();
+	spell->identifier = identifier;
 
 	const auto type = json["type"].String();
 
@@ -966,7 +967,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 			{
 				newItem.pause = item.Float();
 			}
-			
+
 			q.push_back(newItem);
 		}
 	};
@@ -1043,11 +1044,11 @@ void CSpellHandler::afterLoadFinalization()
 				delete bonus;
 			}
 			level.effectsTmp.clear();
-			
+
 			for(auto & bonus: level.effects)
-				bonus.sid = spell->id;	
+				bonus.sid = spell->id;
 		}
-		spell->setup();		
+		spell->setup();
 	}
 }
 
