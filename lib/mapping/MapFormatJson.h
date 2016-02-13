@@ -42,12 +42,12 @@ protected:
 	 * ptr to the map header object which gets filled by data from the buffer.
 	 * (when loading map and mapHeader point to the same object)
 	 */
-	std::unique_ptr<CMapHeader> mapHeader;
+	CMapHeader * mapHeader;
 
 	/**
 	 * Reads triggered events, including victory/loss conditions
 	 */
-	void readTriggeredEvents(const JsonNode & input);
+	void readTriggeredEvents(JsonDeserializer & handler);
 
 	/**
 	 * Writes triggered events, including victory/loss conditions
@@ -89,7 +89,7 @@ private:
 	void readPatchData();
 
 
-	const JsonNode input;
+	JsonNode input;
 };
 
 class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader

@@ -179,8 +179,9 @@ const int CMapFormatJson::VERSION_MINOR = 0;
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
-void CMapFormatJson::readTriggeredEvents(const JsonNode & input)
+void CMapFormatJson::readTriggeredEvents(JsonDeserializer & handler)
 {
+	const JsonNode & input = handler.getCurrent();
 	mapHeader->victoryMessage = input["victoryString"].String();
 	mapHeader->victoryIconIndex = input["victoryIconIndex"].Float();
 
@@ -211,15 +212,15 @@ void CMapFormatJson::readTriggeredEvent(TriggeredEvent & event, const JsonNode &
 
 void CMapFormatJson::writeTriggeredEvents(JsonNode& output)
 {
-	output["victoryString"].String() = map->victoryMessage;
-	output["victoryIconIndex"].Float() = map->victoryIconIndex;
+	output["victoryString"].String() = mapHeader->victoryMessage;
+	output["victoryIconIndex"].Float() = mapHeader->victoryIconIndex;
 
-	output["defeatString"].String() = map->defeatMessage;
-	output["defeatIconIndex"].Float() = map->defeatIconIndex;
+	output["defeatString"].String() = mapHeader->defeatMessage;
+	output["defeatIconIndex"].Float() = mapHeader->defeatIconIndex;
 
 	JsonMap & triggeredEvents = output["triggeredEvents"].Struct();
 
-	for(auto event : map->triggeredEvents)
+	for(auto event : mapHeader->triggeredEvents)
 		writeTriggeredEvent(event, triggeredEvents[event.identifier]);
 }
 
@@ -246,15 +247,16 @@ CMapPatcher::CMapPatcher(JsonNode stream):
 
 void CMapPatcher::patchMapHeader(std::unique_ptr<CMapHeader> & header)
 {
-	header.swap(mapHeader);
+	map = nullptr;
+	mapHeader = header.get();
 	if (!input.isNull())
 		readPatchData();
-	header.swap(mapHeader);
 }
 
 void CMapPatcher::readPatchData()
 {
-	readTriggeredEvents(input);
+	JsonDeserializer handler(input);
+	readTriggeredEvents(handler);
 }
 
 
@@ -281,18 +283,21 @@ si32 CMapLoaderJson::getIdentifier(const std::string& type, const std::string& n
 std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 {
 	LOG_TRACE(logGlobal);
-	map = new CMap();
-	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
+	std::unique_ptr<CMap> result = std::unique_ptr<CMap>(new CMap());
+	map = result.get();
+	mapHeader = map;
 	readMap();
-	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
+	return std::move(result);
 }
 
 std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 {
 	LOG_TRACE(logGlobal);
-	mapHeader.reset(new CMapHeader);
+	map = nullptr;
+	std::unique_ptr<CMapHeader> result = std::unique_ptr<CMapHeader>(new CMapHeader());
+	mapHeader = result.get();
 	readHeader();
-	return std::move(mapHeader);
+	return std::move(result);
 }
 
 const JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
@@ -361,7 +366,7 @@ void CMapLoaderJson::readHeader()
 //	std::vector<bool> allowedHeroes;
 //	std::vector<ui16> placeholdedHeroes;
 
-	readTriggeredEvents(header);
+	readTriggeredEvents(handler);
 
 	readPlayerInfo(handler);
 
@@ -714,6 +719,7 @@ void CMapSaverJson::addToArchive(const JsonNode& data, const std::string& filena
 void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 {
 	this->map = map.get();
+	this->mapHeader = this->map;
 	writeHeader();
 	writeTerrain();
 	writeObjects();
@@ -729,25 +735,25 @@ void CMapSaverJson::writeHeader()
 
 	//todo: multilevel map save support
 	JsonNode & levels = header["mapLevels"];
-	levels["surface"]["height"].Float() = map->height;
-	levels["surface"]["width"].Float() = map->width;
+	levels["surface"]["height"].Float() = mapHeader->height;
+	levels["surface"]["width"].Float() = mapHeader->width;
 	levels["surface"]["index"].Float() = 0;
 
-	if(map->twoLevel)
+	if(mapHeader->twoLevel)
 	{
-		levels["underground"]["height"].Float() = map->height;
-		levels["underground"]["width"].Float() = map->width;
+		levels["underground"]["height"].Float() = mapHeader->height;
+		levels["underground"]["width"].Float() = mapHeader->width;
 		levels["underground"]["index"].Float() = 1;
 	}
 
-	header["name"].String() = map->name;
-	header["description"].String() = map->description;
+	header["name"].String() = mapHeader->name;
+	header["description"].String() = mapHeader->description;
 
 
 	//todo: support arbitrary percentage
 
-	header["difficulty"].String() = HeaderDetail::difficultyForwardMap.at(map->difficulty);
-	header["heroLevelLimit"].Float() = map->levelLimit;
+	header["difficulty"].String() = HeaderDetail::difficultyForwardMap.at(mapHeader->difficulty);
+	header["heroLevelLimit"].Float() = mapHeader->levelLimit;
 
 	writeTriggeredEvents(header);
 
@@ -768,7 +774,7 @@ void CMapSaverJson::writePlayerInfo(JsonNode & output)
 
 	for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
 	{
-		const PlayerInfo & info = map->players[player];
+		const PlayerInfo & info = mapHeader->players[player];
 
 		if(info.canAnyonePlay())
 			writePlayerInfo(info, dest[GameConstants::PLAYER_COLOR_NAMES[player]]);
@@ -795,14 +801,14 @@ void CMapSaverJson::writeTeams(JsonNode& output)
 	JsonNode & dest = output["teams"];
 	std::vector<std::set<PlayerColor>> teamsData;
 
-	teamsData.resize(map->howManyTeams);
+	teamsData.resize(mapHeader->howManyTeams);
 
 	//get raw data
-	for(int idx = 0; idx < map->players.size(); idx++)
+	for(int idx = 0; idx < mapHeader->players.size(); idx++)
 	{
-		const PlayerInfo & player = map->players.at(idx);
+		const PlayerInfo & player = mapHeader->players.at(idx);
 		int team = player.team.getNum();
-		if(vstd::iswithin(team, 0, map->howManyTeams-1) && player.canAnyonePlay())
+		if(vstd::iswithin(team, 0, mapHeader->howManyTeams-1) && player.canAnyonePlay())
 			teamsData.at(team).insert(PlayerColor(idx));
 	}
 

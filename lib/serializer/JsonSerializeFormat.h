@@ -47,6 +47,11 @@ public:
 		return *root;
 	};
 
+	JsonNode & getCurrent()
+	{
+		return *current;
+	};
+
 	JsonStructSerializer enterStruct(const std::string & fieldName);
 
 protected:
