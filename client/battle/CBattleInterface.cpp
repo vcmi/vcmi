@@ -1220,7 +1220,7 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 	{
 		int wallId = attackInfo.attackedPart + 2;
 		//gate state changing handled separately
-		if(wallId == 9)
+		if(wallId == SiegeHelper::GATE)
 			continue;
 
 		SDL_FreeSurface(siegeH->walls[wallId]);
@@ -2817,15 +2817,15 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 }
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)
-  : owner(_owner), town(siegeTown)
+	: owner(_owner), town(siegeTown)
 {
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
 		//drawbridge have no displayed bitmap when raised
-		if(g == 9)
+		if(g == SiegeHelper::GATE)
 			walls[g] = nullptr;
 		else
-			walls[g] = BitmapHandler::loadBitmap( getSiegeName(g) );
+			walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
 	}
 }
 
@@ -2864,71 +2864,71 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) co
 
 	switch(what)
 	{
-	case 0: //background
+	case SiegeHelper::BACKGROUND:
 		return prefix + "BACK.BMP";
-	case 1: //background wall
+	case SiegeHelper::BACKGROUND_WALL:
 		{
 			switch(town->town->faction->index)
 			{
-			case 5: case 4: case 1: case 6:
+			case ETownType::RAMPART:
+			case ETownType::NECROPOLIS:
+			case ETownType::DUNGEON:
+			case ETownType::STRONGHOLD:
 				return prefix + "TPW1.BMP";
 			default:
 				return prefix + "TPWL.BMP";
 			}
 		}
-	case 2: //keep
+	case SiegeHelper::KEEP:
 		return prefix + "MAN" + addit + ".BMP";
-	case 3: //bottom tower
+	case SiegeHelper::BOTTOM_TOWER:
 		return prefix + "TW1" + addit + ".BMP";
-	case 4: //bottom wall
+	case SiegeHelper::BOTTOM_WALL:
 		return prefix + "WA1" + addit + ".BMP";
-	case 5: //below gate
+	case SiegeHelper::WALL_BELLOW_GATE:
 		return prefix + "WA3" + addit + ".BMP";
-	case 6: //over gate
+	case SiegeHelper::WALL_OVER_GATE:
 		return prefix + "WA4" + addit + ".BMP";
-	case 7: //upper wall
+	case SiegeHelper::UPPER_WALL:
 		return prefix + "WA6" + addit + ".BMP";
-	case 8: //upper tower
+	case SiegeHelper::UPPER_TOWER:
 		return prefix + "TW2" + addit + ".BMP";
-	case 9: //gate
+	case SiegeHelper::GATE:
 		return prefix + "DRW" + addit + ".BMP";
-	case 10: //gate arch
+	case SiegeHelper::GATE_ARCH:
 		return prefix + "ARCH.BMP";
-	case 11: //bottom static wall
+	case SiegeHelper::BOTTOM_STATIC_WALL:
 		return prefix + "WA2.BMP";
-	case 12: //upper static wall
+	case SiegeHelper::UPPER_STATIC_WALL:
 		return prefix + "WA5.BMP";
-	case 13: //moat
+	case SiegeHelper::MOAT:
 		return prefix + "MOAT.BMP";
-	case 14: //mlip
+	case SiegeHelper::BACKGROUND_MOAT:
 		return prefix + "MLIP.BMP";
-	case 15: //keep creature cover
+	case SiegeHelper::KEEP_BATTLEMENT:
 		return prefix + "MANC.BMP";
-	case 16: //bottom turret creature cover
+	case SiegeHelper::BOTTOM_BATTLEMENT:
 		return prefix + "TW1C.BMP";
-	case 17: //upper turret creature cover
+	case SiegeHelper::UPPER_BATTLEMENT:
 		return prefix + "TW2C.BMP";
 	default:
 		return "";
 	}
 }
 
-/// What: 1. background wall, 2. keep, 3. bottom tower, 4. bottom wall, 5. wall below gate,
-/// 6. wall over gate, 7. upper wall, 8. upper tower, 9. gate, 10. gate arch, 11. bottom static wall, 12. upper static wall, 13. moat, 14. mlip,
-/// 15. keep turret cover, 16. lower turret cover, 17. upper turret cover
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
 	auto & ci = owner->siegeH->town->town->clientInfo;
 
-	if (what >= 1 && what <= 17)
+	if (vstd::iswithin(what, 1, 17))
 	{
 		pos.x = ci.siegePositions[what].x + owner->pos.x;
 		pos.y = ci.siegePositions[what].y + owner->pos.y;
 	}
 
 	if (town->town->faction->index == ETownType::TOWER
-	    && (what == 13 || what == 14))
+		&& (what == SiegeHelper::MOAT || what == SiegeHelper::BACKGROUND_MOAT))
 		return; // no moat in Tower. TODO: remove hardcode somehow?
 
 	if(pos.x != -1)
@@ -3035,7 +3035,7 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface * to)
 			blitAt(getObstacleImage(*oi), pos.x + oi->getInfo().width, pos.y + oi->getInfo().height, to);
 
 	if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
-		siegeH->printPartOfWall(to, 14); // show moat background
+		siegeH->printPartOfWall(to, SiegeHelper::BACKGROUND_MOAT);
 }
 
 void CBattleInterface::showHighlightedHexes(SDL_Surface * to)
@@ -3446,29 +3446,29 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 	// Sort wall parts
 	if (siegeH)
 	{
-		sorted.beforeAll.walls.push_back(1);  // 1. background wall
-		sorted.hex[135].walls.push_back(2);   // 2. keep
-		sorted.afterAll.walls.push_back(3);   // 3. bottom tower
-		sorted.hex[182].walls.push_back(4);   // 4. bottom wall
-		sorted.hex[130].walls.push_back(5);   // 5. wall below gate,
-		sorted.hex[62].walls.push_back(6);    // 6. wall over gate
-		sorted.hex[12].walls.push_back(7);    // 7. upper wall
-		sorted.beforeAll.walls.push_back(8);  // 8. upper tower
-		sorted.hex[94].walls.push_back(9);  // 9. gate
-		sorted.hex[112].walls.push_back(10);  // 10. gate arch
-		sorted.hex[165].walls.push_back(11);  // 11. bottom static wall
-		sorted.hex[45].walls.push_back(12);   // 12. upper static wall
+		sorted.beforeAll.walls.push_back(SiegeHelper::BACKGROUND_WALL);
+		sorted.hex[135].walls.push_back(SiegeHelper::KEEP);
+		sorted.afterAll.walls.push_back(SiegeHelper::BOTTOM_TOWER);
+		sorted.hex[182].walls.push_back(SiegeHelper::BOTTOM_WALL);
+		sorted.hex[130].walls.push_back(SiegeHelper::WALL_BELLOW_GATE);
+		sorted.hex[62].walls.push_back(SiegeHelper::WALL_OVER_GATE);
+		sorted.hex[12].walls.push_back(SiegeHelper::UPPER_WALL);
+		sorted.beforeAll.walls.push_back(SiegeHelper::UPPER_TOWER);
+		sorted.hex[94].walls.push_back(SiegeHelper::GATE);
+		sorted.hex[112].walls.push_back(SiegeHelper::GATE_ARCH);
+		sorted.hex[165].walls.push_back(SiegeHelper::BOTTOM_STATIC_WALL);
+		sorted.hex[45].walls.push_back(SiegeHelper::UPPER_STATIC_WALL);
 
 		if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
 		{
-			sorted.beforeAll.walls.push_back(13); // 13. moat
-			//sorted.beforeAll.walls.push_back(14); // 14. mlip (moat background terrain), blit as absolute obstacle
-			sorted.hex[135].walls.push_back(15);  // 15. keep turret cover
+			sorted.beforeAll.walls.push_back(SiegeHelper::MOAT);
+			//sorted.beforeAll.walls.push_back(SiegeHelper::BACKGROUND_MOAT); // blit as absolute obstacle
+			sorted.hex[135].walls.push_back(SiegeHelper::KEEP_BATTLEMENT);
 		}
 		if (siegeH && siegeH->town->hasBuilt(BuildingID::CASTLE))
 		{
-			sorted.afterAll.walls.push_back(16);  // 16. lower turret cover
-			sorted.beforeAll.walls.push_back(17); // 17. upper turret cover
+			sorted.afterAll.walls.push_back(SiegeHelper::BOTTOM_BATTLEMENT);
+			sorted.beforeAll.walls.push_back(SiegeHelper::UPPER_BATTLEMENT);
 		}
 	}
 	return sorted;
