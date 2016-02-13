@@ -357,7 +357,7 @@ public:
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	void obstaclePlaced(const CObstacleInstance & oi);
 
-	void drawbridgeStateChanged(const EDrawbridgeState state);
+	void gateStateChanged(const EGateState state);
 
 	const CGHeroInstance * currentHero() const;
 	InfoAboutHero enemyHero() const;

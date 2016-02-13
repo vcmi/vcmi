@@ -1208,10 +1208,10 @@ DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
 	gs->curB->obstacles.push_back(obstacle);
 }
 
-DLL_LINKAGE void BattleDrawbridgeStateChanged::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState *gs)
 {
 	if(gs->curB)
-		gs->curB->si.drawbridgeState = state;
+		gs->curB->si.gateState = state;
 }
 
 void BattleResult::applyGs( CGameState *gs )

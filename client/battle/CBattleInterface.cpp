@@ -2729,26 +2729,26 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//CCS->soundh->playSound(sound);
 }
 
-void CBattleInterface::drawbridgeStateChanged(const EDrawbridgeState state)
+void CBattleInterface::gateStateChanged(const EGateState state)
 {
-	auto oldState = curInt->cb->battleGetDrawbridgeState();
+	auto oldState = curInt->cb->battleGetGateState();
 	bool playSound = false;
 	int stateId = EWallState::NONE;
 	switch(state)
 	{
-	case EDrawbridgeState::RAISED:
-		if(oldState != EDrawbridgeState::RAISED_BLOCKED)
+	case EGateState::CLOSED:
+		if(oldState != EGateState::BLOCKED)
 			playSound = true;
 		break;
-	case EDrawbridgeState::RAISED_BLOCKED:
-		if(oldState != EDrawbridgeState::RAISED)
+	case EGateState::BLOCKED:
+		if(oldState != EGateState::CLOSED)
 			playSound = true;
 		break;
-	case EDrawbridgeState::LOWERED:
+	case EGateState::OPENED:
 		playSound = true;
 		stateId = EWallState::DAMAGED;
 		break;
-	case EDrawbridgeState::LOWERED_BORKED:
+	case EGateState::DESTROYED:
 		stateId = EWallState::DESTROYED;
 		break;
 	}
@@ -2821,7 +2821,7 @@ CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, cons
 {
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		//drawbridge have no displayed bitmap when raised
+		//gate have no displayed bitmap when drawbridge is raised
 		if(g == SiegeHelper::GATE)
 			walls[g] = nullptr;
 		else

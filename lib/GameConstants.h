@@ -510,13 +510,13 @@ namespace EWallState
 	};
 }
 
-enum class EDrawbridgeState : ui8
+enum class EGateState : ui8
 {
 	NONE,
-	RAISED,
-	RAISED_BLOCKED, //dead or alive stack blocking from outside
-	LOWERED,
-	LOWERED_BORKED //gate is destroyed
+	CLOSED,
+	BLOCKED, //dead or alive stack blocking from outside
+	OPENED,
+	DESTROYED
 };
 
 namespace ESiegeHex

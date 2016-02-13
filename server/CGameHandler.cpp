@@ -1033,13 +1033,13 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		return 0;
 	}
 
-	bool canUseDrawbridge = false;
-	auto dbState = gs->curB->si.drawbridgeState;
+	bool canUseGate = false;
+	auto dbState = gs->curB->si.gateState;
 	if(battleGetSiegeLevel() > 0 && !curStack->attackerOwned &&
-		dbState != EDrawbridgeState::LOWERED_BORKED &&
-		dbState != EDrawbridgeState::RAISED_BLOCKED)
+		dbState != EGateState::DESTROYED &&
+		dbState != EGateState::BLOCKED)
 	{
-		canUseDrawbridge = true;
+		canUseGate = true;
 	}
 
 	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(start, dest, curStack);
@@ -1079,11 +1079,11 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	{
 		if(path.second <= creSpeed && path.first.size() > 0)
 		{
-			if(canUseDrawbridge && dbState != EDrawbridgeState::LOWERED &&
+			if(canUseGate && dbState != EGateState::OPENED &&
 				occupyGateDrawbridgeHex(dest))
 			{
-				BattleDrawbridgeStateChanged db;
-				db.state = EDrawbridgeState::LOWERED;
+				BattleUpdateGateState db;
+				db.state = EGateState::OPENED;
 				sendAndApply(&db);
 			}
 
@@ -1108,7 +1108,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
-		if(canUseDrawbridge)
+		if(canUseGate)
 		{
 			for(int i = path.first.size()-1; i >= 0; i--)
 			{
@@ -1125,7 +1125,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				};
 
 				auto hex = path.first[i];
-				if(!openGateAtHex.isValid() && dbState != EDrawbridgeState::LOWERED)
+				if(!openGateAtHex.isValid() && dbState != EGateState::OPENED)
 				{
 					if(needOpenGates(hex))
 						openGateAtHex = path.first[i+1];
@@ -1141,10 +1141,10 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 					//gate may be opened and then closed during stack movement, but not other way around
 					if(openGateAtHex.isValid())
-						dbState = EDrawbridgeState::LOWERED;
+						dbState = EGateState::OPENED;
 				}
 
-				if(!gateMayCloseAtHex.isValid() && dbState != EDrawbridgeState::RAISED)
+				if(!gateMayCloseAtHex.isValid() && dbState != EGateState::CLOSED)
 				{
 					if(hex == ESiegeHex::GATE_INNER && i-1 >= 0 && path.first[i-1] != ESiegeHex::GATE_OUTER)
 					{
@@ -1254,15 +1254,15 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 						//only open gate if stack is still alive
 						if(curStack->alive())
 						{
-							BattleDrawbridgeStateChanged db;
-							db.state = EDrawbridgeState::LOWERED;
+							BattleUpdateGateState db;
+							db.state = EGateState::OPENED;
 							sendAndApply(&db);
 						}
 					}
 					else if(curStack->position == gateMayCloseAtHex)
 					{
 						gateMayCloseAtHex = BattleHex();
-						updateDrawbridgeState();
+						updateGateState();
 					}
 				}
 			}
@@ -1862,7 +1862,7 @@ void CGameHandler::checkBattleStateChanges()
 {
 	//check if drawbridge state need to be changes
 	if(battleGetSiegeLevel() > 0)
-		updateDrawbridgeState();
+		updateGateState();
 
 	//check if battle ended
 	if(auto result = battleIsFinished())
@@ -3598,15 +3598,15 @@ bool CGameHandler::queryReply(QueryID qid, ui32 answer, PlayerColor player)
 
 static EndAction end_action;
 
-void CGameHandler::updateDrawbridgeState()
+void CGameHandler::updateGateState()
 {
-	BattleDrawbridgeStateChanged db;
-	db.state = gs->curB->si.drawbridgeState;
+	BattleUpdateGateState db;
+	db.state = gs->curB->si.gateState;
 	if(gs->curB->si.wallState[EWallPart::GATE] == EWallState::DESTROYED)
 	{
-		db.state = EDrawbridgeState::LOWERED_BORKED;
+		db.state = EGateState::DESTROYED;
 	}
-	else if(db.state == EDrawbridgeState::LOWERED)
+	else if(db.state == EGateState::OPENED)
 	{
 		if(!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_OUTER), false) &&
 			!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_INNER), false))
@@ -3614,20 +3614,20 @@ void CGameHandler::updateDrawbridgeState()
 			if(gs->curB->town->subID == ETownType::FORTRESS)
 			{
 				if(!gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-					db.state = EDrawbridgeState::RAISED;
+					db.state = EGateState::CLOSED;
 			}
 			else if(gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE)))
-				db.state = EDrawbridgeState::RAISED_BLOCKED;
+				db.state = EGateState::BLOCKED;
 			else
-				db.state = EDrawbridgeState::RAISED;
+				db.state = EGateState::CLOSED;
 		}
 	}
 	else if(gs->curB->battleGetStackByPos(BattleHex(ESiegeHex::GATE_BRIDGE), false))
-		db.state = EDrawbridgeState::RAISED_BLOCKED;
+		db.state = EGateState::BLOCKED;
 	else
-		db.state = EDrawbridgeState::RAISED;
+		db.state = EGateState::CLOSED;
 
-	if(db.state != gs->curB->si.drawbridgeState)
+	if(db.state != gs->curB->si.gateState)
 		sendAndApply(&db);
 }
 

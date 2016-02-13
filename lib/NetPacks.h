@@ -1689,15 +1689,15 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	}
 };
 
-struct BattleDrawbridgeStateChanged : public CPackForClient//3021
+struct BattleUpdateGateState : public CPackForClient//3021
 {
-	BattleDrawbridgeStateChanged(){type = 3021;};
+	BattleUpdateGateState(){type = 3021;};
 
 	void applyFirstCl(CClient *cl);
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	EDrawbridgeState state;
+	EGateState state;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & state;

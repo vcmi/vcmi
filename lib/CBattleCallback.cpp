@@ -442,13 +442,13 @@ si8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 	return getBattle()->si.wallState[partOfWall];
 }
 
-EDrawbridgeState CBattleInfoEssentials::battleGetDrawbridgeState() const
+EGateState CBattleInfoEssentials::battleGetGateState() const
 {
-	RETURN_IF_NOT_BATTLE(EDrawbridgeState::NONE);
+	RETURN_IF_NOT_BATTLE(EGateState::NONE);
 	if(getBattle()->town == nullptr || getBattle()->town->fortLevel() == CGTownInstance::NONE)
-		return EDrawbridgeState::NONE;
+		return EGateState::NONE;
 
-	return getBattle()->si.drawbridgeState;
+	return getBattle()->si.gateState;
 }
 
 si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex destHex ) const
@@ -1141,13 +1141,13 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	if(battleGetSiegeLevel() > 0)
 	{
 		EAccessibility::EAccessibility accessability = EAccessibility::ACCESSIBLE;
-		switch(battleGetDrawbridgeState())
+		switch(battleGetGateState())
 		{
-		case EDrawbridgeState::RAISED:
+		case EGateState::CLOSED:
 			accessability = EAccessibility::GATE;
 			break;
 
-		case EDrawbridgeState::RAISED_BLOCKED:
+		case EGateState::BLOCKED:
 			accessability = EAccessibility::UNAVAILABLE;
 			break;
 		}

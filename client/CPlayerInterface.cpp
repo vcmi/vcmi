@@ -1012,12 +1012,12 @@ void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
 	battleInt->obstaclePlaced(obstacle);
 }
 
-void CPlayerInterface::battleDrawbridgeStateChanged(const EDrawbridgeState state)
+void CPlayerInterface::battleGateStateChanged(const EGateState state)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->drawbridgeStateChanged(state);
+	battleInt->gateStateChanged(state);
 }
 
 void CPlayerInterface::yourTacticPhase(int distance)

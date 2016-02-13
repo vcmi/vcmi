@@ -327,7 +327,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//setting up siege obstacles
 	if (town && town->hasFort())
 	{
-		curB->si.drawbridgeState = EDrawbridgeState::RAISED;
+		curB->si.gateState = EGateState::CLOSED;
 
 		for (int b = 0; b < curB->si.wallState.size(); ++b)
 		{
