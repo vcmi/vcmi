@@ -22,6 +22,8 @@ struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
 class AObjectTypeHandler;
+class JsonDeserializer;
+class JsonSerializer;
 
 class DLL_LINKAGE CMapFormatJson
 {
@@ -149,18 +151,13 @@ private:
 	/**
 	 * Reads player information.
 	 */
-	void readPlayerInfo(const JsonNode & input);
-
-	/**
-	 * Reads one player information.
-	 */
-	void readPlayerInfo(PlayerInfo & info, const JsonNode & input);
+	void readPlayerInfo(JsonDeserializer & handler);
 
 	/**
 	 * Reads team settings to header
 	 * @param input serialized header
 	 */
-	void readTeams(const JsonNode & input);
+	void readTeams(JsonDeserializer & handler);
 
 	void readTerrainTile(const std::string & src, TerrainTile & tile);
 
@@ -173,7 +170,7 @@ private:
 	 */
 	void readObjects();
 
-	const JsonNode readJson(const std::string & archiveFilename);
+	const JsonNode getFromArchive(const std::string & archiveFilename);
 
 	CInputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;

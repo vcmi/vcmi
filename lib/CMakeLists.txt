@@ -104,6 +104,10 @@ set(lib_SRCS
 		Connection.cpp
 		NetPacksLib.cpp
 
+		serializer/JsonSerializer.cpp
+		serializer/JsonDeserializer.cpp
+		serializer/JsonSerializeFormat.cpp
+
 		registerTypes/RegisterTypes.cpp
 		registerTypes/TypesClientPacks1.cpp
 		registerTypes/TypesClientPacks2.cpp

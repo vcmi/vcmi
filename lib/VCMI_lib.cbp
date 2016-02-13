@@ -152,6 +152,7 @@
 		<Unit filename="CGeneralTextHandler.h" />
 		<Unit filename="CHeroHandler.cpp" />
 		<Unit filename="CHeroHandler.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="CModHandler.cpp" />
 		<Unit filename="CModHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
@@ -315,6 +316,12 @@
 		<Unit filename="rmg/CZoneGraphGenerator.h" />
 		<Unit filename="rmg/CZonePlacer.cpp" />
 		<Unit filename="rmg/CZonePlacer.h" />
+		<Unit filename="serializer/JsonDeserializer.cpp" />
+		<Unit filename="serializer/JsonDeserializer.h" />
+		<Unit filename="serializer/JsonSerializeFormat.cpp" />
+		<Unit filename="serializer/JsonSerializeFormat.h" />
+		<Unit filename="serializer/JsonSerializer.cpp" />
+		<Unit filename="serializer/JsonSerializer.h" />
 		<Unit filename="spells/AdventureSpellMechanics.cpp" />
 		<Unit filename="spells/AdventureSpellMechanics.h" />
 		<Unit filename="spells/BattleSpellMechanics.cpp" />

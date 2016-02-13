@@ -55,7 +55,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  ifdef __ANDROID__
-#    define VCMI_ANDROID 
+#    define VCMI_ANDROID
 #  endif
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
 #  define VCMI_UNIX
@@ -285,7 +285,7 @@ std::ostream & operator<<(std::ostream & out, const std::vector<T> & container)
 
 namespace vstd
 {
-	
+
 	// combine hashes. Present in boost but not in std
 	template <class T>
 	inline void hash_combine(std::size_t& seed, const T& v)
@@ -293,7 +293,7 @@ namespace vstd
 		std::hash<T> hasher;
 		seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
 	}
-	
+
 	//returns true if container c contains item i
 	template <typename Container, typename Item>
 	bool contains(const Container & c, const Item &i)
@@ -505,7 +505,7 @@ namespace vstd
 	void erase_if(std::set<Elem> &setContainer, Predicate pred)
 	{
 		auto itr = setContainer.begin();
-		auto endItr = setContainer.end(); 
+		auto endItr = setContainer.end();
 		while(itr != endItr)
 		{
 			auto tmpItr = itr++;
@@ -519,7 +519,7 @@ namespace vstd
 	void erase_if(std::map<Key, Val> &container, Predicate pred)
 	{
 		auto itr = container.begin();
-		auto endItr = container.end(); 
+		auto endItr = container.end();
 		while(itr != endItr)
 		{
 			auto tmpItr = itr++;
@@ -554,7 +554,7 @@ namespace vstd
 			return vf(lhs) < vf(rhs);
 		});
 	}
-		
+
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
 	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
@@ -627,7 +627,7 @@ namespace vstd
 	{
 		if(index < r.size())
 			return r[index];
-		
+
 		return defaultValue;
 	}
 
@@ -668,12 +668,12 @@ namespace vstd
 		boost::sort(vec);
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
-	
+
 	template <typename T>
 	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
 	{
 		dest.reserve(dest.size() + src.size());
-		dest.insert(dest.end(), src.begin(), src.end());	
+		dest.insert(dest.end(), src.begin(), src.end());
 	}
 
 	template <typename T>

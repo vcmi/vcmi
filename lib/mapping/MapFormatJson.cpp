@@ -23,8 +23,31 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-
 #include "../StringConstants.h"
+#include "../serializer/JsonDeserializer.h"
+#include "../serializer/JsonSerializer.h"
+
+namespace HeaderDetail
+{
+	static const std::map<std::string, ui8> difficultyReverseMap =
+	{
+		{"", 1},
+		{"EASY", 0},
+		{"NORMAL", 1},
+		{"HARD", 2},
+		{"EXPERT", 3},
+		{"IMPOSSIBLE", 4}
+	};
+
+	static const std::map<ui8, std::string> difficultyForwardMap =
+	{
+		{0, "EASY"},
+		{1, "NORMAL"},
+		{2, "HARD"},
+		{3, "EXPERT"},
+		{4, "IMPOSSIBLE"}
+	};
+}
 
 namespace TriggeredEventsDetail
 {
@@ -46,7 +69,7 @@ namespace TriggeredEventsDetail
 
 		auto pos = vstd::find_pos(conditionNames, conditionName);
 
-		event.condition = EventCondition::EWinLoseType(pos));
+		event.condition = EventCondition::EWinLoseType(pos);
 		if (node.Vector().size() > 1)
 		{
 			const JsonNode & data = node.Vector()[1];
@@ -272,7 +295,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	return std::move(mapHeader);
 }
 
-const JsonNode CMapLoaderJson::readJson(const std::string & archiveFilename)
+const JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 {
 	ResourceID resource(archiveFilename, EResType::TEXT);
 
@@ -306,93 +329,89 @@ void CMapLoaderJson::readMap()
 void CMapLoaderJson::readHeader()
 {
 	//do not use map field here, use only mapHeader
-	const JsonNode header = readJson(HEADER_FILE_NAME);
+	JsonNode header = getFromArchive(HEADER_FILE_NAME);
+	JsonDeserializer handler(header);
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 
 	//todo: multilevel map load support
-	const JsonNode levels = header["mapLevels"];
-	mapHeader->height = levels["surface"]["height"].Float();
-	mapHeader->width = levels["surface"]["width"].Float();
-	mapHeader->twoLevel = !levels["underground"].isNull();
+	{
+		auto levels = handler.enterStruct("mapLevels");
+
+		{
+			auto surface = levels.enterStruct("surface");
+			mapHeader->height = surface.get()["height"].Float();
+			mapHeader->width = surface.get()["width"].Float();
+		}
+		{
+			auto underground = levels.enterStruct("underground");
+			mapHeader->twoLevel = !underground.get().isNull();
+		}
+	}
 
 	mapHeader->name = header["name"].String();
 	mapHeader->description = header["description"].String();
 
 	//todo: support arbitrary percentage
 
-	static const std::map<std::string, ui8> difficultyMap =
-	{
-		{"", 1},
-		{"EASY", 0},
-		{"NORMAL", 1},
-		{"HARD", 2},
-		{"EXPERT", 3},
-		{"IMPOSSIBLE", 4}
-	};
-
-	mapHeader->difficulty = difficultyMap.at(header["difficulty"].String());
-	mapHeader->levelLimit = header["levelLimit"].Float();
+	mapHeader->difficulty = HeaderDetail::difficultyReverseMap.at(header["difficulty"].String());
+	mapHeader->levelLimit = header["heroLevelLimit"].Float();
 
 
 //	std::vector<bool> allowedHeroes;
 //	std::vector<ui16> placeholdedHeroes;
 
 	readTriggeredEvents(header);
-	readPlayerInfo(header);
-	readTeams(header);
+
+	readPlayerInfo(handler);
+
+	readTeams(handler);
 	//TODO: readHeader
 }
 
-void CMapLoaderJson::readPlayerInfo(const JsonNode & input)
+void CMapLoaderJson::readPlayerInfo(JsonDeserializer & handler)
 {
-	const JsonNode & src = input["players"];
-	int howManyTeams = 0;
+	auto playersData = handler.enterStruct("players");
 
 	for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
 	{
 		PlayerInfo & info = mapHeader->players.at(player);
 
-		const JsonNode & playerSrc = src[GameConstants::PLAYER_COLOR_NAMES[player]];
+		auto playerData = playersData.enterStruct(GameConstants::PLAYER_COLOR_NAMES[player]);
 
-		if(playerSrc.isNull())
+		if(playerData.get().isNull())
 		{
 			info.canComputerPlay = false;
 			info.canHumanPlay = false;
 		}
 		else
 		{
-			readPlayerInfo(info, playerSrc);
+			//allowed factions
+
+		//	info.isFactionRandom =
+
+			info.canComputerPlay = true;
+			info.canHumanPlay = playerData.get()["canPlay"].String() != "AIOnly";
+
+			//placedHeroes
+
+			//mainTown
+
+			info.generateHeroAtMainTown = playerData.get()["generateHeroAtMainTown"].Bool();
+
+			//mainHero
+
+			//mainHeroPortrait
+
+			//mainCustomHeroName
 		}
 	}
-	mapHeader->howManyTeams = howManyTeams;
 }
 
-void CMapLoaderJson::readPlayerInfo(PlayerInfo& info, const JsonNode& input)
+void CMapLoaderJson::readTeams(JsonDeserializer & handler)
 {
-	//allowed factions
-
-//	info.isFactionRandom =
-
-	info.canComputerPlay = true;
-	info.canHumanPlay = input["canPlay"].String() != "AIOnly";
-
-	//placedHeroes
-
-	//mainTown
-
-	info.generateHeroAtMainTown = input["generateHeroAtMainTown"].Bool();
-
-	//mainHero
-
-	//mainHeroPortrait
-
-	//mainCustomHeroName
-}
-
-void CMapLoaderJson::readTeams(const JsonNode& input)
-{
-	const JsonNode & src = input["teams"];
+	auto teamsData = handler.enterStruct("teams");
+	const JsonNode & src = teamsData.get();
 
     if(src.getType() != JsonNode::DATA_VECTOR)
 	{
@@ -566,12 +585,12 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode& src, const int index)
 void CMapLoaderJson::readTerrain()
 {
 	{
-		const JsonNode surface = readJson("surface_terrain.json");
+		const JsonNode surface = getFromArchive("surface_terrain.json");
 		readTerrainLevel(surface, 0);
 	}
 	if(map->twoLevel)
 	{
-		const JsonNode underground = readJson("underground_terrain.json");
+		const JsonNode underground = getFromArchive("underground_terrain.json");
 		readTerrainLevel(underground, 1);
 	}
 
@@ -642,7 +661,7 @@ void CMapLoaderJson::readObjects()
 
 	std::vector<std::unique_ptr<MapObjectLoader>> loaders;//todo: optimize MapObjectLoader memory layout
 
-	const JsonNode data = readJson(OBJECTS_FILE_NAME);
+	const JsonNode data = getFromArchive(OBJECTS_FILE_NAME);
 
 	//get raw data
 	for(const auto & p : data.Struct())
@@ -703,6 +722,8 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 void CMapSaverJson::writeHeader()
 {
 	JsonNode header;
+	JsonSerializer handler(header);
+
 	header["versionMajor"].Float() = VERSION_MAJOR;
 	header["versionMinor"].Float() = VERSION_MINOR;
 
@@ -724,17 +745,9 @@ void CMapSaverJson::writeHeader()
 
 
 	//todo: support arbitrary percentage
-	static const std::map<ui8, std::string> difficultyMap =
-	{
-		{0, "EASY"},
-		{1, "NORMAL"},
-		{2, "HARD"},
-		{3, "EXPERT"},
-		{4, "IMPOSSIBLE"}
-	};
 
-	header["difficulty"].String() = difficultyMap.at(map->difficulty);
-	header["levelLimit"].Float() = map->levelLimit;
+	header["difficulty"].String() = HeaderDetail::difficultyForwardMap.at(map->difficulty);
+	header["heroLevelLimit"].Float() = map->levelLimit;
 
 	writeTriggeredEvents(header);
 
@@ -789,17 +802,15 @@ void CMapSaverJson::writeTeams(JsonNode& output)
 	{
 		const PlayerInfo & player = map->players.at(idx);
 		int team = player.team.getNum();
-		if(vstd::isbetween(team, 0, map->howManyTeams-1) && player.canAnyonePlay())
+		if(vstd::iswithin(team, 0, map->howManyTeams-1) && player.canAnyonePlay())
 			teamsData.at(team).insert(PlayerColor(idx));
 	}
-//just an optimization but breaks test
-#if 0
+
 	//remove single-member teams
 	vstd::erase_if(teamsData, [](std::set<PlayerColor> & elem) -> bool
 	{
 		return elem.size() <= 1;
 	});
-#endif
 
 	//construct output
 	dest.setType(JsonNode::DATA_VECTOR);
