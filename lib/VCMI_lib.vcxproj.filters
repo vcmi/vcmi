@@ -96,9 +96,6 @@
     <ClCompile Include="filesystem\CFileInputStream.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="filesystem\CFileInfo.cpp">
-      <Filter>filesystem</Filter>
-    </ClCompile>
     <ClCompile Include="filesystem\CCompressedStream.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
@@ -236,6 +233,7 @@
     <ClCompile Include="filesystem\FileStream.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
+    <ClCompile Include="filesystem\FileInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -579,6 +577,9 @@
     </ClInclude>
     <ClInclude Include="filesystem\FileStream.h">
       <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\FileInfo.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

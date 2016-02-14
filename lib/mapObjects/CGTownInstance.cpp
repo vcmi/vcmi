@@ -109,7 +109,8 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	if(!relations  &&  ID != Obj::WAR_MACHINE_FACTORY)
+	// TODO this shouldn't be hardcoded
+	if(!relations && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
 	{
 		cb->setOwner(this, h->tempOwner);
 	}
