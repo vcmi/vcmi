@@ -122,8 +122,8 @@ public:
 
 	std::string creatureBg120;
 	std::string creatureBg130;
-	
-	
+
+
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
@@ -142,7 +142,7 @@ public:
 	static std::vector<BattleHex> defaultMoatHexes();
 
 	CFaction * faction;
-	
+
 	std::vector<std::string> names; //names of the town instances
 
 	/// level -> list of creatures on this tier
@@ -281,6 +281,18 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
+
+	//json serialization helper
+	static si32 decodeFaction(const std::string & identifier);
+
+	//json serialization helper
+	static std::string encodeFaction(const si32 index);
+
+	//json serialization helper
+	static si32 decodeBuilding(const std::string & identifier);
+
+	//json serialization helper
+	static std::string encodeBuilding(const si32 index);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

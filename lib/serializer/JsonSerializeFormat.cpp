@@ -66,7 +66,8 @@ JsonSerializeFormat * JsonStructSerializer::operator->()
 
 
 //JsonSerializeFormat
-JsonSerializeFormat::JsonSerializeFormat(JsonNode & root_):
+JsonSerializeFormat::JsonSerializeFormat(JsonNode & root_, const bool saving_):
+	saving(saving_),
 	root(&root_),
 	current(root)
 {

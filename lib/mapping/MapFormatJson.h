@@ -22,6 +22,8 @@ struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
 class AObjectTypeHandler;
+
+class JsonSerializeFormat;
 class JsonDeserializer;
 class JsonSerializer;
 
@@ -44,6 +46,30 @@ protected:
 	 */
 	CMapHeader * mapHeader;
 
+	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
+
+	///common part of header saving/loading
+	void serializeHeader(JsonSerializeFormat & handler);
+
+	///player information saving/loading
+	void serializePlayerInfo(JsonSerializeFormat & handler);
+
+	/**
+	 * Reads team settings to header
+	 * @param input serialized header
+	 */
+	void readTeams(JsonDeserializer & handler);
+
+	/**
+	 * Saves team settings to header
+	 * @param output serialized header
+	 */
+	void writeTeams(JsonSerializer & handler);
+
+
+	///common part triggered events of saving/loading
+	void serializeTriggeredEvents(JsonSerializeFormat & handler);
+
 	/**
 	 * Reads triggered events, including victory/loss conditions
 	 */
@@ -52,7 +78,7 @@ protected:
 	/**
 	 * Writes triggered events, including victory/loss conditions
 	 */
-	void writeTriggeredEvents(JsonNode & output);
+	void writeTriggeredEvents(JsonSerializer & handler);
 
 	/**
 	 * Reads one of triggered events
@@ -138,25 +164,14 @@ private:
 	si32 getIdentifier(const std::string & type, const std::string & name);
 
 	/**
-	 * Reads complete map.
-	 */
-	void readMap();
-
-	/**
 	 * Reads the map header.
 	 */
 	void readHeader();
 
 	/**
-	 * Reads player information.
+	 * Reads complete map.
 	 */
-	void readPlayerInfo(JsonDeserializer & handler);
-
-	/**
-	 * Reads team settings to header
-	 * @param input serialized header
-	 */
-	void readTeams(JsonDeserializer & handler);
+	void readMap();
 
 	void readTerrainTile(const std::string & src, TerrainTile & tile);
 
@@ -204,24 +219,6 @@ private:
 	 * Saves header to zip archive
 	 */
 	void writeHeader();
-
-	/**
-	 * Saves all players info to header
-	 * @param output serialized header
-	 */
-	void writePlayerInfo(JsonNode & output);
-
-	/**
-	 * Saves one player info
-	 * @param output empty object
-	 */
-	void writePlayerInfo(const PlayerInfo & info, JsonNode & output);
-
-	/**
-	 * Saves team settings to header
-	 * @param output serialized header
-	 */
-	void writeTeams(JsonNode & output);
 
 	/**
 	 * Encodes one tile into string

@@ -526,7 +526,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	    info.tavernVideo = source["tavernVideo"].String();
 	else
 		info.tavernVideo = "TAVERN.BIK";
-	//end of legacy assignment 
+	//end of legacy assignment
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -794,4 +794,34 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown /*=true*/) con
 			allowedFactions.insert(i);
 
 	return allowedFactions;
+}
+
+si32 CTownHandler::decodeFaction(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CTownHandler::encodeFaction(const si32 index)
+{
+	return VLC->townh->factions[index]->identifier;
+}
+
+si32 CTownHandler::decodeBuilding(const std::string & identifier)
+{
+	//FIXME: CTownHandler::decodeBuilding
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "building", identifier); //???
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CTownHandler::encodeBuilding(const si32 index)
+{
+	 //FIXME: CTownHandler::encodeBuilding
+	 return "";
 }

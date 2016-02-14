@@ -61,12 +61,13 @@ BOOST_GLOBAL_FIXTURE(CMapTestFixture);
 BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 {
 	logGlobal->info("CMapFormatVCMI_Simple start");
+	BOOST_TEST_CHECKPOINT("CMapFormatVCMI_Simple start");
 	CMemoryBuffer serializeBuffer;
 	{
 		CMapSaverJson saver(&serializeBuffer);
 		saver.saveMap(initialMap);
 	}
-
+	BOOST_TEST_CHECKPOINT("CMapFormatVCMI_Simple serialized");
 	#if 1
 	{
 		auto path = VCMIDirs::get().userDataPath()/"test.vmap";
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 
 		logGlobal->infoStream() << "Test map has been saved to " << path;
 	}
-
+	BOOST_TEST_CHECKPOINT("CMapFormatVCMI_Simple saved");
 
 	#endif // 1
 
