@@ -62,13 +62,13 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		std::make_pair(183, EWallPart::BOTTOM_TOWER),
 		std::make_pair(182, EWallPart::BOTTOM_WALL),
 		std::make_pair(130, EWallPart::BELOW_GATE),
-		std::make_pair(62,  EWallPart::OVER_GATE),
+		std::make_pair(78,  EWallPart::OVER_GATE),
 		std::make_pair(29,  EWallPart::UPPER_WALL),
 		std::make_pair(12,  EWallPart::UPPER_TOWER),
 		std::make_pair(95,  EWallPart::INDESTRUCTIBLE_PART_OF_GATE),
 		std::make_pair(96,  EWallPart::GATE),
 		std::make_pair(45,  EWallPart::INDESTRUCTIBLE_PART),
-		std::make_pair(78,  EWallPart::INDESTRUCTIBLE_PART),
+		std::make_pair(62,  EWallPart::INDESTRUCTIBLE_PART),
 		std::make_pair(112, EWallPart::INDESTRUCTIBLE_PART),
 		std::make_pair(147, EWallPart::INDESTRUCTIBLE_PART)
 	};

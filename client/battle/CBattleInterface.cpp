@@ -3451,7 +3451,7 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		sorted.afterAll.walls.push_back(SiegeHelper::BOTTOM_TOWER);
 		sorted.hex[182].walls.push_back(SiegeHelper::BOTTOM_WALL);
 		sorted.hex[130].walls.push_back(SiegeHelper::WALL_BELLOW_GATE);
-		sorted.hex[62].walls.push_back(SiegeHelper::WALL_OVER_GATE);
+		sorted.hex[78].walls.push_back(SiegeHelper::WALL_OVER_GATE);
 		sorted.hex[12].walls.push_back(SiegeHelper::UPPER_WALL);
 		sorted.beforeAll.walls.push_back(SiegeHelper::UPPER_TOWER);
 		sorted.hex[94].walls.push_back(SiegeHelper::GATE);
