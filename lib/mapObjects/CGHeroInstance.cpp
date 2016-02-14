@@ -1481,8 +1481,9 @@ void CGHeroInstance::writeJsonOptions(JsonNode& json) const
 		json["type"].String() = VLC->heroh->heroes[subID]->identifier;
 	}
 
-	CCreatureSet::writeJson(json["army"]);
 	CGObjectInstance::writeOwner(json);
+
+	CCreatureSet::writeJson(json["army"]);
 	CArtifactSet::writeJson(json["artifacts"]);
 
 }
@@ -1501,10 +1502,12 @@ void CGHeroInstance::readJsonOptions(const JsonNode& json)
 			subID = 0; //fallback to Orrin, throw error instead?
 	}
 
-	CCreatureSet::readJson(json["army"]);
 	CGObjectInstance::readOwner(json);
+
+	CCreatureSet::readJson(json["army"]);
 	CArtifactSet::readJson(json["artifacts"]);
 }
+
 bool CGHeroInstance::isMissionCritical() const
 {
 	for(const TriggeredEvent & event : IObjectInterface::cb->getMapHeader()->triggeredEvents)

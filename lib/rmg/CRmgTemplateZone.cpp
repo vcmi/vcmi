@@ -1510,6 +1510,7 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 		{
 			auto mine = (CGMine *) factory.at(static_cast<si32>(res))->create(ObjectTemplate());
 			mine->producedResource = res;
+			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
 			if (!i)
 				addCloseObject(mine, 1500); //only firts one is close
@@ -1523,6 +1524,7 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 		{
 			auto mine = (CGMine *) factory.at(static_cast<si32>(res))->create(ObjectTemplate());
 			mine->producedResource = res;
+			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
 			addRequiredObject(mine, 3500);
 		}
@@ -1531,6 +1533,7 @@ bool CRmgTemplateZone::placeMines (CMapGenerator* gen)
 	{
 		auto mine = (CGMine *) factory.at(Res::GOLD)->create(ObjectTemplate());
 		mine->producedResource = Res::GOLD;
+		mine->tempOwner = PlayerColor::NEUTRAL;
 		mine->producedQuantity = mine->defaultResProduction();
 		addRequiredObject(mine, 7000);
 	}

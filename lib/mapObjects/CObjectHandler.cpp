@@ -373,19 +373,22 @@ void CGObjectInstance::readJsonOptions(const JsonNode & json)
 
 void CGObjectInstance::writeOwner(JsonNode & json) const
 {
-	if(tempOwner != PlayerColor::UNFLAGGABLE)
+	if(tempOwner.isValidPlayer())
 	{
-		PlayerColor p (tempOwner);
-		if(p.isValidPlayer())
-			json["owner"].String() = GameConstants::PLAYER_COLOR_NAMES[p.getNum()];
+		json["owner"].String() = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
 	}
 }
 
 void CGObjectInstance::readOwner(const JsonNode & json)
 {
+	tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
 	if(json["owner"].getType() == JsonNode::DATA_STRING)
 	{
-		tempOwner = PlayerColor(vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String()));
+		auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String());
+		if(rawOwner >=0)
+			tempOwner = PlayerColor(rawOwner);
+		else
+			logGlobal->errorStream() << "Invalid owner :" << json["owner"].String();
 	}
 }
 
