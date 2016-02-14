@@ -317,13 +317,15 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 void CGDwelling::writeJsonOptions(JsonNode& json) const
 {
 	//todo:CGDwelling::writeJsonOptions
-	CGObjectInstance::writeOwner(json);
+	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+		CGObjectInstance::writeOwner(json);
 }
 
 void CGDwelling::readJsonOptions(const JsonNode& json)
 {
 	//todo:CGDwelling::readJsonOptions
-	CGObjectInstance::readOwner(json);
+	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+		CGObjectInstance::readOwner(json);
 }
 
 int CGTownInstance::getSightRadius() const //returns sight distance
