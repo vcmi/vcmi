@@ -2753,10 +2753,9 @@ void CBattleInterface::gateStateChanged(const EGateState state)
 		break;
 	}
 
-	SDL_FreeSurface(siegeH->walls[9]);
-	siegeH->walls[9] = nullptr;
+	SDL_FreeSurface(siegeH->walls[SiegeHelper::GATE]);
 	if(stateId != EWallState::NONE)
-		siegeH->walls[9] = BitmapHandler::loadBitmap(siegeH->getSiegeName(9, stateId));
+		siegeH->walls[SiegeHelper::GATE] = BitmapHandler::loadBitmap(siegeH->getSiegeName(SiegeHelper::GATE, stateId));
 	if(playSound)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
@@ -2821,11 +2820,7 @@ CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, cons
 {
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		//gate have no displayed bitmap when drawbridge is raised
-		if(g == SiegeHelper::GATE)
-			walls[g] = nullptr;
-		else
-			walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
+		walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
 	}
 }
 
@@ -2919,7 +2914,7 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) co
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
-	auto & ci = owner->siegeH->town->town->clientInfo;
+	auto & ci = town->town->clientInfo;
 
 	if (vstd::iswithin(what, 1, 17))
 	{
@@ -2933,8 +2928,15 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 
 	if(pos.x != -1)
 	{
-		if(walls[what])
-			blitAt(walls[what], pos.x, pos.y, to);
+		//gate have no displayed bitmap when drawbridge is raised
+		if(what == SiegeHelper::GATE)
+		{
+			auto gateState = owner->curInt->cb->battleGetGateState();
+			if(gateState != EGateState::OPENED && gateState != EGateState::DESTROYED)
+				return;
+		}
+
+		blitAt(walls[what], pos.x, pos.y, to);
 	}
 }
 
