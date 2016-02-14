@@ -1472,13 +1472,35 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 
 void CGHeroInstance::writeJsonOptions(JsonNode& json) const
 {
+	if(type)
+	{
+		json["type"].String() = type->identifier;
+	}
+	else
+	{
+		json["type"].String() = VLC->heroh->heroes[subID]->identifier;
+	}
+
 	CCreatureSet::writeJson(json["army"]);
 	CGObjectInstance::writeOwner(json);
 	CArtifactSet::writeJson(json["artifacts"]);
+
 }
 
 void CGHeroInstance::readJsonOptions(const JsonNode& json)
 {
+	if(ID == Obj::HERO || ID == Obj::PRISON)
+	{
+		auto typeName = json["type"].String();
+
+		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", typeName);
+
+		if(rawId)
+			subID = rawId.get();
+		else
+			subID = 0; //fallback to Orrin, throw error instead?
+	}
+
 	CCreatureSet::readJson(json["army"]);
 	CGObjectInstance::readOwner(json);
 	CArtifactSet::readJson(json["artifacts"]);
