@@ -217,14 +217,15 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 	{
 		PlayerInfo & info = mapHeader->players[player];
 
-		auto playerData = playersData.enterStruct(GameConstants::PLAYER_COLOR_NAMES[player]);
-
 		if(handler.saving)
 		{
 			if(!info.canAnyonePlay())
 				continue;
 		}
-		else
+
+		auto playerData = playersData.enterStruct(GameConstants::PLAYER_COLOR_NAMES[player]);
+
+		if(!handler.saving)
 		{
 			if(playerData.get().isNull())
 			{
@@ -262,7 +263,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 
 		//heroes
 		{
-			auto heroes = playersData.enterStruct("heroes");
+			//auto heroes = playerData.enterStruct("heroes");
 
 		}
 
