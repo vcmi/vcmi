@@ -24,14 +24,14 @@ BattleSpellCastParameters::Destination::Destination(const CStack * destination):
 	stackValue(destination),
 	hexValue(destination->position)
 {
-	
+
 }
 
 BattleSpellCastParameters::Destination::Destination(const BattleHex & destination):
 	stackValue(nullptr),
-	hexValue(destination)	
+	hexValue(destination)
 {
-	
+
 }
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell)
@@ -68,10 +68,10 @@ void BattleSpellCastParameters::prepare(const CSpell * spell)
 	effectPower = caster->getEffectPower(spell);
 	effectValue = caster->getEffectValue(spell);
 	enchantPower = caster->getEnchantPower(spell);
-	
+
 	vstd::amax(spellLvl, 0);
 	vstd::amax(effectLevel, 0);
-	vstd::amax(enchantPower, 0);	
+	vstd::amax(enchantPower, 0);
 	vstd::amax(enchantPower, 0);
 	vstd::amax(effectValue, 0);
 }
@@ -118,11 +118,11 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::SACRIFICE:
 		return new SacrificeMechanics(s);
 	case SpellID::SUMMON_FIRE_ELEMENTAL:
-		return new SummonMechanics(s, CreatureID::FIRE_ELEMENTAL);			
+		return new SummonMechanics(s, CreatureID::FIRE_ELEMENTAL);
 	case SpellID::SUMMON_EARTH_ELEMENTAL:
-		return new SummonMechanics(s, CreatureID::EARTH_ELEMENTAL);		
+		return new SummonMechanics(s, CreatureID::EARTH_ELEMENTAL);
 	case SpellID::SUMMON_WATER_ELEMENTAL:
-		return new SummonMechanics(s, CreatureID::WATER_ELEMENTAL);		
+		return new SummonMechanics(s, CreatureID::WATER_ELEMENTAL);
 	case SpellID::SUMMON_AIR_ELEMENTAL:
 		return new SummonMechanics(s, CreatureID::AIR_ELEMENTAL);
 	case SpellID::TELEPORT:
@@ -151,4 +151,4 @@ ISpellMechanics * ISpellMechanics::createMechanics(CSpell * s)
 			return new DefaultSpellMechanics(s);
 	}
 }
-		
+

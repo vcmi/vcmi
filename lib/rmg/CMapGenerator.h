@@ -55,7 +55,7 @@ public:
 	~CMapGenerator(); // required due to std::unique_ptr
 
 	std::unique_ptr<CMap> generate(CMapGenOptions * mapGenOptions, int RandomSeed = std::time(nullptr));
-	
+
 	CMapGenOptions * mapGenOptions;
 	std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
@@ -74,14 +74,14 @@ public:
 	bool isFree(const int3 &tile) const;
 	bool isUsed(const int3 &tile) const;
 	bool isRoad(const int3 &tile) const;
-	
+
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
-	
+
 	CTileInfo getTile(const int3 & tile) const;
 	bool isAllowedSpell(SpellID sid) const;
 
-	float getNearestObjectDistance(const int3 &tile) const; 
+	float getNearestObjectDistance(const int3 &tile) const;
 	void setNearestObjectDistance(int3 &tile, float value);
 
 	int getNextMonlithIndex();

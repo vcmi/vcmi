@@ -15,14 +15,14 @@
 class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
 {
 public:
-	enum class EHealLevel 
+	enum class EHealLevel
 	{
 		HEAL,
 		RESURRECT,
 		TRUE_RESURRECT
 	};
 
-	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};	
+	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	virtual int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
@@ -32,9 +32,9 @@ protected:
 class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
 {
 public:
-	AntimagicMechanics(CSpell * s): DefaultSpellMechanics(s){};	
-	
-	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;	
+	AntimagicMechanics(CSpell * s): DefaultSpellMechanics(s){};
+
+	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
 
 class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
@@ -59,7 +59,7 @@ public:
 	CureMechanics(CSpell * s): HealingSpellMechanics(s){};
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
-	
+
 	EHealLevel getHealLevel(int effectLevel) const override final;
 };
 
@@ -130,7 +130,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
-	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;	
+	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
 ///all rising spells but SACRIFICE

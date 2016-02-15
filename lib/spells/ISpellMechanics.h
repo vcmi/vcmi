@@ -34,13 +34,13 @@ public:
 struct DLL_LINKAGE BattleSpellCastParameters
 {
 public:
-	///Single spell destination. 
+	///Single spell destination.
 	/// (assumes that anything but battle stack can share same hex)
 	struct DLL_LINKAGE Destination
 	{
-		explicit Destination(const CStack * destination); 
+		explicit Destination(const CStack * destination);
 		explicit Destination(const BattleHex & destination);
-		
+
 		const CStack * stackValue;
 		const BattleHex hexValue;
 	};
@@ -49,10 +49,10 @@ public:
 	void aimToHex(const BattleHex & destination);
 	void aimToStack(const CStack * destination);
 	BattleHex getFirstDestinationHex() const;
-	
+
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
-	const PlayerColor casterColor;	
+	const PlayerColor casterColor;
 	const ui8 casterSide;
 
 	std::vector<Destination> destinations;
@@ -63,7 +63,7 @@ public:
 	const CStack * selectedStack;//deprecated
 
 	///spell school level
-	int spellLvl;	
+	int spellLvl;
 	///spell school level to use for effects
 	int effectLevel;
 	///actual spell-power affecting effect values
@@ -72,7 +72,7 @@ public:
 	int enchantPower;
 	///for Archangel-like casting
 	int effectValue;
-private:	
+private:
 	void prepare(const CSpell * spell);
 };
 
@@ -105,18 +105,18 @@ public:
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
 	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
-	
+
 	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const = 0;
-	
+
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
-	
+
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
 	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
 	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
 
-	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
+	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
-	
+
 	static ISpellMechanics * createMechanics(CSpell * s);
 protected:
 	CSpell * owner;

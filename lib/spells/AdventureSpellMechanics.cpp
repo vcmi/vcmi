@@ -206,9 +206,9 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 	}
 
 	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
-	
+
 	const auto relations = env->getCb()->getPlayerRelations(town->tempOwner, parameters.caster->tempOwner);
-	
+
 	if(relations == PlayerRelations::ENEMIES)
 	{
 		env->complain("Can't teleport to enemy!");
@@ -241,21 +241,21 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 		}
 
 	}
-	
+
 	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
-	
+
 	if(parameters.caster->movement < movementCost)
 	{
 		env->complain("This hero has not enough movement points!");
-		return ESpellCastResult::ERROR;		
+		return ESpellCastResult::ERROR;
 	}
-	
+
 	if(env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1))
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
 		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
-		env->sendAndApply(&smp);		
+		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
 }
@@ -271,7 +271,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
 		//todo:we need to send only not visible objects
-		
+
 		if(obj)//for some reason deleted object remain as empty pointer
 			if(filterObject(obj, spellLevel))
 				pack.objectPositions.push_back(ObjectPosInfo(obj));
