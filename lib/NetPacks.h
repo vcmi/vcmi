@@ -1689,6 +1689,21 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	}
 };
 
+struct BattleUpdateGateState : public CPackForClient//3021
+{
+	BattleUpdateGateState(){type = 3021;};
+
+	void applyFirstCl(CClient *cl);
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	EGateState state;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & state;
+	}
+};
+
 
 struct ShowInInfobox : public CPackForClient //107
 {

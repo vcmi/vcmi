@@ -11,6 +11,9 @@ GENERAL:
 * New cheat code:
 - vcmiglaurung - gives 5000 crystal dragons into each slot
 
+BATTLES:
+* Drawbridge mechanics implemented (animation still missing)
+
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly

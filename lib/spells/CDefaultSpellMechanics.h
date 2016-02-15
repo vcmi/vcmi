@@ -19,7 +19,7 @@ class StacksInjured;
 struct SpellCastContext
 {
 	SpellCastContext(std::vector<const CStack *> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
-		attackedCres(attackedCres), sc(sc), si(si)	
+		attackedCres(attackedCres), sc(sc), si(si)
 	{
 	};
 	std::vector<const CStack *> & attackedCres;
@@ -43,21 +43,21 @@ public:
 	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
-	
+
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override final;
 
-	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet, 
-		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;	
+	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
+		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
-	
+
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 private:
 	void castMagicMirror(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;

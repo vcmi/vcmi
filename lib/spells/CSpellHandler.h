@@ -68,7 +68,7 @@ public:
 	{
 		std::string resourceName;
 		VerticalPosition verticalPosition;
-		int pause; 
+		int pause;
 
 		AnimationItem();
 
@@ -78,7 +78,7 @@ public:
 			if(version >= 754) //save format backward compatibility
 			{
 				h & pause;
-			}			
+			}
 			else if(!h.saving)
 			{
 				pause = 0;
@@ -128,8 +128,8 @@ public:
 		std::string range;
 
 		std::vector<Bonus> effects;
-		
-		std::vector<Bonus *> effectsTmp; //TODO: this should replace effects 
+
+		std::vector<Bonus *> effectsTmp; //TODO: this should replace effects
 
 		LevelInfo();
 		~LevelInfo();
@@ -265,13 +265,13 @@ public:
 	friend class Graphics;
 public:
 	///internal interface (for callbacks)
-	
+
 	///Checks general but spell-specific problems for all casting modes. Use only during battle.
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const;
 
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
-	
+
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const;
 public:
@@ -295,7 +295,7 @@ public://internal, for use only by Mechanics classes
 	///applies caster`s secondary skills and affectedCreature`s to raw damage
 	int adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const;
 	///returns raw damage or healed HP
-	int calculateRawEffectValue(int effectLevel, int effectPower) const;		
+	int calculateRawEffectValue(int effectLevel, int effectPower) const;
 	///generic immunity calculation
 	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 

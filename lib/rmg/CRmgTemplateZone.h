@@ -47,12 +47,12 @@ public:
 	bool isPossible() const;
 	bool isFree() const;
 	bool isUsed() const;
-	bool isRoad() const;	
+	bool isRoad() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
-	
+
 	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
@@ -175,7 +175,7 @@ public:
 	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
 	bool connectPath(CMapGenerator* gen, const int3& src, bool onlyStraight);
 	bool connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight);
-	
+
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
 
 	void addConnection(TRmgTemplateZoneId otherZone);
@@ -229,11 +229,11 @@ private:
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
-	
+
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
 	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
-	
+
 	bool createRoad(CMapGenerator* gen, const int3 &src, const int3 &dst);
 	void drawRoads(CMapGenerator * gen); //actually updates tiles
 

@@ -339,7 +339,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 
 	// Add some comp only players if necessary
 	int compOnlyPlayersToAdd = getPlayerCount() - players.size();
-	
+
 	if (compOnlyPlayersToAdd < 0)
 	{
 		logGlobal->errorStream() << boost::format("Incorrect number of players to add. Requested players %d, current players %d") % playerCount % players.size();

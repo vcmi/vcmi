@@ -115,7 +115,7 @@ public:
 	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex); //distance - number of hexes travelled before attacking
 	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
-	void checkForBattleEnd();
+	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 	void duelFinished();
@@ -203,6 +203,7 @@ public:
 	PlayerColor getPlayerAt(CConnection *c) const;
 
 	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
+	void updateGateState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	bool makeCustomAction(BattleAction &ba);

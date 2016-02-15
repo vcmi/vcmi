@@ -1012,6 +1012,14 @@ void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
 	battleInt->obstaclePlaced(obstacle);
 }
 
+void CPlayerInterface::battleGateStateChanged(const EGateState state)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->gateStateChanged(state);
+}
+
 void CPlayerInterface::yourTacticPhase(int distance)
 {
 	THREAD_CREATED_BY_CLIENT;

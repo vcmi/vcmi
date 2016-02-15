@@ -29,7 +29,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	for(auto & attackedCre : ctx.attackedCres)
 	{
 		StacksHealedOrResurrected::HealInfo hi;
-		hi.stackID = (attackedCre)->ID;		
+		hi.stackID = (attackedCre)->ID;
 		int stackHPgained = parameters.caster->getSpellBonus(owner, hpGained, attackedCre);
 		hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
 		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
@@ -54,11 +54,11 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 	doDispell(battle, packet, [this](const Bonus * b) -> bool
 	{
 		if(b->source == Bonus::SPELL_EFFECT)
-		{				
+		{
 			return b->sid != owner->id; //effect from this spell
 		}
 		return false; //not a spell effect
-	});	
+	});
 }
 
 ///ChainLightningMechanics
@@ -125,12 +125,12 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const 
 	ssp.val = 0;
 	ssp.absolute = 1;
 	env->sendAndApply(&ssp);
-	
+
 	ssp.stackID = clonedStack->ID;
 	ssp.which = BattleSetStackProperty::HAS_CLONE;
 	ssp.val = bsa.newStackID;
 	ssp.absolute = 1;
-	env->sendAndApply(&ssp);	
+	env->sendAndApply(&ssp);
 }
 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
@@ -172,7 +172,7 @@ void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * pac
 			CSpell * sp = SpellID(b->sid).toSpell();
 			return sp->isNegative();
 		}
-		return false; //not a spell effect		
+		return false; //not a spell effect
 	});
 }
 
@@ -193,9 +193,9 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 	{
 		//just in case
 		if(!obj->alive())
-			return ESpellCastProblem::WRONG_SPELL_TARGET;			
+			return ESpellCastProblem::WRONG_SPELL_TARGET;
 	}
-	//DISPELL ignores all immunities, except specific absolute immunity 
+	//DISPELL ignores all immunities, except specific absolute immunity
 	{
 		//SPELL_IMMUNITY absolute case
 		std::stringstream cachingStr;
@@ -210,7 +210,7 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 		if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
 		{
 			return ESpellCastProblem::OK;
-		}		
+		}
 	}
 	return ESpellCastProblem::WRONG_SPELL_TARGET;
 	//any other immunities are ignored - do not execute default algorithm
@@ -337,7 +337,7 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 	{
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	
+
 	CSpell::TargetInfo ti(owner, 0);//TODO: use real spell level
 	if(ti.smart)
 	{
@@ -353,7 +353,7 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//todo: maybe do not resist on passive cast
-	if(nullptr != caster) 
+	if(nullptr != caster)
 	{
 		//TODO: what with other creatures casting hypnotize, Faerie Dragons style?
 		ui64 subjectHealth = (obj->count - 1) * obj->MaxHealth() + obj->firstHPleft;
@@ -521,7 +521,7 @@ HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectL
 	//this may be even distinct class
 	if((effectLevel <= 1) && (owner->id == SpellID::RESURRECTION))
 		return EHealLevel::RESURRECT;
-	
+
 	return EHealLevel::TRUE_RESURRECT;
 }
 
@@ -532,9 +532,9 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
-	
+
 	const CGHeroInstance * caster = nullptr; //todo: use ISpellCaster
-	
+
 	if(cb->battleHasHero(cb->playerToSide(player)))
 		caster = cb->battleGetFightingHero(cb->playerToSide(player));
 
@@ -624,7 +624,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
 	//FIXME: Archangels can cast immune stack and this should be applied for them and not hero
-//	if(caster) 
+//	if(caster)
 //	{
 //		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
 //		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
@@ -640,16 +640,16 @@ ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInf
 	const ui8 side = cb->playerToSide(player);
 
 	//check if there are summoned elementals of other type
-	
+
 	auto otherSummoned = cb->battleGetStacksIf([side, this](const CStack * st)
 	{
 		return (st->attackerOwned == !side)
 			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
 			&& (st->getCreature()->idNumber != creatureToSummon);
 	});
-	
+
 	if(!otherSummoned.empty())
-		return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;	
+		return ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED;
 
 	return ESpellCastProblem::OK;
 }
@@ -692,7 +692,7 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 		if(!destination.isValid())
 		{
 			env->complain("TeleportMechanics: invalid teleport destination");
-			return;			
+			return;
 		}
 		BattleStackMoved bsm;
 		bsm.distance = -1;
@@ -701,7 +701,7 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 		tiles.push_back(destination);
 		bsm.tilesToMove = tiles;
 		bsm.teleporting = true;
-		env->sendAndApply(&bsm);		
+		env->sendAndApply(&bsm);
 	}
 	else
 	{
@@ -714,7 +714,7 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 		bsm.tilesToMove = tiles;
 		bsm.teleporting = true;
 		env->sendAndApply(&bsm);
-	}		
+	}
 }
 
 

@@ -196,7 +196,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 				{
 					zone->setMinesAmount (mineInfo.first, mineInfo.second);
 				}
-					
+
 			}
 		}
 
@@ -239,8 +239,8 @@ CRmgTemplate::CSize CRmgTemplateStorage::parseMapTemplateSize(const std::string 
 
 	std::vector<std::string> parts;
 	boost::split(parts, text, boost::is_any_of("+"));
-	static const std::map<std::string, int> mapSizeMapping = 
-	{ 
+	static const std::map<std::string, int> mapSizeMapping =
+	{
 		{"s", CMapHeader::MAP_SIZE_SMALL},
 		{"m", CMapHeader::MAP_SIZE_MIDDLE},
 		{"l", CMapHeader::MAP_SIZE_LARGE},
@@ -269,12 +269,12 @@ CRmgTemplate::CSize CRmgTemplateStorage::parseMapTemplateSize(const std::string 
 
 ETemplateZoneType::ETemplateZoneType CRmgTemplateStorage::parseZoneType(const std::string & type) const
 {
-	static const std::map<std::string, ETemplateZoneType::ETemplateZoneType> zoneTypeMapping = 
+	static const std::map<std::string, ETemplateZoneType::ETemplateZoneType> zoneTypeMapping =
 	{
 		{"playerStart", ETemplateZoneType::PLAYER_START},
 		{"cpuStart", ETemplateZoneType::CPU_START},
 		{"treasure", ETemplateZoneType::TREASURE},
-		{"junction", ETemplateZoneType::JUNCTION},		
+		{"junction", ETemplateZoneType::JUNCTION},
 	};
 	auto it = zoneTypeMapping.find(type);
 	if(it == zoneTypeMapping.end()) throw std::runtime_error("Zone type unknown.");
