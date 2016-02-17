@@ -254,7 +254,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 		iw.text.addReplacement(h->name);
 
 		cb->showInfoDialog(&iw);
-		cb->giveCreatures(this, h, creatures, true);
+		cb->giveCreatures(this, h, creatures, false);
 	}
 	if(!hasGuardians && msg.size())
 	{
