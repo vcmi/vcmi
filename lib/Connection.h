@@ -1100,7 +1100,7 @@ public:
 			ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 			//T is most derived known type, it's time to call actual serialize
-			ptr->serialize(s,version);
+			ptr->serialize(s,s.fileVersion);
 			return &typeid(T);
 		}
 	};
