@@ -124,7 +124,11 @@ struct DLL_LINKAGE EventCondition
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & object & value & objectType & position & condition;
+		h & object;
+		h & value;
+		h & objectType;
+		h & position;
+		h & condition;
 	}
 };
 
@@ -171,7 +175,10 @@ struct DLL_LINKAGE TriggeredEvent
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & identifier & trigger & description & onFulfill & effect;
+		h & identifier;
+		h & trigger;
+		h & description;
+		h & onFulfill & effect;
 	}
 };
 
@@ -207,7 +214,7 @@ struct DLL_LINKAGE DisposedHero
 
 namespace EMapFormat
 {
-enum EMapFormat
+enum EMapFormat: ui8
 {
 	INVALID = 0,
 	//    HEX     DEC
