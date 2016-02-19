@@ -162,6 +162,7 @@
 		<Unit filename="CObstacleInstance.h" />
 		<Unit filename="CPathfinder.cpp" />
 		<Unit filename="CPathfinder.h" />
+		<Unit filename="CPlayerState.h" />
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
