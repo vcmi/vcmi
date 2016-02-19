@@ -1679,6 +1679,11 @@ void CGameHandler::run(bool resume)
 					YourTurn yt;
 					yt.player = playerColor;
 					//Change local daysWithoutCastle counter for local interface message //TODO: needed?
+					if(playerState->daysWithoutCastle)
+						logGlobal->debugStream() <<"Player " << playerColor << " w|o castle " << playerState->daysWithoutCastle.get();
+					else
+						logGlobal->debugStream() <<"Player " << playerColor << " has castle ";
+
 					yt.daysWithoutCastle = playerState->daysWithoutCastle;
 					applyAndSend(&yt);
 
