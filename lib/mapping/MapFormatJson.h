@@ -56,13 +56,11 @@ protected:
 
 	/**
 	 * Reads team settings to header
-	 * @param input serialized header
 	 */
 	void readTeams(JsonDeserializer & handler);
 
 	/**
 	 * Saves team settings to header
-	 * @param output serialized header
 	 */
 	void writeTeams(JsonSerializer & handler);
 
@@ -89,6 +87,21 @@ protected:
 	 * Writes one of triggered events
 	 */
 	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
+
+
+
+	///common part of map attributes saving/loading
+	void serializeOptions(JsonSerializeFormat & handler);
+
+	/**
+	 * Loads map attributes except header ones
+	 */
+	void readOptions(JsonDeserializer & handler);
+
+	/**
+	 * Saves map attributes except header ones
+	 */
+	void writeOptions(JsonSerializer & handler);
 };
 
 class DLL_LINKAGE CMapPatcher : public CMapFormatJson, public IMapPatcher
@@ -166,7 +179,7 @@ private:
 	/**
 	 * Reads the map header.
 	 */
-	void readHeader();
+	void readHeader(const bool complete);
 
 	/**
 	 * Reads complete map.

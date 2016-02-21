@@ -54,10 +54,32 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 	if(field.isNull())
 		return;
 
+	auto loadPart = [&](const JsonVector & part, const bool val)
+	{
+		for(size_t index = 0; index < part.size(); index++)
+		{
+			const std::string & identifier = part[index].String();
+
+			logGlobal->debugStream() << "serializeLIC: " << fieldName << " " << identifier;
+
+			si32 rawId = decoder(identifier);
+			if(rawId >= 0)
+			{
+				if(rawId < value.size())
+					value[rawId] = val;
+				else
+					logGlobal->errorStream() << "JsonDeserializer::serializeLIC: " << fieldName <<" id out of bounds " << rawId;
+			}
+			else
+			{
+				logGlobal->errorStream() << "JsonDeserializer::serializeLIC: " << fieldName <<" identifier not resolved " << identifier;
+			}
+		}
+	};
+
 	const JsonVector & anyOf = field["anyOf"].Vector();
 	const JsonVector & allOf = field["allOf"].Vector();
 	const JsonVector & noneOf = field["noneOf"].Vector();
-
 
 	if(anyOf.empty() && allOf.empty())
 	{
@@ -70,35 +92,11 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 		value.clear();
 		value.resize(standard.size(), false);
 
-		for(size_t index = 0; index < anyOf.size(); index++)
-		{
-			const std::string & identifier = anyOf[index].String();
-
-			si32 rawId = decoder(identifier);
-			if(rawId >= 0)
-				value[rawId] = true;
-		}
-
-
-		for(size_t index = 0; index < allOf.size(); index++)
-		{
-			const std::string & identifier = allOf[index].String();
-
-			si32 rawId = decoder(identifier);
-			if(rawId >=0)
-				value[rawId] = true;
-		}
+		loadPart(anyOf, true);
+		loadPart(allOf, true);
 	}
 
-	for(size_t index = 0; index < noneOf.size(); index++)
-	{
-		const std::string & identifier = noneOf[index].String();
-
-		si32 rawId = decoder(identifier);
-		if(rawId >=0 )
-			value[rawId] = false;
-	}
-
+	loadPart(noneOf, false);
 }
 
 void JsonDeserializer::serializeString(const std::string & fieldName, std::string & value)

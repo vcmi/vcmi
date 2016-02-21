@@ -255,6 +255,12 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
+	///json serialization helper
+	static si32 decodeArfifact(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeArtifact(const si32 index);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics

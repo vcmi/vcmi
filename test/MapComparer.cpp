@@ -26,6 +26,16 @@ void checkEqual(const T & actual, const T & expected)
 	BOOST_CHECK_EQUAL(actual, expected)	;
 }
 
+void checkEqual(const std::vector<bool> & actual, const std::vector<bool> & expected)
+{
+	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+
+	for(auto actualIt = actual.begin(), expectedIt = expected.begin(); actualIt != actual.end() && expectedIt != expected.end(); actualIt++, expectedIt++)
+	{
+		checkEqual(*actualIt, *expectedIt);
+	}
+}
+
 template <class Element>
 void checkEqual(const std::vector<Element> & actual, const std::vector<Element> & expected)
 {
@@ -89,6 +99,20 @@ void checkEqual(const TriggeredEvent & actual,  const TriggeredEvent & expected)
 	checkEqual(actual.trigger, expected.trigger);
 }
 
+void checkEqual(const Rumor & actual, const Rumor & expected)
+{
+	VCMI_CHECK_FIELD_EQUAL(name);
+	VCMI_CHECK_FIELD_EQUAL(text);
+}
+
+void checkEqual(const DisposedHero & actual, const DisposedHero & expected)
+{
+	VCMI_CHECK_FIELD_EQUAL(heroId);
+	VCMI_CHECK_FIELD_EQUAL(portrait);
+	VCMI_CHECK_FIELD_EQUAL(name);
+	VCMI_CHECK_FIELD_EQUAL(players);
+}
+
 void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 {
 	//fatal fail here on any error
@@ -138,14 +162,16 @@ void MapComparer::compareHeader()
 
 void MapComparer::compareOptions()
 {
-	//rumors
-	//disposedHeroes
-	//predefinedHeroes
-	//allowedSpell
-	//allowedArtifact
-	//allowedAbilities
+	checkEqual(actual->rumors, expected->rumors);
+	checkEqual(actual->disposedHeroes, expected->disposedHeroes);
+	//todo: compareOptions predefinedHeroes
 
-	BOOST_ERROR("Not implemented compareOptions()");
+	checkEqual(actual->allowedAbilities, expected->allowedAbilities);
+	checkEqual(actual->allowedArtifact, expected->allowedArtifact);
+	checkEqual(actual->allowedSpell, expected->allowedSpell);
+	//checkEqual(actual->allowedAbilities, expected->allowedAbilities);
+
+	//todo: compareOptions  events
 }
 
 void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectInstance * expected)

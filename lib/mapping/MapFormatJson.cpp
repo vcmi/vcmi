@@ -23,6 +23,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../spells/CSpellHandler.h"
 #include "../StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -432,6 +433,35 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent& event, JsonNode& 
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }
 
+void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
+{
+	//rumors
+
+	//disposedHeroes
+
+	//predefinedHeroes
+
+	handler.serializeLIC("allowedAbilities", &CHeroHandler::decodeSkill, &CHeroHandler::encodeSkill, VLC->heroh->getDefaultAllowedAbilities(), map->allowedAbilities);
+
+	handler.serializeLIC("allowedArtifacts", &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
+
+	handler.serializeLIC("allowedSpells", &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell, VLC->spellh->getDefaultAllowed(), map->allowedSpell);
+
+
+	//events
+}
+
+void CMapFormatJson::readOptions(JsonDeserializer & handler)
+{
+	serializeOptions(handler);
+}
+
+void CMapFormatJson::writeOptions(JsonSerializer & handler)
+{
+	serializeOptions(handler);
+}
+
+
 ///CMapPatcher
 CMapPatcher::CMapPatcher(JsonNode stream):
 	input(stream)
@@ -490,7 +520,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	map = nullptr;
 	std::unique_ptr<CMapHeader> result = std::unique_ptr<CMapHeader>(new CMapHeader());
 	mapHeader = result.get();
-	readHeader();
+	readHeader(false);
 	return std::move(result);
 }
 
@@ -512,7 +542,7 @@ const JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilenam
 void CMapLoaderJson::readMap()
 {
 	LOG_TRACE(logGlobal);
-	readHeader();
+	readHeader(true);
 	map->initTerrain();
 	readTerrain();
 	readObjects();
@@ -525,7 +555,7 @@ void CMapLoaderJson::readMap()
 	map->calculateGuardingGreaturePositions();
 }
 
-void CMapLoaderJson::readHeader()
+void CMapLoaderJson::readHeader(const bool complete)
 {
 	//do not use map field here, use only mapHeader
 	JsonNode header = getFromArchive(HEADER_FILE_NAME);
@@ -575,6 +605,9 @@ void CMapLoaderJson::readHeader()
 
 	readTeams(handler);
 	//TODO: readHeader
+
+	if(complete)
+		readOptions(handler);
 }
 
 
@@ -899,6 +932,8 @@ void CMapSaverJson::writeHeader()
 
 	//todo:	allowedHeroes;
 	//todo: placeholdedHeroes;
+
+	writeOptions(handler);
 
 	addToArchive(header, HEADER_FILE_NAME);
 }

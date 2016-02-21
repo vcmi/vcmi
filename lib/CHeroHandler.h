@@ -257,6 +257,12 @@ public:
 	 */
 	std::vector<bool> getDefaultAllowedAbilities() const;
 
+	///json serialization helper
+	static si32 decodeSkill(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeSkill(const si32 index);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & classes & heroes & expPerLevel & ballistics & terrCosts;

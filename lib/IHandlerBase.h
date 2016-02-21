@@ -25,6 +25,7 @@ class DLL_LINKAGE IHandlerBase
 protected:
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
 	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
+	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
 
 public:
 	/// loads all original game data in vector of json nodes
@@ -65,7 +66,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
 		auto type_name = getTypeName();
-		auto object = loadFromJson(data, name);
+		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 		object->id = _ObjectID(objects.size());
 
 		objects.push_back(object);
@@ -75,7 +76,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
 		auto type_name = getTypeName();
-		auto object = loadFromJson(data, name);
+		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 		object->id = _ObjectID(index);
 
 

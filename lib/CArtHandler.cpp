@@ -203,7 +203,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = ArtifactID(artifacts.size());
 	object->iconIndex = object->id + 5;
 
@@ -231,12 +231,12 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
 	});
 
-	registerObject(scope, "artifact", object->identifier, object->id);
+	registerObject(scope, "artifact", name, object->id);
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = ArtifactID(index);
 	object->iconIndex = object->id;
 
@@ -264,7 +264,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
 			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
 	});
-	registerObject(scope, "artifact", object->identifier, object->id);
+	registerObject(scope, "artifact", name, object->id);
 }
 
 CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
@@ -674,7 +674,7 @@ std::vector<bool> CArtHandler::getDefaultAllowed() const
 	std::vector<bool> allowedArtifacts;
 	allowedArtifacts.resize(127, true);
 	allowedArtifacts.resize(141, false);
-	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, true);
+	allowedArtifacts.resize(artifacts.size(), true);
 	return allowedArtifacts;
 }
 
@@ -740,6 +740,20 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 	CBonusSystemNode::treeHasChanged();
+}
+
+si32 CArtHandler::decodeArfifact(const std::string& identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CArtHandler::encodeArtifact(const si32 index)
+{
+	return VLC->arth->artifacts[index]->identifier;
 }
 
 CArtifactInstance::CArtifactInstance()

@@ -368,7 +368,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
@@ -402,7 +402,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(index));
 	object->iconIndex = object->idNumber + 2;
 

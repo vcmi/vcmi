@@ -1078,6 +1078,27 @@ CSpellHandler::~CSpellHandler()
 std::vector<bool> CSpellHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedSpells;
-	allowedSpells.resize(GameConstants::SPELLS_QUANTITY, true);
+	allowedSpells.reserve(objects.size());
+
+	for(const CSpell * s : objects)
+	{
+		allowedSpells.push_back( !(s->isSpecialSpell() || s->isCreatureAbility()));
+	}
+
 	return allowedSpells;
 }
+
+si32 CSpellHandler::decodeSpell(const std::string& identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CSpellHandler::encodeSpell(const si32 index)
+{
+	return VLC->spellh->objects[index]->identifier;
+}
+

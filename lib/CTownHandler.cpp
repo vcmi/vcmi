@@ -682,7 +682,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string 
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 
 	object->index = factions.size();
 	factions.push_back(object);
@@ -699,7 +699,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
-			config["faction"].String() = object->identifier;
+			config["faction"].String() = name;
 			config["faction"].meta = scope;
 			if (config.meta.empty())// MODS COMPATIBILITY FOR 0.96
 				config.meta = scope;
@@ -722,7 +722,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->index = index;
 	assert(factions[index] == nullptr); // ensure that this id was not loaded before
 	factions[index] = object;
@@ -739,7 +739,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
-			config["faction"].String() = object->identifier;
+			config["faction"].String() = name;
 			config["faction"].meta = scope;
 			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
 		});
