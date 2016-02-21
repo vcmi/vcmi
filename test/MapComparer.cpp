@@ -59,6 +59,12 @@ void checkEqual(const std::set<Element> & actual, const std::set<Element> & expe
 	}
 }
 
+void checkEqual(const SHeroName & actual, const SHeroName & expected)
+{
+	VCMI_CHECK_FIELD_EQUAL(heroId);
+	VCMI_CHECK_FIELD_EQUAL(heroName);
+}
+
 void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 {
 	VCMI_CHECK_FIELD_EQUAL(canHumanPlay);
@@ -73,14 +79,13 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 
 	VCMI_CHECK_FIELD_EQUAL(mainCustomHeroId);
 
-	//todo:heroesNames
+	checkEqual(actual.heroesNames, expected.heroesNames);
 
 	VCMI_CHECK_FIELD_EQUAL(hasMainTown);
 	VCMI_CHECK_FIELD_EQUAL(generateHeroAtMainTown);
 	VCMI_CHECK_FIELD_EQUAL(posOfMainTown);
 	VCMI_CHECK_FIELD_EQUAL(team);
 	VCMI_CHECK_FIELD_EQUAL(hasRandomHero);
-
 }
 
 void checkEqual(const EventExpression & actual,  const EventExpression & expected)
@@ -141,6 +146,8 @@ void MapComparer::compareHeader()
 	VCMI_CHECK_FIELD_EQUAL_P(defeatMessage);
 	VCMI_CHECK_FIELD_EQUAL_P(victoryIconIndex);
 	VCMI_CHECK_FIELD_EQUAL_P(defeatIconIndex);
+
+	VCMI_CHECK_FIELD_EQUAL_P(howManyTeams);
 
 	checkEqual(actual->players, expected->players);
 
