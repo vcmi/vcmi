@@ -237,6 +237,7 @@ public:
 
 	CBuilding::TRequired genBuildingRequirements(BuildingID build, bool includeUpgrade=true) const;
 
+	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
 	void removeCapitols (PlayerColor owner) const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si32 structureInstanceID) const; //hero must be visiting or garrisoned in town
 

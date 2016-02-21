@@ -535,8 +535,12 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 
 			bool outsideTown = (defendingHero == visitingHero && garrisonHero);
 
-			//TODO
 			//"borrowing" army from garrison to visiting hero
+			if(!outsideTown && armedGarrison() &&
+				visitingHero && defendingHero == visitingHero)
+			{
+				mergeGarrisonOnSiege();
+			}
 
 			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (outsideTown ? nullptr : this));
 		}
@@ -723,6 +727,59 @@ bool CGTownInstance::passableFor(PlayerColor color) const
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 {
 	offsets = {int3(-1,2,0), int3(-3,2,0)};
+}
+
+void CGTownInstance::mergeGarrisonOnSiege() const
+{
+	auto getWeakestStackSlot = [&](int powerLimit)
+	{
+		std::vector<SlotID> weakSlots;
+		auto stacksList = visitingHero->stacks;
+		std::pair<SlotID, CStackInstance *> pair;
+		while(stacksList.size())
+		{
+			pair = *vstd::minElementByFun(stacksList, [&](std::pair<SlotID, CStackInstance *> elem)
+			{
+				return elem.second->getPower();
+			});
+			if(powerLimit > pair.second->getPower() &&
+				(weakSlots.empty() || pair.second->getPower() == visitingHero->getStack(weakSlots.front()).getPower()))
+			{
+				weakSlots.push_back(pair.first);
+				stacksList.erase(pair.first);
+			}
+			else
+				break;
+		}
+
+		if(weakSlots.size())
+			return *std::max_element(weakSlots.begin(), weakSlots.end());
+
+		return SlotID();
+	};
+
+	int count = stacks.size();
+	for(int i = 0; i < count; i++)
+	{
+		auto pair = *vstd::maxElementByFun(stacks, [&](std::pair<SlotID, CStackInstance *> elem)
+		{
+			ui64 power = elem.second->getPower();
+			auto dst = visitingHero->getSlotFor(elem.second->getCreatureID());
+			if(dst.validSlot() && visitingHero->hasStackAtSlot(dst))
+				power += visitingHero->getStack(dst).getPower();
+
+			return power;
+		});
+		auto dst = visitingHero->getSlotFor(pair.second->getCreatureID());
+		if(dst.validSlot())
+			cb->moveStack(StackLocation(this, pair.first), StackLocation(visitingHero, dst), -1);
+		else
+		{
+			dst = getWeakestStackSlot(pair.second->getPower());
+			if(dst.validSlot())
+				cb->swapStacks(StackLocation(this, pair.first), StackLocation(visitingHero, dst));
+		}
+	}
 }
 
 void CGTownInstance::removeCapitols (PlayerColor owner) const
