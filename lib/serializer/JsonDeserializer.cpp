@@ -48,6 +48,24 @@ void JsonDeserializer::serializeIntEnum(const std::string & fieldName, const std
 		value = rawValue;
 }
 
+void JsonDeserializer::serializeIntId(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const si32 defaultValue, si32 & value)
+{
+	std::string identifier;
+	serializeString(fieldName, identifier);
+
+	if(identifier == "")
+	{
+		value = defaultValue;
+		return;
+	}
+
+	si32 rawId = decoder(identifier);
+	if(rawId >= 0)
+		value = rawId;
+	else
+		value = defaultValue;
+}
+
 void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
 {
 	const JsonNode & field = current->operator[](fieldName);

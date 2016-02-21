@@ -19,6 +19,7 @@ class CCreature;
 class CGHeroInstance;
 class CArmedInstance;
 class CCreatureArtifactSet;
+class JsonSerializeFormat;
 
 class DLL_LINKAGE CStackBasicDescriptor
 {
@@ -220,10 +221,7 @@ public:
 		h & stacks & formation;
 	}
 
-
-	void writeJson(JsonNode & json) const;
-
-	void readJson(const JsonNode & json);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 
 	operator bool() const
 	{

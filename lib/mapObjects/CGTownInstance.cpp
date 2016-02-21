@@ -19,6 +19,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMapDefines.h"
 #include "../CPlayerState.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -314,18 +315,11 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 	}
 }
 
-void CGDwelling::writeJsonOptions(JsonNode& json) const
+void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	//todo:CGDwelling::writeJsonOptions
+	//todo: CGDwelling::serializeJsonOptions
 	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
-		CGObjectInstance::writeOwner(json);
-}
-
-void CGDwelling::readJsonOptions(const JsonNode& json)
-{
-	//todo:CGDwelling::readJsonOptions
-	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
-		CGObjectInstance::readOwner(json);
+		serializeJsonOwner(handler);
 }
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -1127,6 +1121,14 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}
+}
+
+void CGTownInstance::serializeJsonOptions(JsonSerializeFormat& handler)
+{
+	CGObjectInstance::serializeJsonOwner(handler);
+	CCreatureSet::serializeJson(handler, "army");
+
+	//todo: CGTownInstance::serializeJsonOptions
 }
 
 COPWBonus::COPWBonus (BuildingID index, CGTownInstance *TOWN)

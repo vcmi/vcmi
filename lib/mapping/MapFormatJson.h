@@ -159,12 +159,12 @@ private:
 
 	struct MapObjectLoader
 	{
-		MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type & json);
+		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
 		CMapLoaderJson * owner;
 		CGObjectInstance * instance;
 		ObjectInstanceID id;
 		std::string jsonKey;//full id defined by map creator
-		const JsonNode & configuration;
+		JsonNode & configuration;
 		si32 internalId;//unique part of id defined by map creator (also = quest identifier)
 		///constructs object (without configuration)
 		void construct();
@@ -197,7 +197,7 @@ private:
 	 */
 	void readObjects();
 
-	const JsonNode getFromArchive(const std::string & archiveFilename);
+	JsonNode getFromArchive(const std::string & archiveFilename);
 
 	CInputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;

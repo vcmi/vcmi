@@ -525,7 +525,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	return std::move(result);
 }
 
-const JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
+JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 {
 	ResourceID resource(archiveFilename, EResType::TEXT);
 
@@ -747,7 +747,7 @@ void CMapLoaderJson::readTerrain()
 
 }
 
-CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, const JsonMap::value_type& json):
+CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type& json):
 	owner(_owner), instance(nullptr),id(-1), jsonKey(json.first), configuration(json.second), internalId(extractNumber(jsonKey, '_'))
 {
 
@@ -797,7 +797,9 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	if(nullptr == instance)
 		return;
 
-	instance->readJson(configuration);
+	JsonDeserializer handler(configuration);
+
+	instance->serializeJson(handler);
 
 	if(instance->ID == Obj::TOWN)
 	{
@@ -841,10 +843,10 @@ void CMapLoaderJson::readObjects()
 
 	std::vector<std::unique_ptr<MapObjectLoader>> loaders;//todo: optimize MapObjectLoader memory layout
 
-	const JsonNode data = getFromArchive(OBJECTS_FILE_NAME);
+	JsonNode data = getFromArchive(OBJECTS_FILE_NAME);
 
 	//get raw data
-	for(const auto & p : data.Struct())
+	for(auto & p : data.Struct())
 		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
 
 	auto sortInfos = [](const std::unique_ptr<MapObjectLoader> & lhs, const std::unique_ptr<MapObjectLoader> & rhs) -> bool
@@ -993,8 +995,14 @@ void CMapSaverJson::writeObjects()
 {
 	JsonNode data(JsonNode::DATA_STRUCT);
 
-	for(const CGObjectInstance * obj : map->objects)
-		obj->writeJson(data[obj->getStringId()]);
+	JsonSerializer handler(data);
+
+	for(CGObjectInstance * obj : map->objects)
+	{
+		auto temp = handler.enterStruct(obj->getStringId());
+
+		obj->serializeJson(handler);
+	}
 
 	if(map->grailPos.valid())
 	{
@@ -1010,7 +1018,6 @@ void CMapSaverJson::writeObjects()
 		std::string grailId = boost::str(boost::format("grail_%d") % map->objects.size());
 
 		data[grailId] = grail;
-
 	}
 
 	addToArchive(data, OBJECTS_FILE_NAME);

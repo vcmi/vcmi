@@ -132,13 +132,3 @@ CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
 {
 	return this;
 }
-
-void CArmedInstance::writeJsonOptions(JsonNode& json) const
-{
-	CGObjectInstance::writeJsonOptions(json);
-}
-
-void CArmedInstance::readJsonOptions(const JsonNode& json)
-{
-	CGObjectInstance::readJsonOptions(json);
-}

@@ -53,8 +53,7 @@ public:
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
 protected:
-	void writeJsonOptions(JsonNode & json) const override;
-	void readJsonOptions(const JsonNode & json) override;
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
 	void initObj() override;
@@ -256,4 +255,5 @@ public:
 	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

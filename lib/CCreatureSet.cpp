@@ -11,6 +11,7 @@
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 /*
  * CCreatureSet.cpp, part of VCMI engine
@@ -479,27 +480,34 @@ CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
 
 void CCreatureSet::armyChanged()
 {
+
 }
 
-void CCreatureSet::writeJson(JsonNode& json) const
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
-	for(const auto & p : stacks)
+	if(handler.saving && stacks.empty())
+		return;
+	JsonNode & json = handler.getCurrent()[fieldName];
+
+	if(handler.saving)
 	{
-		JsonNode stack_node;
-		p.second->writeJson(stack_node);
-		json.Vector()[p.first.getNum()] = stack_node;
+		for(const auto & p : stacks)
+		{
+			JsonNode stack_node;
+			p.second->writeJson(stack_node);
+			json.Vector()[p.first.getNum()] = stack_node;
+		}
 	}
-}
-
-void CCreatureSet::readJson(const JsonNode& json)
-{
-	for(size_t idx = 0; idx < json.Vector().size(); idx++)
+	else
 	{
-		CStackInstance * new_stack = new CStackInstance();
+		for(size_t idx = 0; idx < json.Vector().size(); idx++)
+		{
+			CStackInstance * new_stack = new CStackInstance();
 
-		new_stack->readJson(json.Vector()[idx]);
+			new_stack->readJson(json.Vector()[idx]);
 
-		putStack(SlotID(idx), new_stack);
+			putStack(SlotID(idx), new_stack);
+		}
 	}
 }
 

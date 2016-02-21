@@ -251,8 +251,7 @@ public:
 	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
-	void writeJsonOptions(JsonNode & json) const override;
-	void readJsonOptions(const JsonNode & json) override;
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
 	void levelUpAutomatically();

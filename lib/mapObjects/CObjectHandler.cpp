@@ -24,6 +24,8 @@
 #include "CObjectClassesHandler.h"
 #include "CGTownInstance.h"
 
+#include "../serializer/JsonSerializeFormat.h"
+
 IGameCallback * IObjectInterface::cb = nullptr;
 
 ///helpers
@@ -331,64 +333,70 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 	return false;
 }
 
-void CGObjectInstance::writeJson(JsonNode & json) const
+void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 {
-	logGlobal->debugStream() <<"Save: [" << pos << "] " << id << " " << ID << " " << subID << " " << typeName << " " << subTypeName;
-
-	json.setType(JsonNode::DATA_STRUCT);
-	json["type"].String() = typeName;
-	json["subType"].String() = subTypeName;
-	json["x"].Float() = pos.x;
-	json["y"].Float() = pos.y;
-	json["l"].Float() = pos.z;
-
-	appearance.writeJson(json["template"], false);
-	writeJsonOptions(json["options"]);
-}
-
-void CGObjectInstance::readJson(const JsonNode & json)
-{
-	if(json.getType() != JsonNode::DATA_STRUCT)
+	if(handler.saving)
 	{
-		logGlobal->error("Invalid object instance data");
-		return;
+		handler.serializeString("type", typeName);
+		handler.serializeString("subType", subTypeName);
 	}
-	pos.x = json["x"].Float();
-	pos.y = json["y"].Float();
-	pos.z = json["l"].Float();
 
-	appearance.readJson(json["template"], false);
+	handler.serializeNumeric("x", pos.x);
+	handler.serializeNumeric("y", pos.y);
+	handler.serializeNumeric("l", pos.z);
 
-	readJsonOptions(json["options"]);
-}
-
-void CGObjectInstance::writeJsonOptions(JsonNode & json) const
-{
-	json.setType(JsonNode::DATA_STRUCT);
-}
-
-void CGObjectInstance::readJsonOptions(const JsonNode & json)
-{
-}
-
-void CGObjectInstance::writeOwner(JsonNode & json) const
-{
-	if(tempOwner.isValidPlayer())
+	if(handler.saving)
 	{
-		json["owner"].String() = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
+		appearance.writeJson(handler.getCurrent()["template"], false);
+	}
+	else
+	{
+		appearance.readJson(handler.getCurrent()["template"], false);
+	}
+
+	{
+		auto options = handler.enterStruct("options");
+		serializeJsonOptions(handler);
+	}
+
+	if(handler.saving && handler.getCurrent()["options"].isNull())
+	{
+		handler.getCurrent().Struct().erase("options");
 	}
 }
 
-void CGObjectInstance::readOwner(const JsonNode & json)
+void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
-	if(json["owner"].getType() == JsonNode::DATA_STRING)
+
+}
+
+void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
+{
+	std::string temp;
+
+	//todo: use enum serialize
+	if(handler.saving)
 	{
-		auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, json["owner"].String());
-		if(rawOwner >=0)
-			tempOwner = PlayerColor(rawOwner);
-		else
-			logGlobal->errorStream() << "Invalid owner :" << json["owner"].String();
+		if(tempOwner.isValidPlayer())
+		{
+			temp = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
+			handler.serializeString("owner", temp);
+		}
+	}
+	else
+	{
+		tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
+
+		handler.serializeString("owner", temp);
+
+		if(temp != "")
+		{
+			auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, temp);
+			if(rawOwner >=0)
+				tempOwner = PlayerColor(rawOwner);
+			else
+				logGlobal->errorStream() << "Invalid owner :" << temp;
+		}
 	}
 }
 

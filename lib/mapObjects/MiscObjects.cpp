@@ -23,6 +23,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
@@ -593,59 +594,60 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 	}
 }
 
-static const std::string CHARACTER_JSON [] =
+static const std::vector<std::string> CHARACTER_JSON  =
 {
 	"compliant", "friendly", "aggressive", "hostile", "savage"
 };
 
-void CGCreature::writeJsonOptions(JsonNode& json) const
+void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	assert(vstd::iswithin(character, 0, 4));
-	json["character"].String() = CHARACTER_JSON[character];
+	handler.serializeNumericEnum("character", CHARACTER_JSON, (si8)0, character);
 
-	if(hasStackAtSlot(SlotID(0)))
+	if(handler.saving)
 	{
-		const auto & sta = getStack(SlotID(0));
-		json["amount"].Float() = sta.count;
+		if(hasStackAtSlot(SlotID(0)))
+		{
+			si32 amount = getStack(SlotID(0)).count;
+			handler.serializeNumeric("amount", amount);
+		}
+
+		if(resources.nonZero())
+		{
+			for(size_t idx = 0; idx < resources.size(); idx++)
+				handler.getCurrent()["rewardResources"][GameConstants::RESOURCE_NAMES[idx]].Float() = resources[idx];
+		}
+
+		auto tmp = (gainedArtifact == ArtifactID(ArtifactID::NONE) ? "" : gainedArtifact.toArtifact()->identifier);
+		handler.serializeString("rewardArtifact", tmp);
 	}
-
-	json["noGrowing"].Bool() = notGrowingTeam;
-	json["neverFlees"].Bool() = neverFlees;
-	json["rewardMessage"].String() = message;
-	json["rewardArtifact"].String() = (gainedArtifact == ArtifactID(ArtifactID::NONE) ? "" : gainedArtifact.toArtifact()->identifier);
-
-	if(resources.nonZero())
+	else
 	{
-		for(size_t idx = 0; idx < resources.size(); idx++)
-			json["rewardResources"][GameConstants::RESOURCE_NAMES[idx]].Float() = resources[idx];
+		si32 amount = 0;
+		handler.serializeNumeric("amount", amount);
+		auto  hlp = new CStackInstance();
+		hlp->count = amount;
+		//type will be set during initialization
+		putStack(SlotID(0), hlp);
+		{
+			TResources tmp(handler.getCurrent()["rewardResources"]);
+			std::swap(tmp,resources);
+		}
+		{
+			gainedArtifact = ArtifactID(ArtifactID::NONE);
+			std::string tmp;
+			handler.serializeString("rewardArtifact", tmp);
+
+			if(tmp != "")
+			{
+				auto artid = VLC->modh->identifiers.getIdentifier("core", "artifact", tmp);
+				if(artid)
+					gainedArtifact = ArtifactID(artid.get());
+			}
+		}
 	}
-}
-
-void CGCreature::readJsonOptions(const JsonNode& json)
-{
-	character = vstd::find_pos(CHARACTER_JSON,json["character"].String());
-	vstd::amin(character, 0);
-
-	auto  hlp = new CStackInstance();
-	hlp->count = json["amount"].Float();
-	//type will be set during initialization
-	putStack(SlotID(0), hlp);
-
-	notGrowingTeam = json["noGrowing"].Bool();
-	neverFlees = json["neverFlees"].Bool();
-	message = json["rewardMessage"].String();
-
-	gainedArtifact = ArtifactID(ArtifactID::NONE);
-
-	if(json["rewardArtifact"].String() != "")
-	{
-		auto artid = VLC->modh->identifiers.getIdentifier("core", "artifact", json["rewardArtifact"].String());
-		if(artid)
-			gainedArtifact = ArtifactID(artid.get());
-	}
-
-	TResources tmp(json["rewardResources"]);
-	std::swap(tmp,resources);
+	handler.serializeBool("noGrowing", notGrowingTeam);
+	handler.serializeBool("neverFlees", neverFlees);
+	handler.serializeString("rewardMessage", message);
 }
 
 //CGMine
@@ -790,70 +792,62 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 		cb->startBattleI(hero, this);
 }
 
-void CGMine::writeJsonOptions(JsonNode & json) const
+void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::writeJson(json["army"]);
+	CCreatureSet::serializeJson(handler, "army");
 
 	if(isAbandoned())
 	{
-		JsonNode & node = json["possibleResources"];
+		auto possibleResources = handler.enterStruct("possibleResources");
 
-		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
-			if(tempOwner.getNum() & 1<<i)
-			{
-				JsonNode one(JsonNode::DATA_STRING);
-				one.String() = GameConstants::RESOURCE_NAMES[i];
-				node.Vector().push_back(one);
-			}
-	}
-	else
-	{
-		CGObjectInstance::writeOwner(json);
-	}
-}
+		JsonNode & node = handler.getCurrent();
 
-void CGMine::readJsonOptions(const JsonNode & json)
-{
-	CCreatureSet::readJson(json["army"]);
-
-	if(isAbandoned())
-	{
-		const JsonNode & node = json["possibleResources"];
-
-		std::set<int> possibleResources;
-
-		if(node.Vector().size() == 0)
+		if(handler.saving)
 		{
-			//assume all allowed
-			for(int i = (int)Res::WOOD; i < (int) Res::GOLD; i++)
-				possibleResources.insert(i);
+			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+				if(tempOwner.getNum() & 1<<i)
+				{
+					JsonNode one(JsonNode::DATA_STRING);
+					one.String() = GameConstants::RESOURCE_NAMES[i];
+					node.Vector().push_back(one);
+				}
 		}
 		else
 		{
-            auto names = node.convertTo<std::vector<std::string>>();
+			std::set<int> possibleResources;
 
-            for(const std::string & s : names)
+			if(node.Vector().size() == 0)
 			{
-                int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
-                if(raw_res < 0)
-					logGlobal->errorStream() << "Invalid resource name: "+s;
-				else
-					possibleResources.insert(raw_res);
+				//assume all allowed
+				for(int i = (int)Res::WOOD; i < (int) Res::GOLD; i++)
+					possibleResources.insert(i);
 			}
+			else
+			{
+				auto names = node.convertTo<std::vector<std::string>>();
 
-			int tmp = 0;
+				for(const std::string & s : names)
+				{
+					int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
+					if(raw_res < 0)
+						logGlobal->errorStream() << "Invalid resource name: "+s;
+					else
+						possibleResources.insert(raw_res);
+				}
 
-			for(int r : possibleResources)
-				tmp |=  (1<<r);
-			tempOwner = PlayerColor(tmp);
+				int tmp = 0;
+
+				for(int r : possibleResources)
+					tmp |=  (1<<r);
+				tempOwner = PlayerColor(tmp);
+			}
 		}
 	}
 	else
 	{
-		CGObjectInstance::readOwner(json);
+		serializeJsonOwner(handler);
 	}
 }
-
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
@@ -939,18 +933,11 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		cb->startBattleI(hero, this);
 }
 
-void CGResource::writeJsonOptions(JsonNode& json) const
+void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::writeJson(json["guards"]);
-	json["amount"].Float() = amount;
-	json["guardMessage"].String() = message;
-}
-
-void CGResource::readJsonOptions(const JsonNode& json)
-{
-	CCreatureSet::readJson(json["guards"]);
-	amount = json["amount"].Float();
-	message = json["guardMessage"].String();
+	CCreatureSet::serializeJson(handler, "guards");
+	handler.serializeNumeric("amount", amount);
+	handler.serializeString("guardMessage", message);
 }
 
 CGTeleport::CGTeleport() :
@@ -1439,23 +1426,19 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		cb->startBattleI(hero, this);
 }
 
-void CGArtifact::writeJsonOptions(JsonNode& json) const
+void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	CCreatureSet::writeJson(json["guards"]);
-	json["guardMessage"].String() = message;
-	if(ID == Obj::SPELL_SCROLL)
+	handler.serializeString("guardMessage", message);
+	CCreatureSet::serializeJson(handler, "guards");
+
+	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
 		const Bonus * b = storedArtifact->getBonusLocalFirst(Selector::type(Bonus::SPELL));
 		SpellID spellId(b->subtype);
 
-		json["spell"].String() = SpellID(b->subtype).toSpell()->identifier;
+		std::string spell = SpellID(b->subtype).toSpell()->identifier;
+		handler.serializeString("spell", spell);
 	}
-}
-
-void CGArtifact::readJsonOptions(const JsonNode& json)
-{
-	CCreatureSet::readJson(json["guards"]);
-	message = json["guardMessage"].String();
 }
 
 void CGWitchHut::initObj()
@@ -1515,16 +1498,10 @@ std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
 	return hoverName;
 }
 
-void CGWitchHut::writeJsonOptions(JsonNode& json) const
+void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-
+	//todo:CGWitchHut::serializeJsonOptions
 }
-
-void CGWitchHut::readJsonOptions(const JsonNode& json)
-{
-
-}
-
 
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -1665,23 +1642,9 @@ std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 	return hoverName;
 }
 
-void CGShrine::writeJsonOptions(JsonNode& json) const
+void CGShrine::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	if(spell != SpellID::NONE)
-	{
-		json["spell"].String() = spell.toSpell()->identifier;
-	}
-}
-
-void CGShrine::readJsonOptions(const JsonNode& json)
-{
-	spell = SpellID::NONE;
-	if(json["spell"].String() != "")
-	{
-		auto raw = VLC->modh->identifiers.getIdentifier("core", "spell",json["spell"].String());
-		if(raw)
-			spell = SpellID(raw.get());
-	}
+	handler.serializeId("spell", &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell, SpellID(SpellID::NONE), spell);
 }
 
 void CGSignBottle::initObj()
@@ -1710,14 +1673,9 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 		cb->removeObject(this);
 }
 
-void CGSignBottle::writeJsonOptions(JsonNode& json) const
+void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	json["text"].String() = message;
-}
-
-void CGSignBottle::readJsonOptions(const JsonNode& json)
-{
-	message = json["text"].String();
+	handler.serializeString("text", message);
 }
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
@@ -1793,52 +1751,55 @@ void CGScholar::initObj()
 	}
 }
 
-void CGScholar::writeJsonOptions(JsonNode& json) const
+void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	switch(bonusType)
+	JsonNode& json = handler.getCurrent();
+	if(handler.saving)
 	{
-	case PRIM_SKILL:
-		json["rewardPrimSkill"].String() = PrimarySkill::names[bonusID];
-		break;
-	case SECONDARY_SKILL:
-		json["rewardSkill"].String() = NSecondarySkill::names[bonusID];
-		break;
-	case SPELL:
-		json["rewardSpell"].String() = VLC->spellh->objects.at(bonusID)->identifier;
-		break;
-	case RANDOM:
-		break;
-	}
-}
-
-void CGScholar::readJsonOptions(const JsonNode& json)
-{
-	bonusType = RANDOM;
-	if(json["rewardPrimSkill"].String() != "")
-	{
-		auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
-		if(raw)
+		switch(bonusType)
 		{
-			bonusType = PRIM_SKILL;
-			bonusID = raw.get();
+		case PRIM_SKILL:
+			json["rewardPrimSkill"].String() = PrimarySkill::names[bonusID];
+			break;
+		case SECONDARY_SKILL:
+			json["rewardSkill"].String() = NSecondarySkill::names[bonusID];
+			break;
+		case SPELL:
+			json["rewardSpell"].String() = VLC->spellh->objects.at(bonusID)->identifier;
+			break;
+		case RANDOM:
+			break;
 		}
 	}
-	else if(json["rewardSkill"].String() != "")
+	else
 	{
-		auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
-		if(raw)
+		bonusType = RANDOM;
+		if(json["rewardPrimSkill"].String() != "")
 		{
-			bonusType = SECONDARY_SKILL;
-			bonusID = raw.get();
+			auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
+			if(raw)
+			{
+				bonusType = PRIM_SKILL;
+				bonusID = raw.get();
+			}
 		}
-	}
-	else if(json["rewardSpell"].String() != "")
-	{
-		auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
-		if(raw)
+		else if(json["rewardSkill"].String() != "")
 		{
-			bonusType = SPELL;
-			bonusID = raw.get();
+			auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
+			if(raw)
+			{
+				bonusType = SECONDARY_SKILL;
+				bonusID = raw.get();
+			}
+		}
+		else if(json["rewardSpell"].String() != "")
+		{
+			auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
+			if(raw)
+			{
+				bonusType = SPELL;
+				bonusID = raw.get();
+			}
 		}
 	}
 }
@@ -1879,18 +1840,11 @@ void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		onHeroVisit(hero);
 }
 
-void CGGarrison::writeJsonOptions(JsonNode& json) const
+void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	CCreatureSet::writeJson(json["army"]);
-	CGObjectInstance::writeOwner(json);
-	json["removableUnits"].Bool() = removableUnits;
-}
-
-void CGGarrison::readJsonOptions(const JsonNode& json)
-{
-	CCreatureSet::readJson(json["army"]);
-	CGObjectInstance::readOwner(json);
-	removableUnits = json["removableUnits"].Bool();
+	handler.serializeBool("removableUnits", removableUnits);
+	serializeJsonOwner(handler);
+	CCreatureSet::serializeJson(handler, "army");
 }
 
 void CGMagi::initObj()
@@ -2030,14 +1984,9 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CGShipyard::writeJsonOptions(JsonNode& json) const
+void CGShipyard::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	CGObjectInstance::writeOwner(json);
-}
-
-void CGShipyard::readJsonOptions(const JsonNode& json)
-{
-	CGObjectInstance::readOwner(json);
+	serializeJsonOwner(handler);
 }
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
@@ -2222,12 +2171,7 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 	cb->sendAndApply(&gb);
 }
 
-void CGLighthouse::writeJsonOptions(JsonNode& json) const
+void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	CGObjectInstance::writeOwner(json);
-}
-
-void CGLighthouse::readJsonOptions(const JsonNode& json)
-{
-	CGObjectInstance::readOwner(json);
+	serializeJsonOwner(handler);
 }

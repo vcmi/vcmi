@@ -40,6 +40,15 @@ void JsonSerializer::serializeIntEnum(const std::string & fieldName, const std::
 	current->operator[](fieldName).String() = enumMap.at(value);
 }
 
+void JsonSerializer::serializeIntId(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const si32 defaultValue, si32& value)
+{
+	if(defaultValue == value)
+		return;
+
+	std::string identifier = encoder(value);
+	serializeString(fieldName, identifier);
+}
+
 void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
 {
 	assert(standard.size() == value.size());

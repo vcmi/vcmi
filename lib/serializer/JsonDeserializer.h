@@ -27,4 +27,5 @@ public:
 protected:
 	void serializeFloat(const std::string & fieldName, double & value) override;
 	void serializeIntEnum(const std::string & fieldName, const std::vector<std::string> & enumMap, const si32 defaultValue, si32 & value) override;
+	void serializeIntId(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const si32 defaultValue, si32 & value) override;
 };

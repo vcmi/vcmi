@@ -21,6 +21,7 @@ class IGameCallback;
 class CGObjectInstance;
 struct MetaString;
 struct BattleResult;
+class JsonSerializeFormat;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -186,10 +187,7 @@ public:
 	}
 
 	///Entry point of Json serialization
-	void writeJson(JsonNode & json) const;
-
-	///Entry point of Json de-serialization
-	void readJson(const JsonNode & json);
+	void serializeJson(JsonSerializeFormat & handler);
 
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
@@ -198,16 +196,11 @@ protected:
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
 
-	///Saves object-type specific options
-	///(!) do not forget to call inherited method first when overriding
-	virtual void writeJsonOptions(JsonNode & json) const;
+	///Serialize object-type specific options
+	virtual void serializeJsonOptions(JsonSerializeFormat & handler);
 
-	///Loads object-type specific options
-	///(!) do not forget to call inherited method  first when overriding
-	virtual void readJsonOptions(const JsonNode & json);
+	void serializeJsonOwner(JsonSerializeFormat & handler);
 
-	void writeOwner(JsonNode & json) const;
-	void readOwner(const JsonNode & json);
 private:
 	mutable std::string stringId;///<alternate id, dynamically generated, do not serialize
 };
