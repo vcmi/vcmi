@@ -615,10 +615,15 @@ void CMapLoaderH3M::readAllowedHeroes()
 	if(mapHeader->version > EMapFormat::ROE)
 	{
 		int placeholdersQty = reader.readUInt32();
-		for(int p = 0; p < placeholdersQty; ++p)
-		{
-			mapHeader->placeholdedHeroes.push_back(reader.readUInt8());
-		}
+
+		reader.skip(placeholdersQty * 1);
+
+//		std::vector<ui16> placeholdedHeroes;
+//
+//		for(int p = 0; p < placeholdersQty; ++p)
+//		{
+//			placeholdedHeroes.push_back(reader.readUInt8());
+//		}
 	}
 }
 

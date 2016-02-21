@@ -259,7 +259,7 @@ public:
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
 	std::vector<bool> allowedHeroes;
-	std::vector<ui16> placeholdedHeroes;
+
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
 	/// "main quests" of the map that describe victory and loss conditions
