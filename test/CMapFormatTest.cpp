@@ -35,8 +35,8 @@ public:
 	{
 		CMapGenOptions opt;
 
-		opt.setHeight(CMapHeader::MAP_SIZE_LARGE);
-		opt.setWidth(CMapHeader::MAP_SIZE_LARGE);
+		opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
+		opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
 		opt.setHasTwoLevels(true);
 		opt.setPlayerCount(4);
 

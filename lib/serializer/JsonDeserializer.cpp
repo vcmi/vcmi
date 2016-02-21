@@ -60,8 +60,6 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 		{
 			const std::string & identifier = part[index].String();
 
-			logGlobal->debugStream() << "serializeLIC: " << fieldName << " " << identifier;
-
 			si32 rawId = decoder(identifier);
 			if(rawId >= 0)
 			{

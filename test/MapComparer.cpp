@@ -144,8 +144,7 @@ void MapComparer::compareHeader()
 
 	checkEqual(actual->players, expected->players);
 
-	//todo: allowedHeroes, placeholdedHeroes
-
+	checkEqual(actual->allowedHeroes, expected->allowedHeroes);
 
 	std::vector<TriggeredEvent> actualEvents = actual->triggeredEvents;
 	std::vector<TriggeredEvent> expectedEvents = expected->triggeredEvents;

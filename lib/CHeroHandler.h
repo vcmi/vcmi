@@ -258,6 +258,12 @@ public:
 	std::vector<bool> getDefaultAllowedAbilities() const;
 
 	///json serialization helper
+	static si32 decodeHero(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeHero(const si32 index);
+
+	///json serialization helper
 	static si32 decodeSkill(const std::string & identifier);
 
 	///json serialization helper

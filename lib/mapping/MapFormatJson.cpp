@@ -208,6 +208,8 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 	handler.serializeNumericEnum("difficulty", HeaderDetail::difficultyMap, HeaderDetail::difficultyDefault, mapHeader->difficulty);
 
 	serializePlayerInfo(handler);
+
+	handler.serializeLIC("allowedHeroes", &CHeroHandler::decodeHero, &CHeroHandler::encodeHero, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
 }
 
 void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
@@ -447,7 +449,6 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	handler.serializeLIC("allowedSpells", &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell, VLC->spellh->getDefaultAllowed(), map->allowedSpell);
 
-
 	//events
 }
 
@@ -595,10 +596,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 	}
 
 	serializeHeader(handler);
-
-
-//	std::vector<bool> allowedHeroes;
-//	std::vector<ui16> placeholdedHeroes;
 
 	readTriggeredEvents(handler);
 
@@ -929,9 +926,6 @@ void CMapSaverJson::writeHeader()
 	writeTriggeredEvents(handler);
 
 	writeTeams(handler);
-
-	//todo:	allowedHeroes;
-	//todo: placeholdedHeroes;
 
 	writeOptions(handler);
 

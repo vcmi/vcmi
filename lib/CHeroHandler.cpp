@@ -612,7 +612,21 @@ std::vector<bool> CHeroHandler::getDefaultAllowedAbilities() const
 	return allowedAbilities;
 }
 
-si32 CHeroHandler::decodeSkill(const std::string& identifier)
+si32 CHeroHandler::decodeHero(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CHeroHandler::encodeHero(const si32 index)
+{
+	return VLC->heroh->heroes.at(index)->identifier;
+}
+
+si32 CHeroHandler::decodeSkill(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
 	if(rawId)
