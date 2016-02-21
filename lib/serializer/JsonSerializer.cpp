@@ -22,7 +22,8 @@ JsonSerializer::JsonSerializer(JsonNode & root_):
 
 void JsonSerializer::serializeBool(const std::string & fieldName, bool & value)
 {
-	current->operator[](fieldName).Bool() = value;
+	if(value)
+		current->operator[](fieldName).Bool() = true;
 }
 
 void JsonSerializer::serializeBoolEnum(const std::string & fieldName, const std::string & trueValue, const std::string & falseValue, bool & value)
@@ -32,21 +33,23 @@ void JsonSerializer::serializeBoolEnum(const std::string & fieldName, const std:
 
 void JsonSerializer::serializeFloat(const std::string & fieldName, double & value)
 {
-	current->operator[](fieldName).Float() = value;
+	if(value != 0)
+		current->operator[](fieldName).Float() = value;
 }
 
 void JsonSerializer::serializeIntEnum(const std::string & fieldName, const std::vector<std::string> & enumMap, const si32 defaultValue, si32 & value)
 {
-	current->operator[](fieldName).String() = enumMap.at(value);
+	if(defaultValue != value)
+		current->operator[](fieldName).String() = enumMap.at(value);
 }
 
-void JsonSerializer::serializeIntId(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const si32 defaultValue, si32& value)
+void JsonSerializer::serializeIntId(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const si32 defaultValue, si32 & value)
 {
-	if(defaultValue == value)
-		return;
-
-	std::string identifier = encoder(value);
-	serializeString(fieldName, identifier);
+	if(defaultValue != value)
+	{
+		std::string identifier = encoder(value);
+		serializeString(fieldName, identifier);
+	}
 }
 
 void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
@@ -66,9 +69,9 @@ void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder 
 	}
 }
 
-
 void JsonSerializer::serializeString(const std::string & fieldName, std::string & value)
 {
-	current->operator[](fieldName).String() = value;
+	if(value != "")
+		current->operator[](fieldName).String() = value;
 }
 
