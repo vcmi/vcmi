@@ -673,8 +673,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 	if(battleResult.data->winner!=1 && hero2)
 	{
+		auto town = hero2->visitedTown;
 		RemoveObject ro(hero2->id);
 		sendAndApply(&ro);
+
+		if(town && !town->garrisonHero) // TODO: that must be called from CGHeroInstance or CGTownInstance
+			town->battleFinished(hero1, *battleResult.get());
 	}
 
 	//give exp
