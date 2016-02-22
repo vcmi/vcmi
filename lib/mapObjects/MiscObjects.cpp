@@ -16,7 +16,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "../CModHandler.h"
-
+#include "../CHeroHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
@@ -1500,7 +1500,29 @@ std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
 
 void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	//todo:CGWitchHut::serializeJsonOptions
+	//TODO: unify allowed abilities with others - make them std::vector<bool>
+
+	std::vector<bool> temp;
+	temp.resize(GameConstants::SKILL_QUANTITY, false);
+
+	auto standard = VLC->heroh->getDefaultAllowedAbilities(); //todo: for WitchHut default is all except Leadership and Necromancy
+
+    if(handler.saving)
+	{
+		for(si32 i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+			if(vstd::contains(allowedAbilities, i))
+				temp[i] = true;
+	}
+
+	handler.serializeLIC("allowedSkills", &CHeroHandler::decodeSkill, &CHeroHandler::encodeSkill, standard, temp);
+
+	if(!handler.saving)
+	{
+		allowedAbilities.clear();
+		for (si32 i=0; i<temp.size(); i++)
+			if(temp[i])
+				allowedAbilities.push_back(i);
+	}
 }
 
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const

@@ -539,7 +539,6 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 	return std::move(res);
 }
 
-
 void CMapLoaderJson::readMap()
 {
 	LOG_TRACE(logGlobal);
