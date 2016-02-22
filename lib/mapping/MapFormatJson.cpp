@@ -749,7 +749,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	//TODO:consider move to ObjectTypeHandler
 	//find type handler
-	std::string typeName = configuration["type"].String(), subTypeName = configuration["subType"].String();
+	std::string typeName = configuration["type"].String(), subTypeName = configuration["subtype"].String();
 	if(typeName.empty())
 	{
 		logGlobal->errorStream() << "Object type missing";
