@@ -44,12 +44,15 @@ namespace HeaderDetail
 
 namespace TriggeredEventsDetail
 {
-	static const std::array<std::string, 12> conditionNames =
+	static const std::array<std::string, 15> conditionNames =
 	{
 		"haveArtifact", "haveCreatures",   "haveResources",   "haveBuilding",
 		"control",      "destroy",         "transport",       "daysPassed",
-		"isHuman",      "daysWithoutTown", "standardWin",     "constValue"
+		"isHuman",      "daysWithoutTown", "standardWin",     "constValue",
+
+		"have_0", "haveBuilding_0", "destroy_0"
 	};
+
 
 	static const std::array<std::string, 2> typeNames = { "victory", "defeat" };
 
@@ -88,6 +91,12 @@ namespace TriggeredEventsDetail
 				event.position.y = position.at(1).Float();
 				event.position.z = position.at(2).Float();
 			}
+
+//			if(!data["subtype"].isNull())
+//			{
+//				//todo
+//			}
+//			event.objectInstanceName = data["object"].String();
 		}
 		return event;
 	}
@@ -452,7 +461,9 @@ void CMapFormatJson::writeOptions(JsonSerializer & handler)
 CMapPatcher::CMapPatcher(JsonNode stream):
 	input(stream)
 {
-
+	//todo: update map patches and change this
+	fileVersionMajor = 0;
+	fileVersionMinor = 0;
 }
 
 void CMapPatcher::patchMapHeader(std::unique_ptr<CMapHeader> & header)
@@ -540,19 +551,19 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//do not use map field here, use only mapHeader
 	JsonNode header = getFromArchive(HEADER_FILE_NAME);
 
-	int versionMajor = header["versionMajor"].Float();
+	fileVersionMajor = header["versionMajor"].Float();
 
-	if(versionMajor != VERSION_MAJOR)
+	if(fileVersionMajor != VERSION_MAJOR)
 	{
-		logGlobal->errorStream() << "Unsupported map format version: " << versionMajor;
+		logGlobal->errorStream() << "Unsupported map format version: " << fileVersionMajor;
 		throw std::runtime_error("Unsupported map format version");
 	}
 
-	int versionMinor = header["versionMinor"].Float();
+	fileVersionMinor = header["versionMinor"].Float();
 
-	if(versionMinor > VERSION_MINOR)
+	if(fileVersionMinor > VERSION_MINOR)
 	{
-		logGlobal->traceStream() << "Too new map format revision: " << versionMinor << ". This map should work but some of map features may be ignored.";
+		logGlobal->traceStream() << "Too new map format revision: " << fileVersionMinor << ". This map should work but some of map features may be ignored.";
 	}
 
 	JsonDeserializer handler(header);
@@ -759,7 +770,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	}
 	else if(subTypeName.empty())
 	{
-		logGlobal->errorStream() << "Object subType missing";
+		logGlobal->errorStream() << "Object subtype missing";
 		logGlobal->debugStream() << configuration;
 		return;
 	}
@@ -839,7 +850,8 @@ CMapSaverJson::CMapSaverJson(CInputOutputStream * stream):
 	ioApi(new CProxyIOApi(buffer)),
 	saver(ioApi, "_")
 {
-
+	fileVersionMajor = VERSION_MAJOR;
+	fileVersionMinor = VERSION_MINOR;
 }
 
 CMapSaverJson::~CMapSaverJson()

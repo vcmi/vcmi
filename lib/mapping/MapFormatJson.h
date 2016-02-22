@@ -35,6 +35,9 @@ public:
 
 	static const std::string HEADER_FILE_NAME;
 	static const std::string OBJECTS_FILE_NAME;
+
+	int fileVersionMajor;
+	int fileVersionMinor;
 protected:
 
 	/** ptr to the map object which gets filled by data from the buffer or written to buffer */

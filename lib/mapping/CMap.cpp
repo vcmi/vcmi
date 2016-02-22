@@ -63,6 +63,7 @@ EventCondition::EventCondition(EWinLoseType condition):
 	object(nullptr),
 	value(-1),
 	objectType(-1),
+	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
@@ -72,6 +73,7 @@ EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectTy
 	object(nullptr),
 	value(value),
 	objectType(objectType),
+	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
