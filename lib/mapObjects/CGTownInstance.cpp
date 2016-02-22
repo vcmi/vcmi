@@ -802,6 +802,14 @@ void CGTownInstance::removeCapitols (PlayerColor owner) const
 	}
 }
 
+void CGTownInstance::clearArmy() const
+{
+	while(!stacks.empty())
+	{
+		cb->eraseStack(StackLocation(this, stacks.begin()->first));
+	}
+}
+
 int CGTownInstance::getBoatType() const
 {
 	switch (town->faction->alignment)
@@ -1162,6 +1170,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 {
 	if(result.winner == 0)
 	{
+		clearArmy();
 		removeCapitols(hero->getOwner());
 		cb->setOwner (this, hero->tempOwner); //give control after checkout is done
 		FoWChange fw;
