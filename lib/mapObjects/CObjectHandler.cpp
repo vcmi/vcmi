@@ -141,7 +141,6 @@ CGObjectInstance::~CGObjectInstance()
 
 const std::string & CGObjectInstance::getStringId() const
 {
-	//todo: getStringId use real object type
 	if(stringId == "")
 	{
 		boost::format fmt("%s_%d");

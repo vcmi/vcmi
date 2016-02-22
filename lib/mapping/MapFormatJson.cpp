@@ -762,7 +762,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	if(typeName.empty())
 	{
 		logGlobal->errorStream() << "Object type missing";
-		logGlobal->traceStream() << configuration;
+		logGlobal->debugStream() << configuration;
 		return;
 	}
 
@@ -780,7 +780,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	else if(subTypeName.empty())
 	{
 		logGlobal->errorStream() << "Object subType missing";
-		logGlobal->traceStream() << configuration;
+		logGlobal->debugStream() << configuration;
 		return;
 	}
 
@@ -861,6 +861,11 @@ void CMapLoaderJson::readObjects()
 	//configure objects after all objects are constructed so we may resolve internal IDs even to actual pointers OTF
 	for(auto & ptr : loaders)
 		ptr->configure();
+
+	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+	{
+		return a->subID < b->subID;
+	});
 }
 
 ///CMapSaverJson

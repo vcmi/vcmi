@@ -186,7 +186,7 @@ public:
 		}
 	}
 
-	///Entry point of Json serialization
+	///Entry point of Json (de-)serialization
 	void serializeJson(JsonSerializeFormat & handler);
 
 protected:
