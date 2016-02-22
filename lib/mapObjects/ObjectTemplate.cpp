@@ -263,7 +263,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 {
 	node["animation"].String() = animationFile;
 
-	if(visitDir != 0x0)
+	if(visitDir != 0x0 && isVisitable())
 	{
 		JsonVector & visitDirs = node["visitableFrom"].Vector();
 		visitDirs.resize(3);
