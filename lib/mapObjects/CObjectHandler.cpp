@@ -139,18 +139,6 @@ CGObjectInstance::~CGObjectInstance()
 {
 }
 
-const std::string & CGObjectInstance::getStringId() const
-{
-	if(stringId == "")
-	{
-		boost::format fmt("%s_%d");
-		fmt % typeName % id.getNum();
-		stringId = fmt.str();
-	}
-
-	return stringId;
-}
-
 void CGObjectInstance::setOwner(PlayerColor ow)
 {
 	tempOwner = ow;

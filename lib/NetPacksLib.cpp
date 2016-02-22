@@ -386,6 +386,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		//If hero on Boat is removed, the Boat disappears
 		if(h->boat)
 		{
+			gs->map->instanceNames.erase(h->boat->instanceName);
 			gs->map->objects[h->boat->id.getNum()].dellNull();
 			h->boat = nullptr;
 		}
@@ -430,7 +431,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		};
 		event.trigger = event.trigger.morph(patcher);
 	}
-
+	gs->map->instanceNames.erase(obj->instanceName);
 	gs->map->objects[id.getNum()].dellNull();
 	gs->map->calculateGuardingGreaturePositions();
 }

@@ -1459,16 +1459,16 @@ void CMapLoaderH3M::readObjects()
 		}
 		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
-		map->objects.push_back(nobj);
-		if(nobj->ID == Obj::TOWN)
+
 		{
-			map->towns.push_back(static_cast<CGTownInstance *>(nobj));
+			//TODO: define valid typeName and subtypeName fro H3M maps
+			//boost::format fmt("%s_%d");
+			//fmt % nobj->typeName % nobj->id.getNum();
+			boost::format fmt("obj_%d");
+			fmt % nobj->id.getNum();
+			nobj->instanceName = fmt.str();
 		}
-		if(nobj->ID == Obj::HERO)
-		{
-			logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
-			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
-		}
+		map->addNewObject(nobj);
 	}
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)

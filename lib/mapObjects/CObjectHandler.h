@@ -118,13 +118,12 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
+	std::string instanceName;
 	std::string typeName;
 	std::string subTypeName;
 
 	CGObjectInstance();
 	~CGObjectInstance();
-
-	const std::string & getStringId() const;
 
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
@@ -177,13 +176,13 @@ public:
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
-		//definfo is handled by map serializer
-
 		if(version >= 759)
 		{
-			h & typeName & subTypeName;
+			h & instanceName & typeName & subTypeName;
 		}
+
+		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
+		//definfo is handled by map serializer
 	}
 
 	///Entry point of Json (de-)serialization
@@ -200,9 +199,6 @@ protected:
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);
 
 	void serializeJsonOwner(JsonSerializeFormat & handler);
-
-private:
-	mutable std::string stringId;///<alternate id, dynamically generated, do not serialize
 };
 
 /// function object which can be used to find an object with an specific sub ID

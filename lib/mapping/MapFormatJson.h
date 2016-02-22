@@ -165,7 +165,7 @@ private:
 		ObjectInstanceID id;
 		std::string jsonKey;//full id defined by map creator
 		JsonNode & configuration;
-		si32 internalId;//unique part of id defined by map creator (also = quest identifier)
+
 		///constructs object (without configuration)
 		void construct();
 

@@ -150,21 +150,6 @@ namespace TerrainDetail
 	};
 }
 
-static std::string tailString(const std::string & input, char separator)
-{
-	std::string ret;
-	size_t splitPos = input.find(separator);
-	if (splitPos != std::string::npos)
-		ret = input.substr(splitPos + 1);
-	return ret;
-}
-
-static si32 extractNumber(const std::string & input, char separator)
-{
-	std::string tmp = tailString(input, separator);
-	return atoi(tmp.c_str());
-}
-
 ///CMapFormatJson
 const int CMapFormatJson::VERSION_MAJOR = 1;
 const int CMapFormatJson::VERSION_MINOR = 0;
@@ -547,11 +532,6 @@ void CMapLoaderJson::readMap()
 	readTerrain();
 	readObjects();
 
-	// Calculate blocked / visitable positions
-	for(auto & elem : map->objects)
-	{
-		map->addBlockVisTiles(elem);
-	}
 	map->calculateGuardingGreaturePositions();
 }
 
@@ -747,7 +727,7 @@ void CMapLoaderJson::readTerrain()
 }
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type& json):
-	owner(_owner), instance(nullptr),id(-1), jsonKey(json.first), configuration(json.second), internalId(extractNumber(jsonKey, '_'))
+	owner(_owner), instance(nullptr),id(-1), jsonKey(json.first), configuration(json.second)
 {
 
 }
@@ -788,7 +768,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	instance = handler->create(ObjectTemplate());
 	instance->id = ObjectInstanceID(owner->map->objects.size());
-	owner->map->objects.push_back(instance);
+	instance->instanceName = jsonKey;
+	owner->map->addNewObject(instance);
 }
 
 void CMapLoaderJson::MapObjectLoader::configure()
@@ -800,16 +781,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 
 	instance->serializeJson(handler);
 
-	if(instance->ID == Obj::TOWN)
-	{
-		owner->map->towns.push_back(static_cast<CGTownInstance *>(instance));
-	}
-	else if(instance->ID == Obj::HERO)
-	{
-		logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[instance->subID]->name << " at " << instance->pos;
-		owner->map->heroesOnMap.push_back(static_cast<CGHeroInstance *>(instance));
-	}
-	else if(auto art = dynamic_cast<CGArtifact *>(instance))
+	if(auto art = dynamic_cast<CGArtifact *>(instance))
 	{
 		//todo: find better place for this code
 
@@ -847,13 +819,6 @@ void CMapLoaderJson::readObjects()
 	//get raw data
 	for(auto & p : data.Struct())
 		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
-
-	auto sortInfos = [](const std::unique_ptr<MapObjectLoader> & lhs, const std::unique_ptr<MapObjectLoader> & rhs) -> bool
-	{
-		return lhs->internalId < rhs->internalId;
-	};
-	boost::sort(loaders, sortInfos);//this makes instance ids consistent after save-load, needed for testing
-	//todo: use internalId in CMap
 
 	for(auto & ptr : loaders)
 		ptr->construct();
@@ -1003,7 +968,7 @@ void CMapSaverJson::writeObjects()
 
 	for(CGObjectInstance * obj : map->objects)
 	{
-		auto temp = handler.enterStruct(obj->getStringId());
+		auto temp = handler.enterStruct(obj->instanceName);
 
 		obj->serializeJson(handler);
 	}

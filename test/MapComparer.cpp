@@ -182,7 +182,7 @@ void MapComparer::compareOptions()
 
 void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectInstance * expected)
 {
-	BOOST_CHECK_EQUAL(actual->getStringId(), expected->getStringId());
+	BOOST_CHECK_EQUAL(actual->instanceName, expected->instanceName);
 	BOOST_CHECK_EQUAL(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
 
 	std::string actualFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % actual->typeName % actual->ID % actual->subTypeName % actual->subID % actual->tempOwner);
@@ -190,18 +190,34 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 
 	BOOST_CHECK_EQUAL(actualFullID, expectedFullID);
 	BOOST_CHECK_EQUAL(actual->pos, expected->pos);
-	//BOOST_CHECK_EQUAL(actual->tempOwner,expected->tempOwner);
+
 }
 
 void MapComparer::compareObjects()
 {
 	BOOST_CHECK_EQUAL(actual->objects.size(), expected->objects.size());
 
-	for(size_t idx = 0; idx < std::min(actual->objects.size(), expected->objects.size()); idx++)
+	for(size_t idx = 0; idx < expected->objects.size(); idx++)
 	{
-		BOOST_REQUIRE_EQUAL(idx, expected->objects[idx]->id.getNum());
-		BOOST_CHECK_EQUAL(idx, actual->objects[idx]->id.getNum());
-		compareObject(actual->objects[idx], expected->objects[idx]);
+		auto expectedObject = expected->objects[idx];
+
+		BOOST_REQUIRE_EQUAL(idx, expectedObject->id.getNum());
+
+		{
+			auto it = expected->instanceNames.find(expectedObject->instanceName);
+
+			BOOST_REQUIRE(it != expected->instanceNames.end());
+		}
+
+		{
+			auto it = actual->instanceNames.find(expectedObject->instanceName);
+
+			BOOST_REQUIRE(it != expected->instanceNames.end());
+
+			auto actualObject = it->second;
+
+			compareObject(actualObject, expectedObject);
+		}
 	}
 }
 

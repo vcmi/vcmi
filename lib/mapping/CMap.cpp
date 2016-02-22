@@ -558,6 +558,32 @@ void CMap::addQuest(CGObjectInstance * quest)
 	quests.push_back(q->quest);
 }
 
+void CMap::addNewObject(CGObjectInstance * obj)
+{
+    if(obj->id != ObjectInstanceID(objects.size()))
+		throw std::runtime_error("Invalid object instance id");
+
+	if(obj->instanceName == "")
+		throw std::runtime_error("Object instance name missing");
+
+	auto it = instanceNames.find(obj->instanceName);
+	if(it != instanceNames.end())
+		throw std::runtime_error("Object instance name duplicated:"+obj->instanceName);
+
+    objects.push_back(obj);
+    instanceNames[obj->instanceName] = obj;
+    addBlockVisTiles(obj);
+
+	if(obj->ID == Obj::TOWN)
+	{
+		towns.push_back(static_cast<CGTownInstance *>(obj));
+	}
+	if(obj->ID == Obj::HERO)
+	{
+		heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
+	}
+}
+
 void CMap::initTerrain()
 {
 	int level = twoLevel ? 2 : 1;
