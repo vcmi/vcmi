@@ -422,7 +422,7 @@ public:
 		h & CGTownInstance::merchantArtifacts;
 		h & CGTownInstance::universitySkills;
 
-		if(version >= 759)
+		if(formatVersion >= 759)
 		{
 			h & instanceNames;
 		}
