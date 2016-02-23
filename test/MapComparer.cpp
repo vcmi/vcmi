@@ -128,6 +128,13 @@ void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 	VCMI_REQUIRE_FIELD_EQUAL(roadType);
 	VCMI_REQUIRE_FIELD_EQUAL(roadDir);
 	VCMI_REQUIRE_FIELD_EQUAL(extTileFlags);
+
+	BOOST_REQUIRE_EQUAL(actual.blockingObjects.size(), expected.blockingObjects.size());
+	BOOST_REQUIRE_EQUAL(actual.visitableObjects.size(), expected.visitableObjects.size());
+
+	VCMI_REQUIRE_FIELD_EQUAL(visitable);
+	VCMI_REQUIRE_FIELD_EQUAL(blocked);
+
 }
 
 void MapComparer::compareHeader()

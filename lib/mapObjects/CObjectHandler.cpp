@@ -322,23 +322,16 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 
 void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 {
+	//only save here, loading is handled by map loader
 	if(handler.saving)
 	{
 		handler.serializeString("type", typeName);
 		handler.serializeString("subtype", subTypeName);
-	}
 
-	handler.serializeNumeric("x", pos.x);
-	handler.serializeNumeric("y", pos.y);
-	handler.serializeNumeric("l", pos.z);
-
-	if(handler.saving)
-	{
+		handler.serializeNumeric("x", pos.x);
+		handler.serializeNumeric("y", pos.y);
+		handler.serializeNumeric("l", pos.z);
 		appearance.writeJson(handler.getCurrent()["template"], false);
-	}
-	else
-	{
-		appearance.readJson(handler.getCurrent()["template"], false);
 	}
 
 	{
@@ -346,7 +339,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		serializeJsonOptions(handler);
 	}
 
-	if(handler.saving && handler.getCurrent()["options"].isNull())
+	if(handler.saving && handler.getCurrent()["options"].Struct().empty())
 	{
 		handler.getCurrent().Struct().erase("options");
 	}
