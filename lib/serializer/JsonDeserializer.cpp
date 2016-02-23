@@ -25,7 +25,7 @@ void JsonDeserializer::serializeBool(const std::string & fieldName, bool & value
 	value = current->operator[](fieldName).Bool();
 }
 
-void JsonDeserializer::serializeBoolEnum(const std::string & fieldName, const std::string & trueValue, const std::string & falseValue, bool & value)
+void JsonDeserializer::serializeEnum(const std::string & fieldName, const std::string & trueValue, const std::string & falseValue, bool & value)
 {
 	const JsonNode & tmp = current->operator[](fieldName);
 
@@ -72,32 +72,11 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 	if(field.isNull())
 		return;
 
-	auto loadPart = [&](const JsonVector & part, const bool val)
-	{
-		for(size_t index = 0; index < part.size(); index++)
-		{
-			const std::string & identifier = part[index].String();
+	const JsonNode & anyOf = field["anyOf"];
+	const JsonNode & allOf = field["allOf"];
+	const JsonNode & noneOf = field["noneOf"];
 
-			si32 rawId = decoder(identifier);
-			if(rawId >= 0)
-			{
-				if(rawId < value.size())
-					value[rawId] = val;
-				else
-					logGlobal->errorStream() << "JsonDeserializer::serializeLIC: " << fieldName <<" id out of bounds " << rawId;
-			}
-			else
-			{
-				logGlobal->errorStream() << "JsonDeserializer::serializeLIC: " << fieldName <<" identifier not resolved " << identifier;
-			}
-		}
-	};
-
-	const JsonVector & anyOf = field["anyOf"].Vector();
-	const JsonVector & allOf = field["allOf"].Vector();
-	const JsonVector & noneOf = field["noneOf"].Vector();
-
-	if(anyOf.empty() && allOf.empty())
+	if(anyOf.Vector().empty() && allOf.Vector().empty())
 	{
 		//permissive mode
 		value = standard;
@@ -108,15 +87,58 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 		value.clear();
 		value.resize(standard.size(), false);
 
-		loadPart(anyOf, true);
-		loadPart(allOf, true);
+		readLICPart(anyOf, decoder, true, value);
+		readLICPart(allOf, decoder, true, value);
 	}
 
-	loadPart(noneOf, false);
+	readLICPart(noneOf, decoder, false, value);
+}
+
+void JsonDeserializer::serializeLIC(const std::string & fieldName, LIC & value)
+{
+	const JsonNode & field = current->operator[](fieldName);
+
+	const JsonNode & anyOf = field["anyOf"];
+	const JsonNode & allOf = field["allOf"];
+	const JsonNode & noneOf = field["noneOf"];
+
+	if(anyOf.Vector().empty())
+	{
+		//permissive mode
+		value.any = value.standard;
+	}
+	else
+	{
+		//restrictive mode
+		value.any.clear();
+		value.any.resize(value.standard.size(), false);
+
+		readLICPart(anyOf, value.decoder, true, value.any);
+	}
+
+	readLICPart(allOf, value.decoder, true, value.all);
+	readLICPart(noneOf, value.decoder, true, value.none);
 }
 
 void JsonDeserializer::serializeString(const std::string & fieldName, std::string & value)
 {
 	value = current->operator[](fieldName).String();
+}
+
+void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value)
+{
+	for(size_t index = 0; index < part.Vector().size(); index++)
+	{
+		const std::string & identifier = part.Vector()[index].String();
+
+		const si32 rawId = decoder(identifier);
+		if(rawId >= 0)
+		{
+			if(rawId < value.size())
+				value[rawId] = val;
+			else
+				logGlobal->errorStream() << "JsonDeserializer::serializeLIC: id out of bounds " << rawId;
+		}
+	}
 }
 

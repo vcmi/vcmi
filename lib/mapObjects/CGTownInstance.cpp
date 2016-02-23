@@ -1123,10 +1123,20 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 	}
 }
 
-void CGTownInstance::serializeJsonOptions(JsonSerializeFormat& handler)
+void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CGObjectInstance::serializeJsonOwner(handler);
 	CCreatureSet::serializeJson(handler, "army");
+	handler.serializeBool<ui8>("tightFormation", 1, 0, formation);
+	handler.serializeString("name", name);
+
+
+
+	if(!handler.saving)
+	{
+		builtBuildings.insert(BuildingID::DEFAULT);//just in case
+	}
+
 
 	//todo: CGTownInstance::serializeJsonOptions
 }

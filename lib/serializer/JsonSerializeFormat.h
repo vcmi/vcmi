@@ -47,6 +47,16 @@ public:
 	///may assume that object index is valid
 	typedef std::function<std::string(si32)> TEncoder;
 
+	struct LIC
+	{
+		LIC(const std::vector<bool> & Standard, const TDecoder & Decoder, const TEncoder & Encoder);
+
+		const std::vector<bool> & standard;
+		const TDecoder & decoder;
+		const TEncoder & encoder;
+		std::vector<bool> all, any, none;
+	};
+
 	const bool saving;
 
 	JsonSerializeFormat() = delete;
@@ -64,10 +74,20 @@ public:
 
 	JsonStructSerializer enterStruct(const std::string & fieldName);
 
-	virtual void serializeBool(const std::string & fieldName, bool & value) = 0;
-	virtual void serializeBoolEnum(const std::string & fieldName, const std::string & trueValue, const std::string & falseValue, bool & value) = 0;
+	template <typename T>
+	void serializeBool(const std::string & fieldName, const T trueValue, const T falseValue, T & value)
+	{
+		bool temp = (value == trueValue);
+		serializeBool(fieldName, temp);
+		if(!saving)
+			value = temp ? trueValue : falseValue;
+	}
 
-	/** @brief Restrictive serialization of Logical identifier condition (only "anyOf" used), full deserialization
+	virtual void serializeBool(const std::string & fieldName, bool & value) = 0;
+
+	virtual void serializeEnum(const std::string & fieldName, const std::string & trueValue, const std::string & falseValue, bool & value) = 0;
+
+	/** @brief Restrictive ("anyOf") simple serialization of Logical identifier condition, simple deserialization (allOf=anyOf)
 	 *
 	 * @param fieldName
 	 * @param decoder resolve callback, should report errors itself and do not throw
@@ -77,6 +97,9 @@ public:
 	 */
 	virtual void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value) = 0;
 
+	/** @brief Complete serialization of Logical identifier condition
+	 */
+	virtual void serializeLIC(const std::string & fieldName, LIC & value) = 0;
 
 	template <typename T>
 	void serializeNumericEnum(const std::string & fieldName, const std::vector<std::string> & enumMap, const T defaultValue, T & value)

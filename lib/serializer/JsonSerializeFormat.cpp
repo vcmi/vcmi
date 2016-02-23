@@ -14,6 +14,7 @@
 
 #include "../JsonNode.h"
 
+
 //JsonStructSerializer
 JsonStructSerializer::JsonStructSerializer(JsonStructSerializer&& other):
 	restoreState(false),
@@ -48,7 +49,6 @@ JsonStructSerializer::JsonStructSerializer(JsonStructSerializer & parent, const 
 	owner.current = thisNode;
 }
 
-
 JsonStructSerializer JsonStructSerializer::enterStruct(const std::string & fieldName)
 {
 	return JsonStructSerializer(*this, fieldName);
@@ -62,6 +62,14 @@ JsonNode& JsonStructSerializer::get()
 JsonSerializeFormat * JsonStructSerializer::operator->()
 {
 	return &owner;
+}
+
+JsonSerializeFormat::LIC::LIC(const std::vector<bool> & Standard, const TDecoder & Decoder, const TEncoder & Encoder):
+	standard(Standard), decoder(Decoder), encoder(Encoder)
+{
+	any = standard;
+	all.resize(standard.size(), false);
+	none.resize(standard.size(), false);
 }
 
 

@@ -235,7 +235,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 
 		serializeAllowedFactions(handler, info.allowedFactions);
 
-		handler.serializeBoolEnum("canPlay", "PlayerOrAI", "AIOnly", info.canHumanPlay);
+		handler.serializeEnum("canPlay", "PlayerOrAI", "AIOnly", info.canHumanPlay);
 
 		//mainTown
 		if(handler.saving)
