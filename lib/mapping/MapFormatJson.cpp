@@ -237,26 +237,25 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 
 		handler.serializeEnum("canPlay", "PlayerOrAI", "AIOnly", info.canHumanPlay);
 
-		//mainTown
-		if(handler.saving)
+		//saving whole structure only if position is valid
+		if(!handler.saving || info.posOfMainTown.valid())
 		{
-
+			auto mainTown = handler.enterStruct("mainTown");
+			handler.serializeBool("generateHero", info.generateHeroAtMainTown);
+			handler.serializeNumeric("x", info.posOfMainTown.x);
+			handler.serializeNumeric("y", info.posOfMainTown.y);
+			handler.serializeNumeric("l", info.posOfMainTown.z);
 		}
-		else
+		if(!handler.saving)
 		{
-
+			info.hasMainTown = info.posOfMainTown.valid();
 		}
-
-		handler.serializeBool("generateHeroAtMainTown", info.generateHeroAtMainTown);
-
 
 		//mainHero
 
 		//mainHeroPortrait
 
 		//mainCustomHeroName
-
-		//towns
 
 		//heroes
 		{
@@ -270,10 +269,8 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 			// true if main town is random and generateHeroAtMainTown==true
 			// or main hero is random
 			//TODO: recheck mechanics
-			//	info.isFactionRandom =
+			info.isFactionRandom = info.allowedFactions.size() > 1;
 		}
-
-
 	}
 }
 
