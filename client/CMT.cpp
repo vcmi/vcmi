@@ -41,6 +41,8 @@
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CondSh.h"
+#include "../lib/StringConstants.h"
+#include "../lib/CPlayerState.h"
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -191,7 +193,6 @@ static void SDLLogCallback(void*           userdata,
 
 	logGlobal->debugStream() << "SDL(category " << category << "; priority " <<priority <<") "<<message;
 }
-
 
 #ifdef VCMI_APPLE
 void OSX_checkForUpdates();
@@ -471,6 +472,7 @@ int main(int argc, char** argv)
 		Settings session = settings.write["session"];
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
+		session["aiSolo"].Bool() = false;
 
 		bfs::path fileToStartFrom; //none by default
 		if(vm.count("start"))
@@ -804,10 +806,88 @@ void processCommand(const std::string &message)
             logGlobal->warnStream() << "Setting not changes, AI not found or invalid!";
 		}
 	}
-	else if(cn == "autoskip")
+
+	auto removeGUI = [&]()
 	{
-		Settings session = settings.write["session"];
+		// CClient::endGame
+		GH.curInt = nullptr;
+		if(GH.topInt())
+			GH.topInt()->deactivate();
+		GH.listInt.clear();
+		GH.objsToBlit.clear();
+		GH.statusbar = nullptr;
+		logNetwork->infoStream() << "Removed GUI.";
+
+		LOCPLINT = nullptr;
+
+	};
+	auto giveTurn = [&](PlayerColor player)
+	{
+		YourTurn yt;
+		yt.player = player;
+		yt.daysWithoutCastle = client->getPlayer(player)->daysWithoutCastle;
+		yt.applyCl(client);
+	};
+
+	Settings session = settings.write["session"];
+	if(cn == "autoskip")
+	{
 		session["autoSkip"].Bool() = !session["autoSkip"].Bool();
+	}
+	else if(cn == "gosolo")
+	{
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		PlayerColor color;
+		if(session["aiSolo"].Bool())
+		{
+			for(auto & elem : client->gameState()->players)
+			{
+				if(elem.second.human)
+					client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+			}
+		}
+		else
+		{
+			color = LOCPLINT->playerID;
+			removeGUI();
+			for(auto & elem : client->gameState()->players)
+			{
+				if(elem.second.human)
+				{
+					auto AiToGive = client->aiNameForPlayer(*client->getPlayerSettings(elem.first), false);
+					logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % elem.first % AiToGive;
+					client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
+				}
+			}
+			GH.totalRedraw();
+			giveTurn(color);
+		}
+		session["aiSolo"].Bool() = !session["aiSolo"].Bool();
+	}
+	else if(cn == "controlai")
+	{
+		std::string colorName;
+		readed >> colorName;
+		boost::to_lower(colorName);
+
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		PlayerColor color;
+		if(LOCPLINT)
+			color = LOCPLINT->playerID;
+		for(auto & elem : client->gameState()->players)
+		{
+			if(elem.second.human || (colorName.length() &&
+				elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
+			{
+				continue;
+			}
+
+			removeGUI();
+			client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+		}
+		GH.totalRedraw();
+		if(color != PlayerColor::NEUTRAL)
+			giveTurn(color);
 	}
 	// Check mantis issue 2292 for details
 /* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server

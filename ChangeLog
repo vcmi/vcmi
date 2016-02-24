@@ -10,6 +10,9 @@ GENERAL:
 * Implemented rumors in tavern window
 * New cheat code:
 - vcmiglaurung - gives 5000 crystal dragons into each slot
+* New console commands:
+- gosolo - AI take control over human players and vice versa
+- controlai - give control of one or all AIs to player
 
 BATTLES:
 * Drawbridge mechanics implemented (animation still missing)
