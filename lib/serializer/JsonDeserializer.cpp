@@ -118,6 +118,25 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, LIC & value)
 
 	readLICPart(allOf, value.decoder, true, value.all);
 	readLICPart(noneOf, value.decoder, true, value.none);
+
+	//remove any banned from allowed and required
+	for(si32 idx = 0; idx < value.none.size(); idx++)
+	{
+		if(value.none[idx])
+		{
+			value.all[idx] = false;
+			value.any[idx] = false;
+		}
+	}
+
+	//add all required to allowed
+	for(si32 idx = 0; idx < value.all.size(); idx++)
+	{
+		if(value.all[idx])
+		{
+			value.any[idx] = true;
+		}
+	}
 }
 
 void JsonDeserializer::serializeString(const std::string & fieldName, std::string & value)

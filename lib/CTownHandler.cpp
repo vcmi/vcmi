@@ -809,19 +809,3 @@ std::string CTownHandler::encodeFaction(const si32 index)
 {
 	return VLC->townh->factions[index]->identifier;
 }
-
-si32 CTownHandler::decodeBuilding(const std::string & identifier)
-{
-	//FIXME: CTownHandler::decodeBuilding
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "building", identifier); //???
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CTownHandler::encodeBuilding(const si32 index)
-{
-	 //FIXME: CTownHandler::encodeBuilding
-	 return "";
-}

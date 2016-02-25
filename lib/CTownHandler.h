@@ -288,12 +288,6 @@ public:
 	//json serialization helper
 	static std::string encodeFaction(const si32 index);
 
-	//json serialization helper
-	static si32 decodeBuilding(const std::string & identifier);
-
-	//json serialization helper
-	static std::string encodeBuilding(const si32 index);
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & factions;

@@ -67,7 +67,7 @@ JsonSerializeFormat * JsonStructSerializer::operator->()
 JsonSerializeFormat::LIC::LIC(const std::vector<bool> & Standard, const TDecoder & Decoder, const TEncoder & Encoder):
 	standard(Standard), decoder(Decoder), encoder(Encoder)
 {
-	any = standard;
+	any.resize(standard.size(), false);
 	all.resize(standard.size(), false);
 	none.resize(standard.size(), false);
 }
