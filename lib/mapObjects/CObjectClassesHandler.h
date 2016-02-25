@@ -101,12 +101,6 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	/// Human-readable name of this object, used for objects like banks and dwellings, if set
 	boost::optional<std::string> objectName;
 
-	si32 type;
-	si32 subtype;
-
-	std::string typeName;
-	std::string subTypeName;
-
 	JsonNode base; /// describes base template
 
 	std::vector<ObjectTemplate> templates;
@@ -117,6 +111,12 @@ protected:
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
 public:
+	std::string typeName;
+	std::string subTypeName;
+
+	si32 type;
+	si32 subtype;
+
 	virtual ~AObjectTypeHandler(){}
 
 	void setType(si32 type, si32 subtype);

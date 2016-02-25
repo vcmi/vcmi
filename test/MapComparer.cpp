@@ -116,6 +116,16 @@ void checkEqual(const DisposedHero & actual, const DisposedHero & expected)
 	VCMI_CHECK_FIELD_EQUAL(portrait);
 	VCMI_CHECK_FIELD_EQUAL(name);
 	VCMI_CHECK_FIELD_EQUAL(players);
+
+}
+
+void checkEqual(const ObjectTemplate & actual, const ObjectTemplate & expected)
+{
+	VCMI_CHECK_FIELD_EQUAL(id);
+	VCMI_CHECK_FIELD_EQUAL(subid);
+	VCMI_CHECK_FIELD_EQUAL(printPriority);
+	VCMI_CHECK_FIELD_EQUAL(animationFile);
+	//VCMI_CHECK_FIELD_EQUAL(stringID);
 }
 
 void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
@@ -196,8 +206,9 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 	std::string expectedFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % expected->typeName % expected->ID % expected->subTypeName % expected->subID % expected->tempOwner);
 
 	BOOST_CHECK_EQUAL(actualFullID, expectedFullID);
-	BOOST_CHECK_EQUAL(actual->pos, expected->pos);
 
+	VCMI_CHECK_FIELD_EQUAL_P(pos);
+	checkEqual(actual->appearance, expected->appearance);
 }
 
 void MapComparer::compareObjects()
