@@ -502,11 +502,14 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	{
 		for(size_t idx = 0; idx < json.Vector().size(); idx++)
 		{
-			CStackInstance * new_stack = new CStackInstance();
+			if(json.Vector()[idx]["amount"].Float() > 0)
+			{
+				CStackInstance * new_stack = new CStackInstance();
 
-			new_stack->readJson(json.Vector()[idx]);
+				new_stack->readJson(json.Vector()[idx]);
 
-			putStack(SlotID(idx), new_stack);
+				putStack(SlotID(idx), new_stack);
+			}
 		}
 	}
 }
