@@ -252,11 +252,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 
-	const JsonNode zindex = node["zIndex"];
-	if (!zindex.isNull())
-		printPriority = node["zIndex"].Float();
-	else
-		printPriority = 0; //default value
+	printPriority = node["zIndex"].Float();
 }
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
@@ -344,6 +340,9 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			line[j] = tileToChar(usedTiles[height - 1 - i][width - 1 - j]);
 		mask.push_back(lineNode);
 	}
+
+	if(printPriority != 0)
+		node["zIndex"].Float() = printPriority;
 }
 
 ui32 ObjectTemplate::getWidth() const
