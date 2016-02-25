@@ -119,11 +119,6 @@ void CMapLoaderH3M::init()
 	readEvents();
 	times.push_back(MapLoadingTime("events", sw.getDiff()));
 
-	// Calculate blocked / visitable positions
-	for(auto & elem : map->objects)
-	{
-		map->addBlockVisTiles(elem);
-	}
 	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
 
 	// Print profiling times
