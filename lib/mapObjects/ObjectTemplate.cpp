@@ -268,16 +268,16 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 		visitDirs[1].String().resize(3);
 		visitDirs[2].String().resize(3);
 
-		visitDirs[0].String()[0] = (visitDir & 1)	? '+' : '-';
-		visitDirs[0].String()[1] = (visitDir & 2)	? '+' : '-';
-		visitDirs[0].String()[2] = (visitDir & 4)	? '+' : '-';
-		visitDirs[1].String()[2] = (visitDir & 8)	? '+' : '-';
-		visitDirs[2].String()[2] = (visitDir & 16)	? '+' : '-';
-		visitDirs[2].String()[1] = (visitDir & 32)	? '+' : '-';
-		visitDirs[2].String()[0] = (visitDir & 64)	? '+' : '-';
+		visitDirs[0].String()[0] = (visitDir & 1)   ? '+' : '-';
+		visitDirs[0].String()[1] = (visitDir & 2)   ? '+' : '-';
+		visitDirs[0].String()[2] = (visitDir & 4)   ? '+' : '-';
+		visitDirs[1].String()[2] = (visitDir & 8)   ? '+' : '-';
+		visitDirs[2].String()[2] = (visitDir & 16)  ? '+' : '-';
+		visitDirs[2].String()[1] = (visitDir & 32)  ? '+' : '-';
+		visitDirs[2].String()[0] = (visitDir & 64)  ? '+' : '-';
 		visitDirs[1].String()[0] = (visitDir & 128) ? '+' : '-';
 
-		visitDirs[1].String()[1] = '-';//??? center
+		visitDirs[1].String()[1] = '-';
 	}
 
 	if(withTerrain)
@@ -295,7 +295,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			}
 		}
 	}
-//todo: use lookup?
+
 	auto tileToChar = [&](const ui8 & tile) -> char
 	{
 		if(tile & VISIBLE)
