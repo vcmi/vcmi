@@ -133,6 +133,7 @@ void CPathfinder::calculatePaths()
 				if(!hlp->isLayerAvailable(i))
 					continue;
 
+				/// Check transition without tile accessability rules
 				if(cp->layer != i && !isLayerTransitionPossible(i))
 					continue;
 
@@ -143,6 +144,7 @@ void CPathfinder::calculatePaths()
 				if(dp->accessible == CGPathNode::NOT_SET)
 					continue;
 
+				/// Check transition using tile accessability rules
 				if(cp->layer != i && !isLayerTransitionPossible())
 					continue;
 
@@ -302,16 +304,23 @@ bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
 	switch(cp->layer)
 	{
 	case ELayer::LAND:
-		if(destLayer != ELayer::AIR)
-			return true;
-
-		if(!options.lightweightFlyingMode || isSourceInitialPosition())
+		if(destLayer == ELayer::AIR)
+		{
+			if(!options.lightweightFlyingMode || isSourceInitialPosition())
+				return true;
+		}
+		else if(destLayer == ELayer::SAIL)
+		{
+			if(dt->isWater())
+				return true;
+		}
+		else
 			return true;
 
 		break;
 
 	case ELayer::SAIL:
-		if(destLayer == ELayer::LAND && gs->map->isCoastalTile(dp->coord))
+		if(destLayer == ELayer::LAND && !dt->isWater())
 			return true;
 
 		break;
