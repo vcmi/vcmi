@@ -1141,7 +1141,7 @@ std::string CStack::getName() const
 
 bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
 {
-	return (alive() || allowDead) && position.isValid();
+	return !isGhost() && (alive() || allowDead) && position.isValid();
 }
 
 bool CStack::canBeHealed() const
@@ -1149,6 +1149,13 @@ bool CStack::canBeHealed() const
 	return firstHPleft < MaxHealth()
 		&& isValidTarget()
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
+}
+
+void CStack::makeGhost()
+{
+	state.erase(EBattleStackState::ALIVE);
+	state.insert(EBattleStackState::GHOST);
+	detachFromAll();//TODO: may be some bonuses should remain
 }
 
 ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const

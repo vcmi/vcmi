@@ -247,6 +247,8 @@ public:
 
 	const PlayerColor getOwner() const override;
 
+	void makeGhost();
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		assert(isIndependentNode());
