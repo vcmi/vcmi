@@ -110,9 +110,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	using CBattleInfoEssentials::battleGetArmyObject;
-	CArmedInstance * battleGetArmyObject(ui8 side) const; 
+	CArmedInstance * battleGetArmyObject(ui8 side) const;
 	using CBattleInfoEssentials::battleGetFightingHero;
-	CGHeroInstance * battleGetFightingHero(ui8 side) const; 
+	CGHeroInstance * battleGetFightingHero(ui8 side) const;
 
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	//void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
@@ -247,7 +247,7 @@ public:
 	int getEffectValue(const CSpell * spell) const override;
 
 	const PlayerColor getOwner() const override;
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		assert(isIndependentNode());
@@ -288,9 +288,9 @@ public:
 	{
 		return vstd::contains(state,EBattleStackState::ALIVE);
 	}
-	bool idDeadClone() const //determines if stack is alive
+	bool isGhost() const //determines if stack was removed
 	{
-		return vstd::contains(state,EBattleStackState::DEAD_CLONE);
+		return vstd::contains(state,EBattleStackState::GHOST);
 	}
 	bool isValidTarget(bool allowDead = false) const; //alive non-turret stacks (can be attacked or be object of magic effect)
 };

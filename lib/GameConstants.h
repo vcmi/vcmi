@@ -471,7 +471,7 @@ namespace EBattleStackState
 	{
 		ALIVE = 180,
 		SUMMONED, CLONED,
-		DEAD_CLONE,
+		GHOST, //stack was removed from battlefield
 		HAD_MORALE,
 		WAITING,
 		MOVED,

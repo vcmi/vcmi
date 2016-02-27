@@ -5610,7 +5610,7 @@ void CGameHandler::runBattle()
 		std::set <const CStack*> stacksToRemove;
 		for (auto stack : curB.stacks)
 		{
-			if (stack->idDeadClone())
+			if (stack->isGhost())
 				stacksToRemove.insert(stack);
 		}
 		for (auto stack : stacksToRemove)

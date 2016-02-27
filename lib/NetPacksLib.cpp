@@ -1312,7 +1312,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 		{
 			//remove clone as well
 			CStack * clone = gs->curB->getStack(at->cloneID);
-			clone->state.insert(EBattleStackState::DEAD_CLONE);
+			clone->state.insert(EBattleStackState::GHOST);
 			at->cloneID = -1;
 		}
 	}
@@ -1329,7 +1329,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 	if (cloneKilled())
 	{
 		//"hide" killed creatures instead so we keep info about it
-		at->state.insert(EBattleStackState::DEAD_CLONE);
+		at->state.insert(EBattleStackState::GHOST);
 
 		for(CStack * s : gs->curB->stacks)
 		{
@@ -1340,7 +1340,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 
 	//killed summoned creature should be removed like clone
 	if(killed() && vstd::contains(at->state, EBattleStackState::SUMMONED))
-		at->state.insert(EBattleStackState::DEAD_CLONE);
+		at->state.insert(EBattleStackState::GHOST);
 }
 
 DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
