@@ -142,26 +142,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	return ret;
 }
 
-const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
-{
-	CStack * stack = nullptr;
-	for(auto & elem : stacks)
-	{
-		if(elem->position == pos
-			|| (elem->doubleWide()
-			&&( (elem->attackerOwned && elem->position-1 == pos)
-			||	(!elem->attackerOwned && elem->position+1 == pos)	)
-			) )
-		{
-			if (elem->alive())
-				return elem; //we prefer living stacks - there can be only one stack on the tile, so return it immediately
-			else if (!onlyAlive)
-				stack = elem; //dead stacks are only accessible when there's no alive stack on this tile
-		}
-	}
-	return stack;
-}
-
 const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 {
 	return sides[!stack->attackerOwned].hero;

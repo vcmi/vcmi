@@ -142,7 +142,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
-	const CStack * battleGetStack(BattleHex pos, bool onlyAlive); //returns stack at given tile
 	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; nullptr if none
 	void localInit();
 

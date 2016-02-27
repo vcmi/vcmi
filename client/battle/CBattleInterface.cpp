@@ -1071,9 +1071,6 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 			stackRemoved(attackedInfo.defender->ID);
 	}
 
-/*	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
-		return;*/
-
 	if (targets > 1)
 		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
 	else
@@ -2169,14 +2166,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case RISE_DEMONS:
 				if (shere && ourStack && !shere->alive())
 				{
-					if(!(shere->hasBonusOfType(Bonus::UNDEAD) 
-						|| shere->hasBonusOfType(Bonus::NON_LIVING) 
+					if(!(shere->hasBonusOfType(Bonus::UNDEAD)
+						|| shere->hasBonusOfType(Bonus::NON_LIVING)
 						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
 						|| vstd::contains(shere->state, EBattleStackState::CLONED)
 						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
 						))
 						legalAction = true;
-				}					
+				}
 				break;
 		}
 		if (legalAction)
@@ -2334,8 +2331,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
 				realizeAction = [=]
-				{ 
-					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); 
+				{
+					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID);
 				};
 				break;
 			case CATAPULT:

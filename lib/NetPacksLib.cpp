@@ -1312,7 +1312,10 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 		{
 			//remove clone as well
 			CStack * clone = gs->curB->getStack(at->cloneID);
-			clone->state.insert(EBattleStackState::GHOST);
+			if(clone)
+			{
+				clone->state.insert(EBattleStackState::GHOST);
+			}
 			at->cloneID = -1;
 		}
 	}
@@ -1340,7 +1343,9 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 
 	//killed summoned creature should be removed like clone
 	if(killed() && vstd::contains(at->state, EBattleStackState::SUMMONED))
+	{
 		at->state.insert(EBattleStackState::GHOST);
+	}
 }
 
 DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
@@ -1635,15 +1640,19 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 			{
 				CStack * toRemove = gs->curB->stacks[b];
 
+				toRemove->state.erase(EBattleStackState::ALIVE); //just in case
+				toRemove->state.insert(EBattleStackState::GHOST);
+
 				//stack may be removed instantly (not being killed first)
 				//handle clone remove also here
 				if(toRemove->cloneID >= 0)
+				{
 					stackIDs.insert(toRemove->cloneID);
-
-				gs->curB->stacks.erase(gs->curB->stacks.begin() + b); //remove
+					toRemove->cloneID = -1;
+				}
 
 				toRemove->detachFromAll();
-				delete toRemove;
+
 				break;
 			}
 		}

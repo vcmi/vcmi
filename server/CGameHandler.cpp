@@ -5606,19 +5606,6 @@ void CGameHandler::runBattle()
 
 		const BattleInfo & curB = *gs->curB;
 
-		//remove clones after all mechanics and animations are handled!
-		std::set <const CStack*> stacksToRemove;
-		for (auto stack : curB.stacks)
-		{
-			if (stack->isGhost())
-				stacksToRemove.insert(stack);
-		}
-		for (auto stack : stacksToRemove)
-		{
-			BattleStacksRemoved bsr;
-			bsr.stackIDs.insert(stack->ID);
-			sendAndApply(&bsr);
-		}
 		//stack loop
 
 		const CStack *next;
@@ -6105,29 +6092,6 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 				heroWithDeadCommander = army->id; //TODO: unify commander handling
 		}
 	};
-
-	//1. Find removed stacks.
-	for(const auto & slotInfo : army->stacks)
-	{
-		const SlotID slot = slotInfo.first;
-		const CStackInstance * instance = slotInfo.second;
-
-		if(nullptr != instance)//just in case
-		{
-			bool found = false;
-			for(const CStack * sta : bat->stacks)
-			{
-				if(sta->base == instance)
-				{
-					found = true;
-					break;
-				}
-			}
-			//stack in this slot was removed == it is dead
-			if(!found)
-				killStack(slot, instance);
-		}
-	}
 
 	for(CStack *st : bat->stacks)
 	{

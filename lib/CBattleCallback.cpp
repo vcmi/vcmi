@@ -189,7 +189,7 @@ TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate, bool in
 	RETURN_IF_NOT_BATTLE(ret);
 
 	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), [=](const CStack * s){
-		return predicate(s) && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
+		return predicate(s) && (!vstd::contains(s->state, EBattleStackState::GHOST))  && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
 	});
 
 	return ret;
