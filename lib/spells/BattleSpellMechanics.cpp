@@ -586,6 +586,8 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 	RisingSpellMechanics::applyBattleEffects(env, parameters, ctx);
 	//it is safe to remove even active stack
 	BattleStacksRemoved bsr;
+	if(victim->cloneID >= 0)
+		bsr.stackIDs.insert(victim->cloneID);
 	bsr.stackIDs.insert(victim->ID);
 	env->sendAndApply(&bsr);
 }
