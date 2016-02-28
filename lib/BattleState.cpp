@@ -721,11 +721,6 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive /*= true*/)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-CStack * BattleInfo::getStackT(BattleHex tileID, bool onlyAlive /*= true*/)
-{
-	return const_cast<CStack *>(battleGetStackByPos(tileID, onlyAlive));
-}
-
 BattleInfo::BattleInfo()
 {
 	setBattle(this);

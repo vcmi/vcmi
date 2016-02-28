@@ -107,7 +107,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	~BattleInfo(){};
 
 	//////////////////////////////////////////////////////////////////////////
-	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	using CBattleInfoEssentials::battleGetArmyObject;
 	CArmedInstance * battleGetArmyObject(ui8 side) const;
