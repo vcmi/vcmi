@@ -289,11 +289,11 @@ public:
 	{
 		return vstd::contains(state,EBattleStackState::ALIVE);
 	}
-	bool isGhost() const //determines if stack was removed
-	{
-		return vstd::contains(state,EBattleStackState::GHOST);
-	}
-	bool isValidTarget(bool allowDead = false) const; //alive non-turret stacks (can be attacked or be object of magic effect)
+
+	bool isDead() const;
+	bool isGhost() const; //determines if stack was removed
+	bool isValidTarget(bool allowDead = false) const; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
+	bool isTurret() const;
 };
 
 class DLL_LINKAGE CMP_stack

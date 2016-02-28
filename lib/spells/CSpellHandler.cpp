@@ -309,8 +309,9 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
 	// Get all stacks at destination hex. only alive if not rising spell
-	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s){
-		return s->coversPos(destination) && (isRisingSpell() || s->alive());
+	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s)
+	{
+		return s->coversPos(destination) && s->isValidTarget(isRisingSpell());
 	});
 
 	if(!stacks.empty())

@@ -1139,9 +1139,24 @@ std::string CStack::getName() const
 	return (count > 1) ? type->namePl : type->nameSing; //War machines can't use base
 }
 
-bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
+bool CStack::isValidTarget(bool allowDead/* = false*/) const
 {
-	return !isGhost() && (alive() || allowDead) && position.isValid();
+	return (alive() || (allowDead && isDead())) && position.isValid() && !isTurret();
+}
+
+bool CStack::isDead() const
+{
+	return !alive() && !isGhost();
+}
+
+bool CStack::isGhost() const
+{
+	return vstd::contains(state,EBattleStackState::GHOST);
+}
+
+bool CStack::isTurret() const
+{
+	return type->idNumber == CreatureID::ARROW_TOWERS;
 }
 
 bool CStack::canBeHealed() const

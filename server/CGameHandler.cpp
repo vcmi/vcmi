@@ -5703,8 +5703,9 @@ void CGameHandler::runBattle()
 
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
-				TStacks possibleStacks = battleGetStacksIf([&](const CStack * s){
-					return s->owner == next->owner  &&  s->canBeHealed();
+				TStacks possibleStacks = battleGetStacksIf([=](const CStack * s)
+				{
+					return s->owner == next->owner && s->canBeHealed();
 				});
 
 				if(!possibleStacks.size())

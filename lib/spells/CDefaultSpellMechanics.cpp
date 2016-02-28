@@ -360,9 +360,8 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		TStacks mirrorTargets = parameters.cb->battleGetStacksIf([this, parameters](const CStack * battleStack)
 		{
 			//Get all enemy stacks. Magic mirror can reflect to immune creature (with no effect)
-			return battleStack->owner == parameters.casterColor;
-		},
-		true);//turrets included
+			return battleStack->owner == parameters.casterColor && battleStack->isValidTarget(false);
+		});
 
 		if(!mirrorTargets.empty())
 		{
@@ -711,7 +710,6 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 			//for massive spells add all targets
 			for (auto stack : stacks)
 				attackedCres.insert(stack);
-
 		}
 		else
 		{
