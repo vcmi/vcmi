@@ -3435,7 +3435,8 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 					sorted.hex[getCurrentPosition(stack)].alive.push_back(stack);
 			}
 		}
-		else
+		//FIXME: hack to ignore ghost stacks
+		else if(!(creAnims[stack->ID]->getType() == CCreatureAnim::DEAD && stack->isGhost()))
 			sorted.hex[stack->position].dead.push_back(stack);
 	}
 
