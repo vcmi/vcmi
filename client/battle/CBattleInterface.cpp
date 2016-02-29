@@ -1018,9 +1018,9 @@ void CBattleInterface::stackRemoved(int stackID)
 		}
 	}
 
-	delete creAnims[stackID];
-	creAnims.erase(stackID);
-	creDir.erase(stackID);
+//	delete creAnims[stackID];
+//	creAnims.erase(stackID);
+//	creDir.erase(stackID);
 	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
@@ -3408,8 +3408,13 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 
 	BattleObjectsByHex sorted;
 
+	auto stacks = curInt->cb->battleGetStacksIf([](const CStack * s)
+	{
+		return !s->isTurret();
+	});
+
 	// Sort creatures
-	for (auto & stack : curInt->cb->battleGetAllStacks())
+	for (auto & stack : stacks)
 	{
 		if(creAnims.find(stack->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;

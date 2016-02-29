@@ -4400,7 +4400,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			s->battleCast(spellEnv, parameters);
 
 			sendAndApply(&end_action);
-			if( !gs->curB->battleGetStackByID(gs->curB->activeStack, true))
+			if( !gs->curB->battleGetStackByID(gs->curB->activeStack))
 			{
 				battleMadeAction.setn(true);
 			}

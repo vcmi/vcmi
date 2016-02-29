@@ -256,11 +256,15 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 
-	for(auto s : battleGetAllStacks(true))
-		if(s->ID == ID  &&  (!onlyAlive || s->alive()))
-			return s;
+	auto stacks = battleGetStacksIf([=](const CStack * s)
+	{
+		return s->ID == ID && (!onlyAlive || s->alive());
+	});
 
-	return nullptr;
+	if(stacks.empty())
+		return nullptr;
+	else
+		return stacks[0];
 }
 
 bool CBattleInfoEssentials::battleDoWeKnowAbout(ui8 side) const
