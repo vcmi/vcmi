@@ -26,6 +26,9 @@
     <Filter Include="spells">
       <UniqueIdentifier>{bda963b1-00e1-412a-9b44-f5cd3f8e9e33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="serializer">
+      <UniqueIdentifier>{2f582170-d8a6-42f3-8da3-8255bac28f5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
@@ -234,6 +237,24 @@
       <Filter>filesystem</Filter>
     </ClCompile>
     <ClCompile Include="filesystem\FileInfo.cpp" />
+    <ClCompile Include="serializer\JsonDeserializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\JsonSerializeFormat.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\JsonSerializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CMemoryBuffer.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CZipSaver.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\MinizipExtensions.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -580,6 +601,33 @@
     </ClInclude>
     <ClInclude Include="filesystem\FileInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonDeserializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonSerializeFormat.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonSerializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CInputOutputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CMemoryBuffer.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\COutputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CZipSaver.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\MinizipExtensions.h">
+      <Filter>filesystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
