@@ -480,7 +480,8 @@ namespace EBattleStackState
 		//remember to drain mana only once per turn
 		DRAINED_MANA,
 		//only for defending animation
-		DEFENDING_ANIM
+		DEFENDING_ANIM,
+		GHOST_PENDING// stack will become GHOST in next battle state update
 	};
 }
 

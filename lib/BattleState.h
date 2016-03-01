@@ -246,6 +246,7 @@ public:
 
 	const PlayerColor getOwner() const override;
 
+	///stack will be ghost in next battle state update
 	void makeGhost();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

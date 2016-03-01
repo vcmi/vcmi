@@ -1639,7 +1639,10 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 			{
 				CStack * toRemove = gs->curB->stacks[b];
 
-				toRemove->makeGhost();
+				toRemove->state.erase(EBattleStackState::ALIVE);
+				toRemove->state.erase(EBattleStackState::GHOST_PENDING);
+				toRemove->state.insert(EBattleStackState::GHOST);
+				toRemove->detachFromAll();//TODO: may be some bonuses should remain
 
 				//stack may be removed instantly (not being killed first)
 				//handle clone remove also here

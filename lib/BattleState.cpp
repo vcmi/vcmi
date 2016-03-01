@@ -1164,8 +1164,7 @@ bool CStack::canBeHealed() const
 void CStack::makeGhost()
 {
 	state.erase(EBattleStackState::ALIVE);
-	state.insert(EBattleStackState::GHOST);
-	detachFromAll();//TODO: may be some bonuses should remain
+	state.insert(EBattleStackState::GHOST_PENDING);
 }
 
 ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const
