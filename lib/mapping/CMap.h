@@ -76,7 +76,7 @@ struct DLL_LINKAGE PlayerInfo
 	bool hasMainTown; /// The default value is false.
 	bool generateHeroAtMainTown; /// The default value is false.
 	int3 posOfMainTown;
-	TeamID team; /// The default value is 255 representing that the player belongs to no team.
+	TeamID team; /// The default value NO_TEAM
 	bool hasRandomHero; /// Player has a random hero
 
 	bool generateHero; /// Unused.
@@ -98,6 +98,7 @@ struct DLL_LINKAGE PlayerInfo
 struct DLL_LINKAGE EventCondition
 {
 	enum EWinLoseType {
+		//internal use, deprecated
 		HAVE_ARTIFACT,     // type - required artifact
 		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
 		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
@@ -105,26 +106,44 @@ struct DLL_LINKAGE EventCondition
 		CONTROL,           // position - position of object, optional, type - type of object
 		DESTROY,           // position - position of object, optional, type - type of object
 		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
+
+		//map format version pre 1.0
 		DAYS_PASSED,       // value - number of days from start of the game
 		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
 		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
 		STANDARD_WIN,      // normal defeat all enemies condition
-		CONST_VALUE        // condition that always evaluates to "value" (0 = false, 1 = true)
+		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
+
+		//map format version 1.0+
+		HAVE_0,
+		HAVE_BUILDING_0,
+		DESTROY_0
 	};
 
 	EventCondition(EWinLoseType condition = STANDARD_WIN);
 	EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position = int3(-1, -1, -1));
 
-	const CGObjectInstance * object; // object that was at specified position on start
+	const CGObjectInstance * object; // object that was at specified position or with instance name on start
 	si32 value;
 	si32 objectType;
+	si32 objectSubtype;
+	std::string objectInstanceName;
 	int3 position;
 	EWinLoseType condition;
 
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & object & value & objectType & position & condition;
+		h & object;
+		h & value;
+		h & objectType;
+		h & position;
+		h & condition;
+		if(version > 759)
+		{
+			h & objectSubtype;
+			h & objectInstanceName;
+		}
 	}
 };
 
@@ -171,7 +190,10 @@ struct DLL_LINKAGE TriggeredEvent
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & identifier & trigger & description & onFulfill & effect;
+		h & identifier;
+		h & trigger;
+		h & description;
+		h & onFulfill & effect;
 	}
 };
 
@@ -207,7 +229,7 @@ struct DLL_LINKAGE DisposedHero
 
 namespace EMapFormat
 {
-enum EMapFormat
+enum EMapFormat: ui8
 {
 	INVALID = 0,
 	//    HEX     DEC
@@ -215,7 +237,8 @@ enum EMapFormat
 	AB  = 0x15, // 21
 	SOD = 0x1c, // 28
 // HOTA = 0x1e ... 0x20 // 28 ... 30
-	WOG = 0x33  // 51
+	WOG = 0x33,  // 51
+	VCMI = 0xF0
 };
 }
 
@@ -251,7 +274,7 @@ public:
 	std::vector<PlayerInfo> players; /// The default size of the vector is PlayerColor::PLAYER_LIMIT.
 	ui8 howManyTeams;
 	std::vector<bool> allowedHeroes;
-	std::vector<ui16> placeholdedHeroes;
+
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
 	/// "main quests" of the map that describe victory and loss conditions
@@ -277,8 +300,10 @@ public:
 	CMapEditManager * getEditManager();
 	TerrainTile & getTile(const int3 & tile);
 	const TerrainTile & getTile(const int3 & tile) const;
+	bool isCoastalTile(const int3 & pos) const;
 	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
+
 	bool checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const;
 	int3 guardingCreaturePosition (int3 pos) const;
 
@@ -289,6 +314,7 @@ public:
 	void addNewArtifactInstance(CArtifactInstance * art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 	void addQuest(CGObjectInstance * quest);
+	void addNewObject(CGObjectInstance * obj);
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);
@@ -325,6 +351,8 @@ public:
 	std::unique_ptr<CMapEditManager> editManager;
 
 	int3 ***guardingCreaturePositions;
+
+	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
@@ -393,5 +421,10 @@ public:
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 		h & CGTownInstance::universitySkills;
+
+		if(formatVersion >= 759)
+		{
+			h & instanceNames;
+		}
 	}
 };

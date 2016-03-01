@@ -167,12 +167,12 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 	}
 
 	nsf->type = it->second;
-	
+
 	JsonUtils::parseTypedBonusShort(ability_vec,nsf);
 
 	nsf->source = Bonus::CREATURE_ABILITY;
 	nsf->sid = cre->idNumber;
-	
+
 	cre->addNewBonus(nsf);
 }
 
@@ -186,6 +186,16 @@ CCreatureHandler::CCreatureHandler()
 		creaturesOfLevel[i].setDescription("Creatures of tier " + boost::lexical_cast<std::string>(i));
 
 	loadCommanders();
+}
+
+const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
+{
+	boost::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
+
+	if(!index)
+		throw std::runtime_error("Creature not found "+identifier);
+
+	return creatures[*index];
 }
 
 void CCreatureHandler::loadCommanders()
@@ -358,23 +368,41 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::MONSTER, object->idNumber.num);
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = object->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->addTemplate(templ);
+		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, object->idNumber.num);
+	});
+
+	registerObject(scope, "creature", name, object->idNumber);
 
 	for(auto node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(index));
 	object->iconIndex = object->idNumber + 2;
 
@@ -386,10 +414,28 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
 	creatures[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::MONSTER, object->idNumber.num);
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = object->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->addTemplate(templ);
+		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, object->idNumber.num);
+	});
+
+	registerObject(scope, "creature", name, object->idNumber);
 	for(auto & node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
@@ -568,11 +614,12 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 		graphics.Struct().erase("missile");
 }
 
-CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
+CCreature * CCreatureHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	auto  cre = new CCreature();
 
 	const JsonNode & name = node["name"];
+	cre->identifier = identifier;
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
 
@@ -1130,20 +1177,7 @@ void CCreatureHandler::buildBonusTreeForTiers()
 
 void CCreatureHandler::afterLoadFinalization()
 {
-	for (CCreature * crea : creatures)
-	{
-		VLC->objtypeh->loadSubObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
-		if (!crea->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ["animation"].String() = crea->advMapDef;
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(templ);
-		}
 
-		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, crea->idNumber.num);
-	}
 }
 
 void CCreatureHandler::deserializationFix()

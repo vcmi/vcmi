@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "CGTownInstance.h"
 #include "CObjectClassesHandler.h"
+#include "../spells/CSpellHandler.h"
 
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
@@ -19,6 +20,7 @@
 #include "../CGameState.h"
 #include "../mapping/CMapDefines.h"
 #include "../CPlayerState.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -312,6 +314,13 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 	{
 		heroAcceptsCreatures(hero);
 	}
+}
+
+void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	//todo: CGDwelling::serializeJsonOptions
+	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+		serializeJsonOwner(handler);
 }
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -1178,6 +1187,63 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		fw.mode = 1;
 		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
 		cb->sendAndApply (&fw);
+	}
+}
+
+void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	CGObjectInstance::serializeJsonOwner(handler);
+	CCreatureSet::serializeJson(handler, "army");
+	handler.serializeBool<ui8>("tightFormation", 1, 0, formation);
+	handler.serializeString("name", name);
+
+
+
+	if(!handler.saving)
+	{
+		builtBuildings.insert(BuildingID::DEFAULT);//just in case
+	}
+
+	//todo: serialize buildings
+//	{
+//		std::vector<bool> standard;
+//		standard.resize(44, true);
+//
+//
+//		JsonSerializeFormat::LIC buildingsLIC(, CTownHandler::decodeBuilding, CTownHandler::encodeBuilding);
+//	}
+
+	{
+		JsonSerializeFormat::LIC spellsLIC(VLC->spellh->getDefaultAllowed(), CSpellHandler::decodeSpell, CSpellHandler::encodeSpell);
+
+		for(SpellID id : possibleSpells)
+			spellsLIC.any[id.num] = true;
+
+		for(SpellID id : obligatorySpells)
+			spellsLIC.all[id.num] = true;
+
+		handler.serializeLIC("spells", spellsLIC);
+
+		if(!handler.saving)
+		{
+			possibleSpells.clear();
+			for(si32 idx = 0; idx < spellsLIC.any.size(); idx++)
+			{
+				if(spellsLIC.any[idx])
+				{
+					possibleSpells.push_back(SpellID(idx));
+				}
+			}
+
+			obligatorySpells.clear();
+			for(si32 idx = 0; idx < spellsLIC.all.size(); idx++)
+			{
+				if(spellsLIC.all[idx])
+				{
+					obligatorySpells.push_back(SpellID(idx));
+				}
+			}
+		}
 	}
 }
 

@@ -19,7 +19,7 @@ SHeroName::SHeroName() : heroId(-1)
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(255), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
@@ -63,6 +63,7 @@ EventCondition::EventCondition(EWinLoseType condition):
 	object(nullptr),
 	value(-1),
 	objectType(-1),
+	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
@@ -72,6 +73,7 @@ EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectTy
 	object(nullptr),
 	value(value),
 	objectType(objectType),
+	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
@@ -139,11 +141,6 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 		return visitableObjects[visitableObjects.size()-2];
 
 	return visitableObjects.back();
-}
-
-bool TerrainTile::isCoastal() const
-{
-	return extTileFlags & 64;
 }
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
@@ -322,6 +319,35 @@ CGHeroInstance * CMap::getHero(int heroID)
 	return nullptr;
 }
 
+bool CMap::isCoastalTile(const int3 & pos) const
+{
+	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
+	if(!isInTheMap(pos))
+	{
+		logGlobal->errorStream() << "Coastal check outside of map :"<<pos;
+		return false;
+	}
+
+	if(isWaterTile(pos))
+		return false;
+
+	for (auto & dir : dirs)
+	{
+		const int3 hlp = pos + dir;
+
+		if(!isInTheMap(hlp))
+			continue;
+		const TerrainTile &hlpt = getTile(hlp);
+		if(hlpt.isWater())
+			return true;
+	}
+
+	return false;
+}
+
 bool CMap::isInTheMap(const int3 & pos) const
 {
 	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
@@ -349,7 +375,7 @@ const TerrainTile & CMap::getTile(const int3 & tile) const
 
 bool CMap::isWaterTile(const int3 &pos) const
 {
-	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
+	return isInTheMap(pos) && getTile(pos).isWater();
 }
 
 bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
@@ -532,6 +558,32 @@ void CMap::addQuest(CGObjectInstance * quest)
 	auto q = dynamic_cast<IQuestObject *>(quest);
 	q->quest->qid = quests.size();
 	quests.push_back(q->quest);
+}
+
+void CMap::addNewObject(CGObjectInstance * obj)
+{
+    if(obj->id != ObjectInstanceID(objects.size()))
+		throw std::runtime_error("Invalid object instance id");
+
+	if(obj->instanceName == "")
+		throw std::runtime_error("Object instance name missing");
+
+	auto it = instanceNames.find(obj->instanceName);
+	if(it != instanceNames.end())
+		throw std::runtime_error("Object instance name duplicated:"+obj->instanceName);
+
+    objects.push_back(obj);
+    instanceNames[obj->instanceName] = obj;
+    addBlockVisTiles(obj);
+
+	if(obj->ID == Obj::TOWN)
+	{
+		towns.push_back(static_cast<CGTownInstance *>(obj));
+	}
+	if(obj->ID == Obj::HERO)
+	{
+		heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
+	}
 }
 
 void CMap::initTerrain()

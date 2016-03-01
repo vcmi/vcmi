@@ -12,11 +12,9 @@
 #include "StdInc.h"
 #include <boost/test/unit_test.hpp>
 
+#include "../lib/filesystem/ResourceID.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFilesystemLoader.h"
-#include "../lib/filesystem/AdapterLoaders.h"
 #include "../lib/JsonNode.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/int3.h"
@@ -25,11 +23,12 @@
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 {
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type start";
 	try
 	{
 		auto map = make_unique<CMap>();
-		map->width = 100;
-		map->height = 100;
+		map->width = 52;
+		map->height = 52;
 		map->initTerrain();
 		auto editManager = map->getEditManager();
 		editManager->clearTerrain();
@@ -81,6 +80,9 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 		editManager->drawTerrain(ETerrainType::ROCK);
 		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
 
+		//todo: add checks here and enable, also use smaller size
+		#if 0
+
 		// next check
 		auto map2 = make_unique<CMap>();
 		map2->width = 128;
@@ -96,29 +98,23 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 									int3(98, 46, 1), int3(99, 46, 1)});
 		editManager2->getTerrainSelection().setSelection(selection);
 		editManager2->drawTerrain(ETerrainType::ROCK);
+		#endif // 0
 
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal-> errorStream() << e.what();
+		logGlobal->errorStream() << "CMapEditManager_DrawTerrain_Type crash" << "\n" << e.what();
+		throw;
 	}
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type finish";
 }
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 {
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View start";
 	try
 	{
 		// Load maps and json config
-
-		#if defined(__MINGW32__)
-		const std::string TEST_DATA_DIR = "test/";
-		#else
-		const std::string TEST_DATA_DIR = ".";
-		#endif // defined
-
-
-		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
 		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
 		auto map = CMapService::loadMap("test/TerrainViewTest");
 		logGlobal->infoStream() << "Loaded test map successfully.";
@@ -149,8 +145,10 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 				const auto & posVector = posNode.Vector();
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
-				logGlobal->infoStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
+#if 0
+				logGlobal->traceStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
 				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
+#endif // 0
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
 				editManager->drawTerrain(originalTile.terType, &gen);
@@ -171,6 +169,8 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal-> errorStream() << e.what();
+		logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View crash"<< "\n" << e.what();
+		throw;
 	}
+	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View finish";
 }

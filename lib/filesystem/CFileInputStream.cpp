@@ -18,6 +18,7 @@ CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 st
 	fileStream.seekg(dataStart, std::ios::beg);
 }
 
+
 si64 CFileInputStream::read(ui8 * data, si64 size)
 {
 	si64 origin = tell();

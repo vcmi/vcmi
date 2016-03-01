@@ -14,6 +14,8 @@
  *
  */
 
+class CMap;
+
 class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 {
 public:
@@ -84,8 +86,9 @@ public:
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
-private:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
+private:
 	void fight(const CGHeroInstance *h) const;
 	void flee( const CGHeroInstance * h ) const;
 	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
@@ -95,7 +98,6 @@ private:
 	void giveReward(const CGHeroInstance * h) const;
 
 };
-
 
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
@@ -110,6 +112,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & message;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGWitchHut : public CPlayersVisited
@@ -127,6 +131,8 @@ public:
 		h & static_cast<CPlayersVisited&>(*this);
 		h & allowedAbilities & ability;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGScholar : public CGObjectInstance
@@ -136,7 +142,6 @@ public:
 	EBonusType bonusType;
 	ui16 bonusID; //ID of skill/spell
 
-//	void giveAnyBonus(const CGHeroInstance * h) const; //TODO: remove
 	CGScholar() : bonusType(EBonusType::RANDOM){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
@@ -145,6 +150,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & bonusType & bonusID;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGGarrison : public CArmedInstance
@@ -161,6 +168,8 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & removableUnits;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
@@ -185,6 +194,8 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & message & storedArtifact;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGResource : public CArmedInstance
@@ -207,6 +218,8 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & amount & message;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGShrine : public CPlayersVisited
@@ -223,6 +236,8 @@ public:
 		h & static_cast<CPlayersVisited&>(*this);;
 		h & spell;
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGMine : public CArmedInstance
@@ -243,6 +258,7 @@ private:
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 
+	bool isAbandoned() const;
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -250,6 +266,8 @@ public:
 		h & producedResource & producedQuantity;
 	}
 	ui32 defaultResProduction();
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 struct DLL_LINKAGE TeleportChannel
@@ -414,6 +432,8 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<IShipyard&>(*this);
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGMagi : public CGObjectInstance
@@ -429,8 +449,6 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
-
-
 
 class DLL_LINKAGE CCartographer : public CPlayersVisited
 {
@@ -482,4 +500,6 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 	}
 	void giveBonusTo( PlayerColor player ) const;
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

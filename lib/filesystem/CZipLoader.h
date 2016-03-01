@@ -15,12 +15,7 @@
 #include "ResourceID.h"
 #include "CCompressedStream.h"
 
-// Necessary here in order to get all types
-#ifdef USE_SYSTEM_MINIZIP
-#include <minizip/unzip.h>
-#else
-#include "../minizip/unzip.h"
-#endif
+#include "MinizipExtensions.h"
 
 class DLL_LINKAGE CZipStream : public CBufferedStream
 {
@@ -29,10 +24,11 @@ class DLL_LINKAGE CZipStream : public CBufferedStream
 public:
 	/**
 	 * @brief constructs zip stream from already opened file
+	 * @param api virtual filesystem interface
 	 * @param archive path to archive to open
 	 * @param filepos position of file to open
 	 */
-	CZipStream(const boost::filesystem::path & archive, unz64_file_pos filepos);
+	CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos);
 	~CZipStream();
 
 	si64 getSize() override;
@@ -44,6 +40,8 @@ protected:
 
 class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 {
+	std::shared_ptr<CIOApi> ioApi;
+	zlib_filefunc64_def zlibApi;
 	boost::filesystem::path archiveName;
 	std::string mountPoint;
 
@@ -51,7 +49,7 @@ class DLL_LINKAGE CZipLoader : public ISimpleResourceLoader
 
 	std::unordered_map<ResourceID, unz64_file_pos> listFiles(const std::string & mountPoint, const boost::filesystem::path &archive);
 public:
-	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive);
+	CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api = std::shared_ptr<CIOApi>(new CDefaultIOApi()));
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -60,7 +58,6 @@ public:
 	std::string getMountPoint() const override;
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 };
-
 
 namespace ZipArchive
 {

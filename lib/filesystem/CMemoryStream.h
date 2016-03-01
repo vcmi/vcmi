@@ -14,7 +14,8 @@
 
 /**
  * A class which provides method definitions for reading from memory.
- */
+ * @deprecated use CMemoryBuffer
+ */ 
 class DLL_LINKAGE CMemoryStream : public CInputStream
 {
 public:

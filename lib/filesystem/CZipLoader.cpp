@@ -1,5 +1,4 @@
 #include "StdInc.h"
-//#include "../../Global.h"
 #include "CZipLoader.h"
 #include "FileStream.h"
 
@@ -15,9 +14,13 @@
  *
  */
 
-CZipStream::CZipStream(const boost::filesystem::path & archive, unz64_file_pos filepos)
+CZipStream::CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos)
 {
-	file = unzOpen2_64(archive.c_str(), FileStream::GetMinizipFilefunc());
+	zlib_filefunc64_def zlibApi;
+
+	zlibApi = api->getApiStructure();
+
+	file = unzOpen2_64(archive.c_str(), &zlibApi);
 	unzGoToFilePos64(file, &filepos);
 	unzOpenCurrentFile(file);
 }
@@ -47,7 +50,10 @@ ui32 CZipStream::calculateCRC32()
 	return info.crc;
 }
 
-CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive):
+///CZipLoader
+CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::path & archive, std::shared_ptr<CIOApi> api):
+	ioApi(api),
+    zlibApi(ioApi->getApiStructure()),
     archiveName(archive),
     mountPoint(mountPoint),
     files(listFiles(mountPoint, archive))
@@ -59,7 +65,10 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 {
 	std::unordered_map<ResourceID, unz64_file_pos> ret;
 
-	unzFile file = unzOpen2_64(archive.c_str(), FileStream::GetMinizipFilefunc());
+	unzFile file = unzOpen2_64(archive.c_str(), &zlibApi);
+
+	if(file == nullptr)
+		logGlobal->errorStream() << archive << " failed to open";
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{
@@ -86,7 +95,7 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 
 std::unique_ptr<CInputStream> CZipLoader::load(const ResourceID & resourceName) const
 {
-	return make_unique<CZipStream>(archiveName, files.at(resourceName));
+	return std::unique_ptr<CInputStream>(new CZipStream(ioApi, archiveName, files.at(resourceName)));
 }
 
 bool CZipLoader::existsResource(const ResourceID & resourceName) const

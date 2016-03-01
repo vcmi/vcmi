@@ -14,11 +14,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
+class JsonNode;
 class CCreature;
 class CGHeroInstance;
 class CArmedInstance;
 class CCreatureArtifactSet;
+class JsonSerializeFormat;
 
 class DLL_LINKAGE CStackBasicDescriptor
 {
@@ -34,6 +35,10 @@ public:
 	{
 		h & type & count;
 	}
+
+	void writeJson(JsonNode & json) const;
+
+	void readJson(const JsonNode & json);
 };
 
 class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
@@ -58,6 +63,10 @@ public:
 		h & _armyObj & experience;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
+
+	void writeJson(JsonNode & json) const;
+
+	void readJson(const JsonNode & json);
 
 	//overrides CBonusSystemNode
 	std::string bonusToString(const Bonus *bonus, bool description) const override; // how would bonus description look for this particular type of node
@@ -110,7 +119,7 @@ public:
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
 	ui64 getPower() const override {return 0;};
 	int getExpRank() const override;
-	int getLevel() const override; 
+	int getLevel() const override;
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -211,6 +220,9 @@ public:
 	{
 		h & stacks & formation;
 	}
+
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
+
 	operator bool() const
 	{
 		return !stacks.empty();

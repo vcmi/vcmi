@@ -18,6 +18,9 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/logging/CLogger.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/CFilesystemLoader.h"
+#include "../lib/filesystem/AdapterLoaders.h"
 
 CVcmiTestConfig::CVcmiTestConfig()
 {
@@ -29,6 +32,11 @@ CVcmiTestConfig::CVcmiTestConfig()
 	logConfig.configure();
 	loadDLLClasses();
 	logGlobal->infoStream() << "Initialized global test setup.";
+
+	const std::string TEST_DATA_DIR = "test/";
+
+	auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
+	dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
 }
 
 CVcmiTestConfig::~CVcmiTestConfig()

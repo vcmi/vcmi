@@ -1,6 +1,5 @@
-
 /*
- * MapFormatH3M.h, part of VCMI engine
+ * MapFormatJSON.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -14,17 +13,136 @@
 #include "CMapService.h"
 #include "../JsonNode.h"
 
-class TriggeredEvent;
+#include "../filesystem/CZipSaver.h"
+#include "../filesystem/CZipLoader.h"
+#include "../GameConstants.h"
 
-class DLL_LINKAGE CMapLoaderJson : public IMapPatcher
+class TriggeredEvent;
+struct TerrainTile;
+struct PlayerInfo;
+class CGObjectInstance;
+class AObjectTypeHandler;
+
+class JsonSerializeFormat;
+class JsonDeserializer;
+class JsonSerializer;
+
+class DLL_LINKAGE CMapFormatJson
+{
+public:
+	static const int VERSION_MAJOR;
+	static const int VERSION_MINOR;
+
+	static const std::string HEADER_FILE_NAME;
+	static const std::string OBJECTS_FILE_NAME;
+
+	int fileVersionMajor;
+	int fileVersionMinor;
+protected:
+
+	/** ptr to the map object which gets filled by data from the buffer or written to buffer */
+	CMap * map;
+
+	/**
+	 * ptr to the map header object which gets filled by data from the buffer.
+	 * (when loading map and mapHeader point to the same object)
+	 */
+	CMapHeader * mapHeader;
+
+	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
+
+	///common part of header saving/loading
+	void serializeHeader(JsonSerializeFormat & handler);
+
+	///player information saving/loading
+	void serializePlayerInfo(JsonSerializeFormat & handler);
+
+	/**
+	 * Reads team settings to header
+	 */
+	void readTeams(JsonDeserializer & handler);
+
+	/**
+	 * Saves team settings to header
+	 */
+	void writeTeams(JsonSerializer & handler);
+
+
+	///common part triggered events of saving/loading
+	void serializeTriggeredEvents(JsonSerializeFormat & handler);
+
+	/**
+	 * Reads triggered events, including victory/loss conditions
+	 */
+	void readTriggeredEvents(JsonDeserializer & handler);
+
+	/**
+	 * Writes triggered events, including victory/loss conditions
+	 */
+	void writeTriggeredEvents(JsonSerializer & handler);
+
+	/**
+	 * Reads one of triggered events
+	 */
+	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
+
+	/**
+	 * Writes one of triggered events
+	 */
+	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
+
+
+
+	///common part of map attributes saving/loading
+	void serializeOptions(JsonSerializeFormat & handler);
+
+	/**
+	 * Loads map attributes except header ones
+	 */
+	void readOptions(JsonDeserializer & handler);
+
+	/**
+	 * Saves map attributes except header ones
+	 */
+	void writeOptions(JsonSerializer & handler);
+};
+
+class DLL_LINKAGE CMapPatcher : public CMapFormatJson, public IMapPatcher
 {
 public:
 	/**
 	 * Default constructor.
 	 *
+	 * @param stream. A stream containing the map data.
+	 */
+	CMapPatcher(JsonNode stream);
+
+public: //IMapPatcher
+	/**
+	 * Modifies supplied map header using Json data
+	 *
+	 */
+	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
+
+private:
+	/**
+	 * Reads subset of header that can be replaced by patching.
+	 */
+	void readPatchData();
+
+
+	JsonNode input;
+};
+
+class DLL_LINKAGE CMapLoaderJson : public CMapFormatJson, public IMapLoader
+{
+public:
+	/**
+	 * Constructor.
+	 *
 	 * @param stream a stream containing the map data
 	 */
-	CMapLoaderJson(JsonNode stream);
+	CMapLoaderJson(CInputStream * stream);
 
 	/**
 	 * Loads the VCMI/Json map file.
@@ -40,52 +158,107 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
-	/**
-	 * Modifies supplied map header using Json data
-	 *
-	 */
-	void patchMapHeader(std::unique_ptr<CMapHeader> & header) override;
-
 private:
+
+	struct MapObjectLoader
+	{
+		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
+		CMapLoaderJson * owner;
+		CGObjectInstance * instance;
+		ObjectInstanceID id;
+		std::string jsonKey;//full id defined by map creator
+		JsonNode & configuration;
+
+		///constructs object (without configuration)
+		void construct();
+
+		///configures object
+		void configure();
+
+	};
+
+	si32 getIdentifier(const std::string & type, const std::string & name);
+
+	/**
+	 * Reads the map header.
+	 */
+	void readHeader(const bool complete);
+
 	/**
 	 * Reads complete map.
 	 */
 	void readMap();
 
-	/**
-	 * Reads the map header.
-	 */
-	void readHeader();
+	void readTerrainTile(const std::string & src, TerrainTile & tile);
+
+	void readTerrainLevel(const JsonNode & src, const int index);
+
+	void readTerrain();
 
 	/**
-	 * Reads subset of header that can be replaced by patching.
+	 * Loads all map objects from zip archive
 	 */
-	void readPatchData();
+	void readObjects();
+
+	JsonNode getFromArchive(const std::string & archiveFilename);
+
+	CInputStream * buffer;
+	std::shared_ptr<CIOApi> ioApi;
+
+	CZipLoader loader;///< object to handle zip archive operations
+};
+
+class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
+{
+public:
+	/**
+	 * Constructor.
+	 *
+	 * @param stream a stream to save the map to, will contain zip archive
+	 */
+	CMapSaverJson(CInputOutputStream * stream);
+
+	~CMapSaverJson();
 
 	/**
-	 * Reads player information.
+	 * Actually saves the VCMI/Json map into stream.
 	 */
-	void readPlayerInfo();
+	void saveMap(const std::unique_ptr<CMap> & map) override;
+private:
 
 	/**
-	 * Reads triggered events, including victory/loss conditions
+	 * Saves @data as json file with specified @filename
 	 */
-	void readTriggeredEvents();
+	void addToArchive(const JsonNode & data, const std::string & filename);
 
 	/**
-	 * Reads one of triggered events
+	 * Saves header to zip archive
 	 */
-	void readTriggeredEvent(TriggeredEvent & event, const JsonNode & source);
-
-
-	/** ptr to the map object which gets filled by data from the buffer */
-	CMap * map;
+	void writeHeader();
 
 	/**
-	 * ptr to the map header object which gets filled by data from the buffer.
-	 * (when loading map and mapHeader point to the same object)
+	 * Encodes one tile into string
+	 * @param tile tile to serialize
 	 */
-	std::unique_ptr<CMapHeader> mapHeader;
+	const std::string writeTerrainTile(const TerrainTile & tile);
 
-	const JsonNode input;
+	/**
+	 * Saves map level into json
+	 * @param index z coordinate
+	 */
+	JsonNode writeTerrainLevel(const int index);
+
+	/**
+	 * Saves all terrain into zip archive
+	 */
+	void writeTerrain();
+
+	/**
+	 * Saves all map objects into zip archive
+	 */
+	void writeObjects();
+
+	CInputOutputStream * buffer;
+	std::shared_ptr<CIOApi> ioApi;
+	CZipSaver saver;///< object to handle zip archive operations
 };

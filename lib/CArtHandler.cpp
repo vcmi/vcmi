@@ -19,9 +19,11 @@
 #include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
 #include "GameConstants.h"
+#include "StringConstants.h"
 #include "CRandomGenerator.h"
 
 #include "mapObjects/CObjectClassesHandler.h"
+#include "mapping/CMap.h"
 
 // Note: list must match entries in ArtTraits.txt
 #define ART_POS_LIST    \
@@ -201,28 +203,71 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = ArtifactID(artifacts.size());
 	object->iconIndex = object->id + 5;
 
 	artifacts.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
+
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ.setMeta(scope);
+			templ["animation"].String() = object->advMapDef;
+
+			// add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
+		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
+	});
+
+	registerObject(scope, "artifact", name, object->id);
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = ArtifactID(index);
 	object->iconIndex = object->id;
 
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
 	artifacts[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
+
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ.setMeta(scope);
+			templ["animation"].String() = object->advMapDef;
+
+			// add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
+		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
+	});
+	registerObject(scope, "artifact", name, object->id);
 }
 
-CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
+CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	CArtifact * art;
 
@@ -234,7 +279,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 		loadGrowingArt(growing, node);
 		art = growing;
 	}
-
+	art->identifier = identifier;
 	const JsonNode & text = node["text"];
 	art->name        = text["name"].String();
 	art->description = text["description"].String();
@@ -629,7 +674,7 @@ std::vector<bool> CArtHandler::getDefaultAllowed() const
 	std::vector<bool> allowedArtifacts;
 	allowedArtifacts.resize(127, true);
 	allowedArtifacts.resize(141, false);
-	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, true);
+	allowedArtifacts.resize(artifacts.size(), true);
 	return allowedArtifacts;
 }
 
@@ -695,24 +740,20 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 	CBonusSystemNode::treeHasChanged();
+}
 
-	for (CArtifact * art : artifacts)
-	{
-		VLC->objtypeh->loadSubObject(art->Name(), JsonNode(), Obj::ARTIFACT, art->id.num);
+si32 CArtHandler::decodeArfifact(const std::string& identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
 
-		if (!art->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ["animation"].String() = art->advMapDef;
-
-			// add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->addTemplate(templ);
-		}
-		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
-		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->id)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->id);
-	}
+std::string CArtHandler::encodeArtifact(const si32 index)
+{
+	return VLC->arth->artifacts[index]->identifier;
 }
 
 CArtifactInstance::CArtifactInstance()
@@ -936,6 +977,40 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
 {
 	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
 }
+
+CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int spellID)
+{
+	CArtifactInstance * a = nullptr;
+	if(aid >= 0)
+	{
+		if(spellID < 0)
+		{
+			a = CArtifactInstance::createNewArtifactInstance(aid);
+		}
+		else
+		{
+			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
+		}
+	}
+	else //FIXME: create combined artifact instance for random combined artifacts, just in case
+	{
+		a = new CArtifactInstance(); //random, empty
+	}
+
+	map->addNewArtifactInstance(a);
+
+	//TODO make it nicer
+	if(a->artType && (!!a->artType->constituents))
+	{
+		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
+		for(CCombinedArtifactInstance::ConstituentInfo & ci : comb->constituentsInfo)
+		{
+			map->addNewArtifactInstance(ci.art);
+		}
+	}
+	return a;
+}
+
 
 void CArtifactInstance::deserializationFix()
 {
@@ -1312,4 +1387,14 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 	for(auto & elem : artifactsWorn)
 		if(elem.second.artifact && !elem.second.locked)
 			node->attachTo(elem.second.artifact);
+}
+
+void CArtifactSet::writeJson(JsonNode& json) const
+{
+
+}
+
+void CArtifactSet::readJson(const JsonNode& json)
+{
+
 }

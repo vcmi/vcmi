@@ -205,10 +205,21 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	else
 	{
 		//...unless destination mod was specified explicitly
-		auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
-		if (request.remoteScope == "core" ||   // allow only available to all core mod
-		    myDeps.count(request.remoteScope)) // or dependencies
+		//note: getModData does not work for "core" by design
+
+		//for map format support core mod has access to any mod
+		//TODO: better solution for access from map?
+		if(request.localScope == "core" || request.localScope == "")
+		{
 			allowedScopes.insert(request.remoteScope);
+		}
+		else
+		{
+			// allow only available to all core mod or dependencies
+			auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
+			if (request.remoteScope == "core" || myDeps.count(request.remoteScope))
+				allowedScopes.insert(request.remoteScope);
+		}
 	}
 
 	std::string fullID = request.type + '.' + request.name;
@@ -844,9 +855,16 @@ void CModHandler::loadModFilesystems()
 
 CModInfo & CModHandler::getModData(TModID modId)
 {
-	CModInfo & mod = allMods.at(modId);
-	assert(vstd::contains(activeMods, modId)); // not really necessary but won't hurt
-	return mod;
+	auto it = allMods.find(modId);
+
+	if(it == allMods.end())
+	{
+		throw std::runtime_error("Mod not found '" + modId+"'");
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 void CModHandler::initializeConfig()
@@ -904,4 +922,17 @@ void CModHandler::afterLoad()
 
 	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << modSettings;
+}
+
+std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const
+{
+	auto p = splitString(identifier, ':');
+
+	if(p.first.empty())
+		p.first = scope;
+
+	if(p.first == remoteScope)
+		p.first.clear();
+
+	return p.first.empty() ? p.second : p.first +":"+p.second;
 }

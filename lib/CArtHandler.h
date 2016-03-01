@@ -25,6 +25,7 @@ struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 class CRandomGenerator;
+class CMap;
 
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
@@ -49,6 +50,7 @@ protected:
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
+	std::string identifier;
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
@@ -79,6 +81,10 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & name & description & eventText & image & large & advMapDef & iconIndex &
 			price & possibleSlots & constituents & constituentOf & aClass & id;
+		if(version>=759)
+		{
+			h & identifier;
+		}
 	}
 
 	CArtifact();
@@ -147,6 +153,15 @@ public:
 	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
 	static CArtifactInstance *createNewArtifactInstance(int aid);
+
+	/**
+	 * Creates an artifact instance.
+	 *
+	 * @param aid the id of the artifact
+	 * @param spellID optional. the id of a spell if a spell scroll object should be created
+	 * @return the created artifact instance
+	 */
+	static CArtifactInstance * createArtifact(CMap * map, int aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
@@ -240,6 +255,12 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
+	///json serialization helper
+	static si32 decodeArfifact(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeArtifact(const si32 index);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics
@@ -248,7 +269,7 @@ public:
 	}
 
 private:
-	CArtifact * loadFromJson(const JsonNode & node);
+	CArtifact * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void addSlot(CArtifact * art, const std::string & slotID);
 	void loadSlots(CArtifact * art, const JsonNode & node);
@@ -312,6 +333,10 @@ public:
 	}
 
 	void artDeserializationFix(CBonusSystemNode *node);
+
+protected:
+	void writeJson(JsonNode & json) const;
+	void readJson(const JsonNode & json);
 
 protected:
 	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(int aid) const;

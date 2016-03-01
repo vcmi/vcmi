@@ -565,11 +565,10 @@ void CMapGenerator::createConnections()
 		}
 		if (!guardPos.valid())
 		{
-			auto teleport1 = new CGMonolith;
-			teleport1->ID = Obj::MONOLITH_TWO_WAY;
-			teleport1->subID = getNextMonlithIndex();
+			auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, getNextMonlithIndex());
+			auto teleport1 = factory->create(ObjectTemplate());
 
-			auto teleport2 = new CGMonolith(*teleport1);
+			auto teleport2 = factory->create(ObjectTemplate());
 
 			zoneA->addRequiredObject (teleport1, connection.getGuardStrength());
 			zoneB->addRequiredObject (teleport2, connection.getGuardStrength());
@@ -579,7 +578,7 @@ void CMapGenerator::createConnections()
 
 void CMapGenerator::addHeaderInfo()
 {
-	map->version = EMapFormat::SOD;
+	map->version = EMapFormat::VCMI;
 	map->width = mapGenOptions->getWidth();
 	map->height = mapGenOptions->getHeight();
 	map->twoLevel = mapGenOptions->getHasTwoLevels();

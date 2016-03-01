@@ -188,6 +188,7 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 CGObjectInstance * CRewardableConstructor::create(ObjectTemplate tmpl) const
 {
 	auto ret = new CRewardableObject();
+	preInitObject(ret);
 	ret->appearance = tmpl;
 	return ret;
 }

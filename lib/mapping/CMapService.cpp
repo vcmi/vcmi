@@ -5,6 +5,7 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
+
 #include "CMap.h"
 
 #include "MapFormatH3M.h"
@@ -68,21 +69,31 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	ui32 header = reader.readUInt32();
 	reader.getStream()->seek(0);
 
-	// Check which map format is used
-	// gzip header is 3 bytes only in size
-	switch(header & 0xffffff)
+	//check for ZIP magic. Zip files are VCMI maps
+	switch(header)
 	{
-		// gzip header magic number, reversed for LE
-		case 0x00088B1F:
-			stream = std::unique_ptr<CInputStream>(new CCompressedStream(std::move(stream), true));
-			return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
-		case EMapFormat::WOG :
-		case EMapFormat::AB  :
-		case EMapFormat::ROE :
-		case EMapFormat::SOD :
-			return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
-		default :
-			throw std::runtime_error("Unknown map format");
+	case 0x06054b50:
+	case 0x04034b50:
+	case 0x02014b50:
+		return std::unique_ptr<IMapLoader>(new CMapLoaderJson(stream.get()));
+		break;
+	default:
+		// Check which map format is used
+		// gzip header is 3 bytes only in size
+		switch(header & 0xffffff)
+		{
+			// gzip header magic number, reversed for LE
+			case 0x00088B1F:
+				stream = std::unique_ptr<CInputStream>(new CCompressedStream(std::move(stream), true));
+				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
+			case EMapFormat::WOG :
+			case EMapFormat::AB  :
+			case EMapFormat::ROE :
+			case EMapFormat::SOD :
+				return std::unique_ptr<IMapLoader>(new CMapLoaderH3M(stream.get()));
+			default :
+				throw std::runtime_error("Unknown map format");
+		}
 	}
 }
 
@@ -103,5 +114,5 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 
 	boost::to_lower(scenarioName);
 	logGlobal->debugStream() << "Request to patch map " << scenarioName;
-	return std::unique_ptr<IMapPatcher>(new CMapLoaderJson(node[scenarioName]));
+	return std::unique_ptr<IMapPatcher>(new CMapPatcher(node[scenarioName]));
 }

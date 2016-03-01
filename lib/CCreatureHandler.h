@@ -26,6 +26,8 @@ class CCreature;
 class DLL_LINKAGE CCreature : public CBonusSystemNode
 {
 public:
+	std::string identifier;
+
 	std::string nameRef; // reference name, stringID
 	std::string nameSing;// singular name, e.g. Centaur
 	std::string namePl;  // plural name, e.g. Centaurs
@@ -136,6 +138,10 @@ public:
 		h & idNumber & faction & sounds & animation;
 
 		h & doubleWide & special;
+		if(version>=759)
+		{
+			h & identifier;
+		}
 	}
 
 	CCreature();
@@ -148,7 +154,7 @@ private:
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 
 	/// load one creature from json config
-	CCreature * loadFromJson(const JsonNode & node);
+	CCreature * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
 	void loadStackExperience(CCreature * creature, const JsonNode &input);
@@ -185,6 +191,8 @@ public:
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <Bonus*, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
+
+	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
 	void deserializationFix();
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any

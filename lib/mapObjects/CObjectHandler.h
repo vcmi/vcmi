@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "ObjectTemplate.h"
 
@@ -21,6 +21,7 @@ class IGameCallback;
 class CGObjectInstance;
 struct MetaString;
 struct BattleResult;
+class JsonSerializeFormat;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -39,7 +40,7 @@ public:
 	virtual void newTurn() const;
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
-	
+
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
@@ -117,6 +118,10 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
+	std::string instanceName;
+	std::string typeName;
+	std::string subTypeName;
+
 	CGObjectInstance();
 	~CGObjectInstance();
 
@@ -168,17 +173,32 @@ public:
 
 	//friend class CGameHandler;
 
+	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		if(version >= 759)
+		{
+			h & instanceName & typeName & subTypeName;
+		}
+
 		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 	}
+
+	///Entry point of Json (de-)serialization
+	void serializeJson(JsonSerializeFormat & handler);
+
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
+
+	///Serialize object-type specific options
+	virtual void serializeJsonOptions(JsonSerializeFormat & handler);
+
+	void serializeJsonOwner(JsonSerializeFormat & handler);
 };
 
 /// function object which can be used to find an object with an specific sub ID

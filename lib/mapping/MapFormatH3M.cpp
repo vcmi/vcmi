@@ -119,11 +119,6 @@ void CMapLoaderH3M::init()
 	readEvents();
 	times.push_back(MapLoadingTime("events", sw.getDiff()));
 
-	// Calculate blocked / visitable positions
-	for(auto & elem : map->objects)
-	{
-		map->addBlockVisTiles(elem);
-	}
 	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
 
 	// Print profiling times
@@ -615,10 +610,15 @@ void CMapLoaderH3M::readAllowedHeroes()
 	if(mapHeader->version > EMapFormat::ROE)
 	{
 		int placeholdersQty = reader.readUInt32();
-		for(int p = 0; p < placeholdersQty; ++p)
-		{
-			mapHeader->placeholdedHeroes.push_back(reader.readUInt8());
-		}
+
+		reader.skip(placeholdersQty * 1);
+
+//		std::vector<ui16> placeholdedHeroes;
+//
+//		for(int p = 0; p < placeholdersQty; ++p)
+//		{
+//			placeholdedHeroes.push_back(reader.readUInt8());
+//		}
 	}
 }
 
@@ -828,7 +828,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 			{
 				// catapult by default
 				assert(!hero->getArt(ArtifactPosition::MACH4));
-				hero->putArtifact(ArtifactPosition::MACH4, createArtifact(ArtifactID::CATAPULT));
+				hero->putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createArtifact(map, ArtifactID::CATAPULT));
 			}
 		}
 
@@ -885,7 +885,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 		}
 
 		// this is needed, because some H3M maps (last scenario of ROE map) contain invalid data like misplaced artifacts
-		auto artifact = createArtifact(aid);
+		auto artifact =  CArtifactInstance::createArtifact(map, aid);
 		auto artifactPos = ArtifactPosition(slot);
 		if (artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
 		{
@@ -898,40 +898,6 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	}
 
 	return isArt;
-}
-
-CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
-{
-	CArtifactInstance * a = nullptr;
-	if(aid >= 0)
-	{
-		if(spellID < 0)
-		{
-			a = CArtifactInstance::createNewArtifactInstance(aid);
-		}
-		else
-		{
-			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
-		}
-	}
-	else //FIXME: create combined artifact instance for random combined artifacts, just in case
-	{
-		a = new CArtifactInstance(); //random, empty
-	}
-
-	map->addNewArtifactInstance(a);
-
-	//TODO make it nicer
-	if(a->artType && (!!a->artType->constituents))
-	{
-		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
-		for(CCombinedArtifactInstance::ConstituentInfo & ci : comb->constituentsInfo)
-		{
-			map->addNewArtifactInstance(ci.art);
-		}
-	}
-
-	return a;
 }
 
 void CMapLoaderH3M::readTerrain()
@@ -1236,7 +1202,7 @@ void CMapLoaderH3M::readObjects()
 					artID = objTempl.subid;
 				}
 
-				art->storedArtifact = createArtifact(artID, spellID);
+				art->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
 				break;
 			}
 		case Obj::RANDOM_RESOURCE:
@@ -1488,16 +1454,16 @@ void CMapLoaderH3M::readObjects()
 		}
 		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
-		map->objects.push_back(nobj);
-		if(nobj->ID == Obj::TOWN)
+
 		{
-			map->towns.push_back(static_cast<CGTownInstance *>(nobj));
+			//TODO: define valid typeName and subtypeName fro H3M maps
+			//boost::format fmt("%s_%d");
+			//fmt % nobj->typeName % nobj->id.getNum();
+			boost::format fmt("obj_%d");
+			fmt % nobj->id.getNum();
+			nobj->instanceName = fmt.str();
 		}
-		if(nobj->ID == Obj::HERO)
-		{
-			logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
-			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
-		}
+		map->addNewObject(nobj);
 	}
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
@@ -1998,7 +1964,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		ui8 c = reader.readUInt8();
 		for(int yy = 0; yy < 8; ++yy)
 		{
-			int spellid = i * 8 + yy; 
+			int spellid = i * 8 + yy;
 			if(spellid < GameConstants::SPELLS_QUANTITY)
 			{
 				if(c != (c | static_cast<ui8>(std::pow(2., yy))) && map->allowedSpell[spellid]) //add random spell only if it's allowed on entire map

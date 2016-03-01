@@ -21,7 +21,7 @@ namespace GameConstants
 	const std::string TERRAIN_NAMES [TERRAIN_TYPES] = {
 	    "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 	};
-	
+
 	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
 	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 	};
@@ -83,4 +83,18 @@ namespace ETownType
 		"inferno",      "necropolis",   "dungeon",
 		"stronghold",   "fortress",     "conflux"
 	};
+}
+
+namespace NArtifactPosition
+{
+	const std::string names [19] =
+	{
+		"head", "shoulders", "neck", "rightHand", "leftHand", "torso", //5
+		"rightRing", "leftRing", "feet", //8
+		"misc1", "misc2", "misc3", "misc4", //12
+		"mach1", "mach2", "mach3", "mach4", //16
+		"spellbook", "misc5" //18
+	};
+
+	const std::string backpack = "backpack";
 }

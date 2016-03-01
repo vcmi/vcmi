@@ -292,6 +292,8 @@ public:
 
 	CModHandler();
 
+	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & allMods & activeMods & settings & modules & identifiers;

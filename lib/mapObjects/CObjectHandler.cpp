@@ -18,10 +18,13 @@
 #include "../filesystem/ResourceID.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../StringConstants.h"
 #include "../mapping/CMap.h"
 
 #include "CObjectClassesHandler.h"
 #include "CGTownInstance.h"
+
+#include "../serializer/JsonSerializeFormat.h"
 
 IGameCallback * IObjectInterface::cb = nullptr;
 
@@ -315,6 +318,66 @@ bool CGObjectInstance::isVisitable() const
 bool CGObjectInstance::passableFor(PlayerColor color) const
 {
 	return false;
+}
+
+void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
+{
+	//only save here, loading is handled by map loader
+	if(handler.saving)
+	{
+		handler.serializeString("type", typeName);
+		handler.serializeString("subtype", subTypeName);
+
+		handler.serializeNumeric("x", pos.x);
+		handler.serializeNumeric("y", pos.y);
+		handler.serializeNumeric("l", pos.z);
+		appearance.writeJson(handler.getCurrent()["template"], false);
+	}
+
+	{
+		auto options = handler.enterStruct("options");
+		serializeJsonOptions(handler);
+	}
+
+	if(handler.saving && handler.getCurrent()["options"].Struct().empty())
+	{
+		handler.getCurrent().Struct().erase("options");
+	}
+}
+
+void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+
+}
+
+void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
+{
+	std::string temp;
+
+	//todo: use enum serialize
+	if(handler.saving)
+	{
+		if(tempOwner.isValidPlayer())
+		{
+			temp = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
+			handler.serializeString("owner", temp);
+		}
+	}
+	else
+	{
+		tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
+
+		handler.serializeString("owner", temp);
+
+		if(temp != "")
+		{
+			auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, temp);
+			if(rawOwner >=0)
+				tempOwner = PlayerColor(rawOwner);
+			else
+				logGlobal->errorStream() << "Invalid owner :" << temp;
+		}
+	}
 }
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)

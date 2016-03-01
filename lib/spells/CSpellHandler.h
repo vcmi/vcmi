@@ -172,7 +172,7 @@ public:
 	};
 
 	SpellID id;
-	std::string identifier; //???
+	std::string identifier;
 	std::string name;
 
 	si32 level;
@@ -360,11 +360,17 @@ public:
 
 	const std::string getTypeName() const override;
 
+	///json serialization helper
+	static si32 decodeSpell(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeSpell(const si32 index);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & objects ;
 	}
 
 protected:
-	CSpell * loadFromJson(const JsonNode & json) override;
+	CSpell * loadFromJson(const JsonNode & json, const std::string & identifier) override;
 };

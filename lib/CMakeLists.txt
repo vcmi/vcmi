@@ -11,14 +11,17 @@ set(lib_SRCS
 		filesystem/CCompressedStream.cpp
 		filesystem/CFilesystemLoader.cpp
 		filesystem/CArchiveLoader.cpp
+		filesystem/CMemoryBuffer.cpp
 		filesystem/CMemoryStream.cpp
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
+		filesystem/CZipSaver.cpp
 		filesystem/FileInfo.cpp
 		filesystem/Filesystem.cpp
 		filesystem/FileStream.cpp
 		filesystem/ResourceID.cpp
+		filesystem/MinizipExtensions.cpp
 
 		mapObjects/CArmedInstance.cpp
 		mapObjects/CBank.cpp
@@ -100,6 +103,10 @@ set(lib_SRCS
 		CGameState.cpp
 		Connection.cpp
 		NetPacksLib.cpp
+
+		serializer/JsonSerializer.cpp
+		serializer/JsonDeserializer.cpp
+		serializer/JsonSerializeFormat.cpp
 
 		registerTypes/RegisterTypes.cpp
 		registerTypes/TypesClientPacks1.cpp

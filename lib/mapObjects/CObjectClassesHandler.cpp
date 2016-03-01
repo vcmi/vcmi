@@ -74,7 +74,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("pandora", CGPandoraBox);
 	SET_HANDLER("pickable", CGPickable);
 	SET_HANDLER("prison", CGHeroInstance);
-	SET_HANDLER("prison", CGHeroInstance);
 	SET_HANDLER("questGuard", CGQuestGuard);
 	SET_HANDLER("resource", CGResource);
 	SET_HANDLER("scholar", CGScholar);
@@ -148,17 +147,21 @@ si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 	return defaultID; // some H3M objects loaded, first modded found
 }
 
-void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContainter * obj)
+void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj)
 {
 	if (!handlerConstructors.count(obj->handlerName))
 	{
 		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
 		return;
 	}
-	si32 id = selectNextID(entry["index"], obj->objects, 1000);
+
+	std::string convertedId = VLC->modh->normalizeIdentifier(entry.meta, "core", identifier);
+
+	si32 id = selectNextID(entry["index"], obj->subObjects, 1000);
 
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->setType(obj->id, id);
+	handler->setTypeName(obj->identifier, convertedId);
 
 	if (customNames.count(obj->id) && customNames.at(obj->id).size() > id)
 		handler->init(entry, customNames.at(obj->id).at(id));
@@ -175,50 +178,49 @@ void CObjectClassesHandler::loadObjectEntry(const JsonNode & entry, ObjectContai
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debugStream() << "Loaded object " << obj->id << ":" << id;
-	assert(!obj->objects.count(id)); // DO NOT override
-	obj->objects[id] = handler;
+	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << convertedId << "(" << id << ")" ;
+	assert(!obj->subObjects.count(id)); // DO NOT override
+	obj->subObjects[id] = handler;
+	obj->subIds[convertedId] = id;
 }
 
-CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json)
+CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)
 {
 	auto obj = new ObjectContainter();
+	obj->identifier = name;
 	obj->name = json["name"].String();
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
 	obj->id = selectNextID(json["index"], objects, 256);
 	for (auto entry : json["types"].Struct())
 	{
-		loadObjectEntry(entry.second, obj);
+		loadObjectEntry(entry.first, entry.second, obj);
 	}
 	return obj;
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	objects[object->id] = object;
-
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
-
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
-
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
-void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si32 ID, boost::optional<si32> subID)
+void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, boost::optional<si32> subID)
 {
 	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
 	if (subID)
 	{
-		assert(objects.at(ID)->objects.count(subID.get()) == 0);
+		assert(objects.at(ID)->subObjects.count(subID.get()) == 0);
 		assert(config["index"].isNull());
 		config["index"].Float() = subID.get();
 	}
@@ -227,14 +229,14 @@ void CObjectClassesHandler::loadSubObject(std::string name, JsonNode config, si3
 	JsonUtils::inherit(config, objects.at(ID)->base);
 	config.setMeta(oldMeta);
 
-	loadObjectEntry(config, objects[ID]);
+	loadObjectEntry(identifier, config, objects[ID]);
 }
 
 void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
 {
 	assert(objects.count(ID));
-	assert(objects.at(ID)->objects.count(subID));
-	objects.at(ID)->objects.erase(subID);
+	assert(objects.at(ID)->subObjects.count(subID));
+	objects.at(ID)->subObjects.erase(subID); //TODO: cleanup string id map
 }
 
 std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
@@ -246,13 +248,27 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 {
 	if (objects.count(type))
 	{
-		if (objects.at(type)->objects.count(subtype))
-			return objects.at(type)->objects.at(subtype);
+		if (objects.at(type)->subObjects.count(subtype))
+			return objects.at(type)->subObjects.at(subtype);
 	}
 	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
-	assert(0); // FIXME: throw error?
+	throw std::runtime_error("Object type handler not found");
 	return nullptr;
 }
+
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::string subtype) const
+{
+	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("core", "object", type, false);
+	if(id)
+	{
+		si32 subId = objects.at(id.get())->subIds.at(subtype);
+		return objects.at(id.get())->subObjects.at(subId);
+	}
+	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
+	throw std::runtime_error("Object type handler not found");
+	return nullptr;
+}
+
 
 std::set<si32> CObjectClassesHandler::knownObjects() const
 {
@@ -270,7 +286,7 @@ std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
 
 	if (objects.count(primaryID))
 	{
-		for (auto entry : objects.at(primaryID)->objects)
+		for (auto entry : objects.at(primaryID)->subObjects)
 			ret.insert(entry.first);
 	}
 	return ret;
@@ -292,7 +308,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 {
 	for (auto entry : objects)
 	{
-		for (auto obj : entry.second->objects)
+		for (auto obj : entry.second->subObjects)
 		{
 			obj.second->afterLoadFinalization();
 			if (obj.second->getTemplates().empty())
@@ -301,7 +317,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 	}
 
 	//duplicate existing two-way portals to make reserve for RMG
-	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->objects;
+	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->subObjects;
 	size_t portalCount = portalVec.size();
 	size_t currentIndex = portalCount;
 	while (portalVec.size() < 100)
@@ -339,6 +355,12 @@ void AObjectTypeHandler::setType(si32 type, si32 subtype)
 {
 	this->type = type;
 	this->subtype = subtype;
+}
+
+void AObjectTypeHandler::setTypeName(std::string type, std::string subtype)
+{
+	this->typeName = type;
+	this->subTypeName = subtype;
 }
 
 static ui32 loadJsonOrMax(const JsonNode & input)
@@ -385,6 +407,14 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
 {
 	return false; // by default there are no overrides
+}
+
+void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
+{
+	obj->ID = Obj(type);
+	obj->subID = subtype;
+	obj->typeName = typeName;
+	obj->subTypeName = subTypeName;
 }
 
 void AObjectTypeHandler::initTypeData(const JsonNode & input)

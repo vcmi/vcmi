@@ -478,7 +478,6 @@ void CDrawTerrainOperation::execute()
 
 	updateTerrainTypes();
 	updateTerrainViews();
-	//TODO add coastal bit to extTileFlags appropriately
 }
 
 void CDrawTerrainOperation::undo()
@@ -1044,16 +1043,12 @@ void CInsertObjectOperation::execute()
 {
 	obj->pos = pos;
 	obj->id = ObjectInstanceID(map->objects.size());
-	map->objects.push_back(obj);
-	if(obj->ID == Obj::TOWN)
-	{
-		map->towns.push_back(static_cast<CGTownInstance *>(obj));
-	}
-	if(obj->ID == Obj::HERO)
-	{
-		map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
-	}
-	map->addBlockVisTiles(obj);
+
+	boost::format fmt("%s_%d");
+	fmt % obj->typeName % obj->id.getNum();
+	obj->instanceName = fmt.str();
+
+	map->addNewObject(obj);
 }
 
 void CInsertObjectOperation::undo()
