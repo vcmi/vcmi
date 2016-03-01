@@ -645,6 +645,7 @@ ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInf
 	{
 		return (st->attackerOwned == !side)
 			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
+			&& (!vstd::contains(st->state, EBattleStackState::CLONED))
 			&& (st->getCreature()->idNumber != creatureToSummon);
 	});
 
