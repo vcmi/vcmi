@@ -158,7 +158,6 @@ private:
 	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
-	PossibleActions spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	const CSpell * sp; //spell pointer for convenience
 	si32 creatureSpellToCast;
@@ -194,7 +193,7 @@ private:
 		const CBattleInterface * owner;
 	public:
 		const CGTownInstance * town; //besieged town
-		
+
 		SiegeHelper(const CGTownInstance * siegeTown, const CBattleInterface * _owner); //c-tor
 		~SiegeHelper(); //d-tor
 
@@ -335,13 +334,13 @@ public:
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
-	
+
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
-		
+
 	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect = true);
-	
+
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);
@@ -365,7 +364,7 @@ public:
 	friend class CPlayerInterface;
 	friend class CButton;
 	friend class CInGameConsole;
-	
+
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
 	friend class CSpellEffectAnimation;
