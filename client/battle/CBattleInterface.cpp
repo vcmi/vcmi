@@ -1018,6 +1018,8 @@ void CBattleInterface::stackRemoved(int stackID)
 		}
 	}
 
+	//todo: ensure that ghost stack animation has fadeout effect
+
 	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
