@@ -108,6 +108,8 @@ public:
 
 	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const = 0;
 
+	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const = 0;
+
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;

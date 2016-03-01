@@ -747,6 +747,13 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	return ESpellCastProblem::OK;
 }
 
+ESpellCastProblem DefaultSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+{
+	//no problems by default, this method is for spell-specific problems
+	//common problems handled by CSpell
+	return ESpellCastProblem::OK;
+}
+
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//by default use general algorithm

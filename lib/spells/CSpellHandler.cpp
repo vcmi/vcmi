@@ -305,6 +305,17 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 	}
 }
 
+ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
+{
+
+	//todo: CSpell::canBeCastAt check common problems
+
+	SpellTargetingContext ctx(this, cb, mode, caster, , destination);
+
+	return mechanics->canBeCast(cb, caster, mode, destination);
+}
+
+
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
 	// Get all stacks at destination hex. only alive if not rising spell
