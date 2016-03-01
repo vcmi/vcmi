@@ -346,6 +346,11 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
+	const auto attackableBattleHexes = cb->getAttackableBattleHexes();
+
+	if(attackableBattleHexes.empty())
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
 	return ESpellCastProblem::OK;
 }
 
