@@ -143,9 +143,9 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
 {
-	return mechanics->canBeCast(cb, player);
+	return mechanics->canBeCast(cb, caster);
 }
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const

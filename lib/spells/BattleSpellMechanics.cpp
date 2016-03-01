@@ -326,7 +326,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 	env->sendAndApply(&ca);
 }
 
-ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
 {
 	if(nullptr == cb->battleGetDefendedTown())
 	{
@@ -338,11 +338,11 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
-	CSpell::TargetInfo ti(owner, 0);//TODO: use real spell level
+	CSpell::TargetInfo ti(owner, caster->getSpellSchoolLevel(owner));
 	if(ti.smart)
 	{
 		//if spell targeting is smart, then only attacker can use it
-		if(cb->playerToSide(player) != 0)
+		if(cb->playerToSide(caster->getOwner()) != 0)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
@@ -526,17 +526,12 @@ HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectL
 }
 
 ///SacrificeMechanics
-ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
 {
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
 
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
-
-	const CGHeroInstance * caster = nullptr; //todo: use ISpellCaster
-
-	if(cb->battleHasHero(cb->playerToSide(player)))
-		caster = cb->battleGetFightingHero(cb->playerToSide(player));
 
 	for(const CStack * stack : cb->battleGetAllStacks())
 	{
@@ -545,7 +540,7 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 		//TODO: check that we really should check immunity for both stacks
 		ESpellCastProblem::ESpellCastProblem res = owner->internalIsImmune(caster, stack);
 		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
-		const bool casterStack = stack->owner == player;
+		const bool casterStack = stack->owner == caster->getOwner();
 
 		if(!immune && casterStack)
 		{
@@ -635,13 +630,13 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 }
 
 ///SummonMechanics
-ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
 {
 	//check if there are summoned elementals of other type
 
-	auto otherSummoned = cb->battleGetStacksIf([player, this](const CStack * st)
+	auto otherSummoned = cb->battleGetStacksIf([caster, this](const CStack * st)
 	{
-		return (st->owner == player)
+		return (st->owner == caster->getOwner())
 			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
 			&& (!vstd::contains(st->state, EBattleStackState::CLONED))
 			&& (st->getCreature()->idNumber != creatureToSummon);

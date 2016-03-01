@@ -106,7 +106,7 @@ public:
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
 	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
 
-	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const = 0;
+	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const = 0;
 
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
 

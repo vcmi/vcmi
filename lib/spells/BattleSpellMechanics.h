@@ -78,7 +78,7 @@ class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics
 {
 public:
 	EarthquakeMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -127,7 +127,7 @@ class DLL_LINKAGE SacrificeMechanics : public RisingSpellMechanics
 public:
 	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};
 
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -146,7 +146,7 @@ class DLL_LINKAGE SummonMechanics : public DefaultSpellMechanics
 public:
 	SummonMechanics(CSpell * s, CreatureID cre): DefaultSpellMechanics(s), creatureToSummon(cre){};
 
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 private:

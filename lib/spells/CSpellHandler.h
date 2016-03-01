@@ -267,7 +267,7 @@ public:
 	///internal interface (for callbacks)
 
 	///Checks general but spell-specific problems for all casting modes. Use only during battle.
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const;
 
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
