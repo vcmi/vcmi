@@ -284,7 +284,6 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
-	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 
 	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;

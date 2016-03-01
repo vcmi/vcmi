@@ -430,7 +430,7 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		for(auto hex : getTargetsToConsider(spell))
+		for(auto hex : getTargetsToConsider(spell, hero))
 		{
 			PossibleSpellcast ps = {spell, hex};
 			possibleCasts.push_back(ps);
@@ -527,24 +527,52 @@ void CBattleAI::attemptCastingSpell()
 	cb->battleMakeAction(&spellcast);
 }
 
-std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) const
+std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, const ISpellCaster * caster) const
 {
-	if(spell->getTargetType() == CSpell::NO_TARGET)
+	const CSpell::TargetInfo targetInfo(spell, caster->getSpellSchoolLevel(spell));
+	std::vector<BattleHex> ret;
+
+	if(targetInfo.massive || targetInfo.type == CSpell::NO_TARGET)
 	{
-		//Spell can be cast anywhere, all hexes are potentially considerable.
-		std::vector<BattleHex> ret;
-
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-			if(BattleHex(i).isAvailable())
-				ret.push_back(i);
-
-		return ret;
+		ret.push_back(BattleHex());
 	}
 	else
 	{
-		//TODO when massive effect -> doesn't matter where cast
-		return cbc->battleGetPossibleTargets(playerID, spell);
+		switch(targetInfo.type)
+		{
+		case CSpell::CREATURE:
+			{
+				for(const CStack * stack : cbc->battleAliveStacks())
+				{
+					bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
+					bool casterStack = stack->owner == caster->getOwner();
+
+					if(!immune)
+						switch (spell->positiveness)
+						{
+						case CSpell::POSITIVE:
+							if(casterStack || targetInfo.smart)
+								ret.push_back(stack->position);
+							break;
+
+						case CSpell::NEUTRAL:
+							ret.push_back(stack->position);
+							break;
+
+						case CSpell::NEGATIVE:
+							if(!casterStack || targetInfo.smart)
+								ret.push_back(stack->position);
+							break;
+						}
+				}
+			}
+			break;
+		default:
+			break;
+		}
 	}
+
+	return ret;
 }
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()

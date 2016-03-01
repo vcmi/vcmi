@@ -1739,50 +1739,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	return ESpellCastProblem::OK;
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const
-{
-	std::vector<BattleHex> ret;
-	RETURN_IF_NOT_BATTLE(ret);
-
-	switch(spell->getTargetType())
-	{
-	case CSpell::CREATURE:
-		{
-			const CGHeroInstance * caster = battleGetFightingHero(playerToSide(player)); //TODO
-			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
-
-			for(const CStack * stack : battleAliveStacks())
-			{
-				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
-				bool casterStack = stack->owner == caster->getOwner();
-
-				if(!immune)
-					switch (spell->positiveness)
-					{
-					case CSpell::POSITIVE:
-						if(casterStack || ti.smart)
-							ret.push_back(stack->position);
-						break;
-
-					case CSpell::NEUTRAL:
-						ret.push_back(stack->position);
-						break;
-
-					case CSpell::NEGATIVE:
-						if(!casterStack || ti.smart)
-							ret.push_back(stack->position);
-						break;
-					}
-			}
-		}
-		break;
-	default:
-		logGlobal->errorStream() << "FIXME " << __FUNCTION__ << " doesn't work with target type " << spell->getTargetType();
-	}
-
-	return ret;
-}
-
 ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
