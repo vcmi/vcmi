@@ -507,43 +507,64 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 {
 	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.getFirstDestinationHex(), false))
 	{
-		ObstaclesRemoved obr;
-		obr.obstacles.insert(obstacleToRemove->uniqueID);
-		env->sendAndApply(&obr);
+		if(canRemove(obstacleToRemove.get(), parameters.spellLvl))
+		{
+			ObstaclesRemoved obr;
+			obr.obstacles.insert(obstacleToRemove->uniqueID);
+			env->sendAndApply(&obr);
+		}
+		else
+		{
+			env->complain("Cant remove this obstacle!");
+		}
 	}
 	else
 		env->complain("There's no obstacle to remove!");
 }
 
+ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+{
+	const int spellLevel = caster->getSpellSchoolLevel(owner);
+
+	for(auto obstacle : cb->battleGetAllObstacles())
+		if(canRemove(obstacle.get(), spellLevel))
+			return ESpellCastProblem::OK;
+
+	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+}
+
 ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const SpellTargetingContext & ctx) const
 {
-	ESpellCastProblem::ESpellCastProblem res = ESpellCastProblem::NO_APPROPRIATE_TARGET;
-
 	if(auto obstacle = ctx.cb->battleGetObstacleOnPos(ctx.destination, false))
+		if(canRemove(obstacle.get(), ctx.schoolLvl))
+			return ESpellCastProblem::OK;
+
+	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+}
+
+bool RemoveObstacleMechanics::canRemove(const CObstacleInstance * obstacle, const int spellLevel) const
+{
+	switch (obstacle->obstacleType)
 	{
-		switch (obstacle->obstacleType)
-		{
-		case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles can't be removed
-		case CObstacleInstance::MOAT:
-			break;
-		case CObstacleInstance::USUAL:
-			res = ESpellCastProblem::OK;
-			break;
-		case CObstacleInstance::FIRE_WALL:
-			if(ctx.schoolLvl >= 2)
-				res = ESpellCastProblem::OK;
-			break;
-		case CObstacleInstance::QUICKSAND:
-		case CObstacleInstance::LAND_MINE:
-		case CObstacleInstance::FORCE_FIELD:
-			if(ctx.schoolLvl >= 3)
-				res = ESpellCastProblem::OK;
-			break;
-		default:
-			break;
-		}
+	case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles can't be removed
+	case CObstacleInstance::MOAT:
+		return false;
+	case CObstacleInstance::USUAL:
+		return true;
+	case CObstacleInstance::FIRE_WALL:
+		if(spellLevel >= 2)
+			return true;
+		break;
+	case CObstacleInstance::QUICKSAND:
+	case CObstacleInstance::LAND_MINE:
+	case CObstacleInstance::FORCE_FIELD:
+		if(spellLevel >= 3)
+			return true;
+		break;
+	default:
+		break;
 	}
-	return res;
+	return false;
 }
 
 ///RisingSpellMechanics

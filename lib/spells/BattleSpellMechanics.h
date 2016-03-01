@@ -12,6 +12,8 @@
 
 #include "CDefaultSpellMechanics.h"
 
+class CObstacleInstance;
+
 class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
 {
 public:
@@ -110,9 +112,12 @@ class DLL_LINKAGE RemoveObstacleMechanics : public DefaultSpellMechanics
 {
 public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+private:
+    bool canRemove(const CObstacleInstance * obstacle, const int spellLevel) const;
 };
 
 ///all rising spells
