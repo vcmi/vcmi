@@ -567,6 +567,14 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, con
 				}
 			}
 			break;
+		case CSpell::LOCATION:
+			{
+				for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+					if(BattleHex(i).isAvailable())
+						ret.push_back(i);
+			}
+			break;
+
 		default:
 			break;
 		}
