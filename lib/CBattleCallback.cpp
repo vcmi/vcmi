@@ -1732,8 +1732,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			}
 		}
 		break;
-	case CSpell::OBSTACLE:
-		break;
 	}
 
 	return ESpellCastProblem::OK;

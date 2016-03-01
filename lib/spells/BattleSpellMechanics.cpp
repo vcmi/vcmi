@@ -568,6 +568,12 @@ bool RemoveObstacleMechanics::canRemove(const CObstacleInstance * obstacle, cons
 }
 
 ///RisingSpellMechanics
+ESpellCastProblem::ESpellCastProblem RisingSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+{
+	//todo: RisingSpellMechanics::canBeCast
+	return ESpellCastProblem::OK;
+}
+
 HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
 {
 	//this may be even distinct class

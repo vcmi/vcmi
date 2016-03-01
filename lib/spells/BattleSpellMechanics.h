@@ -125,6 +125,7 @@ class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
 	RisingSpellMechanics(CSpell * s): HealingSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
 	EHealLevel getHealLevel(int effectLevel) const override;
 };
 
