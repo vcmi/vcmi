@@ -218,7 +218,7 @@ public:
 	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const ISpellCaster * caster) const;
+	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const;
 
 	si32 getCost(const int skillLevel) const;
 

@@ -153,9 +153,9 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
 }
 
-std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const ISpellCaster * caster) const
+std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
-	ISpellMechanics::SpellTargetingContext ctx(this, cb,mode,casterColor,spellLvl,destination);
+	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, spellLvl, destination);
 
 	std::set<const CStack* > attackedCres = mechanics->getAffectedStacks(ctx);
 

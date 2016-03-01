@@ -272,7 +272,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.getFirstDestinationHex(), parameters.caster);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
@@ -672,7 +672,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 {
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
-	const ui8 attackerSide = ctx.cb->playerToSide(ctx.casterColor) == 1;
+	const ui8 attackerSide = ctx.cb->playerToSide(ctx.caster->getOwner()) == 1;
 	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
 	const CSpell::TargetInfo ti(owner, ctx.schoolLvl, ctx.mode);
@@ -691,8 +691,8 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	else if(ti.type == CSpell::CREATURE)
 	{
 		auto predicate = [=](const CStack * s){
-			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.casterColor;
-			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.casterColor;
+			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
+			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
 			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
 
 			//for single target spells select stacks covering destination tile
@@ -796,7 +796,7 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 	//must be vector, as in Chain Lightning order matters
 	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
 
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, destination, parameters.caster);
+	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, destination);
 	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
 
 	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";

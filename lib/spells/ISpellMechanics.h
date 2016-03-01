@@ -91,11 +91,11 @@ public:
 		CSpell::TargetInfo ti;
 		ECastingMode::ECastingMode mode;
 		BattleHex destination;
-		PlayerColor casterColor;
+		const ISpellCaster * caster;
 		int schoolLvl;
 
-		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, PlayerColor cc, int lvl, BattleHex dest)
-			: cb(c), ti(s,lvl, m), mode(m), destination(dest), casterColor(cc), schoolLvl(lvl)
+		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, const ISpellCaster * caster_, int lvl, BattleHex dest)
+			: cb(c), ti(s,lvl, m), mode(m), destination(dest), caster(caster_), schoolLvl(lvl)
 		{};
 
 	};
