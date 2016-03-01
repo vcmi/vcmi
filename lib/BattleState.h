@@ -107,12 +107,11 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	~BattleInfo(){};
 
 	//////////////////////////////////////////////////////////////////////////
-	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	using CBattleInfoEssentials::battleGetArmyObject;
-	CArmedInstance * battleGetArmyObject(ui8 side) const; 
+	CArmedInstance * battleGetArmyObject(ui8 side) const;
 	using CBattleInfoEssentials::battleGetFightingHero;
-	CGHeroInstance * battleGetFightingHero(ui8 side) const; 
+	CGHeroInstance * battleGetFightingHero(ui8 side) const;
 
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	//void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
@@ -142,7 +141,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
-	const CStack * battleGetStack(BattleHex pos, bool onlyAlive); //returns stack at given tile
 	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; nullptr if none
 	void localInit();
 
@@ -247,7 +245,10 @@ public:
 	int getEffectValue(const CSpell * spell) const override;
 
 	const PlayerColor getOwner() const override;
-	
+
+	///stack will be ghost in next battle state update
+	void makeGhost();
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		assert(isIndependentNode());
@@ -288,11 +289,11 @@ public:
 	{
 		return vstd::contains(state,EBattleStackState::ALIVE);
 	}
-	bool idDeadClone() const //determines if stack is alive
-	{
-		return vstd::contains(state,EBattleStackState::DEAD_CLONE);
-	}
-	bool isValidTarget(bool allowDead = false) const; //alive non-turret stacks (can be attacked or be object of magic effect)
+
+	bool isDead() const;
+	bool isGhost() const; //determines if stack was removed
+	bool isValidTarget(bool allowDead = false) const; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
+	bool isTurret() const;
 };
 
 class DLL_LINKAGE CMP_stack

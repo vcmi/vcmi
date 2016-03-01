@@ -142,26 +142,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	return ret;
 }
 
-const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
-{
-	CStack * stack = nullptr;
-	for(auto & elem : stacks)
-	{
-		if(elem->position == pos
-			|| (elem->doubleWide()
-			&&( (elem->attackerOwned && elem->position-1 == pos)
-			||	(!elem->attackerOwned && elem->position+1 == pos)	)
-			) )
-		{
-			if (elem->alive())
-				return elem; //we prefer living stacks - there can be only one stack on the tile, so return it immediately
-			else if (!onlyAlive)
-				stack = elem; //dead stacks are only accessible when there's no alive stack on this tile
-		}
-	}
-	return stack;
-}
-
 const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 {
 	return sides[!stack->attackerOwned].hero;
@@ -741,11 +721,6 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive /*= true*/)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-CStack * BattleInfo::getStackT(BattleHex tileID, bool onlyAlive /*= true*/)
-{
-	return const_cast<CStack *>(battleGetStackByPos(tileID, onlyAlive));
-}
-
 BattleInfo::BattleInfo()
 {
 	setBattle(this);
@@ -1159,9 +1134,24 @@ std::string CStack::getName() const
 	return (count > 1) ? type->namePl : type->nameSing; //War machines can't use base
 }
 
-bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
+bool CStack::isValidTarget(bool allowDead/* = false*/) const
 {
-	return (alive() || allowDead) && position.isValid();
+	return (alive() || (allowDead && isDead())) && position.isValid() && !isTurret();
+}
+
+bool CStack::isDead() const
+{
+	return !alive() && !isGhost();
+}
+
+bool CStack::isGhost() const
+{
+	return vstd::contains(state,EBattleStackState::GHOST);
+}
+
+bool CStack::isTurret() const
+{
+	return type->idNumber == CreatureID::ARROW_TOWERS;
 }
 
 bool CStack::canBeHealed() const
@@ -1169,6 +1159,12 @@ bool CStack::canBeHealed() const
 	return firstHPleft < MaxHealth()
 		&& isValidTarget()
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
+}
+
+void CStack::makeGhost()
+{
+	state.erase(EBattleStackState::ALIVE);
+	state.insert(EBattleStackState::GHOST_PENDING);
 }
 
 ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const

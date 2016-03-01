@@ -56,7 +56,7 @@ protected:
 	CCallbackBase()
 		: battle(nullptr), gs(nullptr)
 	{}
-	
+
 	void setBattle(const BattleInfo *B);
 	bool duringBattle() const;
 
@@ -83,8 +83,8 @@ namespace EAccessibility
 {
 	enum EAccessibility
 	{
-		ACCESSIBLE, 
-		ALIVE_STACK, 
+		ACCESSIBLE,
+		ALIVE_STACK,
 		OBSTACLE,
 		DESTRUCTIBLE_WALL,
 		GATE, //sieges -> gate opens only for defender stacks
@@ -125,7 +125,7 @@ struct DLL_LINKAGE ReachabilityInfo
 	struct DLL_LINKAGE Parameters
 	{
 		const CStack *stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
-		
+
 		bool attackerOwned;
 		bool doubleWide;
 		bool flying;
@@ -171,15 +171,15 @@ public:
 	ETerrainType battleTerrainType() const;
 	BFieldType battleGetBattlefieldType() const;
 	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
-    
+
     /** @brief Main method for getting battle stacks
      *
      * @param predicate Functor that shall return true for desired stack
      * @return filtered stacks
      *
-     */                             	
-	TStacks battleGetStacksIf(TStackFilter predicate, bool includeTurrets = false) const;
-	
+     */
+	TStacks battleGetStacksIf(TStackFilter predicate) const;
+
 	bool battleHasNativeStack(ui8 side) const;
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
@@ -193,7 +193,7 @@ public:
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
-	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
+	const CArmedInstance * battleGetArmyObject(ui8 side) const;
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
 
 	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
@@ -204,7 +204,7 @@ public:
 	//helpers
 	///returns all stacks, alive or dead or undead or mechanical :)
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
-	
+
 	///returns all alive stacks excluding turrets
 	TStacks battleAliveStacks() const;
 	///returns all alive stacks from particular side excluding turrets
@@ -255,12 +255,12 @@ public:
 	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = nullptr) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
-	
+
 	bool battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 	std::set<const CStack*>  batteAdjacentCreatures (const CStack * stack) const;
-	
+
 	TDmgRange calculateDmgRange(const BattleAttackInfo &info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
@@ -278,7 +278,7 @@ public:
 	bool isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
-	//*** MAGIC 
+	//*** MAGIC
 	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell

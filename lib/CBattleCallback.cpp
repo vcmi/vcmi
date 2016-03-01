@@ -180,33 +180,33 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 
 TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const
 {
-	return battleGetStacksIf([](const CStack * s){return true;},includeTurrets);
+	return battleGetStacksIf([=](const CStack * s)
+	{
+		return !s->isGhost() && (includeTurrets || !s->isTurret());
+	});
 }
 
-TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate, bool includeTurrets /*= false*/) const
+TStacks CBattleInfoEssentials::battleGetStacksIf(TStackFilter predicate) const
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
-	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), [=](const CStack * s){
-		return predicate(s) && (includeTurrets || !(s->type->idNumber == CreatureID::ARROW_TOWERS));
-	});
+	vstd::copy_if(getBattle()->stacks, std::back_inserter(ret), predicate);
 
 	return ret;
 }
 
-
 TStacks CBattleInfoEssentials::battleAliveStacks() const
 {
 	return battleGetStacksIf([](const CStack * s){
-		return s->alive();
+		return s->isValidTarget(false);
 	});
 }
 
 TStacks CBattleInfoEssentials::battleAliveStacks(ui8 side) const
 {
 	return battleGetStacksIf([=](const CStack * s){
-		return s->alive() && s->attackerOwned == !side;
+		return s->isValidTarget(false) && s->attackerOwned == !side;
 	});
 }
 
@@ -256,11 +256,15 @@ const CStack* CBattleInfoEssentials::battleGetStackByID(int ID, bool onlyAlive) 
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
 
-	for(auto s : battleGetAllStacks(true))
-		if(s->ID == ID  &&  (!onlyAlive || s->alive()))
-			return s;
+	auto stacks = battleGetStacksIf([=](const CStack * s)
+	{
+		return s->ID == ID && (!onlyAlive || s->alive());
+	});
 
-	return nullptr;
+	if(stacks.empty())
+		return nullptr;
+	else
+		return stacks[0];
 }
 
 bool CBattleInfoEssentials::battleDoWeKnowAbout(ui8 side) const
@@ -1304,8 +1308,8 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 
 	std::vector<const CStack *> possibleStacks = battleGetStacksIf([=](const CStack * s)
 	{
-		return s != closest && s->alive() && (boost::logic::indeterminate(attackerOwned) || s->attackerOwned == attackerOwned);
-	}, false);
+		return s->isValidTarget(false) && s != closest && (boost::logic::indeterminate(attackerOwned) || s->attackerOwned == attackerOwned);
+	});
 
 	for(const CStack * st : possibleStacks)
 		for(BattleHex hex : avHexes)
@@ -2225,8 +2229,8 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AN
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
 			|| (whose == ONLY_MINE && s->owner == player)
 			|| (whose == ONLY_ENEMY && s->owner != player);
-		const bool alivenessMatches = s->alive()  ||  !onlyAlive;
-		return ownerMatches && alivenessMatches;
+
+		return ownerMatches && s->isValidTarget(!onlyAlive);
 	});
 }
 

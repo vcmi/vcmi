@@ -471,7 +471,7 @@ namespace EBattleStackState
 	{
 		ALIVE = 180,
 		SUMMONED, CLONED,
-		DEAD_CLONE,
+		GHOST, //stack was removed from battlefield
 		HAD_MORALE,
 		WAITING,
 		MOVED,
@@ -480,7 +480,8 @@ namespace EBattleStackState
 		//remember to drain mana only once per turn
 		DRAINED_MANA,
 		//only for defending animation
-		DEFENDING_ANIM
+		DEFENDING_ANIM,
+		GHOST_PENDING// stack will become GHOST in next battle state update
 	};
 }
 

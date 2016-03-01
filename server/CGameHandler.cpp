@@ -4400,7 +4400,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			s->battleCast(spellEnv, parameters);
 
 			sendAndApply(&end_action);
-			if( !gs->curB->battleGetStackByID(gs->curB->activeStack, true))
+			if( !gs->curB->battleGetStackByID(gs->curB->activeStack))
 			{
 				battleMadeAction.setn(true);
 			}
@@ -5606,24 +5606,26 @@ void CGameHandler::runBattle()
 
 		const BattleInfo & curB = *gs->curB;
 
-		//remove clones after all mechanics and animations are handled!
-		std::set <const CStack*> stacksToRemove;
-		for (auto stack : curB.stacks)
-		{
-			if (stack->idDeadClone())
-				stacksToRemove.insert(stack);
-		}
-		for (auto stack : stacksToRemove)
-		{
-			BattleStacksRemoved bsr;
-			bsr.stackIDs.insert(stack->ID);
-			sendAndApply(&bsr);
-		}
 		//stack loop
 
 		const CStack *next;
 		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
 		{
+
+			std::set <const CStack *> stacksToRemove;
+			for(auto stack : curB.stacks)
+			{
+				if(vstd::contains(stack->state, EBattleStackState::GHOST_PENDING))
+					stacksToRemove.insert(stack);
+			}
+
+			for(auto stack : stacksToRemove)
+			{
+				BattleStacksRemoved bsr;
+				bsr.stackIDs.insert(stack->ID);
+				sendAndApply(&bsr);
+			}
+
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
 			if( nextStackMorale < 0 &&
@@ -5716,8 +5718,9 @@ void CGameHandler::runBattle()
 
 			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
-				TStacks possibleStacks = battleGetStacksIf([&](const CStack * s){
-					return s->owner == next->owner  &&  s->canBeHealed();
+				TStacks possibleStacks = battleGetStacksIf([=](const CStack * s)
+				{
+					return s->owner == next->owner && s->canBeHealed();
 				});
 
 				if(!possibleStacks.size())
@@ -6091,44 +6094,6 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
 
-	auto killStack = [&, this](const SlotID slot, const CStackInstance * instance)
-	{
-		StackLocation sl(army, slot);
-		newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
-		if(nullptr == instance)
-			return;
-		auto c = dynamic_cast <const CCommanderInstance *>(instance);
-		if (c) //switch commander status to dead
-		{
-			auto h = dynamic_cast <const CGHeroInstance *>(army);
-			if (h && h->commander == c)
-				heroWithDeadCommander = army->id; //TODO: unify commander handling
-		}
-	};
-
-	//1. Find removed stacks.
-	for(const auto & slotInfo : army->stacks)
-	{
-		const SlotID slot = slotInfo.first;
-		const CStackInstance * instance = slotInfo.second;
-
-		if(nullptr != instance)//just in case
-		{
-			bool found = false;
-			for(const CStack * sta : bat->stacks)
-			{
-				if(sta->base == instance)
-				{
-					found = true;
-					break;
-				}
-			}
-			//stack in this slot was removed == it is dead
-			if(!found)
-				killStack(slot, instance);
-		}
-	}
-
 	for(CStack *st : bat->stacks)
 	{
 		if(vstd::contains(st->state, EBattleStackState::SUMMONED)) //don't take into account temporary summoned stacks
@@ -6144,7 +6109,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		if(st->slot == SlotID::ARROW_TOWERS_SLOT)
 		{
 			//do nothing
-			logGlobal->debugStream() << "Ignored arrow towers stack";
+			logGlobal->debug("Ignored arrow towers stack.");
 		}
 		else if(st->slot == SlotID::WAR_MACHINES_SLOT)
 		{
@@ -6157,40 +6122,63 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 			//catapult artifact remain even if "creature" killed in siege
 			else if(warMachine != ArtifactID::CATAPULT && !st->count)
 			{
-				logGlobal->debugStream() << "War machine has been destroyed";
+				logGlobal->debug("War machine has been destroyed");
 				auto hero = dynamic_ptr_cast<CGHeroInstance> (army);
 				if (hero)
 					removedWarMachines.push_back (ArtifactLocation(hero, hero->getArtPos(warMachine, true)));
 				else
-					logGlobal->errorStream() << "War machine in army without hero";
+					logGlobal->error("War machine in army without hero");
 			}
 		}
 		else if(st->slot == SlotID::SUMMONED_SLOT_PLACEHOLDER)
 		{
 			if(st->alive() && st->count > 0)
 			{
-				logGlobal->debugStream() << "Stack has been permanently summoned";
-				//this stack was permanently summoned
+				logGlobal->debugStream() << "Permanently summoned " + st->count << " units.";
 				const CreatureID summonedType = st->type->idNumber;
 				summoned[summonedType] += st->count;
+			}
+		}
+		else if(st->slot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+		{
+			if(nullptr == st->base)
+			{
+				logGlobal->error("Stack with no base in commander slot.");
+			}
+			else
+			{
+				auto c = dynamic_cast <const CCommanderInstance *>(st->base);
+				if(c)
+				{
+					auto h = dynamic_cast <const CGHeroInstance *>(army);
+					if (h && h->commander == c)
+					{
+						logGlobal->debug("Commander is dead.");
+						heroWithDeadCommander = army->id; //TODO: unify commander handling
+					}
+				}
+				else
+					logGlobal->error("Stack with invalid instance in commander slot.");
 			}
 		}
 		else if(st->base && !army->slotEmpty(st->slot))
 		{
 			if(st->count == 0 || !st->alive())
 			{
-				killStack(st->slot, st->base);
-				logGlobal->debugStream() << "Stack has been destroyed";
+				logGlobal->debug("Stack has been destroyed.");
+				StackLocation sl(army, st->slot);
+				newStackCounts.push_back(TStackAndItsNewCount(sl, 0));
 			}
 			else if(st->count < army->getStackCount(st->slot))
 			{
+				logGlobal->debugStream() << "Stack lost " << (army->getStackCount(st->slot) - st->count) << " units.";
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
 		}
 		else
 		{
-			logGlobal->warnStream() << "Unhandled stack " << st->nodeName();
+			logGlobal->warnStream() << "Unable to process stack: " << st->nodeName();
 		}
 	}
 }

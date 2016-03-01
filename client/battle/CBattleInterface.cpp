@@ -1018,9 +1018,8 @@ void CBattleInterface::stackRemoved(int stackID)
 		}
 	}
 
-	delete creAnims[stackID];
-	creAnims.erase(stackID);
-	creDir.erase(stackID);
+	//todo: ensure that ghost stack animation has fadeout effect
+
 	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
@@ -1070,9 +1069,6 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
-
-/*	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
-		return;*/
 
 	if (targets > 1)
 		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
@@ -2169,14 +2165,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case RISE_DEMONS:
 				if (shere && ourStack && !shere->alive())
 				{
-					if(!(shere->hasBonusOfType(Bonus::UNDEAD) 
-						|| shere->hasBonusOfType(Bonus::NON_LIVING) 
+					if(!(shere->hasBonusOfType(Bonus::UNDEAD)
+						|| shere->hasBonusOfType(Bonus::NON_LIVING)
 						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
 						|| vstd::contains(shere->state, EBattleStackState::CLONED)
 						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
 						))
 						legalAction = true;
-				}					
+				}
 				break;
 		}
 		if (legalAction)
@@ -2334,8 +2330,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
 				realizeAction = [=]
-				{ 
-					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); 
+				{
+					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID);
 				};
 				break;
 			case CATAPULT:
@@ -3411,8 +3407,13 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 
 	BattleObjectsByHex sorted;
 
+	auto stacks = curInt->cb->battleGetStacksIf([](const CStack * s)
+	{
+		return !s->isTurret();
+	});
+
 	// Sort creatures
-	for (auto & stack : curInt->cb->battleGetAllStacks())
+	for (auto & stack : stacks)
 	{
 		if(creAnims.find(stack->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
@@ -3420,7 +3421,10 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		if (stack->position < 0) // turret shooters are handled separately
 			continue;
 
-		if(!creAnims[stack->ID]->isDead())
+		//FIXME: hack to ignore ghost stacks
+		if((creAnims[stack->ID]->getType() == CCreatureAnim::DEAD || creAnims[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
+			;//ignore
+		else if(!creAnims[stack->ID]->isDead())
 		{
 			if (!creAnims[stack->ID]->isMoving())
 				sorted.hex[stack->position].alive.push_back(stack);
