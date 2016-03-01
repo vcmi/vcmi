@@ -3419,7 +3419,10 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		if (stack->position < 0) // turret shooters are handled separately
 			continue;
 
-		if(!creAnims[stack->ID]->isDead())
+		//FIXME: hack to ignore ghost stacks
+		if((creAnims[stack->ID]->getType() == CCreatureAnim::DEAD || creAnims[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
+			;//ignore
+		else if(!creAnims[stack->ID]->isDead())
 		{
 			if (!creAnims[stack->ID]->isMoving())
 				sorted.hex[stack->position].alive.push_back(stack);
@@ -3432,8 +3435,7 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 					sorted.hex[getCurrentPosition(stack)].alive.push_back(stack);
 			}
 		}
-		//FIXME: hack to ignore ghost stacks
-		else if(!(creAnims[stack->ID]->getType() == CCreatureAnim::DEAD && stack->isGhost()))
+		else
 			sorted.hex[stack->position].dead.push_back(stack);
 	}
 
