@@ -5606,25 +5606,26 @@ void CGameHandler::runBattle()
 
 		const BattleInfo & curB = *gs->curB;
 
-		std::set <const CStack *> stacksToRemove;
-		for(auto stack : curB.stacks)
-		{
-			if(vstd::contains(stack->state, EBattleStackState::GHOST_PENDING))
-				stacksToRemove.insert(stack);
-		}
-
-		for(auto stack : stacksToRemove)
-		{
-			BattleStacksRemoved bsr;
-			bsr.stackIDs.insert(stack->ID);
-			sendAndApply(&bsr);
-		}
-
 		//stack loop
 
 		const CStack *next;
 		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
 		{
+
+			std::set <const CStack *> stacksToRemove;
+			for(auto stack : curB.stacks)
+			{
+				if(vstd::contains(stack->state, EBattleStackState::GHOST_PENDING))
+					stacksToRemove.insert(stack);
+			}
+
+			for(auto stack : stacksToRemove)
+			{
+				BattleStacksRemoved bsr;
+				bsr.stackIDs.insert(stack->ID);
+				sendAndApply(&bsr);
+			}
+
 			//check for bad morale => freeze
 			int nextStackMorale = next->MoraleVal();
 			if( nextStackMorale < 0 &&
