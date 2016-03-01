@@ -2142,6 +2142,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 					legalAction = true;
 					bool hexesOutsideBattlefield = false;
+					//todo: move to spell mechanics
 					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
 					for(BattleHex hex : tilesThatMustBeClear)
 					{
