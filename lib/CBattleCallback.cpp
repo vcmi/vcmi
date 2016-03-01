@@ -1776,47 +1776,14 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return ESpellCastProblem::INVALID;
 	}
 	const PlayerColor player = caster->getOwner();
-	ESpellCastProblem::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(caster, spell, mode);
-	if(moreGeneralProblem != ESpellCastProblem::OK)
-		return moreGeneralProblem;
 
-	if(spell->getTargetType() == CSpell::OBSTACLE)
-	{
-		if(spell->id == SpellID::REMOVE_OBSTACLE)
-		{
-			if(auto obstacle = battleGetObstacleOnPos(dest, false))
-			{
-				switch (obstacle->obstacleType)
-				{
-				case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles can't be removed
-				case CObstacleInstance::MOAT:
-					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-				case CObstacleInstance::USUAL:
-					return ESpellCastProblem::OK;
+	ESpellCastProblem::ESpellCastProblem problem = battleCanCastThisSpell(caster, spell, mode);
+	if(problem != ESpellCastProblem::OK)
+		return problem;
 
-// 				//TODO FIRE_WALL only for ADVANCED level casters
-// 				case CObstacleInstance::FIRE_WALL:
-// 					return
-// 				//TODO other magic obstacles for EXPERT
-// 				case CObstacleInstance::QUICKSAND:
-// 				case CObstacleInstance::LAND_MINE:
-// 				case CObstacleInstance::FORCE_FIELD:
-// 					return
-				default:
-//					assert(0);
-					return ESpellCastProblem::OK;
-				}
-			}
-		}
-		//isObstacleOnTile(dest)
-		//
-		//
-		//TODO
-		//assert that it's remove obstacle
-		//rules whether we can remove spell-created obstacle
-		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-
+	problem = spell->canBeCastAt(this, caster, mode, dest);
+	if(problem != ESpellCastProblem::OK)
+		return problem;
 
 	//get dead stack if we cast resurrection or animate dead
 	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->coversPos(dest); });

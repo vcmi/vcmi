@@ -747,7 +747,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem DefaultSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
 {
 	//no problems by default, this method is for spell-specific problems
 	//common problems handled by CSpell

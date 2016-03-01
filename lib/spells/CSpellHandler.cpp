@@ -310,11 +310,10 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallba
 
 	//todo: CSpell::canBeCastAt check common problems
 
-	SpellTargetingContext ctx(this, cb, mode, caster, , destination);
+	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
-	return mechanics->canBeCast(cb, caster, mode, destination);
+	return mechanics->canBeCast(ctx);
 }
-
 
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {

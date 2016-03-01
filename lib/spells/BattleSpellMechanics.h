@@ -110,6 +110,7 @@ class DLL_LINKAGE RemoveObstacleMechanics : public DefaultSpellMechanics
 {
 public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };

@@ -465,7 +465,6 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	}
 }
 
-
 ///WallMechanics
 std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes) const
 {
@@ -516,6 +515,38 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 		env->complain("There's no obstacle to remove!");
 }
 
+ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const SpellTargetingContext & ctx) const
+{
+	ESpellCastProblem::ESpellCastProblem res = ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+	if(auto obstacle = ctx.cb->battleGetObstacleOnPos(ctx.destination, false))
+	{
+		switch (obstacle->obstacleType)
+		{
+		case CObstacleInstance::ABSOLUTE_OBSTACLE: //cliff-like obstacles can't be removed
+		case CObstacleInstance::MOAT:
+			break;
+		case CObstacleInstance::USUAL:
+			res = ESpellCastProblem::OK;
+			break;
+		case CObstacleInstance::FIRE_WALL:
+			if(ctx.schoolLvl >= 2)
+				res = ESpellCastProblem::OK;
+			break;
+		case CObstacleInstance::QUICKSAND:
+		case CObstacleInstance::LAND_MINE:
+		case CObstacleInstance::FORCE_FIELD:
+			if(ctx.schoolLvl >= 3)
+				res = ESpellCastProblem::OK;
+			break;
+		default:
+			break;
+		}
+	}
+	return res;
+}
+
+///RisingSpellMechanics
 HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
 {
 	//this may be even distinct class
