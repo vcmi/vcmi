@@ -647,16 +647,18 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				break;
 			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
 				{
-					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
-					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
+					std::string text = CGI->generaltexth->allTexts[538], elemental, caster;
+					const PlayerColor player = owner->myInt->playerID;
+
+					const TStacks stacks = owner->myInt->cb->battleGetStacksIf([player](const CStack * s)
+					{
+						return s->owner == player
+							&& vstd::contains(s->state, EBattleStackState::SUMMONED)
+							&& !vstd::contains(s->state, EBattleStackState::CLONED);
+					});
 					for(const CStack * s : stacks)
 					{
-						if(vstd::contains(s->state, EBattleStackState::SUMMONED))
-						{
-							elemental = s->getCreature()->namePl;
-							summoner = owner->myInt->cb->battleGetHeroInfo(!s->attackerOwned).name;
-							break;
-						}
+						elemental = s->getCreature()->namePl;
 					}
 					if (owner->myHero->type->sex)
 					{ //female
@@ -666,8 +668,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					{ //male
 						caster = CGI->generaltexth->allTexts[539];
 					}
-					text = boost::str(boost::format(text) % summoner % elemental % caster);
+					std::string summoner = owner->myHero->name;
 
+					text = boost::str(boost::format(text) % summoner % elemental % caster);
 
 					owner->myInt->showInfoDialog(text);
 				}

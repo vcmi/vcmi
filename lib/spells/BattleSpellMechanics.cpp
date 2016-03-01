@@ -637,13 +637,11 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 ///SummonMechanics
 ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
 {
-	const ui8 side = cb->playerToSide(player);
-
 	//check if there are summoned elementals of other type
 
-	auto otherSummoned = cb->battleGetStacksIf([side, this](const CStack * st)
+	auto otherSummoned = cb->battleGetStacksIf([player, this](const CStack * st)
 	{
-		return (st->attackerOwned == !side)
+		return (st->owner == player)
 			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
 			&& (!vstd::contains(st->state, EBattleStackState::CLONED))
 			&& (st->getCreature()->idNumber != creatureToSummon);
