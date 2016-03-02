@@ -336,8 +336,8 @@ int main(int argc, char** argv)
 	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
 
 	conf.init();
-    logGlobal->infoStream() <<"Loading settings: "<<pomtime.getDiff();
-    logGlobal->infoStream() << NAME;
+	logGlobal->infoStream() << "Loaded settings: " << pomtime.getDiff();
+	logGlobal->infoStream() << NAME;
 
 	srand ( time(nullptr) );
 
@@ -389,11 +389,13 @@ int main(int argc, char** argv)
 				logGlobal->infoStream() << "\t" << driverName;
 		}
 
-		config::CConfigHandler::GuiOptionsMap::key_type resPair(res["width"].Float(), res["height"].Float());
+		int width = res["width"].Float();
+		int height = res["height"].Float();
+		config::CConfigHandler::GuiOptionsMap::key_type resPair(width, height);
 		if (conf.guiOptions.count(resPair) == 0)
 		{
 			// selected resolution was not found - complain & fallback to something that we do have.
-			logGlobal->errorStream() << "Selected resolution " << resPair.first << "x" << resPair.second << " was not found!";
+			logGlobal->errorStream() << "Selected resolution " << width << "x" << height << " was not found!";
 			if (conf.guiOptions.empty())
 			{
 				logGlobal->errorStream() << "Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this";
@@ -402,16 +404,15 @@ int main(int argc, char** argv)
 			else
 			{
 				Settings newRes = settings.write["video"]["screenRes"];
-				newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
-				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
-				conf.SetResolution(newRes["width"].Float(), newRes["height"].Float());
-
-				logGlobal->errorStream() << "Falling back to " << newRes["width"].Float() << "x" << newRes["height"].Float();
+				width = newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
+				height = newRes["height"].Float() = conf.guiOptions.begin()->first.second;
+				conf.SetResolution(width, height);
+				logGlobal->errorStream() << "Falling back to " << width << "x" << height;
 			}
 		}
 
-		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
-		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
+		setScreenRes(width, height, video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+		logGlobal->infoStream() << "Initialized screen: " << pomtime.getDiff();
 	}
 
 	CCS = new CClientState;
@@ -426,7 +427,7 @@ int main(int argc, char** argv)
 		CCS->videoh = new CEmptyVideoPlayer;
 #endif
 
-    logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
+    logGlobal->infoStream() << "Initialized video: " << pomtime.getDiff();
 
 #if defined(VCMI_ANDROID)
 	//on Android threaded init is broken
@@ -440,7 +441,7 @@ int main(int argc, char** argv)
 	CCS->musich = new CMusicHandler;
 	CCS->musich->init();
 	CCS->musich->setVolume(settings["general"]["music"].Float());
-    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
+    logGlobal->infoStream() << "Initialized audio: " << pomtime.getDiff();
 
 #ifdef __APPLE__
 	// Ctrl+click should be treated as a right click on Mac OS X
@@ -927,7 +928,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullsc
 	const int modeCount = SDL_GetNumDisplayModes(monitorIndex);
 	for (int i = 0; i < modeCount; i++) {
 		SDL_GetDisplayMode(0, i, &mode);
-		if (!mode.w || !mode.h || (w >= mode.w && h >= mode.h)) {
+		if (SDL_BITSPERPIXEL(mode.format) == bpp && (!mode.w || !mode.h || (w >= mode.w && h >= mode.h))) {
 			return true;
 		}
 	}
@@ -944,7 +945,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 
 	int suggestedBpp = bpp;
 
-	if(!checkVideoMode(0,w,h,suggestedBpp,fullscreen))
+	if(!checkVideoMode(0, w, h, suggestedBpp, fullscreen))
 	{
 		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
 		return false;
@@ -1049,9 +1050,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
 
 	screenTexture = SDL_CreateTexture(mainRenderer,
-                                            SDL_PIXELFORMAT_ARGB8888,
-                                            SDL_TEXTUREACCESS_STREAMING,
-                                            w, h);
+	                                  SDL_PIXELFORMAT_ARGB8888,
+	                                  SDL_TEXTUREACCESS_STREAMING,
+	                                  w, h);
 
 	if(nullptr == screenTexture)
 	{
@@ -1073,6 +1074,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderPresent(mainRenderer);
+	logGlobal->infoStream() << boost::format("Set %d x %d @ %d bpp") % w % h % bpp;
 
 	return true;
 }

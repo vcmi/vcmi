@@ -212,7 +212,10 @@ CConfigHandler::~CConfigHandler(void)
 void config::CConfigHandler::init()
 {
 	/* Read resolutions. */
-	const JsonNode config(ResourceID("config/resolutions.json"));
+	auto uri = ResourceID("config/resolutions.json");
+	logGlobal->debugStream() << boost::format("Reading resolutions from %s")
+		% CResourceHandler::get()->getResourceName(uri);
+	const JsonNode config(uri);
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
 	for(const JsonNode &g : guisettings_vec)
