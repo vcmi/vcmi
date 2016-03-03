@@ -430,7 +430,7 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
 			{
 				BattleHex hex = i;
-				if(!(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
+				if(hex.getX() > 0 && hex.getX() < 16 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
 					availableTiles.push_back(hex);
 			}
 			boost::range::random_shuffle(availableTiles);
