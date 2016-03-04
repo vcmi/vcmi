@@ -1773,38 +1773,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpellHere: no spellcaster.";
 		return ESpellCastProblem::INVALID;
 	}
-	const PlayerColor player = caster->getOwner();
 
 	ESpellCastProblem::ESpellCastProblem problem = battleCanCastThisSpell(caster, spell, mode);
 	if(problem != ESpellCastProblem::OK)
 		return problem;
 
-	problem = spell->canBeCastAt(this, caster, mode, dest);
-	if(problem != ESpellCastProblem::OK)
-		return problem;
-
-	//get dead stack if we cast resurrection or animate dead
-	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->coversPos(dest); });
-	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->coversPos(dest);});
-
-
-	if(spell->isRisingSpell())
-	{
-		if(!deadStack && !aliveStack)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-	else if(spell->getTargetType() == CSpell::CREATURE)
-	{
-		if(!aliveStack)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->isNegative() && aliveStack->owner == player)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->isPositive() && aliveStack->owner != player)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-	return spell->isImmuneAt(this, caster, mode, dest);
+	return spell->canBeCastAt(this, caster, mode, dest);
 }
 
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const

@@ -222,11 +222,6 @@ bool CSpell::isNeutral() const
 	return positiveness == NEUTRAL;
 }
 
-bool CSpell::isHealingSpell() const
-{
-	return isRisingSpell() || (id == SpellID::CURE);
-}
-
 bool CSpell::isRisingSpell() const
 {
 	return isRising;
@@ -307,12 +302,31 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
-
-	//todo: CSpell::canBeCastAt check common problems
-
 	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
-	return mechanics->canBeCast(ctx);
+
+	ESpellCastProblem::ESpellCastProblem specific = mechanics->canBeCast(ctx);
+
+	if(specific != ESpellCastProblem::OK)
+		return specific;
+
+	//todo: this should be moved to mechanics
+	if(ctx.ti.onlyAlive && ctx.ti.smart && getTargetType() == CSpell::CREATURE)
+	{
+		const CStack * aliveStack = cb->getStackIf([destination](const CStack * s)
+		{
+			return s->isValidTarget(false) && s->coversPos(destination);
+		});
+
+		if(!aliveStack)
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(isNegative() && aliveStack->owner == caster->getOwner())
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(isPositive() && aliveStack->owner != caster->getOwner())
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+
+	return isImmuneAt(cb, caster, mode, destination);
 }
 
 ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const

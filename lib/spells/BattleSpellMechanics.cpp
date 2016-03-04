@@ -573,12 +573,6 @@ bool RemoveObstacleMechanics::canRemove(const CObstacleInstance * obstacle, cons
 }
 
 ///RisingSpellMechanics
-ESpellCastProblem::ESpellCastProblem RisingSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
-{
-	//todo: RisingSpellMechanics::canBeCast
-	return ESpellCastProblem::OK;
-}
-
 HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
 {
 	//this may be even distinct class
@@ -673,6 +667,21 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 }
 
 ///SpecialRisingSpellMechanics
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+{
+	const CStack * stack = ctx.cb->getStackIf([ctx](const CStack * s)
+	{
+		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
+
+		return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination);
+	});
+
+	if(nullptr == stack)
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+	return ESpellCastProblem::OK;
+}
+
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	// following does apply to resurrect and animate dead(?) only

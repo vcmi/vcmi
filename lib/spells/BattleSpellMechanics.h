@@ -125,7 +125,7 @@ class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
 	RisingSpellMechanics(CSpell * s): HealingSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
+
 	EHealLevel getHealLevel(int effectLevel) const override;
 };
 
@@ -140,11 +140,12 @@ protected:
 	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
 
-///all rising spells but SACRIFICE
+///ANIMATE_DEAD and RESURRECTION
 class DLL_LINKAGE SpecialRisingSpellMechanics : public RisingSpellMechanics
 {
 public:
 	SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
 

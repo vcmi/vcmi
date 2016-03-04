@@ -204,7 +204,6 @@ public:
 	bool isNeutral() const;
 
 	bool isDamageSpell() const;
-	bool isHealingSpell() const;
 	bool isRisingSpell() const;
 	bool isOffensiveSpell() const;
 
@@ -272,9 +271,6 @@ public:
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
 
-	///checks for creature immunity *at given hex*.
-	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
-
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const;
 public:
@@ -303,6 +299,10 @@ public://internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 
 private:
+
+	///checks for creature immunity *at given hex*.
+	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
+
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
 
