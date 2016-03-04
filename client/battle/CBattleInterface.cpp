@@ -2099,31 +2099,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					notLegal = true;
 				break;
 			case FREE_LOCATION:
+				legalAction = true;
+				if(!isCastingPossibleHere(sactive, shere, myNumber))
 				{
-					ui8 side = curInt->cb->battleGetMySide();
-					auto hero = curInt->cb->battleGetMyHero();
-					assert(!creatureCasting); //we assume hero casts this spell
-					assert(hero);
-
-					legalAction = true;
-					bool hexesOutsideBattlefield = false;
-					//todo: move to spell mechanics
-					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
-					for(BattleHex hex : tilesThatMustBeClear)
-					{
-						if(curInt->cb->battleGetStackByPos(hex, true)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false)
-						 || !hex.isAvailable())
-						{
-							legalAction = false;
-							notLegal = true;
-						}
-					}
-
-					if(hexesOutsideBattlefield)
-					{
-						legalAction = false;
-						notLegal = true;
-					}
+					legalAction = false;
+					notLegal = true;
 				}
 				break;
 			case CATAPULT:
@@ -2288,7 +2268,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case FREE_LOCATION:
-				//cursorFrame = ECursor::SPELLBOOK;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;

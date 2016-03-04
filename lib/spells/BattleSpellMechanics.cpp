@@ -371,6 +371,33 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 }
 
 ///ObstacleMechanics
+ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const SpellTargetingContext & ctx) const
+{
+	if(ctx.ti.clearAffected)
+	{
+		ui8 side = ctx.cb->playerToSide(ctx.caster->getOwner());
+
+		bool hexesOutsideBattlefield = false;
+
+		auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.caster->getSpellSchoolLevel(owner), side, &hexesOutsideBattlefield);
+
+		for(BattleHex hex : tilesThatMustBeClear)
+		{
+			if(ctx.cb->battleGetStackByPos(hex, true) || !!ctx.cb->battleGetObstacleOnPos(hex, false) || !hex.isAvailable())
+			{
+				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+			}
+		}
+
+		if(hexesOutsideBattlefield)
+		{
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		}
+	}
+
+	return ESpellCastProblem::OK;
+}
+
 void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	auto placeObstacle = [&, this](const BattleHex & pos)
