@@ -304,14 +304,14 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallba
 {
 	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
-
 	ESpellCastProblem::ESpellCastProblem specific = mechanics->canBeCast(ctx);
 
 	if(specific != ESpellCastProblem::OK)
 		return specific;
 
 	//todo: this should be moved to mechanics
-	if(ctx.ti.onlyAlive && ctx.ti.smart && getTargetType() == CSpell::CREATURE)
+	//rising spells handled by mechanics
+	if(ctx.ti.onlyAlive && getTargetType() == CSpell::CREATURE)
 	{
 		const CStack * aliveStack = cb->getStackIf([destination](const CStack * s)
 		{
@@ -320,9 +320,9 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallba
 
 		if(!aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(isNegative() && aliveStack->owner == caster->getOwner())
+		if(ctx.ti.smart && isNegative() && aliveStack->owner == caster->getOwner())
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(isPositive() && aliveStack->owner != caster->getOwner())
+		if(ctx.ti.smart && isPositive() && aliveStack->owner != caster->getOwner())
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 

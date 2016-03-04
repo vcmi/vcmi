@@ -114,10 +114,10 @@ class CBattleInterface : public CIntObject
 		INVALID = -1, CREATURE_INFO,
 		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
 		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
-		NO_LOCATION, ANY_LOCATION, FRIENDLY_CREATURE_SPELL, HOSTILE_CREATURE_SPELL, RISING_SPELL, ANY_CREATURE, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
+		NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
 		FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
 		CATAPULT, HEAL, RISE_DEMONS,
-		AIMED_SPELL
+		AIMED_SPELL_CREATURE
 	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
@@ -347,7 +347,7 @@ public:
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-	PossibleActions selectionTypeByPositiveness(const CSpell & spell);
+
 	Rect hexPosition(BattleHex hex) const;
 
 	void handleHex(BattleHex myNumber, int eventType);
