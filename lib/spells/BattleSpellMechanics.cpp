@@ -131,6 +131,13 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const 
 	ssp.val = bsa.newStackID;
 	ssp.absolute = 1;
 	env->sendAndApply(&ssp);
+
+	SetStackEffect sse;
+	sse.stacks.push_back(bsa.newStackID);
+	Bonus lifeTimeMarker(Bonus::N_TURNS, Bonus::NONE, Bonus::SPELL_EFFECT, 0, owner->id.num);
+	lifeTimeMarker.turnsRemain = parameters.enchantPower;
+	sse.effect.push_back(lifeTimeMarker);
+	env->sendAndApply(&sse);
 }
 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const

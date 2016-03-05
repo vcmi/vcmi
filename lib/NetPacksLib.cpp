@@ -1198,6 +1198,15 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->counterAttacksTotalCache = 0;
 		// new turn effects
 		s->battleTurnPassed();
+
+		if(s->alive() && vstd::contains(s->state, EBattleStackState::CLONED))
+		{
+			//cloned stack has special lifetime marker
+			//check it after bonuses updated in battleTurnPassed()
+
+			if(!s->hasBonus(Selector::type(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))))
+				s->makeGhost();
+		}
 	}
 
 	for(auto &obst : gs->curB->obstacles)
