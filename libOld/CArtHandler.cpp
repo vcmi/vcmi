@@ -801,41 +801,41 @@ void CArtifactInstance::init()
 std::string CArtifactInstance::getEffectiveDescription(
 	const CGHeroInstance *hero) const
 {
-	std::string text = artType->Description();
-	if (!vstd::contains(text, '{'))
-		text = '{' + artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
+  std::string text = artType->Description();
+  if (!vstd::contains(text, '{'))
+  		text = '{' + artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 
-	if(artType->id == ArtifactID::SPELL_SCROLL)
-	{
-		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
-		// so we want to replace text in [...] with a spell name
-		// however other language versions don't have name placeholder at all, so we have to be careful
-		int spellID = getGivenSpellID();
-		size_t nameStart = text.find_first_of('[');
-		size_t nameEnd = text.find_first_of(']', nameStart);
-		if(spellID >= 0)
-		{
-			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
-		}
-	}
-	else if (hero && artType->constituentOf.size()) //display info about set
-	{
-		std::string artList;
-		auto combinedArt = artType->constituentOf[0];
-		text += "\n\n";
-		text += "{" + combinedArt->Name() + "}";
-		int wornArtifacts = 0;
-		for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
-		{
-			artList += "\n" + a->Name();
-			if (hero->hasArt(a->id, true))
-				wornArtifacts++;
-		}
-		text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
-			boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
-		//TODO: fancy colors and fonts for this text
-	}
+  	if(artType->id == ArtifactID::SPELL_SCROLL)
+  	{
+  		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
+  		// so we want to replace text in [...] with a spell name
+  		// however other language versions don't have name placeholder at all, so we have to be careful
+  		int spellID = getGivenSpellID();
+  		size_t nameStart = text.find_first_of('[');
+  		size_t nameEnd = text.find_first_of(']', nameStart);
+  		if(spellID >= 0)
+  		{
+  			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
+  				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
+  		}
+  	}
+  	else if (hero && artType->constituentOf.size()) //display info about set
+  	{
+  		std::string artList;
+  		auto combinedArt = artType->constituentOf[0];
+  		text += "\n\n";
+  		text += "{" + combinedArt->Name() + "}";
+  		int wornArtifacts = 0;
+  		for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
+  		{
+  			artList += "\n" + a->Name();
+  			if (hero->hasArt(a->id, true))
+  				wornArtifacts++;
+  		}
+  		text += " (" + boost::str(boost::format("%d") % wornArtifacts) +  " / " +
+  			boost::str(boost::format("%d") % combinedArt->constituents->size()) + ")" + artList;
+  		//TODO: fancy colors and fonts for this text
+  	}
 
 	return text;
 }
