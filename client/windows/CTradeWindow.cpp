@@ -268,8 +268,9 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 			break;
 		case ARTIFACT_TYPE:
 		case ARTIFACT_PLACEHOLDER:
+			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(hlp->getEffectiveDescription(), down);
+				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
 			break;
 		}
 	}
