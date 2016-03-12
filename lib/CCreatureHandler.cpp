@@ -161,7 +161,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		} else
-            logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
+			logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
 
 		return;
 	}
@@ -242,15 +242,15 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 
 	static const std::map<std::string, JsonNode> abilityMap =
 	{
-	    {"FLYING_ARMY",            makeBonusNode("FLYING")},
-	    {"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
-	    {"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
-	    {"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
-	    {"IS_UNDEAD",              makeBonusNode("UNDEAD")},
-	    {"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-	    {"const_jousting",         makeBonusNode("JOUSTING")},
-	    {"KING_1",                 makeBonusNode("KING1")},
-	    {"KING_2",                 makeBonusNode("KING2")},
+		{"FLYING_ARMY",            makeBonusNode("FLYING")},
+		{"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
+		{"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
+		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
+		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
+		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
+		{"const_jousting",         makeBonusNode("JOUSTING")},
+		{"KING_1",                 makeBonusNode("KING1")},
+		{"KING_2",                 makeBonusNode("KING2")},
 		{"KING_3",                 makeBonusNode("KING3")},
 		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
 		{"CATAPULT",               makeBonusNode("CATAPULT")},
@@ -895,7 +895,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 				break;
 		}
@@ -1005,7 +1005,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
-                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 		}
 		break;
@@ -1046,7 +1046,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
-        logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+		logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 		return;
 		break;
 	}
@@ -1141,7 +1141,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 
 		if(!allowed.size())
 		{
-            logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
+			logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
 			return CreatureID::NONE;
 		}
 

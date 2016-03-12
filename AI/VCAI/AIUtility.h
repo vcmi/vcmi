@@ -105,7 +105,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-        logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
+		logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
 	}
 };
 
@@ -129,7 +129,7 @@ private:
 template<int id>
 bool objWithID(const CGObjectInstance *obj)
 {
-        return obj->ID == id;
+	return obj->ID == id;
 }
 
 std::string strFromInt3(int3 pos);

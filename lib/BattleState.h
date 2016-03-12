@@ -276,7 +276,7 @@ public:
 			else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 			{
 				base = nullptr;
-                logGlobal->warnStream() << type->nameSing << " doesn't have a base stack!";
+				logGlobal->warnStream() << type->nameSing << " doesn't have a base stack!";
 			}
 			else
 			{

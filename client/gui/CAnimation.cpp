@@ -311,7 +311,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			break;
 		}
 	default:
-        logGlobal->errorStream()<<"Error: unsupported format of def file: "<<sprite.format;
+	logGlobal->errorStream()<<"Error: unsupported format of def file: "<<sprite.format;
 		break;
 	}
 };
@@ -607,7 +607,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 
 	if (surf == nullptr)
 	{
-        logGlobal->errorStream() << "Error: failed to load image "<<filename;
+		logGlobal->errorStream() << "Error: failed to load image "<<filename;
 		return;
 	}
 	else
@@ -1050,8 +1050,8 @@ CDefFile * CAnimation::getFile() const
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
-    logGlobal->errorStream() << type <<" error: Request for frame not present in CAnimation! "
-          <<"\tFile name: "<<name<<" Group: "<<group<<" Frame: "<<frame;
+	logGlobal->errorStream() << type << " error: Request for frame not present in CAnimation! "
+		<< "\tFile name: " << name << " Group: " << group << " Frame: " << frame;
 }
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
@@ -1080,7 +1080,7 @@ CAnimation::~CAnimation()
 {
 	if (!images.empty())
 	{
-        logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
+		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (auto & elem : images)
 			for (auto & _image : elem.second)
 				delete _image.second;
@@ -1171,13 +1171,12 @@ std::set<CAnimation*> CAnimation::loadedAnims;
 
 void CAnimation::getAnimInfo()
 {
-    logGlobal->errorStream()<<"Animation stats: Loaded "<<loadedAnims.size()<<" total";
-	for (auto anim : loadedAnims)
+	logGlobal->errorStream() << "Animation stats: Loaded " << loadedAnims.size() << " total";
+	for(auto anim : loadedAnims)
 	{
-
-        logGlobal->errorStream()<<"Name: "<<anim->name<<" Groups: "<<anim->images.size();
-		if (!anim->images.empty())
-            logGlobal->errorStream()<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
+		logGlobal->errorStream() << "Name: " << anim->name << " Groups: " << anim->images.size();
+		if(!anim->images.empty())
+			logGlobal->errorStream() << ", " << anim->images.begin()->second.size() << " image loaded in group " << anim->images.begin()->first;
 	}
 }
 

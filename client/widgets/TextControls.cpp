@@ -73,8 +73,8 @@ void CLabel::setText(const std::string &Txt)
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
-    CLabel(position.x, position.y, Font, Align, Color, Text),
-    visibleSize(0, 0, position.w, position.h)
+	CLabel(position.x, position.y, Font, Align, Color, Text),
+	visibleSize(0, 0, position.w, position.h)
 {
 	pos.w = position.w;
 	pos.h = position.h;
@@ -245,8 +245,8 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 }
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/):
-    sliderStyle(SliderStyle),
-    slider(nullptr)
+	sliderStyle(SliderStyle),
+	slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	label = new CMultiLineLabel(rect, Font, Align, Color);
@@ -326,7 +326,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	addChild(bg);
 	pos = bg->pos;
 	getBorderSize();
-    textLock = false;
+	textLock = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
@@ -341,7 +341,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int 
 		vstd::amin(pos.w, maxw);
 		bg->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
-    textLock = false;
+	textLock = false;
 }
 
 CGStatusBar::~CGStatusBar()
@@ -351,7 +351,7 @@ CGStatusBar::~CGStatusBar()
 
 void CGStatusBar::show(SDL_Surface * to)
 {
-    showAll(to);
+	showAll(to);
 }
 
 void CGStatusBar::init()
@@ -377,12 +377,12 @@ Point CGStatusBar::getBorderSize()
 
 void CGStatusBar::lock(bool shouldLock)
 {
-    textLock = shouldLock;
+	textLock = shouldLock;
 }
 
 CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB):
-    CLabel(Pos.x, Pos.y, font, CENTER),
-    cb(CB)
+	CLabel(Pos.x, Pos.y, font, CENTER),
+	cb(CB)
 {
 	type |= REDRAW_PARENT;
 	focus = false;
@@ -570,7 +570,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	catch(boost::bad_lexical_cast &)
 	{
 		//Should never happen. Unless I missed some cases
-        logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
+		logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
 		text = oldText;
 	}
 }

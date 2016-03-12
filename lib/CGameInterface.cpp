@@ -80,7 +80,7 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
 	}
 	else
-        logGlobal->errorStream() << "Error: " << dlerror();
+		logGlobal->errorStream() << "Error: " << dlerror();
 #endif // VCMI_WINDOWS
 	if (!dll)
 	{
@@ -100,12 +100,12 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 #endif // VCMI_ANDROID
 
 	getName(temp);
-    logGlobal->infoStream() << "Loaded " << temp;
+	logGlobal->infoStream() << "Loaded " << temp;
 
 	std::shared_ptr<rett> ret;
 	getAI(ret);
 	if(!ret)
-        logGlobal->errorStream() << "Cannot get AI!";
+		logGlobal->errorStream() << "Cannot get AI!";
 
 	return ret;
 }

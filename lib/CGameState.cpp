@@ -204,13 +204,13 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			vec = &VLC->generaltexth->capColors;
 			break;
 		default:
-            logGlobal->errorStream() << "Failed string substitution because type is " << type;
+			logGlobal->errorStream() << "Failed string substitution because type is " << type;
 			dst = "#@#";
 			return;
 		}
 		if(vec->size() <= ser)
 		{
-            logGlobal->errorStream() << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!";
+			logGlobal->errorStream() << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!";
 			dst = "#!#";
 		}
 		else
@@ -373,7 +373,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-        logGlobal->errorStream() << "Cannot pick hero for " << town->faction->index << ". Wrong owner!";
+		logGlobal->errorStream() << "Cannot pick hero for " << town->faction->index << ". Wrong owner!";
 		return nullptr;
 	}
 
@@ -391,7 +391,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size())
 		{
-            logGlobal->errorStream() << "Cannot pick native hero for " << player << ". Picking any...";
+			logGlobal->errorStream() << "Cannot pick native hero for " << player << ". Picking any...";
 			return pickHeroFor(false, player, town, available, rand);
 		}
 		else
@@ -414,7 +414,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size() || sum == 0)
 		{
-            logGlobal->errorStream() << "There are no heroes available for player " << player<<"!";
+			logGlobal->errorStream() << "There are no heroes available for player " << player<<"!";
 			return nullptr;
 		}
 
@@ -747,7 +747,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 
 void CGameState::init(StartInfo * si)
 {
-    logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
+	logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
 	rand.setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
@@ -765,17 +765,17 @@ void CGameState::init(StartInfo * si)
 		initDuel();
 		return;
 	default:
-        logGlobal->errorStream() << "Wrong mode: " << (int)scenarioOps->mode;
+		logGlobal->errorStream() << "Wrong mode: " << (int)scenarioOps->mode;
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
-    logGlobal->infoStream() << "Map loaded!";
+	logGlobal->infoStream() << "Map loaded!";
 
 	checkMapChecksum();
 
 	day = 0;
 
-    logGlobal->debugStream() << "Initialization:";
+	logGlobal->debugStream() << "Initialization:";
 
 	initPlayerStates();
 	placeCampaignHeroes();
@@ -792,11 +792,11 @@ void CGameState::init(StartInfo * si)
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
 
-    logGlobal->debugStream() << "\tChecking objectives";
+	logGlobal->debugStream() << "\tChecking objectives";
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
 	auto seedAfterInit = rand.nextInt();
-    logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
+	logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
 	if(scenarioOps->seedPostInit > 0)
 	{
 		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
@@ -872,9 +872,9 @@ void CGameState::initDuel()
 	{
 		if(boost::algorithm::ends_with(scenarioOps->mapname, ".json"))
 		{
-            logGlobal->infoStream() << "Loading duel settings from JSON file: " << scenarioOps->mapname;
+			logGlobal->infoStream() << "Loading duel settings from JSON file: " << scenarioOps->mapname;
 			dp = DuelParameters::fromJSON(scenarioOps->mapname);
-            logGlobal->infoStream() << "JSON file has been successfully read!";
+			logGlobal->infoStream() << "JSON file has been successfully read!";
 		}
 		else
 		{
@@ -884,7 +884,7 @@ void CGameState::initDuel()
 	}
 	catch(...)
 	{
-        logGlobal->errorStream() << "Cannot load duel settings from " << scenarioOps->mapname;
+		logGlobal->errorStream() << "Cannot load duel settings from " << scenarioOps->mapname;
 		throw;
 	}
 
@@ -2109,7 +2109,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				const auto & tile = map->getTile(pos);
-                if (tile.visitable && (tile.isWater() == posTile.isWater()))
+				if (tile.visitable && (tile.isWater() == posTile.isWater()))
 				{
 					for (CGObjectInstance* obj : tile.visitableObjects)
 					{
@@ -2668,11 +2668,11 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				continue;
 			if(g->second.human)
 			{
-                tgi.personality[g->second.color] = EAiTactic::NONE;
+				tgi.personality[g->second.color] = EAiTactic::NONE;
 			}
 			else //AI
 			{
-                tgi.personality[g->second.color] = map->players[g->second.color.getNum()].aiTactic;
+				tgi.personality[g->second.color] = map->players[g->second.color.getNum()].aiTactic;
 			}
 
 		}
@@ -2809,7 +2809,7 @@ std::vector<CGameState::CampaignHeroReplacement> CGameState::generateCampaignHer
 				{
 					auto hero = *it;
 					crossoverHeroes.removeHeroFromBothLists(hero);
-                    campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
+					campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
 				}
 			}
 		}
@@ -2844,8 +2844,8 @@ std::vector<CGameState::CampaignHeroReplacement> CGameState::generateCampaignHer
 		auto heroPlaceholder = heroPlaceholders[i];
 		if(crossoverHeroes.heroesFromPreviousScenario.size() > i)
 		{
-            auto hero = crossoverHeroes.heroesFromPreviousScenario[i];
-            campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
+			auto hero = crossoverHeroes.heroesFromPreviousScenario[i];
+			campaignHeroReplacements.push_back(CampaignHeroReplacement(CMemorySerializer::deepCopy(*hero).release(), heroPlaceholder->id));
 		}
 	}
 
@@ -2948,7 +2948,7 @@ bool RumorState::update(int id, int extra)
 }
 
 InfoAboutArmy::InfoAboutArmy():
-    owner(PlayerColor::NEUTRAL)
+	owner(PlayerColor::NEUTRAL)
 {}
 
 InfoAboutArmy::InfoAboutArmy(const CArmedInstance *Army, bool detailed)
@@ -2973,13 +2973,13 @@ void InfoAboutHero::assign(const InfoAboutHero & iah)
 }
 
 InfoAboutHero::InfoAboutHero():
-    details(nullptr),
-    hclass(nullptr),
-    portrait(-1)
+	details(nullptr),
+	hclass(nullptr),
+	portrait(-1)
 {}
 
 InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah):
-    InfoAboutArmy()
+	InfoAboutArmy()
 {
 	assign(iah);
 }
@@ -3031,10 +3031,10 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
 }
 
 InfoAboutTown::InfoAboutTown():
-    details(nullptr),
-    tType(nullptr),
-    built(0),
-    fortLevel(0)
+	details(nullptr),
+	tType(nullptr),
+	built(0),
+	fortLevel(0)
 {
 
 }
@@ -3071,7 +3071,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 }
 
 ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
-    : isDetailed(detailed)
+	: isDetailed(detailed)
 {
 	for(auto & elem : army->Slots())
 	{
@@ -3083,7 +3083,7 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 }
 
 ArmyDescriptor::ArmyDescriptor()
-    : isDetailed(false)
+	: isDetailed(false)
 {
 
 }
@@ -3120,8 +3120,8 @@ DuelParameters::SideSettings::SideSettings()
 }
 
 DuelParameters::DuelParameters():
-    terType(ETerrainType::DIRT),
-    bfieldType(BFieldType::ROCKLANDS)
+	terType(ETerrainType::DIRT),
+	bfieldType(BFieldType::ROCKLANDS)
 {
 }
 

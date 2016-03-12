@@ -339,7 +339,7 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-            logAi->traceStream() << boost::format("It's safe for %s to visit tile %s") % h->name % tile;
+			logAi->traceStream() << boost::format("It's safe for %s to visit tile %s") % h->name % tile;
 			return true;
 		}
 		else

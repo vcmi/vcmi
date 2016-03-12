@@ -733,7 +733,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
 	if(!vstd::contains_if(sectorCursor, [](int sc) { return sc != -1; }))
 	{
-        logGlobal->errorStream() << "Error: for hex " << myNumber << " cannot find a hex to attack from!";
+		logGlobal->errorStream() << "Error: for hex " << myNumber << " cannot find a hex to attack from!";
 		attackingHex = -1;
 		return;
 	}
@@ -758,11 +758,11 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 			break;
 		case 3:
 			attackingHex = myNumber + 1; //right
-            break;
+			break;
 		case 4:
 			attackingHex = myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection; //bottom right
-            break;
-        case 5:
+			break;
+		case 5:
 			attackingHex = myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
 			break;
 	}
@@ -1109,7 +1109,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 	}
 
 	if(stack && stack != activeStack)
-        logGlobal->warnStream() << "Warning: giving an order to a non-active stack?";
+		logGlobal->warnStream() << "Warning: giving an order to a non-active stack?";
 
 	auto  ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
@@ -1133,7 +1133,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 
 	if(!tacticsMode)
 	{
-        logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
+		logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
 		myTurn = false;
 		setActiveStack(nullptr);
 		givenCommand->setn(ba);
@@ -1869,7 +1869,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 	if(!stack)
 	{
-        logGlobal->errorStream()<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber;
+		logGlobal->errorStream()<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber;
 		return;
 	}
 
@@ -2713,13 +2713,13 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 		sound = soundBase::fireWall;
 		break;
 	default:
-        logGlobal->errorStream() << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType;
+		logGlobal->errorStream() << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType;
 		return;
 	}
 
 	if(graphics->battleACToDef[effectID].empty())
 	{
-        logGlobal->errorStream() << "Cannot find def for effect type " << effectID;
+		logGlobal->errorStream() << "Cannot find def for effect type " << effectID;
 		return;
 	}
 

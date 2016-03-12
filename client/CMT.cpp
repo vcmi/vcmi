@@ -141,7 +141,7 @@ void init()
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 
-    logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
+	logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 
 	if(!gNoGUI)
@@ -336,8 +336,8 @@ int main(int argc, char** argv)
 	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
 
 	conf.init();
-    logGlobal->infoStream() <<"Loading settings: "<<pomtime.getDiff();
-    logGlobal->infoStream() << NAME;
+	logGlobal->infoStream() << "Loading settings: " << pomtime.getDiff();
+	logGlobal->infoStream() << NAME;
 
 	srand ( time(nullptr) );
 
@@ -348,11 +348,11 @@ int main(int argc, char** argv)
 	//something is really wrong...
 	if (res["width"].Float() < 100 || res["height"].Float() < 100)
 	{
-        logGlobal->errorStream() << "Fatal error: failed to load settings!";
-        logGlobal->errorStream() << "Possible reasons:";
-        logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().userConfigPath() << "/settings.json";
-        logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().userConfigPath() << "/schemas/settings.json";
-        logGlobal->errorStream() << "VCMI will now exit...";
+		logGlobal->errorStream() << "Fatal error: failed to load settings!";
+		logGlobal->errorStream() << "Possible reasons:";
+		logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().userConfigPath() << "/settings.json";
+		logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().userConfigPath() << "/schemas/settings.json";
+		logGlobal->errorStream() << "VCMI will now exit...";
 		exit(EXIT_FAILURE);
 	}
 
@@ -426,7 +426,7 @@ int main(int argc, char** argv)
 		CCS->videoh = new CEmptyVideoPlayer;
 #endif
 
-    logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
+	logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
 #if defined(VCMI_ANDROID)
 	//on Android threaded init is broken
@@ -440,7 +440,7 @@ int main(int argc, char** argv)
 	CCS->musich = new CMusicHandler;
 	CCS->musich->init();
 	CCS->musich->setVolume(settings["general"]["music"].Float());
-    logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
+	logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
 
 #ifdef __APPLE__
 	// Ctrl+click should be treated as a right click on Mac OS X
@@ -465,7 +465,7 @@ int main(int argc, char** argv)
 #ifndef VCMI_NO_THREADED_LOAD
 	loading.join();
 #endif
-    logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
+	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
 	if(!vm.count("battle"))
 	{
@@ -484,8 +484,8 @@ int main(int argc, char** argv)
 		{
 			if(!fileToStartFrom.empty())
 			{
-                logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
-                    << "). Falling back to main menu.";
+				logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
+					<< "). Falling back to main menu.";
 			}
 			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 		}
@@ -515,10 +515,10 @@ int main(int argc, char** argv)
 
 void printInfoAboutIntObject(const CIntObject *obj, int level)
 {
-    std::stringstream sbuffer;
-    sbuffer << std::string(level, '\t');
+	std::stringstream sbuffer;
+	sbuffer << std::string(level, '\t');
 
-    sbuffer << typeid(*obj).name() << " *** ";
+	sbuffer << typeid(*obj).name() << " *** ";
 	if (obj->active)
 	{
 #define PRINT(check, text) if (obj->active & CIntObject::check) sbuffer << text
@@ -534,10 +534,10 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 #undef  PRINT
 	}
 	else
-        sbuffer << "inactive";
-    sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
-    sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-    logGlobal->infoStream() << sbuffer.str();
+		sbuffer << "inactive";
+	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
+	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
+	logGlobal->infoStream() << sbuffer.str();
 
 	for(const CIntObject *child : obj->children)
 		printInfoAboutIntObject(child, level+1);
@@ -565,7 +565,7 @@ void processCommand(const std::string &message)
 		{
 			if(client && client->erm)
 				client->erm->executeUserCommand(message);
-            std::cout << "erm>";
+			std::cout << "erm>";
 		}
 	}
 	else if(message==std::string("die, fool"))
@@ -575,7 +575,7 @@ void processCommand(const std::string &message)
 	else if(cn == "erm")
 	{
 		ermInteractiveMode = true;
-        std::cout << "erm>";
+		std::cout << "erm>";
 	}
 	else if(cn==std::string("activate"))
 	{
@@ -600,14 +600,14 @@ void processCommand(const std::string &message)
 	}
 	else if(cn=="screen")
 	{
-        std::cout << "Screenbuf points to ";
+		std::cout << "Screenbuf points to ";
 
 		if(screenBuf == screen)
-            logGlobal->errorStream() << "screen";
+			logGlobal->errorStream() << "screen";
 		else if(screenBuf == screen2)
-            logGlobal->errorStream() << "screen2";
+			logGlobal->errorStream() << "screen2";
 		else
-            logGlobal->errorStream() << "?!?";
+			logGlobal->errorStream() << "?!?";
 
 		SDL_SaveBMP(screen, "Screen_c.bmp");
 		SDL_SaveBMP(screen2, "Screen2_c.bmp");
@@ -624,10 +624,10 @@ void processCommand(const std::string &message)
 		std::string fname;
 		readed >> fname;
 		client->loadGame(fname);
-    }
+	}
 	else if(message=="get txt")
 	{
-        std::cout<<"Command accepted.\t";
+		std::cout << "Command accepted.\t";
 
 		const bfs::path outPath =
 			VCMIDirs::get().userCachePath() / "extracted";
@@ -649,7 +649,7 @@ void processCommand(const std::string &message)
 			file.write((char*)text.first.get(), text.second);
 		}
 
-        std::cout << "\rExtracting done :)\n";
+		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
 	else if(cn=="crash")
@@ -665,24 +665,24 @@ void processCommand(const std::string &message)
 	else if (cn == "ai")
 	{
 		VLC->IS_AI_ENABLED = !VLC->IS_AI_ENABLED;
-        std::cout << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
+		std::cout << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
 	}
 	else if(cn == "mp" && adventureInt)
 	{
 		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
-            std::cout << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
+			std::cout << h->movement << "; max: " << h->maxMovePoints(true) << "/" << h->maxMovePoints(false) << std::endl;
 	}
 	else if(cn == "bonuses")
 	{
 		std::cout << "Bonuses of " << adventureInt->selection->getObjectName() << std::endl
 			<< adventureInt->selection->getBonusList() << std::endl;
 
-        std::cout << "\nInherited bonuses:\n";
+		std::cout << "\nInherited bonuses:\n";
 		TCNodes parents;
 		adventureInt->selection->getParents(parents);
 		for(const CBonusSystemNode *parent : parents)
 		{
-            std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
+			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
 		}
 	}
 	else if(cn == "not dialog")
@@ -696,7 +696,7 @@ void processCommand(const std::string &message)
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);
 			else
-                std::cout << typeid(*obj).name() << std::endl;
+				std::cout << typeid(*obj).name() << std::endl;
 		}
 	}
 	else if(cn=="tell")
@@ -709,7 +709,7 @@ void processCommand(const std::string &message)
 			for(const CGHeroInstance *h : LOCPLINT->cb->getHeroesInfo())
 				if(h->type->ID.getNum() == id1)
 					if(const CArtifactInstance *a = h->getArt(ArtifactPosition(id2)))
-                        std::cout << a->nodeName();
+						std::cout << a->nodeName();
 		}
 	}
 	else if (cn == "set")
@@ -790,20 +790,20 @@ void processCommand(const std::string &message)
 	{
 		std::string fname;
 		readed >> fname;
-        std::cout << "Will try loading that AI to see if it is correct name...\n";
+		std::cout << "Will try loading that AI to see if it is correct name...\n";
 		try
 		{
 			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
 			{
 				Settings neutralAI = settings.write["server"]["neutralAI"];
 				neutralAI->String() = fname;
-                std::cout << "Setting changed, from now the battle ai will be " << fname << "!\n";
+				std::cout << "Setting changed, from now the battle ai will be " << fname << "!\n";
 			}
 		}
 		catch(std::exception &e)
 		{
-            logGlobal->warnStream() << "Failed opening " << fname << ": " << e.what();
-            logGlobal->warnStream() << "Setting not changes, AI not found or invalid!";
+			logGlobal->warnStream() << "Failed opening " << fname << ": " << e.what();
+			logGlobal->warnStream() << "Setting not changes, AI not found or invalid!";
 		}
 	}
 

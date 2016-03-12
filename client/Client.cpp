@@ -150,7 +150,7 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 	}
 	catch(boost::thread_interrupted&)
 	{
-        logNetwork->debugStream() << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?";
+		logNetwork->debugStream() << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?";
 		return;
 	}
 	catch(...)
@@ -158,7 +158,7 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 		handleException();
 		return;
 	}
-    logNetwork->errorStream() << "We should not be here!";
+	logNetwork->errorStream() << "We should not be here!";
 }
 
 void CClient::run()
@@ -182,11 +182,11 @@ void CClient::run()
 	//catch only asio exceptions
 	catch (const boost::system::system_error& e)
 	{
-        logNetwork->errorStream() << "Lost connection to server, ending listening thread!";
-        logNetwork->errorStream() << e.what();
+		logNetwork->errorStream() << "Lost connection to server, ending listening thread!";
+		logNetwork->errorStream() << e.what();
 		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
 		{
-            logNetwork->errorStream() << "Something wrong, lost connection while game is still ongoing...";
+			logNetwork->errorStream() << "Something wrong, lost connection while game is still ongoing...";
 			throw;
 		}
 	}
@@ -196,7 +196,7 @@ void CClient::save(const std::string & fname)
 {
 	if(gs->curB)
 	{
-        logNetwork->errorStream() << "Game cannot be saved during battle!";
+		logNetwork->errorStream() << "Game cannot be saved during battle!";
 		return;
 	}
 
@@ -214,7 +214,7 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	// Tell the network thread to reach a stable state
 	if(closeConnection)
 		stopConnection();
-    logNetwork->infoStream() << "Closed connection.";
+	logNetwork->infoStream() << "Closed connection.";
 
 	GH.curInt = nullptr;
 	{
@@ -292,12 +292,12 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 			loadCommonState(checkingLoader);
 			loader = checkingLoader.decay();
 		}
-        logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
+		logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		CGI->mh->init();
-        logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
+		logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
 	}
 	catch(std::exception &e)
 	{
@@ -310,53 +310,53 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
          player = PlayerColor(player_);
 */
 
-    std::set<PlayerColor> clientPlayers;
-    if(server)
-         serv = sh.connectToServer();
+	std::set<PlayerColor> clientPlayers;
+	if(server)
+	serv = sh.connectToServer();
     //*loader >> *this;
 
-    if(server)
-    {
-         tmh.update();
-         ui8 pom8;
-         *serv << ui8(3) << ui8(loadNumPlayers); //load game; one client if single-player
-         *serv << fname;
-         *serv >> pom8;
-         if(pom8)
-              throw std::runtime_error("Server cannot open the savegame!");
-         else
-              logNetwork->infoStream() << "Server opened savegame properly.";
-    }
+	if(server)
+	{
+		tmh.update();
+		ui8 pom8;
+		*serv << ui8(3) << ui8(loadNumPlayers); //load game; one client if single-player
+		*serv << fname;
+		*serv >> pom8;
+		if(pom8)
+			throw std::runtime_error("Server cannot open the savegame!");
+		else
+			logNetwork->infoStream() << "Server opened savegame properly.";
+	}
 
-    if(server)
-    {
-         for(auto & elem : gs->scenarioOps->playerInfos)
-              if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
-              {
-                  clientPlayers.insert(elem.first);
-              }
-         clientPlayers.insert(PlayerColor::NEUTRAL);
-    }
-    else
-    {
-        clientPlayers.insert(player);
-    }
+	if(server)
+	{
+		for(auto & elem : gs->scenarioOps->playerInfos)
+		{
+			if(!std::count(humanplayerindices.begin(),humanplayerindices.end(),elem.first.getNum()) || elem.first==player)
+				clientPlayers.insert(elem.first);
+		}
+		clientPlayers.insert(PlayerColor::NEUTRAL);
+	}
+	else
+	{
+		clientPlayers.insert(player);
+	}
 
-    std::cout << "CLIENTPLAYERS:\n";
-    for(auto x : clientPlayers)
-         std::cout << x << std::endl;
-    std::cout << "ENDCLIENTPLAYERS\n";
+	std::cout << "CLIENTPLAYERS:\n";
+	for(auto x : clientPlayers)
+		std::cout << x << std::endl;
+	std::cout << "ENDCLIENTPLAYERS\n";
 
-    serialize(loader->serializer,0,clientPlayers);
-    *serv << ui32(clientPlayers.size());
-    for(auto & elem : clientPlayers)
-        *serv << ui8(elem.getNum());
-    serv->addStdVecItems(gs); /*why is this here?*/
+	serialize(loader->serializer,0,clientPlayers);
+	*serv << ui32(clientPlayers.size());
+	for(auto & elem : clientPlayers)
+		*serv << ui8(elem.getNum());
+	serv->addStdVecItems(gs); /*why is this here?*/
 
     //*loader >> *this;
-    logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
+	logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
 
-    logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
+	logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
 
     //*serv << clientPlayers;
 	serv->enableStackSendingByID();
@@ -405,7 +405,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	c >> si;
-    logNetwork->infoStream() <<"\tSending/Getting info to/from the server: "<<tmh.getDiff();
+	logNetwork->infoStream() <<"\tSending/Getting info to/from the server: "<<tmh.getDiff();
 	c.enableStackSendingByID();
 	c.disableSmartPointerSerialization();
 
@@ -415,7 +415,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	gs->scenarioOps = si;
 	gs->init(si);
-    logNetwork->infoStream() <<"Initializing GameState (together): "<<tmh.getDiff();
+	logNetwork->infoStream() <<"Initializing GameState (together): "<<tmh.getDiff();
 
 	// Now after possible random map gen, we know exact player count.
 	// Inform server about how many players client handles
@@ -438,10 +438,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	{
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
-        logNetwork->infoStream() <<"Creating mapHandler: "<<tmh.getDiff();
+		logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
 		CGI->mh->init();
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
-        logNetwork->infoStream() <<"Initializing mapHandler (together): "<<tmh.getDiff();
+		logNetwork->infoStream() << "Initializing mapHandler (together): " << tmh.getDiff();
 	}
 
 	int humanPlayers = 0;
@@ -452,7 +452,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-        logNetwork->traceStream() << "Preparing interface for player " << color;
+		logNetwork->traceStream() << "Preparing interface for player " << color;
 		if(si->mode != StartInfo::DUEL)
 		{
 			if(elem.second.playerID == PlayerSettings::PLAYER_AI)
@@ -618,8 +618,8 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 			{
 				if(pid == PlayerColor::NEUTRAL)
 				{
-                    if(playerIDs.count(pid))
-                       installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
+					if(playerIDs.count(pid))
+						installNewBattleInterface(CDynLibHandler::getNewBattleAI(dllname), pid);
 					//TODO? consider serialization
 					continue;
 				}
@@ -639,14 +639,14 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 			nInt->human = isHuman;
 			nInt->playerID = pid;
 
-            if(playerIDs.count(pid))
-                 installNewPlayerInterface(nInt, pid);
+			if(playerIDs.count(pid))
+				installNewPlayerInterface(nInt, pid);
 
-            nInt->loadGame(h, version);
+			nInt->loadGame(h, version);
 		}
 
 		if(playerIDs.count(PlayerColor::NEUTRAL))
-            loadNeutralBattleAI();
+			loadNeutralBattleAI();
 	}
 }
 
@@ -657,15 +657,15 @@ void CClient::handlePack( CPack * pack )
 	{
 		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
 		apply->applyOnClBefore(this,pack);
-        logNetwork->traceStream() << "\tMade first apply on cl";
+		logNetwork->traceStream() << "\tMade first apply on cl";
 		gs->apply(pack);
-        logNetwork->traceStream() << "\tApplied on gs";
+		logNetwork->traceStream() << "\tApplied on gs";
 		apply->applyOnClAfter(this,pack);
-        logNetwork->traceStream() << "\tMade second apply on cl";
+		logNetwork->traceStream() << "\tMade second apply on cl";
 	}
 	else
 	{
-        logNetwork->errorStream() << "Message cannot be applied, cannot find applier! TypeID " << typeList.getTypeID(pack);
+		logNetwork->errorStream() << "Message cannot be applied, cannot find applier! TypeID " << typeList.getTypeID(pack);
 	}
 	delete pack;
 }
@@ -685,11 +685,11 @@ void CClient::stopConnection()
 
 	if (serv) //request closing connection
 	{
-        logNetwork->infoStream() << "Connection has been requested to be closed.";
+		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		CloseServer close_server;
 		sendRequest(&close_server, PlayerColor::NEUTRAL);
-        logNetwork->infoStream() << "Sent closing signal to the server";
+		logNetwork->infoStream() << "Sent closing signal to the server";
 	}
 
 	if(connectionHandler)//end connection handler
@@ -697,7 +697,7 @@ void CClient::stopConnection()
 		if(connectionHandler->get_id() != boost::this_thread::get_id())
 			connectionHandler->join();
 
-        logNetwork->infoStream() << "Connection handler thread joined";
+		logNetwork->infoStream() << "Connection handler thread joined";
 
 		delete connectionHandler;
 		connectionHandler = nullptr;
@@ -708,7 +708,7 @@ void CClient::stopConnection()
 		serv->close();
 		delete serv;
 		serv = nullptr;
-        logNetwork->warnStream() << "Our socket has been closed.";
+		logNetwork->warnStream() << "Our socket has been closed.";
 	}
 }
 
@@ -833,7 +833,7 @@ int CClient::sendRequest(const CPack *request, PlayerColor player)
 	static ui32 requestCounter = 0;
 
 	ui32 requestID = requestCounter++;
-    logNetwork->traceStream() << boost::format("Sending a request \"%s\". It'll have an ID=%d.")
+	logNetwork->traceStream() << boost::format("Sending a request \"%s\". It'll have an ID=%d.")
 				% typeid(*request).name() % requestID;
 
 	waitingRequest.pushBack(requestID);
@@ -933,7 +933,7 @@ void CServerHandler::startServer()
 	th.update();
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 	if(verbose)
-        logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
+		logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
 }
 
 void CServerHandler::waitForServer()
@@ -950,7 +950,7 @@ void CServerHandler::waitForServer()
 	}
 #endif
 	if(verbose)
-        logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
+		logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
 }
 
 CConnection * CServerHandler::connectToServer()
@@ -967,7 +967,7 @@ CConnection * CServerHandler::connectToServer()
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)
-        logNetwork->infoStream()<<"\tConnecting to the server: "<<th.getDiff();
+		logNetwork->infoStream()<<"\tConnecting to the server: "<<th.getDiff();
 
 	return ret;
 }
@@ -987,13 +987,13 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	try
 	{
 		shared = new SharedMem();
-    }
-    catch(...)
-    {
-    	logNetwork->error("Cannot open interprocess memory.");
-    	handleException();
-    	throw;
-    }
+	}
+	catch(...)
+	{
+		logNetwork->error("Cannot open interprocess memory.");
+		handleException();
+		throw;
+	}
 #endif
 }
 
@@ -1010,11 +1010,11 @@ void CServerHandler::callServer()
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
 	if (result == 0)
-        logNetwork->infoStream() << "Server closed correctly";
+		logNetwork->infoStream() << "Server closed correctly";
 	else
 	{
-        logNetwork->errorStream() << "Error: server failed to close correctly or crashed!";
-        logNetwork->errorStream() << "Check " << logName << " for more info";
+		logNetwork->errorStream() << "Error: server failed to close correctly or crashed!";
+		logNetwork->errorStream() << "Check " << logName << " for more info";
 		exit(1);// exit in case of error. Othervice without working server VCMI will hang
 	}
 }
@@ -1034,14 +1034,14 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 	{
 		try
 		{
-            logNetwork->infoStream() << "Establishing connection...";
+			logNetwork->infoStream() << "Establishing connection...";
 			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(),
 									realPort,
 									NAME);
 		}
 		catch(...)
 		{
-            logNetwork->errorStream() << "\nCannot establish connection! Retrying within 2 seconds";
+			logNetwork->errorStream() << "\nCannot establish connection! Retrying within 2 seconds";
 			SDL_Delay(2000);
 		}
 	}

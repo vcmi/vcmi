@@ -35,7 +35,7 @@ CIdentifierStorage::CIdentifierStorage():
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-        logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
+		logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
 	else
 	{
 		size_t pos = 0;
@@ -43,7 +43,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 		{
 			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
 			{
-                logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
+				logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
 				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
 			}
 			pos = ID.find('.', pos);
@@ -54,10 +54,10 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 
 CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
 												   std::string name, const std::function<void(si32)> & callback, bool optional):
-    localScope(localScope),
-    remoteScope(remoteScope),
-    type(type),
-    name(name),
+	localScope(localScope),
+	remoteScope(remoteScope),
+	type(type),
+	name(name),
 	callback(callback),
 	optional(optional)
 {}
@@ -294,9 +294,9 @@ void CIdentifierStorage::finalize()
 }
 
 CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
-    handler(handler),
-    objectName(objectName),
-    originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
+	handler(handler),
+	objectName(objectName),
+	originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
 {
 	for(auto & node : originalData)
 	{

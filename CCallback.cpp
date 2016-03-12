@@ -55,7 +55,7 @@ int CCallback::selectionMade(int selection, QueryID queryID)
 	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == QueryID(-1))
 	{
-        logGlobal->errorStream() << "Cannot answer the query -1!";
+		logGlobal->errorStream() << "Cannot answer the query -1!";
 		return false;
 	}
 
@@ -92,7 +92,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-    logGlobal->traceStream() << "Player " << *player << " ended his turn.";
+	logGlobal->traceStream() << "Player " << *player << " ended his turn.";
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
@@ -184,7 +184,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 	int requestID = cl->sendRequest(request, *player);
 	if(waitTillRealize)
 	{
-        logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
+		logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
 		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(getGsMutex(), unlockGsWhenWaiting);
 		cl->waitingRequest.waitWhileContains(requestID);
 	}

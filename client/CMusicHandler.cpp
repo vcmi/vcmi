@@ -52,7 +52,7 @@ void CAudioBase::init()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
-        logGlobal->errorStream() << "Mix_OpenAudio error: " << Mix_GetError();
+		logGlobal->errorStream() << "Mix_OpenAudio error: " << Mix_GetError();
 		return;
 	}
 
@@ -155,7 +155,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 	}
 	catch(std::exception &e)
 	{
-        logGlobal->warnStream() << "Cannot get sound " << sound << " chunk: " << e.what();
+		logGlobal->warnStream() << "Cannot get sound " << sound << " chunk: " << e.what();
 		return nullptr;
 	}
 }
@@ -183,7 +183,7 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 		{
-            logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
+			logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
 			if (!cache)
 				Mix_FreeChunk(chunk);
 		}
@@ -315,7 +315,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-        logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
 		return;
 	}
 
@@ -332,14 +332,14 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-        logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
 		return;
 	}
 
 	auto selectedEntry = selectedSet->second.find(entryID);
 	if (selectedEntry == selectedSet->second.end())
 	{
-        logGlobal->errorStream() << "Error: playing non-existing entry " << entryID << " from set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing non-existing entry " << entryID << " from set: " << whichSet;
 		return;
 	}
 
@@ -470,10 +470,10 @@ bool MusicEntry::play()
 		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 
-    logGlobal->traceStream()<<"Playing music file "<<currentName;
+	logGlobal->traceStream()<<"Playing music file "<<currentName;
 	if(Mix_PlayMusic(music, 1) == -1)
 	{
-        logGlobal->errorStream() << "Unable to play music (" << Mix_GetError() << ")";
+		logGlobal->errorStream() << "Unable to play music (" << Mix_GetError() << ")";
 		return false;
 	}
 	return true;
@@ -483,7 +483,7 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-        logGlobal->traceStream()<<"Stoping music file "<<currentName;
+		logGlobal->traceStream()<<"Stoping music file "<<currentName;
 		loop = 0;
 		Mix_FadeOutMusic(fade_ms);
 		return true;

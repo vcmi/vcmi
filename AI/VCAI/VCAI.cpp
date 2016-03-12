@@ -216,12 +216,12 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 	{
 		if(victoryLossCheckResult.victory())
 		{
-            logAi->debugStream() << "VCAI: I won! Incredible!";
-            logAi->debugStream() << "Turn nr " << myCb->getDate();
+			logAi->debugStream() << "VCAI: I won! Incredible!";
+			logAi->debugStream() << "Turn nr " << myCb->getDate();
 		}
 		else
 		{
-            logAi->debugStream() << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(";
+			logAi->debugStream() << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(";
 		}
 
 		finish();
@@ -843,12 +843,12 @@ void VCAI::makeTurnInternal()
 	}
 	catch(boost::thread_interrupted &e)
 	{
-        logAi->debugStream() << "Making turn thread has been interrupted. We'll end without calling endTurn.";
+		logAi->debugStream() << "Making turn thread has been interrupted. We'll end without calling endTurn.";
 		return;
 	}
 	catch(std::exception &e)
 	{
-        logAi->debugStream() << "Making turn thread has caught an exception: " << e.what();
+		logAi->debugStream() << "Making turn thread has caught an exception: " << e.what();
 	}
 
 	endTurn();
@@ -1171,7 +1171,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		{
 			if(!containsSavedRes(b->resources))
 			{
-                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
+				logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
 				cb->buildBuilding(t, buildID);
 				return true;
 			}
@@ -1252,7 +1252,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 //		{
 //			if(!containsSavedRes(b->resources))
 //			{
-//                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
+//				logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
 //				return true;
 //			}
 //			continue;
@@ -1638,7 +1638,7 @@ void VCAI::battleEnd(const BattleResult *br)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-    logAi->debugStream() << boost::format("Player %d: I %s the %s!") % playerID % (won  ? "won" : "lost") % battlename;
+	logAi->debugStream() << boost::format("Player %d: I %s the %s!") % playerID % (won  ? "won" : "lost") % battlename;
 	battlename.clear();
 	CAdventureAI::battleEnd(br);
 }
@@ -1874,7 +1874,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-            logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
+			logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 		int i = path.nodes.size()-1;
@@ -2150,7 +2150,7 @@ void VCAI::tryRealize(Goals::Build & g)
 {
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-        logAi->debugStream() << boost::format("Looking into %s") % t->name;
+		logAi->debugStream() << boost::format("Looking into %s") % t->name;
 		buildStructure(t);
 		buildArmyIn(t);
 
@@ -2171,8 +2171,8 @@ void VCAI::tryRealize(Goals::Invalid & g)
 
 void VCAI::tryRealize(Goals::AbstractGoal & g)
 {
-    logAi->debugStream() << boost::format("Attempting realizing goal with code %s") % g.name();
-        throw cannotFulfillGoalException("Unknown type of goal !");
+	logAi->debugStream() << boost::format("Attempting realizing goal with code %s") % g.name();
+	throw cannotFulfillGoalException("Unknown type of goal !");
 }
 
 const CGTownInstance * VCAI::findTownWithTavern() const
@@ -2233,10 +2233,10 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-    logAi->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
+	logAi->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
 	if(!status.haveTurn())
 	{
-        logAi->errorStream() << "Not having turn at the end of turn???";
+		logAi->errorStream() << "Not having turn at the end of turn???";
 	}
 	logAi->debugStream() << "Resources at the end of turn: " << cb->getResourceAmount();
 
@@ -2245,7 +2245,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-    logGlobal->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
+	logGlobal->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
@@ -2274,11 +2274,11 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 	while(1)
 	{
 		Goals::TSubgoal goal = ultimateGoal;
-        logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
+		logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
 		int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
-            logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
+			logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -2291,12 +2291,12 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				//it is impossible to continue some goals (like exploration, for example)
 				completeGoal (goal);
-                logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
+				logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
 				return sptr(Goals::Invalid());
 			}
 			catch(std::exception &e)
 			{
-                logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
+				logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
 				return sptr(Goals::Invalid());
 			}
 		}
@@ -2326,7 +2326,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			if (goal->isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-                logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
+				logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
 				break;
 			}
 			else
@@ -2339,7 +2339,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(boost::thread_interrupted &e)
 		{
-            logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
+			logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
 			throw; //rethrow, we want to truly end this thread
 		}
 		catch(goalFulfilledException &e)
@@ -2352,8 +2352,8 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
-            logAi->debugStream() << boost::format("The error message was: %s") % e.what();
+			logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
+			logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 			break;
 		}
 	}
@@ -2366,7 +2366,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
-        logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
+		logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
 		auto heroes = cb->getHeroesInfo();
 
 		switch (q.quest->missionType)
@@ -2464,7 +2464,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (int i = 0; i < q.quest->m2stats.size(); ++i)
 				{
-                    logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
+					logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
 				}
 				break;
 			}
@@ -2479,13 +2479,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-                logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
+				logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_PLAYER:
 			{
 				if (playerID.getNum() != q.quest->m13489val)
-                    logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
+					logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_KEYMASTER:
@@ -2501,7 +2501,7 @@ void VCAI::performTypicalActions()
 {
 	for(auto h : getUnblockedHeroes())
 	{
-        logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
+		logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try
@@ -2510,7 +2510,7 @@ void VCAI::performTypicalActions()
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
+			logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
 			continue;
 		}
 	}
@@ -2709,7 +2709,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-    logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
+	logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())
@@ -2745,7 +2745,7 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 
 void VCAI::lostHero(HeroPtr h)
 {
-    logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
+	logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
 
 	vstd::erase_if_present(lockedHeroes, h);
 	for(auto obj : reservedHeroesMap[h])
@@ -2758,14 +2758,14 @@ void VCAI::lostHero(HeroPtr h)
 
 void VCAI::answerQuery(QueryID queryID, int selection)
 {
-    logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
+	logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
 	if(queryID != QueryID(-1))
 	{
 		cb->selectionMade(selection, queryID);
 	}
 	else
 	{
-        logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
+		logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
 		//do nothing
 	}
 }
@@ -2857,7 +2857,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 {
 	if(ID == QueryID(-1))
 	{
-        logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
+		logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
@@ -2869,7 +2869,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 	remainingQueries[ID] = description;
 
 	cv.notify_all();
-    logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 void AIStatus::removeQuery(QueryID ID)
@@ -2881,7 +2881,7 @@ void AIStatus::removeQuery(QueryID ID)
 	remainingQueries.erase(ID);
 
 	cv.notify_all();
-    logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 int AIStatus::getQueriesCount()
@@ -2922,7 +2922,7 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
 	std::string description = remainingQueries[queryID];
-    logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
+	logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
 	requestToQueryID[answerRequestID] = queryID;
 }
 
@@ -2939,7 +2939,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 	}
 	else
 	{
-        logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
+		logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
 		//TODO safely retry
 	}
 }

@@ -113,7 +113,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(oid < 0  ||  oid >= gs->map->objects.size())
 	{
 		if(verbose)
-            logGlobal->errorStream() << "Cannot get object with id " << oid;
+			logGlobal->errorStream() << "Cannot get object with id " << oid;
 		return nullptr;
 	}
 
@@ -121,14 +121,14 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(!ret)
 	{
 		if(verbose)
-            logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object was removed.";
+			logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object was removed.";
 		return nullptr;
 	}
 
 	if(!isVisible(ret, player) && ret->tempOwner != player)
 	{
 		if(verbose)
-            logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
+			logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
 		return nullptr;
 	}
 

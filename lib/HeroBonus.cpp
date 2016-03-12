@@ -715,7 +715,7 @@ CBonusSystemNode::~CBonusSystemNode()
 
 	if(children.size())
 	{
-        logBonus->warnStream() << "Warning: an orphaned child!";
+		logBonus->warnStream() << "Warning: an orphaned child!";
 		while(children.size())
 			children.front()->detachFrom(this);
 	}
@@ -844,7 +844,7 @@ void CBonusSystemNode::unpropagateBonus(Bonus * b)
 		bonuses -= b;
 		while(vstd::contains(bonuses, b))
 		{
-            logBonus->errorStream() << "Bonus was duplicated (" << b->Description() << ") at " << nodeName();
+			logBonus->errorStream() << "Bonus was duplicated (" << b->Description() << ") at " << nodeName();
 			bonuses -= b;
 		}
 		BONUS_LOG_LINE("#$#" << b->Description() << " #is no longer propagated to# " << nodeName());
@@ -1480,8 +1480,8 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 	case EAlignment::EVIL:
 		return !c->isEvil();
 	default:
-        logBonus->warnStream() << "Warning: illegal alignment in limiter!";
-        return true;
+		logBonus->warnStream() << "Warning: illegal alignment in limiter!";
+		return true;
 	}
 }
 

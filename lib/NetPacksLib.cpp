@@ -134,7 +134,7 @@ DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else
-        logNetwork->warnStream() << "Warning! Attempt to add duplicated quest";
+		logNetwork->warnStream() << "Warning! Attempt to add duplicated quest";
 }
 
 DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
@@ -292,7 +292,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
 	{
-        logNetwork->errorStream() << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!";
+		logNetwork->errorStream() << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!";
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
@@ -857,7 +857,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 					//else - artifact cna be lost :/
 					else
 					{
-                        logNetwork->warnStream() << "Artifact is present at destination slot!";
+						logNetwork->warnStream() << "Artifact is present at destination slot!";
 					}
 					artHere->move (alHere, alDest);
 					//TODO: choose from dialog
@@ -1036,7 +1036,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 		}
 		else
 		{
-            logNetwork->errorStream() << "Wrong black market id!";
+			logNetwork->errorStream() << "Wrong black market id!";
 		}
 	}
 	else
@@ -1100,7 +1100,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
 	{
-        logNetwork->errorStream() << "Wrong object ID - property cannot be set!";
+		logNetwork->errorStream() << "Wrong object ID - property cannot be set!";
 		return;
 	}
 
@@ -1217,7 +1217,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
-            logNetwork->warnStream() << "Unrecognized trigger effect type "<< type;
+			logNetwork->warnStream() << "Unrecognized trigger effect type "<< type;
 	}
 }
 
@@ -1467,11 +1467,11 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 
 DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 {
-    if (effect.empty())
-    {
-        logGlobal->errorStream() << "Trying to apply SetStackEffect with no effects";
-        return;
-    }
+	if(effect.empty())
+	{
+		logGlobal->errorStream() << "Trying to apply SetStackEffect with no effects";
+		return;
+	}
 
 	int spellid = effect.begin()->sid; //effects' source ID
 
@@ -1494,7 +1494,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 			}
 		}
 		else
-            logNetwork->errorStream() << "Cannot find stack " << id;
+			logNetwork->errorStream() << "Cannot find stack " << id;
 	}
 	typedef std::pair<ui32, Bonus> p;
 	for(p para : uniqueBonuses)
@@ -1508,7 +1508,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 				actualizeEffect(s, effect);
 		}
 		else
-            logNetwork->errorStream() << "Cannot find stack " << para.first;
+			logNetwork->errorStream() << "Cannot find stack " << para.first;
 	}
 }
 
@@ -1529,7 +1529,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 
 		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
 		{
-            logNetwork->errorStream() << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!";
+			logNetwork->errorStream() << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!";
 			return; //position is already occupied
 		}
 
@@ -1666,7 +1666,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	newStackID = 0;
 	if (!BattleHex(pos).isValid())
 	{
-        logNetwork->warnStream() << "No place found for new stack!";
+		logNetwork->warnStream() << "No place found for new stack!";
 		return;
 	}
 

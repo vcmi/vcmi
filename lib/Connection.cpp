@@ -57,7 +57,7 @@ void CConnection::init()
 	//we got connection
 	oser << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
 	iser >> pom >> pom >> contactEndianess;
-    logNetwork->infoStream() << "Established connection with "<<pom;
+	logNetwork->infoStream() << "Established connection with "<<pom;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
 
@@ -77,27 +77,27 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
 	boost::asio::ip::tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(boost::asio::ip::tcp::resolver::query(host,port),error);
 	if(error)
 	{
-        logNetwork->errorStream() << "Problem with resolving: \n" << error;
+		logNetwork->errorStream() << "Problem with resolving: \n" << error;
 		goto connerror1;
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
-        logNetwork->infoStream()<<"Found endpoints:";
+		logNetwork->infoStream()<<"Found endpoints:";
 	else
 	{
-        logNetwork->errorStream() << "Critical problem: No endpoints found!";
+		logNetwork->errorStream() << "Critical problem: No endpoints found!";
 		goto connerror1;
 	}
 	i=0;
 	while(pom != end)
 	{
-        logNetwork->infoStream() << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom;
+		logNetwork->infoStream() << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom;
 		pom++;
 	}
 	i=0;
 	while(endpoint_iterator != end)
 	{
-        logNetwork->infoStream() << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")";
+		logNetwork->infoStream() << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")";
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -106,18 +106,18 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
 		}
 		else
 		{
-            logNetwork->errorStream() << "Problem with connecting: " <<  error;
+			logNetwork->errorStream() << "Problem with connecting: " <<  error;
 		}
 		endpoint_iterator++;
 	}
 
 	//we shouldn't be here - error handling
 connerror1:
-    logNetwork->errorStream() << "Something went wrong... checking for error info";
+	logNetwork->errorStream() << "Something went wrong... checking for error info";
 	if(error)
-        logNetwork->errorStream() << error;
+		logNetwork->errorStream() << error;
 	else
-        logNetwork->errorStream() << "No error info. ";
+		logNetwork->errorStream() << "No error info. ";
 	delete io_service;
 	//delete socket;
 	throw std::runtime_error("Can't establish connection :(");
@@ -135,7 +135,7 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 	acceptor->accept(*socket,error);
 	if (error)
 	{
-        logNetwork->errorStream() << "Error on accepting: " << error;
+		logNetwork->errorStream() << "Error on accepting: " << error;
 		delete socket;
 		throw std::runtime_error("Can't establish connection :(");
 	}
@@ -211,11 +211,11 @@ bool CConnection::isOpen() const
 
 void CConnection::reportState(CLogger * out)
 {
-    out->debugStream() << "CConnection";
+	out->debugStream() << "CConnection";
 	if(socket && socket->is_open())
 	{
-        out->debugStream() << "\tWe have an open and valid socket";
-        out->debugStream() << "\t" << socket->available() <<" bytes awaiting";
+		out->debugStream() << "\tWe have an open and valid socket";
+		out->debugStream() << "\t" << socket->available() <<" bytes awaiting";
 	}
 }
 
@@ -223,7 +223,7 @@ CPack * CConnection::retreivePack()
 {
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
-    logNetwork->traceStream() << "Listening... ";
+	logNetwork->traceStream() << "Listening... ";
 	iser >> ret;
 	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
 	return ret;
@@ -232,7 +232,7 @@ CPack * CConnection::retreivePack()
 void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID)
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
-    logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
+	logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
 	oser << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
 }
 
@@ -315,7 +315,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 	}
 	catch(...)
 	{
-        logGlobal->errorStream() << "Failed to save to " << fname;
+		logGlobal->errorStream() << "Failed to save to " << fname;
 		clear();
 		throw;
 	}
@@ -323,10 +323,10 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 
 void CSaveFile::reportState(CLogger * out)
 {
-    out->debugStream() << "CSaveFile";
+	out->debugStream() << "CSaveFile";
 	if(sfile.get() && *sfile)
 	{
-        out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp();
+		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp();
 	}
 }
 
@@ -407,10 +407,10 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 
 void CLoadFile::reportState(CLogger * out)
 {
-    out->debugStream() << "CLoadFile";
+	out->debugStream() << "CLoadFile";
 	if(!!sfile && *sfile)
 	{
-        out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
+		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
 	}
 }
 
@@ -597,7 +597,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 		controlFile->read(controlData.data(), size);
 		if(std::memcmp(data, controlData.data(), size))
 		{
-            logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
+			logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
 			foundDesync = true;
 			//throw std::runtime_error("Savegame dsynchronized!");
 		}

@@ -232,7 +232,7 @@ void CGCreature::initObj()
 
 		if(amount == 0) //armies with 0 creatures are illegal
 		{
-            logGlobal->warnStream() << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName();
+			logGlobal->warnStream() << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName();
 			amount = 1;
 		}
 	}
@@ -1507,7 +1507,7 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	auto standard = VLC->heroh->getDefaultAllowedAbilities(); //todo: for WitchHut default is all except Leadership and Necromancy
 
-    if(handler.saving)
+	if(handler.saving)
 	{
 		for(si32 i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
 			if(vstd::contains(allowedAbilities, i))
@@ -1589,7 +1589,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(spell == SpellID::NONE)
 	{
-        logGlobal->errorStream() << "Not initialized shrine visited!";
+		logGlobal->errorStream() << "Not initialized shrine visited!";
 		return;
 	}
 
@@ -1637,7 +1637,7 @@ void CGShrine::initObj()
 
 		if(possibilities.empty())
 		{
-            logGlobal->errorStream() << "Error: cannot init shrine, no allowed spells!";
+			logGlobal->errorStream() << "Error: cannot init shrine, no allowed spells!";
 			return;
 		}
 
@@ -2032,7 +2032,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 					text = 27;
 					break;
 				default:
-                    logGlobal->warnStream() << "Unrecognized subtype of cartographer";
+					logGlobal->warnStream() << "Unrecognized subtype of cartographer";
 			}
 			assert(text);
 			BlockingDialog bd (true, false);

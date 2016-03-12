@@ -126,7 +126,7 @@ void CMapLoaderH3M::init()
 	{
 		for(MapLoadingTime & mlt : times)
 		{
-            logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
+			logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
 		}
 	}
 	map->calculateGuardingGreaturePositions();
@@ -873,14 +873,14 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	{
 		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= GameConstants::BACKPACK_START)
 		{
-            logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
+			logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
 			return false;
 		}
 		if(aid == 0 && slot == ArtifactPosition::MISC5)
 		{
 			//TODO: check how H3 handles it -> art 0 in slot 18 in AB map
-            logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
-                  << static_cast<int>(map->version) << ")";
+			logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
+				<< static_cast<int>(map->version) << ")";
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
@@ -1536,7 +1536,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	{
 		if(elem->subID == nhi->subID)
 		{
-            logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
+			logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
 			delete nhi;
 			nhi = elem;
 			break;
@@ -2067,8 +2067,8 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 		}
 		else
 		{
-            logGlobal->warnStream() << "Conversion warning: unknown building " << elem << " in castle "
-                  << castleID;
+			logGlobal->warnStream() << "Conversion warning: unknown building " << elem << " in castle "
+				<< castleID;
 		}
 	}
 

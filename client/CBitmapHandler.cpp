@@ -101,7 +101,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 {
 	if(!fname.size())
 	{
-        logGlobal->warnStream() << "Call to loadBitmap with void fname!";
+		logGlobal->warnStream() << "Call to loadBitmap with void fname!";
 		return nullptr;
 	}
 	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
@@ -146,8 +146,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 		else
 		{
-            logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
-			logGlobal->errorStream()<<"Reason: " << IMG_GetError();
+			logGlobal->errorStream() << "Failed to open " << fname << " via SDL_Image";
+			logGlobal->errorStream() << "Reason: " << IMG_GetError();
 			return nullptr;
 		}
 	}
@@ -173,7 +173,9 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
-        logGlobal->errorStream()<<"Error: Failed to find file "<<fname;
+	{
+		logGlobal->errorStream() << "Error: Failed to find file " << fname;
+	}
 
 	return bitmap;
 }

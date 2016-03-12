@@ -120,7 +120,7 @@ void SetPrimSkill::applyCl( CClient *cl )
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-        logNetwork->errorStream() << "Cannot find hero with ID " << id.getNum();
+		logNetwork->errorStream() << "Cannot find hero with ID " << id.getNum();
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroPrimarySkillChanged,h,which,val);
@@ -131,7 +131,7 @@ void SetSecSkill::applyCl( CClient *cl )
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-        logNetwork->errorStream() << "Cannot find hero with ID " << id;
+		logNetwork->errorStream() << "Cannot find hero with ID " << id;
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroSecondarySkillChanged,h,which,val);
@@ -495,7 +495,7 @@ void HeroRecruited::applyCl( CClient *cl )
 	CGHeroInstance *h = GS(cl)->map->heroesOnMap.back();
 	if(h->subID != hid)
 	{
-        logNetwork->errorStream() << "Something wrong with hero recruited!";
+		logNetwork->errorStream() << "Something wrong with hero recruited!";
 	}
 
 	CGI->mh->printObject(h);
@@ -533,7 +533,7 @@ void InfoWindow::applyCl( CClient *cl )
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint.at(player)->showInfoDialog(str,comps,(soundBase::soundID)soundID);
 	else
-        logNetwork->warnStream() << "We received InfoWindow for not our player...";
+		logNetwork->warnStream() << "We received InfoWindow for not our player...";
 }
 
 void SetObjectProperty::applyCl( CClient *cl )
@@ -576,7 +576,7 @@ void BlockingDialog::applyCl( CClient *cl )
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint.at(player)->showBlockingDialog(str,components,queryID,(soundBase::soundID)soundID,selection(),cancel());
 	else
-        logNetwork->warnStream() << "We received YesNoDialog for not our player...";
+		logNetwork->warnStream() << "We received YesNoDialog for not our player...";
 }
 
 void GarrisonDialog::applyCl(CClient *cl)
@@ -782,7 +782,7 @@ void PackageApplied::applyCl( CClient *cl )
 {
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(!cl->waitingRequest.tryRemovingElement(requestID))
-        logNetwork->warnStream() << "Surprising server message!";
+		logNetwork->warnStream() << "Surprising server message!";
 }
 
 void SystemMessage::applyCl( CClient *cl )
@@ -790,7 +790,7 @@ void SystemMessage::applyCl( CClient *cl )
 	std::ostringstream str;
 	str << "System message: " << text;
 
-    logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
+	logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }
@@ -819,7 +819,7 @@ void SaveGame::applyCl(CClient *cl)
 	}
 	catch(std::exception &e)
 	{
-        logNetwork->errorStream() << "Failed to save game:" << e.what();
+		logNetwork->errorStream() << "Failed to save game:" << e.what();
 	}
 }
 
@@ -961,6 +961,6 @@ void TradeComponents::applyCl(CClient *cl)
 	case Obj::TRADING_POST_SNOW:
 		break;
 	default:
-        logNetwork->warnStream() << "Shop type not supported!";
+		logNetwork->warnStream() << "Shop type not supported!";
 	}
 }

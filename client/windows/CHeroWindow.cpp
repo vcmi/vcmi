@@ -186,7 +186,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
-        logGlobal->errorStream() << "Set nullptr hero? no way...";
+		logGlobal->errorStream() << "Set nullptr hero? no way...";
 		return;
 	}
 

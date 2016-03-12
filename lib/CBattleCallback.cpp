@@ -144,7 +144,7 @@ std::vector<std::shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::ba
 	{
 		if(!!player && *perspective != battleGetMySide())
 		{
-            logGlobal->errorStream() << "Unauthorized access attempt!";
+			logGlobal->errorStream() << "Unauthorized access attempt!";
 			assert(0); //I want to notice if that happens
 			//perspective = battleGetMySide();
 		}
@@ -242,8 +242,8 @@ BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() co
 	if(*player == getBattle()->sides[1].color)
 		return BattlePerspective::RIGHT_SIDE;
 
-    logGlobal->errorStream() << "Cannot find player " << *player << " in battle!";
-    return BattlePerspective::INVALID;
+	logGlobal->errorStream() << "Cannot find player " << *player << " in battle!";
+	return BattlePerspective::INVALID;
 }
 
 const CStack * CBattleInfoEssentials::battleActiveStack() const
@@ -291,13 +291,13 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(ui8 side) co
 	RETURN_IF_NOT_BATTLE(nullptr);
 	if(side > 1)
 	{
-        logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
+		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
 		return nullptr;
 	}
 
 	if(!battleDoWeKnowAbout(side))
 	{
-        logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
+		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
 		return nullptr;
 	}
 
@@ -327,7 +327,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 	auto hero = getBattle()->sides[side].hero;
 	if(!hero)
 	{
-        logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
+		logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
 		return InfoAboutHero();
 	}
 
@@ -351,7 +351,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(Pla
 	const ui8 side = playerToSide(player);
 	if(!battleDoWeKnowAbout(side))
 	{
-        logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
+		logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
 		return ESpellCastProblem::INVALID;
 	}
 
@@ -411,7 +411,7 @@ ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 	RETURN_IF_NOT_BATTLE(-1);
 	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
 	if(ret < 0)
-        logGlobal->warnStream() << "Cannot find side for player " << player;
+		logGlobal->warnStream() << "Cannot find side for player " << player;
 
 	return ret;
 }
@@ -532,7 +532,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERa
 		return getRandomCastedSpell(stack); //caster
 		break;
 	default:
-        logGlobal->errorStream() << "Incorrect mode of battleGetRandomSpell (" << mode <<")";
+		logGlobal->errorStream() << "Incorrect mode of battleGetRandomSpell (" << mode <<")";
 		return SpellID::NONE;
 	}
 }
@@ -1697,13 +1697,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
 			bool targetExists = false;
 
-            for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
+			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
 			{
 				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
 				bool casterStack = stack->owner == caster->getOwner();
 
-                if(!immune)
-                {
+				if(!immune)
+				{
 					switch (spell->positiveness)
 					{
 					case CSpell::POSITIVE:
@@ -1724,9 +1724,9 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 						}
 						break;
 					}
-                }
+				}
 			}
-            if(!targetExists)
+			if(!targetExists)
 			{
 				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 			}
@@ -1777,7 +1777,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 		}
 		break;
 	default:
-        logGlobal->errorStream() << "FIXME " << __FUNCTION__ << " doesn't work with target type " << spell->getTargetType();
+		logGlobal->errorStream() << "FIXME " << __FUNCTION__ << " doesn't work with target type " << spell->getTargetType();
 	}
 
 	return ret;
@@ -2152,14 +2152,16 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, bool attacke
 	// All hexes that stack would cover if standing on tile have to be accessible.
 	for(auto hex : CStack::getHexes(tile, doubleWide, attackerOwned))
 	{
-        // If the hex is out of range then the tile isn't accessible
-        if(!hex.isValid())
-            return false;
-        // If we're no defender which step on gate and the hex isn't accessible, then the tile
-        // isn't accessible
-        else if(at(hex) != EAccessibility::ACCESSIBLE &&
-                !(at(hex) == EAccessibility::GATE && !attackerOwned))
-            return false;
+		// If the hex is out of range then the tile isn't accessible
+		if(!hex.isValid())
+			return false;
+		// If we're no defender which step on gate and the hex isn't accessible, then the tile
+		// isn't accessible
+		else if(at(hex) != EAccessibility::ACCESSIBLE &&
+			!(at(hex) == EAccessibility::GATE && !attackerOwned))
+		{
+			return false;
+		}
 	}
 	return true;
 }

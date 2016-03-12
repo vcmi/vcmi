@@ -51,7 +51,7 @@ void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
-        logGlobal->errorStream() << "Illegal call to getTilesInRange!";
+		logGlobal->errorStream() << "Illegal call to getTilesInRange!";
 		return;
 	}
 	if (radious == -1) //reveal entire map
@@ -87,7 +87,7 @@ void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
-        logGlobal->errorStream() << "Illegal call to getAllTiles !";
+		logGlobal->errorStream() << "Illegal call to getAllTiles !";
 		return;
 	}
 	bool water = surface == 0 || surface == 2,
@@ -150,37 +150,37 @@ CGameState * CPrivilagedInfoCallback::gameState ()
 template<typename Loader>
 void CPrivilagedInfoCallback::loadCommonState(Loader &in)
 {
-    logGlobal->infoStream() << "Loading lib part of game...";
+	logGlobal->infoStream() << "Loading lib part of game...";
 	in.checkMagicBytes(SAVEGAME_MAGIC);
 
 	CMapHeader dum;
 	StartInfo *si;
 
-    logGlobal->infoStream() <<"\tReading header";
+	logGlobal->infoStream() <<"\tReading header";
 	in.serializer >> dum;
 
-    logGlobal->infoStream() << "\tReading options";
+	logGlobal->infoStream() << "\tReading options";
 	in.serializer >> si;
 
-    logGlobal->infoStream() <<"\tReading handlers";
+	logGlobal->infoStream() <<"\tReading handlers";
 	in.serializer >> *VLC;
 
-    logGlobal->infoStream() <<"\tReading gamestate";
+	logGlobal->infoStream() <<"\tReading gamestate";
 	in.serializer >> gs;
 }
 
 template<typename Saver>
 void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
 {
-    logGlobal->infoStream() << "Saving lib part of game...";
+	logGlobal->infoStream() << "Saving lib part of game...";
 	out.putMagicBytes(SAVEGAME_MAGIC);
-    logGlobal->infoStream() <<"\tSaving header";
+	logGlobal->infoStream() <<"\tSaving header";
 	out.serializer << static_cast<CMapHeader&>(*gs->map);
-    logGlobal->infoStream() << "\tSaving options";
+	logGlobal->infoStream() << "\tSaving options";
 	out.serializer << gs->scenarioOps;
-    logGlobal->infoStream() << "\tSaving handlers";
+	logGlobal->infoStream() << "\tSaving handlers";
 	out.serializer << *VLC;
-    logGlobal->infoStream() << "\tSaving gamestate";
+	logGlobal->infoStream() << "\tSaving gamestate";
 	out.serializer << gs;
 }
 

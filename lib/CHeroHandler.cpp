@@ -80,7 +80,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 			toBlock += BattleHex::LEFT;
 
 		if(!toBlock.isValid())
-            logGlobal->errorStream() << "Misplaced obstacle!";
+			logGlobal->errorStream() << "Misplaced obstacle!";
 		else
 			ret.push_back(toBlock);
 	}
@@ -577,7 +577,7 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 	}
 	else
 	{
-        logGlobal->warnStream() << "A hero has reached unsupported amount of experience";
+		logGlobal->warnStream() << "A hero has reached unsupported amount of experience";
 		return expPerLevel[expPerLevel.size()-1];
 	}
 }

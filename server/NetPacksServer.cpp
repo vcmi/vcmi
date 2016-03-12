@@ -16,12 +16,12 @@
 			boost::unique_lock<boost::mutex> lock(*c->wmx);				\
 			*c << &temp_message;										\
 		}																\
-        logNetwork->errorStream()<<"Player is not allowed to perform this action!";		\
+		logNetwork->errorStream()<<"Player is not allowed to perform this action!";		\
 		return false;} while(0)
 
 #define WRONG_PLAYER_MSG(expectedplayer) do {std::ostringstream oss;\
 			oss << "You were identified as player " << gh->getPlayerAt(c) << " while expecting " << expectedplayer;\
-            logNetwork->errorStream() << oss.str(); \
+			logNetwork->errorStream() << oss.str(); \
 			if(c) { SystemMessage temp_message(oss.str()); boost::unique_lock<boost::mutex> lock(*c->wmx); *c << &temp_message; } } while(0)
 
 #define ERROR_IF_NOT_OWNS(id)	do{if(!PLAYER_OWNS(id)){WRONG_PLAYER_MSG(gh->getOwner(id)); ERROR_AND_RETURN; }}while(0)

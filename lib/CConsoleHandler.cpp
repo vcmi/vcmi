@@ -57,16 +57,16 @@ void printWinError()
 	int error = GetLastError();
 	if(!error)
 	{
-        logGlobal->errorStream() << "No Win error information set.";
+		logGlobal->errorStream() << "No Win error information set.";
 		return;
 	}
-    logGlobal->errorStream() << "Error " << error << " encountered:";
+	logGlobal->errorStream() << "Error " << error << " encountered:";
 
 	//Get error description
 	char* pTemp = nullptr;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr);
-    logGlobal->errorStream() << pTemp;
+	logGlobal->errorStream() << pTemp;
 	LocalFree( pTemp );
 }
 
@@ -107,19 +107,19 @@ const char* exceptionName(DWORD exc)
 
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 {
-    logGlobal->errorStream() << "Disaster happened.";
+	logGlobal->errorStream() << "Disaster happened.";
 
 	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
-    logGlobal->errorStream() << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode)
-        << " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress;
+	logGlobal->errorStream() << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode)
+		<< " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress;
 
 	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 	{
-        logGlobal->errorStream() << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
-            << "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1];
+		logGlobal->errorStream() << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
+			<< "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1];
 	}
 	const DWORD threadId = ::GetCurrentThreadId();
-    logGlobal->errorStream() << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]";
+	logGlobal->errorStream() << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]";
 
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
@@ -137,7 +137,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 	strcat(mname, "_crashinfo.dmp");
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-    logGlobal->errorStream() << "Crash info will be put in " << mname;
+	logGlobal->errorStream() << "Crash info will be put in " << mname;
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -147,35 +147,35 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 {
-    TColor colorCode;
-    switch(color)
+	TColor colorCode;
+	switch(color)
 	{
-    case EConsoleTextColor::DEFAULT:
-        colorCode = defColor;
+	case EConsoleTextColor::DEFAULT:
+		colorCode = defColor;
 		break;
-    case EConsoleTextColor::GREEN:
-        colorCode = CONSOLE_GREEN;
+	case EConsoleTextColor::GREEN:
+		colorCode = CONSOLE_GREEN;
 		break;
-    case EConsoleTextColor::RED:
-        colorCode = CONSOLE_RED;
+	case EConsoleTextColor::RED:
+		colorCode = CONSOLE_RED;
 		break;
-    case EConsoleTextColor::MAGENTA:
-        colorCode = CONSOLE_MAGENTA;
+	case EConsoleTextColor::MAGENTA:
+		colorCode = CONSOLE_MAGENTA;
 		break;
-    case EConsoleTextColor::YELLOW:
-        colorCode = CONSOLE_YELLOW;
+	case EConsoleTextColor::YELLOW:
+		colorCode = CONSOLE_YELLOW;
 		break;
-    case EConsoleTextColor::WHITE:
-        colorCode = CONSOLE_WHITE;
+	case EConsoleTextColor::WHITE:
+		colorCode = CONSOLE_WHITE;
 		break;
-    case EConsoleTextColor::GRAY:
-        colorCode = CONSOLE_GRAY;
+	case EConsoleTextColor::GRAY:
+		colorCode = CONSOLE_GRAY;
 		break;
-    case EConsoleTextColor::TEAL:
-        colorCode = CONSOLE_TEAL;
+	case EConsoleTextColor::TEAL:
+		colorCode = CONSOLE_TEAL;
 		break;
 	default:
-        colorCode = defColor;
+		colorCode = defColor;
 		break;
 	}
 #ifdef VCMI_WINDOWS
@@ -236,14 +236,14 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 #else
 	defColor = "\x1b[0m";
 #endif
-    cb = new std::function<void(const std::string &)>;
+	cb = new std::function<void(const std::string &)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {
-    logGlobal->infoStream() << "Killing console...";
+	logGlobal->infoStream() << "Killing console...";
 	end();
 	delete cb;
-    logGlobal->infoStream() << "Killing console... done!";
+	logGlobal->infoStream() << "Killing console... done!";
 }
 void CConsoleHandler::end()
 {

@@ -368,7 +368,7 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 			}
 		}
 	}
-    logGlobal->errorStream()<<"Failed to parse command: "<<string;
+	logGlobal->errorStream()<<"Failed to parse command: "<<string;
 	return std::function<void()>();
 }
 
@@ -941,7 +941,7 @@ void CSelectionScreen::handleConnection()
 		{
 			CPackForSelectionScreen *pack = nullptr;
 			*serv >> pack;
-            logNetwork->traceStream() << "Received a pack of type " << typeid(*pack).name();
+			logNetwork->traceStream() << "Received a pack of type " << typeid(*pack).name();
 			assert(pack);
 			if(QuitMenuWithoutStarting *endingPack = dynamic_cast<QuitMenuWithoutStarting *>(pack))
 			{
@@ -1124,7 +1124,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 		}
 		catch(std::exception & e)
 		{
-            logGlobal->errorStream() << "Map " << file.getName() << " is invalid. Message: " << e.what();
+			logGlobal->errorStream() << "Map " << file.getName() << " is invalid. Message: " << e.what();
 		}
 	}
 }
@@ -1164,7 +1164,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 		}
 		catch(const std::exception & e)
 		{
-            logGlobal->errorStream() << "Error: Failed to process " << file.getName() <<": " << e.what();
+			logGlobal->errorStream() << "Error: Failed to process " << file.getName() <<": " << e.what();
 		}
 	}
 }
@@ -1461,7 +1461,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				break;
 			default:
 				// Unknown version. Be safe and ignore that map
-                logGlobal->warnStream() << "Warning: " << currentItem->fileURI << " has wrong version!";
+				logGlobal->warnStream() << "Warning: " << currentItem->fileURI << " has wrong version!";
 				continue;
 			}
 			IImage * icon = formatIcons->getImage(frame,group);

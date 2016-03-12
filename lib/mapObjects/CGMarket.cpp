@@ -179,7 +179,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= 
 		return static_cast<const CGUniversity*>(obj);
 	default:
 		if(verbose)
-            logGlobal->errorStream() << "Cannot cast to IMarket object with ID " << obj->ID;
+			logGlobal->errorStream() << "Cannot cast to IMarket object with ID " << obj->ID;
 		return nullptr;
 	}
 }
@@ -305,7 +305,7 @@ void CGUniversity::initObj()
 	}
 	if(toChoose.size() < 4)
 	{
-        logGlobal->warnStream()<<"Warning: less then 4 available skills was found by University initializer!";
+		logGlobal->warnStream()<<"Warning: less then 4 available skills was found by University initializer!";
 		return;
 	}
 

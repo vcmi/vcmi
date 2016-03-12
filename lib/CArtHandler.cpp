@@ -414,7 +414,7 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
 			}
 		}
 		else
-            logGlobal->warnStream() << "Warning! Artifact type " << b.String() << " not recognized!";
+			logGlobal->warnStream() << "Warning! Artifact type " << b.String() << " not recognized!";
 	}
 }
 
@@ -693,11 +693,11 @@ void CArtHandler::erasePickedArt(ArtifactID id)
 			artifactList->erase(itr);
 		}
 		else
-            logGlobal->warnStream() << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present";
+			logGlobal->warnStream() << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present";
 
 	}
 	else
-        logGlobal->warnStream() << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)";
+		logGlobal->warnStream() << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)";
 }
 
 boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
@@ -883,8 +883,8 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-        logGlobal->warnStream() << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
-            << artSet->bearerType();
+		logGlobal->warnStream() << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
+			<< artSet->bearerType();
 		return false;
 	}
 
@@ -1341,7 +1341,7 @@ si32 CArtifactSet::getArtTypeId(ArtifactPosition pos) const
 	const CArtifactInstance * const a = getArt(pos);
 	if(!a)
 	{
-        logGlobal->warnStream() << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)";
+		logGlobal->warnStream() << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)";
 		return -1;
 	}
 	return a->artType->id;

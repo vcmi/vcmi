@@ -182,8 +182,8 @@ namespace Goals
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
 //{
-//    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
-//        return sptr (Goals::Explore());
+//	logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//	return sptr (Goals::Explore());
 //}
 
 TSubgoal Win::whatToDoToAchieve()
@@ -462,7 +462,7 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	assert(cb->isInTheMap(tile)); //set tile
 	if(!cb->isVisible(tile))
 	{
-        logAi->errorStream() << "Clear way should be used with visible tiles!";
+		logAi->errorStream() << "Clear way should be used with visible tiles!";
 		return sptr (Goals::Explore());
 	}
 
@@ -1129,7 +1129,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
 //{
-//    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//	logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
 //	return sptr (Goals::Explore());
 //}
 

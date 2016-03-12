@@ -261,7 +261,7 @@ void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CStupidAI::print(const std::string &text) const
 {
-    logAi->traceStream() << "CStupidAI [" << this <<"]: " << text;
+	logAi->traceStream() << "CStupidAI [" << this <<"]: " << text;
 }
 
 BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
@@ -276,7 +276,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	auto destNeighbours = destination.neighbouringTiles();
 	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
 	{
-        logAi->warnStream() << "Warning: already standing on neighbouring tile!";
+		logAi->warnStream() << "Warning: already standing on neighbouring tile!";
 		//We shouldn't even be here...
 		return BattleAction::makeDefend(stack);
 	}

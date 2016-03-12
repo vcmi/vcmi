@@ -90,7 +90,7 @@ struct StartInfo
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
-        logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
+		logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
 		throw std::runtime_error("Cannot find info about player");
 	}
 	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const

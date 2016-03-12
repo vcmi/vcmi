@@ -316,7 +316,7 @@ void Graphics::loadHeroFlags()
 		loadHeroFlagsDetail(p,true);
 	}
 	#endif
-    logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
+	logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
@@ -334,7 +334,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		}
 		else
 		{
-            logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
+			logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
 			return;
 		}
 		SDL_SetColors(sur, palette, 224, 32);

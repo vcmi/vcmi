@@ -110,13 +110,13 @@ void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
 
 CObjectHandler::CObjectHandler()
 {
-    logGlobal->traceStream() << "\t\tReading resources prices ";
+	logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
 	for(const JsonNode &price : config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
-    logGlobal->traceStream() << "\t\tDone loading resource prices!";
+	logGlobal->traceStream() << "\t\tDone loading resource prices!";
 }
 
 PlayerColor CGObjectInstance::getOwner() const
