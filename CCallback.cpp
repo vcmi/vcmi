@@ -66,7 +66,8 @@ int CCallback::selectionMade(int selection, QueryID queryID)
 
 void CCallback::recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level/*=-1*/)
 {
-	if(player!=obj->tempOwner  &&  obj->ID != Obj::WAR_MACHINE_FACTORY)
+	// TODO exception for neutral dwellings shouldn't be hardcoded
+	if(player != obj->tempOwner && obj->ID != Obj::WAR_MACHINE_FACTORY && obj->ID != Obj::REFUGEE_CAMP)
 		return;
 
 	RecruitCreatures pack(obj->id, dst->id, ID, amount, level);
