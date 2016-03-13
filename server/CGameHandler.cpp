@@ -2787,8 +2787,8 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		}
 	}
 
-	//Performs stuff that has to be done after new building is built
-	auto processBuiltStructure = [t, this](const BuildingID buildingID)
+	//Performs stuff that has to be done before new building is built
+	auto processBeforeBuiltStructure = [t, this](const BuildingID buildingID)
 	{
 		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
 		{
@@ -2817,8 +2817,14 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		{
 			setPortalDwelling(t);
 		}
+	};
 
-		if(buildingID <= BuildingID::MAGES_GUILD_5) //it's mage guild
+	//Performs stuff that has to be done after new building is built
+	auto processAfterBuiltStructure = [t, this](const BuildingID buildingID)
+	{
+		if(buildingID <= BuildingID::MAGES_GUILD_5 || //it's mage guild
+			(t->subID == ETownType::TOWER && buildingID == BuildingID::LIBRARY) ||
+			(t->subID == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
 			if(t->visitingHero)
 				giveSpells(t,t->visitingHero);
@@ -2869,9 +2875,9 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		}
 	}
 
-	//Other post-built events
+	// FIXME: it's done before NewStructures applied because otherwise town window wont be properly updated on client. That should be actually fixed on client and not on server.
 	for(auto builtID : ns.bid)
-		processBuiltStructure(builtID);
+		processBeforeBuiltStructure(builtID);
 
 	//Take cost
 	if (!force)
@@ -2884,6 +2890,10 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 
 	//We know what has been built, appluy changes. Do this as final step to properly update town window
 	sendAndApply(&ns);
+
+	//Other post-built events. To some logic like giving spells to work gamestate changes for new building must be already in place!
+	for(auto builtID : ns.bid)
+		processAfterBuiltStructure(builtID);
 
 	// now when everything is built - reveal tiles for lookout tower
 	FoWChange fw;
