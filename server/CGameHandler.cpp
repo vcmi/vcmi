@@ -1892,27 +1892,31 @@ void CGameHandler::checkBattleStateChanges()
 	}
 }
 
-void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h )
+void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 {
 	if(!h->hasSpellbook())
 		return; //hero hasn't spellbook
 	ChangeSpells cs;
 	cs.hid = h->id;
 	cs.learn = true;
-	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(SecondarySkill::WISDOM)+2);i++)
+	if(t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX)) //Aurora Borealis
+		// Aurora Borealis give spells of all levels even if only level 1 mages guild built
+		for(int i = 0; i < h->getSecSkillLevel(SecondarySkill::WISDOM)+2; i++)
 		{
 			std::vector<SpellID> spells;
-			getAllowedSpells(spells, i);
-			for (auto & spell : spells)
+			getAllowedSpells(spells, i+1);
+			for(auto & spell : spells)
 				cs.spells.insert(spell);
 		}
-		else
+	}
+	else
+	{
+		for(int i = 0; i < std::min(t->mageGuildLevel(), h->getSecSkillLevel(SecondarySkill::WISDOM)+2); i++)
 		{
-			for(int j=0; j<t->spellsAtLevel(i+1,true) && j<t->spells.at(i).size(); j++)
+			for(int j = 0; j < t->spellsAtLevel(i+1, true) && j < t->spells.at(i).size(); j++)
 			{
-				if(!vstd::contains(h->spells,t->spells.at(i).at(j)))
+				if(!vstd::contains(h->spells, t->spells.at(i).at(j)))
 					cs.spells.insert(t->spells.at(i).at(j));
 			}
 		}
