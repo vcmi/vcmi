@@ -2836,9 +2836,11 @@ CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, cons
 
 CBattleInterface::SiegeHelper::~SiegeHelper()
 {
-	for(auto & elem : walls)
+	auto gateState = owner->curInt->cb->battleGetGateState();
+	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		SDL_FreeSurface(elem);
+		if(g != SiegeHelper::GATE || (gateState != EGateState::CLOSED && gateState != EGateState::BLOCKED))
+			SDL_FreeSurface(walls[g]);
 	}
 }
 
