@@ -2760,7 +2760,9 @@ void CBattleInterface::gateStateChanged(const EGateState state)
 		break;
 	}
 
-	SDL_FreeSurface(siegeH->walls[SiegeHelper::GATE]);
+	if(oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
+		SDL_FreeSurface(siegeH->walls[SiegeHelper::GATE]);
+
 	if(stateId != EWallState::NONE)
 		siegeH->walls[SiegeHelper::GATE] = BitmapHandler::loadBitmap(siegeH->getSiegeName(SiegeHelper::GATE, stateId));
 	if(playSound)
@@ -2827,7 +2829,8 @@ CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, cons
 {
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
+		if(g != SiegeHelper::GATE)
+			walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
 	}
 }
 
