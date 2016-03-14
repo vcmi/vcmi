@@ -988,6 +988,11 @@ const CGHeroInstance * CStack::getMyHero() const
 	return nullptr;
 }
 
+ui32 CStack::totalHelth() const
+{
+	return (MaxHealth() * (count-1)) + firstHPleft;
+}
+
 std::string CStack::nodeName() const
 {
 	std::ostringstream oss;

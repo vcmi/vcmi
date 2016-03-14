@@ -206,6 +206,7 @@ public:
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
+	ui32 totalHelth() const; // total health for all creatures in stack;
 
 	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, Bonus::LimitEffect limit = Bonus::NO_LIMIT)
 	{
