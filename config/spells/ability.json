@@ -320,7 +320,7 @@
 					"primarySkill" : {
 						"val" : -3,
 						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.attack",
+						"subtype" : "primSkill.defence",
 						"duration" : "PERMANENT",
 						"valueType" : "ADDITIVE_VALUE"
 					}
