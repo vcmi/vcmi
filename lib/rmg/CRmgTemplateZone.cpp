@@ -1658,6 +1658,12 @@ void CRmgTemplateZone::createTreasures(CMapGenerator* gen)
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	boost::sort(treasureInfo, valueComparator);
 
+	//sort treasures by ascending value so we can stop checking treasures with too high value
+	boost::sort(possibleObjects, [](const ObjectInfo& oi1, const ObjectInfo& oi2) -> bool
+	{
+		return oi1.value < oi2.value;
+	});
+
 	int totalDensity = 0;
 	for (auto t : treasureInfo)
 	{
@@ -2199,7 +2205,9 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 	//roulette wheel
 	for (ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
 	{
-		if (oi.value >= minValue && oi.value <= maxVal && oi.maxPerZone > 0)
+		if (oi.value > maxVal)
+			break; //this assumes values are sorted in ascending order
+		if (oi.value >= minValue && oi.maxPerZone > 0)
 		{
 			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
 			int3 newVisitablePos = info.nextTreasurePos;
