@@ -1579,7 +1579,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 			}
 			if (!connectPath(gen, accessibleOffset, true))
 			{
-				logGlobal->warnStream() << boost::format("Failed to create path to required object at position %s, retrying") % pos;
+				logGlobal->traceStream() << boost::format("Failed to create path to required object at position %s, retrying") % pos;
 				continue;
 			}
 			else
