@@ -39,8 +39,11 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	auto tpl = new CRmgTemplate();
 	try
 	{
-		tpl->setName(name); //TODO?
 		const auto & templateNode = data;
+		if (!templateNode["name"].isNull())
+			tpl->setName(templateNode["name"].String()); //name can be customised. Allow duplicated names for different template versions.
+		else
+			tpl->setName(name); //identifier becomes default name
 
 		// Parse main template data
 		tpl->setMinSize(parseMapTemplateSize(templateNode["minSize"].String()));
