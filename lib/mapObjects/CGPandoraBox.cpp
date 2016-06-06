@@ -120,32 +120,45 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	InfoWindow iw;
 	iw.player = h->getOwner();
 
+	//TODO: reuse this code for Scholar skill
 	if(spells.size())
 	{
-		std::set<SpellID> spellsToGive;
-		iw.components.clear();
-		if (spells.size() > 1)
-		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, 188); //%s learns spells
-		}
-		else
-		{
-			iw.text.addTxt(MetaString::ADVOB_TXT, 184); //%s learns a spell
-		}
-		iw.text.addReplacement(h->name);
+		std::set<SpellID> spellsToGive;	
+
 		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->objects;
-		for(auto i=spells.cbegin(); i != spells.cend(); i++)
+		auto i = spells.cbegin();
+		while (i != spells.cend())
 		{
-			if ((*sp)[*i]->level <= h->getSecSkillLevel(SecondarySkill::WISDOM) + 2) //enough wisdom
+			iw.components.clear();
+			iw.text.clear();
+			spellsToGive.clear();
+
+			for (; i != spells.cend(); i++)
 			{
-				iw.components.push_back(Component(Component::SPELL,*i,0,0));
-				spellsToGive.insert(*i);
+				if ((*sp)[*i]->level <= h->getSecSkillLevel(SecondarySkill::WISDOM) + 2) //enough wisdom
+				{
+					iw.components.push_back(Component(Component::SPELL, *i, 0, 0));
+					spellsToGive.insert(*i);
+				}
+				if (spellsToGive.size() == 8) //display up to 8 spells at once
+				{
+					break;
+				}
 			}
-		}
-		if(!spellsToGive.empty())
-		{
-			cb->changeSpells(h,true,spellsToGive);
-			cb->showInfoDialog(&iw);
+			if (!spellsToGive.empty())
+			{
+				if (spellsToGive.size() > 1)
+				{
+					iw.text.addTxt(MetaString::ADVOB_TXT, 188); //%s learns spells
+				}
+				else
+				{
+					iw.text.addTxt(MetaString::ADVOB_TXT, 184); //%s learns a spell
+				}
+				iw.text.addReplacement(h->name);
+				cb->changeSpells(h, true, spellsToGive);
+				cb->showInfoDialog(&iw);
+			}
 		}
 	}
 
