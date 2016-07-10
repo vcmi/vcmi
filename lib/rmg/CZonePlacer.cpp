@@ -138,11 +138,18 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				auto otherZone = zones[con];
 				float3 otherZoneCenter = otherZone->getCenter();
 				float distance = pos.dist2d (otherZoneCenter);
-				float minDistance = (zone.second->getSize() + otherZone->getSize())/mapSize * zoneScale; //scale down to (0,1) coordinates
+				float minDistance = 0;
+
+				if (pos.z != otherZoneCenter.z)
+					minDistance = 0; //zones on different levels can overlap completely
+				else
+					minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize * zoneScale; //scale down to (0,1) coordinates
+
 				if (distance > minDistance)
 				{
 					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					forceVector += (((otherZoneCenter - pos)*(pos.z == otherZoneCenter.z ? (minDistance/distance) : 1)/ getDistance(distance))) * gravityConstant; //positive value
+					float overlapMultiplier = (pos.z == otherZoneCenter.z) ? (minDistance / distance) : 1.0f;
+					forceVector += (((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance))) * gravityConstant; //positive value
 					totalDistance += (distance - minDistance);
 				}
 			}
