@@ -507,37 +507,48 @@ void CMapGenerator::createConnections()
 		}
 		else //create subterranean gates between two zones
 		{
-			//find point on the path between zones
-			float3 offset (posB.x - posA.x, posB.y - posA.y, 0);
+			//find common tiles for both zones
 
-			float distance = posB.dist2d(posA);
-			vstd::amax (distance, 0.5f);
-			offset /= distance; //get unit vector
-			float3 vec (0, 0, 0);
-			//use reduced size of underground zone - make sure gate does not stand on rock
-			int3 tile = posA;
-			int3 otherTile = tile;
+			std::vector<int3> commonTiles;
+			auto tileSetA = zoneA->getTileInfo(),
+				tileSetB = zoneB->getTileInfo();
+			std::vector<int3> tilesA (tileSetA.begin(), tileSetA.end()),
+				tilesB (tileSetB.begin(), tileSetB.end());
+			boost::sort(tilesA),
+			boost::sort(tilesB);
+
+			boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
+			{
+				//ignore z coordinate
+				if (lhs.x < rhs.x)
+					return true;
+				else
+					return lhs.y < rhs.y;
+			});
+
+			boost::sort(commonTiles, [posA, posB](const int3 &lhs, const int3 &rhs) -> bool
+			{
+				//choose tiles which are equidistant to zone centers
+				return (std::abs<double>(posA.dist2dSQ(lhs) - posB.dist2dSQ(lhs)) < std::abs<double>((posA.dist2dSQ(rhs) - posB.dist2dSQ(rhs))));
+			});
 
 			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
 
 			bool stop = false;
-			while (!stop)
+			for (auto tile : commonTiles)
 			{
-				vec += offset; //this vector may extend beyond line between zone centers, in case they are directly over each other
-				tile = posA + int3(vec.x, vec.y, 0);
-				float distanceFromA = posA.dist2d(tile);
-				float distanceFromB = posB.dist2d(tile);
+				tile.z = posA.z;
+				int3 otherTile = tile;
+				otherTile.z = posB.z;
 
-				if (distanceFromA + distanceFromB > std::max<int>(zoneA->getSize() + zoneB->getSize(), distance))
-					break; //we are too far away to ever connect
+				float distanceFromA = posA.dist2d(tile);
+				float distanceFromB = posB.dist2d(otherTile);
 
 				//if zone is underground, gate must fit within its (reduced) radius
 				if (distanceFromA > 5 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
 					distanceFromB > 5 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
 				{
-					otherTile = tile;
-					otherTile.z = posB.z;
-
+					//all neightbouring tiles also belong to zone
 					if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
 					{
 						bool withinZone = true;
@@ -560,14 +571,13 @@ void CMapGenerator::createConnections()
 							{
 								zoneA->placeSubterraneanGate(this, tile, connection.getGuardStrength());
 								zoneB->placeSubterraneanGate(this, otherTile, connection.getGuardStrength());
-								stop = true; //we are done, go to next connection
+								guardPos = tile; //just any valid value
+								break; //we're done
 							}
 						}
 					}
 				}
 			}
-			if (stop)
-				continue;
 		}
 		if (!guardPos.valid())
 		{
