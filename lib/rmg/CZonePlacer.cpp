@@ -122,22 +122,23 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	};
 
 	std::map <CRmgTemplateZone *, float3> forces;
+	std::map <CRmgTemplateZone *, float3> totalForces; //  both attraction and pushback, overcomplicated?
 	std::map <CRmgTemplateZone *, float> distances;
 	std::map <CRmgTemplateZone *, float> overlaps;
 	while (zoneScale < 1) //until zones reach their desired size and fill the map tightly
 	{
+		//1. attract connected zones
 		for (auto zone : zones)
 		{
-			float3 forceVector(0,0,0);
+			float3 forceVector(0, 0, 0);
 			float3 pos = zone.second->getCenter();
 			float totalDistance = 0;
 
-			//attract connected zones
 			for (auto con : zone.second->getConnections())
 			{
 				auto otherZone = zones[con];
 				float3 otherZoneCenter = otherZone->getCenter();
-				float distance = pos.dist2d (otherZoneCenter);
+				float distance = pos.dist2d(otherZoneCenter);
 				float minDistance = 0;
 
 				if (pos.z != otherZoneCenter.z)
@@ -154,6 +155,21 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				}
 			}
 			distances[zone.second] = totalDistance;
+			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
+			forces[zone.second] = forceVector;
+			totalForces[zone.second] = forceVector; //replace old
+		}
+		//update positions 1
+		for (auto zone : forces)
+		{
+			zone.first->setCenter(zone.first->getCenter() + zone.second);
+		}
+
+		//2. separate overlaping zones
+		for (auto zone : zones)
+		{
+			float3 forceVector(0, 0, 0);
+			float3 pos = zone.second->getCenter();
 
 			float totalOverlap = 0;
 			//separate overlaping zones
@@ -203,8 +219,9 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			overlaps[zone.second] = totalOverlap;
 			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 			forces[zone.second] = forceVector;
+			totalForces[zone.second] += forceVector; //add
 		}
-		//update positions
+		//update positions 2
 		for (auto zone : forces)
 		{
 			zone.first->setCenter (zone.first->getCenter() + zone.second);
@@ -221,7 +238,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 			totalDistance += zone.second;
 			float overlap = overlaps[zone.first];
 			totalOverlap += overlap;
-			float ratio = (zone.second + overlap) / forces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
+			float ratio = (zone.second + overlap) / totalForces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
 			if (ratio > maxRatio)
 			{
 				maxRatio = ratio;
