@@ -518,6 +518,8 @@ void CMapGenerator::createConnections()
 			int3 tile = posA;
 			int3 otherTile = tile;
 
+			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
+
 			bool stop = false;
 			while (!stop)
 			{
@@ -551,11 +553,15 @@ void CMapGenerator::createConnections()
 								withinZone = false;
 						});
 
-						if (withinZone)
+						//make sure both gates has some free tiles below them
+						if (zoneA->getAccessibleOffset(this, sgt, tile).valid() && zoneB->getAccessibleOffset(this, sgt, otherTile).valid())
 						{
-							zoneA->placeSubterraneanGate(this, tile, connection.getGuardStrength());
-							zoneB->placeSubterraneanGate(this, otherTile, connection.getGuardStrength());
-							stop = true; //we are done, go to next connection
+							if (withinZone)
+							{
+								zoneA->placeSubterraneanGate(this, tile, connection.getGuardStrength());
+								zoneB->placeSubterraneanGate(this, otherTile, connection.getGuardStrength());
+								stop = true; //we are done, go to next connection
+							}
 						}
 					}
 				}

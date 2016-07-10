@@ -147,6 +147,8 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
+	bool isAccessibleFromAnywhere(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
+	int3 getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
 
 	void addTile (const int3 &pos);
 	void initFreeTiles (CMapGenerator* gen);
@@ -239,8 +241,6 @@ private:
 
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
-	bool isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
-	int3 getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos, int value);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
