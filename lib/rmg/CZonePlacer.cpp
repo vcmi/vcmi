@@ -230,14 +230,23 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		}
 		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.4f, Total overlap: %2.4f, Worst misplacement/movement ratio: %3.2f") % totalDistance % totalOverlap % maxRatio;
 
+		//check fitness function
+		bool improvement = false;
+		if (bestTotalDistance > 0 && bestTotalOverlap > 0)
+		{
+			if (totalDistance * totalOverlap < bestTotalDistance * bestTotalOverlap) //multiplication is better for auto-scaling, but stops working if one factor is 0
+				improvement = true;
+		}
+		else
+			if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
+				improvement = true;
+
 		//save best solution before drastic jump
-		if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
+		if (improvement)
 		{
 			bestTotalDistance = totalDistance;
 			bestTotalOverlap = totalOverlap;
-		//if (maxRatio < bestRatio)
-		//{
-		//	bestRatio = maxRatio;
+
 			for (auto zone : zones)
 				bestSolution[zone.second] = zone.second->getCenter();
 		}
