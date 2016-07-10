@@ -354,12 +354,17 @@ float3 CRmgTemplateZone::getCenter() const
 void CRmgTemplateZone::setCenter(const float3 &f)
 {
 	//limit boundaries to (0,1) square
-	//center = float3 (std::min(std::max(f.x, 0.f), 1.f), std::min(std::max(f.y, 0.f), 1.f), f.z);
 
 	//alternate solution - wrap zone around unitary square. If it doesn't fit on one side, will come out on the opposite side
 	center = f;
+
 	center.x = std::fmod(center.x, 1);
 	center.y = std::fmod(center.y, 1);
+
+	if (center.x < 0) //fmod seems to work only for positive numbers? we want to stay positive
+		center.x = 1 - std::abs(center.x);
+	if (center.y < 0)
+		center.y = 1 - std::abs(center.y);
 }
 
 
