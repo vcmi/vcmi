@@ -53,8 +53,6 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 	const float gravityConstant = 4e-3;
 	const float stiffnessConstant = 4e-3;
-	float zoneScale = 1.0f / std::sqrt(zones.size()); //zones starts small and then inflate. placing more zones is more difficult
-	const float inflateModifier = 1.02;
 
 	/*
 		let's assume we try to fit N circular zones with radius = size on a map
@@ -125,7 +123,9 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	std::map <CRmgTemplateZone *, float3> totalForces; //  both attraction and pushback, overcomplicated?
 	std::map <CRmgTemplateZone *, float> distances;
 	std::map <CRmgTemplateZone *, float> overlaps;
-	while (zoneScale < 1) //until zones reach their desired size and fill the map tightly
+
+	const int MAX_ITERATIONS = 100;
+	for (int i = 0; i < MAX_ITERATIONS; ++i) //until zones reach their desired size and fill the map tightly
 	{
 		//1. attract connected zones
 		for (auto zone : zones)
@@ -144,7 +144,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				if (pos.z != otherZoneCenter.z)
 					minDistance = 0; //zones on different levels can overlap completely
 				else
-					minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize * zoneScale; //scale down to (0,1) coordinates
+					minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
 
 				if (distance > minDistance)
 				{
@@ -181,11 +181,11 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 					continue;
 
 				float distance = pos.dist2d (otherZoneCenter);
-				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize * zoneScale;
+				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
 				if (distance < minDistance)
 				{
 					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
-					totalOverlap += (minDistance - distance) / (zoneScale * zoneScale); //overlapping of small zones hurts us more
+					totalOverlap += (minDistance - distance); //overlapping of small zones hurts us more
 				}
 			}
 
@@ -288,7 +288,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 					}
 				}
 				float3 vec = targetZone->getCenter() - ourCenter;
-				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) * zoneScale / mapSize;
+				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
 				logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
 					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
 				logGlobal->traceStream() << boost::format("direction is %s") % vec();
@@ -314,7 +314,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 					}
 				}
 				float3 vec = ourCenter - targetZone->getCenter();
-				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) * zoneScale / mapSize;
+				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
 				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
 					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
 				logGlobal->traceStream() << boost::format("direction is %s") % vec();
@@ -323,8 +323,6 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
 			}
 		}
-
-		zoneScale *= inflateModifier; //increase size of zones so they
 	}
 
 	logGlobal->traceStream() << boost::format("Best fitness reached: total distance %2.4f, total overlap %2.4f") % bestTotalDistance % bestTotalOverlap;
