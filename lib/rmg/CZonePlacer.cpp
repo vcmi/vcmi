@@ -39,6 +39,11 @@ int3 CZonePlacer::cords (const float3 f) const
 	return int3(std::max(0.f, (f.x * gen->map->width)-1), std::max(0.f, (f.y * gen->map->height-1)), f.z);
 }
 
+float CZonePlacer::getDistance (float distance) const
+{
+	return (distance ? distance * distance : 1e-6);
+}
+
 void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
 {
 	logGlobal->infoStream() << "Starting zone placement";
@@ -51,8 +56,8 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 	//gravity-based algorithm
 
-	const float gravityConstant = 4e-3;
-	const float stiffnessConstant = 4e-3;
+	gravityConstant = 4e-3;
+	stiffnessConstant = 4e-3;
 
 	/*
 		let's assume we try to fit N circular zones with radius = size on a map
@@ -98,7 +103,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	std::vector<float> prescaler = { 0, 0 };
 	for (int i = 0; i < 2; i++)
 		prescaler[i] = sqrt((width * height) / (totalSize[i] * 3.14f));
-	float mapSize = sqrt (width * height);
+	mapSize = sqrt (width * height);
 	for (auto zone : zones)
 	{
 		zone.second->setSize (zone.second->getSize() * prescaler[zone.second->getCenter().z]);
@@ -114,120 +119,31 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 	const int maxDistanceMovementRatio = zones.size() * zones.size(); //experimental - the more zones, the greater total distance expected
 
-	auto getDistance = [](float distance) -> float
-	{
-		return (distance ? distance * distance : 1e-6);
-	};
-
-	std::map <CRmgTemplateZone *, float3> forces;
-	std::map <CRmgTemplateZone *, float3> totalForces; //  both attraction and pushback, overcomplicated?
-	std::map <CRmgTemplateZone *, float> distances;
-	std::map <CRmgTemplateZone *, float> overlaps;
+	TForceVector forces;
+	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
+	TDistanceVector distances;
+	TDistanceVector overlaps;
 
 	const int MAX_ITERATIONS = 100;
 	for (int i = 0; i < MAX_ITERATIONS; ++i) //until zones reach their desired size and fill the map tightly
 	{
 		//1. attract connected zones
-		for (auto zone : zones)
-		{
-			float3 forceVector(0, 0, 0);
-			float3 pos = zone.second->getCenter();
-			float totalDistance = 0;
-
-			for (auto con : zone.second->getConnections())
-			{
-				auto otherZone = zones[con];
-				float3 otherZoneCenter = otherZone->getCenter();
-				float distance = pos.dist2d(otherZoneCenter);
-				float minDistance = 0;
-
-				if (pos.z != otherZoneCenter.z)
-					minDistance = 0; //zones on different levels can overlap completely
-				else
-					minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
-
-				if (distance > minDistance)
-				{
-					//WARNING: compiler used to 'optimize' that line so it never actually worked
-					float overlapMultiplier = (pos.z == otherZoneCenter.z) ? (minDistance / distance) : 1.0f;
-					forceVector += (((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance))) * gravityConstant; //positive value
-					totalDistance += (distance - minDistance);
-				}
-			}
-			distances[zone.second] = totalDistance;
-			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
-			forces[zone.second] = forceVector;
-			totalForces[zone.second] = forceVector; //replace old
-		}
-		//update positions 1
-		for (auto zone : forces)
-		{
-			zone.first->setCenter(zone.first->getCenter() + zone.second);
-		}
-
-		//2. separate overlaping zones
-		for (auto zone : zones)
-		{
-			float3 forceVector(0, 0, 0);
-			float3 pos = zone.second->getCenter();
-
-			float totalOverlap = 0;
-			//separate overlaping zones
-			for (auto otherZone : zones)
-			{
-				float3 otherZoneCenter = otherZone.second->getCenter();
-				//zones on different levels don't push away
-				if (zone == otherZone || pos.z != otherZoneCenter.z)
-					continue;
-
-				float distance = pos.dist2d (otherZoneCenter);
-				float minDistance = (zone.second->getSize() + otherZone.second->getSize())/mapSize;
-				if (distance < minDistance)
-				{
-					forceVector -= (((otherZoneCenter - pos)*(minDistance/(distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
-					totalOverlap += (minDistance - distance); //overlapping of small zones hurts us more
-				}
-			}
-
-			//move zones away from boundaries
-			//do not scale boundary distance - zones tend to get squashed
-			float size = zone.second->getSize() / mapSize;
-
-			auto pushAwayFromBoundary = [&forceVector, pos, &getDistance, size, stiffnessConstant, &totalOverlap](float x, float y)
-			{
-				float3 boundary = float3 (x, y, pos.z);
-				float distance = pos.dist2d(boundary);
-				totalOverlap += distance; //overlapping map boundaries is wrong as well
-				forceVector -= (boundary - pos) * (size - distance) / getDistance(distance) * stiffnessConstant; //negative value
-			};
-			if (pos.x < size)
-			{
-				pushAwayFromBoundary(0, pos.y);
-			}
-			if (pos.x > 1-size)
-			{
-				pushAwayFromBoundary(1, pos.y);
-			}
-			if (pos.y < size)
-			{
-				pushAwayFromBoundary(pos.x, 0);
-			}
-			if (pos.y > 1-size)
-			{
-				pushAwayFromBoundary(pos.x, 1);
-			}
-			overlaps[zone.second] = totalOverlap;
-			forceVector.z = 0; //operator - doesn't preserve z coordinate :/
-			forces[zone.second] = forceVector;
-			totalForces[zone.second] += forceVector; //add
-		}
-		//update positions 2
+		attractConnectedZones(zones, forces, distances);
 		for (auto zone : forces)
 		{
 			zone.first->setCenter (zone.first->getCenter() + zone.second);
+			totalForces[zone.first] = zone.second; //override
 		}
 
-		//now perform drastic movement of zone that is completely not linked
+		//2. separate overlapping zones
+		separateOverlappingZones(zones, forces, overlaps);
+		for (auto zone : forces)
+		{
+			zone.first->setCenter (zone.first->getCenter() + zone.second);
+			totalForces[zone.first] += zone.second; //accumulate
+		}
+
+		//3. now perform drastic movement of zone that is completely not linked
 		float maxRatio = 0;
 		CRmgTemplateZone * misplacedZone = nullptr;
 
@@ -245,28 +161,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				misplacedZone = zone.first;
 			}
 		}
-		logGlobal->traceStream() << boost::format("Total distance between zones in this iteration: %2.4f, Total overlap: %2.4f, Worst misplacement/movement ratio: %3.2f") % totalDistance % totalOverlap % maxRatio;
-
-		//check fitness function
-		bool improvement = false;
-		if (bestTotalDistance > 0 && bestTotalOverlap > 0)
-		{
-			if (totalDistance * totalOverlap < bestTotalDistance * bestTotalOverlap) //multiplication is better for auto-scaling, but stops working if one factor is 0
-				improvement = true;
-		}
-		else
-			if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
-				improvement = true;
-
-		//save best solution before drastic jump
-		if (improvement)
-		{
-			bestTotalDistance = totalDistance;
-			bestTotalOverlap = totalOverlap;
-
-			for (auto zone : zones)
-				bestSolution[zone.second] = zone.second->getCenter();
-		}
+		logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
 		
 		if (maxRatio > maxDistanceMovementRatio)
 		{
@@ -323,6 +218,42 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
 			}
 		}
+
+		//4. NOW after everything was moved, re-evaluate zone positions
+		attractConnectedZones(zones, forces, distances);
+		separateOverlappingZones(zones, forces, overlaps);
+
+		totalDistance = 0;
+		totalOverlap = 0;
+		for (auto zone : distances) //find most misplaced zone
+		{
+			totalDistance += zone.second;
+			float overlap = overlaps[zone.first];
+			totalOverlap += overlap;
+		}
+
+		//check fitness function
+		bool improvement = false;
+		if (bestTotalDistance > 0 && bestTotalOverlap > 0)
+		{
+			if (totalDistance * totalOverlap < bestTotalDistance * bestTotalOverlap) //multiplication is better for auto-scaling, but stops working if one factor is 0
+				improvement = true;
+		}
+		else
+			if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
+				improvement = true;
+
+		logGlobal->traceStream() << boost::format("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s") % totalDistance % totalOverlap % improvement;
+
+		//save best solution
+		if (improvement)
+		{
+			bestTotalDistance = totalDistance;
+			bestTotalOverlap = totalOverlap;
+
+			for (auto zone : zones)
+				bestSolution[zone.second] = zone.second->getCenter();
+		}
 	}
 
 	logGlobal->traceStream() << boost::format("Best fitness reached: total distance %2.4f, total overlap %2.4f") % bestTotalDistance % bestTotalOverlap;
@@ -330,6 +261,98 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	{
 		zone.second->setPos (cords (bestSolution[zone.second]));
 		logGlobal->traceStream() << boost::format ("Placed zone %d at relative position %s and coordinates %s") % zone.first % zone.second->getCenter() % zone.second->getPos();
+	}
+}
+
+void CZonePlacer::attractConnectedZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &distances)
+{
+	for (auto zone : zones)
+	{
+		float3 forceVector(0, 0, 0);
+		float3 pos = zone.second->getCenter();
+		float totalDistance = 0;
+
+		for (auto con : zone.second->getConnections())
+		{
+			auto otherZone = zones[con];
+			float3 otherZoneCenter = otherZone->getCenter();
+			float distance = pos.dist2d(otherZoneCenter);
+			float minDistance = 0;
+
+			if (pos.z != otherZoneCenter.z)
+				minDistance = 0; //zones on different levels can overlap completely
+			else
+				minDistance = (zone.second->getSize() + otherZone->getSize()) / mapSize; //scale down to (0,1) coordinates
+
+			if (distance > minDistance)
+			{
+				//WARNING: compiler used to 'optimize' that line so it never actually worked
+				float overlapMultiplier = (pos.z == otherZoneCenter.z) ? (minDistance / distance) : 1.0f;
+				forceVector += (((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance))) * gravityConstant; //positive value
+				totalDistance += (distance - minDistance);
+			}
+		}
+		distances[zone.second] = totalDistance;
+		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
+		forces[zone.second] = forceVector;
+	}
+}
+
+void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps)
+{
+	for (auto zone : zones)
+	{
+		float3 forceVector(0, 0, 0);
+		float3 pos = zone.second->getCenter();
+
+		float overlap = 0;
+		//separate overlaping zones
+		for (auto otherZone : zones)
+		{
+			float3 otherZoneCenter = otherZone.second->getCenter();
+			//zones on different levels don't push away
+			if (zone == otherZone || pos.z != otherZoneCenter.z)
+				continue;
+
+			float distance = pos.dist2d(otherZoneCenter);
+			float minDistance = (zone.second->getSize() + otherZone.second->getSize()) / mapSize;
+			if (distance < minDistance)
+			{
+				forceVector -= (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
+				overlap += (minDistance - distance); //overlapping of small zones hurts us more
+			}
+		}
+
+		//move zones away from boundaries
+		//do not scale boundary distance - zones tend to get squashed
+		float size = zone.second->getSize() / mapSize;
+
+		auto pushAwayFromBoundary = [&forceVector, pos, size, &overlap, this](float x, float y)
+		{
+			float3 boundary = float3(x, y, pos.z);
+			float distance = pos.dist2d(boundary);
+			overlap += std::max<float>(0, distance - size); //check if we're closer to map boundary than value of zone size
+			forceVector -= (boundary - pos) * (size - distance) / this->getDistance(distance) * this->stiffnessConstant; //negative value
+		};
+		if (pos.x < size)
+		{
+			pushAwayFromBoundary(0, pos.y);
+		}
+		if (pos.x > 1 - size)
+		{
+			pushAwayFromBoundary(1, pos.y);
+		}
+		if (pos.y < size)
+		{
+			pushAwayFromBoundary(pos.x, 0);
+		}
+		if (pos.y > 1 - size)
+		{
+			pushAwayFromBoundary(pos.x, 1);
+		}
+		overlaps[zone.second] = overlap;
+		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
+		forces[zone.second] = forceVector;
 	}
 }
 
