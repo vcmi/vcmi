@@ -34,6 +34,15 @@ namespace ETemplateZoneType
 		JUNCTION
 	};
 }
+namespace EObjectPlacingResult
+{
+	enum EObjectPlacingResult
+	{
+		SUCCESS,
+		CANNOT_FIT,
+		SEALED_OFF
+	};
+}
 class DLL_LINKAGE CTileInfo
 {
 public:
@@ -170,6 +179,7 @@ public:
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
 	void connectLater(CMapGenerator* gen);
+	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CMapGenerator* gen, CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
 	bool createRequiredObjects(CMapGenerator* gen);
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles1(CMapGenerator* gen);
