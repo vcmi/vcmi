@@ -436,7 +436,8 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 
 	auto compareByDistance = [](const Dpair & lhs, const Dpair & rhs) -> bool
 	{
-		return lhs.second < rhs.second;
+		//bigger zones have smaller distance
+		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
 	};
 
 	auto moveZoneToCenterOfMass = [](CRmgTemplateZone * zone) -> void

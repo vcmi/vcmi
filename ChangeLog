@@ -26,6 +26,7 @@ ADVETURE AI:
 RANDOM MAP GENERATOR:
 * Changed fractalization algorithm so it can create cycles
 * Zones will not have straight paths anymore, they are totally random
+* Generated zones will have different size depending on template setting
 * Added Thieves Guild random object (1 per zone)
 * Added Seer Huts with quests that match OH3
 * RMG will guarantee at least 100 pairs of Monoliths are available even if there are not enough different defs
