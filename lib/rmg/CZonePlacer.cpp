@@ -48,76 +48,36 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 {
 	logGlobal->infoStream() << "Starting zone placement";
 
-	int width = mapGenOptions->getWidth();
-	int height = mapGenOptions->getHeight();
+	width = mapGenOptions->getWidth();
+	height = mapGenOptions->getHeight();
 
 	auto zones = gen->getZones();
 	bool underground = mapGenOptions->getHasTwoLevels();
 
-	//gravity-based algorithm
+	/*
+	gravity-based algorithm
+
+	let's assume we try to fit N circular zones with radius = size on a map
+	*/
 
 	gravityConstant = 4e-3;
 	stiffnessConstant = 4e-3;
 
-	/*
-		let's assume we try to fit N circular zones with radius = size on a map
-
-		formula: sum((prescaler*n)^2)*pi = WH
-
-		prescaler = sqrt((WH)/(sum(n^2)*pi))
-	*/
-	std::vector<std::pair<TRmgTemplateZoneId, CRmgTemplateZone*>> zonesVector (zones.begin(), zones.end());
+	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
-	
+
 	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
-	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
-	bool undergroundFlag = false;
 
-	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
-
-	const float radius = 0.4f;
-	const float pi2 = 6.28f;
-
-	for (auto zone : zonesVector)
-	{
-		//even distribution for surface / underground zones. Surface zones always have priority.
-		int level = 0;
-		if (underground) //only then consider underground zones
-		{
-			if (zone.first == firstZone)
-			{
-				level = 0;
-			}
-			else
-			{
-				level = undergroundFlag;
-				undergroundFlag = !undergroundFlag; //toggle underground on/off
-			}
-		}
-
-		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
-		float randomAngle = rand->nextDouble(0, pi2);
-		zone.second->setCenter(float3(0.5f + std::sin(randomAngle) * radius, 0.5f + std::cos(randomAngle) * radius, level)); //place zones around circle
-	}
-	//prescale zones
-	std::vector<float> prescaler = { 0, 0 };
-	for (int i = 0; i < 2; i++)
-		prescaler[i] = sqrt((width * height) / (totalSize[i] * 3.14f));
-	mapSize = sqrt (width * height);
-	for (auto zone : zones)
-	{
-		zone.second->setSize (zone.second->getSize() * prescaler[zone.second->getCenter().z]);
-	}
+	//0. set zone sizes and surface / underground level
+	prepareZones(zones, zonesVector, underground, rand);
 
 	//gravity-based algorithm. connected zones attract, intersceting zones and map boundaries push back
 
 	//remember best solution
 	float bestTotalDistance = 1e10;
 	float bestTotalOverlap = 1e10;
-	//float bestRatio = 1e10;
-	std::map<CRmgTemplateZone *, float3> bestSolution;
 
-	const int maxDistanceMovementRatio = zones.size() * zones.size(); //experimental - the more zones, the greater total distance expected
+	std::map<CRmgTemplateZone *, float3> bestSolution;
 
 	TForceVector forces;
 	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
@@ -144,87 +104,15 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 		}
 
 		//3. now perform drastic movement of zone that is completely not linked
-		float maxRatio = 0;
-		CRmgTemplateZone * misplacedZone = nullptr;
 
-		float totalDistance = 0;
-		float totalOverlap = 0;
-		for (auto zone : distances) //find most misplaced zone
-		{
-			totalDistance += zone.second;
-			float overlap = overlaps[zone.first];
-			totalOverlap += overlap;
-			float ratio = (zone.second + overlap) / totalForces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
-			if (ratio > maxRatio)
-			{
-				maxRatio = ratio;
-				misplacedZone = zone.first;
-			}
-		}
-		logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
-		
-		if (maxRatio > maxDistanceMovementRatio)
-		{
-			CRmgTemplateZone * targetZone = nullptr;
-			float3 ourCenter = misplacedZone->getCenter();
-
-			if (totalDistance > totalOverlap)
-			{
-				//find most distant zone that should be attracted and move inside it
-				float maxDistance = 0;
-				for (auto con : misplacedZone->getConnections())
-				{
-					auto otherZone = zones[con];
-					float distance = otherZone->getCenter().dist2dSQ(ourCenter);
-					if (distance > maxDistance)
-					{
-						maxDistance = distance;
-						targetZone = otherZone;
-					}
-				}
-				float3 vec = targetZone->getCenter() - ourCenter;
-				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
-				logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
-					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
-				logGlobal->traceStream() << boost::format("direction is %s") % vec();
-
-				misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
-				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
-			}
-			else
-			{
-				float maxOverlap = 0;
-				for (auto otherZone : zones)
-				{
-					float3 otherZoneCenter = otherZone.second->getCenter();
-
-					if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
-						continue;
-
-					float distance = otherZoneCenter.dist2dSQ(ourCenter);
-					if (distance > maxOverlap)
-					{
-						maxOverlap = distance;
-						targetZone = otherZone.second;
-					}
-				}
-				float3 vec = ourCenter - targetZone->getCenter();
-				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
-					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
-				logGlobal->traceStream() << boost::format("direction is %s") % vec();
-
-				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
-			}
-		}
+		moveOneZone(zones, totalForces, distances, overlaps);
 
 		//4. NOW after everything was moved, re-evaluate zone positions
 		attractConnectedZones(zones, forces, distances);
 		separateOverlappingZones(zones, forces, overlaps);
 
-		totalDistance = 0;
-		totalOverlap = 0;
+		float totalDistance = 0;
+		float totalOverlap = 0;
 		for (auto zone : distances) //find most misplaced zone
 		{
 			totalDistance += zone.second;
@@ -261,6 +149,78 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	{
 		zone.second->setPos (cords (bestSolution[zone.second]));
 		logGlobal->traceStream() << boost::format ("Placed zone %d at relative position %s and coordinates %s") % zone.first % zone.second->getCenter() % zone.second->getPos();
+	}
+}
+
+void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
+{	
+	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
+
+	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
+
+	const float radius = 0.4f;
+	const float pi2 = 6.28f;
+
+	int zonesOnLevel[2] = { 0, 0 };
+
+	//even distribution for surface / underground zones. Surface zones always have priority.
+
+	TZoneVector zonesToPlace;
+	std::map<TRmgTemplateZoneId, int> levels;
+
+	//first pass - determine fixed surface for zones
+	for (auto zone : zonesVector)
+	{
+		//TODO: place players depending on their factions
+		if (zone.first == firstZone)
+		{
+			zonesOnLevel[0]++;
+			levels[zone.first] = 0;
+		}
+		else
+		{
+			zonesToPlace.push_back(zone);
+		}
+	}
+	for (auto zone : zonesToPlace)
+	{
+		if (underground) //only then consider underground zones
+		{
+			int level = 0;
+			if (zonesOnLevel[1] < zonesOnLevel[0]) //only if there are less underground zones
+				level = 1;
+			else
+				level = 0;
+
+			levels[zone.first] = level;
+			zonesOnLevel[level]++;
+		}
+		else
+			levels[zone.first] = 0;
+	}
+	for (auto zone : zonesVector)
+	{
+		int level = levels[zone.first];
+		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
+		float randomAngle = rand->nextDouble(0, pi2);
+		zone.second->setCenter(float3(0.5f + std::sin(randomAngle) * radius, 0.5f + std::cos(randomAngle) * radius, level)); //place zones around circle
+	}
+
+	/*
+	prescale zones
+
+	formula: sum((prescaler*n)^2)*pi = WH
+
+	prescaler = sqrt((WH)/(sum(n^2)*pi))
+	*/
+
+	std::vector<float> prescaler = { 0, 0 };
+	for (int i = 0; i < 2; i++)
+		prescaler[i] = sqrt((width * height) / (totalSize[i] * 3.14f));
+	mapSize = sqrt(width * height);
+	for (auto zone : zones)
+	{
+		zone.second->setSize(zone.second->getSize() * prescaler[zone.second->getCenter().z]);
 	}
 }
 
@@ -353,6 +313,85 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		overlaps[zone.second] = overlap;
 		forceVector.z = 0; //operator - doesn't preserve z coordinate :/
 		forces[zone.second] = forceVector;
+	}
+}
+
+void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDistanceVector &distances, TDistanceVector &overlaps)
+{
+	float maxRatio = 0;
+	const int maxDistanceMovementRatio = zones.size() * zones.size(); //experimental - the more zones, the greater total distance expected
+	CRmgTemplateZone * misplacedZone = nullptr;
+
+	float totalDistance = 0;
+	float totalOverlap = 0;
+	for (auto zone : distances) //find most misplaced zone
+	{
+		totalDistance += zone.second;
+		float overlap = overlaps[zone.first];
+		totalOverlap += overlap;
+		float ratio = (zone.second + overlap) / totalForces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
+		if (ratio > maxRatio)
+		{
+			maxRatio = ratio;
+			misplacedZone = zone.first;
+		}
+	}
+	logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
+
+	if (maxRatio > maxDistanceMovementRatio)
+	{
+		CRmgTemplateZone * targetZone = nullptr;
+		float3 ourCenter = misplacedZone->getCenter();
+
+		if (totalDistance > totalOverlap)
+		{
+			//find most distant zone that should be attracted and move inside it
+			float maxDistance = 0;
+			for (auto con : misplacedZone->getConnections())
+			{
+				auto otherZone = zones[con];
+				float distance = otherZone->getCenter().dist2dSQ(ourCenter);
+				if (distance > maxDistance)
+				{
+					maxDistance = distance;
+					targetZone = otherZone;
+				}
+			}
+			float3 vec = targetZone->getCenter() - ourCenter;
+			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
+			logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
+				misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
+			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+
+			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
+			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+		}
+		else
+		{
+			float maxOverlap = 0;
+			for (auto otherZone : zones)
+			{
+				float3 otherZoneCenter = otherZone.second->getCenter();
+
+				if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
+					continue;
+
+				float distance = otherZoneCenter.dist2dSQ(ourCenter);
+				if (distance > maxOverlap)
+				{
+					maxOverlap = distance;
+					targetZone = otherZone.second;
+				}
+			}
+			float3 vec = ourCenter - targetZone->getCenter();
+			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+			logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
+				misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
+			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+
+			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+		}
 	}
 }
 

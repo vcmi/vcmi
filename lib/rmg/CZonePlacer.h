@@ -21,6 +21,7 @@ class CRandomGenerator;
 class CRmgTemplateZone;
 class CMapGenerator;
 
+typedef std::vector<std::pair<TRmgTemplateZoneId, CRmgTemplateZone*>> TZoneVector;
 typedef std::map <TRmgTemplateZoneId, CRmgTemplateZone*> TZoneMap;
 typedef std::map <CRmgTemplateZone *, float3> TForceVector;
 typedef std::map <CRmgTemplateZone *, float> TDistanceVector;
@@ -46,12 +47,16 @@ public:
 	float getDistance(float distance) const; //additional scaling without 0 divison
 	~CZonePlacer();
 
+	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
 	void attractConnectedZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &distances);
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
+	void moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDistanceVector &distances, TDistanceVector &overlaps);
 	void placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand);
 	void assignZones(const CMapGenOptions * mapGenOptions);
 
 private:
+	int width;
+	int height;
 	//metric coefiicients
 	float scaleX;
 	float scaleY;
