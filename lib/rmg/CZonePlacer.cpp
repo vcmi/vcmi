@@ -475,8 +475,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
-				boost::sort(distances, compareByDistance);
-				distances.front().first->addTile(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->addTile(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -504,8 +503,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 					else
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
-				boost::sort (distances, compareByDistance);
-				distances.front().first->addTile(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->addTile(pos); //closest tile belongs to zone
 			}
 		}
 	}
