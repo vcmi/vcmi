@@ -470,7 +470,6 @@ void CMapGenerator::createConnections()
 		//rearrange tiles in random order
 		auto tilesCopy = zoneA->getTileInfo();
 		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
-		RandomGeneratorUtil::randomShuffle(tiles, rand);
 
 		int3 guardPos(-1,-1,-1);
 
@@ -481,20 +480,36 @@ void CMapGenerator::createConnections()
 
 		if (posA.z == posB.z)
 		{
-			for (auto tile : tiles)
+			std::vector<int3> middleTiles;
+			for (auto tile : tilesCopy)
 			{
 				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
 					continue;
-				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, this](int3 &pos) //must be direct since paths also also generated between direct neighbours
+				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, &middleTiles, this](int3 &pos) //must be direct since paths also also generated between direct neighbours
 				{
-					//if (vstd::contains(otherZoneTiles, pos) && !this->isBlocked(pos))
 					if (vstd::contains(otherZoneTiles, pos))
-						guardPos = tile;
+						middleTiles.push_back(tile);
 				});
+			}
+			boost::sort(middleTiles, [](int3 &lhs, int3 &rhs) -> bool
+			{
+				//choose tiles with both corrdinates in the middle
+				return lhs.x + lhs.y < rhs.x + rhs.y;
+			});
+
+			//remove 1/4 tiles from each side - path shoudl cross zone borders at smooth angle
+			size_t removedCount = middleTiles.size() / 4; //rounded down
+			middleTiles.erase(middleTiles.end() - removedCount, middleTiles.end());
+			middleTiles.erase(middleTiles.begin(), middleTiles.begin() + removedCount);
+
+			RandomGeneratorUtil::randomShuffle(middleTiles, rand);
+			for (auto tile : middleTiles)
+			{
+				guardPos = tile;
 				if (guardPos.valid())
 				{
-					setOccupied (guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-					zoneA->addMonster (this, guardPos, connection.getGuardStrength(), false, true);
+					setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
+					zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
 					zoneA->crunchPath(this, guardPos, posA, true, zoneA->getFreePaths()); //make connection towards our zone center
 					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center
