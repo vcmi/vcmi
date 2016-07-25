@@ -491,14 +491,21 @@ void CMapGenerator::createConnections()
 						middleTiles.push_back(tile);
 				});
 			}
-			boost::sort(middleTiles, [](int3 &lhs, int3 &rhs) -> bool
+
+			//find tiles with minimum manhattan distance from center of the mass of zone border
+			size_t tilesCount = middleTiles.size() ? middleTiles.size() : 1;
+			int3 middleTile = std::accumulate(middleTiles.begin(), middleTiles.end(), int3(0, 0, 0));
+			middleTile.x /= tilesCount;
+			middleTile.y /= tilesCount;
+			middleTile.z /= tilesCount; //TODO: implement division operator for int3?
+			boost::sort(middleTiles, [middleTile](int3 &lhs, int3 &rhs) -> bool
 			{
 				//choose tiles with both corrdinates in the middle
-				return lhs.x + lhs.y < rhs.x + rhs.y;
+				return lhs.mandist2d(middleTile) < rhs.mandist2d(middleTile);
 			});
 
-			//remove 1/4 tiles from each side - path shoudl cross zone borders at smooth angle
-			size_t removedCount = middleTiles.size() / 4; //rounded down
+			//remove 1/4 tiles from each side - path should cross zone borders at smooth angle
+			size_t removedCount = tilesCount / 4; //rounded down
 			middleTiles.erase(middleTiles.end() - removedCount, middleTiles.end());
 			middleTiles.erase(middleTiles.begin(), middleTiles.begin() + removedCount);
 
