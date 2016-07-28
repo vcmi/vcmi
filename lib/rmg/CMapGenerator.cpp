@@ -498,7 +498,7 @@ void CMapGenerator::createConnections()
 			middleTile.x /= tilesCount;
 			middleTile.y /= tilesCount;
 			middleTile.z /= tilesCount; //TODO: implement division operator for int3?
-			boost::sort(middleTiles, [middleTile](int3 &lhs, int3 &rhs) -> bool
+			boost::sort(middleTiles, [middleTile](const int3 &lhs, const int3 &rhs) -> bool
 			{
 				//choose tiles with both corrdinates in the middle
 				return lhs.mandist2d(middleTile) < rhs.mandist2d(middleTile);
@@ -556,7 +556,6 @@ void CMapGenerator::createConnections()
 
 			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
 
-			bool stop = false;
 			for (auto tile : commonTiles)
 			{
 				tile.z = posA.z;
