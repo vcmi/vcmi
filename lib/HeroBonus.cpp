@@ -105,6 +105,12 @@ BonusList& BonusList::operator=(const BonusList &bonusList)
 	return *this;
 }
 
+void BonusList::changed()
+{
+    if(belongsToTree)
+		CBonusSystemNode::treeHasChanged();
+}
+
 int BonusList::totalValue() const
 {
 	int base = 0;
@@ -258,24 +264,19 @@ void BonusList::eliminateDuplicates()
 void BonusList::push_back(Bonus* const &x)
 {
 	bonuses.push_back(x);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 std::vector<Bonus*>::iterator BonusList::erase(const int position)
 {
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 	return bonuses.erase(bonuses.begin() + position);
 }
 
 void BonusList::clear()
 {
 	bonuses.clear();
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
@@ -284,26 +285,20 @@ std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
 	if(itr == bonuses.end())
 		return false;
 	bonuses.erase(itr);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 	return true;
 }
 
 void BonusList::resize(std::vector<Bonus*>::size_type sz, Bonus* c )
 {
 	bonuses.resize(sz, c);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x)
 {
 	bonuses.insert(position, n, x);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const

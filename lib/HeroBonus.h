@@ -412,7 +412,7 @@ private:
 
 	TInternalContainer bonuses;
 	bool belongsToTree;
-
+	void changed();
 
 public:
 	typedef TInternalContainer::const_reference const_reference;
@@ -496,10 +496,7 @@ public:
 	}
 
 	friend class CBonusSystemNode;
-	//friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
-	//friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
 };
-
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
 // Don't touch/call this functions
@@ -1011,23 +1008,5 @@ template <class InputIterator>
 void BonusList::insert(const int position, InputIterator first, InputIterator last)
 {
 	bonuses.insert(bonuses.begin() + position, first, last);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
-
-// Extensions for BOOST_FOREACH to enable iterating of BonusList objects
-/*namespace boost
-{
-	template<>
-	struct range_mutable_iterator<BonusList>
-	{
-		typedef std::vector<Bonus*>::iterator type;
-	};
-
-	template<>
-	struct range_const_iterator<BonusList>
-	{
-		typedef std::vector<Bonus*>::const_iterator type;
-	};
-}*/
