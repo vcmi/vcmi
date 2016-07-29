@@ -2924,6 +2924,25 @@ PlayerState::PlayerState()
 	setNodeType(PLAYER);
 }
 
+PlayerState::PlayerState(PlayerState && other):
+	CBonusSystemNode(std::move(other)),
+	color(other.color),
+	human(other.human),
+	team(other.team),
+	resources(other.resources),
+	enteredWinningCheatCode(other.enteredWinningCheatCode),
+	enteredLosingCheatCode(other.enteredLosingCheatCode),
+	status(other.status),
+	daysWithoutCastle(other.daysWithoutCastle)
+{
+	std::swap(visitedObjects, other.visitedObjects);
+	std::swap(heroes, other.heroes);
+	std::swap(towns, other.towns);
+	std::swap(availableHeroes, other.availableHeroes);
+	std::swap(dwellings, other.dwellings);
+	std::swap(quests, other.quests);
+}
+
 std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
@@ -3222,6 +3241,15 @@ TeamState::TeamState()
 {
 	setNodeType(TEAM);
 }
+
+TeamState::TeamState(TeamState && other):
+	CBonusSystemNode(std::move(other)),
+	id(other.id)
+{
+	std::swap(players, other.players);
+	std::swap(fogOfWarMap, other.fogOfWarMap);
+}
+
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {

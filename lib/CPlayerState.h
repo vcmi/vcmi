@@ -35,6 +35,8 @@ public:
 	boost::optional<ui8> daysWithoutCastle;
 
 	PlayerState();
+	PlayerState(PlayerState && other);
+
 	std::string nodeName() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -56,6 +58,7 @@ public:
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 
 	TeamState();
+	TeamState(TeamState && other);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

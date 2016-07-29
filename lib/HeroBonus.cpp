@@ -709,6 +709,26 @@ CBonusSystemNode::CBonusSystemNode() : bonuses(true), exportedBonuses(true), nod
 {
 }
 
+CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
+	bonuses(other.bonuses),
+	exportedBonuses(other.exportedBonuses),
+	nodeType(other.nodeType),
+	description(other.description),
+	cachedLast(0)
+{
+	//todo: move constructor for bonuslist
+	bonuses.belongsToTree = true;
+	exportedBonuses.belongsToTree = true;
+
+	std::swap(parents, other.parents);
+	std::swap(children, other.children);
+
+	//TODO: move cache
+
+	//cachedBonuses
+	//cachedRequests
+}
+
 CBonusSystemNode::~CBonusSystemNode()
 {
 	detachFromAll();

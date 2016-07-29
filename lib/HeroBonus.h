@@ -495,6 +495,7 @@ public:
 		return bonuses.end();
 	}
 
+	friend class CBonusSystemNode;
 	//friend inline std::vector<Bonus*>::iterator range_begin(BonusList & x);
 	//friend inline std::vector<Bonus*>::iterator range_end(BonusList & x);
 };
@@ -647,8 +648,8 @@ private:
 	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 
 public:
-
 	explicit CBonusSystemNode();
+	CBonusSystemNode(CBonusSystemNode && other);
 	virtual ~CBonusSystemNode();
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
