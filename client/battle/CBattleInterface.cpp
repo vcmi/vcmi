@@ -2760,7 +2760,7 @@ void CBattleInterface::gateStateChanged(const EGateState state)
 		break;
 	}
 
-	if(oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
+	if(oldState != EGateState::NONE && oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
 		SDL_FreeSurface(siegeH->walls[SiegeHelper::GATE]);
 
 	if(stateId != EWallState::NONE)
@@ -2839,7 +2839,7 @@ CBattleInterface::SiegeHelper::~SiegeHelper()
 	auto gateState = owner->curInt->cb->battleGetGateState();
 	for(int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
-		if(g != SiegeHelper::GATE || (gateState != EGateState::CLOSED && gateState != EGateState::BLOCKED))
+		if(g != SiegeHelper::GATE || (gateState != EGateState::NONE && gateState != EGateState::CLOSED && gateState != EGateState::BLOCKED))
 			SDL_FreeSurface(walls[g]);
 	}
 }
