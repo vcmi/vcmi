@@ -171,11 +171,45 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	//first pass - determine fixed surface for zones
 	for (auto zone : zonesVector)
 	{
-		//TODO: place players depending on their factions
-		if (zone.first == firstZone)
+		//place players depending on their factions
+		if (boost::optional<int> owner = zone.second->getOwner() && underground)
 		{
-			zonesOnLevel[0]++;
-			levels[zone.first] = 0;
+			auto player = PlayerColor(*owner);
+			auto playerSettings = gen->mapGenOptions->getPlayersSettings();
+			si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
+			if (vstd::contains(playerSettings, player))
+				faction = playerSettings[player].getStartingTown();
+			else
+				logGlobal->errorStream() <<boost::format("Can't find info for player %d (starting zone)") % player.getNum();
+
+			if (faction == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) //TODO: check this after a town has already been randomized
+				zonesToPlace.push_back(zone);
+			else
+			{
+				switch (VLC->townh->factions[faction]->nativeTerrain)
+				{
+				case ETerrainType::GRASS:
+				case ETerrainType::SWAMP:
+				case ETerrainType::SNOW:
+				case ETerrainType::SAND:
+				case ETerrainType::ROUGH:
+					//surface
+					zonesOnLevel[0]++;
+					levels[zone.first] = 0;
+					break;
+				case ETerrainType::LAVA:
+				case ETerrainType::SUBTERRANEAN:
+					//underground
+					zonesOnLevel[1]++;
+					levels[zone.first] = 1;
+					break;
+				case ETerrainType::DIRT:
+				default:
+					//any / random
+					zonesToPlace.push_back(zone);
+					break;
+				}
+			}
 		}
 		else
 		{
