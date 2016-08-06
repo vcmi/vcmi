@@ -170,50 +170,54 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 
 	//first pass - determine fixed surface for zones
 	for (auto zone : zonesVector)
-	{
-		//place players depending on their factions
-		if (boost::optional<int> owner = zone.second->getOwner() && underground)
+	{	
+		if (!underground) //this step is ignored
+			zonesToPlace.push_back(zone);
+		else //place players depending on their factions
 		{
-			auto player = PlayerColor(*owner);
-			auto playerSettings = gen->mapGenOptions->getPlayersSettings();
-			si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
-			if (vstd::contains(playerSettings, player))
-				faction = playerSettings[player].getStartingTown();
-			else
-				logGlobal->errorStream() <<boost::format("Can't find info for player %d (starting zone)") % player.getNum();
-
-			if (faction == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) //TODO: check this after a town has already been randomized
-				zonesToPlace.push_back(zone);
-			else
+			if (boost::optional<int> owner = zone.second->getOwner())
 			{
-				switch (VLC->townh->factions[faction]->nativeTerrain)
-				{
-				case ETerrainType::GRASS:
-				case ETerrainType::SWAMP:
-				case ETerrainType::SNOW:
-				case ETerrainType::SAND:
-				case ETerrainType::ROUGH:
-					//surface
-					zonesOnLevel[0]++;
-					levels[zone.first] = 0;
-					break;
-				case ETerrainType::LAVA:
-				case ETerrainType::SUBTERRANEAN:
-					//underground
-					zonesOnLevel[1]++;
-					levels[zone.first] = 1;
-					break;
-				case ETerrainType::DIRT:
-				default:
-					//any / random
+				auto player = PlayerColor(*owner - 1);
+				auto playerSettings = gen->mapGenOptions->getPlayersSettings();
+				si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
+				if (vstd::contains(playerSettings, player))
+					faction = playerSettings[player].getStartingTown();
+				else
+					logGlobal->errorStream() << boost::format("Can't find info for player %d (starting zone)") % player.getNum();
+
+				if (faction == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) //TODO: check this after a town has already been randomized
 					zonesToPlace.push_back(zone);
-					break;
+				else
+				{
+					switch (VLC->townh->factions[faction]->nativeTerrain)
+					{
+					case ETerrainType::GRASS:
+					case ETerrainType::SWAMP:
+					case ETerrainType::SNOW:
+					case ETerrainType::SAND:
+					case ETerrainType::ROUGH:
+						//surface
+						zonesOnLevel[0]++;
+						levels[zone.first] = 0;
+						break;
+					case ETerrainType::LAVA:
+					case ETerrainType::SUBTERRANEAN:
+						//underground
+						zonesOnLevel[1]++;
+						levels[zone.first] = 1;
+						break;
+					case ETerrainType::DIRT:
+					default:
+						//any / random
+						zonesToPlace.push_back(zone);
+						break;
+					}
 				}
 			}
-		}
-		else
-		{
-			zonesToPlace.push_back(zone);
+			else //no starting zone or no underground altogether
+			{
+				zonesToPlace.push_back(zone);
+			}
 		}
 	}
 	for (auto zone : zonesToPlace)

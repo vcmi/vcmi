@@ -156,6 +156,7 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 CRmgTemplateZone::CRmgTemplateZone() :
 	id(0),
 	type(ETemplateZoneType::PLAYER_START),
+	owner(boost::none),
 	size(1),
 	townsAreSameType(false),
 	matchTerrainToTown(true),
