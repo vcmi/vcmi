@@ -2217,7 +2217,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 {
 	//int objectsVisitableFromBottom = 0; //for debug
 
-	std::vector<std::pair<ui32, ObjectInfo>> tresholds;
+	std::vector<std::pair<ui32, ObjectInfo>> thresholds;
 	ui32 total = 0;
 
 	//calculate actual treasure value range based on remaining value
@@ -2320,13 +2320,13 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 
 			total += oi.probability;
 			//assert (oi.value > 0);
-			tresholds.push_back (std::make_pair (total, oi));
+			thresholds.push_back (std::make_pair (total, oi));
 		}
 	}
 
 	//logGlobal->infoStream() << boost::format ("Number of objects visitable  from bottom: %d") % objectsVisitableFromBottom;
 
-	if (tresholds.empty())
+	if (thresholds.empty())
 	{
 		ObjectInfo oi;
 		//Generate pandora Box with gold if the value is extremely high
@@ -2359,12 +2359,13 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 	{
 		int r = gen->rand.nextInt (1, total);
 
-		for (auto t : tresholds)
+		//binary search = fastest
+		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
+			[](const std::pair<ui32, ObjectInfo> &rhs, const int lhs)->bool
 		{
-			if (r <= t.first)
-				return t.second;
-		}
-		assert (0); //we should never be here
+			return rhs.first < lhs;
+		});
+		return it->second;
 	}
 
 	return ObjectInfo(); // unreachable
