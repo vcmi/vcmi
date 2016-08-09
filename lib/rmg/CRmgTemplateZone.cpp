@@ -2326,7 +2326,8 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 				continue;
 
 			total += oi.probability;
-			//assert (oi.value > 0);
+			
+			//FIXME: apparently this is quite expensive operation
 			thresholds.push_back (std::make_pair (total, oi));
 		}
 	}

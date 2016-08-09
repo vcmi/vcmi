@@ -934,6 +934,7 @@ void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)
 
 CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const int3 & centerPos) const
 {
+	//TODO: this is very expensive function for RMG, needs optimization
 	InvalidTiles tiles;
 	auto centerTerType = map->getTile(centerPos).terType;
 	auto rect = extendTileAround(centerPos);

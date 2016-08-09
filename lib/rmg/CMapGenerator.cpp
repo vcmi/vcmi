@@ -479,6 +479,8 @@ void CMapGenerator::createConnections()
 
 		int3 posA = zoneA->getPos();
 		int3 posB = zoneB->getPos();
+		auto zoneAid = zoneA->getId();
+		auto zoneBid = zoneB->getId();
 
 		if (posA.z == posB.z)
 		{
@@ -487,9 +489,9 @@ void CMapGenerator::createConnections()
 			{
 				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
 					continue;
-				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, &middleTiles, this](int3 &pos) //must be direct since paths also also generated between direct neighbours
+				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, &middleTiles, this, zoneBid](int3 &pos) //must be direct since paths also also generated between direct neighbours
 				{
-					if (vstd::contains(otherZoneTiles, pos))
+					if (getZoneID(pos) == zoneBid)
 						middleTiles.push_back(tile);
 				});
 			}
@@ -572,18 +574,18 @@ void CMapGenerator::createConnections()
 					distanceFromB > 5 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
 				{
 					//all neightbouring tiles also belong to zone
-					if (vstd::contains(tiles, tile) && vstd::contains(otherZoneTiles, otherTile))
+					if (getZoneID(tile) ==  zoneAid && getZoneID(otherTile) == zoneBid)
 					{
 						bool withinZone = true;
 
-						foreach_neighbour (tile, [&withinZone, &tiles](int3 &pos)
+						foreach_neighbour (tile, [&withinZone, &tiles, zoneAid, this](int3 &pos)
 						{
-							if (!vstd::contains(tiles, pos))
+							if (getZoneID(pos) != zoneAid)
 								withinZone = false;
 						});
-						foreach_neighbour (otherTile, [&withinZone, &otherZoneTiles](int3 &pos)
+						foreach_neighbour (otherTile, [&withinZone, &otherZoneTiles, zoneBid, this](int3 &pos)
 						{
-							if (!vstd::contains(otherZoneTiles, pos))
+							if (getZoneID(pos) != zoneBid)
 								withinZone = false;
 						});
 
