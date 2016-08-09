@@ -1935,6 +1935,12 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= nullptr*/)
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	vstd::erase_if(stacksOfMine, &immobile);
+	if(stacksOfMine.empty())
+	{
+		bEndTacticPhase();
+		return;
+	}
+
 	auto it = vstd::find(stacksOfMine, current);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
 		stackActivated(*it);
