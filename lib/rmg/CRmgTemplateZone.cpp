@@ -430,15 +430,21 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 {
 	for (auto tile : tileinfo)
 	{
-		gen->foreach_neighbour (tile, [this, gen](int3 &pos)
+		bool edge = false;
+		gen->foreach_neighbour(tile, [this, gen, &edge](int3 &pos)
 		{
-			if (!vstd::contains(this->tileinfo, pos))
+			if (edge)
+				return; //optimization - do it only once
+			if (gen->getZoneID(pos) != id) //optimization - better than set search
 			{
-				gen->foreach_neighbour (pos, [this, gen](int3 &pos)
+				//we are edge if at least one tile does not belong to zone
+				//mark all nearby tiles blocked and we're done
+				gen->foreach_neighbour (pos, [this, gen](int3 &nearbyPos)
 				{
-					if (gen->isPossible(pos))
-						gen->setOccupied (pos, ETileType::BLOCKED);
+					if (gen->isPossible(nearbyPos))
+						gen->setOccupied(nearbyPos, ETileType::BLOCKED);
 				});
+				edge = true; 
 			}
 		});
 	}
@@ -663,7 +669,7 @@ do not leave zone border
 				{
 					if (!gen->isBlocked(pos))
 					{
-						if (vstd::contains (tileinfo, pos))
+						if (gen->getZoneID(pos) == id)
 						{
 							if (gen->isPossible(pos))
 							{
@@ -700,7 +706,7 @@ do not leave zone border
 			{
 				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
 				{
-					if (vstd::contains(tileinfo, pos))
+					if (gen->getZoneID(pos) == id)
 					{
 						if (gen->isPossible(pos))
 						{
@@ -799,7 +805,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
 					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
 					{
-						if (vstd::contains(this->tileinfo, pos) || pos == dst) //otherwise guard position may appear already connected to other zone.
+						if (gen->getZoneID(pos) == id || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
 							cameFrom[pos] = currentNode;
 							open.insert(pos);
@@ -867,18 +873,19 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 		{
 			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
 			{
+				if (gen->isBlocked(pos)) //no paths through blocked or occupied tiles
+					return;
+
 				int distance = distances[currentNode] + 1;
 				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
 				auto it = distances.find(pos);
 				if (it != distances.end())
 					bestDistanceSoFar = it->second;
 
-				if (gen->isBlocked(pos)) //no paths through blocked or occupied tiles
-					return;
 				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
 				{
 					//auto obj = gen->map->getTile(pos).topVisitableObj();
-					if (vstd::contains(this->tileinfo, pos))
+					if (gen->getZoneID(pos) == id)
 					{
 						cameFrom[pos] = currentNode;
 						open.insert(pos);
@@ -962,7 +969,7 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
 				{
 					//auto obj = gen->map->getTile(pos).topVisitableObj();
-					if (vstd::contains(this->tileinfo, pos))
+					if (gen->getZoneID(pos) == id)
 					{
 						cameFrom[pos] = currentNode;
 						open.insert(pos);
@@ -1879,7 +1886,7 @@ void CRmgTemplateZone::drawRoads(CMapGenerator* gen)
 	}
 	for (auto tile : roadNodes)
 	{
-		if (vstd::contains(tileinfo, tile)) //mark roads for our nodes, but not for zone guards in other zones
+		if (gen->getZoneID(tile) == id) //mark roads for our nodes, but not for zone guards in other zones
 			tiles.push_back(tile);
 	}
 

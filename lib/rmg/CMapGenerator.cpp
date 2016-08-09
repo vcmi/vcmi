@@ -60,6 +60,8 @@ void CMapGenerator::initTiles()
 			tiles[i][j] = new CTileInfo[level];
 		}
 	}
+
+	zoneColouring.resize(boost::extents[map->twoLevel ? 2 : 1][map->width][map->height]);
 }
 
 CMapGenerator::~CMapGenerator()
@@ -695,6 +697,20 @@ CTileInfo CMapGenerator::getTile(const int3& tile) const
 	checkIsOnMap(tile);
 
 	return tiles[tile.x][tile.y][tile.z];
+}
+
+TRmgTemplateZoneId CMapGenerator::getZoneID(const int3& tile) const
+{
+	checkIsOnMap(tile);
+
+	return zoneColouring[tile.z][tile.x][tile.y];
+}
+
+void CMapGenerator::setZoneID(const int3& tile, TRmgTemplateZoneId zid) 
+{
+	checkIsOnMap(tile);
+
+	zoneColouring[tile.z][tile.x][tile.y] = zid;
 }
 
 bool CMapGenerator::isAllowedSpell(SpellID sid) const

@@ -94,12 +94,16 @@ public:
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
 
+	TRmgTemplateZoneId getZoneID(const int3& tile) const;
+	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
+
 private:
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 
 	CTileInfo*** tiles;
+	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
 
 	int prisonsRemaining;
 	//int questArtsRemaining;
