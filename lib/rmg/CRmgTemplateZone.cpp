@@ -2220,7 +2220,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 {
 	//int objectsVisitableFromBottom = 0; //for debug
 
-	std::vector<std::pair<ui32, ObjectInfo>> thresholds;
+	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
 
 	//calculate actual treasure value range based on remaining value
@@ -2322,8 +2322,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 
 			total += oi.probability;
 			
-			//FIXME: apparently this is quite expensive operation, but "reserve" doesn't improve speed
-			thresholds.push_back (std::make_pair (total, oi));
+			thresholds.push_back (std::make_pair (total, &oi));
 		}
 	}
 
@@ -2362,11 +2361,11 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 
 		//binary search = fastest
 		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
-			[](const std::pair<ui32, ObjectInfo> &rhs, const int lhs)->bool
+			[](const std::pair<ui32, ObjectInfo*> &rhs, const int lhs)->bool
 		{
 			return rhs.first < lhs;
 		});
-		return it->second;
+		return *(it->second);
 	}
 
 	return ObjectInfo(); // unreachable
