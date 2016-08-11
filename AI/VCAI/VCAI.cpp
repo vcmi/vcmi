@@ -1408,24 +1408,6 @@ bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 	return false;
 }
 
-std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
-{
-	validateVisitableObjs();
-	std::vector<const CGObjectInstance *> possibleDestinations;
-	auto sm = getCachedSectorMap(h);
-	for(const CGObjectInstance *obj : visitableObjs)
-	{
-		if (isGoodForVisit(obj, h, *sm))
-		{
-			possibleDestinations.push_back(obj);
-		}
-	}
-
-	boost::sort(possibleDestinations, CDistanceSorter(h.get()));
-
-	return possibleDestinations;
-}
-
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t)
 {
 	if (t.valid())
@@ -1468,20 +1450,25 @@ void VCAI::wander(HeroPtr h)
 	while (h->movement)
 	{
 		validateVisitableObjs();
-		std::vector <ObjectIdRef> dests, tmp;
+		std::vector <ObjectIdRef> dests;
 
 		auto sm = getCachedSectorMap(h);
 
-		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
-		for (auto obj : tmp)
+		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
+		vstd::copy_if(reservedHeroesMap[h], std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 		{
 			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
-			if (pos.valid())
-				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
-					dests.push_back(obj); //can't use lambda for member function :(
-		}
+			if(pos.valid() && isAccessibleForHero(pos, h)) //even nearby objects could be blocked by other heroes :(
+				return true;
 
-		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
+			return false;
+		});
+
+		vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+		{
+			return isGoodForVisit(obj, h, *sm);
+		});
+
 		vstd::erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
 			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));

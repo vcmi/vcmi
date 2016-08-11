@@ -259,7 +259,6 @@ public:
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm);
-	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
