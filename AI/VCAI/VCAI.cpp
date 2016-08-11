@@ -1764,7 +1764,7 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 	std::vector<const CGObjectInstance *> ret;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if(obj->tempOwner == ai->playerID)
+		if(obj->tempOwner == playerID)
 			ret.push_back(obj);
 	}
 	return ret;
