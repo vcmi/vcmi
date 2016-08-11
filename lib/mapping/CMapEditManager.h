@@ -231,15 +231,50 @@ struct DLL_LINKAGE TerrainViewPattern
 	{
 		WeightedRule(std::string &Name);
 		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
-		bool isStandardRule() const;
+		inline bool isStandardRule() const
+		{
+			return standardRule;
+		}
+		inline bool isAnyRule() const
+		{
+			return anyRule;
+		}
+		inline bool isDirtRule() const
+		{
+			return dirtRule;
+		}
+		inline bool isSandRule() const
+		{
+			return sandRule;
+		}
+		inline bool isTransition() const
+		{
+			return transitionRule;
+		}
+		inline bool isNativeStrong() const
+		{
+			return nativeStrongRule;
+		}
+		inline bool isNativeRule() const
+		{
+			return nativeRule;
+		}
+		void setNative();
 
 		/// The name of the rule. Can be any value of the RULE_* constants or a ID of a another pattern.
+		//FIXME: remove string variable altogether, use only in constructor
 		std::string name;
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
 
 	private:		
 		bool standardRule;
+		bool anyRule;
+		bool dirtRule;
+		bool sandRule;
+		bool transitionRule;
+		bool nativeStrongRule;
+		bool nativeRule;
 
 		WeightedRule(); //only allow string constructor
 	};

@@ -323,14 +323,23 @@ TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount
 
 TerrainViewPattern::WeightedRule::WeightedRule(std::string &Name) : points(0), name(Name)
 {
-	standardRule = (TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
-		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
-		|| TerrainViewPattern::RULE_TRANSITION == name || TerrainViewPattern::RULE_NATIVE_STRONG == name);
+	standardRule = (TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
+		|| TerrainViewPattern::RULE_NATIVE == Name || TerrainViewPattern::RULE_SAND == Name
+		|| TerrainViewPattern::RULE_TRANSITION == Name || TerrainViewPattern::RULE_NATIVE_STRONG == Name);
+	anyRule = (TerrainViewPattern::RULE_ANY == Name);
+	dirtRule = (Name == TerrainViewPattern::RULE_DIRT);
+	sandRule = (Name == TerrainViewPattern::RULE_SAND);
+	transitionRule = (Name == TerrainViewPattern::RULE_TRANSITION);
+	nativeStrongRule = (Name == TerrainViewPattern::RULE_NATIVE_STRONG);
+	nativeRule = (Name == TerrainViewPattern::RULE_NATIVE);
 }
 
-bool TerrainViewPattern::WeightedRule::isStandardRule() const
+void TerrainViewPattern::WeightedRule::setNative()
 {
-	return standardRule;
+	nativeRule = true;
+	standardRule = true;
+	//TODO: would look better as a bitfield
+	dirtRule = sandRule = transitionRule = nativeStrongRule = anyRule = false; //no idea what they mean, but look mutually exclusive
 }
 
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
@@ -712,7 +721,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 {
 	//constructor for pattern object is very expensive, but we can't manipulate const object :(
 
-	auto flippedPattern = pattern;
+	auto flippedPattern = pattern; //TODO: store cached patterns in 4 positions to avoid very expensive construction
 	for(int flip = 0; flip < 4; ++flip)
 	{
 		if (flip > 0)
@@ -808,7 +817,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				}
 				else
 				{
-					rule.name = TerrainViewPattern::RULE_NATIVE;
+					rule.setNative();
 				}
 			}
 
@@ -822,35 +831,35 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 			// Validate cell with the ruleset of the pattern
 			bool nativeTestOk, nativeTestStrongOk;
-			nativeTestOk = nativeTestStrongOk = (rule.name == TerrainViewPattern::RULE_NATIVE_STRONG || rule.name == TerrainViewPattern::RULE_NATIVE)  && !isAlien;
+			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
 			if(centerTerGroup == ETerrainGroup::NORMAL)
 			{
-				bool dirtTestOk = (rule.name == TerrainViewPattern::RULE_DIRT || rule.name == TerrainViewPattern::RULE_TRANSITION)
+				bool dirtTestOk = (rule.isDirtRule() || rule.isTransition())
 						&& isAlien && !isSandType(terType);
-				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION)
+				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 						&& isSandType(terType);
 
-				if(transitionReplacement.empty() && rule.name == TerrainViewPattern::RULE_TRANSITION
+				if (transitionReplacement.empty() && rule.isTransition()
 						&& (dirtTestOk || sandTestOk))
 				{
 					transitionReplacement = dirtTestOk ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
 				}
-				if(rule.name == TerrainViewPattern::RULE_TRANSITION)
+				if (rule.isTransition())
 				{
 					applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND) ||
 							(sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT));
 				}
 				else
 				{
-					applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || dirtTestOk || sandTestOk || nativeTestOk);
+					applyValidationRslt(rule.isAnyRule() || dirtTestOk || sandTestOk || nativeTestOk);
 				}
 			}
 			else if(centerTerGroup == ETerrainGroup::DIRT)
 			{
-				nativeTestOk = rule.name == TerrainViewPattern::RULE_NATIVE && !isSandType(terType);
-				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION)
+				nativeTestOk = rule.isNativeRule() && !isSandType(terType);
+				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 						&& isSandType(terType);
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk || nativeTestStrongOk);
+				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
 			}
 			else if(centerTerGroup == ETerrainGroup::SAND)
 			{
@@ -858,9 +867,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			}
 			else if(centerTerGroup == ETerrainGroup::WATER || centerTerGroup == ETerrainGroup::ROCK)
 			{
-				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION)
+				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 						&& isAlien;
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
+				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk);
 			}
 		}
 
