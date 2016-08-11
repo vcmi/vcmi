@@ -1691,9 +1691,6 @@ void VCAI::clearPathsInfo()
 
 void VCAI::validateVisitableObjs()
 {
-	std::vector<const CGObjectInstance *> hlp;
-	retreiveVisitableObjs(hlp, true);
-
 	std::string errorMsg;
 	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
@@ -1701,15 +1698,6 @@ void VCAI::validateVisitableObjs()
 			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
 		else
 			return true;
-
-		//why would we have our local logic for object checks? use cb!
-
-		//if(!vstd::contains(hlp, obj))
-		//{
-		//	logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
-		//	return true;
-		//}
-		//return false;
 	};
 
 	//errorMsg is captured by ref so lambda will take the new text
