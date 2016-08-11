@@ -78,7 +78,8 @@ BOOST_AUTO_TEST_CASE(CMapFormatVCMI_Simple)
 		tmp.flush();
 		tmp.close();
 
-		logGlobal->infoStream() << "Test map has been saved to " << path;
+		logGlobal->info("Test map has been saved to:");
+		logGlobal->info(path.string());
 	}
 	BOOST_TEST_CHECKPOINT("CMapFormatVCMI_Simple saved");
 
