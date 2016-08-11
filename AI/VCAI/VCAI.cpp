@@ -1762,11 +1762,11 @@ void VCAI::retreiveVisitableObjs()
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
-	retreiveVisitableObjs(ret, true);
-	vstd::erase_if(ret, [](const CGObjectInstance *obj)
+	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		return obj->tempOwner != ai->playerID;
-	});
+		if(obj->tempOwner == ai->playerID)
+			ret.push_back(obj);
+	}
 	return ret;
 }
 
