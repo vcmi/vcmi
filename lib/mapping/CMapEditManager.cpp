@@ -321,16 +321,16 @@ TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount
 	maxPoints = std::numeric_limits<int>::max();
 }
 
-TerrainViewPattern::WeightedRule::WeightedRule() : points(0)
+TerrainViewPattern::WeightedRule::WeightedRule(std::string &Name) : points(0), name(Name)
 {
-
+	standardRule = (TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
+		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
+		|| TerrainViewPattern::RULE_TRANSITION == name || TerrainViewPattern::RULE_NATIVE_STRONG == name);
 }
 
 bool TerrainViewPattern::WeightedRule::isStandardRule() const
 {
-	return TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
-		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
-		|| TerrainViewPattern::RULE_TRANSITION == name || TerrainViewPattern::RULE_NATIVE_STRONG == name;
+	return standardRule;
 }
 
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
@@ -357,8 +357,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 				{
 					std::vector<std::string> ruleParts;
 					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
-					TerrainViewPattern::WeightedRule rule;
-					rule.name = ruleParts[0];
+					TerrainViewPattern::WeightedRule rule(ruleParts[0]);
 					assert(!rule.name.empty());
 					if(ruleParts.size() > 1)
 					{

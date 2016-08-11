@@ -229,7 +229,7 @@ struct DLL_LINKAGE TerrainViewPattern
 {
 	struct WeightedRule
 	{
-		WeightedRule();
+		WeightedRule(std::string &Name);
 		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
 		bool isStandardRule() const;
 
@@ -237,6 +237,11 @@ struct DLL_LINKAGE TerrainViewPattern
 		std::string name;
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
+
+	private:		
+		bool standardRule;
+
+		WeightedRule(); //only allow string constructor
 	};
 
 	static const int PATTERN_DATA_SIZE = 9;
