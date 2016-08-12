@@ -333,19 +333,21 @@ struct DLL_LINKAGE TerrainViewPattern
 class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
+	typedef std::vector<TerrainViewPattern> TVPVector;
+
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<std::vector<TerrainViewPattern>> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
+	const std::vector<TVPVector> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
 	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	boost::optional<const std::vector<TerrainViewPattern> &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	const std::vector<TerrainViewPattern> * getTerrainTypePatternById(const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<std::vector<TerrainViewPattern> > > terrainViewPatterns;
-	std::map<std::string, std::vector<TerrainViewPattern>> terrainTypePatterns;
+	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector> > terrainViewPatterns;
+	std::map<std::string, TVPVector> terrainTypePatterns;
 };
 
 /// The CDrawTerrainOperation class draws a terrain area on the map.
