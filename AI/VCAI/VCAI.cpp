@@ -1464,10 +1464,26 @@ void VCAI::wander(HeroPtr h)
 			return false;
 		});
 
-		vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+		int pass = 0;
+		while(!dests.size() && pass < 3)
 		{
-			return isGoodForVisit(obj, h, *sm);
-		});
+			if(pass < 2) // optimization - first check objects in current sector; then in sectors around
+			{
+				auto objs = sm->getNearbyObjs(h, pass);
+				vstd::copy_if(objs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			else // we only check full objects list if for some reason there are no objects in closest sectors
+			{
+				vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			pass++;
+		}
 
 		vstd::erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
@@ -3434,4 +3450,20 @@ TerrainTile* SectorMap::getTile(crint3 pos) const
 	//out of bounds access should be handled by boost::multi_array
 	//still we cached this array to avoid any checks
 	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+}
+
+std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)
+{
+	const Sector *heroSector = &infoOnSectors[retreiveTile(h->visitablePos())];
+	if(sectorsAround)
+	{
+		std::vector<const CGObjectInstance *> ret;
+		for(auto embarkPoint : heroSector->embarkmentPoints)
+		{
+			const Sector *embarkSector = &infoOnSectors[retreiveTile(embarkPoint)];
+			range::copy(embarkSector->visitableObjs, std::back_inserter(ret));
+		}
+		return ret;
+	}
+	return heroSector->visitableObjs;
 }

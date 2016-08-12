@@ -106,6 +106,7 @@ struct SectorMap
 	bool markIfBlocked(ui8 &sec, crint3 pos);
 	unsigned char &retreiveTile(crint3 pos);
 	TerrainTile* getTile(crint3 pos) const;
+	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 
 	void makeParentBFS(crint3 source);
 
