@@ -101,12 +101,6 @@ CLogger::CLogger(const CLoggerDomain & domain) : domain(domain)
 	}
 }
 
-void CLogger::trace(const std::string & message) const { log(ELogLevel::TRACE, message); }
-void CLogger::debug(const std::string & message) const { log(ELogLevel::DEBUG, message); }
-void CLogger::info(const std::string & message) const { log(ELogLevel::INFO, message); }
-void CLogger::warn(const std::string & message) const { log(ELogLevel::WARN, message); }
-void CLogger::error(const std::string & message) const { log(ELogLevel::ERROR, message); }
-
 CLoggerStream CLogger::traceStream() const { return CLoggerStream(*this, ELogLevel::TRACE); }
 CLoggerStream CLogger::debugStream() const { return CLoggerStream(*this, ELogLevel::DEBUG); }
 CLoggerStream CLogger::infoStream() const { return CLoggerStream(*this, ELogLevel::INFO); }
@@ -233,7 +227,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	//Format date
 	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
 
-	//Format log level 
+	//Format log level
 	std::string level;
 	switch(record.level)
 	{
@@ -331,7 +325,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	{
 		const EConsoleTextColor::EConsoleTextColor textColor =
 			coloredOutputEnabled ? colorMapping.getColorFor(record.domain, record.level) : EConsoleTextColor::DEFAULT;
-		
+
 		console->print(message, true, textColor, printToStdErr);
 	}
 	else

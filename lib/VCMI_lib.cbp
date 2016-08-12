@@ -121,6 +121,7 @@
 			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="../Global.h" />
+		<Unit filename="../include/vstd/CLoggerBase.h" />
 		<Unit filename="../include/vstd/LogFormat.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="BattleAction.cpp" />

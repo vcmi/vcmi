@@ -242,7 +242,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
-#include "lib/logging/CLogger.h"
+#include <vstd/CLoggerBase.h>
+#include "lib/logging/CLogger.h" //todo: remove
 
 void inline handleException()
 {
@@ -252,15 +253,15 @@ void inline handleException()
 	}
 	catch(const std::exception & ex)
 	{
-		logGlobal->errorStream() << ex.what();
+		logGlobal->error(ex.what());
 	}
 	catch(const std::string & ex)
 	{
-		logGlobal->errorStream() << ex;
+		logGlobal->error(ex);
 	}
 	catch(...)
 	{
-		logGlobal->errorStream() << "Sorry, caught unknown exception type. No more info available.";
+		logGlobal->error("Sorry, caught unknown exception type. No more info available.");
 	}
 }
 

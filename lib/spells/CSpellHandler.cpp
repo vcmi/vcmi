@@ -129,7 +129,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		vstd::logErrorFormat(logGlobal, "CSpell::getLevelInfo invalid school level %d", level);
+		vstd::logError(logGlobal, "CSpell::getLevelInfo invalid school level %d", level);
 		throw new std::runtime_error("Invalid school level");
 	}
 

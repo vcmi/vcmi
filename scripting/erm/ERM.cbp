@@ -62,7 +62,7 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add directory="$(#boost.include)" />
-			<Add directory="../include" />
+			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lboost_program_options$(#boost.libsuffix)" />

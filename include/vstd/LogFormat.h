@@ -28,41 +28,49 @@ namespace vstd
 		}
 	}
 
-    template<typename Logger, typename ... Args>
-    void logFormat(Logger * logger, ELogLevel::ELogLevel level, const std::string & format, Args ... args)
+	//TODO: Put into CLogger after log api extract
+
+    template<typename Logger>
+    void log(Logger * logger, ELogLevel::ELogLevel level, const std::string & message)
+    {
+		logger->log(level, message);
+    }
+
+    template<typename Logger, typename T, typename ... Args>
+    void log(Logger * logger, ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args)
     {
 		boost::format fmt(format);
-		detail::makeFormat(fmt, args...);
+		detail::makeFormat(fmt, t, args...);
 		logger->log(level, fmt.str());
     }
 
-    template<typename Logger, typename ... Args>
-    void logErrorFormat(Logger * logger, const std::string & format, Args ... args)
+    template<typename Logger, typename T, typename ... Args>
+    void logError(Logger * logger, const std::string & format, T t, Args ... args)
     {
-    	logFormat(logger, ELogLevel::ERROR, format, args...);
+    	log(logger, ELogLevel::ERROR, format, t, args...);
     }
 
-    template<typename Logger, typename ... Args>
-    void logWarnFormat(Logger * logger, const std::string & format, Args ... args)
+    template<typename Logger, typename T, typename ... Args>
+    void logWarn(Logger * logger, const std::string & format, T t, Args ... args)
     {
-    	logFormat(logger, ELogLevel::WARN, format, args...);
+    	log(logger, ELogLevel::WARN, format, t, args...);
     }
 
-    template<typename Logger, typename ... Args>
-    void logInfoFormat(Logger * logger, const std::string & format, Args ... args)
+    template<typename Logger, typename T, typename ... Args>
+    void logInfo(Logger * logger, const std::string & format, T t, Args ... args)
     {
-    	logFormat(logger, ELogLevel::INFO, format, args...);
+    	log(logger, ELogLevel::INFO, format, t, args...);
     }
 
-    template<typename Logger, typename ... Args>
-    void logDebugFormat(Logger * logger, const std::string & format, Args ... args)
+    template<typename Logger, typename T, typename ... Args>
+    void logDebug(Logger * logger, const std::string & format, T t, Args ... args)
     {
-    	logFormat(logger, ELogLevel::DEBUG, format, args...);
+    	log(logger, ELogLevel::DEBUG, format, t, args...);
     }
 
-    template<typename Logger, typename ... Args>
-    void logTraceFormat(Logger * logger, const std::string & format, Args ... args)
+    template<typename Logger, typename T, typename ... Args>
+    void logTrace(Logger * logger, const std::string & format, T t, Args ... args)
     {
-    	logFormat(logger, ELogLevel::TRACE, format, args...);
+    	log(logger, ELogLevel::TRACE, format, t, args...);
     }
 }
