@@ -36,8 +36,8 @@ extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(std::shared_ptr<CBattleGameIn
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
-	typedef void(*TGetAIFun)(std::shared_ptr<rett>&); 
-	typedef void(*TGetNameFun)(char*); 
+	typedef void(*TGetAIFun)(std::shared_ptr<rett>&);
+	typedef void(*TGetNameFun)(char*);
 
 	char temp[150];
 
@@ -105,7 +105,7 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 	std::shared_ptr<rett> ret;
 	getAI(ret);
 	if(!ret)
-		logGlobal->errorStream() << "Cannot get AI!";
+		logGlobal->error("Cannot get AI!");
 
 	return ret;
 }

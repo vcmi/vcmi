@@ -79,7 +79,7 @@ struct SectorMap
 		int id;
 		std::vector<int3> tiles;
 		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
-		std::vector<const CGObjectInstance *> subterraneanGates;
+		std::vector<const CGObjectInstance *> visitableObjs;
 		bool water; //all tiles of sector are land or water
 		Sector()
 		{
@@ -106,6 +106,7 @@ struct SectorMap
 	bool markIfBlocked(ui8 &sec, crint3 pos);
 	unsigned char &retreiveTile(crint3 pos);
 	TerrainTile* getTile(crint3 pos) const;
+	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 
 	void makeParentBFS(crint3 source);
 
@@ -259,7 +260,6 @@ public:
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm);
-	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);

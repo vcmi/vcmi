@@ -1408,24 +1408,6 @@ bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 	return false;
 }
 
-std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
-{
-	validateVisitableObjs();
-	std::vector<const CGObjectInstance *> possibleDestinations;
-	auto sm = getCachedSectorMap(h);
-	for(const CGObjectInstance *obj : visitableObjs)
-	{
-		if (isGoodForVisit(obj, h, *sm))
-		{
-			possibleDestinations.push_back(obj);
-		}
-	}
-
-	boost::sort(possibleDestinations, CDistanceSorter(h.get()));
-
-	return possibleDestinations;
-}
-
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t)
 {
 	if (t.valid())
@@ -1468,20 +1450,41 @@ void VCAI::wander(HeroPtr h)
 	while (h->movement)
 	{
 		validateVisitableObjs();
-		std::vector <ObjectIdRef> dests, tmp;
+		std::vector <ObjectIdRef> dests;
 
 		auto sm = getCachedSectorMap(h);
 
-		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
-		for (auto obj : tmp)
+		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
+		vstd::copy_if(reservedHeroesMap[h], std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 		{
 			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
-			if (pos.valid())
-				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
-					dests.push_back(obj); //can't use lambda for member function :(
+			if(pos.valid() && isAccessibleForHero(pos, h)) //even nearby objects could be blocked by other heroes :(
+				return true;
+
+			return false;
+		});
+
+		int pass = 0;
+		while(!dests.size() && pass < 3)
+		{
+			if(pass < 2) // optimization - first check objects in current sector; then in sectors around
+			{
+				auto objs = sm->getNearbyObjs(h, pass);
+				vstd::copy_if(objs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			else // we only check full objects list if for some reason there are no objects in closest sectors
+			{
+				vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			pass++;
 		}
 
-		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
 		vstd::erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
 			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));
@@ -1691,9 +1694,6 @@ void VCAI::clearPathsInfo()
 
 void VCAI::validateVisitableObjs()
 {
-	std::vector<const CGObjectInstance *> hlp;
-	retreiveVisitableObjs(hlp, true);
-
 	std::string errorMsg;
 	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
@@ -1701,15 +1701,6 @@ void VCAI::validateVisitableObjs()
 			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
 		else
 			return true;
-
-		//why would we have our local logic for object checks? use cb!
-
-		//if(!vstd::contains(hlp, obj))
-		//{
-		//	logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
-		//	return true;
-		//}
-		//return false;
 	};
 
 	//errorMsg is captured by ref so lambda will take the new text
@@ -1764,7 +1755,7 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 	std::vector<const CGObjectInstance *> ret;
 	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		if(obj->tempOwner == ai->playerID)
+		if(obj->tempOwner == playerID)
 			ret.push_back(obj);
 	}
 	return ret;
@@ -3070,10 +3061,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 					if(t->visitable)
 					{
 						auto obj = t->visitableObjects.front();
-						if (vstd::contains(ai->knownSubterraneanGates, obj))
-						{
-							s.subterraneanGates.push_back (obj);
-						}
+						s.visitableObjs.push_back(obj);
 					}
 				}
 			}
@@ -3462,4 +3450,20 @@ TerrainTile* SectorMap::getTile(crint3 pos) const
 	//out of bounds access should be handled by boost::multi_array
 	//still we cached this array to avoid any checks
 	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+}
+
+std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)
+{
+	const Sector *heroSector = &infoOnSectors[retreiveTile(h->visitablePos())];
+	if(sectorsAround)
+	{
+		std::vector<const CGObjectInstance *> ret;
+		for(auto embarkPoint : heroSector->embarkmentPoints)
+		{
+			const Sector *embarkSector = &infoOnSectors[retreiveTile(embarkPoint)];
+			range::copy(embarkSector->visitableObjs, std::back_inserter(ret));
+		}
+		return ret;
+	}
+	return heroSector->visitableObjs;
 }

@@ -23,7 +23,7 @@
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 {
-	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type start";
+	logGlobal->info("CMapEditManager_DrawTerrain_Type start");
 	try
 	{
 		auto map = make_unique<CMap>();
@@ -103,21 +103,22 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->errorStream() << "CMapEditManager_DrawTerrain_Type crash" << "\n" << e.what();
+		logGlobal->error("CMapEditManager_DrawTerrain_Type crash");
+		logGlobal->error(e.what());
 		throw;
 	}
-	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_Type finish";
+	logGlobal->info("CMapEditManager_DrawTerrain_Type finish");
 }
 
 BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 {
-	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View start";
+	logGlobal->info("CMapEditManager_DrawTerrain_View start");
 	try
 	{
 		// Load maps and json config
 		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
 		auto map = CMapService::loadMap("test/TerrainViewTest");
-		logGlobal->infoStream() << "Loaded test map successfully.";
+		logGlobal->info("Loaded test map successfully.");
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();
@@ -163,14 +164,16 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 					}
 				}
 				BOOST_CHECK(isInRange);
-				if(!isInRange) logGlobal->errorStream() << "No or invalid pattern found for current position.";
+				if(!isInRange)
+					logGlobal->error("No or invalid pattern found for current position.");
 			}
 		}
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View crash"<< "\n" << e.what();
+		logGlobal->info("CMapEditManager_DrawTerrain_View crash");
+		logGlobal->info(e.what());
 		throw;
 	}
-	logGlobal->infoStream() << "CMapEditManager_DrawTerrain_View finish";
+	logGlobal->info("CMapEditManager_DrawTerrain_View finish");
 }

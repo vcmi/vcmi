@@ -31,7 +31,7 @@ CVcmiTestConfig::CVcmiTestConfig()
 	settings.init();
 	logConfig.configure();
 	loadDLLClasses();
-	logGlobal->infoStream() << "Initialized global test setup.";
+	logGlobal->info("Initialized global test setup.");
 
 	const std::string TEST_DATA_DIR = "test/";
 

@@ -113,11 +113,11 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
 
 	//we shouldn't be here - error handling
 connerror1:
-	logNetwork->errorStream() << "Something went wrong... checking for error info";
+	logNetwork->error("Something went wrong... checking for error info");
 	if(error)
 		logNetwork->errorStream() << error;
 	else
-		logNetwork->errorStream() << "No error info. ";
+		logNetwork->error("No error info.");
 	delete io_service;
 	//delete socket;
 	throw std::runtime_error("Can't establish connection :(");
