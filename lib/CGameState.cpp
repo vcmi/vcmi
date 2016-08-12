@@ -490,12 +490,12 @@ int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner)
 		return RandomGeneratorUtil::nextItem(otherHeroes, rand)->getNum();
 	}
 
-	logGlobal->errorStream() << "No free allowed heroes!";
+	logGlobal->error("No free allowed heroes!");
 	auto notAllowedHeroesButStillBetterThanCrash = getUnusedAllowedHeroes(true);
 	if(notAllowedHeroesButStillBetterThanCrash.size())
 		return notAllowedHeroesButStillBetterThanCrash.begin()->getNum();
 
-	logGlobal->errorStream() << "No free heroes at all!";
+	logGlobal->error("No free heroes at all!");
 	assert(0); //current code can't handle this situation
 	return -1; // no available heroes at all
 }
@@ -769,13 +769,13 @@ void CGameState::init(StartInfo * si)
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
-	logGlobal->infoStream() << "Map loaded!";
+	logGlobal->info("Map loaded!");
 
 	checkMapChecksum();
 
 	day = 0;
 
-	logGlobal->debugStream() << "Initialization:";
+	logGlobal->debug("Initialization:");
 
 	initPlayerStates();
 	placeCampaignHeroes();
@@ -792,7 +792,7 @@ void CGameState::init(StartInfo * si)
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
 
-	logGlobal->debugStream() << "\tChecking objectives";
+	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
 	auto seedAfterInit = rand.nextInt();
@@ -812,7 +812,7 @@ void CGameState::initNewGame()
 {
 	if(scenarioOps->createRandomMap())
 	{
-		logGlobal->infoStream() << "Create random map.";
+		logGlobal->info("Create random map.");
 		CStopWatch sw;
 
 		// Gen map
@@ -874,7 +874,7 @@ void CGameState::initDuel()
 		{
 			logGlobal->infoStream() << "Loading duel settings from JSON file: " << scenarioOps->mapname;
 			dp = DuelParameters::fromJSON(scenarioOps->mapname);
-			logGlobal->infoStream() << "JSON file has been successfully read!";
+			logGlobal->info("JSON file has been successfully read!");
 		}
 		else
 		{
@@ -974,7 +974,7 @@ void CGameState::checkMapChecksum()
 		logGlobal->infoStream() << "\tServer checksum for " << scenarioOps->mapname <<": "<< scenarioOps->mapfileChecksum;
 		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
-			logGlobal->errorStream() << "Wrong map checksum!!!";
+			logGlobal->error("Wrong map checksum!!!");
 			throw std::runtime_error("Wrong checksum");
 		}
 	}
@@ -986,7 +986,7 @@ void CGameState::checkMapChecksum()
 
 void CGameState::initGrailPosition()
 {
-	logGlobal->debugStream() << "\tPicking grail position";
+	logGlobal->debug("\tPicking grail position");
 	//pick grail location
 	if(map->grailPos.x < 0 || map->grailRadius) //grail not set or set within a radius around some place
 	{
@@ -1025,14 +1025,14 @@ void CGameState::initGrailPosition()
 		}
 		else
 		{
-			logGlobal->warnStream() << "Warning: Grail cannot be placed, no appropriate tile found!";
+			logGlobal->warn("Grail cannot be placed, no appropriate tile found!");
 		}
 	}
 }
 
 void CGameState::initRandomFactionsForPlayers()
 {
-	logGlobal->debugStream() << "\tPicking random factions for players";
+	logGlobal->debug("\tPicking random factions for players");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
 		if(elem.second.castle==-1)
@@ -1048,7 +1048,7 @@ void CGameState::initRandomFactionsForPlayers()
 
 void CGameState::randomizeMapObjects()
 {
-	logGlobal->debugStream() << "\tRandomizing objects";
+	logGlobal->debug("\tRandomizing objects");
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(!obj) continue;
@@ -1072,7 +1072,7 @@ void CGameState::randomizeMapObjects()
 
 void CGameState::initPlayerStates()
 {
-	logGlobal->debugStream() << "\tCreating player entries in gs";
+	logGlobal->debug("\tCreating player entries in gs");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
 		std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
@@ -1114,10 +1114,10 @@ void CGameState::placeCampaignHeroes()
 
 		if(!crossoverHeroes.heroesFromAnyPreviousScenarios.empty())
 		{
-			logGlobal->debugStream() << "\tGenerate list of hero placeholders";
+			logGlobal->debug("\tGenerate list of hero placeholders");
 			auto campaignHeroReplacements = generateCampaignHeroesToReplace(crossoverHeroes);
 
-			logGlobal->debugStream() << "\tPrepare crossover heroes";
+			logGlobal->debug("\tPrepare crossover heroes");
 			prepareCrossoverHeroes(campaignHeroReplacements, scenarioOps->campState->getCurrentScenario().travelOptions);
 
 			// remove same heroes on the map which will be added through crossover heroes
@@ -1137,7 +1137,7 @@ void CGameState::placeCampaignHeroes()
 				}
 			}
 
-			logGlobal->debugStream() << "\tReplace placeholders with heroes";
+			logGlobal->debug("\tReplace placeholders with heroes");
 			replaceHeroesPlaceholders(campaignHeroReplacements);
 
 			// remove hero placeholders on map
@@ -1169,7 +1169,7 @@ void CGameState::placeCampaignHeroes()
 					}
 					else
 					{
-						logGlobal->errorStream() << "No free hero type ID found to replace prison.";
+						logGlobal->error("No free hero type ID found to replace prison.");
 						assert(0);
 					}
 				}
@@ -1365,7 +1365,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 
 void CGameState::placeStartingHeroes()
 {
-	logGlobal->debugStream() << "\tGiving starting hero";
+	logGlobal->debug("\tGiving starting hero");
 
 	for(auto & playerSettingPair : scenarioOps->playerInfos)
 	{
@@ -1393,7 +1393,7 @@ void CGameState::placeStartingHeroes()
 
 void CGameState::initStartingResources()
 {
-	logGlobal->debugStream() << "\tSetting up resources";
+	logGlobal->debug("\tSetting up resources");
 	const JsonNode config(ResourceID("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
@@ -1465,7 +1465,7 @@ void CGameState::initHeroes()
 	{
 		if (hero->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			logGlobal->warnStream() << "Warning - hero with uninitialized owner!";
+			logGlobal->warn("Hero with uninitialized owner!");
 			continue;
 		}
 
@@ -1539,7 +1539,7 @@ void CGameState::initHeroes()
 					}
 				}
 				if(maxB < 0)
-					logGlobal->warnStream() << "Warning - cannot give bonus to hero cause there are no heroes!";
+					logGlobal->warn("Cannot give bonus to hero cause there are no heroes!");
 				else
 					giveCampaignBonusToHero(heroes[maxB]);
 			}
@@ -1617,7 +1617,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 
 void CGameState::initFogOfWar()
 {
-	logGlobal->debugStream() << "\tFog of war"; //FIXME: should be initialized after all bonuses are set
+	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
 	for(auto & elem : teams)
 	{
 		elem.second.fogOfWarMap.resize(map->width);
@@ -1649,7 +1649,7 @@ void CGameState::initFogOfWar()
 
 void CGameState::initStartingBonus()
 {
-	logGlobal->debugStream() << "\tStarting bonuses";
+	logGlobal->debug("\tStarting bonuses");
 	for(auto & elem : players)
 	{
 		//starting bonus
@@ -1679,7 +1679,7 @@ void CGameState::initStartingBonus()
 			{
 				if(!elem.second.heroes.size())
 				{
-					logGlobal->debugStream() << "Cannot give starting artifact - no heroes!";
+					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
 				CArtifact *toGive;
@@ -1695,7 +1695,7 @@ void CGameState::initStartingBonus()
 
 void CGameState::initTowns()
 {
-	logGlobal->debugStream() << "\tTowns";
+	logGlobal->debug("\tTowns");
 
 	//campaign bonuses for towns
 	if (scenarioOps->mode == StartInfo::CAMPAIGN)
@@ -1846,7 +1846,7 @@ void CGameState::initTowns()
 
 void CGameState::initMapObjects()
 {
-	logGlobal->debugStream() << "\tObject initialization";
+	logGlobal->debug("\tObject initialization");
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
 	{

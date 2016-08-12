@@ -132,7 +132,7 @@ void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
 		return;
 	//todo: more efficient algorithm
 	for(int i = 0; i< amount; i++){
-		auto b = text.begin(); 
+		auto b = text.begin();
 		auto e = text.end();
 		size_t lastLen = 0;
 		size_t len = 0;
@@ -141,14 +141,14 @@ void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
 			size_t n = getCharacterSize(*b);
 
 			if(!isValidCharacter(&(*b),e-b))
-			{				
-				logGlobal->errorStream() << "Invalid UTF8 sequence";
+			{
+				logGlobal->error("Invalid UTF8 sequence");
 				break;//invalid sequence will be trimmed
 			}
 
 			len += n;
 			b += n;
-		}		
+		}
 
 		text.resize(lastLen);
 	}
@@ -217,13 +217,13 @@ std::string CLegacyConfigParser::extractQuotedString()
 			char * begin = curr;
 
 			while (curr < end && *curr != '\t' && *curr != '\r' && *curr != '\"')//find end of string or next quoted part start
-				curr++;	
-				
+				curr++;
+
 			ret += std::string(begin, curr);
-			
+
 			if(curr>=end || *curr != '\"')
 				return ret;
-		}		
+		}
 		else // end of string
 			return ret;
 	}
