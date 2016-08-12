@@ -3045,10 +3045,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 					if(t->visitable)
 					{
 						auto obj = t->visitableObjects.front();
-						if (vstd::contains(ai->knownSubterraneanGates, obj))
-						{
-							s.subterraneanGates.push_back (obj);
-						}
+						s.visitableObjs.push_back(obj);
 					}
 				}
 			}

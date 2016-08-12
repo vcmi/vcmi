@@ -79,7 +79,7 @@ struct SectorMap
 		int id;
 		std::vector<int3> tiles;
 		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
-		std::vector<const CGObjectInstance *> subterraneanGates;
+		std::vector<const CGObjectInstance *> visitableObjs;
 		bool water; //all tiles of sector are land or water
 		Sector()
 		{
