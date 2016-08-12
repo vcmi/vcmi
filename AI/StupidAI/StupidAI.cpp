@@ -276,7 +276,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	auto destNeighbours = destination.neighbouringTiles();
 	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
 	{
-		logAi->warnStream() << "Warning: already standing on neighbouring tile!";
+		logAi->warn("Warning: already standing on neighbouring tile!");
 		//We shouldn't even be here...
 		return BattleAction::makeDefend(stack);
 	}
