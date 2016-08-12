@@ -78,6 +78,7 @@
 			<Add directory="../client" />
 			<Add directory="$(#ffmpeg.include)" />
 			<Add directory="$(#sdl2.include)" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lole32" />

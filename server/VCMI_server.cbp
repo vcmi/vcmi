@@ -74,6 +74,7 @@
 			<Add option="-D_WIN32" />
 			<Add directory="$(#sdl2.include)" />
 			<Add directory="$(#zlib.include)" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lole32" />
