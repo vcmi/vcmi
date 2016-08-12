@@ -104,7 +104,7 @@ public:
 	CLoggerStream warnStream() const;
 	CLoggerStream errorStream() const;
 
-	inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
+	void log(ELogLevel::ELogLevel level, const std::string & message) const;
 
 	void addTarget(std::unique_ptr<ILogTarget> && target);
 	void clearTargets();
