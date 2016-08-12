@@ -115,13 +115,13 @@ public:
 	virtual void redo() = 0;
 	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
 
+	static const int FLIP_PATTERN_HORIZONTAL = 1;
+	static const int FLIP_PATTERN_VERTICAL = 2;
+	static const int FLIP_PATTERN_BOTH = 3;
+
 protected:	
 	MapRect extendTileAround(const int3 & centerPos) const;
 	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size	
-	
-	static const int FLIP_PATTERN_HORIZONTAL = 1;
-	static const int FLIP_PATTERN_VERTICAL = 2;
-	static const int FLIP_PATTERN_BOTH = 3;	
 	
 	CMap * map;
 };
@@ -336,14 +336,16 @@ public:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TerrainViewPattern> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
+	const std::vector<std::vector<TerrainViewPattern>> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
 	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	const TerrainViewPattern & getTerrainTypePatternById(const std::string & id) const;
+	boost::optional<const std::vector<TerrainViewPattern> &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const std::vector<TerrainViewPattern> * getTerrainTypePatternById(const std::string & id) const;
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
+	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > terrainViewPatterns;
-	std::map<std::string, TerrainViewPattern> terrainTypePatterns;
+	std::map<ETerrainGroup::ETerrainGroup, std::vector<std::vector<TerrainViewPattern> > > terrainViewPatterns;
+	std::map<std::string, std::vector<TerrainViewPattern>> terrainTypePatterns;
 };
 
 /// The CDrawTerrainOperation class draws a terrain area on the map.
@@ -384,11 +386,10 @@ private:
 	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
-	ValidationResult validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
+	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
 	bool isSandType(ETerrainType terType) const;
-	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 	CTerrainSelection terrainSel;
 	ETerrainType terType;

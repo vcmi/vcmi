@@ -413,12 +413,25 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 
 					// Add pattern to the patterns map
 					const auto & terGroup = getTerrainGroup(mappingPair.first);
-					terrainViewPatterns[terGroup].push_back(terGroupPattern);
+					std::vector<TerrainViewPattern> terrainViewPatternFlips;
+					terrainViewPatternFlips.push_back(terGroupPattern);
+
+					for (int i = 1; i < 4; ++i)
+					{
+						flipPattern(pattern, i); //flip original by 90 degrees and push back copy
+						terrainViewPatternFlips.push_back(pattern);
+					}
+					terrainViewPatterns[terGroup].push_back(terrainViewPatternFlips);	
 				}
 			}
 			else if(i == 1)
 			{
-				terrainTypePatterns[pattern.id] = pattern;
+				terrainTypePatterns[pattern.id].push_back(pattern);
+				for (int i = 1; i < 4; ++i)
+				{
+					flipPattern(pattern, i); //flip original by 90 degrees and push back copy
+					terrainTypePatterns[pattern.id].push_back(pattern);
+				}
 			}
 		}
 	}
@@ -444,16 +457,17 @@ ETerrainGroup::ETerrainGroup CTerrainViewPatternConfig::getTerrainGroup(const st
 	return it->second;
 }
 
-const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
+const std::vector<std::vector<TerrainViewPattern>> & CTerrainViewPatternConfig::getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
 {
 	return terrainViewPatterns.find(terGroup)->second;
 }
 
 boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
 {
-	const std::vector<TerrainViewPattern> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
-	for(const TerrainViewPattern & pattern : groupPatterns)
+	const std::vector<std::vector<TerrainViewPattern>> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
+	for (const std::vector<TerrainViewPattern> & patternFlips : groupPatterns)
 	{
+		const TerrainViewPattern & pattern = patternFlips.front();
 		if(id == pattern.id)
 		{
 			return boost::optional<const TerrainViewPattern &>(pattern);
@@ -461,13 +475,53 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 	}
 	return boost::optional<const TerrainViewPattern &>();
 }
+boost::optional<const std::vector<TerrainViewPattern> &> CTerrainViewPatternConfig::getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
+{
+	const std::vector<std::vector<TerrainViewPattern>> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
+	for (const std::vector<TerrainViewPattern> & patternFlips : groupPatterns)
+	{
+		const TerrainViewPattern & pattern = patternFlips.front();
+		if (id == pattern.id)
+		{
+			return boost::optional<const std::vector<TerrainViewPattern> &>(patternFlips);
+		}
+	}
+	return boost::optional<const std::vector<TerrainViewPattern> &>();
+}
 
-const TerrainViewPattern & CTerrainViewPatternConfig::getTerrainTypePatternById(const std::string & id) const
+
+const std::vector<TerrainViewPattern> * CTerrainViewPatternConfig::getTerrainTypePatternById(const std::string & id) const
 {
 	auto it = terrainTypePatterns.find(id);
 	assert(it != terrainTypePatterns.end());
-	return it->second;
+	return &(it->second);
 }
+
+void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern & pattern, int flip) const
+{
+	//flip in place to avoid expensive constructor. Seriously.
+
+	if (flip == 0)
+	{
+		return;
+	}
+
+	//always flip horizontal
+	for (int i = 0; i < 3; ++i)
+	{
+		int y = i * 3;
+		std::swap(pattern.data[y], pattern.data[y + 2]);
+	}
+	//flip vertical only at 2nd step
+	if (flip == CMapOperation::FLIP_PATTERN_VERTICAL)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			std::swap(pattern.data[i], pattern.data[6 + i]);
+		}
+	}
+}
+
 
 CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen)
 	: CMapOperation(map), terrainSel(terrainSel), terType(terType), gen(gen)
@@ -643,8 +697,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns =
-				VLC->terviewh->getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
+		const auto & patterns = VLC->terviewh->getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -652,7 +705,8 @@ void CDrawTerrainOperation::updateTerrainViews()
 		for(int k = 0; k < patterns.size(); ++k)
 		{
 			const auto & pattern = patterns[k];
-			valRslt = validateTerrainView(pos, pattern);
+			//(ETerrainGroup::ETerrainGroup terGroup, const std::string & id)
+			valRslt = validateTerrainView(pos, &pattern);
 			if(valRslt.result)
 			{
 				/*logGlobal->debugStream() << boost::format("Pattern detected at pos '%s': Pattern '%s', Flip '%i', Repl. '%s'.") %
@@ -671,7 +725,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		}
 
 		// Get mapping
-		const TerrainViewPattern & pattern = patterns[bestPattern];
+		const TerrainViewPattern & pattern = patterns[bestPattern].front();
 		std::pair<int, int> mapping;
 		if(valRslt.transitionReplacement.empty())
 		{
@@ -717,16 +771,11 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 	}
 }
 
-CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth /*= 0*/) const
 {
-	//constructor for pattern object is very expensive, but we can't manipulate const object :(
-
-	auto flippedPattern = pattern; //TODO: store cached patterns in 4 positions to avoid very expensive construction
 	for(int flip = 0; flip < 4; ++flip)
 	{
-		if (flip > 0)
-			flipPattern (flippedPattern, flip);
-		auto valRslt = validateTerrainViewInner(pos, flippedPattern, recDepth);
+		auto valRslt = validateTerrainViewInner(pos, pattern->at(flip), recDepth);
 		if(valRslt.result)
 		{
 			valRslt.flip = flip;
@@ -806,10 +855,11 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					if(terType == centerTerType)
 					{
-						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternById(getTerrainGroup(centerTerType), rule.name);
-						if(patternForRule)
+						const auto & group = getTerrainGroup(centerTerType);
+						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(group, rule.name);
+						if(auto p = patternForRule)
 						{
-							auto rslt = validateTerrainView(currentPos, *patternForRule, 1);
+							auto rslt = validateTerrainView(currentPos, &(*p), 1);
 							if(rslt.result) topPoints = std::max(topPoints, rule.points);
 						}
 					}
@@ -903,31 +953,6 @@ bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 		return true;
 	default:
 		return false;
-	}
-}
-
-void CDrawTerrainOperation::flipPattern(TerrainViewPattern & pattern, int flip) const
-{
-	//flip in place to avoid expensive constructor. Seriously.
-
-	if(flip == 0)
-	{
-		return;
-	}
-
-	//always flip horizontal
-	for(int i = 0; i < 3; ++i)
-	{
-		int y = i * 3;
-		std::swap(pattern.data[y], pattern.data[y + 2]);
-	}
-	//flip vertical only at 2nd step
-	if(flip == FLIP_PATTERN_VERTICAL)
-	{
-		for(int i = 0; i < 3; ++i)
-		{
-			std::swap(pattern.data[i], pattern.data[6 + i]);
-		}
 	}
 }
 
