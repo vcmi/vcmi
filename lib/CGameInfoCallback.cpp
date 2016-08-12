@@ -78,14 +78,14 @@ const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose
 		else
 		{
 			if (verbose)
-				vstd::logError(logGlobal, "Cannot access player %d info!", color);
+				logGlobal->error("Cannot access player %d info!", color);
 			return nullptr;
 		}
 	}
 	else
 	{
 		if (verbose)
-			vstd::logError(logGlobal, "Cannot find player %d info!", color);
+			logGlobal->error("Cannot find player %d info!", color);
 		return nullptr;
 	}
 }
@@ -842,7 +842,7 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 	}
 	else
 	{
-		vstd::logError(logGlobal, "Cannot find info for team %d", teamID);
+		logGlobal->error("Cannot find info for team %d", teamID);
 		return nullptr;
 	}
 }

@@ -32,30 +32,83 @@ namespace vstd
 
 		virtual void log(ELogLevel::ELogLevel level, const std::string & message) const = 0;
 
+		template<typename T, typename ... Args>
+		void log(ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args)
+		{
+			boost::format fmt(format);
+			makeFormat(fmt, t, args...);
+			log(level, fmt.str());
+		}
+
 		/// Log methods for various log levels
-		inline void trace(const std::string & message) const
+		inline void error(const std::string & message) const
 		{
-			log(ELogLevel::TRACE, message);
+			log(ELogLevel::ERROR, message);
 		};
 
-		inline void debug(const std::string & message) const
+		template<typename T, typename ... Args>
+		void error(const std::string & format, T t, Args ... args)
 		{
-			log(ELogLevel::DEBUG, message);
-		};
-
-		inline void info(const std::string & message) const
-		{
-			log(ELogLevel::INFO, message);
-		};
+			log(ELogLevel::ERROR, format, t, args...);
+		}
 
 		inline void warn(const std::string & message) const
 		{
 			log(ELogLevel::WARN, message);
 		};
 
-		inline void error(const std::string & message) const
+		template<typename T, typename ... Args>
+		void warn(const std::string & format, T t, Args ... args)
 		{
-			log(ELogLevel::ERROR, message);
+			log(ELogLevel::WARN, format, t, args...);
+		}
+
+		inline void info(const std::string & message) const
+		{
+			log(ELogLevel::INFO, message);
 		};
+
+		template<typename T, typename ... Args>
+		void info(const std::string & format, T t, Args ... args)
+		{
+			log(ELogLevel::INFO, format, t, args...);
+		}
+
+		inline void debug(const std::string & message) const
+		{
+			log(ELogLevel::DEBUG, message);
+		};
+
+
+		template<typename T, typename ... Args>
+		void debug(const std::string & format, T t, Args ... args)
+		{
+			log(ELogLevel::DEBUG, format, t, args...);
+		}
+
+		inline void trace(const std::string & message) const
+		{
+			log(ELogLevel::TRACE, message);
+		};
+
+		template<typename T, typename ... Args>
+		void trace(const std::string & format, T t, Args ... args)
+		{
+			log(ELogLevel::TRACE, format, t, args...);
+		}
+
+	private:
+		template <typename T>
+		void makeFormat(boost::format & fmt, T t)
+		{
+			fmt % t;
+		}
+
+		template <typename T, typename ... Args>
+		void makeFormat(boost::format & fmt, T t, Args ... args)
+		{
+			fmt % t;
+			makeFormat(fmt, args...);
+		}
 	};
 }
