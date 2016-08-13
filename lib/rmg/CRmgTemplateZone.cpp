@@ -392,6 +392,10 @@ std::set<int3> CRmgTemplateZone::getTileInfo () const
 {
 	return tileinfo;
 }
+std::set<int3> CRmgTemplateZone::getPossibleTiles() const
+{
+	return possibleTiles;
+}
 
 void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, float distance)
 {

@@ -23,6 +23,7 @@ class CTileInfo;
 class int3;
 class CGObjectInstance;
 class ObjectTemplate;
+class CRmgTemplateZoneConnection;
 
 namespace ETemplateZoneType
 {
@@ -161,7 +162,8 @@ public:
 
 	void addTile (const int3 &pos);
 	void initFreeTiles (CMapGenerator* gen);
-	std::set<int3> getTileInfo () const;
+	std::set<int3> getTileInfo() const;
+	std::set<int3> getPossibleTiles() const;
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 	void clearTiles();
 

@@ -272,19 +272,20 @@ void CMapGenerator::fillZones()
 
 	//initialize possible tiles before any object is actually placed
 	for (auto it : zones)
-	{
 		it.second->initFreeTiles(this);
-	}
 
 	findZonesForQuestArts();
-	createConnections();
+	createDirectConnections(); //direct
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
-	{
-		it.second->createBorder(this);
-		 //we need info about all town types to evaluate dwellings and pandoras with creatures properly
+		it.second->createBorder(this); //once direct connections are done
+
+	createConnections2(); //subterranean gates and monoliths
+
+	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
+	for (auto it : zones)
 		it.second->initTownType(this);
-	}
+
 	std::vector<CRmgTemplateZone*> treasureZones;
 	for (auto it : zones)
 	{
@@ -462,7 +463,7 @@ void CMapGenerator::findZonesForQuestArts()
 	}
 }
 
-void CMapGenerator::createConnections()
+void CMapGenerator::createDirectConnections()
 {
 	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
 	{
@@ -531,17 +532,40 @@ void CMapGenerator::createConnections()
 				}
 			}
 		}
-		else //create subterranean gates between two zones
+
+		if (!guardPos.valid())
+			connectionsLeft.push_back(connection);
+	}
+}
+
+void CMapGenerator::createConnections2()
+{
+	for (auto & connection : connectionsLeft)
+	{
+		auto zoneA = connection.getZoneA();
+		auto zoneB = connection.getZoneB();
+
+		auto tileSetA = zoneA->getPossibleTiles(),
+			tileSetB = zoneB->getPossibleTiles();
+
+		std::vector<int3> tilesA(tileSetA.begin(), tileSetA.end()),
+			tilesB(tileSetB.begin(), tileSetB.end());
+
+		int3 guardPos(-1, -1, -1);
+
+		int3 posA = zoneA->getPos();
+		int3 posB = zoneB->getPos();
+		auto zoneAid = zoneA->getId();
+		auto zoneBid = zoneB->getId();
+
+		if (posA.z != posB.z) //try to place subterranean gates
 		{
 			//find common tiles for both zones
 
 			std::vector<int3> commonTiles;
-			auto tileSetA = zoneA->getTileInfo(),
-				tileSetB = zoneB->getTileInfo();
-			std::vector<int3> tilesA (tileSetA.begin(), tileSetA.end()),
-				tilesB (tileSetB.begin(), tileSetB.end());
+
 			boost::sort(tilesA),
-			boost::sort(tilesB);
+				boost::sort(tilesB);
 
 			boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
 			{
@@ -572,25 +596,24 @@ void CMapGenerator::createConnections()
 				if (distanceFromA > 5 && distanceFromB > 5)
 				{
 					//all neightbouring tiles also belong to zone
-					if (getZoneID(tile) ==  zoneAid && getZoneID(otherTile) == zoneBid)
+					if (getZoneID(tile) == zoneAid && getZoneID(otherTile) == zoneBid)
 					{
 						bool withinZone = true;
 
-						foreach_neighbour (tile, [&withinZone, &tiles, zoneAid, this](int3 &pos)
+						foreach_neighbour(tile, [&withinZone, zoneAid, this](int3 &pos)
 						{
 							if (getZoneID(pos) != zoneAid)
 								withinZone = false;
 						});
-						foreach_neighbour (otherTile, [&withinZone, &otherZoneTiles, zoneBid, this](int3 &pos)
+						foreach_neighbour(otherTile, [&withinZone, zoneBid, this](int3 &pos)
 						{
 							if (getZoneID(pos) != zoneBid)
 								withinZone = false;
 						});
-
-						//make sure both gates has some free tiles below them
-						if (zoneA->getAccessibleOffset(this, sgt, tile).valid() && zoneB->getAccessibleOffset(this, sgt, otherTile).valid())
+						if (withinZone)
 						{
-							if (withinZone)
+							//make sure both gates has some free tiles below them
+							if (zoneA->getAccessibleOffset(this, sgt, tile).valid() && zoneB->getAccessibleOffset(this, sgt, otherTile).valid())
 							{
 								zoneA->placeSubterraneanGate(this, tile, connection.getGuardStrength());
 								zoneB->placeSubterraneanGate(this, otherTile, connection.getGuardStrength());
@@ -609,8 +632,8 @@ void CMapGenerator::createConnections()
 
 			auto teleport2 = factory->create(ObjectTemplate());
 
-			zoneA->addRequiredObject (teleport1, connection.getGuardStrength());
-			zoneB->addRequiredObject (teleport2, connection.getGuardStrength());
+			zoneA->addRequiredObject(teleport1, connection.getGuardStrength());
+			zoneB->addRequiredObject(teleport2, connection.getGuardStrength());
 		}
 	}
 }
