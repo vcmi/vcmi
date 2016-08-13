@@ -182,7 +182,7 @@ namespace Goals
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
 //{
-//	logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//	logAi->debug("Decomposing goal of type %s",name());
 //	return sptr (Goals::Explore());
 //}
 
@@ -422,7 +422,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 	if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 	{
 		if (hero->pos == pos)
-			logAi->errorStream() << "Hero " << hero.name << " tries to visit himself.";
+			logAi->error("Hero %s tries to visit himself.", hero.name);
 		else
 		{
 			//can't use VISIT_TILE here as tile appears blocked by target hero
@@ -442,8 +442,7 @@ bool VisitHero::fulfillsMe (TSubgoal goal)
 	auto obj = cb->getObj(ObjectInstanceID(objid));
 	if (!obj)
 	{
-		logAi->errorStream() << boost::format("Hero %s: VisitHero::fulfillsMe at %s: object %d not found")
-			% hero.name % goal->tile % objid;
+		logAi->error("Hero %s: VisitHero::fulfillsMe at %s: object %d not found", hero.name, goal->tile, objid);
 		return false;
 	}
 	return obj->visitablePos() == goal->tile;
@@ -462,7 +461,7 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	assert(cb->isInTheMap(tile)); //set tile
 	if(!cb->isVisible(tile))
 	{
-		logAi->errorStream() << "Clear way should be used with visible tiles!";
+		logAi->error("Clear way should be used with visible tiles!");
 		return sptr (Goals::Explore());
 	}
 
@@ -513,7 +512,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 			if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 				if (topObj != hero.get(true)) //the hero we want to free
-					logAi->errorStream() << boost::format("%s stands in the way of %s") % topObj->getObjectName()  % h->getObjectName();
+					logAi->error("%s stands in the way of %s", topObj->getObjectName(), h->getObjectName());
 			if (topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
 			{
 				if (shouldVisit(h, topObj))
@@ -525,7 +524,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				else
 				{
 					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
-					logAi->debugStream() << "Quest guard blocks the way to " + tile();
+					logAi->debug("Quest guard blocks the way to %s", tile());
 					continue; //do not access quets guard if we can't complete the quest
 				}
 			}
@@ -545,7 +544,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 	if (ret.empty())
 	{
-		logAi->warnStream() << "There is no known way to clear the way to tile " + tile();
+		logAi->warn("There is no known way to clear the way to tile %s",tile());
 		throw goalFulfilledException (sptr(Goals::ClearWayTo(tile))); //make sure asigned hero gets unlocked
 	}
 
@@ -1129,7 +1128,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
 //{
-//	logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
+//	logAi->debug("Decomposing goal of type %s",name());
 //	return sptr (Goals::Explore());
 //}
 

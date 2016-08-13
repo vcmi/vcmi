@@ -42,7 +42,7 @@ struct HeroPtr
 public:
 	std::string name;
 
-	
+
 	HeroPtr();
 	HeroPtr(const CGHeroInstance *H);
 	~HeroPtr();
@@ -105,7 +105,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-		logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
+		logAi->trace("Time of %s was %d ms.",txt,time.getDiff());
 	}
 };
 

@@ -179,7 +179,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	}
 	catch(std::exception &e)
 	{
-		logAi->errorStream() << "Exception occurred in " << __FUNCTION__ << " " << e.what();
+		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
 	}
 
 	return BattleAction::makeDefend(stack);
@@ -268,7 +268,7 @@ void CBattleAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CBattleAI::print(const std::string &text) const
 {
-	logAi->traceStream() << "CBattleAI [" << this <<"]: " << text;
+	logAi->trace("CBattleAI [%p]: %s", this, text);
 }
 
 BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)

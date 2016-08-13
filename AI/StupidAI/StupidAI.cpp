@@ -261,7 +261,7 @@ void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CStupidAI::print(const std::string &text) const
 {
-	logAi->traceStream() << "CStupidAI [" << this <<"]: " << text;
+	logAi->trace("CStupidAI  [%p]: %s", this, text);
 }
 
 BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)

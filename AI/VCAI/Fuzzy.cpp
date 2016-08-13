@@ -46,7 +46,7 @@ engineBase::engineBase()
 void engineBase::configure()
 {
 	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
-	logAi->infoStream() << engine.toString();
+	logAi->info(engine.toString());
 }
 
 void engineBase::addRule(const std::string &txt)
@@ -149,7 +149,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		{
 			fl::Rectangle* none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			ta.castleWalls->addTerm(none);
-                    
+
 			fl::Trapezoid* medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
 				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
 			ta.castleWalls->addTerm(medium);
@@ -160,7 +160,7 @@ void FuzzyHelper::initTacticalAdvantage()
 			ta.castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
 		}
 
-		
+
 
 		ta.bankPresent = new fl::InputVariable("Bank");
 		ta.engine.addInputVariable(ta.bankPresent);
@@ -201,7 +201,7 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 	catch (fl::Exception & pe)
 	{
-		logAi->errorStream() << "initTacticalAdvantage " << ": " << pe.getWhat();
+		logAi->error("initTacticalAdvantage: %s", pe.getWhat());
 	}
 }
 
@@ -262,7 +262,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "getTacticalAdvantage " << ": " << fe.getWhat();
+		logAi->error("getTacticalAdvantage: %s ",fe.getWhat());
 	}
 
 	if (output < 0 || (output != output))
@@ -273,7 +273,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 
 		for (int i = 0; i < boost::size(tab); i++)
 			log << names[i] << ": " << tab[i]->getInputValue() << " ";
-		logAi->errorStream() << log.str();
+		logAi->error(log.str());
 		assert(false);
 	}
 
@@ -410,7 +410,7 @@ void FuzzyHelper::initVisitTile()
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "visitTile " << ": " << fe.getWhat();
+		logAi->error("visitTile: %s",fe.getWhat());
 	}
 }
 
@@ -455,11 +455,10 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "evaluate VisitTile " << ": " << fe.getWhat();
+		logAi->error("evaluate VisitTile: %s",fe.getWhat());
 	}
 	assert (g.priority >= 0);
 	return g.priority;
-
 }
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
 {
@@ -468,7 +467,7 @@ float FuzzyHelper::evaluate (Goals::VisitHero & g)
 		return -100; //hero died in the meantime
 	//TODO: consider direct copy (constructor?)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
-	return g.priority;	
+	return g.priority;
 }
 float FuzzyHelper::evaluate (Goals::GatherArmy & g)
 {
@@ -525,7 +524,7 @@ float FuzzyHelper::evaluate (Goals::Invalid & g)
 }
 float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
 {
-	logAi->warnStream() << boost::format("Cannot evaluate goal %s") % g.name();
+	logAi->warn("Cannot evaluate goal %s", g.name());
 	return g.priority;
 }
 void FuzzyHelper::setPriority (Goals::TSubgoal & g)

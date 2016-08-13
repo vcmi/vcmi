@@ -135,7 +135,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				{
 					knownSubterraneanGates[o1] = o2;
 					knownSubterraneanGates[o2] = o1;
-					logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
+					logAi->debug("Found a pair of subterranean gates between %s and %s!", from(), to());
 				}
 			}
 		}
