@@ -569,9 +569,7 @@ void CMapGenerator::createConnections()
 				float distanceFromA = posA.dist2d(tile);
 				float distanceFromB = posB.dist2d(otherTile);
 
-				//if zone is underground, gate must fit within its (reduced) radius
-				if (distanceFromA > 5 && (!posA.z || distanceFromA < zoneA->getSize() - 3) &&
-					distanceFromB > 5 && (!posB.z || distanceFromB < zoneB->getSize() - 3))
+				if (distanceFromA > 5 && distanceFromB > 5)
 				{
 					//all neightbouring tiles also belong to zone
 					if (getZoneID(tile) ==  zoneAid && getZoneID(otherTile) == zoneBid)
