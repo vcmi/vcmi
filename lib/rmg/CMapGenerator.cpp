@@ -576,6 +576,11 @@ void CMapGenerator::createConnections2()
 					return lhs.y < rhs.y;
 			});
 
+			vstd::erase_if(commonTiles, [](const int3 &tile) -> bool
+			{
+				return (!tile.x) || (!tile.y); //gates shouldn't go outside map (x = 0) and look bad at the very top (y = 0)
+			});
+
 			boost::sort(commonTiles, [posA, posB](const int3 &lhs, const int3 &rhs) -> bool
 			{
 				//choose tiles which are equidistant to zone centers
