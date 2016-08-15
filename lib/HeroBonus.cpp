@@ -712,6 +712,9 @@ CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
 	cachedLast(0)
 {
 	//todo: move constructor for bonuslist
+	other.bonuses.clear();
+	other.exportedBonuses.clear();
+
 	bonuses.belongsToTree = true;
 	exportedBonuses.belongsToTree = true;
 
