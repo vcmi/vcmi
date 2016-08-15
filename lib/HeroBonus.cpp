@@ -721,6 +721,20 @@ CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
 	std::swap(parents, other.parents);
 	std::swap(children, other.children);
 
+	//fixing bonus tree without recalculation
+
+	for(CBonusSystemNode * n : parents)
+	{
+		n->children -= &other;
+		n->children.push_back(this);
+	}
+
+	for(CBonusSystemNode * n : children)
+	{
+		n->parents -= &other;
+		n->parents.push_back(this);
+	}
+
 	//cache ignored
 
 	//cachedBonuses
