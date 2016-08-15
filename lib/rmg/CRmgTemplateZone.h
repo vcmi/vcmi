@@ -191,6 +191,7 @@ public:
 	bool connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight);
 
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
+	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	void setQuestArtZone(CRmgTemplateZone * otherZone);
@@ -257,6 +258,5 @@ private:
 	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos, int value);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj);
-	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
 };

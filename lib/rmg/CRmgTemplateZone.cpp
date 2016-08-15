@@ -427,7 +427,10 @@ void CRmgTemplateZone::initFreeTiles (CMapGenerator* gen)
 		return gen->isPossible(tile);
 	});
 	if (freePaths.empty())
+	{
+		gen->setOccupied(pos, ETileType::FREE);
 		freePaths.insert(pos); //zone must have at least one free tile where other paths go - for instance in the center
+	}
 }
 
 void CRmgTemplateZone::createBorder(CMapGenerator* gen)

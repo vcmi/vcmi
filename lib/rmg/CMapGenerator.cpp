@@ -268,13 +268,14 @@ void CMapGenerator::fillZones()
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 
+	findZonesForQuestArts();
+
 	logGlobal->infoStream() << "Started filling zones";
 
 	//initialize possible tiles before any object is actually placed
 	for (auto it : zones)
 		it.second->initFreeTiles(this);
 
-	findZonesForQuestArts();
 	createDirectConnections(); //direct
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
@@ -545,100 +546,118 @@ void CMapGenerator::createConnections2()
 		auto zoneA = connection.getZoneA();
 		auto zoneB = connection.getZoneB();
 
-		auto tileSetA = zoneA->getPossibleTiles(),
-			tileSetB = zoneB->getPossibleTiles();
-
-		std::vector<int3> tilesA(tileSetA.begin(), tileSetA.end()),
-			tilesB(tileSetB.begin(), tileSetB.end());
-
 		int3 guardPos(-1, -1, -1);
 
 		int3 posA = zoneA->getPos();
 		int3 posB = zoneB->getPos();
-		auto zoneAid = zoneA->getId();
-		auto zoneBid = zoneB->getId();
+
+		auto strength = connection.getGuardStrength();
 
 		if (posA.z != posB.z) //try to place subterranean gates
 		{
-			//find common tiles for both zones
+			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
+			auto tilesBlockedByObject = sgt.getBlockedOffsets();
 
-			std::vector<int3> commonTiles;
+			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
+			auto gate1 = factory->create(ObjectTemplate());
+			auto gate2 = factory->create(ObjectTemplate());
 
-			boost::sort(tilesA),
+			while (!guardPos.valid())
+			{
+				bool continueOuterLoop = false;
+				//find common tiles for both zones
+				auto tileSetA = zoneA->getPossibleTiles(),
+					tileSetB = zoneB->getPossibleTiles();
+
+				std::vector<int3> tilesA(tileSetA.begin(), tileSetA.end()),
+					tilesB(tileSetB.begin(), tileSetB.end());
+
+				std::vector<int3> commonTiles;
+
+				//required for set_intersection
+				boost::sort(tilesA);
 				boost::sort(tilesB);
 
-			boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
-			{
-				//ignore z coordinate
-				if (lhs.x < rhs.x)
-					return true;
-				else
-					return lhs.y < rhs.y;
-			});
-
-			vstd::erase_if(commonTiles, [](const int3 &tile) -> bool
-			{
-				return (!tile.x) || (!tile.y); //gates shouldn't go outside map (x = 0) and look bad at the very top (y = 0)
-			});
-
-			boost::sort(commonTiles, [posA, posB](const int3 &lhs, const int3 &rhs) -> bool
-			{
-				//choose tiles which are equidistant to zone centers
-				return (std::abs<double>(posA.dist2dSQ(lhs) - posB.dist2dSQ(lhs)) < std::abs<double>((posA.dist2dSQ(rhs) - posB.dist2dSQ(rhs))));
-			});
-
-			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
-
-			for (auto tile : commonTiles)
-			{
-				tile.z = posA.z;
-				int3 otherTile = tile;
-				otherTile.z = posB.z;
-
-				float distanceFromA = posA.dist2d(tile);
-				float distanceFromB = posB.dist2d(otherTile);
-
-				if (distanceFromA > 5 && distanceFromB > 5)
+				boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
 				{
-					//all neightbouring tiles also belong to zone
-					if (getZoneID(tile) == zoneAid && getZoneID(otherTile) == zoneBid)
-					{
-						bool withinZone = true;
+					//ignore z coordinate
+					if (lhs.x < rhs.x)
+						return true;
+					else
+						return lhs.y < rhs.y;
+				});
 
-						foreach_neighbour(tile, [&withinZone, zoneAid, this](int3 &pos)
+				vstd::erase_if(commonTiles, [](const int3 &tile) -> bool
+				{
+					return (!tile.x) || (!tile.y); //gates shouldn't go outside map (x = 0) and look bad at the very top (y = 0)
+				});
+
+				if (commonTiles.empty())
+					break; //nothing more to do
+
+				boost::sort(commonTiles, [posA, posB](const int3 &lhs, const int3 &rhs) -> bool
+				{
+					//choose tiles which are equidistant to zone centers
+					return (std::abs<double>(posA.dist2dSQ(lhs) - posB.dist2dSQ(lhs)) < std::abs<double>((posA.dist2dSQ(rhs) - posB.dist2dSQ(rhs))));
+				});
+
+				for (auto tile : commonTiles)
+				{
+					tile.z = posA.z;
+					int3 otherTile = tile;
+					otherTile.z = posB.z;
+
+					float distanceFromA = posA.dist2d(tile);
+					float distanceFromB = posB.dist2d(otherTile);
+
+					if (distanceFromA > 5 && distanceFromB > 5)
+					{
+						if (zoneA->areAllTilesAvailable(this, gate1, tile, tilesBlockedByObject) &&
+							zoneB->areAllTilesAvailable(this, gate2, otherTile, tilesBlockedByObject))
 						{
-							if (getZoneID(pos) != zoneAid)
-								withinZone = false;
-						});
-						foreach_neighbour(otherTile, [&withinZone, zoneBid, this](int3 &pos)
-						{
-							if (getZoneID(pos) != zoneBid)
-								withinZone = false;
-						});
-						if (withinZone)
-						{
-							//make sure both gates has some free tiles below them
 							if (zoneA->getAccessibleOffset(this, sgt, tile).valid() && zoneB->getAccessibleOffset(this, sgt, otherTile).valid())
 							{
-								zoneA->placeSubterraneanGate(this, tile, connection.getGuardStrength());
-								zoneB->placeSubterraneanGate(this, otherTile, connection.getGuardStrength());
-								guardPos = tile; //just any valid value
-								break; //we're done
+								EObjectPlacingResult::EObjectPlacingResult result1 = zoneA->tryToPlaceObjectAndConnectToPath(this, gate1, tile);
+								EObjectPlacingResult::EObjectPlacingResult result2 = zoneB->tryToPlaceObjectAndConnectToPath(this, gate2, otherTile);
+
+								if ((result1 == EObjectPlacingResult::SUCCESS) && (result2 == EObjectPlacingResult::SUCCESS))
+								{
+									zoneA->placeObject(this, gate1, tile);
+									zoneA->guardObject(this, gate1, strength, true, true);
+									zoneB->placeObject(this, gate2, otherTile);
+									zoneB->guardObject(this, gate2, strength, true, true);
+									guardPos = tile; //set to break the loop
+									break;
+								}
+								else if ((result1 == EObjectPlacingResult::SEALED_OFF) || (result2 == EObjectPlacingResult::SEALED_OFF))
+								{
+									//sealed-off tiles were blocked, exit inner loop and get another tile set
+									bool continueOuterLoop = true;
+									break;
+								}
+								else
+									continue; //try with another position
 							}
 						}
 					}
 				}
+				if (!continueOuterLoop) //we didn't find ANY tile - break outer loop			
+					break;
+			}
+			if (!guardPos.valid()) //cleanup? is this safe / enough?
+			{
+				delete gate1;
+				delete gate2;
 			}
 		}
 		if (!guardPos.valid())
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, getNextMonlithIndex());
 			auto teleport1 = factory->create(ObjectTemplate());
-
 			auto teleport2 = factory->create(ObjectTemplate());
 
-			zoneA->addRequiredObject(teleport1, connection.getGuardStrength());
-			zoneB->addRequiredObject(teleport2, connection.getGuardStrength());
+			zoneA->addRequiredObject(teleport1, strength);
+			zoneB->addRequiredObject(teleport2, strength);
 		}
 	}
 }
