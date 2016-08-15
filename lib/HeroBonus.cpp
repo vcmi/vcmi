@@ -97,6 +97,13 @@ BonusList::BonusList(const BonusList &bonusList)
 	belongsToTree = false;
 }
 
+BonusList::BonusList(BonusList&& other):
+	belongsToTree(false)
+{
+	std::swap(belongsToTree, other.belongsToTree);
+	std::swap(bonuses, other.bonuses);
+}
+
 BonusList& BonusList::operator=(const BonusList &bonusList)
 {
 	bonuses.resize(bonusList.size());
@@ -705,23 +712,16 @@ CBonusSystemNode::CBonusSystemNode() : bonuses(true), exportedBonuses(true), nod
 }
 
 CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
-	bonuses(other.bonuses),
-	exportedBonuses(other.exportedBonuses),
+	bonuses(std::move(other.bonuses)),
+	exportedBonuses(std::move(other.exportedBonuses)),
 	nodeType(other.nodeType),
 	description(other.description),
 	cachedLast(0)
 {
-	//todo: move constructor for bonuslist
-	other.bonuses.clear();
-	other.exportedBonuses.clear();
-
-	bonuses.belongsToTree = true;
-	exportedBonuses.belongsToTree = true;
-
 	std::swap(parents, other.parents);
 	std::swap(children, other.children);
 
-	//TODO: move cache
+	//cache ignored
 
 	//cachedBonuses
 	//cachedRequests

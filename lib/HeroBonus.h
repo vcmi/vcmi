@@ -423,6 +423,7 @@ public:
 
 	BonusList(bool BelongsToTree = false);
 	BonusList(const BonusList &bonusList);
+	BonusList(BonusList && other);
 	BonusList& operator=(const BonusList &bonusList);
 
 	// wrapper functions of the STL vector container
@@ -494,8 +495,6 @@ public:
 	{
 		return bonuses.end();
 	}
-
-	friend class CBonusSystemNode;
 };
 
 // Extensions for BOOST_FOREACH to enable iterating of BonusList objects
