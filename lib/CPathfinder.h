@@ -263,6 +263,7 @@ class DLL_LINKAGE CPathfinderHelper
 {
 public:
 	CPathfinderHelper(const CGHeroInstance * Hero, const CPathfinder::PathfinderOptions & Options);
+	~CPathfinderHelper();
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	const TurnInfo * getTurnInfo() const;

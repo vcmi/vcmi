@@ -929,6 +929,12 @@ CPathfinderHelper::CPathfinderHelper(const CGHeroInstance * Hero, const CPathfin
 	updateTurnInfo();
 }
 
+CPathfinderHelper::~CPathfinderHelper()
+{
+	for(auto ti : turnsInfo)
+		delete ti;
+}
+
 void CPathfinderHelper::updateTurnInfo(const int Turn)
 {
 	if(turn != Turn)
