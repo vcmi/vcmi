@@ -446,6 +446,7 @@ void CResDataBar::showAll(SDL_Surface * to)
 
 CAdvMapInt::CAdvMapInt():
 	mode(EAdvMapMode::NORMAL),
+	worldViewScale(0.0f), //actual init later in changeMode
 	minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
 	statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
