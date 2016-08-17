@@ -94,6 +94,12 @@ CObjectClassesHandler::CObjectClassesHandler()
 #undef SET_HANDLER
 }
 
+CObjectClassesHandler::~CObjectClassesHandler()
+{
+	for(auto p : objects)
+		delete p.second;
+}
+
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
 	CLegacyConfigParser parser("Data/Objects.txt");

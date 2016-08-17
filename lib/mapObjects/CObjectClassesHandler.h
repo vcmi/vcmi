@@ -211,6 +211,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	ObjectContainter * loadFromJson(const JsonNode & json, const std::string & name);
 public:
 	CObjectClassesHandler();
+	~CObjectClassesHandler();
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
