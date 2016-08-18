@@ -3061,7 +3061,8 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 					if(t->visitable)
 					{
 						auto obj = t->visitableObjects.front();
-						s.visitableObjs.push_back(obj);
+						if(cb->getObj(obj->id, false)) // FIXME: we have to filter invisible objcts like events, but probably TerrainTile shouldn't be used in SectorMap at all
+							s.visitableObjs.push_back(obj);
 					}
 				}
 			}
