@@ -68,6 +68,7 @@
 		<Unit filename="CEmptyAI.cpp" />
 		<Unit filename="CEmptyAI.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="exp_funcs.cpp" />

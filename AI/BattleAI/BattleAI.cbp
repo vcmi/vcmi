@@ -69,6 +69,7 @@
 		<Unit filename="BattleAI.cpp" />
 		<Unit filename="BattleAI.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="main.cpp" />

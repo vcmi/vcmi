@@ -54,6 +54,7 @@
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="StupidAI.cpp" />

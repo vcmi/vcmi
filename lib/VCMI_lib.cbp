@@ -4,7 +4,7 @@
 	<Project>
 		<Option title="VCMI_lib" />
 		<Option execution_dir="D:/projects/vcmi/engine/VCMI_lib/" />
-		<Option pch_mode="0" />
+		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug-win32">
@@ -198,6 +198,7 @@
 		<Unit filename="ScopeGuard.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="StringConstants.h" />
