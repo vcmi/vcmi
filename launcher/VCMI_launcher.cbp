@@ -58,7 +58,10 @@
 			<Add directory="$(#qt.lib)" />
 			<Add directory="$(#boost.lib)" />
 		</Linker>
-		<Unit filename="StdInc.cpp" />
+		<Unit filename="StdInc.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
@@ -73,6 +76,7 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="mainwindow_moc.cpp" />
 		<Unit filename="mainwindow_moc.h" />
+		<Unit filename="mainwindow_moc.ui" />
 		<Unit filename="modManager/cdownloadmanager_moc.cpp" />
 		<Unit filename="modManager/cdownloadmanager_moc.h" />
 		<Unit filename="modManager/cmodlist.cpp" />
@@ -81,10 +85,12 @@
 		<Unit filename="modManager/cmodlistmodel_moc.h" />
 		<Unit filename="modManager/cmodlistview_moc.cpp" />
 		<Unit filename="modManager/cmodlistview_moc.h" />
+		<Unit filename="modManager/cmodlistview_moc.ui" />
 		<Unit filename="modManager/cmodmanager.cpp" />
 		<Unit filename="modManager/cmodmanager.h" />
 		<Unit filename="modManager/imageviewer_moc.cpp" />
 		<Unit filename="modManager/imageviewer_moc.h" />
+		<Unit filename="modManager/imageviewer_moc.ui" />
 		<Unit filename="modManager/qrc_cdownloadmanager_moc.cpp" />
 		<Unit filename="modManager/qrc_cmodlistmodel_moc.cpp" />
 		<Unit filename="modManager/qrc_cmodlistview_moc.cpp" />
@@ -92,6 +98,7 @@
 		<Unit filename="qrc_mainwindow_moc.cpp" />
 		<Unit filename="settingsView/csettingsview_moc.cpp" />
 		<Unit filename="settingsView/csettingsview_moc.h" />
+		<Unit filename="settingsView/csettingsview_moc.ui" />
 		<Unit filename="settingsView/qrc_csettingsview_moc.cpp" />
 		<Extensions>
 			<code_completion />
