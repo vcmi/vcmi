@@ -177,6 +177,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 }
 
 CCreatureHandler::CCreatureHandler()
+	: expAfterUpgrade(0)
 {
 	VLC->creh = this;
 

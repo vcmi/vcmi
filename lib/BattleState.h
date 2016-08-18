@@ -35,6 +35,8 @@ struct DLL_LINKAGE SiegeInfo
 	std::array<si8, EWallPart::PARTS_COUNT> wallState;
 	EGateState gateState;
 
+	SiegeInfo();
+
 	// return EWallState decreased by value of damage points
 	static EWallState::EWallState applyDamage(EWallState::EWallState state, unsigned int value)
 	{
