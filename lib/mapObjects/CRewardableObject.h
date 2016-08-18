@@ -146,6 +146,7 @@ public:
 	si32 numOfGrants;
 
 	CVisitInfo():
+		selectChance(0),
 		numOfGrants(0)
 	{}
 

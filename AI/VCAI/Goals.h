@@ -86,8 +86,10 @@ public:
 		value = 0;
 		aid = -1;
 		resID = -1;
+		objid = -1;
 		tile = int3(-1, -1, -1);
 		town = nullptr;
+		bid = -1;
 	}
 	virtual ~AbstractGoal(){};
 	//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case

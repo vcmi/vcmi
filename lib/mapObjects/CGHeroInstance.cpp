@@ -467,6 +467,12 @@ ui8 CGHeroInstance::maxlevelsToWisdom() const
 	return type->heroClass->isMagicHero() ? 3 : 6;
 }
 
+CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo()
+{
+	magicSchoolCounter = 1;
+	wisdomCounter = 1;
+}
+
 void CGHeroInstance::SecondarySkillsInfo::resetMagicSchoolCounter()
 {
 	magicSchoolCounter = 1;

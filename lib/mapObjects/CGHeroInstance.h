@@ -119,6 +119,8 @@ public:
 		ui8 magicSchoolCounter;
 		ui8 wisdomCounter;
 
+		SecondarySkillsInfo();
+
 		void resetMagicSchoolCounter();
 		void resetWisdomCounter();
 
