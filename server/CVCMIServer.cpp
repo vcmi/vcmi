@@ -635,7 +635,8 @@ int main(int argc, char** argv)
 		//and return non-zero status so client can detect error
 		throw;
 	}
-	//delete VLC; //can't be re-enabled due to access to already freed memory in bonus system
+	delete VLC;
+	VLC = nullptr;
 	CResourceHandler::clear();
 
   return 0;

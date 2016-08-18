@@ -908,17 +908,26 @@ void playIntro()
 
 void dispose()
 {
-	if (console)
-		delete console;
+	if(VLC)
+	{
+		delete VLC;
+		VLC = nullptr;
+	}
 
 	// cleanup, mostly to remove false leaks from analyzer
 	CResourceHandler::clear();
-	if (CCS)
+	if(CCS)
 	{
 		CCS->musich->release();
 		CCS->soundh->release();
 	}
 	CMessage::dispose();
+
+	if(console)
+	{
+		delete console; // should be removed after everything else since used by logging
+		console = nullptr;
+	}
 }
 
 static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullscreen)
