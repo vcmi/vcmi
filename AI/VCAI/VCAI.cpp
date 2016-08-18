@@ -288,6 +288,7 @@ void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
 	NET_EVENT_HANDLER;
 
 	validateVisitableObjs();
+	clearPathsInfo();
 }
 
 void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
