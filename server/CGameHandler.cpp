@@ -3193,7 +3193,10 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
-	if ((srcArtifact && srcArtifact->artType->id == ArtifactID::ART_LOCK) || (destArtifact && destArtifact->artType->id == ArtifactID::ART_LOCK))
+	auto srcSlot = src.getSlot();
+	auto dstSlot = dst.getSlot();
+
+	if ((srcSlot && srcSlot->locked) || (dstSlot && dstSlot->locked))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
 	if (dst.slot >= GameConstants::BACKPACK_START && srcArtifact->artType->isBig())

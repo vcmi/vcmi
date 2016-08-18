@@ -942,7 +942,7 @@ public:
 		//CORNUCOPIA = 140,
 		//FIXME: the following is only true if WoG is enabled. Otherwise other mod artifacts will take these slots.
 		ART_SELECTION = 144,
-		ART_LOCK = 145,
+		ART_LOCK = 145, // FIXME: We must get rid of this one since it's conflict with artifact from mods. See issue 2455
 		AXE_OF_SMASHING = 146,
 		MITHRIL_MAIL = 147,
 		SWORD_OF_SHARPNESS = 148,
