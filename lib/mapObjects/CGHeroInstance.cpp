@@ -469,6 +469,7 @@ ui8 CGHeroInstance::maxlevelsToWisdom() const
 
 CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo()
 {
+	rand.setSeed(0);
 	magicSchoolCounter = 1;
 	wisdomCounter = 1;
 }
