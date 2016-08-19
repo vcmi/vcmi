@@ -242,6 +242,9 @@ CMap::~CMap()
 		delete [] terrain;
 		delete [] guardingCreaturePositions;
 	}
+
+	for(auto obj : objects)
+		obj.dellNull();
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
