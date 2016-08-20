@@ -33,7 +33,7 @@ namespace vstd
 		virtual void log(ELogLevel::ELogLevel level, const std::string & message) const = 0;
 
 		template<typename T, typename ... Args>
-		void log(ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args)
+		void log(ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args) const
 		{
 			boost::format fmt(format);
 			makeFormat(fmt, t, args...);
@@ -47,7 +47,7 @@ namespace vstd
 		};
 
 		template<typename T, typename ... Args>
-		void error(const std::string & format, T t, Args ... args)
+		void error(const std::string & format, T t, Args ... args) const
 		{
 			log(ELogLevel::ERROR, format, t, args...);
 		}
@@ -58,7 +58,7 @@ namespace vstd
 		};
 
 		template<typename T, typename ... Args>
-		void warn(const std::string & format, T t, Args ... args)
+		void warn(const std::string & format, T t, Args ... args) const
 		{
 			log(ELogLevel::WARN, format, t, args...);
 		}
@@ -69,7 +69,7 @@ namespace vstd
 		};
 
 		template<typename T, typename ... Args>
-		void info(const std::string & format, T t, Args ... args)
+		void info(const std::string & format, T t, Args ... args) const
 		{
 			log(ELogLevel::INFO, format, t, args...);
 		}
@@ -81,7 +81,7 @@ namespace vstd
 
 
 		template<typename T, typename ... Args>
-		void debug(const std::string & format, T t, Args ... args)
+		void debug(const std::string & format, T t, Args ... args) const
 		{
 			log(ELogLevel::DEBUG, format, t, args...);
 		}
@@ -92,20 +92,20 @@ namespace vstd
 		};
 
 		template<typename T, typename ... Args>
-		void trace(const std::string & format, T t, Args ... args)
+		void trace(const std::string & format, T t, Args ... args) const
 		{
 			log(ELogLevel::TRACE, format, t, args...);
 		}
 
 	private:
 		template <typename T>
-		void makeFormat(boost::format & fmt, T t)
+		void makeFormat(boost::format & fmt, T t) const
 		{
 			fmt % t;
 		}
 
 		template <typename T, typename ... Args>
-		void makeFormat(boost::format & fmt, T t, Args ... args)
+		void makeFormat(boost::format & fmt, T t, Args ... args) const
 		{
 			fmt % t;
 			makeFormat(fmt, args...);
