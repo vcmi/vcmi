@@ -164,7 +164,7 @@ then
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
         gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
-	cd "$temp_dir" && innoextract -s -p 1 "$gog_file"
+	cd "$temp_dir" && innoextract "$gog_file"
 
 	data_dir="$temp_dir"/app
 fi
