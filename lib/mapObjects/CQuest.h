@@ -50,7 +50,7 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
-	CQuest(){missionType = MISSION_NONE;}; //default constructor
+	CQuest();
 	virtual ~CQuest(){};
 
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not

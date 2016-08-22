@@ -23,6 +23,13 @@
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
+CQuest::CQuest()
+	: qid(-1), missionType(MISSION_NONE), progress(NOT_ACTIVE), lastDay(-1), m13489val(0),
+	textOption(0), completedOption(0), stackDirection(0), heroPortrait(-1),
+	isCustomFirst(false), isCustomNext(false), isCustomComplete(false)
+{
+}
+
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
 {
