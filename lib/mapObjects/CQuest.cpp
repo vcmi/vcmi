@@ -395,7 +395,8 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 	}
 }
 
-CGSeerHut::CGSeerHut() : IQuestObject()
+CGSeerHut::CGSeerHut() : IQuestObject(),
+	rewardType(NOTHING), rID(-1), rVal(-1)
 {
 	quest->lastDay = -1;
 	quest->isCustomFirst = false;
