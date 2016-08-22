@@ -1116,6 +1116,9 @@ CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & creature : creatures)
 		creature.dellNull();
+
+	for(auto & p : skillRequirements)
+		vstd::clear_pointer(p.first);
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
