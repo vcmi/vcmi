@@ -163,7 +163,7 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill::PrimarySkill nextPrimarySkill() const;
+	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
 	boost::optional<SecondarySkill> nextSecondarySkill() const;

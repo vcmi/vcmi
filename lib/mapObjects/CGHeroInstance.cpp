@@ -1337,10 +1337,10 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	return skills;
 }
 
-PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill() const
+PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
-	int randomValue = cb->gameState()->getRandomGenerator().nextInt(99), pom = 0, primarySkill = 0;
+	int randomValue = rand.nextInt(99), pom = 0, primarySkill = 0;
 	const auto & skillChances = (level > 9) ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
 
 	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
@@ -1456,7 +1456,7 @@ void CGHeroInstance::levelUpAutomatically()
 {
 	while(gainsLevel())
 	{
-		const auto primarySkill = nextPrimarySkill();
+		const auto primarySkill = nextPrimarySkill(cb->gameState()->getRandomGenerator());
 		setPrimarySkill(primarySkill, 1, false);
 
 		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();

@@ -204,7 +204,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 
 	// give primary skill
 	logGlobal->trace("%s got level %d", hero->name, hero->level);
-	auto primarySkill = hero->nextPrimarySkill();
+	auto primarySkill = hero->nextPrimarySkill(getRandomGenerator());
 
 	SetPrimSkill sps;
 	sps.id = hero->id;
