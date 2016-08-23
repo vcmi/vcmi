@@ -302,7 +302,7 @@ void CGHeroInstance::initHero()
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
 	{
-		initArmy();
+		initArmy(cb->gameState()->getRandomGenerator());
 	}
 	assert(validTypes());
 
@@ -326,13 +326,13 @@ void CGHeroInstance::initHero()
 		mana = manaLimit();
 }
 
-void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
+void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor *dst /*= nullptr*/)
 {
 	if(!dst)
 		dst = this;
 
 	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
-	int pom = cb->getRandomGenerator().nextInt(99);
+	int pom = rand.nextInt(99);
 	int warMachinesGiven = 0;
 
 	if(pom < 9)
@@ -348,7 +348,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 	{
 		auto & stack = type->initialArmy[stackNo];
 
-		int count = cb->getRandomGenerator().nextInt(stack.minAmount, stack.maxAmount);
+		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
 		if(stack.creature >= CreatureID::CATAPULT &&
 		   stack.creature <= CreatureID::ARROW_TOWERS) //war machine

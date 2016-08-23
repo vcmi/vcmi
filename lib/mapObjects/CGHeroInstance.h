@@ -205,7 +205,7 @@ public:
 	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
 	void initExp();
-	void initArmy(IArmyDescriptor *dst = nullptr);
+	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
 	//void giveArtifact (ui32 aid);
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;

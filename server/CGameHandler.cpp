@@ -1518,7 +1518,7 @@ void CGameHandler::newTurn()
 				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, getRandomGenerator(), banned))
 				{
 					sah.hid[j] = h->subID;
-					h->initArmy(&sah.army[j]);
+					h->initArmy(getRandomGenerator(), &sah.army[j]);
 					banned = h->type->heroClass;
 				}
 				else
