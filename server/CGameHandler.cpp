@@ -1716,25 +1716,6 @@ void CGameHandler::newTurn()
 			elem->newTurn();
 	}
 
-	//count days without town for all players, regardless of their turn order
-	for (auto &p : gs->players)
-	{
-		PlayerState & playerState = p.second;
-		if (playerState.status == EPlayerStatus::INGAME)
-		{
-			if (playerState.towns.empty())
-			{
-				if (playerState.daysWithoutCastle)
-					++(*playerState.daysWithoutCastle);
-				else playerState.daysWithoutCastle = 0;
-			}
-			else
-			{
-				playerState.daysWithoutCastle = boost::none;
-			}
-		}
-	}
-
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 void CGameHandler::run(bool resume)
@@ -2183,8 +2164,6 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 			if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(town, true, false);
-
-			gs->getPlayer(owner)->daysWithoutCastle = boost::none; // reset counter
 		}
 
 		if (oldOwner < PlayerColor::PLAYER_LIMIT) //old owner is real player
