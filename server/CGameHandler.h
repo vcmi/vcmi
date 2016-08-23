@@ -247,7 +247,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID & states & finishingBattle;
-		if(version >= 760)
+		if(version >= 761)
 		{
 			h & rand;
 		}

@@ -113,6 +113,11 @@ void CCallbackBase::setBattle(const BattleInfo *B)
 	battle = B;
 }
 
+CRandomGenerator & CCallbackBase::getRandomGenerator() const
+{
+	return rand;
+}
+
 boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
@@ -1106,7 +1111,7 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				bai.defender->prepareAttacked(bsa, gs->getRandomGenerator(), bai.defenderCount);
+				bai.defender->prepareAttacked(bsa, getRandomGenerator(), bai.defenderCount);
 
 				auto retaliationAttack = bai.reverse();
 				retaliationAttack.attackerCount = bsa.newAmount;
@@ -2045,7 +2050,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 
 	if(!beneficialSpells.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(beneficialSpells, gs->getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(beneficialSpells, getRandomGenerator());
 	}
 	else
 	{
@@ -2065,7 +2070,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
 	}
-	int randomPos = gs->getRandomGenerator().nextInt(totalWeight - 1);
+	int randomPos = getRandomGenerator().nextInt(totalWeight - 1);
 	for(Bonus * b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo, 1);

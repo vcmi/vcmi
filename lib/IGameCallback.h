@@ -124,8 +124,6 @@ public:
 
 	//get info
 	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero);
-	CRandomGenerator rand;
-	CRandomGenerator & getRandomGenerator();
 
 	friend struct CPack;
 	friend struct CPackForClient;

@@ -1,5 +1,6 @@
 #pragma once
 #include "BattleHex.h"
+#include "CRandomGenerator.h"
 
 /*
  * CBattleCallback.h, part of VCMI engine
@@ -48,6 +49,7 @@ class DLL_LINKAGE CCallbackBase
 
 protected:
 	CGameState *gs;
+	mutable CRandomGenerator rand;
 	boost::optional<PlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
 
 	CCallbackBase(CGameState *GS, boost::optional<PlayerColor> Player)
@@ -63,6 +65,7 @@ protected:
 public:
 	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
 	boost::optional<PlayerColor> getPlayerID() const;
+	CRandomGenerator & getRandomGenerator() const;
 
 	friend class CBattleInfoEssentials;
 };

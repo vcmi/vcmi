@@ -249,11 +249,6 @@ const CGCreature * IGameCallback::putNewMonster(CreatureID creID, int count, int
 	return dynamic_cast<const CGCreature*>(m);
 }
 
-CRandomGenerator & IGameCallback::getRandomGenerator()
-{
-	return rand;
-}
-
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
 	//only server knows
