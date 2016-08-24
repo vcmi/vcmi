@@ -533,6 +533,8 @@ DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 	{
 		assert(t->town->buildings.at(id) != nullptr);
 		t->builtBuildings.insert(id);
+
+		t->updateAppearance();
 	}
 	t->builded = builded;
 	t->recreateBuildingsBonuses();
@@ -543,6 +545,8 @@ DLL_LINKAGE void RazeStructures::applyGs( CGameState *gs )
 	for(const auto & id : bid)
 	{
 		t->builtBuildings.erase(id);
+
+		t->updateAppearance();
 	}
 	t->destroyed = destroyed; //yeaha
 	t->recreateBuildingsBonuses();

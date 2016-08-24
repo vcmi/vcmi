@@ -416,8 +416,6 @@ void NewStructures::applyCl( CClient *cl )
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		town->updateAppearance();
-
 		if(vstd::contains(cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
 	}
@@ -427,8 +425,6 @@ void RazeStructures::applyCl (CClient *cl)
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		town->updateAppearance();
-
 		if(vstd::contains (cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged (town,id,2);
 	}
