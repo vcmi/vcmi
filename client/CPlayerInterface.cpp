@@ -612,22 +612,25 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID build
 		break;
 	}
 
-	if(!castleInt)
-		return;
-	if(castleInt->town!=town)
-		return;
-	switch(what)
+	if(castleInt)
 	{
-	case 1:
-		CCS->soundh->playSound(soundBase::newBuilding);
-		castleInt->addBuilding(buildingID);
-		break;
-	case 2:
-		castleInt->removeBuilding(buildingID);
-		break;
+		castleInt->townlist->update(town);
+
+		if(castleInt->town == town)
+		{
+			switch(what)
+			{
+			case 1:
+				CCS->soundh->playSound(soundBase::newBuilding);
+				castleInt->addBuilding(buildingID);
+				break;
+			case 2:
+				castleInt->removeBuilding(buildingID);
+				break;
+			}
+		}
 	}
 	adventureInt->townList.update(town);
-	castleInt->townlist->update(town);
 }
 
 void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
