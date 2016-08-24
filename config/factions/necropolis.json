@@ -70,6 +70,8 @@
 			{
 				"templates" : {
 					"castle" :  { "animation" : "AVCnecx0.def" },
+					"citadel" : { "animation" : "AVCnecx0.def" },
+					"fort"    : { "animation" : "AVCnecx0.def" },
 					"village" : { "animation" : "AVCNECR0.DEF" },
 					"capitol" : { "animation" : "AVCNECZ0.DEF" }
 				}
