@@ -780,7 +780,7 @@ void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for play
 
 bool CGKeys::wasMyColorVisited (PlayerColor player) const
 {
-	if (vstd::contains(playerKeyMap[player], subID)) //creates set if it's not there
+	if(playerKeyMap.count(player) && vstd::contains(playerKeyMap[player], subID))
 		return true;
 	else
 		return false;
