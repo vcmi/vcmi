@@ -240,6 +240,8 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 	battleints.clear();
 	callbacks.clear();
 	battleCallbacks.clear();
+	CGKeys::reset();
+	CGMagi::reset();
 	CGObelisk::reset();
 	logNetwork->infoStream() << "Deleted playerInts.";
 	logNetwork->infoStream() << "Client stopped.";

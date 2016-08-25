@@ -762,6 +762,11 @@ void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 	cb->removeObject(this);
 }
 
+void CGKeys::reset()
+{
+	playerKeyMap.clear();
+}
+
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
 	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))

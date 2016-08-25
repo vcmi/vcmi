@@ -441,6 +441,8 @@ class DLL_LINKAGE CGMagi : public CGObjectInstance
 public:
 	static std::map <si32, std::vector<ObjectInstanceID> > eyelist; //[subID][id], supports multiple sets as in H5
 
+	static void reset();
+
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
