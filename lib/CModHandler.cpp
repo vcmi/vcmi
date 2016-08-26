@@ -1,9 +1,7 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
-#include "JsonNode.h"
 #include "filesystem/FileStream.h"
-#include "filesystem/Filesystem.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
 

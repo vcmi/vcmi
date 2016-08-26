@@ -5,7 +5,6 @@
 
 #include "../gui/CAnimation.h"
 #include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 

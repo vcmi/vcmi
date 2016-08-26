@@ -15,7 +15,6 @@
 #include "CGameInfo.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "Graphics.h"
 #include "windows/GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"

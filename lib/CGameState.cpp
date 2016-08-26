@@ -10,9 +10,7 @@
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
-#include "CCreatureHandler.h"
 #include "CModHandler.h"
-#include "VCMI_Lib.h"
 #include "Connection.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"
@@ -27,9 +25,6 @@
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
-#include "CPathfinder.h"
-
-class CGObjectInstance;
 
 #ifdef min
 #undef min

@@ -12,7 +12,6 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
-#include "../GameConstants.h"
 #include "../mapping/CMap.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"

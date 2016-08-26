@@ -22,7 +22,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "CMusicHandler.h"
-#include "CVideoHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"

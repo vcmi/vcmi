@@ -2,8 +2,6 @@
 #include "CMapInfo.h"
 
 #include "../StartInfo.h"
-#include "CMap.h"
-#include "CCampaignHandler.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
 

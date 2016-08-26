@@ -8,8 +8,6 @@
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
 #include "../filesystem/Filesystem.h"
-#include "CRmgTemplate.h"
-#include "CRmgTemplateZone.h"
 #include "CZonePlacer.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 

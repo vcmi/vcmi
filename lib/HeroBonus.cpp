@@ -19,7 +19,6 @@
 #include "CGeneralTextHandler.h"
 #include "BattleState.h"
 #include "CArtHandler.h"
-#include "GameConstants.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)

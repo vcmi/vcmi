@@ -44,7 +44,6 @@
 #include "widgets/TextControls.h"
 #include "windows/InfoWindows.h"
 #include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CondSh.h"
 

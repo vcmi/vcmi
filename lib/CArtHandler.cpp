@@ -18,7 +18,6 @@
 #include "spells/CSpellHandler.h"
 #include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
-#include "GameConstants.h"
 #include "StringConstants.h"
 #include "CRandomGenerator.h"
 

@@ -30,7 +30,6 @@
 #include "../lib/JsonNode.h"
 #include "mapHandler.h"
 #include "../lib/CConfigHandler.h"
-#include "Client.h"
 #include "CPreGame.h"
 #include "battle/CBattleInterface.h"
 #include "../lib/CThreadHelper.h"

@@ -8,7 +8,6 @@
 #include "../../lib/filesystem/CBinaryReader.h"
 #include "../../lib/filesystem/CMemoryStream.h"
 
-#include "../gui/SDL_Extensions.h"
 #include "../gui/SDL_Pixels.h"
 
 /*

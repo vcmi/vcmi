@@ -13,7 +13,6 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
-#include "BattleHex.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine

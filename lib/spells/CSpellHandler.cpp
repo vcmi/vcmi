@@ -19,7 +19,6 @@
 
 #include "../JsonNode.h"
 
-#include "../BattleHex.h"
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 

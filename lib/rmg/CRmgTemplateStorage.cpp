@@ -12,8 +12,6 @@
 #include "StdInc.h"
 #include "CRmgTemplateStorage.h"
 
-#include "CRmgTemplate.h"
-#include "CRmgTemplateZone.h"
 #include "../filesystem/Filesystem.h"
 #include "../JsonNode.h"
 #include "../mapping/CMap.h"

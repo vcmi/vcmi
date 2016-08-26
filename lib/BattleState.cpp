@@ -15,7 +15,6 @@
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CHeroHandler.h"
-#include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CTownHandler.h"
 #include "NetPacks.h"
