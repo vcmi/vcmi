@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
 #if 0
-				logGlobal->traceStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
+				logGlobal->trace("Test pattern '%s' on position x '%d', y '%d', z '%d'.", patternStr, pos.x, pos.y, pos.z);
 				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
 #endif // 0
 				const auto & originalTile = originalMap->getTile(pos);

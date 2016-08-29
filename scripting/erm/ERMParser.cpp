@@ -37,7 +37,7 @@ CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), fil
 {
 	if(!file.is_open())
 	{
-		logGlobal->errorStream() << "File " << Fname << " not found or unable to open";
+		logGlobal->error("File %s not found or unable to open", Fname);
 		return;
 	}
 
@@ -51,7 +51,7 @@ CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), fil
 		version = VERM;
 	else
 	{
-		logGlobal->errorStream() << "File " << fname << " has wrong header";
+		logGlobal->error("File %s has wrong header", fname);
 		return;
 	}
 }
@@ -150,7 +150,7 @@ std::string CERMPreprocessor::retreiveCommandLine()
 	}
 
 	if(openedBraces || openedString)
-		logGlobal->errorStream() << "Ill-formed file: " << fname;
+		logGlobal->error("Ill-formed file: %s", fname);
 	return "";
 }
 
@@ -186,7 +186,7 @@ std::vector<LineInfo> ERMParser::parseFile()
 	}
 	catch (ParseErrorException & e)
 	{
-		logGlobal->errorStream() << "stopped parsing file";
+		logGlobal->error("Stopped parsing file.");
 	}
 	return ret;
 }
@@ -355,7 +355,7 @@ namespace ERM
 
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
-			
+
 			VRLogic %= qi::char_("&|X") >> iexp;
 			VRarithmetic %= qi::char_("+*:/%-") >> iexp;
 			semiCompare %= +qi::char_("<=>") >> iexp;
@@ -375,7 +375,7 @@ namespace ERM
 					(
 						(qi::lit("?") >> trigger) |
 						(qi::lit("!") >> receiver) |
-						(qi::lit("#") >> instruction) | 
+						(qi::lit("#") >> instruction) |
 						(qi::lit("$") >> postTrigger)
 					) >> comment
 				);
@@ -481,7 +481,7 @@ ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 	}
 	catch(...)
 	{
-		logGlobal->errorStream() << "Parse error occurred in file " << srcFile << " (line " << realLineNo << ") :" << line;
+		logGlobal->error("Parse error occurred in file %s (line %d): %s", srcFile, realLineNo, line);
 		throw;
 	}
 }
@@ -497,7 +497,7 @@ ERM::TLine ERMParser::parseLine(const std::string & line)
 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
 	if(!r || beg != end)
 	{
-		logGlobal->errorStream() << "Parse error: cannot parse: " << std::string(beg, end);
+		logGlobal->error("Parse error: cannot parse: %s", std::string(beg, end));
 		throw ParseErrorException();
 	}
 	return AST;
@@ -505,7 +505,7 @@ ERM::TLine ERMParser::parseLine(const std::string & line)
 
 int ERMParser::countHatsBeforeSemicolon( const std::string & line ) const
 {
-	//CHECK: omit macros? or anything else? 
+	//CHECK: omit macros? or anything else?
 	int numOfHats = 0; //num of '^' before ';'
 	//check for unmatched ^
 	for (char c : line)
