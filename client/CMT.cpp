@@ -290,7 +290,6 @@ int main(int argc, char** argv)
 	console = new CConsoleHandler;
 	*console->cb = processCommand;
 	console->start();
-	atexit(dispose);
 
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
 	CBasicLogConfigurator logConfig(logPath, console);
@@ -363,7 +362,6 @@ int main(int argc, char** argv)
 			exit(-1);
 		}
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
-		atexit(SDL_Quit);
 
 		SDL_LogSetOutputFunction(&SDLLogCallback, nullptr);
 
@@ -1278,6 +1276,8 @@ void handleQuit(bool ask/* = true*/)
 			SDL_Quit();
 
 		std::cout << "Ending...\n";
+		dispose();
+		SDL_Quit();
 		exit(0);
 	};
 
