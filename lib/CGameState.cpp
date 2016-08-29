@@ -787,6 +787,16 @@ void CGameState::init(StartInfo * si)
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
 
+	// Explicitly initialize static variables
+	for(auto & elem : players)
+	{
+		CGKeys::playerKeyMap[elem.first] = {};
+	}
+	for(auto & elem : teams)
+	{
+		CGObelisk::visited[elem.first] = 0;
+	}
+
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
@@ -2637,7 +2647,15 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //obelisks found
 	{
-		FILL_FIELD(obelisks, CGObelisk::visited[gs->getPlayerTeam(g->second.color)->id])
+		auto getObeliskVisited = [](TeamID t)
+		{
+			if(CGObelisk::visited.count(t))
+				return CGObelisk::visited[t];
+			else
+				return ui8(0);
+		};
+
+		FILL_FIELD(obelisks, getObeliskVisited(gs->getPlayerTeam(g->second.color)->id))
 	}
 	if(level >= 4) //artifacts
 	{

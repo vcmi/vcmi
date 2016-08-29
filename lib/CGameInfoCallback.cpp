@@ -735,8 +735,12 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 	}
 	else
 	{
-		*outKnownRatio = static_cast<double>(CGObelisk::visited[gs->getPlayerTeam(*player)->id])
-			/ CGObelisk::obeliskCount;
+		TeamID t = gs->getPlayerTeam(*player)->id;
+		double visited = 0.0;
+		if(CGObelisk::visited.count(t))
+			visited = static_cast<double>(CGObelisk::visited[t]);
+
+		*outKnownRatio = visited / CGObelisk::obeliskCount;
 	}
 	return gs->map->grailPos;
 }
