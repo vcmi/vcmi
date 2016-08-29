@@ -128,7 +128,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
+		logGlobal->error("CSpell::getLevelInfo invalid school level %d", level);
 		throw new std::runtime_error("Invalid school level");
 	}
 

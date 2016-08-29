@@ -49,6 +49,7 @@
 			<Add option="-Wno-unused-local-typedefs" />
 			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />

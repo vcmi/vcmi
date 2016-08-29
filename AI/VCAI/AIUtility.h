@@ -42,7 +42,7 @@ struct HeroPtr
 public:
 	std::string name;
 
-	
+
 	HeroPtr();
 	HeroPtr(const CGHeroInstance *H);
 	~HeroPtr();
@@ -105,7 +105,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-		logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
+		logAi->trace("Time of %s was %d ms.",txt,time.getDiff());
 	}
 };
 
@@ -132,7 +132,7 @@ bool objWithID(const CGObjectInstance *obj)
 	return obj->ID == id;
 }
 
-std::string strFromInt3(int3 pos);
+std::string strFromInt3(int3 pos);//todo: remove
 void foreach_tile_pos(std::function<void(const int3& pos)> foo);
 void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);

@@ -113,12 +113,15 @@
 			<Add directory="." />
 			<Add directory="$(#sdl2.include)" />
 			<Add directory="$(#zlib.include)" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add directory="../" />
 			<Add directory="$(#sdl2.lib)" />
 			<Add directory="$(#zlib.lib)" />
 		</Linker>
+		<Unit filename="../Global.h" />
+		<Unit filename="../include/vstd/CLoggerBase.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="BattleAction.cpp" />
 		<Unit filename="BattleAction.h" />

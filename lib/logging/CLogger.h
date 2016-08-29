@@ -18,18 +18,9 @@ class CLogger;
 struct LogRecord;
 class ILogTarget;
 
+
 namespace ELogLevel
 {
-	enum ELogLevel
-	{
-		NOT_SET = 0,
-		TRACE,
-		DEBUG,
-		INFO,
-		WARN,
-		ERROR
-	};
-
 	#ifdef VCMI_ANDROID
 		int toAndroid(ELogLevel logLevel);
 	#endif
@@ -79,7 +70,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger
+class DLL_LINKAGE CLogger: public vstd::CLoggerBase
 {
 public:
 	inline ELogLevel::ELogLevel getLevel() const;
@@ -90,13 +81,6 @@ public:
 	static CLogger * getLogger(const CLoggerDomain & domain);
 	static CLogger * getGlobalLogger();
 
-	/// Log methods for various log levels
-	void trace(const std::string & message) const;
-	void debug(const std::string & message) const;
-	void info(const std::string & message) const;
-	void warn(const std::string & message) const;
-	void error(const std::string & message) const;
-
 	/// Log streams for various log levels
 	CLoggerStream traceStream() const;
 	CLoggerStream debugStream() const;
@@ -104,7 +88,7 @@ public:
 	CLoggerStream warnStream() const;
 	CLoggerStream errorStream() const;
 
-	inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
+	void log(ELogLevel::ELogLevel level, const std::string & message) const override;
 
 	void addTarget(std::unique_ptr<ILogTarget> && target);
 	void clearTargets();

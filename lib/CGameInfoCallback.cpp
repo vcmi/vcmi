@@ -78,14 +78,14 @@ const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose
 		else
 		{
 			if (verbose)
-				logGlobal->errorStream() << boost::format("Cannot access player %d info!") % color;
+				logGlobal->error("Cannot access player %d info!", color);
 			return nullptr;
 		}
 	}
 	else
 	{
 		if (verbose)
-			logGlobal->errorStream() << boost::format("Cannot find player %d info!") % color;
+			logGlobal->error("Cannot find player %d info!", color);
 		return nullptr;
 	}
 }
@@ -835,14 +835,14 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 				return ret;
 			else
 			{
-				logGlobal->errorStream() << boost::format("Illegal attempt to access team data!");
+				logGlobal->error("Illegal attempt to access team data!");
 				return nullptr;
 			}
 		}
 	}
 	else
 	{
-		logGlobal->errorStream() << boost::format("Cannot find info for team %d") % teamID;
+		logGlobal->error("Cannot find info for team %d", teamID);
 		return nullptr;
 	}
 }

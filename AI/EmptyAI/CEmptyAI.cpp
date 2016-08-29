@@ -8,7 +8,6 @@ void CEmptyAI::init(std::shared_ptr<CCallback> CB)
 	cb = CB;
 	human=false;
 	playerID = *cb->getMyColor();
-	//logAi->infoStream() << "EmptyAI initialized.";
 }
 void CEmptyAI::yourTurn()
 {
