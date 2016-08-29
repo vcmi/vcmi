@@ -1863,9 +1863,18 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 {
 	battleResult.set(nullptr);
 
+	const auto t = gs->getTile(tile);
+	ETerrainType terrain = t->terType;
+	if(gs->map->isCoastalTile(tile)) //coastal tile is always ground
+		terrain = ETerrainType::SAND;
+
+	BFieldType terType = gs->battleGetBattlefieldType(tile);
+	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
+		terType = BFieldType::SHIP_TO_SHIP;
+
 	//send info about battles
 	BattleStart bs;
-	bs.info = gs->setupBattle(tile, armies, heroes, creatureBank,	town);
+	bs.info = BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 	sendAndApply(&bs);
 }
 

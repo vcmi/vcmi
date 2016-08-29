@@ -727,19 +727,6 @@ CGameState::~CGameState()
 		ptr.second.dellNull();
 }
 
-BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
-{
-	const TerrainTile &t = map->getTile(tile);
-	ETerrainType terrain = t.terType;
-	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = ETerrainType::SAND;
-
-	BFieldType terType = battleGetBattlefieldType(tile);
-	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BFieldType::SHIP_TO_SHIP;
-	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
-}
-
 void CGameState::init(StartInfo * si)
 {
 	logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
