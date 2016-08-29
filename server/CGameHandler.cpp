@@ -108,7 +108,7 @@ class CApplyOnGH<CPack> : public CBaseForGHApply
 public:
 	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const
 	{
-		logGlobal->errorStream() << "Cannot apply on GH plain CPack!";
+		logGlobal->error("Cannot apply on GH plain CPack!");
 		assert(0);
 		return false;
 	}
@@ -203,7 +203,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 
 	// give primary skill
-	logGlobal->traceStream() << hero->name << " got level "<< hero->level;
+	logGlobal->trace("%s got level %d", hero->name, hero->level);
 	auto primarySkill = hero->nextPrimarySkill();
 
 	SetPrimSkill sps;
@@ -490,7 +490,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	auto battleQuery = findBattleQuery();
 	if(!battleQuery)
 	{
-		logGlobal->errorStream() << "Cannot find battle query!";
+		logGlobal->error("Cannot find battle query!");
 		if(gs->initialOpts->mode == StartInfo::DUEL)
 		{
 			battleQuery = std::make_shared<CBattleQuery>(gs->curB);
@@ -698,7 +698,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 
 	finishingBattle->remainingBattleQueriesCount--;
-	logGlobal->traceStream() << "Decremented queries count to " << finishingBattle->remainingBattleQueriesCount;
+	logGlobal->trace("Decremented queries count to %d", finishingBattle->remainingBattleQueriesCount);
 
 	if(finishingBattle->remainingBattleQueriesCount > 0)
 		//Battle results will be handled when all battle queries are closed
@@ -729,7 +729,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 	if(visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
-		logGlobal->traceStream() << "post-victory visit";
+		logGlobal->trace("post-victory visit");
 		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
 	}
 	visitObjectAfterVictory = false;
@@ -936,13 +936,13 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 
 				if(!pack)
 				{
-					logGlobal ->errorStream() << boost::format("Received a null package marked as request %d from player %d") % requestID % player;
+					logGlobal->error("Received a null package marked as request %d from player %d", requestID, player);
 				}
 
 				packType = typeList.getTypeID(pack); //get the id of type
 
-				logGlobal->traceStream() << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
-					% requestID % player.getNum() % packType % typeid(*pack).name();
+				logGlobal->trace("Received client message (request %d by player %d) of type with ID=%d (%s).\n",
+					requestID, player.getNum(), packType, typeid(*pack).name());
 			}
 
 			//prepare struct informing that action was applied
@@ -965,17 +965,17 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			else if(apply)
 			{
 				const bool result = apply->applyOnGH(this,&c,pack, player);
-				if(!result)
-				{
+				if(result)
+					logGlobal->trace("Message successfully applied!");
+				else
 					complain((boost::format("Got false in applying %s... that request must have been fishy!")
 						% typeid(*pack).name()).str());
-				}
-				logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
+
 				sendPackageResponse(true);
 			}
 			else
 			{
-				logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
+				logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
 				sendPackageResponse(false);
 			}
 
@@ -985,7 +985,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
 		assert(!c.connected); //make sure that connection has been marked as broken
-		logGlobal->errorStream() << e.what();
+		logGlobal->error(e.what());
 		end2 = true;
 	}
 	catch(...)
@@ -995,7 +995,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 		throw;
 	}
 
-	logGlobal->errorStream() << "Ended handling connection";
+	logGlobal->error("Ended handling connection");
 }
 
 int CGameHandler::moveStack(int stack, BattleHex dest)
@@ -1332,9 +1332,9 @@ void CGameHandler::init(StartInfo *si)
 	}
 
 	gs = new CGameState();
-	logGlobal->infoStream() << "Gamestate created!";
+	logGlobal->info("Gamestate created!");
 	gs->init(si);
-	logGlobal->infoStream() << "Gamestate initialized!";
+	logGlobal->info("Gamestate initialized!");
 
 	// reset seed, so that clients can't predict any following random values
 	gs->getRandomGenerator().resetSeed();
@@ -1355,7 +1355,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 	const PlayerState *p = gs->getPlayer(town->tempOwner);
 	if(!p)
 	{
-		logGlobal->warnStream() << "There is no player owner of town " << town->name << " at " << town->pos;
+		logGlobal->warn("There is no player owner of town %s at %s", town->name, town->pos());
 		return;
 	}
 
@@ -1393,7 +1393,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 void CGameHandler::newTurn()
 {
-	logGlobal->traceStream() << "Turn " << gs->day+1;
+	logGlobal->trace("Turn %d", gs->day+1);
 	NewTurn n;
 	n.specialWeek = NewTurn::NO_ACTION;
 	n.creatureid = CreatureID::NONE;
@@ -1707,7 +1707,7 @@ void CGameHandler::newTurn()
 		}
 	}
 
-	logGlobal->traceStream() << "Info about turn " << n.day << "has been sent!";
+	logGlobal->trace("Info about turn %d has been sent!", n.day);
 	handleTimeEvents();
 	//call objects
 	for(auto & elem : gs->map->objects)
@@ -1743,7 +1743,7 @@ void CGameHandler::run(bool resume)
 				connections[color] = cc;
 			}
 		}
-		logGlobal->infoStream() << sbuffer.str();
+		logGlobal->info(sbuffer.str());
 
 		cc->addStdVecItems(gs);
 		cc->enableStackSendingByID();
@@ -1921,7 +1921,7 @@ bool CGameHandler::removeObject( const CGObjectInstance * obj )
 {
 	if(!obj || !getObj(obj->id))
 	{
-		logGlobal->errorStream() << "Something wrong, that object already has been removed or hasn't existed!";
+		logGlobal->error("Something wrong, that object already has been removed or hasn't existed!");
 		return false;
 	}
 
@@ -1946,16 +1946,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 	if(!h  || (asker != PlayerColor::NEUTRAL && (teleporting  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
 	  )
 	{
-		logGlobal->errorStream() << "Illegal call to move hero!";
+		logGlobal->error("Illegal call to move hero!");
 		return false;
 	}
 
-	logGlobal->traceStream() << "Player " << asker << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst;
+	logGlobal->trace("Player %d wants to move hero %d from %s to %s", asker.getNum(), hid.getNum(), h->pos(), dst());
 	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
 
 	if(!gs->map->isInTheMap(hmpos))
 	{
-		logGlobal->errorStream() << "Destination tile is outside the map!";
+		logGlobal->error("Destination tile is outside the map!");
 		return false;
 	}
 
@@ -2048,7 +2048,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		}
 
 		queries.popIfTop(moveQuery);
-		logGlobal->traceStream() << "Hero " << h->name << " ends movement";
+		logGlobal->trace("Hero %s ends movement", h->name);
 		return result != TryMoveHero::FAILED;
 	};
 
@@ -2132,7 +2132,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGTownInstance *t = getTown(dstid);
 
 	if ( !h || !t || h->getOwner() != gs->currentPlayer )
-		logGlobal->errorStream() << "Invalid call to teleportHero!";
+		logGlobal->error("Invalid call to teleportHero!");
 
 	const CGTownInstance *from = h->visitedTown;
 	if(((h->getOwner() != t->getOwner())
@@ -2507,7 +2507,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
-	logGlobal->traceStream() << "Sending to all clients a package of type " << typeid(*info).name();
+	logGlobal->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for(auto & elem : conns)
 	{
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
@@ -2553,44 +2553,36 @@ void CGameHandler::sendAndApply( NewStructures * info )
 
 void CGameHandler::save(const std::string & filename )
 {
-	logGlobal->infoStream() << "Saving to " << filename;
+	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	CResourceHandler::get("local")->createResource(savefname);
 
 	{
-		logGlobal->infoStream() << "Ordering clients to serialize...";
+		logGlobal->info("Ordering clients to serialize...");
 		SaveGame sg(savefname);
 		sendToAllClients(&sg);
 	}
 
 	try
 	{
-// 		{
-// 			logGlobal->infoStream() << "Serializing game info...";
-// 			CSaveFile save(CResourceHandler::get("local")->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
-// // 			char hlp[8] = "VCMISVG";
-// // 			save << hlp;
-// 			saveCommonState(save);
-// 		}
-
 		{
 			CSaveFile save(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SERVER_SAVEGAME)));
 			saveCommonState(save);
-			logGlobal->infoStream() << "Saving server state";
+			logGlobal->info("Saving server state");
 			save << *this;
 		}
-		logGlobal->infoStream() << "Game has been successfully saved!";
+		logGlobal->info("Game has been successfully saved!");
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to save game: " << e.what();
+		logGlobal->error("Failed to save game: %s", e.what());
 	}
 }
 
 void CGameHandler::close()
 {
-	logGlobal->infoStream() << "We have been requested to close.";
+	logGlobal->info("We have been requested to close.");
 
 	if(gs->initialOpts->mode == StartInfo::DUEL)
 	{
@@ -3604,7 +3596,7 @@ bool CGameHandler::queryReply(QueryID qid, ui32 answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 
-	logGlobal->traceStream()  << boost::format("Player %s attempts answering query %d with answer %d") % player % qid % answer;
+	logGlobal->trace("Player %s attempts answering query %d with answer %d", player, qid, answer);
 
 	auto topQuery = queries.topQuery(player);
 	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");
@@ -3663,10 +3655,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 																			  : nullptr;
 	const bool isAboutActiveStack = stack && (stack == battleActiveStack());
 
-	logGlobal->traceStream() << boost::format(
-		"Making action: type=%d; side=%d; stack=%s; dst=%s; additionalInfo=%d; stackAtDst=%s")
-		% ba.actionType % (int)ba.side % (stack ? stack->getName() : std::string("none"))
-		% ba.destinationTile % ba.additionalInfo % (destinationStack ? destinationStack->getName() : std::string("none"));
+	logGlobal->trace(
+		"Making action: type=%d; side=%d; stack=%s; dst=%s; additionalInfo=%d; stackAtDst=%s",
+		ba.actionType, (int)ba.side, (stack ? stack->getName() : std::string("none")),
+		ba.destinationTile, ba.additionalInfo, (destinationStack ? destinationStack->getName() : std::string("none")));
 
 	switch(ba.actionType)
 	{
@@ -3785,7 +3777,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleHex startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 
-			logGlobal->traceStream() << stack->nodeName() << " will attack " << destinationStack->nodeName();
+			logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
 				&& !(stack->doubleWide()
@@ -3793,9 +3785,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 						) //nor occupy specified hex
 				)
 			{
-				std::string problem = "We cannot move this stack to its destination " + stack->getCreature()->namePl;
-				logGlobal->warnStream() << problem;
-				complain(problem);
+				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
 				ok = false;
 				sendAndApply(&end_action);
 				break;
@@ -4024,8 +4014,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				// attacked tile may have changed - update destination
 				attack.destinationTile = gs->curB->wallPartToBattleHex(EWallPart::EWallPart(attack.attackedPart));
 
-				logGlobal->traceStream() << "Catapult attacks " << (int)attack.attackedPart
-										 << " dealing " << (int)attack.damageDealt << " damage";
+				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
 
 				//removing creatures in turrets / keep if one is destroyed
 				if(attack.damageDealt > 0 && (attackedPart == EWallPart::KEEP ||
@@ -4367,16 +4356,12 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 		{
 			COMPLAIN_RET_FALSE_IF(ba.side > 1, "Side must be 0 or 1!");
 
-
 			const CGHeroInstance *h = gs->curB->battleGetFightingHero(ba.side);
-			if(!h)
+			COMPLAIN_RET_FALSE_IF((!h), "Wrong caster!");
+
+			if(ba.additionalInfo < 0 || ba.additionalInfo >= VLC->spellh->objects.size())
 			{
-				logGlobal->warnStream() << "Wrong caster!";
-				return false;
-			}
-			if(ba.additionalInfo >= VLC->spellh->objects.size())
-			{
-				logGlobal->warnStream() << "Wrong spell id (" << ba.additionalInfo << ")!";
+				logGlobal->error("Wrong spell id (%d)!", ba.additionalInfo);
 				return false;
 			}
 
@@ -4390,8 +4375,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
 			if(escp != ESpellCastProblem::OK)
 			{
-				logGlobal->warnStream() << "Spell cannot be cast!";
-				logGlobal->warnStream() << "Problem : " << escp;
+				logGlobal->warn("Spell cannot be cast! Problem: %d", escp);
 				return false;
 			}
 
@@ -4806,7 +4790,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 bool CGameHandler::complain( const std::string &problem )
 {
 	sendMessageToAll("Server encountered a problem: " + problem);
-	logGlobal->errorStream() << problem;
+	logGlobal->error(problem);
 	return true;
 }
 
@@ -4889,7 +4873,7 @@ bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2
 
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
-	logGlobal->debugStream()  << h->nodeName() << " visits " << obj->getObjectName() << "(" << obj->ID << ":" << obj->subID << ")";
+	logGlobal->debug("%s visits %s (%d:%d)", h->nodeName(), obj->getObjectName(), obj->ID, obj->subID);
 	auto visitQuery = std::make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
 	queries.addQuery(visitQuery); //TODO real visit pos
 
@@ -4907,7 +4891,7 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 
 void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
 {
-	logGlobal->traceStream() << query.visitingHero->nodeName() << " visit ends.\n";
+	logGlobal->debug("%s visit ends.\n", query.visitingHero->nodeName());
 
 	HeroVisit hv;
 	hv.player = query.players.front();
@@ -5761,7 +5745,7 @@ void CGameHandler::runBattle()
 					}
 					else
 					{
-						logGlobal->traceStream() << "Activating " << next->nodeName();
+						logGlobal->trace("Activating %s", next->nodeName());
 						auto nextId = next->ID;
 						BattleSetActiveStack sas;
 						sas.stack = nextId;
@@ -5936,12 +5920,12 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	getFreeTiles(tiles);
 	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
 	std::random_shuffle(tiles.begin(), tiles.end());
-	logGlobal->traceStream() << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID;
+	logGlobal->trace("Spawning wandering monsters. Found %d free tiles. Creature type: %d", tiles.size(), creatureID.num);
 	const CCreature *cre = VLC->creh->creatures.at(creatureID);
 	for (int i = 0; i < amount; ++i)
 	{
 		tile = tiles.begin();
-		logGlobal->traceStream() << "\tSpawning monster at " << *tile;
+		logGlobal->trace("\tSpawning monster at %s",(*tile)());
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}
@@ -6049,16 +6033,15 @@ void CGameHandler::duelFinished()
 	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides.at(i).color).name; };
 
 	int casualtiesPoints = 0;
-	logGlobal->debugStream() << boost::format("Winner side %d\nWinner casualties:")
-		% (int)battleResult.data->winner;
+	logGlobal->debug("Winner side %d\nWinner casualties:", (int)battleResult.data->winner);
 
 	for(auto & elem : battleResult.data->casualties[battleResult.data->winner])
 	{
 		const CCreature *c = VLC->creh->creatures[elem.first];
-		logGlobal->debugStream() << boost::format("\t* %d of %s") % elem.second % c->namePl;
+		logGlobal->debug("\t* %d of %s", elem.second, c->namePl);
 		casualtiesPoints += c->AIValue * elem.second;
 	}
-	logGlobal->debugStream() << boost::format("Total casualties points: %d") % casualtiesPoints;
+	logGlobal->debug("Total casualties points: %d", casualtiesPoints);
 
 
 	time_t timeNow;
@@ -6073,7 +6056,7 @@ void CGameHandler::duelFinished()
 	}
 	else
 	{
-		logGlobal->errorStream() << "Cannot open to write " << cmdLineOptions["resultsFile"].as<std::string>();
+		logGlobal->error("Cannot open to write %s", cmdLineOptions["resultsFile"].as<std::string>());
 	}
 
 	CSaveFile resultFile("result.vdrst");
@@ -6102,7 +6085,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		if (st->owner != color) //remove only our stacks
 			continue;
 
-		logGlobal->debugStream() << "Calculating casualties for " << st->nodeName();
+		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
 		//FIXME: this info is also used in BattleInfo::calculateCasualties, refactor
 		st->count = std::max (0, st->count - st->resurrected);
@@ -6117,9 +6100,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
 
 			if(warMachine == ArtifactID::NONE)
-			{
-				logGlobal->errorStream() << "Invalid creature in war machine virtual slot: " << st->nodeName();
-			}
+				logGlobal->error("Invalid creature in war machine virtual slot. Stack: %s", st->nodeName());
 			//catapult artifact remain even if "creature" killed in siege
 			else if(warMachine != ArtifactID::CATAPULT && !st->count)
 			{
@@ -6135,7 +6116,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		{
 			if(st->alive() && st->count > 0)
 			{
-				logGlobal->debugStream() << "Permanently summoned " << st->count << " units.";
+				logGlobal->debug("Permanently summoned %d units.", st->count);
 				const CreatureID summonedType = st->type->idNumber;
 				summoned[summonedType] += st->count;
 			}
@@ -6144,7 +6125,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		{
 			if(nullptr == st->base)
 			{
-				logGlobal->error("Stack with no base in commander slot.");
+				logGlobal->error("Stack with no base in commander slot. Stack: %s", st->nodeName());
 			}
 			else
 			{
@@ -6159,7 +6140,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 					}
 				}
 				else
-					logGlobal->error("Stack with invalid instance in commander slot.");
+					logGlobal->error("Stack with invalid instance in commander slot. Stack: %s", st->nodeName());
 			}
 		}
 		else if(st->base && !army->slotEmpty(st->slot))
@@ -6172,14 +6153,14 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 			}
 			else if(st->count < army->getStackCount(st->slot))
 			{
-				logGlobal->debugStream() << "Stack lost " << (army->getStackCount(st->slot) - st->count) << " units.";
+				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->slot) - st->count);
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
 		}
 		else
 		{
-			logGlobal->warnStream() << "Unable to process stack: " << st->nodeName();
+			logGlobal->warn("Unable to process stack: %s", st->nodeName());
 		}
 	}
 }

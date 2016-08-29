@@ -41,13 +41,13 @@ CQuery::CQuery(void)
 	static QueryID QID = QueryID(0);
 
 	queryID = ++QID;
-	logGlobal->traceStream() << "Created a new query with id " << queryID;
+	logGlobal->trace("Created a new query with id %d", queryID);
 }
 
 
 CQuery::~CQuery(void)
 {
-	logGlobal->traceStream() << "Destructed the query with id " << queryID;
+	logGlobal->trace("Destructed the query with id %d", queryID);
 }
 
 void CQuery::addPlayer(PlayerColor color)
@@ -129,7 +129,7 @@ void Queries::popQuery(PlayerColor player, QueryPtr query)
 	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
 	if(topQuery(player) != query)
 	{
-		logGlobal->traceStream() << "Cannot remove, not a top!";
+		logGlobal->trace("Cannot remove, not a top!");
 		return;
 	}
 
@@ -156,7 +156,7 @@ void Queries::popQuery(const CQuery &query)
 		if(top.get() == &query)
 			popQuery(top);
 		else
-			logGlobal->traceStream() << "Cannot remove query " << query;
+			logGlobal->trace("Cannot remove query %s", query.toString());
 	}
 }
 
@@ -174,7 +174,7 @@ void Queries::addQuery(QueryPtr query)
 
 void Queries::addQuery(PlayerColor player, QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
 	query->onAdding(gh, player);
 	queries[player].push_back(query);
 }
@@ -188,7 +188,7 @@ void Queries::popIfTop(QueryPtr query)
 {
 	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
 	if(!query)
-		logGlobal->errorStream() << "The query is nullptr! Ignoring.";
+		logGlobal->error("The query is nullptr! Ignoring.");
 
 	popIfTop(*query);
 }
@@ -341,7 +341,7 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu)
 void CHeroLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing hero level-up query. " << hlu.hero->getObjectName() << " gains skill " << *answer;
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hlu.hero->getObjectName(), answer.get());
 	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
 }
 
@@ -359,7 +359,7 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(const CommanderLevelU
 void CCommanderLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing commander level-up query. Commander of hero " << clu.hero->getObjectName() << " gains skill " << *answer;
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", clu.hero->getObjectName(), answer.get());
 	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
 }
 
@@ -397,7 +397,7 @@ void CHeroMovementQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
 		//TODO what if there were H4-like escape? we should also check pos
 	{
-		logGlobal->traceStream() << "Hero " << hero->name << " after victory over guard finishes visit to " << tmh.end;
+		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->name, tmh.end());
 		//finish movement
 		visitDestAfterVictory = false;
 		gh->visitObjectOnTile(*gh->getTile(CGHeroInstance::convertPosition(tmh.end, false)), hero);

@@ -124,7 +124,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 
 		if(connections.empty())
 		{
-			logNetwork->errorStream() << "Last connection lost, server will close itself...";
+			logNetwork->error("Last connection lost, server will close itself...");
 			boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
 			state = ENDING_WITHOUT_START;
 		}
@@ -158,7 +158,7 @@ void CPregameServer::run()
 
 			if(state != RUNNING)
 			{
-				logNetwork->infoStream() << "Stopping listening for connections...";
+				logNetwork->info("Stopping listening for connections...");
 				acceptor->close();
 			}
 
@@ -172,13 +172,13 @@ void CPregameServer::run()
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
-	logNetwork->infoStream() << "Thread handling connections ended";
+	logNetwork->info("Thread handling connections ended");
 
 	if(state == ENDING_AND_STARTING_GAME)
 	{
-		logNetwork->infoStream() << "Waiting for listening thread to finish...";
+		logNetwork->info("Waiting for listening thread to finish...");
 		while(listeningThreads) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-		logNetwork->infoStream() << "Preparing new game";
+		logNetwork->info("Preparing new game");
 	}
 }
 
@@ -199,11 +199,11 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 {
 	if(ec)
 	{
-		logNetwork->infoStream() << "Something wrong during accepting: " << ec.message();
+		logNetwork->info("Something wrong during accepting: %s", ec.message());
 		return;
 	}
 
-	logNetwork->infoStream() << "We got a new connection! :)";
+	logNetwork->info("We got a new connection! :)");
 	CConnection *pc = new CConnection(upcomingConnection, NAME);
 	initConnection(pc);
 	upcomingConnection = nullptr;
@@ -232,7 +232,7 @@ void CPregameServer::start_async_accept()
 
 void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
 {
-	logNetwork->infoStream() << playerName << " says: " << txt;
+	logNetwork->info("%s says: %s", playerName, txt);
 	ChatMessage cm;
 	cm.playerName = playerName;
 	cm.message = txt;
@@ -300,7 +300,7 @@ void CPregameServer::initConnection(CConnection *c)
 {
 	*c >> c->name;
 	connections.insert(c);
-	logNetwork->infoStream() << "Pregame connection with player " << c->name << " established!";
+	logNetwork->info("Pregame connection with player %s established!", c->name);
 }
 
 void CPregameServer::startListeningThread(CConnection * pc)
@@ -313,7 +313,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 CVCMIServer::CVCMIServer()
 : io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))), firstConnection(nullptr)
 {
-	logNetwork->debugStream() << "CVCMIServer created!";
+	logNetwork->trace("CVCMIServer created!");
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -410,7 +410,7 @@ void CVCMIServer::start()
 #endif
 
 	boost::system::error_code error;
-	logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
+	logNetwork->info("Listening for connections at port %d", acceptor->local_endpoint().port());
 	auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
 	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 #ifndef VCMI_ANDROID
@@ -424,9 +424,9 @@ void CVCMIServer::start()
 		logNetwork->warnStream()<<"Got connection but there is an error " << error;
 		return;
 	}
-	logNetwork->infoStream()<<"We've accepted someone... ";
+	logNetwork->info("We've accepted someone... ");
 	firstConnection = new CConnection(s,NAME);
-	logNetwork->infoStream()<<"Got connection!";
+	logNetwork->info("Got connection!");
 	while(!end2)
 	{
 		ui8 mode;
@@ -462,23 +462,6 @@ void CVCMIServer::loadGame()
 
 	c >> clients >> fname; //how many clients should be connected
 
-// 	{
-// 		char sig[8];
-// 		CMapHeader dum;
-// 		StartInfo *si;
-//
-// 		CLoadFile lf(CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
-// 		lf >> sig >> dum >> si;
-// 		logNetwork->infoStream() <<"Reading save signature";
-//
-// 		lf >> *VLC;
-// 		logNetwork->infoStream() <<"Reading handlers";
-//
-// 		lf >> (gh.gs);
-// 		c.addStdVecItems(gh.gs);
-// 		logNetwork->infoStream() <<"Reading gamestate";
-// 	}
-
 	{
 		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
 		gh.loadCommonState(lf);
@@ -500,7 +483,7 @@ void CVCMIServer::loadGame()
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{
-				logNetwork->warnStream()<<"Cannot establish connection - retrying...";
+				logNetwork->warn("Cannot establish connection - retrying...");
 				i--;
 				continue;
 			}
@@ -564,17 +547,17 @@ void handleLinuxSignal(int sig)
 	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
 	char ** strings;
 
-	logGlobal->errorStream() << "Error: signal " << sig << ":";
+	logGlobal->error("Error: signal %d :", sig);
 	strings = backtrace_symbols(buffer, ptrCount);
 	if(strings == nullptr)
 	{
-		logGlobal->errorStream() << "There are no symbols.";
+		logGlobal->error("There are no symbols.");
 	}
 	else
 	{
 		for(int i = 0; i < ptrCount; ++i)
 		{
-			logGlobal->errorStream() << strings[i];
+			logGlobal->error(strings[i]);
 		}
 		free(strings);
 	}
@@ -597,7 +580,7 @@ int main(int argc, char** argv)
 
 	handleCommandOptions(argc, argv);
 	port = cmdLineOptions["port"].as<int>();
-	logNetwork->infoStream() << "Port " << port << " will be used.";
+	logNetwork->info("Port %d will be used.", port);
 
 	preinitDLL(console);
 	settings.init();
@@ -620,7 +603,7 @@ int main(int argc, char** argv)
 		}
 		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
-			logNetwork->errorStream() << e.what();
+			logNetwork->error(e.what());
 			end2 = true;
 		}
 		catch(...)
@@ -630,7 +613,7 @@ int main(int argc, char** argv)
 	}
 	catch(boost::system::system_error &e)
 	{
-		logNetwork->errorStream() << e.what();
+		logNetwork->error(e.what());
 		//catch any startup errors (e.g. can't access port) errors
 		//and return non-zero status so client can detect error
 		throw;
