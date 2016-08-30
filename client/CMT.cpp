@@ -92,7 +92,7 @@ static po::variables_map vm;
 
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
-static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
+static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo=true);
 void dispose();
 void playIntro();
 static void mainLoop();
@@ -407,7 +407,7 @@ int main(int argc, char** argv)
 			}
 		}
 
-		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["displayIndex"].Float(), video["fullscreen"].Bool());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
 
@@ -984,7 +984,7 @@ static void cleanupRenderer()
 	}
 }
 
-static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
+static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIndex)
 {
 	// VCMI will only work with 2 or 4 bytes per pixel
 	vstd::amax(bpp, 16);
@@ -992,7 +992,14 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	if(bpp>16)
 		bpp = 32;
 
-	if(!checkVideoMode(0,w,h))
+	if(displayIndex < 0)
+	{
+		if (mainWindow != nullptr)
+			displayIndex = SDL_GetWindowDisplayIndex(mainWindow);
+		if (displayIndex < 0)
+			displayIndex = 0;
+	}
+	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
 		return false;
@@ -1005,12 +1012,12 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	if(fullscreen)
 	{
 		//in full-screen mode always use desktop resolution
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	}
 	else
 	{
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 	}
 
 	if(nullptr == mainWindow)
@@ -1091,9 +1098,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 }
 
 //used only once during initialization
-static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
+static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo)
 {
-	if(!recreateWindow(w,h,bpp,fullscreen))
+	if(!recreateWindow(w, h, bpp, fullscreen, displayIndex))
 	{
 		throw std::runtime_error("Requested screen resolution is not available\n");
 	}
@@ -1111,7 +1118,7 @@ static void fullScreenChanged()
 	auto w = screen->w;
 	auto h = screen->h;
 
-	if(!recreateWindow(w,h,bitsPerPixel,toFullscreen))
+	if(!recreateWindow(w, h, bitsPerPixel, toFullscreen, -1))
 	{
 		//will return false and report error if video mode is not supported
 		return;
