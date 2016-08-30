@@ -490,6 +490,17 @@ void CQuest::addReplacements(MetaString &out, const std::string &base) const
 	}
 }
 
+IQuestObject::IQuestObject():
+	quest(new CQuest())
+{
+
+}
+
+IQuestObject::~IQuestObject()
+{
+	delete quest;
+}
+
 bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 {
 	return quest->checkQuest(h);

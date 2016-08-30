@@ -87,8 +87,8 @@ class DLL_LINKAGE IQuestObject
 public:
 	CQuest * quest;
 
-	IQuestObject(): quest(new CQuest()){};
-	virtual ~IQuestObject() {};
+	IQuestObject();
+	virtual ~IQuestObject();
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
