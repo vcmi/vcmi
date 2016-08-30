@@ -30,6 +30,10 @@ CIdentifierStorage::CIdentifierStorage():
 {
 }
 
+CIdentifierStorage::~CIdentifierStorage()
+{
+}
+
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
@@ -556,6 +560,10 @@ CModHandler::CModHandler()
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 		identifiers.registerObject("core", "primSkill", PrimarySkill::names[i], i);
 
+}
+
+CModHandler::~CModHandler()
+{
 }
 
 void CModHandler::loadConfigFromFile (std::string name)

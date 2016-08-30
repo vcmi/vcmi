@@ -68,7 +68,7 @@ void LibClasses::loadFilesystem()
 	CResourceHandler::load("config/filesystem.json");
 	logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
 
-	modh = new CModHandler;
+	modh = new CModHandler();
 	logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
 
 	modh->loadMods();

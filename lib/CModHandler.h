@@ -69,6 +69,7 @@ class CIdentifierStorage
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
 public:
 	CIdentifierStorage();
+	virtual ~CIdentifierStorage();
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
@@ -291,6 +292,7 @@ public:
 	} modules;
 
 	CModHandler();
+	virtual ~CModHandler();
 
 	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
 
