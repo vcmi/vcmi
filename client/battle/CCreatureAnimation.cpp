@@ -163,7 +163,9 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
 		pixelDataSize = data.second;
 	}
 
-	CBinaryReader reader(new CMemoryStream(pixelData.get(), pixelDataSize));
+	CMemoryStream stm(pixelData.get(), pixelDataSize);
+
+	CBinaryReader reader(&stm);
 
 	reader.readInt32(); // def type, unused
 
@@ -307,7 +309,9 @@ void CCreatureAnimation::nextFrameT(SDL_Surface * dest, bool rotate)
 
 	ui32 offset = dataOffsets.at(type).at(floor(currentFrame));
 
-	CBinaryReader reader(new CMemoryStream(pixelData.get(), pixelDataSize));
+	CMemoryStream stm(pixelData.get(), pixelDataSize);
+
+	CBinaryReader reader(&stm);
 
 	reader.getStream()->seek(offset);
 
