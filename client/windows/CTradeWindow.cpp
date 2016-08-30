@@ -427,7 +427,7 @@ void CTradeWindow::initItems(bool Left)
 		hlp->pos = pos[j] + this->pos.topLeft();
 		items[Left].push_back(hlp);
 	}
-
+	vstd::clear_pointer(ids);
 	initSubs(Left);
 }
 
