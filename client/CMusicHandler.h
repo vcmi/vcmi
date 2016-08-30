@@ -41,7 +41,8 @@ private:
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
 
-	std::map<std::string, Mix_Chunk *> soundChunks;
+	using CachedChunk = std::pair<Mix_Chunk *, std::unique_ptr<ui8[]>>;
+	std::map<std::string, CachedChunk> soundChunks;
 
 	Mix_Chunk *GetSoundChunk(std::string &sound, bool cache);
 
