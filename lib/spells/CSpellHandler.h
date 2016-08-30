@@ -24,7 +24,7 @@ class CLegacyConfigParser;
 class CGHeroInstance;
 class CStack;
 class CBattleInfoCallback;
-class BattleInfo;
+struct BattleInfo;
 struct CPackForClient;
 struct BattleSpellCast;
 class CGameInfoCallback;

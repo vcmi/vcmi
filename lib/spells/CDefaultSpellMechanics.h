@@ -12,9 +12,7 @@
 
 #include "ISpellMechanics.h"
 
-class ISpellMechanics;
-class BattleSpellCast;
-class StacksInjured;
+struct StacksInjured;
 
 struct SpellCastContext
 {

@@ -17,7 +17,7 @@ class CCreatureAnim;
 class CComponent;
 class CGGarrison;
 class CSelectableComponent;
-class InfoAboutArmy;
+struct InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
 class CAnimImage;

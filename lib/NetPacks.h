@@ -42,7 +42,7 @@ struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
 class CMapInfo;
-class StartInfo;
+struct StartInfo;
 
 
 struct CPackForClient : public CPack
@@ -149,7 +149,7 @@ struct PlayerBlocked : public CPackForClient //96
 
 	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
 	enum EMode { BLOCKADE_STARTED, BLOCKADE_ENDED };
-	
+
 	EReason reason;
 	EMode startOrEnd;
 	PlayerColor player;
@@ -1020,7 +1020,7 @@ namespace ObjProperty
 {
 	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
 		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13, MONSTER_REFUSED_JOIN,
-	
+
 		//town-specific
 		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
 		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
@@ -1409,8 +1409,8 @@ struct BattleAttack : public CPackForClient//3006
 	ui32 stackAttacking;
 	ui32 flags; //uses Eflags (below)
 	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
-	
-	SpellID spellID; //for SPELL_LIKE 
+
+	SpellID spellID; //for SPELL_LIKE
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1480,12 +1480,12 @@ struct BattleSpellCast : public CPackForClient//3009
 	struct CustomEffect
 	{
 		/// WoG AC format
-		ui32 effect;		
+		ui32 effect;
 		ui32 stack;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & effect & stack;
-		}		
+		}
 	};
 
 	BattleSpellCast(){type = 3009; casterStack = -1;};
@@ -1625,9 +1625,9 @@ struct BattleStackAdded : public CPackForClient //3017
 	int amount;
 	int pos;
 	int summoned; //if true, remove it afterwards
-	
+
 	///Actual stack ID, set on apply, do not serialize
-	int newStackID; 
+	int newStackID;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1735,17 +1735,17 @@ struct AdvmapSpellCast : public CPackForClient //108
 struct ShowWorldViewEx : public CPackForClient //4000
 {
 	PlayerColor player;
-	
+
 	std::vector<ObjectPosInfo> objectPositions;
-	
+
 	ShowWorldViewEx(){type = 4000;}
-	
+
 	void applyCl(CClient *cl);
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & objectPositions;
-	}	
+	}
 };
 
 /***********************************************************************************************************/
@@ -2231,7 +2231,7 @@ struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 
 struct PregameGuiAction : public CPregamePackToPropagate
 {
-	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS} 
+	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS}
 		action;
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp

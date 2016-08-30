@@ -16,7 +16,7 @@
  *
  */
 
-class CPack;
+struct CPack;
 class CCampaignState;
 class CBattleCallback;
 class IGameEventsReceiver;
@@ -175,9 +175,9 @@ public:
 	void setBlockVis(ObjectInstanceID objid, bool bv) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {};
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {};
 
-	void showBlockingDialog(BlockingDialog *iw) override {}; 
+	void showBlockingDialog(BlockingDialog *iw) override {};
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog *iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
@@ -194,12 +194,12 @@ public:
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override {return false;}
-	
+
 	void removeAfterVisit(const CGObjectInstance *object) override {};
 
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {};
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {};
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}; 
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {};
 	void removeArtifact(const ArtifactLocation &al) override {};
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;};
 	void synchronizeArtifactHandlerLists() override {};
@@ -207,7 +207,7 @@ public:
 	void showCompInfo(ShowInInfobox * comp) override {};
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
-	//void giveHeroArtifact(int artid, int hid, int position){}; 
+	//void giveHeroArtifact(int artid, int hid, int position){};
 	//void giveNewArtifact(int hid, int position){};
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
@@ -241,7 +241,7 @@ public:
 
 	void serialize(COSer &h, const int version);
 	void serialize(CISer &h, const int version);
-	
+
 	void serialize(COSer &h, const int version, const std::set<PlayerColor>& playerIDs);
 	void serialize(CISer &h, const int version, const std::set<PlayerColor>& playerIDs);
 	void battleFinished();

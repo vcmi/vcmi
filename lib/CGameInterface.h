@@ -50,7 +50,7 @@ struct StackLocation;
 class CStackInstance;
 class CCommanderInstance;
 class CStack;
-class CPathsInfo;
+struct CPathsInfo;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
@@ -98,7 +98,7 @@ public:
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) = 0;
 	virtual void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) = 0;
 	virtual void finish(){}; //if for some reason we want to end
-	
+
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions){};
 };
 
