@@ -149,7 +149,7 @@ public:
 class SelectionTab : public CIntObject
 {
 private:
-	CAnimation * formatIcons;
+	std::unique_ptr<CAnimation> formatIcons;
 
     void parseMaps(const std::unordered_set<ResourceID> &files);
 	void parseGames(const std::unordered_set<ResourceID> &files, bool multi);
