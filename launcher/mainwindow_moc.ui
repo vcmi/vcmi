@@ -176,7 +176,7 @@
        <number>1</number>
       </property>
       <widget class="CModListView" name="stackedWidgetPage2"/>
-      <widget class="CSettingsView" name="stackedWidgetPage3"/>
+      <widget class="CSettingsView" name="settingsView"/>
      </widget>
     </item>
    </layout>

@@ -20,11 +20,25 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
     "GB2312"  // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
 };
 
+void CSettingsView::setDisplayList(const QStringList& displayList)
+{
+	if (displayList.count() < 2)
+	  {
+	    ui->comboBoxDisplayIndex->hide ();
+	    ui->labelDisplayIndex->hide ();
+	  }
+	else
+	  {
+	    ui->comboBoxDisplayIndex->clear();
+	    ui->comboBoxDisplayIndex->addItems(displayList);
+	    ui->comboBoxDisplayIndex->setCurrentIndex(settings["video"]["displayIndex"].Float());
+	  }
+}
+
 void CSettingsView::loadSettings()
 {
 	int resX = settings["video"]["screenRes"]["width"].Float();
 	int resY = settings["video"]["screenRes"]["height"].Float();
-
 	int resIndex = ui->comboBoxResolution->findText(QString("%1x%2").arg(resX).arg(resY));
 
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
@@ -90,6 +104,12 @@ void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
 {
 	Settings node = settings.write["launcher"]["autoCheckRepositories"];
 	node->Bool() = index;
+}
+
+void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
+{
+	Settings node = settings.write["video"];
+	node["displayIndex"].Float() = index;
 }
 
 void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString &arg1)
