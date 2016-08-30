@@ -949,22 +949,8 @@ static bool checkVideoMode(int monitorIndex, int w, int h)
 	return false;
 }
 
-static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
+static void cleanupRenderer()
 {
-	// VCMI will only work with 2 or 4 bytes per pixel
-	vstd::amax(bpp, 16);
-	vstd::amin(bpp, 32);
-	if(bpp>16)
-		bpp = 32;
-
-	if(!checkVideoMode(0,w,h))
-	{
-		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
-		return false;
-	}
-
-	bool bufOnScreen = (screenBuf == screen);
-
 	screenBuf = nullptr; //it`s a link - just nullify
 
 	if(nullptr != screen2)
@@ -973,13 +959,11 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		screen2 = nullptr;
 	}
 
-
 	if(nullptr != screen)
 	{
 		SDL_FreeSurface(screen);
 		screen = nullptr;
 	}
-
 
 	if(nullptr != screenTexture)
 	{
@@ -998,7 +982,25 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 		SDL_DestroyWindow(mainWindow);
 		mainWindow = nullptr;
 	}
+}
 
+static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
+{
+	// VCMI will only work with 2 or 4 bytes per pixel
+	vstd::amax(bpp, 16);
+	vstd::amin(bpp, 32);
+	if(bpp>16)
+		bpp = 32;
+
+	if(!checkVideoMode(0,w,h))
+	{
+		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
+		return false;
+	}
+
+	bool bufOnScreen = (screenBuf == screen);
+
+	cleanupRenderer();
 
 	if(fullscreen)
 	{
@@ -1010,8 +1012,6 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	{
 		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, w, h, 0);
 	}
-
-
 
 	if(nullptr == mainWindow)
 	{
@@ -1279,7 +1279,10 @@ void handleQuit(bool ask/* = true*/)
 		vstd::clear_pointer(console);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
 		if(!gNoGUI)
+		{
+			cleanupRenderer();
 			SDL_Quit();
+		}
 
 		std::cout << "Ending...\n";
 		exit(0);
