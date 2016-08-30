@@ -927,16 +927,25 @@ void dispose()
 	}
 }
 
-static bool checkVideoMode(int monitorIndex, int w, int h, int& bpp, bool fullscreen)
+static bool checkVideoMode(int monitorIndex, int w, int h)
 {
+	//we only check that our desired window size fits on screen
 	SDL_DisplayMode mode;
-	const int modeCount = SDL_GetNumDisplayModes(monitorIndex);
-	for (int i = 0; i < modeCount; i++) {
-		SDL_GetDisplayMode(0, i, &mode);
-		if (!mode.w || !mode.h || (w >= mode.w && h >= mode.h)) {
-			return true;
-		}
+
+	if (0 != SDL_GetDesktopDisplayMode(monitorIndex, &mode))
+	{
+		logGlobal->error("SDL_GetDesktopDisplayMode failed");
+		logGlobal->error(SDL_GetError());
+		return false;
 	}
+
+	logGlobal->info("Check display mode: requested %d x %d; available up to %d x %d ", w, h, mode.w, mode.h);
+
+	if (!mode.w || !mode.h || (w <= mode.w && h <= mode.h))
+	{
+		return true;
+	}
+
 	return false;
 }
 
@@ -948,9 +957,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen)
 	if(bpp>16)
 		bpp = 32;
 
-	int suggestedBpp = bpp;
-
-	if(!checkVideoMode(0,w,h,suggestedBpp,fullscreen))
+	if(!checkVideoMode(0,w,h))
 	{
 		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
 		return false;
