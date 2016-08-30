@@ -2463,11 +2463,6 @@ void CPlayerInterface::requestReturningToMainMenu()
 	cb->unregisterAllInterfaces();
 }
 
-void CPlayerInterface::requestStoppingClient()
-{
-	sendCustomEvent(STOP_CLIENT);
-}
-
 void CPlayerInterface::sendCustomEvent( int code )
 {
 	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);

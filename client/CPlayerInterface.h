@@ -74,8 +74,8 @@ enum
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
-	STOP_CLIENT = 3,
-	RESTART_GAME,
+	//STOP_CLIENT = 3,
+	RESTART_GAME = 4,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
 	PREPARE_RESTART_CAMPAIGN,
@@ -260,7 +260,6 @@ public:
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void requestReturningToMainMenu();
-	void requestStoppingClient();
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
 

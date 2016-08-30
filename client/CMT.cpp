@@ -1150,9 +1150,6 @@ static void handleEvent(SDL_Event & ev)
 				GH.defActionsDef = 63;
 			}
 			break;
-		case STOP_CLIENT:
-			client->endGame(false);
-			break;
 		case RESTART_GAME:
 			{
 				StartInfo si = *client->getStartInfo(true);
