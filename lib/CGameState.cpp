@@ -790,7 +790,7 @@ void CGameState::init(StartInfo * si)
 	// Explicitly initialize static variables
 	for(auto & elem : players)
 	{
-		CGKeys::playerKeyMap[elem.first] = {};
+		CGKeys::playerKeyMap[elem.first] = std::set<ui8>();
 	}
 	for(auto & elem : teams)
 	{
