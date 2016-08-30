@@ -595,7 +595,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CArtPlace *> ArtWo
 {
 	if(createCommonPart)
 	{
-		commonInfo = new CArtifactsOfHero::SCommonPart;
+		commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
 		commonInfo->participants.insert(this);
 	}
 
@@ -622,7 +622,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 {
 	if(createCommonPart)
 	{
-		commonInfo = new CArtifactsOfHero::SCommonPart;
+		commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
 		commonInfo->participants.insert(this);
 	}
 

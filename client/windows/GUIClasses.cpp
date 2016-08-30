@@ -908,7 +908,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	prepareBackground();
 
 	artifs[0] = new CArtifactsOfHero(Point(-334, 150));
-	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
+	artifs[0]->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = new CArtifactsOfHero(Point(96, 150));
@@ -1004,7 +1004,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 CExchangeWindow::~CExchangeWindow() //d-tor
 {
-	delete artifs[0]->commonInfo;
 	artifs[0]->commonInfo = nullptr;
 	artifs[1]->commonInfo = nullptr;
 }

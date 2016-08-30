@@ -47,7 +47,7 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero);
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
-	CArtifactsOfHero::SCommonPart *cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : nullptr;
+	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : nullptr;
 	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
 	{
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
@@ -317,7 +317,7 @@ void CHeroWindow::commanderWindow()
 {
 	//TODO: allow equipping commander artifacts by drag / drop
 	//bool artSelected = false;
-	const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
+	const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = artSets.front()->commonInfo;
 
 	if (const CArtifactInstance *art = commonInfo->src.art)
 	{

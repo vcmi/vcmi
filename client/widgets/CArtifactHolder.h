@@ -107,7 +107,8 @@ public:
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
 
 		void reset();
-	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
+	};
+	std::shared_ptr<SCommonPart> commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
