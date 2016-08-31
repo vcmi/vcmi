@@ -128,8 +128,8 @@ void CSoundHandler::release()
 
 		for (auto &chunk : soundChunks)
 		{
-			if (chunk.second)
-				Mix_FreeChunk(chunk.second);
+			if (chunk.second.first)
+				Mix_FreeChunk(chunk.second.first);
 		}
 	}
 
@@ -142,14 +142,14 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 	try
 	{
 		if (cache && soundChunks.find(sound) != soundChunks.end())
-			return soundChunks[sound];
+			return soundChunks[sound].first;
 
 		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
-		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), data.second);
 		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
 		if (cache)
-			soundChunks.insert(std::pair<std::string, Mix_Chunk *>(sound, chunk));
+			soundChunks.insert(std::pair<std::string, CachedChunk>(sound, std::make_pair (chunk, std::move (data.first))));
 
 		return chunk;
 	}
