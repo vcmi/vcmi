@@ -2294,8 +2294,10 @@ void CPlayerInterface::acceptTurn()
 	{
 		adventureInt->select(heroToSelect, centerView);
 	}
-	else
+	else if(towns.size())
 		adventureInt->select(towns.front(), centerView);
+	else
+		adventureInt->select(wanderingHeroes.front());
 
 	//show new day animation and sound on infobar
 	adventureInt->infoBar.showDate();
