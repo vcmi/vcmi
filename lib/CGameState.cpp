@@ -1080,13 +1080,14 @@ void CGameState::initPlayerStates()
 	logGlobal->debug("\tCreating player entries in gs");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
-		std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
-		ins.second.color=ins.first;
-		ins.second.human = elem.second.playerID;
-		ins.second.team = map->players[ins.first.getNum()].team;
-		teams[ins.second.team].id = ins.second.team;//init team
-		teams[ins.second.team].players.insert(ins.first);//add player to team
-		players.insert(ins);
+		PlayerState & p = players[elem.first];
+		//std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
+		p.color=elem.first;
+		p.human = elem.second.playerID;
+		p.team = map->players[elem.first.getNum()].team;
+		teams[p.team].id = p.team;//init team
+		teams[p.team].players.insert(elem.first);//add player to team
+		//players.insert(ins);
 	}
 }
 
@@ -2936,6 +2937,25 @@ PlayerState::PlayerState()
 	setNodeType(PLAYER);
 }
 
+PlayerState::PlayerState(PlayerState && other):
+	CBonusSystemNode(std::move(other)),
+	color(other.color),
+	human(other.human),
+	team(other.team),
+	resources(other.resources),
+	enteredWinningCheatCode(other.enteredWinningCheatCode),
+	enteredLosingCheatCode(other.enteredLosingCheatCode),
+	status(other.status),
+	daysWithoutCastle(other.daysWithoutCastle)
+{
+	std::swap(visitedObjects, other.visitedObjects);
+	std::swap(heroes, other.heroes);
+	std::swap(towns, other.towns);
+	std::swap(availableHeroes, other.availableHeroes);
+	std::swap(dwellings, other.dwellings);
+	std::swap(quests, other.quests);
+}
+
 std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
@@ -3234,6 +3254,15 @@ TeamState::TeamState()
 {
 	setNodeType(TEAM);
 }
+
+TeamState::TeamState(TeamState && other):
+	CBonusSystemNode(std::move(other)),
+	id(other.id)
+{
+	std::swap(players, other.players);
+	std::swap(fogOfWarMap, other.fogOfWarMap);
+}
+
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {
