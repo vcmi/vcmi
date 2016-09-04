@@ -45,7 +45,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "spellbookAnimation","driver", "showIntro" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -77,6 +77,10 @@
 					"type" : "string",
 					"default" : "opengl",
 					"description" : "preferred graphics backend driver name for SDL2"
+				},
+				"displayIndex" : {
+					"type" : "number",
+					"default" : 0
 				}
 			}
 		},

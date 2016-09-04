@@ -26,7 +26,7 @@ void MainWindow::load()
 	settings.init();
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->setupUi(this);
 	ui->tabListWidget->setCurrentIndex(0);
+	ui->settingsView->setDisplayList(displayList);
 
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
 	        ui->tabListWidget, SLOT(setCurrentIndex(int)));

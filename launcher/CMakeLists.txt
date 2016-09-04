@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.7)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${ZLIB_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
+include_directories(${SDL_INCLUDE_DIR})
 
 set(launcher_modmanager_SRCS
 	modManager/cdownloadmanager_moc.cpp
@@ -25,6 +26,7 @@ set(launcher_SRCS
 	mainwindow_moc.cpp
 	launcherdirs.cpp
 	jsonutils.cpp
+	sdldisplayquery.cpp
 )
 
 set(launcher_FORMS
@@ -60,10 +62,10 @@ endif()
 
 if(MSVC)
 	# Fix _WinMain@16 linking error
-	target_link_libraries(vcmilauncher vcmi ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+	target_link_libraries(vcmilauncher vcmi ${Qt5Core_QTMAIN_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${SDL_LIBRARY})
 else()
 	# The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
-	target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES})
+	target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${SDL_LIBRARY})
 endif()
 
 # temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
