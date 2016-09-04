@@ -1126,7 +1126,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
-CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID, bool includeUpgrade) const
+CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID) const
 {
 	const CBuilding * building = town->buildings.at(buildID);
 
@@ -1138,10 +1138,14 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 		if (!hasBuilt(id))
 			return id;
 
-		if (build->upgrade != BuildingID::NONE && !hasBuilt(build->upgrade))
-			return build->upgrade;
+		CBuilding::TRequired::OperatorAll requirements;
 
-		return build->requirements.morph(dependTest);
+		if (build->upgrade != BuildingID::NONE)
+			requirements.expressions.push_back(dependTest(build->upgrade));
+
+		requirements.expressions.push_back(build->requirements.morph(dependTest));
+
+		return requirements;
 	};
 
 	CBuilding::TRequired::OperatorAll requirements;
@@ -1149,9 +1153,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 	{
 		const CBuilding * upgr = town->buildings.at(building->upgrade);
 
-		if (includeUpgrade)
-			requirements.expressions.push_back(upgr->bid);
-		requirements.expressions.push_back(upgr->requirements.morph(dependTest));
+		requirements.expressions.push_back(dependTest(upgr->bid));
 	}
 	requirements.expressions.push_back(building->requirements.morph(dependTest));
 

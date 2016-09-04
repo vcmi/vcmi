@@ -74,6 +74,10 @@ CModListView::CModListView(QWidget *parent) :
 	{
 		loadRepositories();
 	}
+	else
+	{
+		manager->resetRepositories();
+	}
 }
 
 void CModListView::loadRepositories()

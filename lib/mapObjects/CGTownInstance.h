@@ -238,7 +238,7 @@ public:
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
 
-	CBuilding::TRequired genBuildingRequirements(BuildingID build, bool includeUpgrade=true) const;
+	CBuilding::TRequired genBuildingRequirements(BuildingID build) const;
 
 	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
 	void removeCapitols (PlayerColor owner) const;

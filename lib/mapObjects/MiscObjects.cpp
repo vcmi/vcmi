@@ -1659,7 +1659,7 @@ std::string CGShrine::getHoverText(PlayerColor player) const
 std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName = getHoverText(hero->tempOwner);
-	if(vstd::contains(hero->spells, spell)) //hero knows that spell
+	if(wasVisited(hero->tempOwner) && vstd::contains(hero->spells, spell)) //know what spell there is and hero knows that spell
 		hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
 	return hoverName;
 }
