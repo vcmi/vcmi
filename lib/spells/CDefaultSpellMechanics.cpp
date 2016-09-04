@@ -675,37 +675,35 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	const ui8 attackerSide = ctx.cb->playerToSide(ctx.caster->getOwner()) == 1;
 	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
-	const CSpell::TargetInfo ti(owner, ctx.schoolLvl, ctx.mode);
-
 	//TODO: more generic solution for mass spells
 	if(owner->getLevelInfo(ctx.schoolLvl).range.size() > 1) //custom many-hex range
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
+			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
 			{
 				attackedCres.insert(st);
 			}
 		}
 	}
-	else if(ti.type == CSpell::CREATURE)
+	else if(ctx.ti.type == CSpell::CREATURE)
 	{
 		auto predicate = [=](const CStack * s){
 			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
 			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
-			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+			const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
 
 			//for single target spells select stacks covering destination tile
-			const bool rangeCovers = ti.massive || s->coversPos(ctx.destination);
+			const bool rangeCovers = ctx.ti.massive || s->coversPos(ctx.destination);
 			//handle smart targeting
-			const bool positivenessFlag = !ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+			const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
 
 			return rangeCovers && positivenessFlag && validTarget;
 		};
 
 		TStacks stacks = ctx.cb->battleGetStacksIf(predicate);
 
-		if(ti.massive)
+		if(ctx.ti.massive)
 		{
 			//for massive spells add all targets
 			for (auto stack : stacks)
@@ -733,7 +731,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
+			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
 				attackedCres.insert(st);
 		}
 	}

@@ -386,7 +386,7 @@ ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const SpellTar
 
 		bool hexesOutsideBattlefield = false;
 
-		auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.caster->getSpellSchoolLevel(owner), side, &hexesOutsideBattlefield);
+		auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side, &hexesOutsideBattlefield);
 
 		for(BattleHex hex : tilesThatMustBeClear)
 		{

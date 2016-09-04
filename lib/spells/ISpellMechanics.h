@@ -94,8 +94,8 @@ public:
 		const ISpellCaster * caster;
 		int schoolLvl;
 
-		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, const ISpellCaster * caster_, int lvl, BattleHex dest)
-			: cb(c), ti(s,lvl, m), mode(m), destination(dest), caster(caster_), schoolLvl(lvl)
+		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode mode_, const ISpellCaster * caster_, int schoolLvl_, BattleHex destination_)
+			: cb(c), ti(s,schoolLvl_, mode_), mode(mode_), destination(destination_), caster(caster_), schoolLvl(schoolLvl_)
 		{};
 
 	};
