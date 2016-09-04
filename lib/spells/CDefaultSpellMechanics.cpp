@@ -668,11 +668,11 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	return ret;
 }
 
-std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
+std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
 {
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
-	const ui8 attackerSide = ctx.cb->playerToSide(ctx.caster->getOwner()) == 1;
+	const ui8 attackerSide = cb->playerToSide(ctx.caster->getOwner()) == 1;
 	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
 	//TODO: more generic solution for mass spells
@@ -680,7 +680,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
+			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
 			{
 				attackedCres.insert(st);
 			}
@@ -701,7 +701,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 			return rangeCovers && positivenessFlag && validTarget;
 		};
 
-		TStacks stacks = ctx.cb->battleGetStacksIf(predicate);
+		TStacks stacks = cb->battleGetStacksIf(predicate);
 
 		if(ctx.ti.massive)
 		{
@@ -731,7 +731,7 @@ std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargeting
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
+			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
 				attackedCres.insert(st);
 		}
 	}
@@ -745,7 +745,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
 	//no problems by default, this method is for spell-specific problems
 	//common problems handled by CSpell

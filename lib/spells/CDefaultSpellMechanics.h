@@ -38,10 +38,10 @@ public:
 	DefaultSpellMechanics(CSpell * s): ISpellMechanics(s){};
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const override;
-	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
+	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
-	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 

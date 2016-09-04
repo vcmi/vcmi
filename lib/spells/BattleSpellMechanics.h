@@ -43,7 +43,7 @@ class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
 {
 public:
 	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const override;
+	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
 };
 
 class DLL_LINKAGE CloneMechanics : public DefaultSpellMechanics
@@ -96,7 +96,7 @@ class DLL_LINKAGE ObstacleMechanics : public DefaultSpellMechanics
 {
 public:
 	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -113,7 +113,7 @@ class DLL_LINKAGE RemoveObstacleMechanics : public DefaultSpellMechanics
 public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
-	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 private:
@@ -145,7 +145,7 @@ class DLL_LINKAGE SpecialRisingSpellMechanics : public RisingSpellMechanics
 {
 public:
 	SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
 

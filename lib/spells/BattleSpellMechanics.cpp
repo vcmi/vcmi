@@ -62,12 +62,12 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 }
 
 ///ChainLightningMechanics
-std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
+std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
 {
 	std::set<const CStack* > attackedCres;
 
 	std::set<BattleHex> possibleHexes;
-	for(auto stack : ctx.cb->battleGetAllStacks())
+	for(auto stack : cb->battleGetAllStacks())
 	{
 		if(stack->isValidTarget())
 		{
@@ -82,7 +82,7 @@ std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(SpellTargeti
 	BattleHex lightningHex = ctx.destination;
 	for(int i = 0; i < targetsOnLevel[ctx.schoolLvl]; ++i)
 	{
-		auto stack = ctx.cb->battleGetStackByPos(lightningHex, true);
+		auto stack = cb->battleGetStackByPos(lightningHex, true);
 		if(!stack)
 			break;
 		attackedCres.insert (stack);
@@ -378,11 +378,11 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 }
 
 ///ObstacleMechanics
-ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
 	if(ctx.ti.clearAffected)
 	{
-		ui8 side = ctx.cb->playerToSide(ctx.caster->getOwner());
+		ui8 side = cb->playerToSide(ctx.caster->getOwner());
 
 		bool hexesOutsideBattlefield = false;
 
@@ -390,7 +390,7 @@ ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const SpellTar
 
 		for(BattleHex hex : tilesThatMustBeClear)
 		{
-			if(ctx.cb->battleGetStackByPos(hex, true) || !!ctx.cb->battleGetObstacleOnPos(hex, false) || !hex.isAvailable())
+			if(cb->battleGetStackByPos(hex, true) || !!cb->battleGetObstacleOnPos(hex, false) || !hex.isAvailable())
 			{
 				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 			}
@@ -572,9 +572,9 @@ ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CB
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
-ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	if(auto obstacle = ctx.cb->battleGetObstacleOnPos(ctx.destination, false))
+	if(auto obstacle = cb->battleGetObstacleOnPos(ctx.destination, false))
 		if(canRemove(obstacle.get(), ctx.schoolLvl))
 			return ESpellCastProblem::OK;
 
@@ -701,9 +701,9 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 }
 
 ///SpecialRisingSpellMechanics
-ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	const CStack * stack = ctx.cb->getStackIf([ctx](const CStack * s)
+	const CStack * stack = cb->getStackIf([ctx](const CStack * s)
 	{
 		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
 

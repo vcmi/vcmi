@@ -155,9 +155,9 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 
 std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
-	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, spellLvl, destination);
+	SpellTargetingContext ctx(this, mode, caster, spellLvl, destination);
 
-	std::set<const CStack* > attackedCres = mechanics->getAffectedStacks(ctx);
+	std::set<const CStack* > attackedCres = mechanics->getAffectedStacks(cb, ctx);
 
 	//now handle immunities
 	auto predicate = [&, this](const CStack * s)->bool
@@ -302,9 +302,9 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
-	ISpellMechanics::SpellTargetingContext ctx(this, cb, mode, caster, caster->getSpellSchoolLevel(this), destination);
+	SpellTargetingContext ctx(this, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
-	ESpellCastProblem::ESpellCastProblem specific = mechanics->canBeCast(ctx);
+	ESpellCastProblem::ESpellCastProblem specific = mechanics->canBeCast(cb, ctx);
 
 	if(specific != ESpellCastProblem::OK)
 		return specific;
