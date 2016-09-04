@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "sdldisplayquery.h"
 
 #include <QString>
