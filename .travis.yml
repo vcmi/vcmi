@@ -1,30 +1,28 @@
+sudo: required
+dist: trusty
 language: cpp
 
 before_install:
-  #new boost
-  - sudo add-apt-repository --yes ppa:boost-latest/ppa
-  #new GCC
-  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   #new Clang
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   #new SDL2
   - sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
   #new Qt
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt532
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt57-trusty
   #new CMake
-  - sudo add-apt-repository --yes ppa:andykimpe/cmake 
+  - sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
 
   - sudo apt-get update -qq
 
   - sudo apt-get install -qq $SUPPORT
   - sudo apt-get install -qq $PACKAGE
-  - sudo apt-get install -qq cmake libboost1.55-all-dev zlib1g-dev
+  - sudo apt-get install -qq cmake libboost1.54-all-dev zlib1g-dev
   - sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
   - sudo apt-get install -qq libavformat-dev libswscale-dev
-  - sudo apt-get install -qq qt53declarative
+  - sudo apt-get install -qq qt57declarative
 
   #setup compiler
-  - source /opt/qt53/bin/qt53-env.sh
+  - source /opt/qt57/bin/qt57-env.sh
   - export CC=${REAL_CC} CXX=${REAL_CXX}
 
 before_script:
@@ -42,16 +40,14 @@ matrix:
   exclude:
     - env: ignore=this
   include:
-    - compiler: clang # fails all the time - missing packages?
-      env: REAL_CC=clang-3.2 REAL_CXX=clang++-3.2 PACKAGE=clang-3.2 SUPPORT=g++-4.8 
     - compiler: clang
-      env: REAL_CC=clang-3.3 REAL_CXX=clang++-3.3 PACKAGE=clang-3.3 SUPPORT=g++-4.8 
+      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev 
     - compiler: clang
-      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=g++-4.8 
-    #- compiler: gcc # fails due to running out of memory - vcmi need too much of it for successfull compilation
-    #  env: REAL_CC=gcc-4.7   REAL_CXX=g++-4.7     PACKAGE=g++-4.7   SUPPORT=
-    #- compiler: gcc # same as 4.7
-    #  env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+      env: REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev
+    - compiler: clang
+      env: REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
+    - compiler: gcc
+      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
 
 notifications:
   email:
