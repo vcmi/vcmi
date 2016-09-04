@@ -32,6 +32,7 @@ public:
 
 	CMapInfo();
 	CMapInfo(CMapInfo && tmp);
+	virtual ~CMapInfo();
 
 	CMapInfo &operator=(CMapInfo &&other);
 

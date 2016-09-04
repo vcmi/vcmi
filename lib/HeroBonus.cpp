@@ -96,12 +96,25 @@ BonusList::BonusList(const BonusList &bonusList)
 	belongsToTree = false;
 }
 
+BonusList::BonusList(BonusList&& other):
+	belongsToTree(false)
+{
+	std::swap(belongsToTree, other.belongsToTree);
+	std::swap(bonuses, other.bonuses);
+}
+
 BonusList& BonusList::operator=(const BonusList &bonusList)
 {
 	bonuses.resize(bonusList.size());
 	std::copy(bonusList.begin(), bonusList.end(), bonuses.begin());
 	belongsToTree = false;
 	return *this;
+}
+
+void BonusList::changed()
+{
+    if(belongsToTree)
+		CBonusSystemNode::treeHasChanged();
 }
 
 int BonusList::totalValue() const
@@ -257,24 +270,19 @@ void BonusList::eliminateDuplicates()
 void BonusList::push_back(Bonus* const &x)
 {
 	bonuses.push_back(x);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 std::vector<Bonus*>::iterator BonusList::erase(const int position)
 {
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 	return bonuses.erase(bonuses.begin() + position);
 }
 
 void BonusList::clear()
 {
 	bonuses.clear();
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
@@ -283,26 +291,20 @@ std::vector<BonusList*>::size_type BonusList::operator-=(Bonus* const &i)
 	if(itr == bonuses.end())
 		return false;
 	bonuses.erase(itr);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 	return true;
 }
 
 void BonusList::resize(std::vector<Bonus*>::size_type sz, Bonus* c )
 {
 	bonuses.resize(sz, c);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 void BonusList::insert(std::vector<Bonus*>::iterator position, std::vector<Bonus*>::size_type n, Bonus* const &x)
 {
 	bonuses.insert(position, n, x);
-
-	if (belongsToTree)
-		CBonusSystemNode::treeHasChanged();
+	changed();
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
@@ -706,6 +708,36 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 
 CBonusSystemNode::CBonusSystemNode() : bonuses(true), exportedBonuses(true), nodeType(UNKNOWN), cachedLast(0)
 {
+}
+
+CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
+	bonuses(std::move(other.bonuses)),
+	exportedBonuses(std::move(other.exportedBonuses)),
+	nodeType(other.nodeType),
+	description(other.description),
+	cachedLast(0)
+{
+	std::swap(parents, other.parents);
+	std::swap(children, other.children);
+
+	//fixing bonus tree without recalculation
+
+	for(CBonusSystemNode * n : parents)
+	{
+		n->children -= &other;
+		n->children.push_back(this);
+	}
+
+	for(CBonusSystemNode * n : children)
+	{
+		n->parents -= &other;
+		n->parents.push_back(this);
+	}
+
+	//cache ignored
+
+	//cachedBonuses
+	//cachedRequests
 }
 
 CBonusSystemNode::~CBonusSystemNode()

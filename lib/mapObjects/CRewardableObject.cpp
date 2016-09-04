@@ -857,6 +857,7 @@ void CGOnceVisitable::initObj()
 			info[0].reward.bonuses.push_back(bonus);
 			info[1].reward.bonuses.push_back(bonus);
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
+			info[0].message.addReplacement(VLC->arth->artifacts[info[0].reward.artifacts.back()]->Name());
 			info[1].message.addTxt(MetaString::ADVOB_TXT, 163);
 		}
 		break;

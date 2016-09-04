@@ -1146,7 +1146,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 			// Create the map info object
 			CMapInfo mapInfo;
 			mapInfo.mapHeader = make_unique<CMapHeader>();
-			mapInfo.scenarioOpts = new StartInfo;
+			mapInfo.scenarioOpts = nullptr;//to be created by serialiser
 			lf >> *(mapInfo.mapHeader.get()) >> mapInfo.scenarioOpts;
 			mapInfo.fileURI = file.getName();
 			mapInfo.countPlayers();
