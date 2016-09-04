@@ -91,14 +91,15 @@ CSpell::CSpell():
 	defaultProbability(0),
 	isRising(false), isDamage(false), isOffensive(false),
 	targetType(ETargetType::NO_TARGET),
-	mechanics(nullptr)
+	mechanics(),
+	adventureMechanics()
 {
 	levels.resize(GameConstants::SPELL_SCHOOL_LEVELS);
 }
 
 CSpell::~CSpell()
 {
-	delete mechanics;
+
 }
 
 void CSpell::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
@@ -110,7 +111,12 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastP
 {
 	assert(env);
 
-	return mechanics->adventureCast(env, parameters);
+	if(!adventureMechanics.get())
+	{
+		env->complain("Invalid adventure spell cast attempt!");
+		return false;
+	}
+	return adventureMechanics->adventureCast(env, parameters);
 }
 
 void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
@@ -622,13 +628,8 @@ void CSpell::setup()
 
 void CSpell::setupMechanics()
 {
-	if(nullptr != mechanics)
-	{
-		logGlobal->errorStream() << "Spell " << this->name << ": mechanics already set";
-		delete mechanics;
-	}
-
 	mechanics = ISpellMechanics::createMechanics(this);
+	adventureMechanics = IAdventureSpellMechanics::createMechanics(this);
 }
 
 ///CSpell::AnimationInfo

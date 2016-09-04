@@ -20,6 +20,7 @@
 class CGObjectInstance;
 class CSpell;
 class ISpellMechanics;
+class IAdventureSpellMechanics;
 class CLegacyConfigParser;
 class CGHeroInstance;
 class CStack;
@@ -338,7 +339,8 @@ private:
 
 	std::vector<LevelInfo> levels;
 
-	ISpellMechanics * mechanics;//(!) do not serialize
+	std::unique_ptr<ISpellMechanics> mechanics;//(!) do not serialize
+	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
 };
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door

@@ -76,12 +76,6 @@ private:
 	void prepare(const CSpell * spell);
 };
 
-struct DLL_LINKAGE AdventureSpellCastParameters
-{
-	const CGHeroInstance * caster;
-	int3 pos;
-};
-
 struct DLL_LINKAGE SpellTargetingContext
 {
 	CSpell::TargetInfo ti;
@@ -112,13 +106,31 @@ public:
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
-	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
 	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
 
 	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
 
-	static ISpellMechanics * createMechanics(CSpell * s);
+	static std::unique_ptr<ISpellMechanics> createMechanics(CSpell * s);
+protected:
+	CSpell * owner;
+};
+
+struct DLL_LINKAGE AdventureSpellCastParameters
+{
+	const CGHeroInstance * caster;
+	int3 pos;
+};
+
+class DLL_LINKAGE IAdventureSpellMechanics
+{
+public:
+	IAdventureSpellMechanics(CSpell * s);
+	virtual ~IAdventureSpellMechanics() = default;
+
+	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
+
+	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(CSpell * s);
 protected:
 	CSpell * owner;
 };

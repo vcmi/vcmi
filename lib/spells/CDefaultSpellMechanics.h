@@ -25,13 +25,6 @@ struct SpellCastContext
 	StacksInjured & si;
 };
 
-enum class ESpellCastResult
-{
-	OK,
-	CANCEL,//cast failed but it is not an error
-	ERROR//internal error occurred
-};
-
 class DLL_LINKAGE DefaultSpellMechanics : public ISpellMechanics
 {
 public:
@@ -46,16 +39,13 @@ public:
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
-	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
+
 	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override final;
 
 	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
-
-	///actual adventure cast implementation
-	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
 
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 private:
