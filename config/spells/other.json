@@ -2,7 +2,7 @@
 	"quicksand" : {
 		"index" : 10,
 		"targetType" : "NO_TARGET",
-		
+
 		"sounds": {
 			"cast": "QUIKSAND"
 		},
@@ -18,7 +18,7 @@
 	"landMine" : {
 		"index" : 11,
 		"targetType" : "NO_TARGET",
-		
+
 		"sounds": {
 			"cast": ""
 		},
@@ -38,7 +38,7 @@
 	"forceField" : {
 		"index" : 12,
 		"targetType" : "LOCATION",
-		
+
 		"sounds": {
 			"cast": "FORCEFLD"
 		},
@@ -56,8 +56,8 @@
 	},
 	"fireWall" : {
 		"index" : 13,
-		"targetType" : "LOCATION",		
-		
+		"targetType" : "LOCATION",
+
 		"sounds": {
 			"cast": "FIREWALL"
 		},
@@ -66,7 +66,7 @@
 				"range" : "0",
 				"targetModifier":{
 					"clearAffected": true
-				}				
+				}
 			}
 		},
 		"flags" : {
@@ -79,8 +79,8 @@
 	},
 	"earthquake" : {
 		"index" : 14,
-		"targetType" : "NO_TARGET",		
-		
+		"targetType" : "NO_TARGET",
+
 		"sounds": {
 			"cast": "ERTHQUAK"
 		},
@@ -94,27 +94,27 @@
 			"indifferent": true
 		}
 	},
-	
+
 	"dispel" : {
 		"index" : 35,
-		"targetType" : "CREATURE",			
-		
+		"targetType" : "CREATURE",
+
 		"animation":{
 			"affect":["C05SPW"] //C05SPW0
-		},			
+		},
 		"sounds": {
 			"cast": "DISPELL"
 		},
 		"levels" : {
  			"base":{
-				"targetModifier":{"smart":true},			
+				"targetModifier":{"smart":true},
  				"range" : "0"
  			},
 			"advanced":{
-				"targetModifier":{"smart":false}			
+				"targetModifier":{"smart":false}
 			},
  			"expert":{
-				"targetModifier":{"smart":false},			
+				"targetModifier":{"smart":false},
  				"range" : "X"
  			}
 		},
@@ -124,11 +124,11 @@
 	},
 	"cure" : {
 		"index" : 37,
-		"targetType" : "CREATURE",		
+		"targetType" : "CREATURE",
 		"animation":{
 			"affect":["C03SPW"]//C03SPW0
 		},
-		
+
 		"sounds": {
 			"cast": "CURE"
 		},
@@ -147,8 +147,8 @@
 	},
 	"resurrection" : {
 		"index" : 38,
-		"targetType" : "CREATURE",			
-		
+		"targetType" : "CREATURE",
+
 		"animation":{
 			"affect":["C01SPE0"]
 		},
@@ -167,16 +167,17 @@
 		},
 		"absoluteImmunity" : {
 			"UNDEAD": true,
+			"SIEGE_WEAPON": true,
 			"NON_LIVING": true
 		}
 	},
 	"animateDead" : {
 		"index" : 39,
-		"targetType" : "CREATURE",			
-		
+		"targetType" : "CREATURE",
+
 		"animation":{
 			"affect":["C01SPE0"]
-		},		
+		},
 		"sounds": {
 			"cast": "ANIMDEAD"
 		},
@@ -196,11 +197,11 @@
 	},
 	"sacrifice" : {
 		"index" : 40,
-		"targetType" : "CREATURE",			
-		
+		"targetType" : "CREATURE",
+
 		"animation":{
 			"affect":["C01SPE0"]
-		},		
+		},
 		"sounds": {
 			"cast": "SACRIF1"
 		},
@@ -215,14 +216,15 @@
 			"positive": true
 		},
 		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true,
 			"NON_LIVING": true
 		}
 	},
 	"teleport" : {
 		"index" : 63,
-		"targetType" : "CREATURE",			
-		
+		"targetType" : "CREATURE",
+
 		"sounds": {
 			"cast": "TELPTOUT"
 		},
@@ -241,10 +243,10 @@
 	},
 	"removeObstacle" : {
 		"index" : 64,
-		"targetType" : "OBSTACLE",		
+		"targetType" : "OBSTACLE",
 		"animation":{
 			"cast":[2]
-		},		
+		},
 		"sounds": {
 			"cast": "REMOVEOB"
 		},
@@ -259,10 +261,10 @@
 	},
 	"clone" : {
 		"index" : 65,
-		"targetType" : "CREATURE",		
+		"targetType" : "CREATURE",
 		"animation":{
 			"cast":[2]
-		},			
+		},
 		"sounds": {
 			"cast": "CLONE"
 		},
@@ -281,10 +283,10 @@
 	},
 	"fireElemental" : {
 		"index" : 66,
-		"targetType" : "NO_TARGET",		
+		"targetType" : "NO_TARGET",
 		"animation":{
 			"cast":[2]
-		},			
+		},
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -299,10 +301,10 @@
 	},
 	"earthElemental" : {
 		"index" : 67,
-		"targetType" : "NO_TARGET",	
+		"targetType" : "NO_TARGET",
 		"animation":{
 			"cast":[2]
-		},			
+		},
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -317,10 +319,10 @@
 	},
 	"waterElemental" : {
 		"index" : 68,
-		"targetType" : "NO_TARGET",	
+		"targetType" : "NO_TARGET",
 		"animation":{
 			"cast":[2]
-		},			
+		},
 		"sounds": {
 			"cast": "SUMNELM"
 		},
@@ -335,10 +337,10 @@
 	},
 	"airElemental" : {
 		"index" : 69,
-		"targetType" : "NO_TARGET",	
+		"targetType" : "NO_TARGET",
 		"animation":{
 			"cast":[2]
-		},			
+		},
 		"sounds": {
 			"cast": "SUMNELM"
 		},
