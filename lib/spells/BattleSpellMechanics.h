@@ -13,6 +13,7 @@
 #include "CDefaultSpellMechanics.h"
 
 class CObstacleInstance;
+class SpellCreatedObstacle;
 
 class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
 {
@@ -98,9 +99,35 @@ class DLL_LINKAGE ObstacleMechanics : public DefaultSpellMechanics
 public:
 	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
-	bool requiresCreatureTarget() const	override;
+protected:
+	void placeObstacle(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const BattleHex & pos) const;
+	virtual void setupObstacle(SpellCreatedObstacle * obstacle) const = 0;
+};
+
+class PatchObstacleMechanics : public ObstacleMechanics
+{
+public:
+	PatchObstacleMechanics(CSpell * s): ObstacleMechanics(s){};
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+};
+
+class DLL_LINKAGE LandMineMechanics : public PatchObstacleMechanics
+{
+public:
+	LandMineMechanics(CSpell * s): PatchObstacleMechanics(s){};
+	bool requiresCreatureTarget() const	override;
+protected:
+	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
+};
+
+class DLL_LINKAGE QuicksandMechanics : public PatchObstacleMechanics
+{
+public:
+	QuicksandMechanics(CSpell * s): PatchObstacleMechanics(s){};
+	bool requiresCreatureTarget() const	override;
+protected:
+	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
 };
 
 class DLL_LINKAGE WallMechanics : public ObstacleMechanics
@@ -108,6 +135,26 @@ class DLL_LINKAGE WallMechanics : public ObstacleMechanics
 public:
 	WallMechanics(CSpell * s): ObstacleMechanics(s){};
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;
+};
+
+class DLL_LINKAGE FireWallMechanics : public WallMechanics
+{
+public:
+	FireWallMechanics(CSpell * s): WallMechanics(s){};
+	bool requiresCreatureTarget() const	override;
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
+};
+
+class DLL_LINKAGE ForceFieldMechanics : public WallMechanics
+{
+public:
+	ForceFieldMechanics(CSpell * s): WallMechanics(s){};
+	bool requiresCreatureTarget() const	override;
+protected:
+	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
+	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
 };
 
 class DLL_LINKAGE RemoveObstacleMechanics : public DefaultSpellMechanics

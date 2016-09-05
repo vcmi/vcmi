@@ -258,7 +258,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		env->sendAndApply(&si);
 
 	//reduce number of casts remaining
-	//TODO: this should be part of BattleSpellCast apply
 	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
 	{
 		assert(parameters.casterStack);

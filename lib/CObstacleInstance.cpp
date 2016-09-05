@@ -131,7 +131,6 @@ std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
 		return std::vector<BattleHex>(1, pos);
 	case FORCE_FIELD:
 		return SpellID(SpellID::FORCE_FIELD).toSpell()->rangeInHexes(pos, spellLevel, casterSide);
-		//TODO Fire Wall
 	default:
 		assert(0);
 		return std::vector<BattleHex>();

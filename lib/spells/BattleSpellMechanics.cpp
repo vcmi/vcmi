@@ -410,120 +410,69 @@ ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleI
 	return ESpellCastProblem::OK;
 }
 
-void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+void ObstacleMechanics::placeObstacle(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const BattleHex & pos) const
 {
-	auto placeObstacle = [&, this](const BattleHex & pos)
-	{
-		static int obstacleIdToGive =  parameters.cb->obstacles.size()
-									? (parameters.cb->obstacles.back()->uniqueID+1)
-									: 0;
+	const int obstacleIdToGive = parameters.cb->obstacles.size()+1;
 
-		auto obstacle = std::make_shared<SpellCreatedObstacle>();
-		switch(owner->id) // :/
-		{
-		case SpellID::QUICKSAND:
-			obstacle->obstacleType = CObstacleInstance::QUICKSAND;
-			obstacle->turnsRemaining = -1;
-			obstacle->visibleForAnotherSide = false;
-			break;
-		case SpellID::LAND_MINE:
-			obstacle->obstacleType = CObstacleInstance::LAND_MINE;
-			obstacle->turnsRemaining = -1;
-			obstacle->visibleForAnotherSide = false;
-			break;
-		case SpellID::FIRE_WALL:
-			obstacle->obstacleType = CObstacleInstance::FIRE_WALL;
-			obstacle->turnsRemaining = 2;
-			obstacle->visibleForAnotherSide = true;
-			break;
-		case SpellID::FORCE_FIELD:
-			obstacle->obstacleType = CObstacleInstance::FORCE_FIELD;
-			obstacle->turnsRemaining = 2;
-			obstacle->visibleForAnotherSide = true;
-			break;
-		default:
-			//this function cannot be used with spells that do not create obstacles
-			assert(0);
-		}
+	auto obstacle = std::make_shared<SpellCreatedObstacle>();
+	setupObstacle(obstacle.get());
 
-		obstacle->pos = pos;
-		obstacle->casterSide = parameters.casterSide;
-		obstacle->ID = owner->id;
-		obstacle->spellLevel = parameters.effectLevel;
-		obstacle->casterSpellPower = parameters.effectPower;
-		obstacle->uniqueID = obstacleIdToGive++;
+	obstacle->pos = pos;
+	obstacle->casterSide = parameters.casterSide;
+	obstacle->ID = owner->id;
+	obstacle->spellLevel = parameters.effectLevel;
+	obstacle->casterSpellPower = parameters.effectPower;
+	obstacle->uniqueID = obstacleIdToGive;
 
-		BattleObstaclePlaced bop;
-		bop.obstacle = obstacle;
-		env->sendAndApply(&bop);
-	};
-
-	const BattleHex destination = parameters.getFirstDestinationHex();
-
-	switch(owner->id)
-	{
-	case SpellID::QUICKSAND:
-	case SpellID::LAND_MINE:
-		{
-			std::vector<BattleHex> availableTiles;
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
-			{
-				BattleHex hex = i;
-				if(hex.getX() > 0 && hex.getX() < 16 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
-					availableTiles.push_back(hex);
-			}
-			boost::range::random_shuffle(availableTiles);
-
-			const int patchesForSkill[] = {4, 4, 6, 8};
-			const int patchesToPut = std::min<int>(patchesForSkill[parameters.spellLvl], availableTiles.size());
-
-			//land mines or quicksand patches are handled as spell created obstacles
-			for (int i = 0; i < patchesToPut; i++)
-				placeObstacle(availableTiles.at(i));
-		}
-
-		break;
-	case SpellID::FORCE_FIELD:
-		if(!destination.isValid())
-		{
-			env->complain("Invalid destination for FORCE_FIELD");
-			return;
-		}
-		placeObstacle(destination);
-		break;
-	case SpellID::FIRE_WALL:
-		{
-			if(!destination.isValid())
-			{
-				env->complain("Invalid destination for FIRE_WALL");
-				return;
-			}
-			//fire wall is build from multiple obstacles - one fire piece for each affected hex
-			auto affectedHexes = owner->rangeInHexes(destination, parameters.spellLvl, parameters.casterSide);
-			for(BattleHex hex : affectedHexes)
-				placeObstacle(hex);
-		}
-		break;
-	default:
-		assert(0);
-	}
+	BattleObstaclePlaced bop;
+	bop.obstacle = obstacle;
+	env->sendAndApply(&bop);
 }
 
-bool ObstacleMechanics::requiresCreatureTarget() const
+///PatchObstacleMechanics
+void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	switch(owner->id)
+	std::vector<BattleHex> availableTiles;
+	for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
 	{
-	case SpellID::QUICKSAND:
-		return false;
-	case SpellID::LAND_MINE:
-		return true;
-	case SpellID::FORCE_FIELD:
-		return false;
-	case SpellID::FIRE_WALL:
-		return true;
-	default:
-		return false;
+		BattleHex hex = i;
+		if(hex.getX() > 0 && hex.getX() < 16 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
+			availableTiles.push_back(hex);
 	}
+	boost::range::random_shuffle(availableTiles);
+
+	const int patchesForSkill[] = {4, 4, 6, 8};
+	const int patchesToPut = std::min<int>(patchesForSkill[parameters.spellLvl], availableTiles.size());
+
+	//land mines or quicksand patches are handled as spell created obstacles
+	for (int i = 0; i < patchesToPut; i++)
+		placeObstacle(env, parameters, availableTiles.at(i));
+}
+
+///LandMineMechanics
+bool LandMineMechanics::requiresCreatureTarget() const
+{
+	return true;
+}
+
+void LandMineMechanics::setupObstacle(SpellCreatedObstacle * obstacle) const
+{
+	obstacle->obstacleType = CObstacleInstance::LAND_MINE;
+	obstacle->turnsRemaining = -1;
+	obstacle->visibleForAnotherSide = false;
+}
+
+///QuicksandMechanics
+bool QuicksandMechanics::requiresCreatureTarget() const
+{
+	return false;
+}
+
+void QuicksandMechanics::setupObstacle(SpellCreatedObstacle * obstacle) const
+{
+	obstacle->obstacleType = CObstacleInstance::QUICKSAND;
+	obstacle->turnsRemaining = -1;
+	obstacle->visibleForAnotherSide = false;
 }
 
 ///WallMechanics
@@ -561,6 +510,59 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 		addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
 
 	return ret;
+}
+
+///FireWallMechanics
+bool FireWallMechanics::requiresCreatureTarget() const
+{
+	return true;
+}
+
+void FireWallMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	const BattleHex destination = parameters.getFirstDestinationHex();
+
+	if(!destination.isValid())
+	{
+		env->complain("Invalid destination for FIRE_WALL");
+		return;
+	}
+	//firewall is build from multiple obstacles - one fire piece for each affected hex
+	auto affectedHexes = owner->rangeInHexes(destination, parameters.spellLvl, parameters.casterSide);
+	for(BattleHex hex : affectedHexes)
+		placeObstacle(env, parameters, hex);
+}
+
+void FireWallMechanics::setupObstacle(SpellCreatedObstacle * obstacle) const
+{
+	obstacle->obstacleType = CObstacleInstance::FIRE_WALL;
+	obstacle->turnsRemaining = 2;
+	obstacle->visibleForAnotherSide = true;
+}
+
+///ForceFieldMechanics
+bool ForceFieldMechanics::requiresCreatureTarget() const
+{
+	return false;
+}
+
+void ForceFieldMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	const BattleHex destination = parameters.getFirstDestinationHex();
+
+	if(!destination.isValid())
+	{
+		env->complain("Invalid destination for FORCE_FIELD");
+		return;
+	}
+	placeObstacle(env, parameters, destination);
+}
+
+void ForceFieldMechanics::setupObstacle(SpellCreatedObstacle * obstacle) const
+{
+	obstacle->obstacleType = CObstacleInstance::FORCE_FIELD;
+	obstacle->turnsRemaining = 2;
+	obstacle->visibleForAnotherSide = true;
 }
 
 ///RemoveObstacleMechanics

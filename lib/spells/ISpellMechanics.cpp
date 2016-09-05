@@ -106,13 +106,15 @@ std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(CSpell * s)
 	case SpellID::EARTHQUAKE:
 		return make_unique<EarthquakeMechanics>(s);
 	case SpellID::FIRE_WALL:
+		return make_unique<FireWallMechanics>(s);
 	case SpellID::FORCE_FIELD:
-		return make_unique<WallMechanics>(s);
+		return make_unique<ForceFieldMechanics>(s);
 	case SpellID::HYPNOTIZE:
 		return make_unique<HypnotizeMechanics>(s);
 	case SpellID::LAND_MINE:
+		return make_unique<LandMineMechanics>(s);
 	case SpellID::QUICKSAND:
-		return make_unique<ObstacleMechanics>(s);
+		return make_unique<QuicksandMechanics>(s);
 	case SpellID::REMOVE_OBSTACLE:
 		return make_unique<RemoveObstacleMechanics>(s);
 	case SpellID::SACRIFICE:
