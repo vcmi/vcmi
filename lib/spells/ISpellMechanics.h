@@ -111,6 +111,9 @@ public:
 	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
 
+	//if true use generic algorithm for target existence check, see CSpell::canBeCast
+	virtual bool requiresCreatureTarget() const = 0;
+
 	static std::unique_ptr<ISpellMechanics> createMechanics(CSpell * s);
 protected:
 	CSpell * owner;

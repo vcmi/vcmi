@@ -44,6 +44,8 @@ public:
 
 	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;
+
+	bool requiresCreatureTarget() const	override;
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 

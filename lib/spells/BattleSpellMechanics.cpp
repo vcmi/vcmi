@@ -361,6 +361,11 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 	return ESpellCastProblem::OK;
 }
 
+bool EarthquakeMechanics::requiresCreatureTarget() const
+{
+	return false;
+}
+
 ///HypnotizeMechanics
 ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
@@ -504,6 +509,23 @@ void ObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	}
 }
 
+bool ObstacleMechanics::requiresCreatureTarget() const
+{
+	switch(owner->id)
+	{
+	case SpellID::QUICKSAND:
+		return false;
+	case SpellID::LAND_MINE:
+		return true;
+	case SpellID::FORCE_FIELD:
+		return false;
+	case SpellID::FIRE_WALL:
+		return true;
+	default:
+		return false;
+	}
+}
+
 ///WallMechanics
 std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes) const
 {
@@ -606,6 +628,11 @@ bool RemoveObstacleMechanics::canRemove(const CObstacleInstance * obstacle, cons
 	return false;
 }
 
+bool RemoveObstacleMechanics::requiresCreatureTarget() const
+{
+	return false;
+}
+
 ///RisingSpellMechanics
 HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
 {
@@ -700,6 +727,11 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 	return res;
 }
 
+bool SacrificeMechanics::requiresCreatureTarget() const
+{
+	return false;//canBeCast do all target existence checks
+}
+
 ///SpecialRisingSpellMechanics
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
@@ -772,6 +804,11 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, const
 		env->sendAndApply(&bsa);
 	else
 		env->complain("Summoning didn't summon any!");
+}
+
+bool SummonMechanics::requiresCreatureTarget() const
+{
+	return false;
 }
 
 ///TeleportMechanics

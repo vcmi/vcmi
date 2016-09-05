@@ -784,3 +784,10 @@ void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& p
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
 }
+
+bool DefaultSpellMechanics::requiresCreatureTarget() const
+{
+	//most spells affects creatures somehow regardless of Target Type
+	//for few exceptions see overrides
+	return true;
+}

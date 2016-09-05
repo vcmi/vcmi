@@ -1661,78 +1661,13 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
-	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCast(this, caster);
+	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCast(this, mode, caster);
 
 	if(specificProblem != ESpellCastProblem::OK)
 		return specificProblem;
 
-	if(spell->isNegative() || spell->hasEffects())
-	{
-		bool allStacksImmune = true;
-		//we are interested only in enemy stacks when casting offensive spells
-		//TODO: should hero be able to cast non-smart negative spell if all enemy stacks are immune?
-		auto stacks = spell->isNegative() ? battleAliveStacks(!side) : battleAliveStacks();
-		for(auto stack : stacks)
-		{
-			if(ESpellCastProblem::OK == spell->isImmuneByStack(caster, stack))
-			{
-				allStacksImmune = false;
-				break;
-			}
-		}
-
-		if(allStacksImmune)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-
 	if(battleMaxSpellLevel(side) < spell->level) //effect like Recanter's Cloak or Orb of Inhibition
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
-
-	//checking if there exists an appropriate target
-	switch(spell->getTargetType())
-	{
-	case CSpell::CREATURE:
-		if(mode == ECastingMode::HERO_CASTING)
-		{
-			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
-			bool targetExists = false;
-
-			for(const CStack * stack : battleGetAllStacks()) //dead stacks will be immune anyway
-			{
-				bool immune =  ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
-				bool casterStack = stack->owner == caster->getOwner();
-
-				if(!immune)
-				{
-					switch (spell->positiveness)
-					{
-					case CSpell::POSITIVE:
-						if(casterStack || !ti.smart)
-						{
-							targetExists = true;
-							break;
-						}
-						break;
-					case CSpell::NEUTRAL:
-							targetExists = true;
-							break;
-					case CSpell::NEGATIVE:
-						if(!casterStack || !ti.smart)
-						{
-							targetExists = true;
-							break;
-						}
-						break;
-					}
-				}
-			}
-			if(!targetExists)
-			{
-				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-			}
-		}
-		break;
-	}
 
 	return ESpellCastProblem::OK;
 }

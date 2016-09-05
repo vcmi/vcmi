@@ -149,9 +149,61 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
-	return mechanics->canBeCast(cb, caster);
+	const ESpellCastProblem::ESpellCastProblem generalProblem = mechanics->canBeCast(cb, caster);
+
+	if(generalProblem != ESpellCastProblem::OK)
+		return generalProblem;
+
+	//check for creature target existence
+	if(mechanics->requiresCreatureTarget())
+	{
+		switch(mode)
+		{
+		case ECastingMode::HERO_CASTING:
+		case ECastingMode::CREATURE_ACTIVE_CASTING:
+		case ECastingMode::ENCHANTER_CASTING:
+		case ECastingMode::PASSIVE_CASTING:
+			{
+				TargetInfo tinfo(this, caster->getSpellSchoolLevel(this), mode);
+
+				bool targetExists = false;
+
+				for(const CStack * stack : cb->battleGetAllStacks())
+				{
+					bool immune = !(stack->isValidTarget(!tinfo.onlyAlive) && ESpellCastProblem::OK == isImmuneByStack(caster, stack));
+					bool casterStack = stack->owner == caster->getOwner();
+
+					if(!immune)
+					{
+						switch (positiveness)
+						{
+						case CSpell::POSITIVE:
+							if(casterStack || !tinfo.smart)
+								targetExists = true;
+							break;
+						case CSpell::NEUTRAL:
+								targetExists = true;
+								break;
+						case CSpell::NEGATIVE:
+							if(!casterStack || !tinfo.smart)
+								targetExists = true;
+							break;
+						}
+					}
+					if(targetExists)
+						break;
+				}
+				if(!targetExists)
+				{
+					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+				}
+			}
+			break;
+		}
+	}
+	return ESpellCastProblem::OK;
 }
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const

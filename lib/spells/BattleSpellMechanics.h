@@ -81,6 +81,7 @@ class DLL_LINKAGE EarthquakeMechanics : public DefaultSpellMechanics
 public:
 	EarthquakeMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -97,6 +98,7 @@ class DLL_LINKAGE ObstacleMechanics : public DefaultSpellMechanics
 public:
 	ObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
+	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -114,6 +116,7 @@ public:
 	RemoveObstacleMechanics(CSpell * s): DefaultSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
+	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 private:
@@ -135,6 +138,7 @@ public:
 	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -155,6 +159,7 @@ public:
 	SummonMechanics(CSpell * s, CreatureID cre): DefaultSpellMechanics(s), creatureToSummon(cre){};
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 private:
