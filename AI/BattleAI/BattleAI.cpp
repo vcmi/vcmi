@@ -482,31 +482,43 @@ void CBattleAI::attemptCastingSpell()
 			}
 		case TIMED_EFFECT:
 			{
-				StackWithBonuses swb;
-				swb.stack = cb->battleGetStackByPos(ps.dest);
-				if(!swb.stack)
+				auto stacksAffected = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
+
+				if(stacksAffected.empty())
 					return -1;
 
-				Bonus pseudoBonus;
-				pseudoBonus.sid = ps.spell->id;
-				pseudoBonus.val = skillLevel;
-				pseudoBonus.turnsRemain = 1; //TODO
-				CStack::stackEffectToFeature(swb.bonusesToAdd, pseudoBonus);
+				int totalGain = 0;
 
-				HypotheticChangesToBattleState state;
-				state.bonusesOfStacks[swb.stack] = &swb;
+				for(const CStack * sta : stacksAffected)
+				{
+					StackWithBonuses swb;
+					swb.stack = sta;
 
-				PotentialTargets pt(swb.stack, state);
-				auto newValue = pt.bestActionValue();
-				auto oldValue = valueOfStack[swb.stack];
-				auto gain = newValue - oldValue;
-				if(swb.stack->owner != playerID) //enemy
-					gain = -gain;
+					Bonus pseudoBonus;
+					pseudoBonus.sid = ps.spell->id;
+					pseudoBonus.val = skillLevel;
+					pseudoBonus.turnsRemain = 1; //TODO
+					CStack::stackEffectToFeature(swb.bonusesToAdd, pseudoBonus);
 
-				LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
-					ps.spell->name % swb.stack->nodeName() % gain % (oldValue) % (newValue));
+					HypotheticChangesToBattleState state;
+					state.bonusesOfStacks[swb.stack] = &swb;
 
-				return gain;
+					PotentialTargets pt(swb.stack, state);
+					auto newValue = pt.bestActionValue();
+					auto oldValue = valueOfStack[swb.stack];
+					auto gain = newValue - oldValue;
+					if(swb.stack->owner != playerID) //enemy
+						gain = -gain;
+
+					LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
+						ps.spell->name % sta->nodeName() % (gain) % (oldValue) % (newValue));
+
+					totalGain += gain;
+				}
+
+				LOGFL("Total gain of cast %s at hex %d is %d", ps.spell->name % (ps.dest.hex) % (totalGain));
+
+				return totalGain;
 			}
 		default:
 			assert(0);
