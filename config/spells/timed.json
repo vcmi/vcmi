@@ -310,6 +310,7 @@
 			"spell.curse": true
 		},
 		"absoluteImmunity" : {
+			"SIEGE_WEAPON": true,
 			"UNDEAD": true
 		},
 		"flags" : {

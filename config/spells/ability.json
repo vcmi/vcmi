@@ -40,6 +40,9 @@
 				}
 			}
 		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
+		},
 		"flags" : {
 			"indifferent": true
 		}
@@ -73,6 +76,9 @@
 					}
 				}
 			}
+		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
 		},
 		"immunity" : {
 			"UNDEAD": true,
@@ -139,6 +145,9 @@
 				}
 			}
 		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"UNDEAD": true,
 			"NON_LIVING": true
@@ -179,6 +188,9 @@
 				}
 			}
 		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
+		},
 		"flags" : {
 			"negative": true
 		}
@@ -207,6 +219,9 @@
 				}
 			}
 		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
+		},
 		"immunity" : {
 			"UNDEAD": true,
 			"NON_LIVING": true
@@ -229,6 +244,9 @@
 			"base":{
 				"range" : "0-1"
 			}
+		},
+		"absoluteImmunity":{
+			"SIEGE_WEAPON": true
 		},
 		"immunity" : {
 			"UNDEAD": true,
@@ -296,6 +314,7 @@
 		},
 		"absoluteImmunity" : {
 			"UNDEAD": true,
+			"SIEGE_WEAPON": true,
 			"NON_LIVING": true
 		},
 		"flags" : {

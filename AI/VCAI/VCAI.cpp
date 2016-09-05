@@ -398,6 +398,16 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	for (auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
 
+	//TODO: Find better way to handle hero boat removal
+	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
+	{
+		if(hero->boat)
+		{
+			vstd::erase_if_present(visitableObjs, hero->boat);
+			vstd::erase_if_present(alreadyVisited, hero->boat);
+		}
+	}
+
 	cachedSectorMaps.clear(); //invalidate all paths
 
 	//TODO
