@@ -34,15 +34,26 @@ BattleSpellCastParameters::Destination::Destination(const BattleHex & destinatio
 
 }
 
-BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell)
-	: cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
+BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell_)
+	: spell(spell_), cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
 	casterHero(nullptr),
 	mode(ECastingMode::HERO_CASTING), casterStack(nullptr),
 	spellLvl(-1),  effectLevel(-1), effectPower(0), enchantPower(0), effectValue(0)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
 	casterHero = dynamic_cast<const CGHeroInstance *>(caster);
-	prepare(spell);
+
+	spellLvl = caster->getSpellSchoolLevel(spell);
+	effectLevel = caster->getEffectLevel(spell);
+	effectPower = caster->getEffectPower(spell);
+	effectValue = caster->getEffectValue(spell);
+	enchantPower = caster->getEnchantPower(spell);
+
+	vstd::amax(spellLvl, 0);
+	vstd::amax(effectLevel, 0);
+	vstd::amax(enchantPower, 0);
+	vstd::amax(enchantPower, 0);
+	vstd::amax(effectValue, 0);
 }
 
 void BattleSpellCastParameters::aimToHex(const BattleHex& destination)
@@ -58,24 +69,14 @@ void BattleSpellCastParameters::aimToStack(const CStack * destination)
 		destinations.push_back(Destination(destination));
 }
 
+void BattleSpellCastParameters::cast(const SpellCastEnvironment * env)
+{
+	spell->battleCast(env, *this);
+}
+
 BattleHex BattleSpellCastParameters::getFirstDestinationHex() const
 {
 	return destinations.at(0).hexValue;
-}
-
-void BattleSpellCastParameters::prepare(const CSpell * spell)
-{
-	spellLvl = caster->getSpellSchoolLevel(spell);
-	effectLevel = caster->getEffectLevel(spell);
-	effectPower = caster->getEffectPower(spell);
-	effectValue = caster->getEffectValue(spell);
-	enchantPower = caster->getEnchantPower(spell);
-
-	vstd::amax(spellLvl, 0);
-	vstd::amax(effectLevel, 0);
-	vstd::amax(enchantPower, 0);
-	vstd::amax(enchantPower, 0);
-	vstd::amax(effectValue, 0);
 }
 
 ///ISpellMechanics

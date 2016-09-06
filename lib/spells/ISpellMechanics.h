@@ -45,11 +45,15 @@ public:
 		const BattleHex hexValue;
 	};
 
-	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell);
+	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell_);
 	void aimToHex(const BattleHex & destination);
 	void aimToStack(const CStack * destination);
+
+	void cast(const SpellCastEnvironment * env);
+
 	BattleHex getFirstDestinationHex() const;
 
+	const CSpell * spell;
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
 	const PlayerColor casterColor;
@@ -71,8 +75,6 @@ public:
 	int enchantPower;
 	///for Archangel-like casting
 	int effectValue;
-private:
-	void prepare(const CSpell * spell);
 };
 
 struct DLL_LINKAGE SpellTargetingContext

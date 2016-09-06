@@ -262,13 +262,19 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 		return;
 	}
 
-	std::vector <const CStack*> reflected, reflectedIgnore;//for magic mirror
+	std::vector <const CStack*> reflected;//for magic mirror
 
 	cast(env, parameters, reflected);
 
 	//Magic Mirror effect
 	for(auto & attackedCre : reflected)
 	{
+		if(parameters.mode == ECastingMode::MAGIC_MIRROR)
+		{
+			logGlobal->error("Magic mirror recurrence!");
+			return;
+		}
+
 		TStacks mirrorTargets = parameters.cb->battleGetStacksIf([this, parameters](const CStack * battleStack)
 		{
 			//Get all enemy stacks. Magic mirror can reflect to immune creature (with no effect)
@@ -287,7 +293,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 			mirrorParameters.effectPower = parameters.effectPower;
 			mirrorParameters.effectValue = parameters.effectValue;
 			mirrorParameters.enchantPower = parameters.enchantPower;
-			cast(env, mirrorParameters, reflectedIgnore);
+			mirrorParameters.cast(env);
 		}
 	}
 }
