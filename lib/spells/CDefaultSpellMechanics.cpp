@@ -578,7 +578,7 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	std::vector<BattleHex> ret;
 	std::string rng = owner->getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at lest one hex in range (+artificial comma)
+	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
 	{
 		std::string number1, number2;
 		int beg, end;
@@ -809,4 +809,10 @@ bool DefaultSpellMechanics::requiresCreatureTarget() const
 	//most spells affects creatures somehow regardless of Target Type
 	//for few exceptions see overrides
 	return true;
+}
+
+
+std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+{
+	return std::vector<const CStack *>();
 }

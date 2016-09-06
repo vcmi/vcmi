@@ -15,7 +15,7 @@
 
 class DefaultSpellMechanics;
 
-class SpellCastContext
+class DLL_LINKAGE SpellCastContext
 {
 public:
 	const DefaultSpellMechanics * mechanics;
@@ -71,4 +71,13 @@ private:
 	void handleResistance(const SpellCastEnvironment * env, std::vector<const CStack*> & attackedCres, BattleSpellCast & sc) const;
 
 	friend class SpellCastContext;
+};
+
+///not affecting creatures directly
+class DLL_LINKAGE SpecialSpellMechanics : public DefaultSpellMechanics
+{
+public:
+	SpecialSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+protected:
+	std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 };
