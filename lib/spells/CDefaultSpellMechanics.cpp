@@ -266,7 +266,9 @@ void DefaultSpellMechanics::castNormal(const SpellCastEnvironment * env, const B
 
 	//checking if creatures resist
 	handleResistance(env, ctx.attackedCres, ctx.sc);
-	//it is actual spell and can be reflected to single target, no recurrence
+
+	//reflection is applied only to negative spells
+	//if it is actual spell and can be reflected to single target, no recurrence
 	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
 	if(tryMagicMirror)
 	{
@@ -765,7 +767,7 @@ void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, con
 void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const
 {
 	//checking if creatures resist
-	//resistance/reflection is applied only to negative spells
+	//resistance is applied only to negative spells
 	if(owner->isNegative())
 	{
 		std::vector <const CStack*> resisted;
@@ -801,7 +803,6 @@ bool DefaultSpellMechanics::requiresCreatureTarget() const
 	//for few exceptions see overrides
 	return true;
 }
-
 
 std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
