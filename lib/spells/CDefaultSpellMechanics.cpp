@@ -639,6 +639,13 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 
 std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
 {
+	std::vector<const CStack *> attackedCres = calculateAffectedStacks(cb, ctx);
+	handleImmunities(cb, ctx, attackedCres);
+	return attackedCres;
+}
+
+std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback* cb, const SpellTargetingContext& ctx) const
+{
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
 	const ui8 attackerSide = cb->playerToSide(ctx.caster->getOwner()) == 1;
@@ -749,6 +756,19 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 		CStack *s = battle->getStack(stackID);
 		s->popBonuses(CSelector(localSelector).And(selector));
 	}
+}
+
+void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const
+{
+	//now handle immunities
+	auto predicate = [&, this](const CStack * s)->bool
+	{
+		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(ctx.destination);
+		bool notImmune = (ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s));
+
+		return !(hitDirectly || notImmune);
+	};
+	vstd::erase_if(stacks, predicate);
 }
 
 void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const

@@ -62,7 +62,7 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 }
 
 ///ChainLightningMechanics
-std::vector<const CStack *> ChainLightningMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
+std::vector<const CStack *> ChainLightningMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
 	std::vector<const CStack *> res;
 

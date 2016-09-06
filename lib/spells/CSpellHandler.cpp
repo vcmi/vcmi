@@ -214,20 +214,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	SpellTargetingContext ctx(this, mode, caster, spellLvl, destination);
-
-	std::vector<const CStack *> attackedCres = mechanics->getAffectedStacks(cb, ctx);
-
-	//now handle immunities
-	auto predicate = [&, this](const CStack * s)->bool
-	{
-		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(destination);
-		bool notImmune = (ESpellCastProblem::OK == isImmuneByStack(caster, s));
-
-		return !(hitDirectly || notImmune);
-	};
-	vstd::erase_if(attackedCres, predicate);
-
-	return attackedCres;
+	return mechanics->getAffectedStacks(cb, ctx);;
 }
 
 CSpell::ETargetType CSpell::getTargetType() const
