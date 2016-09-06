@@ -118,19 +118,8 @@ namespace SRSLPraserHelpers
 	}
 }
 
-SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters):
-	mechanics(mechanics_), attackedCres(), sc(), si(), mode(parameters.mode)
-{
-	prepareBattleCast(parameters);
-	logGlobal->debugStream() << "Started spell cast. Spell: " << mechanics->owner->name << "; mode:" << mode;
-}
-
-SpellCastContext::~SpellCastContext()
-{
-	logGlobal->debugStream() << "Finished spell cast. Spell: " << mechanics->owner->name << "; mode:" << mode;
-}
-
-void SpellCastContext::prepareBattleCast(const BattleSpellCastParameters & parameters)
+SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_):
+	mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0)
 {
 	sc.side = parameters.casterSide;
 	sc.id = mechanics->owner->id;
@@ -140,6 +129,19 @@ void SpellCastContext::prepareBattleCast(const BattleSpellCastParameters & param
 	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
+
+	//check it there is opponent hero
+	const ui8 otherSide = 1-parameters.casterSide;
+
+	if(parameters.cb->battleHasHero(otherSide))
+		otherHero = parameters.cb->battleGetFightingHero(otherSide);
+
+	logGlobal->debugStream() << "Started spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
+}
+
+SpellCastContext::~SpellCastContext()
+{
+	logGlobal->debugStream() << "Finished spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
 }
 
 void SpellCastContext::addDamageToDisplay(const si32 value)
@@ -152,7 +154,7 @@ void SpellCastContext::setDamageToDisplay(const si32 value)
 	sc.dmgToDisplay = value;
 }
 
-void SpellCastContext::sendCastPacket(const SpellCastEnvironment * env)
+void SpellCastContext::sendCastPacket()
 {
 	for(auto sta : attackedCres)
 	{
@@ -160,6 +162,70 @@ void SpellCastContext::sendCastPacket(const SpellCastEnvironment * env)
 	}
 
 	env->sendAndApply(&sc);
+}
+
+void SpellCastContext::beforeCast()
+{
+	//calculate spell cost
+	if(parameters.mode == ECastingMode::HERO_CASTING)
+	{
+		spellCost = parameters.cb->battleGetSpellCost(mechanics->owner, parameters.casterHero);
+
+		if(nullptr != otherHero) //handle mana channel
+		{
+			int manaChannel = 0;
+			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			{
+				if(stack->owner == otherHero->tempOwner)
+				{
+					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+				}
+			}
+			sc.manaGained = (manaChannel * spellCost) / 100;
+		}
+
+		logGlobal->debugStream() << "spellCost: " << spellCost;
+	}
+}
+
+void SpellCastContext::afterCast()
+{
+	sendCastPacket();
+
+	if(parameters.mode == ECastingMode::HERO_CASTING)
+	{
+		//spend mana
+		SetMana sm;
+		sm.absolute = false;
+
+		sm.hid = parameters.casterHero->id;
+		sm.val = -spellCost;
+
+		env->sendAndApply(&sm);
+
+		if(sc.manaGained > 0)
+		{
+			assert(otherHero);
+
+			sm.hid = otherHero->id;
+			sm.val = sc.manaGained;
+			env->sendAndApply(&sm);
+		}
+	}
+	else if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
+	{
+		//reduce number of casts remaining
+		assert(parameters.casterStack);
+
+		BattleSetStackProperty ssp;
+		ssp.stackID = parameters.casterStack->ID;
+		ssp.which = BattleSetStackProperty::CASTS;
+		ssp.val = -1;
+		ssp.absolute = false;
+		env->sendAndApply(&ssp);
+	}
+	if(!si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&si);
 }
 
 ///DefaultSpellMechanics
@@ -196,9 +262,9 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 		return;
 	}
 
-	std::vector <const CStack*> reflected;//for magic mirror
+	std::vector <const CStack*> reflected, reflectedIgnore;//for magic mirror
 
-	castNormal(env, parameters, reflected);
+	cast(env, parameters, reflected);
 
 	//Magic Mirror effect
 	for(auto & attackedCre : reflected)
@@ -214,7 +280,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 			int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
 
 			BattleSpellCastParameters mirrorParameters(parameters.cb, attackedCre, owner);
-			mirrorParameters.spellLvl = 0;
 			mirrorParameters.aimToHex(targetHex);
 			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
 			mirrorParameters.spellLvl = parameters.spellLvl;
@@ -222,41 +287,16 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 			mirrorParameters.effectPower = parameters.effectPower;
 			mirrorParameters.effectValue = parameters.effectValue;
 			mirrorParameters.enchantPower = parameters.enchantPower;
-			castMagicMirror(env, mirrorParameters);
+			cast(env, mirrorParameters, reflectedIgnore);
 		}
 	}
 }
 
-void DefaultSpellMechanics::castNormal(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const
+void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const
 {
-	SpellCastContext ctx(this, parameters);
+	SpellCastContext ctx(this, env, parameters);
 
-	//check it there is opponent hero
-	const ui8 otherSide = 1-parameters.casterSide;
-	const CGHeroInstance * otherHero = nullptr;
-	if(parameters.cb->battleHasHero(otherSide))
-		otherHero = parameters.cb->battleGetFightingHero(otherSide);
-	int spellCost = 0;
-
-	//calculate spell cost
-	if(parameters.mode == ECastingMode::HERO_CASTING)
-	{
-		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.casterHero);
-
-		if(nullptr != otherHero) //handle mana channel
-		{
-			int manaChannel = 0;
-			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
-			{
-				if(stack->owner == otherHero->tempOwner)
-				{
-					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
-				}
-			}
-			ctx.sc.manaGained = (manaChannel * spellCost) / 100;
-		}
-	}
-	logGlobal->debugStream() << "spellCost: " << spellCost;
+	ctx.beforeCast();
 
 	ctx.attackedCres = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
 
@@ -264,66 +304,12 @@ void DefaultSpellMechanics::castNormal(const SpellCastEnvironment * env, const B
 
 	handleResistance(env, ctx);
 
-	handleMagicMirror(env, ctx, reflected);
+	if(parameters.mode != ECastingMode::MAGIC_MIRROR)
+		handleMagicMirror(env, ctx, reflected);
 
 	applyBattleEffects(env, parameters, ctx);
 
-	ctx.sendCastPacket(env);
-
-	if(parameters.mode == ECastingMode::HERO_CASTING)
-	{
-		//spend mana
-		SetMana sm;
-		sm.absolute = false;
-
-		sm.hid = parameters.casterHero->id;
-		sm.val = -spellCost;
-
-		env->sendAndApply(&sm);
-
-		if(ctx.sc.manaGained > 0)
-		{
-			assert(otherHero);
-
-			sm.hid = otherHero->id;
-			sm.val = ctx.sc.manaGained;
-			env->sendAndApply(&sm);
-		}
-	}
-	else if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
-	{
-		//reduce number of casts remaining
-		assert(parameters.casterStack);
-
-		BattleSetStackProperty ssp;
-		ssp.stackID = parameters.casterStack->ID;
-		ssp.which = BattleSetStackProperty::CASTS;
-		ssp.val = -1;
-		ssp.absolute = false;
-		env->sendAndApply(&ssp);
-	}
-
-	if(!ctx.si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&ctx.si);
-}
-
-void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
-{
-	SpellCastContext ctx(this, parameters);
-
-	//calculating affected creatures for all spells
-	ctx.attackedCres = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
-
-	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
-
-	handleResistance(env, ctx);
-
-	applyBattleEffects(env, parameters, ctx);
-
-	ctx.sendCastPacket(env);
-
-	if(!ctx.si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&ctx.si);
+	ctx.afterCast();
 }
 
 void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,

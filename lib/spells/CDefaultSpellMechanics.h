@@ -19,20 +19,25 @@ class DLL_LINKAGE SpellCastContext
 {
 public:
 	const DefaultSpellMechanics * mechanics;
+	const SpellCastEnvironment * env;
 	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
 	BattleSpellCast sc;//todo: make private
 	StacksInjured si;
-	ECastingMode::ECastingMode mode;
+	const BattleSpellCastParameters & parameters;
 
-	SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters);
+	SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_);
 	virtual ~SpellCastContext();
 
 	void addDamageToDisplay(const si32 value);
 	void setDamageToDisplay(const si32 value);
 
-	void sendCastPacket(const SpellCastEnvironment * env);
+	void beforeCast();
+	void afterCast();
 private:
-	void prepareBattleCast(const BattleSpellCastParameters & parameters);
+	const CGHeroInstance * otherHero;
+	int spellCost;
+
+	void sendCastPacket();
 };
 
 ///all combat spells
@@ -65,8 +70,7 @@ protected:
 protected:
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 private:
-	void castNormal(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const;
-	void castMagicMirror(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const;
+	void cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const;
 
 	void handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack *> & stacks) const;
 	void handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const;
