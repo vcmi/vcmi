@@ -35,6 +35,11 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 	}
 }
 
+void AcidBreathDamageMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const
+{
+	//no immunities
+}
+
 ///DeathStareMechanics
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
