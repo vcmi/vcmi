@@ -263,35 +263,9 @@ void DefaultSpellMechanics::castNormal(const SpellCastEnvironment * env, const B
 
 	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
 
-
-	//checking if creatures resist
 	handleResistance(env, ctx.attackedCres, ctx.sc);
 
-	//reflection is applied only to negative spells
-	//if it is actual spell and can be reflected to single target, no recurrence
-	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
-	if(tryMagicMirror)
-	{
-		for(auto s : ctx.attackedCres)
-		{
-			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
-			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
-				reflected.push_back(s);
-		}
-
-		vstd::erase_if(ctx.attackedCres, [&reflected](const CStack * s)
-		{
-			return vstd::contains(reflected, s);
-		});
-
-		for(auto s : reflected)
-		{
-			BattleSpellCast::CustomEffect effect;
-			effect.effect = 3;
-			effect.stack = s->ID;
-			ctx.sc.customEffects.push_back(effect);
-		}
-	}
+	handleMagicMirror(env, ctx, reflected);
 
 	applyBattleEffects(env, parameters, ctx);
 
@@ -762,6 +736,35 @@ void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, con
 		return !(hitDirectly || notImmune);
 	};
 	vstd::erase_if(stacks, predicate);
+}
+
+void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const
+{
+	//reflection is applied only to negative spells
+	//if it is actual spell and can be reflected to single target, no recurrence
+	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
+	if(tryMagicMirror)
+	{
+		for(auto s : ctx.attackedCres)
+		{
+			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
+			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
+				reflected.push_back(s);
+		}
+
+		vstd::erase_if(ctx.attackedCres, [&reflected](const CStack * s)
+		{
+			return vstd::contains(reflected, s);
+		});
+
+		for(auto s : reflected)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 3;
+			effect.stack = s->ID;
+			ctx.sc.customEffects.push_back(effect);
+		}
+	}
 }
 
 void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const
