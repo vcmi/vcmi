@@ -12,7 +12,6 @@
 
 #include "CDefaultSpellMechanics.h"
 
-#include "../NetPacks.h"
 #include "../BattleState.h"
 
 #include "../CGeneralTextHandler.h"
@@ -119,6 +118,24 @@ namespace SRSLPraserHelpers
 	}
 }
 
+SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters):
+	mechanics(mechanics_), attackedCres(), sc(), si()
+{
+	prepareBattleCast(parameters);
+}
+
+void SpellCastContext::prepareBattleCast(const BattleSpellCastParameters & parameters)
+{
+	sc.side = parameters.casterSide;
+	sc.id = mechanics->owner->id;
+	sc.skill = parameters.spellLvl;
+	sc.tile = parameters.getFirstDestinationHex();
+	sc.dmgToDisplay = 0;
+	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
+	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
+	sc.manaGained = 0;
+}
+
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
@@ -155,8 +172,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		return;
 	}
 
-	BattleSpellCast sc;
-	prepareBattleCast(parameters, sc);
+	SpellCastContext ctx(this, parameters);
 
 	//check it there is opponent hero
 	const ui8 otherSide = 1-parameters.casterSide;
@@ -180,35 +196,31 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
 				}
 			}
-			sc.manaGained = (manaChannel * spellCost) / 100;
+			ctx.sc.manaGained = (manaChannel * spellCost) / 100;
 		}
 	}
 	logGlobal->debugStream() << "spellCost: " << spellCost;
 
-	//calculating affected creatures for all spells
-	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
-
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
-	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+	std::copy(creatures.begin(), creatures.end(), std::back_inserter(ctx.attackedCres));
 
-	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
+	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
 
 	std::vector <const CStack*> reflected;//for magic mirror
 	//checking if creatures resist
-	handleResistance(env, attackedCres, sc);
+	handleResistance(env, ctx.attackedCres, ctx.sc);
 	//it is actual spell and can be reflected to single target, no recurrence
 	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
 	if(tryMagicMirror)
 	{
-		for(auto s : attackedCres)
+		for(auto s : ctx.attackedCres)
 		{
 			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
 			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
 				reflected.push_back(s);
 		}
 
-		vstd::erase_if(attackedCres, [&reflected](const CStack * s)
+		vstd::erase_if(ctx.attackedCres, [&reflected](const CStack * s)
 		{
 			return vstd::contains(reflected, s);
 		});
@@ -218,24 +230,21 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 			BattleSpellCast::CustomEffect effect;
 			effect.effect = 3;
 			effect.stack = s->ID;
-			sc.customEffects.push_back(effect);
+			ctx.sc.customEffects.push_back(effect);
 		}
 	}
 
-	for(auto cre : attackedCres)
+	for(auto cre : ctx.attackedCres)
 	{
-		sc.affectedCres.insert(cre->ID);
+		ctx.sc.affectedCres.insert(cre->ID);
 	}
 
-	StacksInjured si;
-	SpellCastContext ctx(attackedCres, sc, si);
 	applyBattleEffects(env, parameters, ctx);
+	env->sendAndApply(&ctx.sc);
 
-	env->sendAndApply(&sc);
-
-	//spend mana
 	if(parameters.mode == ECastingMode::HERO_CASTING)
 	{
+		//spend mana
 		SetMana sm;
 		sm.absolute = false;
 
@@ -244,22 +253,18 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 
 		env->sendAndApply(&sm);
 
-		if(sc.manaGained > 0)
+		if(ctx.sc.manaGained > 0)
 		{
 			assert(otherHero);
 
 			sm.hid = otherHero->id;
-			sm.val = sc.manaGained;
+			sm.val = ctx.sc.manaGained;
 			env->sendAndApply(&sm);
 		}
 	}
-
-	if(!si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&si);
-
-	//reduce number of casts remaining
-	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
+	else if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
 	{
+		//reduce number of casts remaining
 		assert(parameters.casterStack);
 
 		BattleSetStackProperty ssp;
@@ -269,6 +274,11 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		ssp.absolute = false;
 		env->sendAndApply(&ssp);
 	}
+
+	if(!ctx.si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&ctx.si);
+
+
 	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode;
 	//Magic Mirror effect
 	for(auto & attackedCre : reflected)
@@ -698,44 +708,29 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters) const
 {
 	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
-	if(parameters.mode != ECastingMode::MAGIC_MIRROR)
-	{
-		env->complain("MagicMirror: invalid mode");
-		return;
-	}
-	BattleHex destination = parameters.getFirstDestinationHex();
-	if(!destination.isValid())
-	{
-		env->complain("MagicMirror: invalid destination");
-		return;
-	}
 
-	BattleSpellCast sc;
-	prepareBattleCast(parameters, sc);
+	BattleHex destination = parameters.getFirstDestinationHex();
+	SpellCastContext ctx(this, parameters);
 
 	//calculating affected creatures for all spells
-	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
-
 	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, destination);
-	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
+	std::copy(creatures.begin(), creatures.end(), std::back_inserter(ctx.attackedCres));
 
-	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
+	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
 
-	handleResistance(env, attackedCres, sc);
+	handleResistance(env, ctx.attackedCres, ctx.sc);
 
-	for(auto cre : attackedCres)
+	for(auto cre : ctx.attackedCres)
 	{
-		sc.affectedCres.insert(cre->ID);
+		ctx.sc.affectedCres.insert(cre->ID);
 	}
 
-	StacksInjured si;
-	SpellCastContext ctx(attackedCres, sc, si);
 	applyBattleEffects(env, parameters, ctx);
 
-	env->sendAndApply(&sc);
-	if(!si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&si);
+	env->sendAndApply(&ctx.sc);
+	if(!ctx.si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&ctx.si);
+
 	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
 }
 
@@ -770,18 +765,6 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, s
 			sc.customEffects.push_back(effect);
 		}
 	}
-}
-
-void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& parameters, BattleSpellCast& sc) const
-{
-	sc.side = parameters.casterSide;
-	sc.id = owner->id;
-	sc.skill = parameters.spellLvl;
-	sc.tile = parameters.getFirstDestinationHex();
-	sc.dmgToDisplay = 0;
-	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
-	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
-	sc.manaGained = 0;
 }
 
 bool DefaultSpellMechanics::requiresCreatureTarget() const

@@ -225,8 +225,6 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 
 void DispellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	DefaultSpellMechanics::applyBattleEffects(env, parameters, ctx);
-
 	if(parameters.spellLvl > 2)
 	{
 		//expert DISPELL also removes spell-created obstacles

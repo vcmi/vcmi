@@ -11,20 +11,24 @@
 #pragma once
 
 #include "ISpellMechanics.h"
+#include "../NetPacks.h"
 
-struct StacksInjured;
+class DefaultSpellMechanics;
 
-struct SpellCastContext
+class SpellCastContext
 {
-	SpellCastContext(std::vector<const CStack *> & attackedCres, BattleSpellCast & sc, StacksInjured & si):
-		attackedCres(attackedCres), sc(sc), si(si)
-	{
-	};
-	std::vector<const CStack *> & attackedCres;
-	BattleSpellCast & sc;
-	StacksInjured & si;
+public:
+	const DefaultSpellMechanics * mechanics;
+	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
+	BattleSpellCast sc;
+	StacksInjured si;
+
+	SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters);
+private:
+	void prepareBattleCast(const BattleSpellCastParameters & parameters);
 };
 
+///all combat spells
 class DLL_LINKAGE DefaultSpellMechanics : public ISpellMechanics
 {
 public:
@@ -53,5 +57,6 @@ protected:
 private:
 	void castMagicMirror(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
 	void handleResistance(const SpellCastEnvironment * env, std::vector<const CStack*> & attackedCres, BattleSpellCast & sc) const;
-	void prepareBattleCast(const BattleSpellCastParameters & parameters, BattleSpellCast & sc) const;
+
+	friend class SpellCastContext;
 };
