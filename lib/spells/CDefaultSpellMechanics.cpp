@@ -651,64 +651,55 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 	const ui8 attackerSide = cb->playerToSide(ctx.caster->getOwner()) == 1;
 	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
-	//TODO: more generic solution for mass spells
-	if(owner->getLevelInfo(ctx.schoolLvl).range.size() > 1) //custom many-hex range
+	auto mainFilter = [=](const CStack * s)
 	{
-		for(BattleHex hex : attackedHexes)
+		const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
+		const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
+		const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
+		const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+
+		return positivenessFlag && validTarget;
+	};
+
+	if(ctx.ti.type == CSpell::CREATURE && attackedHexes.size() == 1)
+	{
+		//for single target spells we must select one target. Alive stack is preferred (issue #1763)
+
+		auto predicate = [&](const CStack * s)
 		{
-			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
-			{
-				attackedCres.insert(st);
-			}
-		}
-	}
-	else if(ctx.ti.type == CSpell::CREATURE)
-	{
-		auto predicate = [=](const CStack * s){
-			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
-			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
-			const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
-
-			//for single target spells select stacks covering destination tile
-			const bool rangeCovers = ctx.ti.massive || s->coversPos(ctx.destination);
-			//handle smart targeting
-			const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
-
-			return rangeCovers && positivenessFlag && validTarget;
+			return s->coversPos(attackedHexes.at(0)) && mainFilter(s);
 		};
 
 		TStacks stacks = cb->battleGetStacksIf(predicate);
 
-		if(ctx.ti.massive)
+		for(auto stack : stacks)
 		{
-			//for massive spells add all targets
-			for (auto stack : stacks)
+			if(stack->alive())
+			{
 				attackedCres.insert(stack);
-		}
-		else
-		{
-			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
-			for(auto stack : stacks)
-			{
-				if(stack->alive())
-				{
-					attackedCres.insert(stack);
-					break;
-				}
+				break;
 			}
+		}
 
-			if(attackedCres.empty() && !stacks.empty())
-			{
-				attackedCres.insert(stacks.front());
-			}
+		if(attackedCres.empty() && !stacks.empty())
+		{
+			attackedCres.insert(stacks.front());
 		}
+
+	}
+	else if(ctx.ti.massive)
+	{
+		TStacks stacks = cb->battleGetStacksIf(mainFilter);
+		for (auto stack : stacks)
+			attackedCres.insert(stack);
 	}
 	else //custom range from attackedHexes
 	{
 		for(BattleHex hex : attackedHexes)
 		{
 			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
-				attackedCres.insert(st);
+				if(mainFilter(st))
+					attackedCres.insert(st);;
 		}
 	}
 
