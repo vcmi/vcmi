@@ -97,7 +97,7 @@ public:
 	virtual ~ISpellMechanics(){};
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
-	virtual std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const = 0;
+	virtual std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const = 0;
 
 	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const = 0;
 
@@ -106,7 +106,7 @@ public:
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
-	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
+	virtual void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const = 0;
 
 	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;

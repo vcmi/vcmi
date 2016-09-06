@@ -62,9 +62,9 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 }
 
 ///ChainLightningMechanics
-std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
+std::vector<const CStack *> ChainLightningMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
 {
-	std::set<const CStack* > attackedCres;
+	std::vector<const CStack *> res;
 
 	std::set<BattleHex> possibleHexes;
 	for(auto stack : cb->battleGetAllStacks())
@@ -85,17 +85,17 @@ std::set<const CStack *> ChainLightningMechanics::getAffectedStacks(const CBattl
 		auto stack = cb->battleGetStackByPos(lightningHex, true);
 		if(!stack)
 			break;
-		attackedCres.insert (stack);
+		res.push_back(stack);
 		for(auto hex : stack->getHexes())
 		{
-			possibleHexes.erase(hex); //can't hit same place twice
+			possibleHexes.erase(hex); //can't hit same stack twice
 		}
 		if(possibleHexes.empty()) //not enough targets
 			break;
-		lightningHex = BattleHex::getClosestTile(stack->attackerOwned, ctx.destination, possibleHexes);
+		lightningHex = BattleHex::getClosestTile(stack->attackerOwned, lightningHex, possibleHexes);
 	}
 
-	return attackedCres;
+	return res;
 }
 
 ///CloneMechanics

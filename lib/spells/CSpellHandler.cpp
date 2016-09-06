@@ -119,7 +119,7 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastP
 	return adventureMechanics->adventureCast(env, parameters);
 }
 
-void CSpell::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
+void CSpell::battleCast(const SpellCastEnvironment * env,  const BattleSpellCastParameters & parameters) const
 {
 	assert(env);
 	if(parameters.destinations.size()<1)
@@ -211,11 +211,11 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
 }
 
-std::set<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
+std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	SpellTargetingContext ctx(this, mode, caster, spellLvl, destination);
 
-	std::set<const CStack* > attackedCres = mechanics->getAffectedStacks(cb, ctx);
+	std::vector<const CStack *> attackedCres = mechanics->getAffectedStacks(cb, ctx);
 
 	//now handle immunities
 	auto predicate = [&, this](const CStack * s)->bool

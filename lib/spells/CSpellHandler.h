@@ -218,7 +218,7 @@ public:
 	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const;
+	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const;
 
 	si32 getCost(const int skillLevel) const;
 
@@ -279,7 +279,7 @@ public:
 	///May be executed on client side by (future) non-cheat-proof scripts.
 
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
-	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
+	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const;
 
 public:
 	///Client-server logic. Has direct write access to GameState.

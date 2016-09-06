@@ -22,8 +22,10 @@ public:
 	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
 	BattleSpellCast sc;//todo: make private
 	StacksInjured si;
+	ECastingMode::ECastingMode mode;
 
 	SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters);
+	virtual ~SpellCastContext();
 
 	void addDamageToDisplay(const si32 value);
 	void setDamageToDisplay(const si32 value);
@@ -40,7 +42,7 @@ public:
 	DefaultSpellMechanics(CSpell * s): ISpellMechanics(s){};
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const override;
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
+	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
@@ -49,7 +51,7 @@ public:
 
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override;
 
-	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const override final;
+	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override final;
 
 	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
 		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;
@@ -60,7 +62,8 @@ protected:
 
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
 private:
-	void castMagicMirror(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
+	void castNormal(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const;
+	void castMagicMirror(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const;
 	void handleResistance(const SpellCastEnvironment * env, std::vector<const CStack*> & attackedCres, BattleSpellCast & sc) const;
 
 	friend class SpellCastContext;

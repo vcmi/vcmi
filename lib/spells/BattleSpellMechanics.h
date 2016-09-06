@@ -44,7 +44,7 @@ class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
 {
 public:
 	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
+	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const override;
 };
 
 class DLL_LINKAGE CloneMechanics : public DefaultSpellMechanics
