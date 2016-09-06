@@ -45,7 +45,12 @@ public:
 		const BattleHex hexValue;
 	};
 
+	//normal constructor
 	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell_);
+
+	//magic mirror constructor
+	BattleSpellCastParameters(const BattleSpellCastParameters & orig, const ISpellCaster * caster);
+
 	void aimToHex(const BattleHex & destination);
 	void aimToStack(const CStack * destination);
 

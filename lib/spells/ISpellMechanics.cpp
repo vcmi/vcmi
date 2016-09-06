@@ -56,6 +56,15 @@ BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, cons
 	vstd::amax(effectValue, 0);
 }
 
+BattleSpellCastParameters::BattleSpellCastParameters(const BattleSpellCastParameters & orig, const ISpellCaster * caster)
+	:spell(orig.spell), cb(orig.cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
+	casterHero(nullptr), mode(ECastingMode::MAGIC_MIRROR), casterStack(nullptr),
+	spellLvl(orig.spellLvl),  effectLevel(orig.effectLevel), effectPower(orig.effectPower), enchantPower(orig.enchantPower), effectValue(orig.effectValue)
+{
+	casterStack = dynamic_cast<const CStack *>(caster);
+	casterHero = dynamic_cast<const CGHeroInstance *>(caster);
+}
+
 void BattleSpellCastParameters::aimToHex(const BattleHex& destination)
 {
 	destinations.push_back(Destination(destination));

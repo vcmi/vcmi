@@ -285,14 +285,8 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 		{
 			int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
 
-			BattleSpellCastParameters mirrorParameters(parameters.cb, attackedCre, owner);
+			BattleSpellCastParameters mirrorParameters(parameters, attackedCre);
 			mirrorParameters.aimToHex(targetHex);
-			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
-			mirrorParameters.spellLvl = parameters.spellLvl;
-			mirrorParameters.effectLevel = parameters.effectLevel;
-			mirrorParameters.effectPower = parameters.effectPower;
-			mirrorParameters.effectValue = parameters.effectValue;
-			mirrorParameters.enchantPower = parameters.enchantPower;
 			mirrorParameters.cast(env);
 		}
 	}
