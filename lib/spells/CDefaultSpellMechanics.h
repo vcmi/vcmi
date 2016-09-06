@@ -70,7 +70,7 @@ private:
 
 	void handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack *> & stacks) const;
 	void handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const;
-	void handleResistance(const SpellCastEnvironment * env, std::vector<const CStack*> & attackedCres, BattleSpellCast & sc) const;
+	void handleResistance(const SpellCastEnvironment * env, SpellCastContext & ctx) const;
 
 	friend class SpellCastContext;
 };

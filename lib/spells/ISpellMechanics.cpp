@@ -37,7 +37,7 @@ BattleSpellCastParameters::Destination::Destination(const BattleHex & destinatio
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell)
 	: cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
 	casterHero(nullptr),
-	mode(ECastingMode::HERO_CASTING), casterStack(nullptr), selectedStack(nullptr),
+	mode(ECastingMode::HERO_CASTING), casterStack(nullptr),
 	spellLvl(-1),  effectLevel(-1), effectPower(0), enchantPower(0), effectValue(0)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
@@ -52,9 +52,11 @@ void BattleSpellCastParameters::aimToHex(const BattleHex& destination)
 
 void BattleSpellCastParameters::aimToStack(const CStack * destination)
 {
-	destinations.push_back(Destination(destination));
+	if(nullptr == destination)
+		logGlobal->error("BattleSpellCastParameters::aimToStack invalid stack.");
+	else
+		destinations.push_back(Destination(destination));
 }
-
 
 BattleHex BattleSpellCastParameters::getFirstDestinationHex() const
 {

@@ -685,11 +685,7 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 	{
 		victim = parameters.destinations[1].stackValue;
 	}
-	else
-	{
-		//todo: remove and report error
-		victim = parameters.selectedStack;
-	}
+
 	if(nullptr == victim)
 	{
 		env->complain("SacrificeMechanics: No stack to sacrifice");
@@ -712,11 +708,7 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 	{
 		victim = parameters.destinations[1].stackValue;
 	}
-	else
-	{
-		//todo: remove and report error
-		victim = parameters.selectedStack;
-	}
+
 	if(nullptr == victim)
 	{
 		env->complain("SacrificeMechanics: No stack to sacrifice");
@@ -817,20 +809,22 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	//todo: check legal teleport
 	if(parameters.destinations.size() == 2)
 	{
-		//first destination creature to move
-		const CStack * target = parameters.destinations[0].stackValue;
-		if(nullptr == target)
-		{
-			env->complain("TeleportMechanics: no stack to teleport");
-			return;
-		}
-		//second destination hex to move to
-		const BattleHex destination = parameters.destinations[1].hexValue;
+		//first destination hex to move to
+		const BattleHex destination = parameters.destinations[0].hexValue;
 		if(!destination.isValid())
 		{
 			env->complain("TeleportMechanics: invalid teleport destination");
 			return;
 		}
+
+		//second destination creature to move
+		const CStack * target = parameters.destinations[1].stackValue;
+		if(nullptr == target)
+		{
+			env->complain("TeleportMechanics: no stack to teleport");
+			return;
+		}
+
 		BattleStackMoved bsm;
 		bsm.distance = -1;
 		bsm.stack = target->ID;
@@ -842,15 +836,8 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	}
 	else
 	{
-		//todo: remove and report error
-		BattleStackMoved bsm;
-		bsm.distance = -1;
-		bsm.stack = parameters.selectedStack->ID;
-		std::vector<BattleHex> tiles;
-		tiles.push_back(parameters.getFirstDestinationHex());
-		bsm.tilesToMove = tiles;
-		bsm.teleporting = true;
-		env->sendAndApply(&bsm);
+		env->complain("TeleportMechanics: 2 destinations required.");
+			return;
 	}
 }
 

@@ -217,7 +217,6 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 			mirrorParameters.spellLvl = 0;
 			mirrorParameters.aimToHex(targetHex);
 			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
-			mirrorParameters.selectedStack = nullptr;
 			mirrorParameters.spellLvl = parameters.spellLvl;
 			mirrorParameters.effectLevel = parameters.effectLevel;
 			mirrorParameters.effectPower = parameters.effectPower;
@@ -261,9 +260,9 @@ void DefaultSpellMechanics::castNormal(const SpellCastEnvironment * env, const B
 
 	ctx.attackedCres = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
 
-	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
+	logGlobal->debugStream() << "will affect " << ctx.attackedCres.size() << " stacks";
 
-	handleResistance(env, ctx.attackedCres, ctx.sc);
+	handleResistance(env, ctx);
 
 	handleMagicMirror(env, ctx, reflected);
 
@@ -317,7 +316,7 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment * env, co
 
 	logGlobal->debugStream() << "will affect: " << ctx.attackedCres.size() << " stacks";
 
-	handleResistance(env, ctx.attackedCres, ctx.sc);
+	handleResistance(env, ctx);
 
 	applyBattleEffects(env, parameters, ctx);
 
@@ -543,7 +542,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 		if(!sse.stacks.empty())
 			env->sendAndApply(&sse);
-
 	}
 }
 
@@ -661,7 +659,6 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 		{
 			attackedCres.insert(stacks.front());
 		}
-
 	}
 	else if(ctx.ti.massive)
 	{
@@ -767,14 +764,14 @@ void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, 
 	}
 }
 
-void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const
+void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, SpellCastContext & ctx) const
 {
 	//checking if creatures resist
 	//resistance is applied only to negative spells
 	if(owner->isNegative())
 	{
 		std::vector <const CStack*> resisted;
-		for(auto s : attackedCres)
+		for(auto s : ctx.attackedCres)
 		{
 			//magic resistance
 			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
@@ -785,7 +782,7 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, s
 			}
 		}
 
-		vstd::erase_if(attackedCres, [&resisted](const CStack * s)
+		vstd::erase_if(ctx.attackedCres, [&resisted](const CStack * s)
 		{
 			return vstd::contains(resisted, s);
 		});
@@ -795,7 +792,7 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, s
 			BattleSpellCast::CustomEffect effect;
 			effect.effect = 78;
 			effect.stack = s->ID;
-			sc.customEffects.push_back(effect);
+			ctx.sc.customEffects.push_back(effect);
 		}
 	}
 }

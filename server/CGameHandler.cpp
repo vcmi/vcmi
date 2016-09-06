@@ -4171,7 +4171,6 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				parameters.effectLevel = parameters.spellLvl;
 				parameters.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				parameters.aimToHex(destination);//todo: allow multiple destinations
-				parameters.selectedStack = nullptr;
 				spell->battleCast(spellEnv, parameters);
 			}
 			sendAndApply(&end_action);
@@ -4370,7 +4369,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			BattleSpellCastParameters parameters(gs->curB, h, s);
 			parameters.aimToHex(ba.destinationTile);//todo: allow multiple destinations
 			parameters.mode = ECastingMode::HERO_CASTING;
-			parameters.selectedStack = gs->curB->battleGetStackByID(ba.selectedStack, false);
+			if(ba.selectedStack >= 0)
+				parameters.aimToStack(gs->curB->battleGetStackByID(ba.selectedStack, false));
 
 			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
 			if(escp != ESpellCastProblem::OK)
@@ -4522,7 +4522,6 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.effectLevel = bonus->val;//todo: recheck
 					parameters.aimToHex(BattleHex::INVALID);
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.selectedStack = nullptr;
 
 					spell->battleCast(spellEnv, parameters);
 
@@ -5233,7 +5232,6 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.effectLevel = spellLevel;
 				parameters.aimToStack(oneOfAttacked);
 				parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-				parameters.selectedStack = nullptr;
 
 				spell->battleCast(spellEnv, parameters);
 			}
@@ -5263,7 +5261,6 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.aimToStack(gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked));
 		parameters.effectPower = power;
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-		parameters.selectedStack = nullptr;
 
 		spell->battleCast(this->spellEnv, parameters);
 	};
@@ -5570,7 +5567,6 @@ void CGameHandler::runBattle()
 				parameters.effectLevel = 3;
 				parameters.aimToHex(BattleHex::INVALID);
 				parameters.mode = ECastingMode::PASSIVE_CASTING;
-				parameters.selectedStack = nullptr;
 				parameters.enchantPower = b->val;
 				spell->battleCast(spellEnv, parameters);
 			}

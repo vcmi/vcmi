@@ -60,7 +60,6 @@ public:
 	const CGHeroInstance * casterHero; //deprecated
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack; //deprecated
-	const CStack * selectedStack;//deprecated
 
 	///spell school level
 	int spellLvl;
