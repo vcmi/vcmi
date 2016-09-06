@@ -20,7 +20,7 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 {
 	//todo: this should be effectValue
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.effectPower;
+	ctx.setDamageToDisplay(parameters.effectPower);
 
 	for(auto & attackedCre : ctx.attackedCres) //no immunities
 	{
@@ -39,9 +39,12 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.effectPower;
+	si32 dmgToDisplay = parameters.effectPower;
+
 	if(!ctx.attackedCres.empty())
-		vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+		vstd::amin(dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+
+	ctx.setDamageToDisplay(dmgToDisplay);
 
 	for(auto & attackedCre : ctx.attackedCres)
 	{

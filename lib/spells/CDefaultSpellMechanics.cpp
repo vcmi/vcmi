@@ -136,6 +136,26 @@ void SpellCastContext::prepareBattleCast(const BattleSpellCastParameters & param
 	sc.manaGained = 0;
 }
 
+void SpellCastContext::addDamageToDisplay(const si32 value)
+{
+	sc.dmgToDisplay += value;
+}
+
+void SpellCastContext::setDamageToDisplay(const si32 value)
+{
+	sc.dmgToDisplay = value;
+}
+
+void SpellCastContext::sendCastPacket(const SpellCastEnvironment * env)
+{
+	for(auto sta : attackedCres)
+	{
+		sc.affectedCres.insert(sta->ID);
+	}
+
+	env->sendAndApply(&sc);
+}
+
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
@@ -234,13 +254,9 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		}
 	}
 
-	for(auto cre : ctx.attackedCres)
-	{
-		ctx.sc.affectedCres.insert(cre->ID);
-	}
-
 	applyBattleEffects(env, parameters, ctx);
-	env->sendAndApply(&ctx.sc);
+
+	ctx.sendCastPacket(env);
 
 	if(parameters.mode == ECastingMode::HERO_CASTING)
 	{
@@ -421,7 +437,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			else
 				bsa.damageAmount = owner->calculateDamage(parameters.caster, attackedCre, parameters.effectLevel, parameters.effectPower) >> chainLightningModifier;
 
-			ctx.sc.dmgToDisplay += bsa.damageAmount;
+			ctx.addDamageToDisplay(bsa.damageAmount);
 
 			bsa.stackAttacked = (attackedCre)->ID;
 			if(parameters.mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
@@ -720,14 +736,10 @@ void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, Bat
 
 	handleResistance(env, ctx.attackedCres, ctx.sc);
 
-	for(auto cre : ctx.attackedCres)
-	{
-		ctx.sc.affectedCres.insert(cre->ID);
-	}
-
 	applyBattleEffects(env, parameters, ctx);
 
-	env->sendAndApply(&ctx.sc);
+	ctx.sendCastPacket(env);
+
 	if(!ctx.si.stacks.empty()) //after spellcast info shows
 		env->sendAndApply(&ctx.si);
 

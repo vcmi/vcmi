@@ -20,10 +20,15 @@ class SpellCastContext
 public:
 	const DefaultSpellMechanics * mechanics;
 	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
-	BattleSpellCast sc;
+	BattleSpellCast sc;//todo: make private
 	StacksInjured si;
 
 	SpellCastContext(const DefaultSpellMechanics * mechanics_, const BattleSpellCastParameters & parameters);
+
+	void addDamageToDisplay(const si32 value);
+	void setDamageToDisplay(const si32 value);
+
+	void sendCastPacket(const SpellCastEnvironment * env);
 private:
 	void prepareBattleCast(const BattleSpellCastParameters & parameters);
 };
