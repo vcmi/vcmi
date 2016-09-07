@@ -1906,7 +1906,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile)
+BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r)
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -1955,13 +1955,13 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile)
 	switch(t.terType)
 	{
 	case ETerrainType::DIRT:
-		return BFieldType(rand.nextInt(3, 5));
+		return BFieldType(r.nextInt(3, 5));
 	case ETerrainType::SAND:
 		return BFieldType::SAND_MESAS; //TODO: coast support
 	case ETerrainType::GRASS:
-		return BFieldType(rand.nextInt(6, 7));
+		return BFieldType(r.nextInt(6, 7));
 	case ETerrainType::SNOW:
-		return BFieldType(rand.nextInt(10, 11));
+		return BFieldType(r.nextInt(10, 11));
 	case ETerrainType::SWAMP:
 		return BFieldType::SWAMP_TREES;
 	case ETerrainType::ROUGH:
