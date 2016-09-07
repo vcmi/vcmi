@@ -43,7 +43,14 @@ public:
 	{
 		h & color & human & team & resources & status;
 		h & heroes & towns & availableHeroes & dwellings & quests & visitedObjects;
-		h & getBonusList(); //FIXME FIXME FIXME
+
+		if(version < 760)
+		{
+			//was: h & getBonusList();
+			BonusList junk;
+			h & junk;
+		}
+
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
