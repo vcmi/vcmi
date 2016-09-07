@@ -1162,6 +1162,21 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	}
 }
 
+DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState *gs)
+{
+	CGHeroInstance * h = gs->getHero(hero->id);
+	auto proposedSkills = h->getLevelUpProposedSecondarySkills();
+
+	if(skills.size() == 1 || hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
+	{
+		skills.push_back(*RandomGeneratorUtil::nextItem(proposedSkills, h->skillsInfo.rand));
+	}
+	else
+	{
+		skills = proposedSkills;
+	}
+}
+
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 {
 	CGHeroInstance * h = gs->getHero(hero->id);

@@ -213,20 +213,24 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	sps.val = 1;
 	sendAndApply(&sps);
 
+	PrepareHeroLevelUp pre;
+	pre.hero = hero;
+	sendAndApply(&pre);
+
 	HeroLevelUp hlu;
 	hlu.hero = hero;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelUpProposedSecondarySkills();
+	hlu.skills = pre.skills;
 
 	if(hlu.skills.size() == 0)
 	{
 		sendAndApply(&hlu);
 		levelUpHero(hero);
 	}
-	else if(hlu.skills.size() == 1  ||  hero->tempOwner == PlayerColor::NEUTRAL)  //choose skill automatically
+	else if(hlu.skills.size() == 1)
 	{
 		sendAndApply(&hlu);
-		levelUpHero(hero, *RandomGeneratorUtil::nextItem(hlu.skills, hero->skillsInfo.rand));
+		levelUpHero(hero, pre.skills.front());
 	}
 	else if(hlu.skills.size() > 1)
 	{
