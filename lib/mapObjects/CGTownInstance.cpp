@@ -152,7 +152,7 @@ void CGDwelling::newTurn() const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(cb->gameState()->getRandomGenerator()));
+		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(cb->getRandomGenerator()));
 	}
 
 	bool change = false;
@@ -641,7 +641,7 @@ void CGTownInstance::newTurn() const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
-		auto & rand = cb->gameState()->getRandomGenerator();
+		auto & rand = cb->getRandomGenerator();
 
 		//give resources for Rampart, Mystic Pond
 		if (hasBuilt(BuildingID::MYSTIC_POND, ETownType::RAMPART)

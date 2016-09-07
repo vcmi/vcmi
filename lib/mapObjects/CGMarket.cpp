@@ -289,7 +289,7 @@ void CGBlackMarket::newTurn() const
 
 	SetAvailableArtifacts saa;
 	saa.id = id.getNum();
-	cb->pickAllowedArtsSet(saa.arts);
+	cb->pickAllowedArtsSet(saa.arts, cb->getRandomGenerator());
 	cb->sendAndApply(&saa);
 }
 

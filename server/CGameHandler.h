@@ -247,6 +247,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID & states & finishingBattle;
+		if(version >= 760)
+		{
+			h & rand;
+		}
 	}
 
 	void sendMessageToAll(const std::string &message);

@@ -158,7 +158,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						grantRewardWithMessage(rewards[0]);
 						break;
 					case SELECT_RANDOM: // select one randomly //TODO: use weights
-						grantRewardWithMessage(rewards[cb->gameState()->getRandomGenerator().nextInt(rewards.size()-1)]);
+						grantRewardWithMessage(rewards[cb->getRandomGenerator().nextInt(rewards.size()-1)]);
 						break;
 				}
 				return;

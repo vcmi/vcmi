@@ -364,7 +364,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	else if(skillAmount == 1  ||  hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
 	{
 		sendAndApply(&clu);
-		levelUpCommander(c, *RandomGeneratorUtil::nextItem(clu.skills, gs->getRandomGenerator()));
+		levelUpCommander(c, *RandomGeneratorUtil::nextItem(clu.skills, getRandomGenerator()));
 	}
 	else if(skillAmount > 1) //apply and ask for secondary skill
 	{
@@ -525,7 +525,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			int maxLevel = eagleEyeLevel + 1;
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			for(const CSpell *sp : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
-				if(sp->level <= maxLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && gs->getRandomGenerator().nextInt(99) < eagleEyeChance)
+				if(sp->level <= maxLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
 					cs.spells.insert(sp->id);
 		}
 	}
@@ -789,20 +789,20 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if(!vstd::contains_if(gs->curB->sides, sideHeroBlocksLuck))
 	{
-		if(attackerLuck > 0  && gs->getRandomGenerator().nextInt(23) < attackerLuck)
+		if(attackerLuck > 0  && getRandomGenerator().nextInt(23) < attackerLuck)
 		{
 			bat.flags |= BattleAttack::LUCKY;
 		}
 		if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
 		{
-			if (attackerLuck < 0 && gs->getRandomGenerator().nextInt(23) < abs(attackerLuck))
+			if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
 			{
 				bat.flags |= BattleAttack::UNLUCKY;
 			}
 		}
 	}
 
-	if(gs->getRandomGenerator().nextInt(99) < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
+	if(getRandomGenerator().nextInt(99) < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
 	{
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
@@ -812,7 +812,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
 		int chance = artilleryLvlToChance[owner->getSecSkillLevel(SecondarySkill::ARTILLERY)];
-		if(chance > gs->getRandomGenerator().nextInt(99))
+		if(chance > getRandomGenerator().nextInt(99))
 		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
@@ -875,8 +875,8 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
 	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def),
-		bat.shot(), distance, bat.lucky(), bat.unlucky(), bat.deathBlow(), bat.ballistaDoubleDmg(), gs->getRandomGenerator());
-	def->prepareAttacked(bsa, gs->getRandomGenerator()); //calculate casualties
+		bat.shot(), distance, bat.lucky(), bat.unlucky(), bat.deathBlow(), bat.ballistaDoubleDmg(), getRandomGenerator());
+	def->prepareAttacked(bsa, getRandomGenerator()); //calculate casualties
 
 	//life drain handling
 	if (att->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
@@ -913,7 +913,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa2.effect = 11;
 
 		bsa2.damageAmount = (std::min(def->totalHelth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
-		att->prepareAttacked(bsa2, gameState()->getRandomGenerator());
+		att->prepareAttacked(bsa2, getRandomGenerator());
 		bat.bsa.push_back(bsa2);
 	}
 }
@@ -1337,7 +1337,7 @@ void CGameHandler::init(StartInfo *si)
 	logGlobal->info("Gamestate initialized!");
 
 	// reset seed, so that clients can't predict any following random values
-	gs->getRandomGenerator().resetSeed();
+	getRandomGenerator().resetSeed();
 
 	for(auto & elem : gs->players)
 	{
@@ -1373,10 +1373,10 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 				return;
 			}
 
-			auto dwelling = *RandomGeneratorUtil::nextItem(dwellings, gs->getRandomGenerator());
+			auto dwelling = *RandomGeneratorUtil::nextItem(dwellings, getRandomGenerator());
 
 			// for multi-creature dwellings like Golem Factory
-			auto creatureId = RandomGeneratorUtil::nextItem(dwelling->creatures, gs->getRandomGenerator())->second[0];
+			auto creatureId = RandomGeneratorUtil::nextItem(dwelling->creatures, getRandomGenerator())->second[0];
 
 			if(clear)
 			{
@@ -1436,7 +1436,7 @@ void CGameHandler::newTurn()
 		}
 		else
 		{
-			int monthType = gs->getRandomGenerator().nextInt(99);
+			int monthType = getRandomGenerator().nextInt(99);
 			if(newMonth) //new month
 			{
 				if (monthType < 40) //double growth
@@ -1444,13 +1444,13 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(gs->getRandomGenerator()));
+						std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(getRandomGenerator()));
 						n.creatureid = newMonster.second;
 					}
 					else if(VLC->creh->doubledCreatures.size())
 					{
 						const std::vector<CreatureID> doubledCreatures (VLC->creh->doubledCreatures.begin(), VLC->creh->doubledCreatures.end());
-						n.creatureid = *RandomGeneratorUtil::nextItem(doubledCreatures, gs->getRandomGenerator());
+						n.creatureid = *RandomGeneratorUtil::nextItem(doubledCreatures, getRandomGenerator());
 					}
 					else
 					{
@@ -1466,7 +1466,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(gs->getRandomGenerator()));
+					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(getRandomGenerator()));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -1515,7 +1515,7 @@ void CGameHandler::newTurn()
 			for (int j = 0; j < GameConstants::AVAILABLE_HEROES_PER_PLAYER; j++)
 			{
 				//first hero - native if possible, second hero -> any other class
-				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, gs->getRandomGenerator(), banned))
+				if(CGHeroInstance *h = gs->hpool.pickHeroFor(j == 0, elem.first, getNativeTown(elem.first), pool, getRandomGenerator(), banned))
 				{
 					sah.hid[j] = h->subID;
 					h->initArmy(&sah.army[j]);
@@ -1647,7 +1647,7 @@ void CGameHandler::newTurn()
 	{
 		SetAvailableArtifacts saa;
 		saa.id = -1;
-		pickAllowedArtsSet(saa.arts);
+		pickAllowedArtsSet(saa.arts, getRandomGenerator());
 		sendAndApply(&saa);
 	}
 	sendAndApply(&n);
@@ -1691,12 +1691,12 @@ void CGameHandler::newTurn()
 					if (newMonth)
 					{
 						iw.text.addTxt(MetaString::ARRAY_TXT, (130));
-						iw.text.addReplacement(MetaString::ARRAY_TXT, gs->getRandomGenerator().nextInt(32, 41));
+						iw.text.addReplacement(MetaString::ARRAY_TXT, getRandomGenerator().nextInt(32, 41));
 					}
 					else
 					{
 						iw.text.addTxt(MetaString::ARRAY_TXT, (133));
-						iw.text.addReplacement(MetaString::ARRAY_TXT, gs->getRandomGenerator().nextInt(43, 57));
+						iw.text.addReplacement(MetaString::ARRAY_TXT, getRandomGenerator().nextInt(43, 57));
 					}
 			}
 			for (auto & elem : gs->players)
@@ -3569,7 +3569,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	const CGHeroInstance *newHero = nullptr;
 	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
 	{
-		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, gs->getRandomGenerator(), theOtherHero->type->heroClass);
+		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, getRandomGenerator(), theOtherHero->type->heroClass);
 	}
 
 	SetAvailableHeroes sah;
@@ -3978,7 +3978,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				{
 					if(currentHP.at(attackedPart) != EWallState::DESTROYED && // this part can be hit
 					   currentHP.at(attackedPart) != EWallState::NONE &&
-					   gs->getRandomGenerator().nextInt(99) < getCatapultHitChance(attackedPart, sbi))//hit is successful
+					   getRandomGenerator().nextInt(99) < getCatapultHitChance(attackedPart, sbi))//hit is successful
 					{
 						hitSuccessfull = true;
 					}
@@ -3993,7 +3993,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 						}
 						if (allowedTargets.empty())
 							break;
-						attackedPart = *RandomGeneratorUtil::nextItem(allowedTargets, gs->getRandomGenerator());
+						attackedPart = *RandomGeneratorUtil::nextItem(allowedTargets, getRandomGenerator());
 					}
 				}
 				while (!hitSuccessfull);
@@ -4009,7 +4009,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				int dmgChance[] = { sbi.noDmg, sbi.oneDmg, sbi.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
 
-				int dmgRand = gs->getRandomGenerator().nextInt(99);
+				int dmgRand = getRandomGenerator().nextInt(99);
 				//accumulating dmgChance
 				dmgChance[1] += dmgChance[0];
 				dmgChance[2] += dmgChance[1];
@@ -4507,7 +4507,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			}
 			if (fearsomeCreature)
 			{
-				if (gs->getRandomGenerator().nextInt(99) < 10) //fixed 10%
+				if (getRandomGenerator().nextInt(99) < 10) //fixed 10%
 				{
 					bte.effect = Bonus::FEAR;
 					sendAndApply(&bte);
@@ -4521,7 +4521,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			bool cast = false;
 			while (!bl.empty() && !cast)
 			{
-				auto bonus = *RandomGeneratorUtil::nextItem(bl, gs->getRandomGenerator());
+				auto bonus = *RandomGeneratorUtil::nextItem(bl, getRandomGenerator());
 				auto spellID = SpellID(bonus->subtype);
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](Bonus * b){return b==bonus;});
@@ -4636,7 +4636,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	bsa.damageAmount = damage;
 	bsa.stackAttacked = curStack->ID;
 	bsa.attackerID = -1;
-	curStack->prepareAttacked(bsa, gameState()->getRandomGenerator());
+	curStack->prepareAttacked(bsa, getRandomGenerator());
 
 	StacksInjured si;
 	si.stacks.push_back(bsa);
@@ -5233,7 +5233,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				continue;
 
 			//check if spell should be cast (probability handling)
-			if(gs->getRandomGenerator().nextInt(99) >= chance)
+			if(getRandomGenerator().nextInt(99) >= chance)
 				continue;
 
 			//casting
@@ -5317,7 +5317,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
 	for(const Bonus *b : *acidBreath)
 	{
-		if (b->additionalInfo > gs->getRandomGenerator().nextInt(99))
+		if (b->additionalInfo > getRandomGenerator().nextInt(99))
 			acidDamage += b->val;
 	}
 	if (acidDamage)
@@ -5629,7 +5629,7 @@ void CGameHandler::runBattle()
 				   || NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses)
 				)
 			{
-				if(gs->getRandomGenerator().nextInt(23) < -2 * nextStackMorale)
+				if(getRandomGenerator().nextInt(23) < -2 * nextStackMorale)
 				{
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
@@ -5701,7 +5701,7 @@ void CGameHandler::runBattle()
 				{
 					BattleAction attack;
 					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes,
-												gs->getRandomGenerator());
+												getRandomGenerator());
 					attack.actionType = Battle::CATAPULT;
 					attack.additionalInfo = 0;
 					attack.side = !next->attackerOwned;
@@ -5806,7 +5806,7 @@ void CGameHandler::runBattle()
 							|| NBonus::hasOfType(gs->curB->battleGetFightingHero(1), Bonus::BLOCK_MORALE)) //checking if gs->curB->heroes have (or don't have) morale blocking bonuses
 						)
 					{
-						if(gs->getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
+						if(getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
 
 							{
 								BattleTriggerEffect bte;
@@ -6247,7 +6247,7 @@ void ServerSpellCastEnvironment::sendAndApply(CPackForClient * info) const
 
 CRandomGenerator & ServerSpellCastEnvironment::getRandomGenerator() const
 {
-	return gh->gameState()->getRandomGenerator();
+	return gh->getRandomGenerator();
 }
 
 void ServerSpellCastEnvironment::complain(const std::string& problem) const

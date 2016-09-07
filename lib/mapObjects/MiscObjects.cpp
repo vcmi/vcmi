@@ -434,7 +434,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			const auto & upgrades = getStack(slotID).type->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->getRandomGenerator());
 				cb->changeStackType(StackLocation(this, slotID), VLC->creh->creatures[*it]);
 			}
 		}
@@ -987,7 +987,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 {
 	auto passableExits = getPassableExits(cb->gameState(), h, getAllExits(true));
 	if(passableExits.size())
-		return *RandomGeneratorUtil::nextItem(passableExits, cb->gameState()->getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(passableExits, cb->getRandomGenerator());
 
 	return ObjectInstanceID();
 }
@@ -1283,7 +1283,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 	{
 		auto obj = cb->getObj(getRandomExit(hero));
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator()), true);
+		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, cb->getRandomGenerator()), true);
 	}
 
 	cb->moveHero(hero->id, dPos, true);
@@ -1714,7 +1714,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = PRIM_SKILL;
-		bid = cb->gameState()->getRandomGenerator().nextInt(GameConstants::PRIMARY_SKILLS - 1);
+		bid = cb->getRandomGenerator().nextInt(GameConstants::PRIMARY_SKILLS - 1);
 	}
 
 	InfoWindow iw;

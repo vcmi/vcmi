@@ -332,7 +332,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 		dst = this;
 
 	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
-	int pom = cb->gameState()->getRandomGenerator().nextInt(99);
+	int pom = cb->getRandomGenerator().nextInt(99);
 	int warMachinesGiven = 0;
 
 	if(pom < 9)
@@ -348,7 +348,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= nullptr*/)
 	{
 		auto & stack = type->initialArmy[stackNo];
 
-		int count = cb->gameState()->getRandomGenerator().nextInt(stack.minAmount, stack.maxAmount);
+		int count = cb->getRandomGenerator().nextInt(stack.minAmount, stack.maxAmount);
 
 		if(stack.creature >= CreatureID::CATAPULT &&
 		   stack.creature <= CreatureID::ARROW_TOWERS) //war machine
@@ -1059,7 +1059,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
+	iw.soundID = soundBase::pickup01 + cb->getRandomGenerator().nextInt(6);
 	iw.player = tempOwner;
 	iw.components.push_back(Component(raisedStack));
 
