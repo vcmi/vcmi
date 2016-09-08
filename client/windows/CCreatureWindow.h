@@ -14,7 +14,7 @@
  *
  */
 
-class StackWindowInfo;
+struct StackWindowInfo;
 class CCommanderInstance;
 class CStackInstance;
 class CStack;

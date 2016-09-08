@@ -17,7 +17,7 @@
 #include "../filesystem/CZipLoader.h"
 #include "../GameConstants.h"
 
-class TriggeredEvent;
+struct TriggeredEvent;
 struct TerrainTile;
 struct PlayerInfo;
 class CGObjectInstance;
