@@ -29,7 +29,7 @@ template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
 protected:
-	ObjectType * createTyped(ObjectTemplate tmpl) const
+	ObjectType * createTyped(const ObjectTemplate & tmpl) const
 	{
 		auto obj = new ObjectType();
 		preInitObject(obj);
@@ -39,7 +39,7 @@ protected:
 public:
 	CDefaultObjectTypeHandler(){}
 
-	CGObjectInstance * create(ObjectTemplate tmpl) const override
+	CGObjectInstance * create(const ObjectTemplate & tmpl) const override
 	{
 		return createTyped(tmpl);
 	}
@@ -48,7 +48,7 @@ public:
 	{
 	}
 
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const override
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override
 	{
 		return nullptr;
 	}
@@ -73,7 +73,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	CTownInstanceConstructor();
-	CGObjectInstance * create(ObjectTemplate tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
@@ -96,7 +96,7 @@ public:
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	CHeroInstanceConstructor();
-	CGObjectInstance * create(ObjectTemplate tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
@@ -120,7 +120,7 @@ protected:
 public:
 
 	CDwellingInstanceConstructor();
-	CGObjectInstance * create(ObjectTemplate tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	bool producesCreature(const CCreature * crea) const;
@@ -186,10 +186,10 @@ public:
 
 	CBankInstanceConstructor();
 
-	CGObjectInstance *create(ObjectTemplate tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
-	std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const override;
+	std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

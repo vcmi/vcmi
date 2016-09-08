@@ -433,11 +433,11 @@ boost::optional<std::string> AObjectTypeHandler::getCustomName() const
 	return objectName;
 }
 
-void AObjectTypeHandler::addTemplate(ObjectTemplate templ)
+void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
 {
-	templ.id = Obj(type);
-	templ.subid = subtype;
 	templates.push_back(templ);
+	templates.back().id = Obj(type);
+	templates.back().subid = subtype;
 }
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
@@ -449,7 +449,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl.subid = subtype;
 	tmpl.stringID = ""; // TODO?
 	tmpl.readJson(config);
-	addTemplate(tmpl);
+	templates.push_back(tmpl);
 }
 
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
