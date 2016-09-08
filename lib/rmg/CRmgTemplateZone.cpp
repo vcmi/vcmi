@@ -2522,7 +2522,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				}
 			}
 			auto a = CArtifactInstance::createScroll(RandomGeneratorUtil::nextItem(out, gen->rand)->toSpell());
-			gen->map->addNewArtifactInstance(a);
 			obj->storedArtifact = a;
 			return obj;
 		};

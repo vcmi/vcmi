@@ -591,6 +591,14 @@ void CMap::addNewObject(CGObjectInstance * obj)
 			quests.push_back(q->quest);
 		}
 		break;
+	case Obj::SPELL_SCROLL:
+		{
+			CGArtifact * art = dynamic_cast<CGArtifact *>(obj);
+
+			if(art->storedArtifact && art->storedArtifact->id.getNum() < 0)
+				addNewArtifactInstance(art->storedArtifact);
+		}
+		break;
 	default:
 		break;
 	}
