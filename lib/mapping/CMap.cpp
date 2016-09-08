@@ -556,16 +556,9 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 	artInstances[art->id.getNum()].dellNull();
 }
 
-void CMap::addQuest(CGObjectInstance * quest)
-{
-	auto q = dynamic_cast<IQuestObject *>(quest);
-	q->quest->qid = quests.size();
-	quests.push_back(q->quest);
-}
-
 void CMap::addNewObject(CGObjectInstance * obj)
 {
-    if(obj->id != ObjectInstanceID(objects.size()))
+	if(obj->id != ObjectInstanceID(objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName == "")
@@ -573,19 +566,33 @@ void CMap::addNewObject(CGObjectInstance * obj)
 
 	auto it = instanceNames.find(obj->instanceName);
 	if(it != instanceNames.end())
-		throw std::runtime_error("Object instance name duplicated:"+obj->instanceName);
+		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
-    objects.push_back(obj);
-    instanceNames[obj->instanceName] = obj;
-    addBlockVisTiles(obj);
+	objects.push_back(obj);
+	instanceNames[obj->instanceName] = obj;
+	addBlockVisTiles(obj);
 
-	if(obj->ID == Obj::TOWN)
+	//todo: make this virtual method of CGObjectInstance
+	switch (obj->ID)
 	{
+	case Obj::TOWN:
 		towns.push_back(static_cast<CGTownInstance *>(obj));
-	}
-	if(obj->ID == Obj::HERO)
-	{
+		break;
+	case Obj::HERO:
 		heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
+		break;
+	case Obj::SEER_HUT:
+	case Obj::QUEST_GUARD:
+	case Obj::BORDERGUARD:
+	case Obj::BORDER_GATE:
+		{
+			auto q = dynamic_cast<IQuestObject *>(obj);
+			q->quest->qid = quests.size();
+			quests.push_back(q->quest);
+		}
+		break;
+	default:
+		break;
 	}
 }
 

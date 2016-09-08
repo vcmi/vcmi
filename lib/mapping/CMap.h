@@ -313,7 +313,7 @@ public:
 
 	void addNewArtifactInstance(CArtifactInstance * art);
 	void eraseArtifactInstance(CArtifactInstance * art);
-	void addQuest(CGObjectInstance * quest);
+
 	void addNewObject(CGObjectInstance * obj);
 
 	/// Gets object of specified type on requested position

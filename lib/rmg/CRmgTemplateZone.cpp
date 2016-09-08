@@ -451,7 +451,7 @@ void CRmgTemplateZone::createBorder(CMapGenerator* gen)
 					if (gen->isPossible(nearbyPos))
 						gen->setOccupied(nearbyPos, ETileType::BLOCKED);
 				});
-				edge = true; 
+				edge = true;
 			}
 		});
 	}
@@ -2328,7 +2328,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 				continue;
 
 			total += oi.probability;
-			
+
 			thresholds.push_back (std::make_pair (total, &oi));
 		}
 	}
@@ -2760,7 +2760,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 
 				gen->banQuestArt(artid);
-				gen->map->addQuest(obj);
 
 				this->questArtZone->possibleObjects.push_back (generateArtInfo(artid));
 
@@ -2799,7 +2798,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 
 				gen->banQuestArt(artid);
-				gen->map->addQuest(obj);
 
 				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
 
@@ -2823,7 +2821,6 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 
 				gen->banQuestArt(artid);
-				gen->map->addQuest(obj);
 
 				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
 

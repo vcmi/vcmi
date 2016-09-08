@@ -1112,7 +1112,6 @@ void CMapLoaderH3M::readObjects()
 		case Obj::SEER_HUT:
 			{
 				nobj = readSeerHut();
-				map->addQuest(nobj);
 				break;
 			}
 		case Obj::WITCH_HUT:
@@ -1363,7 +1362,6 @@ void CMapLoaderH3M::readObjects()
 		case Obj::QUEST_GUARD:
 			{
 				auto  guard = new CGQuestGuard();
-				map->addQuest(guard);
 				readQuest(guard);
 				nobj = guard;
 				break;
@@ -1400,13 +1398,11 @@ void CMapLoaderH3M::readObjects()
 		case Obj::BORDERGUARD:
 			{
 				nobj = new CGBorderGuard();
-				map->addQuest(nobj);
 				break;
 			}
 		case Obj::BORDER_GATE:
 			{
 				nobj = new CGBorderGate();
-				map->addQuest (nobj);
 				break;
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
