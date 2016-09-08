@@ -509,8 +509,10 @@ bool compareArtifacts(const CArtifactInstance *a1, const CArtifactInstance *a2)
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if (art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL))
+	if(art1->price == art2->price)
+		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+	else if(art1->price > art2->price)
 		return true;
 	else
-		return art1->price > art2->price;
+		return false;
 }
