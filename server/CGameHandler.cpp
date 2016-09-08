@@ -3501,9 +3501,20 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, Pla
 	return true;
 }
 
-bool CGameHandler::setFormation( ObjectInstanceID hid, ui8 formation )
+bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 {
-	gs->getHero(hid)-> formation = formation;
+	const CGHeroInstance *h = getHero(hid);
+	if(!h)
+	{
+		logGlobal->error("Hero doesn't exist!");
+		return false;
+	}
+
+	ChangeFormation cf;
+	cf.hid = hid;
+	cf.formation = formation;
+	sendAndApply(&cf);
+
 	return true;
 }
 

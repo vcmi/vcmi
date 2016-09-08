@@ -226,7 +226,6 @@ void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode m
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
-	const_cast<CGHeroInstance*>(hero)-> formation = tight;
 	SetFormation pack(hero->id,tight);
 	sendRequest(&pack);
 }

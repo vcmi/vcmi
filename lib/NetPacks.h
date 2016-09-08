@@ -535,6 +535,20 @@ struct UpdateCastleEvents : public CPackForClient //125
 	}
 };
 
+struct ChangeFormation : public CPackForClient //126
+{
+	ChangeFormation(){type = 126;}
+
+	ObjectInstanceID hid;
+	ui8 formation;
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & formation;
+	}
+};
+
 struct RemoveObject : public CPackForClient //500
 {
 	RemoveObject(){type = 500;};
