@@ -21,7 +21,7 @@ class FuzzyHelper;
 
 namespace Goals
 {
-	struct AbstractGoal;
+	class AbstractGoal;
 	class VisitTile;
 	typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
 	typedef std::vector<TSubgoal> TGoalVec;

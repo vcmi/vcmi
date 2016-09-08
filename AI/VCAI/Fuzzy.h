@@ -15,7 +15,7 @@
 class VCAI;
 class CArmedInstance;
 class CBank;
-class SectorMap;
+struct SectorMap;
 
 class engineBase
 {

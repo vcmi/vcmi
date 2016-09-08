@@ -272,7 +272,7 @@ zlib_filefunc64_def* FileStream::GetMinizipFilefunc()
 	return &MinizipFilefunc;
 }
 
-template class boost::iostreams::stream<FileBuf>;
+template struct boost::iostreams::stream<FileBuf>;
 
 /*static*/
 bool FileStream::CreateFile(const boost::filesystem::path& filename)
