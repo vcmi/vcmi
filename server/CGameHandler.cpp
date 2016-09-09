@@ -5740,7 +5740,7 @@ void CGameHandler::runBattle()
 
 				if(!curOwner || curOwner->getSecSkillLevel(SecondarySkill::FIRST_AID) == 0) //no hero or hero has no first aid
 				{
-					range::random_shuffle(possibleStacks);
+					RandomGeneratorUtil::randomShuffle(possibleStacks, getRandomGenerator());
 					const CStack * toBeHealed = possibleStacks.front();
 
 					BattleAction heal;
@@ -5943,7 +5943,8 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	std::vector<int3> tiles;
 	getFreeTiles(tiles);
 	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
-	std::random_shuffle(tiles.begin(), tiles.end());
+
+	RandomGeneratorUtil::randomShuffle(tiles, getRandomGenerator());
 	logGlobal->trace("Spawning wandering monsters. Found %d free tiles. Creature type: %d", tiles.size(), creatureID.num);
 	const CCreature *cre = VLC->creh->creatures.at(creatureID);
 	for (int i = 0; i < amount; ++i)
