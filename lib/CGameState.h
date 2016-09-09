@@ -218,7 +218,7 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
-	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & r);
+	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
@@ -243,6 +243,14 @@ public:
 	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----
+
+	/// This RNG should only be used inside GS or CPackForClient-derived applyGs
+	/// If this doesn't work for your code that mean you need a new netpack
+	///
+	/// Client-side must use CRandomGenerator::getDefault which is not serialized
+	///
+	/// CGameHandler have it's own getter for CRandomGenerator::getDefault
+	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
 	CRandomGenerator & getRandomGenerator();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -291,7 +299,7 @@ private:
 	std::vector<CampaignHeroReplacement> generateCampaignHeroesToReplace(CrossoverHeroesList & crossoverHeroes);
 
 	/// gets prepared and copied hero instances with crossover heroes from prev. scenario and travel options from current scenario
-	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions) const;
+	void prepareCrossoverHeroes(std::vector<CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions);
 
 	void replaceHeroesPlaceholders(const std::vector<CampaignHeroReplacement> & campaignHeroReplacements);
 	void placeStartingHeroes();

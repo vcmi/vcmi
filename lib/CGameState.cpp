@@ -912,8 +912,8 @@ void CGameState::initDuel()
 			for(TSecSKill secSkill : ss.heroSecSkills)
 				h->setSecSkillLevel(SecondarySkill(secSkill.first), secSkill.second, 1);
 
-			h->initHero(HeroTypeID(h->subID));
-			obj->initObj();
+			h->initHero(getRandomGenerator(), HeroTypeID(h->subID));
+			obj->initObj(getRandomGenerator());
 		}
 		else
 		{
@@ -1239,7 +1239,7 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 	return crossoverHeroes;
 }
 
-void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions) const
+void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions)
 {
 	// create heroes list for convenience iterating
 	std::vector<CGHeroInstance *> crossoverHeroes;
@@ -1255,7 +1255,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		//trimming experience
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
-			cgh->initExp();
+			cgh->initExp(getRandomGenerator());
 		}
 	}
 
@@ -1462,7 +1462,7 @@ void CGameState::initHeroes()
 			continue;
 		}
 
-		hero->initHero();
+		hero->initHero(getRandomGenerator());
 		getPlayer(hero->getOwner())->heroes.push_back(hero);
 		map->allHeroes[hero->type->ID.getNum()] = hero;
 	}
@@ -1478,7 +1478,7 @@ void CGameState::initHeroes()
 	{
 		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
 			continue;
-		ph->initHero();
+		ph->initHero(getRandomGenerator());
 		hpool.heroesPool[ph->subID] = ph;
 		hpool.pavailable[ph->subID] = 0xff;
 		heroesToCreate.erase(ph->type->ID);
@@ -1489,7 +1489,7 @@ void CGameState::initHeroes()
 	for(HeroTypeID htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
 		auto  vhi = new CGHeroInstance();
-		vhi->initHero(htype);
+		vhi->initHero(getRandomGenerator(), htype);
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
@@ -1846,7 +1846,7 @@ void CGameState::initMapObjects()
 		if(obj)
 		{
 			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %s, %s") % obj->id.getNum() % obj->typeName % obj->subTypeName;
-			obj->initObj();
+			obj->initObj(getRandomGenerator());
 		}
 	}
 	for(CGObjectInstance *obj : map->objects)
@@ -1906,7 +1906,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r)
+BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -1955,13 +1955,13 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r)
 	switch(t.terType)
 	{
 	case ETerrainType::DIRT:
-		return BFieldType(r.nextInt(3, 5));
+		return BFieldType(rand.nextInt(3, 5));
 	case ETerrainType::SAND:
 		return BFieldType::SAND_MESAS; //TODO: coast support
 	case ETerrainType::GRASS:
-		return BFieldType(r.nextInt(6, 7));
+		return BFieldType(rand.nextInt(6, 7));
 	case ETerrainType::SNOW:
-		return BFieldType(r.nextInt(10, 11));
+		return BFieldType(rand.nextInt(10, 11));
 	case ETerrainType::SWAMP:
 		return BFieldType::SWAMP_TREES;
 	case ETerrainType::ROUGH:
@@ -3249,7 +3249,6 @@ TeamState::TeamState(TeamState && other):
 	std::swap(players, other.players);
 	std::swap(fogOfWarMap, other.fogOfWarMap);
 }
-
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {

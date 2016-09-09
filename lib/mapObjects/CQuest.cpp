@@ -420,16 +420,16 @@ void CGSeerHut::setObjToKill()
 	}
 }
 
-void CGSeerHut::init()
+void CGSeerHut::init(CRandomGenerator & rand)
 {
-	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, cb->gameState()->getRandomGenerator());
-	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(2);
-	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(1, 3);
+	seerName = *RandomGeneratorUtil::nextItem(VLC->generaltexth->seerNames, rand);
+	quest->textOption = rand.nextInt(2);
+	quest->completedOption = rand.nextInt(1, 3);
 }
 
-void CGSeerHut::initObj()
+void CGSeerHut::initObj(CRandomGenerator & rand)
 {
-	init();
+	init(rand);
 
 	quest->progress = CQuest::NOT_ACTIVE;
 	if(quest->missionType)
@@ -549,7 +549,7 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 	}
 }
 
-void CGSeerHut::newTurn() const
+void CGSeerHut::newTurn(CRandomGenerator & rand) const
 {
 	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
 	{
@@ -761,11 +761,11 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	finishQuest(hero, answer);
 }
 
-void CGQuestGuard::init()
+void CGQuestGuard::init(CRandomGenerator & rand)
 {
 	blockVisit = true;
-	quest->textOption = cb->gameState()->getRandomGenerator().nextInt(3, 5);
-	quest->completedOption = cb->gameState()->getRandomGenerator().nextInt(4, 5);
+	quest->textOption = rand.nextInt(3, 5);
+	quest->completedOption = rand.nextInt(4, 5);
 }
 
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
@@ -825,7 +825,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	showInfoDialog(h,txt_id,soundBase::CAVEHEAD);
 }
 
-void CGBorderGuard::initObj()
+void CGBorderGuard::initObj(CRandomGenerator & rand)
 {
 	//ui32 m13489val = subID; //store color as quest info
 	blockVisit = true;

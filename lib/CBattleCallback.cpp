@@ -113,11 +113,6 @@ void CCallbackBase::setBattle(const BattleInfo *B)
 	battle = B;
 }
 
-CRandomGenerator & CCallbackBase::getRandomGenerator() const
-{
-	return rand;
-}
-
 boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
@@ -526,15 +521,15 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 	return attackedHexes;
 }
 
-SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const
+SpellID CBattleInfoCallback::battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const
 {
 	switch (mode)
 	{
 	case RANDOM_GENIE:
-		return getRandomBeneficialSpell(stack); //target
+		return getRandomBeneficialSpell(rand, stack); //target
 		break;
 	case RANDOM_AIMED:
-		return getRandomCastedSpell(stack); //caster
+		return getRandomCastedSpell(rand, stack); //caster
 		break;
 	default:
 		logGlobal->errorStream() << "Incorrect mode of battleGetRandomSpell (" << mode <<")";
@@ -1081,15 +1076,15 @@ TDmgRange CBattleInfoCallback::calculateDmgRange( const CStack* attacker, const 
 	return calculateDmgRange(bai);
 }
 
-TDmgRange CBattleInfoCallback::battleEstimateDamage(const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg) const
+TDmgRange CBattleInfoCallback::battleEstimateDamage(CRandomGenerator & rand, const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 	const bool shooting = battleCanShoot(attacker, defender->position);
 	const BattleAttackInfo bai(attacker, defender, shooting);
-	return battleEstimateDamage(bai, retaliationDmg);
+	return battleEstimateDamage(rand, bai, retaliationDmg);
 }
 
-std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg /*= nullptr*/) const
+std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(CRandomGenerator & rand, const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg /*= nullptr*/) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 
@@ -1111,7 +1106,7 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				bai.defender->prepareAttacked(bsa, getRandomGenerator(), bai.defenderCount);
+				bai.defender->prepareAttacked(bsa, rand, bai.defenderCount);
 
 				auto retaliationAttack = bai.reverse();
 				retaliationAttack.attackerCount = bsa.newAmount;
@@ -1928,7 +1923,7 @@ std::set<const CStack*> CBattleInfoCallback:: batteAdjacentCreatures(const CStac
 	return stacks;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) const
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 	//This is complete list. No spells from mods.
@@ -2050,7 +2045,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 
 	if(!beneficialSpells.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(beneficialSpells, getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(beneficialSpells, rand);
 	}
 	else
 	{
@@ -2058,7 +2053,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) co
 	}
 }
 
-SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
+SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const CStack * caster) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
@@ -2070,7 +2065,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
 	}
-	int randomPos = getRandomGenerator().nextInt(totalWeight - 1);
+	int randomPos = rand.nextInt(totalWeight - 1);
 	for(Bonus * b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo, 1);

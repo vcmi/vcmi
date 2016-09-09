@@ -720,7 +720,7 @@ void CGameHandler::battleAfterLevelUp( const BattleResult &result )
 
 	if (necroSlot != SlotID())
 	{
-		finishingBattle->winnerHero->showNecromancyDialog(raisedStack);
+		finishingBattle->winnerHero->showNecromancyDialog(raisedStack, getRandomGenerator());
 		addToSlot(StackLocation(finishingBattle->winnerHero, necroSlot), raisedStack.type, raisedStack.count);
 	}
 
@@ -1717,7 +1717,7 @@ void CGameHandler::newTurn()
 	for(auto & elem : gs->map->objects)
 	{
 		if(elem)
-			elem->newTurn();
+			elem->newTurn(getRandomGenerator());
 	}
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
@@ -4177,8 +4177,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const Bonus * spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
-			if(randSpellcaster && battleGetRandomStackSpell(stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
-				spellID = battleGetRandomStackSpell(stack, CBattleInfoCallback::RANDOM_GENIE);
+			if(randSpellcaster && battleGetRandomStackSpell(getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
+				spellID = battleGetRandomStackSpell(getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_GENIE);
 
 			if(spellID < 0)
 				complain("That stack can't cast spells!");
@@ -6245,6 +6245,11 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const
 CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 {
 	winnerHero = loserHero = nullptr;
+}
+
+CRandomGenerator & CGameHandler::getRandomGenerator()
+{
+	return CRandomGenerator::getDefault();
 }
 
 ///ServerSpellCastEnvironment

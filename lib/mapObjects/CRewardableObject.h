@@ -227,7 +227,7 @@ public:
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
 	///possibly resets object state
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
@@ -255,7 +255,7 @@ public:
 class DLL_LINKAGE CGPickable : public CRewardableObject //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGPickable();
 
@@ -273,7 +273,7 @@ protected:
 	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
 
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGBonusingObject();
 
@@ -290,7 +290,7 @@ public:
 class DLL_LINKAGE CGOnceVisitable : public CRewardableObject // wagon, corpse, lean to, warriors tomb
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGOnceVisitable();
 
@@ -303,7 +303,7 @@ public:
 class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGVisitableOPH();
 
@@ -316,7 +316,7 @@ public:
 class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGVisitableOPW();
 
@@ -335,7 +335,7 @@ protected:
 	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
 
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::vector<int3> getVisitableOffsets() const;
 	int3 getVisitableOffset() const override;
 

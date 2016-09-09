@@ -249,7 +249,7 @@ public:
 		h & QID & states & finishingBattle;
 		if(version >= 761)
 		{
-			h & rand;
+			h & getRandomGenerator();
 		}
 	}
 
@@ -293,6 +293,8 @@ public:
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
+
+	CRandomGenerator & getRandomGenerator();
 
 private:
 	ServerSpellCastEnvironment * spellEnv;

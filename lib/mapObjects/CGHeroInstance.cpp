@@ -244,10 +244,10 @@ CGHeroInstance::CGHeroInstance()
 	secSkills.push_back(std::make_pair(SecondarySkill::DEFAULT, -1));
 }
 
-void CGHeroInstance::initHero(HeroTypeID SUBID)
+void CGHeroInstance::initHero(CRandomGenerator & rand, HeroTypeID SUBID)
 {
 	subID = SUBID.getNum();
-	initHero();
+	initHero(rand);
 }
 
 void CGHeroInstance::setType(si32 ID, si32 subID)
@@ -259,7 +259,7 @@ void CGHeroInstance::setType(si32 ID, si32 subID)
 	randomizeArmy(type->heroClass->faction);
 }
 
-void CGHeroInstance::initHero()
+void CGHeroInstance::initHero(CRandomGenerator & rand)
 {
 	assert(validTypes(true));
 	if(!type)
@@ -302,17 +302,17 @@ void CGHeroInstance::initHero()
 	setFormation(false);
 	if (!stacksCount()) //standard army//initial army
 	{
-		initArmy(cb->gameState()->getRandomGenerator());
+		initArmy(rand);
 	}
 	assert(validTypes());
 
 	if(exp == 0xffffffff)
 	{
-		initExp();
+		initExp(rand);
 	}
 	else
 	{
-		levelUpAutomatically();
+		levelUpAutomatically(rand);
 	}
 
 	if (VLC->modh->modules.COMMANDERS && !commander)
@@ -483,7 +483,7 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 1;
 }
 
-void CGHeroInstance::initObj()
+void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
 	auto  hs = new HeroSpecial();
@@ -491,9 +491,9 @@ void CGHeroInstance::initObj()
 	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
-		initHero(); //TODO: set up everything for prison before specialties are configured
+		initHero(rand); //TODO: set up everything for prison before specialties are configured
 
-	skillsInfo.rand.setSeed(cb->gameState()->getRandomGenerator().nextInt());
+	skillsInfo.rand.setSeed(rand.nextInt());
 	skillsInfo.resetMagicSchoolCounter();
 	skillsInfo.resetWisdomCounter();
 
@@ -1056,10 +1056,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
  * @param raisedStack Pair where the first element represents ID of the raised creature
  * and the second element the amount.
  */
-void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const
+void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::pickup01 + cb->getRandomGenerator().nextInt(6);
+	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
 	iw.player = tempOwner;
 	iw.components.push_back(Component(raisedStack));
 
@@ -1162,9 +1162,9 @@ EAlignment::EAlignment CGHeroInstance::getAlignment() const
 	return type->heroClass->getAlignment();
 }
 
-void CGHeroInstance::initExp()
+void CGHeroInstance::initExp(CRandomGenerator & rand)
 {
-	exp = cb->gameState()->getRandomGenerator().nextInt(40, 89);
+	exp = rand.nextInt(40, 89);
 }
 
 std::string CGHeroInstance::nodeName() const
@@ -1356,7 +1356,7 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
 }
 
-boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill() const
+boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenerator & rand) const
 {
 	assert(gainsLevel());
 
@@ -1373,7 +1373,6 @@ boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill() const
 			}
 		}
 
-		auto & rand = cb->gameState()->getRandomGenerator();
 		if(learnedSecondarySkills.empty())
 		{
 			// there are only new skills to learn, so choose anyone of them
@@ -1452,16 +1451,16 @@ void CGHeroInstance::levelUp(std::vector<SecondarySkill> skills)
 	Updatespecialty();
 }
 
-void CGHeroInstance::levelUpAutomatically()
+void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)
 {
 	while(gainsLevel())
 	{
-		const auto primarySkill = nextPrimarySkill(cb->gameState()->getRandomGenerator());
+		const auto primarySkill = nextPrimarySkill(rand);
 		setPrimarySkill(primarySkill, 1, false);
 
 		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills();
 
-		const auto secondarySkill = nextSecondarySkill();
+		const auto secondarySkill = nextSecondarySkill(rand);
 		if(secondarySkill)
 		{
 			setSecSkillLevel(*secondarySkill, 1, false);

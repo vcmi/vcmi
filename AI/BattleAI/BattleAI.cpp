@@ -653,7 +653,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 	for(int i  = 0; i < totalAttacks; i++)
 	{
 		std::pair<ui32, ui32> retaliation(0,0);
-		auto attackDmg = cbc->battleEstimateDamage(curBai, &retaliation);
+		auto attackDmg = cbc->battleEstimateDamage(CRandomGenerator::getDefault(), curBai, &retaliation);
 		ap.damageDealt = (attackDmg.first + attackDmg.second) / 2;
 		ap.damageReceived = (retaliation.first + retaliation.second) / 2;
 
@@ -737,7 +737,7 @@ int PotentialTargets::bestActionValue() const
 
 void EnemyInfo::calcDmg(const CStack * ourStack)
 {
-	TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
+	TDmgRange retal, dmg = cbc->battleEstimateDamage(CRandomGenerator::getDefault(), ourStack, s, &retal);
 	adi = (dmg.first + dmg.second) / 2;
 	adr = (retal.first + retal.second) / 2;
 }

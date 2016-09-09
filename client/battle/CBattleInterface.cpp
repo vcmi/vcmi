@@ -1587,7 +1587,7 @@ void CBattleInterface::activateStack()
 		if(randomSpellcaster)
 			creatureSpellToCast = -1; //spell will be set later on cast
 
-		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
 	}
 	else
@@ -2101,7 +2101,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				if (shere && ourStack && shere != sactive) //only positive spells for other allied creatures
 				{
-					int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
+					int spellID = curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), shere, CBattleInfoCallback::RANDOM_GENIE);
 					if (spellID > -1)
 					{
 						legalAction = true;
@@ -2264,7 +2264,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					}
 				};
 
-				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
+				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(CRandomGenerator::getDefault(), sactive, shere)); //calculating estimated dmg
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
 			}
 				break;
@@ -2276,7 +2276,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					cursorFrame = ECursor::COMBAT_SHOOT;
 
 				realizeAction = [=] {giveCommand(Battle::SHOOT, myNumber, activeStack->ID);};
-				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
+				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(CRandomGenerator::getDefault(), sactive, shere)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
 			}
@@ -2425,7 +2425,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					}
 					else //unknown random spell
 					{
-						giveCommand(Battle::MONSTER_SPELL, myNumber, sactive->ID, curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE));
+						giveCommand(Battle::MONSTER_SPELL, myNumber, sactive->ID, curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), shere, CBattleInfoCallback::RANDOM_GENIE));
 					}
 				}
 				else
