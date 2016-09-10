@@ -1586,8 +1586,8 @@ void CBattleInterface::activateStack()
 		stackCanCastSpell = true;
 		if(randomSpellcaster)
 			creatureSpellToCast = -1; //spell will be set later on cast
-
-		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		else
+			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
 	}
 	else
@@ -1633,23 +1633,16 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 		{
 			if (stack->hasBonusOfType (Bonus::SPELLCASTER))
 			{
-				 //TODO: poll possible spells
-				const CSpell * spell;
-				BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
-				for (Bonus * spellBonus : spellBonuses)
+				if(creatureSpellToCast != -1)
 				{
-					spell = SpellID(spellBonus->subtype).toSpell();
-
+					const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
 					PossibleActions act = getCasterAction(spell, stack);
-
 					if(act == NO_LOCATION)
 						logGlobal->error("NO_LOCATION action target is not yet supported for creatures");
 					else
 						possibleActions.push_back(act);
+
 				}
-				std::sort(possibleActions.begin(), possibleActions.end());
-				auto it = std::unique (possibleActions.begin(), possibleActions.end());
-				possibleActions.erase (it, possibleActions.end());
 			}
 			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
 				possibleActions.push_back (RANDOM_GENIE_SPELL);
