@@ -334,13 +334,13 @@ public:
 	void spellCast(const BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
+	void displayEffect(ui32 effect, int destTile); //displays custom effect on the battlefield
 
-	void displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s cast animation
-	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
-	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
+	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
+	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 
-	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect = true);
+	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex

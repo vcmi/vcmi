@@ -1272,7 +1272,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 
 	//todo: play custom cast animation
-	displaySpellCast(spellID, BattleHex::INVALID, false);
+	displaySpellCast(spellID, BattleHex::INVALID);
 
 	//playing projectile animation
 	if(sc->tile.isValid())
@@ -1415,13 +1415,12 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	}
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
+void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
-	//todo: recheck areaEffect usage
 	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
 }
 
-void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile)
 {
 	if(animation.pause > 0)
 	{
@@ -1433,7 +1432,7 @@ void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animatio
 	}
 }
 
-void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1442,11 +1441,11 @@ void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTi
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.cast)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
-void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1455,11 +1454,11 @@ void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destination
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
-void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1468,7 +1467,7 @@ void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTil
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
@@ -1633,7 +1632,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				for (Bonus * spellBonus : spellBonuses)
 				{
 					spell = CGI->spellh->objects[spellBonus->subtype];
-					switch (spellBonus->subtype)
+					switch (spell->id)
 					{
 						case SpellID::REMOVE_OBSTACLE:
 							possibleActions.push_back (OBSTACLE);
