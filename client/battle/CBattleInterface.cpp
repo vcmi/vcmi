@@ -1402,7 +1402,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	spellDestSelectMode = true;
 	creatureCasting = false;
 
-	//choosing possible tragets
+	//choosing possible targets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
