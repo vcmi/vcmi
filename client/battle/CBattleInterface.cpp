@@ -1366,6 +1366,30 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	}
 }
 
+CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const ISpellCaster * caster) const
+{
+	PossibleActions spellSelMode = ANY_LOCATION;
+
+	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
+
+	if(ti.massive || ti.type == CSpell::NO_TARGET)
+		spellSelMode = NO_LOCATION;
+	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
+	{
+		spellSelMode = FREE_LOCATION;
+	}
+	else if(ti.type == CSpell::CREATURE)
+	{
+		spellSelMode = AIMED_SPELL_CREATURE;
+	}
+	else if(ti.type == CSpell::OBSTACLE)
+	{
+		spellSelMode = OBSTACLE;
+	}
+
+	return spellSelMode;
+}
+
 void CBattleInterface::castThisSpell(SpellID spellID)
 {
 	auto  ba = new BattleAction;
@@ -1382,24 +1406,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
-	PossibleActions spellSelMode = ANY_LOCATION;
-
-	const CSpell::TargetInfo ti(sp, castingHero->getSpellSchoolLevel(sp));
-
-	if(ti.massive || ti.type == CSpell::NO_TARGET)
-		spellSelMode = NO_LOCATION;
-	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
-	{
-		spellSelMode = FREE_LOCATION;
-	}
-	else if(ti.type == CSpell::CREATURE)
-	{
-		spellSelMode = AIMED_SPELL_CREATURE;
-	}
-	else if(ti.type == CSpell::OBSTACLE)
-	{
-		spellSelMode = OBSTACLE;
-	}
+	PossibleActions spellSelMode = getCasterAction(sp, castingHero);
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
@@ -1631,17 +1638,14 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
 				for (Bonus * spellBonus : spellBonuses)
 				{
-					spell = CGI->spellh->objects[spellBonus->subtype];
-					switch (spell->id)
-					{
-						case SpellID::REMOVE_OBSTACLE:
-							possibleActions.push_back (OBSTACLE);
-							break;
-						default:
-							possibleActions.push_back (AIMED_SPELL_CREATURE);
-							break;
-					}
+					spell = SpellID(spellBonus->subtype).toSpell();
 
+					PossibleActions act = getCasterAction(spell, stack);
+
+					if(act == NO_LOCATION)
+						logGlobal->error("NO_LOCATION action target is not yet supported for creatures");
+					else
+						possibleActions.push_back(act);
 				}
 				std::sort(possibleActions.begin(), possibleActions.end());
 				auto it = std::unique (possibleActions.begin(), possibleActions.end());
@@ -2432,7 +2436,7 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 
 	if (sp)
 	{
-		const ISpellCaster * caster = creatureCasting ? dynamic_cast<const ISpellCaster *>(sactive) : dynamic_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
+		const ISpellCaster * caster = creatureCasting ? static_cast<const ISpellCaster *>(sactive) : static_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
 		if(caster == nullptr)
 		{
 			isCastingPossible = false;//just in case

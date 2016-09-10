@@ -259,6 +259,7 @@ private:
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	/** End of battle screen blitting methods */
 
+	PossibleActions getCasterAction(const CSpell * spell, const ISpellCaster * caster) const;
 public:
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
