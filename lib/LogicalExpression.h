@@ -99,6 +99,123 @@ namespace LogicalExpressionDetail
 		}
 	};
 
+	template <typename ContainedClass>
+	class FalsifiabilityVisitor;
+
+	/// Visitor to test whether expression's value can be true
+	template <typename ContainedClass>
+	class SatisfiabilityVisitor : public boost::static_visitor<bool>
+	{
+		typedef ExpressionBase<ContainedClass> Base;
+
+		std::function<bool(const typename Base::Value &)> satisfiabilityTest;
+		FalsifiabilityVisitor<ContainedClass> *falsifiabilityVisitor;
+
+		size_t countSatisfiable(const std::vector<typename Base::Variant> & element) const
+		{
+			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			{
+				return boost::apply_visitor(*this, expr);
+			});
+		}
+
+		size_t countFalsifiable(const std::vector<typename Base::Variant> & element) const
+		{
+			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			{
+				return boost::apply_visitor(*falsifiabilityVisitor, expr);
+			});
+		}
+
+	public:
+		SatisfiabilityVisitor(std::function<bool (const typename Base::Value &)> satisfiabilityTest):
+			satisfiabilityTest(satisfiabilityTest),
+			falsifiabilityVisitor(nullptr)
+		{}
+
+		void setFalsifiabilityVisitor(FalsifiabilityVisitor<ContainedClass> *falsifiabilityVisitor)
+		{
+			this->falsifiabilityVisitor = falsifiabilityVisitor;
+		}
+
+		bool operator()(const typename Base::OperatorAny & element) const
+		{
+			return countSatisfiable(element.expressions) != 0;
+		}
+
+		bool operator()(const typename Base::OperatorAll & element) const
+		{
+			return countSatisfiable(element.expressions) == element.expressions.size();
+		}
+
+		bool operator()(const typename Base::OperatorNone & element) const
+		{
+			return countFalsifiable(element.expressions) == element.expressions.size();
+		}
+
+		bool operator()(const typename Base::Value & element) const
+		{
+			return satisfiabilityTest(element);
+		}
+	};
+
+	/// Visitor to test whether expression's value can be false
+	template <typename ContainedClass>
+	class FalsifiabilityVisitor : public boost::static_visitor<bool>
+	{
+		typedef ExpressionBase<ContainedClass> Base;
+
+		std::function<bool(const typename Base::Value &)> falsifiabilityTest;
+		SatisfiabilityVisitor<ContainedClass> *satisfiabilityVisitor;
+
+		size_t countSatisfiable(const std::vector<typename Base::Variant> & element) const
+		{
+			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			{
+				return boost::apply_visitor(*satisfiabilityVisitor, expr);
+			});
+		}
+
+		size_t countFalsifiable(const std::vector<typename Base::Variant> & element) const
+		{
+			return boost::range::count_if(element, [&](const typename Base::Variant & expr)
+			{
+				return boost::apply_visitor(*this, expr);
+			});
+		}
+
+	public:
+		FalsifiabilityVisitor(std::function<bool (const typename Base::Value &)> falsifiabilityTest):
+			falsifiabilityTest(falsifiabilityTest),
+			satisfiabilityVisitor(nullptr)
+		{}
+
+		void setFalsifiabilityVisitor(SatisfiabilityVisitor<ContainedClass> *satisfiabilityVisitor)
+		{
+			this->satisfiabilityVisitor = satisfiabilityVisitor;
+		}
+
+		bool operator()(const typename Base::OperatorAny & element) const
+		{
+			return countFalsifiable(element.expressions) == element.expressions.size();
+		}
+
+		bool operator()(const typename Base::OperatorAll & element) const
+		{
+			return countFalsifiable(element.expressions) != 0;
+		}
+
+		bool operator()(const typename Base::OperatorNone & element) const
+		{
+			return countSatisfiable(element.expressions) != 0;
+		}
+
+		bool operator()(const typename Base::Value & element) const
+		{
+			return falsifiabilityTest(element);
+		}
+	};
+
 	/// visitor that is trying to generates candidates that must be fulfilled
 	/// to complete this expression
 	template <typename ContainedClass>
@@ -434,6 +551,30 @@ public:
 	{
 		LogicalExpressionDetail::TestVisitor<Value> testVisitor(toBool);
 		return boost::apply_visitor(testVisitor, data);
+	}
+
+	/// calculates if expression can evaluate to "true".
+	bool satisfiable (std::function<bool(const Value &)> satisfiabilityTest, std::function<bool(const Value &)> falsifiabilityTest) const
+	{
+		LogicalExpressionDetail::SatisfiabilityVisitor<Value> satisfiabilityVisitor(satisfiabilityTest);
+		LogicalExpressionDetail::FalsifiabilityVisitor<Value> falsifiabilityVisitor(falsifiabilityTest);
+
+		satisfiabilityVisitor.setFalsifiabilityVisitor(&falsifiabilityVisitor);
+		falsifiabilityVisitor.setFalsifiabilityVisitor(&satisfiabilityVisitor);
+
+		return boost::apply_visitor(satisfiabilityVisitor, data);
+	}
+
+	/// calculates if expression can evaluate to "false".
+	bool falsifiable(std::function<bool(const Value &)> satisfiabilityTest, std::function<bool(const Value &)> falsifiabilityTest) const
+	{
+		LogicalExpressionDetail::SatisfiabilityVisitor<Value> satisfiabilityVisitor(satisfiabilityTest);
+		LogicalExpressionDetail::FalsifiabilityVisitor<Value> falsifiabilityVisitor(falsifiabilityTest);
+
+		satisfiabilityVisitor.setFalsifiabilityVisitor(&falsifiabilityVisitor);
+		falsifiabilityVisitor.setFalsifiabilityVisitor(&satisfiabilityVisitor);
+
+		return boost::apply_visitor(falsifiabilityVisitor, data);
 	}
 
 	/// generates list of candidates that can be fulfilled by caller (like AI)
