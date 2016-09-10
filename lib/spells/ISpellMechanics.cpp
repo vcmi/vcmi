@@ -38,7 +38,7 @@ BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, cons
 	: spell(spell_), cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
 	casterHero(nullptr),
 	mode(ECastingMode::HERO_CASTING), casterStack(nullptr),
-	spellLvl(-1),  effectLevel(-1), effectPower(0), enchantPower(0), effectValue(0)
+	spellLvl(0),  effectLevel(0), effectPower(0), enchantPower(0), effectValue(0)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
 	casterHero = dynamic_cast<const CGHeroInstance *>(caster);
