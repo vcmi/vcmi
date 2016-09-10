@@ -731,7 +731,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(cons
 	{
 		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
 
-		return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination);
+		return ownerMatches && s->isValidTarget(!ctx.ti.onlyAlive) && s->coversPos(ctx.destination);
 	});
 
 	if(nullptr == stack)
