@@ -62,8 +62,9 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 		{
 			auto typeNode = q.front();
 			q.pop();
-			for(auto &nodeBase : upcast ? typeNode->parents : typeNode->children)
+			for(auto & weakNode : (upcast ? typeNode->parents : typeNode->children) )
 			{
+				auto nodeBase = weakNode.lock();
 				if(!previous.count(nodeBase))
 				{
 					previous[nodeBase] = typeNode;
