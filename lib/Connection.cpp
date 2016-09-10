@@ -18,8 +18,8 @@
  *
  */
 
-extern template void registerTypes<CISer>(CISer & s);
-extern template void registerTypes<COSer>(COSer & s);
+extern template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
+extern template void registerTypes<BinarySerializer>(BinarySerializer & s);
 extern template void registerTypes<CTypeList>(CTypeList & s);
 
 CTypeList typeList;

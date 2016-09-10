@@ -17,7 +17,12 @@
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"
 
-#include "Connection.h" // for SAVEGAME_MAGIC
+#include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
+#include "serializer/BinaryDeserializer.h"
+#include "serializer/BinarySerializer.h"
+#include "serializer/CLoadIntegrityValidator.h"
+#include "rmg/CMapGenOptions.h"
+#include "mapping/CCampaignHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "StartInfo.h"
 #include "CGameState.h"
@@ -157,16 +162,16 @@ void CPrivilagedInfoCallback::loadCommonState(Loader &in)
 	StartInfo *si;
 
 	logGlobal->infoStream() <<"\tReading header";
-	in.serializer >> dum;
+	in.serializer & dum;
 
 	logGlobal->infoStream() << "\tReading options";
-	in.serializer >> si;
+	in.serializer & si;
 
 	logGlobal->infoStream() <<"\tReading handlers";
-	in.serializer >> *VLC;
+	in.serializer & *VLC;
 
 	logGlobal->infoStream() <<"\tReading gamestate";
-	in.serializer >> gs;
+	in.serializer & gs;
 }
 
 template<typename Saver>
@@ -175,13 +180,13 @@ void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
 	logGlobal->infoStream() << "Saving lib part of game...";
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->infoStream() <<"\tSaving header";
-	out.serializer << static_cast<CMapHeader&>(*gs->map);
+	out.serializer & static_cast<CMapHeader&>(*gs->map);
 	logGlobal->infoStream() << "\tSaving options";
-	out.serializer << gs->scenarioOps;
+	out.serializer & gs->scenarioOps;
 	logGlobal->infoStream() << "\tSaving handlers";
-	out.serializer << *VLC;
+	out.serializer & *VLC;
 	logGlobal->infoStream() << "\tSaving gamestate";
-	out.serializer << gs;
+	out.serializer & gs;
 }
 
 // hardly memory usage for `-gdwarf-4` flag

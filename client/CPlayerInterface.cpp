@@ -22,7 +22,9 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/BinaryDeserializer.h"
+#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h" // For displaying correct UI when interacting with objects
@@ -1310,13 +1312,13 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & spellbookSettings;
 }
 
-void CPlayerInterface::saveGame( COSer & h, const int version )
+void CPlayerInterface::saveGame( BinarySerializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);
 }
 
-void CPlayerInterface::loadGame( CISer & h, const int version )
+void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);

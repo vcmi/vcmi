@@ -5,7 +5,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -18,6 +18,7 @@
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #ifndef VCMI_ANDROID
 #include "../lib/Interprocess.h"
 #endif

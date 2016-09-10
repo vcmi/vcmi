@@ -20,6 +20,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/CSoundBase.h"
@@ -29,6 +30,8 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
 #include "../lib/registerTypes/RegisterTypes.h"
+#include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/Connection.h"
 
 /*
  * CGameHandler.cpp, part of VCMI engine
@@ -957,9 +960,8 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 				boost::unique_lock<boost::mutex> lock(*c.wmx);
 				c << &applied;
 			};
-
-			CBaseForGHApply *apply = applier->apps[packType]; //and appropriate applier object
-			if (isBlockedByQueries(pack, player))
+			CBaseForGHApply *apply = applier->getApplier(packType); //and appropriate applier object
+			if(isBlockedByQueries(pack, player))
 			{
 				sendPackageResponse(false);
 			}

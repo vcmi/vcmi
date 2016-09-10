@@ -2,7 +2,6 @@
 
 
 #include "../lib/FunctionList.h"
-#include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"
 #include "CQuery.h"
