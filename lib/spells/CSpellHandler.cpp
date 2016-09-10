@@ -672,6 +672,10 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, ECastingMo
 	{
 		alwaysHitDirectly = true;
 	}
+	else if(mode == ECastingMode::CREATURE_ACTIVE_CASTING)
+	{
+		massive = false;//FIXME: find better solution for Commander spells
+	}
 }
 
 void CSpell::TargetInfo::init(const CSpell * spell, const int level)

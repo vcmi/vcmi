@@ -1366,11 +1366,11 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	}
 }
 
-CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const ISpellCaster * caster) const
+CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const ISpellCaster * caster, ECastingMode::ECastingMode mode) const
 {
 	PossibleActions spellSelMode = ANY_LOCATION;
 
-	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell));
+	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
 
 	if(ti.massive || ti.type == CSpell::NO_TARGET)
 		spellSelMode = NO_LOCATION;
@@ -1406,7 +1406,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
-	PossibleActions spellSelMode = getCasterAction(sp, castingHero);
+	PossibleActions spellSelMode = getCasterAction(sp, castingHero, ECastingMode::HERO_CASTING);
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
@@ -1589,6 +1589,7 @@ void CBattleInterface::activateStack()
 		else
 			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
+		//TODO: faerie dragon type spell should be selected by server
 	}
 	else
 	{
@@ -1636,12 +1637,11 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				if(creatureSpellToCast != -1)
 				{
 					const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
-					PossibleActions act = getCasterAction(spell, stack);
+					PossibleActions act = getCasterAction(spell, stack, ECastingMode::CREATURE_ACTIVE_CASTING);
 					if(act == NO_LOCATION)
 						logGlobal->error("NO_LOCATION action target is not yet supported for creatures");
 					else
 						possibleActions.push_back(act);
-
 				}
 			}
 			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
