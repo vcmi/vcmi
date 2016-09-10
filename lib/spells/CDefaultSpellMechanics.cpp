@@ -119,13 +119,12 @@ namespace SRSLPraserHelpers
 }
 
 SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_):
-	mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0)
+	mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0), damageToDisplay(0)
 {
 	sc.side = parameters.casterSide;
 	sc.id = mechanics->owner->id;
 	sc.skill = parameters.spellLvl;
 	sc.tile = parameters.getFirstDestinationHex();
-	sc.dmgToDisplay = 0;
 	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
 	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
 	sc.manaGained = 0;
@@ -146,22 +145,63 @@ SpellCastContext::~SpellCastContext()
 
 void SpellCastContext::addDamageToDisplay(const si32 value)
 {
-	sc.dmgToDisplay += value;
+	damageToDisplay += value;
 }
 
 void SpellCastContext::setDamageToDisplay(const si32 value)
 {
-	sc.dmgToDisplay = value;
+	damageToDisplay = value;
 }
 
-void SpellCastContext::sendCastPacket()
+void SpellCastContext::prepareBattleLog()
 {
-	for(auto sta : attackedCres)
+	//todo: prepare battle log
+	bool displayDamage = true;
+
+	if(attackedCres.size() == 1)
 	{
-		sc.affectedCres.insert(sta->ID);
+		const CStack * attackedStack = *attackedCres.begin();
+
+		switch(parameters.mode)
+		{
+		case ECastingMode::HERO_CASTING:
+			{
+				MetaString line;
+				line.addTxt(MetaString::GENERAL_TXT, 195);
+				parameters.caster->getCasterName(line);
+				line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
+				line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+			}
+			break;
+
+		default:
+			{
+				mechanics->battleLogSingleTarget(sc.battleLog, parameters, attackedStack, damageToDisplay, displayDamage);
+			}
+			break;
+		}
+	}
+	else
+	{
+		MetaString line;
+		line.addTxt(MetaString::GENERAL_TXT, 196);
+        parameters.caster->getCasterName(line);
+		line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
+		sc.battleLog.push_back(line);
 	}
 
-	env->sendAndApply(&sc);
+	displayDamage = displayDamage && damageToDisplay > 0;
+
+	if(displayDamage)
+	{
+        MetaString line;
+
+        line.addTxt(MetaString::GENERAL_TXT, 376);
+        line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
+        line.addReplacement(damageToDisplay);
+
+        sc.battleLog.push_back(line);
+	}
 }
 
 void SpellCastContext::beforeCast()
@@ -190,7 +230,14 @@ void SpellCastContext::beforeCast()
 
 void SpellCastContext::afterCast()
 {
-	sendCastPacket();
+	for(auto sta : attackedCres)
+	{
+		sc.affectedCres.insert(sta->ID);
+	}
+
+	prepareBattleLog();
+
+	env->sendAndApply(&sc);
 
 	if(parameters.mode == ECastingMode::HERO_CASTING)
 	{
@@ -312,33 +359,32 @@ void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleS
 	ctx.afterCast();
 }
 
-void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
-	const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const
+void DefaultSpellMechanics::battleLogSingleTarget(std::vector<MetaString>&  logLines, const BattleSpellCastParameters & parameters,
+	const CStack * attackedStack, const si32 damageToDisplay, bool & displayDamage) const
 {
-	const std::string attackedName = attackedStack->getName();
-	const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
-	const std::string attackedNamePl = attackedStack->getCreature()->namePl;
-
-	auto getPluralFormat = [attackedStack](const int baseTextID) -> boost::format
+	auto getPluralFormat = [attackedStack](const int baseTextID) -> si32
 	{
-		return boost::format(VLC->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID + 1 : baseTextID)]);
+		return attackedStack->count > 1 ? baseTextID + 1 : baseTextID;
 	};
 
-	auto logSimple = [&logLines, getPluralFormat, attackedName](const int baseTextID)
+	auto logSimple = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
 	{
-		boost::format fmt = getPluralFormat(baseTextID);
-		fmt % attackedName;
-		logLines.push_back(fmt.str());
+		MetaString line;
+		line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(baseTextID));
+		line.addReplacement(*attackedStack);
+		logLines.push_back(line);
 	};
 
-	auto logPlural = [&logLines, attackedNamePl](const int baseTextID)
+	auto logPlural = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
 	{
-		boost::format fmt(VLC->generaltexth->allTexts[baseTextID]);
-		fmt % attackedNamePl;
-		logLines.push_back(fmt.str());
+		MetaString line;
+		line.addTxt(MetaString::GENERAL_TXT, baseTextID);
+		line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+		logLines.push_back(line);
 	};
 
 	displayDamage = false; //in most following cases damage info text is custom
+
 	switch(owner->id)
 	{
 	case SpellID::STONE_GAZE:
@@ -358,52 +404,61 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 		break;
 	case SpellID::AGE:
 		{
-			boost::format text = getPluralFormat(551);
-			text % attackedName;
 			//The %s shrivel with age, and lose %d hit points."
+			MetaString line;
+			line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(551));
+			line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+
+			//todo: display effect from only this cast
 			TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 			const int fullHP = bl->totalValue();
 			bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-			text % (fullHP - bl->totalValue());
-			logLines.push_back(text.str());
+			line.addReplacement(fullHP - bl->totalValue());
+			logLines.push_back(line);
 		}
 		break;
 	case SpellID::THUNDERBOLT:
 		{
 			logPlural(367);
+			MetaString line;
+			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
-			boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay)); //no more text afterwards
-			logLines.push_back(text);
+			line << text;
+			line.addReplacement(damageToDisplay); //no more text afterwards
+			logLines.push_back(line);
 		}
 		break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		logPlural(555);
 		break;
 	case SpellID::DEATH_STARE:
-		if (packet->dmgToDisplay > 0)
+		if (damageToDisplay > 0)
 		{
-			std::string text;
-			if (packet->dmgToDisplay > 1)
+			MetaString line;
+			if (damageToDisplay > 1)
 			{
-				text = VLC->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-				boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay));
-				boost::algorithm::replace_first(text, "%s", attackedNamePl);
+				line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
+				line.addReplacement(damageToDisplay);
+				line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
 			}
 			else
 			{
-				text = VLC->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-				boost::algorithm::replace_first(text, "%s", attackedNameSing);
+				line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
+				line.addReplacement(MetaString::CRE_SING_NAMES, attackedStack->getCreature()->idNumber.num);
 			}
-			boost::algorithm::replace_first(text, "%s", casterName); //casting stack
-			logLines.push_back(text);
+			parameters.caster->getCasterName(line);
+			logLines.push_back(line);
 		}
 		break;
 	default:
 		{
-			boost::format text(VLC->generaltexth->allTexts[565]); //The %s casts %s
-			text % casterName % owner->name;
+			MetaString line;
+			line.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+			//todo: use text 566 for single creature
+			parameters.caster->getCasterName(line);
+			line.addReplacement(MetaString::SPELL_NAME, owner->id.toEnum());
 			displayDamage = true;
-			logLines.push_back(text.str());
+			logLines.push_back(line);
 		}
 		break;
 	}

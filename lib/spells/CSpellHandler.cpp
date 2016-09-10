@@ -586,59 +586,6 @@ ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const ISpellCaster 
 	return ESpellCastProblem::OK;
 }
 
-void CSpell::prepareBattleLog(const CBattleInfoCallback * cb,  const BattleSpellCast * packet, std::vector<std::string> & logLines) const
-{
-	bool displayDamage = true;
-
-	std::string casterName("Something"); //todo: localize
-
-	if(packet->castByHero)
-		casterName = cb->battleGetHeroInfo(packet->side).name;
-
-	{
-		const auto casterStackID = packet->casterStack;
-
-		if(casterStackID > 0)
-		{
-			const CStack * casterStack = cb->battleGetStackByID(casterStackID);
-			if(casterStack != nullptr)
-				casterName = casterStack->type->namePl;
-		}
-	}
-
-	if(packet->affectedCres.size() == 1)
-	{
-		const CStack * attackedStack = cb->battleGetStackByID(*packet->affectedCres.begin(), false);
-
-		const std::string attackedNamePl = attackedStack->getCreature()->namePl;
-
-		if(packet->castByHero)
-		{
-			const std::string fmt = VLC->generaltexth->allTexts[195];
-			logLines.push_back(boost::to_string(boost::format(fmt) % casterName % this->name % attackedNamePl));
-		}
-		else
-		{
-			mechanics->battleLogSingleTarget(logLines, packet, casterName, attackedStack, displayDamage);
-		}
-	}
-	else
-	{
-		boost::format text(VLC->generaltexth->allTexts[196]);
-		text % casterName % this->name;
-		logLines.push_back(text.str());
-	}
-
-
-	if(packet->dmgToDisplay > 0 && displayDamage)
-	{
-		boost::format dmgInfo(VLC->generaltexth->allTexts[376]);
-		dmgInfo % this->name % packet->dmgToDisplay;
-		logLines.push_back(dmgInfo.str());
-	}
-}
-
-
 void CSpell::setIsOffensive(const bool val)
 {
 	isOffensive = val;

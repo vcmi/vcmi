@@ -18,6 +18,7 @@
 class CSpell;
 class CStack;
 class PlayerColor;
+struct MetaString;
 
 class DLL_LINKAGE ISpellCaster
 {
@@ -45,4 +46,6 @@ public:
 	virtual int getEffectValue(const CSpell * spell) const = 0;
 
 	virtual const PlayerColor getOwner() const = 0;
+
+	virtual void getCasterName(MetaString & text) const = 0;
 };

@@ -287,10 +287,6 @@ public:
 
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
-
-public://Client logic.
-	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
-
 public://internal, for use only by Mechanics classes
 	///applies caster`s secondary skills and affectedCreature`s to raw damage
 	int adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const;

@@ -246,6 +246,8 @@ public:
 
 	const PlayerColor getOwner() const override;
 
+	void getCasterName(MetaString & text) const override;
+
 	void deserializationFix();
 
 	void initObj() override;

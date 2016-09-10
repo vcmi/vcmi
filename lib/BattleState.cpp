@@ -1243,6 +1243,11 @@ const PlayerColor CStack::getOwner() const
 	return owner;
 }
 
+void CStack::getCasterName(MetaString & text) const
+{
+	//always plural name in case of spell cast.
+	text.addReplacement(MetaString::CRE_PL_NAMES, type->idNumber.num);
+}
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {

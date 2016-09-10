@@ -1323,12 +1323,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 
 	//displaying message in console
-	std::vector<std::string> logLines;
-
-	spell.prepareBattleLog(curInt->cb.get(), sc, logLines);
-
-	for(auto line : logLines)
-		console->addText(line);
+	for(const auto & line : sc->battleLog)
+		if(!console->addText(line.toString()))
+			logGlobal->warn("Too long battle log line");
 
 	waitForAnims();
 	//mana absorption

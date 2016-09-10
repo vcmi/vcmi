@@ -114,9 +114,6 @@ public:
 	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
 	virtual void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const = 0;
 
-	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
-		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
-
 	//if true use generic algorithm for target existence check, see CSpell::canBeCast
 	virtual bool requiresCreatureTarget() const = 0;
 

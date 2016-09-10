@@ -58,12 +58,12 @@ ESpellCastProblem::ESpellCastProblem AcidBreathDamageMechanics::isImmuneByStack(
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
-	si32 dmgToDisplay = parameters.effectPower;
+	si32 damageToDisplay = parameters.effectPower;
 
 	if(!ctx.attackedCres.empty())
-		vstd::amin(dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+		vstd::amin(damageToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
 
-	ctx.setDamageToDisplay(dmgToDisplay);
+	ctx.setDamageToDisplay(damageToDisplay);
 
 	for(auto & attackedCre : ctx.attackedCres)
 	{

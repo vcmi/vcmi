@@ -36,8 +36,9 @@ public:
 private:
 	const CGHeroInstance * otherHero;
 	int spellCost;
+	si32 damageToDisplay;
 
-	void sendCastPacket();
+	void prepareBattleLog();
 };
 
 ///all combat spells
@@ -58,8 +59,8 @@ public:
 
 	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override final;
 
-	void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
-		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const override;
+	void battleLogSingleTarget(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
+		const CStack * attackedStack, const si32 damageToDisplay, bool & displayDamage) const;
 
 	bool requiresCreatureTarget() const	override;
 protected:

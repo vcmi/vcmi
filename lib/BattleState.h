@@ -249,6 +249,8 @@ public:
 
 	const PlayerColor getOwner() const override;
 
+	void getCasterName(MetaString & text) const override;
+
 	///stack will be ghost in next battle state update
 	void makeGhost();
 

@@ -953,6 +953,13 @@ const PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
+void CGHeroInstance::getCasterName(MetaString & text) const
+{
+	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
+
+    text.addReplacement(name);
+}
+
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
 	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))
