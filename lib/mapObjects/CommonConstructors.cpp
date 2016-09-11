@@ -71,7 +71,7 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 	return false;
 }
 
-CGObjectInstance * CTownInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CTownInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGTownInstance * obj = createTyped(tmpl);
 	obj->town = faction->town;
@@ -126,7 +126,7 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 	return false;
 }
 
-CGObjectInstance * CHeroInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CHeroInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGHeroInstance * obj = createTyped(tmpl);
 	obj->type = nullptr; //FIXME: set to valid value. somehow.
@@ -169,7 +169,7 @@ bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, const 
 	return false;
 }
 
-CGObjectInstance * CDwellingInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CDwellingInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGDwelling * obj = createTyped(tmpl);
 
@@ -267,7 +267,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	bankResetDuration = input["resetDuration"].Float();
 }
 
-CGObjectInstance *CBankInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance *CBankInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	return createTyped(tmpl);
 }
@@ -448,7 +448,7 @@ bool CBankInfo::givesSpells() const
 }
 
 
-std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(ObjectTemplate tmpl) const
+std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(const ObjectTemplate & tmpl) const
 {
 	return std::unique_ptr<IObjectInfo>(new CBankInfo(levels));
 }

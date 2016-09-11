@@ -407,7 +407,7 @@ int main(int argc, char** argv)
 			}
 		}
 
-		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["displayIndex"].Float(), video["fullscreen"].Bool());
+		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), video["displayIndex"].Float());
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
 

@@ -1913,7 +1913,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 
 void CGameHandler::setBlockVis(ObjectInstanceID objid, bool bv)
 {
-	SetObjectProperty sop(objid,2,bv);
+	SetObjectProperty sop(objid, ObjProperty::BLOCKVIS, bv);
 	sendAndApply(&sop);
 }
 
@@ -1935,7 +1935,7 @@ bool CGameHandler::removeObject( const CGObjectInstance * obj )
 
 void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
 {
-	SetObjectProperty sop(objid,3,val);
+	SetObjectProperty sop(objid, ObjProperty::PRIMARY_STACK_COUNT, val);
 	sendAndApply(&sop);
 }
 
@@ -2151,7 +2151,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 {
 	PlayerColor oldOwner = getOwner(obj->id);
-	SetObjectProperty sop(obj->id, 1, owner.getNum());
+	SetObjectProperty sop(obj->id, ObjProperty::OWNER, owner.getNum());
 	sendAndApply(&sop);
 
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
@@ -3501,9 +3501,20 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, Pla
 	return true;
 }
 
-bool CGameHandler::setFormation( ObjectInstanceID hid, ui8 formation )
+bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 {
-	gs->getHero(hid)-> formation = formation;
+	const CGHeroInstance *h = getHero(hid);
+	if(!h)
+	{
+		logGlobal->error("Hero doesn't exist!");
+		return false;
+	}
+
+	ChangeFormation cf;
+	cf.hid = hid;
+	cf.formation = formation;
+	sendAndApply(&cf);
+
 	return true;
 }
 

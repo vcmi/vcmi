@@ -37,7 +37,7 @@ struct zlib_filefunc64_def_s;
 typedef zlib_filefunc64_def_s zlib_filefunc64_def;
 
 #ifdef VCMI_DLL
-extern template class DLL_LINKAGE boost::iostreams::stream<FileBuf>;
+extern template struct DLL_LINKAGE boost::iostreams::stream<FileBuf>;
 #endif
 
 class DLL_LINKAGE FileStream : public boost::iostreams::stream<FileBuf>

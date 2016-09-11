@@ -157,6 +157,11 @@ DLL_LINKAGE void UpdateCastleEvents::applyGs(CGameState *gs)
 	t->events = events;
 }
 
+DLL_LINKAGE void ChangeFormation::applyGs(CGameState *gs)
+{
+	gs->getHero(hid)->setFormation(formation);
+}
+
 DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);

@@ -58,6 +58,37 @@ ObjectTemplate::ObjectTemplate():
 {
 }
 
+ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
+	visitDir(other.visitDir),
+	allowedTerrains(other.allowedTerrains),
+	id(other.id),
+	subid(other.subid),
+	printPriority(other.printPriority),
+	animationFile(other.animationFile)
+{
+	//default copy constructor is failing with usedTiles this for unknown reason
+
+	usedTiles.resize(other.usedTiles.size());
+	for(size_t i = 0; i < usedTiles.size(); i++)
+		std::copy(other.usedTiles[i].begin(), other.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
+}
+
+ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
+{
+	visitDir = rhs.visitDir;
+	allowedTerrains = rhs.allowedTerrains;
+	id = rhs.id;
+	subid = rhs.subid;
+	printPriority = rhs.printPriority;
+	animationFile = rhs.animationFile;
+
+	usedTiles.clear();
+	usedTiles.resize(rhs.usedTiles.size());
+	for(size_t i = 0; i < usedTiles.size(); i++)
+		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
+	return *this;
+}
+
 void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 {
 	std::string data = parser.readString();

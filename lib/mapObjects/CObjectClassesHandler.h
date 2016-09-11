@@ -128,7 +128,7 @@ public:
 	/// Returns object-specific name, if set
 	boost::optional<std::string> getCustomName() const;
 
-	void addTemplate(ObjectTemplate templ);
+	void addTemplate(const ObjectTemplate & templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
@@ -147,14 +147,14 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual CGObjectInstance * create(ObjectTemplate tmpl) const = 0;
+	virtual CGObjectInstance * create(const ObjectTemplate & tmpl) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(ObjectTemplate tmpl) const = 0;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

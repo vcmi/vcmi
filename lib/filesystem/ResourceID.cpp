@@ -38,7 +38,12 @@ static inline std::string readName(std::string name)
 {
 	const auto dotPos = name.find_last_of('.');
 
-	if (dotPos != std::string::npos)
+	//do not cut "extension" of directory name
+	auto delimPos = name.find_last_of('/');
+	if(delimPos == std::string::npos)
+		delimPos = name.find_last_of('\\');
+
+	if((delimPos == std::string::npos || delimPos < dotPos) && dotPos != std::string::npos)
 		name.resize(dotPos);
 
 	toUpper(name);
