@@ -1093,6 +1093,23 @@ struct ChangeObjectVisitors : public CPackForClient // 1003
 	}
 };
 
+struct PrepareHeroLevelUp : public CPackForClient//1999
+{
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	const CGHeroInstance *hero;
+
+	/// Do not serialize, used by server only
+	std::vector<SecondarySkill> skills;
+
+	PrepareHeroLevelUp(){type = 1999;};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero;
+	}
+};
+
 struct HeroLevelUp : public Query//2000
 {
 	void applyCl(CClient *cl);

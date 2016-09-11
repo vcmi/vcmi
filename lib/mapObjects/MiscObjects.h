@@ -59,8 +59,8 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void initObj() override;
-	void newTurn() const override;
+	void initObj(CRandomGenerator & rand) override;
+	void newTurn(CRandomGenerator & rand) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
@@ -105,7 +105,7 @@ public:
 	std::string message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -125,7 +125,7 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CPlayersVisited&>(*this);
@@ -144,7 +144,7 @@ public:
 
 	CGScholar() : bonusType(EBonusType::RANDOM){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
@@ -187,7 +187,7 @@ public:
 	std::string getObjectName() const override;
 
 	void pick( const CGHeroInstance * h ) const;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -206,7 +206,7 @@ public:
 
 	CGResource();
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -227,7 +227,7 @@ class DLL_LINKAGE CGShrine : public CPlayersVisited
 public:
 	SpellID spell; //id of spell or NONE if random
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
@@ -252,8 +252,8 @@ private:
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
 	void flagMine(PlayerColor player) const;
-	void newTurn() const override;
-	void initObj() override;
+	void newTurn(CRandomGenerator & rand) const override;
+	void initObj(CRandomGenerator & rand) override;
 
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -329,7 +329,7 @@ class DLL_LINKAGE CGMonolith : public CGTeleport
 protected:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -341,7 +341,7 @@ public:
 class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
 {
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 public:
 	static void postInit();
@@ -382,7 +382,7 @@ class DLL_LINKAGE CGSirens : public CGObjectInstance
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -407,7 +407,7 @@ public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGBoat()
 	{
@@ -443,7 +443,7 @@ public:
 
 	static void reset();
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -478,7 +478,7 @@ public:
 	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	static void reset();
 
@@ -494,7 +494,7 @@ class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

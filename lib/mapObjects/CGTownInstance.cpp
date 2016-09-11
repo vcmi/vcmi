@@ -25,14 +25,14 @@
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
-void CGDwelling::initObj()
+void CGDwelling::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
 		{
-			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, cb->gameState()->getRandomGenerator());
+			VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
 
 			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
@@ -141,7 +141,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showBlockingDialog(&bd);
 }
 
-void CGDwelling::newTurn() const
+void CGDwelling::newTurn(CRandomGenerator & rand) const
 {
 	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;
@@ -152,7 +152,7 @@ void CGDwelling::newTurn() const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(cb->gameState()->getRandomGenerator()));
+		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster(rand));
 	}
 
 	bool change = false;
@@ -595,7 +595,7 @@ std::string CGTownInstance::getObjectName() const
 	return name + ", " + town->faction->name;
 }
 
-void CGTownInstance::initObj()
+void CGTownInstance::initObj(CRandomGenerator & rand)
 ///initialize town structures
 {
 	blockVisit = true;
@@ -637,12 +637,10 @@ void CGTownInstance::initObj()
 	updateAppearance();
 }
 
-void CGTownInstance::newTurn() const
+void CGTownInstance::newTurn(CRandomGenerator & rand) const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
-		auto & rand = cb->gameState()->getRandomGenerator();
-
 		//give resources for Rampart, Mystic Pond
 		if (hasBuilt(BuildingID::MYSTIC_POND, ETownType::RAMPART)
 			&& cb->getDate(Date::DAY) != 1 && (tempOwner < PlayerColor::PLAYER_LIMIT))

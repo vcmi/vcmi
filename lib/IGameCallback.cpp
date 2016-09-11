@@ -119,14 +119,14 @@ void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &
 	}
 }
 
-void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out)
+void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_TREASURE)]);
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)]);
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MINOR)]);
+		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR)]);
 
-	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(gameState()->getRandomGenerator(), CArtifact::ART_MAJOR)]);
+	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
 }
 
 void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)

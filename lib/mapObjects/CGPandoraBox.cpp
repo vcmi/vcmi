@@ -34,7 +34,7 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
-void CGPandoraBox::initObj()
+void CGPandoraBox::initObj(CRandomGenerator & rand)
 {
 	blockVisit = (ID==Obj::PANDORAS_BOX); //block only if it's really pandora's box (events also derive from that class)
 	hasGuardians = stacks.size();

@@ -624,7 +624,7 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	h->attachTo(p);
 	if(fresh)
 	{
-		h->initObj();
+		h->initObj(gs->getRandomGenerator());
 	}
 	gs->map->addBlockVisTiles(h);
 
@@ -689,7 +689,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);
-	o->initObj();
+	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
 
 	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getObjectName();
@@ -1159,6 +1159,21 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	else //not an armed instance
 	{
 		obj->setProperty(what,val);
+	}
+}
+
+DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState *gs)
+{
+	CGHeroInstance * h = gs->getHero(hero->id);
+	auto proposedSkills = h->getLevelUpProposedSecondarySkills();
+
+	if(skills.size() == 1 || hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
+	{
+		skills.push_back(*RandomGeneratorUtil::nextItem(proposedSkills, h->skillsInfo.rand));
+	}
+	else
+	{
+		skills = proposedSkills;
 	}
 }
 

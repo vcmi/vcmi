@@ -36,7 +36,7 @@ public:
 	CCreatureSet creatures; //gained creatures
 
 	CGPandoraBox() : gainedExp(0), manaDiff(0), moraleDiff(0), luckDiff(0){};
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;

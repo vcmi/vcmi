@@ -163,10 +163,10 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill::PrimarySkill nextPrimarySkill() const;
+	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	boost::optional<SecondarySkill> nextSecondarySkill() const;
+	boost::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;
@@ -192,20 +192,20 @@ public:
 
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
 
 	void setType(si32 ID, si32 subID) override;
 
-	void initHero();
-	void initHero(HeroTypeID SUBID);
+	void initHero(CRandomGenerator & rand);
+	void initHero(CRandomGenerator & rand, HeroTypeID SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
-	void initExp();
-	void initArmy(IArmyDescriptor *dst = nullptr);
+	void initExp(CRandomGenerator & rand);
+	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
 	//void giveArtifact (ui32 aid);
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
@@ -248,7 +248,7 @@ public:
 
 	void deserializationFix();
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 protected:
@@ -256,7 +256,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically();
+	void levelUpAutomatically(CRandomGenerator & rand);
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)

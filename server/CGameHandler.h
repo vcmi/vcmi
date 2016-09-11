@@ -247,6 +247,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID & states & finishingBattle;
+		if(version >= 761)
+		{
+			h & getRandomGenerator();
+		}
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -289,6 +293,8 @@ public:
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
+
+	CRandomGenerator & getRandomGenerator();
 
 private:
 	ServerSpellCastEnvironment * spellEnv;
