@@ -451,19 +451,19 @@ void SetHeroesInTown::applyCl( CClient *cl )
 	CGHeroInstance *hGarr  = GS(cl)->getHero(this->garrison);
 	CGHeroInstance *hVisit = GS(cl)->getHero(this->visiting);
 
-	std::set<PlayerColor> playersToNotify;
+	//inform all players that see this object
+	for(auto i = cl->playerint.cbegin(); i != cl->playerint.cend(); ++i)
+	{
+		if(i->first >= PlayerColor::PLAYER_LIMIT)
+			continue;
 
-	if(vstd::contains(cl->playerint,t->tempOwner)) // our town
-		playersToNotify.insert(t->tempOwner);
-
-	if (hGarr && vstd::contains(cl->playerint,  hGarr->tempOwner))
-		playersToNotify.insert(hGarr->tempOwner);
-
-	if (hVisit && vstd::contains(cl->playerint, hVisit->tempOwner))
-		playersToNotify.insert(hVisit->tempOwner);
-
-	for(auto playerID : playersToNotify)
-		cl->playerint[playerID]->heroInGarrisonChange(t);
+		if(GS(cl)->isVisible(t, i->first) ||
+			(hGarr && GS(cl)->isVisible(hGarr, i->first)) ||
+			(hVisit && GS(cl)->isVisible(hVisit, i->first)))
+		{
+			cl->playerint[i->first]->heroInGarrisonChange(t);
+		}
+	}
 }
 
 // void SetHeroArtifacts::applyCl( CClient *cl )

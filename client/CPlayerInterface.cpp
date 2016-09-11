@@ -529,17 +529,17 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	updateInfo(town);
 
-	if(town->garrisonHero && vstd::contains(wanderingHeroes,town->garrisonHero)) //wandering hero moved to the garrison
+	if(town->garrisonHero) //wandering hero moved to the garrison
 	{
 		CGI->mh->hideObject(town->garrisonHero);
-		if (town->garrisonHero->tempOwner == playerID) // our hero
+		if(town->garrisonHero->tempOwner == playerID && vstd::contains(wanderingHeroes,town->garrisonHero)) // our hero
 			wanderingHeroes -= town->garrisonHero;
 	}
 
-	if(town->visitingHero && !vstd::contains(wanderingHeroes,town->visitingHero)) //hero leaves garrison
+	if(town->visitingHero) //hero leaves garrison
 	{
 		CGI->mh->printObject(town->visitingHero);
-		if (town->visitingHero->tempOwner == playerID) // our hero
+		if(town->visitingHero->tempOwner == playerID && !vstd::contains(wanderingHeroes,town->visitingHero)) // our hero
 			wanderingHeroes.push_back(town->visitingHero);
 	}
 	adventureInt->heroList.update();
