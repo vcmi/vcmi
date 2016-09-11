@@ -63,8 +63,11 @@ public:
 	CureMechanics(CSpell * s): HealingSpellMechanics(s){};
 
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
+	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 
 	EHealLevel getHealLevel(int effectLevel) const override final;
+private:
+    static bool dispellSelector(const Bonus * b);
 };
 
 class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics

@@ -172,20 +172,32 @@ ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpel
 void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-	doDispell(battle, packet, [](const Bonus * b) -> bool
-	{
-		if(b->source == Bonus::SPELL_EFFECT)
-		{
-			CSpell * sp = SpellID(b->sid).toSpell();
-			return sp->isNegative();
-		}
-		return false; //not a spell effect
-	});
+
+	doDispell(battle, packet, dispellSelector);
 }
 
 HealingSpellMechanics::EHealLevel CureMechanics::getHealLevel(int effectLevel) const
 {
 	return EHealLevel::HEAL;
+}
+
+bool CureMechanics::dispellSelector(const Bonus * b)
+{
+	if(b->source == Bonus::SPELL_EFFECT)
+	{
+		CSpell * sp = SpellID(b->sid).toSpell();
+		return sp->isNegative();
+	}
+	return false; //not a spell effect
+}
+
+ESpellCastProblem::ESpellCastProblem CureMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
+{
+	//Selector method name is ok as cashing string. --AVS
+	if(!obj->canBeHealed() && !obj->hasBonus(dispellSelector, "CureMechanics::dispellSelector"))
+		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+
+	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
 }
 
 ///DispellMechanics
