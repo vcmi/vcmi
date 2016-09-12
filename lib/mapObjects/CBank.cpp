@@ -34,11 +34,11 @@ CBank::~CBank()
 {
 }
 
-void CBank::initObj()
+void CBank::initObj(CRandomGenerator & rand)
 {
 	daycounter = 0;
 	resetDuration = 0;
-	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, cb->gameState()->getRandomGenerator());
+	VLC->objtypeh->getHandlerFor(ID, subID)->configureObject(this, rand);
 }
 
 std::string CBank::getHoverText(PlayerColor player) const
@@ -64,7 +64,8 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 				daycounter+=val;
 			break;
 		case ObjProperty::BANK_RESET:
-			initObj();
+			// FIXME: Object reset must be done by separate netpack from server
+			initObj(cb->gameState()->getRandomGenerator());
 			daycounter = 1; //yes, 1 since "today" daycounter won't be incremented
 			break;
 		case ObjProperty::BANK_CLEAR:
@@ -73,7 +74,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 	}
 }
 
-void CBank::newTurn() const
+void CBank::newTurn(CRandomGenerator & rand) const
 {
 	if (bc == nullptr)
 	{

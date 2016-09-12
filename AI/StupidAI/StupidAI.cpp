@@ -44,7 +44,7 @@ struct EnemyInfo
 	{}
 	void calcDmg(const CStack * ourStack)
 	{
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
+		TDmgRange retal, dmg = cbc->battleEstimateDamage(CRandomGenerator::getDefault(), ourStack, s, &retal);
 		adi = (dmg.first + dmg.second) / 2;
 		adr = (retal.first + retal.second) / 2;
 	}

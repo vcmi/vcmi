@@ -476,13 +476,13 @@ int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner)
 	// select random hero native to "our" faction
 	if(!factionHeroes.empty())
 	{
-		return RandomGeneratorUtil::nextItem(factionHeroes, rand)->getNum();
+		return RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator())->getNum();
 	}
 
 	logGlobal->warnStream() << "Cannot find free hero of appropriate faction for player " << owner << " - trying to get first available...";
 	if(!otherHeroes.empty())
 	{
-		return RandomGeneratorUtil::nextItem(otherHeroes, rand)->getNum();
+		return RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator())->getNum();
 	}
 
 	logGlobal->error("No free allowed heroes!");
@@ -500,29 +500,29 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 	switch(obj->ID)
 	{
 	case Obj::RANDOM_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case Obj::RANDOM_TREASURE_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE));
 	case Obj::RANDOM_MINOR_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_MINOR));
 	case Obj::RANDOM_MAJOR_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_MAJOR));
 	case Obj::RANDOM_RELIC_ART:
-		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(rand, CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_RELIC));
 	case Obj::RANDOM_HERO:
 		return std::make_pair(Obj::HERO, pickNextHeroType(obj->tempOwner));
 	case Obj::RANDOM_MONSTER:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator()));
 	case Obj::RANDOM_MONSTER_L1:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 1));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 1));
 	case Obj::RANDOM_MONSTER_L2:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 2));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 2));
 	case Obj::RANDOM_MONSTER_L3:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 3));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 3));
 	case Obj::RANDOM_MONSTER_L4:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 4));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 4));
 	case Obj::RANDOM_RESOURCE:
-		return std::make_pair(Obj::RESOURCE,rand.nextInt(6)); //now it's OH3 style, use %8 for mithril
+		return std::make_pair(Obj::RESOURCE,getRandomGenerator().nextInt(6)); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
 		{
 			PlayerColor align = PlayerColor((static_cast<CGTownInstance*>(obj))->alignment);
@@ -542,18 +542,18 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				do
 				{
-					f = rand.nextInt(VLC->townh->factions.size() - 1);
+					f = getRandomGenerator().nextInt(VLC->townh->factions.size() - 1);
 				}
 				while (VLC->townh->factions[f]->town == nullptr); // find playable faction
 			}
 			return std::make_pair(Obj::TOWN,f);
 		}
 	case Obj::RANDOM_MONSTER_L5:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 5));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 5));
 	case Obj::RANDOM_MONSTER_L6:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 6));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 6));
 	case Obj::RANDOM_MONSTER_L7:
-		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(rand, 7));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(getRandomGenerator(), 7));
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
@@ -564,7 +564,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if castle alignment available
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
-				faction = rand.nextInt(VLC->townh->factions.size() - 1);
+				faction = getRandomGenerator().nextInt(VLC->townh->factions.size() - 1);
 				if (info->asCastle)
 				{
 					for(auto & elem : map->objects)
@@ -593,7 +593,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 					{
 						if((faction>7) && (info->castles[1]&(1<<(faction-8))))
 							break;
-						faction = rand.nextInt(GameConstants::F_NUMBER - 1);
+						faction = getRandomGenerator().nextInt(GameConstants::F_NUMBER - 1);
 					}
 				}
 			}
@@ -605,7 +605,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if level set to range
 			if (auto info = dynamic_cast<CCreGenLeveledInfo*>(dwl->info))
 			{
-				level = rand.nextInt(info->minLevel, info->maxLevel);
+				level = getRandomGenerator().nextInt(info->minLevel, info->maxLevel);
 			}
 			else // fixed level
 			{
@@ -639,7 +639,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (result.first == Obj::NO_OBJ)
 			{
 				logGlobal->errorStream() << "Error: failed to find dwelling for "<< VLC->townh->factions[faction]->name << " of level " << int(level);
-				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand));
+				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), getRandomGenerator()));
 			}
 
 			return result;
@@ -727,23 +727,10 @@ CGameState::~CGameState()
 		ptr.second.dellNull();
 }
 
-BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
-{
-	const TerrainTile &t = map->getTile(tile);
-	ETerrainType terrain = t.terType;
-	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = ETerrainType::SAND;
-
-	BFieldType terType = battleGetBattlefieldType(tile);
-	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BFieldType::SHIP_TO_SHIP;
-	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
-}
-
 void CGameState::init(StartInfo * si)
 {
 	logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
-	rand.setSeed(si->seedToBeUsed);
+	getRandomGenerator().setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
 	si = nullptr;
@@ -800,7 +787,7 @@ void CGameState::init(StartInfo * si)
 	logGlobal->debug("\tChecking objectives");
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
-	auto seedAfterInit = rand.nextInt();
+	auto seedAfterInit = getRandomGenerator().nextInt();
 	logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
 	if(scenarioOps->seedPostInit > 0)
 	{
@@ -925,8 +912,8 @@ void CGameState::initDuel()
 			for(TSecSKill secSkill : ss.heroSecSkills)
 				h->setSecSkillLevel(SecondarySkill(secSkill.first), secSkill.second, 1);
 
-			h->initHero(HeroTypeID(h->subID));
-			obj->initObj();
+			h->initHero(getRandomGenerator(), HeroTypeID(h->subID));
+			obj->initObj(getRandomGenerator());
 		}
 		else
 		{
@@ -1026,7 +1013,7 @@ void CGameState::initGrailPosition()
 
 		if(!allowedPos.empty())
 		{
-			map->grailPos = *RandomGeneratorUtil::nextItem(allowedPos, rand);
+			map->grailPos = *RandomGeneratorUtil::nextItem(allowedPos, getRandomGenerator());
 		}
 		else
 		{
@@ -1042,7 +1029,7 @@ void CGameState::initRandomFactionsForPlayers()
 	{
 		if(elem.second.castle==-1)
 		{
-			auto randomID = rand.nextInt(map->players[elem.first.getNum()].allowedFactions.size() - 1);
+			auto randomID = getRandomGenerator().nextInt(map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();
 			std::advance(iter, randomID);
 
@@ -1171,7 +1158,7 @@ void CGameState::placeCampaignHeroes()
 					auto unusedHeroTypeIds = getUnusedAllowedHeroes();
 					if(!unusedHeroTypeIds.empty())
 					{
-						heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, rand)).getNum();
+						heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, getRandomGenerator())).getNum();
 					}
 					else
 					{
@@ -1252,7 +1239,7 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 	return crossoverHeroes;
 }
 
-void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions) const
+void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroReplacement> & campaignHeroReplacements, const CScenarioTravel & travelOptions)
 {
 	// create heroes list for convenience iterating
 	std::vector<CGHeroInstance *> crossoverHeroes;
@@ -1268,7 +1255,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		//trimming experience
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
-			cgh->initExp();
+			cgh->initExp(getRandomGenerator());
 		}
 	}
 
@@ -1475,7 +1462,7 @@ void CGameState::initHeroes()
 			continue;
 		}
 
-		hero->initHero();
+		hero->initHero(getRandomGenerator());
 		getPlayer(hero->getOwner())->heroes.push_back(hero);
 		map->allHeroes[hero->type->ID.getNum()] = hero;
 	}
@@ -1491,7 +1478,7 @@ void CGameState::initHeroes()
 	{
 		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
 			continue;
-		ph->initHero();
+		ph->initHero(getRandomGenerator());
 		hpool.heroesPool[ph->subID] = ph;
 		hpool.pavailable[ph->subID] = 0xff;
 		heroesToCreate.erase(ph->type->ID);
@@ -1502,7 +1489,7 @@ void CGameState::initHeroes()
 	for(HeroTypeID htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
 		auto  vhi = new CGHeroInstance();
-		vhi->initHero(htype);
+		vhi->initHero(getRandomGenerator(), htype);
 
 		int typeID = htype.getNum();
 		map->allHeroes[typeID] = vhi;
@@ -1660,24 +1647,24 @@ void CGameState::initStartingBonus()
 	{
 		//starting bonus
 		if(scenarioOps->playerInfos[elem.first].bonus==PlayerSettings::RANDOM)
-			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerSettings::Ebonus>(rand.nextInt(2));
+			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerSettings::Ebonus>(getRandomGenerator().nextInt(2));
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerSettings::GOLD:
-			elem.second.resources[Res::GOLD] += rand.nextInt(5, 10) * 100;
+			elem.second.resources[Res::GOLD] += getRandomGenerator().nextInt(5, 10) * 100;
 			break;
 		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->factions[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == Res::WOOD_AND_ORE)
 				{
-					int amount = rand.nextInt(5, 10);
+					int amount = getRandomGenerator().nextInt(5, 10);
 					elem.second.resources[Res::WOOD] += amount;
 					elem.second.resources[Res::ORE] += amount;
 				}
 				else
 				{
-					elem.second.resources[res] += rand.nextInt(3, 6);
+					elem.second.resources[res] += getRandomGenerator().nextInt(3, 6);
 				}
 				break;
 			}
@@ -1689,7 +1676,7 @@ void CGameState::initStartingBonus()
 					break;
 				}
 				CArtifact *toGive;
-				toGive = VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)];
+				toGive = VLC->arth->artifacts[VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				giveHeroArtifact(hero, toGive->id);
@@ -1742,7 +1729,7 @@ void CGameState::initTowns()
 		}
 		if(vti->name.empty())
 		{
-			vti->name = *RandomGeneratorUtil::nextItem(vti->town->names, rand);
+			vti->name = *RandomGeneratorUtil::nextItem(vti->town->names, getRandomGenerator());
 		}
 
 		//init buildings
@@ -1754,7 +1741,7 @@ void CGameState::initTowns()
 				vti->builtBuildings.insert(BuildingID::TAVERN);
 
 			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
-			if(rand.nextInt(1) == 1)
+			if(getRandomGenerator().nextInt(1) == 1)
 			{
 				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
 			}
@@ -1826,7 +1813,7 @@ void CGameState::initTowns()
 			if (total == 0) // remaining spells have 0 probability
 				break;
 
-			auto r = rand.nextInt(total - 1);
+			auto r = getRandomGenerator().nextInt(total - 1);
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
 				r -= vti->possibleSpells[ps].toSpell()->getProbability(vti->subID);
@@ -1859,7 +1846,7 @@ void CGameState::initMapObjects()
 		if(obj)
 		{
 			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %s, %s") % obj->id.getNum() % obj->typeName % obj->subTypeName;
-			obj->initObj();
+			obj->initObj(getRandomGenerator());
 		}
 	}
 	for(CGObjectInstance *obj : map->objects)
@@ -1919,7 +1906,7 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile)
+BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -3263,9 +3250,12 @@ TeamState::TeamState(TeamState && other):
 	std::swap(fogOfWarMap, other.fogOfWarMap);
 }
 
-
 CRandomGenerator & CGameState::getRandomGenerator()
 {
+	//if(scenarioOps && scenarioOps->seedPostInit)
+	//{
+	//	logGlobal->trace("CGameState::getRandomGenerator used after initialization!");
+	//}
 	//logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
 	return rand;
 }

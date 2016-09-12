@@ -158,7 +158,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						grantRewardWithMessage(rewards[0]);
 						break;
 					case SELECT_RANDOM: // select one randomly //TODO: use weights
-						grantRewardWithMessage(rewards[cb->gameState()->getRandomGenerator().nextInt(rewards.size()-1)]);
+						grantRewardWithMessage(rewards[CRandomGenerator::getDefault().nextInt(rewards.size()-1)]);
 						break;
 				}
 				return;
@@ -431,7 +431,7 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 	}
 }
 
-void CRewardableObject::newTurn() const
+void CRewardableObject::newTurn(CRandomGenerator & rand) const
 {
 	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetDuration) == 1)
 		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
@@ -450,11 +450,11 @@ CRewardableObject::CRewardableObject():
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Helper, selects random art class based on weights
-static int selectRandomArtClass(int treasure, int minor, int major, int relic)
+static int selectRandomArtClass(CRandomGenerator & rand, int treasure, int minor, int major, int relic)
 {
 	int total = treasure + minor + major + relic;
 	assert(total != 0);
-	int hlp = IObjectInterface::cb->gameState()->getRandomGenerator().nextInt(total - 1);
+	int hlp = rand.nextInt(total - 1);
 
 	if(hlp < treasure)
 		return CArtifact::ART_TREASURE;
@@ -466,10 +466,10 @@ static int selectRandomArtClass(int treasure, int minor, int major, int relic)
 }
 
 /// Helper, adds random artifact to reward selecting class based on weights
-static void loadRandomArtifact(CVisitInfo & info, int treasure, int minor, int major, int relic)
+static void loadRandomArtifact(CRandomGenerator & rand, CVisitInfo & info, int treasure, int minor, int major, int relic)
 {
-	int artClass = selectRandomArtClass(treasure, minor, major, relic);
-	ArtifactID artID = VLC->arth->pickRandomArtifact(IObjectInterface::cb->gameState()->getRandomGenerator(), artClass);
+	int artClass = selectRandomArtClass(rand, treasure, minor, major, relic);
+	ArtifactID artID = VLC->arth->pickRandomArtifact(rand, artClass);
 	info.reward.artifacts.push_back(artID);
 }
 
@@ -479,7 +479,7 @@ CGPickable::CGPickable()
 	selectMode = SELECT_PLAYER;
 }
 
-void CGPickable::initObj()
+void CGPickable::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
 	switch(ID)
@@ -487,8 +487,8 @@ void CGPickable::initObj()
 	case Obj::CAMPFIRE:
 		{
 			soundID = soundBase::experience;
-			int givenRes = cb->gameState()->getRandomGenerator().nextInt(5);
-			int givenAmm = cb->gameState()->getRandomGenerator().nextInt(4, 6);
+			int givenRes = rand.nextInt(5);
+			int givenAmm = rand.nextInt(4, 6);
 
 			info.resize(1);
 			info[0].reward.resources[givenRes] = givenAmm;
@@ -499,7 +499,7 @@ void CGPickable::initObj()
 		}
 	case Obj::FLOTSAM:
 		{
-			int type = cb->gameState()->getRandomGenerator().nextInt(3);
+			int type = rand.nextInt(3);
 			soundID = soundBase::GENIE;
 			switch(type)
 			{
@@ -540,7 +540,7 @@ void CGPickable::initObj()
 	case Obj::SEA_CHEST:
 		{
 			soundID = soundBase::chest;
-			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
+			int hlp = rand.nextInt(99);
 			if(hlp < 20)
 			{
 				info.resize(1);
@@ -557,7 +557,7 @@ void CGPickable::initObj()
 			else
 			{
 				info.resize(1);
-				loadRandomArtifact(info[0], 100, 0, 0, 0);
+				loadRandomArtifact(rand, info[0], 100, 0, 0, 0);
 				info[0].reward.resources[Res::GOLD] = 1000;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 117);
 				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
@@ -569,7 +569,7 @@ void CGPickable::initObj()
 		{
 			soundID = soundBase::experience;
 			info.resize(1);
-			loadRandomArtifact(info[0], 55, 20, 20, 5);
+			loadRandomArtifact(rand, info[0], 55, 20, 20, 5);
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 125);
 			info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
 			info[0].reward.removeObject = true;
@@ -577,12 +577,12 @@ void CGPickable::initObj()
 		break;
 	case Obj::TREASURE_CHEST:
 		{
-			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
+			int hlp = rand.nextInt(99);
 			if(hlp >= 95)
 			{
 				soundID = soundBase::treasure;
 				info.resize(1);
-				loadRandomArtifact(info[0], 100, 0, 0, 0);
+				loadRandomArtifact(rand, info[0], 100, 0, 0, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT,145);
 				info[0].message.addReplacement(MetaString::ART_NAMES, info[0].reward.artifacts.back());
 				info[0].reward.removeObject = true;
@@ -631,7 +631,7 @@ CGBonusingObject::CGBonusingObject()
 	selectMode = SELECT_FIRST;
 }
 
-void CGBonusingObject::initObj()
+void CGBonusingObject::initObj(CRandomGenerator & rand)
 {
 	auto configureBonusDuration = [&](CVisitInfo & visit, Bonus::BonusDuration duration, Bonus::BonusType type, si32 value, si32 descrID)
 	{
@@ -817,7 +817,7 @@ CGOnceVisitable::CGOnceVisitable()
 	selectMode = SELECT_FIRST;
 }
 
-void CGOnceVisitable::initObj()
+void CGOnceVisitable::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{
@@ -826,10 +826,10 @@ void CGOnceVisitable::initObj()
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 38);
 			soundID = soundBase::MYSTERY;
 			blockVisit = true;
-			if(cb->gameState()->getRandomGenerator().nextInt(99) < 20)
+			if(rand.nextInt(99) < 20)
 			{
 				info.resize(1);
-				loadRandomArtifact(info[0], 10, 10, 10, 0);
+				loadRandomArtifact(rand, info[0], 10, 10, 10, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 37);
 			}
 		}
@@ -839,8 +839,8 @@ void CGOnceVisitable::initObj()
 			soundID = soundBase::GENIE;
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 65);
 			info.resize(1);
-			int type =  cb->gameState()->getRandomGenerator().nextInt(5); //any basic resource without gold
-			int value = cb->gameState()->getRandomGenerator().nextInt(1, 4);
+			int type =  rand.nextInt(5); //any basic resource without gold
+			int value = rand.nextInt(1, 4);
 			info[0].reward.resources[type] = value;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 64);
 		}
@@ -851,7 +851,7 @@ void CGOnceVisitable::initObj()
 			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
 
 			info.resize(2);
-			loadRandomArtifact(info[0], 30, 50, 25, 5);
+			loadRandomArtifact(rand, info[0], 30, 50, 25, 5);
 
 			Bonus bonus(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::OBJECT, -3, ID);
 			info[0].reward.bonuses.push_back(bonus);
@@ -866,19 +866,19 @@ void CGOnceVisitable::initObj()
 			soundID = soundBase::GENIE;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 156);
 
-			int hlp = cb->gameState()->getRandomGenerator().nextInt(99);
+			int hlp = rand.nextInt(99);
 
 			if(hlp < 40) //minor or treasure art
 			{
 				info.resize(1);
-				loadRandomArtifact(info[0], 10, 10, 0, 0);
+				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{
 				info.resize(1);
-				int type  = cb->gameState()->getRandomGenerator().nextInt(5);
-				int value = cb->gameState()->getRandomGenerator().nextInt(2, 5);
+				int type  = rand.nextInt(5);
+				int value = rand.nextInt(2, 5);
 				info[0].reward.resources[type] = value;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 154);
 			}
@@ -896,7 +896,7 @@ CGVisitableOPH::CGVisitableOPH()
 	selectMode = SELECT_PLAYER;
 }
 
-void CGVisitableOPH::initObj()
+void CGVisitableOPH::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{
@@ -951,7 +951,7 @@ void CGVisitableOPH::initObj()
 			info[0].reward.gainedLevels = 1;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 147);
 			info.resize(1);
-			switch (cb->gameState()->getRandomGenerator().nextInt(2))
+			switch (rand.nextInt(2))
 			{
 			case 0: // free
 				onSelect.addTxt(MetaString::ADVOB_TXT, 148);
@@ -1029,7 +1029,7 @@ CGVisitableOPW::CGVisitableOPW()
 	resetDuration = 7;
 }
 
-void CGVisitableOPW::initObj()
+void CGVisitableOPW::initObj(CRandomGenerator & rand)
 {
 	switch (ID)
 	{
@@ -1087,7 +1087,7 @@ void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CGMagicSpring::initObj()
+void CGMagicSpring::initObj(CRandomGenerator & rand)
 {
 	CVisitInfo visit; // TODO: "player above max mana" limiter. Use logical expressions for limiters?
 	visit.reward.manaPercentage = 200;

@@ -253,6 +253,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetCommanderProperty>();
 	s.template registerType<CPackForClient, ChangeObjectVisitors>();
 	s.template registerType<CPackForClient, ShowWorldViewEx>();
+	s.template registerType<CPackForClient, PrepareHeroLevelUp>();
 }
 
 template<typename Serializer>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
+#include "CRandomGenerator.h"
 
 /*
  * IGameCallback.h, part of VCMI engine
@@ -32,7 +33,7 @@ public:
 	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
 	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0, bool patrolDistance = false) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
 	void getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
-	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	void pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 
 	template<typename Saver>

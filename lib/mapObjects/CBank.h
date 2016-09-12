@@ -31,9 +31,9 @@ public:
 
 	void setConfig(const BankConfig & bc);
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;

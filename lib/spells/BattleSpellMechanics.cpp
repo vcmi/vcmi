@@ -449,8 +449,7 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 		if(hex.getX() > 0 && hex.getX() < 16 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
 			availableTiles.push_back(hex);
 	}
-	boost::range::random_shuffle(availableTiles);
-
+	RandomGeneratorUtil::randomShuffle(availableTiles, env->getRandomGenerator());
 	const int patchesForSkill[] = {4, 4, 6, 8};
 	const int patchesToPut = std::min<int>(patchesForSkill[parameters.spellLvl], availableTiles.size());
 

@@ -66,7 +66,7 @@ void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn () const
+void IObjectInterface::newTurn(CRandomGenerator & rand) const
 {}
 
 IObjectInterface::~IObjectInterface()
@@ -75,7 +75,7 @@ IObjectInterface::~IObjectInterface()
 IObjectInterface::IObjectInterface()
 {}
 
-void IObjectInterface::initObj()
+void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
 
 void IObjectInterface::setProperty( ui8 what, ui32 val )
@@ -207,7 +207,7 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
-void CGObjectInstance::initObj()
+void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{

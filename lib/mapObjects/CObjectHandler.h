@@ -22,6 +22,7 @@ class CGObjectInstance;
 struct MetaString;
 struct BattleResult;
 class JsonSerializeFormat;
+class CRandomGenerator;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -37,8 +38,8 @@ public:
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
-	virtual void newTurn() const;
-	virtual void initObj(); //synchr
+	virtual void newTurn(CRandomGenerator & rand) const;
+	virtual void initObj(CRandomGenerator & rand); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved
@@ -166,7 +167,7 @@ public:
 
 	/** OVERRIDES OF IObjectInterface **/
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ui8 what, ui32 val) override final;
