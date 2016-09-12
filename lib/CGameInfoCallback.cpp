@@ -520,10 +520,12 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
-	std::function<bool(BuildingID id)> allowedTest;
-	std::function<bool(BuildingID id)> possiblyNotBuiltTest;
+	auto possiblyNotBuiltTest = [&](BuildingID id) -> bool
+	{
+		return ((id == BuildingID::CAPITOL) ? true : !t->hasBuilt(id));
+	};
 
-	allowedTest = [&](BuildingID id) -> bool
+	std::function<bool(BuildingID id)> allowedTest = [&](BuildingID id) -> bool
 	{
 		if (vstd::contains(t->forbiddenBuildings, id))
 		{
@@ -531,12 +533,6 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 		}
 
 		return t->genBuildingRequirements(id, true).satisfiable(allowedTest, possiblyNotBuiltTest);
-	};
-
-	possiblyNotBuiltTest = [&](BuildingID id) -> bool
-	{
-		//TODO consider destroing
-		return !t->hasBuilt(id);
 	};
 
 	if (!t->genBuildingRequirements(ID, true).satisfiable(allowedTest, possiblyNotBuiltTest))
