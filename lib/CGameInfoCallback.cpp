@@ -520,6 +520,24 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
+	auto possiblyNotBuiltTest = [&](BuildingID id) -> bool
+	{
+		return ((id == BuildingID::CAPITOL) ? true : !t->hasBuilt(id));
+	};
+
+	std::function<bool(BuildingID id)> allowedTest = [&](BuildingID id) -> bool
+	{
+		if (vstd::contains(t->forbiddenBuildings, id))
+		{
+			return false;
+		}
+
+		return t->genBuildingRequirements(id, true).satisfiable(allowedTest, possiblyNotBuiltTest);
+	};
+
+	if (!t->genBuildingRequirements(ID, true).satisfiable(allowedTest, possiblyNotBuiltTest))
+		return EBuildingState::FORBIDDEN;
+
 	if(ID == BuildingID::CAPITOL)
 	{
 		const PlayerState *ps = getPlayer(t->tempOwner, false);
