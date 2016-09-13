@@ -1607,13 +1607,13 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
-	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(SecondarySkill::WISDOM)) //it's third level spell and hero doesn't have wisdom
-	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,130);
-	}
 	else if(vstd::contains(h->spells,spell))//hero already knows the spell
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,174);
+	}
+	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(SecondarySkill::WISDOM)) //it's third level spell and hero doesn't have wisdom
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}
 	else //give spell
 	{
