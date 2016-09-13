@@ -524,16 +524,13 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		//we don't want to visit know object twice (do we really?)
-		if(sop->val == playerID.getNum())
-			vstd::erase_if_present(visitableObjs, myCb->getObj(sop->id));
-		else if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
 		{
 			//we want to visit objects owned by oppponents
 			auto obj = myCb->getObj(sop->id, false);
 			if (obj)
 			{
-				addVisitableObj(obj);
+				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
 				vstd::erase_if_present(alreadyVisited, obj);
 			}
 		}
