@@ -321,7 +321,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s and %s") % firstHero->name % secondHero->name));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -340,9 +340,13 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 			this->pickBestArtifacts(h1, h2);
 		};
 
-		if (goalpriority1 > goalpriority2)
+		//Do not attempt army or artifacts exchange if we visited ally player
+		//Visits can still be useful if hero have skills like Scholar
+		if(firstHero->tempOwner != secondHero->tempOwner)
+			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
+		else if(goalpriority1 > goalpriority2)
 			transferFrom2to1 (firstHero, secondHero);
-		else if (goalpriority1 < goalpriority2)
+		else if(goalpriority1 < goalpriority2)
 			transferFrom2to1 (secondHero, firstHero);
 		else //regular criteria
 		{
