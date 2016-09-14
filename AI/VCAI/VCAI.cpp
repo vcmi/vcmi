@@ -115,15 +115,16 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	NET_EVENT_HANDLER;
 
 	validateObject(details.id); //enemy hero may have left visible area
+	auto hero = cb->getHero(details.id);
 	cachedSectorMaps.clear();
+
+	const int3 from = CGHeroInstance::convertPosition(details.start, false),
+		to = CGHeroInstance::convertPosition(details.end, false);
+	const CGObjectInstance *o1 = vstd::frontOrNull(cb->getVisitableObjs(from)),
+		*o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const int3 from = CGHeroInstance::convertPosition(details.start, false),
-			to = CGHeroInstance::convertPosition(details.end, false);
-		const CGObjectInstance *o1 = vstd::frontOrNull(cb->getVisitableObjs(from)),
-			*o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
-
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -138,6 +139,17 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				}
 			}
 		}
+	}
+	else if(details.result == TryMoveHero::EMBARK && hero)
+	{
+		//make sure AI not attempt to visit used boat
+		validateObject(hero->boat);
+	}
+	else if(details.result == TryMoveHero::DISEMBARK && o1)
+	{
+		auto boat = dynamic_cast<const CGBoat *>(o1);
+		if(boat)
+			addVisitableObj(boat);
 	}
 }
 
@@ -405,6 +417,9 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 		{
 			vstd::erase_if_present(visitableObjs, hero->boat);
 			vstd::erase_if_present(alreadyVisited, hero->boat);
+
+			for (auto h : cb->getHeroesInfo())
+				unreserveObject(h, hero->boat);
 		}
 	}
 
