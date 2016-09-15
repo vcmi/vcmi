@@ -262,6 +262,9 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 
 	DLL_LINKAGE bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
 
+	std::string getStr(bool L10n = false) const;
+	std::string getStrCap(bool L10n = false) const;
+
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };
