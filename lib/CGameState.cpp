@@ -2139,8 +2139,6 @@ void CGameState::updateRumor()
 	int rumorId = -1, rumorExtra = -1;
 	auto & rand = getRandomGenerator();
 	rumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
-	if(!map->rumors.size() && rumor.type == RumorState::TYPE_MAP)
-		rumor.type = RumorState::TYPE_RAND;
 
 	do
 	{
@@ -2181,9 +2179,14 @@ void CGameState::updateRumor()
 			break;
 		}
 		case RumorState::TYPE_MAP:
-			rumorId = rand.nextInt(map->rumors.size() - 1);
-
-			break;
+			// Makes sure that map rumors only used if there enough rumors too choose from
+			if(map->rumors.size() && (map->rumors.size() > 1 || !rumor.last.count(RumorState::TYPE_MAP)))
+			{
+				rumorId = rand.nextInt(map->rumors.size() - 1);
+				break;
+			}
+			else
+				rumor.type = RumorState::TYPE_RAND;
 
 		case RumorState::TYPE_RAND:
 			do
