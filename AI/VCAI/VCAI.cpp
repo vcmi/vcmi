@@ -222,7 +222,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
 	NET_EVENT_HANDLER;
-	logAi->debug("Player %d: I heard that player %d %s.", playerID.getNum(), player.getNum(),(victoryLossCheckResult.victory() ? "won" : "lost"));
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(),(victoryLossCheckResult.victory() ? "won" : "lost"));
 	if(player == playerID)
 	{
 		if(victoryLossCheckResult.victory())
@@ -232,7 +232,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 		}
 		else
 		{
-			logAi->debug("VCAI: Player %d lost. It's me. What a disappointment! :(", player.getNum());
+			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
 
 		finish();
@@ -744,7 +744,7 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 void VCAI::makeTurn()
 {
-	logGlobal->info("Player %d starting turn", playerID.getNum());
+	logGlobal->info("Player %d (%s) starting turn", playerID, playerID.getStr());
 
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
@@ -1667,7 +1667,7 @@ void VCAI::battleEnd(const BattleResult *br)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-	logAi->debug("Player %d: I %s the %s!", playerID.getNum(), (won  ? "won" : "lost"), battlename);
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won  ? "won" : "lost"), battlename);
 	battlename.clear();
 	CAdventureAI::battleEnd(br);
 }
@@ -2249,7 +2249,7 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-	logAi->info("Player %d ends turn", playerID.getNum());
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
 	if(!status.haveTurn())
 	{
 		logAi->error("Not having turn at the end of turn???");
@@ -2261,7 +2261,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	logGlobal->infoStream() << "Player %d ended turn", playerID.getNum();
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
