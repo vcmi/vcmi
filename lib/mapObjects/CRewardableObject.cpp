@@ -317,11 +317,17 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case VISIT_UNLIMITED:
 		case VISIT_BONUS:
 			return false;
-		case VISIT_ONCE:
-		case VISIT_PLAYER:
+		case VISIT_ONCE: // FIXME: hide this info deeper and return same as player?
+//			for (auto & visit : info)
+//			{
+//				if (visit.numOfGrants != 0)
+//					return true;
+//			}
 			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
 		case VISIT_HERO:
 			return false;
+		case VISIT_PLAYER:
+			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
 		default:
 			return false;
 	}
