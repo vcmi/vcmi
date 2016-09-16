@@ -42,6 +42,8 @@ class CServerHandler
 private:
 	void callServer(); //calls server via system(), should be called as thread
 public:
+	static bool DO_NOT_START_SERVER;
+
 	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
 	SharedMem *shared; //interprocess memory (for waiting for server)

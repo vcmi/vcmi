@@ -719,6 +719,10 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		else if(current)
 		{
 			SelectMap sm(*current);
+			// FIXME: Super dirty hack to avoid crash on multiplayer game start.
+			// There is some issues with TriggeredEvent serialization that cause it.
+			// We'll look into them once refactored serializer fixed and merged
+			sm.mapInfo->mapHeader->triggeredEvents.clear();
 			*serv << &sm;
 
 			UpdateStartOptions uso(sInfo);
