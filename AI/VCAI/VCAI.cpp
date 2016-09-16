@@ -2517,6 +2517,9 @@ void VCAI::performTypicalActions()
 {
 	for(auto h : getUnblockedHeroes())
 	{
+		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
+			continue;
+
 		logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
