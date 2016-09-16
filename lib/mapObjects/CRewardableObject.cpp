@@ -317,16 +317,11 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case VISIT_UNLIMITED:
 		case VISIT_BONUS:
 			return false;
-		case VISIT_ONCE: // FIXME: hide this info deeper and return same as player?
-			for (auto & visit : info)
-			{
-				if (visit.numOfGrants != 0)
-					return true;
-			}
-		case VISIT_HERO:
-			return false;
+		case VISIT_ONCE:
 		case VISIT_PLAYER:
 			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
+		case VISIT_HERO:
+			return false;
 		default:
 			return false;
 	}
@@ -826,11 +821,15 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 38);
 			soundID = soundBase::MYSTERY;
 			blockVisit = true;
+			info.resize(1);
 			if(rand.nextInt(99) < 20)
 			{
-				info.resize(1);
 				loadRandomArtifact(rand, info[0], 10, 10, 10, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 37);
+			}
+			else
+			{
+				info[0].message.addTxt(MetaString::ADVOB_TXT, 38);
 			}
 		}
 		break;
