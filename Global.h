@@ -146,6 +146,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 #define BOOST_BIND_NO_PLACEHOLDERS
 
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#define BOOST_NO_CXX11_VARIADIC_TEMPLATES //Variadic templates are buggy in VS2015, so turn this off to avoid compile errors
+#endif
+
 #include <boost/algorithm/string.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/current_function.hpp>
