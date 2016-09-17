@@ -868,7 +868,7 @@ void CGResource::initObj(CRandomGenerator & rand)
 		switch(subID)
 		{
 		case 6:
-			amount = rand.nextInt(500, 1000);
+			amount = rand.nextInt(5, 10) * 100;
 			break;
 		case 0: case 2:
 			amount = rand.nextInt(6, 10);
