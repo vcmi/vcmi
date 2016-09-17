@@ -245,6 +245,9 @@ CMap::~CMap()
 
 	for(auto obj : objects)
 		obj.dellNull();
+
+	for(auto quest : quests)
+		quest.dellNull();
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)

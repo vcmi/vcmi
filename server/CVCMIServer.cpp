@@ -579,7 +579,8 @@ int main(int argc, char** argv)
 	logConfig.configureDefault();
 
 	handleCommandOptions(argc, argv);
-	port = cmdLineOptions["port"].as<int>();
+	if(cmdLineOptions.count("port"))
+		port = cmdLineOptions["port"].as<int>();
 	logNetwork->info("Port %d will be used.", port);
 
 	preinitDLL(console);

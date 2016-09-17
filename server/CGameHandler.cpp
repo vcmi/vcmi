@@ -945,8 +945,8 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 
 				packType = typeList.getTypeID(pack); //get the id of type
 
-				logGlobal->trace("Received client message (request %d by player %d) of type with ID=%d (%s).\n",
-					requestID, player.getNum(), packType, typeid(*pack).name());
+				logGlobal->trace("Received client message (request %d by player %d (%s)) of type with ID=%d (%s).\n",
+					requestID, player, player.getStr(), packType, typeid(*pack).name());
 			}
 
 			//prepare struct informing that action was applied
@@ -1963,7 +1963,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		return false;
 	}
 
-	logGlobal->trace("Player %d wants to move hero %d from %s to %s", asker.getNum(), hid.getNum(), h->pos(), dst());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos(), dst());
 	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
 
 	if(!gs->map->isInTheMap(hmpos))

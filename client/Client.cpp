@@ -928,10 +928,15 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 	return goodAI;
 }
 
+bool CServerHandler::DO_NOT_START_SERVER = false;
 
 void CServerHandler::startServer()
 {
+	if(DO_NOT_START_SERVER)
+		return;
+
 	th.update();
+
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 	if(verbose)
 		logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
@@ -939,6 +944,9 @@ void CServerHandler::startServer()
 
 void CServerHandler::waitForServer()
 {
+	if(DO_NOT_START_SERVER)
+		return;
+
 	if(!serverThread)
 		startServer();
 

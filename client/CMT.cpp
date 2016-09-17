@@ -240,6 +240,7 @@ int main(int argc, char** argv)
 		("autoSkip", "automatically skip turns in GUI")
 		("disable-video", "disable video player")
 		("nointro,i", "skips intro movies")
+		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
         ("loadserver","specifies we are the multiplayer server for loaded games")
         ("loadnumplayers",po::value<int>(),"specifies the number of players connecting to a multiplayer game")
         ("loadhumanplayerindices",po::value<std::vector<int>>(),"Indexes of human players (0=Red, etc.)")
@@ -276,6 +277,10 @@ int main(int argc, char** argv)
 	{
 		gNoGUI = true;
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
+	}
+	if(vm.count("donotstartserver"))
+	{
+		CServerHandler::DO_NOT_START_SERVER = true;
 	}
 
 	// Have effect on X11 system only (Linux).

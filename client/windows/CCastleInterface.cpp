@@ -627,6 +627,8 @@ void CCastleBuildings::buildingClicked(BuildingID building)
 		case BuildingID::SHIPYARD:
 				if(town->shipyardStatus() == IBoatGenerator::GOOD)
 					LOCPLINT->showShipyardDialog(town);
+				else if(town->shipyardStatus() == IBoatGenerator::BOAT_ALREADY_BUILT)
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]);
 				break;
 
 		case BuildingID::FORT:

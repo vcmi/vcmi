@@ -115,15 +115,16 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	NET_EVENT_HANDLER;
 
 	validateObject(details.id); //enemy hero may have left visible area
+	auto hero = cb->getHero(details.id);
 	cachedSectorMaps.clear();
+
+	const int3 from = CGHeroInstance::convertPosition(details.start, false),
+		to = CGHeroInstance::convertPosition(details.end, false);
+	const CGObjectInstance *o1 = vstd::frontOrNull(cb->getVisitableObjs(from)),
+		*o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const int3 from = CGHeroInstance::convertPosition(details.start, false),
-			to = CGHeroInstance::convertPosition(details.end, false);
-		const CGObjectInstance *o1 = vstd::frontOrNull(cb->getVisitableObjs(from)),
-			*o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
-
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -138,6 +139,17 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				}
 			}
 		}
+	}
+	else if(details.result == TryMoveHero::EMBARK && hero)
+	{
+		//make sure AI not attempt to visit used boat
+		validateObject(hero->boat);
+	}
+	else if(details.result == TryMoveHero::DISEMBARK && o1)
+	{
+		auto boat = dynamic_cast<const CGBoat *>(o1);
+		if(boat)
+			addVisitableObj(boat);
 	}
 }
 
@@ -210,7 +222,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
 	NET_EVENT_HANDLER;
-	logAi->debug("Player %d: I heard that player %d %s.", playerID.getNum(), player.getNum(),(victoryLossCheckResult.victory() ? "won" : "lost"));
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(),(victoryLossCheckResult.victory() ? "won" : "lost"));
 	if(player == playerID)
 	{
 		if(victoryLossCheckResult.victory())
@@ -220,7 +232,7 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 		}
 		else
 		{
-			logAi->debug("VCAI: Player %d lost. It's me. What a disappointment! :(", player.getNum());
+			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
 
 		finish();
@@ -309,7 +321,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s and %s") % firstHero->name % secondHero->name));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -328,9 +340,13 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 			this->pickBestArtifacts(h1, h2);
 		};
 
-		if (goalpriority1 > goalpriority2)
+		//Do not attempt army or artifacts exchange if we visited ally player
+		//Visits can still be useful if hero have skills like Scholar
+		if(firstHero->tempOwner != secondHero->tempOwner)
+			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
+		else if(goalpriority1 > goalpriority2)
 			transferFrom2to1 (firstHero, secondHero);
-		else if (goalpriority1 < goalpriority2)
+		else if(goalpriority1 < goalpriority2)
 			transferFrom2to1 (secondHero, firstHero);
 		else //regular criteria
 		{
@@ -405,6 +421,9 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 		{
 			vstd::erase_if_present(visitableObjs, hero->boat);
 			vstd::erase_if_present(alreadyVisited, hero->boat);
+
+			for (auto h : cb->getHeroesInfo())
+				unreserveObject(h, hero->boat);
 		}
 	}
 
@@ -524,16 +543,13 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		//we don't want to visit know object twice (do we really?)
-		if(sop->val == playerID.getNum())
-			vstd::erase_if_present(visitableObjs, myCb->getObj(sop->id));
-		else if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
 		{
 			//we want to visit objects owned by oppponents
 			auto obj = myCb->getObj(sop->id, false);
 			if (obj)
 			{
-				addVisitableObj(obj);
+				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
 				vstd::erase_if_present(alreadyVisited, obj);
 			}
 		}
@@ -728,7 +744,7 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 void VCAI::makeTurn()
 {
-	logGlobal->info("Player %d starting turn", playerID.getNum());
+	logGlobal->info("Player %d (%s) starting turn", playerID, playerID.getStr());
 
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
@@ -1651,7 +1667,7 @@ void VCAI::battleEnd(const BattleResult *br)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-	logAi->debug("Player %d: I %s the %s!", playerID.getNum(), (won  ? "won" : "lost"), battlename);
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won  ? "won" : "lost"), battlename);
 	battlename.clear();
 	CAdventureAI::battleEnd(br);
 }
@@ -2233,7 +2249,7 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-	logAi->info("Player %d ends turn", playerID.getNum());
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
 	if(!status.haveTurn())
 	{
 		logAi->error("Not having turn at the end of turn???");
@@ -2245,7 +2261,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	logGlobal->infoStream() << "Player %d ended turn", playerID.getNum();
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
@@ -2501,6 +2517,9 @@ void VCAI::performTypicalActions()
 {
 	for(auto h : getUnblockedHeroes())
 	{
+		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
+			continue;
+
 		logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);

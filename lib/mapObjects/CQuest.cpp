@@ -498,7 +498,9 @@ IQuestObject::IQuestObject():
 
 IQuestObject::~IQuestObject()
 {
-	delete quest;
+	///Information about quest should remain accessible even if IQuestObject removed from map
+	///All CQuest objects are freed in CMap destructor
+	//delete quest;
 }
 
 bool IQuestObject::checkQuest(const CGHeroInstance* h) const
