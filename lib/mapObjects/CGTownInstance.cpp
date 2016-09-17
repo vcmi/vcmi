@@ -618,16 +618,16 @@ void CGTownInstance::initObj(CRandomGenerator & rand)
 
 	switch (subID)
 	{ //add new visitable objects
-		case 0:
+		case ETownType::CASTLE:
 			bonusingBuildings.push_back (new COPWBonus(BuildingID::STABLES, this));
 			break;
-		case 5:
+		case ETownType::DUNGEON:
 			bonusingBuildings.push_back (new COPWBonus(BuildingID::MANA_VORTEX, this));
 			//fallthrough
-		case 2: case 3: case 6:
+		case ETownType::TOWER: case ETownType::INFERNO: case ETownType::STRONGHOLD:
 			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_4, this));
 			break;
-		case 7:
+		case ETownType::FORTRESS:
 			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_1, this));
 			break;
 	}

@@ -867,10 +867,10 @@ void CGResource::initObj(CRandomGenerator & rand)
 	{
 		switch(subID)
 		{
-		case 6:
+		case Res::GOLD:
 			amount = rand.nextInt(5, 10) * 100;
 			break;
-		case 0: case 2:
+		case Res::WOOD: case Res::ORE:
 			amount = rand.nextInt(6, 10);
 			break;
 		default:
