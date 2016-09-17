@@ -155,40 +155,9 @@ void SpellCastContext::setDamageToDisplay(const si32 value)
 
 void SpellCastContext::prepareBattleLog()
 {
-	//todo: prepare battle log
 	bool displayDamage = true;
 
-	if(attackedCres.size() == 1)
-	{
-		const CStack * attackedStack = *attackedCres.begin();
-
-		switch(parameters.mode)
-		{
-		case ECastingMode::HERO_CASTING:
-			{
-				MetaString line;
-				line.addTxt(MetaString::GENERAL_TXT, 195);
-				parameters.caster->getCasterName(line);
-				line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
-				line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
-			}
-			break;
-
-		default:
-			{
-				mechanics->battleLogSingleTarget(sc.battleLog, parameters, attackedStack, damageToDisplay, displayDamage);
-			}
-			break;
-		}
-	}
-	else
-	{
-		MetaString line;
-		line.addTxt(MetaString::GENERAL_TXT, 196);
-        parameters.caster->getCasterName(line);
-		line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
-		sc.battleLog.push_back(line);
-	}
+	mechanics->battleLog(sc.battleLog, parameters, attackedCres, damageToDisplay, displayDamage);
 
 	displayDamage = displayDamage && damageToDisplay > 0;
 
@@ -359,9 +328,18 @@ void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleS
 	ctx.afterCast();
 }
 
-void DefaultSpellMechanics::battleLogSingleTarget(std::vector<MetaString>&  logLines, const BattleSpellCastParameters & parameters,
-	const CStack * attackedStack, const si32 damageToDisplay, bool & displayDamage) const
+void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
+	const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const
 {
+	if(attacked.size() != 1)
+	{
+		displayDamage = true;
+		battleLogDefault(logLines, parameters, attacked);
+		return;
+	}
+
+	auto attackedStack = attacked.at(0);
+
 	auto getPluralFormat = [attackedStack](const int baseTextID) -> si32
 	{
 		return attackedStack->count > 1 ? baseTextID + 1 : baseTextID;
@@ -451,17 +429,17 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<MetaString>&  logL
 		}
 		break;
 	default:
-		{
-			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
-			//todo: use text 566 for single creature
-			parameters.caster->getCasterName(line);
-			line.addReplacement(MetaString::SPELL_NAME, owner->id.toEnum());
-			displayDamage = true;
-			logLines.push_back(line);
-		}
+		displayDamage = true;
+		battleLogDefault(logLines, parameters, attacked);
 		break;
 	}
+}
+
+void DefaultSpellMechanics::battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack*> & attacked) const
+{
+	MetaString line;
+	parameters.caster->getCastDescription(owner, attacked, line);
+	logLines.push_back(line);
 }
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

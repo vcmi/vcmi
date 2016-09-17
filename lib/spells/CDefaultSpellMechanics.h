@@ -59,8 +59,11 @@ public:
 
 	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override final;
 
-	void battleLogSingleTarget(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
-		const CStack * attackedStack, const si32 damageToDisplay, bool & displayDamage) const;
+	void battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
+		const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const;
+
+	void battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
+		const std::vector<const CStack *> & attacked) const;
 
 	bool requiresCreatureTarget() const	override;
 protected:

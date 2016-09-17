@@ -47,5 +47,9 @@ public:
 
 	virtual const PlayerColor getOwner() const = 0;
 
+	///only name substitution
 	virtual void getCasterName(MetaString & text) const = 0;
+
+	///full default text
+	virtual void getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const = 0;
 };
