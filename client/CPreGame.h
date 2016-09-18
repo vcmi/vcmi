@@ -642,10 +642,10 @@ class CSimpleJoinScreen : public CIntObject
 	CTextInput * address;
 	CTextInput * port;
 
-	void enterSelectionScreen();
+	void enterSelectionScreen(CMenuScreen::EMultiMode mode);
 	void onChange(const std::string & newText);
 public:
-	CSimpleJoinScreen();
+	CSimpleJoinScreen(CMenuScreen::EMultiMode mode);
 };
 
 extern ISelectionScreenInfo *SEL;
