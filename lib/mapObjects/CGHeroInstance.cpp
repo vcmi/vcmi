@@ -255,7 +255,8 @@ void CGHeroInstance::setType(si32 ID, si32 subID)
 	assert(ID == Obj::HERO); // just in case
 	type = VLC->heroh->heroes[subID];
 	portrait = type->imageIndex;
-	CGObjectInstance::setType(ID, type->heroClass->id);
+	CGObjectInstance::setType(ID, type->heroClass->id); // to find object handler we must use heroClass->id
+	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
 	randomizeArmy(type->heroClass->faction);
 }
 
