@@ -5578,13 +5578,17 @@ void CGameHandler::runBattle()
 	for(int i = 0; i < 2; ++i)
 	{
 		auto h = gs->curB->battleGetFightingHero(i);
-		if(h && h->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+		if(h)
 		{
 			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 
 			for (Bonus *b : *bl)
 			{
 				const CSpell * spell = SpellID(b->subtype).toSpell();
+
+				if(ESpellCastProblem::OK != gs->curB->battleCanCastThisSpell(h, spell, ECastingMode::PASSIVE_CASTING))
+					continue;
+
 				BattleSpellCastParameters parameters(gs->curB, h, spell);
 				parameters.spellLvl = 3;
 				parameters.effectLevel = 3;

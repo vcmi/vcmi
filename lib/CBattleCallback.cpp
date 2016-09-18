@@ -1666,7 +1666,9 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(specificProblem != ESpellCastProblem::OK)
 		return specificProblem;
 
-	if(battleMaxSpellLevel(side) < spell->level) //effect like Recanter's Cloak or Orb of Inhibition
+	//effect like Recanter's Cloak. Blocks also passive casting.
+	//TODO: check creature abilities to block
+	if(battleMaxSpellLevel(side) < spell->level)
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	return ESpellCastProblem::OK;
