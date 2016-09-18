@@ -447,17 +447,12 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
-		int spellDamage = parameters.effectValue;
-
+		const int rawDamage = (parameters.effectValue == 0) ? owner->calculateRawEffectValue(parameters.effectLevel, parameters.effectPower) : parameters.effectValue;
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{
 			BattleStackAttacked bsa;
-			if(spellDamage != 0)
-				bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, spellDamage) >> chainLightningModifier;
-			else
-				bsa.damageAmount = owner->calculateDamage(parameters.caster, attackedCre, parameters.effectLevel, parameters.effectPower) >> chainLightningModifier;
-
+			bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, rawDamage) >> chainLightningModifier;
 			ctx.addDamageToDisplay(bsa.damageAmount);
 
 			bsa.stackAttacked = (attackedCre)->ID;
