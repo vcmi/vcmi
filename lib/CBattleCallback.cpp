@@ -345,9 +345,15 @@ const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
 	return getBattle();
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const ISpellCaster * caster, ECastingMode::ECastingMode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
+	if(caster == nullptr)
+	{
+		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastSpell: no spellcaster.";
+		return ESpellCastProblem::INVALID;
+	}
+	const PlayerColor player = caster->getOwner();
 	const ui8 side = playerToSide(player);
 	if(!battleDoWeKnowAbout(side))
 	{
@@ -355,16 +361,17 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(Pla
 		return ESpellCastProblem::INVALID;
 	}
 
+	if(battleTacticDist())
+		return ESpellCastProblem::ONGOING_TACTIC_PHASE;
+
 	switch (mode)
 	{
 	case ECastingMode::HERO_CASTING:
 		{
-			if(battleTacticDist())
-				return ESpellCastProblem::ONGOING_TACTIC_PHASE;
 			if(battleCastSpells(side) > 0)
 				return ESpellCastProblem::ALREADY_CASTED_THIS_TURN;
 
-			auto hero = battleGetFightingHero(side);
+			auto hero = dynamic_cast<const CGHeroInstance *>(caster);
 
 			if(!hero)
 				return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
@@ -1640,7 +1647,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!battleDoWeKnowAbout(side))
 		return ESpellCastProblem::INVALID;
 
-	ESpellCastProblem::ESpellCastProblem genProblem = battleCanCastSpell(player, mode);
+	ESpellCastProblem::ESpellCastProblem genProblem = battleCanCastSpell(caster, mode);
 	if(genProblem != ESpellCastProblem::OK)
 		return genProblem;
 
@@ -2079,7 +2086,16 @@ bool CPlayerBattleCallback::battleCanCastSpell(ESpellCastProblem::ESpellCastProb
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ASSERT_IF_CALLED_WITH_PLAYER
-	auto problem = CBattleInfoCallback::battleCanCastSpell(*player, ECastingMode::HERO_CASTING);
+
+	const CGHeroInstance * hero = battleGetMyHero();
+	if(!hero)
+	{
+		if(outProblem)
+			*outProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+		return false;
+	}
+
+	auto problem = CBattleInfoCallback::battleCanCastSpell(hero, ECastingMode::HERO_CASTING);
 	if(outProblem)
 		*outProblem = problem;
 
