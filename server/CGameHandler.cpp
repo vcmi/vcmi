@@ -5307,9 +5307,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distribution(attacker->count, chanceToKill);
-		std::mt19937 rng(std::time(nullptr));
 
-		int staredCreatures = distribution(rng);
+		int staredCreatures = distribution(getRandomGenerator().getStdGenerator());
 
 		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
 		int maxToKill = (attacker->count + cap - 1) / cap; //not much more than chance * count
