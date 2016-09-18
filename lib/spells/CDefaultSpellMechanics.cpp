@@ -700,7 +700,7 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 	return res;
 }
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
 	//no problems by default, this method is for spell-specific problems
 	return ESpellCastProblem::OK;

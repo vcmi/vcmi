@@ -341,8 +341,14 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 	env->sendAndApply(&ca);
 }
 
-ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
+	if(mode == ECastingMode::AFTER_ATTACK_CASTING || mode == ECastingMode::SPELL_LIKE_ATTACK || mode == ECastingMode::MAGIC_MIRROR)
+	{
+		logGlobal->warn("Invalid spell cast attempt: spell %s, mode %d", owner->name, mode); //should not even try to do it
+		return ESpellCastProblem::INVALID;
+	}
+
 	if(nullptr == cb->battleGetDefendedTown())
 	{
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
@@ -592,8 +598,14 @@ void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * en
 		env->complain("There's no obstacle to remove!");
 }
 
-ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
+	if(mode == ECastingMode::AFTER_ATTACK_CASTING || mode == ECastingMode::SPELL_LIKE_ATTACK || mode == ECastingMode::MAGIC_MIRROR)
+	{
+		logGlobal->warn("Invalid spell cast attempt: spell %s, mode %d", owner->name, mode); //should not even try to do it
+		return ESpellCastProblem::INVALID;
+	}
+
 	const int spellLevel = caster->getSpellSchoolLevel(owner);
 
 	for(auto obstacle : cb->battleGetAllObstacles())
@@ -653,8 +665,14 @@ HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectL
 }
 
 ///SacrificeMechanics
-ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
+	if(mode == ECastingMode::AFTER_ATTACK_CASTING || mode == ECastingMode::SPELL_LIKE_ATTACK || mode == ECastingMode::MAGIC_MIRROR)
+	{
+		logGlobal->warn("Invalid spell cast attempt: spell %s, mode %d", owner->name, mode); //should not even try to do it
+		return ESpellCastProblem::INVALID;
+	}
+
 	// for sacrifice we have to check for 2 targets (one dead to resurrect and one living to destroy)
 
 	bool targetExists = false;
@@ -767,8 +785,14 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 }
 
 ///SummonMechanics
-ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const
+ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
+	if(mode == ECastingMode::AFTER_ATTACK_CASTING || mode == ECastingMode::SPELL_LIKE_ATTACK || mode == ECastingMode::MAGIC_MIRROR)
+	{
+		logGlobal->warn("Invalid spell cast attempt: spell %s, mode %d", owner->name, mode); //should not even try to do it
+		return ESpellCastProblem::INVALID;
+	}
+
 	//check if there are summoned elementals of other type
 
 	auto otherSummoned = cb->battleGetStacksIf([caster, this](const CStack * st)
@@ -848,4 +872,13 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 	}
 }
 
+ESpellCastProblem::ESpellCastProblem TeleportMechanics::canBeCast(const CBattleInfoCallback* cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
+{
+	if(mode == ECastingMode::AFTER_ATTACK_CASTING || mode == ECastingMode::SPELL_LIKE_ATTACK || mode == ECastingMode::MAGIC_MIRROR)
+	{
+		logGlobal->warn("Invalid spell cast attempt: spell %s, mode %d", owner->name, mode); //should not even try to do it
+		return ESpellCastProblem::INVALID;
+	}
 
+	return DefaultSpellMechanics::canBeCast(cb, mode, caster);
+}

@@ -85,7 +85,7 @@ class DLL_LINKAGE EarthquakeMechanics : public SpecialSpellMechanics
 {
 public:
 	EarthquakeMechanics(CSpell * s): SpecialSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -165,7 +165,7 @@ class DLL_LINKAGE RemoveObstacleMechanics : public SpecialSpellMechanics
 {
 public:
 	RemoveObstacleMechanics(CSpell * s): SpecialSpellMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
@@ -188,7 +188,7 @@ class DLL_LINKAGE SacrificeMechanics : public RisingSpellMechanics
 public:
 	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};
 
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -209,7 +209,7 @@ class DLL_LINKAGE SummonMechanics : public SpecialSpellMechanics
 public:
 	SummonMechanics(CSpell * s, CreatureID cre): SpecialSpellMechanics(s), creatureToSummon(cre){};
 
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ISpellCaster * caster) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -221,6 +221,8 @@ class DLL_LINKAGE TeleportMechanics: public DefaultSpellMechanics
 {
 public:
 	TeleportMechanics(CSpell * s): DefaultSpellMechanics(s){};
+
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };

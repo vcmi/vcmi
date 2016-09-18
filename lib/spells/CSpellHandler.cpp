@@ -151,7 +151,7 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
-	const ESpellCastProblem::ESpellCastProblem generalProblem = mechanics->canBeCast(cb, caster);
+	const ESpellCastProblem::ESpellCastProblem generalProblem = mechanics->canBeCast(cb, mode, caster);
 
 	if(generalProblem != ESpellCastProblem::OK)
 		return generalProblem;
