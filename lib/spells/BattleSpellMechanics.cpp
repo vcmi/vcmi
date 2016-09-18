@@ -41,9 +41,7 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 int HealingSpellMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	if(parameters.effectValue != 0)
-		return parameters.effectValue; //Archangel
-	return owner->calculateRawEffectValue(parameters.effectLevel, parameters.effectPower); //???
+	return parameters.getEffectValue();
 }
 
 ///AntimagicMechanics
@@ -712,7 +710,6 @@ void SacrificeMechanics::applyBattleEffects(const SpellCastEnvironment * env, co
 
 int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const BattleSpellCastParameters& parameters, SpellCastContext& ctx) const
 {
-	int res = 0;
 	const CStack * victim = nullptr;
 
 	if(parameters.destinations.size() == 2)
@@ -726,8 +723,7 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 		return 0;
 	}
 
-	res = (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->count;
-	return res;
+	return (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->count;
 }
 
 bool SacrificeMechanics::requiresCreatureTarget() const

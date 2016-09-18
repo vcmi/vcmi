@@ -88,6 +88,11 @@ BattleHex BattleSpellCastParameters::getFirstDestinationHex() const
 	return destinations.at(0).hexValue;
 }
 
+int BattleSpellCastParameters::getEffectValue() const
+{
+	return (effectValue == 0) ? spell->calculateRawEffectValue(effectLevel, effectPower) : effectValue;
+}
+
 ///ISpellMechanics
 ISpellMechanics::ISpellMechanics(CSpell * s):
 	owner(s)

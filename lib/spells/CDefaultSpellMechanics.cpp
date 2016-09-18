@@ -447,7 +447,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
-		const int rawDamage = (parameters.effectValue == 0) ? owner->calculateRawEffectValue(parameters.effectLevel, parameters.effectPower) : parameters.effectValue;
+		const int rawDamage = parameters.getEffectValue();
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{

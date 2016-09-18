@@ -58,6 +58,8 @@ public:
 
 	BattleHex getFirstDestinationHex() const;
 
+	int getEffectValue() const;
+
 	const CSpell * spell;
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
@@ -78,6 +80,8 @@ public:
 	int effectPower;
 	///actual spell-power affecting effect duration
 	int enchantPower;
+
+private:
 	///for Archangel-like casting
 	int effectValue;
 };
