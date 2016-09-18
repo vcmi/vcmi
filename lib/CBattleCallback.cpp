@@ -425,8 +425,10 @@ ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	//conditions like for fleeing + enemy must have a hero
-	return battleCanFlee(player) && battleHasHero(!playerToSide(player));
+	ui8 mySide = playerToSide(player);
+	bool iAmSiegeDefender = ( mySide == BattleSide::DEFENDER  &&  battleGetSiegeLevel() );
+	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
+	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(!mySide);
 }
 
 bool CBattleInfoEssentials::battleHasHero(ui8 side) const
