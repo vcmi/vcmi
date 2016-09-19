@@ -697,7 +697,9 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		pickBestCreatures (down, up);
+		if(removableUnits)
+			pickBestCreatures(down, up);
+
 		answerQuery(queryID, 0);
 	});
 }
