@@ -285,7 +285,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 
 		if(clientSaveName.empty())
 			throw std::runtime_error("Cannot open client part of " + fname);
-		if(controlServerSaveName.empty())
+		if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
 			throw std::runtime_error("Cannot open server part of " + fname);
 
 		{
