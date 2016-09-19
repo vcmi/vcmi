@@ -344,6 +344,12 @@ void CHeroWindow::commanderWindow()
 
 }
 
+void CHeroWindow::updateGarrisons()
+{
+	CWindowWithGarrison::updateGarrisons();
+	morale->set(&heroWArt);
+}
+
 void CHeroWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
