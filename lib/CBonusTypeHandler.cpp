@@ -126,7 +126,7 @@ CBonusTypeHandler::~CBonusTypeHandler()
 	//dtor
 }
 
-std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBearer *bearer, bool description) const
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus>& bonus, const IBonusBearer *bearer, bool description) const
 {	
 	auto getValue = [=](const std::string &name) -> std::string
 	{
@@ -163,7 +163,7 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 	return macro.build(getValue);	
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(const Bonus* bonus) const
+std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;

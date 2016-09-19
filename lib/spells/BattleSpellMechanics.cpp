@@ -51,7 +51,7 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
 
-	doDispell(battle, packet, [this](const Bonus * b) -> bool
+	doDispell(battle, packet, [this](const Bonus *b) -> bool
 	{
 		if(b->source == Bonus::SPELL_EFFECT)
 		{

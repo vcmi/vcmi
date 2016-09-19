@@ -507,7 +507,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	for(const auto &spec : type->spec) //TODO: unfity with bonus system
 	{
-		auto bonus = new Bonus();
+		auto bonus = std::make_shared<Bonus>();
 		bonus->val = spec.val;
 		bonus->sid = id.getNum(); //from the hero, specialty has no unique id
 		bonus->duration = Bonus::PERMANENT;
@@ -540,12 +540,12 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 					bonus->subtype = PrimarySkill::ATTACK;
 					hs->addNewBonus(bonus);
 
-					bonus = new Bonus(*bonus);
+					bonus = std::make_shared<Bonus>(*bonus);
 					bonus->subtype = PrimarySkill::DEFENSE;
 					hs->addNewBonus(bonus);
 					//values will be calculated later
 
-					bonus = new Bonus(*bonus);
+					bonus = std::make_shared<Bonus>(*bonus);
 					bonus->type = Bonus::STACKS_SPEED;
 					bonus->val = 1; //+1 speed
 					hs->addNewBonus(bonus);
@@ -558,7 +558,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 				bonus->subtype = spec.subtype; //skill id
 				bonus->val = spec.val; //value per level, in percent
 				hs->addNewBonus(bonus);
-				bonus = new Bonus(*bonus);
+				bonus = std::make_shared<Bonus>(*bonus);
 
 				switch (spec.additionalinfo)
 				{
@@ -636,15 +636,14 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 				bonus->subtype = spec.subtype; //base id
 				bonus->additionalInfo = spec.additionalinfo; //target id
 				hs->addNewBonus(bonus);
-				bonus = new Bonus(*bonus);
+				bonus = std::make_shared<Bonus>(*bonus);
 
 				for(auto cre_id : creatures[spec.subtype]->upgrades)
 				{
 					bonus->subtype = cre_id; //propagate for regular upgrades of base creature
 					hs->addNewBonus(bonus);
-					bonus = new Bonus(*bonus);
+					bonus = std::make_shared<Bonus>(*bonus);
 				}
-				vstd::clear_pointer(bonus);
 				break;
 			}
 			case 10://resource generation
@@ -710,7 +709,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 		{
 			//const auto &creatures = VLC->creh->creatures;
 
-			for(Bonus * b : hs->getBonusList())
+			for(auto& b : hs->getBonusList())
 			{
 				switch (b->type)
 				{
@@ -775,10 +774,10 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		bool luck = which == SecondarySkill::LUCK;
 		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
 
-		Bonus *b = getBonusLocalFirst(Selector::type(type[luck]).And(Selector::sourceType(Bonus::SECONDARY_SKILL)));
+		auto b = getBonusLocalFirst(Selector::type(type[luck]).And(Selector::sourceType(Bonus::SECONDARY_SKILL)));
 		if(!b)
 		{
-			b = new Bonus(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
+			b = std::make_shared<Bonus>(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
 			addNewBonus(b);
 		}
 		else
@@ -787,10 +786,10 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	else if(which == SecondarySkill::DIPLOMACY) //surrender discount: 20% per level
 	{
 
-		if(Bonus *b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT).And(Selector::sourceType(Bonus::SECONDARY_SKILL))))
+		if(auto b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT).And(Selector::sourceType(Bonus::SECONDARY_SKILL))))
 			b->val = +val;
 		else
-			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
+			addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
 	}
 
 	int skillVal = 0;
@@ -837,15 +836,15 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 
 
 	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(Bonus * b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
-										.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
+	if(auto b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
+			.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
 	{
 		b->val = skillVal;
 		b->valType = skillValType;
 	}
 	else
 	{
-		auto bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
+		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
@@ -1174,7 +1173,7 @@ void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 {
 	assert(!hasBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, which)
 						.And(Selector::sourceType(Bonus::HERO_BASE_SKILL))));
-	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
+	addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
 EAlignment::EAlignment CGHeroInstance::getAlignment() const
@@ -1411,9 +1410,9 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
-		Bonus * skill = getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
-											.And(Selector::subtype(primarySkill))
-											.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+		auto skill = getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
+			.And(Selector::subtype(primarySkill))
+			.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
 		assert(skill);
 
 		if(abs)

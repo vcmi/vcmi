@@ -65,7 +65,7 @@ public:
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
-	void addNewBonus(Bonus *b) override;
+	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
@@ -280,7 +280,7 @@ private:
 
 	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalinfo = 0);
 	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus *bonus);
+	void giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus);
 
 	void erasePickedArt(ArtifactID id);
 };

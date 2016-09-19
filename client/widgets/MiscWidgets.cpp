@@ -394,7 +394,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		text += CGI->generaltexth->arraytxt[noneTxtId];//no modifiers
 	else
 	{
-		for(const Bonus * elem : *modifierList)
+		for(auto& elem : *modifierList)
 		{
 			if(elem->val != 0)
 				//no bonuses with value 0

@@ -665,8 +665,9 @@ const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, c
 	range::copy(*originalList, std::back_inserter(*ret));
 	for(auto &bonus : bonusesToAdd)
 	{
-		if(selector(&bonus)  &&  (!limit || !limit(&bonus)))
-			ret->push_back(&bonus);
+		auto b = std::make_shared<Bonus>(bonus);
+		if(selector(b.get())  &&  (!limit || !limit(b.get())))
+			ret->push_back(b);
 	}
 
 	//TODO limiters?

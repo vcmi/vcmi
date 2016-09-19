@@ -1027,7 +1027,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		for(const auto & elem : levelNode["effects"].Struct())
 		{
 			const JsonNode & bonusNode = elem.second;
-			Bonus * b = JsonUtils::parseBonus(bonusNode);
+			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
 			//TODO: make this work. see CSpellHandler::afterLoadFinalization()
@@ -1053,10 +1053,9 @@ void CSpellHandler::afterLoadFinalization()
 	{
 		for(auto & level: spell->levels)
 		{
-			for(Bonus * bonus : level.effectsTmp)
+			for(auto bonus : level.effectsTmp)
 			{
 				level.effects.push_back(*bonus);
-				delete bonus;
 			}
 			level.effectsTmp.clear();
 

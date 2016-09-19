@@ -834,7 +834,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		}
 	}
 
-	const Bonus * bonus = att->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
+	const std::shared_ptr<Bonus> bonus = att->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
 	if (bonus && (bat.shot())) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -4218,8 +4218,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			SpellID spellID = SpellID(ba.additionalInfo);
 			BattleHex destination(ba.destinationTile);
 
-			const Bonus *randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
-			const Bonus * spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
+			const std::shared_ptr<Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			const std::shared_ptr<Bonus> spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
 			if(randSpellcaster && battleGetRandomStackSpell(getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
@@ -4489,7 +4489,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));
 			std::set<const CStack*> stacks = gs->curB-> batteAdjacentCreatures(st);
 
-			for(Bonus * b : bl)
+			for(auto b : bl)
 			{
 				const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo); //binding stack must be alive and adjacent
 				if (stack)
@@ -4524,7 +4524,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 		if(st->hasBonusOfType(Bonus::POISON))
 		{
-			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
+			const std::shared_ptr<Bonus> b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -4582,7 +4582,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				auto bonus = *RandomGeneratorUtil::nextItem(bl, getRandomGenerator());
 				auto spellID = SpellID(bonus->subtype);
 				const CSpell * spell = SpellID(spellID).toSpell();
-				bl.remove_if([&bonus](Bonus * b){return b==bonus;});
+				bl.remove_if([&bonus](const Bonus* b){return b==bonus.get();});
 
 				if (gs->curB->battleCanCastThisSpell(st, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
 				{
@@ -5255,7 +5255,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 	{
 		std::set<SpellID> spellsToCast;
 		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
-		for(const Bonus *sf : *spells)
+		for(const std::shared_ptr<Bonus> sf : *spells)
 		{
 			spellsToCast.insert (SpellID(sf->subtype));
 		}
@@ -5275,7 +5275,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				return;
 			int spellLevel = 0;
 			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
-			for(const Bonus *sf : *spellsByType)
+			for(const std::shared_ptr<Bonus> sf : *spellsByType)
 			{
 				vstd::amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
 				int meleeRanged = sf->additionalInfo / 1000;
@@ -5369,7 +5369,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 
 	int acidDamage = 0;
 	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
-	for(const Bonus *b : *acidBreath)
+	for(const std::shared_ptr<Bonus> b : *acidBreath)
 	{
 		if (b->additionalInfo > getRandomGenerator().nextInt(99))
 			acidDamage += b->val;
@@ -5627,7 +5627,7 @@ void CGameHandler::runBattle()
 		{
 			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 
-			for (Bonus *b : *bl)
+			for (auto b : *bl)
 			{
 				const CSpell * spell = SpellID(b->subtype).toSpell();
 

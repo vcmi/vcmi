@@ -499,7 +499,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			sse.effect.back().additionalInfo =  parameters.casterStack->ID;
 		}
-		const Bonus * bonus = nullptr;
+		std::shared_ptr<Bonus> bonus = nullptr;
 		if(parameters.casterHero)
 			bonus = parameters.casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
 		//TODO does hero specialty should affects his stack casting spells?
@@ -721,7 +721,7 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 
 void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const
 {
-	auto localSelector = [](const Bonus * bonus)
+	auto localSelector = [](const Bonus *bonus)
 	{
 		const CSpell * sourceSpell = bonus->sourceSpell();
 		if(sourceSpell != nullptr)

@@ -447,7 +447,7 @@ CIntObject * CStackWindow::createSkillEntry(int index)
 	{
 		if (index == 0 && skillID >= 100)
 		{
-			const Bonus *bonus = CGI->creh->skillRequirements[skillID-100].first;
+			const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 			const CStackInstance *stack = info->commander;
 			CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
 			icon->callback = [=]
@@ -752,15 +752,14 @@ void CStackWindow::initBonusesList()
 
 	while (!input.empty())
 	{
-		Bonus * b = input.front();
-
-		output.push_back(new Bonus(*b));
+		auto b = input.front();
+		output.push_back(std::make_shared<Bonus>(*b));
 		output.back()->val = input.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
 		input.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
 	}
 
 	BonusInfo bonusInfo;
-	for(Bonus* b : output)
+	for(auto b : output)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
@@ -778,12 +777,12 @@ void CStackWindow::initBonusesList()
 	if (magicResistance)
 	{
 		BonusInfo bonusInfo;
-		Bonus b;
-		b.type = Bonus::MAGIC_RESISTANCE;
+		auto b = std::make_shared<Bonus>();
+		b->type = Bonus::MAGIC_RESISTANCE;
 
-		bonusInfo.name = VLC->getBth()->bonusToString(&b, info->stackNode, false);
-		bonusInfo.description = VLC->getBth()->bonusToString(&b, info->stackNode, true);
-		bonusInfo.imagePath = info->stackNode->bonusToGraphics(&b);
+		bonusInfo.name = VLC->getBth()->bonusToString(b, info->stackNode, false);
+		bonusInfo.description = VLC->getBth()->bonusToString(b, info->stackNode, true);
+		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		activeBonuses.push_back(bonusInfo);
 	}
 }

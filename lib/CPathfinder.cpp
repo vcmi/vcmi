@@ -841,13 +841,14 @@ TurnInfo::BonusCache::BonusCache(TBonusListPtr bl)
 	noTerrainPenalty.reserve(ETerrainType::ROCK);
 	for(int i = 0; i < ETerrainType::ROCK; i++)
 	{
-		noTerrainPenalty.push_back(bl->getFirst(Selector::type(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype(i))));
+		noTerrainPenalty.push_back(static_cast<bool>(
+				bl->getFirst(Selector::type(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype(i)))));
 	}
 
-	freeShipBoarding = bl->getFirst(Selector::type(Bonus::FREE_SHIP_BOARDING));
-	flyingMovement = bl->getFirst(Selector::type(Bonus::FLYING_MOVEMENT));
+	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type(Bonus::FREE_SHIP_BOARDING)));
+	flyingMovement = static_cast<bool>(bl->getFirst(Selector::type(Bonus::FLYING_MOVEMENT)));
 	flyingMovementVal = bl->valOfBonuses(Selector::type(Bonus::FLYING_MOVEMENT));
-	waterWalking = bl->getFirst(Selector::type(Bonus::WATER_WALKING));
+	waterWalking = static_cast<bool>(bl->getFirst(Selector::type(Bonus::WATER_WALKING)));
 	waterWalkingVal = bl->valOfBonuses(Selector::type(Bonus::WATER_WALKING));
 }
 
@@ -896,7 +897,8 @@ bool TurnInfo::hasBonusOfType(Bonus::BonusType type, int subtype) const
 		return bonusCache->noTerrainPenalty[subtype];
 	}
 
-	return bonuses->getFirst(Selector::type(type).And(Selector::subtype(subtype)));
+	return static_cast<bool>(
+			bonuses->getFirst(Selector::type(type).And(Selector::subtype(subtype))));
 }
 
 int TurnInfo::valOfBonuses(Bonus::BonusType type, int subtype) const

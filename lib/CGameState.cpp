@@ -1596,7 +1596,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 					{
 						continue;
 					}
-					auto bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
+					auto bb = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, *scenarioOps->campState->currentMap, g);
 					hero->addNewBonus(bb);
 				}
 			}
@@ -1992,7 +1992,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	else if(h)
 	{	//hero specialty
 		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
-		for(const Bonus *it : *lista)
+		for(const std::shared_ptr<Bonus> it : *lista)
 		{
 			auto nid = CreatureID(it->additionalInfo);
 			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)

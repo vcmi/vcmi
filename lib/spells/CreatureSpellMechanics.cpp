@@ -90,7 +90,7 @@ ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(co
 {
 	TBonusListPtr spellBon = obj->getSpellBonuses();
 	bool hasPositiveSpell = false;
-	for(const Bonus * b : *spellBon)
+	for(const std::shared_ptr<Bonus> b : *spellBon)
 	{
 		if(SpellID(b->sid).toSpell()->isPositive())
 		{

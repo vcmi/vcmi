@@ -108,7 +108,7 @@ std::string CArtifact::nodeName() const
 	return "Artifact: " + Name();
 }
 
-void CArtifact::addNewBonus(Bonus *b)
+void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = Bonus::ARTIFACT;
 	b->duration = Bonus::PERMANENT;
@@ -118,24 +118,24 @@ void CArtifact::addNewBonus(Bonus *b)
 
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 {
-	Bonus b;
-	b.type = Bonus::LEVEL_COUNTER;
-	b.val = 1;
-	b.duration = Bonus::COMMANDER_KILLED;
-	art->accumulateBonus (b);
+	auto b = std::make_shared<Bonus>();
+	b->type = Bonus::LEVEL_COUNTER;
+	b->val = 1;
+	b->duration = Bonus::COMMANDER_KILLED;
+	art->accumulateBonus(b);
 
 	for (auto bonus : bonusesPerLevel)
 	{
 		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) % bonus.first == 0) //every n levels
 		{
-			art->accumulateBonus (bonus.second);
+			art->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 		}
 	}
 	for (auto bonus : thresholdBonuses)
 	{
 		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) == bonus.first) //every n levels
 		{
-			art->addNewBonus (&bonus.second);
+			art->addNewBonus(std::make_shared<Bonus>(bonus.second));
 		}
 	}
 }
@@ -303,7 +303,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 
 	for (auto b : node["bonuses"].Vector())
 	{
-		auto bonus = JsonUtils::parseBonus (b);
+		auto bonus = JsonUtils::parseBonus(b);
 		art->addNewBonus(bonus);
 	}
 	return art;
@@ -439,11 +439,13 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 {
 	for (auto b : node["growing"]["bonusesPerLevel"].Vector())
 	{
-		art->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"])));
+		auto bonus = JsonUtils::parseBonus (b["bonus"]);
+		art->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *bonus));
 	}
 	for (auto b : node["growing"]["thresholdBonuses"].Vector())
 	{
-		art->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"])));
+		auto bonus = JsonUtils::parseBonus (b["bonus"]);
+		art->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *bonus));
 	}
 }
 
@@ -546,18 +548,18 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 	return pickRandomArtifact(rand, flags, [](ArtifactID){ return true;});
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalInfo = 0)
+std::shared_ptr<Bonus> createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalInfo = 0)
 {
-	auto added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
+	auto added = std::make_shared<Bonus>(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
 	added->valType = valType;
 	added->limiter = limiter;
 	return added;
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator = std::shared_ptr<IPropagator>(), int additionalInfo = 0)
+std::shared_ptr<Bonus> createBonus(Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator = std::shared_ptr<IPropagator>(), int additionalInfo = 0)
 {
-	auto added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
+	auto added = std::make_shared<Bonus>(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
 	added->valType = Bonus::BASE_NUMBER;
 	added->propagator = propagator;
@@ -574,7 +576,7 @@ void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, i
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID aid, Bonus *bonus)
+void CArtHandler::giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus)
 {
 	bonus->sid = aid;
 	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
@@ -785,7 +787,7 @@ CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 CArtifactInstance *CArtifactInstance::createScroll(SpellID sid)
 {
 	auto ret = new CArtifactInstance(VLC->arth->artifacts[ArtifactID::SPELL_SCROLL]);
-	auto b = new Bonus(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
+	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
 	ret->addNewBonus(b);
 	return ret;
 }
@@ -957,7 +959,7 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 		auto  ret = new CArtifactInstance(Art);
 		if (dynamic_cast<CGrowingArtifact *>(Art))
 		{
-			auto  bonus = new Bonus;
+			auto bonus = std::make_shared<Bonus>();
 			bonus->type = Bonus::LEVEL_COUNTER;
 			bonus->val = 0;
 			ret->addNewBonus (bonus);
@@ -1018,7 +1020,7 @@ void CArtifactInstance::deserializationFix()
 
 SpellID CArtifactInstance::getGivenSpellID() const
 {
-	const Bonus * b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
+	const auto b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
 		logGlobal->warnStream() << "Warning: " << nodeName() << " doesn't bear any spell!";
