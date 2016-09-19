@@ -68,32 +68,51 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
+		std::vector<SecondarySkill> unpossessedAbilities;
+		std::vector<int> unpossessedAbilityLevels;
+		int abilitiesRequiringSlot = 0;
+
+		//filter out unnecessary secondary skills
+		for (int i = 0; i < abilities.size(); i++)
+		{
+			int curLev = h->getSecSkillLevel(abilities[i]);
+			bool abilityCanUseSlot = !curLev && ((h->secSkills.size() + abilitiesRequiringSlot) < GameConstants::SKILL_PER_HERO); //limit new abilities to number of slots
+
+			if (abilityCanUseSlot)
+				abilitiesRequiringSlot++;
+
+			if ( (curLev && curLev < abilityLevels[i]) || abilityCanUseSlot )
+			{
+				unpossessedAbilities.push_back(abilities[i]);
+				unpossessedAbilityLevels.push_back(abilityLevels[i]);
+			}
+		}
+		
 		TExpType expVal = h->calculateXp(gainedExp);
 		//getText(iw,afterBattle,175,h); //wtf?
-		iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
-		iw.text.addReplacement(h->name);
 
 		if(expVal)
 			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
+			
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
 				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
 
-		for(int i=0; i<abilities.size(); i++)
-			iw.components.push_back(Component(Component::SEC_SKILL,abilities[i],abilityLevels[i],0));
-
-		cb->showInfoDialog(&iw);
+		for(int i=0; i<unpossessedAbilities.size(); i++)
+			iw.components.push_back(Component(Component::SEC_SKILL, unpossessedAbilities[i], unpossessedAbilityLevels[i],0));
+			
+		if (iw.components.size() > 0) //TODO:Create information that box was empty for now, and deliver to CGPandoraBox::giveContentsAfterExp
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
+			iw.text.addReplacement(h->name);
+			cb->showInfoDialog(&iw);
+		}
 
 		//give sec skills
-		for(int i=0; i<abilities.size(); i++)
-		{
-			int curLev = h->getSecSkillLevel(abilities[i]);
+		for (int i = 0; i<unpossessedAbilities.size(); i++)
+			cb->changeSecSkill(h, unpossessedAbilities[i], unpossessedAbilityLevels[i],true);
 
-			if( (curLev  &&  curLev < abilityLevels[i])	|| (h->canLearnSkill() ))
-			{
-				cb->changeSecSkill(h,abilities[i],abilityLevels[i],true);
-			}
-		}
+		assert(h->secSkills.size() <= GameConstants::SKILL_PER_HERO);
 
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
