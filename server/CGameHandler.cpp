@@ -2626,6 +2626,21 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 		return false;
 	}
 
+	// We can always put stacks into locked garrison, but not take them out of it
+	auto notRemovable = [&](const CArmedInstance * army)
+	{
+		if(id1 != id2) // Stack arrangement inside locked garrison is allowed
+		{
+			auto g = dynamic_cast<const CGGarrison *>(army);
+			if(g && !g->removableUnits)
+			{
+				complain("Stacks in this garrison are not removable!\n");
+				return true;
+			}
+		}
+		return false;
+	};
+
 	if(what==1) //swap
 	{
 		if ( ((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s1->getStackCount(p1))
@@ -2641,12 +2656,30 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 			return false;
 		}
 
+		if(!s1->slotEmpty(p1) && !s2->slotEmpty(p2))
+		{
+			if(notRemovable(sl1.army) || notRemovable(sl2.army))
+				return false;
+		}
+		if(s1->slotEmpty(p1) && notRemovable(sl2.army))
+			return false;
+		else if(s2->slotEmpty(p2) && notRemovable(sl1.army))
+			return false;
+
 		swapStacks(sl1, sl2);
 	}
 	else if(what==2)//merge
 	{
 		if (( s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
 		|| (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
+			return false;
+
+		if(s1->slotEmpty(p1) || s2->slotEmpty(p2))
+		{
+			complain("Cannot merge empty stack!");
+			return false;
+		}
+		else if(notRemovable(sl1.army))
 			return false;
 
 		moveStack(sl1, sl2);
@@ -2681,6 +2714,17 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 				return false;
 			}
 
+			if(notRemovable(sl1.army))
+			{
+				if(s1->getStackCount(p1) > countLeftOnSrc)
+					return false;
+			}
+			else if(notRemovable(sl2.army))
+			{
+				if(s2->getStackCount(p1) < countLeftOnSrc)
+					return false;
+			}
+
 			moveStack(sl1, sl2, countToMove);
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
@@ -2693,6 +2737,8 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 				return false;
 			}
 
+			if(notRemovable(sl1.army))
+				return false;
 
 			moveStack(sl1, sl2, val);
 		}
