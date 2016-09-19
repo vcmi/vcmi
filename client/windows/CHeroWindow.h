@@ -91,6 +91,7 @@ public:
 	void questlog(); //show quest log in hero window
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
+	virtual void updateGarrisons() override;  //updates the morale widget and calls the parent
 
 	//friends
 	friend void CArtPlace::clickLeft(tribool down, bool previousState);
