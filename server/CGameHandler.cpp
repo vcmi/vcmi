@@ -4384,17 +4384,17 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		sr.res[Res::GOLD] += 100000; //100k
 		sendAndApply(&sr);
 	}
-	else if(message == "vcmieagles") //reveal FoW
+	else if(message == "vcmieagles" || message == "vcmiungoliant") //reveal or conceal FoW
 	{
 		FoWChange fc;
-		fc.mode = 1;
+		fc.mode = (message == "vcmieagles" ? 1 : 0);
 		fc.player = player;
 		auto  hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
 		int lastUnc = 0;
 		for(int i=0;i<gs->map->width;i++)
 			for(int j=0;j<gs->map->height;j++)
 				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k))
+					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k) || message == "vcmiungoliant")
 						hlp_tab[lastUnc++] = int3(i,j,k);
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;
