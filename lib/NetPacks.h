@@ -1068,9 +1068,10 @@ struct ChangeObjectVisitors : public CPackForClient // 1003
 {
 	enum VisitMode
 	{
-		VISITOR_ADD,    // mark hero as one that have visited this object
-		VISITOR_REMOVE, // unmark visitor, reversed to ADD
-		VISITOR_CLEAR   // clear all visitors from this object (object reset)
+		VISITOR_ADD,      // mark hero as one that have visited this object
+		VISITOR_ADD_TEAM, // mark team as one that have visited this object
+		VISITOR_REMOVE,   // unmark visitor, reversed to ADD
+		VISITOR_CLEAR     // clear all visitors from this object (object reset)
 	};
 	ui32 mode; // uses VisitMode enum
 	ObjectInstanceID object;

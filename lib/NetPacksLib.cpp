@@ -312,6 +312,15 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs( CGameState *gs )
 			gs->getHero(hero)->visitedObjects.insert(object);
 			gs->getPlayer(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
 			break;
+		case VISITOR_ADD_TEAM:
+			{
+				TeamState *ts = gs->getPlayerTeam(gs->getHero(hero)->tempOwner);
+				for (auto & color : ts->players)
+				{
+					gs->getPlayer(color)->visitedObjects.insert(object);
+				}
+			}
+			break;
 		case VISITOR_CLEAR:
 			for (CGHeroInstance * hero : gs->map->allHeroes)
 				hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
