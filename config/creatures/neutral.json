@@ -151,7 +151,7 @@
 			"mirror" :
 			{
 				"type" : "MAGIC_MIRROR",
-				"val" : 30
+				"val" : 20
 			},
 			"casts" :
 			{
