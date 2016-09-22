@@ -352,6 +352,7 @@ struct PossibleSpellcast
 {
 	const CSpell *spell;
 	BattleHex dest;
+	si32 value;
 };
 
 struct CurrentOffensivePotential
@@ -426,7 +427,7 @@ void CBattleAI::attemptCastingSpell()
 	{
 		for(auto hex : getTargetsToConsider(spell, hero))
 		{
-			PossibleSpellcast ps = {spell, hex};
+			PossibleSpellcast ps = {spell, hex, 0};
 			possibleCasts.push_back(ps);
 		}
 	}
@@ -466,11 +467,10 @@ void CBattleAI::attemptCastingSpell()
 						damageDealt += dmg;
 				}
 
-				const int damageDiff = damageDealt - damageReceived;
+				const int damageDiff = damageDealt - damageReceived * 10;
 
-
-				LOGFL("Casting %s on hex %d would deal %d damage points among %d stacks.",
-					ps.spell->name % ps.dest % damageDiff % stacksSuffering.size());
+				LOGFL("Casting %s on hex %d would deal { %d %d } damage points among %d stacks.",
+					ps.spell->name % ps.dest % damageDealt % damageReceived % stacksSuffering.size());
 				//TODO tactic effect too
 				return damageDiff;
 			}
@@ -520,7 +520,15 @@ void CBattleAI::attemptCastingSpell()
 		}
 	};
 
-	auto castToPerform = *vstd::maxElementByFun(possibleCasts, evaluateSpellcast);
+	for(PossibleSpellcast & psc : possibleCasts)
+		psc.value = evaluateSpellcast(psc);
+
+	auto pscValue = [] (const PossibleSpellcast &ps) -> int
+	{
+		return ps.value;
+	};
+
+	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
 	LOGFL("Best spell is %s. Will cast.", castToPerform.spell->name);
 
 	BattleAction spellcast;
