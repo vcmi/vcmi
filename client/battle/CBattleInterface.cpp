@@ -3010,18 +3010,27 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface * to)
 			}
 			if (settings["battle"]["mouseShadow"].Bool())
 			{
-				if(spellToCast) //when casting spell
+				const ISpellCaster * caster = nullptr;
+				const CSpell * spell = nullptr;
+
+                if(spellToCast)//hero casts spell
+				{
+					spell = SpellID(spellToCast->additionalInfo).toSpell();
+					caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
+				}
+				else if(creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
+				{
+                    spell = SpellID(creatureSpellToCast).toSpell();
+                    caster = activeStack;
+				}
+
+				if(caster && spell) //when casting spell
 				{
 					//calculating spell school level
-					const CSpell & spToCast =  *CGI->spellh->objects[spellToCast->additionalInfo];
-					ui8 schoolLevel = 0;
-
-					auto caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
-					if (caster)
-						schoolLevel = caster->getSpellSchoolLevel(&spToCast);
+					ui8 schoolLevel = caster->getSpellSchoolLevel(spell);
 
 					// printing shaded hex(es)
-					auto shaded = spToCast.rangeInHexes(currentlyHoveredHex, schoolLevel, curInt->cb->battleGetMySide());
+					auto shaded = spell->rangeInHexes(currentlyHoveredHex, schoolLevel, curInt->cb->battleGetMySide());
 					for(BattleHex shadedHex : shaded)
 					{
 						if ((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH -1))
