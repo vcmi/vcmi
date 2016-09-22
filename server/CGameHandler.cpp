@@ -6291,21 +6291,6 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 {
 	std::unordered_set<int3, ShashInt3> tiles;
 	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
-	if (hide)
-	{
-		std::unordered_set<int3, ShashInt3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
-		auto p = getPlayer(player);
-		for (auto h : p->heroes)
-		{
-			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), h->tempOwner, -1);
-		}
-		for (auto t : p->towns)
-		{
-			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, -1);
-		}
-		for (auto tile : observedTiles)
-			vstd::erase_if_present (tiles, tile);
-	}
 	changeFogOfWar(tiles, player, hide);
 }
 

@@ -220,29 +220,13 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
 	for(int3 t : tiles)
-		team->fogOfWarMap[t.x][t.y][t.z] = mode;
-	if (mode == 0) //do not hide too much
 	{
-		std::unordered_set<int3, ShashInt3> tilesRevealed;
-		for (auto & elem : gs->map->objects)
-		{
-			const CGObjectInstance *o = elem;
-			if (o)
-			{
-				switch(o->ID)
-				{
-				case Obj::HERO:
-				case Obj::MINE:
-				case Obj::TOWN:
-				case Obj::ABANDONED_MINE:
-					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
-						gs->getTilesInRange(tilesRevealed, o->getSightCenter(), o->getSightRadius(), o->tempOwner, 1);
-					break;
-				}
-			}
-		}
-		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
-			team->fogOfWarMap[t.x][t.y][t.z] = 1;
+		if(mode == 0 && team->fogOfWarMap[t.x][t.y][t.z] > 1)
+			continue;
+		else if(mode == 1 && team->fogOfWarMap[t.x][t.y][t.z])
+			continue;
+
+		team->fogOfWarMap[t.x][t.y][t.z] = mode;
 	}
 }
 
@@ -309,9 +293,11 @@ DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
 		logNetwork->error("Wrong ChangeObjPos: object %d doesn't exist!", objid.getNum());
 		return;
 	}
+	gs->removeSightnObj(obj);
 	gs->map->removeBlockVisTiles(obj);
 	obj->pos = nPos;
 	gs->map->addBlockVisTiles(obj);
+	gs->addSightObj(obj);
 }
 
 DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
@@ -386,6 +372,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	logGlobal->debug("removing object id=%d; address=%x; name=%s", id, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
+	gs->removeSightnObj(obj);
 	gs->map->removeBlockVisTiles(obj);
 
 	if(obj->ID==Obj::HERO)
@@ -516,6 +503,8 @@ void TryMoveHero::applyGs(CGameState *gs)
 		logGlobal->error("Attempt ot move unavailable hero %d", id.getNum());
 		return;
 	}
+	if(start != end)
+		gs->removeSightnObj(h);
 
 	h->movement = movePoints;
 
@@ -547,17 +536,19 @@ void TryMoveHero::applyGs(CGameState *gs)
 		h->boat = nullptr;
 	}
 
-	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
+	if(start != end)
 	{
-		gs->map->removeBlockVisTiles(h);
-		h->pos = end;
-		if(CGBoat *b = const_cast<CGBoat *>(h->boat))
-			b->pos = end;
-		gs->map->addBlockVisTiles(h);
-	}
+		if(result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK)
+		{
+			gs->map->removeBlockVisTiles(h);
+			h->pos = end;
+			if(CGBoat *b = const_cast<CGBoat *>(h->boat))
+				b->pos = end;
+			gs->map->addBlockVisTiles(h);
+		}
 
-	for(int3 t : fowRevealed)
-		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+		gs->addSightObj(h);
+	}
 }
 
 DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
@@ -571,7 +562,9 @@ DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
 		t->updateAppearance();
 	}
 	t->builded = builded;
+	gs->removeSightnObj(t);
 	t->recreateBuildingsBonuses();
+	gs->addSightObj(t);
 }
 DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 {
@@ -583,7 +576,9 @@ DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 		t->updateAppearance();
 	}
 	t->destroyed = destroyed; //yeaha
+	gs->removeSightnObj(t);
 	t->recreateBuildingsBonuses();
+	gs->addSightObj(t);
 }
 
 DLL_LINKAGE void SetAvailableCreatures::applyGs(CGameState *gs)
@@ -661,6 +656,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	{
 		t->setVisitingHero(h);
 	}
+	gs->addSightObj(h);
 }
 
 DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
@@ -720,6 +716,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	gs->map->addBlockVisTiles(o);
 	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
+	gs->addSightObj(o);
 
 	logGlobal->debug("Added object id=%d; address=%x; name=%s", id, (intptr_t)o, o->getObjectName());
 }
@@ -1166,29 +1163,40 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 		return;
 	}
 
-	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
-	if(what == ObjProperty::OWNER && cai)
+	if(what == ObjProperty::OWNER)
 	{
-		if(obj->ID == Obj::TOWN)
+		CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
+		if(cai)
 		{
-			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
-			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
-				gs->getPlayer(t->tempOwner)->towns -= t;
-			if(val < PlayerColor::PLAYER_LIMIT_I)
+			if(obj->ID == Obj::TOWN)
 			{
-				PlayerState * p = gs->getPlayer(PlayerColor(val));
-				p->towns.push_back(t);
+				CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+				if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
+					gs->getPlayer(t->tempOwner)->towns -= t;
+				if(val < PlayerColor::PLAYER_LIMIT_I)
+				{
+					PlayerState * p = gs->getPlayer(PlayerColor(val));
+					p->towns.push_back(t);
 
-				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
-				if(p->daysWithoutCastle)
-					p->daysWithoutCastle = boost::none;
+					//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
+					if(p->daysWithoutCastle)
+						p->daysWithoutCastle = boost::none;
+				}
 			}
-		}
 
-		CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
-		nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
-		obj->setProperty(what,val);
-		nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
+			gs->removeSightnObj(obj);
+			CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
+			nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
+			obj->setProperty(what,val);
+			nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
+			gs->addSightObj(obj);
+		}
+		else
+		{
+			gs->removeSightnObj(obj);
+			obj->setProperty(what, val);
+			gs->addSightObj(obj);
+		}
 	}
 	else //not an armed instance
 	{

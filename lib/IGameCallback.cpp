@@ -78,8 +78,8 @@ void CPrivilagedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
-						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
+						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z] == 0)
+						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z] > 0)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}
