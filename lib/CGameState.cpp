@@ -1520,6 +1520,7 @@ void CGameState::removeSightnObj(const CGObjectInstance * obj)
 
 void CGameState::addSightObj(const CGObjectInstance * obj, bool add)
 {
+	assert(obj);
 	if(!vstd::contains(players, obj->tempOwner))
 		return;
 
@@ -1537,6 +1538,9 @@ void CGameState::addSightObj(TeamID team, const CGObjectInstance * obj, bool add
 	getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius());
 	for(int3 t : tiles)
 	{
+		/// This code expect that tile can't be within sight range of more than 254 player-owned objects
+		/// Assert is best way to do these checks since if they fail that's mean code is broken
+		assert(ts->fogOfWarMap[t.x][t.y][t.z] != 255);
 		if(add)
 		{
 			if(ts->fogOfWarMap[t.x][t.y][t.z] == FoWChange::HIDDEN)
@@ -1546,6 +1550,9 @@ void CGameState::addSightObj(TeamID team, const CGObjectInstance * obj, bool add
 		}
 		else
 		{
+			/// There was no objects with sight over this tile, but for some reason we try to remove sight anyway
+			/// That's mean when ownership or sight radius of object changed sight map wasn't appropriately updated
+			assert(ts->fogOfWarMap[t.x][t.y][t.z] == FoWChange::REVEALED);
 			ts->fogOfWarMap[t.x][t.y][t.z]--;
 		}
 	}
