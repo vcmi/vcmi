@@ -178,7 +178,7 @@ void CPlayerInterface::yourTurn()
 			}
 			firstCall = 0;
 		}
-		else
+		else if(settings["testing"].isNull() || cb->getDate() % static_cast<int>(settings["testing"]["savefrequency"].Float()) == 0)
 		{
 			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
 			autosaveCount %= 5;
