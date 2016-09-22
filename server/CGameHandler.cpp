@@ -1698,26 +1698,6 @@ void CGameHandler::newTurn()
 		{
 			n.res[player] = n.res[player] + t->dailyIncome();
 		}
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::TOWER))
-		{
-			// Skyship, probably easier to handle same as Veil of darkness
-			//do it every new day after veils apply
-			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
-			{
-				FoWChange fw;
-				fw.mode = FoWChange::REVEALED;
-				fw.player = player;
-				// find all hidden tiles
-				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-				for (size_t i=0; i<fow.size(); i++)
-					for (size_t j=0; j<fow.at(i).size(); j++)
-						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
-							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3(i,j,k));
-
-				sendAndApply (&fw);
-			}
-		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
 			for (auto & player : gs->players)

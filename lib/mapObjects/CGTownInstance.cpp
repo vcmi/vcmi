@@ -434,14 +434,7 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 
 int CGTownInstance::getSightRadius() const //returns sight distance
 {
-	if (subID == ETownType::TOWER)
-	{
-		if (hasBuilt(BuildingID::GRAIL)) //skyship
-			return -1; //entire map
-		if (hasBuilt(BuildingID::LOOKOUT_TOWER)) //lookout tower
-			return 20;
-	}
-	return 5;
+	return 5 + valOfBonuses(Bonus::SIGHT_RADIOUS);
 }
 
 void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
@@ -1089,6 +1082,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 	else if(subID == ETownType::TOWER) //tower
 	{
+		addBonusIfBuilt(BuildingID::LOOKOUT_TOWER, Bonus::SIGHT_RADIOUS, +20);
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::SIGHT_RADIOUS, +5001); //more than 5000 reveal entire map
 		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +15, PrimarySkill::KNOWLEDGE); //grail
 	}
 	else if(subID == ETownType::INFERNO) //Inferno
