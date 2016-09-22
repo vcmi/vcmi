@@ -248,7 +248,8 @@ int main(int argc, char** argv)
         ("loadserverip",po::value<std::string>(),"IP for loaded game server")
 		("loadserverport",po::value<std::string>(),"port for loaded game server")
 		("testingport",po::value<std::string>(),"port for testing, override specified in config file")
-		("testingfileprefix",po::value<std::string>(),"prefix for auto save files");
+		("testingfileprefix",po::value<std::string>(),"prefix for auto save files")
+		("testingsavefrequency",po::value<int>(),"how often auto save should be created");
 
 	if(argc > 1)
 	{
@@ -313,6 +314,7 @@ int main(int argc, char** argv)
 		testingSettings["enabled"].Bool() = true;
 		testingSettings["port"].String() = vm["testingport"].as<std::string>();
 		testingSettings["prefix"].String() = vm["testingfileprefix"].as<std::string>();
+		testingSettings["savefrequency"].Float() = vm.count("testingsavefrequency") ? vm["testingsavefrequency"].as<int>() : 1;
 	}
 
 	// Initialize logging based on settings

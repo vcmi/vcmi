@@ -65,35 +65,49 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 			break;
 		}
 	}
+	
+	std::vector<std::pair<SecondarySkill, ui8>> unpossessedAbilities; //ability + ability level
+	int abilitiesRequiringSlot = 0;
 
-	if(gainedExp || changesPrimSkill || abilities.size())
+	//filter out unnecessary secondary skills
+	for (int i = 0; i < abilities.size(); i++)
+	{
+		int curLev = h->getSecSkillLevel(abilities[i]);
+		bool abilityCanUseSlot = !curLev && ((h->secSkills.size() + abilitiesRequiringSlot) < GameConstants::SKILL_PER_HERO); //limit new abilities to number of slots
+
+		if (abilityCanUseSlot)
+			abilitiesRequiringSlot++;
+
+		if ((curLev && curLev < abilityLevels[i]) || abilityCanUseSlot)
+		{
+			unpossessedAbilities.push_back({ abilities[i], abilityLevels[i] });
+		}
+	}
+
+	if(gainedExp || changesPrimSkill || unpossessedAbilities.size())
 	{
 		TExpType expVal = h->calculateXp(gainedExp);
 		//getText(iw,afterBattle,175,h); //wtf?
 		iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
 		iw.text.addReplacement(h->name);
-
+		
 		if(expVal)
 			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
+			
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
 				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
 
-		for(int i=0; i<abilities.size(); i++)
-			iw.components.push_back(Component(Component::SEC_SKILL,abilities[i],abilityLevels[i],0));
-
+		for(auto abilityData : unpossessedAbilities)
+			iw.components.push_back(Component(Component::SEC_SKILL, abilityData.first, abilityData.second, 0));
+			
 		cb->showInfoDialog(&iw);
 
 		//give sec skills
-		for(int i=0; i<abilities.size(); i++)
-		{
-			int curLev = h->getSecSkillLevel(abilities[i]);
+		for (auto abilityData : unpossessedAbilities)
+			cb->changeSecSkill(h, abilityData.first, abilityData.second, true);
 
-			if( (curLev  &&  curLev < abilityLevels[i])	|| (h->canLearnSkill() ))
-			{
-				cb->changeSecSkill(h,abilities[i],abilityLevels[i],true);
-			}
-		}
+		assert(h->secSkills.size() <= GameConstants::SKILL_PER_HERO);
 
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
@@ -106,6 +120,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		if(expVal)
 			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
 	}
+	//else { } //TODO:Create information that box was empty for now, and deliver to CGPandoraBox::giveContentsAfterExp or refactor
 
 	if(!cb->isVisitCoveredByAnotherQuery(this, h))
 		giveContentsAfterExp(h);

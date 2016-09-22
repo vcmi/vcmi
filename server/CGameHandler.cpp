@@ -1356,7 +1356,7 @@ static bool evntCmp(const CMapEvent &a, const CMapEvent &b)
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
 {// bool forced = true - if creature should be replaced, if false - only if no creature was set
-	const PlayerState *p = gs->getPlayer(town->tempOwner);
+	const PlayerState * p = getPlayer(town->tempOwner);
 	if(!p)
 	{
 		logGlobal->warn("There is no player owner of town %s at %s", town->name, town->pos());
@@ -1626,7 +1626,7 @@ void CGameHandler::newTurn()
 				fw.mode = 1;
 				fw.player = player;
 				// find all hidden tiles
-				const auto & fow = gs->getPlayerTeam(player)->fogOfWarMap;
+				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
 				for (size_t i=0; i<fow.size(); i++)
 					for (size_t j=0; j<fow.at(i).size(); j++)
 						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
@@ -1638,7 +1638,7 @@ void CGameHandler::newTurn()
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			for (auto & player : gameState()->players)
+			for(auto & player : gs->players)
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
@@ -1863,7 +1863,7 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 {
 	battleResult.set(nullptr);
 
-	const auto t = gs->getTile(tile);
+	const auto t = getTile(tile);
 	ETerrainType terrain = t->terType;
 	if(gs->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainType::SAND;
@@ -1972,7 +1972,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, bo
 		return false;
 	}
 
-	const TerrainTile t = *gs->getTile(hmpos);
+	const TerrainTile t = *getTile(hmpos);
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
@@ -2181,7 +2181,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 
 		if (oldOwner < PlayerColor::PLAYER_LIMIT) //old owner is real player
 		{
-			if (gs->getPlayer(oldOwner)->towns.empty())//previous player lost last last town
+			if(getPlayer(oldOwner)->towns.empty()) //previous player lost last last town
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
@@ -2192,11 +2192,11 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 		}
 	}
 
-	const PlayerState * p = gs->getPlayer(owner);
+	const PlayerState * p = getPlayer(owner);
 
 	if((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4 ) && p && p->dwellings.size()==1)//first dwelling captured
 	{
-		for(const CGTownInstance *t : gs->getPlayer(owner)->towns)
+		for(const CGTownInstance * t : getPlayer(owner)->towns)
 		{
 			if (t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
@@ -2226,7 +2226,7 @@ void CGameHandler::giveResource(PlayerColor player, Res::ERes which, int val) //
 	SetResource sr;
 	sr.player = player;
 	sr.resid = which;
-	sr.val = gs->players.find(player)->second.resources.at(which) + val;
+	sr.val = getPlayer(player)->resources.at(which) + val;
 	sendAndApply(&sr);
 }
 
@@ -2505,7 +2505,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
 	auto h1 = getHero(hero1), h2 = getHero(hero2);
 
-	if( gameState()->getPlayerRelations(h1->getOwner(), h2->getOwner()))
+	if(getPlayerRelations(h1->getOwner(), h2->getOwner()))
 	{
 		auto exchange = std::make_shared<CGarrisonDialogQuery>(h1, h2);
 		ExchangeDialog hex;
@@ -2610,8 +2610,8 @@ void CGameHandler::close()
 
 bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player )
 {
-	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id1)),
-		*s2 = static_cast<CArmedInstance*>(gs->getObjInstance(id2));
+	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)),
+		* s2 = static_cast<const CArmedInstance *>(getObjInstance(id2));
 	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 	if(!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
@@ -2625,6 +2625,21 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 		complain("Cannot exchange stacks between these two objects!\n");
 		return false;
 	}
+
+	// We can always put stacks into locked garrison, but not take them out of it
+	auto notRemovable = [&](const CArmedInstance * army)
+	{
+		if(id1 != id2) // Stack arrangement inside locked garrison is allowed
+		{
+			auto g = dynamic_cast<const CGGarrison *>(army);
+			if(g && !g->removableUnits)
+			{
+				complain("Stacks in this garrison are not removable!\n");
+				return true;
+			}
+		}
+		return false;
+	};
 
 	if(what==1) //swap
 	{
@@ -2641,12 +2656,30 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 			return false;
 		}
 
+		if(!s1->slotEmpty(p1) && !s2->slotEmpty(p2))
+		{
+			if(notRemovable(sl1.army) || notRemovable(sl2.army))
+				return false;
+		}
+		if(s1->slotEmpty(p1) && notRemovable(sl2.army))
+			return false;
+		else if(s2->slotEmpty(p2) && notRemovable(sl1.army))
+			return false;
+
 		swapStacks(sl1, sl2);
 	}
 	else if(what==2)//merge
 	{
 		if (( s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
 		|| (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
+			return false;
+
+		if(s1->slotEmpty(p1) || s2->slotEmpty(p2))
+		{
+			complain("Cannot merge empty stack!");
+			return false;
+		}
+		else if(notRemovable(sl1.army))
 			return false;
 
 		moveStack(sl1, sl2);
@@ -2681,6 +2714,17 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 				return false;
 			}
 
+			if(notRemovable(sl1.army))
+			{
+				if(s1->getStackCount(p1) > countLeftOnSrc)
+					return false;
+			}
+			else if(notRemovable(sl2.army))
+			{
+				if(s2->getStackCount(p1) < countLeftOnSrc)
+					return false;
+			}
+
 			moveStack(sl1, sl2, countToMove);
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
@@ -2693,6 +2737,8 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 				return false;
 			}
 
+			if(notRemovable(sl1.army))
+				return false;
 
 			moveStack(sl1, sl2, val);
 		}
@@ -2727,7 +2773,7 @@ PlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
 
 bool CGameHandler::disbandCreature( ObjectInstanceID id, SlotID pos )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id));
+	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id));
 	if(!vstd::contains(s1->stacks,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
@@ -2760,7 +2806,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		switch (requestedBuilding->mode)
 		{
 		case CBuilding::BUILD_NORMAL :
-			if (gs->canBuildStructure(t, requestedID) != EBuildingState::ALLOWED)
+			if(canBuildStructure(t, requestedID) != EBuildingState::ALLOWED)
 				COMPLAIN_RET("Cannot build that building!");
 			break;
 
@@ -2877,7 +2923,7 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 	{
 		SetResources sr;
 		sr.player = t->tempOwner;
-		sr.res = gs->getPlayer(t->tempOwner)->resources - requestedBuilding->resources;
+		sr.res = getPlayer(t->tempOwner)->resources - requestedBuilding->resources;
 		sendAndApply(&sr);
 	}
 
@@ -2935,7 +2981,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 
 bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dstid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
-	const CGDwelling *dw = static_cast<const CGDwelling*>(gs->getObj(objid));
+	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
 	const CArmedInstance *dst = nullptr;
 	const CCreature *c = VLC->creh->creatures.at(crid);
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
@@ -2970,7 +3016,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	SlotID slot = dst->getSlotFor(crid);
 
 	if( (!found && complain("Cannot recruit: no such creatures!"))
-		|| (cram  >  VLC->creh->creatures.at(crid)->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| (cram  >  VLC->creh->creatures.at(crid)->maxAmount(getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
 		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
@@ -2980,7 +3026,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	//recruit
 	SetResources sr;
 	sr.player = dst->tempOwner;
-	sr.res = gs->getPlayer(dst->tempOwner)->resources - (c->cost * cram);
+	sr.res = getPlayer(dst->tempOwner)->resources - (c->cost * cram);
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -3021,12 +3067,13 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 
 bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID )
 {
-	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->getObjInstance(objid));
+	const CArmedInstance * obj = static_cast<const CArmedInstance *>(getObjInstance(objid));
 	if (!obj->hasStackAtSlot(pos))
 	{
 		COMPLAIN_RET("Cannot upgrade, no stack at slot " + boost::to_string(pos));
 	}
-	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
+	UpgradeInfo ui;
+	getUpgradeInfo(obj, pos, ui);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayer(player);
 	int crQuantity = obj->stacks.at(pos)->count;
@@ -3100,7 +3147,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 
 bool CGameHandler::garrisonSwap( ObjectInstanceID tid )
 {
-	CGTownInstance *town = gs->getTown(tid);
+	const CGTownInstance * town = getTown(tid);
 	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
 	{
 
@@ -3218,8 +3265,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
  */
 bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
-
-	CGHeroInstance *hero = gs->getHero(heroID);
+	const CGHeroInstance * hero = getHero(heroID);
 	const CArtifactInstance *destArtifact = hero->getArt(artifactSlot);
 
 	if(!destArtifact)
@@ -3253,8 +3299,8 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 
 bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 {
-	CGHeroInstance *hero = gs->getHero(hid);
-	CGTownInstance *town = hero->visitedTown;
+	const CGHeroInstance * hero = getHero(hid);
+	const CGTownInstance * town = hero->visitedTown;
 	if(aid==ArtifactID::SPELLBOOK)
 	{
 		if((!town->hasBuilt(BuildingID::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
@@ -3274,7 +3320,7 @@ bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 		int price = VLC->arth->artifacts[aid]->price;
 
 		if(( hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
-		 || (gs->getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
+		 || (getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
 		{
 			return false;
 		}
@@ -3399,8 +3445,8 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, Secon
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2)
 {
-	int r1 = gs->getPlayer(player)->resources.at(id1),
-		r2 = gs->getPlayer(player)->resources.at(id2);
+	int r1 = getPlayer(player)->resources.at(id1),
+		r2 = getPlayer(player)->resources.at(id2);
 
 	vstd::amin(val, r1); //can't trade more resources than have
 
@@ -3490,15 +3536,15 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, PlayerColor r2)
 {
-	const PlayerState *p2 = gs->getPlayer(r2, false);
+	const PlayerState *p2 = getPlayer(r2, false);
 	if(!p2  ||  p2->status != EPlayerStatus::INGAME)
 	{
 		complain("Dest player must be in game!");
 		return false;
 	}
 
-	si32 curRes1 = gs->getPlayer(player)->resources.at(r1),
-	     curRes2 = gs->getPlayer(r2)->resources.at(r1);
+	si32 curRes1 = getPlayer(player)->resources.at(r1),
+		 curRes2 = getPlayer(r2)->resources.at(r1);
 	val = std::min(si32(val),curRes1);
 
 	SetResource sr;
@@ -3533,8 +3579,8 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, ui8 formation)
 
 bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor player)
 {
-	const PlayerState *p = gs->getPlayer(player);
-	const CGTownInstance *t = gs->getTown(obj->id);
+	const PlayerState * p = getPlayer(player);
+	const CGTownInstance * t = getTown(obj->id);
 
 	//common preconditions
 //	if( (p->resources.at(Res::GOLD)<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
@@ -4217,7 +4263,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 		SetMana sm;
 		GiveBonus giveBonus(GiveBonus::HERO);
 
-		CGHeroInstance *h = gs->getHero(currObj);
+		const CGHeroInstance * h = getHero(currObj);
 		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
 
 		sm.hid = h->id;
@@ -4243,13 +4289,13 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if (message == "vcmiarmenelos") //build all buildings in selected town
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
-		CGTownInstance *town;
+		const CGHeroInstance * hero = getHero(currObj);
+		const CGTownInstance * town;
 
 		if (hero)
 			town = hero->visitedTown;
 		else
-			town = gs->getTown(currObj);
+			town = getTown(currObj);
 
 		if (town)
 		{
@@ -4266,7 +4312,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcmiainur") //gives 5 archangels into each slot
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
+		const CGHeroInstance * hero = getHero(currObj);
 		const CCreature *archangel = VLC->creh->creatures.at(13);
 		if(!hero) return;
 
@@ -4276,7 +4322,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcmiangband") //gives 10 black knight into each slot
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
+		const CGHeroInstance * hero = getHero(currObj);
 		const CCreature *blackKnight = VLC->creh->creatures.at(66);
 		if(!hero) return;
 
@@ -4286,7 +4332,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcmiglaurung") //gives 5000 crystal dragons into each slot
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
+		const CGHeroInstance * hero = getHero(currObj);
 		const CCreature *crystalDragon = VLC->creh->creatures.at(133);
 		if(!hero) return;
 
@@ -4296,7 +4342,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if(message == "vcminoldor") //all war machines
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
+		const CGHeroInstance * hero = getHero(currObj);
 		if(!hero) return;
 
 		if(!hero->getArt(ArtifactPosition::MACH1))
@@ -4308,7 +4354,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	}
 	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
 	{
-		CGHeroInstance *hero = gs->getHero(currObj);
+		const CGHeroInstance *hero = gs->getHero(currObj);
 		if(!hero) return;
 		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
 			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
@@ -4331,23 +4377,23 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	{
 		SetResources sr;
 		sr.player = player;
-		sr.res = gs->getPlayer(player)->resources;
+		sr.res = getPlayer(player)->resources;
 		for(int i=0;i<Res::GOLD;i++)
 			sr.res[i] += 100;
 		sr.res[Res::GOLD] += 100000; //100k
 		sendAndApply(&sr);
 	}
-	else if(message == "vcmieagles") //reveal FoW
+	else if(message == "vcmieagles" || message == "vcmiungoliant") //reveal or conceal FoW
 	{
 		FoWChange fc;
-		fc.mode = 1;
+		fc.mode = (message == "vcmieagles" ? 1 : 0);
 		fc.player = player;
 		auto  hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
 		int lastUnc = 0;
 		for(int i=0;i<gs->map->width;i++)
 			for(int j=0;j<gs->map->height;j++)
 				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k))
+					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k) || message == "vcmiungoliant")
 						hlp_tab[lastUnc++] = int3(i,j,k);
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;
@@ -4669,7 +4715,7 @@ void CGameHandler::handleTimeEvents()
 		{
 			auto color = PlayerColor(player);
 
-			PlayerState *pinfo = gs->getPlayer(color, false); //do not output error if player does not exist
+			const PlayerState * pinfo = getPlayer(color, false); //do not output error if player does not exist
 
 			if( pinfo  //player exists
 				&& (ev.players & 1<<player) //event is enabled to this player
@@ -4733,7 +4779,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 	{
 		PlayerColor player = town->tempOwner;
 		CCastleEvent ev = town->events.front();
-		PlayerState *pinfo = gs->getPlayer(player, false);
+		const PlayerState * pinfo = getPlayer(player, false);
 
 		if( pinfo  //player exists
 			&& (ev.players & 1<<player.getNum()) //event is enabled to this player
@@ -4944,7 +4990,7 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 	const PlayerColor playerID = obj->o->tempOwner;
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
-	TResources aviable = gs->getPlayer(playerID)->resources;
+	TResources aviable = getPlayer(playerID)->resources;
 
 	if (!aviable.canAfford(boatCost))
 	{
@@ -4989,7 +5035,7 @@ void CGameHandler::checkVictoryLossConditions(const std::set<PlayerColor> & play
 {
 	for(auto playerColor : playerColors)
 	{
-		if(gs->getPlayer(playerColor, false))
+		if(getPlayer(playerColor, false))
 			checkVictoryLossConditionsForPlayer(playerColor);
 	}
 }
@@ -5006,7 +5052,7 @@ void CGameHandler::checkVictoryLossConditionsForAll()
 
 void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
-	const PlayerState *p = gs->getPlayer(player);
+	const PlayerState * p = getPlayer(player);
 	if(p->status != EPlayerStatus::INGAME) return;
 
 	auto victoryLossCheckResult = gs->checkForVictoryAndLoss(player);
@@ -5027,10 +5073,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			//one player won -> all enemies lost
 			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 			{
-				if(i->first != player && gs->getPlayer(i->first)->status == EPlayerStatus::INGAME)
+				if(i->first != player && getPlayer(i->first)->status == EPlayerStatus::INGAME)
 				{
 					peg.player = i->first;
-					peg.victoryLossCheckResult = gameState()->getPlayerRelations(player, i->first) == PlayerRelations::ALLIES ?
+					peg.victoryLossCheckResult = getPlayerRelations(player, i->first) == PlayerRelations::ALLIES ?
 								victoryLossCheckResult : victoryLossCheckResult.invert(); // ally of winner
 
 					InfoWindow iw;
@@ -5119,7 +5165,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			//notify all players
 			for (auto pc : playerColors)
 			{
-				if (gs->getPlayer(pc)->status == EPlayerStatus::INGAME)
+				if(getPlayer(pc)->status == EPlayerStatus::INGAME)
 				{
 					InfoWindow iw;
 					getVictoryLossMessage(player, victoryLossCheckResult.invert(), iw);
@@ -5130,7 +5176,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			checkVictoryLossConditions(playerColors);
 		}
 
-		auto playerInfo = gs->getPlayer(gs->currentPlayer, false);
+		auto playerInfo = getPlayer(gs->currentPlayer, false);
 		// If we are called before the actual game start, there might be no current player
 		if (playerInfo && playerInfo->status != EPlayerStatus::INGAME)
 		{
@@ -6018,7 +6064,7 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	if (hide)
 	{
 		std::unordered_set<int3, ShashInt3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
-		auto p = gs->getPlayer(player);
+		auto p = getPlayer(player);
 		for (auto h : p->heroes)
 		{
 			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), h->tempOwner, -1);

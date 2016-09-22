@@ -699,7 +699,10 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		if(isHost())
 		{
 			assert(playerNames.size() == 1  &&  vstd::contains(playerNames, 1)); //TODO hot-seat/network combo
-			serv = sh->connectToServer();
+			if(CServerHandler::DO_NOT_START_SERVER)
+				serv = CServerHandler::justConnectToServer(Address, Port);
+			else
+				serv = sh->connectToServer();
 			*serv << (ui8) 4;
 			myNameID = 1;
 		}
@@ -3129,14 +3132,17 @@ void CMultiMode::hostTCP()
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
 	GH.popIntTotally(this);
-	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_HOST));
+	if(CServerHandler::DO_NOT_START_SERVER)
+		GH.pushInt(new CSimpleJoinScreen(CMenuScreen::MULTI_NETWORK_HOST));
+	else
+		GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_HOST));
 }
 
 void CMultiMode::joinTCP()
 {
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
-	GH.pushInt(new CSimpleJoinScreen);
+	GH.pushInt(new CSimpleJoinScreen(CMenuScreen::MULTI_NETWORK_GUEST));
 }
 
 CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
@@ -4273,7 +4279,7 @@ void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
 	exitCb();
 }
 
-CSimpleJoinScreen::CSimpleJoinScreen()
+CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EMultiMode mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("MUDIALOG.bmp"); // address background
@@ -4289,7 +4295,7 @@ CSimpleJoinScreen::CSimpleJoinScreen()
     port->cb += std::bind(&CSimpleJoinScreen::onChange, this, _1);
     port->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
 
-	ok     = new CButton(Point( 26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::enterSelectionScreen, this), SDLK_RETURN);
+	ok     = new CButton(Point( 26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::enterSelectionScreen, this, mode), SDLK_RETURN);
 	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
@@ -4298,15 +4304,15 @@ CSimpleJoinScreen::CSimpleJoinScreen()
 	address->giveFocus();
 }
 
-void CSimpleJoinScreen::enterSelectionScreen()
+void CSimpleJoinScreen::enterSelectionScreen(CMenuScreen::EMultiMode mode)
 {
 	std::string textAddress = address->text;
 	std::string textPort = port->text;
 
 	GH.popIntTotally(this);
-	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_GUEST, nullptr, textAddress, textPort));
-}
 
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, mode, nullptr, textAddress, textPort));
+}
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {
 	ok->block(address->text.empty() || port->text.empty());
