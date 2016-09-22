@@ -1329,7 +1329,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		cb->setOwner (this, hero->tempOwner); //give control after checkout is done
 		FoWChange fw;
 		fw.player = hero->tempOwner;
-		fw.mode = 1;
+		fw.mode = FoWChange::REVEALED;
 		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}

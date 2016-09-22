@@ -336,6 +336,13 @@ struct FoWChange : public CPackForClient
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
+	enum : ui8
+	{
+		HIDDEN = 0, //tile is hidden in fog of war
+		REVEALED = 1, //tile is visible for player
+		WITHIN_SIGHT_RANGE = 2 //at least one player-owned object have sight over tile
+	};
+
 	std::unordered_set<int3, struct ShashInt3 > tiles;
 	PlayerColor player;
 	ui8 mode; //mode==0 - hide, mode==1 - reveal

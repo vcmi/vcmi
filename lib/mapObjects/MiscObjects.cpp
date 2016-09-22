@@ -1557,7 +1557,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 
 		FoWChange fw;
 		fw.player = h->tempOwner;
-		fw.mode = 1;
+		fw.mode = FoWChange::REVEALED;
 		cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
 		cb->sendAndApply (&fw);
 		break;
@@ -1884,7 +1884,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 			FoWChange fw;
 			fw.player = h->tempOwner;
-			fw.mode = 1;
+			fw.mode = FoWChange::REVEALED;
 			fw.waitForDialogs = true;
 
 			for(auto it : eyelist[subID])
@@ -2051,7 +2051,7 @@ void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 	{
 		cb->giveResource (hero->tempOwner, Res::GOLD, -1000);
 		FoWChange fw;
-		fw.mode = 1;
+		fw.mode = FoWChange::REVEALED;
 		fw.player = hero->tempOwner;
 
 		//subIDs of different types of cartographers:

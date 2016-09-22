@@ -218,12 +218,15 @@ DLL_LINKAGE void SetMovePoints::applyGs(CGameState *gs)
 
 DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
+	assert(mode < WITHIN_SIGHT_RANGE); //Not valid mode
 	TeamState * team = gs->getPlayerTeam(player);
 	for(int3 t : tiles)
 	{
-		if(mode == 0 && team->fogOfWarMap[t.x][t.y][t.z] > 1)
+		//Tile within sight range of player-owned objects cannot be hidden
+		if(mode == HIDDEN && team->fogOfWarMap[t.x][t.y][t.z] >= WITHIN_SIGHT_RANGE)
 			continue;
-		else if(mode == 1 && team->fogOfWarMap[t.x][t.y][t.z])
+		//Don't do anything if tile is already revealed
+		if(mode == REVEALED && team->fogOfWarMap[t.x][t.y][t.z])
 			continue;
 
 		team->fogOfWarMap[t.x][t.y][t.z] = mode;

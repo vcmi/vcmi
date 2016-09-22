@@ -1539,10 +1539,10 @@ void CGameState::addSightObj(TeamID team, const CGObjectInstance * obj, bool add
 	{
 		if(add)
 		{
-			if(ts->fogOfWarMap[t.x][t.y][t.z] == 0)
-				ts->fogOfWarMap[t.x][t.y][t.z] = 2;
+			if(ts->fogOfWarMap[t.x][t.y][t.z] == FoWChange::HIDDEN)
+				ts->fogOfWarMap[t.x][t.y][t.z] = FoWChange::WITHIN_SIGHT_RANGE; //Object revealed tile
 			else
-				ts->fogOfWarMap[t.x][t.y][t.z]++;
+				ts->fogOfWarMap[t.x][t.y][t.z]++; //One more object have sight over tile
 		}
 		else
 		{
