@@ -103,11 +103,6 @@ void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
 	CB->unlockGsWhenWaiting = false;
 }
 
-static bool thereRemainsEnemy()
-{
-	return !cbc->battleIsFinished();
-}
-
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName())	;
@@ -136,20 +131,19 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();
 
-		if(!thereRemainsEnemy())
-			return BattleAction();
+		if(auto ret = cbc->battleIsFinished())
+		{
+			//spellcast may finish battle
+			//send special preudo-action
+			BattleAction cancel;
+			cancel.actionType = Battle::CANCEL;
+			return cancel;
+		}
 
 		if(auto action = considerFleeingOrSurrendering())
 			return *action;
 
-		if(cb->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY).empty())
-		{
-			//We apparently won battle by casting spell, return defend... (accessing cb may cause trouble)
-			return BattleAction::makeDefend(stack);
-		}
-
 		PotentialTargets targets(stack);
-
 
 		if(targets.possibleAttacks.size())
 		{
