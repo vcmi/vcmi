@@ -2520,7 +2520,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
-	logGlobal->trace("Sending to all clients a package of type %s", typeid(*info).name());
+	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for(auto & elem : conns)
 	{
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
