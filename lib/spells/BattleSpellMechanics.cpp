@@ -399,26 +399,37 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 ///ObstacleMechanics
 ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
+	ui8 side = cb->playerToSide(ctx.caster->getOwner());
+
+	bool hexesOutsideBattlefield = false;
+
+	auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side, &hexesOutsideBattlefield);
+
 	if(ctx.ti.clearAffected)
 	{
-		ui8 side = cb->playerToSide(ctx.caster->getOwner());
-
-		bool hexesOutsideBattlefield = false;
-
-		auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side, &hexesOutsideBattlefield);
-
 		for(BattleHex hex : tilesThatMustBeClear)
 		{
 			if(cb->battleGetStackByPos(hex, true) || !!cb->battleGetObstacleOnPos(hex, false) || !hex.isAvailable())
 			{
 				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 			}
-		}
 
-		if(hexesOutsideBattlefield)
-		{
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+			if(nullptr != cb->battleGetDefendedTown() && CGTownInstance::NONE != cb->battleGetDefendedTown()->fortLevel())
+			{
+                EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
+
+                if(part != EWallPart::INVALID)
+				{
+					if(cb->battleGetWallState(part) != EWallState::DESTROYED && cb->battleGetWallState(part) != EWallState::NONE)
+						return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+				}
+			}
 		}
+	}
+
+	if(hexesOutsideBattlefield)
+	{
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
 	return ESpellCastProblem::OK;
