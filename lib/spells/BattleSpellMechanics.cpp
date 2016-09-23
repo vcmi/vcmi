@@ -405,34 +405,42 @@ ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleI
 
 	auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side, &hexesOutsideBattlefield);
 
-	if(ctx.ti.clearAffected)
+	for(const BattleHex & hex : tilesThatMustBeClear)
+		if(!isHexAviable(cb, hex, ctx.ti.clearAffected))
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+	if(hexesOutsideBattlefield)
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+	return ESpellCastProblem::OK;
+}
+
+bool ObstacleMechanics::isHexAviable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear)
+{
+	if(!hex.isAvailable())
+		return false;
+
+	if(!mustBeClear)
+		return true;
+
+	if(cb->battleGetStackByPos(hex, true) || !!cb->battleGetObstacleOnPos(hex, false))
+		return false;
+
+	if(nullptr != cb->battleGetDefendedTown() && CGTownInstance::NONE != cb->battleGetDefendedTown()->fortLevel())
 	{
-		for(BattleHex hex : tilesThatMustBeClear)
+		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
+
+		if(part != EWallPart::INVALID)
 		{
-			if(cb->battleGetStackByPos(hex, true) || !!cb->battleGetObstacleOnPos(hex, false) || !hex.isAvailable())
-			{
-				return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-			}
+			if(static_cast<int>(part) < 0)
+				return false;//indestuctible part, cant be checked by battleGetWallState
 
-			if(nullptr != cb->battleGetDefendedTown() && CGTownInstance::NONE != cb->battleGetDefendedTown()->fortLevel())
-			{
-                EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
-
-                if(part != EWallPart::INVALID)
-				{
-					if(cb->battleGetWallState(part) != EWallState::DESTROYED && cb->battleGetWallState(part) != EWallState::NONE)
-						return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-				}
-			}
+			if(cb->battleGetWallState(part) != EWallState::DESTROYED && cb->battleGetWallState(part) != EWallState::NONE)
+				return false;
 		}
 	}
 
-	if(hexesOutsideBattlefield)
-	{
-		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-
-	return ESpellCastProblem::OK;
+	return true;
 }
 
 void ObstacleMechanics::placeObstacle(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const BattleHex & pos) const
@@ -461,7 +469,7 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
 	{
 		BattleHex hex = i;
-		if(hex.getX() > 0 && hex.getX() < 16 && !(parameters.cb->battleGetStackByPos(hex, false)) && !(parameters.cb->battleGetObstacleOnPos(hex, false)))
+		if(isHexAviable(parameters.cb, hex, true))
 			availableTiles.push_back(hex);
 	}
 	RandomGeneratorUtil::randomShuffle(availableTiles, env->getRandomGenerator());

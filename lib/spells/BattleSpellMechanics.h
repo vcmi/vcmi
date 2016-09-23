@@ -104,6 +104,7 @@ public:
 	ObstacleMechanics(CSpell * s): SpecialSpellMechanics(s){};
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 protected:
+	static bool isHexAviable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
 	void placeObstacle(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const BattleHex & pos) const;
 	virtual void setupObstacle(SpellCreatedObstacle * obstacle) const = 0;
 };
