@@ -125,6 +125,13 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	if(!wasVisited(h))
 	{
 		auto rewards = getAvailableRewards(h);
+		bool objectRemovalPossible = false;
+		for(auto index : rewards)
+		{
+			if(getVisitInfo(index, h).reward.removeObject)
+				objectRemovalPossible = true;
+		}
+
 		logGlobal->debugStream() << "Visiting object with " << rewards.size() << " possible rewards";
 		switch (rewards.size())
 		{
@@ -165,7 +172,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			}
 		}
 
-		if (getAvailableRewards(h).size() == 0)
+		if(!objectRemovalPossible && getAvailableRewards(h).size() == 0)
 		{
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_TEAM, id, h->id);
 			cb->sendAndApply(&cov);
