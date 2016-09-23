@@ -1712,6 +1712,13 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 					toRemove->cloneID = -1;
 				}
 
+				//cleanup remaining clone links if any
+				for(CStack * s : gs->curB->stacks)
+				{
+					if(s->cloneID == toRemove->ID)
+						s->cloneID = -1;
+				}
+
 				break;
 			}
 		}
