@@ -52,7 +52,7 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		const bool stackLeft = pos1 < wallInStackLine;
 		const bool destLeft = pos2 < wallInDestLine;
 
-		return stackLeft != destLeft;
+		return stackLeft == destLeft;
 	}
 
 	// parts of wall
@@ -500,7 +500,11 @@ si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex des
 	if (!getAccesibility(stack).accessible(destHex, stack))
 		return false;
 
-	if (battleGetSiegeLevel() && telportLevel < 2) //check for wall
+	const ui8 siegeLevel = battleGetSiegeLevel();
+
+	//check for wall
+	//advanced teleport can pass wall of fort|citadel, expert - of castle
+	if ((siegeLevel > CGTownInstance::NONE && telportLevel < 2) || (siegeLevel >= CGTownInstance::CASTLE && telportLevel < 3))
 		return sameSideOfWall(stack->position, destHex);
 
 	return true;

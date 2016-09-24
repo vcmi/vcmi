@@ -2073,6 +2073,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case TELEPORT:
 			{
+				//todo: move to mechanics
 				ui8 skill = 0;
 				if (creatureCasting)
 					skill = sactive->getEffectLevel(SpellID(SpellID::TELEPORT).toSpell());

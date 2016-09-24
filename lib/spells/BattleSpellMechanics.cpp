@@ -856,7 +856,6 @@ bool SummonMechanics::requiresCreatureTarget() const
 ///TeleportMechanics
 void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	//todo: check legal teleport
 	if(parameters.destinations.size() == 2)
 	{
 		//first destination hex to move to
@@ -872,6 +871,12 @@ void TeleportMechanics::applyBattleEffects(const SpellCastEnvironment * env, con
 		if(nullptr == target)
 		{
 			env->complain("TeleportMechanics: no stack to teleport");
+			return;
+		}
+
+		if(!parameters.cb->battleCanTeleportTo(target, destination, parameters.effectLevel))
+		{
+			env->complain("TeleportMechanics: forbidden teleport");
 			return;
 		}
 
