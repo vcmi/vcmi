@@ -70,7 +70,8 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		std::make_pair(45,  EWallPart::INDESTRUCTIBLE_PART),
 		std::make_pair(62,  EWallPart::INDESTRUCTIBLE_PART),
 		std::make_pair(112, EWallPart::INDESTRUCTIBLE_PART),
-		std::make_pair(147, EWallPart::INDESTRUCTIBLE_PART)
+		std::make_pair(147, EWallPart::INDESTRUCTIBLE_PART),
+		std::make_pair(165, EWallPart::INDESTRUCTIBLE_PART)
 	};
 
 	static EWallPart::EWallPart hexToWallPart(BattleHex hex)

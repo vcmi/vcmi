@@ -430,14 +430,14 @@ bool ObstacleMechanics::isHexAviable(const CBattleInfoCallback * cb, const Battl
 	{
 		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
 
-		if(part != EWallPart::INVALID)
-		{
-			if(static_cast<int>(part) < 0)
-				return false;//indestuctible part, cant be checked by battleGetWallState
-
-			if(cb->battleGetWallState(part) != EWallState::DESTROYED && cb->battleGetWallState(part) != EWallState::NONE)
-				return false;
-		}
+		if(part == EWallPart::INVALID)
+			return true;//no fortification here
+		else if(static_cast<int>(part) < 0)
+			return false;//indestuctible part (cant be checked by battleGetWallState)
+		else if(part == EWallPart::BOTTOM_TOWER || part == EWallPart::UPPER_TOWER)
+			return false;//destructible, but should not be available
+		else if(cb->battleGetWallState(part) != EWallState::DESTROYED && cb->battleGetWallState(part) != EWallState::NONE)
+			return false;
 	}
 
 	return true;
