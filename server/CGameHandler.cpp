@@ -846,7 +846,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 		//TODO: should spell override creature`s projectile?
 
-		std::set<const CStack*> attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att->owner, bonus->val, targetHex, att);
+		auto attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att, bonus->val, targetHex);
 
 		//TODO: get exact attacked hex for defender
 
@@ -2520,7 +2520,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
-	logGlobal->trace("Sending to all clients a package of type %s", typeid(*info).name());
+	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for(auto & elem : conns)
 	{
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
@@ -4179,7 +4179,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			bsa.creID = summonedType;
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;//todo: ignore AGE effect
+			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
 
 			ui64 canRiseHp = std::min(targetHealth, risedHp);
 			ui32 canRiseAmount = canRiseHp / VLC->creh->creatures.at(bsa.creID)->MaxHealth();
@@ -4241,8 +4241,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				parameters.effectLevel = parameters.spellLvl;
 				parameters.mode = ECastingMode::CREATURE_ACTIVE_CASTING;
 				parameters.aimToHex(destination);//todo: allow multiple destinations
-				parameters.selectedStack = nullptr;
-				spell->battleCast(spellEnv, parameters);
+				parameters.cast(spellEnv);
 			}
 			sendAndApply(&end_action);
 			break;
@@ -4440,7 +4439,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			BattleSpellCastParameters parameters(gs->curB, h, s);
 			parameters.aimToHex(ba.destinationTile);//todo: allow multiple destinations
 			parameters.mode = ECastingMode::HERO_CASTING;
-			parameters.selectedStack = gs->curB->battleGetStackByID(ba.selectedStack, false);
+			if(ba.selectedStack >= 0)
+				parameters.aimToStack(gs->curB->battleGetStackByID(ba.selectedStack, false));
 
 			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
 			if(escp != ESpellCastProblem::OK)
@@ -4452,7 +4452,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start spell casting
 
-			s->battleCast(spellEnv, parameters);
+			parameters.cast(spellEnv);
 
 			sendAndApply(&end_action);
 			if( !gs->curB->battleGetStackByID(gs->curB->activeStack))
@@ -4592,9 +4592,8 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 					parameters.effectLevel = bonus->val;//todo: recheck
 					parameters.aimToHex(BattleHex::INVALID);
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.selectedStack = nullptr;
 
-					spell->battleCast(spellEnv, parameters);
+					parameters.cast(spellEnv);
 
 					//todo: move to mechanics
 					BattleSetStackProperty ssp;
@@ -5303,9 +5302,8 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 				parameters.effectLevel = spellLevel;
 				parameters.aimToStack(oneOfAttacked);
 				parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-				parameters.selectedStack = nullptr;
 
-				spell->battleCast(spellEnv, parameters);
+				parameters.cast(spellEnv);
 			}
 		}
 	}
@@ -5333,9 +5331,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		parameters.aimToStack(gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked));
 		parameters.effectPower = power;
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-		parameters.selectedStack = nullptr;
 
-		spell->battleCast(this->spellEnv, parameters);
+		parameters.cast(spellEnv);
 	};
 
 	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
@@ -5356,9 +5353,8 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		vstd::amin(chanceToKill, 1); //cap at 100%
 
 		std::binomial_distribution<> distribution(attacker->count, chanceToKill);
-		std::mt19937 rng(std::time(nullptr));
 
-		int staredCreatures = distribution(rng);
+		int staredCreatures = distribution(getRandomGenerator().getStdGenerator());
 
 		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
 		int maxToKill = (attacker->count + cap - 1) / cap; //not much more than chance * count
@@ -5628,21 +5624,24 @@ void CGameHandler::runBattle()
 	for(int i = 0; i < 2; ++i)
 	{
 		auto h = gs->curB->battleGetFightingHero(i);
-		if(h && h->hasBonusOfType(Bonus::OPENING_BATTLE_SPELL))
+		if(h)
 		{
 			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 
 			for (Bonus *b : *bl)
 			{
 				const CSpell * spell = SpellID(b->subtype).toSpell();
+
+				if(ESpellCastProblem::OK != gs->curB->battleCanCastThisSpell(h, spell, ECastingMode::PASSIVE_CASTING))
+					continue;
+
 				BattleSpellCastParameters parameters(gs->curB, h, spell);
 				parameters.spellLvl = 3;
 				parameters.effectLevel = 3;
 				parameters.aimToHex(BattleHex::INVALID);
 				parameters.mode = ECastingMode::PASSIVE_CASTING;
-				parameters.selectedStack = nullptr;
 				parameters.enchantPower = b->val;
-				spell->battleCast(spellEnv, parameters);
+				parameters.cast(spellEnv);
 			}
 		}
 	}

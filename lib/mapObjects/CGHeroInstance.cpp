@@ -954,6 +954,25 @@ const PlayerColor CGHeroInstance::getOwner() const
 	return tempOwner;
 }
 
+void CGHeroInstance::getCasterName(MetaString & text) const
+{
+	//FIXME: use local name, MetaString need access to gamestate as hero name is part of map object
+
+    text.addReplacement(name);
+}
+
+void CGHeroInstance::getCastDescription(const CSpell * spell, const std::vector<const CStack*> & attacked, MetaString & text) const
+{
+	const bool singleTarget = attacked.size() == 1;
+	const int textIndex = singleTarget ? 195 : 196;
+
+	text.addTxt(MetaString::GENERAL_TXT, textIndex);
+	getCasterName(text);
+	text.addReplacement(MetaString::SPELL_NAME, spell->id.toEnum());
+	if(singleTarget)
+		text.addReplacement(MetaString::CRE_PL_NAMES, attacked.at(0)->getCreature()->idNumber.num);
+}
+
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
 	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))

@@ -246,6 +246,9 @@ public:
 
 	const PlayerColor getOwner() const override;
 
+	void getCasterName(MetaString & text) const override;
+	void getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const override;
+
 	void deserializationFix();
 
 	void initObj(CRandomGenerator & rand) override;

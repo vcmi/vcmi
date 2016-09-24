@@ -98,7 +98,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 								   std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
       activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(nullptr), sp(nullptr),
+	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
 	  siegeH(nullptr), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	  givenCommand(nullptr), myTurn(false), resWindow(nullptr), moveStarted(false), moveSoundHander(-1), bresult(nullptr)
 {
@@ -1272,7 +1272,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 
 	//todo: play custom cast animation
-	displaySpellCast(spellID, BattleHex::INVALID, false);
+	displaySpellCast(spellID, BattleHex::INVALID);
 
 	//playing projectile animation
 	if(sc->tile.isValid())
@@ -1323,12 +1323,9 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	}
 
 	//displaying message in console
-	std::vector<std::string> logLines;
-
-	spell.prepareBattleLog(curInt->cb.get(), sc, logLines);
-
-	for(auto line : logLines)
-		console->addText(line);
+	for(const auto & line : sc->battleLog)
+		if(!console->addText(line.toString()))
+			logGlobal->warn("Too long battle log line");
 
 	waitForAnims();
 	//mana absorption
@@ -1369,6 +1366,30 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	}
 }
 
+CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const ISpellCaster * caster, ECastingMode::ECastingMode mode) const
+{
+	PossibleActions spellSelMode = ANY_LOCATION;
+
+	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
+
+	if(ti.massive || ti.type == CSpell::NO_TARGET)
+		spellSelMode = NO_LOCATION;
+	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
+	{
+		spellSelMode = FREE_LOCATION;
+	}
+	else if(ti.type == CSpell::CREATURE)
+	{
+		spellSelMode = AIMED_SPELL_CREATURE;
+	}
+	else if(ti.type == CSpell::OBSTACLE)
+	{
+		spellSelMode = OBSTACLE;
+	}
+
+	return spellSelMode;
+}
+
 void CBattleInterface::castThisSpell(SpellID spellID)
 {
 	auto  ba = new BattleAction;
@@ -1381,31 +1402,11 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	spellDestSelectMode = true;
 	creatureCasting = false;
 
-	//choosing possible tragets
+	//choosing possible targets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
-	spellSelMode = ANY_LOCATION;
-
-	const CSpell::TargetInfo ti(sp, castingHero->getSpellSchoolLevel(sp));
-
-	if(ti.massive || ti.type == CSpell::NO_TARGET)
-		spellSelMode = NO_LOCATION;
-	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
-	{
-		spellSelMode = FREE_LOCATION;
-	}
-	else if(ti.type == CSpell::CREATURE)
-	{
-		if(ti.smart)
-			spellSelMode = selectionTypeByPositiveness(*sp);
-		else
-			spellSelMode = ANY_CREATURE;
-	}
-	else if(ti.type == CSpell::OBSTACLE)
-	{
-		spellSelMode = OBSTACLE;
-	}
+	PossibleActions spellSelMode = getCasterAction(sp, castingHero, ECastingMode::HERO_CASTING);
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
@@ -1421,13 +1422,12 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	}
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile, bool areaEffect)
+void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
-	//todo: recheck areaEffect usage
 	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
 }
 
-void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile)
 {
 	if(animation.pause > 0)
 	{
@@ -1439,7 +1439,7 @@ void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animatio
 	}
 }
 
-void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1448,11 +1448,11 @@ void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTi
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.cast)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
-void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1461,11 +1461,11 @@ void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destination
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
-void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect)
+void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
@@ -1474,7 +1474,7 @@ void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTil
 
 	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
 	{
-		displaySpellAnimation(animation, destinationTile, areaEffect);
+		displaySpellAnimation(animation, destinationTile);
 	}
 }
 
@@ -1586,9 +1586,10 @@ void CBattleInterface::activateStack()
 		stackCanCastSpell = true;
 		if(randomSpellcaster)
 			creatureSpellToCast = -1; //spell will be set later on cast
-
-		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		else
+			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
+		//TODO: faerie dragon type spell should be selected by server
 	}
 	else
 	{
@@ -1633,26 +1634,15 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 		{
 			if (stack->hasBonusOfType (Bonus::SPELLCASTER))
 			{
-				 //TODO: poll possible spells
-				const CSpell * spell;
-				BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
-				for (Bonus * spellBonus : spellBonuses)
+				if(creatureSpellToCast != -1)
 				{
-					spell = CGI->spellh->objects[spellBonus->subtype];
-					switch (spellBonus->subtype)
-					{
-						case SpellID::REMOVE_OBSTACLE:
-							possibleActions.push_back (OBSTACLE);
-							break;
-						default:
-							possibleActions.push_back (selectionTypeByPositiveness (*spell));
-							break;
-					}
-
+					const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
+					PossibleActions act = getCasterAction(spell, stack, ECastingMode::CREATURE_ACTIVE_CASTING);
+					if(act == NO_LOCATION)
+						logGlobal->error("NO_LOCATION action target is not yet supported for creatures");
+					else
+						possibleActions.push_back(act);
 				}
-				std::sort(possibleActions.begin(), possibleActions.end());
-				auto it = std::unique (possibleActions.begin(), possibleActions.end());
-				possibleActions.erase (it, possibleActions.end());
 			}
 			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
 				possibleActions.push_back (RANDOM_GENIE_SPELL);
@@ -1949,21 +1939,6 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= nullptr*/)
 
 }
 
-CBattleInterface::PossibleActions CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
-{
-	switch(spell.positiveness)
-	{
-	case CSpell::NEGATIVE :
-		return HOSTILE_CREATURE_SPELL;
-	case CSpell::NEUTRAL:
-		return ANY_CREATURE;
-	case CSpell::POSITIVE:
-		return FRIENDLY_CREATURE_SPELL;
-	}
-	assert(0);
-	return NO_LOCATION; //should never happen
-}
-
 std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 {
 	if(dmgRange.first != dmgRange.second)
@@ -2076,27 +2051,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					legalAction = true;
 				}
 				break;
-			case ANY_CREATURE:
-				if (shere && shere->alive() && isCastingPossibleHere (sactive, shere, myNumber))
+			case AIMED_SPELL_CREATURE:
+				if (shere && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
 				break;
-			case HOSTILE_CREATURE_SPELL:
-				if (shere && shere->alive() && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
-					legalAction = true;
-				break;
-			case FRIENDLY_CREATURE_SPELL:
-			{
-				if (isCastingPossibleHere (sactive, shere, myNumber)) //need to be called before sp is determined
-				{
-					bool rise = false; //TODO: can you imagine rising hostile creatures?
-					sp = CGI->spellh->objects[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo];
-					if (sp && sp->isRisingSpell())
-							rise = true;
-					if (shere && (shere->alive() || rise) && ourStack)
-						legalAction = true;
-				}
-				break;
-			}
 			case RANDOM_GENIE_SPELL:
 			{
 				if (shere && ourStack && shere != sactive) //only positive spells for other allied creatures
@@ -2134,30 +2092,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					notLegal = true;
 				break;
 			case FREE_LOCATION:
+				legalAction = true;
+				if(!isCastingPossibleHere(sactive, shere, myNumber))
 				{
-					ui8 side = curInt->cb->battleGetMySide();
-					auto hero = curInt->cb->battleGetMyHero();
-					assert(!creatureCasting); //we assume hero casts this spell
-					assert(hero);
-
-					legalAction = true;
-					bool hexesOutsideBattlefield = false;
-					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
-					for(BattleHex hex : tilesThatMustBeClear)
-					{
-						if(curInt->cb->battleGetStackByPos(hex, true)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false)
-						 || !hex.isAvailable())
-						{
-							legalAction = false;
-							notLegal = true;
-						}
-					}
-
-					if(hexesOutsideBattlefield)
-					{
-						legalAction = false;
-						notLegal = true;
-					}
+					legalAction = false;
+					notLegal = true;
 				}
 				break;
 			case CATAPULT:
@@ -2281,9 +2220,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
 			}
 				break;
-			case HOSTILE_CREATURE_SPELL:
-			case FRIENDLY_CREATURE_SPELL:
-			case ANY_CREATURE:
+			case AIMED_SPELL_CREATURE:
 				sp = CGI->spellh->objects[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 				switch (sp->id)
@@ -2324,7 +2261,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case FREE_LOCATION:
-				//cursorFrame = ECursor::SPELLBOOK;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;
@@ -2357,9 +2293,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	{
 		switch (illegalAction)
 		{
-			case ANY_CREATURE:
-			case HOSTILE_CREATURE_SPELL:
-			case FRIENDLY_CREATURE_SPELL:
+			case AIMED_SPELL_CREATURE:
 			case RANDOM_GENIE_SPELL:
 				cursorFrame = ECursor::COMBAT_BLOCKED;
 				consoleMsg = CGI->generaltexth->allTexts[23];
@@ -2495,7 +2429,7 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 
 	if (sp)
 	{
-		const ISpellCaster * caster = creatureCasting ? dynamic_cast<const ISpellCaster *>(sactive) : dynamic_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
+		const ISpellCaster * caster = creatureCasting ? static_cast<const ISpellCaster *>(sactive) : static_cast<const ISpellCaster *>(curInt->cb->battleGetMyHero());
 		if(caster == nullptr)
 		{
 			isCastingPossible = false;//just in case
@@ -3076,18 +3010,27 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface * to)
 			}
 			if (settings["battle"]["mouseShadow"].Bool())
 			{
-				if(spellToCast) //when casting spell
+				const ISpellCaster * caster = nullptr;
+				const CSpell * spell = nullptr;
+
+                if(spellToCast)//hero casts spell
+				{
+					spell = SpellID(spellToCast->additionalInfo).toSpell();
+					caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
+				}
+				else if(creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
+				{
+                    spell = SpellID(creatureSpellToCast).toSpell();
+                    caster = activeStack;
+				}
+
+				if(caster && spell) //when casting spell
 				{
 					//calculating spell school level
-					const CSpell & spToCast =  *CGI->spellh->objects[spellToCast->additionalInfo];
-					ui8 schoolLevel = 0;
-
-					auto caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
-					if (caster)
-						schoolLevel = caster->getSpellSchoolLevel(&spToCast);
+					ui8 schoolLevel = caster->getSpellSchoolLevel(spell);
 
 					// printing shaded hex(es)
-					auto shaded = spToCast.rangeInHexes(currentlyHoveredHex, schoolLevel, curInt->cb->battleGetMySide());
+					auto shaded = spell->rangeInHexes(currentlyHoveredHex, schoolLevel, curInt->cb->battleGetMySide());
 					for(BattleHex shadedHex : shaded)
 					{
 						if ((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH -1))

@@ -45,11 +45,22 @@ public:
 		const BattleHex hexValue;
 	};
 
-	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell);
+	//normal constructor
+	BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell_);
+
+	//magic mirror constructor
+	BattleSpellCastParameters(const BattleSpellCastParameters & orig, const ISpellCaster * caster);
+
 	void aimToHex(const BattleHex & destination);
 	void aimToStack(const CStack * destination);
+
+	void cast(const SpellCastEnvironment * env);
+
 	BattleHex getFirstDestinationHex() const;
 
+	int getEffectValue() const;
+
+	const CSpell * spell;
 	const BattleInfo * cb;
 	const ISpellCaster * caster;
 	const PlayerColor casterColor;
@@ -60,7 +71,6 @@ public:
 	const CGHeroInstance * casterHero; //deprecated
 	ECastingMode::ECastingMode mode;
 	const CStack * casterStack; //deprecated
-	const CStack * selectedStack;//deprecated
 
 	///spell school level
 	int spellLvl;
@@ -70,10 +80,50 @@ public:
 	int effectPower;
 	///actual spell-power affecting effect duration
 	int enchantPower;
+
+private:
 	///for Archangel-like casting
 	int effectValue;
-private:
-	void prepare(const CSpell * spell);
+};
+
+struct DLL_LINKAGE SpellTargetingContext
+{
+	CSpell::TargetInfo ti;
+	ECastingMode::ECastingMode mode;
+	BattleHex destination;
+	const ISpellCaster * caster;
+	int schoolLvl;
+
+	SpellTargetingContext(const CSpell * s, ECastingMode::ECastingMode mode_, const ISpellCaster * caster_, int schoolLvl_, BattleHex destination_)
+		: ti(s,schoolLvl_, mode_), mode(mode_), destination(destination_), caster(caster_), schoolLvl(schoolLvl_)
+	{};
+
+};
+
+class DLL_LINKAGE ISpellMechanics
+{
+public:
+	ISpellMechanics(CSpell * s);
+	virtual ~ISpellMechanics(){};
+
+	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
+	virtual std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const = 0;
+
+	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const = 0;
+
+	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const = 0;
+
+	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
+
+	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
+	virtual void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const = 0;
+
+	//if true use generic algorithm for target existence check, see CSpell::canBeCast
+	virtual bool requiresCreatureTarget() const = 0;
+
+	static std::unique_ptr<ISpellMechanics> createMechanics(CSpell * s);
+protected:
+	CSpell * owner;
 };
 
 struct DLL_LINKAGE AdventureSpellCastParameters
@@ -82,42 +132,15 @@ struct DLL_LINKAGE AdventureSpellCastParameters
 	int3 pos;
 };
 
-class DLL_LINKAGE ISpellMechanics
+class DLL_LINKAGE IAdventureSpellMechanics
 {
 public:
-	struct DLL_LINKAGE SpellTargetingContext
-	{
-		const CBattleInfoCallback * cb;
-		CSpell::TargetInfo ti;
-		ECastingMode::ECastingMode mode;
-		BattleHex destination;
-		PlayerColor casterColor;
-		int schoolLvl;
+	IAdventureSpellMechanics(CSpell * s);
+	virtual ~IAdventureSpellMechanics() = default;
 
-		SpellTargetingContext(const CSpell * s, const CBattleInfoCallback * c, ECastingMode::ECastingMode m, PlayerColor cc, int lvl, BattleHex dest)
-			: cb(c), ti(s,lvl, m), mode(m), destination(dest), casterColor(cc), schoolLvl(lvl)
-		{};
-
-	};
-public:
-	ISpellMechanics(CSpell * s);
-	virtual ~ISpellMechanics(){};
-
-	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
-	virtual std::set<const CStack *> getAffectedStacks(SpellTargetingContext & ctx) const = 0;
-
-	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const = 0;
-
-	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
-
-	virtual void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const = 0;
 	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
-	virtual void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const = 0;
 
-	virtual void battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
-		const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const = 0;
-
-	static ISpellMechanics * createMechanics(CSpell * s);
+	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(CSpell * s);
 protected:
 	CSpell * owner;
 };

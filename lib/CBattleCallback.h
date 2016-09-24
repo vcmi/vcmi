@@ -212,7 +212,6 @@ public:
 	TStacks battleAliveStacks(ui8 side) const;
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
-	//ESpellCastProblem::ESpellCastProblem battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const; //Checks if player is able to cast spells (at all) at the moment
 };
 
 struct DLL_LINKAGE BattleAttackInfo
@@ -282,10 +281,9 @@ public:
 	//*** MAGIC
 	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(const ISpellCaster * caster, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
-	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 
 	SpellID battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const;

@@ -51,11 +51,11 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 
 
 struct ThreatMap
-{	
+{
 	std::array<std::vector<BattleAttackInfo>, GameConstants::BFIELD_SIZE> threatMap; // [hexNr] -> enemies able to strike
-	
-	const CStack *endangered; 
-	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage; 
+
+	const CStack *endangered;
+	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage;
 
 	ThreatMap(const CStack *Endangered);
 };
@@ -89,7 +89,7 @@ const Val getValOr(const std::map<Key, Val> &Map, const Key &key, const Val2 def
 	auto i = Map.find(key);
 	if(i != Map.end())
 		return i->second;
-	else 
+	else
 		return defaultValue;
 }
 
@@ -111,8 +111,8 @@ class CBattleAI : public CBattleGameInterface
 {
 	int side;
 	std::shared_ptr<CBattleCallback> cb;
-	
-	//Previous setting of cb 
+
+	//Previous setting of cb
 	bool wasWaitingForRealize, wasUnlockingGs;
 
 	void print(const std::string &text) const;
@@ -148,6 +148,6 @@ public:
 	boost::optional<BattleAction> considerFleeingOrSurrendering();
 
 	void attemptCastingSpell();
-	std::vector<BattleHex> getTargetsToConsider(const CSpell *spell) const;
+	std::vector<BattleHex> getTargetsToConsider(const CSpell *spell, const ISpellCaster * caster) const;
 };
 

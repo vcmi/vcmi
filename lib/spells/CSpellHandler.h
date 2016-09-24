@@ -20,6 +20,7 @@
 class CGObjectInstance;
 class CSpell;
 class ISpellMechanics;
+class IAdventureSpellMechanics;
 class CLegacyConfigParser;
 class CGHeroInstance;
 class CStack;
@@ -204,7 +205,6 @@ public:
 	bool isNeutral() const;
 
 	bool isDamageSpell() const;
-	bool isHealingSpell() const;
 	bool isRisingSpell() const;
 	bool isOffensiveSpell() const;
 
@@ -218,7 +218,7 @@ public:
 	ui32 calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const;
 
 	///selects from allStacks actually affected stacks
-	std::set<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, PlayerColor casterColor, int spellLvl, BattleHex destination, const ISpellCaster * caster) const;
+	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const;
 
 	si32 getCost(const int skillLevel) const;
 
@@ -266,11 +266,11 @@ public:
 public:
 	///internal interface (for callbacks)
 
-	///Checks general but spell-specific problems for all casting modes. Use only during battle.
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const;
+	///Checks general but spell-specific problems. Use only during battle.
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const;
 
 	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
+	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
 
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const;
@@ -279,7 +279,7 @@ public:
 	///May be executed on client side by (future) non-cheat-proof scripts.
 
 	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
-	void battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const;
+	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const;
 
 public:
 	///Client-server logic. Has direct write access to GameState.
@@ -287,10 +287,6 @@ public:
 
 	///implementation of BattleSpellCast applying
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const;
-
-public://Client logic.
-	void prepareBattleLog(const CBattleInfoCallback * cb, const BattleSpellCast * packet, std::vector<std::string> & logLines) const;
-
 public://internal, for use only by Mechanics classes
 	///applies caster`s secondary skills and affectedCreature`s to raw damage
 	int adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const;
@@ -300,6 +296,10 @@ public://internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 
 private:
+
+	///checks for creature immunity *at given hex*.
+	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
+
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
 
@@ -335,7 +335,8 @@ private:
 
 	std::vector<LevelInfo> levels;
 
-	ISpellMechanics * mechanics;//(!) do not serialize
+	std::unique_ptr<ISpellMechanics> mechanics;//(!) do not serialize
+	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
 };
 
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door

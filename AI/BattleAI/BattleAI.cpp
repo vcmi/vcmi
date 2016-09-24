@@ -103,11 +103,6 @@ void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
 	CB->unlockGsWhenWaiting = false;
 }
 
-static bool thereRemainsEnemy()
-{
-	return !cbc->battleIsFinished();
-}
-
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName())	;
@@ -136,20 +131,19 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();
 
-		if(!thereRemainsEnemy())
-			return BattleAction();
+		if(auto ret = cbc->battleIsFinished())
+		{
+			//spellcast may finish battle
+			//send special preudo-action
+			BattleAction cancel;
+			cancel.actionType = Battle::CANCEL;
+			return cancel;
+		}
 
 		if(auto action = considerFleeingOrSurrendering())
 			return *action;
 
-		if(cb->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY).empty())
-		{
-			//We apparently won battle by casting spell, return defend... (accessing cb may cause trouble)
-			return BattleAction::makeDefend(stack);
-		}
-
 		PotentialTargets targets(stack);
-
 
 		if(targets.possibleAttacks.size())
 		{
@@ -358,6 +352,7 @@ struct PossibleSpellcast
 {
 	const CSpell *spell;
 	BattleHex dest;
+	si32 value;
 };
 
 struct CurrentOffensivePotential
@@ -430,9 +425,9 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		for(auto hex : getTargetsToConsider(spell))
+		for(auto hex : getTargetsToConsider(spell, hero))
 		{
-			PossibleSpellcast ps = {spell, hex};
+			PossibleSpellcast ps = {spell, hex, 0};
 			possibleCasts.push_back(ps);
 		}
 	}
@@ -458,7 +453,7 @@ void CBattleAI::attemptCastingSpell()
 			{
 				int damageDealt = 0, damageReceived = 0;
 
-				auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, playerID, skillLevel, ps.dest, hero);
+				auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
 
 				if(stacksSuffering.empty())
 					return -1;
@@ -472,41 +467,52 @@ void CBattleAI::attemptCastingSpell()
 						damageDealt += dmg;
 				}
 
-				const int damageDiff = damageDealt - damageReceived;
+				const int damageDiff = damageDealt - damageReceived * 10;
 
-
-				LOGFL("Casting %s on hex %d would deal %d damage points among %d stacks.",
-					ps.spell->name % ps.dest % damageDiff % stacksSuffering.size());
+				LOGFL("Casting %s on hex %d would deal { %d %d } damage points among %d stacks.",
+					ps.spell->name % ps.dest % damageDealt % damageReceived % stacksSuffering.size());
 				//TODO tactic effect too
 				return damageDiff;
 			}
 		case TIMED_EFFECT:
 			{
-				StackWithBonuses swb;
-				swb.stack = cb->battleGetStackByPos(ps.dest);
-				if(!swb.stack)
+				auto stacksAffected = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
+
+				if(stacksAffected.empty())
 					return -1;
 
-				Bonus pseudoBonus;
-				pseudoBonus.sid = ps.spell->id;
-				pseudoBonus.val = skillLevel;
-				pseudoBonus.turnsRemain = 1; //TODO
-				CStack::stackEffectToFeature(swb.bonusesToAdd, pseudoBonus);
+				int totalGain = 0;
 
-				HypotheticChangesToBattleState state;
-				state.bonusesOfStacks[swb.stack] = &swb;
+				for(const CStack * sta : stacksAffected)
+				{
+					StackWithBonuses swb;
+					swb.stack = sta;
 
-				PotentialTargets pt(swb.stack, state);
-				auto newValue = pt.bestActionValue();
-				auto oldValue = valueOfStack[swb.stack];
-				auto gain = newValue - oldValue;
-				if(swb.stack->owner != playerID) //enemy
-					gain = -gain;
+					Bonus pseudoBonus;
+					pseudoBonus.sid = ps.spell->id;
+					pseudoBonus.val = skillLevel;
+					pseudoBonus.turnsRemain = 1; //TODO
+					CStack::stackEffectToFeature(swb.bonusesToAdd, pseudoBonus);
 
-				LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
-					ps.spell->name % swb.stack->nodeName() % gain % (oldValue) % (newValue));
+					HypotheticChangesToBattleState state;
+					state.bonusesOfStacks[swb.stack] = &swb;
 
-				return gain;
+					PotentialTargets pt(swb.stack, state);
+					auto newValue = pt.bestActionValue();
+					auto oldValue = valueOfStack[swb.stack];
+					auto gain = newValue - oldValue;
+					if(swb.stack->owner != playerID) //enemy
+						gain = -gain;
+
+					LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
+						ps.spell->name % sta->nodeName() % (gain) % (oldValue) % (newValue));
+
+					totalGain += gain;
+				}
+
+				LOGFL("Total gain of cast %s at hex %d is %d", ps.spell->name % (ps.dest.hex) % (totalGain));
+
+				return totalGain;
 			}
 		default:
 			assert(0);
@@ -514,7 +520,15 @@ void CBattleAI::attemptCastingSpell()
 		}
 	};
 
-	auto castToPerform = *vstd::maxElementByFun(possibleCasts, evaluateSpellcast);
+	for(PossibleSpellcast & psc : possibleCasts)
+		psc.value = evaluateSpellcast(psc);
+
+	auto pscValue = [] (const PossibleSpellcast &ps) -> int
+	{
+		return ps.value;
+	};
+
+	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
 	LOGFL("Best spell is %s. Will cast.", castToPerform.spell->name);
 
 	BattleAction spellcast;
@@ -527,24 +541,60 @@ void CBattleAI::attemptCastingSpell()
 	cb->battleMakeAction(&spellcast);
 }
 
-std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) const
+std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, const ISpellCaster * caster) const
 {
-	if(spell->getTargetType() == CSpell::NO_TARGET)
+	const CSpell::TargetInfo targetInfo(spell, caster->getSpellSchoolLevel(spell));
+	std::vector<BattleHex> ret;
+
+	if(targetInfo.massive || targetInfo.type == CSpell::NO_TARGET)
 	{
-		//Spell can be cast anywhere, all hexes are potentially considerable.
-		std::vector<BattleHex> ret;
-
-		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-			if(BattleHex(i).isAvailable())
-				ret.push_back(i);
-
-		return ret;
+		ret.push_back(BattleHex());
 	}
 	else
 	{
-		//TODO when massive effect -> doesn't matter where cast
-		return cbc->battleGetPossibleTargets(playerID, spell);
+		switch(targetInfo.type)
+		{
+		case CSpell::CREATURE:
+			{
+				for(const CStack * stack : cbc->battleAliveStacks())
+				{
+					bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
+					bool casterStack = stack->owner == caster->getOwner();
+
+					if(!immune)
+						switch (spell->positiveness)
+						{
+						case CSpell::POSITIVE:
+							if(casterStack || targetInfo.smart)
+								ret.push_back(stack->position);
+							break;
+
+						case CSpell::NEUTRAL:
+							ret.push_back(stack->position);
+							break;
+
+						case CSpell::NEGATIVE:
+							if(!casterStack || targetInfo.smart)
+								ret.push_back(stack->position);
+							break;
+						}
+				}
+			}
+			break;
+		case CSpell::LOCATION:
+			{
+				for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
+					if(BattleHex(i).isAvailable())
+						ret.push_back(i);
+			}
+			break;
+
+		default:
+			break;
+		}
 	}
+
+	return ret;
 }
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()

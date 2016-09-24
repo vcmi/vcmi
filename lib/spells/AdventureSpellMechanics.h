@@ -10,47 +10,62 @@
 
 #pragma once
 
-#include "CDefaultSpellMechanics.h"
+#include "ISpellMechanics.h"
 
-class ISpellMechanics;
-class DefaultSpellMechanics;
+enum class ESpellCastResult
+{
+	OK,
+	CANCEL,//cast failed but it is not an error
+	ERROR//internal error occurred
+};
 
-class DLL_LINKAGE SummonBoatMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE AdventureSpellMechanics: public IAdventureSpellMechanics
 {
 public:
-	SummonBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	AdventureSpellMechanics(CSpell * s): IAdventureSpellMechanics(s){};
+
+	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
+protected:
+	///actual adventure cast implementation
+	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const;
+};
+
+class DLL_LINKAGE SummonBoatMechanics : public AdventureSpellMechanics
+{
+public:
+	SummonBoatMechanics(CSpell * s): AdventureSpellMechanics(s){};
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE ScuttleBoatMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE ScuttleBoatMechanics : public AdventureSpellMechanics
 {
 public:
-	ScuttleBoatMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ScuttleBoatMechanics(CSpell * s): AdventureSpellMechanics(s){};
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE DimensionDoorMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE DimensionDoorMechanics : public AdventureSpellMechanics
 {
 public:
-	DimensionDoorMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	DimensionDoorMechanics(CSpell * s): AdventureSpellMechanics(s){};
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE TownPortalMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE TownPortalMechanics : public AdventureSpellMechanics
 {
 public:
-	TownPortalMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	TownPortalMechanics(CSpell * s): AdventureSpellMechanics(s){};
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 };
 
-class DLL_LINKAGE ViewMechanics : public DefaultSpellMechanics
+class DLL_LINKAGE ViewMechanics : public AdventureSpellMechanics
 {
 public:
-	ViewMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ViewMechanics(CSpell * s): AdventureSpellMechanics(s){};
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override;
 	virtual bool filterObject(const CGObjectInstance * obj, const int spellLevel) const = 0;

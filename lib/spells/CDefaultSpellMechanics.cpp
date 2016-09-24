@@ -12,7 +12,6 @@
 
 #include "CDefaultSpellMechanics.h"
 
-#include "../NetPacks.h"
 #include "../BattleState.h"
 
 #include "../CGeneralTextHandler.h"
@@ -119,6 +118,132 @@ namespace SRSLPraserHelpers
 	}
 }
 
+SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_):
+	mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0), damageToDisplay(0)
+{
+	sc.side = parameters.casterSide;
+	sc.id = mechanics->owner->id;
+	sc.skill = parameters.spellLvl;
+	sc.tile = parameters.getFirstDestinationHex();
+	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
+	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
+	sc.manaGained = 0;
+
+	//check it there is opponent hero
+	const ui8 otherSide = 1-parameters.casterSide;
+
+	if(parameters.cb->battleHasHero(otherSide))
+		otherHero = parameters.cb->battleGetFightingHero(otherSide);
+
+	logGlobal->debugStream() << "Started spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
+}
+
+SpellCastContext::~SpellCastContext()
+{
+	logGlobal->debugStream() << "Finished spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
+}
+
+void SpellCastContext::addDamageToDisplay(const si32 value)
+{
+	damageToDisplay += value;
+}
+
+void SpellCastContext::setDamageToDisplay(const si32 value)
+{
+	damageToDisplay = value;
+}
+
+void SpellCastContext::prepareBattleLog()
+{
+	bool displayDamage = true;
+
+	mechanics->battleLog(sc.battleLog, parameters, attackedCres, damageToDisplay, displayDamage);
+
+	displayDamage = displayDamage && damageToDisplay > 0;
+
+	if(displayDamage)
+	{
+        MetaString line;
+
+        line.addTxt(MetaString::GENERAL_TXT, 376);
+        line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
+        line.addReplacement(damageToDisplay);
+
+        sc.battleLog.push_back(line);
+	}
+}
+
+void SpellCastContext::beforeCast()
+{
+	//calculate spell cost
+	if(parameters.mode == ECastingMode::HERO_CASTING)
+	{
+		spellCost = parameters.cb->battleGetSpellCost(mechanics->owner, parameters.casterHero);
+
+		if(nullptr != otherHero) //handle mana channel
+		{
+			int manaChannel = 0;
+			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			{
+				if(stack->owner == otherHero->tempOwner)
+				{
+					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
+				}
+			}
+			sc.manaGained = (manaChannel * spellCost) / 100;
+		}
+
+		logGlobal->debugStream() << "spellCost: " << spellCost;
+	}
+}
+
+void SpellCastContext::afterCast()
+{
+	for(auto sta : attackedCres)
+	{
+		sc.affectedCres.insert(sta->ID);
+	}
+
+	prepareBattleLog();
+
+	env->sendAndApply(&sc);
+
+	if(parameters.mode == ECastingMode::HERO_CASTING)
+	{
+		//spend mana
+		SetMana sm;
+		sm.absolute = false;
+
+		sm.hid = parameters.casterHero->id;
+		sm.val = -spellCost;
+
+		env->sendAndApply(&sm);
+
+		if(sc.manaGained > 0)
+		{
+			assert(otherHero);
+
+			sm.hid = otherHero->id;
+			sm.val = sc.manaGained;
+			env->sendAndApply(&sm);
+		}
+	}
+	else if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
+	{
+		//reduce number of casts remaining
+		assert(parameters.casterStack);
+
+		BattleSetStackProperty ssp;
+		ssp.stackID = parameters.casterStack->ID;
+		ssp.which = BattleSetStackProperty::CASTS;
+		ssp.val = -1;
+		ssp.absolute = false;
+		env->sendAndApply(&ssp);
+	}
+	if(!si.stacks.empty()) //after spellcast info shows
+		env->sendAndApply(&si);
+}
+
 ///DefaultSpellMechanics
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
@@ -145,218 +270,27 @@ void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCa
 	}
 }
 
-bool DefaultSpellMechanics::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const
 {
-	if(!owner->isAdventureSpell())
-	{
-		env->complain("Attempt to cast non adventure spell in adventure mode");
-		return false;
-	}
-
-	const CGHeroInstance * caster = parameters.caster;
-
-	if(caster->inTownGarrison)
-	{
-		env->complain("Attempt to cast an adventure spell in town garrison");
-		return false;
-	}
-
-	const int cost = caster->getSpellCost(owner);
-
-	if(!caster->canCastThisSpell(owner))
-	{
-		env->complain("Hero cannot cast this spell!");
-		return false;
-	}
-
-	if(caster->mana < cost)
-	{
-		env->complain("Hero doesn't have enough spell points to cast this spell!");
-		return false;
-	}
-
-	{
-		AdvmapSpellCast asc;
-		asc.caster = caster;
-		asc.spellID = owner->id;
-		env->sendAndApply(&asc);
-	}
-
-	switch(applyAdventureEffects(env, parameters))
-	{
-	case ESpellCastResult::OK:
-		{
-			SetMana sm;
-			sm.hid = caster->id;
-			sm.absolute = false;
-			sm.val = -cost;
-			env->sendAndApply(&sm);
-			return true;
-		}
-		break;
-	case ESpellCastResult::CANCEL:
-		return true;
-	}
-	return false;
-}
-
-ESpellCastResult DefaultSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
-{
-	if(owner->hasEffects())
-	{
-		const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
-
-		std::vector<Bonus> bonuses;
-
-		owner->getEffects(bonuses, schoolLevel);
-
-		for(Bonus b : bonuses)
-		{
-			GiveBonus gb;
-			gb.id = parameters.caster->id.getNum();
-			gb.bonus = b;
-			env->sendAndApply(&gb);
-		}
-
-		return ESpellCastResult::OK;
-	}
-	else
-	{
-		//There is no generic algorithm of adventure cast
-		env->complain("Unimplemented adventure spell");
-		return ESpellCastResult::ERROR;
-	}
-}
-
-void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleSpellCastParameters & parameters) const
-{
-	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode;
-
 	if(nullptr == parameters.caster)
 	{
 		env->complain("No spell-caster provided.");
 		return;
 	}
 
-	BattleSpellCast sc;
-	prepareBattleCast(parameters, sc);
-
-	//check it there is opponent hero
-	const ui8 otherSide = 1-parameters.casterSide;
-	const CGHeroInstance * otherHero = nullptr;
-	if(parameters.cb->battleHasHero(otherSide))
-		otherHero = parameters.cb->battleGetFightingHero(otherSide);
-	int spellCost = 0;
-
-	//calculate spell cost
-	if(parameters.mode == ECastingMode::HERO_CASTING)
-	{
-		spellCost = parameters.cb->battleGetSpellCost(owner, parameters.casterHero);
-
-		if(nullptr != otherHero) //handle mana channel
-		{
-			int manaChannel = 0;
-			for(const CStack * stack : parameters.cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
-			{
-				if(stack->owner == otherHero->tempOwner)
-				{
-					vstd::amax(manaChannel, stack->valOfBonuses(Bonus::MANA_CHANNELING));
-				}
-			}
-			sc.manaGained = (manaChannel * spellCost) / 100;
-		}
-	}
-	logGlobal->debugStream() << "spellCost: " << spellCost;
-
-	//calculating affected creatures for all spells
-	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
-
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, parameters.getFirstDestinationHex(), parameters.caster);
-	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
-
-	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
-
 	std::vector <const CStack*> reflected;//for magic mirror
-	//checking if creatures resist
-	handleResistance(env, attackedCres, sc);
-	//it is actual spell and can be reflected to single target, no recurrence
-	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
-	if(tryMagicMirror)
-	{
-		for(auto s : attackedCres)
-		{
-			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
-			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
-				reflected.push_back(s);
-		}
 
-		vstd::erase_if(attackedCres, [&reflected](const CStack * s)
-		{
-			return vstd::contains(reflected, s);
-		});
+	cast(env, parameters, reflected);
 
-		for(auto s : reflected)
-		{
-			BattleSpellCast::CustomEffect effect;
-			effect.effect = 3;
-			effect.stack = s->ID;
-			sc.customEffects.push_back(effect);
-		}
-	}
-
-	for(auto cre : attackedCres)
-	{
-		sc.affectedCres.insert(cre->ID);
-	}
-
-	StacksInjured si;
-	SpellCastContext ctx(attackedCres, sc, si);
-	applyBattleEffects(env, parameters, ctx);
-
-	env->sendAndApply(&sc);
-
-	//spend mana
-	if(parameters.mode == ECastingMode::HERO_CASTING)
-	{
-		SetMana sm;
-		sm.absolute = false;
-
-		sm.hid = parameters.casterHero->id;
-		sm.val = -spellCost;
-
-		env->sendAndApply(&sm);
-
-		if(sc.manaGained > 0)
-		{
-			assert(otherHero);
-
-			sm.hid = otherHero->id;
-			sm.val = sc.manaGained;
-			env->sendAndApply(&sm);
-		}
-	}
-
-	if(!si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&si);
-
-	//reduce number of casts remaining
-	//TODO: this should be part of BattleSpellCast apply
-	if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
-	{
-		assert(parameters.casterStack);
-
-		BattleSetStackProperty ssp;
-		ssp.stackID = parameters.casterStack->ID;
-		ssp.which = BattleSetStackProperty::CASTS;
-		ssp.val = -1;
-		ssp.absolute = false;
-		env->sendAndApply(&ssp);
-	}
-	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode:"<<parameters.mode;
 	//Magic Mirror effect
 	for(auto & attackedCre : reflected)
 	{
+		if(parameters.mode == ECastingMode::MAGIC_MIRROR)
+		{
+			logGlobal->error("Magic mirror recurrence!");
+			return;
+		}
+
 		TStacks mirrorTargets = parameters.cb->battleGetStacksIf([this, parameters](const CStack * battleStack)
 		{
 			//Get all enemy stacks. Magic mirror can reflect to immune creature (with no effect)
@@ -367,48 +301,68 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, BattleS
 		{
 			int targetHex = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()))->position;
 
-			BattleSpellCastParameters mirrorParameters(parameters.cb, attackedCre, owner);
-			mirrorParameters.spellLvl = 0;
+			BattleSpellCastParameters mirrorParameters(parameters, attackedCre);
 			mirrorParameters.aimToHex(targetHex);
-			mirrorParameters.mode = ECastingMode::MAGIC_MIRROR;
-			mirrorParameters.selectedStack = nullptr;
-			mirrorParameters.spellLvl = parameters.spellLvl;
-			mirrorParameters.effectLevel = parameters.effectLevel;
-			mirrorParameters.effectPower = parameters.effectPower;
-			mirrorParameters.effectValue = parameters.effectValue;
-			mirrorParameters.enchantPower = parameters.enchantPower;
-			castMagicMirror(env, mirrorParameters);
+			mirrorParameters.cast(env);
 		}
 	}
 }
 
-void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & logLines, const BattleSpellCast * packet,
-	const std::string & casterName, const CStack * attackedStack, bool & displayDamage) const
+void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const
 {
-	const std::string attackedName = attackedStack->getName();
-	const std::string attackedNameSing = attackedStack->getCreature()->nameSing;
-	const std::string attackedNamePl = attackedStack->getCreature()->namePl;
+	SpellCastContext ctx(this, env, parameters);
 
-	auto getPluralFormat = [attackedStack](const int baseTextID) -> boost::format
+	ctx.beforeCast();
+
+	ctx.attackedCres = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
+
+	logGlobal->debugStream() << "will affect " << ctx.attackedCres.size() << " stacks";
+
+	handleResistance(env, ctx);
+
+	if(parameters.mode != ECastingMode::MAGIC_MIRROR)
+		handleMagicMirror(env, ctx, reflected);
+
+	applyBattleEffects(env, parameters, ctx);
+
+	ctx.afterCast();
+}
+
+void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
+	const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const
+{
+	if(attacked.size() != 1)
 	{
-		return boost::format(VLC->generaltexth->allTexts[(attackedStack->count > 1 ? baseTextID + 1 : baseTextID)]);
+		displayDamage = true;
+		battleLogDefault(logLines, parameters, attacked);
+		return;
+	}
+
+	auto attackedStack = attacked.at(0);
+
+	auto getPluralFormat = [attackedStack](const int baseTextID) -> si32
+	{
+		return attackedStack->count > 1 ? baseTextID + 1 : baseTextID;
 	};
 
-	auto logSimple = [&logLines, getPluralFormat, attackedName](const int baseTextID)
+	auto logSimple = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
 	{
-		boost::format fmt = getPluralFormat(baseTextID);
-		fmt % attackedName;
-		logLines.push_back(fmt.str());
+		MetaString line;
+		line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(baseTextID));
+		line.addReplacement(*attackedStack);
+		logLines.push_back(line);
 	};
 
-	auto logPlural = [&logLines, attackedNamePl](const int baseTextID)
+	auto logPlural = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
 	{
-		boost::format fmt(VLC->generaltexth->allTexts[baseTextID]);
-		fmt % attackedNamePl;
-		logLines.push_back(fmt.str());
+		MetaString line;
+		line.addTxt(MetaString::GENERAL_TXT, baseTextID);
+		line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+		logLines.push_back(line);
 	};
 
 	displayDamage = false; //in most following cases damage info text is custom
+
 	switch(owner->id)
 	{
 	case SpellID::STONE_GAZE:
@@ -428,55 +382,64 @@ void DefaultSpellMechanics::battleLogSingleTarget(std::vector<std::string> & log
 		break;
 	case SpellID::AGE:
 		{
-			boost::format text = getPluralFormat(551);
-			text % attackedName;
 			//The %s shrivel with age, and lose %d hit points."
+			MetaString line;
+			line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(551));
+			line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+
+			//todo: display effect from only this cast
 			TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
 			const int fullHP = bl->totalValue();
 			bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-			text % (fullHP - bl->totalValue());
-			logLines.push_back(text.str());
+			line.addReplacement(fullHP - bl->totalValue());
+			logLines.push_back(line);
 		}
 		break;
 	case SpellID::THUNDERBOLT:
 		{
 			logPlural(367);
+			MetaString line;
+			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
-			boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay)); //no more text afterwards
-			logLines.push_back(text);
+			line << text;
+			line.addReplacement(damageToDisplay); //no more text afterwards
+			logLines.push_back(line);
 		}
 		break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		logPlural(555);
 		break;
 	case SpellID::DEATH_STARE:
-		if (packet->dmgToDisplay > 0)
+		if (damageToDisplay > 0)
 		{
-			std::string text;
-			if (packet->dmgToDisplay > 1)
+			MetaString line;
+			if (damageToDisplay > 1)
 			{
-				text = VLC->generaltexth->allTexts[119]; //%d %s die under the terrible gaze of the %s.
-				boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(packet->dmgToDisplay));
-				boost::algorithm::replace_first(text, "%s", attackedNamePl);
+				line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
+				line.addReplacement(damageToDisplay);
+				line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
 			}
 			else
 			{
-				text = VLC->generaltexth->allTexts[118]; //One %s dies under the terrible gaze of the %s.
-				boost::algorithm::replace_first(text, "%s", attackedNameSing);
+				line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
+				line.addReplacement(MetaString::CRE_SING_NAMES, attackedStack->getCreature()->idNumber.num);
 			}
-			boost::algorithm::replace_first(text, "%s", casterName); //casting stack
-			logLines.push_back(text);
+			parameters.caster->getCasterName(line);
+			logLines.push_back(line);
 		}
 		break;
 	default:
-		{
-			boost::format text(VLC->generaltexth->allTexts[565]); //The %s casts %s
-			text % casterName % owner->name;
-			displayDamage = true;
-			logLines.push_back(text.str());
-		}
+		displayDamage = true;
+		battleLogDefault(logLines, parameters, attacked);
 		break;
 	}
+}
+
+void DefaultSpellMechanics::battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack*> & attacked) const
+{
+	MetaString line;
+	parameters.caster->getCastDescription(owner, attacked, line);
+	logLines.push_back(line);
 }
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
@@ -484,18 +447,13 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	//applying effects
 	if(owner->isOffensiveSpell())
 	{
-		int spellDamage = parameters.effectValue;
-
+		const int rawDamage = parameters.getEffectValue();
 		int chainLightningModifier = 0;
 		for(auto & attackedCre : ctx.attackedCres)
 		{
 			BattleStackAttacked bsa;
-			if(spellDamage != 0)
-				bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, spellDamage) >> chainLightningModifier;
-			else
-				bsa.damageAmount = owner->calculateDamage(parameters.caster, attackedCre, parameters.effectLevel, parameters.effectPower) >> chainLightningModifier;
-
-			ctx.sc.dmgToDisplay += bsa.damageAmount;
+			bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, rawDamage) >> chainLightningModifier;
+			ctx.addDamageToDisplay(bsa.damageAmount);
 
 			bsa.stackAttacked = (attackedCre)->ID;
 			if(parameters.mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
@@ -598,7 +556,6 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 
 		if(!sse.stacks.empty())
 			env->sendAndApply(&sse);
-
 	}
 }
 
@@ -609,7 +566,7 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	std::vector<BattleHex> ret;
 	std::string rng = owner->getLevelInfo(schoolLvl).range + ','; //copy + artificial comma for easier handling
 
-	if(rng.size() >= 2 && rng[0] != 'X') //there is at lest one hex in range (+artificial comma)
+	if(rng.size() >= 2 && rng[0] != 'X') //there is at least one hex in range (+artificial comma)
 	{
 		std::string number1, number2;
 		int beg, end;
@@ -668,82 +625,91 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	return ret;
 }
 
-std::set<const CStack *> DefaultSpellMechanics::getAffectedStacks(SpellTargetingContext & ctx) const
+std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
+{
+	std::vector<const CStack *> attackedCres = calculateAffectedStacks(cb, ctx);
+	handleImmunities(cb, ctx, attackedCres);
+	return attackedCres;
+}
+
+std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback* cb, const SpellTargetingContext& ctx) const
 {
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
-	const ui8 attackerSide = ctx.cb->playerToSide(ctx.casterColor) == 1;
-	const auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
+	const ui8 attackerSide = cb->playerToSide(ctx.caster->getOwner()) == 1;
+	auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, attackerSide);
 
-	const CSpell::TargetInfo ti(owner, ctx.schoolLvl, ctx.mode);
+	//hackfix for banned creature massive spells
+	if(!ctx.ti.massive && owner->getLevelInfo(ctx.schoolLvl).range == "X")
+		attackedHexes.push_back(ctx.destination);
 
-	//TODO: more generic solution for mass spells
-	if(owner->getLevelInfo(ctx.schoolLvl).range.size() > 1) //custom many-hex range
+	auto mainFilter = [=](const CStack * s)
 	{
-		for(BattleHex hex : attackedHexes)
+		const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
+		const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
+		const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
+		const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+
+		return positivenessFlag && validTarget;
+	};
+
+	if(ctx.ti.type == CSpell::CREATURE && attackedHexes.size() == 1)
+	{
+		//for single target spells we must select one target. Alive stack is preferred (issue #1763)
+
+		auto predicate = [&](const CStack * s)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
-			{
-				attackedCres.insert(st);
-			}
-		}
-	}
-	else if(ti.type == CSpell::CREATURE)
-	{
-		auto predicate = [=](const CStack * s){
-			const bool positiveToAlly = owner->isPositive() && s->owner == ctx.casterColor;
-			const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.casterColor;
-			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
-
-			//for single target spells select stacks covering destination tile
-			const bool rangeCovers = ti.massive || s->coversPos(ctx.destination);
-			//handle smart targeting
-			const bool positivenessFlag = !ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
-
-			return rangeCovers && positivenessFlag && validTarget;
+			return s->coversPos(attackedHexes.at(0)) && mainFilter(s);
 		};
 
-		TStacks stacks = ctx.cb->battleGetStacksIf(predicate);
+		TStacks stacks = cb->battleGetStacksIf(predicate);
 
-		if(ti.massive)
+		for(auto stack : stacks)
 		{
-			//for massive spells add all targets
-			for (auto stack : stacks)
+			if(stack->alive())
+			{
 				attackedCres.insert(stack);
-		}
-		else
-		{
-			//for single target spells we must select one target. Alive stack is preferred (issue #1763)
-			for(auto stack : stacks)
-			{
-				if(stack->alive())
-				{
-					attackedCres.insert(stack);
-					break;
-				}
+				break;
 			}
+		}
 
-			if(attackedCres.empty() && !stacks.empty())
-			{
-				attackedCres.insert(stacks.front());
-			}
+		if(attackedCres.empty() && !stacks.empty())
+		{
+			attackedCres.insert(stacks.front());
 		}
+	}
+	else if(ctx.ti.massive)
+	{
+		TStacks stacks = cb->battleGetStacksIf(mainFilter);
+		for (auto stack : stacks)
+			attackedCres.insert(stack);
 	}
 	else //custom range from attackedHexes
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = ctx.cb->battleGetStackByPos(hex, ti.onlyAlive))
-				attackedCres.insert(st);
+			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
+				if(mainFilter(st))
+					attackedCres.insert(st);;
 		}
 	}
 
-	return attackedCres;
+	std::vector<const CStack *> res;
+	std::copy(attackedCres.begin(), attackedCres.end(), std::back_inserter(res));
+
+	return res;
 }
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, PlayerColor player) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
 	//no problems by default, this method is for spell-specific problems
+	return ESpellCastProblem::OK;
+}
+
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+{
+	//no problems by default, this method is for spell-specific problems
+	//common problems handled by CSpell
 	return ESpellCastProblem::OK;
 }
 
@@ -774,58 +740,56 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 	}
 }
 
-void DefaultSpellMechanics::castMagicMirror(const SpellCastEnvironment* env, BattleSpellCastParameters& parameters) const
+void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const
 {
-	logGlobal->debugStream() << "Started spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
-	if(parameters.mode != ECastingMode::MAGIC_MIRROR)
+	//now handle immunities
+	auto predicate = [&, this](const CStack * s)->bool
 	{
-		env->complain("MagicMirror: invalid mode");
-		return;
-	}
-	BattleHex destination = parameters.getFirstDestinationHex();
-	if(!destination.isValid())
-	{
-		env->complain("MagicMirror: invalid destination");
-		return;
-	}
+		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(ctx.destination);
+		bool notImmune = (ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s));
 
-	BattleSpellCast sc;
-	prepareBattleCast(parameters, sc);
-
-	//calculating affected creatures for all spells
-	//must be vector, as in Chain Lightning order matters
-	std::vector<const CStack*> attackedCres; //CStack vector is somewhat more suitable than ID vector
-
-	auto creatures = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.casterColor, parameters.spellLvl, destination, parameters.caster);
-	std::copy(creatures.begin(), creatures.end(), std::back_inserter(attackedCres));
-
-	logGlobal->debugStream() << "will affect: " << attackedCres.size() << " stacks";
-
-	handleResistance(env, attackedCres, sc);
-
-	for(auto cre : attackedCres)
-	{
-		sc.affectedCres.insert(cre->ID);
-	}
-
-	StacksInjured si;
-	SpellCastContext ctx(attackedCres, sc, si);
-	applyBattleEffects(env, parameters, ctx);
-
-	env->sendAndApply(&sc);
-	if(!si.stacks.empty()) //after spellcast info shows
-		env->sendAndApply(&si);
-	logGlobal->debugStream() << "Finished spell cast. Spell: "<<owner->name<<"; mode: MAGIC_MIRROR";
+		return !(hitDirectly || notImmune);
+	};
+	vstd::erase_if(stacks, predicate);
 }
 
-void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, std::vector<const CStack* >& attackedCres, BattleSpellCast& sc) const
+void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const
+{
+	//reflection is applied only to negative spells
+	//if it is actual spell and can be reflected to single target, no recurrence
+	const bool tryMagicMirror = owner->isNegative() && owner->level && owner->getLevelInfo(0).range == "0";
+	if(tryMagicMirror)
+	{
+		for(auto s : ctx.attackedCres)
+		{
+			const int mirrorChance = (s)->valOfBonuses(Bonus::MAGIC_MIRROR);
+			if(env->getRandomGenerator().nextInt(99) < mirrorChance)
+				reflected.push_back(s);
+		}
+
+		vstd::erase_if(ctx.attackedCres, [&reflected](const CStack * s)
+		{
+			return vstd::contains(reflected, s);
+		});
+
+		for(auto s : reflected)
+		{
+			BattleSpellCast::CustomEffect effect;
+			effect.effect = 3;
+			effect.stack = s->ID;
+			ctx.sc.customEffects.push_back(effect);
+		}
+	}
+}
+
+void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, SpellCastContext & ctx) const
 {
 	//checking if creatures resist
-	//resistance/reflection is applied only to negative spells
+	//resistance is applied only to negative spells
 	if(owner->isNegative())
 	{
 		std::vector <const CStack*> resisted;
-		for(auto s : attackedCres)
+		for(auto s : ctx.attackedCres)
 		{
 			//magic resistance
 			const int prob = std::min((s)->magicResistance(), 100); //probability of resistance in %
@@ -836,7 +800,7 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, s
 			}
 		}
 
-		vstd::erase_if(attackedCres, [&resisted](const CStack * s)
+		vstd::erase_if(ctx.attackedCres, [&resisted](const CStack * s)
 		{
 			return vstd::contains(resisted, s);
 		});
@@ -846,19 +810,19 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, s
 			BattleSpellCast::CustomEffect effect;
 			effect.effect = 78;
 			effect.stack = s->ID;
-			sc.customEffects.push_back(effect);
+			ctx.sc.customEffects.push_back(effect);
 		}
 	}
 }
 
-void DefaultSpellMechanics::prepareBattleCast(const BattleSpellCastParameters& parameters, BattleSpellCast& sc) const
+bool DefaultSpellMechanics::requiresCreatureTarget() const
 {
-	sc.side = parameters.casterSide;
-	sc.id = owner->id;
-	sc.skill = parameters.spellLvl;
-	sc.tile = parameters.getFirstDestinationHex();
-	sc.dmgToDisplay = 0;
-	sc.castByHero = parameters.mode == ECastingMode::HERO_CASTING;
-	sc.casterStack = (parameters.casterStack ? parameters.casterStack->ID : -1);
-	sc.manaGained = 0;
+	//most spells affects creatures somehow regardless of Target Type
+	//for few exceptions see overrides
+	return true;
+}
+
+std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+{
+	return std::vector<const CStack *>();
 }

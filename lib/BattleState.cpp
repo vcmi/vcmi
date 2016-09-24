@@ -1243,6 +1243,19 @@ const PlayerColor CStack::getOwner() const
 	return owner;
 }
 
+void CStack::getCasterName(MetaString & text) const
+{
+	//always plural name in case of spell cast.
+	text.addReplacement(MetaString::CRE_PL_NAMES, type->idNumber.num);
+}
+
+void CStack::getCastDescription(const CSpell * spell, const std::vector<const CStack*> & attacked, MetaString & text) const
+{
+	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+	//todo: use text 566 for single creature
+	getCasterName(text);
+	text.addReplacement(MetaString::SPELL_NAME, spell->id.toEnum());
+}
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
 {

@@ -20,9 +20,9 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 {
 	//todo: this should be effectValue
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.effectPower;
+	ctx.setDamageToDisplay(parameters.effectPower);
 
-	for(auto & attackedCre : ctx.attackedCres) //no immunities
+	for(auto & attackedCre : ctx.attackedCres)
 	{
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
@@ -35,13 +35,35 @@ void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * 
 	}
 }
 
+ESpellCastProblem::ESpellCastProblem AcidBreathDamageMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
+{
+	//just in case
+	if(!obj->alive())
+		return ESpellCastProblem::WRONG_SPELL_TARGET;
+
+	//there should be no immunities by design
+	//but make it a bit configurable
+	//ignore all immunities, except specific absolute immunity
+	{
+		//SPELL_IMMUNITY absolute case
+		std::stringstream cachingStr;
+		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << owner->id.toEnum() << "addInfo_1";
+		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, owner->id.toEnum(), 1), cachingStr.str()))
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}
+	return ESpellCastProblem::OK;
+}
+
 ///DeathStareMechanics
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
-	ctx.sc.dmgToDisplay = parameters.effectPower;
+	si32 damageToDisplay = parameters.effectPower;
+
 	if(!ctx.attackedCres.empty())
-		vstd::amin(ctx.sc.dmgToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+		vstd::amin(damageToDisplay, (*ctx.attackedCres.begin())->count); //stack is already reduced after attack
+
+	ctx.setDamageToDisplay(damageToDisplay);
 
 	for(auto & attackedCre : ctx.attackedCres)
 	{

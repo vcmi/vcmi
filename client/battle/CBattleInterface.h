@@ -114,9 +114,10 @@ class CBattleInterface : public CIntObject
 		INVALID = -1, CREATURE_INFO,
 		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
 		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
-		NO_LOCATION, ANY_LOCATION, FRIENDLY_CREATURE_SPELL, HOSTILE_CREATURE_SPELL, RISING_SPELL, ANY_CREATURE, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
+		NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
 		FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
-		CATAPULT, HEAL, RISE_DEMONS
+		CATAPULT, HEAL, RISE_DEMONS,
+		AIMED_SPELL_CREATURE
 	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
@@ -158,7 +159,6 @@ private:
 	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
-	PossibleActions spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	const CSpell * sp; //spell pointer for convenience
 	si32 creatureSpellToCast;
@@ -194,7 +194,7 @@ private:
 		const CBattleInterface * owner;
 	public:
 		const CGTownInstance * town; //besieged town
-		
+
 		SiegeHelper(const CGTownInstance * siegeTown, const CBattleInterface * _owner); //c-tor
 		~SiegeHelper(); //d-tor
 
@@ -259,6 +259,7 @@ private:
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	/** End of battle screen blitting methods */
 
+	PossibleActions getCasterAction(const CSpell * spell, const ISpellCaster * caster, ECastingMode::ECastingMode mode) const;
 public:
 	std::list<std::pair<CBattleAnimation *, bool> > pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation * anim); //adds new anim to pendingAnims
@@ -334,20 +335,20 @@ public:
 	void spellCast(const BattleSpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile, bool areaEffect = true); //displays custom effect on the battlefield
-	
-	void displaySpellCast(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s cast animation
-	void displaySpellEffect(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
-	void displaySpellHit(SpellID spellID, BattleHex destinationTile, bool areaEffect = true); //displays spell`s affected animation
-		
-	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile, bool areaEffect = true);
-	
+	void displayEffect(ui32 effect, int destTile); //displays custom effect on the battlefield
+
+	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
+	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
+
+	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile);
+
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-	PossibleActions selectionTypeByPositiveness(const CSpell & spell);
+
 	Rect hexPosition(BattleHex hex) const;
 
 	void handleHex(BattleHex myNumber, int eventType);
@@ -365,7 +366,7 @@ public:
 	friend class CPlayerInterface;
 	friend class CButton;
 	friend class CInGameConsole;
-	
+
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
 	friend class CSpellEffectAnimation;
