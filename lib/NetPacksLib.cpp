@@ -1624,6 +1624,18 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
 		if(resurrected)
 		{
+			//removing all spells effects
+			auto selector = [](const Bonus * b)
+			{
+				const CSpell *s = b->sourceSpell();
+				//Special case: DISRUPTING_RAY is "immune" to dispell
+				//Other even PERMANENT effects can be removed
+				return (s != nullptr) && (s->id != SpellID::DISRUPTING_RAY);
+			};
+			changedStack->popBonuses(selector);
+		}
+		else if(cure)
+		{
 			//removing all effects from negative spells
 			auto selector = [](const Bonus * b)
 			{

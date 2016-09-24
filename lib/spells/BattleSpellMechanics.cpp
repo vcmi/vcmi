@@ -24,6 +24,8 @@ void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 	StacksHealedOrResurrected shr;
 	shr.lifeDrain = false;
 	shr.tentHealing = false;
+	//special case for Archangel
+	shr.cure = parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING && owner->id == SpellID::RESURRECTION;
 
 	const bool resurrect = (healLevel != EHealLevel::HEAL);
 	for(auto & attackedCre : ctx.attackedCres)

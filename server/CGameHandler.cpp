@@ -888,6 +888,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		StacksHealedOrResurrected shi;
 		shi.lifeDrain = true;
 		shi.tentHealing = false;
+		shi.cure = false;
 		shi.drainedFrom = def->ID;
 
 		StacksHealedOrResurrected::HealInfo hi;
@@ -4153,6 +4154,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				StacksHealedOrResurrected shr;
 				shr.lifeDrain = false;
 				shr.tentHealing = true;
+				shr.cure = false;
 				shr.drainedFrom = ba.stackNumber;
 
 				StacksHealedOrResurrected::HealInfo hi;
