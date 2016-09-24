@@ -425,7 +425,11 @@ bool ObstacleMechanics::isHexAviable(const CBattleInfoCallback * cb, const Battl
 	if(!mustBeClear)
 		return true;
 
-	if(cb->battleGetStackByPos(hex, true) || !!cb->battleGetObstacleOnPos(hex, false))
+	if(cb->battleGetStackByPos(hex, true))
+		return false;
+
+	auto obst = cb->battleGetObstacleOnPos(hex, false);
+	if(obst /*&& obst->type != CObstacleInstance::MOAT*/)//todo: issue 2366, uncomment once obstacle tile sharing implemented
 		return false;
 
 	if(nullptr != cb->battleGetDefendedTown() && CGTownInstance::NONE != cb->battleGetDefendedTown()->fortLevel())
@@ -481,6 +485,17 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 	//land mines or quicksand patches are handled as spell created obstacles
 	for (int i = 0; i < patchesToPut; i++)
 		placeObstacle(env, parameters, availableTiles.at(i));
+}
+
+ESpellCastProblem::ESpellCastProblem PatchObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
+{
+	//Quicksand|LandMine are useless if enemy has native stack, check for LandMine damage immunity is done in general way by CSpell
+	const ui8 otherSide = !cb->playerToSide(caster->getOwner());
+
+	if(cb->battleHasNativeStack(otherSide))
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+	return DefaultSpellMechanics::canBeCast(cb, mode, caster);
 }
 
 ///LandMineMechanics
