@@ -724,10 +724,17 @@ void processCommand(const std::string &message)
 		Settings conf = settings.write["session"][what];
 
 		readed >> value;
+
 		if (value == "on")
+		{
 			conf->Bool() = true;
+			logGlobal->info("Option %s enabled!", what);
+		}
 		else if (value == "off")
+		{
 			conf->Bool() = false;
+			logGlobal->info("Option %s disabled!", what);
+		}
 	}
 	else if(cn == "sinfo")
 	{

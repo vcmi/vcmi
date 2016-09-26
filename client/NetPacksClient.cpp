@@ -787,7 +787,7 @@ void SystemMessage::applyCl( CClient *cl )
 	str << "System message: " << text;
 
 	logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
-	if(LOCPLINT)
+	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
 		LOCPLINT->cingconsole->print(str.str());
 }
 
