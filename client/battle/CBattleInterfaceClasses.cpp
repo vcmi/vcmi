@@ -649,14 +649,14 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero &hero, Point *position) : C
 		moveTo(*position);
 	background->colorize(hero.owner); //maybe add this functionality to base class?
 
-	attack = hero.details->primskills[0];
-	defense = hero.details->primskills[1];
-	power = hero.details->primskills[2];
-	knowledge = hero.details->primskills[3];
-	morale = hero.details->morale;
-	luck = hero.details->luck;
-	currentSpellPoints = hero.details->mana;
-	maxSpellPoints = hero.details->manaLimit;
+	int attack = hero.details->primskills[0];
+	int defense = hero.details->primskills[1];
+	int power = hero.details->primskills[2];
+	int knowledge = hero.details->primskills[3];
+	int morale = hero.details->morale;
+	int luck = hero.details->luck;
+	int currentSpellPoints = hero.details->mana;
+	int maxSpellPoints = hero.details->manaLimit;
 
 	new CAnimImage("PortraitsLarge", hero.portrait, 0, 10, 6);
 

@@ -74,16 +74,6 @@ class CHeroInfoWindow : public CWindowObject
 {
 public:
 	CHeroInfoWindow(const InfoAboutHero &hero, Point *position);
-
-private:
-	int attack;
-	int defense;
-	int power;
-	int knowledge;
-	int morale;
-	int luck;
-	int currentSpellPoints;
-	int maxSpellPoints;
 };
 
 /// Class which manages the battle options window

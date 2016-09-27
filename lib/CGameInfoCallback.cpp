@@ -292,6 +292,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	dest.initFromHero(h, accessFlag);
 
+	if (accessFlag && !gs->curB)
+		dest.details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
+
 	//DISGUISED bonus implementation
 
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
