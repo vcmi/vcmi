@@ -3044,6 +3044,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
 		details->luck = h->LuckVal();
 		details->morale = h->MoraleVal();
 		details->mana = h->mana;
+		details->manaLimit = h->manaLimit();
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 
 		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)

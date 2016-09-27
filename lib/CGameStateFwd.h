@@ -48,7 +48,7 @@ public:
 	struct DLL_LINKAGE Details
 	{
 		std::vector<si32> primskills;
-		si32 mana, luck, morale;
+		si32 mana, manaLimit, luck, morale;
 	} *details;
 
 	const CHeroClass *hclass;

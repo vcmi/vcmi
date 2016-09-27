@@ -273,6 +273,16 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	bool accessFlag = hasAccess(h->tempOwner);
 
+	if (!accessFlag && gs->curB) //if it's battle we can get enemy hero full data
+	{
+		ui8 playerSide = gs->curB->playerToSide(*player);
+		if (playerSide >= 0)
+		{
+			if (gs->curB->sides[!playerSide].hero == h)
+				accessFlag = true;
+		}
+	}
+
 	if(!accessFlag && nullptr != selectedObject)
 	{
 		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
