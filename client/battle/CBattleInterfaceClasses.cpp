@@ -216,7 +216,7 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 	if (down && myOwner->myTurn)
 	{
 		if (myHero != nullptr)
-			targetHero.initFromHero(myHero, true);
+			targetHero.initFromHero(myHero, InfoAboutHero::EInfoLevel::INBATTLE);
 		else
 			targetHero = myOwner->enemyHero();
 

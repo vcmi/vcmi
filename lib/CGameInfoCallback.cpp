@@ -271,31 +271,30 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
-	bool accessFlag = hasAccess(h->tempOwner);
+	InfoAboutHero::EInfoLevel infoLevel = InfoAboutHero::EInfoLevel::BASIC;
 
-	if (!accessFlag && gs->curB) //if it's battle we can get enemy hero full data
+	if(hasAccess(h->tempOwner))
+		infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
+
+	if ( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && gs->curB) //if it's battle we can get enemy hero full data
 	{
-		ui8 playerSide = gs->curB->playerToSide(*player);
-		if (playerSide >= 0)
-		{
-			if (gs->curB->sides[!playerSide].hero == h)
-				accessFlag = true;
-		}
+		if(gs->curB->playerHasAccessToHeroInfo(*player, h))
+			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 	}
 
-	if(!accessFlag && nullptr != selectedObject)
+	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
 	{
 		const CGHeroInstance * selectedHero = dynamic_cast<const CGHeroInstance *>(selectedObject);
 		if(nullptr != selectedHero)
-			accessFlag = selectedHero->hasVisions(hero, 1);
+			if(selectedHero->hasVisions(hero, 1))
+				infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
 	}
 
-	dest.initFromHero(h, accessFlag);
-
-	if (accessFlag && !gs->curB)
-		dest.details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
+	dest.initFromHero(h, infoLevel);
 
 	//DISGUISED bonus implementation
+
+	bool disguiseFlag = (infoLevel == InfoAboutHero::EInfoLevel::DETAILED);
 
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
@@ -325,7 +324,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 				}
 		};
 
-		auto doAdvancedDisguise = [accessFlag, &doBasicDisguise](InfoAboutHero & info)
+		auto doAdvancedDisguise = [disguiseFlag, &doBasicDisguise](InfoAboutHero & info)
 		{
 			doBasicDisguise(info);
 

@@ -294,9 +294,9 @@ CHeroTooltip::CHeroTooltip(Point pos, const InfoAboutHero &hero):
 }
 
 CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
-	CArmyTooltip(pos, InfoAboutHero(hero, true))
+	CArmyTooltip(pos, InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED))
 {
-	init(InfoAboutHero(hero, true));
+	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
 void CTownTooltip::init(const InfoAboutTown &town)

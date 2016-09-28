@@ -332,7 +332,8 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 		return InfoAboutHero();
 	}
 
-	return InfoAboutHero(hero, battleDoWeKnowAbout(side));
+	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
+	return InfoAboutHero(hero, infoLevel);
 }
 
 int CBattleInfoEssentials::battleCastSpells(ui8 side) const
@@ -422,6 +423,18 @@ ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 		logGlobal->warnStream() << "Cannot find side for player " << player;
 
 	return ret;
+}
+
+bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+	ui8 playerSide = playerToSide(player);
+	if (playerSide >= 0)
+	{
+		if (getBattle()->sides[!playerSide].hero == h)
+			return true;
+	}
+	return false;
 }
 
 ui8 CBattleInfoEssentials::battleGetSiegeLevel() const

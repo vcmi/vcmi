@@ -2619,7 +2619,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
-			iah.initFromHero(best, level >= 2);
+			iah.initFromHero(best, (level >= 2) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC);
 			iah.army.clear();
 			tgi.colorToBestHero[g->second.color] = iah;
 		}
@@ -3007,12 +3007,12 @@ InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah):
 	assign(iah);
 }
 
-InfoAboutHero::InfoAboutHero(const CGHeroInstance *h, bool detailed)
+InfoAboutHero::InfoAboutHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
 	: details(nullptr),
 	hclass(nullptr),
 	portrait(-1)
 {
-	initFromHero(h, detailed);
+	initFromHero(h, infoLevel);
 }
 
 InfoAboutHero::~InfoAboutHero()
@@ -3026,10 +3026,12 @@ InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 	return *this;
 }
 
-void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
+void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
 {
 	if(!h)
 		return;
+
+	bool detailed = ( (infoLevel == EInfoLevel::DETAILED) || (infoLevel == EInfoLevel::INBATTLE) );
 
 	initFromArmy(h, detailed);
 
@@ -3044,13 +3046,16 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
 		details->luck = h->LuckVal();
 		details->morale = h->MoraleVal();
 		details->mana = h->mana;
-		details->manaLimit = h->manaLimit();
 		details->primskills.resize(GameConstants::PRIMARY_SKILLS);
 
 		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
 		{
 			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i));
 		}
+		if (infoLevel == EInfoLevel::INBATTLE)
+			details->manaLimit = h->manaLimit();
+		else
+			details->manaLimit = -1; //we do not want to leak max mana info outside battle so set to meaningless value
 	}
 }
 
