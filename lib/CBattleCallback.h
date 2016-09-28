@@ -190,6 +190,7 @@ public:
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
 	ui8 playerToSide(PlayerColor player) const;
+	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side cast

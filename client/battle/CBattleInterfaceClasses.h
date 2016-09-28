@@ -2,6 +2,7 @@
 
 #include "../gui/CIntObject.h"
 #include "../../lib/BattleHex.h"
+#include "../windows/CWindowObject.h"
 
 struct SDL_Surface;
 class CDefHandler;
@@ -62,9 +63,17 @@ public:
 	ui8 flagAnim, animCount; //for flag animation
 	void show(SDL_Surface * to) override; //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
+	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
+	void clickRight(tribool down, bool previousState) override; //call-in
 	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
 	~CBattleHero(); //d-tor
+};
+
+class CHeroInfoWindow : public CWindowObject
+{
+public:
+	CHeroInfoWindow(const InfoAboutHero &hero, Point *position);
 };
 
 /// Class which manages the battle options window

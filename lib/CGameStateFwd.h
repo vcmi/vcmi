@@ -44,24 +44,32 @@ struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
 {
 private:
 	void assign(const InfoAboutHero & iah);
+
 public:
 	struct DLL_LINKAGE Details
 	{
 		std::vector<si32> primskills;
-		si32 mana, luck, morale;
+		si32 mana, manaLimit, luck, morale;
 	} *details;
 
 	const CHeroClass *hclass;
 	int portrait;
 
+	enum EInfoLevel
+	{
+		BASIC,
+		DETAILED,
+		INBATTLE
+	};
+
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
-	InfoAboutHero(const CGHeroInstance *h, bool detailed);
+	InfoAboutHero(const CGHeroInstance *h, EInfoLevel infoLevel);
 	~InfoAboutHero();
 
 	InfoAboutHero & operator=(const InfoAboutHero & iah);
 
-	void initFromHero(const CGHeroInstance *h, bool detailed);
+	void initFromHero(const CGHeroInstance *h, EInfoLevel infoLevel);
 };
 
 /// Struct which holds a int information about a town

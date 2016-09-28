@@ -177,6 +177,15 @@ void CBattleHero::setPhase(int newPhase)
 	nextPhase = 0;
 }
 
+void CBattleHero::hover(bool on)
+{
+	//TODO: Make lines below work properly
+	if (on)
+		CCS->curh->changeGraphic(ECursor::COMBAT, 5);
+	else
+		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
+}
+
 void CBattleHero::clickLeft(tribool down, bool previousState)
 {
 	if(myOwner->spellDestSelectMode) //we are casting a spell
@@ -193,6 +202,25 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 
 		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->getCurrentPlayerInterface());
 		GH.pushInt(spellWindow);
+	}
+}
+
+void CBattleHero::clickRight(tribool down, bool previousState)
+{
+	Point windowPosition;
+	windowPosition.x = (!flip) ? myOwner->pos.topLeft().x + 1 : myOwner->pos.topRight().x - 79;
+	windowPosition.y = myOwner->pos.y + 135;
+
+	InfoAboutHero targetHero;
+
+	if (down && myOwner->myTurn)
+	{
+		if (myHero != nullptr)
+			targetHero.initFromHero(myHero, InfoAboutHero::EInfoLevel::INBATTLE);
+		else
+			targetHero = myOwner->enemyHero();
+
+		GH.pushInt(new CHeroInfoWindow(targetHero, &windowPosition));
 	}
 }
 
@@ -247,7 +275,7 @@ CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor pl
 		CSDL_Ext::alphaTransform(elem.bitmap);
 		graphics->blueToPlayersAdv(elem.bitmap, player);
 	}
-	addUsedEvents(LCLICK);
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
 }
@@ -612,6 +640,47 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 			GH.pushInt(new CStackWindow(myst, true));
 		}
 	}
+}
+
+CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero &hero, Point *position) : CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	if (position != nullptr)
+		moveTo(*position);
+	background->colorize(hero.owner); //maybe add this functionality to base class?
+
+	int attack = hero.details->primskills[0];
+	int defense = hero.details->primskills[1];
+	int power = hero.details->primskills[2];
+	int knowledge = hero.details->primskills[3];
+	int morale = hero.details->morale;
+	int luck = hero.details->luck;
+	int currentSpellPoints = hero.details->mana;
+	int maxSpellPoints = hero.details->manaLimit;
+
+	new CAnimImage("PortraitsLarge", hero.portrait, 0, 10, 6);
+
+	//primary stats
+	new CLabel(9, 75, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":");
+	new CLabel(9, 87, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":");
+	new CLabel(9, 99, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":");
+	new CLabel(9, 111, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":");
+
+	new CLabel(69, 87, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack));
+	new CLabel(69, 99, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense));
+	new CLabel(69, 111, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power));
+	new CLabel(69, 123, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge));
+
+	//morale+luck
+	new CLabel(9, 131, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":");
+	new CLabel(9, 143, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":");
+
+	new CAnimImage("IMRL22", morale + 3, 0, 47, 131);
+	new CAnimImage("ILCK22", luck + 3, 0, 47, 143);
+
+	//spell points
+	new CLabel(39, 174, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]);
+	new CLabel(39, 186, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints));
 }
 
 void CStackQueue::update()
