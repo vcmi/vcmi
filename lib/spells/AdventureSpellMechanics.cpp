@@ -346,17 +346,22 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment
 {
 	ShowWorldViewEx pack;
 
-	pack.player = parameters.caster->tempOwner;
+	pack.player = parameters.caster->getOwner();
 
 	const int spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
+	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
+
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
-		//todo:we need to send only not visible objects
+		//deleted object remain as empty pointer
+		if(obj && filterObject(obj, spellLevel))
+		{
+			ObjectPosInfo posInfo(obj);
 
-		if(obj)//for some reason deleted object remain as empty pointer
-			if(filterObject(obj, spellLevel))
-				pack.objectPositions.push_back(ObjectPosInfo(obj));
+			if(fowMap[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
+				pack.objectPositions.push_back(posInfo);
+		}
 	}
 
 	env->sendAndApply(&pack);

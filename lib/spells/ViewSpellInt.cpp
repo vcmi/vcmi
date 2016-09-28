@@ -15,13 +15,13 @@
 #include "../mapObjects/CObjectHandler.h"
 
 ObjectPosInfo::ObjectPosInfo():
-	pos(),id(Obj::NO_OBJ), subId(-1), owner(PlayerColor::CANNOT_DETERMINE)
+	pos(), id(Obj::NO_OBJ), subId(-1), owner(PlayerColor::CANNOT_DETERMINE)
 {
 
 }
 
 ObjectPosInfo::ObjectPosInfo(const CGObjectInstance * obj):
-	pos(obj->pos),id(obj->ID), subId(obj->subID), owner(obj->tempOwner)
+	pos(obj->visitablePos()), id(obj->ID), subId(obj->subID), owner(obj->tempOwner)
 {
 
 }
