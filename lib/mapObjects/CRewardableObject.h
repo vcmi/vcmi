@@ -321,6 +321,7 @@ public:
 	CGVisitableOPW();
 
 	void setPropertyDer(ui8 what, ui32 val) override;
+	void setRandomReward(CRandomGenerator & rand);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

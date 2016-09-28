@@ -323,7 +323,18 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs( CGameState *gs )
 			break;
 		case VISITOR_CLEAR:
 			for (CGHeroInstance * hero : gs->map->allHeroes)
-				hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
+			{
+				if (hero)
+				{
+					hero->visitedObjects.erase(object); // remove visit info from all heroes, including those that are not present on map
+				}
+			}
+
+			for(auto &elem : gs->players)
+			{
+				elem.second.visitedObjects.erase(object);
+			}
+
 			break;
 		case VISITOR_REMOVE:
 			gs->getHero(hero)->visitedObjects.erase(object);
