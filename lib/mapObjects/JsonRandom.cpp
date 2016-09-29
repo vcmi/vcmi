@@ -219,9 +219,8 @@ namespace JsonRandom
 		std::vector<Bonus> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
-			Bonus * bonus = JsonUtils::parseBonus(entry);
+			auto bonus = JsonUtils::parseBonus(entry);
 			ret.push_back(*bonus);
-			delete bonus;
 		}
 		return ret;
 	}

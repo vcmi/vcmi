@@ -331,7 +331,7 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
+void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<Bonus> dest)
 {
 	dest->val = source[1].Float();
 	resolveIdentifier(source[2],dest->subtype);
@@ -341,9 +341,9 @@ void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
 }
 
 
-Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
-	auto  b = new Bonus();
+	auto b = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
@@ -418,10 +418,10 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 	}
 }
 
-Bonus * JsonUtils::parseBonus (const JsonNode &ability)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 {
 
-	auto  b = new Bonus();
+	auto b = std::make_shared<Bonus>();
 	const JsonNode *value;
 
 	std::string type = ability["type"].String();
@@ -560,7 +560,7 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
+void JsonUtils::unparseBonus( JsonNode &node, const std::shared_ptr<Bonus>& bonus )
 {
 	node["type"].String() = reverseMapFirst<std::string, Bonus::BonusType>(bonus->type, bonusNameMap);
 	node["subtype"].Float() = bonus->subtype;

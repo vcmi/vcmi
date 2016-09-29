@@ -1579,8 +1579,8 @@ void CBattleInterface::activateStack()
 	redrawBackgroundWithHexes(activeStack);
 
 	//set casting flag to true if creature can use it to not check it every time
-	const Bonus *spellcaster = s->getBonusLocalFirst(Selector::type(Bonus::SPELLCASTER)),
-		*randomSpellcaster = s->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+	const auto spellcaster = s->getBonusLocalFirst(Selector::type(Bonus::SPELLCASTER)),
+		randomSpellcaster = s->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
 	if (s->casts &&  (spellcaster || randomSpellcaster))
 	{
 		stackCanCastSpell = true;

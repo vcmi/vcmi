@@ -539,7 +539,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//spell level limiting bonus
-	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
+	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
 		0, -1, -1, Bonus::INDEPENDENT_MAX));
 
 	//giving terrain overalay premies
@@ -568,7 +568,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		}
 
 		{ //common part for cases 9, 14, 15, 16, 17
-			curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
 			break;
 		}
 
@@ -593,7 +593,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		{
 			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
 			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			Bonus * b = makeFeature(Bonus::LEVEL_SPELL_IMMUNITY, Bonus::ONE_BATTLE, GameConstants::SPELL_LEVELS, 1, Bonus::TERRAIN_OVERLAY);
+			auto b = makeFeature(Bonus::LEVEL_SPELL_IMMUNITY, Bonus::ONE_BATTLE, GameConstants::SPELL_LEVELS, 1, Bonus::TERRAIN_OVERLAY);
 			b->valType = Bonus::INDEPENDENT_MAX;
 			curB->addNewBonus(b);
 			break;
@@ -635,11 +635,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
 		for(CBonusSystemNode *n : nodes)
 		{
-			for(Bonus *b : n->getExportedBonusList())
+			for(auto b : n->getExportedBonusList())
 			{
 				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
 				{
-					auto bCopy = new Bonus(*b);
+					auto bCopy = std::make_shared<Bonus>(*b);
 					bCopy->effectRange = Bonus::NO_LIMIT;
 					bCopy->propagator.reset();
 					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i].color));
@@ -979,7 +979,7 @@ std::vector<si32> CStack::activeSpells() const
 	std::vector<si32> ret;
 
 	TBonusListPtr spellEffects = getSpellBonuses();
-	for(const Bonus *it : *spellEffects)
+	for(const std::shared_ptr<Bonus> it : *spellEffects)
 	{
 		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);

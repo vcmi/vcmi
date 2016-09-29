@@ -46,10 +46,10 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	Bonus *b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
-	if(!b)
+	auto b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+ 	if(!b)
 	{
-		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
 		addNewBonus(b);
 	}
 
@@ -100,12 +100,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
-	Bonus *undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
+	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
  	if(hasUndead)
 	{
 		if(!undeadModifier)
 		{
-			undeadModifier = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
+			undeadModifier = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
 			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
 			addNewBonus(undeadModifier);
 		}

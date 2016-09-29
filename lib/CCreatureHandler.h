@@ -190,14 +190,14 @@ public:
 	//Commanders
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
-	std::vector <std::pair <Bonus*, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
+	std::vector <std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
 	void deserializationFix();
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
-	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
-	void addBonusForAllCreatures(Bonus *b);
+	void addBonusForTier(int tier, std::shared_ptr<Bonus> b); //tier must be <1-7>
+	void addBonusForAllCreatures(std::shared_ptr<Bonus> b);
 
 	CCreatureHandler();
 	~CCreatureHandler();

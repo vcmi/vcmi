@@ -106,10 +106,10 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 	switch (which)
 	{
 		case BONUS:
-			commander->accumulateBonus (accumulatedBonus);
+			commander->accumulateBonus (std::make_shared<Bonus>(accumulatedBonus));
 			break;
 		case SPECIAL_SKILL:
-			commander->accumulateBonus (accumulatedBonus);
+			commander->accumulateBonus (std::make_shared<Bonus>(accumulatedBonus));
 			commander->specialSKills.insert (additionalInfo);
 			break;
 		case SECONDARY_SKILL:
@@ -272,7 +272,7 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 	if(Bonus::OneWeek(&bonus))
 		bonus.turnsRemain = 8 - gs->getDate(Date::DAY_OF_WEEK); // set correct number of days before adding bonus
 
-	auto b = new Bonus(bonus);
+	auto b = std::make_shared<Bonus>(bonus);
 	cbsn->addNewBonus(b);
 
 	std::string &descr = b->description;
@@ -350,7 +350,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 
 	for (int i = 0; i < bonuses.size(); i++)
 	{
-		Bonus *b = bonuses[i];
+		auto b = bonuses[i];
 		if(b->source == source && b->sid == id)
 		{
 			bonus = *b; //backup bonus (to show to interfaces later)
@@ -1273,8 +1273,8 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
-											.And(Selector::type(Bonus::STACK_HEALTH)));
+			auto b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
+					.And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b)
 				b->val = val;
 			break;
@@ -1513,7 +1513,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 
 void actualizeEffect(CStack * s, const Bonus & ef)
 {
-	for(Bonus *stackBonus : s->getBonusList()) //TODO: optimize
+	for(auto stackBonus : s->getBonusList()) //TODO: optimize
 	{
 		if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == ef.type && stackBonus->subtype == ef.subtype)
 		{
@@ -1550,7 +1550,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 		{
 			//no such effect or cumulative - add new
 			logBonus->traceStream() << sta->nodeName() << " receives a new bonus: " << effect.Description();
-			sta->addNewBonus( new Bonus(effect));
+			sta->addNewBonus(std::make_shared<Bonus>(effect));
 		}
 		else
 			actualizeEffect(sta, effect);
@@ -1633,7 +1633,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		else if(cure)
 		{
 			//removing all effects from negative spells
-			auto selector = [](const Bonus * b)
+			auto selector = [](const Bonus* b)
 			{
 				const CSpell *s = b->sourceSpell();
 				//Special case: DISRUPTING_RAY is "immune" to dispell

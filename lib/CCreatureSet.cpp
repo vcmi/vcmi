@@ -628,7 +628,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 		attachTo(const_cast<CCreature*>(type));
 }
-std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) const
+std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
 	if(Bonus::MAGIC_RESISTANCE == bonus->type)
 	{
@@ -641,7 +641,7 @@ std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) 
 
 }
 
-std::string CStackInstance::bonusToGraphics(const Bonus *bonus) const
+std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
@@ -814,7 +814,7 @@ void CCommanderInstance::levelUp ()
 	level++;
 	for (auto bonus : VLC->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
-		accumulateBonus (*bonus);
+		accumulateBonus(bonus);
 	}
 }
 

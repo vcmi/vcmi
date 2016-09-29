@@ -107,7 +107,7 @@ CCreature::CCreature()
 }
 void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 {
-	auto added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
 }
 
@@ -145,7 +145,7 @@ void CCreature::setId(CreatureID ID)
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
-	auto nsf = new Bonus();
+	auto nsf = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
 
 	auto it = bonusNameMap.find(type);
@@ -208,7 +208,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(JsonUtils::parseBonus (bonus.Vector()));
+		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
 	}
 
 	int i = 0;
@@ -224,7 +224,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto ability : config["abilityRequirements"].Vector())
 	{
-		std::pair <Bonus*, std::pair <ui8, ui8> > a;
+		std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > a;
 		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
 		a.second.first = ability["skills"].Vector()[0].Float();
 		a.second.second = ability["skills"].Vector()[1].Float();
@@ -470,7 +470,7 @@ void CCreatureHandler::loadCrExpBon()
 
 		parser.readString(); //ignore index
 		loadStackExp(b, bl, parser);
-		for(Bonus * b : bl)
+		for(auto b : bl)
 			addBonusForAllCreatures(b); //health bonus is common for all
 		parser.endLine();
 
@@ -481,7 +481,7 @@ void CCreatureHandler::loadCrExpBon()
 				parser.readString(); //ignore index
 				bl.clear();
 				loadStackExp(b, bl, parser);
-				for(Bonus * b : bl)
+				for(auto b : bl)
 					addBonusForTier(i, b);
 				parser.endLine();
 			}
@@ -491,7 +491,7 @@ void CCreatureHandler::loadCrExpBon()
 			parser.readString(); //ignore index
 			bl.clear();
 			loadStackExp(b, bl, parser);
-			for(Bonus * b : bl)
+			for(auto b : bl)
 			{
 				addBonusForTier(7, b);
 				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
@@ -504,7 +504,7 @@ void CCreatureHandler::loadCrExpBon()
 			b.sid = sid;
 			bl.clear();
 			loadStackExp(b, bl, parser);
-			for(Bonus * b : bl)
+			for(auto b : bl)
 			{
 				creatures[sid]->addNewBonus(b); //add directly to CCreature Node
 			}
@@ -772,7 +772,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 				if (val.Bool() == true)
 				{
 					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
+					creature->addNewBonus (std::make_shared<Bonus>(*bonus)); //bonuses must be unique objects
 					break; //TODO: allow bonuses to turn off?
 				}
 				++lowerLimit;
@@ -787,13 +787,12 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 				{
 					bonus->val = val.Float() - lastVal;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (new Bonus(*bonus));
+					creature->addNewBonus (std::make_shared<Bonus>(*bonus));
 				}
 				lastVal = val.Float();
 				++lowerLimit;
 			}
 		}
-		delete bonus;
 	}
 }
 
@@ -1073,7 +1072,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			if (curVal == 1)
 			{
 				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(new Bonus(b));
+				bl.push_back(std::make_shared<Bonus>(b));
 				break; //never turned off it seems
 			}
 		}
@@ -1094,7 +1093,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = curVal - lastVal;
 				lastVal = curVal;
 				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(new Bonus(b));
+				bl.push_back(std::make_shared<Bonus>(b));
 				lastLev = i; //start new range from here, i = previous rank
 			}
 			else if (curVal < lastVal)
@@ -1118,7 +1117,7 @@ CCreatureHandler::~CCreatureHandler()
 		creature.dellNull();
 
 	for(auto & p : skillRequirements)
-		vstd::clear_pointer(p.first);
+		p.first = nullptr;
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
@@ -1155,13 +1154,13 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, Bonus *b)
+void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
 {
 	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
-void CCreatureHandler::addBonusForAllCreatures(Bonus *b)
+void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
 {
 	allCreatures.addNewBonus(b);
 }

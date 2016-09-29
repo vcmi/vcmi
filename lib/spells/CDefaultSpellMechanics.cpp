@@ -499,7 +499,7 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 		{
 			sse.effect.back().additionalInfo =  parameters.casterStack->ID;
 		}
-		const Bonus * bonus = nullptr;
+		std::shared_ptr<Bonus> bonus = nullptr;
 		if(parameters.casterHero)
 			bonus = parameters.casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
 		//TODO does hero specialty should affects his stack casting spells?

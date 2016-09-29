@@ -130,7 +130,7 @@ public:
 
 		std::vector<Bonus> effects;
 
-		std::vector<Bonus *> effectsTmp; //TODO: this should replace effects
+		std::vector<std::shared_ptr<Bonus>> effectsTmp; //TODO: this should replace effects
 
 		LevelInfo();
 		~LevelInfo();

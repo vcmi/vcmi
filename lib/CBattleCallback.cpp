@@ -908,7 +908,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		auto retreiveHeroPrimSkill = [&](int skill) -> int
 		{
-			const Bonus *b = info.attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
+			const std::shared_ptr<Bonus> b = info.attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
 			return b ? b->val : 0; //if there is no hero or no info on his primary skill, return 0
 		};
 
@@ -925,14 +925,14 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	double multDefenceReduction = (100 - battleBonusValue (info.attackerBonuses, Selector::type(Bonus::ENEMY_DEFENCE_REDUCTION))) / 100.0;
 	attackDefenceDifference -= info.defenderBonuses->Defense() * multDefenceReduction;
 
-	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(SpellID::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
+	if(const std::shared_ptr<Bonus> slayerEffect = info.attackerBonuses->getEffect(SpellID::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
 	{
 		std::vector<int> affectedIds;
 		int spLevel = slayerEffect->val;
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
-			for(const Bonus *b : VLC->creh->creatures[g]->getBonusList())
+			for(const std::shared_ptr<Bonus> b : VLC->creh->creatures[g]->getBonusList())
 			{
 				if ( (b->type == Bonus::KING3 && spLevel >= 3) || //expert
 					(b->type == Bonus::KING2 && spLevel >= 2) || //adv +
@@ -1019,14 +1019,14 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	TBonusListPtr curseEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MINIMUM_DAMAGE));
 	TBonusListPtr blessEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MAXIMUM_DAMAGE));
 	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
-	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo))->additionalInfo : 0;
+	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo<std::shared_ptr<Bonus>>))->additionalInfo : 0;
 
 	if(curseMultiplicativePenalty) //curse handling (partial, the rest is below)
 	{
 		multBonus *= 1.0 - curseMultiplicativePenalty/100;
 	}
 
-	auto isAdvancedAirShield = [](const Bonus *bonus)
+	auto isAdvancedAirShield = [](const Bonus* bonus)
 	{
 		return bonus->source == Bonus::SPELL_EFFECT
 			&& bonus->sid == SpellID::AIR_SHIELD
@@ -1920,12 +1920,12 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	if (!bl->size())
 		return SpellID::NONE;
 	int totalWeight = 0;
-	for(Bonus * b : *bl)
+	for(auto b : *bl)
 	{
 		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
 	}
 	int randomPos = rand.nextInt(totalWeight - 1);
-	for(Bonus * b : *bl)
+	for(auto b : *bl)
 	{
 		randomPos -= std::max(b->additionalInfo, 1);
 		if(randomPos < 0)
