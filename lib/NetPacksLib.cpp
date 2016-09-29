@@ -1370,6 +1370,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 {
 	CStack * at = gs->curB->getStack(stackAttacked);
 	assert(at);
+	at->popBonuses(Bonus::UntilBeingAttacked);
 	at->count = newAmount;
 	at->firstHPleft = newHP;
 
@@ -1440,17 +1441,10 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 			attacker->shots--;
 		}
 	}
-	for(BattleStackAttacked stackAttacked : bsa)
+	for(BattleStackAttacked & stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
 	attacker->popBonuses(Bonus::UntilAttack);
-
-	for(auto & elem : bsa)
-	{
-		CStack * stack = gs->curB->getStack(elem.stackAttacked, false);
-		if (stack) //cloned stack is already gone
-			stack->popBonuses(Bonus::UntilBeingAttacked);
-	}
 }
 
 DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
