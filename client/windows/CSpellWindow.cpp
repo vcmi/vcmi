@@ -895,7 +895,15 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	//printing spell's name
 	printAtMiddleLoc(spell->name, 39, 70, FONT_TINY, firstLineColor, to);
 	//printing lvl
-	printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
+	if(schoolLevel > 0)
+	{
+		boost::format fmt("%s/%s");
+		fmt % CGI->generaltexth->allTexts[171 + spell->level];
+		fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
+		printAtMiddleLoc(fmt.str(), 39, 82, FONT_TINY, secondLineColor, to);
+	}
+	else
+		printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
 	//printing  cost
 	std::ostringstream ss;
 	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
