@@ -858,7 +858,7 @@
 			"affect":["C15SPA0"]
 		},
 		"sounds": {
-			"cast": "HASTE"
+			"cast": "TAILWIND"
 		},
 		"levels" : {
 			"base":{
