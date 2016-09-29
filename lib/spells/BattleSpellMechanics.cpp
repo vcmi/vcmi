@@ -782,23 +782,40 @@ bool SacrificeMechanics::requiresCreatureTarget() const
 ///SpecialRisingSpellMechanics
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	//find our possible target here
-	const CStack * stackToHeal = cb->getStackIf([ctx](const CStack * s)
+	//find alive possible target
+	const CStack * stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
 	{
 		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
 
-		return ownerMatches && s->isValidTarget(!ctx.ti.onlyAlive) && s->coversPos(ctx.destination);
+		return ownerMatches && s->isValidTarget(false) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
 	});
 
-	//find if there is stack preventing cast
-	const CStack * enemyStack = cb->getStackIf([ctx](const CStack * s)
+	if(nullptr == stackToHeal)
 	{
-		const bool ownerMatches = ctx.ti.smart && s->getOwner() != ctx.caster->getOwner();
+		//find dead possible target if there is no alive target
+		stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
+		{
+			const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
 
-		return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination);
-	});
+			return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
+		});
 
-	if(nullptr == stackToHeal || nullptr != enemyStack)
+		//we have found dead target
+		if(nullptr != stackToHeal)
+		{
+			for(const BattleHex & hex : stackToHeal->getHexes())
+			{
+				const CStack * other = cb->getStackIf([hex, stackToHeal](const CStack * s)
+				{
+					return s->isValidTarget(false) && s->coversPos(hex) && s != stackToHeal;
+				});
+				if(nullptr != other)
+					return ESpellCastProblem::NO_APPROPRIATE_TARGET;//alive stack blocks resurrection
+			}
+		}
+	}
+
+	if(nullptr == stackToHeal)
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 
 	return ESpellCastProblem::OK;
