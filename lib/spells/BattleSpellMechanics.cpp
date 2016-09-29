@@ -788,14 +788,23 @@ bool SacrificeMechanics::requiresCreatureTarget() const
 ///SpecialRisingSpellMechanics
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	const CStack * stack = cb->getStackIf([ctx](const CStack * s)
+	//find our possible target here
+	const CStack * stackToHeal = cb->getStackIf([ctx](const CStack * s)
 	{
 		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
 
 		return ownerMatches && s->isValidTarget(!ctx.ti.onlyAlive) && s->coversPos(ctx.destination);
 	});
 
-	if(nullptr == stack)
+	//find if there is stack preventing cast
+	const CStack * enemyStack = cb->getStackIf([ctx](const CStack * s)
+	{
+		const bool ownerMatches = ctx.ti.smart && s->getOwner() != ctx.caster->getOwner();
+
+		return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination);
+	});
+
+	if(nullptr == stackToHeal || nullptr != enemyStack)
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 
 	return ESpellCastProblem::OK;
