@@ -194,7 +194,7 @@ bool CureMechanics::dispellSelector(const Bonus * b)
 ESpellCastProblem::ESpellCastProblem CureMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//Selector method name is ok as cashing string. --AVS
-	if(!obj->canBeHealed() && !obj->hasBonus(dispellSelector, "CureMechanics::dispellSelector"))
+	if(!obj->canBeHealed() && !obj->hasBonus(CSelector(DefaultSpellMechanics::dispellSelector).And(CSelector(CureMechanics::dispellSelector)), "CureMechanics::dispellSelector"))
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
 	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
@@ -209,11 +209,10 @@ void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * 
 
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
-	{
-		//just in case
-		if(!obj->alive())
-			return ESpellCastProblem::WRONG_SPELL_TARGET;
-	}
+	//just in case
+	if(!obj->alive())
+		return ESpellCastProblem::WRONG_SPELL_TARGET;
+
 	//DISPELL ignores all immunities, except specific absolute immunity
 	{
 		//SPELL_IMMUNITY absolute case
@@ -222,16 +221,11 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, owner->id.toEnum(), 1), cachingStr.str()))
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
-	{
-		std::stringstream cachingStr;
-		cachingStr << "source_" << Bonus::SPELL_EFFECT;
 
-		if(obj->hasBonus(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str()))
-		{
-			return ESpellCastProblem::OK;
-		}
-	}
-	return ESpellCastProblem::WRONG_SPELL_TARGET;
+	if(obj->hasBonus(CSelector(DefaultSpellMechanics::dispellSelector), "DefaultSpellMechanics::dispellSelector"))
+		return ESpellCastProblem::OK;
+	else
+		return ESpellCastProblem::WRONG_SPELL_TARGET;
 	//any other immunities are ignored - do not execute default algorithm
 }
 

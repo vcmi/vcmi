@@ -719,30 +719,38 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 	return owner->internalIsImmune(caster, obj);
 }
 
+bool DefaultSpellMechanics::dispellSelector(const Bonus * bonus)
+{
+	const CSpell * sourceSpell = bonus->sourceSpell();
+	if(sourceSpell != nullptr)
+	{
+		//Special case: DISRUPTING_RAY is "immune" to dispell
+		//Other even PERMANENT effects can be removed (f.e. BIND)
+		if(sourceSpell->id == SpellID::DISRUPTING_RAY)
+			return false;
+		//Special case:do not remove lifetime marker
+		if(sourceSpell->id == SpellID::CLONE)
+			return false;
+		//stack may have inherited effects
+		if(sourceSpell->isAdventureSpell())
+			return false;
+		return true;
+	}
+	//not spell effect
+	return false;
+}
+
 void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const
 {
-	auto localSelector = [](const Bonus * bonus)
-	{
-		const CSpell * sourceSpell = bonus->sourceSpell();
-		if(sourceSpell != nullptr)
-		{
-			//Special case: DISRUPTING_RAY is "immune" to dispell
-			//Other even PERMANENT effects can be removed (f.e. BIND)
-			if(sourceSpell->id == SpellID::DISRUPTING_RAY)
-				return false;
-		}
-		return true;
-	};
 	for(auto stackID : packet->affectedCres)
 	{
 		CStack *s = battle->getStack(stackID);
-		s->popBonuses(CSelector(localSelector).And(selector));
+		s->popBonuses(CSelector(dispellSelector).And(selector));
 	}
 }
 
 void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const
 {
-	//now handle immunities
 	auto predicate = [&, this](const CStack * s)->bool
 	{
 		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(ctx.destination);
