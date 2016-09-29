@@ -1113,40 +1113,15 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "N_TURNS",
-						"turns" : 1
-					}
-				}
-			},
-			"none":{
-				"effects" : {
-					"attacksNearestCreature" : {
-						"val" : 0
-					}
-				}
-			},
-			"basic":{
-				"effects" : {
-					"attacksNearestCreature" : {
-						"val" : 1
+						"duration" : "STACK_GETS_TURN"
 					}
 				}
 			},
 			"advanced":{
-				"range" : "0-1",
-				"effects" : {
-					"attacksNearestCreature" : {
-						"val" : 2
-					}
-				}
+				"range" : "0-1"
 			},
 			"expert":{
-				"range" : "0-2",
-				"effects" : {
-					"attacksNearestCreature" : {
-						"val" : 3
-					}
-				}
+				"range" : "0-2"
 			}
 		},
 		"absoluteImmunity" : {

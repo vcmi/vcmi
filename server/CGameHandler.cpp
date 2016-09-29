@@ -5704,7 +5704,8 @@ void CGameHandler::runBattle()
 			}
 
 			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
-			{ //fixme: stack should not attack itself
+			{
+				logGlobal->debug("Handle Berserk effect");
 				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
 				if(attackInfo.first != nullptr)
 				{
@@ -5716,10 +5717,12 @@ void CGameHandler::runBattle()
 					attack.destinationTile = attackInfo.second;
 
 					makeAutomaticAction(next, attack);
+					logGlobal->debug("Attacked nearest target %s", attackInfo.first->nodeName());
 				}
 				else
 				{
 					makeStackDoNothing(next);
+					logGlobal->debug("No target found");
 				}
 				continue;
 			}
