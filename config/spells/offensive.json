@@ -172,7 +172,7 @@
 			"hit":["C13SPF"] //C13SPF0 ???
 		},		
 		"sounds": {
-			"cast": "FIREBALL"
+			"cast": "SPONTCOMB"
 		},
 		"levels" : {
 			"base":{
@@ -276,7 +276,7 @@
 			"affect":["C14SPA0"]
 		},		
 		"sounds": {
-			"cast": "COLDRING"
+			"cast": "SACBRETH"
 		},
 		"levels" : {
 			"base":{
