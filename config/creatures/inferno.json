@@ -96,7 +96,7 @@
 			"defend": "MGOGDFND.wav",
 			"killed": "MGOGKILL.wav",
 			"move": "MGOGMOVE.wav",
-			"shoot": "MGOGSHOT.wav",
+			"shoot": "SPONTCOMB.wav",
 			"wince": "MGOGWNCE.wav"
 		}
 	},
