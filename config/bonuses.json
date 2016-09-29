@@ -11,7 +11,7 @@
 			"icon":  "zvs/Lib1.res/E_DOUBLE"
 		}
 	},
-	
+
 	"ADDITIONAL_RETALIATION":
 	{
 		"graphics":
@@ -19,7 +19,7 @@
 			"icon":  "zvs/Lib1.res/E_RETAIL1"
 		}
 	},
-	
+
 	"AIR_IMMUNITY":
 	{
 		"graphics":
@@ -27,7 +27,7 @@
 			"icon":  ""
 		}
 	},
-			
+
 	"ATTACKS_ALL_ADJACENT":
 	{
 		"graphics":
@@ -43,15 +43,15 @@
 			"icon":  "zvs/Lib1.res/E_RETAIL"
 		}
 	},
-	
+
 	"CATAPULT":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/Catapult"
 		}
-	},	
-	
+	},
+
 	"CHANGES_SPELL_COST_FOR_ALLY":
 	{
 		"graphics":
@@ -59,7 +59,7 @@
 			"icon":  "zvs/Lib1.res/E_MANA"
 		}
 	},
-	
+
 	"CHANGES_SPELL_COST_FOR_ENEMY":
 	{
 		"graphics":
@@ -75,7 +75,7 @@
 			"icon":  "zvs/Lib1.res/ChargeImmune"
 		}
 	},
-	
+
 	"DAEMON_SUMMONING":
 	{
 		"graphics":
@@ -83,19 +83,19 @@
 			"icon":  "zvs/Lib1.res/RiseDemons"
 		}
 	},
-	
+
 	"DARKNESS":
 	{
-	},				
-	
+	},
+
 	"DEATH_STARE":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_DEATH"
 		}
-	},	
-		
+	},
+
 	"DEFENSIVE_STANCE":
 	{
 		"graphics":
@@ -103,7 +103,7 @@
 			"icon":  "zvs/Lib1.res/E_DEFBON"
 		}
 	},
-		
+
 	"DOUBLE_DAMAGE_CHANCE":
 	{
 		"graphics":
@@ -119,7 +119,7 @@
 			"icon":  "zvs/Lib1.res/E_DRAGON"
 		}
 	},
-	
+
 	"DIRECT_DAMAGE_IMMUNITY":
 	{
 		"graphics":
@@ -128,10 +128,10 @@
 		}
 	},
 
-        "DISGUISED":
-        {
-        	"hidden": true
-        },
+	"DISGUISED":
+	{
+		"hidden": true
+	},
 
 	"EARTH_IMMUNITY":
 	{
@@ -140,7 +140,7 @@
 			"icon":  ""
 		}
 	},
-					
+
 	"ENCHANTER":
 	{
 		"graphics":
@@ -148,14 +148,14 @@
 			"icon":  "zvs/Lib1.res/E_CAST1"
 		}
 	},
-	
+
 	"ENCHANTED":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_BLESS"
 		}
-	},		
+	},
 
 
 
@@ -166,7 +166,7 @@
 			"icon":  "zvs/Lib1.res/E_RDEF"
 		}
 	},
-	
+
 	"FIRE_IMMUNITY":
 	{
 		"graphics":
@@ -174,13 +174,13 @@
 			"icon":  ""
 		}
 	},
-	
+
 	"FIRE_SHIELD":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/FireShield"
-		}		
+		}
 	},
 	"FEAR":
 	{
@@ -189,7 +189,7 @@
 			"icon":  "zvs/Lib1.res/E_FEAR"
 		}
 	},
-	
+
 	"FEARLESS":
 	{
 		"graphics":
@@ -197,7 +197,7 @@
 			"icon":  "zvs/Lib1.res/E_FEARL"
 		}
 	},
-	
+
 	"FLYING":
 	{
 		"graphics":
@@ -205,7 +205,7 @@
 			"icon":  "zvs/Lib1.res/E_FLY"
 		}
 
-	},		
+	},
 
 	"FREE_SHOOTING":
 	{
@@ -223,7 +223,7 @@
 			"icon":  "zvs/Lib1.res/E_TROLL"
 		}
 	},
-			
+
 	"HATE":
 	{
 		"graphics":
@@ -231,7 +231,7 @@
 			"icon":  "zvs/Lib1.res/E_HATE"
 		}
 	},
-	
+
 	"HEALER":
 	{
 		"graphics":
@@ -239,7 +239,7 @@
 			"icon":  "zvs/Lib1.res/Healer"
 		}
 	},
-	
+
 	"HP_REGENERATION":
 	{
 		"graphics":
@@ -254,7 +254,7 @@
 			"icon":  "zvs/Lib1.res/E_CHAMP"
 		}
 	},
-	
+
 	"KING1":
 	{
 		"graphics":
@@ -262,7 +262,7 @@
 			"icon":  "zvs/Lib1.res/E_KING1"
 		}
 	},
-	
+
 	"KING2":
 	{
 		"graphics":
@@ -270,7 +270,7 @@
 			"icon":  "zvs/Lib1.res/E_KING2"
 		}
 	},
-	
+
 	"KING3":
 	{
 		"graphics":
@@ -278,7 +278,7 @@
 			"icon":  "zvs/Lib1.res/E_KING3"
 		}
 	},
-	
+
 	"LEVEL_SPELL_IMMUNITY":
 	{
 		"graphics":
@@ -286,7 +286,7 @@
 			"icon":  ""
 		}
 	},
-	
+
 	"LIFE_DRAIN":
 	{
 		"graphics":
@@ -333,7 +333,7 @@
 			"icon":  "zvs/Lib1.res/E_MIND"
 		}
 	},
-	
+
 	"NONE":
 	{
 		"hidden": true
@@ -353,14 +353,14 @@
 			"icon":  "zvs/Lib1.res/E_MELEE"
 		}
 	},
-	
+
 	"NO_MORALE":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_MORAL"
-		}		
-	},		
+		}
+	},
 	"NO_WALL_PENALTY":
 	{
 		"graphics":
@@ -368,7 +368,7 @@
 			"icon":  "zvs/Lib1.res/E_OBST"
 		}
 	},
-	
+
 	"NO_TERRAIN_PENALTY":
 	{
 		"hidden": true
@@ -380,7 +380,7 @@
 		{
 			"icon":  "zvs/Lib1.res/NonLiving"
 		}
-	},	
+	},
 
 	"RANDOM_SPELLCASTER":
 	{
@@ -404,7 +404,7 @@
 			"icon":  "zvs/Lib1.res/E_REBIRTH"
 		}
 	},
-								
+
 	"RETURN_AFTER_STRIKE":
 	{
 		"graphics":
@@ -412,13 +412,13 @@
 			"icon":  "zvs/Lib1.res/E_HARPY"
 		}
 	},
-	
+
 	"SECONDARY_SKILL_PREMY":
 	{
 		"hidden": true
 		//todo: selector based config
 	},
-	
+
 	"SELF_LUCK":
 	{
 		"graphics":
@@ -426,7 +426,7 @@
 			"icon":  ""
 		}
 	},
-	
+
 	"SELF_MORALE":
 	{
 		"graphics":
@@ -434,14 +434,14 @@
 			"icon":  "zvs/Lib1.res/E_MINOT"
 		}
 	},
-	
+
 	"SHOOTER":
 	{
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/E_SHOOT"
 		}
-	},	
+	},
 	"SPELLCASTER":
 	{
 		"graphics":
@@ -449,7 +449,7 @@
 			"icon":  "zvs/Lib1.res/E_CASTER"
 		}
 	},
-					
+
 	"SPELL_AFTER_ATTACK":
 	{
 		"graphics":
@@ -457,7 +457,7 @@
 			"icon":  "zvs/Lib1.res/E_CAST"
 		}
 	},
-	
+
 	"SPELL_BEFORE_ATTACK":
 	{
 		"graphics":
@@ -465,7 +465,7 @@
 			"icon":  "zvs/Lib1.res/E_CAST2"
 		}
 	},
-	
+
 	"SPELL_DAMAGE_REDUCTION":
 	{
 		"graphics":
@@ -482,7 +482,7 @@
 		}
 	},
 
-	
+
 	"SPELL_LIKE_ATTACK":
 	{
 		"graphics":
@@ -490,7 +490,7 @@
 			"icon":  "zvs/Lib1.res/SpellLikeAttack"
 		}
 	},
-			
+
 	"SPELL_RESISTANCE_AURA":
 	{
 		"graphics":
@@ -530,7 +530,7 @@
 			"icon":  "zvs/Lib1.res/E_RETAIL1"
 		}
 	},
-	
+
 	"VISIONS":
 	{
 		"hidden": true
