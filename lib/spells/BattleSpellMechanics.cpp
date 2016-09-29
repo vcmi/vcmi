@@ -785,7 +785,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(cons
 	//find alive possible target
 	const CStack * stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
 	{
-		const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
+		const bool ownerMatches = !ctx.ti.smart || s->owner == ctx.caster->getOwner();
 
 		return ownerMatches && s->isValidTarget(false) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
 	});
@@ -795,7 +795,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(cons
 		//find dead possible target if there is no alive target
 		stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
 		{
-			const bool ownerMatches = !ctx.ti.smart || s->getOwner() == ctx.caster->getOwner();
+			const bool ownerMatches = !ctx.ti.smart || s->owner == ctx.caster->getOwner();
 
 			return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
 		});
