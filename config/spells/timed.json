@@ -250,7 +250,6 @@
 			"positive": true
 		}
 	},
-
 	"magicMirror" : {
 		"index" : 36,
 		"targetType" : "CREATURE",
@@ -1050,7 +1049,6 @@
 			"positive": true
 		}
 	},
-
 	"counterstrike" : {
 		"index" : 58,
 		"targetType" : "CREATURE",
@@ -1124,6 +1122,9 @@
 				"range" : "0-2"
 			}
 		},
+		"counters" : {
+			"spell.hypnotize": true
+		},
 		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
 		},
@@ -1185,6 +1186,9 @@
 					}
 				}
 			}
+		},
+		"counters" : {
+			"spell.berserk": true
 		},
 		"absoluteImmunity" : {
 			"SIEGE_WEAPON": true
