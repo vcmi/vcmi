@@ -478,7 +478,6 @@ EGateState CBattleInfoEssentials::battleGetGateState() const
 	return getBattle()->si.gateState;
 }
 
-
 PlayerColor CBattleInfoEssentials::battleGetOwner(const CStack * stack) const
 {
 	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);
@@ -499,6 +498,8 @@ bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CSta
 	RETURN_IF_NOT_BATTLE(false);
 	if(boost::logic::indeterminate(positivness))
 		return true;
+	else if(defender->owner != battleGetOwner(defender))
+		return true;//mind controlled unit is attackable for both sides
 	else
 		return (battleGetOwner(attacker) == battleGetOwner(defender)) == positivness;
 }
@@ -856,7 +857,7 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	if (!stack || !target)
 		return false;
 
-	if (stack->owner == target->owner)
+	if(!battleMatchOwner(stack, target))
 		return false;
 
 	auto &id = stack->getCreature()->idNumber;
@@ -888,7 +889,7 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 		return false;
 
 	if(stack->hasBonusOfType(Bonus::SHOOTER)//it's shooter
-		&& stack->owner != dst->owner
+		&& battleMatchOwner(stack, dst)
 		&& dst->alive()
 		&& (!battleIsStackBlocked(stack)  ||  stack->hasBonusOfType(Bonus::FREE_SHOOTING))
 		&& stack->shots

@@ -267,6 +267,19 @@ bool CSpell::isNeutral() const
 	return positiveness == NEUTRAL;
 }
 
+boost::logic::tribool CSpell::getPositiveness() const
+{
+	switch (positiveness)
+	{
+	case CSpell::POSITIVE:
+		return true;
+	case CSpell::NEGATIVE:
+		return false;
+	default:
+		return boost::logic::indeterminate;
+	}
+}
+
 bool CSpell::isRisingSpell() const
 {
 	return isRising;

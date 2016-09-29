@@ -204,6 +204,8 @@ public:
 	bool isNegative() const;
 	bool isNeutral() const;
 
+	boost::logic::tribool getPositiveness() const;
+
 	bool isDamageSpell() const;
 	bool isRisingSpell() const;
 	bool isOffensiveSpell() const;

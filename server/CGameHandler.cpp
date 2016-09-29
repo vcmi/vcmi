@@ -5726,7 +5726,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			const CGHeroInstance * curOwner = gs->curB->battleGetOwnerHero(next);
+			const CGHeroInstance * curOwner = battleGetOwnerHero(next);
 
 			if( (next->position < 0 || next->getCreature()->idNumber == CreatureID::BALLISTA)	//arrow turret or ballista
 				&& (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::ARTILLERY) == 0)) //hero has no artillery
