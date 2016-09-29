@@ -4556,7 +4556,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			bool fearsomeCreature = false;
 			for(CStack * stack : gs->curB->stacks)
 			{
-				if (stack->owner != st->owner && stack->alive() && stack->hasBonusOfType(Bonus::FEAR))
+				if(battleMatchOwner(st, stack) && stack->alive() && stack->hasBonusOfType(Bonus::FEAR))
 				{
 					fearsomeCreature = true;
 					break;
@@ -4614,7 +4614,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			{
 				for (auto s : gs->curB->battleGetAllStacks())
 				{
-					if (st->owner == s->owner && s->isValidTarget()) //all allied
+					if(battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
 						sse.stacks.push_back (s->ID);
 				}
 			}

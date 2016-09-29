@@ -214,8 +214,15 @@ public:
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
 
-	PlayerColor battleGetOwner(const CStack * stack) const; //returns player that controls given stack; mind control included
-	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const; //returns hero that controls given stack; nullptr if none; mind control included
+	///returns player that controls given stack; mind control included
+	PlayerColor battleGetOwner(const CStack * stack) const;
+
+	///returns hero that controls given stack; nullptr if none; mind control included
+	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const;
+
+	///check that stacks are controlled by same|other player(s) depending on positiveness
+	///mind control included
+	bool battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
 };
 
 struct DLL_LINKAGE BattleAttackInfo

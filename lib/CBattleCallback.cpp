@@ -494,6 +494,15 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const CStack * 
 	return getBattle()->sides.at(playerToSide(battleGetOwner(stack))).hero;
 }
 
+bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness /* = false*/) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+	if(boost::logic::indeterminate(positivness))
+		return true;
+	else
+		return (battleGetOwner(attacker) == battleGetOwner(defender)) == positivness;
+}
+
 si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex destHex ) const
 {
 	return battleHasWallPenalty(stack, stack->position, destHex);
