@@ -267,7 +267,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		ONE_WEEK = 8, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
 		N_TURNS = 16, //used during battles, after battle bonus is always removed
 		N_DAYS = 32,
-		UNITL_BEING_ATTACKED = 64, /*removed after attack and counterattacks are performed*/
+		UNTIL_BEING_ATTACKED = 64, /*removed after attack and counterattacks are performed*/
 		UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
 		STACK_GETS_TURN = 256, /*removed when stack gets its turn - used for defensive stance*/
 		COMMANDER_KILLED = 512
@@ -373,7 +373,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	}
 	static bool UntilBeingAttacked(const Bonus *hb)
 	{
-		return hb->duration & Bonus::UNITL_BEING_ATTACKED;
+		return hb->duration & Bonus::UNTIL_BEING_ATTACKED;
 	}
 	static bool UntilCommanderKilled(const Bonus *hb)
 	{

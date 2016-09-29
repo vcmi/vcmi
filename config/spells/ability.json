@@ -18,14 +18,14 @@
 						"type" : "NOT_ACTIVE",
 						"subtype" : 62,
 						"duration" : [
-							"UNITL_BEING_ATTACKED",
+							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
 						]
 					},
 					"noRetaliation" : {
 						"val" : 0,
 						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
+						"duration" : "UNTIL_BEING_ATTACKED"
 					},
 					"defenceBoost" : {
 						"type" : "PRIMARY_SKILL",
@@ -33,7 +33,7 @@
 						"val" : 50,
 						"valueType" : "PERCENT_TO_ALL",
 						"duration" : [
-						    "UNITL_BEING_ATTACKED",
+						    "UNTIL_BEING_ATTACKED",
 						    "N_TURNS"
 						]
 					}
@@ -176,14 +176,14 @@
 						"type" : "NOT_ACTIVE",
 						"subtype" : 74,
 						"duration" : [
-							"UNITL_BEING_ATTACKED",
+							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
 						]
 					},
 					"noRetaliation" : {
 						"val" : 0,
 						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
+						"duration" : "UNTIL_BEING_ATTACKED"
 					}
 				}
 			}

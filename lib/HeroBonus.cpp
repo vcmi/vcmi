@@ -47,10 +47,11 @@ const std::map<std::string, ui16> bonusDurationMap =
 	BONUS_ITEM(ONE_WEEK)
 	BONUS_ITEM(N_TURNS)
 	BONUS_ITEM(N_DAYS)
-	BONUS_ITEM(UNITL_BEING_ATTACKED)
+	BONUS_ITEM(UNTIL_BEING_ATTACKED)
 	BONUS_ITEM(UNTIL_ATTACK)
 	BONUS_ITEM(STACK_GETS_TURN)
 	BONUS_ITEM(COMMANDER_KILLED)
+	{ "UNITL_BEING_ATTACKED", Bonus::UNTIL_BEING_ATTACKED }//typo, but used in some mods
 };
 
 const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect =

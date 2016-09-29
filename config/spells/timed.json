@@ -1288,14 +1288,14 @@
 						"type" : "NOT_ACTIVE",
 						"subtype" : 62,
 						"duration" : [
-							"UNITL_BEING_ATTACKED",
+							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
 						]
 					},
 					"generalAttackReduction" : {
 						"type" : "GENERAL_ATTACK_REDUCTION",
 						"duration" : [
-							"UNITL_BEING_ATTACKED",
+							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
 						]
 					}
@@ -1307,7 +1307,7 @@
 						"val" : 0,
 						"type" : "NO_RETALIATION",
 						"duration" : [
-							"UNITL_BEING_ATTACKED",
+							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
 						]
 					}
