@@ -143,9 +143,6 @@
 		},
 		"flags" : {
 			"positive": true
-		},
-		"absoluteImmunity" : {
-			"HYPNOTIZED" : true
 		}
 	},
 	"resurrection" : {
@@ -169,7 +166,6 @@
 			"positive": true
 		},
 		"absoluteImmunity" : {
-			"HYPNOTIZED" : true,
 			"UNDEAD": true,
 			"SIEGE_WEAPON": true,
 			"NON_LIVING": true
@@ -197,9 +193,6 @@
 		},
 		"absoluteLimit" : {
 			"UNDEAD": true
-		},
-		"absoluteImmunity" : {
-			"HYPNOTIZED" : true
 		}
 	},
 	"sacrifice" : {
@@ -223,7 +216,6 @@
 			"positive": true
 		},
 		"absoluteImmunity" : {
-			"HYPNOTIZED" : true,
 			"SIEGE_WEAPON": true,
 			"UNDEAD": true,
 			"NON_LIVING": true
