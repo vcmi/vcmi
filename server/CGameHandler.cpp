@@ -56,9 +56,6 @@ extern bool end2;
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if(cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-#define NEW_ROUND 		BattleNextRound bnr;\
-		bnr.round = gs->curB->round + 1;\
-		sendAndApply(&bnr);
 
 class ServerSpellCastEnvironment: public SpellCastEnvironment
 {
@@ -5651,7 +5648,10 @@ void CGameHandler::runBattle()
 	//main loop
 	while(!battleResult.get()) //till the end of the battle ;]
 	{
-		NEW_ROUND;
+		BattleNextRound bnr;
+		bnr.round = gs->curB->round + 1;
+		sendAndApply(&bnr);
+
 		auto obstacles = gs->curB->obstacles; //we copy container, because we're going to modify it
 		for(auto &obstPtr : obstacles)
 		{
