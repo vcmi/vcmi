@@ -429,7 +429,7 @@ bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const 
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ui8 playerSide = playerToSide(player);
-	if (playerSide >= 0)
+	if (playerSide != (ui8)-1)
 	{
 		if (getBattle()->sides[!playerSide].hero == h)
 			return true;
@@ -476,6 +476,22 @@ EGateState CBattleInfoEssentials::battleGetGateState() const
 		return EGateState::NONE;
 
 	return getBattle()->si.gateState;
+}
+
+
+PlayerColor CBattleInfoEssentials::battleGetOwner(const CStack * stack) const
+{
+	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);
+	if(stack->hasBonusOfType(Bonus::HYPNOTIZED))
+		return getBattle()->theOtherPlayer(stack->owner);
+	else
+		return stack->owner;
+}
+
+const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const CStack * stack) const
+{
+	RETURN_IF_NOT_BATTLE(nullptr);
+	return getBattle()->sides.at(playerToSide(battleGetOwner(stack))).hero;
 }
 
 si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex destHex ) const
@@ -862,7 +878,6 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 	if(stack->getCreature()->idNumber == CreatureID::CATAPULT && dst) //catapult cannot attack creatures
 		return false;
 
-	//const CGHeroInstance * stackHero = battleGetOwner(stack);
 	if(stack->hasBonusOfType(Bonus::SHOOTER)//it's shooter
 		&& stack->owner != dst->owner
 		&& dst->alive()

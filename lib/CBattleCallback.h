@@ -213,6 +213,9 @@ public:
 	TStacks battleAliveStacks(ui8 side) const;
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
+
+	PlayerColor battleGetOwner(const CStack * stack) const; //returns player that controls given stack; mind control included
+	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const; //returns hero that controls given stack; nullptr if none; mind control included
 };
 
 struct DLL_LINKAGE BattleAttackInfo

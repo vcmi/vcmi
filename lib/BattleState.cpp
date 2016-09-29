@@ -95,7 +95,7 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero,
+ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender,
 	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand )
 {
 	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
@@ -148,11 +148,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
-}
-
-const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
-{
-	return sides[!stack->attackerOwned].hero;
 }
 
 void BattleInfo::localInit()
