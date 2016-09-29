@@ -1543,38 +1543,34 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 
 	int spellid = effect.begin()->sid; //effects' source ID
 
+	auto processEffect = [spellid, this](CStack * sta, const Bonus & effect)
+	{
+		if(!sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(effect.type, effect.subtype)))
+			|| spellid == SpellID::DISRUPTING_RAY || spellid == SpellID::ACID_BREATH_DEFENSE)
+		{
+			//no such effect or cumulative - add new
+			logBonus->traceStream() << sta->nodeName() << " receives a new bonus: " << effect.Description();
+			sta->addNewBonus( new Bonus(effect));
+		}
+		else
+			actualizeEffect(sta, effect);
+	};
+
 	for(ui32 id : stacks)
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
-		{
-			if(spellid == SpellID::DISRUPTING_RAY || spellid == SpellID::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add
-			{
-				for(Bonus &fromEffect : effect)
-				{
-					logBonus->traceStream() << s->nodeName() << " receives a new bonus: " << fromEffect.Description();
-					s->addNewBonus( new Bonus(fromEffect));
-				}
-			}
-			else //just actualize
-			{
-				actualizeEffect(s, effect);
-			}
-		}
+			for(const Bonus & fromEffect : effect)
+				processEffect(s, fromEffect);
 		else
 			logNetwork->errorStream() << "Cannot find stack " << id;
 	}
-	typedef std::pair<ui32, Bonus> p;
-	for(p para : uniqueBonuses)
+
+	for(auto & para : uniqueBonuses)
 	{
 		CStack *s = gs->curB->getStack(para.first);
-		if (s)
-		{
-			if (!s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(para.second.type, para.second.subtype))))
-				s->addNewBonus(new Bonus(para.second));
-			else
-				actualizeEffect(s, effect);
-		}
+		if(s)
+			processEffect(s, para.second);
 		else
 			logNetwork->errorStream() << "Cannot find stack " << para.first;
 	}
