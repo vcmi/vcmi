@@ -2658,7 +2658,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 		return;
 	}
 
-	if(graphics->battleACToDef[effectID].empty())
+	if(effectID >= 0 && graphics->battleACToDef[effectID].empty())
 	{
 		logGlobal->errorStream() << "Cannot find def for effect type " << effectID;
 		return;
