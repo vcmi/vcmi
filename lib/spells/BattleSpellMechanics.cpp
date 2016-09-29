@@ -53,10 +53,19 @@ void AntimagicMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast 
 
 	doDispell(battle, packet, [this](const Bonus *b) -> bool
 	{
-		if(b->source == Bonus::SPELL_EFFECT)
+		const CSpell * sourceSpell = b->sourceSpell();
+		if(sourceSpell != nullptr)
 		{
-			return b->sid != owner->id; //effect from this spell
+			//keep positive effects
+			if(sourceSpell->isPositive())
+				return false;
+			//keep own effects
+			if(sourceSpell == owner)
+				return false;
+			//remove all others
+			return true;
 		}
+
 		return false; //not a spell effect
 	});
 }
