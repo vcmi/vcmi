@@ -41,7 +41,7 @@ VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving i
 %setup -q -n %{name}-%{version}-1
 
 %build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr ./
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TEST=0 ./
 make %{?_smp_mflags}
 
 %install

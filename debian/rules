@@ -5,7 +5,7 @@
 
 # override disabled by default rpath - we need to find libvcmi.so with it:
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_SKIP_RPATH=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBIN_DIR=games
+	dh_auto_configure -- -DCMAKE_SKIP_RPATH=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBIN_DIR=games -DENABLE_TEST=0
 .PHONY: override_dh_strip
 override_dh_strip:
 	dh_strip --dbg-package=vcmi-dbg
