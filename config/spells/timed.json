@@ -1304,11 +1304,11 @@
 			}
 		},
 		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
+			"SIEGE_WEAPON": true,
+			"UNDEAD": true
 		},
 		"immunity" : {
 			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
 			"NON_LIVING": true
 		},
 		"flags" : {
