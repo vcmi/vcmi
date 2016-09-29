@@ -1294,11 +1294,18 @@
 							"UNITL_BEING_ATTACKED",
 							"N_TURNS"
 						]
-					},
+					}
+				}
+			},
+			"expert":{
+				"effects" : {
 					"noRetaliation" : {
 						"val" : 0,
 						"type" : "NO_RETALIATION",
-						"duration" : "UNITL_BEING_ATTACKED"
+						"duration" : [
+							"UNITL_BEING_ATTACKED",
+							"N_TURNS"
+						]
 					}
 				}
 			}
