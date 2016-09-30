@@ -582,6 +582,7 @@ public:
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
+	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
@@ -607,7 +608,6 @@ public:
 	virtual si32 magicResistance() const;
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
 	const std::shared_ptr<Bonus> getEffect(ui16 id, int turn = 0) const; //effect id (SP)
-	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
@@ -990,6 +990,9 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
+
+	extern DLL_LINKAGE CSelector all;
+	extern DLL_LINKAGE CSelector none;
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);
 	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype);

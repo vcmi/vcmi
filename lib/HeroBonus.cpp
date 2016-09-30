@@ -331,6 +331,11 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachin
 	return getBonuses(selector, cachingStr)->size() > 0;
 }
 
+bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
+{
+	return getBonuses(selector, limit, cachingStr)->size() > 0;
+}
+
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
 {
 	std::stringstream cachingStr;
@@ -369,7 +374,7 @@ bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << source << "id_" << sourceID;
-	return hasBonus(Selector::source(source,sourceID), cachingStr.str());
+	return hasBonus(Selector::source(source,sourceID), Selector::all, cachingStr.str());
 }
 
 int IBonusBearer::MoraleVal() const
@@ -521,28 +526,9 @@ const std::shared_ptr<Bonus> IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) 
 	return nullptr;
 }
 
-ui8 IBonusBearer::howManyEffectsSet(ui16 id) const
-{
-	//TODO should check only local bonuses?
-	ui8 ret = 0;
-
-	auto bonuses = getAllBonuses();
-	for(auto& it : *bonuses)
-	{
-		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
-		{
-			++ret;
-		}
-	}
-
-	return ret;
-}
-
 const TBonusListPtr IBonusBearer::getAllBonuses() const
 {
-	auto matchAll  = [] (const Bonus *) { return true; };
-	auto matchNone = [] (const Bonus *) { return true; };
-	return getAllBonuses(matchAll, matchNone);
+	return getAllBonuses(Selector::all, Selector::all);
 }
 
 const std::shared_ptr<Bonus> IBonusBearer::getBonus(const CSelector &selector) const
@@ -778,7 +764,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 void CBonusSystemNode::popBonuses(const CSelector &s)
 {
 	BonusList bl;
-	exportedBonuses.getBonuses(bl, s);
+	exportedBonuses.getBonuses(bl, s, Selector::all);
 	for(auto b : bl)
 		removeBonus(b);
 
@@ -789,7 +775,7 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 void CBonusSystemNode::updateBonuses(const CSelector &s)
 {
 	BonusList bl;
-	exportedBonuses.getBonuses(bl, s);
+	exportedBonuses.getBonuses(bl, s, Selector::all);
 	for(auto b : bl)
 	{
 		b->turnsRemain--;
@@ -1236,6 +1222,9 @@ namespace Selector
 	{
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source);
 	}
+
+	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});
+	DLL_LINKAGE CSelector none([](const Bonus * b){return false;});
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type)
 	{
