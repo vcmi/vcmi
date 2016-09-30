@@ -18,4 +18,4 @@ For building from source see project wiki at http://wiki.vcmi.eu/
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: [https://github.com/vcmi/vcmi-assets]
 
-Copyright (C) 2007-2015  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2016  VCMI Team (check AUTHORS file for the contributors list)
