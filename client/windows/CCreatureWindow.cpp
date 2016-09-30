@@ -580,14 +580,17 @@ void CStackWindow::CWindowSection::createButtonPanel()
 				{
 					resComps.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
 				}
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
+
+				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
+				{	
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
+				}
+				else
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314], resComps);
 			};
 			auto upgradeBtn = new CButton(Point(221 + i * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
 			upgradeBtn->addOverlay(new CAnimImage("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[i]]->iconIndex));
-
-			if (!LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
-				upgradeBtn->block(true);
 		}
 	}
 
