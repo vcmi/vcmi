@@ -950,11 +950,12 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	double multDefenceReduction = (100 - battleBonusValue (info.attackerBonuses, Selector::type(Bonus::ENEMY_DEFENCE_REDUCTION))) / 100.0;
 	attackDefenceDifference -= info.defenderBonuses->Defense() * multDefenceReduction;
 
-	if(const std::shared_ptr<Bonus> slayerEffect = info.attackerBonuses->getEffect(SpellID::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
+	if(const std::shared_ptr<Bonus> slayerEffect = info.attackerBonuses->getBonus(Selector::type(Bonus::SLAYER))) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
 	{
 		std::vector<int> affectedIds;
 		int spLevel = slayerEffect->val;
 
+		//FIXME: do not check all creatures
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
 			for(const std::shared_ptr<Bonus> b : VLC->creh->creatures[g]->getBonusList())
