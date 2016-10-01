@@ -4482,7 +4482,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 	if (st->alive())
 	{
 		//unbind
-		if (st->getEffect (SpellID::BIND))
+		if(st->hasBonus(Selector::type(Bonus::BIND_EFFECT)))
 		{
 			bool unbind = true;
 			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));

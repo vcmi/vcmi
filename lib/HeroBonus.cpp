@@ -470,7 +470,7 @@ ui32 IBonusBearer::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 		return 0;
 	}
 	//bind effect check - doesn't influence stack initiative
-	if (useBind && getEffect (SpellID::BIND))
+	if(useBind && hasBonus(Selector::type(Bonus::BIND_EFFECT).And(Selector::turns(turn))))
 	{
 		return 0;
 	}
