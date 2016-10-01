@@ -720,9 +720,11 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::isImmuneByStack(cons
 
 bool DefaultSpellMechanics::dispellSelector(const Bonus * bonus)
 {
-	const CSpell * sourceSpell = bonus->sourceSpell();
-	if(sourceSpell != nullptr)
+	if(bonus->source == Bonus::SPELL_EFFECT)
 	{
+		const CSpell * sourceSpell = SpellID(bonus->sid).toSpell();
+		if(!sourceSpell)
+			return false;//error
 		//Special case: DISRUPTING_RAY is "immune" to dispell
 		//Other even PERMANENT effects can be removed (f.e. BIND)
 		if(sourceSpell->id == SpellID::DISRUPTING_RAY)

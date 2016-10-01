@@ -1044,13 +1044,6 @@ bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int s
 	return false;
 }
 
-const CSpell * Bonus::sourceSpell() const
-{
-	if(source == SPELL_EFFECT)
-		return SpellID(sid).toSpell();
-	return nullptr;
-}
-
 std::string Bonus::Description() const
 {
 	std::ostringstream str;

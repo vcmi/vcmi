@@ -13,7 +13,6 @@
  */
 
 class CCreature;
-class CSpell;
 struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
@@ -374,7 +373,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	{
 		val += Val;
 	}
-	const CSpell * sourceSpell() const;
 
 	std::string Description() const;
 
