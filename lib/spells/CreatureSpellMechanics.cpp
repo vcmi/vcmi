@@ -88,20 +88,8 @@ void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpell
 
 ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster,  const CStack * obj) const
 {
-	TBonusListPtr spellBon = obj->getSpellBonuses();
-	bool hasPositiveSpell = false;
-	for(const std::shared_ptr<Bonus> b : *spellBon)
-	{
-		if(SpellID(b->sid).toSpell()->isPositive())
-		{
-			hasPositiveSpell = true;
-			break;
-		}
-	}
-	if(!hasPositiveSpell)
-	{
+	if(!obj->hasBonus(Selector::positiveSpellEffects, Selector::all, "Selector::positiveSpellEffects"))
 		return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
-	}
 
 	//use default algorithm only if there is no mechanics-related problem
 	return DefaultSpellMechanics::isImmuneByStack(caster,obj);

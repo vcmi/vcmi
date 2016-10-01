@@ -3206,12 +3206,12 @@ void CBattleInterface::showAliveStacks(SDL_Surface * to, std::vector<const CStac
 		return true;
 	};
 
-	auto getEffectsPositivness = [&](const CStack * stack) -> int
+	auto getEffectsPositivness = [&](const std::vector<si32> & activeSpells) -> int
 	{
 		int pos = 0;
-		for(auto & spellId : stack->activeSpells())
+		for(const auto & spellId : activeSpells)
 		{
-			pos += CGI->spellh->objects[ spellId ]->positiveness;
+			pos += CGI->spellh->objects.at(spellId)->positiveness;
 		}
 		return pos;
 	};
@@ -3243,8 +3243,9 @@ void CBattleInterface::showAliveStacks(SDL_Surface * to, std::vector<const CStac
 
 			//blitting amount background box
 			SDL_Surface *amountBG = amountNormal;
-			if(!stack->getSpellBonuses()->empty())
-				amountBG = getAmountBoxBackground(getEffectsPositivness(stack));
+			std::vector<si32> activeSpells = stack->activeSpells();
+			if(!activeSpells.empty())
+				amountBG = getAmountBoxBackground(getEffectsPositivness(activeSpells));
 
 			SDL_Rect temp_rect = genRect(amountBG->h, amountBG->w, creAnims[stack->ID]->pos.x + xAdd, creAnims[stack->ID]->pos.y + yAdd);
 			SDL_BlitSurface(amountBG, nullptr, to, &temp_rect);

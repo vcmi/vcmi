@@ -607,7 +607,6 @@ public:
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
-	const TBonusListPtr getSpellBonuses() const;
 };
 
 class DLL_LINKAGE CBonusSystemNode : public IBonusBearer, public boost::noncopyable
@@ -754,25 +753,6 @@ public:
 	{
 		auto ptr2 = ptr; //We need a COPY because we don't want to reference this (might be outlived by lambda)
 		return [ptr2, valueToCompareAgainst](const Bonus *bonus) {  return bonus->*ptr2 == valueToCompareAgainst; };
-	}
-};
-
-template<typename T>
-class CSelectFieldAny //allows to ignore value of certain field, that is to accept any value
-{
-	T Bonus::*ptr;
-public:
-	CSelectFieldAny(T Bonus::*Ptr)
-		: ptr(Ptr)
-	{
-	}
-	bool operator()(const Bonus *bonus) const
-	{
-		return true;
-	}
-	CSelectFieldAny& operator()()
-	{
-		return *this;
 	}
 };
 
@@ -979,7 +959,6 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
-	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);

@@ -487,18 +487,6 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 					.Or(Selector::type(Bonus::SIEGE_WEAPON)), cachingStr.str());
 }
 
-const TBonusListPtr IBonusBearer::getSpellBonuses() const
-{
-	std::stringstream cachingStr;
-	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
-	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
-		.And(CSelector([](const Bonus *b)->bool
-		{
-			return b->type != Bonus::NONE;
-		}));
-	return getBonuses(selector, Selector::anyRange(), cachingStr.str());
-}
-
 const std::shared_ptr<Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(Selector::all, Selector::all);
@@ -1159,7 +1147,6 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
 	DLL_LINKAGE CWillLastDays days;
-	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange(&Bonus::effectRange);
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)
 	{

@@ -324,14 +324,14 @@ void CStackWindow::CWindowSection::createActiveSpells()
 	for(si32 effect : spells)
 	{
 		const CSpell * sp = CGI->spellh->objects[effect];
-		
+
 		std::string spellText;
-		
+
 		//not all effects have graphics (for eg. Acid Breath)
 		//for modded spells iconEffect is added to SpellInt.def
-		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST); 
-		
-		if (hasGraphics) 
+		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST);
+
+		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 			boost::replace_first (spellText, "%s", sp->name);
@@ -582,7 +582,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 				}
 
 				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
-				{	
+				{
 					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
 				}
 				else
@@ -751,7 +751,7 @@ void CStackWindow::initSections()
 void CStackWindow::initBonusesList()
 {
 	BonusList output, input;
-	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent).And(Selector::anyRange())));
+	input = *(info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all));
 
 	while (!input.empty())
 	{
@@ -840,7 +840,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup):
 	info->creature = stack->type;
 	info->creatureCount = stack->count;
 	info->popupWindow = popup;
-	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);	
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
 	init();
 }
 
@@ -870,7 +870,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup):
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
-	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);	
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);
 	init();
 }
 
@@ -885,7 +885,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->levelupInfo = StackWindowInfo::CommanderLevelInfo();
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
-	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);		
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);
 	init();
 }
 
