@@ -362,7 +362,7 @@ bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << source << "id_" << sourceID;
-	return hasBonus(Selector::source(source,sourceID), Selector::all, cachingStr.str());
+	return hasBonus(Selector::source(source,sourceID), cachingStr.str());
 }
 
 int IBonusBearer::MoraleVal() const

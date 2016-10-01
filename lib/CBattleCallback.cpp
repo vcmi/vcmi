@@ -1847,7 +1847,10 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 
 	for(const SpellID spellID : allPossibleSpells)
 	{
-		if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, spellID)
+		std::stringstream cachingStr;
+		cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
+
+		if(subject->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
 			//TODO: this ability has special limitations
 			|| battleCanCastThisSpellHere(subject, spellID.toSpell(), ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
 			continue;
