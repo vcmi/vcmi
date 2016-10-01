@@ -33,6 +33,21 @@ MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
 	load(); // load FS before UI
 
 	ui->setupUi(this);
+	auto width = ui->startGameTitle->fontMetrics().boundingRect(ui->startGameTitle->text()).width();
+	if (ui->startGameButton->iconSize().width() < width)
+	{
+		ui->startGameButton->setIconSize(QSize(width, width));
+	}
+	auto tab_icon_size = ui->tabSelectList->iconSize();
+	if (tab_icon_size.width() < width)
+	{
+		ui->tabSelectList->setIconSize(QSize(
+			width,
+			width + tab_icon_size.height() - tab_icon_size.width()));
+		ui->tabSelectList->setGridSize(QSize(width, width));
+		// 4 is a dirty hack to make it look right
+		ui->tabSelectList->setMaximumWidth(width + 4);
+	}
 	ui->tabListWidget->setCurrentIndex(0);
 	ui->settingsView->setDisplayList(displayList);
 
@@ -45,7 +60,7 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::on_startGameButon_clicked()
+void MainWindow::on_startGameButton_clicked()
 {
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
 }
