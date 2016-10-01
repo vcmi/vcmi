@@ -579,7 +579,6 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
-	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
@@ -594,7 +593,6 @@ public:
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
 	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
-	int getBonusesCount(Bonus::BonusSource from, int id) const;
 
 	//various hlp functions for non-trivial values
 	ui32 getMinDamage() const; //used for stacks and creatures only
@@ -720,7 +718,6 @@ namespace NBonus
 	//set of methods that may be safely called with nullptr objs
 	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id);
 }
 
 /// generates HeroBonus from given data

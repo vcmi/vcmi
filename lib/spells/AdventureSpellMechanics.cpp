@@ -239,7 +239,10 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((schoolLevel >= 3) ? 2 : 3);
 
-	if(parameters.caster->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= owner->getPower(schoolLevel)) //limit casts per turn
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << owner->id.num;
+
+	if(parameters.caster->getBonuses(Selector::source(Bonus::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getPower(schoolLevel)) //limit casts per turn
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;

@@ -348,18 +348,6 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 	return hasBonus(s, cachingStr.str());
 }
 
-int IBonusBearer::getBonusesCount(Bonus::BonusSource from, int id) const
-{
-	std::stringstream cachingStr;
-	cachingStr << "source_" << from << "id_" << id;
-	return getBonusesCount(Selector::source(from, id), cachingStr.str());
-}
-
-int IBonusBearer::getBonusesCount(const CSelector &selector, const std::string &cachingStr /* =""*/) const
-{
-	return getBonuses(selector, cachingStr)->size();
-}
-
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
 {
 	return getAllBonuses(selector, nullptr, nullptr, cachingStr);
@@ -1097,13 +1085,6 @@ bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int s
 	if(obj)
 		return obj->hasBonusOfType(type, subtype);
 	return false;
-}
-
-int NBonus::getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id)
-{
-	if(obj)
-		return obj->getBonusesCount(from, id);
-	return 0;
 }
 
 const CSpell * Bonus::sourceSpell() const
