@@ -41,7 +41,6 @@ public:
 
 	CSelector(std::nullptr_t)
 	{}
-	//CSelector(std::function<bool(const Bonus*)> f) : std::function<bool(const Bonus*)>(std::move(f)) {}
 
 	CSelector And(CSelector rhs) const
 	{
@@ -317,18 +316,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	Bonus();
 	~Bonus();
 
-// 	//comparison
-// 	bool operator==(const HeroBonus &other)
-// 	{
-// 		return &other == this;
-// 		//TODO: what is best logic for that?
-// 	}
-// 	bool operator<(const HeroBonus &other)
-// 	{
-// 		return &other < this;
-// 		//TODO: what is best logic for that?
-// 	}
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
@@ -459,7 +446,6 @@ public:
 	const std::shared_ptr<Bonus> getFirst(const CSelector &select) const;
 	int valOfBonuses(const CSelector &select) const;
 
-	//void limit(const CBonusSystemNode &node); //erases bonuses using limitor
 	void eliminateDuplicates();
 
 	// remove_if implementation for STL vector types
@@ -529,7 +515,6 @@ class DLL_LINKAGE IPropagator
 public:
 	virtual ~IPropagator();
 	virtual bool shouldBeAttached(CBonusSystemNode *dest);
-	//virtual CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild); //called when red relation between parent-childrem is established / removed
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
@@ -542,7 +527,6 @@ public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(int NodeType);
 	bool shouldBeAttached(CBonusSystemNode *dest) override;
-	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -670,7 +654,6 @@ public:
 	void childDetached(CBonusSystemNode *child);
 	void propagateBonus(std::shared_ptr<Bonus> b);
 	void unpropagateBonus(std::shared_ptr<Bonus> b);
-	//void addNewBonus(const Bonus &b); //b will copied
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
 	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
@@ -678,7 +661,6 @@ public:
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;
-	//bool isLimitedOnUs(std::shared_ptr<Bonus>b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
 	void updateBonuses(const CSelector &s);

@@ -251,12 +251,6 @@ int BonusList::valOfBonuses(const CSelector &select) const
 	return ret.totalValue();
 }
 
-// void BonusList::limit(const CBonusSystemNode &node)
-// {
-// 	remove_if(std::bind(&CBonusSystemNode::isLimitedOnUs, std::ref(node), _1));
-// }
-
-
 void BonusList::eliminateDuplicates()
 {
 	sort( bonuses.begin(), bonuses.end() );
@@ -1345,20 +1339,10 @@ IPropagator::~IPropagator()
 
 }
 
-// CBonusSystemNode * IPropagator::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
-// {
-// 	return source;
-// }
-
 bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 {
 	return false;
 }
-
-// CBonusSystemNode * CPropagatorNodeType::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
-// {
-// 	return nullptr;
-// }
 
 CPropagatorNodeType::CPropagatorNodeType()
 {
@@ -1478,14 +1462,6 @@ StackOwnerLimiter::StackOwnerLimiter(PlayerColor Owner)
 	: owner(Owner)
 {
 }
-// int Bonus::limit(const BonusLimitationContext &context) const
-//  	1162	{
-//  	1163	        if (limiter)
-//  	1164	                return limiter->callNext(context);
-//  	1165	        else
-//  	1166	                return ILimiter::ACCEPT; //accept if there's no limiter
-//  	1167	}
- 	//1168
 
 int LimiterList::limit( const BonusLimitationContext &context ) const
 {
