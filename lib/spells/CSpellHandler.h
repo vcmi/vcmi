@@ -298,10 +298,6 @@ public://internal, for use only by Mechanics classes
 	ESpellCastProblem::ESpellCastProblem internalIsImmune(const ISpellCaster * caster, const CStack *obj) const;
 
 private:
-
-	///checks for creature immunity *at given hex*.
-	ESpellCastProblem::ESpellCastProblem isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
-
 	void setIsOffensive(const bool val);
 	void setIsRising(const bool val);
 

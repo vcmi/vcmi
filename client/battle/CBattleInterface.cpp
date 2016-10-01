@@ -2050,8 +2050,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case ANY_LOCATION:
 				if (myNumber > -1) //TODO: this should be checked for all actions
 				{
-					creatureCasting = stackCanCastSpell && !spellDestSelectMode; //as isCastingPossibleHere is not called
-					legalAction = true;
+					if(isCastingPossibleHere (sactive, shere, myNumber))
+						legalAction = true;
 				}
 				break;
 			case AIMED_SPELL_CREATURE:

@@ -624,7 +624,7 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	return ret;
 }
 
-std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, SpellTargetingContext & ctx) const
+std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
 	std::vector<const CStack *> attackedCres = calculateAffectedStacks(cb, ctx);
 	handleImmunities(cb, ctx, attackedCres);
@@ -707,8 +707,13 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 
 ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	//no problems by default, this method is for spell-specific problems
-	//common problems handled by CSpell
+	if(ctx.mode == ECastingMode::CREATURE_ACTIVE_CASTING || ctx.mode == ECastingMode::HERO_CASTING)
+	{
+		std::vector<const CStack *> affected = getAffectedStacks(cb, ctx);
+		if(affected.empty())
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+
 	return ESpellCastProblem::OK;
 }
 
@@ -834,6 +839,13 @@ bool DefaultSpellMechanics::requiresCreatureTarget() const
 	//most spells affects creatures somehow regardless of Target Type
 	//for few exceptions see overrides
 	return true;
+}
+
+ESpellCastProblem::ESpellCastProblem SpecialSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+{
+	//no problems by default
+	//common problems handled by CSpell
+	return ESpellCastProblem::OK;
 }
 
 std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const

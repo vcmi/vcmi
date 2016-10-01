@@ -214,7 +214,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	SpellTargetingContext ctx(this, mode, caster, spellLvl, destination);
-	return mechanics->getAffectedStacks(cb, ctx);;
+	return mechanics->getAffectedStacks(cb, ctx);
 }
 
 CSpell::ETargetType CSpell::getTargetType() const
@@ -362,81 +362,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallba
 {
 	SpellTargetingContext ctx(this, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
-	ESpellCastProblem::ESpellCastProblem specific = mechanics->canBeCast(cb, ctx);
-
-	if(specific != ESpellCastProblem::OK)
-		return specific;
-
-	//todo: this should be moved to mechanics
-	//rising spells handled by mechanics
-	if(ctx.ti.onlyAlive && getTargetType() == CSpell::CREATURE)
-	{
-		const CStack * aliveStack = cb->getStackIf([destination](const CStack * s)
-		{
-			return s->isValidTarget(false) && s->coversPos(destination);
-		});
-
-		if(!aliveStack)
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(ctx.ti.smart && isNegative() && aliveStack->owner == caster->getOwner())
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(ctx.ti.smart && isPositive() && aliveStack->owner != caster->getOwner())
-			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-	}
-
-	return isImmuneAt(cb, caster, mode, destination);
-}
-
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
-{
-	// Get all stacks at destination hex. only alive if not rising spell
-	TStacks stacks = cb->battleGetStacksIf([=](const CStack * s)
-	{
-		return s->coversPos(destination) && s->isValidTarget(isRisingSpell());
-	});
-
-	if(!stacks.empty())
-	{
-		bool allImmune = true;
-
-		ESpellCastProblem::ESpellCastProblem problem = ESpellCastProblem::INVALID;
-
-		for(auto s : stacks)
-		{
-			ESpellCastProblem::ESpellCastProblem res = isImmuneByStack(caster,s);
-
-			if(res == ESpellCastProblem::OK)
-			{
-				allImmune = false;
-			}
-			else
-			{
-				problem = res;
-			}
-		}
-
-		if(allImmune)
-			return problem;
-	}
-	else //no target stack on this tile
-	{
-		if(getTargetType() == CSpell::CREATURE)
-		{
-			if(caster && mode == ECastingMode::HERO_CASTING) //TODO why???
-			{
-				const CSpell::TargetInfo ti(this, caster->getSpellSchoolLevel(this), mode);
-
-				if(!ti.massive)
-					return ESpellCastProblem::WRONG_SPELL_TARGET;
-			}
-			else
-			{
- 				return ESpellCastProblem::WRONG_SPELL_TARGET;
-			}
-		}
-	}
-
-	return ESpellCastProblem::OK;
+	return mechanics->canBeCast(cb, ctx);
 }
 
 int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const
