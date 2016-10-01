@@ -1783,6 +1783,9 @@ void CBattleInterface::blockUI(bool on)
 {
 	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
 	bool canCastSpells = curInt->cb->battleCanCastSpell(&spellcastingProblem);
+	//if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
+	if(!canCastSpells)
+		canCastSpells = spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
 	bool canWait = activeStack ? !activeStack->waited() : false;
 
 	bOptions->block(on);
@@ -1804,8 +1807,8 @@ void CBattleInterface::blockUI(bool on)
 		bConsoleDown->block(on);
 	}
 
-	//if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
-	bSpell->block(on || (!canCastSpells && spellcastingProblem != ESpellCastProblem::MAGIC_IS_BLOCKED));
+
+	bSpell->block(on || tacticsMode || !canCastSpells);
 	bWait->block(on || tacticsMode || !canWait);
 	bDefence->block(on || tacticsMode);
 }

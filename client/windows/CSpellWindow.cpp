@@ -618,9 +618,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
-			char msgBuf[500];
-			sprintf(msgBuf, CGI->generaltexth->allTexts[206].c_str(), spellCost, owner->myHero->mana);
-			owner->myInt->showInfoDialog(std::string(msgBuf));
+			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
@@ -702,6 +700,13 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[185]);
 				}
 				break;
+			default:
+				{
+					// General message:
+					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
+					text = boost::str(boost::format(text) % caster);
+					owner->myInt->showInfoDialog(text);
+				}
 			}
 		}
 		else if(sp->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
