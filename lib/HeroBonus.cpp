@@ -927,11 +927,6 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 		c->getRedChildren(out);
 }
 
-void CBonusSystemNode::battleTurnPassed()
-{
-	updateBonuses(Bonus::NTurns);
-}
-
 void CBonusSystemNode::exportBonus(std::shared_ptr<Bonus> b)
 {
 	if(b->propagator)

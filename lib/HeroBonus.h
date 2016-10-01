@@ -366,17 +366,9 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	{
 		return hb->duration & Bonus::COMMANDER_KILLED;
 	}
-	static bool IsFrom(const Bonus *hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
-	{
-		return hb->source==source && (id==0xffffff  ||  hb->sid==id);
-	}
 	inline bool operator == (const BonusType & cf) const
 	{
 		return type == cf;
-	}
-	inline void ChangeBonusVal (const ui32 newVal)
-	{
-		val = newVal;
 	}
 	inline void operator += (const ui32 Val) //no return
 	{
@@ -657,12 +649,12 @@ public:
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
 	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
-	void battleTurnPassed(); //updates count of remaining turns and removed outdated bonuses
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;
-
+	///removes bonuses by selector
 	void popBonuses(const CSelector &s);
+	///updates count of remaining turns and removes outdated bonuses by selector
 	void updateBonuses(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
@@ -697,27 +689,6 @@ namespace NBonus
 	//set of methods that may be safely called with nullptr objs
 	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-}
-
-/// generates HeroBonus from given data
-inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
-{
-	Bonus sf;
-	sf.type = type;
-	sf.duration = duration;
-	sf.source = source;
-	sf.turnsRemain = turnsRemain;
-	sf.subtype = subtype;
-	sf.val = value;
-	sf.additionalInfo = additionalInfo;
-
-	return sf;
-}
-
-///generates HeroBonus from given data
-inline std::shared_ptr<Bonus> makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
-{
-	return std::make_shared<Bonus>(makeFeatureVal(type, duration, subtype, value, source, turnsRemain, additionalInfo));
 }
 
 template<typename T>
@@ -929,8 +900,6 @@ public:
 		h & minRank & maxRank;
 	}
 };
-
-const CCreature *retrieveCreature(const CBonusSystemNode *node);
 
 namespace Selector
 {

@@ -208,13 +208,6 @@ public:
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 	ui32 totalHelth() const; // total health for all creatures in stack;
 
-	static inline Bonus featureGenerator(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0, Bonus::LimitEffect limit = Bonus::NO_LIMIT)
-	{
-		Bonus hb = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo);
-		hb.effectRange = limit;
-		return hb;
-	}
-
 	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
 	bool doubleWide() const;

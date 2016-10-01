@@ -1226,7 +1226,7 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->counterAttacksPerformed = 0;
 		s->counterAttacksTotalCache = 0;
 		// new turn effects
-		s->battleTurnPassed();
+		s->updateBonuses(Bonus::NTurns);
 
 		if(s->alive() && vstd::contains(s->state, EBattleStackState::CLONED))
 		{

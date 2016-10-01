@@ -537,8 +537,8 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 					case 1: //only Coronius as yet
 					{
 						power = std::max(5 - tier, 0);
-						Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, duration);
-						specialBonus.sid = owner->id;
+						Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, owner->id, PrimarySkill::ATTACK);
+						specialBonus.turnsRemain = duration;
 						sse.uniqueBonuses.push_back(std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional attack to Slayer effect
 					}
 					break;
@@ -547,9 +547,8 @@ void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env,
 			if (parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
 			{
 				int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
-				Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, duration);
-				specialBonus.valType = Bonus::PERCENT_TO_ALL;
-				specialBonus.sid = owner->id;
+				Bonus specialBonus(Bonus::N_TURNS, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, damagePercent, owner->id, 0, Bonus::PERCENT_TO_ALL);
+				specialBonus.turnsRemain = duration;
 				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus));
 			}
 		}
