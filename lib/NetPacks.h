@@ -1370,6 +1370,7 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & healedStacks & lifeDrain & tentHealing & drainedFrom;
+		h & cure;
 	}
 };
 
