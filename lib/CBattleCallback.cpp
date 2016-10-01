@@ -377,8 +377,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 
 			if(!hero)
 				return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-			if(!hero->getArt(ArtifactPosition::SPELLBOOK))
-				return ESpellCastProblem::NO_SPELLBOOK;
 			if(hero->hasBonusOfType(Bonus::BLOCK_ALL_MAGIC))
 				return ESpellCastProblem::MAGIC_IS_BLOCKED;
 		}
@@ -1703,6 +1701,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		{
 			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
 			assert(castingHero);
+			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+				return ESpellCastProblem::NO_SPELLBOOK;
 			if(!castingHero->canCastThisSpell(spell))
 				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
 			if(castingHero->mana < battleGetSpellCost(spell, castingHero)) //not enough mana

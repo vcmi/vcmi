@@ -974,12 +974,9 @@ void CGHeroInstance::getCastDescription(const CSpell * spell, const std::vector<
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	if(nullptr == getArt(ArtifactPosition::SPELLBOOK))
-		return false;
-
 	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
 
-	const bool inSpellBook = vstd::contains(spells, spell->id);
+	const bool inSpellBook = vstd::contains(spells, spell->id) && nullptr != getArt(ArtifactPosition::SPELLBOOK);
 	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
 
 	bool schoolBonus = false;
