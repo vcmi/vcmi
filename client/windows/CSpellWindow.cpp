@@ -224,7 +224,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	currentPage = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
 
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
-	vstd::abetween(currentPage, 0, pagesWithinCurrentTab() - 1);
+	vstd::abetween(currentPage, 0, std::max(0, pagesWithinCurrentTab() - 1));
 
 	computeSpellsPerArea();
 	addUsedEvents(KEYBOARD);
