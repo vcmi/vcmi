@@ -36,9 +36,6 @@ class IMarket;
 
 class ServerSpellCastEnvironment;
 
-extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
-extern boost::mutex gsm;
-
 struct PlayerStatus
 {
 	bool makingTurn;
@@ -99,11 +96,8 @@ public:
 	ui32 QID;
 	Queries queries;
 
-	//TODO get rid of cfunctionlist (or similar) and use serialziable callback structure
-	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
-
 	bool isValidObject(const CGObjectInstance *obj) const;
-	bool isBlockedByQueries(const CPack *pack, PlayerColor player); 
+	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
@@ -131,10 +125,9 @@ public:
 	void setBlockVis(ObjectInstanceID objid, bool bv) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override;
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override; 
-	//void showInfoDialog(InfoWindow *iw) override;
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
 
-	void showBlockingDialog(BlockingDialog *iw) override; 
+	void showBlockingDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
@@ -151,12 +144,12 @@ public:
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override;
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override;
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override;
-	
+
 	void removeAfterVisit(const CGObjectInstance *object) override;
 
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override; 
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override;
 	void synchronizeArtifactHandlerLists() override;
@@ -164,10 +157,9 @@ public:
 	void showCompInfo(ShowInInfobox * comp) override;
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
-	//bool removeArtifact(const CArtifact* art, int hid) override;
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override; //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override; //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, std::function<void(BattleResult*)> cb) override; //for hero<=>neutral army
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(ObjectInstanceID objid, ui32 val) override;
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
