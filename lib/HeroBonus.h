@@ -965,12 +965,20 @@ namespace Selector
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 
+	/**
+	 * Selects all bonuses
+	 * Usage example: Selector::all.And(<functor>).And(<functor>)...)
+	 */
 	extern DLL_LINKAGE CSelector all;
+
+	/**
+	 * Selects nothing
+	 * Usage example: Selector::none.Or(<functor>).Or(<functor>)...)
+	 */
 	extern DLL_LINKAGE CSelector none;
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);
 	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype);
-	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b);
 }
 
 extern DLL_LINKAGE const std::map<std::string, Bonus::BonusType> bonusNameMap;

@@ -203,7 +203,7 @@ bool CureMechanics::dispellSelector(const Bonus * b)
 ESpellCastProblem::ESpellCastProblem CureMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//Selector method name is ok as cashing string. --AVS
-	if(!obj->canBeHealed() && !obj->hasBonus(CSelector(DefaultSpellMechanics::dispellSelector).And(CSelector(CureMechanics::dispellSelector)), Selector::all, "CureMechanics::dispellSelector"))
+	if(!obj->canBeHealed() && !canDispell(obj, dispellSelector, "CureMechanics::dispellSelector"))
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
 	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
@@ -213,7 +213,7 @@ ESpellCastProblem::ESpellCastProblem CureMechanics::isImmuneByStack(const ISpell
 void DispellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
-	doDispell(battle, packet, Selector::sourceType(Bonus::SPELL_EFFECT));
+	doDispell(battle, packet, Selector::all);
 }
 
 ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
@@ -231,7 +231,7 @@ ESpellCastProblem::ESpellCastProblem DispellMechanics::isImmuneByStack(const ISp
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	}
 
-	if(obj->hasBonus(CSelector(DefaultSpellMechanics::dispellSelector), Selector::all, "DefaultSpellMechanics::dispellSelector"))
+	if(canDispell(obj, Selector::all, "DefaultSpellMechanics::dispellSelector"))
 		return ESpellCastProblem::OK;
 	else
 		return ESpellCastProblem::WRONG_SPELL_TARGET;

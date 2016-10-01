@@ -745,8 +745,13 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 	for(auto stackID : packet->affectedCres)
 	{
 		CStack *s = battle->getStack(stackID);
-		s->popBonuses(CSelector(dispellSelector).And(selector));
+		s->popBonuses(selector.And(dispellSelector));
 	}
+}
+
+bool DefaultSpellMechanics::canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string & cachingStr/* = "" */) const
+{
+	return obj->hasBonus(selector.And(dispellSelector), Selector::all, cachingStr);
 }
 
 void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const

@@ -1188,16 +1188,6 @@ namespace Selector
 		dummy.subtype = subtype;
 		return sel(&dummy);
 	}
-
-	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b)
-	{
-		if(b->source == Bonus::SPELL_EFFECT)
-		{
-			CSpell *sp = SpellID(b->sid).toSpell();
-			return sp->isPositive();
-		}
-		return false; //not a spell effect
-	}
 }
 
 const CStack * retreiveStackBattle(const CBonusSystemNode *node)

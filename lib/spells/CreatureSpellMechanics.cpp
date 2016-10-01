@@ -83,14 +83,24 @@ void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpell
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);
 
-	doDispell(battle, packet, Selector::positiveSpellEffects);
+	doDispell(battle, packet, positiveSpellEffects);
 }
 
 ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster,  const CStack * obj) const
 {
-	if(!obj->hasBonus(Selector::positiveSpellEffects, Selector::all, "Selector::positiveSpellEffects"))
+	if(!canDispell(obj, positiveSpellEffects, "DispellHelpfulMechanics::positiveSpellEffects"))
 		return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
 
 	//use default algorithm only if there is no mechanics-related problem
 	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
+}
+
+bool DispellHelpfulMechanics::positiveSpellEffects(const Bonus *b)
+{
+	if(b->source == Bonus::SPELL_EFFECT)
+	{
+		CSpell *sp = SpellID(b->sid).toSpell();
+		return sp->isPositive();
+	}
+	return false; //not a spell effect
 }

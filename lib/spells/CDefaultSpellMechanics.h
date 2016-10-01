@@ -72,14 +72,16 @@ protected:
 	virtual std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const;
 
 protected:
-	static bool dispellSelector(const Bonus * bonus);
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
+	bool canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string &cachingStr = "") const;
 private:
 	void cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const;
 
 	void handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack *> & stacks) const;
 	void handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const;
 	void handleResistance(const SpellCastEnvironment * env, SpellCastContext & ctx) const;
+
+	static bool dispellSelector(const Bonus * bonus);
 
 	friend class SpellCastContext;
 };
