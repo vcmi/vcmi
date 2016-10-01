@@ -585,7 +585,6 @@ public:
 	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
-	const TBonusListPtr getAllBonuses() const;
 	const std::shared_ptr<Bonus> getBonus(const CSelector &selector) const; //returns any bonus visible on node that matches (or nullptr if none matches)
 
 	//legacy interface

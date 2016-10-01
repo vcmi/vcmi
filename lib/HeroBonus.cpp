@@ -502,7 +502,7 @@ const TBonusListPtr IBonusBearer::getSpellBonuses() const
 const std::shared_ptr<Bonus> IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
 {
 	//TODO should check only local bonuses?
-	auto bonuses = getAllBonuses();
+	auto bonuses = getAllBonuses(Selector::all, Selector::all);
 	for(auto & it : *bonuses)
 	{
 		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
@@ -514,14 +514,9 @@ const std::shared_ptr<Bonus> IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) 
 	return nullptr;
 }
 
-const TBonusListPtr IBonusBearer::getAllBonuses() const
-{
-	return getAllBonuses(Selector::all, Selector::all);
-}
-
 const std::shared_ptr<Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
-	auto bonuses = getAllBonuses();
+	auto bonuses = getAllBonuses(Selector::all, Selector::all);
 	return bonuses->getFirst(selector);
 }
 
