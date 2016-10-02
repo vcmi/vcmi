@@ -494,13 +494,19 @@ void HeroRecruited::applyCl( CClient *cl )
 		logNetwork->errorStream() << "Something wrong with hero recruited!";
 	}
 
-	CGI->mh->printObject(h);
-
-	if(vstd::contains(cl->playerint,h->tempOwner))
+	bool needsPrinting = true;
+	if(vstd::contains(cl->playerint, h->tempOwner))
 	{
 		cl->playerint[h->tempOwner]->heroCreated(h);
 		if(const CGTownInstance *t = GS(cl)->getTown(tid))
+		{
 			cl->playerint[h->tempOwner]->heroInGarrisonChange(t);
+			needsPrinting = false;
+		}
+	}
+	if (needsPrinting)
+	{
+		CGI->mh->printObject(h);
 	}
 }
 
