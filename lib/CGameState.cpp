@@ -953,7 +953,7 @@ void CGameState::initDuel()
 		}
 	}
 
-	curB = BattleInfo::setupBattle(int3(), dp.terType, dp.bfieldType, armies, heroes, false, town);
+	curB = BattleInfo::setupBattle(int3(-1,-1,-1), dp.terType, dp.bfieldType, armies, heroes, false, town);
 	curB->obstacles = dp.obstacles;
 	curB->localInit();
 }
@@ -1908,9 +1908,9 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 
 BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
-	if(tile==int3() && curB)
+	if(!tile.valid() && curB)
 		tile = curB->tile;
-	else if(tile==int3() && !curB)
+	else if(!tile.valid() && !curB)
 		return BFieldType::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
