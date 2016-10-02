@@ -4250,163 +4250,64 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	return ok;
 }
 
-void CGameHandler::playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj )
+void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
-	bool cheated=true;
+	bool cheated = true;
 	PlayerMessage temp_message(player, message, ObjectInstanceID(-1)); // don't inform other client on selected object
-
 	sendAndApply(&temp_message);
-	if(message == "vcmiistari") //give all spells and 999 mana
+
+	std::vector<std::string> cheat;
+	boost::split(cheat, message, boost::is_any_of(" "));
+	int obj = 0;
+	if(cheat.size() == 2)
 	{
-		SetMana sm;
-		GiveBonus giveBonus(GiveBonus::HERO);
-
-		const CGHeroInstance * h = getHero(currObj);
-		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
-
-		sm.hid = h->id;
-
-		giveBonus.id = h->id.getNum();
-
-		//give all spells with bonus (to allow banned spells)
-		giveBonus.bonus = Bonus(Bonus::PERMANENT, Bonus::SPELLS_OF_LEVEL, Bonus::OTHER, 0, 0);
-		//start with level 0 to skip abilities
-		for(int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
-		{
-			giveBonus.bonus.subtype = level;
-			sendAndApply(&giveBonus);
-		}
-		//give mana
-		sm.val = 999;
-		sm.absolute = true;
-
-		if(!h->hasSpellbook()) //hero doesn't have spellbook
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK); //give spellbook
-
-		sendAndApply(&sm);
+		obj = std::atoi(cheat[1].c_str());
+		if(obj)
+			currObj = ObjectInstanceID(obj);
 	}
-	else if (message == "vcmiarmenelos") //build all buildings in selected town
+
+	const CGHeroInstance * hero = getHero(currObj);
+	const CGTownInstance * town = getTown(currObj);
+	if(!town && hero)
+		town = hero->visitedTown;
+
+	if(cheat.size() == 1 || obj)
+		handleCheatCode(cheat[0], player, hero, town, cheated);
+	else
 	{
-		const CGHeroInstance * hero = getHero(currObj);
-		const CGTownInstance * town;
-
-		if (hero)
-			town = hero->visitedTown;
-		else
-			town = getTown(currObj);
-
-		if (town)
+		for(const auto & i : gs->players)
 		{
-			for (auto & build : town->town->buildings)
+			if(i.first == PlayerColor::NEUTRAL)
+				continue;
+			if(cheat[1] == "ai")
 			{
-				if (!town->hasBuilt(build.first)
-				    && !build.second->Name().empty()
-				    && build.first != BuildingID::SHIP)
+				if(i.second.human)
+					continue;
+			}
+			else if(cheat[1] != "all" && cheat[1] != i.first.getStr())
+				continue;
+
+			if(cheat[0] == "vcmiformenos" || cheat[0] == "vcmieagles" || cheat[0] == "vcmiungoliant")
+			{
+				handleCheatCode(cheat[0], i.first, nullptr, nullptr, cheated);
+			}
+			else if(cheat[0] == "vcmiarmenelos")
+			{
+				for(const auto & t : i.second.towns)
 				{
-					buildStructure(town->id, build.first, true);
+					handleCheatCode(cheat[0], i.first, nullptr, t, cheated);
+				}
+			}
+			else
+			{
+				for(const auto & h : i.second.heroes)
+				{
+					handleCheatCode(cheat[0], i.first, h, nullptr, cheated);
 				}
 			}
 		}
 	}
-	else if(message == "vcmiainur") //gives 5 archangels into each slot
-	{
-		const CGHeroInstance * hero = getHero(currObj);
-		const CCreature *archangel = VLC->creh->creatures.at(13);
-		if(!hero) return;
 
-		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if(!hero->hasStackAtSlot(SlotID(i)))
-				insertNewStack(StackLocation(hero, SlotID(i)), archangel, 5);
-	}
-	else if(message == "vcmiangband") //gives 10 black knight into each slot
-	{
-		const CGHeroInstance * hero = getHero(currObj);
-		const CCreature *blackKnight = VLC->creh->creatures.at(66);
-		if(!hero) return;
-
-		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if(!hero->hasStackAtSlot(SlotID(i)))
-				insertNewStack(StackLocation(hero, SlotID(i)), blackKnight, 10);
-	}
-	else if(message == "vcmiglaurung") //gives 5000 crystal dragons into each slot
-	{
-		const CGHeroInstance * hero = getHero(currObj);
-		const CCreature *crystalDragon = VLC->creh->creatures.at(133);
-		if(!hero) return;
-
-		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if(!hero->hasStackAtSlot(SlotID(i)))
-				insertNewStack(StackLocation(hero, SlotID(i)), crystalDragon, 5000);
-	}
-	else if(message == "vcminoldor") //all war machines
-	{
-		const CGHeroInstance * hero = getHero(currObj);
-		if(!hero) return;
-
-		if(!hero->getArt(ArtifactPosition::MACH1))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
-		if(!hero->getArt(ArtifactPosition::MACH2))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
-		if(!hero->getArt(ArtifactPosition::MACH3))
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
-	}
-	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
-	{
-		const CGHeroInstance *hero = gs->getHero(currObj);
-		if(!hero) return;
-		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
-	}
-	else if(message == "vcmiglorfindel") //selected hero gains a new level
-	{
-		CGHeroInstance *hero = gs->getHero(currObj);
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
-	}
-	else if(message == "vcminahar") //1000000 movement points
-	{
-		CGHeroInstance *hero = gs->getHero(currObj);
-		if(!hero) return;
-		SetMovePoints smp;
-		smp.hid = hero->id;
-		smp.val = 1000000;
-		sendAndApply(&smp);
-	}
-	else if(message == "vcmiformenos") //give resources
-	{
-		SetResources sr;
-		sr.player = player;
-		sr.res = getPlayer(player)->resources;
-		for(int i=0;i<Res::GOLD;i++)
-			sr.res[i] += 100;
-		sr.res[Res::GOLD] += 100000; //100k
-		sendAndApply(&sr);
-	}
-	else if(message == "vcmieagles" || message == "vcmiungoliant") //reveal or conceal FoW
-	{
-		FoWChange fc;
-		fc.mode = (message == "vcmieagles" ? 1 : 0);
-		fc.player = player;
-		auto  hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
-		int lastUnc = 0;
-		for(int i=0;i<gs->map->width;i++)
-			for(int j=0;j<gs->map->height;j++)
-				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap.at(i).at(j).at(k) || message == "vcmiungoliant")
-						hlp_tab[lastUnc++] = int3(i,j,k);
-		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
-		delete [] hlp_tab;
-		sendAndApply(&fc);
-	}
-	else if(message == "vcmisilmaril") //player wins
-	{
-		gs->getPlayer(player)->enteredWinningCheatCode = 1;
-	}
-	else if(message == "vcmimelkor") //player looses
-	{
-		gs->getPlayer(player)->enteredLosingCheatCode = 1;
-	}
-	else
-		cheated = false;
 	if(cheated)
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
@@ -6002,6 +5903,136 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}
+}
+
+void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated)
+{
+	if(cheat == "vcmiistari")
+	{
+		if(!hero) return;
+		///Give hero spellbook
+		if(!hero->hasSpellbook())
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+
+		///Give all spells with bonus (to allow banned spells)
+		GiveBonus giveBonus(GiveBonus::HERO);
+		giveBonus.id = hero->id.getNum();
+		giveBonus.bonus = Bonus(Bonus::PERMANENT, Bonus::SPELLS_OF_LEVEL, Bonus::OTHER, 0, 0);
+		//start with level 0 to skip abilities
+		for(int level = 1; level <= GameConstants::SPELL_LEVELS; level++)
+		{
+			giveBonus.bonus.subtype = level;
+			sendAndApply(&giveBonus);
+		}
+
+		///Give mana
+		SetMana sm;
+		sm.hid = hero->id;
+		sm.val = 999;
+		sm.absolute = true;
+		sendAndApply(&sm);
+	}
+	else if(cheat == "vcmiarmenelos")
+	{
+		if(!town) return;
+		///Build all buildings in selected town
+		for(auto & build : town->town->buildings)
+		{
+			if(!town->hasBuilt(build.first)
+				&& !build.second->Name().empty()
+				&& build.first != BuildingID::SHIP)
+			{
+				buildStructure(town->id, build.first, true);
+			}
+		}
+	}
+	else if(cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung")
+	{
+		if(!hero) return;
+		///Gives N creatures into each slot
+		std::map<std::string, std::pair<int, int>> creatures;
+		creatures.insert(std::make_pair("vcmiainur", std::make_pair(13, 5))); //5 archangels
+		creatures.insert(std::make_pair("vcmiangband", std::make_pair(66, 10))); //10 black knights
+		creatures.insert(std::make_pair("vcmiglaurung", std::make_pair(133, 5000))); //5000 crystal dragons
+
+		const CCreature * creature = VLC->creh->creatures.at(creatures[cheat].first);
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), creature, creatures[cheat].second);
+	}
+	else if(cheat == "vcminoldor")
+	{
+		if(!hero) return;
+		///Give all war machines to hero
+		if(!hero->getArt(ArtifactPosition::MACH1))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
+		if(!hero->getArt(ArtifactPosition::MACH2))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
+		if(!hero->getArt(ArtifactPosition::MACH3))
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
+	}
+	else if(cheat == "vcmiforgeofnoldorking")
+	{
+		if(!hero) return;
+		///Give hero all artifacts except war machines, spell scrolls and spell book
+		for(int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
+	}
+	else if(cheat == "vcmiglorfindel")
+	{
+		if(!hero) return;
+		///selected hero gains a new level
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
+	}
+	else if(cheat == "vcminahar")
+	{
+		if(!hero) return;
+		///Give 1000000 movement points to hero
+		SetMovePoints smp;
+		smp.hid = hero->id;
+		smp.val = 1000000;
+		sendAndApply(&smp);
+	}
+	else if(cheat == "vcmiformenos")
+	{
+		///Give resources to player
+		TResources resources;
+		resources[Res::GOLD] = 100000;
+		for(Res::ERes i = Res::WOOD; i < Res::GOLD; vstd::advance(i, 1))
+			resources[i] = 100;
+
+		giveResources(player, resources);
+	}
+	else if(cheat == "vcmisilmaril")
+	{
+		///Player wins
+		gs->getPlayer(player)->enteredWinningCheatCode = 1;
+	}
+	else if(cheat == "vcmimelkor")
+	{
+		///Player looses
+		gs->getPlayer(player)->enteredLosingCheatCode = 1;
+	}
+	else if(cheat == "vcmieagles" || cheat == "vcmiungoliant")
+	{
+		///Reveal or conceal FoW
+		FoWChange fc;
+		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
+		fc.player = player;
+		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
+		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
+		int lastUnc = 0;
+		for(int i = 0; i < gs->map->width; i++)
+			for(int j = 0; j < gs->map->height; j++)
+				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
+					if(!fowMap.at(i).at(j).at(k) || !fc.mode)
+						hlp_tab[lastUnc++] = int3(i, j, k);
+		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
+		delete [] hlp_tab;
+		sendAndApply(&fc);
+	}
+	else
+		cheated = false;
 }
 
 void CGameHandler::removeObstacle(const CObstacleInstance &obstacle)

@@ -194,7 +194,7 @@ public:
 	void handleConnection(std::set<PlayerColor> players, CConnection &c);
 	PlayerColor getPlayerAt(CConnection *c) const;
 
-	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
+	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
@@ -284,6 +284,7 @@ public:
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
+	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
 	friend class CVCMIServer;
 
 	CRandomGenerator & getRandomGenerator();
