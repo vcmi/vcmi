@@ -8,14 +8,18 @@ GENERAL:
 - Angel Wings
 - Boots of Levitation
 * Implemented rumors in tavern window
-* New cheat code:
+* New cheat codes:
 - vcmiglaurung - gives 5000 crystal dragons into each slot
+- vcmiungoliant - conceal fog of war for current player
 * New console commands:
 - gosolo - AI take control over human players and vice versa
 - controlai - give control of one or all AIs to player
+- set hideSystemMessages on/off - supress server messages in chat
 
 BATTLES:
 * Drawbridge mechanics implemented (animation still missing)
+* Merging of town and visiting hero armies on siege implemented
+* Hero info tooltip for skills and mana implemented
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
