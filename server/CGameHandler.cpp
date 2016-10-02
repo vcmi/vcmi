@@ -965,9 +965,9 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			}
 			else if(apply)
 			{
-				const bool result = apply->applyOnGH(this,&c,pack, player);
+				const bool result = apply->applyOnGH(this, &c, pack, player);
 				if(result)
-					logGlobal->trace("Message successfully applied!");
+					logGlobal->traceStream() << "Message " << typeid(*pack).name() << " successfully applied!";
 				else
 					complain((boost::format("Got false in applying %s... that request must have been fishy!")
 						% typeid(*pack).name()).str());

@@ -2188,7 +2188,7 @@ struct CenterView : public CPackForClient//515
 
 struct CPackForSelectionScreen : public CPack
 {
-	void apply(CSelectionScreen *selScreen){}; //that functions are implemented in CPreGame.cpp
+	void apply(CSelectionScreen *selScreen) {} // implemented in CPreGame.cpp
 };
 
 class CPregamePackToPropagate  : public CPackForSelectionScreen

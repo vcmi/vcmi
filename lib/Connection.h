@@ -1107,7 +1107,7 @@ public:
 	};
 
 	bool saving;
-	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
+	std::map<ui16, CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	si32 fileVersion;
 	bool reverseEndianess; //if source has different endianness than us, we reverse bytes
 
@@ -1308,7 +1308,14 @@ public:
 		}
 		else
 		{
-			auto typeInfo = loaders[tid]->loadPtr(*this,&data, pid);
+			auto loader = loaders[tid];
+			if (loader == nullptr)
+			{
+				logGlobal->errorStream() << "loadPointerHlp " << tid << " " << pid << " - no loader exists";
+				data = nullptr;
+				return;
+			}
+			auto typeInfo = loader->loadPtr(*this, &data, pid);
 			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename boost::remove_const<typename boost::remove_pointer<T>::type>::type)));
 		}
 	}

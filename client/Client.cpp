@@ -653,20 +653,26 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 
 void CClient::handlePack( CPack * pack )
 {
+	if (pack == nullptr)
+	{
+		logNetwork->errorStream() << "Dropping nullptr CPack! You should check whether client and server ABI matches.";
+		return;
+	}
 	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
 	if(apply)
 	{
 		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
-		apply->applyOnClBefore(this,pack);
+		apply->applyOnClBefore(this, pack);
 		logNetwork->traceStream() << "\tMade first apply on cl";
 		gs->apply(pack);
 		logNetwork->traceStream() << "\tApplied on gs";
-		apply->applyOnClAfter(this,pack);
+		apply->applyOnClAfter(this, pack);
 		logNetwork->traceStream() << "\tMade second apply on cl";
 	}
 	else
 	{
-		logNetwork->errorStream() << "Message cannot be applied, cannot find applier! TypeID " << typeList.getTypeID(pack);
+		logNetwork->errorStream() << "Message cannot be applied, cannot find applier! type "
+                              << pack->type << " - " << typeList.getTypeInfo(pack)->name();
 	}
 	delete pack;
 }
