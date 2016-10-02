@@ -102,7 +102,7 @@ public:
 	//TODO: what if Commander is not a part of creature set?
 
 	//commander class is determined by its base creature
-	ui8 alive;
+	bool alive;
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
