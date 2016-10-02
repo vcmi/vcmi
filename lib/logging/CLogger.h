@@ -73,7 +73,7 @@ private:
 class DLL_LINKAGE CLogger: public vstd::CLoggerBase
 {
 public:
-	inline ELogLevel::ELogLevel getLevel() const;
+	ELogLevel::ELogLevel getLevel() const;
 	void setLevel(ELogLevel::ELogLevel level);
 	const CLoggerDomain & getDomain() const;
 
@@ -159,10 +159,11 @@ public:
 
 	void addLogger(CLogger * logger);
 	CLogger * getLogger(const CLoggerDomain & domain); /// Returns a logger or nullptr if no one is registered for the given domain.
+	std::vector<std::string> getRegisteredDomains() const;
 
 private:
 	CLogManager();
-	~CLogManager();
+	virtual ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
 	mutable boost::mutex mx;

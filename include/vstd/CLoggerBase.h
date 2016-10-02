@@ -21,6 +21,26 @@ namespace ELogLevel
 		WARN,
 		ERROR
 	};
+
+	inline std::string to_string(ELogLevel level)
+	{
+		switch (level) {
+			case NOT_SET:
+				return "not set";
+			case TRACE:
+				return "trace";
+			case DEBUG:
+				return "debug";
+			case INFO:
+				return "info";
+			case WARN:
+				return "warn";
+			case ERROR:
+				return "error";
+			default:
+				return std::string("invalid (") + std::to_string(level) + ")";
+		}
+	}
 }
 
 namespace vstd

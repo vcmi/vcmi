@@ -32,7 +32,9 @@ void CBasicLogConfigurator::configure()
 				CLogger * logger = CLogger::getLogger(CLoggerDomain(name));
 
 				// Set log level
-				logger->setLevel(getLogLevel(loggerNode["level"].String()));
+				std::string level = loggerNode["level"].String();
+				logger->setLevel(getLogLevel(level));
+				logGlobal->debugStream() << "Set log level " << name << " => " << level;
 			}
 		}
 		CLogger::getGlobalLogger()->clearTargets();
@@ -83,6 +85,11 @@ void CBasicLogConfigurator::configure()
 	}
 
 	logGlobal->infoStream() << "Initialized logging system based on settings successfully.";
+	for (auto& domain : CLogManager::get().getRegisteredDomains())
+	{
+		logGlobal->infoStream() << "[log level] " << domain << " => " <<
+			ELogLevel::to_string(CLogger::getLogger(CLoggerDomain(domain))->getLevel());
+	}
 }
 
 ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)
