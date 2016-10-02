@@ -120,7 +120,7 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QToolButton" name="startGameButon">
+     <widget class="QToolButton" name="startGameButton">
       <property name="text">
        <string>Play</string>
       </property>
@@ -199,7 +199,7 @@
  </customwidgets>
  <tabstops>
   <tabstop>tabSelectList</tabstop>
-  <tabstop>startGameButon</tabstop>
+  <tabstop>startGameButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

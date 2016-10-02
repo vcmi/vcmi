@@ -19,7 +19,7 @@ public:
 	~MainWindow();
 
 private slots:
-	void on_startGameButon_clicked();
+	void on_startGameButton_clicked();
 
 private:
 	Ui::MainWindow *ui;

@@ -360,7 +360,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>220</width>
          <height>16777215</height>
         </size>
        </property>
@@ -401,7 +401,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -426,7 +426,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -451,7 +451,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -476,7 +476,7 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
