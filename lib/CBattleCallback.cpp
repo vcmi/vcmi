@@ -1714,17 +1714,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
-	const ESpellCastProblem::ESpellCastProblem specificProblem = spell->canBeCast(this, mode, caster);
-
-	if(specificProblem != ESpellCastProblem::OK)
-		return specificProblem;
-
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	if(battleMaxSpellLevel(side) < spell->level)
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
-	return ESpellCastProblem::OK;
+	return spell->canBeCast(this, mode, caster);
 }
 
 ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
