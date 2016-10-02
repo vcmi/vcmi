@@ -710,7 +710,34 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	if(ctx.mode == ECastingMode::CREATURE_ACTIVE_CASTING || ctx.mode == ECastingMode::HERO_CASTING)
 	{
 		std::vector<const CStack *> affected = getAffectedStacks(cb, ctx);
-		if(affected.empty())
+
+		//allow to cast spell if affects is at least one smart target
+		bool targetExists = false;
+
+		for(const CStack * stack : affected)
+		{
+			bool casterStack = stack->owner == ctx.caster->getOwner();
+
+			switch (owner->positiveness)
+			{
+			case CSpell::POSITIVE:
+				if(casterStack)
+					targetExists = true;
+				break;
+			case CSpell::NEUTRAL:
+				targetExists = true;
+				break;
+			case CSpell::NEGATIVE:
+				if(!casterStack)
+					targetExists = true;
+				break;
+			}
+
+			if(targetExists)
+				break;
+		}
+
+		if(!targetExists)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 

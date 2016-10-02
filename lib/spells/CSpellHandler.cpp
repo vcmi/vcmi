@@ -157,6 +157,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback
 		return generalProblem;
 
 	//check for creature target existence
+	//allow to cast spell if there is at least one smart target
 	if(mechanics->requiresCreatureTarget())
 	{
 		switch(mode)
@@ -180,14 +181,14 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback
 						switch (positiveness)
 						{
 						case CSpell::POSITIVE:
-							if(casterStack || !tinfo.smart)
+							if(casterStack)
 								targetExists = true;
 							break;
 						case CSpell::NEUTRAL:
 								targetExists = true;
 								break;
 						case CSpell::NEGATIVE:
-							if(!casterStack || !tinfo.smart)
+							if(!casterStack)
 								targetExists = true;
 							break;
 						}

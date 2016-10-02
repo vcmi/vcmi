@@ -66,6 +66,7 @@ public:
 		const std::vector<const CStack *> & attacked) const;
 
 	bool requiresCreatureTarget() const	override;
+
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 
