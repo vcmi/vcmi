@@ -386,7 +386,7 @@ public:
 
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
-	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to ttiles, so obj will be visible on map
+	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to tiles, so obj will be visible on map
 	bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	bool removeObject(CGObjectInstance * obj, bool fadeout = false); //removes object from each place in VCMI (I hope)
 	void init();
