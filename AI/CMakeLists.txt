@@ -1,9 +1,15 @@
 project(AI)
 cmake_minimum_required(VERSION 2.8)
 
-find_package(Fuzzylite)
+option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" OFF)
 
-if(NOT MSVC)
+if (NOT FORCE_BUNDLED_FL)
+	find_package(Fuzzylite)
+else()
+	set(FL_FOUND FALSE)
+endif()
+
+if (NOT MSVC)
     add_definitions(-DFL_CPP11)
     set(FL_CPP11 ON CACHE BOOL "")
 endif()
