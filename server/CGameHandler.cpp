@@ -6237,7 +6237,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 				if(c)
 				{
 					auto h = dynamic_cast <const CGHeroInstance *>(army);
-					if (h && h->commander == c)
+					if(h && h->commander == c && (st->count == 0 || !st->alive()))
 					{
 						logGlobal->debug("Commander is dead.");
 						heroWithDeadCommander = army->id; //TODO: unify commander handling
