@@ -1798,7 +1798,7 @@ void CGameState::initTowns()
 
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
-			CSpell *s = vti->obligatorySpells[z].toSpell();
+			auto s = vti->obligatorySpells[z].toSpell();
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -1826,7 +1826,7 @@ void CGameState::initTowns()
 			if(sel<0)
 				sel=0;
 
-			CSpell *s = vti->possibleSpells[sel].toSpell();
+			auto s = vti->possibleSpells[sel].toSpell();
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}

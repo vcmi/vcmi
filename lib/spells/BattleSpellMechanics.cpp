@@ -196,8 +196,8 @@ bool CureMechanics::dispellSelector(const Bonus * b)
 {
 	if(b->source == Bonus::SPELL_EFFECT)
 	{
-		CSpell * sp = SpellID(b->sid).toSpell();
-		return sp->isNegative();
+		const CSpell * sp = SpellID(b->sid).toSpell();
+		return sp && sp->isNegative();
 	}
 	return false; //not a spell effect
 }

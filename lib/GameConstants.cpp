@@ -31,17 +31,17 @@ const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
 const TeamID TeamID::NO_TEAM = TeamID(255);
 
-CArtifact * ArtifactID::toArtifact() const
+const CArtifact * ArtifactID::toArtifact() const
 {
-	return VLC->arth->artifacts[*this];
+	return VLC->arth->artifacts.at(*this);
 }
 
-CCreature * CreatureID::toCreature() const
+const CCreature * CreatureID::toCreature() const
 {
-	return VLC->creh->creatures[*this];
+	return VLC->creh->creatures.at(*this);
 }
 
-CSpell * SpellID::toSpell() const
+const CSpell * SpellID::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{

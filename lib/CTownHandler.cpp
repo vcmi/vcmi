@@ -605,7 +605,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=, &town](si32 spellID)
 		{
-			SpellID(spellID).toSpell()->probabilities[town.faction->index] = chance;
+			VLC->spellh->objects.at(spellID)->probabilities[town.faction->index] = chance;
 		});
 	}
 

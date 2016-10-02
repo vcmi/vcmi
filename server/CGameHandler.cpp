@@ -4426,13 +4426,12 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			const CGHeroInstance *h = gs->curB->battleGetFightingHero(ba.side);
 			COMPLAIN_RET_FALSE_IF((!h), "Wrong caster!");
 
-			if(ba.additionalInfo < 0 || ba.additionalInfo >= VLC->spellh->objects.size())
+			const CSpell * s = SpellID(ba.additionalInfo).toSpell();
+			if(!s)
 			{
 				logGlobal->error("Wrong spell id (%d)!", ba.additionalInfo);
 				return false;
 			}
-
-			const CSpell * s = SpellID(ba.additionalInfo).toSpell();
 
 			BattleSpellCastParameters parameters(gs->curB, h, s);
 			parameters.aimToHex(ba.destinationTile);//todo: allow multiple destinations

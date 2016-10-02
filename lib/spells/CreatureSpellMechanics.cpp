@@ -99,8 +99,8 @@ bool DispellHelpfulMechanics::positiveSpellEffects(const Bonus *b)
 {
 	if(b->source == Bonus::SPELL_EFFECT)
 	{
-		CSpell *sp = SpellID(b->sid).toSpell();
-		return sp->isPositive();
+		const CSpell * sp = SpellID(b->sid).toSpell();
+		return sp && sp->isPositive();
 	}
 	return false; //not a spell effect
 }
