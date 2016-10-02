@@ -44,7 +44,11 @@ static inline std::string readName(std::string name)
 		delimPos = name.find_last_of('\\');
 
 	if((delimPos == std::string::npos || delimPos < dotPos) && dotPos != std::string::npos)
-		name.resize(dotPos);
+	{
+		auto type = EResTypeHelper::getTypeFromExtension(name.substr(dotPos));
+		if(type != EResType::OTHER)
+			name.resize(dotPos);
+	}
 
 	toUpper(name);
 
