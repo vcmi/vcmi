@@ -499,7 +499,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//adding commanders
 	for (int i = 0; i < 2; ++i)
 	{
-		if (heroes[i] && heroes[i]->commander)
+		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
 		{
 			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
 				creatureBank ? commanderBank[i] : commanderField[i]);
