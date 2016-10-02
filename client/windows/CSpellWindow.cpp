@@ -401,10 +401,10 @@ void CSpellWindow::computeSpellsPerArea()
 	std::vector<SpellID> spellsCurSite;
 	for(const SpellID & spellID : mySpells)
 	{
-		CSpell * s = spellID.toSpell();
+		const CSpell * s = spellID.toSpell();
 
 		if(s->combatSpell ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || (s->school[(ESpellSchool)selectedTab]))
+			&& ((selectedTab == 4) || s->school.at((ESpellSchool)selectedTab))
 			)
 		{
 			spellsCurSite.push_back(spellID);

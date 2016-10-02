@@ -69,7 +69,6 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
-			<Add option="-fpermissive" />
 			<Add option="-isystem $(#boost.include)" />
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
