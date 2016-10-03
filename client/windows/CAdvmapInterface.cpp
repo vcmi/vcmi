@@ -465,7 +465,15 @@ CAdvMapInt::CAdvMapInt():
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
-	bgWorldView = BitmapHandler::loadBitmap(ADVOPT.worldViewGraphic);
+	if (ADVOPT.worldViewGraphic != "")
+	{
+		bgWorldView = BitmapHandler::loadBitmap(ADVOPT.worldViewGraphic);
+	}
+	else
+	{
+		bgWorldView = nullptr;
+		logGlobal->warn("ADVOPT.worldViewGraphic is empty => bitmap not loaded");
+	}
 	scrollingDir = 0;
 	updateScreen  = false;
 	anim=0;

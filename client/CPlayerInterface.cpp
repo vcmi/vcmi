@@ -2586,7 +2586,6 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	adventureInt->infoBar.showSelection();
 	if (!vstd::contains (GH.listInt, adventureInt))
 	{
 		GH.popInts (GH.listInt.size()); //after map load - remove everything else
@@ -2594,6 +2593,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 	else
 	{
+		adventureInt->infoBar.showSelection();
 		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front())) //don't remove dialogs that expect query answer
 			GH.popInts(1);
 	}

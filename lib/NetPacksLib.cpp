@@ -34,7 +34,7 @@
 
 std::ostream & operator<<(std::ostream & out, const CPack * pack)
 {
-	return out << pack->toString();
+	return out << (pack? pack->toString() : "<nullptr>");
 }
 
 DLL_LINKAGE void SetResource::applyGs( CGameState *gs )

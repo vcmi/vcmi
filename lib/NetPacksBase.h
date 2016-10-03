@@ -29,12 +29,13 @@ struct DLL_LINKAGE CPack
 {
 	ui16 type;
 
-	CPack(){};
-	virtual ~CPack(){};
-	ui16 getType() const{return type;}
+	CPack() {};
+	virtual ~CPack() {};
+	ui16 getType() const { return type; }
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		logNetwork->errorStream() << "CPack serialized... this should not happen!";
+		assert(false && "CPack serialized");
 	}
 	void applyGs(CGameState *gs) { }
 	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }

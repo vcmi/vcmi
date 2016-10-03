@@ -225,7 +225,7 @@ CPack * CConnection::retreivePack()
 	boost::unique_lock<boost::mutex> lock(*rmx);
 	logNetwork->traceStream() << "Listening... ";
 	iser >> ret;
-	logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name() << ", data: " << ret;
+	logNetwork->traceStream() << "\treceived server message of type " << (ret? typeid(*ret).name() : "nullptr") << ", data: " << ret;
 	return ret;
 }
 
@@ -599,7 +599,8 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 		controlFile->read(controlData.data(), size);
 		if(std::memcmp(data, controlData.data(), size))
 		{
-			logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
+			logGlobal->error("Save game format mismatch detected! Position: %d",
+			                 primaryFile->sfile->tellg());
 			foundDesync = true;
 			//throw std::runtime_error("Savegame dsynchronized!");
 		}

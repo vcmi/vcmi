@@ -943,7 +943,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 				packType = typeList.getTypeID(pack); //get the id of type
 
 				logGlobal->trace("Received client message (request %d by player %d (%s)) of type with ID=%d (%s).\n",
-					requestID, player, player.getStr(), packType, typeid(*pack).name());
+				                 requestID, player, player.getStr(), packType, typeid(*pack).name());
 			}
 
 			//prepare struct informing that action was applied
@@ -965,9 +965,9 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			}
 			else if(apply)
 			{
-				const bool result = apply->applyOnGH(this,&c,pack, player);
+				const bool result = apply->applyOnGH(this, &c, pack, player);
 				if(result)
-					logGlobal->trace("Message successfully applied!");
+					logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
 				else
 					complain((boost::format("Got false in applying %s... that request must have been fishy!")
 						% typeid(*pack).name()).str());

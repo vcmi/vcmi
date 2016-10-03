@@ -76,8 +76,14 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 	{
 		logger = new CLogger(domain);
 		if(domain.isGlobalDomain())
+		{
 			logger->setLevel(ELogLevel::TRACE);
+		}
 		CLogManager::get().addLogger(logger);
+		if (logGlobal != nullptr)
+		{
+			logGlobal->debug("Created logger %s", domain.getName());
+		}
 	}
 	return logger;
 }
@@ -196,6 +202,16 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 		return it->second;
 	else
 		return nullptr;
+}
+
+std::vector<std::string> CLogManager::getRegisteredDomains() const
+{
+	std::vector<std::string> domains;
+	for (auto& pair : loggers)
+	{
+		domains.push_back(pair.second->getDomain().getName());
+	}
+	return std::move(domains);
 }
 
 CLogFormatter::CLogFormatter() : CLogFormatter("%m") { }
