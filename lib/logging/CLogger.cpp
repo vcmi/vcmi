@@ -82,7 +82,7 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 		CLogManager::get().addLogger(logger);
 		if (logGlobal != nullptr)
 		{
-			logGlobal->debugStream() << "Created logger " << domain.getName();
+			logGlobal->debug("Created logger %s", domain.getName());
 		}
 	}
 	return logger;

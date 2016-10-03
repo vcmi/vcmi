@@ -1311,7 +1311,7 @@ public:
 			auto loader = loaders[tid];
 			if (loader == nullptr)
 			{
-				logGlobal->errorStream() << "loadPointerHlp " << tid << " " << pid << " - no loader exists";
+				logGlobal->error("loadPointerHlp %d %d - no loader exists", tid, pid);
 				data = nullptr;
 				return;
 			}

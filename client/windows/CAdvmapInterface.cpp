@@ -472,7 +472,7 @@ CAdvMapInt::CAdvMapInt():
 	else
 	{
 		bgWorldView = nullptr;
-		logGlobal->warnStream() << "ADVOPT.worldViewGraphic is empty => bitmap not loaded";
+		logGlobal->warn("ADVOPT.worldViewGraphic is empty => bitmap not loaded");
 	}
 	scrollingDir = 0;
 	updateScreen  = false;

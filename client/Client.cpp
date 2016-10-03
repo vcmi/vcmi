@@ -655,7 +655,7 @@ void CClient::handlePack( CPack * pack )
 {
 	if (pack == nullptr)
 	{
-		logNetwork->errorStream() << "Dropping nullptr CPack! You should check whether client and server ABI matches.";
+		logNetwork->error("Dropping nullptr CPack! You should check whether client and server ABI matches.");
 		return;
 	}
 	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
@@ -663,16 +663,16 @@ void CClient::handlePack( CPack * pack )
 	{
 		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
 		apply->applyOnClBefore(this, pack);
-		logNetwork->traceStream() << "\tMade first apply on cl";
+		logNetwork->trace("\tMade first apply on cl");
 		gs->apply(pack);
-		logNetwork->traceStream() << "\tApplied on gs";
+		logNetwork->trace("\tApplied on gs");
 		apply->applyOnClAfter(this, pack);
-		logNetwork->traceStream() << "\tMade second apply on cl";
+		logNetwork->trace("\tMade second apply on cl");
 	}
 	else
 	{
-		logNetwork->errorStream() << "Message cannot be applied, cannot find applier! type "
-                              << pack->type << " - " << typeList.getTypeInfo(pack)->name();
+		logNetwork->error("Message cannot be applied, cannot find applier! type %d - %s",
+                      pack->type, typeList.getTypeInfo(pack)->name());
 	}
 	delete pack;
 }
