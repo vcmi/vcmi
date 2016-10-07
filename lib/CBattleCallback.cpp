@@ -1366,7 +1366,7 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 		for(BattleHex hex : avHexes)
 			if(CStack::isMeleeAttackPossible(closest, st, hex))
 			{
-				DistStack hlp = {reachability.distances[st->position], hex, st};
+				DistStack hlp = {reachability.distances[hex], hex, st};
 				stackPairs.push_back(hlp);
 			}
 
