@@ -440,10 +440,15 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 	}
 }
 
+void CRewardableObject::triggerRewardReset() const
+{
+	cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
+}
+
 void CRewardableObject::newTurn(CRandomGenerator & rand) const
 {
 	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetDuration) == 1)
-		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
+		triggerRewardReset();
 }
 
 CRewardableObject::CRewardableObject():
@@ -1042,6 +1047,14 @@ CGVisitableOPW::CGVisitableOPW()
 	resetDuration = 7;
 }
 
+void CGVisitableOPW::triggerRewardReset() const
+{
+	CRewardableObject::triggerRewardReset();
+
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
+	cb->sendAndApply(&cov);
+}
+
 void CGVisitableOPW::initObj(CRandomGenerator & rand)
 {
 	setRandomReward(rand);
@@ -1084,9 +1097,6 @@ void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
 				reward = 500;
 			}
 		}
-
-		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
-		cb->sendAndApply(&cov); // that cause server hang
 	}
 
 	CRewardableObject::setPropertyDer(what, val);
