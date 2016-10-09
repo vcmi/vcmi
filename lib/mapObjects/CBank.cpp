@@ -251,18 +251,26 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			cb->showInfoDialog(&iw);
 		}
 
+		loot.clear();
+		iw.components.clear();
+		iw.text.clear();
+
 		if (!bc->spells.empty())
 		{
 			std::set<SpellID> spells;
 
 			bool noWisdom = false;
-			for (SpellID spell : bc->spells)
+			for(const SpellID & spellId : bc->spells)
 			{
-				iw.text.addTxt (MetaString::SPELL_NAME, spell);
-				if (VLC->spellh->objects[spell]->level <= hero->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
+				const CSpell * spell = spellId.toSpell();
+				iw.text.addTxt (MetaString::SPELL_NAME, spellId);
+				if(spell->level <= hero->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
 				{
-					spells.insert(spell);
-					iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
+					if(hero->canLearnSpell(spell))
+					{
+						spells.insert(spellId);
+						iw.components.push_back(Component (Component::SPELL, spellId, 0, 0));
+					}
 				}
 				else
 					noWisdom = true;
@@ -272,10 +280,14 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 				iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
 			else if (noWisdom)
 				iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
-			if (spells.empty())
+
+			if(!iw.components.empty() || !iw.text.toString().empty())
+				cb->showInfoDialog(&iw);
+
+			if(!spells.empty())
 				cb->changeSpells (hero, true, spells);
 		}
-		loot.clear();
+
 		iw.components.clear();
 		iw.text.clear();
 
