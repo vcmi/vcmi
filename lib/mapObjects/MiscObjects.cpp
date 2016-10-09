@@ -1702,16 +1702,12 @@ void CGSignBottle::serializeJsonOptions(JsonSerializeFormat& handler)
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 {
-
 	EBonusType type = bonusType;
 	int bid = bonusID;
 	//check if the bonus if applicable, if not - give primary skill (always possible)
 	int ssl = h->getSecSkillLevel(SecondarySkill(bid)); //current sec skill level, used if bonusType == 1
-	if((type == SECONDARY_SKILL
-			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == SPELL  &&  (!h->getArt(ArtifactPosition::SPELLBOOK) || vstd::contains(h->spells, (ui32) bid)
-		|| ( SpellID(bid).toSpell()->level > h->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
-		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
+	if((type == SECONDARY_SKILL	&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
+		|| (type == SPELL && !h->canLearnSpell(SpellID(bid).toSpell())))
 	{
 		type = PRIM_SKILL;
 		bid = CRandomGenerator::getDefault().nextInt(GameConstants::PRIMARY_SKILLS - 1);
