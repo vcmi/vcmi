@@ -1107,7 +1107,7 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"targetModifier":{"smart":true},
+				"targetModifier":{"smart":false},
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
