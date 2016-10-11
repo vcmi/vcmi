@@ -157,6 +157,8 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
+	bool canLearnSpell(const CSpell * spell) const;
+
 	// ----- primary and secondary skill, experience, level handling -----
 
 	/// Returns true if hero has lower level than should upon his experience.

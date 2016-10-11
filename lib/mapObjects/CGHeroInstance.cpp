@@ -976,7 +976,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
 	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
 
-	const bool inSpellBook = vstd::contains(spells, spell->id) && nullptr != getArt(ArtifactPosition::SPELLBOOK);
+	const bool inSpellBook = vstd::contains(spells, spell->id) && hasSpellbook();
 	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
 
 	bool schoolBonus = false;
@@ -1011,6 +1011,38 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	{
 		return inSpellBook || schoolBonus || specificBonus || levelBonus;
 	}
+}
+
+bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
+{
+    if(!hasSpellbook())
+		return false;
+
+    if(spell->level > getSecSkillLevel(SecondarySkill::WISDOM) + 2) //not enough wisdom
+		return false;
+
+	if(vstd::contains(spells, spell->id))//already known
+		return false;
+
+	if(spell->isSpecialSpell())
+	{
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->name);
+		return false;//special spells can not be learned
+	}
+
+	if(spell->isCreatureAbility())
+	{
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->name);
+		return false;//creature abilities can not be learned
+	}
+
+	if(!IObjectInterface::cb->isAllowed(0, spell->id))
+	{
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->name);
+		return false;//banned spells should not be learned
+	}
+
+	return true;
 }
 
 /**
