@@ -1108,25 +1108,27 @@ void CGVisitableOPW::setRandomReward(CRandomGenerator &rand)
 	{
 	case Obj::MYSTICAL_GARDEN:
 		info.resize(1);
+		info[0].limiter.numOfGrants = 1;
+		info[0].reward.resources.amin(0);
 		if (rand.nextInt(1) == 0)
 		{
 			info[0].reward.resources[Res::GEMS] = 5;
-			info[0].limiter.numOfGrants = 1;
 		}
 		else
 		{
 			info[0].reward.resources[Res::GOLD] = 500;
-			info[0].limiter.numOfGrants = 1;
 		}
 		break;
 	case Obj::WINDMILL:
 		info.resize(1);
+		info[0].reward.resources.amin(0);
 		// 3-6 of any resource but wood and gold
 		info[0].reward.resources[rand.nextInt(Res::MERCURY, Res::GEMS)] = rand.nextInt(3, 6);
 		info[0].limiter.numOfGrants = 1;
 		break;
 	case Obj::WATER_WHEEL:
 		info.resize(1);
+		info[0].reward.resources.amin(0);
 		info[0].reward.resources[Res::GOLD] = 500;
 		info[0].limiter.numOfGrants = 1;
 		break;

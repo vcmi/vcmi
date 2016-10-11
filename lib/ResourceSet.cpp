@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #include "StdInc.h"
 #include "ResourceSet.h"
 #include "StringConstants.h"
@@ -38,6 +38,12 @@ void Res::ResourceSet::amax(const TResourceCap &val)
 {
 	for(auto & elem : *this)
 		::vstd::amax(elem, val);
+}
+
+void Res::ResourceSet::amin(const TResourceCap &val)
+{
+	for(auto & elem : *this)
+		::vstd::amin(elem, val);
 }
 
 void Res::ResourceSet::positive()
