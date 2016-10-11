@@ -191,6 +191,8 @@ protected:
 
 	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
 
+	virtual void triggerRewardReset() const;
+
 	/// Rewards that can be granted by an object
 	std::vector<CVisitInfo> info;
 
@@ -315,12 +317,16 @@ public:
 
 class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
 {
+protected:
+	void triggerRewardReset() const override;
+
 public:
 	void initObj(CRandomGenerator & rand) override;
 
 	CGVisitableOPW();
 
 	void setPropertyDer(ui8 what, ui32 val) override;
+	void setRandomReward(CRandomGenerator & rand);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

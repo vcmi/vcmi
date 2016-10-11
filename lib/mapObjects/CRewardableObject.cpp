@@ -440,10 +440,15 @@ void CRewardableObject::setPropertyDer(ui8 what, ui32 val)
 	}
 }
 
+void CRewardableObject::triggerRewardReset() const
+{
+	cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
+}
+
 void CRewardableObject::newTurn(CRandomGenerator & rand) const
 {
 	if (resetDuration != 0 && cb->getDate(Date::DAY) > 1 && (cb->getDate(Date::DAY) % resetDuration) == 1)
-		cb->setObjProperty(id, ObjProperty::REWARD_RESET, 0);
+		triggerRewardReset();
 }
 
 CRewardableObject::CRewardableObject():
@@ -1039,44 +1044,36 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 CGVisitableOPW::CGVisitableOPW()
 {
 	visitMode = VISIT_ONCE;
-	selectMode = SELECT_RANDOM;
 	resetDuration = 7;
+}
+
+void CGVisitableOPW::triggerRewardReset() const
+{
+	CRewardableObject::triggerRewardReset();
+
+	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
+	cb->sendAndApply(&cov);
 }
 
 void CGVisitableOPW::initObj(CRandomGenerator & rand)
 {
+	setRandomReward(rand);
+
 	switch (ID)
 	{
 	case Obj::MYSTICAL_GARDEN:
 		soundID = soundBase::experience;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 93);
-		info.resize(2);
-		info[0].reward.resources[Res::GEMS] = 5;
-		info[1].reward.resources[Res::GOLD] = 500;
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 92);
-		info[1].message.addTxt(MetaString::ADVOB_TXT, 92);
 		break;
 	case Obj::WINDMILL:
 		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
-		// 3-6 of any resource but wood and gold
-		for (int resID = Res::MERCURY; resID < Res::GOLD; resID++)
-		{
-			for (int val = 3; val <=6; val++)
-			{
-				CVisitInfo visit;
-				visit.reward.resources[resID] = val;
-				visit.message.addTxt(MetaString::ADVOB_TXT, 92);
-				info.push_back(visit);
-			}
-		}
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 170);
 		break;
 	case Obj::WATER_WHEEL:
 		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 165);
-
-		info.resize(1);
-		info[0].reward.resources[Res::GOLD] = 500;
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 164);
 		break;
 	}
@@ -1084,19 +1081,58 @@ void CGVisitableOPW::initObj(CRandomGenerator & rand)
 
 void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
 {
-	if(ID == Obj::WATER_WHEEL && what == ObjProperty::REWARD_RESET)
+	if(what == ObjProperty::REWARD_RESET)
 	{
-		auto& reward = info[0].reward.resources[Res::GOLD];
-		if(info[0].numOfGrants == 0)
+		setRandomReward(cb->gameState()->getRandomGenerator());
+
+		if (ID == Obj::WATER_WHEEL)
 		{
-			reward = 1000;
+			auto& reward = info[0].reward.resources[Res::GOLD];
+			if(info[0].numOfGrants == 0)
+			{
+				reward = 1000;
+			}
+			else
+			{
+				reward = 500;
+			}
+		}
+	}
+
+	CRewardableObject::setPropertyDer(what, val);
+}
+
+void CGVisitableOPW::setRandomReward(CRandomGenerator &rand)
+{
+	switch (ID)
+	{
+	case Obj::MYSTICAL_GARDEN:
+		info.resize(1);
+		info[0].limiter.numOfGrants = 1;
+		info[0].reward.resources.amin(0);
+		if (rand.nextInt(1) == 0)
+		{
+			info[0].reward.resources[Res::GEMS] = 5;
 		}
 		else
 		{
-			reward = 500;
+			info[0].reward.resources[Res::GOLD] = 500;
 		}
+		break;
+	case Obj::WINDMILL:
+		info.resize(1);
+		info[0].reward.resources.amin(0);
+		// 3-6 of any resource but wood and gold
+		info[0].reward.resources[rand.nextInt(Res::MERCURY, Res::GEMS)] = rand.nextInt(3, 6);
+		info[0].limiter.numOfGrants = 1;
+		break;
+	case Obj::WATER_WHEEL:
+		info.resize(1);
+		info[0].reward.resources.amin(0);
+		info[0].reward.resources[Res::GOLD] = 500;
+		info[0].limiter.numOfGrants = 1;
+		break;
 	}
-	CRewardableObject::setPropertyDer(what, val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
