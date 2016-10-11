@@ -1069,7 +1069,7 @@ void CGVisitableOPW::initObj(CRandomGenerator & rand)
 	case Obj::WINDMILL:
 		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
-		info[0].message.addTxt(MetaString::ADVOB_TXT, 92);
+		info[0].message.addTxt(MetaString::ADVOB_TXT, 170);
 		break;
 	case Obj::WATER_WHEEL:
 		soundID = soundBase::GENIE;
