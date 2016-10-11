@@ -1036,7 +1036,7 @@ bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
 		return false;//creature abilities can not be learned
 	}
 
-	if(IObjectInterface::cb->isAllowed(0, spell->id))
+	if(!IObjectInterface::cb->isAllowed(0, spell->id))
 	{
 		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->name);
 		return false;//banned spells should not be learned
