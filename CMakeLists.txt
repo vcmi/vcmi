@@ -235,7 +235,7 @@ endif()
 #    Installation section             #
 #######################################
 
-# For apple this files will be already inside vcmiclient bundle
+# For apple these files will be already inside vcmiclient bundle
 if (NOT APPLE)
 	# copy whole directory but .svn control files
 	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE)
