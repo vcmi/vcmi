@@ -1010,7 +1010,7 @@ const CGHeroInstance * CStack::getMyHero() const
 	return nullptr;
 }
 
-ui32 CStack::totalHelth() const
+ui32 CStack::totalHealth() const
 {
 	return (MaxHealth() * (count-1)) + firstHPleft;
 }
