@@ -3892,7 +3892,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					BattleAttack bat;
 					prepareAttack(bat, stack, destinationStack, (i ? 0 : distance),  ba.additionalInfo); //no distance travelled on second attack
 					//prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo);
-					handleAttackBeforeCasting(bat); //only before first attack
+					handleAttackBeforeCasting(&bat); //only before first attack
 					sendAndApply(&bat);
 					handleAfterAttackCasting(bat);
 				}
@@ -3936,7 +3936,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				BattleAttack bat;
 				bat.flags |= BattleAttack::SHOT;
 				prepareAttack(bat, stack, destinationStack, 0, ba.destinationTile);
-				handleAttackBeforeCasting(bat);
+				handleAttackBeforeCasting(&bat);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
@@ -5209,16 +5209,23 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 	}
 }
 
-void CGameHandler::handleAttackBeforeCasting (const BattleAttack & bat)
+void CGameHandler::handleAttackBeforeCasting(BattleAttack *bat)
 {
-	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
-	attackCasting(bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no death stare / acid breath needed?
+	const CStack * attacker = gs->curB->battleGetStackByID(bat->stackAttacking);
+	attackCasting(*bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no death stare / acid breath needed?
+	// filter possibly dead stacks
+	bat->bsa.erase(std::remove_if(bat->bsa.begin(), bat->bsa.end(),
+	               [this](const BattleStackAttacked &bsa)
+	               {
+	                 return battleGetStackByID(bsa.stackAttacked) == nullptr;
+	               }),
+	               bat->bsa.end());
 }
 
 void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 {
 	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
-	if (!attacker) //could be already dead
+	if (!attacker || bat.bsa.empty()) // can be already dead
 		return;
 
 	auto cast = [=](SpellID spellID, int power)
