@@ -1128,6 +1128,8 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 {
 	const CBuilding * building = town->buildings.at(buildID);
 
+	deep = false;//FIXME: deep test crashes with alternate buildings
+
 	std::function<CBuilding::TRequired::Variant(const BuildingID &)> dependTest =
 	[&](const BuildingID & id) -> CBuilding::TRequired::Variant
 	{
@@ -1136,12 +1138,10 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 
 		if (!hasBuilt(id))
 		{
-			requirements.expressions.push_back(id);
-
-			if (!deep)
-			{
-				return requirements;
-			}
+			if (deep)
+				requirements.expressions.push_back(id);
+			else
+				return id;
 		}
 
 		if (build->upgrade != BuildingID::NONE)
