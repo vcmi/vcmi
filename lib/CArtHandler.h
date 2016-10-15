@@ -18,7 +18,6 @@
  */
 
 class CArtHandler;
-class CDefHandler;
 class CArtifact;
 class CGHeroInstance;
 struct ArtifactLocation;

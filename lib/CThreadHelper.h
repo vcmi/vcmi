@@ -35,18 +35,3 @@ template <typename T> inline void setData(T * data, std::function<T()> func)
 }
 
 void DLL_LINKAGE setThreadName(const std::string &name);
-
-#define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
-	(std::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
-#define GET_SURFACE(SUR_DESTINATION, SUR_NAME) \
-	(GET_DATA \
-		(SDL_Surface*,SUR_DESTINATION,\
-		std::function<SDL_Surface*()>(std::bind(&BitmapHandler::loadBitmap,SUR_NAME,true))))
-#define GET_DEF(DESTINATION, DEF_NAME) \
-	(GET_DATA \
-		(CDefHandler*,DESTINATION,\
-		std::function<CDefHandler*()>(std::bind(CDefHandler::giveDef,DEF_NAME))))
-#define GET_DEF_ESS(DESTINATION, DEF_NAME) \
-	(GET_DATA \
-		(CDefEssential*,DESTINATION,\
-		std::function<CDefEssential*()>(std::bind(CDefHandler::giveDefEss,DEF_NAME))))

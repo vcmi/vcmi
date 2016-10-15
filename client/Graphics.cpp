@@ -77,17 +77,17 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
-	SDL_Color colors[]  = { 
-		{0xff,0,  0,    SDL_ALPHA_OPAQUE}, 
+	SDL_Color colors[]  = {
+		{0xff,0,  0,    SDL_ALPHA_OPAQUE},
 		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
 		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
 		{0x42,0x94,0x29,SDL_ALPHA_OPAQUE},
-		
+
 		{0xff,0x84,0,   SDL_ALPHA_OPAQUE},
 		{0x8c,0x29,0xa5,SDL_ALPHA_OPAQUE},
 		{0x09,0x9c,0xa5,SDL_ALPHA_OPAQUE},
-		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};		
-		
+		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};
+
 	for(int i=0;i<8;i++)
 	{
 		playerColors[i] = colors[i];
@@ -102,7 +102,7 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	const JsonNode config(ResourceID("config/battles_graphics.json"));
-	
+
 	// Reserve enough space for the terrains
 	int idx = config["backgrounds"].Vector().size();
 	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
@@ -123,11 +123,20 @@ void Graphics::initializeBattleGraphics()
 		}
 
 		battleACToDef[ACid] = toAdd;
-	}	
+	}
 }
 Graphics::Graphics()
 {
 	#if 0
+
+	#define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
+		(std::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
+
+	#define GET_DEF_ESS(DESTINATION, DEF_NAME) \
+		(GET_DATA \
+			(CDefEssential*,DESTINATION,\
+			std::function<CDefEssential*()>(std::bind(CDefHandler::giveDefEss,DEF_NAME))))
+
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += std::bind(&Graphics::loadFonts,this);
 	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
@@ -135,7 +144,7 @@ Graphics::Graphics()
 	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
-	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");	
+	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
@@ -160,7 +169,7 @@ Graphics::Graphics()
 void Graphics::loadHeroAnims()
 {
 	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations = 
+	std::vector<std::pair<int,int> > rotations =
 	{
 		{6,10}, {7,11}, {8,12}, {1,13},
 		{2,14}, {3,15}
@@ -222,11 +231,11 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 	for(int i=0;i<8;i++)
 		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
 	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations = 
+	std::vector<std::pair<int,int> > rotations =
 	{
 		{6,10}, {7,11}, {8,12}
 	};
-	
+
 	for(int q=0; q<8; ++q)
 	{
 		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
@@ -280,15 +289,15 @@ void Graphics::loadHeroFlags()
 	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4] =
 	{
 		{
-			&Graphics::flags1, 
+			&Graphics::flags1,
 			{"ABF01L.DEF","ABF01G.DEF","ABF01R.DEF","ABF01D.DEF","ABF01B.DEF",
-			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"} 
+			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"}
 		},
 		{
 			&Graphics::flags2,
 			{"ABF02L.DEF","ABF02G.DEF","ABF02R.DEF","ABF02D.DEF","ABF02B.DEF",
 			"ABF02P.DEF","ABF02W.DEF","ABF02K.DEF"}
-			
+
 		},
 		{
 			&Graphics::flags3,
@@ -299,7 +308,7 @@ void Graphics::loadHeroFlags()
 			&Graphics::flags4,
 			{"AF00.DEF","AF01.DEF","AF02.DEF","AF03.DEF","AF04.DEF",
 			"AF05.DEF","AF06.DEF","AF07.DEF"}
-		}		
+		}
 	};
 
 	#if 0
@@ -459,12 +468,12 @@ void Graphics::initializeImageLists()
 			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
 		}
 	}
-	
+
 	for(const CSpell * spell : CGI->spellh->objects)
 	{
 		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
 		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
 		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
-		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);		
+		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
 	}
 }

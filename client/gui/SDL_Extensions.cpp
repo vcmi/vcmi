@@ -4,7 +4,6 @@
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
-#include "../CDefHandler.h"
 #include "../Graphics.h"
 #include "../CMT.h"
 
@@ -23,8 +22,8 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 	SDL_RenderClear(mainRenderer);
 	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
 		logGlobal->errorStream() << __FUNCTION__ << "SDL_RenderCopy " <<  SDL_GetError();
-	SDL_RenderPresent(mainRenderer);	
-	
+	SDL_RenderPresent(mainRenderer);
+
 }
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
@@ -498,7 +497,7 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(!what)
 		return;
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
-		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();		
+		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
@@ -617,7 +616,7 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 		return true;
 
 	SDL_Color color;
-	
+
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
 
 	// color is considered transparent here if
@@ -965,34 +964,34 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(SDL_Rect * where)
 {
-	if (SDL_IsTextInputActive() == SDL_FALSE)		
-	{		
-		SDL_StartTextInput();		
-	}		
+	if (SDL_IsTextInputActive() == SDL_FALSE)
+	{
+		SDL_StartTextInput();
+	}
 	SDL_SetTextInputRect(where);
 }
 
 void CSDL_Ext::stopTextInput()
 {
 	if (SDL_IsTextInputActive() == SDL_TRUE)
-	{		
-		SDL_StopTextInput();			
-	}		
+	{
+		SDL_StopTextInput();
+	}
 }
 
 STRONG_INLINE static uint32_t mapColor(SDL_Surface * surface, SDL_Color color)
 {
-	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a); 
+	return SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a);
 }
 
 void CSDL_Ext::setColorKey(SDL_Surface * surface, SDL_Color color)
 {
 	uint32_t key = mapColor(surface,color);
-	SDL_SetColorKey(surface, SDL_TRUE, key);	
+	SDL_SetColorKey(surface, SDL_TRUE, key);
 }
 
 void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
-{	
+{
 	setColorKey(surface, Colors::DEFAULT_KEY_COLOR);
 }
 
@@ -1003,7 +1002,7 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 
 	// set color key only if exactly such color was found
 	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
-		SDL_SetColorKey(surface, SDL_TRUE, key);	
+		SDL_SetColorKey(surface, SDL_TRUE, key);
 }
 
 

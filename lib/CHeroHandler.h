@@ -16,7 +16,6 @@
  */
 
 class CHeroClass;
-class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
