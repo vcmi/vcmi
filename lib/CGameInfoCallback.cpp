@@ -539,12 +539,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 
 	std::function<bool(BuildingID id)> allowedTest = [&](BuildingID id) -> bool
 	{
-		if (vstd::contains(t->forbiddenBuildings, id))
-		{
-			return false;
-		}
-
-		return t->genBuildingRequirements(id, true).satisfiable(allowedTest, possiblyNotBuiltTest);
+		return !vstd::contains(t->forbiddenBuildings, id);
 	};
 
 	if (!t->genBuildingRequirements(ID, true).satisfiable(allowedTest, possiblyNotBuiltTest))
