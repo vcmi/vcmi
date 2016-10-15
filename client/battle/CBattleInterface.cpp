@@ -583,7 +583,11 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 			showQueue();
 
 	}
-	else if(key.keysym.sym == SDLK_ESCAPE && spellDestSelectMode)
+	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	{
+		enterCreatureCastingMode();
+	}
+	else if(key.keysym.sym == SDLK_ESCAPE)
 	{
 		endCastingSpell();
 	}
@@ -773,7 +777,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 
 void CBattleInterface::clickRight(tribool down, bool previousState)
 {
-	if(!down && spellDestSelectMode)
+	if(!down)
 	{
 		endCastingSpell();
 	}
@@ -1596,29 +1600,84 @@ void CBattleInterface::activateStack()
 		creatureSpellToCast = -1;
 	}
 
-	getPossibleActionsForStack (s);
+	getPossibleActionsForStack(s, false);
 
 	GH.fakeMouseMove();
 }
 
 void CBattleInterface::endCastingSpell()
 {
-	assert(spellDestSelectMode);
-
-	vstd::clear_pointer(spellToCast);
-
-	sp = nullptr;
-	spellDestSelectMode = false;
-	CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
-
-	if (activeStack)
+	if(spellDestSelectMode)
 	{
-		getPossibleActionsForStack (activeStack); //restore actions after they were cleared
-		myTurn = true;
+		vstd::clear_pointer(spellToCast);
+
+		sp = nullptr;
+		spellDestSelectMode = false;
+		CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+
+		if (activeStack)
+		{
+			getPossibleActionsForStack(activeStack, false); //restore actions after they were cleared
+			myTurn = true;
+		}
+	}
+	else
+	{
+		if (activeStack)
+		{
+			getPossibleActionsForStack(activeStack, false);
+			GH.fakeMouseMove();
+		}
 	}
 }
 
-void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
+void CBattleInterface::enterCreatureCastingMode()
+{
+	//silently check for possible errors
+	if(!myTurn)
+		return;
+
+	if(tacticsMode)
+		return;
+
+    //hero is casting a spell
+	if(spellDestSelectMode)
+		return;
+
+	if(!activeStack)
+		return;
+
+	if(!stackCanCastSpell)
+		return;
+
+	//random spellcaster
+	if(creatureSpellToCast == -1)
+		return;
+
+	if(vstd::contains(possibleActions, NO_LOCATION))
+	{
+		const ISpellCaster * caster = activeStack;
+		const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
+
+		const bool isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, spell, ECastingMode::CREATURE_ACTIVE_CASTING, BattleHex::INVALID) == ESpellCastProblem::OK);
+
+		if(isCastingPossible)
+		{
+			myTurn = false;
+			giveCommand(Battle::MONSTER_SPELL, BattleHex::INVALID, activeStack->ID, creatureSpellToCast);
+			selectedStack = nullptr;
+
+			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+		}
+	}
+	else
+	{
+		getPossibleActionsForStack(activeStack, true);
+		GH.fakeMouseMove();
+	}
+}
+
+void CBattleInterface::getPossibleActionsForStack(const CStack * stack, const bool forceCast)
 {
 	possibleActions.clear();
 	if (tacticsMode)
@@ -1628,6 +1687,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 	}
 	else
 	{
+		PossibleActions notPriority = INVALID;
 		//first action will be prioritized over later ones
 		if (stack->casts) //TODO: check for battlefield effects that prevent casting?
 		{
@@ -1637,10 +1697,16 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				{
 					const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
 					PossibleActions act = getCasterAction(spell, stack, ECastingMode::CREATURE_ACTIVE_CASTING);
-					if(act == NO_LOCATION)
-						logGlobal->error("NO_LOCATION action target is not yet supported for creatures");
-					else
+
+					if (forceCast)
+					{
+						//forced action to be only one possible
 						possibleActions.push_back(act);
+						return;
+					}
+					else
+						//if cast is not forced, cast action will have lowest priority
+						notPriority = act;
 				}
 			}
 			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
@@ -1663,6 +1729,9 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 			possibleActions.push_back (CATAPULT);
 		if (stack->hasBonusOfType (Bonus::HEALER))
 			possibleActions.push_back (HEAL);
+
+		if (notPriority != INVALID)
+			possibleActions.push_back(notPriority);
 	}
 }
 
@@ -2004,6 +2073,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	localActions.clear();
 	illegalActions.clear();
 
+	const bool forcedAction = possibleActions.size() == 1;
+
 	for (PossibleActions action : possibleActions)
 	{
 		bool legalAction = false; //this action is legal and can be performed
@@ -2125,7 +2196,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 		if (legalAction)
 			localActions.push_back (action);
-		else if (notLegal)
+		else if (notLegal || forcedAction)
 			illegalActions.push_back (action);
 	}
 	illegalAction = INVALID; //clear it in first place
