@@ -519,13 +519,15 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 	spellCost = whichSchool = schoolLevel = -1;
 	mySpell = nullptr;
-	icon = nullptr;
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	image = new CAnimImage(owner->spells, 0, 0);
+	image->visible = false;
 }
 
 CSpellWindow::SpellArea::~SpellArea()
 {
-	if(icon)
-		icon->decreaseRef();
+
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -785,9 +787,7 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 {
 	if(!mySpell)
 		return;
-
-	if(icon != nullptr)
-		icon->draw(to, pos.x, pos.y);
+	CIntObject::showAll(to);
 
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
 
@@ -823,19 +823,14 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
-	if(icon)
-		icon->decreaseRef();
-	icon = nullptr;
+	image->visible = false;
 	mySpell = spell;
 	if(mySpell)
 	{
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 
-		owner->spells->load(mySpell->id);
-		icon = owner->spells->getImage(mySpell->id, 0, false);
-
-		if(icon == nullptr)
-			logGlobal->errorStream() << "Failed to load icon for spell " << mySpell->name;
+		image->setFrame(mySpell->id);
+		image->visible = true;
 	}
 }
