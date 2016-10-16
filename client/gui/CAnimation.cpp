@@ -1065,7 +1065,6 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
-	loadedAnims.insert(this);
 }
 
 CAnimation::CAnimation():
@@ -1073,19 +1072,17 @@ CAnimation::CAnimation():
 	compressed(false)
 {
 	init(nullptr);
-	loadedAnims.insert(this);
 }
 
 CAnimation::~CAnimation()
 {
 	if (!images.empty())
 	{
-		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
+		//logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (auto & elem : images)
 			for (auto & _image : elem.second)
 				delete _image.second;
 	}
-	loadedAnims.erase(this);
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
@@ -1166,20 +1163,6 @@ size_t CAnimation::size(size_t group) const
 		return iter->second.size();
 	return 0;
 }
-
-std::set<CAnimation*> CAnimation::loadedAnims;
-
-void CAnimation::getAnimInfo()
-{
-	logGlobal->errorStream() << "Animation stats: Loaded " << loadedAnims.size() << " total";
-	for(auto anim : loadedAnims)
-	{
-		logGlobal->errorStream() << "Name: " << anim->name << " Groups: " << anim->images.size();
-		if(!anim->images.empty())
-			logGlobal->errorStream() << ", " << anim->images.begin()->second.size() << " image loaded in group " << anim->images.begin()->first;
-	}
-}
-
 
 float CFadeAnimation::initialCounter() const
 {

@@ -195,10 +195,6 @@ public:
 	CAnimation();
 	~CAnimation();
 
-    //static method for debugging - print info about loaded animations
-	static void getAnimInfo();
-	static std::set<CAnimation*> loadedAnims;
-
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
