@@ -27,12 +27,10 @@
  *
  */
 
-class CDefEssential;
 class CButton;
 class CToggleGroup;
 class CDefHandler;
 struct TryMoveHero;
-class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
