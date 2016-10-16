@@ -19,6 +19,7 @@ class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
 class CSpellWindow;
+class CSpell;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
@@ -27,7 +28,7 @@ private:
 	class SpellArea : public CIntObject
 	{
 	public:
-		SpellID mySpell;
+		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
 		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		int spellCost;
@@ -35,7 +36,7 @@ private:
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 
-		void setSpell(SpellID spellID);
+		void setSpell(const CSpell * spell);
 
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
@@ -79,7 +80,7 @@ private:
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int currentPage; //changes when corners are clicked
-	std::set<SpellID> mySpells; //all spels in this spellbook
+	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
 

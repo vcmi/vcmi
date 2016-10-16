@@ -74,6 +74,29 @@ void CSpellWindow::InteractiveArea::hover(bool on)
 		owner->statusBar->clear();
 }
 
+class SpellbookSpellSorter
+{
+public:
+	bool operator()(const CSpell * A, const CSpell * B)
+	{
+		if(A->level < B->level)
+			return true;
+		if(A->level > B->level)
+			return false;
+
+
+		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
+		{
+			if(A->school.at((ESpellSchool)schoolId) && !B->school.at((ESpellSchool)schoolId))
+				return true;
+			if(!A->school.at((ESpellSchool)schoolId) && B->school.at((ESpellSchool)schoolId))
+				return false;
+		}
+
+		return A->name < B->name;
+	}
+} spellsorter;
+
 CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
     CWindowObject(PLAYER_COLORED, "SpelBack"),
 	battleSpellsOnly(openOnBattleSpells),
@@ -83,11 +106,13 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	myInt(_myInt)
 {
 	//initializing castable spells
-	for(const auto & spell : CGI->spellh->objects)
+	mySpells.reserve(CGI->spellh->objects.size());
+	for(const CSpell * spell : CGI->spellh->objects)
 	{
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()))
-			mySpells.insert(spell->id);
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell))
+			mySpells.push_back(spell);
 	}
+	std::sort(mySpells.begin(), mySpells.end(), spellsorter);
 
 	//initializing sizes of spellbook's parts
 	for(auto & elem : sitesPerTabAdv)
@@ -95,9 +120,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	for(auto & elem : sitesPerTabBattle)
 		elem = 0;
 
-	for(const auto & g : mySpells)
+	for(const auto spell : mySpells)
 	{
-		const CSpell * spell = g.toSpell();
 		int * sitesPerOurTab = spell->isCombatSpell() ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
@@ -361,51 +385,25 @@ void CSpellWindow::show(SDL_Surface * to)
 	statusBar->show(to);
 }
 
-class SpellbookSpellSorter
-{
-public:
-	bool operator()(const SpellID & a, const SpellID & b)
-	{
-		const CSpell & A = *(a.toSpell());
-		const CSpell & B = *(b.toSpell());
-		if(A.level<B.level)
-			return true;
-		if(A.level>B.level)
-			return false;
-
-
-		for(ui8 schoolId = 0; schoolId < 4; schoolId++)
-		{
-			if(A.school.at((ESpellSchool)schoolId) && !B.school.at((ESpellSchool)schoolId))
-				return true;
-			if(!A.school.at((ESpellSchool)schoolId) && B.school.at((ESpellSchool)schoolId))
-				return false;
-		}
-
-		return A.name < B.name;
-	}
-} spellsorter;
-
 void CSpellWindow::computeSpellsPerArea()
 {
-	std::vector<SpellID> spellsCurSite;
-	for(const SpellID & spellID : mySpells)
+	std::vector<const CSpell *> spellsCurSite;
+	spellsCurSite.reserve(mySpells.size());
+	for(const CSpell * spell : mySpells)
 	{
-		const CSpell * s = spellID.toSpell();
-
-		if(s->combatSpell ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || s->school.at((ESpellSchool)selectedTab))
+		if(spell->combatSpell ^ !battleSpellsOnly
+			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
 			)
 		{
-			spellsCurSite.push_back(spellID);
+			spellsCurSite.push_back(spell);
 		}
 	}
-	std::sort(spellsCurSite.begin(), spellsCurSite.end(), spellsorter);
+
 	if(selectedTab == 4)
 	{
 		if(spellsCurSite.size() > 12)
 		{
-			spellsCurSite = std::vector<SpellID>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
+			spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
 			if(spellsCurSite.size() > 12)
 			{
 				spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -422,7 +420,7 @@ void CSpellWindow::computeSpellsPerArea()
 			}
 			else
 			{
-				spellsCurSite = std::vector<SpellID>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
+				spellsCurSite = std::vector<const CSpell *>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
 				if(spellsCurSite.size() > 12)
 				{
 					spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -435,26 +433,26 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		for(size_t c=0; c<12; ++c)
 		{
-			if(c<spellsCurSite.size())
+			if(c < spellsCurSite.size())
 			{
 				spellAreas[c]->setSpell(spellsCurSite[c]);
 			}
 			else
 			{
-				spellAreas[c]->setSpell(SpellID::NONE);
+				spellAreas[c]->setSpell(nullptr);
 			}
 		}
 	}
 	else
 	{
-		spellAreas[0]->setSpell(SpellID::NONE);
-		spellAreas[1]->setSpell(SpellID::NONE);
+		spellAreas[0]->setSpell(nullptr);
+		spellAreas[1]->setSpell(nullptr);
 		for(size_t c=0; c<10; ++c)
 		{
-			if(c<spellsCurSite.size())
+			if(c < spellsCurSite.size())
 				spellAreas[c+2]->setSpell(spellsCurSite[c]);
 			else
-				spellAreas[c+2]->setSpell(SpellID::NONE);
+				spellAreas[c+2]->setSpell(nullptr);
 		}
 	}
 	redraw();
@@ -596,39 +594,37 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	spellCost = whichSchool = schoolLevel = -1;
-	mySpell = SpellID::NONE;
+	mySpell = nullptr;
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
-	if(!down && mySpell != SpellID::NONE)
+	if(!down && mySpell)
 	{
-		const CSpell * sp = mySpell.toSpell();
-
-		int spellCost = owner->myInt->cb->getSpellCost(sp, owner->myHero);
+		int spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
 			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((sp->isCombatSpell() && !owner->myInt->battleInt)
-		   || (sp->isAdventureSpell() && (owner->myInt->battleInt || owner->myInt->castleInt)))
+		if((mySpell->isCombatSpell() && !owner->myInt->battleInt)
+		   || (mySpell->isAdventureSpell() && (owner->myInt->battleInt || owner->myInt->castleInt)))
 		{
-			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
-			LOCPLINT->showInfoDialog(sp->getLevelInfo(schoolLevel).description, hlp);
+			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell->id, 0));
+			LOCPLINT->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
 			return;
 		}
 
 		//we will cast a spell
-		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
+		if(mySpell->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
-			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
+			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(mySpell);
 			switch (problem)
 			{
 			case ESpellCastProblem::OK:
 				{
-					owner->myInt->battleInt->castThisSpell(mySpell);
+					owner->myInt->battleInt->castThisSpell(mySpell->id);
 					owner->fexitb();
 					return;
 				}
@@ -703,7 +699,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				}
 			}
 		}
-		else if(sp->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
+		else if(mySpell->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
 		{
 			const CGHeroInstance *h = owner->myHero;
 			GH.popInt(owner);
@@ -715,7 +711,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				delete owner;
 			});
 
-			if(mySpell == SpellID::TOWN_PORTAL)
+			if(mySpell->id == SpellID::TOWN_PORTAL)
 			{
 				//special case
 				//todo: move to mechanics
@@ -735,7 +731,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					return;
 				}
 
-				const int movementCost = (h->getSpellSchoolLevel(sp) >= 3) ? 200 : 300;
+				const int movementCost = (h->getSpellSchoolLevel(mySpell) >= 3) ? 200 : 300;
 
 				if(h->movement < movementCost)
 				{
@@ -743,7 +739,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					return;
 				}
 
-				if (h->getSpellSchoolLevel(sp) < 2) //not advanced or expert - teleport to nearest available city
+				if (h->getSpellSchoolLevel(mySpell) < 2) //not advanced or expert - teleport to nearest available city
 				{
 					auto nearest = Towns.cbegin(); //nearest town's iterator
 					si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
@@ -765,7 +761,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					else
 					{
 						const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
-						LOCPLINT->cb->castSpell(h, mySpell, town->visitablePos());// - town->getVisitableOffset());
+						LOCPLINT->cb->castSpell(h, mySpell->id, town->visitablePos());// - town->getVisitableOffset());
 					}
 				}
 				else
@@ -789,14 +785,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					else
 						GH.pushInt (new CObjectListWindow(availableTowns,
-							new CAnimImage("SPELLSCR",mySpell),
+							new CAnimImage("SPELLSCR",mySpell->id),
 							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
 							castTownPortal));
 				}
 				return;
 			}
 
-			if(mySpell == SpellID::SUMMON_BOAT)
+			if(mySpell->id == SpellID::SUMMON_BOAT)
 			{
 				//special case
 				//todo: move to mechanics
@@ -808,13 +804,13 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				}
 			}
 
-			if(sp->getTargetType() == CSpell::LOCATION)
+			if(mySpell->getTargetType() == CSpell::LOCATION)
 			{
-				adventureInt->enterCastingMode(sp);
+				adventureInt->enterCastingMode(mySpell);
 			}
-			else if(sp->getTargetType() == CSpell::NO_TARGET)
+			else if(mySpell->getTargetType() == CSpell::NO_TARGET)
 			{
-				LOCPLINT->cb->castSpell(h, mySpell);
+				LOCPLINT->cb->castSpell(h, mySpell->id);
 			}
 			else
 			{
@@ -826,12 +822,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 {
-	if(down && mySpell != -1)
+	if(down && mySpell)
 	{
 		std::string dmgInfo;
-		const CGHeroInstance * hero = owner->myHero;
-		int causedDmg = owner->myInt->cb->estimateSpellDamage( CGI->spellh->objects[mySpell], (hero ? hero : nullptr));
-		if(causedDmg == 0 || mySpell == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
+		int causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);
+		if(causedDmg == 0 || mySpell->id == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
 			dmgInfo = "";
 		else
 		{
@@ -839,43 +834,35 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(CGI->spellh->objects[mySpell]->getLevelInfo(schoolLevel).description + dmgInfo,
-		                            new CComponent(CComponent::spell, mySpell));
+		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo,
+		                            new CComponent(CComponent::spell, mySpell->id));
 	}
 }
 
 void CSpellWindow::SpellArea::hover(bool on)
 {
-	//Hoverable::hover(on);
-	if(mySpell != -1)
+	if(mySpell)
 	{
 		if(on)
-		{
-			std::ostringstream ss;
-			ss<<CGI->spellh->objects[mySpell]->name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->objects[mySpell]->level]<<")";
-			owner->statusBar->setText(ss.str());
-		}
+			owner->statusBar->setText(boost::to_string(boost::format("%s (%s)") % mySpell->name % CGI->generaltexth->allTexts[171+mySpell->level]));
 		else
-		{
 			owner->statusBar->clear();
-		}
 	}
 }
 
 void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 {
-	if(mySpell < 0)
+	if(!mySpell)
 		return;
 
-	const CSpell * spell = mySpell.toSpell();
-	owner->spells->load(mySpell);
+	owner->spells->load(mySpell->id);
 
-	IImage * icon = owner->spells->getImage(mySpell,0,false);
+	IImage * icon = owner->spells->getImage(mySpell->id,0,false);
 
 	if(icon != nullptr)
 		icon->draw(to, pos.x, pos.y);
 	else
-		logGlobal->errorStream() << __FUNCTION__ << ": failed to load spell icon for spell with id " << mySpell;
+		logGlobal->errorStream() << __FUNCTION__ << ": failed to load icon for spell " << mySpell->name;
 
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
 
@@ -892,30 +879,29 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 		secondLineColor = Colors::WHITE;
 	}
 	//printing spell's name
-	printAtMiddleLoc(spell->name, 39, 70, FONT_TINY, firstLineColor, to);
+	printAtMiddleLoc(mySpell->name, 39, 70, FONT_TINY, firstLineColor, to);
 	//printing lvl
 	if(schoolLevel > 0)
 	{
 		boost::format fmt("%s/%s");
-		fmt % CGI->generaltexth->allTexts[171 + spell->level];
+		fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
 		fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
 		printAtMiddleLoc(fmt.str(), 39, 82, FONT_TINY, secondLineColor, to);
 	}
 	else
-		printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
+		printAtMiddleLoc(CGI->generaltexth->allTexts[171 + mySpell->level], 39, 82, FONT_TINY, secondLineColor, to);
 	//printing  cost
 	std::ostringstream ss;
 	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
 	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
 }
 
-void CSpellWindow::SpellArea::setSpell(SpellID spellID)
+void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
-	mySpell = spellID;
-	if(mySpell < 0)
-		return;
-
-	const CSpell * spell = CGI->spellh->objects[mySpell];
-	schoolLevel = owner->myHero->getSpellSchoolLevel(spell, &whichSchool);
-	spellCost = owner->myInt->cb->getSpellCost(spell, owner->myHero);
+	mySpell = spell;
+	if(mySpell)
+	{
+		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
+		spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
+	}
 }
