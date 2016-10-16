@@ -720,17 +720,6 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-// 	for(std::set<si32>::const_iterator it = removedObstacles.begin(); it != removedObstacles.end(); ++it)
-// 	{
-// 		for(std::map< int, CDefHandler * >::iterator itBat = battleInt->idToObstacle.begin(); itBat != battleInt->idToObstacle.end(); ++itBat)
-// 		{
-// 			if(itBat->first == *it) //remove this obstacle
-// 			{
-// 				battleInt->idToObstacle.erase(itBat);
-// 				break;
-// 			}
-// 		}
-// 	}
 	//update accessible hexes
 	battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
 }

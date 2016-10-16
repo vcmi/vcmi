@@ -29,7 +29,6 @@
 
 class CButton;
 class CToggleGroup;
-class CDefHandler;
 struct TryMoveHero;
 class CGHeroInstance;
 class CAdvMapInt;
