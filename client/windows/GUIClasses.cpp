@@ -5,7 +5,6 @@
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
-#include "CSpellWindow.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"

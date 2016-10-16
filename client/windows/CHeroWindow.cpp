@@ -4,7 +4,6 @@
 #include "CAdvmapInterface.h"
 #include "CCreatureWindow.h"
 #include "CKingdomInterface.h"
-#include "CSpellWindow.h"
 #include "GUIClasses.h"
 
 #include "../CBitmapHandler.h"

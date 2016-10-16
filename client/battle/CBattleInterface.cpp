@@ -898,8 +898,7 @@ void CBattleInterface::bSpellf()
 	ESpellCastProblem::ESpellCastProblem spellCastProblem;
 	if (curInt->cb->battleCanCastSpell(&spellCastProblem))
 	{
-		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, curInt.get());
-		GH.pushInt(spellWindow);
+		GH.pushInt(new CSpellWindow(myHero, curInt.get()));
 	}
 	else if(spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{

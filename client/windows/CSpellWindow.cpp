@@ -74,7 +74,7 @@ void CSpellWindow::InteractiveArea::hover(bool on)
 		owner->statusBar->clear();
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
     CWindowObject(PLAYER_COLORED, "SpelBack"),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),

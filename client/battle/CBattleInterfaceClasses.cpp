@@ -200,8 +200,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 		}
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		auto  spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->getCurrentPlayerInterface());
-		GH.pushInt(spellWindow);
+		GH.pushInt(new CSpellWindow(myHero, myOwner->getCurrentPlayerInterface()));
 	}
 }
 
@@ -380,7 +379,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		auto heroInfo = owner.cb->battleGetHeroInfo(i);
 		const int xs[] = {21, 392};
 
-		if(heroInfo.portrait >= 0) //attacking hero 
+		if(heroInfo.portrait >= 0) //attacking hero
 		{
 			new CAnimImage("PortraitsLarge", heroInfo.portrait, 0, xs[i], 38);
 			sideNames[i] = heroInfo.name;
@@ -448,7 +447,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			boost::algorithm::replace_first(str,"%s",ourHero->name);
 			boost::algorithm::replace_first(str,"%d",boost::lexical_cast<std::string>(br.exp[weAreAttacker?0:1]));
 		}
-		
+
 		new CTextBox(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 	}
 	else // we lose
@@ -509,7 +508,7 @@ void CBattleResultWindow::bExitf()
 	if(dynamic_cast<CBattleInterface*>(GH.topInt()))
 		GH.popInts(1); //pop battle interface if present
 
-	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle, 
+	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
@@ -532,7 +531,7 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 			break;
 		case -4: //upper turret
 			ret = cbi->siegeH->town->town->clientInfo.siegePositions[20];
-			break;	
+			break;
 		}
 	}
 	else
