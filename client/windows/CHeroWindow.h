@@ -17,7 +17,6 @@
 class CButton;
 struct SDL_Surface;
 class CGHeroInstance;
-class CDefHandler;
 class CArtifact;
 class CHeroWindow;
 class LClickableAreaHero;
@@ -75,7 +74,7 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	CHeroWithMaybePickedArtifact heroWArt;
 
 	CButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
-		
+
 	CToggleButton *tacticsButton; //garrison / formation handling;
 	CToggleGroup *formations;
 

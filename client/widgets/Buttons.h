@@ -10,7 +10,6 @@ struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
-class CDefHandler;
 
 namespace config
 {
@@ -268,7 +267,7 @@ public:
 	void wheelScrolled(bool down, bool in) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
-	void showAll(SDL_Surface * to) override;	
+	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider
 	 /// @param length length of slider ribbon, including left/right buttons

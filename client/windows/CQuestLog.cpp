@@ -4,7 +4,6 @@
 #include "CAdvmapInterface.h"
 
 #include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
@@ -121,7 +120,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	currentQuest(nullptr),
 	componentsBox(nullptr),
 	hideComplete(false),
-	quests(Quests),	
+	quests(Quests),
 	slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

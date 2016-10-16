@@ -8,7 +8,6 @@ struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
-class CDefHandler;
 
 /*
  * Images.h, part of VCMI engine
@@ -24,7 +23,7 @@ class CDefHandler;
 class CPicture : public CIntObject
 {
 	void setSurface(SDL_Surface *to);
-public: 
+public:
 	SDL_Surface * bg;
 	Rect * srcRect; //if nullptr then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
