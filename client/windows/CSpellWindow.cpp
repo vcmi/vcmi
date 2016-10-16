@@ -45,16 +45,14 @@
  *
  */
 
-SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL,
-	const std::string & textR, std::function<void()> funcHon, std::function<void()> funcHoff, CPlayerInterface * _myInt)
+SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos = myRect;
 	onLeft = funcL;
-	textOnRclick = textR;
-	onHoverOn = funcHon;
-	onHoverOff = funcHoff;
-	myInt = _myInt;
+	hoverText = CGI->generaltexth->zelp[helpTextId].first;
+	helpText = CGI->generaltexth->zelp[helpTextId].second;
+	owner = _owner;
 }
 
 void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
@@ -67,20 +65,15 @@ void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
 
 void SpellbookInteractiveArea::clickRight(tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(textOnRclick, down);
+	adventureInt->handleRightClick(helpText, down);
 }
 
 void SpellbookInteractiveArea::hover(bool on)
 {
-	//Hoverable::hover(on);
 	if(on)
-	{
-		onHoverOn();
-	}
+		owner->statusBar->setText(hoverText);
 	else
-	{
-		onHoverOff();
-	}
+		owner->statusBar->clear();
 }
 
 CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
@@ -92,10 +85,10 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	myInt(_myInt)
 {
 	//initializing castable spells
-	for(ui32 v=0; v<CGI->spellh->objects.size(); ++v)
+	for(const auto & spell : CGI->spellh->objects)
 	{
-		if( !CGI->spellh->objects[v]->creatureAbility && myHero->canCastThisSpell(CGI->spellh->objects[v]) )
-			mySpells.insert(SpellID(v));
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()))
+			mySpells.insert(spell->id);
 	}
 
 	//initializing sizes of spellbook's parts
@@ -104,14 +97,14 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	for(auto & elem : sitesPerTabBattle)
 		elem = 0;
 
-	for(auto g : mySpells)
+	for(const auto & g : mySpells)
 	{
-		const CSpell &s = *CGI->spellh->objects[g];
-		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
+		const CSpell * spell = g.toSpell();
+		int * sitesPerOurTab = spell->isCombatSpell() ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
 
-		s.forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
+		spell->forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
 		{
 			++sitesPerOurTab[(ui8)school.id];
 		});
@@ -171,29 +164,29 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 
 	statusBar = new CGStatusBar(7 + pos.x, 569 + pos.y, "Spelroll.bmp");
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
-	exitBtn = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), CGI->generaltexth->zelp[460].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[460].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	exitBtn = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
 	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
-	battleSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), CGI->generaltexth->zelp[453].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[453].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	battleSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
 	temp_rect = genRect(45, 35, 355 + pos.x, 405 + pos.y);
-	adventureSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), CGI->generaltexth->zelp[452].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[452].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	adventureSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
 	temp_rect = genRect(45, 35, 418 + pos.x, 405 + pos.y);
-	manaPoints = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), CGI->generaltexth->zelp[459].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[459].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	manaPoints = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
 
 	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
-	selectSpellsA = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), CGI->generaltexth->zelp[454].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[454].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	selectSpellsA = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
-	selectSpellsE = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), CGI->generaltexth->zelp[457].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[457].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	selectSpellsE = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
-	selectSpellsF = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), CGI->generaltexth->zelp[455].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[455].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	selectSpellsF = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
-	selectSpellsW = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), CGI->generaltexth->zelp[456].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[456].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	selectSpellsW = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
-	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), CGI->generaltexth->zelp[458].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[458].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
 
 	temp_rect = genRect(leftCorner->h, leftCorner->w, 97 + pos.x, 77 + pos.y);
-	lCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), CGI->generaltexth->zelp[450].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[450].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	lCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
 	temp_rect = genRect(rightCorner->h, rightCorner->w, 487 + pos.x, 72 + pos.y);
-	rCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), CGI->generaltexth->zelp[451].second, std::bind(&CGStatusBar::setText, statusBar, (CGI->generaltexth->zelp[451].first)), std::bind(&CGStatusBar::clear, statusBar), myInt);
+	rCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
 
 	//areas for spells
 	int xpos = 117 + pos.x, ypos = 90 + pos.y;
@@ -374,10 +367,10 @@ void CSpellWindow::show(SDL_Surface * to)
 class SpellbookSpellSorter
 {
 public:
-	bool operator()(const int & a, const int & b)
+	bool operator()(const SpellID & a, const SpellID & b)
 	{
-		const CSpell & A = *CGI->spellh->objects[a];
-		const CSpell & B = *CGI->spellh->objects[b];
+		const CSpell & A = *(a.toSpell());
+		const CSpell & B = *(b.toSpell());
 		if(A.level<B.level)
 			return true;
 		if(A.level>B.level)
@@ -594,7 +587,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 	}
 }
 
-Uint8 CSpellWindow::pagesWithinCurrentTab()
+int CSpellWindow::pagesWithinCurrentTab()
 {
 	return battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab];
 }
