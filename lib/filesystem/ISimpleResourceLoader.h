@@ -70,7 +70,14 @@ public:
 	}
 
 	/**
-	 * Get list of files that matches filter function
+	 * Update lists of files that match filter function
+	 *
+	 * @param filter Filter that returns true if specified mount point matches filter
+	 */
+	virtual void updateFilteredFiles(std::function<bool(const std::string &)> filter) const = 0;
+
+	/**
+	 * Get list of files that match filter function
 	 *
 	 * @param filter Filter that returns true if specified ID matches filter
 	 * @return Returns list of flies

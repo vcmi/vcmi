@@ -1103,6 +1103,10 @@ void SelectionTab::filter( int size, bool selectFirst )
 std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
 {
 	boost::to_upper(dirURI);
+	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount)
+	{
+		return boost::algorithm::starts_with(mount, dirURI);
+	});
 
 	std::unordered_set<ResourceID> ret = CResourceHandler::get()->getFilteredFiles([&](const ResourceID & ident)
 	{
@@ -1115,6 +1119,7 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 
 void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 {
+	logGlobal->debug("Parsing %d maps", files.size());
 	allItems.clear();
 	for(auto & file : files)
 	{
