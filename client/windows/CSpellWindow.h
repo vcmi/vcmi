@@ -37,7 +37,7 @@ private:
 		IImage * icon;
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
-
+		~SpellArea();
 		void setSpell(const CSpell * spell);
 
 		void clickLeft(tribool down, bool previousState) override;
@@ -66,7 +66,7 @@ private:
 
 	SDL_Rect lCorner, rCorner;
 
-	CAnimation * spells; //pictures of spells
+	std::shared_ptr<CAnimation> spells; //pictures of spells
 
 	CDefHandler	* spellTab, //school select
 		* schools, //schools' pictures

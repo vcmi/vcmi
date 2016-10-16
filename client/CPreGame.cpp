@@ -3662,7 +3662,7 @@ void CBonusSelection::updateBonusSelection()
 		if (picNumber != -1)
 			picName += ":" + boost::lexical_cast<std::string>(picNumber);
 
-		auto   anim = new CAnimation();
+		auto anim = std::make_shared<CAnimation>();
 		anim->setCustom(picName, 0);
 		bonusButton->setImage(anim);
 		const SDL_Color brightYellow = { 242, 226, 110, 0 };

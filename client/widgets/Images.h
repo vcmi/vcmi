@@ -70,7 +70,7 @@ public:
 class CAnimImage: public CIntObject
 {
 private:
-	CAnimation* anim;
+	std::shared_ptr<CAnimation> anim;
 	//displayed frame/group
 	size_t frame;
 	size_t group;
@@ -82,8 +82,8 @@ private:
 public:
 	bool visible;
 
-	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	~CAnimImage();//d-tor
 
 	//size of animation

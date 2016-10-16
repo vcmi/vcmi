@@ -174,7 +174,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
 	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
 
-	spells = new CAnimation("Spells.def");
+	spells = std::make_shared<CAnimation>("Spells");
 
 	spellTab = CDefHandler::giveDef("SpelTab.def");
 	schools = CDefHandler::giveDef("Schools.def");
@@ -247,10 +247,9 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 CSpellWindow::~CSpellWindow()
 {
+	spells->unload();
 	SDL_FreeSurface(leftCorner);
 	SDL_FreeSurface(rightCorner);
-	spells->unload();
-	delete spells;
 	delete spellTab;
 	delete schools;
 	for(auto & elem : schoolBorders)
@@ -521,6 +520,12 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	spellCost = whichSchool = schoolLevel = -1;
 	mySpell = nullptr;
 	icon = nullptr;
+}
+
+CSpellWindow::SpellArea::~SpellArea()
+{
+	if(icon)
+		icon->decreaseRef();
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -818,6 +823,8 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
+	if(icon)
+		icon->decreaseRef();
 	icon = nullptr;
 	mySpell = spell;
 	if(mySpell)

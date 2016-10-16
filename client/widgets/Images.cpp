@@ -210,7 +210,7 @@ void CFilledTexture::showAll(SDL_Surface *to)
 	CSDL_Ext::fillTexture(to, texture);
 }
 
-CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
 	player(-1),
@@ -218,11 +218,11 @@ CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int 
 {
 	pos.x += x;
 	pos.y += y;
-	anim = new CAnimation(name);
+	anim = std::make_shared<CAnimation>(name);
 	init();
 }
 
-CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	anim(Anim),
 	frame(Frame),
 	group(Group),
@@ -259,7 +259,6 @@ CAnimImage::~CAnimImage()
 	anim->unload(frame, group);
 	if (flags & CShowableAnim::BASE)
 		anim->unload(0,group);
-	delete anim;
 }
 
 void CAnimImage::showAll(SDL_Surface * to)

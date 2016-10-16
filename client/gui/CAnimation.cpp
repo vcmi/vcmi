@@ -1078,7 +1078,7 @@ CAnimation::~CAnimation()
 {
 	if (!images.empty())
 	{
-		//logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
+		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (auto & elem : images)
 			for (auto & _image : elem.second)
 				delete _image.second;

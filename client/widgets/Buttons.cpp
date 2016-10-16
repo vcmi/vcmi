@@ -272,10 +272,11 @@ void CButton::setIndex(size_t index, bool playerColoredButton)
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
-	setImage(new CAnimation(imageNames[index]), playerColoredButton);
+	auto anim = std::make_shared<CAnimation>(imageNames[index]);
+	setImage(anim, playerColoredButton);
 }
 
-void CButton::setImage(CAnimation* anim, bool playerColoredButton, int animFlags)
+void CButton::setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton, int animFlags)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -294,7 +295,7 @@ void CButton::setPlayerColor(PlayerColor player)
 void CButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	
+
 	if (borderColor && borderColor->a == 0)
 		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
 }
@@ -453,7 +454,7 @@ CVolumeSlider::CVolumeSlider(const Point &position, const std::string &defName, 
 	helpHandlers(help)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	animImage = new CAnimImage(new CAnimation(defName), 0, 0, position.x, position.y),
+	animImage = new CAnimImage(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
 	assert(!defName.empty());
 	addUsedEvents(LCLICK | RCLICK | WHEEL);
 	pos.x += position.x;

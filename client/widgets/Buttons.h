@@ -110,7 +110,7 @@ public:
 
 	/// Appearance modifiers
 	void setIndex(size_t index, bool playerColoredButton=false);
-	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
+	void setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
