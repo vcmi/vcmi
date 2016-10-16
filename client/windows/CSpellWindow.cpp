@@ -105,6 +105,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	myHero(_myHero),
 	myInt(_myInt)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	//initializing castable spells
 	mySpells.reserve(CGI->spellh->objects.size());
 	for(const CSpell * spell : CGI->spellh->objects)
@@ -182,32 +183,32 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	schoolBorders[2] = CDefHandler::giveDef("SplevW.def");
 	schoolBorders[3] = CDefHandler::giveDef("SplevE.def");
 
+	statusBar = new CGStatusBar(7, 569, "Spelroll.bmp");
 
-	statusBar = new CGStatusBar(7 + pos.x, 569 + pos.y, "Spelroll.bmp");
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
-	exitBtn = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
 	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
-	battleSpells = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
 	temp_rect = genRect(45, 35, 355 + pos.x, 405 + pos.y);
-	adventureSpells = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
 	temp_rect = genRect(45, 35, 418 + pos.x, 405 + pos.y);
-	manaPoints = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
 
 	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
-	selectSpellsA = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
-	selectSpellsE = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
-	selectSpellsF = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
-	selectSpellsW = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
-	selectSpellsAll = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
+	new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
 
-	temp_rect = genRect(leftCorner->h, leftCorner->w, 97 + pos.x, 77 + pos.y);
-	lCorner = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
-	temp_rect = genRect(rightCorner->h, rightCorner->w, 487 + pos.x, 72 + pos.y);
-	rCorner = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
+	lCorner = genRect(leftCorner->h, leftCorner->w, 97 + pos.x, 77 + pos.y);
+	new InteractiveArea(lCorner, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
+	rCorner = genRect(rightCorner->h, rightCorner->w, 487 + pos.x, 72 + pos.y);
+	new InteractiveArea(rCorner, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
 
 	//areas for spells
 	int xpos = 117 + pos.x, ypos = 90 + pos.y;
@@ -254,26 +255,6 @@ CSpellWindow::~CSpellWindow()
 	delete schools;
 	for(auto & elem : schoolBorders)
 		delete elem;
-
-	delete exitBtn;
-	delete battleSpells;
-	delete adventureSpells;
-	delete manaPoints;
-	delete statusBar;
-
-	delete selectSpellsA;
-	delete selectSpellsE;
-	delete selectSpellsF;
-	delete selectSpellsW;
-	delete selectSpellsAll;
-
-	delete lCorner;
-	delete rCorner;
-
-	for(auto & elem : spellAreas)
-	{
-		delete elem;
-	}
 }
 
 void CSpellWindow::fexitb()
@@ -351,11 +332,7 @@ void CSpellWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
-	std::ostringstream mana;
-	mana<<myHero->mana;
-	printAtMiddleLoc(mana.str(), 435, 426, FONT_SMALL, Colors::YELLOW, to);
-
-	statusBar->showAll(to);
+	printAtMiddleLoc(boost::lexical_cast<std::string>(myHero->mana), 435, 426, FONT_SMALL, Colors::YELLOW, to);
 
 	//printing school images
 	if(selectedTab!=4 && currentPage == 0)
@@ -366,17 +343,11 @@ void CSpellWindow::showAll(SDL_Surface * to)
 	//printing corners
 	if(currentPage!=0)
 	{
-		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
+		blitAt(leftCorner, lCorner.x, lCorner.y, to);
 	}
 	if((currentPage+1) < (pagesWithinCurrentTab()) )
 	{
-		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
-	}
-
-	//printing spell info
-	for(auto & elem : spellAreas)
-	{
-		elem->showAll(to);
+		blitAt(rightCorner, rCorner.x, rCorner.y, to);
 	}
 }
 
@@ -456,52 +427,6 @@ void CSpellWindow::computeSpellsPerArea()
 		}
 	}
 	redraw();
-}
-
-void CSpellWindow::activate()
-{
-	CIntObject::activate();
-	exitBtn->activate();
-	battleSpells->activate();
-	adventureSpells->activate();
-	manaPoints->activate();
-
-	selectSpellsA->activate();
-	selectSpellsE->activate();
-	selectSpellsF->activate();
-	selectSpellsW->activate();
-	selectSpellsAll->activate();
-
-	for(auto & elem : spellAreas)
-	{
-		elem->activate();
-	}
-
-	lCorner->activate();
-	rCorner->activate();
-}
-
-void CSpellWindow::deactivate()
-{
-	CIntObject::deactivate();
-	exitBtn->deactivate();
-	battleSpells->deactivate();
-	adventureSpells->deactivate();
-	manaPoints->deactivate();
-
-	selectSpellsA->deactivate();
-	selectSpellsE->deactivate();
-	selectSpellsF->deactivate();
-	selectSpellsW->deactivate();
-	selectSpellsAll->deactivate();
-
-	for(auto & elem : spellAreas)
-	{
-		elem->deactivate();
-	}
-
-	lCorner->deactivate();
-	rCorner->deactivate();
 }
 
 void CSpellWindow::turnPageLeft()

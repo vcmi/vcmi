@@ -64,15 +64,14 @@ private:
 
 	SDL_Surface * leftCorner, * rightCorner;
 
+	SDL_Rect lCorner, rCorner;
+
 	CAnimation * spells; //pictures of spells
 
 	CDefHandler	* spellTab, //school select
 		* schools, //schools' pictures
 		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
-	InteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
-	InteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
-	InteractiveArea * lCorner, * rCorner;
 	SpellArea * spellAreas[12];
 	CGStatusBar * statusBar;
 
@@ -109,8 +108,6 @@ public:
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int pagesWithinCurrentTab();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void activate();
-	void deactivate();
 	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
 };
