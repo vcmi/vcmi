@@ -90,11 +90,6 @@ public:
  */
 	std::vector<CIntObject *> children;
 
-	//FIXME: workaround
-	void deactivateKeyboard()
-	{
-		deactivate(KEYBOARD);
-	}
 
 /*
  * Public interface

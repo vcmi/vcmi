@@ -144,12 +144,12 @@ void CPicture::convertToScreenBPP()
 {
 	SDL_Surface *hlp = bg;
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	CSDL_Ext::setDefaultColorKey(bg);	
+	CSDL_Ext::setDefaultColorKey(bg);
 	SDL_FreeSurface(hlp);
 }
 
 void CPicture::setAlpha(int value)
-{	
+{
 	CSDL_Ext::setAlpha (bg, value);
 }
 
@@ -241,6 +241,7 @@ size_t CAnimImage::size()
 
 void CAnimImage::init()
 {
+	visible = true;
 	anim->load(frame, group);
 	if (flags & CShowableAnim::BASE)
 		anim->load(0,group);
@@ -263,6 +264,9 @@ CAnimImage::~CAnimImage()
 
 void CAnimImage::showAll(SDL_Surface * to)
 {
+	if(!visible)
+		return;
+
 	IImage *img;
 
 	if ( flags & CShowableAnim::BASE && frame != 0)

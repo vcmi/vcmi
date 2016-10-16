@@ -8,7 +8,6 @@
 #include "CSpellWindow.h"
 
 #include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
@@ -1371,26 +1370,29 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	slotsCount=7;
-	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
-
 	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName());//Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
-	currState.resize(slotsCount+1);
-	costs.resize(slotsCount);
-	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
+	for (int i=0; i<resCount; i++)
+	{
+		totalIcons[i] = new CAnimImage("SMALRES", i, 0, 104 + 76 * i, 237);
+		totalLabels[i] = new CLabel(166 + 76 * i, 253, FONT_SMALL, BOTTOMRIGHT);
+	}
 
 	for (int i = 0; i < slotsCount; i++)
 	{
-		currState[i] = getState(SlotID(i));
 		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
+
+		for(int j : {0,1})
+		{
+			slotIcons[i][j] = new CAnimImage("SMALRES", 0, 0, 104 + 76 * i, 128 + 20 * j);
+			slotLabels[i][j] = new CLabel(168 + 76 * i, 144 + 20 * j, FONT_SMALL, BOTTOMRIGHT);
+		}
 	}
 
-	currState[slotsCount] = getState(SlotID(slotsCount));
 	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&]{ makeDeal(SlotID(slotsCount));}, SDLK_0);
 	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
@@ -1404,6 +1406,11 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 
 void CHillFortWindow::updateGarrisons()
 {
+	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
+
+	TResources totalSumm; // totalSum[resource ID] = value
+	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
+
 	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		totalSumm[i]=0;
 
@@ -1428,10 +1435,77 @@ void CHillFortWindow::updateGarrisons()
 		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
-	int newState = getState(SlotID(slotsCount));
+	//"Upgrade all" slot
+	int newState = 2;
+	{
+		TResources myRes = LOCPLINT->cb->getResourceAmount();
+
+		bool allUpgraded = true;//All creatures are upgraded?
+		for (int i=0; i<slotsCount; i++)
+			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
+
+		if (allUpgraded)
+			newState = 1;
+
+		if(!totalSumm.canBeAfforded(myRes))
+			newState = 0;
+	}
+
 	currState[slotsCount] = newState;
 	upgradeAll->setIndex(newState);
-	garr->recreateSlots();
+
+	CWindowWithGarrison::updateGarrisons();
+
+	for (int i = 0; i < slotsCount; i++)
+	{
+		//hide all first
+		for(int j : {0,1})
+		{
+			slotIcons[i][j]->visible = false;
+			slotLabels[i][j]->setText("");
+		}
+		//if can upgrade or can not afford, draw cost
+		if (currState[i] == 0 || currState[i] == 2)
+		{
+			if (costs[i].nonZero())
+			{
+				//reverse iterator is used to display gold as first element
+				int j = 0;
+				for(int res = costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				{
+					int val = costs[i][res];
+					if(!val)
+						continue;
+
+					slotIcons[i][j]->visible = true;
+					slotIcons[i][j]->setFrame(res);
+
+					slotLabels[i][j]->setText(boost::lexical_cast<std::string>(val));
+					j++;
+				}
+			}
+			else//free upgrade - print gold image and "Free" text
+			{
+				slotIcons[i][0]->visible = true;
+				slotIcons[i][0]->setFrame(Res::GOLD);
+				slotLabels[i][0]->setText(CGI->generaltexth->allTexts[344]);
+			}
+		}
+	}
+
+	for (int i = 0; i < resCount; i++)
+	{
+		if(totalSumm[i] == 0)
+		{
+			totalIcons[i]->visible = false;
+			totalLabels[i]->setText("");
+		}
+		else
+		{
+			totalIcons[i]->visible = true;
+			totalLabels[i]->setText(boost::lexical_cast<std::string>(totalSumm[i]));
+		}
+	}
 }
 
 void CHillFortWindow::makeDeal(SlotID slot)
@@ -1461,44 +1535,6 @@ void CHillFortWindow::makeDeal(SlotID slot)
 	}
 }
 
-void CHillFortWindow::showAll (SDL_Surface *to)
-{
-	CWindowObject::showAll(to);
-
-	for ( int i=0; i<slotsCount; i++)
-	{
-		if ( currState[i] == 0 || currState[i] == 2 )
-		{
-			if ( costs[i].size() )//we have several elements
-			{
-				int curY = 128;//reverse iterator is used to display gold as first element
-				for(int j = costs[i].size()-1; j >= 0; j--)
-				{
-					int val = costs[i][j];
-					if(!val) continue;
-
-					blitAtLoc(resources->ourImages[j].bitmap, 104+76*i, curY, to);
-					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, Colors::WHITE, to);
-					curY += 20;
-				}
-			}
-			else//free upgrade - print gold image and "Free" text
-			{
-				blitAtLoc(resources->ourImages[6].bitmap, 104+76*i, 128, to);
-				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, Colors::WHITE, to);
-			}
-		}
-	}
-	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
-	{
-		if (totalSumm[i])//this resource is used - display it
-		{
-			blitAtLoc(resources->ourImages[i].bitmap, 104+76*i, 237, to);
-			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, Colors::WHITE, to);
-		}
-	}
-}
-
 std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
 	if ( !hero->getCreature(slot) )//we don`t have creature here
@@ -1517,20 +1553,6 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 int CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
-	if ( slot.getNum() == slotsCount )//"Upgrade all" slot
-	{
-		bool allUpgraded = true;//All creatures are upgraded?
-		for (int i=0; i<slotsCount; i++)
-			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
-
-		if (allUpgraded)
-			return 1;
-
-		if(!totalSumm.canBeAfforded(myRes))
-			return 0;
-
-		return 2;
-	}
 
 	if (hero->slotEmpty(slot))//no creature here
 		return -1;

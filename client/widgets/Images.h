@@ -80,6 +80,8 @@ private:
 	void init();
 
 public:
+	bool visible;
+
 	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	~CAnimImage();//d-tor

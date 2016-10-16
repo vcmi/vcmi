@@ -401,29 +401,35 @@ public:
 /// Hill fort is the building where you can upgrade units
 class CHillFortWindow : public CWindowObject, public CWindowWithGarrison
 {
-public:
-
-	int slotsCount;//=7;
-	CGStatusBar * bar;
-	CDefEssential *resources;
-	CHeroArea *heroPic;//clickable hero image
-	CButton *quit,//closes window
-	                   *upgradeAll,//upgrade all creatures
-	                   *upgrade[7];//upgrade single creature
+private:
+	static const int slotsCount = 7;
+	//todo: mithril support
+	static const int resCount = 7;
 
 	const CGObjectInstance * fort;
 	const CGHeroInstance * hero;
-	std::vector<int> currState;//current state of slot - to avoid calls to getState or updating buttons
-	std::vector<TResources> costs;// costs [slot ID] [resource ID] = resource count for upgrade
-	TResources totalSumm; // totalSum[resource ID] = value
 
-	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
+	CGStatusBar * bar;
+	CHeroArea * heroPic;//clickable hero image
+	CButton * quit;//closes window
+	CButton * upgradeAll;//upgrade all creatures
 
-	void showAll (SDL_Surface *to) override;
+	std::array<CButton *, slotsCount> upgrade;//upgrade single creature
+	std::array<int, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
+
+	//there is a place for only 2 resources per slot
+	std::array< std::array<CAnimImage *, 2>, slotsCount> slotIcons;
+	std::array< std::array<CLabel *, 2>, slotsCount> slotLabels;
+
+	std::array<CAnimImage *, resCount> totalIcons;
+	std::array<CLabel *, resCount> totalLabels;
+
 	std::string getDefForSlot(SlotID slot);//return def name for this slot
 	std::string getTextForSlot(SlotID slot);//return hover text for this slot
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
 	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+public:
+	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object); //c-tor
 	void updateGarrisons() override;//update buttons after garrison changes
 };
 
