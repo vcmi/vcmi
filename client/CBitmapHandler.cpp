@@ -4,7 +4,6 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
-#include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/vcmi_endian.h"
 
@@ -17,6 +16,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+
+namespace BitmapHandler
+{
+	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
+
+	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
+}
 
 bool isPCX(const ui8 *header)//check whether file can be PCX according to header
 {
