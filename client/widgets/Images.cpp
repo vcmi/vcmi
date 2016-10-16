@@ -78,6 +78,7 @@ CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 
 CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
 {
+	visible = true;
 	needRefresh = false;
 	srcRect = new Rect(SrcRect);
 	pos.x += x;
@@ -112,19 +113,20 @@ CPicture::~CPicture()
 
 void CPicture::init()
 {
+	visible = true;
 	needRefresh = false;
 	srcRect = nullptr;
 }
 
 void CPicture::show(SDL_Surface * to)
 {
-	if (needRefresh)
+	if (visible && needRefresh)
 		showAll(to);
 }
 
 void CPicture::showAll(SDL_Surface * to)
 {
-	if(bg)
+	if(bg && visible)
 	{
 		if(srcRect)
 		{

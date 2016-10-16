@@ -13,9 +13,10 @@
  */
 
 struct SDL_Surface;
-class CDefHandler;
 struct SDL_Rect;
+class IImage;
 class CAnimImage;
+class CPicture;
 class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
@@ -35,6 +36,7 @@ private:
 		int spellCost;
 		CSpellWindow * owner;
 		CAnimImage * image;
+		IImage * schoolBorder;
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 		~SpellArea();
@@ -62,15 +64,13 @@ private:
 		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);//c-tor
 	};
 
-	SDL_Surface * leftCorner, * rightCorner;
-
-	SDL_Rect lCorner, rCorner;
+	CPicture * leftCorner, * rightCorner;
 
 	std::shared_ptr<CAnimation> spells; //pictures of spells
 
-	CDefHandler	* spellTab, //school select
-		* schools, //schools' pictures
-		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+	CAnimImage * spellTab; //school select
+	CAnimImage * schools; //schools' pictures
+	std::array< std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
 	SpellArea * spellAreas[12];
 	CGStatusBar * statusBar;
@@ -84,13 +84,13 @@ private:
 	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
+	CPlayerInterface * myInt;
 
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
 
+	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
-
-	CPlayerInterface * myInt;
 
 public:
 

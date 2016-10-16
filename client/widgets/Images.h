@@ -28,7 +28,7 @@ public:
 	Rect * srcRect; //if nullptr then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
 	bool needRefresh;//Surface needs to be displayed each frame
-
+	bool visible;
 	operator SDL_Surface*()
 	{
 		return bg;
