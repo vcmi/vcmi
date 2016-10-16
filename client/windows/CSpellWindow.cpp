@@ -45,7 +45,7 @@
  *
  */
 
-SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
+CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos = myRect;
@@ -55,20 +55,18 @@ SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, std:
 	owner = _owner;
 }
 
-void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
-	{
 		onLeft();
-	}
 }
 
-void SpellbookInteractiveArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
 {
 	adventureInt->handleRightClick(helpText, down);
 }
 
-void SpellbookInteractiveArea::hover(bool on)
+void CSpellWindow::InteractiveArea::hover(bool on)
 {
 	if(on)
 		owner->statusBar->setText(hoverText);
@@ -161,32 +159,31 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	schoolBorders[3] = CDefHandler::giveDef("SplevE.def");
 
 
-
 	statusBar = new CGStatusBar(7 + pos.x, 569 + pos.y, "Spelroll.bmp");
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
-	exitBtn = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
+	exitBtn = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fexitb, this), 460, this);
 	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
-	battleSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
+	battleSpells = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fbattleSpellsb, this), 453, this);
 	temp_rect = genRect(45, 35, 355 + pos.x, 405 + pos.y);
-	adventureSpells = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
+	adventureSpells = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fadvSpellsb, this), 452, this);
 	temp_rect = genRect(45, 35, 418 + pos.x, 405 + pos.y);
-	manaPoints = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
+	manaPoints = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fmanaPtsb, this), 459, this);
 
 	temp_rect = genRect(36, 56, 549 + pos.x, 94 + pos.y);
-	selectSpellsA = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
+	selectSpellsA = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 0), 454, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 151 + pos.y);
-	selectSpellsE = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
+	selectSpellsE = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 3), 457, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 210 + pos.y);
-	selectSpellsF = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
+	selectSpellsF = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 1), 455, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 270 + pos.y);
-	selectSpellsW = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
+	selectSpellsW = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 2), 456, this);
 	temp_rect = genRect(36, 56, 549 + pos.x, 330 + pos.y);
-	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
+	selectSpellsAll = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::selectSchool, this, 4), 458, this);
 
 	temp_rect = genRect(leftCorner->h, leftCorner->w, 97 + pos.x, 77 + pos.y);
-	lCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
+	lCorner = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fLcornerb, this), 450, this);
 	temp_rect = genRect(rightCorner->h, rightCorner->w, 487 + pos.x, 72 + pos.y);
-	rCorner = new SpellbookInteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
+	rCorner = new InteractiveArea(temp_rect, std::bind(&CSpellWindow::fRcornerb, this), 451, this);
 
 	//areas for spells
 	int xpos = 117 + pos.x, ypos = 90 + pos.y;

@@ -20,23 +20,6 @@ class CGStatusBar;
 class CPlayerInterface;
 class CSpellWindow;
 
-/// Spellbook button is used by the spell window class
-class SpellbookInteractiveArea : public CIntObject
-{
-private:
-	std::function<void()> onLeft;
-	CSpellWindow * owner;
-
-	std::string hoverText;
-	std::string helpText;
-public:
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void hover(bool on);
-
-	SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);//c-tor
-};
-
 /// The spell window
 class CSpellWindow : public CWindowObject
 {
@@ -50,15 +33,30 @@ private:
 		int spellCost;
 		CSpellWindow * owner;
 
-
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 
 		void setSpell(SpellID spellID);
 
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void hover(bool on);
-		void showAll(SDL_Surface * to);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
+		void showAll(SDL_Surface * to) override;
+	};
+
+	class InteractiveArea : public CIntObject
+	{
+	private:
+		std::function<void()> onLeft;
+		CSpellWindow * owner;
+
+		std::string hoverText;
+		std::string helpText;
+	public:
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
+
+		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);//c-tor
 	};
 
 	SDL_Surface * leftCorner, * rightCorner;
@@ -69,9 +67,9 @@ private:
 		* schools, //schools' pictures
 		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
-	SpellbookInteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
-	SpellbookInteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
-	SpellbookInteractiveArea * lCorner, * rCorner;
+	InteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
+	InteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
+	InteractiveArea * lCorner, * rCorner;
 	SpellArea * spellAreas[12];
 	CGStatusBar * statusBar;
 
@@ -112,6 +110,4 @@ public:
 	void deactivate();
 	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
-
-	friend class SpellbookInteractiveArea;
 };
