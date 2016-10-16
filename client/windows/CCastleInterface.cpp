@@ -783,8 +783,8 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
-	auto  titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
-	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
+	auto gateIcon = new CAnimImage(town->town->clientInfo.buildingsIcons, BuildingID::CASTLE_GATE);//will be deleted by selection window
+	GH.pushInt (new CObjectListWindow(availableTowns, gateIcon, CGI->generaltexth->jktexts[40],
 	    CGI->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
 }
 
@@ -923,14 +923,11 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	recreateIcons();
 	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true);
-
-	bicons = CDefHandler::giveDefEss(town->town->clientInfo.buildingsIcons);
 }
 
 CCastleInterface::~CCastleInterface()
 {
 	LOCPLINT->castleInt = nullptr;
-	delete bicons;
 }
 
 void CCastleInterface::close()
@@ -1476,7 +1473,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	{
 		positions.push_back(Point(10, 421));
 		positions.push_back(Point(404,421));
-	}		
+	}
 
 	for (ui32 i=0; i<fortSize; i++)
 	{
@@ -1677,7 +1674,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) 
 	exit = new CButton(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&]{ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	static const std::vector<std::vector<Point> > positions = 
+	static const std::vector<std::vector<Point> > positions =
 	{
 		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
 		{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
