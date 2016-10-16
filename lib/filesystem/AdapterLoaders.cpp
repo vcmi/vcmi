@@ -102,6 +102,12 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 	return std::move(paths);
 }
 
+void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
+{
+	for (auto & loader : loaders)
+		loader->updateFilteredFiles(filter);
+}
+
 std::unordered_set<ResourceID> CFilesystemList::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
 {
 	std::unordered_set<ResourceID> ret;

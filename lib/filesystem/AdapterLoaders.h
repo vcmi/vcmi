@@ -41,6 +41,7 @@ public:
 	bool existsResource(const ResourceID & resourceName) const override;
 	std::string getMountPoint() const override;
 	boost::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
+	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 
 private:
@@ -71,6 +72,7 @@ public:
 	std::string getMountPoint() const override;
 	boost::optional<boost::filesystem::path> getResourceName(const ResourceID & resourceName) const override;
 	std::set<boost::filesystem::path> getResourceNames(const ResourceID & resourceName) const override;
+	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override;
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 	bool createResource(std::string filename, bool update = false) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const override;
