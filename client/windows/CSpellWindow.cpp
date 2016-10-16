@@ -595,6 +595,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 	spellCost = whichSchool = schoolLevel = -1;
 	mySpell = nullptr;
+	icon = nullptr;
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -855,14 +856,8 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(!mySpell)
 		return;
 
-	owner->spells->load(mySpell->id);
-
-	IImage * icon = owner->spells->getImage(mySpell->id,0,false);
-
 	if(icon != nullptr)
 		icon->draw(to, pos.x, pos.y);
-	else
-		logGlobal->errorStream() << __FUNCTION__ << ": failed to load icon for spell " << mySpell->name;
 
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
 
@@ -898,10 +893,17 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
+	icon = nullptr;
 	mySpell = spell;
 	if(mySpell)
 	{
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
+
+		owner->spells->load(mySpell->id);
+		icon = owner->spells->getImage(mySpell->id, 0, false);
+
+		if(icon == nullptr)
+			logGlobal->errorStream() << "Failed to load icon for spell " << mySpell->name;
 	}
 }

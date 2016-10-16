@@ -15,6 +15,7 @@
 struct SDL_Surface;
 class CDefHandler;
 struct SDL_Rect;
+class IImage;
 class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
@@ -33,6 +34,7 @@ private:
 		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		int spellCost;
 		CSpellWindow * owner;
+		IImage * icon;
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 
