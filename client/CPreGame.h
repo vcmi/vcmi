@@ -36,7 +36,9 @@ class CMultiLineLabel;
 class CToggleButton;
 class CToggleGroup;
 class CTabbedInt;
+class CAnimImage;
 class CButton;
+class CLabel;
 class CSlider;
 
 namespace boost{ class thread; class recursive_mutex;}

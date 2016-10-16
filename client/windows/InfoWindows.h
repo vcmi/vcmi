@@ -9,7 +9,6 @@ struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
-class CDefHandler;
 class CComponent;
 class CSelectableComponent;
 class CGGarrison;

@@ -15,8 +15,8 @@
 #include "../Graphics.h"
 
 struct SDL_Surface;
-class CPicture;
 class CGuiHandler;
+class CPicture;
 
 struct SDL_KeyboardEvent;
 

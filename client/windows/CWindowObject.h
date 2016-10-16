@@ -1,16 +1,6 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-//#include "../gui/SDL_Extensions.h"
-
-//#include "../../lib/FunctionList.h"
-
-struct SDL_Surface;
-struct Rect;
-class CAnimImage;
-class CLabel;
-class CAnimation;
-class CDefHandler;
 
 /*
  * CWindowObject.h, part of VCMI engine
