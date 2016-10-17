@@ -517,12 +517,14 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	name  = new CLabel(39, 70, FONT_TINY, CENTER);
 	level = new CLabel(39, 82, FONT_TINY, CENTER);
 	cost  = new CLabel(39, 94, FONT_TINY, CENTER);
+
+	for(auto l : {name, level, cost})
+		l->autoRedraw = false;
 }
 
 CSpellWindow::SpellArea::~SpellArea()
 {
-	if(schoolBorder)
-		schoolBorder->decreaseRef();
+
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -780,18 +782,18 @@ void CSpellWindow::SpellArea::hover(bool on)
 
 void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 {
-	if(!mySpell)
-		return;
-
-	//printing border (indicates level of magic school)
-	schoolBorder->draw(to, pos.x, pos.y);
-	CIntObject::showAll(to);
+	if(mySpell)
+	{
+		//printing border (indicates level of magic school)
+		if(schoolBorder)
+			schoolBorder->draw(to, pos.x, pos.y);
+		CIntObject::showAll(to);
+	}
 }
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
-	if(schoolBorder)
-		schoolBorder->decreaseRef();
+	schoolBorder = nullptr;
 	image->visible = false;
 	name->setText("");
 	level->setText("");
