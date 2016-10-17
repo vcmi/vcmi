@@ -257,8 +257,8 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	(LOCPLINT->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
-	(LOCPLINT->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
+	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
+	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
 	GH.popIntTotally(this);
 }
@@ -470,7 +470,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		}
 
 		//alt + 1234567890-= casts spell from 1 - 12 slot
-		if(LOCPLINT->altPressed())
+		if(myInt->altPressed())
 		{
 			SDL_Keycode hlpKey = key.keysym.sym;
 			if(CGuiHandler::isNumKey(hlpKey, false))
@@ -540,7 +540,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		   || (mySpell->isAdventureSpell() && (owner->myInt->battleInt || owner->myInt->castleInt)))
 		{
 			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell->id, 0));
-			LOCPLINT->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
+			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
 			return;
 		}
 
@@ -634,8 +634,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 			auto guard = vstd::makeScopeGuard([this]
 			{
-				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
-				(LOCPLINT->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;
+				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
+				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;
 				delete owner;
 			});
 
@@ -645,7 +645,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				//todo: move to mechanics
 
 				std::vector <int> availableTowns;
-				std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(false);
+				std::vector <const CGTownInstance*> Towns = owner->myInt->cb->getTownsInfo(false);
 
 				vstd::erase_if(Towns, [this](const CGTownInstance * t)
 				{
@@ -670,11 +670,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				if (h->getSpellSchoolLevel(mySpell) < 2) //not advanced or expert - teleport to nearest available city
 				{
 					auto nearest = Towns.cbegin(); //nearest town's iterator
-					si32 dist = LOCPLINT->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
+					si32 dist = owner->myInt->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
 
 					for (auto i = nearest + 1; i != Towns.cend(); ++i)
 					{
-						const CGTownInstance * dest = LOCPLINT->cb->getTown((*i)->id);
+						const CGTownInstance * dest = owner->myInt->cb->getTown((*i)->id);
 						si32 curDist = dest->pos.dist2dSQ(h->pos);
 
 						if (curDist < dist)
@@ -685,11 +685,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					}
 
 					if ((*nearest)->visitingHero)
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[123]);
+						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[123]);
 					else
 					{
-						const CGTownInstance * town = LOCPLINT->cb->getTown((*nearest)->id);
-						LOCPLINT->cb->castSpell(h, mySpell->id, town->visitablePos());// - town->getVisitableOffset());
+						const CGTownInstance * town = owner->myInt->cb->getTown((*nearest)->id);
+						owner->myInt->cb->castSpell(h, mySpell->id, town->visitablePos());// - town->getVisitableOffset());
 					}
 				}
 				else
@@ -703,14 +703,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						}
 					}
 
-					auto castTownPortal = [h](int townId)
+					auto castTownPortal = [this, h](int townId)
 					{
-						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
-						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
+						const CGTownInstance * dest = owner->myInt->cb->getTown(ObjectInstanceID(townId));
+						owner->myInt->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
 					};
 
 					if (availableTowns.empty())
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
+						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
 					else
 						GH.pushInt (new CObjectListWindow(availableTowns,
 							new CAnimImage("SPELLSCR",mySpell->id),
@@ -727,7 +727,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				int3 pos = h->bestLocation();
 				if(pos.x < 0)
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
+					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
 					return;
 				}
 			}
@@ -738,7 +738,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			}
 			else if(mySpell->getTargetType() == CSpell::NO_TARGET)
 			{
-				LOCPLINT->cb->castSpell(h, mySpell->id);
+				owner->myInt->cb->castSpell(h, mySpell->id);
 			}
 			else
 			{
