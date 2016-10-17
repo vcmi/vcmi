@@ -59,6 +59,31 @@ using namespace CSDL_Ext;
 
 CAdvMapInt *adventureInt;
 
+static void setScrollingCursor(ui8 direction)
+{
+	if(direction & CAdvMapInt::RIGHT)
+	{
+		if(direction & CAdvMapInt::UP)
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 33);
+		else if(direction & CAdvMapInt::DOWN)
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 35);
+		else
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 34);
+	}
+	else if(direction & CAdvMapInt::LEFT)
+	{
+		if(direction & CAdvMapInt::UP)
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 39);
+		else if(direction & CAdvMapInt::DOWN)
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 37);
+		else
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 38);
+	}
+	else if(direction & CAdvMapInt::UP)
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 32);
+	else if(direction & CAdvMapInt::DOWN)
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 36);
+}
 
 CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr),
@@ -955,10 +980,17 @@ void CAdvMapInt::show(SDL_Surface * to)
 
 		if(scrollingDir)
 		{
+			setScrollingCursor(scrollingDir);
+			scrollingState = true;
 			updateScreen = true;
 			minimap.redraw();
 			if (mode == EAdvMapMode::WORLD_VIEW)
 				terrain.redraw();
+		}
+		else if(scrollingState)
+		{
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			scrollingState = false;
 		}
 	}
 	if(updateScreen)
