@@ -239,6 +239,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	}
 
 	selectedTab = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap;
+	spellTab->setFrame(selectedTab, 0);
 	int cp = battleSpellsOnly ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap;
 	// spellbook last page battle index is not reset after battle, so this needs to stay here
 	vstd::abetween(cp, 0, std::max(0, pagesWithinCurrentTab() - 1));
