@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/vcmi/vcmi.svg?branch=develop)](https://travis-ci.org/vcmi/vcmi)
 # VCMI Project
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities. To use VCMI you need to own original data files.
 
