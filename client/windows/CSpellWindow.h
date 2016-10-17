@@ -27,10 +27,8 @@ class CSpell;
 /// The spell window
 class CSpellWindow : public CWindowObject
 {
-private:
 	class SpellArea : public CIntObject
 	{
-	public:
 		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
 		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
@@ -38,7 +36,8 @@ private:
 		CSpellWindow * owner;
 		CAnimImage * image;
 		IImage * schoolBorder;
-
+		CLabel * name, * level, * cost;
+	public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 		~SpellArea();
 		void setSpell(const CSpell * spell);
@@ -51,7 +50,6 @@ private:
 
 	class InteractiveArea : public CIntObject
 	{
-	private:
 		std::function<void()> onLeft;
 		CSpellWindow * owner;
 
@@ -95,7 +93,6 @@ private:
 	void turnPageRight();
 
 public:
-
 	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 

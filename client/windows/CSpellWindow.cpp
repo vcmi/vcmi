@@ -509,8 +509,13 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	schoolBorder = nullptr;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	image = new CAnimImage(owner->spells, 0, 0);
 	image->visible = false;
+
+	name  = new CLabel(39, 70, FONT_TINY, CENTER);
+	level = new CLabel(39, 82, FONT_TINY, CENTER);
+	cost  = new CLabel(39, 94, FONT_TINY, CENTER);
 }
 
 CSpellWindow::SpellArea::~SpellArea()
@@ -777,39 +782,9 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(!mySpell)
 		return;
 
+	//printing border (indicates level of magic school)
 	schoolBorder->draw(to, pos.x, pos.y);
 	CIntObject::showAll(to);
-
-//	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
-
-	SDL_Color firstLineColor, secondLineColor;
-	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
-	{
-		static const SDL_Color unavailableSpell = {239, 189, 33, 0};
-		firstLineColor = Colors::WHITE;
-		secondLineColor = unavailableSpell;
-	}
-	else
-	{
-		firstLineColor = Colors::YELLOW;
-		secondLineColor = Colors::WHITE;
-	}
-	//printing spell's name
-	printAtMiddleLoc(mySpell->name, 39, 70, FONT_TINY, firstLineColor, to);
-	//printing lvl
-	if(schoolLevel > 0)
-	{
-		boost::format fmt("%s/%s");
-		fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
-		fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
-		printAtMiddleLoc(fmt.str(), 39, 82, FONT_TINY, secondLineColor, to);
-	}
-	else
-		printAtMiddleLoc(CGI->generaltexth->allTexts[171 + mySpell->level], 39, 82, FONT_TINY, secondLineColor, to);
-	//printing  cost
-	std::ostringstream ss;
-	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
-	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
 }
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
@@ -817,6 +792,9 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 	if(schoolBorder)
 		schoolBorder->decreaseRef();
 	image->visible = false;
+	name->setText("");
+	level->setText("");
+	cost->setText("");
 	mySpell = spell;
 	if(mySpell)
 	{
@@ -826,5 +804,37 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		image->setFrame(mySpell->id);
 		image->visible = true;
 		schoolBorder = owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->getImage(schoolLevel,0);
+
+		SDL_Color firstLineColor, secondLineColor;
+		if(spellCost > owner->myHero->mana) //hero cannot cast this spell
+		{
+			static const SDL_Color unavailableSpell = {239, 189, 33, 0};
+			firstLineColor = Colors::WHITE;
+			secondLineColor = unavailableSpell;
+		}
+		else
+		{
+			firstLineColor = Colors::YELLOW;
+			secondLineColor = Colors::WHITE;
+		}
+
+		name->color = firstLineColor;
+		name->setText(mySpell->name);
+
+		level->color = secondLineColor;
+		if(schoolLevel > 0)
+		{
+			boost::format fmt("%s/%s");
+			fmt % CGI->generaltexth->allTexts[171 + mySpell->level];
+			fmt % CGI->generaltexth->levels.at(3+(schoolLevel-1));//lines 4-6
+			level->setText(fmt.str());
+		}
+		else
+			level->setText(CGI->generaltexth->allTexts[171 + mySpell->level]);
+
+		cost->color = secondLineColor;
+		boost::format costfmt("%s: %d");
+		costfmt % CGI->generaltexth->allTexts[387] % spellCost;
+		cost->setText(costfmt.str());
 	}
 }
