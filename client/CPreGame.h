@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "../lib/filesystem/Filesystem.h"
 #include "../lib/StartInfo.h"
 #include "../lib/FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
@@ -36,6 +35,8 @@ class CMultiLineLabel;
 class CToggleButton;
 class CToggleGroup;
 class CTabbedInt;
+class IImage;
+class CAnimation;
 class CAnimImage;
 class CButton;
 class CLabel;
@@ -124,6 +125,8 @@ public:
 
 class InfoCard : public CIntObject
 {
+	CAnimImage * victory, * loss, *sizes;
+	std::shared_ptr<CAnimation> sFlags;
 public:
 	CPicture *bg;
 	CMenuScreen::EState type;
@@ -135,7 +138,6 @@ public:
 	CPicture *playerListBg;
 
 	CToggleGroup *difficulty;
-	CDefHandler *sizes, *sFlags;
 
 	void changeSelection(const CMapInfo *to);
 	void showAll(SDL_Surface * to) override;
@@ -151,7 +153,7 @@ public:
 class SelectionTab : public CIntObject
 {
 private:
-	std::unique_ptr<CAnimation> formatIcons;
+	std::shared_ptr<CAnimation> formatIcons;
 
 	void parseMaps(const std::unordered_set<ResourceID> &files);
 	void parseGames(const std::unordered_set<ResourceID> &files, bool multi);
@@ -528,10 +530,10 @@ private:
 	std::vector<CRegion *> regions;
 	CRegion * highlightedRegion;
 	CToggleGroup * bonuses;
-	SDL_Surface * diffPics[5]; //pictures of difficulties, user-selectable (or not if campaign locks this)
+	std::array<CAnimImage *, 5> diffPics; //pictures of difficulties, user-selectable (or not if campaign locks this)
 	CButton * diffLb, * diffRb; //buttons for changing difficulty
-	CDefHandler * sizes; //icons of map sizes
-	CDefHandler * sFlags;
+	CAnimImage * sizes;//icons of map sizes
+	std::shared_ptr<CAnimation> sFlags;
 
 	// Data
 	std::shared_ptr<CCampaignState> ourCampaign;
@@ -609,7 +611,7 @@ class CGPreGame : public CIntObject, public IUpdateable
 public:
 	CMenuScreen * menu;
 
-	CDefHandler *victory, *loss;
+	std::shared_ptr<CAnimation> victoryIcons, lossIcons;
 
 	~CGPreGame();
 	void update() override;

@@ -8,7 +8,6 @@
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "gui/CCursorHandler.h"
-#include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
@@ -503,14 +502,16 @@ void CGPreGame::loadGraphics()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CFilledTexture("DIBOXBCK", pos);
 
-	victory = CDefHandler::giveDef("SCNRVICT.DEF");
-	loss = CDefHandler::giveDef("SCNRLOSS.DEF");
+	victoryIcons = std::make_shared<CAnimation>("SCNRVICT.DEF");
+	victoryIcons->load();
+	lossIcons = std::make_shared<CAnimation>("SCNRLOSS.DEF");
+	lossIcons->load();
 }
 
 void CGPreGame::disposeGraphics()
 {
-	delete victory;
-	delete loss;
+	victoryIcons->unload();
+	lossIcons->unload();
 }
 
 void CGPreGame::update()
@@ -1296,7 +1297,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 	slider = new CSlider(Point(372, 86), tabType != CMenuScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, CSlider::BLUE);
 	slider->addUsedEvents(WHEEL);
 
-	formatIcons = make_unique<CAnimation>("SCSELC.DEF");
+	formatIcons = std::make_shared<CAnimation>("SCSELC.DEF");
 	formatIcons->load();
 
 	sortingBy = _format;
@@ -1326,7 +1327,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 
 SelectionTab::~SelectionTab()
 {
-
+	formatIcons->unload();
 }
 
 void SelectionTab::sortBy( int criteria )
@@ -1477,14 +1478,25 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			}
 			IImage * icon = formatIcons->getImage(frame,group);
 			if(icon)
+			{
 				icon->draw(to, pos.x + 88, pos.y + 117 + line * 25);
-
+				icon->decreaseRef();
+			}
 
 			//victory conditions
-			blitAtLoc(CGP->victory->ourImages[currentItem->mapHeader->victoryIconIndex].bitmap, 306, 117 + line * 25, to);
-
+			icon = CGP->victoryIcons->getImage(currentItem->mapHeader->victoryIconIndex,0);
+			if(icon)
+			{
+				icon->draw(to, pos.x + 306, pos.y + 117 + line * 25);
+				icon->decreaseRef();
+			}
 			//loss conditions
-			blitAtLoc(CGP->loss->ourImages[currentItem->mapHeader->defeatIconIndex].bitmap, 339, 117 + line * 25, to);
+			icon = CGP->lossIcons->getImage(currentItem->mapHeader->defeatIconIndex,0);
+			if(icon)
+			{
+				icon->draw(to, pos.x + 339, pos.y + 117 + line * 25);
+				icon->decreaseRef();
+			}
 		}
 		else //if campaign
 		{
@@ -1986,8 +1998,8 @@ void CChatBox::addNewMessage(const std::string &text)
 }
 
 InfoCard::InfoCard( bool Network )
-  : bg(nullptr), network(Network), chatOn(false), chat(nullptr), playerListBg(nullptr),
-	difficulty(nullptr), sizes(nullptr), sFlags(nullptr)
+  : sizes(nullptr), bg(nullptr), network(Network), chatOn(false), chat(nullptr), playerListBg(nullptr),
+	difficulty(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CIntObject::type |= REDRAW_PARENT;
@@ -2013,8 +2025,11 @@ InfoCard::InfoCard( bool Network )
 		parent->children.pop_back();
 		pos.w = bg->pos.w;
 		pos.h = bg->pos.h;
-		sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
-		sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
+		sizes = new CAnimImage("SCNRMPSZ", 4, 0, 318, 22);//let it be custom size (frame 4) by default
+		sizes->recActions &= ~(SHOWALL | UPDATE);//explicit draw
+
+		sFlags = std::make_shared<CAnimation>("ITGFLAGS.DEF");
+		sFlags->load();
 		difficulty = new CToggleGroup(0);
 		{
 			static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
@@ -2039,12 +2054,16 @@ InfoCard::InfoCard( bool Network )
 		}
 	}
 
+	victory = new CAnimImage("SCNRVICT",0, 0, 24, 302);
+	victory->recActions &= ~(SHOWALL | UPDATE);//explicit draw
+	loss = new CAnimImage("SCNRLOSS", 0, 0, 24, 359);
+	loss->recActions &= ~(SHOWALL | UPDATE);//explicit draw
 }
 
 InfoCard::~InfoCard()
 {
-	delete sizes;
-	delete sFlags;
+	if(sFlags)
+		sFlags->unload();
 }
 
 void InfoCard::showAll(SDL_Surface * to)
@@ -2092,27 +2111,17 @@ void InfoCard::showAll(SDL_Surface * to)
 	{
 		if(SEL->screenType != CMenuScreen::campaignList)
 		{
-			int temp = -1;
-
 			if(!chatOn)
 			{
-				CDefHandler * loss    = CGP ? CGP->loss    : CDefHandler::giveDef("SCNRLOSS.DEF");
-				CDefHandler * victory = CGP ? CGP->victory : CDefHandler::giveDef("SCNRVICT.DEF");
-
 				CMapHeader * header = SEL->current->mapHeader.get();
 				//victory conditions
 				printAtLoc(header->victoryMessage, 60, 307, FONT_SMALL, Colors::WHITE, to);
-				blitAtLoc(victory->ourImages[header->victoryIconIndex].bitmap, 24, 302, to); //victory cond descr
-
+				victory->setFrame(header->victoryIconIndex);
+				victory->showAll(to);
 				//loss conditoins
 				printAtLoc(header->defeatMessage, 60, 366, FONT_SMALL, Colors::WHITE, to);
-				blitAtLoc(loss->ourImages[header->defeatIconIndex].bitmap, 24, 359, to); //loss cond
-
-				if (!CGP)
-				{
-					delete loss;
-					delete victory;
-				}
+				loss->setFrame(header->defeatIconIndex);
+				loss->showAll(to);
 			}
 
 			//difficulty
@@ -2124,23 +2133,22 @@ void InfoCard::showAll(SDL_Surface * to)
 			switch (SEL->current->mapHeader->width)
 			{
 			case 36:
-				temp=0;
+				sizes->setFrame(0);
 				break;
 			case 72:
-				temp=1;
+				sizes->setFrame(1);
 				break;
 			case 108:
-				temp=2;
+				sizes->setFrame(2);
 				break;
 			case 144:
-				temp=3;
+				sizes->setFrame(3);
 				break;
 			default:
-				temp=4;
+				sizes->setFrame(4);
 				break;
 			}
-			blitAtLoc(sizes->ourImages[temp].bitmap, 318, 22, to);
-
+			sizes->showAll(to);
 
 			if(SEL->screenType == CMenuScreen::loadGame)
 				printToLoc((static_cast<const CMapInfo*>(SEL->current))->date,308,34, FONT_SMALL, Colors::WHITE, to);
@@ -2159,8 +2167,10 @@ void InfoCard::showAll(SDL_Surface * to)
 			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
 				int *myx = ((i->first == playerColor  ||  SEL->current->mapHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
-				blitAtLoc(sFlags->ourImages[i->first.getNum()].bitmap, *myx, 399, to);
-				*myx += sFlags->ourImages[i->first.getNum()].bitmap->w;
+				IImage * flag = sFlags->getImage(i->first.getNum(),0);
+				flag->draw(to, pos.x + *myx, pos.y + 399);
+				*myx += flag->width();
+				flag->decreaseRef();
 			}
 
 			std::string tob;
@@ -2255,7 +2265,9 @@ void InfoCard::showTeamsPopup()
 		int curx = 128 - 9*flags.size();
 		for(auto & flag : flags)
 		{
-			blitAt(sFlags->ourImages[flag].bitmap, curx, 75 + 50*i, bmp);
+			IImage * icon = sFlags->getImage(flag,0);
+			icon->draw(bmp, curx, 75 + 50*i);
+			icon->decreaseRef();
 			curx += 18;
 		}
 	}
@@ -3242,7 +3254,8 @@ void CBonusSelection::init()
 		graphics->fonts[FONT_BIG]->renderTextLeft(background, CGI->generaltexth->allTexts[508], Colors::YELLOW, Point(481, 28));
 
 	//map size icon
-	sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
+	sizes = new CAnimImage("SCNRMPSZ",4,0,735, 26);
+	sizes->recActions &= ~(SHOWALL | UPDATE);//explicit draw
 
 	//campaign description
 	graphics->fonts[FONT_SMALL]->renderTextLeft(background, CGI->generaltexth->allTexts[38], Colors::YELLOW, Point(481, 63));
@@ -3293,14 +3306,10 @@ void CBonusSelection::init()
 	graphics->fonts[FONT_MEDIUM]->renderTextLeft(background, difficulty.back(), Colors::WHITE, Point(689, 432));
 
 	//difficulty pics
-	for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
+	for (size_t b=0; b < diffPics.size(); ++b)
 	{
-		CDefEssential * cde = CDefHandler::giveDefEss("GSPBUT" + boost::lexical_cast<std::string>(b+3) + ".DEF");
-		SDL_Surface * surfToDuplicate = cde->ourImages[0].bitmap;
-		diffPics[b] = SDL_ConvertSurface(surfToDuplicate, surfToDuplicate->format,
-			surfToDuplicate->flags);
-
-		delete cde;
+		diffPics[b] = new CAnimImage("GSPBUT" + boost::lexical_cast<std::string>(b+3) + ".DEF", 0, 0, 709, 455);
+		diffPics[b]->recActions &= ~(SHOWALL | UPDATE);//explicit draw
 	}
 
 	//difficulty selection buttons
@@ -3311,7 +3320,8 @@ void CBonusSelection::init()
 	}
 
 	//load miniflags
-	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
+	sFlags = std::make_shared<CAnimation>("ITGFLAGS.DEF");
+	sFlags->load();
 }
 
 CBonusSelection::CBonusSelection(std::shared_ptr<CCampaignState> _ourCampaign) : ourCampaign(_ourCampaign)
@@ -3328,13 +3338,8 @@ CBonusSelection::CBonusSelection(const std::string & campaignFName)
 CBonusSelection::~CBonusSelection()
 {
 	SDL_FreeSurface(background);
-	delete sizes;
 	delete ourHeader;
-	delete sFlags;
-	for (auto & elem : diffPics)
-	{
-		SDL_FreeSurface(elem);
-	}
+	sFlags->unload();
 }
 
 void CBonusSelection::goBack()
@@ -3433,8 +3438,6 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 
 void CBonusSelection::show(SDL_Surface * to)
 {
-	//blitAt(background, pos.x, pos.y, to);
-
 	//map name
 	std::string mapName = ourHeader->name;
 
@@ -3468,7 +3471,8 @@ void CBonusSelection::show(SDL_Surface * to)
 		temp=4;
 		break;
 	}
-	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
+	sizes->setFrame(temp);
+	sizes->showAll(to);
 
 	//flags
 	int fx = 496  + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[390]);
@@ -3478,12 +3482,15 @@ void CBonusSelection::show(SDL_Surface * to)
 	for (auto i = startInfo.playerInfos.cbegin(); i != startInfo.playerInfos.cend(); i++)
 	{
 		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
-		blitAtLoc(sFlags->ourImages[i->first.getNum()].bitmap, *myx, 405, to);
-		*myx += sFlags->ourImages[i->first.getNum()].bitmap->w;
+
+		IImage * flag = sFlags->getImage(i->first.getNum(),0);
+		flag->draw(to, pos.x + *myx, pos.y + 405);
+		*myx += flag->width();
+		flag->decreaseRef();
 	}
 
 	//difficulty
-	blitAtLoc(diffPics[startInfo.difficulty], 709, 455, to);
+	diffPics[startInfo.difficulty]->showAll(to);
 
 	CIntObject::show(to);
 }
