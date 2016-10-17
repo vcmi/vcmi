@@ -69,6 +69,15 @@ namespace SpellConfig
 			Bonus::EARTH_SPELLS
 		}
 	};
+
+	//order as described in http://bugs.vcmi.eu/view.php?id=91
+	static const ESpellSchool SCHOOL_ORDER[4] =
+	{
+		ESpellSchool::AIR,  //=0
+		ESpellSchool::FIRE, //=1
+		ESpellSchool::EARTH,//=3(!)
+		ESpellSchool::WATER //=2(!)
+	};
 }
 
 ///CSpell::LevelInfo
@@ -226,8 +235,9 @@ CSpell::ETargetType CSpell::getTargetType() const
 void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
 {
 	bool stop = false;
-	for(const SpellSchoolInfo & cnf : SpellConfig::SCHOOL)
+	for(ESpellSchool iter : SpellConfig::SCHOOL_ORDER)
 	{
+		const SpellSchoolInfo & cnf = SpellConfig::SCHOOL[(ui8)iter];
 		if(school.at(cnf.id))
 		{
 			cb(cnf, stop);

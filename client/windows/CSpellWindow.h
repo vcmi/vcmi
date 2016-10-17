@@ -13,88 +13,87 @@
  */
 
 struct SDL_Surface;
-class CDefHandler;
 struct SDL_Rect;
+class IImage;
+class CAnimImage;
+class CPicture;
+class CLabel;
 class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
-
-/// Spellbook button is used by the spell window class
-class SpellbookInteractiveArea : public CIntObject
-{
-private:
-	std::function<void()> onLeft;
-	std::string textOnRclick;
-	std::function<void()> onHoverOn;
-	std::function<void()> onHoverOff;
-	CPlayerInterface * myInt;
-public:
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void hover(bool on);
-
-	SpellbookInteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, const std::string & textR,
-		std::function<void()> funcHon, std::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
-};
+class CSpellWindow;
+class CSpell;
 
 /// The spell window
 class CSpellWindow : public CWindowObject
 {
-private:
 	class SpellArea : public CIntObject
 	{
-	public:
-		SpellID mySpell;
+		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
 		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		int spellCost;
 		CSpellWindow * owner;
-
-
+		CAnimImage * image;
+		IImage * schoolBorder;
+		CLabel * name, * level, * cost;
+	public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+		~SpellArea();
+		void setSpell(const CSpell * spell);
 
-		void setSpell(SpellID spellID);
-
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void hover(bool on);
-		void showAll(SDL_Surface * to);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
+		void showAll(SDL_Surface * to) override;
 	};
 
-	SDL_Surface * leftCorner, * rightCorner;
-	
-	CAnimation * spells; //pictures of spells
-	
-	CDefHandler	* spellTab, //school select
-		* schools, //schools' pictures
-		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+	class InteractiveArea : public CIntObject
+	{
+		std::function<void()> onLeft;
+		CSpellWindow * owner;
 
-	SpellbookInteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
-	SpellbookInteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
-	SpellbookInteractiveArea * lCorner, * rCorner;
+		std::string hoverText;
+		std::string helpText;
+	public:
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
+
+		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);//c-tor
+	};
+
+	CPicture * leftCorner, * rightCorner;
+
+	std::shared_ptr<CAnimation> spells; //pictures of spells
+
+	CAnimImage * spellTab; //school select
+	CAnimImage * schools; //schools' pictures
+	std::array< std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+
 	SpellArea * spellAreas[12];
+	CLabel * mana;
 	CGStatusBar * statusBar;
 
-	Uint8 sitesPerTabAdv[5];
-	Uint8 sitesPerTabBattle[5];
+	int sitesPerTabAdv[5];
+	int sitesPerTabBattle[5];
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
-	Uint8 currentPage; //changes when corners are clicked
-	std::set<SpellID> mySpells; //all spels in this spellbook
+	int currentPage; //changes when corners are clicked
+	std::vector<const CSpell *> mySpells; //all spels in this spellbook
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
+	CPlayerInterface * myInt;
 
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
 
+	void setCurrentPage(int value);
 	void turnPageLeft();
 	void turnPageRight();
 
-	CPlayerInterface * myInt;
-
 public:
-
-	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 
 	void fexitb();
@@ -106,10 +105,8 @@ public:
 	void fRcornerb();
 
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
-	Uint8 pagesWithinCurrentTab();
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void activate();
-	void deactivate();
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	int pagesWithinCurrentTab();
+
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void show(SDL_Surface * to) override;
 };

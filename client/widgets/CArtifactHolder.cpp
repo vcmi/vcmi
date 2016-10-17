@@ -123,10 +123,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
 		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-		{
-			auto   spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
-			GH.pushInt(spellWindow);
-		}
+			GH.pushInt(new CSpellWindow(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt));
 	}
 
 	if (!down && previousState)

@@ -714,8 +714,7 @@ void CAdvMapInt::fshowSpellbok()
 
 	centerOn(selection);
 
-	auto   spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), curHero(), LOCPLINT, false);
-	GH.pushInt(spellWindow);
+	GH.pushInt(new CSpellWindow(curHero(), LOCPLINT, false));
 }
 
 void CAdvMapInt::fadventureOPtions()
