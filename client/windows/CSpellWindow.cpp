@@ -829,6 +829,6 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 
 		image->setFrame(mySpell->id);
 		image->visible = true;
-		schoolBorder = owner->schoolBorders[whichSchool]->getImage(schoolLevel,0);
+		schoolBorder = owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->getImage(schoolLevel,0);
 	}
 }
