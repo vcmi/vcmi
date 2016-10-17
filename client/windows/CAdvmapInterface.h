@@ -121,6 +121,7 @@ public:
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
+	bool scrollingState;
 
 	enum{NA, INGAME, WAITING} state;
 
