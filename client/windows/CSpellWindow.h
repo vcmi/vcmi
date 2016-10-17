@@ -17,6 +17,7 @@ struct SDL_Rect;
 class IImage;
 class CAnimImage;
 class CPicture;
+class CLabel;
 class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
@@ -73,6 +74,7 @@ private:
 	std::array< std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
 	SpellArea * spellAreas[12];
+	CLabel * mana;
 	CGStatusBar * statusBar;
 
 	int sitesPerTabAdv[5];
@@ -107,7 +109,7 @@ public:
 
 	void selectSchool(int school); //schools: 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	int pagesWithinCurrentTab();
-	void keyPressed(const SDL_KeyboardEvent & key);
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void show(SDL_Surface * to) override;
 };

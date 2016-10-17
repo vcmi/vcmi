@@ -21,6 +21,7 @@
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
+#include "../widgets/TextControls.h"
 
 #include "../../CCallback.h"
 
@@ -184,7 +185,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->load();
-
+	mana = new CLabel(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
 	statusBar = new CGStatusBar(7, 569, "Spelroll.bmp");
 
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
@@ -324,13 +325,6 @@ void CSpellWindow::fRcornerb()
 	GH.breakEventHandling();
 }
 
-void CSpellWindow::showAll(SDL_Surface * to)
-{
-	CWindowObject::showAll(to);
-
-	printAtMiddleLoc(boost::lexical_cast<std::string>(myHero->mana), 435, 426, FONT_SMALL, Colors::YELLOW, to);
-}
-
 void CSpellWindow::show(SDL_Surface * to)
 {
 	statusBar->show(to);
@@ -417,6 +411,8 @@ void CSpellWindow::setCurrentPage(int value)
 		schools->setFrame(selectedTab, 0);
 	leftCorner->visible = currentPage != 0;
 	rightCorner->visible = (currentPage+1) < pagesWithinCurrentTab();
+
+	mana->setText(boost::lexical_cast<std::string>(myHero->mana));//just in case, it will be possible to cast spell without closing book
 }
 
 void CSpellWindow::turnPageLeft()
