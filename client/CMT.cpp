@@ -934,6 +934,8 @@ void dispose()
 	}
 	CMessage::dispose();
 
+	vstd::clear_pointer(graphics);
+
 	if(console)
 	{
 		delete console; // should be removed after everything else since used by logging
