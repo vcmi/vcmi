@@ -321,9 +321,6 @@ void CTerrainRect::show(SDL_Surface * to)
 			showPath(&pos, to);
 		}
 	}
-	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
-	//SDL_FreeSurface(teren);
-
 }
 
 void CTerrainRect::showAll(SDL_Surface * to)
@@ -503,6 +500,8 @@ CAdvMapInt::CAdvMapInt():
 	}
 	worldViewIconsDef = CDefHandler::giveDef("VwSymbol.def");
 
+	worldViewIcons = std::make_shared<CAnimation>("VwSymbol");//todo: customize with ADVOPT
+
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
 		gems.push_back(new CAnimImage(ADVOPT.gemG[g], 0, 0, ADVOPT.gemX[g], ADVOPT.gemY[g]));
@@ -531,7 +530,7 @@ CAdvMapInt::CAdvMapInt():
 
 	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
 	// TODO correct drawing position
-	panelWorldView = new CAdvMapWorldViewPanel(bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
+	panelWorldView = new CAdvMapWorldViewPanel(worldViewIcons, bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
 
 	panelMain->addChildColorableButton(kingOverview);
 	panelMain->addChildColorableButton(underground);
@@ -600,16 +599,17 @@ CAdvMapInt::CAdvMapInt():
 
 	int iconColorMultiplier = player.getNum() * 19;
 	int wvLeft = heroList.pos.x - 2; // TODO correct drawing position
+	//int wvTop = 195;
 	for (int i = 0; i < 5; ++i)
 	{
-		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(wvLeft + 5, 253 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(5, 58 + i * 20)), iconColorMultiplier);
 		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[612 + i]));
 	}
 	for (int i = 0; i < 7; ++i)
 	{
-		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(wvLeft +   5, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
-		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(wvLeft + 160, 377 + i * 20)), worldViewIconsDef, iconColorMultiplier);
+		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(5, 182 + i * 20)), iconColorMultiplier);
+		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(160, 182 + i * 20)), iconColorMultiplier);
 		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[619 + i]));
 	}
@@ -1377,11 +1377,8 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
-	panelWorldView->recolorIcons(player, worldViewIconsDef, player.getNum() * 19);
+	panelWorldView->recolorIcons(player, player.getNum() * 19);
 	graphics->blueToPlayersAdv(resdatabar.bg,player);
-
-	//heroList.updateHList();
-	//townList.genList();
 }
 
 void CAdvMapInt::startTurn()
