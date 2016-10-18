@@ -131,25 +131,25 @@ public:
 
 	EAdvMapMode mode;
 	float worldViewScale;
-	
+
 	struct WorldViewOptions
 	{
 		bool showAllTerrain; //for expert viewEarth
-		
+
 		std::vector<ObjectPosInfo> iconPositions;
-		
+
 		WorldViewOptions();
-		
+
 		void clear();
-		
-		void adjustDrawingInfo(MapDrawingInfo & info);		
+
+		void adjustDrawingInfo(MapDrawingInfo & info);
 	};
-	
-	WorldViewOptions worldViewOptions; 	
+
+	WorldViewOptions worldViewOptions;
 
 	SDL_Surface * bg;
 	SDL_Surface * bgWorldView;
-	std::vector<CDefHandler *> gems;
+	std::vector<CAnimImage *> gems;
 	CMinimap minimap;
 	CGStatusBar statusbar;
 

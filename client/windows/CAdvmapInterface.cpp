@@ -505,7 +505,7 @@ CAdvMapInt::CAdvMapInt():
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
-		gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[g]));
+		gems.push_back(new CAnimImage(ADVOPT.gemG[g], 0, 0, ADVOPT.gemX[g], ADVOPT.gemY[g]));
 	}
 
 	auto makeButton = [&] (int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> CButton *
@@ -632,9 +632,6 @@ CAdvMapInt::CAdvMapInt():
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
-
-	for(int i=0; i<gems.size(); i++)
-		delete gems[i];
 
 	delete worldViewIconsDef;
 }
@@ -983,6 +980,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 			scrollingState = false;
 		}
 	}
+	for(int i = 0; i < 4; i++)
+		gems[i]->setFrame(LOCPLINT->playerID.getNum());
 	if(updateScreen)
 	{
 		int3 betterPos = LOCPLINT->repairScreenPos(position);
@@ -993,16 +992,16 @@ void CAdvMapInt::show(SDL_Surface * to)
 		}
 
 		terrain.show(to);
-		for(int i=0;i<4;i++)
-			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
+		for(int i = 0; i < 4; i++)
+			gems[i]->showAll(to);
 		updateScreen=false;
 		LOCPLINT->cingconsole->show(to);
 	}
 	else if (terrain.needsAnimUpdate())
 	{
 		terrain.showAnim(to);
-		for(int i=0;i<4;i++)
-			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
+		for(int i = 0; i < 4; i++)
+			gems[i]->showAll(to);
 	}
 
 	infoBar.show(to);
