@@ -169,6 +169,8 @@ private:
 	//if true all frames will be stored in compressed (RLE) state
 	const bool compressed;
 
+	bool preloaded;
+
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(CDefFile * file, size_t frame, size_t group);
 
@@ -204,6 +206,7 @@ public:
 	//all available frames
 	void load  ();
 	void unload();
+	void preload();
 
 	//all frames from group
 	void loadGroup  (size_t group);

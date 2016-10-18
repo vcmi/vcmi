@@ -227,13 +227,14 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			pn+=25;
 		if (pn>=0)
 		{
-			CDefEssential * arrows = graphics->heroMoveArrows;
+			const IImage * arrow = graphics->heroMoveArrows->getImage(pn);
+
 			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
 				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x< -32 || y< -32 || x>pos.w || y>pos.h)
 				continue;
-			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
-				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
+			int hvx = (x + arrow->width())  - (pos.x + pos.w),
+				hvy = (y + arrow->height()) - (pos.y + pos.h);
 
 			SDL_Rect prevClip;
 			SDL_GetClipRect(to, &prevClip);
@@ -243,52 +244,44 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			{
 				if (hvx<0 && hvy<0)
 				{
-					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, nullptr, to, &dstRect);
+					arrow->draw(to, x + moveX, y + moveY);
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height() - hvy, arrow->width(), 0, 0);
+					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height(), arrow->width() - hvx, 0, 0);
+					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 				else
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height() - hvy, arrow->width() - hvx, 0, 0);
+					arrow->draw(to, x + moveX, y + moveY, &srcRect);
 				}
 			}
 			else //standard version
 			{
 				if (hvx<0 && hvy<0)
 				{
-					Rect dstRect = genRect(32, 32, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, nullptr, to, &dstRect);
+					arrow->draw(to, x, y);
 				}
 				else if(hvx<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height() - hvy, arrow->width(), 0, 0);
+					arrow->draw(to, x, y, &srcRect);
 				}
 				else if (hvy<0)
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height(), arrow->width() - hvx, 0, 0);
+					arrow->draw(to, x, y, &srcRect);
 				}
 				else
 				{
-					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
-					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+					Rect srcRect = genRect(arrow->height() - hvy, arrow->width() - hvx, 0, 0);
+					arrow->draw(to, x, y, &srcRect);
 				}
 			}
 			SDL_SetClipRect(to, &prevClip);

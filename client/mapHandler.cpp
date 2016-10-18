@@ -778,8 +778,8 @@ void CMapHandler::CMapPuzzleViewBlitter::drawObjects(SDL_Surface * targetSurf, c
 	// grail X mark
 	if(pos.x == info->grailPos.x && pos.y == info->grailPos.y)
 	{
-		Rect destRect(realTileRect);
-		CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, nullptr, targetSurf, &destRect);
+		const IImage * mark = graphics->heroMoveArrows->getImage(0);
+		mark->draw(targetSurf,realTileRect.x,realTileRect.y);
 	}
 }
 

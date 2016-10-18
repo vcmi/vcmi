@@ -635,6 +635,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotat
 {
 	if (!surf)
 		return;
+
 	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
 	//TODO: rotation and scaling
 	if (src)
@@ -1056,7 +1057,8 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
 	name(Name),
-	compressed(Compressed)
+	compressed(Compressed),
+	preloaded(false)
 {
 	size_t dotPos = name.find_last_of('.');
 	if ( dotPos!=-1 )
@@ -1069,14 +1071,18 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 
 CAnimation::CAnimation():
 	name(""),
-	compressed(false)
+	compressed(false),
+	preloaded(false)
 {
 	init(nullptr);
 }
 
 CAnimation::~CAnimation()
 {
-	if (!images.empty())
+	if(preloaded)
+		unload();
+
+	if(!images.empty())
 	{
 		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (auto & elem : images)
@@ -1124,6 +1130,12 @@ void CAnimation::unload()
 		for (size_t image=0; image < elem.second.size(); image++)
 			unloadFrame(image, elem.first);
 
+}
+
+void CAnimation::preload()
+{
+	preloaded = true;
+	load();
 }
 
 void CAnimation::loadGroup(size_t group)
