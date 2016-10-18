@@ -328,7 +328,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 	// world view map is static and doesn't need redraw every frame
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIconsDef);
+		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
 		info.scaled = true;
 		info.scale = adventureInt->worldViewScale;
 		adventureInt->worldViewOptions.adjustDrawingInfo(info);
@@ -498,9 +498,10 @@ CAdvMapInt::CAdvMapInt():
 		logGlobal->warn("bgWorldView not defined in resolution config; fallback to VWorld.bmp");
 		bgWorldView = BitmapHandler::loadBitmap("VWorld.bmp");
 	}
-	worldViewIconsDef = CDefHandler::giveDef("VwSymbol.def");
 
 	worldViewIcons = std::make_shared<CAnimation>("VwSymbol");//todo: customize with ADVOPT
+	//preload all for faster map drawing
+	worldViewIcons->load();//TODO: make special method in CAnimation fro that
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
@@ -633,7 +634,7 @@ CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
 
-	delete worldViewIconsDef;
+	worldViewIcons->unload();
 }
 
 void CAdvMapInt::fshowOverview()

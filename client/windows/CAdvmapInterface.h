@@ -8,7 +8,6 @@
 
 #include "../../lib/spells/ViewSpellInt.h"
 
-class CDefHandler;
 class CCallback;
 struct CGPath;
 class CAdvMapInt;
@@ -175,8 +174,6 @@ public:
 	CAdvMapPanel *panelMain; // panel that holds all right-side buttons in normal view
 	CAdvMapWorldViewPanel *panelWorldView; // panel that holds all buttons and other ui in world view
 	CAdvMapPanel *activeMapPanel; // currently active panel (either main or world view, depending on current mode)
-
-	CDefHandler * worldViewIconsDef; // images for world view overlay(DEPRECATED)
 
 	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
 

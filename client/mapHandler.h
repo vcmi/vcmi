@@ -26,6 +26,8 @@ struct TerrainTile;
 struct SDL_Surface;
 struct SDL_Rect;
 class CDefEssential;
+class CAnimation;
+class IImage;
 class CFadeAnimation;
 class PlayerColor;
 
@@ -71,7 +73,7 @@ struct TerrainTileObject
 	const CGObjectInstance *obj;
 	SDL_Rect rect;
 	int fadeAnimKey;
-	
+
 	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_);
 	~TerrainTileObject();
 };
@@ -90,7 +92,7 @@ struct MapDrawingInfo
 	int3 &topTile; // top-left tile in viewport [in tiles]
 	const std::vector< std::vector< std::vector<ui8> > > * visibilityMap;
 	SDL_Rect * drawBounds; // map rect drawing bounds on screen
-	CDefHandler * iconsDef; // holds overlay icons for world view mode
+	std::shared_ptr<CAnimation> icons; // holds overlay icons for world view mode
 	float scale; // map scale for world view mode (only if scaled == true)
 
 	bool otherheroAnim;
@@ -101,17 +103,17 @@ struct MapDrawingInfo
 
 	bool puzzleMode;
 	int3 grailPos; // location of grail for puzzle mode [in tiles]
-	
+
 	const std::vector<ObjectPosInfo> * additionalIcons;
-	
+
 	bool showAllTerrain; //for expert viewEarth
-	
-	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, CDefHandler * iconsDef_ = nullptr)
+
+	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
 		  visibilityMap(visibilityMap_),
 		  drawBounds(drawBounds_),
-		  iconsDef(iconsDef_),
+		  icons(icons_),
 		  scale(1.0f),
 		  otherheroAnim(false),
 		  anim(0u),
@@ -188,14 +190,14 @@ class CMapHandler
 		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
 		intptr_t genKey(intptr_t realPtr, ui8 mod);
 	};
-	
+
 	/// helper struct to pass around resolved bitmaps of an object; surfaces can be nullptr if object doesn't have bitmap of that type
 	struct AnimBitmapHolder
 	{
 		SDL_Surface * objBitmap; // main object bitmap
 		SDL_Surface * flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
 		bool isMoving; // indicates if the object is moving (again, heroes/boats only)
-		
+
 		AnimBitmapHolder(SDL_Surface * objBitmap_ = nullptr, SDL_Surface * flagBitmap_ = nullptr, bool moving = false)
 			: objBitmap(objBitmap_),
 			  flagBitmap(flagBitmap_),
@@ -205,7 +207,7 @@ class CMapHandler
 
 
 	class CMapBlitter
-	{		
+	{
 	protected:
 		const int FRAMES_PER_MOVE_ANIM_GROUP = 8;
 		CMapHandler * parent; // ptr to enclosing map handler; generally for legacy reasons, probably could/should be refactored out of here
@@ -267,16 +269,16 @@ class CMapHandler
 
 		virtual bool canDrawObject(const CGObjectInstance * obj) const;
 		virtual bool canDrawCurrentTile() const;
-		
+
 		// internal helper methods to choose correct bitmap(s) for object; called internally by findObjectBitmap
 		AnimBitmapHolder findHeroBitmap(const CGHeroInstance * hero, int anim) const;
-		AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;		
+		AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;
 		SDL_Surface * findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
 		SDL_Surface * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
 		SDL_Surface * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int indexOffset, ui8 dir) const;
 		SDL_Surface * findFlagBitmapInternal(const CDefEssential * def, int anim, int indexOffset, ui8 dir, bool moving) const;
 		int findAnimIndexByGroup(const CDefEssential * def, int groupNum) const;
-		
+
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
 		virtual ~CMapBlitter(){}
@@ -303,7 +305,7 @@ class CMapHandler
 	class CMapWorldViewBlitter : public CMapBlitter
 	{
 	private:
-		SDL_Surface * objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
+		IImage * objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
 	protected:
 		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
 						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
@@ -344,7 +346,7 @@ class CMapHandler
 	CMapBlitter * normalBlitter;
 	CMapBlitter * worldViewBlitter;
 	CMapBlitter * puzzleViewBlitter;
-	
+
 	std::map<int, std::pair<int3, CFadeAnimation*>> fadeAnims;
 	int fadeAnimCounter;
 
