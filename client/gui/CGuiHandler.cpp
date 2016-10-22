@@ -19,7 +19,7 @@ extern boost::mutex eventsM;
 CondSh<bool> CGuiHandler::terminate_cond;
 boost::thread_specific_ptr<bool> inGuiThread;
 
-SObjectConstruction::SObjectConstruction( CIntObject *obj )
+SObjectConstruction::SObjectConstruction(CIntObject *obj)
 :myObj(obj)
 {
 	GH.createdObj.push_front(obj);
@@ -86,7 +86,7 @@ void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 	elem->active_m &= ~activityFlag;
 }
 
-void CGuiHandler::popInt( IShowActivatable *top )
+void CGuiHandler::popInt(IShowActivatable *top)
 {
 	assert(listInt.front() == top);
 	top->deactivate();
@@ -97,7 +97,7 @@ void CGuiHandler::popInt( IShowActivatable *top )
 	totalRedraw();
 }
 
-void CGuiHandler::popIntTotally( IShowActivatable *top )
+void CGuiHandler::popIntTotally(IShowActivatable *top)
 {
 	assert(listInt.front() == top);
 	popInt(top);
@@ -105,7 +105,7 @@ void CGuiHandler::popIntTotally( IShowActivatable *top )
 	fakeMouseMove();
 }
 
-void CGuiHandler::pushInt( IShowActivatable *newInt )
+void CGuiHandler::pushInt(IShowActivatable *newInt)
 {
 	assert(newInt);
 	assert(boost::range::find(listInt, newInt) == listInt.end()); // do not add same object twice
@@ -121,7 +121,7 @@ void CGuiHandler::pushInt( IShowActivatable *newInt )
 	totalRedraw();
 }
 
-void CGuiHandler::popInts( int howMany )
+void CGuiHandler::popInts(int howMany)
 {
 	if(!howMany) return; //senseless but who knows...
 
@@ -364,7 +364,7 @@ void CGuiHandler::simpleRedraw()
 	objsToBlit.back()->show(screen); //blit active interface/window
 }
 
-void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
+void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 {
 	//sending active, MotionInterested objects mouseMoved() call
 	std::list<CIntObject*> miCopy = motioninterested;
@@ -463,7 +463,7 @@ void CGuiHandler::drawFPSCounter()
 	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, yellow, Point(10, 10));
 }
 
-SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key )
+SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key)
 {
 	switch(key)
 	{

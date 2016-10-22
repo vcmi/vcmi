@@ -206,7 +206,7 @@ void CClient::save(const std::string & fname)
 void CClient::endGame( bool closeConnection /*= true*/ )
 {
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	for(auto i : playerint)
+	for(auto& i : playerint)
 		i.second->finish();
 
 	// Game is ending

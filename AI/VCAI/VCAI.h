@@ -159,7 +159,7 @@ public:
 	std::unique_ptr<boost::thread> makingTurn;
 
 	VCAI(void);
-	~VCAI(void);
+	virtual ~VCAI(void);
 
 	//TODO: use only smart pointers?
 	void tryRealize(Goals::Explore & g);

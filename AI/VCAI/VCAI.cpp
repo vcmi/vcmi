@@ -101,6 +101,7 @@ VCAI::VCAI(void)
 VCAI::~VCAI(void)
 {
 	LOG_TRACE(logAi);
+	finish();
 }
 
 void VCAI::availableCreaturesChanged(const CGDwelling *town)
@@ -2750,7 +2751,10 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 void VCAI::finish()
 {
 	if(makingTurn)
+	{
 		makingTurn->interrupt();
+		makingTurn->join();
+	}
 }
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)

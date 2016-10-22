@@ -321,6 +321,8 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 
 void CCallback::unregisterAllInterfaces()
 {
+	for (auto& pi : cl->playerint)
+		pi.second->finish();
 	cl->playerint.clear();
 	cl->battleints.clear();
 }

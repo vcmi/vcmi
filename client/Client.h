@@ -59,7 +59,7 @@ public:
 	static CConnection * justConnectToServer(const std::string &host = "", const std::string &port = ""); //connects to given host without taking any other actions (like setting up server)
 
 	CServerHandler(bool runServer = false);
-	~CServerHandler();
+	virtual ~CServerHandler();
 };
 
 template<typename T>
@@ -72,7 +72,6 @@ class ThreadSafeVector
 	boost::condition_variable cond;
 
 public:
-
 	void pushBack(const T &item)
 	{
 		TLock lock(mx);

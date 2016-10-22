@@ -82,6 +82,7 @@ public:
 class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEventsReceiver
 {
 public:
+	virtual ~CGameInterface() = default;
 	virtual void init(std::shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
 
