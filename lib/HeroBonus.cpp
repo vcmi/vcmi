@@ -1110,10 +1110,6 @@ Bonus::Bonus()
 	sid = 0;
 }
 
-Bonus::~Bonus()
-{
-}
-
 std::shared_ptr<Bonus> Bonus::addPropagator(TPropagatorPtr Propagator)
 {
 	propagator = Propagator;

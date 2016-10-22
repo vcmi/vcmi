@@ -98,7 +98,7 @@ public:
 	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
 	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
 
-	void levelUpArtifact (CArtifactInstance * art) override;
+	void levelUpArtifact(CArtifactInstance * art) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

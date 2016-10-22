@@ -378,7 +378,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		return defaultValue;
 }
 
-void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
+void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string name)
 {
 	const JsonNode &value = node[name];
 	if (!value.isNull())
@@ -400,7 +400,7 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 	}
 }
 
-void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
+void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 {
 	switch (node.getType())
 	{
@@ -408,7 +408,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			var = node.Float();
 			break;
 		case JsonNode::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier (node, [&](si32 identifier)
+			VLC->modh->identifiers.requestIdentifier(node, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -420,8 +420,16 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 {
-
 	auto b = std::make_shared<Bonus>();
+	if (!parseBonus(ability, b.get()))
+	{
+		return nullptr;
+	}
+	return b;
+}
+
+bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
+{
 	const JsonNode *value;
 
 	std::string type = ability["type"].String();
@@ -429,11 +437,11 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	if (it == bonusNameMap.end())
 	{
 		logGlobal->errorStream() << "Error: invalid ability type " << type;
-		return b;
+		return false;
 	}
 	b->type = it->second;
 
-	resolveIdentifier (b->subtype, ability, "subtype");
+	resolveIdentifier(b->subtype, ability, "subtype");
 
 	b->val = ability["val"].Float();
 
@@ -441,7 +449,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	if (!value->isNull())
 		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
-	resolveIdentifier (b->additionalInfo, ability, "addInfo");
+	resolveIdentifier(b->additionalInfo, ability, "addInfo");
 
 	b->turnsRemain = ability["turns"].Float();
 
@@ -499,7 +507,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 							const JsonVector vec = limiter["parameters"].Vector();
 							VLC->modh->identifiers.requestIdentifier("creature", vec[0], [=](si32 creature)
 							{
-								l2->setCreature (CreatureID(creature));
+								l2->setCreature(CreatureID(creature));
 							});
 							if (vec.size() > 1)
 							{
@@ -516,7 +524,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 							const JsonVector vec = limiter["parameters"].Vector();
 							std::string anotherBonusType = vec[0].String();
 
-							auto it = bonusNameMap.find (anotherBonusType);
+							auto it = bonusNameMap.find(anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
 								logGlobal->errorStream() << "Error: invalid ability type " << anotherBonusType;
@@ -526,7 +534,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 
 							if (vec.size() > 1 )
 							{
-								resolveIdentifier (vec[1], l2->subtype);
+								resolveIdentifier(vec[1], l2->subtype);
 								l2->isSubtypeRelevant = true;
 							}
 							l = l2;
@@ -542,7 +550,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	if (!value->isNull())
 		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
 
-	return b;
+	return true;
 }
 
 //returns first Key with value equal to given one

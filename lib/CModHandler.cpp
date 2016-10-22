@@ -54,8 +54,10 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 	}
 }
 
-CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
-												   std::string name, const std::function<void(si32)> & callback, bool optional):
+CIdentifierStorage::ObjectCallback::ObjectCallback(
+		std::string localScope, std::string remoteScope, std::string type,
+		std::string name, const std::function<void(si32)> & callback,
+		bool optional):
 	localScope(localScope),
 	remoteScope(remoteScope),
 	type(type),

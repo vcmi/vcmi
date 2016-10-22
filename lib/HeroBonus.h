@@ -313,7 +313,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
 	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
 	Bonus();
-	~Bonus();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

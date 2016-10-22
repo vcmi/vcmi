@@ -41,7 +41,10 @@ class CIdentifierStorage
 		std::function<void(si32)> callback;
 		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback, bool optional);
+		ObjectCallback(std::string localScope, std::string remoteScope,
+		               std::string type, std::string name,
+		               const std::function<void(si32)> & callback,
+		               bool optional);
 	};
 
 	struct ObjectData // entry created on ID registration
