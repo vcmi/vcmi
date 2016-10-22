@@ -476,19 +476,16 @@ CAdvMapInt::CAdvMapInt():
 	statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
 	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
-	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) ),
-	activeMapPanel(nullptr)
+	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
+  spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
+  updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
+	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false)
 {
-	duringAITurn = false;
-	state = NA;
-	spellBeingCasted = nullptr;
+  adventureInt = this;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
-	position = int3(0,0,0);
-	selection = nullptr;
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
-	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	if (ADVOPT.worldViewGraphic != "")
 	{
@@ -499,13 +496,6 @@ CAdvMapInt::CAdvMapInt():
 		bgWorldView = nullptr;
 		logGlobal->warn("ADVOPT.worldViewGraphic is empty => bitmap not loaded");
 	}
-	scrollingDir = 0;
-	updateScreen  = false;
-	anim=0;
-	animValHitCount=0; //animation frame
-	heroAnim=0;
-	heroAnimValHitCount=0; // hero animation frame
-
 	if (!bgWorldView)
 	{
 		logGlobal->warn("bgWorldView not defined in resolution config; fallback to VWorld.bmp");
