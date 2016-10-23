@@ -1,15 +1,12 @@
 project(libvcmi)
 cmake_minimum_required(VERSION 2.6)
 
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-add_definitions(-DGIT_SHA1="${GIT_SHA1}")
-
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/lib)
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
 		StdInc.cpp
+		${CMAKE_BINARY_DIR}/Version.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
@@ -65,11 +62,11 @@ set(lib_SRCS
 
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
-        spells/AdventureSpellMechanics.cpp
-        spells/BattleSpellMechanics.cpp
-        spells/CreatureSpellMechanics.cpp
-        spells/CDefaultSpellMechanics.cpp
-        spells/ViewSpellInt.cpp
+		spells/AdventureSpellMechanics.cpp
+		spells/BattleSpellMechanics.cpp
+		spells/CreatureSpellMechanics.cpp
+		spells/CDefaultSpellMechanics.cpp
+		spells/ViewSpellInt.cpp
 
 		BattleAction.cpp
 		BattleHex.cpp

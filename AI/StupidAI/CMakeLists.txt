@@ -1,14 +1,11 @@
 project(stupidAI)
 cmake_minimum_required(VERSION 2.6)
 
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-add_definitions(-DGIT_SHA1="${GIT_SHA1}")
-
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 
 set(stupidAI_SRCS
 		StdInc.cpp
+		${CMAKE_BINARY_DIR}/Version.cpp
 		StupidAI.cpp
 		main.cpp
 )

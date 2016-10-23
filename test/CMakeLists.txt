@@ -1,19 +1,16 @@
 cmake_minimum_required(VERSION 2.6)
 
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-add_definitions(-DGIT_SHA1="${GIT_SHA1}")
-
 enable_testing()
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/test)
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(test_SRCS
 		StdInc.cpp
+		${CMAKE_BINARY_DIR}/Version.cpp
 		CVcmiTestConfig.cpp
 		CMapEditManagerTest.cpp
-                MapComparer.cpp
-                CMapFormatTest.cpp
+    MapComparer.cpp
+    CMapFormatTest.cpp
 )
 
 add_executable(vcmitest ${test_SRCS})
