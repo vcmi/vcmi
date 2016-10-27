@@ -127,8 +127,8 @@ CDefFile::CDefFile(std::string Name):
 	static SDL_Color H3Palette[8] =
 	{
 		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0,  64},//  75% - shadow border,
-		{   0,   0,   0, 128},// TODO: find exact value
+		{   0,   0,   0,  32},//  75% - shadow border,
+		{   0,   0,   0,  64},// TODO: find exact value
 		{   0,   0,   0, 128},// TODO: for transparency
 		{   0,   0,   0, 128},//  50% - shadow body
 		{   0,   0,   0,   0},// 100% - selection highlight
@@ -646,12 +646,14 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	destRect += sourceRect.topLeft();
 	sourceRect -= margins;
 
-	if(surf->format->palette)
+	if(surf->format->BitsPerPixel == 8)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
 	}
-	if(surf->format->Amask == 0)
+	else if(surf->format->Amask == 0)
+	{
 		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+	}
 	else
 	{
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
