@@ -145,7 +145,6 @@ Graphics::Graphics()
 	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
-	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
@@ -156,7 +155,6 @@ Graphics::Graphics()
 	initializeBattleGraphics();
 	loadErmuToPicture();
 	initializeImageLists();
-	resources32 = CDefHandler::giveDefEss("RESOURCE.DEF");
 	#endif
 
 	//(!) do not load any CAnimation here
