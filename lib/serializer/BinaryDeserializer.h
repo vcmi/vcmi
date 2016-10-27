@@ -314,7 +314,14 @@ public:
 		}
 		else
 		{
-			auto typeInfo = applier.getApplier(tid)->loadPtr(*this,&data, pid);
+			auto app = applier.getApplier(tid);
+			if(app == nullptr)
+			{
+				logGlobal->error("load %d %d - no loader exists", tid, pid);
+				data = nullptr;
+				return;
+			}
+			auto typeInfo = app->loadPtr(*this,&data, pid);
 			data = reinterpret_cast<T>(typeList.castRaw((void*)data, typeInfo, &typeid(typename std::remove_const<typename std::remove_pointer<T>::type>::type)));
 		}
 	}
