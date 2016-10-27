@@ -269,7 +269,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 
 					if (code==7)//Raw data
 					{
-						loader.Load(length, FDef[currentOffset]);
+						loader.Load(length, FDef + currentOffset);
 						currentOffset += length;
 					}
 					else//RLE
@@ -631,7 +631,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotation) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
 	if (!surf)
 		return;
@@ -645,7 +645,19 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotat
 	Rect destRect(posX, posY, surf->w, surf->h);
 	destRect += sourceRect.topLeft();
 	sourceRect -= margins;
-	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
+
+	if(surf->format->palette)
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
+	}
+	if(surf->format->Amask == 0)
+		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+	else
+	{
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+	}
 }
 
 void SDLImage::playerColored(PlayerColor player)

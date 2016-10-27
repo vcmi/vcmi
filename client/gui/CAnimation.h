@@ -99,6 +99,7 @@ public:
 	~SDLImage();
 
 	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const override;
+
 	void playerColored(PlayerColor player) override;
 	int width() const override;
 	int height() const override;
