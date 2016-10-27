@@ -6,7 +6,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(test_SRCS
 		StdInc.cpp
-		${CMAKE_BINARY_DIR}/Version.cpp
 		CVcmiTestConfig.cpp
 		CMapEditManagerTest.cpp
     MapComparer.cpp

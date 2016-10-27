@@ -5,7 +5,6 @@ include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_D
 
 set(stupidAI_SRCS
 		StdInc.cpp
-		${CMAKE_BINARY_DIR}/Version.cpp
 		StupidAI.cpp
 		main.cpp
 )

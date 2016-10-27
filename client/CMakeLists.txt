@@ -7,7 +7,6 @@ include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_D
 
 set(client_SRCS
 		StdInc.cpp
-		${CMAKE_BINARY_DIR}/Version.cpp
 		../CCallback.cpp
 
 		battle/CBattleInterface.cpp

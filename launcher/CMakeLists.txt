@@ -20,7 +20,6 @@ set(launcher_settingsview_SRCS
 
 set(launcher_SRCS
     StdInc.cpp
-    ${CMAKE_BINARY_DIR}/Version.cpp
     ${launcher_modmanager_SRCS}
     ${launcher_settingsview_SRCS}
     main.cpp

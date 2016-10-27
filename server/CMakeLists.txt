@@ -6,7 +6,6 @@ include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
 
 set(server_SRCS
 		StdInc.cpp
-		${CMAKE_BINARY_DIR}/Version.cpp
 		CGameHandler.cpp
 		CVCMIServer.cpp
 		CQuery.cpp
