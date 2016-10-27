@@ -962,14 +962,18 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		auto aset = al.getHolderArtSet();
+		#ifndef NDEBUG
 		bool found = false;
+        #endif
 		for(auto& p : aset->artifactsWorn)
 		{
 			auto art = p.second.artifact;
 			if(art->canBeDisassembled() && art->isPart(slot->artifact))
 			{
 				dis.al.slot = aset->getArtPos(art);
+				#ifndef NDEBUG
 				found = true;
+                #endif
 				break;
 			}
 		}

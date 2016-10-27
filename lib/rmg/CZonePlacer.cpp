@@ -154,8 +154,6 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 
 void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
 {	
-	TRmgTemplateZoneId firstZone = zones.begin()->first; //we want lowest ID here
-
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
 
 	const float radius = 0.4f;

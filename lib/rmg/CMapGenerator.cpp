@@ -479,7 +479,7 @@ void CMapGenerator::createDirectConnections()
 
 		int3 posA = zoneA->getPos();
 		int3 posB = zoneB->getPos();
-		auto zoneAid = zoneA->getId();
+		// auto zoneAid = zoneA->getId();
 		auto zoneBid = zoneB->getId();
 
 		if (posA.z == posB.z)
@@ -630,7 +630,7 @@ void CMapGenerator::createConnections2()
 								else if ((result1 == EObjectPlacingResult::SEALED_OFF) || (result2 == EObjectPlacingResult::SEALED_OFF))
 								{
 									//sealed-off tiles were blocked, exit inner loop and get another tile set
-									bool continueOuterLoop = true;
+									continueOuterLoop = true;
 									break;
 								}
 								else
