@@ -577,6 +577,7 @@ int main(int argc, char** argv)
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
+	logGlobal->info(NAME);
 
 	handleCommandOptions(argc, argv);
 	if(cmdLineOptions.count("port"))

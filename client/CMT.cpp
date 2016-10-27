@@ -300,6 +300,7 @@ int main(int argc, char** argv)
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
 	CBasicLogConfigurator logConfig(logPath, console);
 	logConfig.configureDefault();
+	logGlobal->infoStream() << NAME;
 	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
 	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
@@ -342,7 +343,6 @@ int main(int argc, char** argv)
 
 	conf.init();
 	logGlobal->infoStream() << "Loading settings: " << pomtime.getDiff();
-	logGlobal->infoStream() << NAME;
 
 	srand ( time(nullptr) );
 
