@@ -110,6 +110,7 @@
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
+			<Add option="-DVCMI_NO_EXTRA_VERSION" />
 			<Add directory="." />
 			<Add directory="$(#sdl2.include)" />
 			<Add directory="$(#zlib.include)" />
@@ -121,6 +122,7 @@
 			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="../Global.h" />
+		<Unit filename="../Version.h" />
 		<Unit filename="../include/vstd/CLoggerBase.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="BattleAction.cpp" />

@@ -11,11 +11,10 @@
  */
 
 #include "ConstTransitivePtr.h"
-#include "Version.h"
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = std::string("VCMI 0.98h ") + GIT_SHA1;
+	DLL_LINKAGE extern const std::string VCMI_VERSION;
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;

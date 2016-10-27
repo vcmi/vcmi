@@ -12,6 +12,10 @@
 
 #include "StdInc.h"
 
+#ifndef VCMI_NO_EXTRA_VERSION
+#include "../Version.h"
+#endif
+
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
@@ -30,6 +34,15 @@ const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
 const TeamID TeamID::NO_TEAM = TeamID(255);
+
+namespace GameConstants
+{
+#ifdef VCMI_NO_EXTRA_VERSION
+	const std::string VCMI_VERSION = std::string("VCMI 0.98h");
+#else
+	const std::string VCMI_VERSION = std::string("VCMI 0.98h ") + GIT_SHA1;
+#endif
+}
 
 const CArtifact * ArtifactID::toArtifact() const
 {
