@@ -203,15 +203,15 @@ void CClient::save(const std::string & fname)
 	sendRequest((CPackForClient*)&save_game, PlayerColor::NEUTRAL);
 }
 
-void CClient::endGame( bool closeConnection /*= true*/ )
+void CClient::endGame(bool closeConnection /*= true*/)
 {
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	for(auto& i : playerint)
+	for (auto& i : playerint)
 		i.second->finish();
 
 	// Game is ending
 	// Tell the network thread to reach a stable state
-	if(closeConnection)
+	if (closeConnection)
 		stopConnection();
 	logNetwork->infoStream() << "Closed connection.";
 
