@@ -459,8 +459,7 @@ void CGuiHandler::renderFrame()
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();
 
-		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
-			logGlobal->error("%s SDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
+		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
 
 		SDL_RenderPresent(mainRenderer);
 	}

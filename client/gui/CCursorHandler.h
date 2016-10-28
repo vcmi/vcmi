@@ -17,18 +17,19 @@ namespace ECursor
 	enum ECursorTypes { ADVENTURE, COMBAT, DEFAULT, SPELLBOOK };
 
 	enum EBattleCursors { COMBAT_BLOCKED, COMBAT_MOVE, COMBAT_FLY, COMBAT_SHOOT,
-						COMBAT_HERO, COMBAT_QUERY, COMBAT_POINTER, 
+						COMBAT_HERO, COMBAT_QUERY, COMBAT_POINTER,
 						//various attack frames
 						COMBAT_SHOOT_PENALTY = 15, COMBAT_SHOOT_CATAPULT, COMBAT_HEAL,
 						COMBAT_SACRIFICE, COMBAT_TELEPORT};
 }
 
 /// handles mouse cursor
-class CCursorHandler 
+class CCursorHandler
 {
 	SDL_Surface * help;
 	CAnimImage * currentCursor;
-	CAnimImage * dndObject; //if set, overrides currentCursor
+
+	std::unique_ptr<CAnimImage> dndObject; //if set, overrides currentCursor
 	bool showing;
 
 	/// Draw cursor preserving original image below cursor
@@ -37,7 +38,7 @@ class CCursorHandler
 	void drawRestored();
 	/// Simple draw cursor
 	void draw(SDL_Surface *to);
-	
+
 public:
 	/// position of cursor
 	int xpos, ypos;
@@ -58,8 +59,8 @@ public:
 	 * @param image Image to replace cursor with or nullptr to use the normal
 	 * cursor. CursorHandler takes ownership of object
 	 */
-	void dragAndDropCursor (CAnimImage * image);
-	
+	void dragAndDropCursor (std::unique_ptr<CAnimImage> image);
+
 	void render();
 
 	void shiftPos( int &x, int &y );

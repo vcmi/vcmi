@@ -27,7 +27,7 @@ void CCursorHandler::initCursor()
 
 	help = CSDL_Ext::newSurface(40,40);
 	//No blending. Ensure, that we are copying pixels during "screen restore draw"
-	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);	
+	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	changeGraphic(ECursor::ADVENTURE, 0);
@@ -55,12 +55,9 @@ void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 	}
 }
 
-void CCursorHandler::dragAndDropCursor(CAnimImage * object)
+void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 {
-	if (dndObject)
-		delete dndObject;
-
-	dndObject = object;
+	dndObject = std::move(object);
 }
 
 void CCursorHandler::cursorMove(const int & x, const int & y)
@@ -233,12 +230,10 @@ void CCursorHandler::render()
 	drawRestored();
 }
 
-
 CCursorHandler::~CCursorHandler()
 {
 	if(help)
 		SDL_FreeSurface(help);
 
 	delete currentCursor;
-	delete dndObject;
 }
