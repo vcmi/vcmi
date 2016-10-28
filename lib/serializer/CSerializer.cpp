@@ -1,9 +1,9 @@
 #include "StdInc.h"
 #include "CSerializer.h"
 
-#include "CGameState.h"
-#include "mapping/CMap.h"
-#include "CHeroHandler.h"
+#include "../CGameState.h"
+#include "../mapping/CMap.h"
+#include "../CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 /*
