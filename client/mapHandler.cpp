@@ -528,7 +528,7 @@ CMapHandler::CMapNormalBlitter::CMapNormalBlitter(CMapHandler * parent)
 	defaultTileRect = Rect(0, 0, tileSize, tileSize);
 }
 
-SDL_Surface * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, PlayerColor owner) const
+IImage * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, PlayerColor owner) const
 {
 	int ownerIndex = 0;
 	if(owner < PlayerColor::PLAYER_LIMIT)
@@ -545,19 +545,19 @@ SDL_Surface * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 	case Obj::MONOLITH_TWO_WAY:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::TELEPORT].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::TELEPORT);
 	case Obj::SUBTERRANEAN_GATE:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::GATE].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::GATE);
 	case Obj::ARTIFACT:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::ARTIFACT].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::ARTIFACT);
 	case Obj::TOWN:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::TOWN + ownerIndex].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::TOWN + ownerIndex);
 	case Obj::HERO:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::HERO + ownerIndex].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::HERO + ownerIndex);
 	case Obj::MINE:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::MINE_WOOD + subId + ownerIndex].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::MINE_WOOD + subId + ownerIndex);
 	case Obj::RESOURCE:
-		return info->iconsDef->ourImages[(int)EWorldViewIcon::RES_WOOD + subId + ownerIndex].bitmap;
+		return info->icons->getImage((int)EWorldViewIcon::RES_WOOD + subId + ownerIndex);
 	}
 	return nullptr;
 }
@@ -645,13 +645,13 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 {
 	auto drawIcon = [this,targetSurf](Obj id, si32 subId, PlayerColor owner)
 	{
-		SDL_Surface * wvIcon = this->objectToIcon(id, subId, owner);
+		IImage * wvIcon = this->objectToIcon(id, subId, owner);
 
-		if (nullptr != wvIcon)
+		if(nullptr != wvIcon)
 		{
 			// centering icon on the object
-			Rect destRect(realPos.x + tileSize / 2 - wvIcon->w / 2, realPos.y + tileSize / 2 - wvIcon->h / 2, wvIcon->w, wvIcon->h);
-			CSDL_Ext::blitSurface(wvIcon, nullptr, targetSurf, &destRect);
+			Point dest(realPos.x + tileSize / 2 - wvIcon->width() / 2, realPos.y + tileSize / 2 - wvIcon->height() / 2);
+			wvIcon->draw(targetSurf, dest.x, dest.y);
 		}
 	};
 
@@ -690,13 +690,13 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 		realPos.x = initPos.x + (iconInfo.pos.x - topTile.x) * tileSize;
 		realPos.y = initPos.x + (iconInfo.pos.y - topTile.y) * tileSize;
 
-		SDL_Surface * wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);
+		IImage * wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);
 
-		if (nullptr != wvIcon)
+		if(nullptr != wvIcon)
 		{
 			// centering icon on the object
-			Rect destRect(realPos.x + tileSize / 2 - wvIcon->w / 2, realPos.y + tileSize / 2 - wvIcon->h / 2, wvIcon->w, wvIcon->h);
-			CSDL_Ext::blitSurface(wvIcon, nullptr, targetSurf, &destRect);
+			Point dest(realPos.x + tileSize / 2 - wvIcon->width() / 2, realPos.y + tileSize / 2 - wvIcon->height() / 2);
+			wvIcon->draw(targetSurf, dest.x, dest.y);
 		}
 	}
 }
@@ -778,8 +778,8 @@ void CMapHandler::CMapPuzzleViewBlitter::drawObjects(SDL_Surface * targetSurf, c
 	// grail X mark
 	if(pos.x == info->grailPos.x && pos.y == info->grailPos.y)
 	{
-		Rect destRect(realTileRect);
-		CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, nullptr, targetSurf, &destRect);
+		const IImage * mark = graphics->heroMoveArrows->getImage(0);
+		mark->draw(targetSurf,realTileRect.x,realTileRect.y);
 	}
 }
 

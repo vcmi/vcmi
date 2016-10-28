@@ -127,8 +127,8 @@ CDefFile::CDefFile(std::string Name):
 	static SDL_Color H3Palette[8] =
 	{
 		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0,  64},//  75% - shadow border,
-		{   0,   0,   0, 128},// TODO: find exact value
+		{   0,   0,   0,  32},//  75% - shadow border,
+		{   0,   0,   0,  64},// TODO: find exact value
 		{   0,   0,   0, 128},// TODO: for transparency
 		{   0,   0,   0, 128},//  50% - shadow body
 		{   0,   0,   0,   0},// 100% - selection highlight
@@ -269,7 +269,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 
 					if (code==7)//Raw data
 					{
-						loader.Load(length, FDef[currentOffset]);
+						loader.Load(length, FDef + currentOffset);
 						currentOffset += length;
 					}
 					else//RLE
@@ -631,10 +631,11 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotation) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
 	if (!surf)
 		return;
+
 	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
 	//TODO: rotation and scaling
 	if (src)
@@ -644,7 +645,21 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotat
 	Rect destRect(posX, posY, surf->w, surf->h);
 	destRect += sourceRect.topLeft();
 	sourceRect -= margins;
-	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
+
+	if(surf->format->BitsPerPixel == 8)
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
+	}
+	else if(surf->format->Amask == 0)
+	{
+		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+	}
+	else
+	{
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
+		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+	}
 }
 
 void SDLImage::playerColored(PlayerColor player)
@@ -1056,7 +1071,8 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
 	name(Name),
-	compressed(Compressed)
+	compressed(Compressed),
+	preloaded(false)
 {
 	size_t dotPos = name.find_last_of('.');
 	if ( dotPos!=-1 )
@@ -1069,14 +1085,18 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 
 CAnimation::CAnimation():
 	name(""),
-	compressed(false)
+	compressed(false),
+	preloaded(false)
 {
 	init(nullptr);
 }
 
 CAnimation::~CAnimation()
 {
-	if (!images.empty())
+	if(preloaded)
+		unload();
+
+	if(!images.empty())
 	{
 		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (auto & elem : images)
@@ -1124,6 +1144,12 @@ void CAnimation::unload()
 		for (size_t image=0; image < elem.second.size(); image++)
 			unloadFrame(image, elem.first);
 
+}
+
+void CAnimation::preload()
+{
+	preloaded = true;
+	load();
 }
 
 void CAnimation::loadGroup(size_t group)

@@ -5,6 +5,7 @@
 #include "../lib/filesystem/CBinaryReader.h"
 #include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
+#include "gui/CAnimation.h"
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"
@@ -144,8 +145,6 @@ Graphics::Graphics()
 	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
-	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
-	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
@@ -156,14 +155,17 @@ Graphics::Graphics()
 	initializeBattleGraphics();
 	loadErmuToPicture();
 	initializeImageLists();
-	resources32 = CDefHandler::giveDefEss("RESOURCE.DEF");
-	heroMoveArrows = CDefHandler::giveDefEss("ADAG.DEF");
 	#endif
 
-	for(auto & elem : heroMoveArrows->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	//(!) do not load any CAnimation here
+}
+
+void Graphics::load()
+{
+	heroMoveArrows = std::make_shared<CAnimation>("ADAG");
+	heroMoveArrows->preload();
+
+	loadHeroAnims();
 }
 
 void Graphics::loadHeroAnims()

@@ -154,7 +154,7 @@ void init()
 		logGlobal->infoStream()<<"Screen handler: "<<pomtime.getDiff();
 		pomtime.getDiff();
 
-		graphics->loadHeroAnims();
+		graphics->load();
 		logGlobal->infoStream()<<"\tMain graphics: "<<pomtime.getDiff();
 		logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
 
@@ -933,6 +933,8 @@ void dispose()
 		CCS->soundh->release();
 	}
 	CMessage::dispose();
+
+	vstd::clear_pointer(graphics);
 
 	if(console)
 	{
