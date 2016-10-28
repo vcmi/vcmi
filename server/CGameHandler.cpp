@@ -4371,7 +4371,36 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 	return false;
 }
 
-void CGameHandler::stackTurnTrigger(const CStack * st)
+
+void CGameHandler::stackAppearTrigger(const CStack *st)
+{
+  auto bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
+  for (auto b : bl)
+  {
+      SetStackEffect sse;
+      int val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
+      if (val > 3)
+      {
+          for (auto s : gs->curB->battleGetAllStacks())
+          {
+              if (battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
+                  sse.stacks.push_back (s->ID);
+          }
+      }
+      else
+          sse.stacks.push_back (st->ID);
+
+      Bonus pseudoBonus;
+      pseudoBonus.sid = b->subtype;
+      pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
+      pseudoBonus.turnsRemain = 50;
+      st->stackEffectToFeature(sse.effect, pseudoBonus);
+      if (sse.effect.size())
+          sendAndApply(&sse);
+  }
+}
+
+void CGameHandler::stackTurnTrigger(const CStack *st)
 {
 	BattleTriggerEffect bte;
 	bte.stackID = st->ID;
@@ -4380,6 +4409,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
+		stackAppearTrigger(st);
 		//unbind
 		if (st->hasBonus(Selector::type(Bonus::BIND_EFFECT)))
 		{
@@ -4502,31 +4532,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 					cast = true;
 				}
-			};
-		}
-		bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
-		for (auto b : bl)
-		{
-			SetStackEffect sse;
-			int val = bl.valOfBonuses (Selector::typeSubtype(b->type, b->subtype));
-			if (val > 3)
-			{
-				for (auto s : gs->curB->battleGetAllStacks())
-				{
-					if (battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
-						sse.stacks.push_back (s->ID);
-				}
 			}
-			else
-				sse.stacks.push_back (st->ID);
-
-			Bonus pseudoBonus;
-			pseudoBonus.sid = b->subtype;
-			pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
-			pseudoBonus.turnsRemain = 50;
-			st->stackEffectToFeature (sse.effect, pseudoBonus);
-			if (sse.effect.size())
-				sendAndApply (&sse);
 		}
 	}
 }
@@ -5515,16 +5521,21 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 	}
 }
 
-void CGameHandler::runBattle()
-{
+void CGameHandler::runBattle() {
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
 
 	//tactic round
 	{
-		while(gs->curB->tacticDistance && !battleResult.get())
+		while (gs->curB->tacticDistance && !battleResult.get())
 			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	}
+
+	//initial stacks appearance triggers, e.g. built-in bonus spells
+	for (auto stack : gs->curB->stacks)
+	{
+		stackAppearTrigger(stack);
 	}
 
 	//spells opening battle
@@ -5554,7 +5565,7 @@ void CGameHandler::runBattle()
 	}
 
 	//main loop
-	while(!battleResult.get()) //till the end of the battle ;]
+	while (!battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
@@ -5573,9 +5584,8 @@ void CGameHandler::runBattle()
 		//stack loop
 
 		const CStack *next;
-		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
+		while (!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
 		{
-
 			std::set <const CStack *> stacksToRemove;
 			for (auto stack : curB.stacks)
 			{
@@ -5746,7 +5756,7 @@ void CGameHandler::runBattle()
 
 						boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 						battleMadeAction.data = false;
-						while(!actionWasMade())
+						while (!actionWasMade())
 						{
 							battleMadeAction.cond.wait(lock);
 							if (battleGetStackByID(nextId, false) != next)
@@ -5778,17 +5788,16 @@ void CGameHandler::runBattle()
 						)
 					{
 						if (getRandomGenerator().nextInt(23) < nextStackMorale) //this stack hasn't got morale this turn
+						{
+							BattleTriggerEffect bte;
+							bte.stackID = next->ID;
+							bte.effect = Bonus::MORALE;
+							bte.val = 1;
+							bte.additionalInfo = 0;
+							sendAndApply(&bte); //play animation
 
-							{
-								BattleTriggerEffect bte;
-								bte.stackID = next->ID;
-								bte.effect = Bonus::MORALE;
-								bte.val = 1;
-								bte.additionalInfo = 0;
-								sendAndApply(&bte); //play animation
-
-								++numberOfAsks; //move this stack once more
-							}
+							++numberOfAsks; //move this stack once more
+						}
 					}
 				}
 				--numberOfAsks;

@@ -199,7 +199,8 @@ public:
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	bool makeCustomAction(BattleAction &ba);
-	void stackTurnTrigger(const CStack * stack);
+	void stackAppearTrigger(const CStack *stack);
+	void stackTurnTrigger(const CStack *stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, ui32 answer, PlayerColor player );
