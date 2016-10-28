@@ -86,7 +86,6 @@ public:
 	void showAll(SDL_Surface * to) override;
 
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
-	void questlog(); //show quest log in hero window
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
 	virtual void updateGarrisons() override;  //updates the morale widget and calls the parent
