@@ -4374,30 +4374,30 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 
 void CGameHandler::stackAppearTrigger(const CStack *st)
 {
-  auto bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
-  for (auto b : bl)
-  {
-      SetStackEffect sse;
-      int val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
-      if (val > 3)
-      {
-          for (auto s : gs->curB->battleGetAllStacks())
-          {
-              if (battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
-                  sse.stacks.push_back (s->ID);
-          }
-      }
-      else
-          sse.stacks.push_back (st->ID);
+	auto bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
+	for (auto b : bl)
+	{
+		SetStackEffect sse;
+		int val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
+		if (val > 3)
+		{
+			for (auto s : gs->curB->battleGetAllStacks())
+			{
+				if (battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
+					sse.stacks.push_back (s->ID);
+			}
+		}
+		else
+			sse.stacks.push_back (st->ID);
 
-      Bonus pseudoBonus;
-      pseudoBonus.sid = b->subtype;
-      pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
-      pseudoBonus.turnsRemain = 50;
-      st->stackEffectToFeature(sse.effect, pseudoBonus);
-      if (sse.effect.size())
-          sendAndApply(&sse);
-  }
+		Bonus pseudoBonus;
+		pseudoBonus.sid = b->subtype;
+		pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
+		pseudoBonus.turnsRemain = 50;
+		st->stackEffectToFeature(sse.effect, pseudoBonus);
+		if (sse.effect.size())
+			sendAndApply(&sse);
+	}
 }
 
 void CGameHandler::stackTurnTrigger(const CStack *st)
@@ -5521,7 +5521,8 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 	}
 }
 
-void CGameHandler::runBattle() {
+void CGameHandler::runBattle()
+{
 	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
@@ -6321,7 +6322,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 		scp.heroid = heroWithDeadCommander;
 		scp.which = SetCommanderProperty::ALIVE;
 		scp.amount = 0;
-		gh->sendAndApply (&scp);
+		gh->sendAndApply(&scp);
 	}
 }
 
