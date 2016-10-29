@@ -200,7 +200,7 @@ extern DLL_LINKAGE CTypeList typeList;
 /// Wrapper over CTypeList. Allows execution of templated class T for any type
 /// that was resgistered for this applier
 template<typename T>
-class CApplier
+class CApplier : boost::noncopyable
 {
 	std::map<ui16, std::unique_ptr<T>> apps;
 
