@@ -58,6 +58,7 @@ void CConnection::init()
 	receivedStop = sendStop = false;
 	static int cid = 1;
 	connectionID = cid++;
+	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name)

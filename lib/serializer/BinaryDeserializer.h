@@ -148,6 +148,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 			ptr = ClassObjectCreator<npT>::invoke(); //does new npT or throws for abstract classes
 			s.ptrAllocated(ptr, pid);
 			//T is most derived known type, it's time to call actual serialize
+			assert(s.fileVersion != 0);
 			ptr->serialize(s,s.fileVersion);
 			return &typeid(T);
 		}
@@ -185,23 +186,17 @@ public:
 	template < class T, typename std::enable_if < std::is_fundamental<T>::value && !std::is_same<T, bool>::value, int  >::type = 0 >
 	void load(T &data)
 	{
-		if(0) //for testing #989
-		{
-			this->read(&data,sizeof(data));
-		}
-		else
-		{
-			unsigned length = sizeof(data);
-			char* dataPtr = (char*)&data;
-			this->read(dataPtr,length);
-			if(reverseEndianess)
-				std::reverse(dataPtr, dataPtr + length);
-		}
+		unsigned length = sizeof(data);
+		char* dataPtr = (char*)&data;
+		this->read(dataPtr,length);
+		if(reverseEndianess)
+			std::reverse(dataPtr, dataPtr + length);
 	}
 
 	template < typename T, typename std::enable_if < is_serializeable<BinaryDeserializer, T>::value, int  >::type = 0 >
 	void load(T &data)
 	{
+		assert( fileVersion != 0 );
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const<T>::type nonConstT;
 		nonConstT &hlp = const_cast<nonConstT&>(data);
@@ -521,7 +516,7 @@ public:
 	std::string fName;
 	std::unique_ptr<boost::filesystem::ifstream> sfile;
 
-	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = version); //throws!
+	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION ); //throws!
 	~CLoadFile();
 	int read(void * data, unsigned size) override; //throws!
 

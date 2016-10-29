@@ -102,7 +102,7 @@ class DLL_LINKAGE BinarySerializer : public CSaverBase
 			const T *ptr = static_cast<const T*>(data);
 
 			//T is most derived known type, it's time to call actual serialize
-			const_cast<T*>(ptr)->serialize(s,version);
+			const_cast<T*>(ptr)->serialize(s, SERIALIZATION_VERSION);
 		}
 	};
 
@@ -235,7 +235,7 @@ public:
 	template < typename T, typename std::enable_if < is_serializeable<BinarySerializer, T>::value, int  >::type = 0 >
 	void save(const T &data)
 	{
-		const_cast<T&>(data).serialize(*this,version);
+		const_cast<T&>(data).serialize(*this, SERIALIZATION_VERSION);
 	}
 
 	template <typename T>

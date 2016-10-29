@@ -291,7 +291,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 			throw std::runtime_error("Cannot open server part of " + fname);
 
 		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
+			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(checkingLoader);
 			loader = checkingLoader.decay();
 		}

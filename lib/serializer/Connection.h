@@ -49,6 +49,9 @@ class DLL_LINKAGE CConnection
 
 	void init();
 	void reportState(CLogger * out) override;
+
+	int write(const void * data, unsigned size) override;
+	int read(void * data, unsigned size) override;
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
@@ -70,8 +73,6 @@ public:
 	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
 	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
 
-	int write(const void * data, unsigned size) override;
-	int read(void * data, unsigned size) override;
 	void close();
 	bool isOpen() const;
 	template<class T>

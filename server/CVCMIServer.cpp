@@ -464,7 +464,7 @@ void CVCMIServer::loadGame()
 	c >> clients >> fname; //how many clients should be connected
 
 	{
-		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
+		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 		gh.loadCommonState(lf);
 		lf >> gh;
 	}

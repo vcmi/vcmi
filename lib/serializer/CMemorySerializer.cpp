@@ -36,5 +36,6 @@ CMemorySerializer::CMemorySerializer(): iser(this), oser(this)
 	readPos = 0;
 	registerTypes(iser);
 	registerTypes(oser);
+	iser.fileVersion = SERIALIZATION_VERSION;
 }
 

@@ -34,7 +34,7 @@ int CLoadFile::read(void * data, unsigned size)
 void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalVersion)
 {
 	assert(!serializer.reverseEndianess);
-	assert(minimalVersion <= version);
+	assert(minimalVersion <= SERIALIZATION_VERSION);
 
 	try
 	{
@@ -55,15 +55,15 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		if(serializer.fileVersion < minimalVersion)
 			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
-		if(serializer.fileVersion > version)
+		if(serializer.fileVersion > SERIALIZATION_VERSION )
 		{
-			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % version % fName;
+			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % SERIALIZATION_VERSION % fName;
 
 			auto versionptr = (char*)&serializer.fileVersion;
 			std::reverse(versionptr, versionptr + 4);
 			logGlobal->warnStream() << "Version number reversed is " << serializer.fileVersion << ", checking...";
 
-			if(serializer.fileVersion == version)
+			if(serializer.fileVersion == SERIALIZATION_VERSION)
 			{
 				logGlobal->warnStream() << fname << " seems to have different endianness! Entering reversing mode.";
 				serializer.reverseEndianess = true;

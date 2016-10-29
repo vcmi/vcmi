@@ -22,7 +22,7 @@ public:
 	std::unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
-	CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion = version); //throws!
+	CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion = SERIALIZATION_VERSION); //throws!
 
 	int read( void * data, unsigned size) override; //throws!
 	void checkMagicBytes(const std::string &text);
