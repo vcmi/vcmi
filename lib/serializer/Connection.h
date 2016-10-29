@@ -74,6 +74,7 @@ public:
 
 	void close();
 	bool isOpen() const;
+	bool isHost() const;
 	template<class T>
 	CConnection &operator&(const T&);
 	virtual ~CConnection(void);
