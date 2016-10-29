@@ -996,7 +996,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	{
 		assert(!c.connected); //make sure that connection has been marked as broken
 		logGlobal->error(e.what());
-		end2 = true;
+		conns -= &c;
 	}
 	catch(...)
 	{
@@ -2530,6 +2530,9 @@ void CGameHandler::sendToAllClients(CPackForClient * info)
 	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for (auto & elem : conns)
 	{
+		if(!elem->isOpen())
+			continue;
+
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
 		*elem << info;
 	}
@@ -2602,6 +2605,7 @@ void CGameHandler::close()
 	{
 		exit(0);
 	}
+	end2 = true;
 
 	//for (CConnection *cc : conns)
 	//	if (cc && cc->socket && cc->socket->is_open())

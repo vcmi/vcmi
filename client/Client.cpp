@@ -389,7 +389,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	else
 	{
 		serv = con;
-		networkMode = (con->connectionID == 1) ? HOST : GUEST;
+		networkMode = con->isHost() ? HOST : GUEST;
 	}
 
 	CConnection &c = *serv;
@@ -691,7 +691,7 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv) //request closing connection
+	if (serv && serv->isHost()) //request closing connection
 	{
 		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
