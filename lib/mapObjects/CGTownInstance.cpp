@@ -562,15 +562,25 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(h->visitablePos() == visitablePos())
 	{
-		if (h->commander && !h->commander->alive) //rise commander. TODO: interactive script
+		bool commander_recover = h->commander && !h->commander->alive;
+		if (commander_recover) // rise commander from dead
 		{
 			SetCommanderProperty scp;
 			scp.heroid = h->id;
 			scp.which = SetCommanderProperty::ALIVE;
 			scp.amount = 1;
-			cb->sendAndApply (&scp);
+			cb->sendAndApply(&scp);
 		}
 		cb->heroVisitCastle(this, h);
+		// TODO(vmarkovtsev): implement payment for rising the commander
+		if (commander_recover) // info window about commander
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << h->commander->getName();
+			iw.components.push_back(Component(*h->commander));
+			cb->showInfoDialog(&iw);
+		}
 	}
 	else
 	{
