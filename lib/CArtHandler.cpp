@@ -1348,11 +1348,6 @@ si32 CArtifactSet::getArtTypeId(ArtifactPosition pos) const
 	return a->artType->id;
 }
 
-CArtifactSet::~CArtifactSet()
-{
-
-}
-
 ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));

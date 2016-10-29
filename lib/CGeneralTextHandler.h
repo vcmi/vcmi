@@ -111,7 +111,7 @@ public:
 	std::vector<std::string> tavernInfo;
 	std::vector<std::string> tavernRumors;
 
-	std::vector<std::pair<std::string,std::string> > zelp;
+	std::vector<std::pair<std::string,std::string>> zelp;
 	std::vector<std::string> lossCondtions;
 	std::vector<std::string> victoryConditions;
 
@@ -123,23 +123,26 @@ public:
 	std::vector<std::string> restypes; //names of resources
 	std::vector<std::string> terrainNames;
 	std::vector<std::string> randsign;
-	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
+	std::vector<std::pair<std::string,std::string>> mines; //first - name; second - event description
 	std::vector<std::string> seerEmpty;
-	std::vector <std::vector <std::vector <std::string> > >  quests; //[quest][type][index]
+	std::vector<std::vector<std::vector<std::string>>>  quests; //[quest][type][index]
 	//type: quest, progress, complete, rollover, log OR time limit //index: 0-2 seer hut, 3-5 border guard
 	std::vector<std::string> seerNames;
 	std::vector<std::string> tentColors;
 
 	//sec skills
-	std::vector <std::string>  skillName;
-	std::vector <std::vector <std::string> > skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
+	std::vector<std::string> skillName;
+	std::vector<std::vector<std::string>> skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
 	std::vector<std::string> levels;
 	std::vector<std::string> zcrexp; //more or less useful content of that file
 
 	//campaigns
-	std::vector <std::string> campaignMapNames;
-	std::vector < std::vector <std::string> > campaignRegionNames;
+	std::vector<std::string> campaignMapNames;
+	std::vector<std::vector<std::string>> campaignRegionNames;
 
-	void readToVector(std::string sourceName, std::vector<std::string> & dest);
+	static void readToVector(std::string sourceName, std::vector<std::string> &dest);
+
 	CGeneralTextHandler();
+	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
+	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 };

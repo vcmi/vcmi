@@ -137,7 +137,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 	switch (missionType)
 	{
 		case MISSION_LEVEL:
-			components.push_back(Component (Component::EXPERIENCE, 0, m13489val, 0));
+			components.push_back(Component(Component::EXPERIENCE, 0, m13489val, 0));
 			if(!isCustom)
 				iwText.addReplacement(m13489val);
 			break;
@@ -148,7 +148,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			{
 				if(m2stats[i])
 				{
-					components.push_back(Component (Component::PRIM_SKILL, i, m2stats[i], 0));
+					components.push_back(Component(Component::PRIM_SKILL, i, m2stats[i], 0));
 					loot << "%d %s";
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
@@ -165,7 +165,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.push_back(Component (Component::HERO_PORTRAIT, VLC->heroh->heroes[m13489val]->imageIndex, 0, 0));
+			components.push_back(Component(Component::HERO_PORTRAIT, VLC->heroh->heroes[m13489val]->imageIndex, 0, 0));
 			if(!isCustom)
 				iwText.addReplacement(VLC->heroh->heroes[m13489val]->name);
 			break;
@@ -183,7 +183,7 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			MetaString loot;
 			for(auto & elem : m5arts)
 			{
-				components.push_back(Component (Component::ARTIFACT, elem, 0, 0));
+				components.push_back(Component(Component::ARTIFACT, elem, 0, 0));
 				loot << "%s";
 				loot.addReplacement(MetaString::ART_NAMES, elem);
 			}

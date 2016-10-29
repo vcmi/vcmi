@@ -122,7 +122,7 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 				commander->setAlive(false);
 			break;
 		case EXPERIENCE:
-			commander->giveStackExp (amount); //TODO: allow setting exp for stacks via netpacks
+			commander->giveStackExp(amount); //TODO: allow setting exp for stacks via netpacks
 			break;
 	}
 }

@@ -298,7 +298,7 @@ bool CLegacyConfigParser::endLine()
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> & dest)
+void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> &dest)
 {
 	CLegacyConfigParser parser(sourceName);
 	do

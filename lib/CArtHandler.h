@@ -324,7 +324,7 @@ public:
 	si32 getArtTypeId(ArtifactPosition pos) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual ~CArtifactSet();
+	virtual ~CArtifactSet() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
