@@ -214,6 +214,8 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 bool CArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
                               const CGHeroInstance *hero)
 {
+	assert(art != nullptr);
+	assert(hero != nullptr);
 	std::vector<const CArtifact *> assemblyPossibilities = art->assemblyPossibilities(hero);
 
 	// If the artifact can be assembled, display dialog.
