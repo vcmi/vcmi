@@ -144,34 +144,34 @@ std::string CStackWindow::generateStackExpDescription()
 		tier = 0;
 	int number;
 	std::string expText = CGI->generaltexth->zcrexp[325];
-	boost::replace_first (expText, "%s", creature->namePl);
-	boost::replace_first (expText, "%s", CGI->generaltexth->zcrexp[rank]);
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(rank));
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->experience));
+	boost::replace_first(expText, "%s", creature->namePl);
+	boost::replace_first(expText, "%s", CGI->generaltexth->zcrexp[rank]);
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));
 	number = CGI->creh->expRanks[tier][rank] - stack->experience;
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number));
 
 	number = CGI->creh->maxExpPerBattle[tier]; //percent
-	boost::replace_first (expText, "%i%", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i%", boost::lexical_cast<std::string>(number));
 	number *= CGI->creh->expRanks[tier].back() / 100; //actual amount
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number));
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number));
 
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
 
 	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
 	number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
 
-	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
+	boost::replace_first(expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier
 	number = CGI->creh->expAfterUpgrade;
-	boost::replace_first (expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
+	boost::replace_first(expText, "%.2f", boost::lexical_cast<std::string>(number) + "%"); //Upgrade Multiplier
 
 	expmin = CGI->creh->expRanks[tier][9];
 	int expmax = CGI->creh->expRanks[tier][10];
 	number = expmax - expmin;
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
 	number = (stack->count * (expmax - expmin)) / expmin;
-	boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
+	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
 
 	return expText;
 }
@@ -181,29 +181,10 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 	auto art = info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
 	LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos),
 								ArtifactLocation(info->owner, art->firstBackpackSlot(info->owner)));
-	delete stackArtifactButton;
-	delete stackArtifactHelp;
-	delete stackArtifactIcon;
-}
-
-void CStackWindow::setStackArtifact(const CArtifactInstance * art, Point artPos)
-{
-	if (art)
-	{
-		stackArtifactIcon = new CAnimImage("ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y);
-		stackArtifactHelp = new LRClickableAreaWTextComp(Rect(artPos, Point(44, 44)), CComponent::artifact);
-		stackArtifactHelp->type = art->artType->id;
-
-		const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
-
-		if (info->owner)
-		{
-			stackArtifactButton = new CButton(Point(artPos.x - 2 , artPos.y + 46), "stackWindow/cancelButton",
-			                                  CButton::tooltip(text),
-			                                  [=]{ removeStackArtifact(ArtifactPosition::CREATURE_SLOT); });
-		}
-	}
-
+	stackArtifactButton.reset();
+	stackArtifactHelp.reset();
+	stackArtifactIcon.reset();
+	redraw();
 }
 
 void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
@@ -274,12 +255,6 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
 	luck->set(parent->info->stackNode);
 
-	if (showArt)
-	{
-		Point pos = showExp ? Point(375, 32) : Point(347, 32);
-		parent->setStackArtifact(parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT), pos);
-	}
-
 	if (showExp)
 	{
 		const CStackInstance * stack = parent->info->stackNode;
@@ -287,22 +262,58 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		if (parent->info->commander)
 		{
 			const CCommanderInstance * commander = parent->info->commander;
-			new CAnimImage("PSKIL42", 4, 0, pos.x, pos.y); // experience icon
+			parent->expRankIcon.reset(new CAnimImage(
+					"PSKIL42", 4, 0, pos.x, pos.y)); // experience icon
 
-			auto expArea = new LRClickableAreaWTextComp(Rect(pos.x, pos.y, 44, 44), CComponent::experience);
-			expArea->text = CGI->generaltexth->allTexts[2];
-			expArea->bonusValue = commander->getExpRank();
-			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->getExpRank()));
-			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(commander->getExpRank()+1)));
-			boost::replace_first(expArea->text, "%d", boost::lexical_cast<std::string>(commander->experience));
+			parent->expArea.reset(new LRClickableAreaWTextComp(Rect(
+					pos.x, pos.y, 44, 44), CComponent::experience));
+			parent->expArea->text = CGI->generaltexth->allTexts[2];
+			reinterpret_cast<LRClickableAreaWTextComp*>(parent->expArea.get())->bonusValue =
+					commander->getExpRank();
+			boost::replace_first(parent->expArea->text, "%d",
+								 boost::lexical_cast<std::string>(commander->getExpRank()));
+			boost::replace_first(parent->expArea->text, "%d",
+								 boost::lexical_cast<std::string>(CGI->heroh->reqExp(commander->getExpRank() + 1)));
+			boost::replace_first(parent->expArea->text, "%d",
+								 boost::lexical_cast<std::string>(commander->experience));
 		}
 		else
 		{
-			new CAnimImage("stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y);
-			auto expArea = new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44));
-			expArea->text = parent->generateStackExpDescription();
+			parent->expRankIcon.reset(new CAnimImage(
+					"stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y));
+			parent->expArea.reset(new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44)));
+			parent->expArea->text = parent->generateStackExpDescription();
 		}
-		new CLabel(pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort<TExpType>(stack->experience, 6));
+		parent->expLabel.reset(new CLabel(
+				pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE,
+				makeNumberShort<TExpType>(stack->experience, 6)));
+	}
+
+	if (showArt)
+	{
+		Point pos = showExp ? Point(375, 32) : Point(347, 32);
+		// ALARMA: do not refactor this into a separate function
+		// otherwise, artifact icon is drawn near the hero's portrait
+		// this is really strange
+		auto art = parent->info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
+		if (art)
+		{
+			parent->stackArtifactIcon.reset(new CAnimImage(
+					"ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y));
+			parent->stackArtifactHelp.reset(new LRClickableAreaWTextComp(Rect(
+					pos, Point(44, 44)), CComponent::artifact));
+			parent->stackArtifactHelp->type = art->artType->id;
+			const JsonNode & text =
+					VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
+
+			if (parent->info->owner)
+			{
+				parent->stackArtifactButton.reset(new CButton(
+						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
+						CButton::tooltip(text),
+						[=]{ parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT); }));
+			}
+		}
 	}
 }
 
@@ -334,9 +345,9 @@ void CStackWindow::CWindowSection::createActiveSpells()
 		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first (spellText, "%s", sp->name);
+			boost::replace_first(spellText, "%s", sp->name);
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
-			boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
+			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));
 
 			new CAnimImage("SpellInt", effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed);
 			new LRClickableAreaWText(Rect(firstPos + offset * printed, Point(50, 38)), spellText, spellText);
@@ -794,10 +805,6 @@ void CStackWindow::init()
 {
 	if (!info->stackNode)
 		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
-
-	stackArtifactHelp = nullptr;
-	stackArtifactIcon = nullptr;
-	stackArtifactButton = nullptr;
 
 	selectedIcon = nullptr;
 	selectedSkill = 0;
