@@ -15,7 +15,8 @@
 
 extern template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 
-CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/): serializer(this)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/)
+	: serializer(this)
 {
 	registerTypes(serializer);
 	openNextFile(fname, minimalVersion);
@@ -39,7 +40,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 	try
 	{
 		fName = fname.string();
-		sfile = make_unique<boost::filesystem::ifstream>(fname, std::ios::binary);
+		sfile = make_unique<FileStream>(fname, std::ios::in | std::ios::binary);
 		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 		if(!(*sfile))
@@ -55,7 +56,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		if(serializer.fileVersion < minimalVersion)
 			THROW_FORMAT("Error: too old file format (%s)!", fName);
 
-		if(serializer.fileVersion > SERIALIZATION_VERSION )
+		if(serializer.fileVersion > SERIALIZATION_VERSION)
 		{
 			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % SERIALIZATION_VERSION % fName;
 
@@ -95,7 +96,7 @@ void CLoadFile::clear()
 	serializer.fileVersion = 0;
 }
 
-void CLoadFile::checkMagicBytes( const std::string &text )
+void CLoadFile::checkMagicBytes(const std::string &text)
 {
 	std::string loaded = text;
 	read((void*)loaded.data(), text.length());

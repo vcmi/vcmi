@@ -15,7 +15,8 @@
 
 extern template void registerTypes<BinarySerializer>(BinarySerializer & s);
 
-CSaveFile::CSaveFile(const boost::filesystem::path &fname): serializer(this)
+CSaveFile::CSaveFile(const boost::filesystem::path &fname)
+	: serializer(this)
 {
 	registerTypes(serializer);
 	openNextFile(fname);
@@ -25,7 +26,7 @@ CSaveFile::~CSaveFile()
 {
 }
 
-int CSaveFile::write( const void * data, unsigned size )
+int CSaveFile::write(const void * data, unsigned size)
 {
 	sfile->write((char *)data,size);
 	return size;
@@ -68,7 +69,7 @@ void CSaveFile::clear()
 	sfile = nullptr;
 }
 
-void CSaveFile::putMagicBytes( const std::string &text )
+void CSaveFile::putMagicBytes(const std::string &text)
 {
 	write(text.c_str(), text.length());
 }

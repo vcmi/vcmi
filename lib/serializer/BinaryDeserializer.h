@@ -514,9 +514,9 @@ public:
 	BinaryDeserializer serializer;
 
 	std::string fName;
-	std::unique_ptr<boost::filesystem::ifstream> sfile;
+	std::unique_ptr<FileStream> sfile;
 
-	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION ); //throws!
+	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
 	~CLoadFile();
 	int read(void * data, unsigned size) override; //throws!
 
