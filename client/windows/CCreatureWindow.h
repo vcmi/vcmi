@@ -74,9 +74,9 @@ class CStackWindow : public CWindowObject
 	std::unique_ptr<CAnimImage> stackArtifactIcon;
 	std::unique_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
 	std::unique_ptr<CButton> stackArtifactButton;
-	std::unique_ptr<CAnimImage> expRankIcon;
-	std::unique_ptr<LRClickableAreaWText> expArea;
-	std::unique_ptr<CLabel> expLabel;
+	CAnimImage *expRankIcon;
+	LRClickableAreaWText *expArea;
+	CLabel *expLabel;
 
 	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;

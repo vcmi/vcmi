@@ -262,13 +262,12 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		if (parent->info->commander)
 		{
 			const CCommanderInstance * commander = parent->info->commander;
-			parent->expRankIcon.reset(new CAnimImage(
-					"PSKIL42", 4, 0, pos.x, pos.y)); // experience icon
+			parent->expRankIcon = new CAnimImage("PSKIL42", 4, 0, pos.x, pos.y); // experience icon
 
-			parent->expArea.reset(new LRClickableAreaWTextComp(Rect(
-					pos.x, pos.y, 44, 44), CComponent::experience));
+			parent->expArea = new LRClickableAreaWTextComp(Rect(
+					pos.x, pos.y, 44, 44), CComponent::experience);
 			parent->expArea->text = CGI->generaltexth->allTexts[2];
-			reinterpret_cast<LRClickableAreaWTextComp*>(parent->expArea.get())->bonusValue =
+			reinterpret_cast<LRClickableAreaWTextComp*>(parent->expArea)->bonusValue =
 					commander->getExpRank();
 			boost::replace_first(parent->expArea->text, "%d",
 								 boost::lexical_cast<std::string>(commander->getExpRank()));
@@ -279,14 +278,14 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		}
 		else
 		{
-			parent->expRankIcon.reset(new CAnimImage(
-					"stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y));
-			parent->expArea.reset(new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44)));
+			parent->expRankIcon = new CAnimImage(
+					"stackWindow/levels", stack->getExpRank(), 0, pos.x, pos.y);
+			parent->expArea = new LRClickableAreaWText(Rect(pos.x, pos.y, 44, 44));
 			parent->expArea->text = parent->generateStackExpDescription();
 		}
-		parent->expLabel.reset(new CLabel(
+		parent->expLabel = new CLabel(
 				pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE,
-				makeNumberShort<TExpType>(stack->experience, 6)));
+				makeNumberShort<TExpType>(stack->experience, 6));
 	}
 
 	if (showArt)
@@ -300,8 +299,10 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		{
 			parent->stackArtifactIcon.reset(new CAnimImage(
 					"ARTIFACT", art->artType->iconIndex, 0, pos.x, pos.y));
+			parent->stackArtifactIcon->recActions &= ~DISPOSE;
 			parent->stackArtifactHelp.reset(new LRClickableAreaWTextComp(Rect(
 					pos, Point(44, 44)), CComponent::artifact));
+			parent->stackArtifactHelp->recActions &= ~DISPOSE;
 			parent->stackArtifactHelp->type = art->artType->id;
 			const JsonNode & text =
 					VLC->generaltexth->localizedTexts["creatureWindow"]["returnArtifact"];
@@ -312,6 +313,7 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
 						CButton::tooltip(text),
 						[=]{ parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT); }));
+				parent->stackArtifactButton->recActions &= ~DISPOSE;
 			}
 		}
 	}
