@@ -3234,7 +3234,7 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 
 	// dead stacks should be blit first
 	showStacks(to, objects.beforeAll.dead);
-	for ( auto & data : objects.hex )
+	for (auto & data : objects.hex)
 		showStacks(to, data.dead);
 	showStacks(to, objects.afterAll.dead);
 
@@ -3249,8 +3249,9 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 
 	// actual blit of most of objects, hex by hex
 	// NOTE: row-by-row blitting may be a better approach
-	for ( auto & data : objects.hex )
+	for (auto &data : objects.hex)
 		showHexEntry(data);
+
 	// objects that must be blit *after* everything else - e.g. bottom tower or some spell effects
 	showHexEntry(objects.afterAll);
 }
@@ -3479,15 +3480,19 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 	}
 
 	// Sort obstacles
-	for (auto & obstacle : curInt->cb->battleGetAllObstacles())
 	{
-		if (obstacle->obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE
-		&& obstacle->obstacleType != CObstacleInstance::MOAT)
+		std::map<BattleHex, std::shared_ptr<const CObstacleInstance>> backgroundObstacles;
+		for (auto &obstacle : curInt->cb->battleGetAllObstacles()) {
+			if (obstacle->obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE
+				&& obstacle->obstacleType != CObstacleInstance::MOAT) {
+				backgroundObstacles[obstacle->pos] = obstacle;
+			}
+		}
+		for (auto &op : backgroundObstacles)
 		{
-			sorted.hex[obstacle->pos].obstacles.push_back(obstacle);
+			sorted.beforeAll.obstacles.push_back(op.second);
 		}
 	}
-
 	// Sort wall parts
 	if (siegeH)
 	{
