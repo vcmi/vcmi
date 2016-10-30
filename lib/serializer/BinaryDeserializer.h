@@ -235,8 +235,8 @@ public:
 		range::copy(convData, data.begin());
 	}
 
-	template <typename T>
-	void load(std::vector<T> &data, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0)
+	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
+	void load(std::vector<T> &data)
 	{
 		READ_CHECK_U32(length);
 		data.resize(length);

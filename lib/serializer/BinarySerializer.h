@@ -250,7 +250,7 @@ public:
 		T *internalPtr = data.get();
 		save(internalPtr);
 	}
-	template <typename T>
+	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
 	void save(const std::vector<T> &data)
 	{
 		ui32 length = data.size();
