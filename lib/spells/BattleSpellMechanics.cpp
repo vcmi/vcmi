@@ -492,9 +492,10 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 		placeObstacle(env, parameters, availableTiles.at(i));
 }
 
-ESpellCastProblem::ESpellCastProblem PatchObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
+///LandMineMechanics
+ESpellCastProblem::ESpellCastProblem LandMineMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
-	//Quicksand|LandMine are useless if enemy has native stack, check for LandMine damage immunity is done in general way by CSpell
+	//LandMine are useless if enemy has native stack and can see mines, check for LandMine damage immunity is done in general way by CSpell
 	const ui8 otherSide = !cb->playerToSide(caster->getOwner());
 
 	if(cb->battleHasNativeStack(otherSide))
@@ -503,7 +504,6 @@ ESpellCastProblem::ESpellCastProblem PatchObstacleMechanics::canBeCast(const CBa
 	return DefaultSpellMechanics::canBeCast(cb, mode, caster);
 }
 
-///LandMineMechanics
 bool LandMineMechanics::requiresCreatureTarget() const
 {
 	return true;

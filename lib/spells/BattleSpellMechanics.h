@@ -113,7 +113,6 @@ class PatchObstacleMechanics : public ObstacleMechanics
 {
 public:
 	PatchObstacleMechanics(CSpell * s): ObstacleMechanics(s){};
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -122,6 +121,7 @@ class DLL_LINKAGE LandMineMechanics : public PatchObstacleMechanics
 {
 public:
 	LandMineMechanics(CSpell * s): PatchObstacleMechanics(s){};
+	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
 	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
