@@ -62,7 +62,7 @@ make DESTDIR=%{buildroot} install
 
 %changelog
 
-* Tue Nov 01 2015 VCMI - 0.99-1
+* Tue Nov 01 2016 VCMI - 0.99-1
 - New upstream release
 
 * Wed Apr 01 2015 VCMI - 0.98-1
