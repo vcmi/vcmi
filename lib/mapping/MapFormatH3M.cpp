@@ -119,11 +119,6 @@ void CMapLoaderH3M::init()
 	readEvents();
 	times.push_back(MapLoadingTime("events", sw.getDiff()));
 
-	// Calculate blocked / visitable positions
-	for(auto & elem : map->objects)
-	{
-		map->addBlockVisTiles(elem);
-	}
 	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
 
 	// Print profiling times
@@ -131,7 +126,7 @@ void CMapLoaderH3M::init()
 	{
 		for(MapLoadingTime & mlt : times)
 		{
-            logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
+			logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
 		}
 	}
 	map->calculateGuardingGreaturePositions();
@@ -615,10 +610,15 @@ void CMapLoaderH3M::readAllowedHeroes()
 	if(mapHeader->version > EMapFormat::ROE)
 	{
 		int placeholdersQty = reader.readUInt32();
-		for(int p = 0; p < placeholdersQty; ++p)
-		{
-			mapHeader->placeholdedHeroes.push_back(reader.readUInt8());
-		}
+
+		reader.skip(placeholdersQty * 1);
+
+//		std::vector<ui16> placeholdedHeroes;
+//
+//		for(int p = 0; p < placeholdersQty; ++p)
+//		{
+//			placeholdedHeroes.push_back(reader.readUInt8());
+//		}
 	}
 }
 
@@ -668,8 +668,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 		}
 		if (map->version == EMapFormat::ROE)
 		{
-			// Armageddon's Blade
-			map->allowedArtifact[128] = false;
+			map->allowedArtifact[ArtifactID::ARMAGEDDONS_BLADE] = false;
 		}
 	}
 
@@ -829,7 +828,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 			{
 				// catapult by default
 				assert(!hero->getArt(ArtifactPosition::MACH4));
-				hero->putArtifact(ArtifactPosition::MACH4, createArtifact(ArtifactID::CATAPULT));
+				hero->putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createArtifact(map, ArtifactID::CATAPULT));
 			}
 		}
 
@@ -874,19 +873,19 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	{
 		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= GameConstants::BACKPACK_START)
 		{
-            logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
+			logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
 			return false;
 		}
 		if(aid == 0 && slot == ArtifactPosition::MISC5)
 		{
 			//TODO: check how H3 handles it -> art 0 in slot 18 in AB map
-            logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
-                  << static_cast<int>(map->version) << ")";
+			logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
+				<< static_cast<int>(map->version) << ")";
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
 		// this is needed, because some H3M maps (last scenario of ROE map) contain invalid data like misplaced artifacts
-		auto artifact = createArtifact(aid);
+		auto artifact =  CArtifactInstance::createArtifact(map, aid);
 		auto artifactPos = ArtifactPosition(slot);
 		if (artifact->canBePutAt(ArtifactLocation(hero, artifactPos)))
 		{
@@ -899,40 +898,6 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	}
 
 	return isArt;
-}
-
-CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
-{
-	CArtifactInstance * a = nullptr;
-	if(aid >= 0)
-	{
-		if(spellID < 0)
-		{
-			a = CArtifactInstance::createNewArtifactInstance(aid);
-		}
-		else
-		{
-			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
-		}
-	}
-	else //FIXME: create combined artifact instance for random combined artifacts, just in case
-	{
-		a = new CArtifactInstance(); //random, empty
-	}
-
-	map->addNewArtifactInstance(a);
-
-	//TODO make it nicer
-	if(a->artType && (!!a->artType->constituents))
-	{
-		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
-		for(CCombinedArtifactInstance::ConstituentInfo & ci : comb->constituentsInfo)
-		{
-			map->addNewArtifactInstance(ci.art);
-		}
-	}
-
-	return a;
 }
 
 void CMapLoaderH3M::readTerrain()
@@ -1061,7 +1026,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_HERO:
 		case Obj::PRISON:
 			{
-				nobj = readHero(idToBeGiven);
+				nobj = readHero(idToBeGiven, objPos);
 				break;
 			}
 		case Obj::MONSTER:  //Monster
@@ -1147,7 +1112,6 @@ void CMapLoaderH3M::readObjects()
 		case Obj::SEER_HUT:
 			{
 				nobj = readSeerHut();
-				map->addQuest(nobj);
 				break;
 			}
 		case Obj::WITCH_HUT:
@@ -1237,7 +1201,7 @@ void CMapLoaderH3M::readObjects()
 					artID = objTempl.subid;
 				}
 
-				art->storedArtifact = createArtifact(artID, spellID);
+				art->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
 				break;
 			}
 		case Obj::RANDOM_RESOURCE:
@@ -1351,7 +1315,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::GRAIL:
 			{
 				map->grailPos = objPos;
-				map->grailRadious = reader.readUInt32();
+				map->grailRadius = reader.readUInt32();
 				continue;
 			}
 		case Obj::RANDOM_DWELLING: //same as castle + level range
@@ -1398,7 +1362,6 @@ void CMapLoaderH3M::readObjects()
 		case Obj::QUEST_GUARD:
 			{
 				auto  guard = new CGQuestGuard();
-				map->addQuest(guard);
 				readQuest(guard);
 				nobj = guard;
 				break;
@@ -1435,13 +1398,11 @@ void CMapLoaderH3M::readObjects()
 		case Obj::BORDERGUARD:
 			{
 				nobj = new CGBorderGuard();
-				map->addQuest(nobj);
 				break;
 			}
 		case Obj::BORDER_GATE:
 			{
 				nobj = new CGBorderGate();
-				map->addQuest (nobj);
 				break;
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
@@ -1489,16 +1450,16 @@ void CMapLoaderH3M::readObjects()
 		}
 		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
-		map->objects.push_back(nobj);
-		if(nobj->ID == Obj::TOWN)
+
 		{
-			map->towns.push_back(static_cast<CGTownInstance *>(nobj));
+			//TODO: define valid typeName and subtypeName fro H3M maps
+			//boost::format fmt("%s_%d");
+			//fmt % nobj->typeName % nobj->id.getNum();
+			boost::format fmt("obj_%d");
+			fmt % nobj->id.getNum();
+			nobj->instanceName = fmt.str();
 		}
-		if(nobj->ID == Obj::HERO)
-		{
-			logGlobal->debugStream() << "Hero: " << VLC->heroh->heroes[nobj->subID]->name << " at " << objPos;
-			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
-		}
+		map->addNewObject(nobj);
 	}
 
 	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
@@ -1550,7 +1511,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 	out->validTypes(true);
 }
 
-CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const int3 & initialPos)
 {
 	auto nhi = new CGHeroInstance();
 
@@ -1571,7 +1532,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	{
 		if(elem->subID == nhi->subID)
 		{
-            logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
+			logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
 			delete nhi;
 			nhi = elem;
 			break;
@@ -1651,14 +1612,15 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 
 	nhi->formation = reader.readUInt8();
 	loadArtifactsOfHero(nhi);
-	nhi->patrol.patrolRadious = reader.readUInt8();
-	if(nhi->patrol.patrolRadious == 0xff)
+	nhi->patrol.patrolRadius = reader.readUInt8();
+	if(nhi->patrol.patrolRadius == 0xff)
 	{
 		nhi->patrol.patrolling = false;
 	}
 	else
 	{
 		nhi->patrol.patrolling = true;
+		nhi->patrol.initialPos = CGHeroInstance::convertPosition(initialPos, false);
 	}
 
 	if(map->version > EMapFormat::ROE)
@@ -1998,7 +1960,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		ui8 c = reader.readUInt8();
 		for(int yy = 0; yy < 8; ++yy)
 		{
-			int spellid = i * 8 + yy; 
+			int spellid = i * 8 + yy;
 			if(spellid < GameConstants::SPELLS_QUANTITY)
 			{
 				if(c != (c | static_cast<ui8>(std::pow(2., yy))) && map->allowedSpell[spellid]) //add random spell only if it's allowed on entire map
@@ -2101,8 +2063,8 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 		}
 		else
 		{
-            logGlobal->warnStream() << "Conversion warning: unknown building " << elem << " in castle "
-                  << castleID;
+			logGlobal->warnStream() << "Conversion warning: unknown building " << elem << " in castle "
+				<< castleID;
 		}
 	}
 

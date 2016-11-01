@@ -15,12 +15,14 @@ class CGameState;
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
+class ISpellCaster;
 class CSpell;
 struct BattleInfo;
 struct CObstacleInstance;
 class IBonusBearer;
 struct InfoAboutHero;
 class CArmedInstance;
+class CRandomGenerator;
 
 namespace boost
 {class shared_mutex;}
@@ -55,7 +57,7 @@ protected:
 	CCallbackBase()
 		: battle(nullptr), gs(nullptr)
 	{}
-	
+
 	void setBattle(const BattleInfo *B);
 	bool duringBattle() const;
 
@@ -82,8 +84,8 @@ namespace EAccessibility
 {
 	enum EAccessibility
 	{
-		ACCESSIBLE, 
-		ALIVE_STACK, 
+		ACCESSIBLE,
+		ALIVE_STACK,
 		OBSTACLE,
 		DESTRUCTIBLE_WALL,
 		GATE, //sieges -> gate opens only for defender stacks
@@ -124,7 +126,7 @@ struct DLL_LINKAGE ReachabilityInfo
 	struct DLL_LINKAGE Parameters
 	{
 		const CStack *stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
-		
+
 		bool attackerOwned;
 		bool doubleWide;
 		bool flying;
@@ -158,6 +160,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
+	const IBonusBearer * getBattleNode() const;
 public:
 	enum EStackOwnership
 	{
@@ -168,16 +171,16 @@ public:
 
 	ETerrainType battleTerrainType() const;
 	BFieldType battleGetBattlefieldType() const;
-	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
-    
+	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
+
     /** @brief Main method for getting battle stacks
      *
      * @param predicate Functor that shall return true for desired stack
      * @return filtered stacks
      *
-     */                             	
-	TStacks battleGetStacksIf(TStackFilter predicate, bool includeTurrets = false) const;
-	
+     */
+	TStacks battleGetStacksIf(TStackFilter predicate) const;
+
 	bool battleHasNativeStack(ui8 side) const;
 	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
@@ -187,28 +190,39 @@ public:
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
 	ui8 playerToSide(PlayerColor player) const;
+	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
-	int battleCastSpells(ui8 side) const; //how many spells has given side casted
+	int battleCastSpells(ui8 side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
-	const CArmedInstance * battleGetArmyObject(ui8 side) const; 
+	const CArmedInstance * battleGetArmyObject(ui8 side) const;
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
 
 	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
 	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	si8 battleGetWallState(int partOfWall) const;
+	EGateState battleGetGateState() const;
 
 	//helpers
 	///returns all stacks, alive or dead or undead or mechanical :)
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
-	
+
 	///returns all alive stacks excluding turrets
 	TStacks battleAliveStacks() const;
 	///returns all alive stacks from particular side excluding turrets
 	TStacks battleAliveStacks(ui8 side) const;
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
-	//ESpellCastProblem::ESpellCastProblem battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const; //Checks if player is able to cast spells (at all) at the moment
+
+	///returns player that controls given stack; mind control included
+	PlayerColor battleGetOwner(const CStack * stack) const;
+
+	///returns hero that controls given stack; nullptr if none; mind control included
+	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const;
+
+	///check that stacks are controlled by same|other player(s) depending on positiveness
+	///mind control included
+	bool battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
 };
 
 struct DLL_LINKAGE BattleAttackInfo
@@ -241,7 +255,7 @@ public:
 	//battle
 	boost::optional<int> battleIsFinished() const; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
-	shared_ptr<const CObstacleInstance> battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking = true) const; //blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
+	std::shared_ptr<const CObstacleInstance> battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking = true) const; //blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true) const; //returns stack info by given pos
 	void battleGetStackQueue(std::vector<const CStack *> &out, const int howMany, const int turn = 0, int lastMoved = -1) const;
 	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
@@ -252,19 +266,19 @@ public:
 	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = nullptr) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
-	
+
 	bool battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 	std::set<const CStack*>  batteAdjacentCreatures (const CStack * stack) const;
-	
+
 	TDmgRange calculateDmgRange(const BattleAttackInfo &info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
 	//hextowallpart  //int battleGetWallUnderHex(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	std::pair<ui32, ui32> battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	std::pair<ui32, ui32> battleEstimateDamage(CRandomGenerator & rand, const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	std::pair<ui32, ui32> battleEstimateDamage(CRandomGenerator & rand, const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	si8 battleHasDistancePenalty( const CStack * stack, BattleHex destHex ) const;
 	si8 battleHasDistancePenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex ) const;
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty
@@ -275,18 +289,16 @@ public:
 	bool isWallPartPotentiallyAttackable(EWallPart::EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
 	std::vector<BattleHex> getAttackableBattleHexes() const;
 
-	//*** MAGIC 
-	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
+	//*** MAGIC
+	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
-	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
-	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
+	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(const ISpellCaster * caster, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 
-	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
-	SpellID getRandomBeneficialSpell(const CStack * subject) const;
-	SpellID getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
+	SpellID battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const;
+	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const;
+	SpellID getRandomCastedSpell(CRandomGenerator & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
 
@@ -324,9 +336,8 @@ class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 public:
 	bool battleCanFlee() const; //returns true if caller can flee from the battle
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be casted (and returns problem description)
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination) const; //if hero can cast spell here
-	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be cast (and returns problem description)
+
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
 
 	bool battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem = nullptr) const; //returns true, if caller can cast a spell. If not, if pointer is given via arg, the reason will be written.

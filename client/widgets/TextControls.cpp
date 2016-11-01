@@ -73,8 +73,8 @@ void CLabel::setText(const std::string &Txt)
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
-    CLabel(position.x, position.y, Font, Align, Color, Text),
-    visibleSize(0, 0, position.w, position.h)
+	CLabel(position.x, position.y, Font, Align, Color, Text),
+	visibleSize(0, 0, position.w, position.h)
 {
 	pos.w = position.w;
 	pos.h = position.h;
@@ -245,8 +245,8 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 }
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/):
-    sliderStyle(SliderStyle),
-    slider(nullptr)
+	sliderStyle(SliderStyle),
+	slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	label = new CMultiLineLabel(rect, Font, Align, Color);
@@ -326,7 +326,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	addChild(bg);
 	pos = bg->pos;
 	getBorderSize();
-    textLock = false;
+	textLock = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
@@ -341,7 +341,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int 
 		vstd::amin(pos.w, maxw);
 		bg->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
-    textLock = false;
+	textLock = false;
 }
 
 CGStatusBar::~CGStatusBar()
@@ -351,7 +351,7 @@ CGStatusBar::~CGStatusBar()
 
 void CGStatusBar::show(SDL_Surface * to)
 {
-    showAll(to);
+	showAll(to);
 }
 
 void CGStatusBar::init()
@@ -377,12 +377,12 @@ Point CGStatusBar::getBorderSize()
 
 void CGStatusBar::lock(bool shouldLock)
 {
-    textLock = shouldLock;
+	textLock = shouldLock;
 }
 
 CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB):
-    CLabel(Pos.x, Pos.y, font, CENTER),
-    cb(CB)
+	CLabel(Pos.x, Pos.y, font, CENTER),
+	cb(CB)
 {
 	type |= REDRAW_PARENT;
 	focus = false;
@@ -461,9 +461,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	}
 
 	bool redrawNeeded = false;
-	#ifdef VCMI_SDL1
-	std::string oldText = text;
-	#endif // 0	
+	
 	switch(key.keysym.sym)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
@@ -481,20 +479,9 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		}			
 		break;
 	default:
-		#ifdef VCMI_SDL1
-		if (key.keysym.unicode < ' ')
-			return;
-		else
-		{
-			text += key.keysym.unicode; //TODO 16-/>8
-			redrawNeeded = true;
-		}			
-		#endif // 0
 		break;
 	}
-	#ifdef VCMI_SDL1
-	filters(text, oldText);
-	#endif // 0
+
 	if (redrawNeeded)
 	{
 		redraw();
@@ -511,21 +498,12 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 {
-	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
+	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER || key.keysym.sym == SDLK_ESCAPE)
 		return false;
 	
-	#ifdef VCMI_SDL1
-	//this should allow all non-printable keys to go through (for example arrows)
-	if (key.keysym.unicode < ' ')
-		return false;
-
 	return true;
-	#else
-	return false;
-	#endif
 }
 
-#ifndef VCMI_SDL1
 void CTextInput::textInputed(const SDL_TextInputEvent & event)
 {
 	if(!focus)
@@ -552,9 +530,6 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 	redraw();
 	cb(text+newText);	
 }
-
-#endif
-
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
@@ -595,7 +570,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	catch(boost::bad_lexical_cast &)
 	{
 		//Should never happen. Unless I missed some cases
-        logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
+		logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
 		text = oldText;
 	}
 }

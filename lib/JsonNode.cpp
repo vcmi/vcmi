@@ -56,6 +56,15 @@ JsonNode::JsonNode(ResourceID && fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
+JsonNode::JsonNode(const ResourceID & fileURI):
+	type(DATA_NULL)
+{
+	auto file = CResourceHandler::get()->load(fileURI)->readAll();
+
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
+}
+
 JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
 	type(DATA_NULL)
 {
@@ -322,28 +331,28 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 
 ///JsonUtils
 
-void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
+void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<Bonus> dest)
 {
 	dest->val = source[1].Float();
 	resolveIdentifier(source[2],dest->subtype);
 	dest->additionalInfo = source[3].Float();
 	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
-	dest->turnsRemain = 0;	
+	dest->turnsRemain = 0;
 }
 
 
-Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
-	auto  b = new Bonus();
+	auto b = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-        logGlobal->errorStream() << "Error: invalid ability type " << type;
+		logGlobal->errorStream() << "Error: invalid ability type " << type;
 		return b;
 	}
 	b->type = it->second;
-	
+
 	parseTypedBonusShort(ability_vec, b);
 	return b;
 }
@@ -357,7 +366,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		auto it = map.find(type);
 		if (it == map.end())
 		{
-            logGlobal->errorStream() << "Error: invalid " << err << type;
+			logGlobal->errorStream() << "Error: invalid " << err << type;
 			return defaultValue;
 		}
 		else
@@ -369,7 +378,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		return defaultValue;
 }
 
-void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
+void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string name)
 {
 	const JsonNode &value = node[name];
 	if (!value.isNull())
@@ -386,12 +395,12 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 				});
 				break;
 			default:
-                logGlobal->errorStream() << "Error! Wrong identifier used for value of " << name;
+				logGlobal->errorStream() << "Error! Wrong identifier used for value of " << name;
 		}
 	}
 }
 
-void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
+void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 {
 	switch (node.getType())
 	{
@@ -399,32 +408,40 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			var = node.Float();
 			break;
 		case JsonNode::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier (node, [&](si32 identifier)
+			VLC->modh->identifiers.requestIdentifier(node, [&](si32 identifier)
 			{
 				var = identifier;
 			});
 			break;
 		default:
-            logGlobal->errorStream() << "Error! Wrong identifier used for identifier!";
+			logGlobal->errorStream() << "Error! Wrong identifier used for identifier!";
 	}
 }
 
-Bonus * JsonUtils::parseBonus (const JsonNode &ability)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 {
+	auto b = std::make_shared<Bonus>();
+	if (!parseBonus(ability, b.get()))
+	{
+		return nullptr;
+	}
+	return b;
+}
 
-	auto  b = new Bonus();
+bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
+{
 	const JsonNode *value;
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-        logGlobal->errorStream() << "Error: invalid ability type " << type;
-		return b;
+		logGlobal->errorStream() << "Error: invalid ability type " << type;
+		return false;
 	}
 	b->type = it->second;
 
-	resolveIdentifier (b->subtype, ability, "subtype");
+	resolveIdentifier(b->subtype, ability, "subtype");
 
 	b->val = ability["val"].Float();
 
@@ -432,7 +449,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
-	resolveIdentifier (b->additionalInfo, ability, "addInfo");
+	resolveIdentifier(b->additionalInfo, ability, "addInfo");
 
 	b->turnsRemain = ability["turns"].Float();
 
@@ -463,7 +480,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 			}
 			break;
 		default:
-            logGlobal->errorStream() << "Error! Wrong bonus duration format.";
+			logGlobal->errorStream() << "Error! Wrong bonus duration format.";
 		}
 	}
 
@@ -483,14 +500,14 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 					break;
 				case JsonNode::DATA_STRUCT: //customizable limiters
 					{
-						shared_ptr<ILimiter> l;
+						std::shared_ptr<ILimiter> l;
 						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")
 						{
-							shared_ptr<CCreatureTypeLimiter> l2 = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
+							std::shared_ptr<CCreatureTypeLimiter> l2 = std::make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
 							const JsonVector vec = limiter["parameters"].Vector();
 							VLC->modh->identifiers.requestIdentifier("creature", vec[0], [=](si32 creature)
 							{
-								l2->setCreature (CreatureID(creature));
+								l2->setCreature(CreatureID(creature));
 							});
 							if (vec.size() > 1)
 							{
@@ -503,21 +520,21 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 						}
 						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
 						{
-							shared_ptr<HasAnotherBonusLimiter> l2 = make_shared<HasAnotherBonusLimiter>();
+							std::shared_ptr<HasAnotherBonusLimiter> l2 = std::make_shared<HasAnotherBonusLimiter>();
 							const JsonVector vec = limiter["parameters"].Vector();
 							std::string anotherBonusType = vec[0].String();
 
-							auto it = bonusNameMap.find (anotherBonusType);
+							auto it = bonusNameMap.find(anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
-                                logGlobal->errorStream() << "Error: invalid ability type " << anotherBonusType;
+								logGlobal->errorStream() << "Error: invalid ability type " << anotherBonusType;
 								continue;
 							}
 							l2->type = it->second;
 
 							if (vec.size() > 1 )
 							{
-								resolveIdentifier (vec[1], l2->subtype);
+								resolveIdentifier(vec[1], l2->subtype);
 								l2->isSubtypeRelevant = true;
 							}
 							l = l2;
@@ -533,7 +550,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
 
-	return b;
+	return true;
 }
 
 //returns first Key with value equal to given one
@@ -551,7 +568,7 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
+void JsonUtils::unparseBonus( JsonNode &node, const std::shared_ptr<Bonus>& bonus )
 {
 	node["type"].String() = reverseMapFirst<std::string, Bonus::BonusType>(bonus->type, bonusNameMap);
 	node["subtype"].Float() = bonus->subtype;
@@ -675,7 +692,7 @@ const JsonNode & getSchemaByName(std::string name)
 		return loadedSchemas[name];
 	}
 
-    logGlobal->errorStream() << "Error: missing schema with name " << name << "!";
+	logGlobal->errorStream() << "Error: missing schema with name " << name << "!";
 	assert(0);
 	return nullNode;
 }
@@ -693,7 +710,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 
 	if (protocolName != "vcmi")
 	{
-        logGlobal->errorStream() << "Error: unsupported URI protocol for schema: " << segments[0];
+		logGlobal->errorStream() << "Error: unsupported URI protocol for schema: " << segments[0];
 		return nullNode;
 	}
 

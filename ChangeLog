@@ -1,14 +1,39 @@
-0.98 -> 0.next
+0.98 -> 0.99
+
+GENERAL:
+* New Bonus NO_TERRAIN_PENALTY
+* Nomads will remove Sand movement penalty from army
+* Flying and water walking is now supported in pathfinder
+* New artifacts supported
+- Angel Wings
+- Boots of Levitation
+* Implemented rumors in tavern window
+* New cheat codes:
+- vcmiglaurung - gives 5000 crystal dragons into each slot
+- vcmiungoliant - conceal fog of war for current player
+* New console commands:
+- gosolo - AI take control over human players and vice versa
+- controlai - give control of one or all AIs to player
+- set hideSystemMessages on/off - supress server messages in chat
+
+BATTLES:
+* Drawbridge mechanics implemented (animation still missing)
+* Merging of town and visiting hero armies on siege implemented
+* Hero info tooltip for skills and mana implemented
 
 ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
-* AI can again pick bets artifacts and exchange artifacts between heroes
+* AI can again pick best artifacts and exchange artifacts between heroes
+* AI heroes with patrol enabled won't leave patrol area anymore
 
 RANDOM MAP GENERATOR:
 * Changed fractalization algorithm so it can create cycles
 * Zones will not have straight paths anymore, they are totally random
+* Generated zones will have different size depending on template setting
 * Added Thieves Guild random object (1 per zone)
+* Added Seer Huts with quests that match OH3
+* RMG will guarantee at least 100 pairs of Monoliths are available even if there are not enough different defs
 
 0.97 -> 0.98
 GENERAL:

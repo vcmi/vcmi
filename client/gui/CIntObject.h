@@ -15,8 +15,8 @@
 #include "../Graphics.h"
 
 struct SDL_Surface;
-class CPicture;
 class CGuiHandler;
+class CPicture;
 
 struct SDL_KeyboardEvent;
 
@@ -36,13 +36,6 @@ class IUpdateable
 public:
 	virtual void update()=0;
 	virtual ~IUpdateable(){}; //d-tor
-};
-
-class ILockedUpdatable: public IUpdateable
-{
-public:
-	virtual void runLocked(std::function<void()> cb) = 0;
-	virtual ~ILockedUpdatable(){}; //d-tor
 };
 
 // Defines a show method
@@ -97,11 +90,6 @@ public:
  */
 	std::vector<CIntObject *> children;
 
-	//FIXME: workaround
-	void deactivateKeyboard()
-	{
-		deactivate(KEYBOARD);
-	}
 
 /*
  * Public interface
@@ -133,10 +121,8 @@ public:
 	virtual void keyPressed(const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
-#ifndef VCMI_SDL1
 	virtual void textInputed(const SDL_TextInputEvent & event){};
 	virtual void textEdited(const SDL_TextEditingEvent & event){};
-#endif // VCMI_SDL1
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
@@ -166,15 +152,15 @@ public:
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent
-	void activate();
-	void deactivate();
+	void activate() override;
+	void deactivate() override;
 
 	//called each frame to update screen
-	void show(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
 	//called on complete redraw only
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 	//request complete redraw of this object
-	void redraw();
+	void redraw() override;
 
 	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 
@@ -221,5 +207,5 @@ public:
 	CKeyShortcut();
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
+	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
 };

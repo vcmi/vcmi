@@ -1,6 +1,6 @@
 Summary:			VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving it new and extended possibilities.
 Name:				vcmi
-Version:			0.98
+Version:			0.99
 Release:			1%{?dist}
 License:			GPLv2+
 Group:				Amusements/Games
@@ -41,7 +41,7 @@ VCMI is an open-source project aiming to reimplement HoMM3 game engine, giving i
 %setup -q -n %{name}-%{version}-1
 
 %build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr ./
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_TEST=0 ./
 make %{?_smp_mflags}
 
 %install
@@ -61,6 +61,10 @@ make DESTDIR=%{buildroot} install
 %{_datadir}/icons/*
 
 %changelog
+
+* Tue Nov 01 2016 VCMI - 0.99-1
+- New upstream release
+
 * Wed Apr 01 2015 VCMI - 0.98-1
 - New upstream release
 

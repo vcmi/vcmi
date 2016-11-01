@@ -15,6 +15,7 @@
 class VCAI;
 class CArmedInstance;
 class CBank;
+struct SectorMap;
 
 class engineBase
 {
@@ -54,6 +55,8 @@ class FuzzyHelper
 		~EvalVisitTile();
 	} vt;
 
+	
+
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
 	//blocks should be initialized in this order, which may be confusing :/
@@ -80,5 +83,5 @@ public:
 	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us
 
 	Goals::TSubgoal chooseSolution (Goals::TGoalVec vec);
-	//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec);
+	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);
 };

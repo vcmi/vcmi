@@ -80,7 +80,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 			toBlock += BattleHex::LEFT;
 
 		if(!toBlock.isValid())
-            logGlobal->errorStream() << "Misplaced obstacle!";
+			logGlobal->error("Misplaced obstacle!");
 		else
 			ret.push_back(toBlock);
 	}
@@ -96,12 +96,12 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
+CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	std::string affinityStr[2] = { "might", "magic" };
 
 	auto  heroClass = new CHeroClass();
-
+	heroClass->identifier = identifier;
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
 	//MODS COMPATIBILITY FOR 0.96
@@ -192,7 +192,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = heroClasses.size();
 
 	heroClasses.push_back(object);
@@ -210,7 +210,7 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->id = index;
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
@@ -284,14 +284,18 @@ CHeroHandler::CHeroHandler()
 	}
 	loadObstacles();
 	loadTerrains();
+	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
+	{
+		VLC->modh->identifiers.registerObject("core", "terrain", GameConstants::TERRAIN_NAMES[i], i);
+	}
 	loadBallistics();
 	loadExperience();
 }
 
-CHero * CHeroHandler::loadFromJson(const JsonNode & node)
+CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	auto  hero = new CHero;
-
+	hero->identifier = identifier;
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
 
@@ -536,7 +540,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->ID = HeroTypeID(heroes.size());
 	object->imageIndex = heroes.size() + 30; // 2 special frames + some extra portraits
 
@@ -547,7 +551,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->ID = HeroTypeID(index);
 	object->imageIndex = index;
 
@@ -573,7 +577,7 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 	}
 	else
 	{
-        logGlobal->warnStream() << "A hero has reached unsupported amount of experience";
+		logGlobal->warn("A hero has reached unsupported amount of experience");
 		return expPerLevel[expPerLevel.size()-1];
 	}
 }
@@ -606,4 +610,32 @@ std::vector<bool> CHeroHandler::getDefaultAllowedAbilities() const
 	std::vector<bool> allowedAbilities;
 	allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
 	return allowedAbilities;
+}
+
+si32 CHeroHandler::decodeHero(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CHeroHandler::encodeHero(const si32 index)
+{
+	return VLC->heroh->heroes.at(index)->identifier;
+}
+
+si32 CHeroHandler::decodeSkill(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CHeroHandler::encodeSkill(const si32 index)
+{
+	return NSecondarySkill::names[index];
 }

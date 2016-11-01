@@ -5,7 +5,6 @@
 
 #include "../gui/CAnimation.h"
 #include "../gui/SDL_Pixels.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
@@ -79,6 +78,7 @@ CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 
 CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
 {
+	visible = true;
 	needRefresh = false;
 	srcRect = new Rect(SrcRect);
 	pos.x += x;
@@ -113,19 +113,20 @@ CPicture::~CPicture()
 
 void CPicture::init()
 {
+	visible = true;
 	needRefresh = false;
 	srcRect = nullptr;
 }
 
 void CPicture::show(SDL_Surface * to)
 {
-	if (needRefresh)
+	if (visible && needRefresh)
 		showAll(to);
 }
 
 void CPicture::showAll(SDL_Surface * to)
 {
-	if(bg)
+	if(bg && visible)
 	{
 		if(srcRect)
 		{
@@ -145,12 +146,12 @@ void CPicture::convertToScreenBPP()
 {
 	SDL_Surface *hlp = bg;
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
-	CSDL_Ext::setDefaultColorKey(bg);	
+	CSDL_Ext::setDefaultColorKey(bg);
 	SDL_FreeSurface(hlp);
 }
 
 void CPicture::setAlpha(int value)
-{	
+{
 	CSDL_Ext::setAlpha (bg, value);
 }
 
@@ -211,7 +212,7 @@ void CFilledTexture::showAll(SDL_Surface *to)
 	CSDL_Ext::fillTexture(to, texture);
 }
 
-CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+CAnimImage::CAnimImage(const std::string & name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
 	player(-1),
@@ -219,11 +220,11 @@ CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int 
 {
 	pos.x += x;
 	pos.y += y;
-	anim = new CAnimation(name);
+	anim = std::make_shared<CAnimation>(name);
 	init();
 }
 
-CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
+CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	anim(Anim),
 	frame(Frame),
 	group(Group),
@@ -242,6 +243,7 @@ size_t CAnimImage::size()
 
 void CAnimImage::init()
 {
+	visible = true;
 	anim->load(frame, group);
 	if (flags & CShowableAnim::BASE)
 		anim->load(0,group);
@@ -259,11 +261,13 @@ CAnimImage::~CAnimImage()
 	anim->unload(frame, group);
 	if (flags & CShowableAnim::BASE)
 		anim->unload(0,group);
-	delete anim;
 }
 
 void CAnimImage::showAll(SDL_Surface * to)
 {
+	if(!visible)
+		return;
+
 	IImage *img;
 
 	if ( flags & CShowableAnim::BASE && frame != 0)

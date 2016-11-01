@@ -7,6 +7,10 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/mapObjects/CBank.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/CPathfinder.h"
+#include "../../lib/mapping/CMapDefines.h"
 
 /*
  * AIUtility.cpp, part of VCMI engine
@@ -150,7 +154,7 @@ void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo
 {
 	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
 
-	for(const int3 &dir : dirs)
+	for(const int3 &dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
 		if(cbp->isInTheMap(n))
@@ -160,7 +164,7 @@ void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo
 
 void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCallback * cbp, const int3& pos)> foo)
 {
-	for(const int3 &dir : dirs)
+	for(const int3 &dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
 		if(cbp->isInTheMap(n))
@@ -335,7 +339,7 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-            logAi->traceStream() << boost::format("It's safe for %s to visit tile %s") % h->name % tile;
+			logAi->trace("It's safe for %s to visit tile %s", h->name, tile());
 			return true;
 		}
 		else
@@ -356,10 +360,10 @@ bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater)
 int3 whereToExplore(HeroPtr h)
 {
 	TimeCheck tc ("where to explore");
-	int radius = h->getSightRadious();
+	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
 
-	SectorMap sm(h);
+	auto sm = ai->getCachedSectorMap(h);
 
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
@@ -372,9 +376,9 @@ int3 whereToExplore(HeroPtr h)
 			{
 				int3 op = obj->visitablePos();
 				CGPath p;
-				ai->myCb->getPathsInfo(h.get())->getPath(op, p);
+				ai->myCb->getPathsInfo(h.get())->getPath(p, op);
 				if (p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
-					if (ai->isGoodForVisit(obj, h, sm))
+					if (ai->isGoodForVisit(obj, h, *sm))
 						nearbyVisitableObjs.push_back(obj);
 			}
 		}
@@ -432,7 +436,7 @@ bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2, CCallback * cbp) //determin
 		for (int y = yMin; y <= yMax; ++y)
 		{
 			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
-			if (abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
+			if (std::abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
 			{
 				if (!(cbp->isVisible(tile) && cbp->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
 					return false;
@@ -505,8 +509,10 @@ bool compareArtifacts(const CArtifactInstance *a1, const CArtifactInstance *a2)
 	auto art1 = a1->artType;
 	auto art2 = a2->artType;
 
-	if (art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL))
+	if(art1->price == art2->price)
+		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
+	else if(art1->price > art2->price)
 		return true;
 	else
-		return art1->price > art2->price;
+		return false;
 }

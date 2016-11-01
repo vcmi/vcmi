@@ -13,15 +13,20 @@ endif()
 
 # VCMI version
 set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 98)
+set(VCMI_VERSION_MINOR 99)
 set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-option(ENABLE_SDL2 "Use SDL2 for compilation instead of SDL 1.2" ON)
+
+############################################
+#        Documentation section             #
+############################################
+
+include(UseDoxygen OPTIONAL)
 
 ############################################
 #        Building section                  #
@@ -59,7 +64,7 @@ endif()
 if (WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 	add_definitions(-D_WIN32_WINNT=0x0501)
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
@@ -110,7 +115,7 @@ endif()
 set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 
 set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-find_package(Boost 1.48.0 COMPONENTS filesystem locale program_options system thread REQUIRED)
+find_package(Boost 1.48.0 COMPONENTS date_time filesystem locale program_options system thread REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
 find_package(Minizip)
@@ -118,26 +123,20 @@ if (MINIZIP_FOUND)
     add_definitions(-DUSE_SYSTEM_MINIZIP)
 endif()
 
-if (ENABLE_SDL2)
-	find_package(SDL2 REQUIRED)
-	find_package(SDL2_image REQUIRED)
-	find_package(SDL2_mixer REQUIRED)
-	find_package(SDL2_ttf REQUIRED)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
-	set(SDL_INCLUDE_DIR "${SDL2_INCLUDE_DIR}")
-	set(SDLTTF_INCLUDE_DIR "${SDL2_TTF_INCLUDE_DIR}")
-	set(SDLIMAGE_INCLUDE_DIR "${SDL2_IMAGE_INCLUDE_DIR}")
-	set(SDLMIXER_INCLUDE_DIR "${SDL2_MIXER_INCLUDE_DIR}")
-	set(SDL_LIBRARY "${SDL2_LIBRARY}")
-	set(SDLTTF_LIBRARY "${SDL2_TTF_LIBRARY}")
-	set(SDLIMAGE_LIBRARY "${SDL2_IMAGE_LIBRARY}")
-	set(SDLMIXER_LIBRARY "${SDL2_MIXER_LIBRARY}")
-else()
-	find_package(SDL REQUIRED)
-	find_package(SDL_image REQUIRED)
-	find_package(SDL_mixer REQUIRED)
-	find_package(SDL_ttf REQUIRED)
-endif()
+set(SDL_INCLUDE_DIR "${SDL2_INCLUDE_DIR}")
+set(SDLTTF_INCLUDE_DIR "${SDL2_TTF_INCLUDE_DIR}")
+set(SDLIMAGE_INCLUDE_DIR "${SDL2_IMAGE_INCLUDE_DIR}")
+set(SDLMIXER_INCLUDE_DIR "${SDL2_MIXER_INCLUDE_DIR}")
+set(SDL_LIBRARY "${SDL2_LIBRARY}")
+set(SDLTTF_LIBRARY "${SDL2_TTF_LIBRARY}")
+set(SDLIMAGE_LIBRARY "${SDL2_IMAGE_LIBRARY}")
+set(SDLMIXER_LIBRARY "${SDL2_MIXER_LIBRARY}")
+
 include(cotire)
 
 if (ENABLE_EDITOR OR ENABLE_LAUNCHER)
@@ -151,7 +150,7 @@ endif()
 
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
-	find_package(Boost 1.48.0 COMPONENTS program_options filesystem system thread locale unit_test_framework REQUIRED)
+	find_package(Boost 1.48.0 COMPONENTS date_time program_options filesystem system thread locale unit_test_framework REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
@@ -236,7 +235,7 @@ endif()
 #    Installation section             #
 #######################################
 
-# For apple this files will be already inside vcmiclient bundle
+# For apple these files will be already inside vcmiclient bundle
 if (NOT APPLE)
 	# copy whole directory but .svn control files
 	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE)
@@ -343,3 +342,6 @@ endif()
 
 INCLUDE(CPack)
 
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)

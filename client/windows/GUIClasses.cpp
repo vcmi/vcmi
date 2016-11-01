@@ -5,10 +5,8 @@
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
-#include "CSpellWindow.h"
 
 #include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
@@ -575,18 +573,10 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
-	musicVolume = new CToggleGroup(0, true);
-	for(int i=0; i<10; ++i)
-		musicVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 359), "syslb.def", CGI->generaltexth->zelp[326+i]));
-
-	musicVolume->setSelected(CCS->musich->getVolume());
+	musicVolume = new CVolumeSlider(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));
 
-	effectsVolume = new CToggleGroup(0, true);
-	for(int i=0; i<10; ++i)
-		effectsVolume->addToggle(i*11, new CToggleButton(Point(29 + 19*i, 425), "syslb.def", CGI->generaltexth->zelp[336+i]));
-
-	effectsVolume->setSelected(CCS->soundh->getVolume());
+	effectsVolume = new CVolumeSlider(Point(29, 425), "syslb.def", CCS->soundh->getVolume(), &CGI->generaltexth->zelp[336]);
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
@@ -656,7 +646,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -712,15 +702,17 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	oldSelected = -1;
 
 	new CLabel(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
-	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, "2500");
-	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(GameConstants::HERO_GOLD_COST));
+
+	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
+	new CTextBox(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = new CButton(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
 	recruit = new CButton(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
 	thiefGuild = new CButton(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
 
-	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 2500) //not enough gold
+	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //not enough gold
 	{
 		recruit->addHoverText(CButton::NORMAL, CGI->generaltexth->tavernInfo[0]); //Cannot afford a Hero
 		recruit->block(true);
@@ -914,7 +906,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	prepareBackground();
 
 	artifs[0] = new CArtifactsOfHero(Point(-334, 150));
-	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
+	artifs[0]->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
 	artifs[0]->setHero(heroInst[0]);
 	artifs[1] = new CArtifactsOfHero(Point(96, 150));
@@ -1010,7 +1002,6 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 CExchangeWindow::~CExchangeWindow() //d-tor
 {
-	delete artifs[0]->commonInfo;
 	artifs[0]->commonInfo = nullptr;
 	artifs[1]->commonInfo = nullptr;
 }
@@ -1089,9 +1080,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
-			#endif // VCMI_SDL1
 		}
 	}
 }
@@ -1380,26 +1369,29 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	slotsCount=7;
-	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
-
 	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName());//Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
-	currState.resize(slotsCount+1);
-	costs.resize(slotsCount);
-	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
+	for (int i=0; i<resCount; i++)
+	{
+		totalIcons[i] = new CAnimImage("SMALRES", i, 0, 104 + 76 * i, 237);
+		totalLabels[i] = new CLabel(166 + 76 * i, 253, FONT_SMALL, BOTTOMRIGHT);
+	}
 
 	for (int i = 0; i < slotsCount; i++)
 	{
-		currState[i] = getState(SlotID(i));
 		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
+
+		for(int j : {0,1})
+		{
+			slotIcons[i][j] = new CAnimImage("SMALRES", 0, 0, 104 + 76 * i, 128 + 20 * j);
+			slotLabels[i][j] = new CLabel(168 + 76 * i, 144 + 20 * j, FONT_SMALL, BOTTOMRIGHT);
+		}
 	}
 
-	currState[slotsCount] = getState(SlotID(slotsCount));
 	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&]{ makeDeal(SlotID(slotsCount));}, SDLK_0);
 	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
@@ -1413,6 +1405,11 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 
 void CHillFortWindow::updateGarrisons()
 {
+	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
+
+	TResources totalSumm; // totalSum[resource ID] = value
+	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
+
 	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		totalSumm[i]=0;
 
@@ -1437,10 +1434,77 @@ void CHillFortWindow::updateGarrisons()
 		upgrade[i]->addHoverText(CButton::NORMAL, getTextForSlot(SlotID(i)));
 	}
 
-	int newState = getState(SlotID(slotsCount));
+	//"Upgrade all" slot
+	int newState = 2;
+	{
+		TResources myRes = LOCPLINT->cb->getResourceAmount();
+
+		bool allUpgraded = true;//All creatures are upgraded?
+		for (int i=0; i<slotsCount; i++)
+			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
+
+		if (allUpgraded)
+			newState = 1;
+
+		if(!totalSumm.canBeAfforded(myRes))
+			newState = 0;
+	}
+
 	currState[slotsCount] = newState;
 	upgradeAll->setIndex(newState);
-	garr->recreateSlots();
+
+	CWindowWithGarrison::updateGarrisons();
+
+	for (int i = 0; i < slotsCount; i++)
+	{
+		//hide all first
+		for(int j : {0,1})
+		{
+			slotIcons[i][j]->visible = false;
+			slotLabels[i][j]->setText("");
+		}
+		//if can upgrade or can not afford, draw cost
+		if (currState[i] == 0 || currState[i] == 2)
+		{
+			if (costs[i].nonZero())
+			{
+				//reverse iterator is used to display gold as first element
+				int j = 0;
+				for(int res = costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				{
+					int val = costs[i][res];
+					if(!val)
+						continue;
+
+					slotIcons[i][j]->visible = true;
+					slotIcons[i][j]->setFrame(res);
+
+					slotLabels[i][j]->setText(boost::lexical_cast<std::string>(val));
+					j++;
+				}
+			}
+			else//free upgrade - print gold image and "Free" text
+			{
+				slotIcons[i][0]->visible = true;
+				slotIcons[i][0]->setFrame(Res::GOLD);
+				slotLabels[i][0]->setText(CGI->generaltexth->allTexts[344]);
+			}
+		}
+	}
+
+	for (int i = 0; i < resCount; i++)
+	{
+		if(totalSumm[i] == 0)
+		{
+			totalIcons[i]->visible = false;
+			totalLabels[i]->setText("");
+		}
+		else
+		{
+			totalIcons[i]->visible = true;
+			totalLabels[i]->setText(boost::lexical_cast<std::string>(totalSumm[i]));
+		}
+	}
 }
 
 void CHillFortWindow::makeDeal(SlotID slot)
@@ -1470,44 +1534,6 @@ void CHillFortWindow::makeDeal(SlotID slot)
 	}
 }
 
-void CHillFortWindow::showAll (SDL_Surface *to)
-{
-	CWindowObject::showAll(to);
-
-	for ( int i=0; i<slotsCount; i++)
-	{
-		if ( currState[i] == 0 || currState[i] == 2 )
-		{
-			if ( costs[i].size() )//we have several elements
-			{
-				int curY = 128;//reverse iterator is used to display gold as first element
-				for(int j = costs[i].size()-1; j >= 0; j--)
-				{
-					int val = costs[i][j];
-					if(!val) continue;
-
-					blitAtLoc(resources->ourImages[j].bitmap, 104+76*i, curY, to);
-					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, Colors::WHITE, to);
-					curY += 20;
-				}
-			}
-			else//free upgrade - print gold image and "Free" text
-			{
-				blitAtLoc(resources->ourImages[6].bitmap, 104+76*i, 128, to);
-				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, Colors::WHITE, to);
-			}
-		}
-	}
-	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
-	{
-		if (totalSumm[i])//this resource is used - display it
-		{
-			blitAtLoc(resources->ourImages[i].bitmap, 104+76*i, 237, to);
-			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, Colors::WHITE, to);
-		}
-	}
-}
-
 std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
 	if ( !hero->getCreature(slot) )//we don`t have creature here
@@ -1526,20 +1552,6 @@ std::string CHillFortWindow::getTextForSlot(SlotID slot)
 int CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
-	if ( slot.getNum() == slotsCount )//"Upgrade all" slot
-	{
-		bool allUpgraded = true;//All creatures are upgraded?
-		for (int i=0; i<slotsCount; i++)
-			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
-
-		if (allUpgraded)
-			return 1;
-
-		if(!totalSumm.canBeAfforded(myRes))
-			return 0;
-
-		return 2;
-	}
 
 	if (hero->slotEmpty(slot))//no creature here
 		return -1;
@@ -1638,9 +1650,9 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	int counter = 0;
 	for(auto & iter : tgi.colorToBestHero)
 	{
+		new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 		if(iter.second.portrait >= 0)
 		{
-			new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 			new CAnimImage("PortraitsSmall", iter.second.portrait, 0, 260 + 66 * counter, 360);
 			//TODO: r-click info:
 			// - r-click on hero

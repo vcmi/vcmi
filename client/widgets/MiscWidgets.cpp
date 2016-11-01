@@ -294,9 +294,9 @@ CHeroTooltip::CHeroTooltip(Point pos, const InfoAboutHero &hero):
 }
 
 CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
-	CArmyTooltip(pos, InfoAboutHero(hero, true))
+	CArmyTooltip(pos, InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED))
 {
-	init(InfoAboutHero(hero, true));
+	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
 void CTownTooltip::init(const InfoAboutTown &town)
@@ -361,40 +361,44 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	const int hoverTextBase[] = {7, 4};
 	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
 	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
-
-	int mrlt = -9;
-	TModDescr mrl;
+	TBonusListPtr modifierList(new BonusList());
 
 	if (node)
 	{
-		node->getModifiersWDescr(mrl, bonusType[morale]);
+		modifierList = node->getBonuses(Selector::type(bonusType[morale]));
 		bonusValue = (node->*getValue[morale])();
 	}
 	else
 		bonusValue = 0;
 
-	mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
+	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
 	baseType = componentType[morale];
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
-	if (!mrl.size())
+	
+	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD) 
+			|| node->hasBonusOfType(Bonus::BLOCK_MORALE) 
+			|| node->hasBonusOfType(Bonus::NON_LIVING)))
+	{
+		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
+		bonusValue = 0;
+	}
+	else if(!morale && node && node->hasBonusOfType(Bonus::BLOCK_LUCK))
+	{
+		// TODO: there is no text like "Unaffected by luck" so probably we need own text
 		text += CGI->generaltexth->arraytxt[noneTxtId];
+		bonusValue = 0;
+	}
+	else if(modifierList->empty())
+		text += CGI->generaltexth->arraytxt[noneTxtId];//no modifiers
 	else
 	{
-		//it's a creature window
-		if ((morale && node && node->hasBonusOfType(Bonus::UNDEAD)) ||
-			node->hasBonusOfType(Bonus::BLOCK_MORALE) || node->hasBonusOfType(Bonus::NON_LIVING))
+		for(auto& elem : *modifierList)
 		{
-			text += CGI->generaltexth->arraytxt[113]; //unaffected by morale
-		}
-		else
-		{
-			for(auto & elem : mrl)
-			{
-				if (elem.first) //no bonuses with value 0
-					text += "\n" + elem.second;
-			}
+			if(elem->val != 0)
+				//no bonuses with value 0
+				text += "\n" + elem->Description();
 		}
 	}
 

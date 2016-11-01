@@ -39,8 +39,8 @@ private:
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
 
-	ui8 * data;
-	SDL_Color * palette;
+	std::unique_ptr<ui8[]>       data;
+	std::unique_ptr<SDL_Color[]> palette;
 
 public:
 	CDefFile(std::string Name);
@@ -98,10 +98,11 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const;
-	void playerColored(PlayerColor player);
-	int width() const;
-	int height() const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const override;
+
+	void playerColored(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
 
 	friend class SDLImageLoader;
 };
@@ -144,10 +145,10 @@ public:
 	CompImage(SDL_Surface * surf);
 	~CompImage();
 
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const;
-	void playerColored(PlayerColor player);
-	int width() const;
-	int height() const;
+	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void playerColored(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
 
 	friend class CompImageLoader;
 };
@@ -168,6 +169,8 @@ private:
 
 	//if true all frames will be stored in compressed (RLE) state
 	const bool compressed;
+
+	bool preloaded;
 
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
 	bool loadFrame(CDefFile * file, size_t frame, size_t group);
@@ -195,10 +198,6 @@ public:
 	CAnimation();
 	~CAnimation();
 
-    //static method for debugging - print info about loaded animations
-	static void getAnimInfo();
-	static std::set<CAnimation*> loadedAnims;
-
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
@@ -208,6 +207,7 @@ public:
 	//all available frames
 	void load  ();
 	void unload();
+	void preload();
 
 	//all frames from group
 	void loadGroup  (size_t group);
@@ -236,7 +236,7 @@ private:
 	bool fading;
 	float fadingCounter;
 	bool shouldFreeSurface;
-	
+
 	float initialCounter() const;
 	bool isFinished() const;
 public:

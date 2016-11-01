@@ -8,7 +8,6 @@ struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
-class CDefHandler;
 
 /*
  * Images.h, part of VCMI engine
@@ -24,12 +23,12 @@ class CDefHandler;
 class CPicture : public CIntObject
 {
 	void setSurface(SDL_Surface *to);
-public: 
+public:
 	SDL_Surface * bg;
 	Rect * srcRect; //if nullptr then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
 	bool needRefresh;//Surface needs to be displayed each frame
-
+	bool visible;
 	operator SDL_Surface*()
 	{
 		return bg;
@@ -49,8 +48,8 @@ public:
 
 	void scaleTo(Point size);
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void convertToScreenBPP();
 	void colorizeAndConvert(PlayerColor player);
 	void colorize(PlayerColor player);
@@ -64,14 +63,14 @@ class CFilledTexture : CIntObject
 public:
 	CFilledTexture(std::string imageName, Rect position);
 	~CFilledTexture();
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface *to) override;
 };
 
 /// Class for displaying one image from animation
 class CAnimImage: public CIntObject
 {
 private:
-	CAnimation* anim;
+	std::shared_ptr<CAnimation> anim;
 	//displayed frame/group
 	size_t frame;
 	size_t group;
@@ -81,8 +80,10 @@ private:
 	void init();
 
 public:
-	CAnimImage(std::string name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
-	CAnimImage(CAnimation* anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	bool visible;
+
+	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	~CAnimImage();//d-tor
 
 	//size of animation
@@ -94,7 +95,7 @@ public:
 	//makes image player-colored
 	void playerColored(PlayerColor player);
 
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -155,8 +156,8 @@ public:
 	virtual void reset();
 
 	//show current frame and increase counter
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Creature-dependend animations like attacking, moving,...
@@ -210,7 +211,7 @@ private:
 
 public:
 	//change anim to next if queue is not empty, call callback othervice
-	void reset();
+	void reset() override;
 
 	//add sequence to the end of queue
 	void addLast(EAnimType newType);

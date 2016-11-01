@@ -8,9 +8,9 @@ class CFramerateManager;
 class CGStatusBar;
 class CIntObject;
 class IUpdateable;
-class ILockedUpdatable;
 class IShowActivatable;
 class IShowable;
+template <typename T> struct CondSh;
 
 /*
  * CGuiHandler.h, part of VCMI engine
@@ -29,7 +29,7 @@ private:
 	double rateticks;
 	ui32 lastticks, timeElapsed;
 	int rate;
-
+	ui32 accumulatedTime,accumulatedFrames;
 public:
 	int fps; // the actual fps value
 
@@ -58,10 +58,9 @@ private:
 				   motioninterested,
 	               timeinterested,
 	               wheelInterested,
-	               doubleClickInterested;
-	#ifndef VCMI_SDL1
-	CIntObjectList textInterested;
-	#endif // VCMI_SDL1
+	               doubleClickInterested,
+	               textInterested;
+
 	               
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);               
 public:
@@ -73,7 +72,7 @@ public:
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Event * current; //current event - can be set to nullptr to stop handling event
-	ILockedUpdatable *curInt;
+	IUpdateable *curInt;
 
 	Point lastClick;
 	unsigned lastClickTime;
@@ -104,12 +103,14 @@ public:
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 
-	static SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
-	static SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
-	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
-	static bool isArrowKey(SDLKey key);
+	static SDL_Keycode arrowToNum(SDL_Keycode key); //converts arrow key to according numpad key
+	static SDL_Keycode numToDigit(SDL_Keycode key);//converts numpad digit key to normal digit key
+	static bool isNumKey(SDL_Keycode key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
+	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
+	
+	static CondSh<bool> terminate_cond; // confirm termination
 };
 
 extern CGuiHandler GH; //global gui handler

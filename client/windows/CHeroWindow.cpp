@@ -4,11 +4,9 @@
 #include "CAdvmapInterface.h"
 #include "CCreatureWindow.h"
 #include "CKingdomInterface.h"
-#include "CSpellWindow.h"
 #include "GUIClasses.h"
 
 #include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMT.h"
@@ -28,6 +26,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
+#include "../mapHandler.h"
 
 /*
  * CHeroWindow.cpp, part of VCMI engine
@@ -46,7 +45,7 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero);
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
-	CArtifactsOfHero::SCommonPart *cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : nullptr;
+	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : nullptr;
 	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
 	{
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
@@ -54,9 +53,9 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList);
 
-	for(Bonus *b : *bonusesFromPickedUpArtifact)
+	for(auto b : *bonusesFromPickedUpArtifact)
 		*heroBonuses -= b;
-	for(Bonus *b : *heroBonuses)
+	for(auto b : *heroBonuses)
 		out->push_back(b);
 	return out;
 }
@@ -185,7 +184,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
-        logGlobal->errorStream() << "Set nullptr hero? no way...";
+		logGlobal->errorStream() << "Set nullptr hero? no way...";
 		return;
 	}
 
@@ -275,6 +274,9 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	if(!LOCPLINT->cb->howManyTowns() && LOCPLINT->cb->howManyHeroes() == 1)
 		noDismiss = true;
 
+	if(curHero->isMissionCritical())
+		noDismiss = true;
+
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
 	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
@@ -313,7 +315,7 @@ void CHeroWindow::commanderWindow()
 {
 	//TODO: allow equipping commander artifacts by drag / drop
 	//bool artSelected = false;
-	const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
+	const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = artSets.front()->commonInfo;
 
 	if (const CArtifactInstance *art = commonInfo->src.art)
 	{
@@ -340,13 +342,19 @@ void CHeroWindow::commanderWindow()
 
 }
 
+void CHeroWindow::updateGarrisons()
+{
+	CWindowWithGarrison::updateGarrisons();
+	morale->set(&heroWArt);
+}
+
 void CHeroWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	 
+
 	//printing hero's name
 	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::YELLOW, to);
-	 
+
 	//printing hero's level
 	std::string secondLine= CGI->generaltexth->allTexts[342];
 	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
@@ -360,14 +368,14 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 	primarySkill << primSkillAreas[m]->bonusValue;
 	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::WHITE, to);
 	}
-	 
+
 	//secondary skills
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], (v%2) ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	}
-	 
+
 	//printing special ability
 	printAtLoc(curHero->type->specName, 69, 205, FONT_SMALL, Colors::WHITE, to);
 	std::ostringstream expstr;

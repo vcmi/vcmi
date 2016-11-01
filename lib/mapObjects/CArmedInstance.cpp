@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CArmedInstance.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -15,6 +15,7 @@
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CGameState.h"
+#include "../CPlayerState.h"
 
 void CArmedInstance::randomizeArmy(int type)
 {
@@ -45,10 +46,10 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
-	if(!b)
+	auto b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+ 	if(!b)
 	{
-		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
 		addNewBonus(b);
 	}
 
@@ -86,21 +87,28 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
+		b->description = b->description.substr(0, b->description.size()-3);//trim "+1"
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
+		b->description = b->description.substr(0, b->description.size()-2);//trim value
 	}
 	boost::algorithm::trim(b->description);
+	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
-	Bonus *undeadModifier = getBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
+	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
  	if(hasUndead)
 	{
 		if(!undeadModifier)
-			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]));
+		{
+			undeadModifier = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
+			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
+			addNewBonus(undeadModifier);
+		}
 	}
 	else if(undeadModifier)
 		removeBonus(undeadModifier);

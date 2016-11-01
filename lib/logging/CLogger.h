@@ -12,23 +12,15 @@
 #pragma once
 
 #include "../CConsoleHandler.h"
+#include "../filesystem/FileStream.h"
 
 class CLogger;
 struct LogRecord;
 class ILogTarget;
 
+
 namespace ELogLevel
 {
-	enum ELogLevel
-	{
-		NOT_SET = 0,
-		TRACE,
-		DEBUG,
-		INFO,
-		WARN,
-		ERROR
-	};
-
 	#ifdef VCMI_ANDROID
 		int toAndroid(ELogLevel logLevel);
 	#endif
@@ -78,23 +70,16 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger
+class DLL_LINKAGE CLogger: public vstd::CLoggerBase
 {
 public:
-	inline ELogLevel::ELogLevel getLevel() const;
+	ELogLevel::ELogLevel getLevel() const;
 	void setLevel(ELogLevel::ELogLevel level);
 	const CLoggerDomain & getDomain() const;
 
 	/// Logger access methods
 	static CLogger * getLogger(const CLoggerDomain & domain);
 	static CLogger * getGlobalLogger();
-
-	/// Log methods for various log levels
-	void trace(const std::string & message) const;
-	void debug(const std::string & message) const;
-	void info(const std::string & message) const;
-	void warn(const std::string & message) const;
-	void error(const std::string & message) const;
 
 	/// Log streams for various log levels
 	CLoggerStream traceStream() const;
@@ -103,9 +88,9 @@ public:
 	CLoggerStream warnStream() const;
 	CLoggerStream errorStream() const;
 
-	inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
+	void log(ELogLevel::ELogLevel level, const std::string & message) const override;
 
-	void addTarget(unique_ptr<ILogTarget> && target);
+	void addTarget(std::unique_ptr<ILogTarget> && target);
 	void clearTargets();
 
 	/// Returns true if a debug/trace log message will be logged, false if not.
@@ -121,7 +106,7 @@ private:
 	CLoggerDomain domain;
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
-	std::vector<unique_ptr<ILogTarget> > targets;
+	std::vector<std::unique_ptr<ILogTarget> > targets;
 	mutable boost::mutex mx;
 	static boost::recursive_mutex smx;
 };
@@ -147,9 +132,9 @@ private:
 
 /// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
-/// 
+///
 #define RAII_TRACE(logger, onEntry, onLeave)			\
-	unique_ptr<CTraceLogger> ctl00;						\
+	std::unique_ptr<CTraceLogger> ctl00;						\
 	if(logger->isTraceEnabled())						\
 		ctl00 = make_unique<CTraceLogger>(logger, onEntry, onLeave);
 
@@ -174,10 +159,11 @@ public:
 
 	void addLogger(CLogger * logger);
 	CLogger * getLogger(const CLoggerDomain & domain); /// Returns a logger or nullptr if no one is registered for the given domain.
+	std::vector<std::string> getRegisteredDomains() const;
 
 private:
 	CLogManager();
-	~CLogManager();
+	virtual ~CLogManager();
 
 	std::map<std::string, CLogger *> loggers;
 	mutable boost::mutex mx;
@@ -188,14 +174,17 @@ private:
 struct DLL_LINKAGE LogRecord
 {
 	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
-		: domain(domain), level(level), message(message), timeStamp(boost::posix_time::microsec_clock::local_time()),
-		  threadId(boost::this_thread::get_id()) { }
+		: domain(domain),
+		level(level),
+		message(message),
+		timeStamp(boost::posix_time::microsec_clock::local_time()),
+		threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) { }
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
 	std::string message;
 	boost::posix_time::ptime timeStamp;
-	boost::thread::id threadId;
+	std::string threadId;
 };
 
 /// The class CLogFormatter formats log records.
@@ -214,7 +203,7 @@ public:
 	CLogFormatter(CLogFormatter && move);
 
 	CLogFormatter(const std::string & pattern);
-	
+
 	CLogFormatter & operator=(const CLogFormatter & copy);
 	CLogFormatter & operator=(CLogFormatter && move);
 
@@ -299,7 +288,7 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
-	boost::filesystem::ofstream file;
+	FileStream file;
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };

@@ -230,6 +230,11 @@
 					"type":"number",
 					"description": "Damage dealt to creature that entered town moat during siege"
 				},
+				"moatHexes": {
+					"type" : "array",
+					"description" : "Numbers of battlefield hexes affected by moat during siege",
+					"items" : { "type" : "number" }
+				},
 				"musicTheme": {
 					"type":"string",
 					"description": "Path to town music theme",

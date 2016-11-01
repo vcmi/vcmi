@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/vcmi/vcmi.svg?branch=develop)](https://travis-ci.org/vcmi/vcmi)
 # VCMI Project
 VCMI is work-in-progress attempt to recreate engine for Heroes III, giving it new and extended possibilities. To use VCMI you need to own original data files.
 
@@ -18,4 +19,4 @@ For building from source see project wiki at http://wiki.vcmi.eu/
 VCMI Project source code is licensed under GPL version 2 or later.
 VCMI Project assets are licensed under CC-BY-SA 4.0. Assets sources and information about contributors are available under following link: [https://github.com/vcmi/vcmi-assets]
 
-Copyright (C) 2007-2015  VCMI Team (check AUTHORS file for the contributors list)
+Copyright (C) 2007-2016  VCMI Team (check AUTHORS file for the contributors list)

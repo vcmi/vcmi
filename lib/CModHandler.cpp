@@ -1,8 +1,7 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
-#include "JsonNode.h"
-#include "filesystem/Filesystem.h"
+#include "filesystem/FileStream.h"
 #include "filesystem/AdapterLoaders.h"
 #include "filesystem/CFilesystemLoader.h"
 
@@ -31,10 +30,14 @@ CIdentifierStorage::CIdentifierStorage():
 {
 }
 
+CIdentifierStorage::~CIdentifierStorage()
+{
+}
+
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-        logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
+		logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
 	else
 	{
 		size_t pos = 0;
@@ -42,7 +45,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 		{
 			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
 			{
-                logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
+				logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
 				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
 			}
 			pos = ID.find('.', pos);
@@ -51,12 +54,14 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 	}
 }
 
-CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
-												   std::string name, const std::function<void(si32)> & callback, bool optional):
-    localScope(localScope),
-    remoteScope(remoteScope),
-    type(type),
-    name(name),
+CIdentifierStorage::ObjectCallback::ObjectCallback(
+		std::string localScope, std::string remoteScope, std::string type,
+		std::string name, const std::function<void(si32)> & callback,
+		bool optional):
+	localScope(localScope),
+	remoteScope(remoteScope),
+	type(type),
+	name(name),
 	callback(callback),
 	optional(optional)
 {}
@@ -101,9 +106,9 @@ void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, 
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)>& callback)
 {
-	auto scopeAndFullName = splitString(fullName, ':');	
-	auto typeAndName = splitString(scopeAndFullName.second, '.');	
-	
+	auto scopeAndFullName = splitString(fullName, ':');
+	auto typeAndName = splitString(scopeAndFullName.second, '.');
+
 	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
 }
 
@@ -204,10 +209,21 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	else
 	{
 		//...unless destination mod was specified explicitly
-		auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
-		if (request.remoteScope == "core" ||   // allow only available to all core mod
-		    myDeps.count(request.remoteScope)) // or dependencies
+		//note: getModData does not work for "core" by design
+
+		//for map format support core mod has access to any mod
+		//TODO: better solution for access from map?
+		if(request.localScope == "core" || request.localScope == "")
+		{
 			allowedScopes.insert(request.remoteScope);
+		}
+		else
+		{
+			// allow only available to all core mod or dependencies
+			auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
+			if (request.remoteScope == "core" || myDeps.count(request.remoteScope))
+				allowedScopes.insert(request.remoteScope);
+		}
 	}
 
 	std::string fullID = request.type + '.' + request.name;
@@ -282,9 +298,9 @@ void CIdentifierStorage::finalize()
 }
 
 CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
-    handler(handler),
-    objectName(objectName),
-    originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
+	handler(handler),
+	objectName(objectName),
+	originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
 {
 	for(auto & node : originalData)
 	{
@@ -331,11 +347,11 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
-	
+
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);	
+			result &= JsonUtils::validate(data, "vcmi:" + objectName, name);
 	};
 
 	// apply patches
@@ -355,7 +371,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-				
+
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
 
@@ -385,6 +401,7 @@ CContentHandler::CContentHandler()
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
 
 	//TODO: any other types of moddables?
 }
@@ -466,7 +483,7 @@ static JsonNode loadModSettings(std::string path)
 JsonNode addMeta(JsonNode config, std::string meta)
 {
 	config.setMeta(meta);
-	return std::move(config);
+	return config;
 }
 
 CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
@@ -547,23 +564,48 @@ CModHandler::CModHandler()
 
 }
 
+CModHandler::~CModHandler()
+{
+}
+
 void CModHandler::loadConfigFromFile (std::string name)
 {
+	std::string paths;
+	for(auto& p : CResourceHandler::get()->getResourceNames(ResourceID("config/" + name)))
+	{
+		paths += p.string() + ", ";
+	}
+	paths = paths.substr(0, paths.size() - 2);
+	logGlobal->debugStream() << "Loading hardcoded features settings from [" << paths << "], result:";
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
 	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
+	logGlobal->debugStream() << "\tMAX_HEROES_AVAILABLE_PER_PLAYER\t" << settings.MAX_HEROES_AVAILABLE_PER_PLAYER;
 	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
+	logGlobal->debugStream() << "\tMAX_HEROES_ON_MAP_PER_PLAYER\t" << settings.MAX_HEROES_ON_MAP_PER_PLAYER;
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
+	logGlobal->debugStream() << "\tCREEP_SIZE\t" << settings.CREEP_SIZE;
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
+	logGlobal->debugStream() << "\tWEEKLY_GROWTH\t" << settings.WEEKLY_GROWTH;
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
+	logGlobal->debugStream() << "\tNEUTRAL_STACK_EXP\t" << settings.NEUTRAL_STACK_EXP;
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
+	logGlobal->debugStream() << "\tMAX_BUILDING_PER_TURN\t" << settings.MAX_BUILDING_PER_TURN;
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
+	logGlobal->debugStream() << "\tDWELLINGS_ACCUMULATE_CREATURES\t" << settings.DWELLINGS_ACCUMULATE_CREATURES;
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
+	logGlobal->debugStream() << "\tALL_CREATURES_GET_DOUBLE_MONTHS\t" << settings.ALL_CREATURES_GET_DOUBLE_MONTHS;
+	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
+	logGlobal->debugStream() << "\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t" << settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
+  logGlobal->debugStream() << "\tSTACK_EXP\t" << modules.STACK_EXP;
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
+	logGlobal->debugStream() << "\tSTACK_ARTIFACT\t" << modules.STACK_ARTIFACT;
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
+	logGlobal->debugStream() << "\tCOMMANDERS\t" << modules.COMMANDERS;
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
+	logGlobal->debugStream() << "\tMITHRIL\t" << modules.MITHRIL;
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -821,9 +863,16 @@ void CModHandler::loadModFilesystems()
 
 CModInfo & CModHandler::getModData(TModID modId)
 {
-	CModInfo & mod = allMods.at(modId);
-	assert(vstd::contains(activeMods, modId)); // not really necessary but won't hurt
-	return mod;
+	auto it = allMods.find(modId);
+
+	if(it == allMods.end())
+	{
+		throw std::runtime_error("Mod not found '" + modId+"'");
+	}
+	else
+	{
+		return it->second;
+	}
 }
 
 void CModHandler::initializeConfig()
@@ -879,6 +928,19 @@ void CModHandler::afterLoad()
 	}
 	modSettings["core"] = coreMod.saveLocalData();
 
-	std::ofstream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
 	file << modSettings;
+}
+
+std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const
+{
+	auto p = splitString(identifier, ':');
+
+	if(p.first.empty())
+		p.first = scope;
+
+	if(p.first == remoteScope)
+		p.first.clear();
+
+	return p.first.empty() ? p.second : p.first +":"+p.second;
 }

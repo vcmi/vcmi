@@ -107,7 +107,7 @@ CCreature::CCreature()
 }
 void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 {
-	auto added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
+	auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
 }
 
@@ -140,11 +140,12 @@ void CCreature::setId(CreatureID ID)
 		if(bonus->source == Bonus::CREATURE_ABILITY)
 			bonus->sid = ID;
 	}
+	CBonusSystemNode::treeHasChanged();
 }
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
-	auto nsf = new Bonus();
+	auto nsf = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
 
 	auto it = bonusNameMap.find(type);
@@ -160,22 +161,23 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		} else
-            logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
+			logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
 
 		return;
 	}
 
 	nsf->type = it->second;
-	
+
 	JsonUtils::parseTypedBonusShort(ability_vec,nsf);
 
 	nsf->source = Bonus::CREATURE_ABILITY;
 	nsf->sid = cre->idNumber;
-	
+
 	cre->addNewBonus(nsf);
 }
 
 CCreatureHandler::CCreatureHandler()
+	: expAfterUpgrade(0)
 {
 	VLC->creh = this;
 
@@ -187,6 +189,16 @@ CCreatureHandler::CCreatureHandler()
 	loadCommanders();
 }
 
+const CCreature * CCreatureHandler::getCreature(const std::string & scope, const std::string & identifier) const
+{
+	boost::optional<si32> index = VLC->modh->identifiers.getIdentifier(scope, "creature", identifier);
+
+	if(!index)
+		throw std::runtime_error("Creature not found "+identifier);
+
+	return creatures[*index];
+}
+
 void CCreatureHandler::loadCommanders()
 {
 	JsonNode data(ResourceID("config/commanders.json"));
@@ -196,7 +208,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(JsonUtils::parseBonus (bonus.Vector()));
+		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
 	}
 
 	int i = 0;
@@ -212,7 +224,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto ability : config["abilityRequirements"].Vector())
 	{
-		std::pair <Bonus*, std::pair <ui8, ui8> > a;
+		std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > a;
 		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
 		a.second.first = ability["skills"].Vector()[0].Float();
 		a.second.second = ability["skills"].Vector()[1].Float();
@@ -231,15 +243,15 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 
 	static const std::map<std::string, JsonNode> abilityMap =
 	{
-	    {"FLYING_ARMY",            makeBonusNode("FLYING")},
-	    {"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
-	    {"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
-	    {"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
-	    {"IS_UNDEAD",              makeBonusNode("UNDEAD")},
-	    {"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
-	    {"const_jousting",         makeBonusNode("JOUSTING")},
-	    {"KING_1",                 makeBonusNode("KING1")},
-	    {"KING_2",                 makeBonusNode("KING2")},
+		{"FLYING_ARMY",            makeBonusNode("FLYING")},
+		{"SHOOTING_ARMY",          makeBonusNode("SHOOTER")},
+		{"SIEGE_WEAPON",           makeBonusNode("SIEGE_WEAPON")},
+		{"const_free_attack",      makeBonusNode("BLOCKS_RETALIATION")},
+		{"IS_UNDEAD",              makeBonusNode("UNDEAD")},
+		{"const_no_melee_penalty", makeBonusNode("NO_MELEE_PENALTY")},
+		{"const_jousting",         makeBonusNode("JOUSTING")},
+		{"KING_1",                 makeBonusNode("KING1")},
+		{"KING_2",                 makeBonusNode("KING2")},
 		{"KING_3",                 makeBonusNode("KING3")},
 		{"const_no_wall_penalty",  makeBonusNode("NO_WALL_PENALTY")},
 		{"CATAPULT",               makeBonusNode("CATAPULT")},
@@ -357,23 +369,41 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::MONSTER, object->idNumber.num);
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = object->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->addTemplate(templ);
+		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, object->idNumber.num);
+	});
+
+	registerObject(scope, "creature", name, object->idNumber);
 
 	for(auto node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->setId(CreatureID(index));
 	object->iconIndex = object->idNumber + 2;
 
@@ -385,10 +415,28 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
 	creatures[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "monster", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::MONSTER, object->idNumber.num);
+		if (!object->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ["animation"].String() = object->advMapDef;
+			VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->addTemplate(templ);
+		}
+
+		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
+		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, object->idNumber.num)->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::MONSTER, object->idNumber.num);
+	});
+
+	registerObject(scope, "creature", name, object->idNumber);
 	for(auto & node : data["extraNames"].Vector())
 	{
-		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
+		registerObject(scope, "creature", node.String(), object->idNumber);
 	}
 }
 
@@ -422,7 +470,7 @@ void CCreatureHandler::loadCrExpBon()
 
 		parser.readString(); //ignore index
 		loadStackExp(b, bl, parser);
-		for(Bonus * b : bl)
+		for(auto b : bl)
 			addBonusForAllCreatures(b); //health bonus is common for all
 		parser.endLine();
 
@@ -433,7 +481,7 @@ void CCreatureHandler::loadCrExpBon()
 				parser.readString(); //ignore index
 				bl.clear();
 				loadStackExp(b, bl, parser);
-				for(Bonus * b : bl)
+				for(auto b : bl)
 					addBonusForTier(i, b);
 				parser.endLine();
 			}
@@ -443,7 +491,7 @@ void CCreatureHandler::loadCrExpBon()
 			parser.readString(); //ignore index
 			bl.clear();
 			loadStackExp(b, bl, parser);
-			for(Bonus * b : bl)
+			for(auto b : bl)
 			{
 				addBonusForTier(7, b);
 				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
@@ -452,8 +500,14 @@ void CCreatureHandler::loadCrExpBon()
 		}
 		do //parse everything that's left
 		{
-			b.sid = parser.readNumber(); //id = this particular creature ID
-			loadStackExp(b, creatures[b.sid]->getBonusList(), parser); //add directly to CCreature Node
+			auto sid = parser.readNumber(); //id = this particular creature ID
+			b.sid = sid;
+			bl.clear();
+			loadStackExp(b, bl, parser);
+			for(auto b : bl)
+			{
+				creatures[sid]->addNewBonus(b); //add directly to CCreature Node
+			}
 		}
 		while (parser.endLine());
 
@@ -561,11 +615,12 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 		graphics.Struct().erase("missile");
 }
 
-CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
+CCreature * CCreatureHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	auto  cre = new CCreature();
 
 	const JsonNode & name = node["name"];
+	cre->identifier = identifier;
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
 
@@ -716,8 +771,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if (val.Bool() == true)
 				{
-					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
+					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					creature->addNewBonus (std::make_shared<Bonus>(*bonus)); //bonuses must be unique objects
 					break; //TODO: allow bonuses to turn off?
 				}
 				++lowerLimit;
@@ -732,13 +787,12 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 				{
 					bonus->val = val.Float() - lastVal;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					creature->addNewBonus (new Bonus(*bonus));
+					creature->addNewBonus (std::make_shared<Bonus>(*bonus));
 				}
 				lastVal = val.Float();
 				++lowerLimit;
 			}
 		}
-		delete bonus;
 	}
 }
 
@@ -841,7 +895,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 				break;
 		}
@@ -853,34 +907,42 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'B': //Blind
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::BLIND;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'H': //Hypnotize
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::HYPNOTIZE;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'I': //Implosion
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::IMPLOSION;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'K': //Berserk
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::BERSERK;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'M': //Meteor Shower
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::METEOR_SHOWER;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'N': //dispell beneficial spells
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::DISPEL_HELPFUL_SPELLS;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'R': //Armageddon
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::ARMAGEDDON;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case 'S': //Slow
 				b.type = Bonus::SPELL_IMMUNITY;
 				b.subtype = SpellID::SLOW;
+				b.additionalInfo = 0;//normal immunity
 				break;
 			case '6':
 			case '7':
@@ -943,7 +1005,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
-                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 		}
 		break;
@@ -984,7 +1046,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
-        logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+		logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 		return;
 		break;
 	}
@@ -1010,7 +1072,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			if (curVal == 1)
 			{
 				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(new Bonus(b));
+				bl.push_back(std::make_shared<Bonus>(b));
 				break; //never turned off it seems
 			}
 		}
@@ -1031,7 +1093,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.val = curVal - lastVal;
 				lastVal = curVal;
 				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(new Bonus(b));
+				bl.push_back(std::make_shared<Bonus>(b));
 				lastLev = i; //start new range from here, i = previous rank
 			}
 			else if (curVal < lastVal)
@@ -1053,6 +1115,9 @@ CCreatureHandler::~CCreatureHandler()
 {
 	for(auto & creature : creatures)
 		creature.dellNull();
+
+	for(auto & p : skillRequirements)
+		p.first = nullptr;
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const
@@ -1079,7 +1144,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 
 		if(!allowed.size())
 		{
-            logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
+			logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
 			return CreatureID::NONE;
 		}
 
@@ -1089,13 +1154,13 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, Bonus *b)
+void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
 {
 	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
-void CCreatureHandler::addBonusForAllCreatures(Bonus *b)
+void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
 {
 	allCreatures.addNewBonus(b);
 }
@@ -1115,20 +1180,7 @@ void CCreatureHandler::buildBonusTreeForTiers()
 
 void CCreatureHandler::afterLoadFinalization()
 {
-	for (CCreature * crea : creatures)
-	{
-		VLC->objtypeh->loadSubObject(crea->nameSing, JsonNode(), Obj::MONSTER, crea->idNumber.num);
-		if (!crea->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ["animation"].String() = crea->advMapDef;
-			VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber)->addTemplate(templ);
-		}
 
-		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (VLC->objtypeh->getHandlerFor(Obj::MONSTER, crea->idNumber.num)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::MONSTER, crea->idNumber.num);
-	}
 }
 
 void CCreatureHandler::deserializationFix()

@@ -16,7 +16,7 @@
  *
  */
 
-class CPack;
+struct CPack;
 class CCampaignState;
 class CBattleCallback;
 class IGameEventsReceiver;
@@ -32,8 +32,8 @@ struct SharedMem;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;
-class CISer;
-class COSer;
+class BinaryDeserializer;
+class BinarySerializer;
 namespace boost { class thread; }
 
 /// structure to handle running server and connecting to it
@@ -42,6 +42,8 @@ class CServerHandler
 private:
 	void callServer(); //calls server via system(), should be called as thread
 public:
+	static bool DO_NOT_START_SERVER;
+
 	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
 	SharedMem *shared; //interprocess memory (for waiting for server)
@@ -57,7 +59,7 @@ public:
 	static CConnection * justConnectToServer(const std::string &host = "", const std::string &port = ""); //connects to given host without taking any other actions (like setting up server)
 
 	CServerHandler(bool runServer = false);
-	~CServerHandler();
+	virtual ~CServerHandler();
 };
 
 template<typename T>
@@ -70,7 +72,6 @@ class ThreadSafeVector
 	boost::condition_variable cond;
 
 public:
-
 	void pushBack(const T &item)
 	{
 		TLock lock(mx);
@@ -115,17 +116,17 @@ public:
 /// Class which handles client - server logic
 class CClient : public IGameCallback
 {
-	unique_ptr<CPathsInfo> pathInfo;
+	std::unique_ptr<CPathsInfo> pathInfo;
 public:
-	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
-	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
-	std::vector<shared_ptr<IGameEventsReceiver>> privilagedGameEventReceivers; //scripting modules, spectator interfaces
-	std::vector<shared_ptr<IBattleEventsReceiver>> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
-	std::map<PlayerColor, shared_ptr<CGameInterface>> playerint;
-	std::map<PlayerColor, shared_ptr<CBattleGameInterface>> battleints;
+	std::map<PlayerColor,std::shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
+	std::map<PlayerColor,std::shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
+	std::vector<std::shared_ptr<IGameEventsReceiver>> privilagedGameEventReceivers; //scripting modules, spectator interfaces
+	std::vector<std::shared_ptr<IBattleEventsReceiver>> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
+	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
+	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
 
-	std::map<PlayerColor,std::vector<shared_ptr<IGameEventsReceiver>>> additionalPlayerInts;
-	std::map<PlayerColor,std::vector<shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
+	std::map<PlayerColor,std::vector<std::shared_ptr<IGameEventsReceiver>>> additionalPlayerInts;
+	std::map<PlayerColor,std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 
 	bool hotSeat;
 	CConnection *serv;
@@ -146,8 +147,8 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
-	void installNewPlayerInterface(shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
-	void installNewBattleInterface(shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
+	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
+	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
 	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
 
 	void endGame(bool closeConnection = true);
@@ -155,9 +156,9 @@ public:
 	void save(const std::string & fname);
 	void loadGame(const std::string & fname, const bool server = true, const std::vector<int>& humanplayerindices = std::vector<int>(), const int loadnumplayers = 1, int player_ = -1, const std::string & ipaddr = "", const std::string & port = "");
 	void run();
-	void campaignMapFinished( shared_ptr<CCampaignState> camp );
-	void finishCampaign( shared_ptr<CCampaignState> camp );
-	void proposeNextMission(shared_ptr<CCampaignState> camp);
+	void campaignMapFinished( std::shared_ptr<CCampaignState> camp );
+	void finishCampaign( std::shared_ptr<CCampaignState> camp );
+	void proposeNextMission(std::shared_ptr<CCampaignState> camp);
 
 	void invalidatePaths();
 	const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
@@ -175,9 +176,9 @@ public:
 	void setBlockVis(ObjectInstanceID objid, bool bv) override {};
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {};
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {};
 
-	void showBlockingDialog(BlockingDialog *iw) override {}; 
+	void showBlockingDialog(BlockingDialog *iw) override {};
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {};
 	void showTeleportDialog(TeleportDialog *iw) override {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override {};
@@ -186,20 +187,20 @@ public:
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {};
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override {};
-	bool changeStackType(const StackLocation &sl, CCreature *c) override {return false;};
+	bool changeStackType(const StackLocation &sl, const CCreature *c) override {return false;};
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override {return false;};
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;};
-	bool eraseStack(const StackLocation &sl, bool forceRemoval = false){return false;};
+	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override{return false;};
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) override {return false;}
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override {return false;}
-	
+
 	void removeAfterVisit(const CGObjectInstance *object) override {};
 
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override {};
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override {};
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {}; 
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {};
 	void removeArtifact(const ArtifactLocation &al) override {};
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;};
 	void synchronizeArtifactHandlerLists() override {};
@@ -207,8 +208,6 @@ public:
 	void showCompInfo(ShowInInfobox * comp) override {};
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
-	//void giveHeroArtifact(int artid, int hid, int position){}; 
-	//void giveNewArtifact(int hid, int position){};
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
@@ -233,16 +232,16 @@ public:
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
-	void commenceTacticPhaseForInt(shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
+	void commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> battleInt); //will be called as separate thread
 
 	void commitPackage(CPackForClient *pack) override;
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void serialize(COSer &h, const int version);
-	void serialize(CISer &h, const int version);
-	
-	void serialize(COSer &h, const int version, const std::set<PlayerColor>& playerIDs);
-	void serialize(CISer &h, const int version, const std::set<PlayerColor>& playerIDs);
+	void serialize(BinarySerializer & h, const int version);
+	void serialize(BinaryDeserializer & h, const int version);
+
+	void serialize(BinarySerializer & h, const int version, const std::set<PlayerColor>& playerIDs);
+	void serialize(BinaryDeserializer & h, const int version, const std::set<PlayerColor>& playerIDs);
 	void battleFinished();
 };

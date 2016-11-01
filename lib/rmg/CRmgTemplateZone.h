@@ -23,6 +23,7 @@ class CTileInfo;
 class int3;
 class CGObjectInstance;
 class ObjectTemplate;
+class CRmgTemplateZoneConnection;
 
 namespace ETemplateZoneType
 {
@@ -32,6 +33,15 @@ namespace ETemplateZoneType
 		CPU_START,
 		TREASURE,
 		JUNCTION
+	};
+}
+namespace EObjectPlacingResult
+{
+	enum EObjectPlacingResult
+	{
+		SUCCESS,
+		CANNOT_FIT,
+		SEALED_OFF
 	};
 }
 class DLL_LINKAGE CTileInfo
@@ -47,15 +57,18 @@ public:
 	bool isPossible() const;
 	bool isFree() const;
 	bool isUsed() const;
+	bool isRoad() const;
 	void setOccupied(ETileType::ETileType value);
 	ETerrainType getTerrainType() const;
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(ETerrainType value);
 
+	void setRoadType(ERoadType::ERoadType value);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	ETerrainType terrain;
+	ERoadType::ERoadType roadType;
 };
 
 class DLL_LINKAGE CTreasureInfo
@@ -144,30 +157,41 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
+	bool isAccessibleFromAnywhere(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
+	int3 getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile) const;
 
 	void addTile (const int3 &pos);
 	void initFreeTiles (CMapGenerator* gen);
-	std::set<int3> getTileInfo () const;
+	std::set<int3> getTileInfo() const;
+	std::set<int3> getPossibleTiles() const;
 	void discardDistantTiles (CMapGenerator* gen, float distance);
 	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
+	void addToConnectLater(const int3& src);
 	bool addMonster(CMapGenerator* gen, int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(CMapGenerator* gen, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
 	bool fill (CMapGenerator* gen);
 	bool placeMines (CMapGenerator* gen);
 	void initTownType (CMapGenerator* gen);
 	void paintZoneTerrain (CMapGenerator* gen, ETerrainType terrainType);
+	void randomizeTownType(CMapGenerator* gen); //helper function
 	void initTerrainType (CMapGenerator* gen);
 	void createBorder(CMapGenerator* gen);
 	void fractalize(CMapGenerator* gen);
+	void connectLater(CMapGenerator* gen);
+	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CMapGenerator* gen, CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
 	bool createRequiredObjects(CMapGenerator* gen);
 	void createTreasures(CMapGenerator* gen);
 	void createObstacles1(CMapGenerator* gen);
 	void createObstacles2(CMapGenerator* gen);
-	bool crunchPath (CMapGenerator* gen, const int3 &src, const int3 &dst, TRmgTemplateZoneId zone, std::set<int3>* clearedTiles = nullptr);
+	bool crunchPath(CMapGenerator* gen, const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
+	bool connectPath(CMapGenerator* gen, const int3& src, bool onlyStraight);
+	bool connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight);
+
 	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
+	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 
 	void addConnection(TRmgTemplateZoneId otherZone);
 	void setQuestArtZone(CRmgTemplateZone * otherZone);
@@ -178,7 +202,12 @@ public:
 
 	ObjectInfo getRandomObject (CMapGenerator* gen, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
+	void placeSubterraneanGate(CMapGenerator* gen, int3 pos, si32 guardStrength);
+	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
+	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
+	void addRoadNode(const int3 & node);
+	void connectRoads(CMapGenerator * gen); //fills "roads" according to "roadNodes"
 
 private:
 	//template info
@@ -216,15 +245,18 @@ private:
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 
+	std::set<int3> roadNodes; //tiles to be connected with roads
+	std::set<int3> roads; //all tiles with roads
+	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
+
+	bool createRoad(CMapGenerator* gen, const int3 &src, const int3 &dst);
+	void drawRoads(CMapGenerator * gen); //actually updates tiles
+
 	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (CMapGenerator* gen); //add objects, including zone-specific, to possibleObjects
-	bool isAccessibleFromAnywhere (CMapGenerator* gen, ObjectTemplate &appearance, int3 &tile, const std::set<int3> &tilesBlockedByObject) const;
 	bool findPlaceForObject(CMapGenerator* gen, CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(CMapGenerator* gen, float min_dist, int3 &pos, int value);
 	bool canObstacleBePlacedHere(CMapGenerator* gen, ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CMapGenerator* gen, CGObjectInstance* obj);
-	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 	void checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos);
-	void placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance = true);
-	bool guardObject(CMapGenerator* gen, CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 };

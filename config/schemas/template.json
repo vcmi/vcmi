@@ -1,0 +1,79 @@
+{
+
+	"type":"object",
+	"$schema": "",
+
+	"title" : "VCMI random map template format",
+	"description" : "Format used to define random map templates in VCMI",
+
+
+	"definitions" :
+	{
+		"zone":{
+			"type": "object",
+			"required" : ["type", "monsters", "size"],
+			"properties":{
+				"type":{"$ref" : "#/definitions/type"},
+				"size":{"$ref" : "#/definitions/size"},			
+				"playerTowns":{"$ref" : "#/definitions/playerTowns"},				
+				"neuralTowns":{"$ref" : "#/definitions/neuralTowns"},
+				"townsAreSameType":{"$ref" : "#/definitions/townsAreSameType"},
+				"monsters":{"$ref" : "#/definitions/monsters"},
+				"mines":{"$ref" : "#/definitions/mines"},
+				"treasure":{
+					"type":"array",
+					"items":{
+						"type": "object",
+						"properties":{
+							"min": {"type":"number", "minimum" : 0},
+							"max": {"type":"number", "minimum" : 0},
+							"density": {"type":"number", "minimum" : 1}
+						},					
+						"additionalProperties" : false						
+					}
+				}				
+			}		
+		},
+		"type" :{
+			"enum": ["playerStart", "cpuStart", "treasure", "junction"],
+			"additionalProperties" : false,
+			"type":"string"
+		},
+		"size":{
+			"type": "number",
+			"minimum": 1,
+			"additionalProperties" : false,
+		},
+		"connection":
+		{
+			"required": ["a", "b", "guard"],
+			"properties":{
+				"a":{
+					"type" : "string"
+				},
+				"b":{
+					"type" : "string"
+				},
+				"guard":
+				{
+					"type": "number",
+					"minimum" : 0
+				}
+			}
+		}
+	},
+
+	"properties":
+	{
+		"zones":{
+			"type": "object",
+			"additionalProperties":{"$ref" : "#/definitions/zone"	}						
+		},
+		"connections":{
+			"type": "array",
+			"items":{"$ref" : "#/definitions/connection"}	
+		},
+		"required" : ["zones", "connections"],
+		"additionalProperties" : false
+	}
+}

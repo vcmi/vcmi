@@ -14,7 +14,7 @@
  *
  */
 
-class StackWindowInfo;
+struct StackWindowInfo;
 class CCommanderInstance;
 class CStackInstance;
 class CStack;
@@ -47,9 +47,9 @@ class CStackWindow : public CWindowObject
 
 	class CWindowSection : public CIntObject
 	{
-		CStackWindow * parent;
+		CStackWindow *parent;
 
-		CPicture * background;
+		CPicture *background;
 
 		void createBackground(std::string path);
 		void createBonusItem(size_t index, Point position);
@@ -71,14 +71,17 @@ class CStackWindow : public CWindowObject
 		CWindowSection(CStackWindow * parent);
 	};
 
-	CAnimImage * stackArtifactIcon;
-	LRClickableAreaWTextComp * stackArtifactHelp;
-	CButton * stackArtifactButton;
+	std::unique_ptr<CAnimImage> stackArtifactIcon;
+	std::unique_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
+	std::unique_ptr<CButton> stackArtifactButton;
+	CAnimImage *expRankIcon;
+	LRClickableAreaWText *expArea;
+	CLabel *expLabel;
 
 	std::unique_ptr<StackWindowInfo> info;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
-	CTabbedInt * commanderTab;
+	CTabbedInt *commanderTab;
 
 	std::map<int, CButton *> switchButtons;
 
@@ -90,7 +93,6 @@ class CStackWindow : public CWindowObject
 	CIntObject * switchTab(size_t index);
 
 	void removeStackArtifact(ArtifactPosition pos);
-	void setStackArtifact(const CArtifactInstance * art, Point artPos);
 
 	void initSections();
 	void initBonusesList();

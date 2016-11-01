@@ -85,6 +85,12 @@ CTown::~CTown()
 		str.dellNull();
 }
 
+std::vector<BattleHex> CTown::defaultMoatHexes()
+{
+	static const std::vector<BattleHex> moatHexes = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
+	return moatHexes;
+}
+
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
@@ -519,7 +525,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	    info.tavernVideo = source["tavernVideo"].String();
 	else
 		info.tavernVideo = "TAVERN.BIK";
-	//end of legacy assignment 
+	//end of legacy assignment
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -542,7 +548,13 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 	town.moatDamage = source["moatDamage"].Float();
 
-	
+	// Compatability for <= 0.98f mods
+	if(source["moatHexes"].isNull())
+	{
+		town.moatHexes = CTown::defaultMoatHexes();
+	}
+	else
+		town.moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
 	town.mageLevel = source["mageGuild"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();
@@ -593,7 +605,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=, &town](si32 spellID)
 		{
-			SpellID(spellID).toSpell()->probabilities[town.faction->index] = chance;
+			VLC->spellh->objects.at(spellID)->probabilities[town.faction->index] = chance;
 		});
 	}
 
@@ -633,7 +645,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identifier)
+CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string & identifier)
 {
 	auto  faction = new CFaction();
 
@@ -669,7 +681,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, std::string identi
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 
 	object->index = factions.size();
 	factions.push_back(object);
@@ -686,7 +698,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
-			config["faction"].String() = object->identifier;
+			config["faction"].String() = name;
 			config["faction"].meta = scope;
 			if (config.meta.empty())// MODS COMPATIBILITY FOR 0.96
 				config.meta = scope;
@@ -709,7 +721,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, name);
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->index = index;
 	assert(factions[index] == nullptr); // ensure that this id was not loaded before
 	factions[index] = object;
@@ -726,7 +738,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
-			config["faction"].String() = object->identifier;
+			config["faction"].String() = name;
 			config["faction"].meta = scope;
 			VLC->objtypeh->loadSubObject(object->identifier, config, index, object->index);
 		});
@@ -774,15 +786,25 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown /*=true*/) con
 	if (withTown)
 		allowed = getDefaultAllowed();
 	else
-	{
-		for (auto town : factions)
-		{
-			allowed.push_back (true);
-		}
-	}
+		allowed.resize( factions.size(), true);
+
 	for (size_t i=0; i<allowed.size(); i++)
 		if (allowed[i])
 			allowedFactions.insert(i);
 
 	return allowedFactions;
+}
+
+si32 CTownHandler::decodeFaction(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CTownHandler::encodeFaction(const si32 index)
+{
+	return VLC->townh->factions[index]->identifier;
 }

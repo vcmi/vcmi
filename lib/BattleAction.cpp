@@ -4,7 +4,7 @@
 #include "BattleState.h"
 
 /*
- * BattleAction.h, part of VCMI engine
+ * BattleAction.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

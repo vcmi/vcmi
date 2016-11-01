@@ -1,4 +1,4 @@
-﻿/*
+/*
  * BattleState.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -15,13 +15,22 @@
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CHeroHandler.h"
-#include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CTownHandler.h"
 #include "NetPacks.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "CRandomGenerator.h"
+#include "mapObjects/CGTownInstance.h"
+
+SiegeInfo::SiegeInfo()
+{
+	for (int i = 0; i < wallState.size(); ++i)
+	{
+		wallState[i] = EWallState::NONE;
+	}
+	gateState = EGateState::NONE;
+}
 
 const CStack * BattleInfo::getNextStack() const
 {
@@ -86,7 +95,7 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero,
+ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender,
 	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand )
 {
 	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
@@ -141,31 +150,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	return ret;
 }
 
-const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
-{
-	CStack * stack = nullptr;
-	for(auto & elem : stacks)
-	{
-		if(elem->position == pos
-			|| (elem->doubleWide()
-			&&( (elem->attackerOwned && elem->position-1 == pos)
-			||	(!elem->attackerOwned && elem->position+1 == pos)	)
-			) )
-		{
-			if (elem->alive())
-				return elem; //we prefer living stacks - there can be only one stack on the tile, so return it immediately
-			else if (!onlyAlive)
-				stack = elem; //dead stacks are only accessible when there's no alive stack on this tile
-		}
-	}
-	return stack;
-}
-
-const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
-{
-	return sides[!stack->attackerOwned].hero;
-}
-
 void BattleInfo::localInit()
 {
 	for(int i = 0; i < 2; i++)
@@ -200,9 +184,7 @@ void BattleInfo::localInitStack(CStack * s)
 
 namespace CGH
 {
-	using namespace std;
-
-	static void readBattlePositions(const JsonNode &node, vector< vector<int> > & dest)
+	static void readBattlePositions(const JsonNode &node, std::vector< std::vector<int> > & dest)
 	{
 		for(const JsonNode &level : node.Vector())
 		{
@@ -301,7 +283,7 @@ struct RangeGenerator
 BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
-	auto curB = new BattleInfo;
+	auto curB = new BattleInfo();
 
 	for(auto i = 0u; i < curB->sides.size(); i++)
 		curB->sides[i].init(heroes[i], armies[i]);
@@ -328,6 +310,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//setting up siege obstacles
 	if (town && town->hasFort())
 	{
+		curB->si.gateState = EGateState::CLOSED;
+
 		for (int b = 0; b < curB->si.wallState.size(); ++b)
 		{
 			curB->si.wallState[b] = EWallState::INTACT;
@@ -374,7 +358,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 			try
 			{
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -423,7 +407,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 				RangeGenerator posgenerator(18, 168, ourRand);
 
-				auto obstPtr = make_shared<CObstacleInstance>();
+				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->ID = obid;
 				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
 				obstPtr->uniqueID = curB->obstacles.size();
@@ -470,7 +454,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID(255), hex));
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
 		};
 
 		handleWarMachine(0, ArtifactPosition::MACH1, CreatureID::BALLISTA, 52);
@@ -515,7 +499,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	//adding commanders
 	for (int i = 0; i < 2; ++i)
 	{
-		if (heroes[i] && heroes[i]->commander)
+		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
 		{
 			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
 				creatureBank ? commanderBank[i] : commanderField[i]);
@@ -527,20 +511,20 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -2);
 		stacks.push_back(stack);
 
 		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -3);
 			stacks.push_back(stack);
 		}
 
 		//moat
-		auto moat = make_shared<MoatObstacle>();
+		auto moat = std::make_shared<MoatObstacle>();
 		moat->ID = curB->town->subID;
 		moat->obstacleType = CObstacleInstance::MOAT;
 		moat->uniqueID = curB->obstacles.size();
@@ -550,10 +534,14 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//spell level limiting bonus
-	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
+	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
 		0, -1, -1, Bonus::INDEPENDENT_MAX));
 
-	//giving terrain overalay premies
+	auto neutral = std::make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL);
+	auto good = std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD);
+	auto evil = std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL);
+
+	//giving terrain overlay premies
 	int bonusSubtype = -1;
 	switch(battlefieldType)
 	{
@@ -579,44 +567,42 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		}
 
 		{ //common part for cases 9, 14, 15, 16, 17
-			curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, -1, "", bonusSubtype));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
 			break;
 		}
-
 	case BFieldType::HOLY_GROUND:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(good));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(evil));
 			break;
 		}
 	case BFieldType::CLOVER_FIELD:
 		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, 0)->addLimiter(neutral));
 			break;
 		}
 	case BFieldType::EVIL_FOG:
 		{
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
-			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(good));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(evil));
 			break;
 		}
 	case BFieldType::CURSED_GROUND:
 		{
-			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
-			Bonus * b = makeFeature(Bonus::LEVEL_SPELL_IMMUNITY, Bonus::ONE_BATTLE, GameConstants::SPELL_LEVELS, 1, Bonus::TERRAIN_OVERLAY);
-			b->valType = Bonus::INDEPENDENT_MAX;
-			curB->addNewBonus(b);
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
+			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
 			break;
 		}
 	}
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
-	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
-	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
-	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
+	auto nativeTerrain = std::make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
+
+	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
+	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
@@ -646,11 +632,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
 		for(CBonusSystemNode *n : nodes)
 		{
-			for(Bonus *b : n->getExportedBonusList())
+			for(auto b : n->getExportedBonusList())
 			{
 				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
 				{
-					auto bCopy = new Bonus(*b);
+					auto bCopy = std::make_shared<Bonus>(*b);
 					bCopy->effectRange = Bonus::NO_LIMIT;
 					bCopy->propagator.reset();
 					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i].color));
@@ -684,7 +670,7 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 		if(sides[i].color == player)
 			return i;
 
-    logGlobal->warnStream() << "BattleInfo::whatSide: Player " << player << " is not in battle!";
+	logGlobal->warnStream() << "BattleInfo::whatSide: Player " << player << " is not in battle!";
 	return -1;
 }
 
@@ -702,23 +688,23 @@ int BattleInfo::getIdForNewStack() const
 	return 0;
 }
 
-shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
+std::shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
 	for(auto &obs : obstacles)
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
-	return shared_ptr<CObstacleInstance>();
+	return std::shared_ptr<CObstacleInstance>();
 }
 
 BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
 {
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = 
+	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap =
 	{
 		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
 		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
 		{BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG},
-		{BFieldType::FAVOURABLE_WINDS, BattlefieldBI::NONE},
+		{BFieldType::FAVORABLE_WINDS, BattlefieldBI::NONE},
 		{BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS},
 		{BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND},
 		{BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS},
@@ -740,12 +726,10 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive /*= true*/)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-CStack * BattleInfo::getStackT(BattleHex tileID, bool onlyAlive /*= true*/)
-{
-	return const_cast<CStack *>(battleGetStackByPos(tileID, onlyAlive));
-}
-
 BattleInfo::BattleInfo()
+	: round(-1), activeStack(-1), selectedStack(-1), town(nullptr), tile(-1,-1,-1),
+	battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG),
+	tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);
 	setNodeType(BATTLE);
@@ -763,7 +747,8 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 
 CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
-	counterAttacks(1)
+	counterAttacksPerformed(0),counterAttacksTotalCache(0), cloneID(-1),
+	firstHPleft(-1), position(), shots(0), casts(0), resurrected(0)
 {
 	assert(base);
 	type = base->type;
@@ -776,7 +761,9 @@ CStack::CStack()
 	setNodeType(STACK_BATTLE);
 }
 CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
+	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO),
+	counterAttacksPerformed(0), counterAttacksTotalCache(0), cloneID(-1),
+	firstHPleft(-1), position(), shots(0), casts(0), resurrected(0)
 {
 	type = stack->type;
 	count = baseAmount = stack->count;
@@ -794,7 +781,13 @@ void CStack::init()
 	slot = SlotID(255);
 	attackerOwned = false;
 	position = BattleHex();
-	counterAttacks = -1;
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
+	cloneID = -1;
+
+	shots = 0;
+	casts = 0;
+	resurrected = 0;
 }
 
 void CStack::postInit()
@@ -804,9 +797,11 @@ void CStack::postInit()
 
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
-	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	counterAttacksPerformed = 0;
+	counterAttacksTotalCache = 0;
 	casts = valOfBonuses(Bonus::CASTS);
 	resurrected = 0;
+	cloneID = -1;
 }
 
 ui32 CStack::level() const
@@ -848,10 +843,10 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 
 	for(Bonus& b : tmp)
 	{
-		b.turnsRemain =  sse.turnsRemain;
+		if(b.turnsRemain == 0)
+			b.turnsRemain = sse.turnsRemain;
 		sf.push_back(b);
 	}
-
 }
 
 bool CStack::willMove(int turn /*= 0*/) const
@@ -980,8 +975,16 @@ std::vector<si32> CStack::activeSpells() const
 {
 	std::vector<si32> ret;
 
-	TBonusListPtr spellEffects = getSpellBonuses();
-	for(const Bonus *it : *spellEffects)
+	std::stringstream cachingStr;
+	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
+	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
+		.And(CSelector([](const Bonus *b)->bool
+		{
+			return b->type != Bonus::NONE;
+		}));
+
+	TBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
+	for(const std::shared_ptr<Bonus> it : *spellEffects)
 	{
 		if (!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);
@@ -1005,6 +1008,11 @@ const CGHeroInstance * CStack::getMyHero() const
 				return dynamic_cast<const CGHeroInstance *>(n);
 
 	return nullptr;
+}
+
+ui32 CStack::totalHealth() const
+{
+	return (MaxHealth() * (count-1)) + firstHPleft;
 }
 
 std::string CStack::nodeName() const
@@ -1129,10 +1137,23 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 bool CStack::ableToRetaliate() const //FIXME: crash after clone is killed
 {
 	return alive()
-		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
+		&& (counterAttacksPerformed < counterAttacksTotal() || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
 		&& !hasBonusOfType(Bonus::HYPNOTIZED)
 		&& !hasBonusOfType(Bonus::NO_RETALIATION);
+}
+
+ui8 CStack::counterAttacksTotal() const
+{
+	//after dispell bonus should remain during current round
+	ui8 val = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
+	vstd::amax(counterAttacksTotalCache, val);
+	return counterAttacksTotalCache;
+}
+
+si8 CStack::counterAttacksRemaining() const
+{
+	return counterAttacksTotal() - counterAttacksPerformed;
 }
 
 std::string CStack::getName() const
@@ -1140,9 +1161,24 @@ std::string CStack::getName() const
 	return (count > 1) ? type->namePl : type->nameSing; //War machines can't use base
 }
 
-bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
+bool CStack::isValidTarget(bool allowDead/* = false*/) const
 {
-	return (alive() || allowDead) && position.isValid();
+	return (alive() || (allowDead && isDead())) && position.isValid() && !isTurret();
+}
+
+bool CStack::isDead() const
+{
+	return !alive() && !isGhost();
+}
+
+bool CStack::isGhost() const
+{
+	return vstd::contains(state,EBattleStackState::GHOST);
+}
+
+bool CStack::isTurret() const
+{
+	return type->idNumber == CreatureID::ARROW_TOWERS;
 }
 
 bool CStack::canBeHealed() const
@@ -1150,6 +1186,80 @@ bool CStack::canBeHealed() const
 	return firstHPleft < MaxHealth()
 		&& isValidTarget()
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
+}
+
+void CStack::makeGhost()
+{
+	state.erase(EBattleStackState::ALIVE);
+	state.insert(EBattleStackState::GHOST_PENDING);
+}
+
+ui32 CStack::calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const
+{
+	if(!resurrect && !alive())
+	{
+		logGlobal->warnStream() <<"Attempt to heal corpse detected.";
+		return 0;
+	}
+
+	return std::min<ui32>(toHeal, MaxHealth() - firstHPleft + (resurrect ? (baseAmount - count) * MaxHealth() : 0));
+}
+
+ui8 CStack::getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool) const
+{
+	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id));
+
+	vstd::abetween(skill, 0, 3);
+
+	return skill;
+}
+
+ui32 CStack::getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const
+{
+	//stacks does not have sorcery-like bonuses (yet?)
+	return base;
+}
+
+int CStack::getEffectLevel(const CSpell * spell) const
+{
+	return getSpellSchoolLevel(spell);
+}
+
+int CStack::getEffectPower(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * count / 100;
+}
+
+int CStack::getEnchantPower(const CSpell * spell) const
+{
+	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	if(res<=0)
+		res = 3;//default for creatures
+	return res;
+}
+
+int CStack::getEffectValue(const CSpell * spell) const
+{
+	return valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->id.toEnum()) * count;
+}
+
+const PlayerColor CStack::getOwner() const
+{
+	return owner;
+}
+
+void CStack::getCasterName(MetaString & text) const
+{
+	//always plural name in case of spell cast.
+	text.addReplacement(MetaString::CRE_PL_NAMES, type->idNumber.num);
+}
+
+void CStack::getCastDescription(const CSpell * spell, const std::vector<const CStack*> & attacked, MetaString & text) const
+{
+	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+	//todo: use text 566 for single creature
+	getCasterName(text);
+	text.addReplacement(MetaString::SPELL_NAME, spell->id.toEnum());
 }
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )
@@ -1192,6 +1302,7 @@ CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
 
 SideInBattle::SideInBattle()
 {
+	color = PlayerColor::CANNOT_DETERMINE;
 	hero = nullptr;
 	armyObject = nullptr;
 	castSpellsCount = 0;

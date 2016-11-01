@@ -135,11 +135,7 @@ struct ColorPutter<2, incrementPtr>
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
 {
-	#ifdef VCMI_SDL1
-	PutColor(ptr, Color.r, Color.g, Color.b, Color.unused);
-	#else
 	PutColor(ptr, Color.r, Color.g, Color.b, Color.a);
-	#endif
 }
 
 template<int bpp, int incrementPtr>
@@ -268,11 +264,7 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uin
 template <int incrementPtr>
 STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color)
 {
-	#ifdef VCMI_SDL1
-	PutColor(ptr, Color.r, Color.g, Color.b, Color.unused);
-	#else
 	PutColor(ptr, Color.r, Color.g, Color.b, Color.a);
-	#endif
 }
 
 template <int incrementPtr>

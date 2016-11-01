@@ -31,7 +31,7 @@ struct PlayerSettings
 	Ebonus bonus;
 	si16 castle;
 	si32 hero,
-	     heroPortrait; //-1 if default, else ID
+		 heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
 	PlayerColor color; //from 0 - 
@@ -82,15 +82,15 @@ struct StartInfo
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
 	bool createRandomMap() const { return mapGenOptions.get() != nullptr; }
-	shared_ptr<CMapGenOptions> mapGenOptions;
+	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
-	shared_ptr<CCampaignState> campState;
+	std::shared_ptr<CCampaignState> campState;
 
 	PlayerSettings & getIthPlayersSettings(PlayerColor no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
-        logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
+		logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
 		throw std::runtime_error("Cannot find info about player");
 	}
 	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const

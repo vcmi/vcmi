@@ -45,18 +45,18 @@ public:
 	const CStructure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
-	
+
 	ui32 stateCounter;//For building construction - current stage in animation
-	
+
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str); //c-tor
 	~CBuildingRect(); //d-tor
 	bool operator<(const CBuildingRect & p2) const;
-	void hover(bool on);
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void hover(bool on) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Dwelling info box - right-click screen for dwellings
@@ -66,7 +66,7 @@ class CDwellingInfoBox : public CWindowObject
 	CCreaturePic *animation;
 	CLabel *available;
 	CLabel *costPerTroop;
-	
+
 	std::vector<CAnimImage *> resPicture;
 	std::vector<CLabel *> resAmount;
 public:
@@ -84,13 +84,14 @@ public:
 
 	CAnimImage *image;
 	CAnimImage *selection; //selection border. nullptr if not selected
-	
+
 	void setHighlight(bool on);
 	void set(const CGHeroInstance *newHero);
 
-	void hover (bool on);
-	void clickLeft(tribool down, bool previousState);
-	void deactivate();
+	void hover (bool on) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void deactivate() override;
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner); //c-tor
 	~CHeroGSlot(); //d-tor
 };
@@ -148,9 +149,9 @@ public:
 	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
-	
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Creature info window
@@ -160,20 +161,20 @@ class CCreaInfo : public CIntObject
 	const CCreature *creature;
 	int level;
 	bool showAvailable;
-	
+
 	CAnimImage *picture;
 	CLabel * label;
 
 	int AddToString(std::string from, std::string & to, int numb);
 	std::string genGrowthText();
-	
+
 public:
 	CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool compact=false, bool showAvailable=false);
-	
+
 	void update();
-	void hover(bool on);
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
+	void hover(bool on) override;
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
 };
 
 /// Town hall and fort icons for town screen
@@ -185,9 +186,9 @@ class CTownInfo : public CIntObject
 public:
 	//if (townHall) hall-capital else fort - castle
 	CTownInfo(int posX, int posY, const CGTownInstance* town, bool townHall);
-	
-	void hover(bool on);
-	void clickRight(tribool down, bool previousState);
+
+	void hover(bool on) override;
+	void clickRight(tribool down, bool previousState) override;
 };
 
 /// Class which manages the castle window
@@ -211,9 +212,6 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 public:
 	CTownList * townlist;
 
-	//TODO: remove - currently used only in dialog messages
-	CDefEssential* bicons; //150x70 buildings imgs
-
 	//TODO: move to private
 	const CGTownInstance * town;
 	HeroSlots *heroes;
@@ -225,7 +223,7 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_KeyboardEvent & key);
+	void keyPressed(const SDL_KeyboardEvent & key) override;
 	void close();
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
@@ -250,12 +248,12 @@ class CHallInterface : public CWindowObject
 
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
-		void hover(bool on);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
+		void hover(bool on) override;
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
 	};
 	const CGTownInstance * town;
-	
+
 	std::vector< std::vector<CBuildingBox*> >boxes;
 	CLabel *title;
 	CGStatusBar *statusBar;
@@ -282,7 +280,7 @@ public:
 	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick); //c-tor
 };
 
-//Small class to display 
+//Small class to display
 class LabeledValue : public CIntObject
 {
 	std::string hoverText;
@@ -293,7 +291,7 @@ class LabeledValue : public CIntObject
 public:
 	LabeledValue(Rect size, std::string name, std::string descr, int min, int max);
 	LabeledValue(Rect size, std::string name, std::string descr, int val);
-	void hover(bool on);
+	void hover(bool on) override;
 };
 
 /// The fort screen where you can afford units
@@ -318,11 +316,11 @@ class CFortScreen : public CWindowObject
 		const CBuilding * getMyBuilding();
 	public:
 		RecruitArea(int posX, int posY, const CGTownInstance *town, int level);
-		
+
 		void creaturesChanged();
-		void hover(bool on);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
+		void hover(bool on) override;
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
 	};
 	CLabel *title;
 	std::vector<RecruitArea*> recAreas;
@@ -348,9 +346,9 @@ class CMageGuildScreen : public CWindowObject
 
 	public:
 		Scroll(Point position, const CSpell *Spell);
-		void clickLeft(tribool down, bool previousState);
-		void clickRight(tribool down, bool previousState);
-		void hover(bool on);
+		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(tribool down, bool previousState) override;
+		void hover(bool on) override;
 	};
 	CPicture *window;
 	CButton *exit;

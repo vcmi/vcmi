@@ -37,8 +37,11 @@ public:
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources; //TODO: use resourceset?
 
-	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
+	// following fields are used only for kill creature/hero missions, the original
+	// objects became inaccessible after their removal, so we need to store info
+	// needed for messages / hover text
 	ui8 textOption;
+	ui8 completedOption;
 	CStackBasicDescriptor stackToKill;
 	ui8 stackDirection;
 	std::string heroName; //backup of hero name
@@ -47,7 +50,7 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
-	CQuest(){missionType = MISSION_NONE;}; //default constructor
+	CQuest();
 	virtual ~CQuest(){};
 
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
@@ -66,7 +69,16 @@ public:
 	{
 		h & qid & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
 			& textOption & stackToKill & stackDirection & heroName & heroPortrait
-			& firstVisitText & nextVisitText & completedText & isCustomFirst & isCustomNext & isCustomComplete;
+			& firstVisitText & nextVisitText & completedText & isCustomFirst
+			& isCustomNext & isCustomComplete;
+		if(version >= 757)
+		{
+			h & completedOption;
+		}
+		else if(!h.saving)
+		{
+			completedOption = 1;
+		}
 	}
 };
 
@@ -75,8 +87,8 @@ class DLL_LINKAGE IQuestObject
 public:
 	CQuest * quest;
 
-	IQuestObject(): quest(new CQuest()){};
-	virtual ~IQuestObject() {};
+	IQuestObject();
+	virtual ~IQuestObject();
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
@@ -96,13 +108,13 @@ public:
 	std::string seerName;
 
 	CGSeerHut();
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	virtual void init();
+	virtual void init(CRandomGenerator & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
@@ -118,6 +130,8 @@ public:
 		h & rewardType & rID & rVal & seerName;
 	}
 protected:
+	static const int OBJPROP_VISITED = 10;
+
 	void setPropertyDer(ui8 what, ui32 val) override;
 };
 
@@ -125,7 +139,7 @@ class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	CGQuestGuard() : CGSeerHut(){};
-	void init() override;
+	void init(CRandomGenerator & rand) override;
 	void completeQuest (const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -139,6 +153,8 @@ class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster an
 public:
 	static std::map <PlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
+
+	static void reset();
 
 	bool wasMyColorVisited (PlayerColor player) const;
 
@@ -156,7 +172,7 @@ protected:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
-	bool wasVisited (PlayerColor player) const;
+	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -169,13 +185,13 @@ class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
 	CGBorderGuard() : IQuestObject(){};
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;
-	bool checkQuest (const CGHeroInstance * h) const;
+	bool checkQuest (const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

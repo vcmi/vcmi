@@ -40,7 +40,7 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
+std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 {
 	auto ret = make_unique<CCampaign>();
 
@@ -245,7 +245,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 						break;
 					}
 				default:
-                    logGlobal->warnStream() << "Corrupted h3c file";
+					logGlobal->warnStream() << "Corrupted h3c file";
 					break;
 				}
 				ret.bonusesToChoose.push_back(bonus);
@@ -282,8 +282,8 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 		}
 	default:
 		{
-            logGlobal->warnStream() << "Corrupted h3c file";
-            break;
+			logGlobal->warnStream() << "Corrupted h3c file";
+			break;
 		}
 	}
 
@@ -292,7 +292,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 
 std::vector< std::vector<ui8> > CCampaignHandler::getFile(const std::string & name, bool headerOnly)
 {
-	CCompressedStream stream(std::move(CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN))), true);
+	CCompressedStream stream(CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN)), true);
 
 	std::vector< std::vector<ui8> > ret;
 	do
@@ -363,7 +363,7 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
 			}
 		}
 	}
-	return std::move(lostCrossoverHeroes);
+	return lostCrossoverHeroes;
 }
 
 bool CScenarioTravel::STravelBonus::isBonusForHero() const
@@ -411,7 +411,7 @@ CCampaignState::CCampaignState()
 
 }
 
-CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
+CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
 	for(int i = 0; i < camp->scenarios.size(); i++)
 	{

@@ -18,13 +18,13 @@
  */
 
 class CArtHandler;
-class CDefHandler;
 class CArtifact;
 class CGHeroInstance;
 struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 class CRandomGenerator;
+class CMap;
 
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
@@ -49,6 +49,7 @@ protected:
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
+	std::string identifier;
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
@@ -63,7 +64,7 @@ public:
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
-	void addNewBonus(Bonus *b) override;
+	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
@@ -79,6 +80,10 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & name & description & eventText & image & large & advMapDef & iconIndex &
 			price & possibleSlots & constituents & constituentOf & aClass & id;
+		if(version>=759)
+		{
+			h & identifier;
+		}
 	}
 
 	CArtifact();
@@ -93,7 +98,7 @@ public:
 	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
 	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
 
-	void levelUpArtifact (CArtifactInstance * art);
+	void levelUpArtifact(CArtifactInstance * art) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -119,6 +124,7 @@ public:
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
+	std::string getEffectiveDescription(const CGHeroInstance *hero = nullptr) const;
 	ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
 	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
 	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
@@ -128,7 +134,9 @@ public:
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
 	virtual void removeFrom(ArtifactLocation al);
-	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
+	/// Checks if this a part of this artifact: artifact instance is a part
+	/// of itself, additionally truth is returned for constituents of combined arts
+	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
 	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
 	void move(ArtifactLocation src, ArtifactLocation dst);
@@ -141,8 +149,18 @@ public:
 	}
 
 	static CArtifactInstance *createScroll(const CSpell *s);
+	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
 	static CArtifactInstance *createNewArtifactInstance(int aid);
+
+	/**
+	 * Creates an artifact instance.
+	 *
+	 * @param aid the id of the artifact
+	 * @param spellID optional. the id of a spell if a spell scroll object should be created
+	 * @return the created artifact instance
+	 */
+	static CArtifactInstance * createArtifact(CMap * map, int aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
@@ -172,7 +190,7 @@ public:
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, ArtifactPosition slot);
-	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replcaed with us (combined art), not lock
+	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replaced with us (combined art), not lock
 
 	CCombinedArtifactInstance();
 
@@ -236,6 +254,12 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
+	///json serialization helper
+	static si32 decodeArfifact(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeArtifact(const si32 index);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics
@@ -244,7 +268,7 @@ public:
 	}
 
 private:
-	CArtifact * loadFromJson(const JsonNode & node);
+	CArtifact * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void addSlot(CArtifact * art, const std::string & slotID);
 	void loadSlots(CArtifact * art, const JsonNode & node);
@@ -253,9 +277,9 @@ private:
 	void loadComponents(CArtifact * art, const JsonNode & node);
 	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
 
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus *bonus);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus);
 
 	void erasePickedArt(ArtifactID id);
 };
@@ -265,10 +289,8 @@ struct DLL_LINKAGE ArtSlotInfo
 	ConstTransitivePtr<CArtifactInstance> artifact;
 	ui8 locked; //if locked, then artifact points to the combined artifact
 
-	ArtSlotInfo()
-	{
-		locked = false;
-	}
+	ArtSlotInfo() : locked(false) {}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifact & locked;
@@ -288,15 +310,21 @@ public:
 	const ArtSlotInfo *getSlot(ArtifactPosition pos) const;
 	const CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true) const; //nullptr - no artifact
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
+	/// (if more than one such artifact lower ID is returned)
+	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
-	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
+	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
+	const CArtifactInstance *getHiddenArt(int aid) const;
+	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
+	/// Checks if hero possess artifact of given id (either in backack or worn)
+	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ArtifactPosition pos) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
-	virtual ~CArtifactSet();
+	virtual ~CArtifactSet() = default;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -304,4 +332,11 @@ public:
 	}
 
 	void artDeserializationFix(CBonusSystemNode *node);
+
+protected:
+	void writeJson(JsonNode & json) const;
+	void readJson(const JsonNode & json);
+
+protected:
+	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(int aid) const;
 };

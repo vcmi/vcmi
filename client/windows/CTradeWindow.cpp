@@ -34,11 +34,11 @@
  */
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial):
-    CIntObject(LCLICK | HOVER | RCLICK, pos),
-    type(EType(-1)),// set to invalid, will be corrected in setType
-    id(ID),
-    serial(Serial),
-    left(Left)
+	CIntObject(LCLICK | HOVER | RCLICK, pos),
+	type(EType(-1)),// set to invalid, will be corrected in setType
+	id(ID),
+	serial(Serial),
+	left(Left)
 {
 	downSelection = false;
 	hlp = nullptr;
@@ -268,6 +268,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 			break;
 		case ARTIFACT_TYPE:
 		case ARTIFACT_PLACEHOLDER:
+			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
 				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
 			break;
@@ -319,13 +320,13 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 }
 
 CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode):
-    CWindowObject(PLAYER_COLORED, bgName),
+	CWindowObject(PLAYER_COLORED, bgName),
 	market(Market),
-    hero(Hero),
-    arts(nullptr),
-    hLeft(nullptr),
-    hRight(nullptr),
-    readyToTrade(false)
+	hero(Hero),
+	arts(nullptr),
+	hLeft(nullptr),
+	hRight(nullptr),
+	readyToTrade(false)
 {
 	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
@@ -389,7 +390,7 @@ void CTradeWindow::initItems(bool Left)
 
 		BLOCK_CAPTURING;
 		arts = new CArtifactsOfHero(Point(pos.x+xOffset, pos.y+yOffset));
-		arts->commonInfo = new CArtifactsOfHero::SCommonPart;
+		arts->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
 		arts->commonInfo->participants.insert(arts);
 		arts->recActions = 255;
 		arts->setHero(hero);
@@ -426,7 +427,7 @@ void CTradeWindow::initItems(bool Left)
 		hlp->pos = pos[j] + this->pos.topLeft();
 		items[Left].push_back(hlp);
 	}
-
+	vstd::clear_pointer(ids);
 	initSubs(Left);
 }
 
@@ -500,14 +501,14 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		int h, w, x, y, dx, dy;
 		int leftToRightOffset;
 		getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
-		
-		const std::vector<Rect> tmp = 
+
+		const std::vector<Rect> tmp =
 		{
 			genRect(h, w, x, y), genRect(h, w, x + dx, y), genRect(h, w, x + 2*dx, y),
 			genRect(h, w, x, y + dy), genRect(h, w, x + dx, y + dy), genRect(h, w, x + 2*dx, y + dy),
-			genRect(h, w, x + dx, y + 2*dy)			
+			genRect(h, w, x + dx, y + 2*dy)
 		};
-		
+
 		vstd::concatenate(poss, tmp);
 
 		if(!Left)
@@ -656,7 +657,7 @@ std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mo
 }
 
 CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
-    : CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
+	: CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -861,7 +862,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 			if(itemsType[1] == RESOURCE)
 				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
-				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->stacksCount() == 1  &&  hero->needsLastStack());
 			else
 				assert(0);
 
@@ -1470,7 +1471,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 {
 	if(!art->artType->isTradable()) //special art
 	{
-        logGlobal->warnStream() << "Cannot put special artifact on altar!";
+		logGlobal->warnStream() << "Cannot put special artifact on altar!";
 		return false;
 	}
 
@@ -1479,7 +1480,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 		int slotIndex = firstFreeSlot();
 		if(slotIndex < 0)
 		{
-            logGlobal->warnStream() << "No free slots on altar!";
+			logGlobal->warnStream() << "No free slots on altar!";
 			return false;
 		}
 		altarSlot = items[0][slotIndex];

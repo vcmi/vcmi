@@ -1,11 +1,9 @@
 #include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
-#include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/vcmi_endian.h"
 
@@ -18,6 +16,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+
+namespace BitmapHandler
+{
+	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
+
+	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
+}
 
 bool isPCX(const ui8 *header)//check whether file can be PCX according to header
 {
@@ -70,7 +76,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			CSDL_Ext::colorSetAlpha(tp,SDL_ALPHA_OPAQUE);
+			tp.a = SDL_ALPHA_OPAQUE;
 			ret->format->palette->colors[i] = tp;
 		}
 	}
@@ -102,7 +108,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 {
 	if(!fname.size())
 	{
-        logGlobal->warnStream() << "Call to loadBitmap with void fname!";
+		logGlobal->warnStream() << "Call to loadBitmap with void fname!";
 		return nullptr;
 	}
 	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
@@ -142,13 +148,13 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			{
 				//set correct value for alpha\unused channel
 				for (int i=0; i < ret->format->palette->ncolors; i++)
-					CSDL_Ext::colorSetAlpha(ret->format->palette->colors[i],SDL_ALPHA_OPAQUE);				
+					ret->format->palette->colors[i].a = SDL_ALPHA_OPAQUE;
 			}
 		}
 		else
 		{
-            logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
-			logGlobal->errorStream()<<"Reason: " << IMG_GetError();
+			logGlobal->errorStream() << "Failed to open " << fname << " via SDL_Image";
+			logGlobal->errorStream() << "Reason: " << IMG_GetError();
 			return nullptr;
 		}
 	}
@@ -174,7 +180,9 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
-        logGlobal->errorStream()<<"Error: Failed to find file "<<fname;
+	{
+		logGlobal->errorStream() << "Error: Failed to find file " << fname;
+	}
 
 	return bitmap;
 }

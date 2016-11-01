@@ -1,10 +1,9 @@
 #pragma  once
 
-#include "../Connection.h"
 #include "../NetPacks.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
-#include "../CGameState.h"
+#include "../CPlayerState.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../CModHandler.h" //needed?
@@ -24,7 +23,9 @@
  *
  */
 
-
+class BinarySerializer;
+class BinaryDeserializer;
+class CTypeList;
 
 template<typename Serializer>
 void registerTypesMapObjects1(Serializer &s)
@@ -229,6 +230,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
 	s.template registerType<CPackForClient, UpdateMapEvents>();
 	s.template registerType<CPackForClient, UpdateCastleEvents>();
+	s.template registerType<CPackForClient, ChangeFormation>();
 	s.template registerType<CPackForClient, RemoveObject>();
 	s.template registerType<CPackForClient, TryMoveHero>();
 	//s.template registerType<CPackForClient, SetGarrisons>();
@@ -254,6 +256,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, SetCommanderProperty>();
 	s.template registerType<CPackForClient, ChangeObjectVisitors>();
 	s.template registerType<CPackForClient, ShowWorldViewEx>();
+	s.template registerType<CPackForClient, PrepareHeroLevelUp>();
 }
 
 template<typename Serializer>
@@ -272,6 +275,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CPackForClient, SetStackEffect>();
 	s.template registerType<CPackForClient, BattleTriggerEffect>();
 	s.template registerType<CPackForClient, BattleObstaclePlaced>();
+	s.template registerType<CPackForClient, BattleUpdateGateState>();
 	s.template registerType<CPackForClient, BattleSetStackProperty>();
 	s.template registerType<CPackForClient, StacksInjured>();
 	s.template registerType<CPackForClient, BattleResultsApplied>();
@@ -375,8 +379,8 @@ void registerTypes(Serializer &s)
 
 #ifndef INSTANTIATE_REGISTER_TYPES_HERE
 
-extern template DLL_LINKAGE void registerTypes<CISer>(CISer & s);
-extern template DLL_LINKAGE void registerTypes<COSer>(COSer & s);
+extern template DLL_LINKAGE void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
+extern template DLL_LINKAGE void registerTypes<BinarySerializer>(BinarySerializer & s);
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif

@@ -70,6 +70,8 @@
 			{
 				"templates" : {
 					"castle" :  { "animation" : "AVCcasx0.def" },
+					"citadel" : { "animation" : "AVCcasx0.def" },
+					"fort"    : { "animation" : "AVCcasx0.def" },
 					"village" : { "animation" : "AVCCAST0.DEF" },
 					"capitol" : { "animation" : "AVCCASZ0.DEF" }
 				}
@@ -146,7 +148,9 @@
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
 			"moatDamage" : 70,
-			"primaryResource": "ore",
+			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
+			// primaryResource not specified so town get both Wood and Ore for resource bonus
+
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },

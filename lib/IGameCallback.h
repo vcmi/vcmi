@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CGameInfoCallback.h" // for CGameInfoCallback
+#include "CRandomGenerator.h"
 
 /*
  * IGameCallback.h, part of VCMI engine
@@ -30,9 +31,9 @@ class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
 public:
 	CGameState * gameState();
 	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
-	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode=0) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
+	void getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode = 0, bool patrolDistance = false) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
 	void getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
-	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	void pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 
 	template<typename Saver>
@@ -61,7 +62,7 @@ public:
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
-	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
+	virtual bool changeStackType(const StackLocation &sl, const CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
 	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
 	virtual bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) =0;

@@ -69,11 +69,16 @@ public:
 	bool canBePlacedAt(ETerrainType terrain) const;
 
 	ObjectTemplate();
+	//custom copy constructor is required
+	ObjectTemplate(const ObjectTemplate & other);
+
+	ObjectTemplate& operator=(const ObjectTemplate & rhs);
 
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
-	void readJson(const JsonNode & node);
+	void readJson(const JsonNode & node, const bool withTerrain = true);
+	void writeJson(JsonNode & node, const bool withTerrain = true) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 

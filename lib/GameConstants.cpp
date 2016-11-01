@@ -12,80 +12,49 @@
 
 #include "StdInc.h"
 
+#ifndef VCMI_NO_EXTRA_VERSION
+#include "../Version.h"
+#endif
+
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
+#include "StringConstants.h"
+#include "CGeneralTextHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
+const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
+const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
+const SlotID SlotID::ARROW_TOWERS_SLOT = SlotID(-5);
+
 const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
 const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
 const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
 const TeamID TeamID::NO_TEAM = TeamID(255);
 
-#define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
-bool operator==(const A & a, const B & b)			\
-{													\
-	return AN == BN ;								\
-}													\
-bool operator!=(const A & a, const B & b)			\
-{													\
-	return AN != BN ;								\
-}													\
-bool operator<(const A & a, const B & b)			\
-{													\
-	return AN < BN ;								\
-}													\
-bool operator<=(const A & a, const B & b)			\
-{													\
-	return AN <= BN ;								\
-}													\
-bool operator>(const A & a, const B & b)			\
-{													\
-	return AN > BN ;								\
-}													\
-bool operator>=(const A & a, const B & b)			\
-{													\
-	return AN >= BN ;								\
-}
-
-#define ID_LIKE_OPERATORS(CLASS_NAME, ENUM_NAME)	\
-	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, CLASS_NAME, a.num, b.num)	\
-	ID_LIKE_OPERATORS_INTERNAL(CLASS_NAME, ENUM_NAME, a.num, b)	\
-	ID_LIKE_OPERATORS_INTERNAL(ENUM_NAME, CLASS_NAME, a, b.num)
-
-
-ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
-
-ID_LIKE_OPERATORS(Obj, Obj::EObj)
-
-ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
-
-ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
-
-ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
-
-ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
-
-ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
-
-ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
-
-ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
-
-CArtifact * ArtifactID::toArtifact() const
+namespace GameConstants
 {
-	return VLC->arth->artifacts[*this];
+#ifdef VCMI_NO_EXTRA_VERSION
+	const std::string VCMI_VERSION = std::string("VCMI 0.99");
+#else
+	const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
+#endif
 }
 
-CCreature * CreatureID::toCreature() const
+const CArtifact * ArtifactID::toArtifact() const
 {
-	return VLC->creh->creatures[*this];
+	return VLC->arth->artifacts.at(*this);
 }
 
-CSpell * SpellID::toSpell() const
+const CCreature * CreatureID::toCreature() const
+{
+	return VLC->creh->creatures.at(*this);
+}
+
+const CSpell * SpellID::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{
@@ -101,6 +70,32 @@ CSpell * SpellID::toSpell() const
 bool PlayerColor::isValidPlayer() const
 {
 	return num < PLAYER_LIMIT_I;
+}
+
+std::string PlayerColor::getStr(bool L10n) const
+{
+	std::string ret = "unnamed";
+	if(isValidPlayer())
+	{
+		if(L10n)
+			ret = VLC->generaltexth->colors[num];
+		else
+			ret = GameConstants::PLAYER_COLOR_NAMES[num];
+	}
+	else if(L10n)
+	{
+		ret = VLC->generaltexth->allTexts[508];
+		ret[0] = std::tolower(ret[0]);
+	}
+
+	return ret;
+}
+
+std::string PlayerColor::getStrCap(bool L10n) const
+{
+	std::string ret = getStr(L10n);
+	ret[0] = std::toupper(ret[0]);
+	return ret;
 }
 
 std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType)
@@ -130,7 +125,7 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 	else return os << it->second;
 }
 
-std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
+std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
 {
 	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
 	{
@@ -147,9 +142,10 @@ std::ostream & operator<<(std::ostream & os, const ETerrainType actionType)
 		DEFINE_ELEMENT(LAVA),
 		DEFINE_ELEMENT(WATER),
 		DEFINE_ELEMENT(ROCK)
+	#undef DEFINE_ELEMENT
 	};
 
-	auto it = terrainTypeToString.find(actionType.num);
+	auto it = terrainTypeToString.find(terrainType.num);
 	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
 }
@@ -159,4 +155,24 @@ std::string ETerrainType::toString() const
 	std::stringstream ss;
 	ss << *this;
 	return ss.str();
+}
+
+std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
+{
+	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
+	{
+	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
+		DEFINE_ELEMENT(WRONG),
+		DEFINE_ELEMENT(AUTO),
+		DEFINE_ELEMENT(LAND),
+		DEFINE_ELEMENT(SAIL),
+		DEFINE_ELEMENT(WATER),
+		DEFINE_ELEMENT(AIR),
+		DEFINE_ELEMENT(NUM_LAYERS)
+	#undef DEFINE_ELEMENT
+	};
+
+	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
+	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
+	else return os << it->second;
 }

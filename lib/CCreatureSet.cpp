@@ -11,6 +11,7 @@
 #include "spells/CSpellHandler.h"
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
+#include "serializer/JsonSerializeFormat.h"
 
 /*
  * CCreatureSet.cpp, part of VCMI engine
@@ -44,12 +45,12 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 {
 	if(!slot.validSlot())
 	{
-        logGlobal->errorStream() << "Cannot set slot " << slot;
+		logGlobal->errorStream() << "Cannot set slot " << slot;
 		return false;
 	}
 	if(!quantity)
 	{
-        logGlobal->warnStream() << "Using set creature to delete stack?";
+		logGlobal->warnStream() << "Using set creature to delete stack?";
 		eraseStack(slot);
 		return true;
 	}
@@ -170,7 +171,7 @@ void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool 
 	}
 	else
 	{
-        logGlobal->errorStream() << "Failed adding to slot!";
+		logGlobal->errorStream() << "Failed adding to slot!";
 	}
 }
 
@@ -188,7 +189,7 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 	}
 	else
 	{
-        logGlobal->errorStream() << "Cannot add to slot " << slot << " stack " << *stack;
+		logGlobal->errorStream() << "Cannot add to slot " << slot << " stack " << *stack;
 	}
 }
 
@@ -225,12 +226,37 @@ ui64 CCreatureSet::getPower (SlotID slot) const
 	return getStack(slot).getPower();
 }
 
-std::string CCreatureSet::getRoughAmount (SlotID slot) const
+std::string CCreatureSet::getRoughAmount(SlotID slot, int mode) const
 {
+	/// Mode represent return string format
+	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
 	int quantity = CCreature::getQuantityID(getStackCount(slot));
-	if (quantity)
-		return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(getStackCount(slot))];
+	if(quantity)
+		return VLC->generaltexth->arraytxt[(174 + mode) + 3*CCreature::getQuantityID(getStackCount(slot))];
 	return "";
+}
+
+std::string CCreatureSet::getArmyDescription() const
+{
+	std::string text;
+	std::vector<std::string> guards;
+	for(auto & elem : stacks)
+	{
+		auto str = boost::str(boost::format("%s %s") % getRoughAmount(elem.first, 2) % getCreature(elem.first)->namePl);
+		guards.push_back(str);
+	}
+	if(guards.size())
+	{
+		for(int i = 0; i < guards.size(); i++)
+		{
+			text += guards[i];
+			if(i + 2 < guards.size())
+				text += ", ";
+			else if(i + 2 == guards.size())
+				text += VLC->generaltexth->allTexts[237];
+		}
+	}
+	return text;
 }
 
 int CCreatureSet::stacksCount() const
@@ -387,10 +413,10 @@ CStackInstance * CCreatureSet::detachStack(SlotID slot)
 	CStackInstance *ret = stacks[slot];
 
 	//if(CArmedInstance *armedObj = castToArmyObj())
-    if(ret)
+	if(ret)
 	{
 		ret->setArmyObj(nullptr); //detaches from current armyobj
-        assert(!ret->armyObj); //we failed detaching?
+		assert(!ret->armyObj); //we failed detaching?
 	}
 
 	stacks.erase(slot);
@@ -454,6 +480,38 @@ CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
 
 void CCreatureSet::armyChanged()
 {
+
+}
+
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+{
+	if(handler.saving && stacks.empty())
+		return;
+	JsonNode & json = handler.getCurrent()[fieldName];
+
+	if(handler.saving)
+	{
+		for(const auto & p : stacks)
+		{
+			JsonNode stack_node;
+			p.second->writeJson(stack_node);
+			json.Vector()[p.first.getNum()] = stack_node;
+		}
+	}
+	else
+	{
+		for(size_t idx = 0; idx < json.Vector().size(); idx++)
+		{
+			if(json.Vector()[idx]["amount"].Float() > 0)
+			{
+				CStackInstance * new_stack = new CStackInstance();
+
+				new_stack->readJson(json.Vector()[idx]);
+
+				putStack(SlotID(idx), new_stack);
+			}
+		}
+	}
 }
 
 CStackInstance::CStackInstance()
@@ -570,7 +628,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 		attachTo(const_cast<CCreature*>(type));
 }
-std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) const
+std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
 	if(Bonus::MAGIC_RESISTANCE == bonus->type)
 	{
@@ -580,10 +638,10 @@ std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) 
 	{
 		return VLC->getBth()->bonusToString(bonus, this, description);
 	}
-	
+
 }
 
-std::string CStackInstance::bonusToGraphics(const Bonus *bonus) const
+std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
@@ -675,6 +733,25 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
+void CStackInstance::writeJson(JsonNode& json) const
+{
+	if(idRand > -1)
+	{
+		json["level"].Float() = (int)idRand / 2;
+		json["upgraded"].Bool() = (idRand % 2) > 0;
+	}
+	CStackBasicDescriptor::writeJson(json);
+}
+
+void CStackInstance::readJson(const JsonNode& json)
+{
+	if(json["type"].String() == "")
+	{
+		idRand = json["level"].Float() * 2 + (int)json["upgraded"].Bool();
+	}
+	CStackBasicDescriptor::readJson(json);
+}
+
 CCommanderInstance::CCommanderInstance()
 {
 	init();
@@ -737,7 +814,7 @@ void CCommanderInstance::levelUp ()
 	level++;
 	for (auto bonus : VLC->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
-		accumulateBonus (*bonus);
+		accumulateBonus(bonus);
 	}
 }
 
@@ -765,6 +842,22 @@ CStackBasicDescriptor::CStackBasicDescriptor(CreatureID id, TQuantity Count)
 CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count)
 	: type(c), count(Count)
 {
+}
+
+void CStackBasicDescriptor::writeJson(JsonNode& json) const
+{
+	json.setType(JsonNode::DATA_STRUCT);
+	if(type)
+		json["type"].String() = type->identifier;
+	json["amount"].Float() = count;
+}
+
+void CStackBasicDescriptor::readJson(const JsonNode& json)
+{
+	auto typeName = json["type"].String();
+	if(typeName != "")
+		type = VLC->creh->getCreature("core", json["type"].String());
+	count = json["amount"].Float();
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)

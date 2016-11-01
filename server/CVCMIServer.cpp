@@ -5,7 +5,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -18,6 +18,7 @@
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/rmg/CMapGenOptions.h"
 #ifndef VCMI_ANDROID
 #include "../lib/Interprocess.h"
 #endif
@@ -38,9 +39,6 @@
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-using namespace boost;
-using namespace boost::asio;
-using namespace boost::asio::ip;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #endif
@@ -59,7 +57,7 @@ boost::program_options::variables_map cmdLineOptions;
  *
  */
 
-static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error)
+static void vaccept(boost::asio::ip::tcp::acceptor *ac, boost::asio::ip::tcp::socket *s, boost::system::error_code *error)
 {
 	ac->accept(*s,*error);
 }
@@ -83,11 +81,11 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			CPackForSelectionScreen *cpfs = nullptr;
 			*cpc >> cpfs;
 
-            logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
+			logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
 
 			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-			bool quitting = dynamic_cast<QuitMenuWithoutStarting*>(cpfs), 
-				startingGame = dynamic_cast<StartWithCurrentSettings*>(cpfs);
+			bool quitting = dynamic_ptr_cast<QuitMenuWithoutStarting>(cpfs),
+				startingGame = dynamic_ptr_cast<StartWithCurrentSettings>(cpfs);
 			if(quitting || startingGame) //host leaves main menu or wants to start game -> we end
 			{
 				cpc->receivedStop = true;
@@ -111,7 +109,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 	catch (const std::exception& e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-        logNetwork->errorStream() << *cpc << " dies... \nWhat happened: " << e.what();
+		logNetwork->errorStream() << *cpc << " dies... \nWhat happened: " << e.what();
 	}
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
@@ -127,13 +125,13 @@ void CPregameServer::handleConnection(CConnection *cpc)
 
 		if(connections.empty())
 		{
-            logNetwork->errorStream() << "Last connection lost, server will close itself...";
+			logNetwork->error("Last connection lost, server will close itself...");
 			boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
 			state = ENDING_WITHOUT_START;
 		}
 	}
 
-    logNetwork->infoStream() << "Thread listening for " << *cpc << " ended";
+	logNetwork->infoStream() << "Thread listening for " << *cpc << " ended";
 	listeningThreads--;
 	vstd::clear_pointer(cpc->handler);
 }
@@ -161,7 +159,7 @@ void CPregameServer::run()
 
 			if(state != RUNNING)
 			{
-                logNetwork->infoStream() << "Stopping listening for connections...";
+				logNetwork->info("Stopping listening for connections...");
 				acceptor->close();
 			}
 
@@ -175,13 +173,13 @@ void CPregameServer::run()
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
-    logNetwork->infoStream() << "Thread handling connections ended";
+	logNetwork->info("Thread handling connections ended");
 
 	if(state == ENDING_AND_STARTING_GAME)
 	{
-        logNetwork->infoStream() << "Waiting for listening thread to finish...";
+		logNetwork->info("Waiting for listening thread to finish...");
 		while(listeningThreads) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-        logNetwork->infoStream() << "Preparing new game";
+		logNetwork->info("Preparing new game");
 	}
 }
 
@@ -202,11 +200,11 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 {
 	if(ec)
 	{
-        logNetwork->infoStream() << "Something wrong during accepting: " << ec.message();
+		logNetwork->info("Something wrong during accepting: %s", ec.message());
 		return;
 	}
 
-    logNetwork->infoStream() << "We got a new connection! :)";
+	logNetwork->info("We got a new connection! :)");
 	CConnection *pc = new CConnection(upcomingConnection, NAME);
 	initConnection(pc);
 	upcomingConnection = nullptr;
@@ -235,7 +233,7 @@ void CPregameServer::start_async_accept()
 
 void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
 {
-    logNetwork->infoStream() << playerName << " says: " << txt;
+	logNetwork->info("%s says: %s", playerName, txt);
 	ChatMessage cm;
 	cm.playerName = playerName;
 	cm.message = txt;
@@ -254,15 +252,15 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 {
 	if(!pc->sendStop)
 	{
-        logNetwork->infoStream() << "\tSending pack of type " << typeid(pack).name() << " to " << *pc;
+		logNetwork->infoStream() << "\tSending pack of type " << typeid(pack).name() << " to " << *pc;
 		*pc << &pack;
 	}
 
-	if(dynamic_cast<const QuitMenuWithoutStarting*>(&pack))
+	if(dynamic_ptr_cast<QuitMenuWithoutStarting>(&pack))
 	{
 		pc->sendStop = true;
 	}
-	else if(dynamic_cast<const StartWithCurrentSettings*>(&pack))
+	else if(dynamic_ptr_cast<StartWithCurrentSettings>(&pack))
 	{
 		pc->sendStop = true;
 	}
@@ -270,25 +268,25 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 
 void CPregameServer::processPack(CPackForSelectionScreen * pack)
 {
-	if(dynamic_cast<CPregamePackToHost*>(pack))
+	if(dynamic_ptr_cast<CPregamePackToHost>(pack))
 	{
 		sendPack(host, *pack);
 	}
-	else if(SelectMap *sm = dynamic_cast<SelectMap*>(pack))
+	else if(SelectMap *sm = dynamic_ptr_cast<SelectMap>(pack))
 	{
 		vstd::clear_pointer(curmap);
 		curmap = sm->mapInfo;
 		sm->free = false;
 		announcePack(*pack);
 	}
-	else if(UpdateStartOptions *uso = dynamic_cast<UpdateStartOptions*>(pack))
+	else if(UpdateStartOptions *uso = dynamic_ptr_cast<UpdateStartOptions>(pack))
 	{
 		vstd::clear_pointer(curStartInfo);
 		curStartInfo = uso->options;
 		uso->free = false;
 		announcePack(*pack);
 	}
-	else if(dynamic_cast<const StartWithCurrentSettings*>(pack))
+	else if(dynamic_ptr_cast<StartWithCurrentSettings>(pack))
 	{
 		state = ENDING_AND_STARTING_GAME;
 		announcePack(*pack);
@@ -303,20 +301,20 @@ void CPregameServer::initConnection(CConnection *c)
 {
 	*c >> c->name;
 	connections.insert(c);
-    logNetwork->infoStream() << "Pregame connection with player " << c->name << " established!";
+	logNetwork->info("Pregame connection with player %s established!", c->name);
 }
 
 void CPregameServer::startListeningThread(CConnection * pc)
-{	
+{
 	listeningThreads++;
 	pc->enterPregameConnectionMode();
 	pc->handler = new boost::thread(&CPregameServer::handleConnection, this, pc);
 }
 
 CVCMIServer::CVCMIServer()
-: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(nullptr)
+: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))), firstConnection(nullptr)
 {
-    logNetwork->debugStream() << "CVCMIServer created!";
+	logNetwork->trace("CVCMIServer created!");
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -355,7 +353,7 @@ void CVCMIServer::newGame()
 {
 	CConnection &c = *firstConnection;
 	ui8 clients;
-	c >> clients; //how many clients should be connected 
+	c >> clients; //how many clients should be connected
 	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
 
 	CGameHandler *gh = initGhFromHostingConnection(c);
@@ -413,8 +411,8 @@ void CVCMIServer::start()
 #endif
 
 	boost::system::error_code error;
-    logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
-	auto  s = new tcp::socket(acceptor->get_io_service());
+	logNetwork->info("Listening for connections at port %d", acceptor->local_endpoint().port());
+	auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
 	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
 #ifndef VCMI_ANDROID
 	sr->setToTrueAndNotify();
@@ -424,12 +422,12 @@ void CVCMIServer::start()
 	acc.join();
 	if (error)
 	{
-        logNetwork->warnStream()<<"Got connection but there is an error " << error;
+		logNetwork->warnStream()<<"Got connection but there is an error " << error;
 		return;
 	}
-    logNetwork->infoStream()<<"We've accepted someone... ";
+	logNetwork->info("We've accepted someone... ");
 	firstConnection = new CConnection(s,NAME);
-    logNetwork->infoStream()<<"Got connection!";
+	logNetwork->info("Got connection!");
 	while(!end2)
 	{
 		ui8 mode;
@@ -465,25 +463,8 @@ void CVCMIServer::loadGame()
 
 	c >> clients >> fname; //how many clients should be connected
 
-// 	{
-// 		char sig[8];
-// 		CMapHeader dum;
-// 		StartInfo *si;
-// 
-// 		CLoadFile lf(CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
-// 		lf >> sig >> dum >> si;
-// 		logNetwork->infoStream() <<"Reading save signature";
-// 
-// 		lf >> *VLC;
-// 		logNetwork->infoStream() <<"Reading handlers";
-// 
-// 		lf >> (gh.gs);
-// 		c.addStdVecItems(gh.gs);
-// 		logNetwork->infoStream() <<"Reading gamestate";
-// 	}
-
 	{
-		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), minSupportedVersion);
+		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
 		gh.loadCommonState(lf);
 		lf >> gh;
 	}
@@ -493,22 +474,22 @@ void CVCMIServer::loadGame()
 	CConnection* cc; //tcp::socket * ss;
 	for(int i=0; i<clients; i++)
 	{
-		if(!i) 
+		if(!i)
 		{
 			cc = &c;
 		}
 		else
 		{
-			auto  s = new tcp::socket(acceptor->get_io_service());
+			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{
-                logNetwork->warnStream()<<"Cannot establish connection - retrying...";
+				logNetwork->warn("Cannot establish connection - retrying...");
 				i--;
 				continue;
 			}
 			cc = new CConnection(s,NAME);
-		}	
+		}
 		gh.conns.insert(cc);
 	}
 
@@ -531,7 +512,7 @@ static void handleCommandOptions(int argc, char *argv[])
 		{
 			po::store(po::parse_command_line(argc, argv, opts), cmdLineOptions);
 		}
-		catch(std::exception &e) 
+		catch(std::exception &e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
@@ -567,17 +548,17 @@ void handleLinuxSignal(int sig)
 	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
 	char ** strings;
 
-	logGlobal->errorStream() << "Error: signal " << sig << ":";
+	logGlobal->error("Error: signal %d :", sig);
 	strings = backtrace_symbols(buffer, ptrCount);
 	if(strings == nullptr)
 	{
-		logGlobal->errorStream() << "There are no symbols.";
+		logGlobal->error("There are no symbols.");
 	}
 	else
 	{
 		for(int i = 0; i < ptrCount; ++i)
 		{
-			logGlobal->errorStream() << strings[i];
+			logGlobal->error(strings[i]);
 		}
 		free(strings);
 	}
@@ -597,10 +578,12 @@ int main(int argc, char** argv)
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
+	logGlobal->info(NAME);
 
 	handleCommandOptions(argc, argv);
-	port = cmdLineOptions["port"].as<int>();
-	logNetwork->infoStream() << "Port " << port << " will be used.";
+	if(cmdLineOptions.count("port"))
+		port = cmdLineOptions["port"].as<int>();
+	logNetwork->info("Port %d will be used.", port);
 
 	preinitDLL(console);
 	settings.init();
@@ -610,7 +593,7 @@ int main(int argc, char** argv)
 	srand ( (ui32)time(nullptr) );
 	try
 	{
-		io_service io_service;
+		boost::asio::io_service io_service;
 		CVCMIServer server;
 
 		try
@@ -623,7 +606,7 @@ int main(int argc, char** argv)
 		}
 		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
-            logNetwork->errorStream() << e.what();
+			logNetwork->error(e.what());
 			end2 = true;
 		}
 		catch(...)
@@ -633,12 +616,13 @@ int main(int argc, char** argv)
 	}
 	catch(boost::system::system_error &e)
 	{
-        logNetwork->errorStream() << e.what();
+		logNetwork->error(e.what());
 		//catch any startup errors (e.g. can't access port) errors
 		//and return non-zero status so client can detect error
 		throw;
 	}
-	//delete VLC; //can't be re-enabled due to access to already freed memory in bonus system
+	delete VLC;
+	VLC = nullptr;
 	CResourceHandler::clear();
 
   return 0;

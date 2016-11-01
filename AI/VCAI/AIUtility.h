@@ -5,11 +5,9 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/Connection.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/NetPacks.h"
 #include "../../lib/CStopWatch.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 /*
  * AIUtility.h, part of VCMI engine
@@ -21,10 +19,11 @@
  *
  */
 
+class CCallback;
+
 typedef const int3& crint3;
 typedef const std::string& crstring;
 
-const int HERO_GOLD_COST = 2500;
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
 const int ALLOWED_ROAMING_HEROES = 8;
@@ -44,7 +43,7 @@ struct HeroPtr
 public:
 	std::string name;
 
-	
+
 	HeroPtr();
 	HeroPtr(const CGHeroInstance *H);
 	~HeroPtr();
@@ -107,7 +106,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-        logAi->traceStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
+		logAi->trace("Time of %s was %d ms.",txt,time.getDiff());
 	}
 };
 
@@ -131,10 +130,10 @@ private:
 template<int id>
 bool objWithID(const CGObjectInstance *obj)
 {
-        return obj->ID == id;
+	return obj->ID == id;
 }
 
-std::string strFromInt3(int3 pos);
+std::string strFromInt3(int3 pos);//todo: remove
 void foreach_tile_pos(std::function<void(const int3& pos)> foo);
 void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
 void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);

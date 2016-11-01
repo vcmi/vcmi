@@ -13,7 +13,7 @@
 #include "ResourceSet.h"
 //#include "CObstacleInstance.h"
 #include "CGameStateFwd.h"
-#include "mapping/CMap.h"
+#include "mapping/CMapDefines.h"
 #include "CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"
@@ -42,7 +42,7 @@ struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
 class CMapInfo;
-class StartInfo;
+struct StartInfo;
 
 
 struct CPackForClient : public CPack
@@ -149,7 +149,7 @@ struct PlayerBlocked : public CPackForClient //96
 
 	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
 	enum EMode { BLOCKADE_STARTED, BLOCKADE_ENDED };
-	
+
 	EReason reason;
 	EMode startOrEnd;
 	PlayerColor player;
@@ -167,10 +167,11 @@ struct YourTurn : public CPackForClient //100
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	PlayerColor player;
+	boost::optional<ui8> daysWithoutCastle;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player;
+		h & player & daysWithoutCastle;
 	}
 };
 
@@ -330,9 +331,6 @@ struct SetAvailableHeroes : public CPackForClient //113
 		for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
 			army[i].clear();
 	}
-	~SetAvailableHeroes()
-	{
-	}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -365,6 +363,7 @@ struct GiveBonus :  public CPackForClient //115
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bonus & id & bdescr & who;
+		assert( id != -1);
 	}
 };
 
@@ -444,7 +443,7 @@ struct UpdateCampaignState : public CPackForClient //119
 		type = 119;
 	}
 
-	shared_ptr<CCampaignState> camp;
+	std::shared_ptr<CCampaignState> camp;
 	void applyCl(CClient *cl);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -533,6 +532,20 @@ struct UpdateCastleEvents : public CPackForClient //125
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & town & events;
+	}
+};
+
+struct ChangeFormation : public CPackForClient //126
+{
+	ChangeFormation(){type = 126;}
+
+	ObjectInstanceID hid;
+	ui8 formation;
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & formation;
 	}
 };
 
@@ -795,7 +808,7 @@ struct ChangeStackCount : CGarrisonOperationPack  //521
 struct SetStackType : CGarrisonOperationPack  //522
 {
 	StackLocation sl;
-	CCreature *type;
+	const CCreature *type;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -986,7 +999,6 @@ struct NewTurn : public CPackForClient //101
 	std::map<PlayerColor, TResources> res; //player ID => resource value[res_id]
 	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
-	bool resetBuilded;
 	ui8 specialWeek; //weekType
 	CreatureID creatureid; //for creature weeks
 
@@ -994,7 +1006,7 @@ struct NewTurn : public CPackForClient //101
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroes & cres & res & day & resetBuilded & specialWeek & creatureid;
+		h & heroes & cres & res & day & specialWeek & creatureid;
 	}
 };
 
@@ -1022,7 +1034,7 @@ namespace ObjProperty
 {
 	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
 		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13, MONSTER_REFUSED_JOIN,
-	
+
 		//town-specific
 		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
 		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
@@ -1056,9 +1068,10 @@ struct ChangeObjectVisitors : public CPackForClient // 1003
 {
 	enum VisitMode
 	{
-		VISITOR_ADD,    // mark hero as one that have visited this object
-		VISITOR_REMOVE, // unmark visitor, reversed to ADD
-		VISITOR_CLEAR   // clear all visitors from this object (object reset)
+		VISITOR_ADD,      // mark hero as one that have visited this object
+		VISITOR_ADD_TEAM, // mark team as one that have visited this object
+		VISITOR_REMOVE,   // unmark visitor, reversed to ADD
+		VISITOR_CLEAR     // clear all visitors from this object (object reset)
 	};
 	ui32 mode; // uses VisitMode enum
 	ObjectInstanceID object;
@@ -1078,6 +1091,23 @@ struct ChangeObjectVisitors : public CPackForClient // 1003
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & object & hero & mode;
+	}
+};
+
+struct PrepareHeroLevelUp : public CPackForClient//1999
+{
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	const CGHeroInstance *hero;
+
+	/// Do not serialize, used by server only
+	std::vector<SecondarySkill> skills;
+
+	PrepareHeroLevelUp(){type = 1999;};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero;
 	}
 };
 
@@ -1221,7 +1251,7 @@ struct TeleportDialog : public Query//2006
 
 	const CGHeroInstance *hero;
 	TeleportChannelID channel;
-	std::vector<ObjectInstanceID> exits;
+	TTeleportExitsList exits;
 	bool impassable;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1324,7 +1354,7 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	{
 		ui32 stackID;
 		ui32 healedHP;
-		ui8 lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED //TODO: replace with separate counter
+		bool lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED //TODO: replace with separate counter
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & stackID & healedHP & lowLevelResurrection;
@@ -1335,10 +1365,12 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	bool lifeDrain; //if true, this heal is an effect of life drain
 	bool tentHealing; //if true, than it's healing via First Aid Tent
 	si32 drainedFrom; //if life drain - then stack life was drain from, if tentHealing - stack that is a healer
+	bool cure; //archangel cast also remove negative effects
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & healedStacks & lifeDrain & tentHealing & drainedFrom;
+		h & cure;
 	}
 };
 
@@ -1411,8 +1443,8 @@ struct BattleAttack : public CPackForClient//3006
 	ui32 stackAttacking;
 	ui32 flags; //uses Eflags (below)
 	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
-	
-	SpellID spellID; //for SPELL_LIKE 
+
+	SpellID spellID; //for SPELL_LIKE
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1478,23 +1510,37 @@ struct EndAction : public CPackForClient//3008
 
 struct BattleSpellCast : public CPackForClient//3009
 {
+	///custom effect (resistance, reflection, etc)
+	struct CustomEffect
+	{
+		/// WoG AC format
+		ui32 effect;
+		ui32 stack;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & effect & stack;
+		}
+	};
+
 	BattleSpellCast(){type = 3009; casterStack = -1;};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	si32 dmgToDisplay; //this amount will be displayed as amount of damage dealt by spell
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id; //id of spell
 	ui8 skill; //caster's skill level
 	ui8 manaGained; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::vector<ui32> resisted; //ids of creatures that resisted this spell
+	std::vector<CustomEffect> customEffects;
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
-	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
+	bool castByHero; //if true - spell has been cast by hero, otherwise by a creature
+
+	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dmgToDisplay & side & id & skill & manaGained & tile & resisted & affectedCres & casterStack & castedByHero;
+		h & side & id & skill & manaGained & tile & customEffects & affectedCres & casterStack & castByHero;
+		h & battleLog;
 	}
 };
 
@@ -1593,7 +1639,7 @@ struct BattleStacksRemoved : public CPackForClient //3016
 	BattleStacksRemoved(){type = 3016;}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	void applyFirstCl(CClient *cl);//inform client before stack objects are destroyed
 
 	std::set<ui32> stackIDs; //IDs of removed stacks
 
@@ -1615,9 +1661,9 @@ struct BattleStackAdded : public CPackForClient //3017
 	int amount;
 	int pos;
 	int summoned; //if true, remove it afterwards
-	
+
 	///Actual stack ID, set on apply, do not serialize
-	int newStackID; 
+	int newStackID;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1629,10 +1675,9 @@ struct BattleSetStackProperty : public CPackForClient //3018
 {
 	BattleSetStackProperty(){type = 3018;};
 
-	enum BattleStackProperty {CASTS, ENCHANTER_COUNTER, UNBIND, CLONED};
+	enum BattleStackProperty {CASTS, ENCHANTER_COUNTER, UNBIND, CLONED, HAS_CLONE};
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
-	//void applyCl(CClient *cl){};
 
 	int stackID;
 	BattleStackProperty which;
@@ -1672,11 +1717,26 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	DLL_LINKAGE void applyGs(CGameState *gs); //effect
 	void applyCl(CClient *cl); //play animations & stuff
 
-	shared_ptr<CObstacleInstance> obstacle;
+	std::shared_ptr<CObstacleInstance> obstacle;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & obstacle;
+	}
+};
+
+struct BattleUpdateGateState : public CPackForClient//3021
+{
+	BattleUpdateGateState(){type = 3021;};
+
+	void applyFirstCl(CClient *cl);
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	EGateState state;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & state;
 	}
 };
 
@@ -1711,17 +1771,17 @@ struct AdvmapSpellCast : public CPackForClient //108
 struct ShowWorldViewEx : public CPackForClient //4000
 {
 	PlayerColor player;
-	
+
 	std::vector<ObjectPosInfo> objectPositions;
-	
+
 	ShowWorldViewEx(){type = 4000;}
-	
+
 	void applyCl(CClient *cl);
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & objectPositions;
-	}	
+	}
 };
 
 /***********************************************************************************************************/
@@ -2128,7 +2188,7 @@ struct CenterView : public CPackForClient//515
 
 struct CPackForSelectionScreen : public CPack
 {
-	void apply(CSelectionScreen *selScreen){}; //that functions are implemented in CPreGame.cpp
+	void apply(CSelectionScreen *selScreen) {} // implemented in CPreGame.cpp
 };
 
 class CPregamePackToPropagate  : public CPackForSelectionScreen
@@ -2207,7 +2267,7 @@ struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
 
 struct PregameGuiAction : public CPregamePackToPropagate
 {
-	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS} 
+	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS}
 		action;
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp

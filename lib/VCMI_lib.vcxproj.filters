@@ -26,6 +26,9 @@
     <Filter Include="spells">
       <UniqueIdentifier>{bda963b1-00e1-412a-9b44-f5cd3f8e9e33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="serializer">
+      <UniqueIdentifier>{2f582170-d8a6-42f3-8da3-8255bac28f5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
@@ -96,9 +99,6 @@
     <ClCompile Include="filesystem\CFileInputStream.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="filesystem\CFileInfo.cpp">
-      <Filter>filesystem</Filter>
-    </ClCompile>
     <ClCompile Include="filesystem\CCompressedStream.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
@@ -155,8 +155,6 @@
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
-    <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
-    <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
     <ClCompile Include="mapObjects\CArmedInstance.cpp">
       <Filter>mapObjects</Filter>
     </ClCompile>
@@ -202,7 +200,6 @@
     <ClCompile Include="mapObjects\ObjectTemplate.cpp">
       <Filter>mapObjects</Filter>
     </ClCompile>
-    <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
     <ClCompile Include="IHandlerBase.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp">
       <Filter>spells</Filter>
@@ -224,6 +221,39 @@
     </ClCompile>
     <ClCompile Include="spells\CreatureSpellMechanics.cpp">
       <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
+    <ClCompile Include="CPathfinder.cpp" />
+    <ClCompile Include="registerTypes\TypesMapObjects1.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects2.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="registerTypes\TypesMapObjects3.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\FileStream.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\FileInfo.cpp" />
+    <ClCompile Include="serializer\JsonDeserializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\JsonSerializeFormat.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\JsonSerializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CMemoryBuffer.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\CZipSaver.cpp">
+      <Filter>filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem\MinizipExtensions.cpp">
+      <Filter>filesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -532,6 +562,75 @@
     </ClInclude>
     <ClInclude Include="spells\SpellMechanics.h">
       <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\Magic.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="CPathfinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CMapDefines.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="CSoundBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IHandlerBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPacksBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopeGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmi_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapping\CDrawRoadsOperation.h">
+      <Filter>mapping</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\FileStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\FileInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonDeserializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonSerializeFormat.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\JsonSerializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CInputOutputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CMemoryBuffer.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\COutputStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CStream.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\CZipSaver.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\MinizipExtensions.h">
+      <Filter>filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Version.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

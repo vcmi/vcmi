@@ -1,5 +1,6 @@
 #pragma once
 #include <QMainWindow>
+#include <QStringList>
 
 namespace Ui {
 	class MainWindow;
@@ -14,11 +15,11 @@ class MainWindow : public QMainWindow
 	void load();
 	void startExecutable(QString name);
 public:
-	explicit MainWindow(QWidget *parent = 0);
+	explicit MainWindow(const QStringList& displayList, QWidget *parent = 0);
 	~MainWindow();
 
 private slots:
-	void on_startGameButon_clicked();
+	void on_startGameButton_clicked();
 
 private:
 	Ui::MainWindow *ui;

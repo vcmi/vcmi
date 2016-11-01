@@ -3,6 +3,7 @@
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
+#include "SDLRWwrapper.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/JsonNode.h"
@@ -51,7 +52,7 @@ void CAudioBase::init()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
-        logGlobal->errorStream() << "Mix_OpenAudio error: " << Mix_GetError();
+		logGlobal->errorStream() << "Mix_OpenAudio error: " << Mix_GetError();
 		return;
 	}
 
@@ -86,7 +87,7 @@ CSoundHandler::CSoundHandler():
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
-	pickupSounds = 
+	pickupSounds =
 	{
 		soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
@@ -127,8 +128,8 @@ void CSoundHandler::release()
 
 		for (auto &chunk : soundChunks)
 		{
-			if (chunk.second)
-				Mix_FreeChunk(chunk.second);
+			if (chunk.second.first)
+				Mix_FreeChunk(chunk.second.first);
 		}
 	}
 
@@ -141,20 +142,20 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 	try
 	{
 		if (cache && soundChunks.find(sound) != soundChunks.end())
-			return soundChunks[sound];
+			return soundChunks[sound].first;
 
 		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
-		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), data.second);
 		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
 		if (cache)
-			soundChunks.insert(std::pair<std::string, Mix_Chunk *>(sound, chunk));
+			soundChunks.insert(std::pair<std::string, CachedChunk>(sound, std::make_pair (chunk, std::move (data.first))));
 
 		return chunk;
 	}
 	catch(std::exception &e)
 	{
-        logGlobal->warnStream() << "Cannot get sound " << sound << " chunk: " << e.what();
+		logGlobal->warnStream() << "Cannot get sound " << sound << " chunk: " << e.what();
 		return nullptr;
 	}
 }
@@ -182,7 +183,7 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 		{
-            logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
+			logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
 			if (!cache)
 				Mix_FreeChunk(chunk);
 		}
@@ -303,7 +304,7 @@ void CMusicHandler::release()
 
 void CMusicHandler::playMusic(std::string musicURI, bool loop)
 {
-	if (current && current->isTrack( musicURI))
+	if (current && current->isTrack(musicURI))
 		return;
 
 	queueNext(this, "", musicURI, loop);
@@ -314,7 +315,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-        logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
 		return;
 	}
 
@@ -331,25 +332,25 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-        logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
 		return;
 	}
 
 	auto selectedEntry = selectedSet->second.find(entryID);
 	if (selectedEntry == selectedSet->second.end())
 	{
-        logGlobal->errorStream() << "Error: playing non-existing entry " << entryID << " from set: " << whichSet;
+		logGlobal->errorStream() << "Error: playing non-existing entry " << entryID << " from set: " << whichSet;
 		return;
 	}
 
-	if (current && current->isTrack( selectedEntry->second))
+	if (current && current->isTrack(selectedEntry->second))
 		return;
 
 	// in this mode - play specific track from set
 	queueNext(this, "", selectedEntry->second, loop);
 }
 
-void CMusicHandler::queueNext(unique_ptr<MusicEntry> queued)
+void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 {
 	if (!initialized)
 		return;
@@ -421,12 +422,11 @@ void CMusicHandler::musicFinishedCallback(void)
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
 	owner(owner),
 	music(nullptr),
-    musicFile(nullptr),
 	loop(looped ? -1 : 1),
-    setName(setName)
+    setName(std::move(setName))
 {
 	if (!musicURI.empty())
-		load(musicURI);
+		load(std::move(musicURI));
 }
 MusicEntry::~MusicEntry()
 {
@@ -448,33 +448,15 @@ void MusicEntry::load(std::string musicURI)
 
 	logGlobal->traceStream()<<"Loading music file "<<musicURI;
 
-	data = CResourceHandler::get()->load(ResourceID(musicURI, EResType::MUSIC))->readAll();
-	musicFile = SDL_RWFromConstMem(data.first.get(), data.second);
-	
-	#ifdef VCMI_SDL1
-	music = Mix_LoadMUS_RW(musicFile);
+	auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
+
+	music = Mix_LoadMUS_RW(musicFile, SDL_TRUE);
 
 	if(!music)
 	{
-		SDL_FreeRW(musicFile);
-		musicFile = nullptr;
 		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
 		return;
 	}
-
-	#else
-	music = Mix_LoadMUS_RW(musicFile, SDL_FALSE);
-
-	if(!music)
-	{
-		SDL_FreeRW(musicFile);
-		musicFile = nullptr;
-		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
-		return;
-	}
-
-	#endif // 0
-
 }
 
 bool MusicEntry::play()
@@ -488,10 +470,10 @@ bool MusicEntry::play()
 		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 
-    logGlobal->traceStream()<<"Playing music file "<<currentName;
+	logGlobal->traceStream()<<"Playing music file "<<currentName;
 	if(Mix_PlayMusic(music, 1) == -1)
 	{
-        logGlobal->errorStream() << "Unable to play music (" << Mix_GetError() << ")";
+		logGlobal->errorStream() << "Unable to play music (" << Mix_GetError() << ")";
 		return false;
 	}
 	return true;
@@ -501,7 +483,7 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-        logGlobal->traceStream()<<"Stoping music file "<<currentName;
+		logGlobal->traceStream()<<"Stoping music file "<<currentName;
 		loop = 0;
 		Mix_FadeOutMusic(fade_ms);
 		return true;

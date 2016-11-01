@@ -7,17 +7,14 @@
 #include "../BattleState.h"
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
-#include "../CModHandler.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../CCreatureHandler.h"
-#include "../VCMI_Lib.h"
-#include "../CArtHandler.h"
-#include "../CHeroHandler.h"
 #include "../spells/CSpellHandler.h"
-#include "../CTownHandler.h"
 #include "../mapping/CCampaignHandler.h"
-#include "../NetPacks.h"
-#include "../mapObjects/CObjectClassesHandler.h"
+
+#include "../serializer/BinaryDeserializer.h"
+#include "../serializer/BinarySerializer.h"
+#include "../serializer/CTypeList.h"
 
 // For reference: peak memory usage by gcc during compilation of register type templates
 // registerTypesMapObjects:  1.9 Gb
@@ -29,8 +26,8 @@
 
 
 #define DEFINE_EXTERNAL_METHOD(METHODNAME) \
-extern template DLL_LINKAGE void METHODNAME<CISer>(CISer & s); \
-extern template DLL_LINKAGE void METHODNAME<COSer>(COSer & s); \
+extern template DLL_LINKAGE void METHODNAME<BinaryDeserializer>(BinaryDeserializer & s); \
+extern template DLL_LINKAGE void METHODNAME<BinarySerializer>(BinarySerializer & s); \
 extern template DLL_LINKAGE void METHODNAME<CTypeList>(CTypeList & s); \
 
 //DEFINE_EXTERNAL_METHOD(registerTypesMapObjects)
@@ -41,6 +38,6 @@ DEFINE_EXTERNAL_METHOD(registerTypesClientPacks2)
 DEFINE_EXTERNAL_METHOD(registerTypesServerPacks)
 DEFINE_EXTERNAL_METHOD(registerTypesPregamePacks)
 
-template void registerTypes<CISer>(CISer & s);
-template void registerTypes<COSer>(COSer & s);
+template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
+template void registerTypes<BinarySerializer>(BinarySerializer & s);
 template void registerTypes<CTypeList>(CTypeList & s);

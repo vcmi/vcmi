@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CObstacleInstance.h"
 #include "CHeroHandler.h"
+#include "CTownHandler.h"
 #include "VCMI_Lib.h"
 #include "spells/CSpellHandler.h"
 
@@ -130,7 +131,6 @@ std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
 		return std::vector<BattleHex>(1, pos);
 	case FORCE_FIELD:
 		return SpellID(SpellID::FORCE_FIELD).toSpell()->rangeInHexes(pos, spellLevel, casterSide);
-		//TODO Fire Wall
 	default:
 		assert(0);
 		return std::vector<BattleHex>();
@@ -145,7 +145,5 @@ void SpellCreatedObstacle::battleTurnPassed()
 
 std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
 {
-	//rrr... need initializer lists
-	static const BattleHex moatHexes[] = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
-	return std::vector<BattleHex>(moatHexes, moatHexes + ARRAY_COUNT(moatHexes));
+	return VLC->townh->factions[ID]->town->moatHexes;
 }

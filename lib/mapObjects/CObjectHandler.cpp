@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -18,8 +18,13 @@
 #include "../filesystem/ResourceID.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../StringConstants.h"
+#include "../mapping/CMap.h"
 
 #include "CObjectClassesHandler.h"
+#include "CGTownInstance.h"
+
+#include "../serializer/JsonSerializeFormat.h"
 
 IGameCallback * IObjectInterface::cb = nullptr;
 
@@ -61,7 +66,7 @@ void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn () const
+void IObjectInterface::newTurn(CRandomGenerator & rand) const
 {}
 
 IObjectInterface::~IObjectInterface()
@@ -70,7 +75,7 @@ IObjectInterface::~IObjectInterface()
 IObjectInterface::IObjectInterface()
 {}
 
-void IObjectInterface::initObj()
+void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
 
 void IObjectInterface::setProperty( ui8 what, ui32 val )
@@ -105,13 +110,13 @@ void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
 
 CObjectHandler::CObjectHandler()
 {
-    logGlobal->traceStream() << "\t\tReading resources prices ";
+	logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
 	for(const JsonNode &price : config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
-    logGlobal->traceStream() << "\t\tDone loading resource prices!";
+	logGlobal->traceStream() << "\t\tDone loading resource prices!";
 }
 
 PlayerColor CGObjectInstance::getOwner() const
@@ -167,7 +172,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if (appearance.isBlockedAt(w, h))
+			if(appearance.isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
@@ -189,14 +194,20 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
-	if (!handler->getTemplates(tile.terType).empty())
+	if(!handler)
+	{
+		logGlobal->errorStream() << boost::format(
+			  "Unknown object type %d:%d at %s") % ID % subID % visitablePos();
+		return;
+	}
+	if(!handler->getTemplates(tile.terType).empty())
 		appearance = handler->getTemplates(tile.terType)[0];
 	else
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
-void CGObjectInstance::initObj()
+void CGObjectInstance::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
 	{
@@ -235,7 +246,7 @@ int3 CGObjectInstance::getSightCenter() const
 	return visitablePos();
 }
 
-int CGObjectInstance::getSightRadious() const
+int CGObjectInstance::getSightRadius() const
 {
 	return 3;
 }
@@ -309,6 +320,66 @@ bool CGObjectInstance::passableFor(PlayerColor color) const
 	return false;
 }
 
+void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
+{
+	//only save here, loading is handled by map loader
+	if(handler.saving)
+	{
+		handler.serializeString("type", typeName);
+		handler.serializeString("subtype", subTypeName);
+
+		handler.serializeNumeric("x", pos.x);
+		handler.serializeNumeric("y", pos.y);
+		handler.serializeNumeric("l", pos.z);
+		appearance.writeJson(handler.getCurrent()["template"], false);
+	}
+
+	{
+		auto options = handler.enterStruct("options");
+		serializeJsonOptions(handler);
+	}
+
+	if(handler.saving && handler.getCurrent()["options"].Struct().empty())
+	{
+		handler.getCurrent().Struct().erase("options");
+	}
+}
+
+void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+
+}
+
+void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
+{
+	std::string temp;
+
+	//todo: use enum serialize
+	if(handler.saving)
+	{
+		if(tempOwner.isValidPlayer())
+		{
+			temp = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
+			handler.serializeString("owner", temp);
+		}
+	}
+	else
+	{
+		tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
+
+		handler.serializeString("owner", temp);
+
+		if(temp != "")
+		{
+			auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, temp);
+			if(rawOwner >=0)
+				tempOwner = PlayerColor(rawOwner);
+			else
+				logGlobal->errorStream() << "Invalid owner :" << temp;
+		}
+	}
+}
+
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
 {
 
@@ -326,9 +397,9 @@ int3 IBoatGenerator::bestLocation() const
 
 	for (auto & offset : offsets)
 	{
-		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
+		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}

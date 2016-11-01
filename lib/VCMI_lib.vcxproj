@@ -136,7 +136,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <ClCompile>
       <AdditionalOptions>/Oy- /bigobj /Zm150 </AdditionalOptions>
-      <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VCMI_DLL;VCMI_NO_EXTRA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
@@ -183,10 +183,25 @@
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
-    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CPathfinder.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />
+    <ClCompile Include="filesystem\CMemoryBuffer.cpp" />
+    <ClCompile Include="filesystem\CZipSaver.cpp" />
+    <ClCompile Include="filesystem\FileInfo.cpp" />
+    <ClCompile Include="filesystem\FileStream.cpp" />
+    <ClCompile Include="filesystem\MinizipExtensions.cpp" />
+    <ClCompile Include="serializer\BinaryDeserializer.cpp" />
+    <ClCompile Include="serializer\BinarySerializer.cpp" />
+    <ClCompile Include="serializer\CLoadIntegrityValidator.cpp" />
+    <ClCompile Include="serializer\CMemorySerializer.cpp" />
+    <ClCompile Include="serializer\CSerializer.cpp" />
+    <ClCompile Include="serializer\CTypeList.cpp" />
+    <ClCompile Include="serializer\Connection.cpp" />
+    <ClCompile Include="serializer\JsonDeserializer.cpp" />
+    <ClCompile Include="serializer\JsonSerializeFormat.cpp" />
+    <ClCompile Include="serializer\JsonSerializer.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\ISpellMechanics.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
@@ -198,7 +213,6 @@
     <ClCompile Include="filesystem\CArchiveLoader.cpp" />
     <ClCompile Include="filesystem\CBinaryReader.cpp" />
     <ClCompile Include="filesystem\CCompressedStream.cpp" />
-    <ClCompile Include="filesystem\CFileInfo.cpp" />
     <ClCompile Include="filesystem\CFileInputStream.cpp" />
     <ClCompile Include="filesystem\CFilesystemLoader.cpp" />
     <ClCompile Include="filesystem\CMemoryStream.cpp" />
@@ -231,6 +245,7 @@
     <ClCompile Include="mapping\CMapEditManager.cpp" />
     <ClCompile Include="mapping\MapFormatH3M.cpp" />
     <ClCompile Include="mapping\MapFormatJson.cpp" />
+    <ClCompile Include="mapping\CDrawRoadsOperation.cpp" />
     <ClCompile Include="registerTypes\RegisterTypes.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks1.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp" />
@@ -269,6 +284,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
+    <ClInclude Include="..\Version.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
     <ClInclude Include="BattleHex.h" />
@@ -288,10 +304,12 @@
     <ClInclude Include="CModHandler.h" />
     <ClInclude Include="CObstacleInstance.h" />
     <ClInclude Include="CondSh.h" />
-    <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
+    <ClInclude Include="CPathfinder.h" />
+    <ClInclude Include="CPlayerState.h" />
     <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
+    <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CStopWatch.h" />
     <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
@@ -302,14 +320,23 @@
     <ClInclude Include="filesystem\CFileInfo.h" />
     <ClInclude Include="filesystem\CFileInputStream.h" />
     <ClInclude Include="filesystem\CFilesystemLoader.h" />
+    <ClInclude Include="filesystem\CInputOutputStream.h" />
     <ClInclude Include="filesystem\CInputStream.h" />
+    <ClInclude Include="filesystem\CMemoryBuffer.h" />
     <ClInclude Include="filesystem\CMemoryStream.h" />
+    <ClInclude Include="filesystem\COutputStream.h" />
+    <ClInclude Include="filesystem\CStream.h" />
     <ClInclude Include="filesystem\CZipLoader.h" />
+    <ClInclude Include="filesystem\CZipSaver.h" />
+    <ClInclude Include="filesystem\FileInfo.h" />
+    <ClInclude Include="filesystem\FileStream.h" />
     <ClInclude Include="filesystem\Filesystem.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
+    <ClInclude Include="filesystem\MinizipExtensions.h" />
     <ClInclude Include="filesystem\ResourceID.h" />
     <ClInclude Include="FunctionList.h" />
     <ClInclude Include="IBonusTypeHandler.h" />
+    <ClInclude Include="IHandlerBase.h" />
     <ClInclude Include="JsonDetail.h" />
     <ClInclude Include="LogicalExpression.h" />
     <ClInclude Include="mapObjects\CArmedInstance.h" />
@@ -329,12 +356,15 @@
     <ClInclude Include="mapObjects\MiscObjects.h" />
     <ClInclude Include="mapObjects\ObjectTemplate.h" />
     <ClInclude Include="mapping\CCampaignHandler.h" />
+    <ClInclude Include="mapping\CDrawRoadsOperation.h" />
     <ClInclude Include="mapping\CMap.h" />
+    <ClInclude Include="mapping\CMapDefines.h" />
     <ClInclude Include="mapping\CMapInfo.h" />
     <ClInclude Include="mapping\CMapService.h" />
     <ClInclude Include="mapping\CMapEditManager.h" />
     <ClInclude Include="mapping\MapFormatH3M.h" />
     <ClInclude Include="mapping\MapFormatJson.h" />
+    <ClInclude Include="NetPacksBase.h" />
     <ClInclude Include="registerTypes\RegisterTypes.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
     <ClInclude Include="logging\CLogger.h" />
@@ -357,17 +387,31 @@
     <ClInclude Include="rmg\CZoneGraphGenerator.h" />
     <ClInclude Include="rmg\CZonePlacer.h" />
     <ClInclude Include="rmg\float3.h" />
+    <ClInclude Include="ScopeGuard.h" />
+    <ClInclude Include="serializer\BinaryDeserializer.h" />
+    <ClInclude Include="serializer\BinarySerializer.h" />
+    <ClInclude Include="serializer\CLoadIntegrityValidator.h" />
+    <ClInclude Include="serializer\CMemorySerializer.h" />
+    <ClInclude Include="serializer\CSerializer.h" />
+    <ClInclude Include="serializer\CTypeList.h" />
+    <ClInclude Include="serializer\Connection.h" />
+    <ClInclude Include="serializer\JsonDeserializer.h" />
+    <ClInclude Include="serializer\JsonSerializeFormat.h" />
+    <ClInclude Include="serializer\JsonSerializer.h" />
     <ClInclude Include="spells\AdventureSpellMechanics.h" />
     <ClInclude Include="spells\BattleSpellMechanics.h" />
     <ClInclude Include="spells\CDefaultSpellMechanics.h" />
     <ClInclude Include="spells\CreatureSpellMechanics.h" />
     <ClInclude Include="spells\CSpellHandler.h" />
     <ClInclude Include="spells\ISpellMechanics.h" />
+    <ClInclude Include="spells\Magic.h" />
     <ClInclude Include="spells\SpellMechanics.h" />
     <ClInclude Include="spells\ViewSpellInt.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="StringConstants.h" />
     <ClInclude Include="UnlockGuard.h" />
+    <ClInclude Include="vcmi_endian.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

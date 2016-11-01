@@ -235,7 +235,10 @@
 					"value"		: 3000,
 					"rarity"	: 100
 				}
-			}
+			},
+			"object1":{ //WoG?
+				"index" :1
+			}			
 		}
 	},
 	"eyeOfTheMagi" : {
@@ -388,6 +391,9 @@
 					"value"		: 1500,
 					"rarity"	: 80
 				}
+			},
+			"object1" : { //WoG?
+				"index" : 1
 			}
 		}
 	},

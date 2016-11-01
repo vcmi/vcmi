@@ -55,13 +55,13 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  ifdef __ANDROID__
-#    define VCMI_ANDROID 
+#    define VCMI_ANDROID
 #  endif
 #elif defined(__FreeBSD_kernel__) || defined(__FreeBSD__)
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_FREEBSD
-#elif defined(__GNU__) || defined(__gnu_hurd__) || (defined(__MACH__) && !defined(__APPLE))
+#elif defined(__GNU__) || defined(__gnu_hurd__) || (defined(__MACH__) && !defined(__APPLE__))
 #  define VCMI_UNIX
 #  define VCMI_XDG
 #  define VCMI_HURD
@@ -93,7 +93,24 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #ifdef VCMI_WINDOWS
 #  define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
 #  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
+#  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
 #endif
+
+/* ---------------------------------------------------------------------------- */
+/* A macro to force inlining some of our functions */
+/* ---------------------------------------------------------------------------- */
+// Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
+#ifdef _MSC_VER
+#  define STRONG_INLINE __forceinline
+#elif __GNUC__
+#  define STRONG_INLINE inline __attribute__((always_inline))
+#else
+#  define STRONG_INLINE inline
+#endif
+
+#define TO_STRING_HELPER(x) #x
+#define TO_STRING(x) TO_STRING_HELPER(x)
+#define LINE_IN_FILE __FILE__ ":" TO_STRING(__LINE__)
 
 #define _USE_MATH_DEFINES
 
@@ -133,6 +150,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 #define BOOST_BIND_NO_PLACEHOLDERS
 
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#define BOOST_NO_CXX11_VARIADIC_TEMPLATES //Variadic templates are buggy in VS2015, so turn this off to avoid compile errors
+#endif
+
 #include <boost/algorithm/string.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/current_function.hpp>
@@ -150,6 +171,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include <boost/program_options.hpp>
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -157,6 +179,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
 #include <boost/math/special_functions/round.hpp>
+#include <boost/multi_array.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -165,9 +188,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* ---------------------------------------------------------------------------- */
 /* Usings */
 /* ---------------------------------------------------------------------------- */
-using std::shared_ptr;
-using std::unique_ptr;
-using std::make_shared;
 using namespace std::placeholders;
 namespace range = boost::range;
 
@@ -206,7 +226,6 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 #    define DLL_IMPORT	__attribute__ ((visibility("default")))
 #    define DLL_EXPORT __attribute__ ((visibility("default")))
 #    define ELF_VISIBILITY __attribute__ ((visibility("default")))
-#    define ELF_VISIBILITY __attribute__ ((visibility("default")))
 #  endif
 #endif
 
@@ -230,7 +249,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
-#include "lib/logging/CLogger.h"
+#include <vstd/CLoggerBase.h>
+#include "lib/logging/CLogger.h" //todo: remove
 
 void inline handleException()
 {
@@ -240,15 +260,15 @@ void inline handleException()
 	}
 	catch(const std::exception & ex)
 	{
-		logGlobal->errorStream() << ex.what();
+		logGlobal->error(ex.what());
 	}
 	catch(const std::string & ex)
 	{
-		logGlobal->errorStream() << ex;
+		logGlobal->error(ex);
 	}
 	catch(...)
 	{
-		logGlobal->errorStream() << "Sorry, caught unknown exception type. No more info available.";
+		logGlobal->error("Sorry, caught unknown exception type. No more info available.");
 	}
 }
 
@@ -273,7 +293,7 @@ std::ostream & operator<<(std::ostream & out, const std::vector<T> & container)
 
 namespace vstd
 {
-	
+
 	// combine hashes. Present in boost but not in std
 	template <class T>
 	inline void hash_combine(std::size_t& seed, const T& v)
@@ -281,7 +301,7 @@ namespace vstd
 		std::hash<T> hasher;
 		seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
 	}
-	
+
 	//returns true if container c contains item i
 	template <typename Container, typename Item>
 	bool contains(const Container & c, const Item &i)
@@ -493,7 +513,7 @@ namespace vstd
 	void erase_if(std::set<Elem> &setContainer, Predicate pred)
 	{
 		auto itr = setContainer.begin();
-		auto endItr = setContainer.end(); 
+		auto endItr = setContainer.end();
 		while(itr != endItr)
 		{
 			auto tmpItr = itr++;
@@ -507,7 +527,7 @@ namespace vstd
 	void erase_if(std::map<Key, Val> &container, Predicate pred)
 	{
 		auto itr = container.begin();
-		auto endItr = container.end(); 
+		auto endItr = container.end();
 		while(itr != endItr)
 		{
 			auto tmpItr = itr++;
@@ -542,7 +562,7 @@ namespace vstd
 			return vf(lhs) < vf(rhs);
 		});
 	}
-		
+
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
 	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
@@ -615,7 +635,7 @@ namespace vstd
 	{
 		if(index < r.size())
 			return r[index];
-		
+
 		return defaultValue;
 	}
 
@@ -656,12 +676,12 @@ namespace vstd
 		boost::sort(vec);
 		vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 	}
-	
+
 	template <typename T>
 	void concatenate(std::vector<T> &dest, const std::vector<T> &src)
 	{
 		dest.reserve(dest.size() + src.size());
-		dest.insert(dest.end(), src.begin(), src.end());	
+		dest.insert(dest.end(), src.begin(), src.end());
 	}
 
 	template <typename T>

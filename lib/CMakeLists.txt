@@ -1,23 +1,28 @@
 project(libvcmi)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/lib)
+include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/lib)
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
 		StdInc.cpp
+		${CMAKE_BINARY_DIR}/Version.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CCompressedStream.cpp
 		filesystem/CFilesystemLoader.cpp
 		filesystem/CArchiveLoader.cpp
-		filesystem/CFileInfo.cpp
+		filesystem/CMemoryBuffer.cpp
 		filesystem/CMemoryStream.cpp
 		filesystem/CBinaryReader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CZipLoader.cpp
+		filesystem/CZipSaver.cpp
+		filesystem/FileInfo.cpp
 		filesystem/Filesystem.cpp
+		filesystem/FileStream.cpp
 		filesystem/ResourceID.cpp
+		filesystem/MinizipExtensions.cpp
 
 		mapObjects/CArmedInstance.cpp
 		mapObjects/CBank.cpp
@@ -39,6 +44,7 @@ set(lib_SRCS
 		logging/CLogger.cpp
 
 		mapping/CCampaignHandler.cpp
+		mapping/CDrawRoadsOperation.cpp
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
 		mapping/CMapInfo.cpp
@@ -53,14 +59,22 @@ set(lib_SRCS
 		rmg/CRmgTemplateStorage.cpp
 		rmg/CZoneGraphGenerator.cpp
 		rmg/CZonePlacer.cpp
+ 
+		serializer/BinaryDeserializer.cpp
+		serializer/BinarySerializer.cpp
+		serializer/CLoadIntegrityValidator.cpp
+		serializer/CMemorySerializer.cpp
+		serializer/Connection.cpp
+		serializer/CSerializer.cpp
+		serializer/CTypeList.cpp
 
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
-        spells/AdventureSpellMechanics.cpp
-        spells/BattleSpellMechanics.cpp
-        spells/CreatureSpellMechanics.cpp
-        spells/CDefaultSpellMechanics.cpp
-        spells/ViewSpellInt.cpp
+		spells/AdventureSpellMechanics.cpp
+		spells/BattleSpellMechanics.cpp
+		spells/CreatureSpellMechanics.cpp
+		spells/CDefaultSpellMechanics.cpp
+		spells/ViewSpellInt.cpp
 
 		BattleAction.cpp
 		BattleHex.cpp
@@ -94,9 +108,13 @@ set(lib_SRCS
 
 		IGameCallback.cpp
 		CGameInfoCallback.cpp
+		CPathfinder.cpp
 		CGameState.cpp
-		Connection.cpp
 		NetPacksLib.cpp
+
+		serializer/JsonSerializer.cpp
+		serializer/JsonDeserializer.cpp
+		serializer/JsonSerializeFormat.cpp
 
 		registerTypes/RegisterTypes.cpp
 		registerTypes/TypesClientPacks1.cpp
@@ -115,6 +133,7 @@ set(lib_HEADERS
 		filesystem/ISimpleResourceLoader.h
 
 		mapObjects/MapObjects.h
+		mapping/CMapDefines.h
 
 		CSoundBase.h
 		AI_Base.h
@@ -129,6 +148,7 @@ set(lib_HEADERS
 		IGameEventsReceiver.h
 		int3.h
 		CGameStateFwd.h
+		CPlayerState.h
 		Interprocess.h
 		NetPacks.h
 		NetPacksBase.h

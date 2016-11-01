@@ -10,7 +10,7 @@ class CGameHandler;
 class CObjectVisitQuery;
 class CQuery;
 
-typedef shared_ptr<CQuery> QueryPtr;
+typedef std::shared_ptr<CQuery> QueryPtr;
 
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
 // It does not necessarily has to be "query" requiring player action, it can be also used internally within server.
@@ -94,7 +94,7 @@ public:
 	bool visitDestAfterVictory; //if hero moved to guarded tile and it should be visited once guard is defeated
 	const CGHeroInstance *hero;
 
-	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery);
+	virtual void onExposure(CGameHandler *gh, QueryPtr topQuery) override;
 
 	CHeroMovementQuery(const TryMoveHero &Tmh, const CGHeroInstance *Hero, bool VisitDestAfterVictory = false);
 	virtual void onAdding(CGameHandler *gh, PlayerColor color) override;
@@ -183,8 +183,8 @@ public:
 
 	QueryPtr topQuery(PlayerColor player);
 
-	std::vector<shared_ptr<const CQuery>> allQueries() const;
-	std::vector<shared_ptr<CQuery>> allQueries();
+	std::vector<std::shared_ptr<const CQuery>> allQueries() const;
+	std::vector<std::shared_ptr<CQuery>> allQueries();
 	//void removeQuery
 
 };

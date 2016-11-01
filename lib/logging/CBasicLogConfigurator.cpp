@@ -32,7 +32,9 @@ void CBasicLogConfigurator::configure()
 				CLogger * logger = CLogger::getLogger(CLoggerDomain(name));
 
 				// Set log level
-				logger->setLevel(getLogLevel(loggerNode["level"].String()));
+				std::string level = loggerNode["level"].String();
+				logger->setLevel(getLogLevel(level));
+				logGlobal->debug("Set log level %s => %d", name, level);
 			}
 		}
 		CLogger::getGlobalLogger()->clearTargets();
@@ -78,11 +80,16 @@ void CBasicLogConfigurator::configure()
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->errorStream() << "Could not initialize the logging system due to configuration error/s."
-								 << "The logging system can be in a corrupted state. " << e.what();
+		logGlobal->error("Could not initialize the logging system due to configuration error/s."
+								     "The logging system can be in a corrupted state. %s", e.what());
 	}
 
-	logGlobal->infoStream() << "Initialized logging system based on settings successfully.";
+	logGlobal->info("Initialized logging system based on settings successfully.");
+	for (auto& domain : CLogManager::get().getRegisteredDomains())
+	{
+		logGlobal->info("[log level] %s => %s", domain,
+                    ELogLevel::to_string(CLogger::getLogger(CLoggerDomain(domain))->getLevel()));
+	}
 }
 
 ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)

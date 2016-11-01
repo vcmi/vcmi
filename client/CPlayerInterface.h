@@ -1,12 +1,10 @@
 #pragma once
 
 
-//#include "../lib/CondSh.h"
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
 #include "gui/CIntObject.h"
-//#include "../lib/CGameState.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf
@@ -29,12 +27,9 @@
  *
  */
 
-class CDefEssential;
 class CButton;
 class CToggleGroup;
-class CDefHandler;
 struct TryMoveHero;
-class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
@@ -76,20 +71,22 @@ enum
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
-	STOP_CLIENT = 3,
-	RESTART_GAME,
+	//STOP_CLIENT = 3,
+	RESTART_GAME = 4,
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
-	PREPARE_RESTART_CAMPAIGN
+	PREPARE_RESTART_CAMPAIGN,
+	FORCE_QUIT //quit client without question
 };
 
 /// Central class for managing user interface logic
-class CPlayerInterface : public CGameInterface, public ILockedUpdatable
+class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
 public:
 	bool observerInDuelMode;
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
+	int3 destinationTeleportPos;
 
 	//minor interfaces
 	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
@@ -105,7 +102,7 @@ public:
 	static CBattleInterface * battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
-	shared_ptr<CCallback> cb; //to communicate with engine
+	std::shared_ptr<CCallback> cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
@@ -116,7 +113,7 @@ public:
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
 	//During battle is quick combat mode is used
-	shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
+	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
 	bool isAutoFightOn; //Flag, switch it to stop quick combat. Don't touch if there is no battle interface.
 
 	const CArmedInstance * getSelection();
@@ -135,7 +132,6 @@ public:
 	} spellbookSettings;
 
 	void update() override;
-	void runLocked(std::function<void()> functor) override;
 	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
@@ -148,11 +144,11 @@ public:
 	void newStackInserted(const StackLocation &location, const CStackInstance &stack) override; //new stack inserted at given (previously empty position)
 	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) override; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
 
-	void artifactPut(const ArtifactLocation &al);
-	void artifactRemoved(const ArtifactLocation &al);
-	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
-	void artifactAssembled(const ArtifactLocation &al);
-	void artifactDisassembled(const ArtifactLocation &al);
+	void artifactPut(const ArtifactLocation &al) override;
+	void artifactRemoved(const ArtifactLocation &al) override;
+	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
+	void artifactAssembled(const ArtifactLocation &al) override;
+	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroCreated(const CGHeroInstance* hero) override;
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
@@ -169,7 +165,7 @@ public:
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID) override;
+	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) override;
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
@@ -196,9 +192,9 @@ public:
 	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) override; //display component in the advmapint infobox
-	void saveGame(COSer & h, const int version) override; //saving
-	void loadGame(CISer & h, const int version) override; //loading
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;	
+	void saveGame(BinarySerializer & h, const int version) override; //saving
+	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
 
 	//for battles
 	void actionFinished(const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -221,6 +217,7 @@ public:
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) override; //called when certain stack is completely removed from battlefield
 	void battleObstaclePlaced(const CObstacleInstance &obstacle) override;
+	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
 
 	//-------------//
@@ -237,7 +234,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(shared_ptr<CCallback> CB);
+	void init(std::shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 
 	// show dialogs
@@ -260,7 +257,6 @@ public:
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void requestReturningToMainMenu();
-	void requestStoppingClient();
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
 
@@ -269,10 +265,6 @@ public:
 
 	CPlayerInterface(PlayerColor Player);//c-tor
 	~CPlayerInterface();//d-tor
-
-	static CondSh<bool> terminate_cond; // confirm termination
-
-
 
 private:
 
@@ -299,9 +291,9 @@ private:
 	bool duringMovement;
 	bool ignoreEvents;
 
-	bool locked;
-
 	void doMoveHero(const CGHeroInstance *h, CGPath path);
+	void setMovementStatus(bool value);
+	void askToAssembleArtifact(const ArtifactLocation &al);
 };
 
 extern CPlayerInterface * LOCPLINT;

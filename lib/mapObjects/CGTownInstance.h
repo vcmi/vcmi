@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CObjectHandler.h"
 #include "CGMarket.h" // For IMarket interface
@@ -52,20 +52,25 @@ public:
 	CSpecObjInfo * info; //h3m info about dewlling
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArmedInstance&>(*this) & creatures;
-	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
-	void initObj() override;
+private:
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
 
-private:
+	void updateGuards() const;
 	void heroAcceptsCreatures(const CGHeroInstance *h) const;
+
+public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this) & creatures;
+	}
 };
 
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface
@@ -129,6 +134,7 @@ struct DLL_LINKAGE GrowthInfo
 		std::string description;
 		Entry(const std::string &format, int _count);
 		Entry(int subID, BuildingID building, int _count);
+		Entry(int _count, const std::string &fullDescription);
 	};
 
 	std::vector<Entry> entries;
@@ -201,21 +207,21 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
-	bool passableFor(PlayerColor color) const;
+	bool passableFor(PlayerColor color) const override;
 	//int3 getSightCenter() const override; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const override; //returns sight distance
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed. Parameter will be cleared
+	int getSightRadius() const override; //returns sight distance
+	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed. Parameter will be cleared
 	int getMarketEfficiency() const override; //=market count
-	bool allowsTrade(EMarketMode::EMarketMode mode) const;
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
+	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 
-	void setType(si32 ID, si32 subID);
+	void setType(si32 ID, si32 subID) override;
 	void updateAppearance();
 
 	//////////////////////////////////////////////////////////////////////////
 
-	bool needsLastStack() const;
+	bool needsLastStack() const override;
 	CGTownInstance::EFortLevel fortLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
@@ -232,21 +238,24 @@ public:
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 	int getTownLevel() const;
 
-	CBuilding::TRequired genBuildingRequirements(BuildingID build) const;
+	CBuilding::TRequired genBuildingRequirements(BuildingID build, bool deep = false) const;
 
+	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
 	void removeCapitols (PlayerColor owner) const;
+	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si32 structureInstanceID) const; //hero must be visiting or garrisoned in town
 
 	CGTownInstance();
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

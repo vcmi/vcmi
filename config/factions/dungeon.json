@@ -70,6 +70,8 @@
 			{
 				"templates" : {
 					"castle" :  { "animation" : "AVCdunx0.def" },
+					"citadel" : { "animation" : "AVCdunx0.def" },
+					"fort"    : { "animation" : "AVCdunx0.def" },
 					"village" : { "animation" : "AVCDUNG0.DEF" },
 					"capitol" : { "animation" : "AVCDUNZ0.DEF" }
 				}
@@ -146,6 +148,7 @@
 			"primaryResource" : "sulfur",
 			"warMachine" : "ballista",
 			"moatDamage" : 90,
+			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
 
 			"buildings" :
 			{

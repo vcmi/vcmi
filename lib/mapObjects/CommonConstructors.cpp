@@ -71,7 +71,7 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 	return false;
 }
 
-CGObjectInstance * CTownInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CTownInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGTownInstance * obj = createTyped(tmpl);
 	obj->town = faction->town;
@@ -126,7 +126,7 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 	return false;
 }
 
-CGObjectInstance * CHeroInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CHeroInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGHeroInstance * obj = createTyped(tmpl);
 	obj->type = nullptr; //FIXME: set to valid value. somehow.
@@ -169,7 +169,7 @@ bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, const 
 	return false;
 }
 
-CGObjectInstance * CDwellingInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance * CDwellingInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	CGDwelling * obj = createTyped(tmpl);
 
@@ -196,17 +196,41 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 			dwelling->creatures.back().second.push_back(cre->idNumber);
 	}
 
-	if (guards.getType() == JsonNode::DATA_BOOL)
+	bool guarded = false; //TODO: serialize for sanity
+
+	if (guards.getType() == JsonNode::DATA_BOOL) //simple switch
 	{
 		if (guards.Bool())
 		{
-			const CCreature * crea = availableCreatures.at(0).at(0);
-			dwelling->putStack(SlotID(0), new CStackInstance(crea->idNumber, crea->growth * 3 ));
+			guarded = true;
 		}
 	}
-	else for (auto & stack : JsonRandom::loadCreatures(guards, rng))
+	else if (guards.getType() == JsonNode::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
-		dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+		for (auto & stack : JsonRandom::loadCreatures(guards, rng))
+		{
+			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.type->idNumber, stack.count));
+		}
+	}
+	else //default condition - creatures are of level 5 or higher
+	{
+		for (auto creatureEntry : availableCreatures)
+		{
+			if (creatureEntry.at(0)->level >= 5)
+			{
+				guarded = true;
+				break;
+			}
+		}
+	}
+
+	if (guarded)
+	{
+		for (auto creatureEntry : availableCreatures)
+		{
+			const CCreature * crea = creatureEntry.at(0);
+			dwelling->putStack (SlotID(dwelling->stacksCount()), new CStackInstance(crea->idNumber, crea->growth * 3));
+		}
 	}
 }
 
@@ -243,7 +267,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	bankResetDuration = input["resetDuration"].Float();
 }
 
-CGObjectInstance *CBankInstanceConstructor::create(ObjectTemplate tmpl) const
+CGObjectInstance *CBankInstanceConstructor::create(const ObjectTemplate & tmpl) const
 {
 	return createTyped(tmpl);
 }
@@ -289,24 +313,22 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 	si32 selectedChance = rng.nextInt(totalChance - 1);
 	//logGlobal->debugStream() << "Selected chance for bank config is " << selectedChance;
 
+	int cumulativeChance = 0;
 	for (auto & node : levels)
 	{
-		if (selectedChance < node["chance"].Float())
+		cumulativeChance += node["chance"].Float();
+		if (selectedChance < cumulativeChance)
 		{
 			 bank->setConfig(generateConfig(node, rng));
+			 break;
 		}
-		else
-		{
-			selectedChance -= node["chance"].Float();
-		}
-
 	}
 }
 
-CBankInfo::CBankInfo(JsonVector config):
-	config(config)
+CBankInfo::CBankInfo(const JsonVector & Config):
+	config(Config)
 {
-	assert(!config.empty());
+	assert(!Config.empty());
 }
 
 static void addStackToArmy(IObjectInfo::CArmyStructure & army, const CCreature * crea, si32 amount)
@@ -426,7 +448,7 @@ bool CBankInfo::givesSpells() const
 }
 
 
-std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(ObjectTemplate tmpl) const
+std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(const ObjectTemplate & tmpl) const
 {
 	return std::unique_ptr<IObjectInfo>(new CBankInfo(levels));
 }

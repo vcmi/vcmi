@@ -15,7 +15,6 @@
 #include "CGameInfo.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "Graphics.h"
 #include "windows/GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
@@ -45,7 +44,7 @@ public:
 	CComponent *comp;
 
 	//blit component with image centered at this position
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 
 	//ComponentResolved(); //c-tor
 	ComponentResolved(CComponent *Comp); //c-tor

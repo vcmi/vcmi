@@ -16,7 +16,6 @@
  */
 
 class CHeroClass;
-class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
@@ -59,7 +58,7 @@ public:
 			h & minAmount & maxAmount & creature;
 		}
 	};
-
+	std::string identifier;
 	HeroTypeID ID;
 	si32 imageIndex;
 
@@ -92,6 +91,10 @@ public:
 		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & haveSpellBook & sex & special;
 		h & name & biography & specName & specDescr & specTooltip;
 		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
+		if(version>=759)
+		{
+			h & identifier;
+		}
 	}
 };
 
@@ -169,7 +172,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 class DLL_LINKAGE CHeroClassHandler : public IHandlerBase
 {
-	CHeroClass *loadFromJson(const JsonNode & node);
+	CHeroClass *loadFromJson(const JsonNode & node, const std::string & identifier);
 public:
 	std::vector< ConstTransitivePtr<CHeroClass> > heroClasses;
 
@@ -178,9 +181,9 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	void afterLoadFinalization();
+	void afterLoadFinalization() override;
 
-	std::vector<bool> getDefaultAllowed() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	~CHeroClassHandler();
 
@@ -207,7 +210,7 @@ class DLL_LINKAGE CHeroHandler : public IHandlerBase
 	void loadObstacles();
 
 	/// Load single hero from json
-	CHero * loadFromJson(const JsonNode & node);
+	CHero * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 public:
 	CHeroClassHandler classes;
@@ -244,7 +247,7 @@ public:
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 
-	std::vector<bool> getDefaultAllowed() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	/**
 	 * Gets a list of default allowed abilities. OH3 abilities/skills are all allowed by default.
@@ -252,6 +255,18 @@ public:
 	 * @return a list of allowed abilities, the index is the ability id
 	 */
 	std::vector<bool> getDefaultAllowedAbilities() const;
+
+	///json serialization helper
+	static si32 decodeHero(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeHero(const si32 index);
+
+	///json serialization helper
+	static si32 decodeSkill(const std::string & identifier);
+
+	///json serialization helper
+	static std::string encodeSkill(const si32 index);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

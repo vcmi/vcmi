@@ -52,7 +52,7 @@ public:
 	/// CModListContainer overrides
 	void resetRepositories() override;
 	void addRepository(QVariantMap data) override;
-	void modChanged(QString modID);
+	void modChanged(QString modID) override;
 
 	QVariant data(const QModelIndex &index, int role) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;

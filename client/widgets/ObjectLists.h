@@ -8,7 +8,6 @@ class CAnimImage;
 class CSlider;
 class CLabel;
 class CAnimation;
-class CDefHandler;
 
 /*
  * ObjectLists.h, part of VCMI engine

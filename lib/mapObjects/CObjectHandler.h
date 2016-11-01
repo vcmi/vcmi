@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "ObjectTemplate.h"
 
@@ -21,6 +21,12 @@ class IGameCallback;
 class CGObjectInstance;
 struct MetaString;
 struct BattleResult;
+class JsonSerializeFormat;
+class CRandomGenerator;
+
+// This one teleport-specific, but has to be available everywhere in callbacks and netpacks
+// For now it's will be there till teleports code refactored and moved into own file
+typedef std::vector<std::pair<ObjectInstanceID, int3>> TTeleportExitsList;
 
 class DLL_LINKAGE IObjectInterface
 {
@@ -32,10 +38,10 @@ public:
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
-	virtual void newTurn() const;
-	virtual void initObj(); //synchr
+	virtual void newTurn(CRandomGenerator & rand) const;
+	virtual void initObj(CRandomGenerator & rand); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
-	
+
 	//Called when queries created DURING HERO VISIT are resolved
 	//First parameter is always hero that visited object and triggered the query
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
@@ -113,6 +119,10 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
+	std::string instanceName;
+	std::string typeName;
+	std::string subTypeName;
+
 	CGObjectInstance();
 	~CGObjectInstance();
 
@@ -139,7 +149,7 @@ public:
 	/// Returns true if player can pass through visitable tiles of this object
 	virtual bool passableFor(PlayerColor color) const;
 	/// Range of revealed map around this object, counting from getSightCenter()
-	virtual int getSightRadious() const;
+	virtual int getSightRadius() const;
 	/// returns (x,y,0) offset to a visitable tile of object
 	virtual int3 getVisitableOffset() const;
 	/// Called mostly during map randomization to turn random object into a regular one (e.g. "Random Monster" into "Pikeman")
@@ -157,24 +167,39 @@ public:
 
 	/** OVERRIDES OF IObjectInterface **/
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ui8 what, ui32 val) override final;
 
 	//friend class CGameHandler;
 
+	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		if(version >= 759)
+		{
+			h & instanceName & typeName & subTypeName;
+		}
+
 		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
 		//definfo is handled by map serializer
 	}
+
+	///Entry point of Json (de-)serialization
+	void serializeJson(JsonSerializeFormat & handler);
+
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
 	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
+
+	///Serialize object-type specific options
+	virtual void serializeJsonOptions(JsonSerializeFormat & handler);
+
+	void serializeJsonOwner(JsonSerializeFormat & handler);
 };
 
 /// function object which can be used to find an object with an specific sub ID

@@ -43,7 +43,7 @@ MacroString::MacroString(const std::string &format)
 			
 			if (end_pos == std::string::npos)
 			{
-                logBonus->warnStream() << "Format error in: " << format;
+				logBonus->warnStream() << "Format error in: " << format;
 				end_pos = start_pos;
 				break;
 			}
@@ -126,7 +126,7 @@ CBonusTypeHandler::~CBonusTypeHandler()
 	//dtor
 }
 
-std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBearer *bearer, bool description) const
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus>& bonus, const IBonusBearer *bearer, bool description) const
 {	
 	auto getValue = [=](const std::string &name) -> std::string
 	{
@@ -150,7 +150,7 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 		}			
 		else
 		{
-            logBonus->warnStream() << "Unknown macro in bonus config: " << name;
+			logBonus->warnStream() << "Unknown macro in bonus config: " << name;
 			return "[error]";
 		}
 	};
@@ -163,7 +163,7 @@ std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBea
 	return macro.build(getValue);	
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(const Bonus* bonus) const
+std::string CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;
@@ -286,14 +286,14 @@ void CBonusTypeHandler::load(const JsonNode& config)
 //			
 //			bonusTypes.push_back(bt);
 			
-            logBonus->warnStream() << "Adding new bonuses not implemented (" << node.first << ")";
+			logBonus->warnStream() << "Adding new bonuses not implemented (" << node.first << ")";
 		}
 		else
 		{
 			CBonusType& bt = bonusTypes[it->second];
 			
 			loadItem(node.second, bt);
-            logBonus->traceStream() << "Loaded bonus type " << node.first;
+			logBonus->traceStream() << "Loaded bonus type " << node.first;
 		}	
 	}		
 }

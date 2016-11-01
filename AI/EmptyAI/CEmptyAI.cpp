@@ -3,12 +3,11 @@
 
 #include "../../lib/CRandomGenerator.h"
 
-void CEmptyAI::init(shared_ptr<CCallback> CB)
+void CEmptyAI::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	human=false;
 	playerID = *cb->getMyColor();
-	//logAi->infoStream() << "EmptyAI initialized.";
 }
 void CEmptyAI::yourTurn()
 {
@@ -30,7 +29,7 @@ void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Com
 	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void CEmptyAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	cb->selectionMade(0, askID);
 }

@@ -2,6 +2,7 @@
 #include "CQuery.h"
 #include "CGameHandler.h"
 #include "../lib/BattleState.h"
+#include "../lib/mapObjects/MiscObjects.h"
 
 boost::mutex Queries::mx;
 
@@ -40,13 +41,13 @@ CQuery::CQuery(void)
 	static QueryID QID = QueryID(0);
 
 	queryID = ++QID;
-	logGlobal->traceStream() << "Created a new query with id " << queryID;
+	logGlobal->trace("Created a new query with id %d", queryID);
 }
 
 
 CQuery::~CQuery(void)
 {
-	logGlobal->traceStream() << "Destructed the query with id " << queryID;
+	logGlobal->trace("Destructed the query with id %d", queryID);
 }
 
 void CQuery::addPlayer(PlayerColor color)
@@ -97,11 +98,11 @@ CObjectVisitQuery::CObjectVisitQuery(const CGObjectInstance *Obj, const CGHeroIn
 	addPlayer(Hero->tempOwner);
 }
 
-bool CObjectVisitQuery::blocksPack(const CPack *pack) const 
+bool CObjectVisitQuery::blocksPack(const CPack *pack) const
 {
 	//During the visit itself ALL actions are blocked.
 	//(However, the visit may trigger a query above that'll pass some.)
-	return true; 
+	return true;
 }
 
 void CObjectVisitQuery::onRemoval(CGameHandler *gh, PlayerColor color)
@@ -125,10 +126,10 @@ void CObjectVisitQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 
 void Queries::popQuery(PlayerColor player, QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	//LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
 	if(topQuery(player) != query)
 	{
-		logGlobal->traceStream() << "Cannot remove, not a top!";
+		logGlobal->trace("Cannot remove, not a top!");
 		return;
 	}
 
@@ -146,7 +147,7 @@ void Queries::popQuery(PlayerColor player, QueryPtr query)
 
 void Queries::popQuery(const CQuery &query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
+	//LOG_TRACE_PARAMS(logGlobal, "query='%s'", query);
 
 	assert(query.players.size());
 	for(auto player : query.players)
@@ -155,7 +156,7 @@ void Queries::popQuery(const CQuery &query)
 		if(top.get() == &query)
 			popQuery(top);
 		else
-			logGlobal->traceStream() << "Cannot remove query " << query;
+			logGlobal->trace("Cannot remove query %s", query.toString());
 	}
 }
 
@@ -173,7 +174,7 @@ void Queries::addQuery(QueryPtr query)
 
 void Queries::addQuery(PlayerColor player, QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "player='%s', query='%s'", player % query);
+	//LOG_TRACE_PARAMS(logGlobal, "player='%d', query='%s'", player.getNum() % query);
 	query->onAdding(gh, player);
 	queries[player].push_back(query);
 }
@@ -185,9 +186,9 @@ QueryPtr Queries::topQuery(PlayerColor player)
 
 void Queries::popIfTop(QueryPtr query)
 {
-	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
+	//LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
 	if(!query)
-		logGlobal->errorStream() << "The query is nullptr! Ignoring.";
+		logGlobal->error("The query is nullptr! Ignoring.");
 
 	popIfTop(*query);
 }
@@ -199,9 +200,9 @@ void Queries::popIfTop(const CQuery &query)
 			popQuery(color, topQuery(color));
 }
 
-std::vector<shared_ptr<const CQuery>> Queries::allQueries() const
+std::vector<std::shared_ptr<const CQuery>> Queries::allQueries() const
 {
-	std::vector<shared_ptr<const CQuery>> ret;
+	std::vector<std::shared_ptr<const CQuery>> ret;
 	for(auto &playerQueries : queries)
 		for(auto &query : playerQueries.second)
 			ret.push_back(query);
@@ -209,10 +210,10 @@ std::vector<shared_ptr<const CQuery>> Queries::allQueries() const
 	return ret;
 }
 
-std::vector<shared_ptr<CQuery>> Queries::allQueries()
+std::vector<std::shared_ptr<CQuery>> Queries::allQueries()
 {
 	//TODO code duplication with const function :(
-	std::vector<shared_ptr<CQuery>> ret;
+	std::vector<std::shared_ptr<CQuery>> ret;
 	for(auto &playerQueries : queries)
 		for(auto &query : playerQueries.second)
 		ret.push_back(query);
@@ -220,7 +221,7 @@ std::vector<shared_ptr<CQuery>> Queries::allQueries()
 	return ret;
 }
 
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
 	assert(result);
 	objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
@@ -242,9 +243,10 @@ CBattleQuery::CBattleQuery()
 
 }
 
-bool CBattleQuery::blocksPack(const CPack *pack) const 
+bool CBattleQuery::blocksPack(const CPack *pack) const
 {
-	return !dynamic_cast<const MakeAction*>(pack) && !dynamic_cast<const MakeCustomAction*>(pack);
+	const char * name = typeid(*pack).name();
+	return strcmp(name, typeid(MakeAction).name()) && strcmp(name, typeid(MakeCustomAction).name());
 }
 
 void CBattleQuery::onRemoval(CGameHandler *gh, PlayerColor color)
@@ -252,7 +254,7 @@ void CBattleQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 	gh->battleAfterLevelUp(*result);
 }
 
-void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
 	objectVisit.visitedObject->garrisonDialogClosed(objectVisit.visitingHero);
 }
@@ -266,18 +268,18 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(const CArmedInstance *up, const CArme
 	addPlayer(down->tempOwner);
 }
 
-bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const 
+bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 {
 	std::set<ObjectInstanceID> ourIds;
 	ourIds.insert(this->exchangingArmies[0]->id);
 	ourIds.insert(this->exchangingArmies[1]->id);
 
-
-	if (auto stacks = dynamic_cast<const ArrangeStacks*>(pack))
+	if (auto stacks = dynamic_ptr_cast<ArrangeStacks>(pack))
 	{
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
 	}
-	if (auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
+
+	if (auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
 	{
 		if(auto id1 = boost::apply_visitor(GetEngagedHeroIds(), arts->src.artHolder))
 			if(!vstd::contains(ourIds, *id1))
@@ -288,20 +290,24 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 				return true;
 		return false;
 	}
-	if (auto dismiss = dynamic_cast<const DisbandCreature*>(pack))
+	if (auto dismiss = dynamic_ptr_cast<DisbandCreature>(pack))
 	{
 		return !vstd::contains(ourIds, dismiss->id);
 	}
 
-	if (auto dismiss = dynamic_cast<const AssembleArtifacts*>(pack))
+	if (auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))
 	{
 		return !vstd::contains(ourIds, dismiss->heroID);
 	}
 
+	if(auto upgrade = dynamic_ptr_cast<UpgradeCreature>(pack))
+	{
+		return !vstd::contains(ourIds, upgrade->id);
+	}
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
 	assert(answer);
 	objectVisit.visitedObject->blockingDialogAnswered(objectVisit.visitingHero, *answer);
@@ -315,7 +321,8 @@ CBlockingDialogQuery::CBlockingDialogQuery(const BlockingDialog &bd)
 
 void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
-	auto obj = dynamic_cast<const CGTeleport *>(objectVisit.visitedObject);
+	// do not change to dynamic_ptr_cast - SIGSEGV!
+	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
 	obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
 }
 
@@ -334,11 +341,11 @@ CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu)
 void CHeroLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing hero level-up query. " << hlu.hero->getObjectName() << " gains skill " << *answer;
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hlu.hero->getObjectName(), answer.get());
 	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
 }
 
-void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
 	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
@@ -352,24 +359,24 @@ CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(const CommanderLevelU
 void CCommanderLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	assert(answer);
-	logGlobal->traceStream() << "Completing commander level-up query. Commander of hero " << clu.hero->getObjectName() << " gains skill " << *answer;
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", clu.hero->getObjectName(), answer.get());
 	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
 }
 
-void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
 {
 	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
 
-bool CDialogQuery::endsByPlayerAnswer() const 
+bool CDialogQuery::endsByPlayerAnswer() const
 {
 	return true;
 }
 
-bool CDialogQuery::blocksPack(const CPack *pack) const 
+bool CDialogQuery::blocksPack(const CPack *pack) const
 {
 	//We accept only query replies from correct player
-	if(auto reply = dynamic_cast<const QueryReply *>(pack))
+	if(auto reply = dynamic_ptr_cast<QueryReply>(pack))
 	{
 		return !vstd::contains(players, reply->player);
 	}
@@ -390,7 +397,7 @@ void CHeroMovementQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
 		//TODO what if there were H4-like escape? we should also check pos
 	{
-		logGlobal->traceStream() << "Hero " << hero->name << " after victory over guard finishes visit to " << tmh.end;
+		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->name, tmh.end());
 		//finish movement
 		visitDestAfterVictory = false;
 		gh->visitObjectOnTile(*gh->getTile(CGHeroInstance::convertPosition(tmh.end, false)), hero);

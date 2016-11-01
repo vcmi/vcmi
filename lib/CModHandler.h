@@ -41,7 +41,10 @@ class CIdentifierStorage
 		std::function<void(si32)> callback;
 		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback, bool optional);
+		ObjectCallback(std::string localScope, std::string remoteScope,
+		               std::string type, std::string name,
+		               const std::function<void(si32)> & callback,
+		               bool optional);
 	};
 
 	struct ObjectData // entry created on ID registration
@@ -69,11 +72,12 @@ class CIdentifierStorage
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
 public:
 	CIdentifierStorage();
+	virtual ~CIdentifierStorage();
 	/// request identifier for specific object name.
 	/// Function callback will be called during ID resolution phase of loading
 	void requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback);
 	///fullName = [remoteScope:]type.name
-	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);	
+	void requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)> & callback);
 	void requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback);
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback);
 
@@ -253,17 +257,27 @@ public:
 
 		int CREEP_SIZE; // neutral stacks won't grow beyond this number
 		int WEEKLY_GROWTH; //percent
-		int NEUTRAL_STACK_EXP; 
+		int NEUTRAL_STACK_EXP;
 		int MAX_BUILDING_PER_TURN;
 		bool DWELLINGS_ACCUMULATE_CREATURES;
 		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
 		int MAX_HEROES_AVAILABLE_PER_PLAYER;
 		int MAX_HEROES_ON_MAP_PER_PLAYER;
+		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS & MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
+			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS &
+			MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
+			if(version >= 756)
+			{
+				h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
+			}
+			else if(!h.saving)
+			{
+				WINNING_HERO_WITH_NO_TROOPS_RETREATS = true;
+			}
 		}
 	} settings;
 
@@ -281,6 +295,9 @@ public:
 	} modules;
 
 	CModHandler();
+	virtual ~CModHandler();
+
+	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

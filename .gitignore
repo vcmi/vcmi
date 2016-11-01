@@ -13,6 +13,9 @@
 *.layout
 *.pro.user
 *.pro.user.*
+*.swp
+*.h.gch
+*~
 /CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -28,3 +31,8 @@ ui_*.h
 /CPackSourceConfig.cmake
 build-*
 CMakeLists.txt.user.*
+Doxyfile
+doc/*
+VCMI_VS11.sdf
+*.ipch
+VCMI_VS11.opensdf

@@ -66,7 +66,7 @@ private:
 
 	//animation raw data
 	//TODO: use vector instead?
-	unique_ptr<ui8[]> pixelData;
+	std::unique_ptr<ui8[]> pixelData;
 	size_t pixelDataSize;
 
 	// speed of animation, measure in frames per second

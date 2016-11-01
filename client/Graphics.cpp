@@ -5,6 +5,7 @@
 #include "../lib/filesystem/CBinaryReader.h"
 #include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
+#include "gui/CAnimation.h"
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"
@@ -19,9 +20,9 @@
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
-#include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapObjects/CObjectHandler.h"
 
 using namespace CSDL_Ext;
 #ifdef min
@@ -58,7 +59,7 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		CSDL_Ext::colorSetAlpha(col,SDL_ALPHA_OPAQUE);
+		col.a = SDL_ALPHA_OPAQUE;
 		startPoint++;
 		playerColorPalette[i] = col;
 	}
@@ -74,32 +75,35 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].g = reader.readUInt8();
 		neutralColorPalette[i].b = reader.readUInt8();
 		reader.readUInt8(); // this is "flags" entry, not alpha
-		CSDL_Ext::colorSetAlpha(neutralColorPalette[i], SDL_ALPHA_OPAQUE);
+		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
-	SDL_Color colors[]  = { 
-		{0xff,0,  0,    SDL_ALPHA_OPAQUE}, 
+	SDL_Color colors[]  = {
+		{0xff,0,  0,    SDL_ALPHA_OPAQUE},
 		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
 		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
 		{0x42,0x94,0x29,SDL_ALPHA_OPAQUE},
-		
+
 		{0xff,0x84,0,   SDL_ALPHA_OPAQUE},
 		{0x8c,0x29,0xa5,SDL_ALPHA_OPAQUE},
 		{0x09,0x9c,0xa5,SDL_ALPHA_OPAQUE},
-		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};		
-		
+		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};
+
 	for(int i=0;i<8;i++)
 	{
 		playerColors[i] = colors[i];
 	}
-	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; //gray
-	CSDL_Ext::colorSetAlpha(*neutralColor,SDL_ALPHA_OPAQUE);
+	//gray
+	neutralColor->r = 0x84;
+	neutralColor->g = 0x84;
+	neutralColor->b = 0x84;
+	neutralColor->a = SDL_ALPHA_OPAQUE;
 }
 
 void Graphics::initializeBattleGraphics()
 {
 	const JsonNode config(ResourceID("config/battles_graphics.json"));
-	
+
 	// Reserve enough space for the terrains
 	int idx = config["backgrounds"].Vector().size();
 	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
@@ -120,11 +124,20 @@ void Graphics::initializeBattleGraphics()
 		}
 
 		battleACToDef[ACid] = toAdd;
-	}	
+	}
 }
 Graphics::Graphics()
 {
 	#if 0
+
+	#define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
+		(std::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
+
+	#define GET_DEF_ESS(DESTINATION, DEF_NAME) \
+		(GET_DATA \
+			(CDefEssential*,DESTINATION,\
+			std::function<CDefEssential*()>(std::bind(CDefHandler::giveDefEss,DEF_NAME))))
+
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += std::bind(&Graphics::loadFonts,this);
 	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
@@ -132,8 +145,6 @@ Graphics::Graphics()
 	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
-	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");	
-	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
@@ -144,20 +155,23 @@ Graphics::Graphics()
 	initializeBattleGraphics();
 	loadErmuToPicture();
 	initializeImageLists();
-	resources32 = CDefHandler::giveDefEss("RESOURCE.DEF");
-	heroMoveArrows = CDefHandler::giveDefEss("ADAG.DEF");
 	#endif
 
-	for(auto & elem : heroMoveArrows->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	//(!) do not load any CAnimation here
+}
+
+void Graphics::load()
+{
+	heroMoveArrows = std::make_shared<CAnimation>("ADAG");
+	heroMoveArrows->preload();
+
+	loadHeroAnims();
 }
 
 void Graphics::loadHeroAnims()
 {
 	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations = 
+	std::vector<std::pair<int,int> > rotations =
 	{
 		{6,10}, {7,11}, {8,12}, {1,13},
 		{2,14}, {3,15}
@@ -219,11 +233,11 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 	for(int i=0;i<8;i++)
 		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
 	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations = 
+	std::vector<std::pair<int,int> > rotations =
 	{
 		{6,10}, {7,11}, {8,12}
 	};
-	
+
 	for(int q=0; q<8; ++q)
 	{
 		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
@@ -266,9 +280,7 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 		for(auto & curImg : curImgs)
 		{
 			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
-			#ifndef VCMI_SDL1
 			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
-			#endif
 		}
 	}
 }
@@ -279,15 +291,15 @@ void Graphics::loadHeroFlags()
 	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4] =
 	{
 		{
-			&Graphics::flags1, 
+			&Graphics::flags1,
 			{"ABF01L.DEF","ABF01G.DEF","ABF01R.DEF","ABF01D.DEF","ABF01B.DEF",
-			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"} 
+			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"}
 		},
 		{
 			&Graphics::flags2,
 			{"ABF02L.DEF","ABF02G.DEF","ABF02R.DEF","ABF02D.DEF","ABF02B.DEF",
 			"ABF02P.DEF","ABF02W.DEF","ABF02K.DEF"}
-			
+
 		},
 		{
 			&Graphics::flags3,
@@ -298,7 +310,7 @@ void Graphics::loadHeroFlags()
 			&Graphics::flags4,
 			{"AF00.DEF","AF01.DEF","AF02.DEF","AF03.DEF","AF04.DEF",
 			"AF05.DEF","AF06.DEF","AF07.DEF"}
-		}		
+		}
 	};
 
 	#if 0
@@ -314,7 +326,7 @@ void Graphics::loadHeroFlags()
 		loadHeroFlagsDetail(p,true);
 	}
 	#endif
-    logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
+	logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
@@ -332,7 +344,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		}
 		else
 		{
-            logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
+			logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
 			return;
 		}
 		SDL_SetColors(sur, palette, 224, 32);
@@ -372,11 +384,21 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
+	if (obj->appearance.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
+		return nullptr;
+	}
 	return advmapobjGraphics[obj->appearance.animationFile];
 }
 
 CDefEssential * Graphics::getDef( const ObjectTemplate & info )
 {
+	if (info.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
+		return nullptr;
+	}
 	return advmapobjGraphics[info.animationFile];
 }
 
@@ -448,12 +470,12 @@ void Graphics::initializeImageLists()
 			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
 		}
 	}
-	
+
 	for(const CSpell * spell : CGI->spellh->objects)
 	{
 		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
 		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
 		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
-		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);		
+		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
 	}
 }

@@ -1,11 +1,11 @@
 project(emptyAI)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
+include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 
 set(emptyAI_SRCS
-        CEmptyAI.cpp
-        exp_funcs.cpp
+    CEmptyAI.cpp
+    exp_funcs.cpp
 )
 
 add_library(EmptyAI SHARED ${emptyAI_SRCS})

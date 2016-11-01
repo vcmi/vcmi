@@ -16,6 +16,7 @@
 #include "CMapGenOptions.h"
 #include "CRmgTemplateZone.h"
 #include "../int3.h"
+#include "CRmgTemplate.h" //for CRmgTemplateZoneConnection
 
 class CMap;
 class CRmgTemplate;
@@ -52,10 +53,10 @@ class DLL_LINKAGE CMapGenerator
 {
 public:
 	explicit CMapGenerator();
-	~CMapGenerator(); // required due to unique_ptr
+	~CMapGenerator(); // required due to std::unique_ptr
 
 	std::unique_ptr<CMap> generate(CMapGenOptions * mapGenOptions, int RandomSeed = std::time(nullptr));
-	
+
 	CMapGenOptions * mapGenOptions;
 	std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
@@ -63,19 +64,26 @@ public:
 	CMapEditManager * editManager;
 
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
-	void createConnections();
+	void createDirectConnections();
+	void createConnections2();
 	void findZonesForQuestArts();
 	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
+	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 
 	bool isBlocked(const int3 &tile) const;
 	bool shouldBeBlocked(const int3 &tile) const;
 	bool isPossible(const int3 &tile) const;
 	bool isFree(const int3 &tile) const;
 	bool isUsed(const int3 &tile) const;
-	void setOccupied(const int3 &tile, ETileType::ETileType state);
-	CTileInfo getTile(const int3 & tile) const;
+	bool isRoad(const int3 &tile) const;
 
-	float getNearestObjectDistance(const int3 &tile) const; 
+	void setOccupied(const int3 &tile, ETileType::ETileType state);
+	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
+
+	CTileInfo getTile(const int3 & tile) const;
+	bool isAllowedSpell(SpellID sid) const;
+
+	float getNearestObjectDistance(const int3 &tile) const;
 	void setNearestObjectDistance(int3 &tile, float value);
 
 	int getNextMonlithIndex();
@@ -88,17 +96,23 @@ public:
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
 
+	TRmgTemplateZoneId getZoneID(const int3& tile) const;
+	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
+
 private:
+	std::list<CRmgTemplateZoneConnection> connectionsLeft;
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 
 	CTileInfo*** tiles;
+	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
 
 	int prisonsRemaining;
 	//int questArtsRemaining;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
+	void checkIsOnMap(const int3 &tile) const; //throws
 
 	/// Generation methods
 	std::string getMapDescription() const;

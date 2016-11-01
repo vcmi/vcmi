@@ -12,11 +12,13 @@
 #pragma once
 
 #include "../CRandomGenerator.h"
-#include "CMap.h"
+#include "../int3.h"
+#include "../GameConstants.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
 struct TerrainViewPattern;
+class CMap;
 
 /// Represents a map rectangle.
 struct DLL_LINKAGE MapRect
@@ -113,7 +115,14 @@ public:
 	virtual void redo() = 0;
 	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
 
-protected:
+	static const int FLIP_PATTERN_HORIZONTAL = 1;
+	static const int FLIP_PATTERN_VERTICAL = 2;
+	static const int FLIP_PATTERN_BOTH = 3;
+
+protected:	
+	MapRect extendTileAround(const int3 & centerPos) const;
+	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size	
+	
 	CMap * map;
 };
 
@@ -135,10 +144,10 @@ public:
 	const CMapOperation * peekRedo() const;
 	const CMapOperation * peekUndo() const;
 
-	void addOperation(unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
+	void addOperation(std::unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
 
 private:
-	typedef std::list<unique_ptr<CMapOperation> > TStack;
+	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;
@@ -161,7 +170,11 @@ public:
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
 	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
-	void insertObject(CGObjectInstance * obj, const int3 & pos);
+	
+	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
+	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
+	
+	void insertObject(CGObjectInstance * obj, const int3 & pos);	
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();
@@ -169,7 +182,7 @@ public:
 	CMapUndoManager & getUndoManager();
 
 private:
-	void execute(unique_ptr<CMapOperation> && operation);
+	void execute(std::unique_ptr<CMapOperation> && operation);
 
 	CMap * map;
 	CMapUndoManager undoManager;
@@ -192,10 +205,10 @@ public:
 	void undo() override;
 	void redo() override;
 
-	void addOperation(unique_ptr<CMapOperation> && operation);
+	void addOperation(std::unique_ptr<CMapOperation> && operation);
 
 private:
-	std::list<unique_ptr<CMapOperation> > operations;
+	std::list<std::unique_ptr<CMapOperation> > operations;
 };
 
 namespace ETerrainGroup
@@ -216,14 +229,54 @@ struct DLL_LINKAGE TerrainViewPattern
 {
 	struct WeightedRule
 	{
-		WeightedRule();
+		WeightedRule(std::string &Name);
 		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
-		bool isStandardRule() const;
+		inline bool isStandardRule() const
+		{
+			return standardRule;
+		}
+		inline bool isAnyRule() const
+		{
+			return anyRule;
+		}
+		inline bool isDirtRule() const
+		{
+			return dirtRule;
+		}
+		inline bool isSandRule() const
+		{
+			return sandRule;
+		}
+		inline bool isTransition() const
+		{
+			return transitionRule;
+		}
+		inline bool isNativeStrong() const
+		{
+			return nativeStrongRule;
+		}
+		inline bool isNativeRule() const
+		{
+			return nativeRule;
+		}
+		void setNative();
 
 		/// The name of the rule. Can be any value of the RULE_* constants or a ID of a another pattern.
+		//FIXME: remove string variable altogether, use only in constructor
 		std::string name;
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
+
+	private:		
+		bool standardRule;
+		bool anyRule;
+		bool dirtRule;
+		bool sandRule;
+		bool transitionRule;
+		bool nativeStrongRule;
+		bool nativeRule;
+
+		WeightedRule(); //only allow string constructor
 	};
 
 	static const int PATTERN_DATA_SIZE = 9;
@@ -280,17 +333,21 @@ struct DLL_LINKAGE TerrainViewPattern
 class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
+	typedef std::vector<TerrainViewPattern> TVPVector;
+
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TerrainViewPattern> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
+	const std::vector<TVPVector> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
 	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	const TerrainViewPattern & getTerrainTypePatternById(const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
+	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > terrainViewPatterns;
-	std::map<std::string, TerrainViewPattern> terrainTypePatterns;
+	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector> > terrainViewPatterns;
+	std::map<std::string, TVPVector> terrainTypePatterns;
 };
 
 /// The CDrawTerrainOperation class draws a terrain area on the map.
@@ -326,22 +383,15 @@ private:
 	void updateTerrainTypes();
 	void invalidateTerrainViews(const int3 & centerPos);
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
-	MapRect extendTileAround(const int3 & centerPos) const;
-	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
 
 	void updateTerrainViews();
 	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
-	ValidationResult validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
+	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
 	bool isSandType(ETerrainType terType) const;
-	void flipPattern(TerrainViewPattern & pattern, int flip) const;
-
-	static const int FLIP_PATTERN_HORIZONTAL = 1;
-	static const int FLIP_PATTERN_VERTICAL = 2;
-	static const int FLIP_PATTERN_BOTH = 3;
 
 	CTerrainSelection terrainSel;
 	ETerrainType terType;

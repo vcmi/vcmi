@@ -5,6 +5,8 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CommonConstructors.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CPathfinder.h"
+#include "../../lib/CGameStateFwd.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"
@@ -29,7 +31,6 @@ class Engine;
 class InputVariable;
 class CGTownInstance;
 
-using namespace vstd;
 //using namespace Goals;
 
 FuzzyHelper *fh;
@@ -45,7 +46,7 @@ engineBase::engineBase()
 void engineBase::configure()
 {
 	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
-	logAi->infoStream() << engine.toString();
+	logAi->info(engine.toString());
 }
 
 void engineBase::addRule(const std::string &txt)
@@ -83,7 +84,7 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 		if (walker)
 			walkersStrenght += s.second->getPower();
 
-		amax (maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
+		vstd::amax(maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = walkersStrenght / totalStrenght;
@@ -148,7 +149,7 @@ void FuzzyHelper::initTacticalAdvantage()
 		{
 			fl::Rectangle* none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			ta.castleWalls->addTerm(none);
-                    
+
 			fl::Trapezoid* medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
 				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
 			ta.castleWalls->addTerm(medium);
@@ -159,7 +160,7 @@ void FuzzyHelper::initTacticalAdvantage()
 			ta.castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
 		}
 
-		
+
 
 		ta.bankPresent = new fl::InputVariable("Bank");
 		ta.engine.addInputVariable(ta.bankPresent);
@@ -200,7 +201,7 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 	catch (fl::Exception & pe)
 	{
-		logAi->errorStream() << "initTacticalAdvantage " << ": " << pe.getWhat();
+		logAi->error("initTacticalAdvantage: %s", pe.getWhat());
 	}
 }
 
@@ -261,7 +262,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "getTacticalAdvantage " << ": " << fe.getWhat();
+		logAi->error("getTacticalAdvantage: %s ",fe.getWhat());
 	}
 
 	if (output < 0 || (output != output))
@@ -272,7 +273,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 
 		for (int i = 0; i < boost::size(tab); i++)
 			log << names[i] << ": " << tab[i]->getInputValue() << " ";
-		logAi->errorStream() << log.str();
+		logAi->error(log.str());
 		assert(false);
 	}
 
@@ -295,12 +296,14 @@ FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
 	delete threat;
 }
 
-//shared_ptr<AbstractGoal> chooseSolution (std::vector<shared_ptr<AbstractGoal>> & vec)
+//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
 Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 {
 	if (vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
+
+	ai->cachedSectorMaps.clear();
 
 	//a trick to switch between heroes less often - calculatePaths is costly
 	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
@@ -407,7 +410,7 @@ void FuzzyHelper::initVisitTile()
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "visitTile " << ": " << fe.getWhat();
+		logAi->error("visitTile: %s",fe.getWhat());
 	}
 }
 
@@ -419,7 +422,7 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 
 	//assert(cb->isInTheMap(g.tile));
 	float turns = 0;
-	float distance = cb->getMovementCost(g.hero.h, g.tile);
+	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
 	if (!distance) //we stand on that tile
 		turns = 0;
 	else
@@ -452,11 +455,10 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	}
 	catch (fl::Exception & fe)
 	{
-		logAi->errorStream() << "evaluate VisitTile " << ": " << fe.getWhat();
+		logAi->error("evaluate VisitTile: %s",fe.getWhat());
 	}
 	assert (g.priority >= 0);
 	return g.priority;
-
 }
 float FuzzyHelper::evaluate (Goals::VisitHero & g)
 {
@@ -465,7 +467,7 @@ float FuzzyHelper::evaluate (Goals::VisitHero & g)
 		return -100; //hero died in the meantime
 	//TODO: consider direct copy (constructor?)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
-	return g.priority;	
+	return g.priority;
 }
 float FuzzyHelper::evaluate (Goals::GatherArmy & g)
 {
@@ -480,8 +482,7 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		throw cannotFulfillGoalException("ClearWayTo called without hero!");
 
-	SectorMap sm(g.hero);
-	int3 t = sm.firstTileToGet(g.hero, g.tile);
+	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
 
 	if (t.valid())
 	{
@@ -523,7 +524,7 @@ float FuzzyHelper::evaluate (Goals::Invalid & g)
 }
 float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
 {
-	logAi->warnStream() << boost::format("Cannot evaluate goal %s") % g.name();
+	logAi->warn("Cannot evaluate goal %s", g.name());
 	return g.priority;
 }
 void FuzzyHelper::setPriority (Goals::TSubgoal & g)

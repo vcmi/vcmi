@@ -2,6 +2,7 @@
 
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
+#include "../spells/Magic.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
@@ -19,7 +20,9 @@
 class CHero;
 class CGBoat;
 class CGTownInstance;
+class CMap;
 struct TerrainTile;
+struct TurnInfo;
 
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -35,13 +38,9 @@ public:
 };
 
 
-class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public ISpellCaster
 {
 public:
-	enum ECanDig
-	{
-		CAN_DIG, LACK_OF_MOVEMENT, WRONG_TERRAIN, TILE_OCCUPIED
-	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -66,6 +65,9 @@ public:
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
 
+	static const ui32 UNINITIALIZED_PORTRAIT = -1;
+	static const ui32 UNINITIALIZED_MANA = -1;
+	static const ui32 UNINITIALIZED_MOVEMENT = -1;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -74,12 +76,23 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;patrolRadious=-1;};
+		Patrol(){patrolling=false;initialPos=int3();patrolRadius=-1;};
 		bool patrolling;
-		ui32 patrolRadious;
+		int3 initialPos;
+		ui32 patrolRadius;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & patrolling & patrolRadious;
+			h & patrolling;
+			if(version >= 755) //save format backward compatibility
+			{
+				h & initialPos;
+			}
+			else if(!h.saving)
+			{
+				patrolling = false;
+				initialPos = int3();
+			}
+			h & patrolRadius;
 		}
 	} patrol;
 
@@ -106,6 +119,8 @@ public:
 		ui8 magicSchoolCounter;
 		ui8 wisdomCounter;
 
+		SecondarySkillsInfo();
+
 		void resetMagicSchoolCounter();
 		void resetWisdomCounter();
 
@@ -115,26 +130,34 @@ public:
 		}
 	} skillsInfo;
 
+	inline bool isInitialized() const
+	{ // has this hero been on the map at least once?
+		return movement != UNINITIALIZED_MOVEMENT && mana != UNINITIALIZED_MANA;
+	}
+
 	//int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
-	int getSightRadious() const; //sight distance (should be used if player-owned structure)
+	int getSightRadius() const override; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
 
-	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
+	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
-	bool needsLastStack()const;
-	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	bool needsLastStack()const override;
+	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	int getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
-	bool canWalkOnSea() const;
+	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
+
+	bool canLearnSpell(const CSpell * spell) const;
 
 	// ----- primary and secondary skill, experience, level handling -----
 
@@ -142,10 +165,10 @@ public:
 	bool gainsLevel() const;
 
 	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill::PrimarySkill nextPrimarySkill() const;
+	PrimarySkill::PrimarySkill nextPrimarySkill(CRandomGenerator & rand) const;
 
 	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	boost::optional<SecondarySkill> nextSecondarySkill() const;
+	boost::optional<SecondarySkill> nextSecondarySkill(CRandomGenerator & rand) const;
 
 	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
 	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills() const;
@@ -159,33 +182,32 @@ public:
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	void levelUp(std::vector<SecondarySkill> skills);
 
-	int maxMovePoints(bool onLand) const;
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
+	int maxMovePoints(bool onLand, const TurnInfo * ti = nullptr) const;
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
-	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
-	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const; //returns level on which given spell would be cast by this hero (0 - none, 1 - basic etc); optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
-	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 -
+	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
+	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void setType(si32 ID, si32 subID);
+	void setType(si32 ID, si32 subID) override;
 
-	void initHero();
-	void initHero(HeroTypeID SUBID);
+	void initHero(CRandomGenerator & rand);
+	void initHero(CRandomGenerator & rand, HeroTypeID SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
-	void initExp();
-	void initArmy(IArmyDescriptor *dst = nullptr);
+	void initExp(CRandomGenerator & rand);
+	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
 	//void giveArtifact (ui32 aid);
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
@@ -193,28 +215,53 @@ public:
 	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
-	
+
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
+	/// If this hero perishes, the scenario is failed
+	bool isMissionCritical() const;
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
-	//////////////////////////////////////////////////////////////////////////
-	//
-	ArtBearer::ArtBearer bearerType() const override;
-	//////////////////////////////////////////////////////////////////////////
 
+	///ArtBearer
+	ArtBearer::ArtBearer bearerType() const override;
+
+	///IBonusBearer
 	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
 	std::string nodeName() const override;
+
+	///ISpellCaster
+	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
+
+	///default spell school level for effect calculation
+	int getEffectLevel(const CSpell * spell) const override;
+
+	///default spell-power for damage/heal calculation
+	int getEffectPower(const CSpell * spell) const override;
+
+	///default spell-power for timed effects duration
+	int getEnchantPower(const CSpell * spell) const override;
+
+	///damage/heal override(ignores spell configuration, effect level and effect power)
+	int getEffectValue(const CSpell * spell) const override;
+
+	const PlayerColor getOwner() const override;
+
+	void getCasterName(MetaString & text) const override;
+	void getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const override;
+
 	void deserializationFix();
 
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically();
+	void levelUpAutomatically(CRandomGenerator & rand);
 
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)

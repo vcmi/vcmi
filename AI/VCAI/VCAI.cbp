@@ -6,23 +6,25 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Debug-win32-SDL2">
+			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/Debug/x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-Og" />
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add directory="../FuzzyLite/bin/Debug" />
+					<Add directory="../" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
-			<Target title="Release-win32-SDL2">
+			<Target title="Release-win32">
 				<Option platforms="Windows;" />
 				<Option output="../VCAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option object_output="obj/Release/x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -31,35 +33,23 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add directory="../FuzzyLite/bin/Release" />
+					<Add directory="../" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
-			<Target title="Debug-win32-SDL1">
+			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
 				<Option output="../VCAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/Debug/x64" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_x64" />
 				<Compiler>
+					<Add option="-Og" />
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add directory="../FuzzyLite/bin/Debug" />
-				</Linker>
-			</Target>
-			<Target title="Release-win32-SDL1">
-				<Option platforms="Windows;" />
-				<Option output="../VCAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-O3" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-					<Add directory="../FuzzyLite/bin/Release" />
+					<Add directory="../" />
+					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
 		</Build>
@@ -67,6 +57,7 @@
 			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
 			<Add option="-fexceptions" />
 			<Add option="-Wpointer-arith" />
 			<Add option="-Wno-switch" />
@@ -86,7 +77,6 @@
 			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
-			<Add directory="$(#boost.lib32)" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="AIUtility.cpp" />
@@ -96,6 +86,7 @@
 		<Unit filename="Goals.cpp" />
 		<Unit filename="Goals.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="VCAI.cpp" />

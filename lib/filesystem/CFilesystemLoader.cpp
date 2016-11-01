@@ -1,25 +1,24 @@
 #include "StdInc.h"
 #include "CFilesystemLoader.h"
 
-#include "CFileInfo.h"
 #include "CFileInputStream.h"
+#include "FileStream.h"
 
 namespace bfs = boost::filesystem;
 
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDirectory, size_t depth, bool initial):
     baseDirectory(std::move(baseDirectory)),
-	mountPoint(std::move(_mountPoint)),
+    mountPoint(std::move(_mountPoint)),
     fileList(listFiles(mountPoint, depth, initial))
 {
-	logGlobal->traceStream() << "Filesystem loaded, " << fileList.size() << " files found";
+	logGlobal->traceStream() << "File system loaded, " << fileList.size() << " files found";
 }
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
 {
 	assert(fileList.count(resourceName));
 
-	std::unique_ptr<CInputStream> stream(new CFileInputStream(baseDirectory / fileList.at(resourceName)));
-	return stream;
+	return make_unique<CFileInputStream>(baseDirectory / fileList.at(resourceName));
 }
 
 bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const
@@ -32,11 +31,19 @@ std::string CFilesystemLoader::getMountPoint() const
 	return mountPoint;
 }
 
-boost::optional<std::string> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
+boost::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const ResourceID & resourceName) const
 {
 	assert(existsResource(resourceName));
 
-	return (baseDirectory / fileList.at(resourceName)).string();
+	return baseDirectory / fileList.at(resourceName);
+}
+
+void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter) const
+{
+	if (filter(mountPoint))
+	{
+		fileList = listFiles(mountPoint, 1, false);
+	}
 }
 
 std::unordered_set<ResourceID> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourceID &)> filter) const
@@ -68,8 +75,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!update)
 	{
-		bfs::ofstream newfile(baseDirectory / filename);
-		if (!newfile.good())
+		if (!FileStream::CreateFile(baseDirectory / filename))
 			return false;
 	}
 	fileList[resID] = filename;

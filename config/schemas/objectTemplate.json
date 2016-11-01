@@ -12,6 +12,11 @@
 			"description": "Path to def file with animation of this object",
 			"format" : "defFile"
 		},
+		"editorAnimation":{
+			"type" : "string",
+			"description": "Optional path to def file with animation of this object to use in map editor",
+			"format" : "defFile"			
+		},
 		"visitableFrom": {
 			"type":"array",
 			"description": "Directions from which this object is visible",

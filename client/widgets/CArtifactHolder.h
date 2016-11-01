@@ -35,10 +35,10 @@ class CWindowWithArtifacts : public CArtifactHolder
 public:
 	std::vector<CArtifactsOfHero *> artSets;
 
-	void artifactRemoved(const ArtifactLocation &artLoc);
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
-	void artifactDisassembled(const ArtifactLocation &artLoc);
-	void artifactAssembled(const ArtifactLocation &artLoc);
+	void artifactRemoved(const ArtifactLocation &artLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactDisassembled(const ArtifactLocation &artLoc) override;
+	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };
 
 /// Artifacts can be placed there. Gets shown at the hero window
@@ -65,24 +65,26 @@ public:
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
 
 	CArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
 	void select ();
 	void deselect ();
-	void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface * to) override;
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 
 	void setMeAsDest(bool backpackAsVoid = true);
 	void setArtifact(const CArtifactInstance *art);
+	static bool askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
+	                          const CGHeroInstance *hero);
 };
 
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
 class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero;
-	
+
 	std::map<ArtifactPosition, CArtPlace *> artWorn;
- 
+
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //number of first art visible in backpack (in hero's vector)
 
@@ -105,7 +107,8 @@ public:
 		std::set<CArtifactsOfHero *> participants; // Needed to mark slots.
 
 		void reset();
-	} * commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
+	};
+	std::shared_ptr<SCommonPart> commonInfo; //when we have more than one CArtifactsOfHero in one window with exchange possibility, we use this (eg. in exchange window); to be provided externally
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 

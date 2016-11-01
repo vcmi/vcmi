@@ -9,7 +9,8 @@
 #else
 	#include <dlfcn.h>
 #endif
-#include "Connection.h"
+#include "serializer/BinaryDeserializer.h"
+#include "serializer/BinarySerializer.h"
 
 /*
  * CGameInterface.cpp, part of VCMI engine
@@ -24,20 +25,20 @@
 #ifdef VCMI_ANDROID
 // we can't use shared libraries on Android so here's a hack
 extern "C" DLL_EXPORT void VCAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void VCAI_GetNewAI(shared_ptr<CGlobalAI> &out);
+extern "C" DLL_EXPORT void VCAI_GetNewAI(std::shared_ptr<CGlobalAI> &out);
 
 extern "C" DLL_EXPORT void StupidAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void StupidAI_GetNewBattleAI(shared_ptr<CGlobalAI> &out);
+extern "C" DLL_EXPORT void StupidAI_GetNewBattleAI(std::shared_ptr<CGlobalAI> &out);
 
 extern "C" DLL_EXPORT void BattleAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(shared_ptr<CBattleGameInterface> &out);
+extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(std::shared_ptr<CBattleGameInterface> &out);
 #endif
 
 template<typename rett>
-shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
+std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
-	typedef void(*TGetAIFun)(shared_ptr<rett>&); 
-	typedef void(*TGetNameFun)(char*); 
+	typedef void(*TGetAIFun)(std::shared_ptr<rett>&);
+	typedef void(*TGetNameFun)(char*);
 
 	char temp[150];
 
@@ -80,7 +81,7 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
 	}
 	else
-        logGlobal->errorStream() << "Error: " << dlerror();
+		logGlobal->errorStream() << "Error: " << dlerror();
 #endif // VCMI_WINDOWS
 	if (!dll)
 	{
@@ -100,18 +101,18 @@ shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::st
 #endif // VCMI_ANDROID
 
 	getName(temp);
-    logGlobal->infoStream() << "Loaded " << temp;
+	logGlobal->infoStream() << "Loaded " << temp;
 
-	shared_ptr<rett> ret;
+	std::shared_ptr<rett> ret;
 	getAI(ret);
 	if(!ret)
-        logGlobal->errorStream() << "Cannot get AI!";
+		logGlobal->error("Cannot get AI!");
 
 	return ret;
 }
 
 template<typename rett>
-shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
+std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 {
 	logGlobal->infoStream() << "Opening " << dllname;
 	const boost::filesystem::path filePath =
@@ -121,17 +122,17 @@ shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 	return ret;
 }
 
-shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
+std::shared_ptr<CGlobalAI> CDynLibHandler::getNewAI(std::string dllname)
 {
 	return createAnyAI<CGlobalAI>(dllname, "GetNewAI");
 }
 
-shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname )
+std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string dllname )
 {
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
+std::shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
 {
 	return createAny<CScriptingModule>(dllname, "GetNewModule");
 }
@@ -243,29 +244,29 @@ void CAdventureAI::yourTacticPhase(int distance)
 	battleAI->yourTacticPhase(distance);
 }
 
-void CAdventureAI::saveGame(COSer & h, const int version) /*saving */
+void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::saveGame(h, version);
 	bool hasBattleAI = static_cast<bool>(battleAI);
-	h << hasBattleAI;
+	h & hasBattleAI;
 	if(hasBattleAI)
 	{
-		h << std::string(battleAI->dllName);
+		h & std::string(battleAI->dllName);
 		battleAI->saveGame(h, version);
 	}
 }
 
-void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
+void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	CGlobalAI::loadGame(h, version);
 	bool hasBattleAI = false;
-	h >> hasBattleAI;
+	h & hasBattleAI;
 	if(hasBattleAI)
 	{
 		std::string dllName;
-		h >> dllName;
+		h & dllName;
 		battleAI = CDynLibHandler::getNewBattleAI(dllName);
 		assert(cbc); //it should have been set by the one who new'ed us
 		battleAI->init(cbc);
@@ -273,10 +274,10 @@ void CAdventureAI::loadGame(CISer & h, const int version) /*loading */
 	}
 }
 
-void CBattleGameInterface::saveGame(COSer & h, const int version)
+void CBattleGameInterface::saveGame(BinarySerializer & h, const int version)
 {
 }
 
-void CBattleGameInterface::loadGame(CISer  & h, const int version)
+void CBattleGameInterface::loadGame(BinaryDeserializer & h, const int version)
 {
 }

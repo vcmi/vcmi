@@ -21,7 +21,7 @@ class FuzzyHelper;
 
 namespace Goals
 {
-	struct AbstractGoal;
+	class AbstractGoal;
 	class VisitTile;
 	typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
 	typedef std::vector<TSubgoal> TGoalVec;
@@ -86,8 +86,10 @@ public:
 		value = 0;
 		aid = -1;
 		resID = -1;
+		objid = -1;
 		tile = int3(-1, -1, -1);
 		town = nullptr;
+		bid = -1;
 	}
 	virtual ~AbstractGoal(){};
 	//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case
@@ -107,7 +109,7 @@ public:
 	static TSubgoal tryRecruitHero();
 
 	///Visitor pattern
-	//TODO: make accept work for shared_ptr... somehow
+	//TODO: make accept work for std::shared_ptr... somehow
 	virtual void accept (VCAI * ai); //unhandled goal will report standard error
 	virtual float accept (FuzzyHelper * f);
 
@@ -134,6 +136,7 @@ public:
 		isAbstract = false;
 		value = 0;
 		aid = -1;
+		objid = -1;
 		resID = -1;
 		tile = int3(-1, -1, -1);
 		town = nullptr;
@@ -161,7 +164,7 @@ public:
 	TSubgoal iAmElementar()
 	{
 		setisElementar(true);
-		shared_ptr<AbstractGoal> ptr;
+		std::shared_ptr<AbstractGoal> ptr;
 		ptr.reset(clone());
 		return ptr;
 	}
@@ -300,7 +303,7 @@ public:
 	VisitHero(int hid) : CGoal (Goals::VISIT_HERO){objid = hid; priority = 4;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	//bool operator== (VisitHero &g) {return g.objid == objid;}
+	bool operator== (VisitHero &g) { return g.goalType == goalType && g.objid == objid; }
 	bool fulfillsMe (TSubgoal goal) override;
 	std::string completeMessage() const override;
 };
@@ -322,7 +325,7 @@ public:
 	VisitTile(int3 Tile) : CGoal (Goals::VISIT_TILE) {tile = Tile; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	//bool operator== (VisitTile &g) {return g.tile == tile;}
+	bool operator== (VisitTile &g) { return g.goalType == goalType && g.tile == tile; }
 	std::string completeMessage() const override;
 }; 
 class ClearWayTo : public CGoal<ClearWayTo>
@@ -334,7 +337,7 @@ public:
 	ClearWayTo(int3 Tile, HeroPtr h) : CGoal (Goals::CLEAR_WAY_TO) {tile = Tile; hero = h; priority = 5;};
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	bool operator== (ClearWayTo &g) {return g.tile == tile;}
+	bool operator== (ClearWayTo &g) { return g.goalType == goalType && g.tile == tile; }
 };
 class DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
@@ -345,7 +348,7 @@ public:
 	DigAtTile(int3 Tile) : CGoal (Goals::DIG_AT_TILE) {tile = Tile; priority = 20;};
 	TGoalVec getAllPossibleSubgoals() override {return TGoalVec();};
 	TSubgoal whatToDoToAchieve() override;
-	bool operator== (DigAtTile &g) {return g.tile == tile;}
+	bool operator== (DigAtTile &g) { return g.goalType == goalType && g.tile == tile; }
 };
 
 class CIssueCommand : public CGoal<CIssueCommand>

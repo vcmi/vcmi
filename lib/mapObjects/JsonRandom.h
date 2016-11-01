@@ -17,8 +17,8 @@ class JsonNode;
 typedef std::vector<JsonNode> JsonVector;
 class CRandomGenerator;
 
-class Bonus;
-class Component;
+struct Bonus;
+struct Component;
 class CStackBasicDescriptor;
 
 namespace JsonRandom

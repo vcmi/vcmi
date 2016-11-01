@@ -76,8 +76,14 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 	{
 		logger = new CLogger(domain);
 		if(domain.isGlobalDomain())
+		{
 			logger->setLevel(ELogLevel::TRACE);
+		}
 		CLogManager::get().addLogger(logger);
+		if (logGlobal != nullptr)
+		{
+			logGlobal->debug("Created logger %s", domain.getName());
+		}
 	}
 	return logger;
 }
@@ -100,12 +106,6 @@ CLogger::CLogger(const CLoggerDomain & domain) : domain(domain)
 		parent = getLogger(domain.getParent());
 	}
 }
-
-void CLogger::trace(const std::string & message) const { log(ELogLevel::TRACE, message); }
-void CLogger::debug(const std::string & message) const { log(ELogLevel::DEBUG, message); }
-void CLogger::info(const std::string & message) const { log(ELogLevel::INFO, message); }
-void CLogger::warn(const std::string & message) const { log(ELogLevel::WARN, message); }
-void CLogger::error(const std::string & message) const { log(ELogLevel::ERROR, message); }
 
 CLoggerStream CLogger::traceStream() const { return CLoggerStream(*this, ELogLevel::TRACE); }
 CLoggerStream CLogger::debugStream() const { return CLoggerStream(*this, ELogLevel::DEBUG); }
@@ -134,7 +134,7 @@ void CLogger::setLevel(ELogLevel::ELogLevel level)
 
 const CLoggerDomain & CLogger::getDomain() const { return domain; }
 
-void CLogger::addTarget(unique_ptr<ILogTarget> && target)
+void CLogger::addTarget(std::unique_ptr<ILogTarget> && target)
 {
 	TLockGuard _(mx);
 	targets.push_back(std::move(target));
@@ -204,6 +204,16 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 		return nullptr;
 }
 
+std::vector<std::string> CLogManager::getRegisteredDomains() const
+{
+	std::vector<std::string> domains;
+	for (auto& pair : loggers)
+	{
+		domains.push_back(pair.second->getDomain().getName());
+	}
+	return std::move(domains);
+}
+
 CLogFormatter::CLogFormatter() : CLogFormatter("%m") { }
 
 CLogFormatter::CLogFormatter(const std::string & pattern) : pattern(pattern)
@@ -230,13 +240,10 @@ std::string CLogFormatter::format(const LogRecord & record) const
 {
 	std::string message = pattern;
 
-	// Format date
-	dateStream.str(std::string());
-	dateStream.clear();
-	dateStream << record.timeStamp;
-	boost::algorithm::replace_first(message, "%d", dateStream.str());
+	//Format date
+	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
 
-	// Format log level
+	//Format log level
 	std::string level;
 	switch(record.level)
 	{
@@ -258,10 +265,12 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	}
 	boost::algorithm::replace_first(message, "%l", level);
 
-	// Format name, thread id and message
+	//Format name, thread id and message
 	boost::algorithm::replace_first(message, "%n", record.domain.getName());
-	boost::algorithm::replace_first(message, "%t", boost::lexical_cast<std::string>(record.threadId));
+	boost::algorithm::replace_first(message, "%t", record.threadId);
 	boost::algorithm::replace_first(message, "%m", record.message);
+
+	//return boost::to_string (boost::format("%d %d %d[%d] - %d") % dateStream.str() % level % record.domain.getName() % record.threadId % record.message);
 
 	return message;
 }
@@ -332,7 +341,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	{
 		const EConsoleTextColor::EConsoleTextColor textColor =
 			coloredOutputEnabled ? colorMapping.getColorFor(record.domain, record.level) : EConsoleTextColor::DEFAULT;
-		
+
 		console->print(message, true, textColor, printToStdErr);
 	}
 	else
@@ -365,8 +374,9 @@ CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append /*=
 
 void CLogFileTarget::write(const LogRecord & record)
 {
+	std::string message = formatter.format(record); //formatting is slow, do it outside the lock
 	TLockGuard _(mx);
-	file << formatter.format(record) << std::endl;
+	file << message << std::endl;
 }
 
 const CLogFormatter & CLogFileTarget::getFormatter() const { return formatter; }

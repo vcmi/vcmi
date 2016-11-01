@@ -233,8 +233,9 @@ std::string CDefenceAnimation::getMySound()
 	if(killed)
 		return battle_sound(stack->getCreature(), killed);
 
-	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN)))
+	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
 		return battle_sound(stack->getCreature(), defend);
+
 	return battle_sound(stack->getCreature(), wince);
 }
 
@@ -242,9 +243,10 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 {
 	if(killed)
 		return CCreatureAnim::DEATH;
-
-	if (stack->valOfBonuses(Selector::durationType(Bonus::STACK_GETS_TURN).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))))
+	
+	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
 		return CCreatureAnim::DEFENCE;
+
 	return CCreatureAnim::HITTED;
 }
 
@@ -281,7 +283,9 @@ void CDefenceAnimation::endAnim()
 
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames) 
 : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
-{}
+{
+	logAnim->debugStream() << "Created dummy animation for " << howManyFrames <<" frames";
+}
 
 bool CDummyAnimation::init()
 {
@@ -357,7 +361,7 @@ bool CMeleeAttackAnimation::init()
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
-        logGlobal->errorStream()<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos;
+		logGlobal->errorStream()<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos;
 		group = CCreatureAnim::ATTACK_FRONT;
 		break;
 	}
@@ -778,7 +782,7 @@ bool CShootingAnimation::init()
 		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
 
 		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		spi.lastStep = abs((destPos.x - spi.x) / animSpeed);
+		spi.lastStep = std::abs((destPos.x - spi.x) / animSpeed);
 		spi.dx = animSpeed;
 		spi.dy = 0;
 

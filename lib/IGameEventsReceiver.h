@@ -69,6 +69,7 @@ public:
 	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 	virtual void battleObstaclePlaced(const CObstacleInstance &obstacle){};
+	virtual void battleGateStateChanged(const EGateState state){};
 };
 
 class DLL_LINKAGE IGameEventsReceiver

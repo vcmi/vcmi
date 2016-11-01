@@ -17,6 +17,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
 
+#include "../widgets/Images.h"
+
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
 #include "../windows/GUIClasses.h"
@@ -1121,23 +1123,10 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	default:
 		{
-			#ifdef VCMI_SDL1
-			if(enteredText.size() > 0 && enteredText.size() < conf.go()->ac.inputLineLength)
-			{
-				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
-				{
-					enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
-					enteredText += "_";
-					refreshEnteredText();
-				}
-			}
-			#endif // VCMI_SDL1
 			break;
 		}
 	}
 }
-
-#ifndef VCMI_SDL1
 
 void CInGameConsole::textInputed(const SDL_TextInputEvent & event)
 {
@@ -1155,8 +1144,6 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 {
  //do nothing here
 }
-
-#endif // VCMI_SDL1
 
 void CInGameConsole::startEnteringText()
 {
@@ -1219,13 +1206,8 @@ void CInGameConsole::refreshEnteredText()
 
 CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
-	#ifdef VCMI_SDL1
-	addUsedEvents(KEYBOARD);
-	#else
 	addUsedEvents(KEYBOARD | TEXTINPUT);
-	#endif
 }
-
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
 	: CIntObject(),
@@ -1276,11 +1258,11 @@ void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
 	addChild(obj, false);
 }
 
-CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
-	: CAdvMapPanel(bg, position)	  
+CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
+	: CAdvMapPanel(bg, position), icons(_icons)
 {
 	fillerHeight = bg ? spaceBottom - pos.y - pos.h : 0;
-	
+
 	if (fillerHeight > 0)
 	{
 		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
@@ -1295,23 +1277,16 @@ CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
 		SDL_FreeSurface(tmpBackgroundFiller);
 }
 
-void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, const CDefHandler *def, int indexOffset)
+void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, int indexOffset)
 {
-	for (auto &pic : currentIcons)
-	{
-		removeChild(pic);
-		delete pic;
-	}
-	currentIcons.clear();
+	assert(iconsData.size() == currentIcons.size());
 
-	for (auto &data : iconsData)
+	for(size_t idx = 0; idx < iconsData.size(); idx++)
 	{
-		auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
-		pic->recActions |= SHOWALL;
-		currentIcons.push_back(pic);
-		addChildToPanel(pic);
+		const auto & data = iconsData.at(idx);
+		currentIcons[idx]->setFrame(data.first + indexOffset);
 	}
-	
+
 	if (fillerHeight > 0)
 	{
 		if (tmpBackgroundFiller)
@@ -1320,18 +1295,17 @@ void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, const CDefHan
 	}
 }
 
-void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, const CDefHandler *def, int indexOffset)
+void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, int indexOffset)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	iconsData.push_back(data);
-	auto pic = new CPicture(def->ourImages[data.first + indexOffset].bitmap, data.second.x, data.second.y, false);
-	currentIcons.push_back(pic);
-	addChildToPanel(pic);
+	currentIcons.push_back(new CAnimImage(icons, data.first + indexOffset, 0, data.second.x, data.second.y));
 }
 
 void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)
 {
 	if (tmpBackgroundFiller)
-	{		
+	{
 		blitAt(tmpBackgroundFiller, pos.x, pos.y + pos.h, to);
 	}
 

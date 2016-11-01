@@ -19,7 +19,7 @@ SHeroName::SHeroName() : heroId(-1)
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(255), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
@@ -63,6 +63,7 @@ EventCondition::EventCondition(EWinLoseType condition):
 	object(nullptr),
 	value(-1),
 	objectType(-1),
+	objectSubtype(-1),
 	position(-1, -1, -1),
 	condition(condition)
 {
@@ -72,6 +73,7 @@ EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectTy
 	object(nullptr),
 	value(value),
 	objectType(objectType),
+	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
@@ -132,19 +134,28 @@ Obj TerrainTile::topVisitableId(bool excludeTop) const
 
 CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 {
-	auto visitableObj = visitableObjects;
-	if(excludeTop && visitableObj.size())
-		visitableObj.pop_back();
+	if(visitableObjects.empty() || (excludeTop && visitableObjects.size() == 1))
+		return nullptr;
 
-	return visitableObj.size() ? visitableObj.back() : nullptr;
+	if(excludeTop)
+		return visitableObjects[visitableObjects.size()-2];
+
+	return visitableObjects.back();
 }
 
-bool TerrainTile::isCoastal() const
+EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	return extTileFlags & 64;
+	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
+		return EDiggingStatus::WRONG_TERRAIN;
+
+	int allowedBlocked = excludeTop ? 1 : 0;
+	if(blockingObjects.size() > allowedBlocked || topVisitableObj(excludeTop))
+		return EDiggingStatus::TILE_OCCUPIED;
+	else
+		return EDiggingStatus::CAN_DIG;
 }
 
-bool TerrainTile::hasFavourableWinds() const
+bool TerrainTile::hasFavorableWinds() const
 {
 	return extTileFlags & 128;
 }
@@ -206,7 +217,7 @@ CMapHeader::~CMapHeader()
 
 }
 
-CMap::CMap() : checksum(0), grailPos(-1, -1, -1), grailRadious(0), terrain(nullptr)
+CMap::CMap() : checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
@@ -231,6 +242,12 @@ CMap::~CMap()
 		delete [] terrain;
 		delete [] guardingCreaturePositions;
 	}
+
+	for(auto obj : objects)
+		obj.dellNull();
+
+	for(auto quest : quests)
+		quest.dellNull();
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
@@ -308,6 +325,35 @@ CGHeroInstance * CMap::getHero(int heroID)
 	return nullptr;
 }
 
+bool CMap::isCoastalTile(const int3 & pos) const
+{
+	//todo: refactoring: extract neighbor tile iterator and use it in GameState
+	static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
+
+	if(!isInTheMap(pos))
+	{
+		logGlobal->errorStream() << "Coastal check outside of map :"<<pos;
+		return false;
+	}
+
+	if(isWaterTile(pos))
+		return false;
+
+	for (auto & dir : dirs)
+	{
+		const int3 hlp = pos + dir;
+
+		if(!isInTheMap(hlp))
+			continue;
+		const TerrainTile &hlpt = getTile(hlp);
+		if(hlpt.isWater())
+			return true;
+	}
+
+	return false;
+}
+
 bool CMap::isInTheMap(const int3 & pos) const
 {
 	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
@@ -335,19 +381,17 @@ const TerrainTile & CMap::getTile(const int3 & tile) const
 
 bool CMap::isWaterTile(const int3 &pos) const
 {
-	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
+	return isInTheMap(pos) && getTile(pos).isWater();
 }
 
 bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
 {
 	if (!pom->entrableTerrain()) //rock is never accessible
 		return false;
-	for(ui32 b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
+	for (auto obj : pom->visitableObjects) //checking destination tile
 	{
-		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
+		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
 			continue;
-
-		const CGObjectInstance * obj = pom->visitableObjects[b];
 
 		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
@@ -515,11 +559,52 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 	artInstances[art->id.getNum()].dellNull();
 }
 
-void CMap::addQuest(CGObjectInstance * quest)
+void CMap::addNewObject(CGObjectInstance * obj)
 {
-	auto q = dynamic_cast<IQuestObject *>(quest);
-	q->quest->qid = quests.size();
-	quests.push_back(q->quest);
+	if(obj->id != ObjectInstanceID(objects.size()))
+		throw std::runtime_error("Invalid object instance id");
+
+	if(obj->instanceName == "")
+		throw std::runtime_error("Object instance name missing");
+
+	auto it = instanceNames.find(obj->instanceName);
+	if(it != instanceNames.end())
+		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
+
+	objects.push_back(obj);
+	instanceNames[obj->instanceName] = obj;
+	addBlockVisTiles(obj);
+
+	//todo: make this virtual method of CGObjectInstance
+	switch (obj->ID)
+	{
+	case Obj::TOWN:
+		towns.push_back(static_cast<CGTownInstance *>(obj));
+		break;
+	case Obj::HERO:
+		heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
+		break;
+	case Obj::SEER_HUT:
+	case Obj::QUEST_GUARD:
+	case Obj::BORDERGUARD:
+	case Obj::BORDER_GATE:
+		{
+			auto q = dynamic_cast<IQuestObject *>(obj);
+			q->quest->qid = quests.size();
+			quests.push_back(q->quest);
+		}
+		break;
+	case Obj::SPELL_SCROLL:
+		{
+			CGArtifact * art = dynamic_cast<CGArtifact *>(obj);
+
+			if(art->storedArtifact && art->storedArtifact->id.getNum() < 0)
+				addNewArtifactInstance(art->storedArtifact);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void CMap::initTerrain()

@@ -2,12 +2,13 @@
 #include "../lib/NetPacks.h"
 
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CFileInfo.h"
+#include "../lib/filesystem/FileInfo.h"
 #include "../CCallback.h"
 #include "Client.h"
 #include "CPlayerInterface.h"
 #include "CGameInfo.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/BinarySerializer.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -25,6 +26,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
+#include "../lib/CPlayerState.h"
 #include "gui/CGuiHandler.h"
 #include "widgets/MiscWidgets.h"
 #include "widgets/AdventureMapClasses.h"
@@ -104,39 +106,39 @@
  *
  */
 
-void SetResources::applyCl( CClient *cl )
+void SetResources::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player,receivedResource,-1,-1);
 }
 
-void SetResource::applyCl( CClient *cl )
+void SetResource::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player,receivedResource,resid,val);
 }
 
-void SetPrimSkill::applyCl( CClient *cl )
+void SetPrimSkill::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-        logNetwork->errorStream() << "Cannot find hero with ID " << id.getNum();
+		logNetwork->errorStream() << "Cannot find hero with ID " << id.getNum();
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroPrimarySkillChanged,h,which,val);
 }
 
-void SetSecSkill::applyCl( CClient *cl )
+void SetSecSkill::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-        logNetwork->errorStream() << "Cannot find hero with ID " << id;
+		logNetwork->errorStream() << "Cannot find hero with ID " << id;
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroSecondarySkillChanged,h,which,val);
 }
 
-void HeroVisitCastle::applyCl( CClient *cl )
+void HeroVisitCastle::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(hid);
 
@@ -146,25 +148,25 @@ void HeroVisitCastle::applyCl( CClient *cl )
 	}
 }
 
-void ChangeSpells::applyCl( CClient *cl )
+void ChangeSpells::applyCl(CClient *cl)
 {
 	//TODO: inform interface?
 }
 
-void SetMana::applyCl( CClient *cl )
+void SetMana::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(hid);
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroManaPointsChanged, h);
 }
 
-void SetMovePoints::applyCl( CClient *cl )
+void SetMovePoints::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(hid);
 	cl->invalidatePaths();
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroMovePointsChanged, h);
 }
 
-void FoWChange::applyCl( CClient *cl )
+void FoWChange::applyCl(CClient *cl)
 {
 	for(auto &i : cl->playerint)
 	{
@@ -183,85 +185,85 @@ void FoWChange::applyCl( CClient *cl )
 	cl->invalidatePaths();
 }
 
-void SetAvailableHeroes::applyCl( CClient *cl )
+void SetAvailableHeroes::applyCl(CClient *cl)
 {
 	//TODO: inform interface?
 }
 
-void ChangeStackCount::applyCl( CClient *cl )
+void ChangeStackCount::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stackChagedCount, sl, count, absoluteValue);
 }
 
-void SetStackType::applyCl( CClient *cl )
+void SetStackType::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stackChangedType, sl, *type);
 }
 
-void EraseStack::applyCl( CClient *cl )
+void EraseStack::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner, stacksErased, sl);
 }
 
-void SwapStacks::applyCl( CClient *cl )
+void SwapStacks::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(sl1.army->tempOwner, stacksSwapped, sl1, sl2);
 	if(sl1.army->tempOwner != sl2.army->tempOwner)
 		INTERFACE_CALL_IF_PRESENT(sl2.army->tempOwner, stacksSwapped, sl1, sl2);
 }
 
-void InsertNewStack::applyCl( CClient *cl )
+void InsertNewStack::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(sl.army->tempOwner,newStackInserted,sl, *sl.getStack());
 }
 
-void RebalanceStacks::applyCl( CClient *cl )
+void RebalanceStacks::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(src.army->tempOwner, stacksRebalanced, src, dst, count);
 	if(src.army->tempOwner != dst.army->tempOwner)
 		INTERFACE_CALL_IF_PRESENT(dst.army->tempOwner,stacksRebalanced, src, dst, count);
 }
 
-void PutArtifact::applyCl( CClient *cl )
+void PutArtifact::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactPut, al);
 }
 
-void EraseArtifact::applyCl( CClient *cl )
+void EraseArtifact::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactRemoved, al);
 }
 
-void MoveArtifact::applyCl( CClient *cl )
+void MoveArtifact::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(src.owningPlayer(), artifactMoved, src, dst);
 	if(src.owningPlayer() != dst.owningPlayer())
 		INTERFACE_CALL_IF_PRESENT(dst.owningPlayer(), artifactMoved, src, dst);
 }
 
-void AssembledArtifact::applyCl( CClient *cl )
+void AssembledArtifact::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactAssembled, al);
 }
 
-void DisassembledArtifact::applyCl( CClient *cl )
+void DisassembledArtifact::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactDisassembled, al);
 }
 
-void HeroVisit::applyCl( CClient *cl )
+void HeroVisit::applyCl(CClient *cl)
 {
 	assert(hero);
 	INTERFACE_CALL_IF_PRESENT(player, heroVisit, hero, obj, starting);
 }
 
-void NewTurn::applyCl( CClient *cl )
+void NewTurn::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
 }
 
 
-void GiveBonus::applyCl( CClient *cl )
+void GiveBonus::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
 	switch(who)
@@ -281,13 +283,13 @@ void GiveBonus::applyCl( CClient *cl )
 	}
 }
 
-void ChangeObjPos::applyFirstCl( CClient *cl )
+void ChangeObjPos::applyFirstCl(CClient *cl)
 {
 	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
 	if(flags & 1)
 		CGI->mh->hideObject(obj);
 }
-void ChangeObjPos::applyCl( CClient *cl )
+void ChangeObjPos::applyCl(CClient *cl)
 {
 	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
 	if(flags & 1)
@@ -296,12 +298,12 @@ void ChangeObjPos::applyCl( CClient *cl )
 	cl->invalidatePaths();
 }
 
-void PlayerEndsGame::applyCl( CClient *cl )
+void PlayerEndsGame::applyCl(CClient *cl)
 {
 	CALL_IN_ALL_INTERFACES(gameOver, player, victoryLossCheckResult);
 }
 
-void RemoveBonus::applyCl( CClient *cl )
+void RemoveBonus::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
 	switch(who)
@@ -321,7 +323,7 @@ void RemoveBonus::applyCl( CClient *cl )
 	}
 }
 
-void UpdateCampaignState::applyCl( CClient *cl )
+void UpdateCampaignState::applyCl(CClient *cl)
 {
 	cl->stopConnection();
 	cl->campaignMapFinished(camp);
@@ -332,7 +334,7 @@ void PrepareForAdvancingCampaign::applyCl(CClient *cl)
 	cl->serv->prepareForSendingHeroes();
 }
 
-void RemoveObject::applyFirstCl( CClient *cl )
+void RemoveObject::applyFirstCl(CClient *cl)
 {
 	const CGObjectInstance *o = cl->getObj(id);
 
@@ -346,12 +348,12 @@ void RemoveObject::applyFirstCl( CClient *cl )
 	}
 }
 
-void RemoveObject::applyCl( CClient *cl )
+void RemoveObject::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
 }
 
-void TryMoveHero::applyFirstCl( CClient *cl )
+void TryMoveHero::applyFirstCl(CClient *cl)
 {
 	CGHeroInstance *h = GS(cl)->getHero(id);
 
@@ -374,7 +376,7 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 		CGI->mh->printObject(h->boat);
 }
 
-void TryMoveHero::applyCl( CClient *cl )
+void TryMoveHero::applyCl(CClient *cl)
 {
 	const CGHeroInstance *h = cl->getHero(id);
 	cl->invalidatePaths();
@@ -410,13 +412,11 @@ void TryMoveHero::applyCl( CClient *cl )
 	}
 }
 
-void NewStructures::applyCl( CClient *cl )
+void NewStructures::applyCl(CClient *cl)
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		town->updateAppearance();
-
 		if(vstd::contains(cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
 	}
@@ -426,14 +426,12 @@ void RazeStructures::applyCl (CClient *cl)
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	for(const auto & id : bid)
 	{
-		town->updateAppearance();
-
 		if(vstd::contains (cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged (town,id,2);
 	}
 }
 
-void SetAvailableCreatures::applyCl( CClient *cl )
+void SetAvailableCreatures::applyCl(CClient *cl)
 {
 	const CGDwelling *dw = static_cast<const CGDwelling*>(cl->getObj(tid));
 
@@ -448,28 +446,28 @@ void SetAvailableCreatures::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(p, availableCreaturesChanged, dw);
 }
 
-void SetHeroesInTown::applyCl( CClient *cl )
+void SetHeroesInTown::applyCl(CClient *cl)
 {
 	CGTownInstance *t = GS(cl)->getTown(tid);
 	CGHeroInstance *hGarr  = GS(cl)->getHero(this->garrison);
 	CGHeroInstance *hVisit = GS(cl)->getHero(this->visiting);
 
-	std::set<PlayerColor> playersToNotify;
+	//inform all players that see this object
+	for(auto i = cl->playerint.cbegin(); i != cl->playerint.cend(); ++i)
+	{
+		if(i->first >= PlayerColor::PLAYER_LIMIT)
+			continue;
 
-	if(vstd::contains(cl->playerint,t->tempOwner)) // our town
-		playersToNotify.insert(t->tempOwner);
-
-	if (hGarr && vstd::contains(cl->playerint,  hGarr->tempOwner))
-		playersToNotify.insert(hGarr->tempOwner);
-
-	if (hVisit && vstd::contains(cl->playerint, hVisit->tempOwner))
-		playersToNotify.insert(hVisit->tempOwner);
-
-	for(auto playerID : playersToNotify)
-		cl->playerint[playerID]->heroInGarrisonChange(t);
+		if(GS(cl)->isVisible(t, i->first) ||
+			(hGarr && GS(cl)->isVisible(hGarr, i->first)) ||
+			(hVisit && GS(cl)->isVisible(hVisit, i->first)))
+		{
+			cl->playerint[i->first]->heroInGarrisonChange(t);
+		}
+	}
 }
 
-// void SetHeroArtifacts::applyCl( CClient *cl )
+// void SetHeroArtifacts::applyCl(CClient *cl)
 // {
 // // 	CGHeroInstance *h = GS(cl)->getHero(hid);
 // // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : nullptr);
@@ -489,37 +487,43 @@ void SetHeroesInTown::applyCl( CClient *cl )
 // // 	}
 // }
 
-void HeroRecruited::applyCl( CClient *cl )
+void HeroRecruited::applyCl(CClient *cl)
 {
 	CGHeroInstance *h = GS(cl)->map->heroesOnMap.back();
 	if(h->subID != hid)
 	{
-        logNetwork->errorStream() << "Something wrong with hero recruited!";
+		logNetwork->errorStream() << "Something wrong with hero recruited!";
 	}
 
-	CGI->mh->printObject(h);
-
-	if(vstd::contains(cl->playerint,h->tempOwner))
+	bool needsPrinting = true;
+	if(vstd::contains(cl->playerint, h->tempOwner))
 	{
 		cl->playerint[h->tempOwner]->heroCreated(h);
 		if(const CGTownInstance *t = GS(cl)->getTown(tid))
+		{
 			cl->playerint[h->tempOwner]->heroInGarrisonChange(t);
+			needsPrinting = false;
+		}
+	}
+	if (needsPrinting)
+	{
+		CGI->mh->printObject(h);
 	}
 }
 
-void GiveHero::applyCl( CClient *cl )
+void GiveHero::applyCl(CClient *cl)
 {
 	CGHeroInstance *h = GS(cl)->getHero(id);
 	CGI->mh->printObject(h);
 	cl->playerint[h->tempOwner]->heroCreated(h);
 }
 
-void GiveHero::applyFirstCl( CClient *cl )
+void GiveHero::applyFirstCl(CClient *cl)
 {
 	CGI->mh->hideObject(GS(cl)->getHero(id));
 }
 
-void InfoWindow::applyCl( CClient *cl )
+void InfoWindow::applyCl(CClient *cl)
 {
 	std::vector<Component*> comps;
 	for(auto & elem : components)
@@ -532,10 +536,10 @@ void InfoWindow::applyCl( CClient *cl )
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint.at(player)->showInfoDialog(str,comps,(soundBase::soundID)soundID);
 	else
-        logNetwork->warnStream() << "We received InfoWindow for not our player...";
+		logNetwork->warnStream() << "We received InfoWindow for not our player...";
 }
 
-void SetObjectProperty::applyCl( CClient *cl )
+void SetObjectProperty::applyCl(CClient *cl)
 {
 	//inform all players that see this object
 	for(auto it = cl->playerint.cbegin(); it != cl->playerint.cend(); ++it)
@@ -545,7 +549,7 @@ void SetObjectProperty::applyCl( CClient *cl )
 	}
 }
 
-void HeroLevelUp::applyCl( CClient *cl )
+void HeroLevelUp::applyCl(CClient *cl)
 {
 	//INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroGotLevel, h, primskill, skills, id);
 	if(vstd::contains(cl->playerint,hero->tempOwner))
@@ -556,7 +560,7 @@ void HeroLevelUp::applyCl( CClient *cl )
 	//	cb->selectionMade(0, queryID);
 }
 
-void CommanderLevelUp::applyCl( CClient *cl )
+void CommanderLevelUp::applyCl(CClient *cl)
 {
 	const CCommanderInstance * commander = hero->commander;
 	assert (commander);
@@ -567,7 +571,7 @@ void CommanderLevelUp::applyCl( CClient *cl )
 	}
 }
 
-void BlockingDialog::applyCl( CClient *cl )
+void BlockingDialog::applyCl(CClient *cl)
 {
 	std::string str;
 	text.toString(str);
@@ -575,7 +579,7 @@ void BlockingDialog::applyCl( CClient *cl )
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint.at(player)->showBlockingDialog(str,components,queryID,(soundBase::soundID)soundID,selection(),cancel());
 	else
-        logNetwork->warnStream() << "We received YesNoDialog for not our player...";
+		logNetwork->warnStream() << "We received YesNoDialog for not our player...";
 }
 
 void GarrisonDialog::applyCl(CClient *cl)
@@ -595,12 +599,12 @@ void ExchangeDialog::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(heroes[0]->tempOwner, heroExchangeStarted, heroes[0]->id, heroes[1]->id, queryID);
 }
 
-void TeleportDialog::applyCl( CClient *cl )
+void TeleportDialog::applyCl(CClient *cl)
 {
 	CALL_ONLY_THAT_INTERFACE(hero->tempOwner,showTeleportDialog,channel,exits,impassable,queryID);
 }
 
-void BattleStart::applyFirstCl( CClient *cl )
+void BattleStart::applyFirstCl(CClient *cl)
 {
 	//Cannot use the usual macro because curB is not set yet
 	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[0].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
@@ -611,7 +615,7 @@ void BattleStart::applyFirstCl( CClient *cl )
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 }
 
-void BattleStart::applyCl( CClient *cl )
+void BattleStart::applyCl(CClient *cl)
 {
 	cl->battleStarted(info);
 }
@@ -621,30 +625,30 @@ void BattleNextRound::applyFirstCl(CClient *cl)
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewRoundFirst,round);
 }
 
-void BattleNextRound::applyCl( CClient *cl )
+void BattleNextRound::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewRound,round);
 }
 
-void BattleSetActiveStack::applyCl( CClient *cl )
+void BattleSetActiveStack::applyCl(CClient *cl)
 {
 	if(!askPlayerInterface)
 		return;
 
-	const CStack * activated = GS(cl)->curB->battleGetStackByID(stack);
+	const CStack *activated = GS(cl)->curB->battleGetStackByID(stack);
 	PlayerColor playerToCall; //player that will move activated stack
-	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
+	if (activated->hasBonusOfType(Bonus::HYPNOTIZED))
 	{
-		playerToCall = ( GS(cl)->curB->sides[0].color == activated->owner 
-			? GS(cl)->curB->sides[1].color 
-			: GS(cl)->curB->sides[0].color );
+		playerToCall = (GS(cl)->curB->sides[0].color == activated->owner
+			? GS(cl)->curB->sides[1].color
+			: GS(cl)->curB->sides[0].color);
 	}
 	else
 	{
 		playerToCall = activated->owner;
 	}
-	if( vstd::contains(cl->battleints, playerToCall) )
-		boost::thread( std::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
+	if (vstd::contains(cl->battleints, playerToCall))
+		boost::thread(std::bind(&CClient::waitForMoveAndSend, cl, playerToCall));
 }
 
 void BattleTriggerEffect::applyCl(CClient * cl)
@@ -657,20 +661,25 @@ void BattleObstaclePlaced::applyCl(CClient * cl)
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleObstaclePlaced, *obstacle);
 }
 
-void BattleResult::applyFirstCl( CClient *cl )
+void BattleUpdateGateState::applyFirstCl(CClient * cl)
+{
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleGateStateChanged, state);
+}
+
+void BattleResult::applyFirstCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleEnd,this);
 	cl->battleFinished();
 }
 
-void BattleStackMoved::applyFirstCl( CClient *cl )
+void BattleStackMoved::applyFirstCl(CClient *cl)
 {
 	const CStack * movedStack = GS(cl)->curB->battleGetStackByID(stack);
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStackMoved,movedStack,tilesToMove,distance);
 }
 
-//void BattleStackAttacked::( CClient *cl )
-void BattleStackAttacked::applyFirstCl( CClient *cl )
+//void BattleStackAttacked::(CClient *cl)
+void BattleStackAttacked::applyFirstCl(CClient *cl)
 {
 	std::vector<BattleStackAttacked> bsa;
 	bsa.push_back(*this);
@@ -678,7 +687,7 @@ void BattleStackAttacked::applyFirstCl( CClient *cl )
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,bsa);
 }
 
-void BattleAttack::applyFirstCl( CClient *cl )
+void BattleAttack::applyFirstCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleAttack,this);
 	for (auto & elem : bsa)
@@ -690,34 +699,34 @@ void BattleAttack::applyFirstCl( CClient *cl )
 	}
 }
 
-void BattleAttack::applyCl( CClient *cl )
+void BattleAttack::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,bsa);
 }
 
-void StartAction::applyFirstCl( CClient *cl )
+void StartAction::applyFirstCl(CClient *cl)
 {
 	cl->curbaction = ba;
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionStarted, ba);
 }
 
-void BattleSpellCast::applyCl( CClient *cl )
+void BattleSpellCast::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleSpellCast,this);
 }
 
-void SetStackEffect::applyCl( CClient *cl )
+void SetStackEffect::applyCl(CClient *cl)
 {
 	//informing about effects
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksEffectsSet,*this);
 }
 
-void StacksInjured::applyCl( CClient *cl )
+void StacksInjured::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksAttacked,stacks);
 }
 
-void BattleResultsApplied::applyCl( CClient *cl )
+void BattleResultsApplied::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
@@ -728,7 +737,7 @@ void BattleResultsApplied::applyCl( CClient *cl )
 	}
 }
 
-void StacksHealedOrResurrected::applyCl( CClient *cl )
+void StacksHealedOrResurrected::applyCl(CClient *cl)
 {
 	std::vector<std::pair<ui32, ui32> > shiftedHealed;
 	for(auto & elem : healedStacks)
@@ -738,63 +747,63 @@ void StacksHealedOrResurrected::applyCl( CClient *cl )
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, tentHealing, drainedFrom);
 }
 
-void ObstaclesRemoved::applyCl( CClient *cl )
+void ObstaclesRemoved::applyCl(CClient *cl)
 {
 	//inform interfaces about removed obstacles
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleObstaclesRemoved, obstacles);
 }
 
-void CatapultAttack::applyCl( CClient *cl )
+void CatapultAttack::applyCl(CClient *cl)
 {
 	//inform interfaces about catapult attack
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleCatapultAttacked, *this);
 }
 
-void BattleStacksRemoved::applyCl( CClient *cl )
+void BattleStacksRemoved::applyFirstCl(CClient * cl)
 {
 	//inform interfaces about removed stacks
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksRemoved, *this);
 }
 
-void BattleStackAdded::applyCl( CClient *cl )
+void BattleStackAdded::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleNewStackAppeared, GS(cl)->curB->stacks.back());
 }
 
-CGameState* CPackForClient::GS( CClient *cl )
+CGameState* CPackForClient::GS(CClient *cl)
 {
 	return cl->gs;
 }
 
-void EndAction::applyCl( CClient *cl )
+void EndAction::applyCl(CClient *cl)
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionFinished, *cl->curbaction);
 	cl->curbaction.reset();
 }
 
-void PackageApplied::applyCl( CClient *cl )
+void PackageApplied::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(!cl->waitingRequest.tryRemovingElement(requestID))
-        logNetwork->warnStream() << "Surprising server message!";
+		logNetwork->warnStream() << "Surprising server message!";
 }
 
-void SystemMessage::applyCl( CClient *cl )
+void SystemMessage::applyCl(CClient *cl)
 {
 	std::ostringstream str;
 	str << "System message: " << text;
 
-    logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
-	if(LOCPLINT)
+	logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
+	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
 		LOCPLINT->cingconsole->print(str.str());
 }
 
-void PlayerBlocked::applyCl( CClient *cl )
+void PlayerBlocked::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason, startOrEnd==BLOCKADE_STARTED);
 }
 
-void YourTurn::applyCl( CClient *cl )
+void YourTurn::applyCl(CClient *cl)
 {
 	CALL_IN_ALL_INTERFACES(playerStartsTurn, player);
 	CALL_ONLY_THAT_INTERFACE(player,yourTurn);
@@ -802,27 +811,27 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	CFileInfo info(fname);
-	CResourceHandler::get("local")->createResource(info.getStem() + ".vcgm1");
+	const auto stem = FileInfo::GetPathStem(fname);
+	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
 
 	try
 	{
-		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		CSaveFile save(*CResourceHandler::get()->getResourceName(ResourceID(stem.to_string(), EResType::CLIENT_SAVEGAME)));
 		cl->saveCommonState(save);
 		save << *cl;
 	}
 	catch(std::exception &e)
 	{
-        logNetwork->errorStream() << "Failed to save game:" << e.what();
+		logNetwork->errorStream() << "Failed to save game:" << e.what();
 	}
 }
 
 void PlayerMessage::applyCl(CClient *cl)
 {
-	std::ostringstream str;
-	str << "Player "<< player <<" sends a message: " << text;
+	logNetwork->debugStream() << "Player "<< player <<" sends a message: " << text;
 
-    logNetwork->debugStream() << str.str();
+	std::ostringstream str;
+	str << cl->getPlayer(player)->nodeName() <<": " << text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }
@@ -955,6 +964,6 @@ void TradeComponents::applyCl(CClient *cl)
 	case Obj::TRADING_POST_SNOW:
 		break;
 	default:
-        logNetwork->warnStream() << "Shop type not supported!";
+		logNetwork->warnStream() << "Shop type not supported!";
 	}
 }

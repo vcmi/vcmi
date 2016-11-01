@@ -15,9 +15,93 @@
 #include "../CRandomGenerator.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../NetPacks.h"
-#include "../BattleState.h"
-#include "../CGameState.h"
 #include "../CGameInfoCallback.h"
+#include "../mapping/CMap.h"
+#include "../CPlayerState.h"
+
+///AdventureSpellMechanics
+bool AdventureSpellMechanics::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	if(!owner->isAdventureSpell())
+	{
+		env->complain("Attempt to cast non adventure spell in adventure mode");
+		return false;
+	}
+
+	const CGHeroInstance * caster = parameters.caster;
+
+	if(caster->inTownGarrison)
+	{
+		env->complain("Attempt to cast an adventure spell in town garrison");
+		return false;
+	}
+
+	const int cost = caster->getSpellCost(owner);
+
+	if(!caster->canCastThisSpell(owner))
+	{
+		env->complain("Hero cannot cast this spell!");
+		return false;
+	}
+
+	if(caster->mana < cost)
+	{
+		env->complain("Hero doesn't have enough spell points to cast this spell!");
+		return false;
+	}
+
+	{
+		AdvmapSpellCast asc;
+		asc.caster = caster;
+		asc.spellID = owner->id;
+		env->sendAndApply(&asc);
+	}
+
+	switch(applyAdventureEffects(env, parameters))
+	{
+	case ESpellCastResult::OK:
+		{
+			SetMana sm;
+			sm.hid = caster->id;
+			sm.absolute = false;
+			sm.val = -cost;
+			env->sendAndApply(&sm);
+			return true;
+		}
+		break;
+	case ESpellCastResult::CANCEL:
+		return true;
+	}
+	return false;
+}
+
+ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+{
+	if(owner->hasEffects())
+	{
+		const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+
+		std::vector<Bonus> bonuses;
+
+		owner->getEffects(bonuses, schoolLevel);
+
+		for(Bonus b : bonuses)
+		{
+			GiveBonus gb;
+			gb.id = parameters.caster->id.getNum();
+			gb.bonus = b;
+			env->sendAndApply(&gb);
+		}
+
+		return ESpellCastResult::OK;
+	}
+	else
+	{
+		//There is no generic algorithm of adventure cast
+		env->complain("Unimplemented adventure spell");
+		return ESpellCastResult::ERROR;
+	}
+}
 
 ///SummonBoatMechanics
 ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
@@ -146,15 +230,19 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 		return ESpellCastResult::ERROR;
 	}
 
-	if(parameters.caster->movement <= 0)
+	if(parameters.caster->movement <= 0) //unlike town portal non-zero MP is enough
 	{
 		env->complain("Hero needs movement points to cast Dimension Door!");
 		return ESpellCastResult::ERROR;
 	}
 
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((schoolLevel >= 3) ? 2 : 3);
 
-	if(parameters.caster->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= owner->getPower(schoolLevel)) //limit casts per turn
+	std::stringstream cachingStr;
+	cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << owner->id.num;
+
+	if(parameters.caster->getBonuses(Selector::source(Bonus::SPELL_EFFECT, owner->id), Selector::all, cachingStr.str())->size() >= owner->getPower(schoolLevel)) //limit casts per turn
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
@@ -180,7 +268,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		smp.val = std::max<ui32>(0, parameters.caster->movement - 300);
+		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
 		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
@@ -203,9 +291,9 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 	}
 
 	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
-	
+
 	const auto relations = env->getCb()->getPlayerRelations(town->tempOwner, parameters.caster->tempOwner);
-	
+
 	if(relations == PlayerRelations::ENEMIES)
 	{
 		env->complain("Can't teleport to enemy!");
@@ -238,21 +326,21 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 		}
 
 	}
-	
-	const int movementCost = (parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 200 : 300;
-	
+
+	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
+
 	if(parameters.caster->movement < movementCost)
 	{
 		env->complain("This hero has not enough movement points!");
-		return ESpellCastResult::ERROR;		
+		return ESpellCastResult::ERROR;
 	}
-	
+
 	if(env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1))
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
 		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
-		env->sendAndApply(&smp);		
+		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
 }
@@ -261,17 +349,22 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment
 {
 	ShowWorldViewEx pack;
 
-	pack.player = parameters.caster->tempOwner;
+	pack.player = parameters.caster->getOwner();
 
 	const int spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
+	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
+
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
-		//todo:we need to send only not visible objects
-		
-		if(obj)//for some reason deleted object remain as empty pointer
-			if(filterObject(obj, spellLevel))
-				pack.objectPositions.push_back(ObjectPosInfo(obj));
+		//deleted object remain as empty pointer
+		if(obj && filterObject(obj, spellLevel))
+		{
+			ObjectPosInfo posInfo(obj);
+
+			if(fowMap[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
+				pack.objectPositions.push_back(posInfo);
+		}
 	}
 
 	env->sendAndApply(&pack);

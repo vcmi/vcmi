@@ -2,11 +2,8 @@
 
 
 #include "../lib/FunctionList.h"
-#include "../lib/CGameState.h"
-#include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"
-#include "../lib/NetPacks.h"
 #include "CQuery.h"
 
 
@@ -38,9 +35,6 @@ class IMarket;
 
 class ServerSpellCastEnvironment;
 
-extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
-extern boost::mutex gsm;
-
 struct PlayerStatus
 {
 	bool makingTurn;
@@ -71,13 +65,16 @@ public:
 struct CasualtiesAfterBattle
 {
 	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
+	typedef std::map<CreatureID, TQuantity> TSummoned;
 	enum {ERASE = -1};
+	const CArmedInstance * army;
 	std::vector<TStackAndItsNewCount> newStackCounts;
 	std::vector<ArtifactLocation> removedWarMachines;
-	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack loactions
+	TSummoned summoned;
+	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
-	void takeFromArmy(CGameHandler *gh);
+	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
+	void updateArmy(CGameHandler *gh);
 };
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
@@ -98,11 +95,8 @@ public:
 	ui32 QID;
 	Queries queries;
 
-	//TODO get rid of cfunctionlist (or similar) and use serialziable callback structure
-	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
-
 	bool isValidObject(const CGObjectInstance *obj) const;
-	bool isBlockedByQueries(const CPack *pack, PlayerColor player); 
+	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
@@ -114,7 +108,7 @@ public:
 	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex); //distance - number of hexes travelled before attacking
 	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
-	void checkForBattleEnd();
+	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 	void duelFinished();
@@ -130,10 +124,9 @@ public:
 	void setBlockVis(ObjectInstanceID objid, bool bv) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override;
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override; 
-	//void showInfoDialog(InfoWindow *iw) override;
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
 
-	void showBlockingDialog(BlockingDialog *iw) override; 
+	void showBlockingDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) override;
@@ -142,7 +135,7 @@ public:
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override;
-	bool changeStackType(const StackLocation &sl, CCreature *c) override;
+	bool changeStackType(const StackLocation &sl, const CCreature *c) override;
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override;
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override;
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override;
@@ -150,12 +143,12 @@ public:
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override;
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override;
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override;
-	
+
 	void removeAfterVisit(const CGObjectInstance *object) override;
 
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
-	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override; 
+	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override;
 	void synchronizeArtifactHandlerLists() override;
@@ -163,10 +156,9 @@ public:
 	void showCompInfo(ShowInInfobox * comp) override;
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
-	//bool removeArtifact(const CArtifact* art, int hid) override;
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override; //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override; //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, std::function<void(BattleResult*)> cb) override; //for hero<=>neutral army
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(ObjectInstanceID objid, ui32 val) override;
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
@@ -201,11 +193,13 @@ public:
 	void handleConnection(std::set<PlayerColor> players, CConnection &c);
 	PlayerColor getPlayerAt(CConnection *c) const;
 
-	void playerMessage( PlayerColor player, const std::string &message, ObjectInstanceID currObj);
+	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
+	void updateGateState();
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 	bool makeCustomAction(BattleAction &ba);
-	void stackTurnTrigger(const CStack * stack);
+	void stackAppearTrigger(const CStack *stack);
+	void stackTurnTrigger(const CStack *stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
 	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( QueryID qid, ui32 answer, PlayerColor player );
@@ -245,12 +239,16 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID & states & finishingBattle;
+		if(version >= 761)
+		{
+			h & getRandomGenerator();
+		}
 	}
 
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void sendToAllClients(CPackForClient * info);
-	void sendAndApply(CPackForClient * info);
+	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
 	void sendAndApply(SetResource * info);
@@ -260,9 +258,9 @@ public:
 	struct FinishingBattleHelper
 	{
 		FinishingBattleHelper();
-		FinishingBattleHelper(shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
+		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
 
-		//shared_ptr<const CBattleQuery> query;
+		//std::shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 		bool duel;
@@ -275,18 +273,21 @@ public:
 		}
 	};
 
-	unique_ptr<FinishingBattleHelper> finishingBattle;
+	std::unique_ptr<FinishingBattleHelper> finishingBattle;
 
 	void battleAfterLevelUp(const BattleResult &result);
 
 	void run(bool resume);
 	void newTurn();
-	void handleAttackBeforeCasting (const BattleAttack & bat);
+	void handleAttackBeforeCasting(BattleAttack *bat);
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
+	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
 	friend class CVCMIServer;
+
+	CRandomGenerator & getRandomGenerator();
 
 private:
 	ServerSpellCastEnvironment * spellEnv;

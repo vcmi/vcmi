@@ -70,6 +70,8 @@
 			{
 				"templates" : {
 					"castle" :  { "animation" : "AVCtowx0.def" },
+					"citadel" : { "animation" : "AVCtowx0.def" },
+					"fort"    : { "animation" : "AVCtowx0.def" },
 					"village" : { "animation" : "AVCTOWR0.DEF" },
 					"capitol" : { "animation" : "AVCTOWZ0.DEF" }
 				}
@@ -146,6 +148,7 @@
 			"mageGuild" : 5,
 			"warMachine" : "ammoCart",
 			"moatDamage" : 0, //TODO: minefield
+			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
 
 			"buildings" :
 			{

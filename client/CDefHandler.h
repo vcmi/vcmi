@@ -85,7 +85,9 @@ private:
 		int group;
 	} ;
 	std::vector<SEntry> SEntries ;
-
+	
+	void openFromMemory(ui8 * table, const std::string & name);	
+	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const;
 public:
 	int width, height; //width and height
 	std::string defName;
@@ -94,9 +96,7 @@ public:
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const; //saves picture with given number to "testtt.bmp"
-	static void expand(ui8 N,ui8 & BL, ui8 & BR);
-	void openFromMemory(ui8 * table, const std::string & name);
+	
 	CDefEssential * essentialize();
 
 	static CDefHandler * giveDef(const std::string & defName);

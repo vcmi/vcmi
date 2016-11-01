@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
 
 typedef si32 TResource;
@@ -125,6 +125,7 @@ namespace Res
 		}
 
 		DLL_LINKAGE void amax(const TResourceCap &val); //performs vstd::amax on each element
+		DLL_LINKAGE void amin(const TResourceCap &val); //performs vstd::amin on each element
 		DLL_LINKAGE void positive(); //values below 0 are set to 0 - upgrade cost can't be negative, for example
 		DLL_LINKAGE bool nonZero() const; //returns true if at least one value is non-zero;
 		DLL_LINKAGE bool canAfford(const ResourceSet &price) const;

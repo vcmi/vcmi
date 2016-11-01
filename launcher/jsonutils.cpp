@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "jsonutils.h"
+#include "../lib/filesystem/FileStream.h"
 
 static QVariantMap JsonToMap(const JsonMap & json)
 {
@@ -96,8 +97,7 @@ JsonNode toJson(QVariant object)
 
 void JsonToFile(QString filename, QVariant object)
 {
-	std::ofstream file(filename.toUtf8().data(), std::ofstream::binary);
-
+	FileStream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
 	file << toJson(object);
 }
 

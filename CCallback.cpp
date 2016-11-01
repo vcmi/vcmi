@@ -12,18 +12,12 @@
 #include "lib/mapObjects/CObjectClassesHandler.h"
 #include "lib/CGeneralTextHandler.h"
 #include "lib/CHeroHandler.h"
-#include "lib/Connection.h"
 #include "lib/NetPacks.h"
 #include "client/mapHandler.h"
 #include "lib/spells/CSpellHandler.h"
 #include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
+#include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
 
 /*
@@ -60,7 +54,7 @@ int CCallback::selectionMade(int selection, QueryID queryID)
 	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == QueryID(-1))
 	{
-        logGlobal->errorStream() << "Cannot answer the query -1!";
+		logGlobal->errorStream() << "Cannot answer the query -1!";
 		return false;
 	}
 
@@ -71,7 +65,8 @@ int CCallback::selectionMade(int selection, QueryID queryID)
 
 void CCallback::recruitCreatures(const CGDwelling *obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level/*=-1*/)
 {
-	if(player!=obj->tempOwner  &&  obj->ID != Obj::WAR_MACHINE_FACTORY)
+	// TODO exception for neutral dwellings shouldn't be hardcoded
+	if(player != obj->tempOwner && obj->ID != Obj::WAR_MACHINE_FACTORY && obj->ID != Obj::REFUGEE_CAMP)
 		return;
 
 	RecruitCreatures pack(obj->id, dst->id, ID, amount, level);
@@ -80,7 +75,7 @@ void CCallback::recruitCreatures(const CGDwelling *obj, const CArmedInstance * d
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
 {
-	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
+	if((player && obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);
@@ -97,7 +92,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-    logGlobal->traceStream() << "Player " << *player << " ended his turn.";
+	logGlobal->traceStream() << "Player " << *player << " ended his turn.";
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
@@ -189,7 +184,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 	int requestID = cl->sendRequest(request, *player);
 	if(waitTillRealize)
 	{
-        logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
+		logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
 		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(getGsMutex(), unlockGsWhenWaiting);
 		cl->waitingRequest.waitWhileContains(requestID);
 	}
@@ -230,7 +225,6 @@ void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode m
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
-	const_cast<CGHeroInstance*>(hero)-> formation = tight;
 	SetFormation pack(hero->id,tight);
 	sendRequest(&pack);
 }
@@ -290,11 +284,6 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
 }
 
-int CCallback::getMovementCost(const CGHeroInstance * hero, int3 dest)
-{
-	return gs->getMovementCost(hero, hero->visitablePos(), dest, hero->hasBonusOfType (Bonus::FLYING_MOVEMENT), hero->movement);
-}
-
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
 {
 	return cl->getPathsInfo(h);
@@ -331,6 +320,8 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 
 void CCallback::unregisterAllInterfaces()
 {
+	for (auto& pi : cl->playerint)
+		pi.second->finish();
 	cl->playerint.clear();
 	cl->battleints.clear();
 }
@@ -343,22 +334,22 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return swapCreatures(s1, s2, p1, p2);
 }
 
-void CCallback::registerGameInterface(shared_ptr<IGameEventsReceiver> gameEvents)
+void CCallback::registerGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents)
 {
 	cl->additionalPlayerInts[*player].push_back(gameEvents);
 }
 
-void CCallback::registerBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents)
+void CCallback::registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents)
 {
 	cl->additionalBattleInts[*player].push_back(battleEvents);
 }
 
-void CCallback::unregisterGameInterface(shared_ptr<IGameEventsReceiver> gameEvents)
+void CCallback::unregisterGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents)
 {
 	cl->additionalPlayerInts[*player] -= gameEvents;
 }
 
-void CCallback::unregisterBattleInterface(shared_ptr<IBattleEventsReceiver> battleEvents)
+void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents)
 {
 	cl->additionalBattleInts[*player] -= battleEvents;
 }

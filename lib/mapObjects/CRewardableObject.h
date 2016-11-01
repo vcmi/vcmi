@@ -104,9 +104,10 @@ public:
 	/// if set to true, object will be removed after granting reward
 	bool removeObject;
 
-	/// Generates list of components that describes reward
-	virtual void loadComponents(std::vector<Component> & comps) const;
-	Component getDisplayedComponent() const;
+	/// Generates list of components that describes reward for a specific hero
+	virtual void loadComponents(std::vector<Component> & comps,
+	                            const CGHeroInstance * h) const;
+	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
 	CRewardInfo() :
 		gainedExp(0),
@@ -145,6 +146,7 @@ public:
 	si32 numOfGrants;
 
 	CVisitInfo():
+		selectChance(0),
 		numOfGrants(0)
 	{}
 
@@ -163,6 +165,7 @@ class DLL_LINKAGE CRewardableObject : public CArmedInstance
 
 	/// grants reward to hero
 	void grantRewardBeforeLevelup(const CVisitInfo & reward, const CGHeroInstance * hero) const;
+
 protected:
 	/// controls selection of reward granted to player
 	enum ESelectMode
@@ -184,9 +187,13 @@ protected:
 	/// filters list of visit info and returns rewards that can be granted to current hero
 	virtual std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const;
 
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
+	virtual void grantReward(ui32 rewardID, const CGHeroInstance * hero) const;
 
-	/// Rewars that can be granted by an object
+	virtual CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const;
+
+	virtual void triggerRewardReset() const;
+
+	/// Rewards that can be granted by an object
 	std::vector<CVisitInfo> info;
 
 	/// MetaString's that contain text for messages for specific situations
@@ -215,14 +222,14 @@ public:
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 
 	/// Visitability checks. Note that hero check includes check for hero owner (returns true if object was visited by player)
-	bool wasVisited (PlayerColor player) const override;
-	bool wasVisited (const CGHeroInstance * h) const override;
+	bool wasVisited(PlayerColor player) const override;
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	/// gives reward to player or ask for choice in case of multiple rewards
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
 	///possibly resets object state
-	void newTurn() const override;
+	void newTurn(CRandomGenerator & rand) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(const CGHeroInstance *hero) const override;
@@ -250,7 +257,7 @@ public:
 class DLL_LINKAGE CGPickable : public CRewardableObject //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGPickable();
 
@@ -262,10 +269,19 @@ public:
 
 class DLL_LINKAGE CGBonusingObject : public CRewardableObject //objects giving bonuses to luck/morale/movement
 {
+protected:
+	CVisitInfo getVisitInfo(int index, const CGHeroInstance *h) const override;
+
+	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
+
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGBonusingObject();
+
+	void onHeroVisit(const CGHeroInstance *h) const override;
+
+	bool wasVisited(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -276,7 +292,7 @@ public:
 class DLL_LINKAGE CGOnceVisitable : public CRewardableObject // wagon, corpse, lean to, warriors tomb
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGOnceVisitable();
 
@@ -289,7 +305,7 @@ public:
 class DLL_LINKAGE CGVisitableOPH : public CRewardableObject //objects visitable only once per hero
 {
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGVisitableOPH();
 
@@ -301,10 +317,16 @@ public:
 
 class DLL_LINKAGE CGVisitableOPW : public CRewardableObject //objects visitable once per week
 {
+protected:
+	void triggerRewardReset() const override;
+
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 
 	CGVisitableOPW();
+
+	void setPropertyDer(ui8 what, ui32 val) override;
+	void setRandomReward(CRandomGenerator & rand);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -319,7 +341,7 @@ protected:
 	std::vector<ui32> getAvailableRewards(const CGHeroInstance * hero) const override;
 
 public:
-	void initObj() override;
+	void initObj(CRandomGenerator & rand) override;
 	std::vector<int3> getVisitableOffsets() const;
 	int3 getVisitableOffset() const override;
 

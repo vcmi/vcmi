@@ -5,7 +5,7 @@
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 
-static shared_ptr<CBattleCallback> cbc;
+static std::shared_ptr<CBattleCallback> cbc;
 
 CStupidAI::CStupidAI(void)
 	: side(-1)
@@ -19,7 +19,7 @@ CStupidAI::~CStupidAI(void)
 	print("destroyed");
 }
 
-void CStupidAI::init(shared_ptr<CBattleCallback> CB)
+void CStupidAI::init(std::shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;
@@ -44,7 +44,7 @@ struct EnemyInfo
 	{}
 	void calcDmg(const CStack * ourStack)
 	{
-		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
+		TDmgRange retal, dmg = cbc->battleEstimateDamage(CRandomGenerator::getDefault(), ourStack, s, &retal);
 		adi = (dmg.first + dmg.second) / 2;
 		adr = (retal.first + retal.second) / 2;
 	}
@@ -108,7 +108,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	if(stack->type->idNumber == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
-		static const std::vector<int> wallHexes = {50, 183, 182, 130, 62, 29, 12, 95};
+		static const std::vector<int> wallHexes = {50, 183, 182, 130, 78, 29, 12, 95};
 
 		attack.destinationTile = *RandomGeneratorUtil::nextItem(wallHexes, CRandomGenerator::getDefault());
 		attack.actionType = Battle::CATAPULT;
@@ -152,6 +152,12 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 				enemiesUnreachable.push_back(s);
 		}
 	}
+
+	for ( auto & enemy : enemiesReachable )
+		enemy.calcDmg( stack );
+
+	for ( auto & enemy : enemiesShootable )
+		enemy.calcDmg( stack );
 
 	if(enemiesShootable.size())
 	{
@@ -255,7 +261,7 @@ void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CStupidAI::print(const std::string &text) const
 {
-    logAi->traceStream() << "CStupidAI [" << this <<"]: " << text;
+	logAi->trace("CStupidAI  [%p]: %s", this, text);
 }
 
 BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
@@ -270,7 +276,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	auto destNeighbours = destination.neighbouringTiles();
 	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
 	{
-        logAi->warnStream() << "Warning: already standing on neighbouring tile!";
+		logAi->warn("Warning: already standing on neighbouring tile!");
 		//We shouldn't even be here...
 		return BattleAction::makeDefend(stack);
 	}
@@ -321,13 +327,13 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	}
 }
 
-void CStupidAI::saveGame(COSer & h, const int version)
+void CStupidAI::saveGame(BinarySerializer & h, const int version)
 {
 	//TODO to be implemented with saving/loading during the battles
 	assert(0);
 }
 
-void CStupidAI::loadGame(CISer & h, const int version)
+void CStupidAI::loadGame(BinaryDeserializer & h, const int version)
 {
 	//TODO to be implemented with saving/loading during the battles
 	assert(0);

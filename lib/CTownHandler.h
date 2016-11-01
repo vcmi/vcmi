@@ -6,6 +6,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
+#include "BattleHex.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -21,6 +22,7 @@ class CLegacyConfigParser;
 class JsonNode;
 class CTown;
 class CFaction;
+struct BattleHex;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
@@ -120,8 +122,8 @@ public:
 
 	std::string creatureBg120;
 	std::string creatureBg130;
-	
-	
+
+
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
@@ -136,9 +138,11 @@ class DLL_LINKAGE CTown
 public:
 	CTown();
 	~CTown();
+	// TODO: remove once save and mod compatability not needed
+	static std::vector<BattleHex> defaultMoatHexes();
 
 	CFaction * faction;
-	
+
 	std::vector<std::string> names; //names of the town instances
 
 	/// level -> list of creatures on this tier
@@ -156,6 +160,7 @@ public:
 	ui16 primaryRes;
 	ArtifactID warMachine;
 	si32 moatDamage;
+	std::vector<BattleHex> moatHexes;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -205,7 +210,16 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo & moatDamage & defaultTavernChance;
+			& primaryRes & warMachine & clientInfo & moatDamage;
+		if(version >= 758)
+		{
+			h & moatHexes;
+		}
+		else if(!h.saving)
+		{
+			moatHexes = defaultMoatHexes();
+		}
+		h & defaultTavernChance;
 
 		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
 		{ return building.second == nullptr; };
@@ -250,7 +264,7 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	CFaction * loadFromJson(const JsonNode & data, std::string identifier);
+	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 
 public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;
@@ -267,6 +281,12 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
+
+	//json serialization helper
+	static si32 decodeFaction(const std::string & identifier);
+
+	//json serialization helper
+	static std::string encodeFaction(const si32 index);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

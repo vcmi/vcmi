@@ -1,6 +1,5 @@
 #include "StdInc.h"
 #include "VCAI.h"
-#include "Goals.h"
 #include "Fuzzy.h"
 
 #include "../../lib/UnlockGuard.h"
@@ -8,10 +7,14 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
-
+#include "../../lib/CGameState.h"
+#include "../../lib/NetPacks.h"
+#include "../../lib/serializer/CTypeList.h"
+#include "../../lib/serializer/BinarySerializer.h"
+#include "../../lib/serializer/BinaryDeserializer.h"
 
 /*
- * CCreatureHandler.h, part of VCMI engine
+ * VCAI.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -26,8 +29,6 @@ class CGVisitableOPW;
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least this much gold (10000 so at least we'll be able to reach capitol)
-
-using namespace vstd;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -96,11 +97,13 @@ VCAI::VCAI(void)
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
+	destinationTeleportPos = int3(-1);
 }
 
 VCAI::~VCAI(void)
 {
 	LOG_TRACE(logAi);
+	finish();
 }
 
 void VCAI::availableCreaturesChanged(const CGDwelling *town)
@@ -115,14 +118,16 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	NET_EVENT_HANDLER;
 
 	validateObject(details.id); //enemy hero may have left visible area
+	auto hero = cb->getHero(details.id);
+	cachedSectorMaps.clear();
+
+	const int3 from = CGHeroInstance::convertPosition(details.start, false),
+		to = CGHeroInstance::convertPosition(details.end, false);
+	const CGObjectInstance *o1 = vstd::frontOrNull(cb->getVisitableObjs(from)),
+		*o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const int3 from = CGHeroInstance::convertPosition(details.start, false),
-			to = CGHeroInstance::convertPosition(details.end, false);
-		const CGObjectInstance *o1 = frontOrNull(cb->getVisitableObjs(from)),
-			*o2 = frontOrNull(cb->getVisitableObjs(to));
-
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -133,10 +138,21 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				{
 					knownSubterraneanGates[o1] = o2;
 					knownSubterraneanGates[o2] = o1;
-					logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
+					logAi->debug("Found a pair of subterranean gates between %s and %s!", from(), to());
 				}
 			}
 		}
+	}
+	else if(details.result == TryMoveHero::EMBARK && hero)
+	{
+		//make sure AI not attempt to visit used boat
+		validateObject(hero->boat);
+	}
+	else if(details.result == TryMoveHero::DISEMBARK && o1)
+	{
+		auto boat = dynamic_cast<const CGBoat *>(o1);
+		if(boat)
+			addVisitableObj(boat);
 	}
 }
 
@@ -209,17 +225,17 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
 	NET_EVENT_HANDLER;
-	logAi->debugStream() << boost::format("Player %d: I heard that player %d %s.") % playerID % player.getNum() % (victoryLossCheckResult.victory() ? "won" : "lost");
+	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(),(victoryLossCheckResult.victory() ? "won" : "lost"));
 	if(player == playerID)
 	{
 		if(victoryLossCheckResult.victory())
 		{
-            logAi->debugStream() << "VCAI: I won! Incredible!";
-            logAi->debugStream() << "Turn nr " << myCb->getDate();
+			logAi->debug("VCAI: I won! Incredible!");
+			logAi->debug("Turn nr %d", myCb->getDate());
 		}
 		else
 		{
-            logAi->debugStream() << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(";
+			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
 
 		finish();
@@ -286,6 +302,7 @@ void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> &pos)
 	NET_EVENT_HANDLER;
 
 	validateVisitableObjs();
+	clearPathsInfo();
 }
 
 void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
@@ -296,7 +313,7 @@ void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 		for(const CGObjectInstance *obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
 
-	clearHeroesUnableToExplore();
+	clearPathsInfo();
 }
 
 void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
@@ -307,7 +324,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
 
-	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s and %s") % firstHero->name % secondHero->name));
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->name % firstHero->tempOwner % secondHero->name % secondHero->tempOwner));
 
 	requestActionASAP([=]()
 	{
@@ -326,9 +343,13 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 			this->pickBestArtifacts(h1, h2);
 		};
 
-		if (goalpriority1 > goalpriority2)
+		//Do not attempt army or artifacts exchange if we visited ally player
+		//Visits can still be useful if hero have skills like Scholar
+		if(firstHero->tempOwner != secondHero->tempOwner)
+			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
+		else if(goalpriority1 > goalpriority2)
 			transferFrom2to1 (firstHero, secondHero);
-		else if (goalpriority1 < goalpriority2)
+		else if(goalpriority1 < goalpriority2)
 			transferFrom2to1 (secondHero, firstHero);
 		else //regular criteria
 		{
@@ -382,7 +403,7 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	if(obj->isVisitable())
 		addVisitableObj(obj);
 
-	clearHeroesUnableToExplore();
+	cachedSectorMaps.clear();
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
@@ -390,11 +411,26 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	erase_if_present(visitableObjs, obj);
-	erase_if_present(alreadyVisited, obj);
+	vstd::erase_if_present(visitableObjs, obj);
+	vstd::erase_if_present(alreadyVisited, obj);
 
 	for (auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
+
+	//TODO: Find better way to handle hero boat removal
+	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
+	{
+		if(hero->boat)
+		{
+			vstd::erase_if_present(visitableObjs, hero->boat);
+			vstd::erase_if_present(alreadyVisited, hero->boat);
+
+			for (auto h : cb->getHeroesInfo())
+				unreserveObject(h, hero->boat);
+		}
+	}
+
+	cachedSectorMaps.clear(); //invalidate all paths
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
@@ -510,17 +546,14 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		//we don't want to visit know object twice (do we really?)
-		if(sop->val == playerID.getNum())
-			erase_if_present(visitableObjs, myCb->getObj(sop->id));
-		else if (myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
 		{
 			//we want to visit objects owned by oppponents
 			auto obj = myCb->getObj(sop->id, false);
 			if (obj)
 			{
-				addVisitableObj(obj);
-				erase_if_present(alreadyVisited, obj);
+				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
+				vstd::erase_if_present(alreadyVisited, obj);
 			}
 		}
 	}
@@ -551,7 +584,7 @@ void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(shared_ptr<CCallback> CB)
+void VCAI::init(std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;
@@ -611,33 +644,46 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, std::vector<ObjectInstanceID> exits, bool impassable, QueryID askID)
+void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
+//	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
 																			% exits.size()));
 
-	ObjectInstanceID choosenExit;
+	int choosenExit = -1;
 	if(impassable)
 		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
-	else
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
 	{
-		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, destinationTeleport))
-			choosenExit = destinationTeleport;
+		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
+		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
+			choosenExit = vstd::find_pos(exits, neededExit);
+	}
 
-		if(!status.channelProbing())
+	for(auto exit : exits)
+	{
+		if(status.channelProbing() && exit.first == destinationTeleport)
 		{
-			vstd::copy_if(exits, vstd::set_inserter(teleportChannelProbingList), [&](ObjectInstanceID id) -> bool
+			choosenExit = vstd::find_pos(exits, exit);
+			break;
+		}
+		else
+		{
+			// TODO: Implement checking if visiting that teleport will uncovert any FoW
+			// So far this is the best option to handle decision about probing
+			auto obj = cb->getObj(exit.first, false);
+			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first) &&
+				exit.first != destinationTeleport)
 			{
-				return !(vstd::contains(visitableObjs, cb->getObj(id)) || id == choosenExit);
-			});
+				teleportChannelProbingList.push_back(exit.first);
+			}
 		}
 	}
 
 	requestActionASAP([=]()
 	{
-		answerQuery(askID, choosenExit.getNum());
+		answerQuery(askID, choosenExit);
 	});
 }
 
@@ -654,12 +700,14 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
-		pickBestCreatures (down, up);
+		if(removableUnits)
+			pickBestCreatures(down, up);
+
 		answerQuery(queryID, 0);
 	});
 }
 
-void VCAI::saveGame(COSer & h, const int version)
+void VCAI::saveGame(BinarySerializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
@@ -670,7 +718,7 @@ void VCAI::saveGame(COSer & h, const int version)
 	serializeInternal(h, version);
 }
 
-void VCAI::loadGame(CISer & h, const int version)
+void VCAI::loadGame(BinaryDeserializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
@@ -701,11 +749,11 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 void VCAI::makeTurn()
 {
+	logGlobal->info("Player %d (%s) starting turn", playerID, playerID.getStr());
+
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
-
-    logGlobal->infoStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
@@ -719,7 +767,7 @@ void VCAI::makeTurn()
 				if (isWeeklyRevisitable(obj))
 				{
 					addVisitableObj(obj);
-					erase_if_present (alreadyVisited, obj);
+					vstd::erase_if_present(alreadyVisited, obj);
 				}
 			}
 		}
@@ -751,7 +799,7 @@ void VCAI::makeTurnInternal()
 				continue; //hero might have been removed while we were in this loop
 			if(!hero.first.validAndSet())
 			{
-				logAi->errorStream() << "Hero " << hero.first.name << " present on reserved map. Shouldn't be. ";
+				logAi->error("Hero %s present on reserved map. Shouldn't be.", hero.first.name);
 				continue;
 			}
 
@@ -761,7 +809,7 @@ void VCAI::makeTurnInternal()
 			{
 				if(!obj || !cb->getObj(obj->id))
 				{
-					logAi->errorStream() << "Error: there is wrong object on list for hero " << hero.first->name;
+					logAi->error("Error: there is wrong object on list for hero %s", hero.first->name);
 					continue;
 				}
 				striveToGoal (sptr(Goals::VisitTile(obj->visitablePos()).sethero(hero.first)));
@@ -790,7 +838,7 @@ void VCAI::makeTurnInternal()
 			}
 			if (newMovement == oldMovement) //means our heroes didn't move or didn't re-assign their goals
 			{
-				logAi->warnStream() << "Our heroes don't move anymore, exhaustive decomposition failed";
+				logAi->warn("Our heroes don't move anymore, exhaustive decomposition failed");
 				break;
 			}
 			if (safeCopy.empty())
@@ -821,17 +869,17 @@ void VCAI::makeTurnInternal()
 		for (auto h : cb->getHeroesInfo())
 		{
 			if (h->movement)
-				logAi->warnStream() << boost::format("hero %s has %d MP left") % h->name % h->movement;
-		}	
+				logAi->warn("Hero %s has %d MP left", h->name, h->movement);
+		}
 	}
 	catch(boost::thread_interrupted &e)
 	{
-        logAi->debugStream() << "Making turn thread has been interrupted. We'll end without calling endTurn.";
+		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
 	catch(std::exception &e)
 	{
-        logAi->debugStream() << "Making turn thread has caught an exception: " << e.what();
+		logAi->debug("Making turn thread has caught an exception: %s", e.what());
 	}
 
 	endTurn();
@@ -840,9 +888,9 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	SectorMap sm(h);
-	logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getObjectName() % strFromInt3(dst);
-	int3 pos = sm.firstTileToGet(h, dst);
+	auto sm = getCachedSectorMap(h);
+	logAi->debug("%s will try to visit %s at (%s)",h->name, obj->getObjectName(), dst());
+	int3 pos = sm->firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
 		return false;
 	return moveHeroToTile(pos, h);
@@ -885,13 +933,13 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 
 	if(army->tempOwner != source->tempOwner)
 	{
-		logAi->errorStream() << "Why are we even considering exchange between heroes from different players?";
+		logAi->error("Why are we even considering exchange between heroes from different players?");
 		return false;
 	}
 
 
 	const CArmedInstance *armies[] = {army, source};
- 
+
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
 	for(auto armyPtr : armies)
@@ -926,7 +974,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  armyPtr != army) //it's a searched creature not in dst ARMY
 				{
 					//FIXME: line below is useless when simulating exchange between two non-singular armies
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
+					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
 						return true; //at least one exchange will be performed
 					else
 						return false; //no further exchange possible
@@ -973,7 +1021,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst SLOT
-					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1)) //can't take away last creature
+					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
 						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
 			}
 	}
@@ -988,7 +1036,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 }
 
 void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
-{	
+{
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
@@ -1033,8 +1081,11 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				if (location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
 					continue; //don't reequip artifact we already wear
 
+				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
+					continue;
+
 				auto s = location.getSlot();
-				if (!s)
+				if (!s || s->locked) //we can't move locks
 					continue;
 				auto artifact = s->artifact;
 				if (!artifact)
@@ -1044,9 +1095,10 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				bool emptySlotFound = false;
 				for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
 				{
-					if (target->isPositionFree(slot))
+					ArtifactLocation destLocation(target, slot);
+					if (target->isPositionFree(slot) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
 					{
-						cb->swapArtifacts(location, ArtifactLocation(target, slot)); //just put into empty slot
+						cb->swapArtifacts(location, destLocation); //just put into empty slot
 						emptySlotFound = true;
 						changeMade = true;
 						break;
@@ -1059,11 +1111,13 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 						auto otherSlot = target->getSlot(slot);
 						if (otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
 						{
-							if (compareArtifacts(artifact, otherSlot->artifact)) //if that artifact is better than what we have, pick it
+							ArtifactLocation destLocation(target, slot);
+							//if that artifact is better than what we have, pick it
+							if (compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(destLocation, true)) //combined artifacts are not always allowed to move
 							{
 								cb->swapArtifacts(location, ArtifactLocation(target, target->getArtPos(otherSlot->artifact)));
-								break;
 								changeMade = true;
+								break;
 							}
 						}
 					}
@@ -1096,7 +1150,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
+		vstd::amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1106,7 +1160,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 {
 	if (maxDays == 0)
 	{
-		logAi->warnStream() << "Request to build building " << building <<  " in 0 days!";
+		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
 		return false;
 	}
 
@@ -1148,7 +1202,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		{
 			if(!containsSavedRes(b->resources))
 			{
-                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
+				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
 				cb->buildBuilding(t, buildID);
 				return true;
 			}
@@ -1186,7 +1240,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 //{
 //		if (maxDays == 0)
 //	{
-//		logAi->warnStream() << "Request to build building " << building <<  " in 0 days!";
+//		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
 //		return false;
 //	}
 //
@@ -1229,7 +1283,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 //		{
 //			if(!containsSavedRes(b->resources))
 //			{
-//                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
+//				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
 //				return true;
 //			}
 //			continue;
@@ -1294,6 +1348,20 @@ bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingI
 	}
 	return false;//Nothing to build
 }
+
+//Set of buildings for different goals. Does not include any prerequisites.
+static const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+static const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+static const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 void VCAI::buildStructure(const CGTownInstance * t)
 {
@@ -1371,24 +1439,6 @@ bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
 	return false;
 }
 
-std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
-{
-	validateVisitableObjs();
-	std::vector<const CGObjectInstance *> possibleDestinations;
-	SectorMap sm(h);
-	for(const CGObjectInstance *obj : visitableObjs)
-	{
-		if (isGoodForVisit(obj, h, sm))
-		{
-			possibleDestinations.push_back(obj);
-		}
-	}
-
-	boost::sort(possibleDestinations, CDistanceSorter(h.get()));
-
-	return possibleDestinations;
-}
-
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t)
 {
 	if (t.valid())
@@ -1409,7 +1459,7 @@ bool VCAI::canRecruitAnyHero (const CGTownInstance * t) const
 	if (!t)
 		t = findTownWithTavern();
 	if (t)
-		return cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST &&
+		return cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST &&
 			cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES &&
 			cb->getAvailableHeroes(t).size();
 	else
@@ -1431,23 +1481,44 @@ void VCAI::wander(HeroPtr h)
 	while (h->movement)
 	{
 		validateVisitableObjs();
-		std::vector <ObjectIdRef> dests, tmp;
+		std::vector <ObjectIdRef> dests;
 
-		SectorMap sm(h);
+		auto sm = getCachedSectorMap(h);
 
-		range::copy(reservedHeroesMap[h], std::back_inserter(tmp)); //also visit our reserved objects - but they are not prioritized to avoid running back and forth
-		for (auto obj : tmp)
+		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
+		vstd::copy_if(reservedHeroesMap[h], std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 		{
-			int3 pos = sm.firstTileToGet(h, obj->visitablePos());
-			if (pos.valid())
-				if (isAccessibleForHero (pos, h)) //even nearby objects could be blocked by other heroes :(
-					dests.push_back(obj); //can't use lambda for member function :(
+			int3 pos = sm->firstTileToGet(h, obj->visitablePos());
+			if(pos.valid() && isAccessibleForHero(pos, h)) //even nearby objects could be blocked by other heroes :(
+				return true;
+
+			return false;
+		});
+
+		int pass = 0;
+		while(!dests.size() && pass < 3)
+		{
+			if(pass < 2) // optimization - first check objects in current sector; then in sectors around
+			{
+				auto objs = sm->getNearbyObjs(h, pass);
+				vstd::copy_if(objs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			else // we only check full objects list if for some reason there are no objects in closest sectors
+			{
+				vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
+				{
+					return isGoodForVisit(obj, h, *sm);
+				});
+			}
+			pass++;
 		}
 
-		range::copy(getPossibleDestinations(h), std::back_inserter(dests));
-		erase_if(dests, [&](ObjectIdRef obj) -> bool
+		vstd::erase_if(dests, [&](ObjectIdRef obj) -> bool
 		{
-			return !isSafeToVisit(h, sm.firstTileToGet(h, obj->visitablePos()));
+			return !isSafeToVisit(h, sm->firstTileToGet(h, obj->visitablePos()));
 		});
 
 		if(!dests.size())
@@ -1482,7 +1553,7 @@ void VCAI::wander(HeroPtr h)
 				boost::sort(townsNotReachable, compareReinforcements);
 				//TODO pick the truly best
 				const CGTownInstance *t = townsNotReachable.back();
-				logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
+				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s",h->name,t->name, t->visitablePos()());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h)));
 				//if out hero is stuck, we may need to request another hero to clear the way we see
@@ -1494,10 +1565,10 @@ void VCAI::wander(HeroPtr h)
 				}
 				break;
 			}
-			else if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST)
+			else if(cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST)
 			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
-				erase_if(towns, [](const CGTownInstance *t) -> bool
+				vstd::erase_if(towns, [](const CGTownInstance *t) -> bool
 				{
 					for(const CGHeroInstance *h : cb->getHeroesInfo())
 					if(!t->getArmyStrength() || howManyReinforcementsCanGet(h, t))
@@ -1511,7 +1582,7 @@ void VCAI::wander(HeroPtr h)
 			}
 			else
 			{
-				logAi->debugStream() << "Nowhere more to go...";
+				logAi->debug("Nowhere more to go...");
 				break;
 			}
 		}
@@ -1523,16 +1594,16 @@ void VCAI::wander(HeroPtr h)
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			const ObjectIdRef&dest = dests.front();
-			logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
+			logAi->debug("Of all %d destinations, object oid=%d seems nice",dests.size(), dest.id.getNum());
 			if(!goVisitObj(dest, h))
 			{
 				if(!dest)
 				{
-					logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
+					logAi->debug("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
 				}
 				else
 				{
-					logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
+					logAi->debug("Hero %s apparently used all MPs (%d left)", h->name, h->movement);
 					return;
 				}
 			}
@@ -1548,8 +1619,8 @@ void VCAI::wander(HeroPtr h)
 
 void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 { //TODO: check for presence?
-	if (goal->invalid())
-		erase_if_present(lockedHeroes, h);
+	if(goal->invalid())
+		vstd::erase_if_present(lockedHeroes, h);
 	else
 	{
 		lockedHeroes[h] = goal;
@@ -1559,14 +1630,14 @@ void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 
 void VCAI::completeGoal (Goals::TSubgoal goal)
 {
-	logAi->traceStream() << boost::format("Completing goal: %s") % goal->name();
+	logAi->trace("Completing goal: %s", goal->name());
 	if (const CGHeroInstance * h = goal->hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
 		if (it != lockedHeroes.end())
 			if (it->second == goal)
 			{
-				logAi->debugStream() << boost::format("%s") % goal->completeMessage();
+				logAi->debug(goal->completeMessage());
 				lockedHeroes.erase(it); //goal fulfilled, free hero
 			}
 	}
@@ -1576,7 +1647,7 @@ void VCAI::completeGoal (Goals::TSubgoal goal)
 		{
 			if (*(p.second) == *goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
 			{
-				logAi->debugStream() << boost::format("%s") % p.second->completeMessage();
+				logAi->debug(p.second->completeMessage());
 				return true;
 			}
 			return false;
@@ -1590,7 +1661,7 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
-	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
+	const CGObjectInstance *presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile);
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
@@ -1601,7 +1672,7 @@ void VCAI::battleEnd(const BattleResult *br)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-    logAi->debugStream() << boost::format("Player %d: I %s the %s!") % playerID % (won  ? "won" : "lost") % battlename;
+	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won  ? "won" : "lost"), battlename);
 	battlename.clear();
 	CAdventureAI::battleEnd(br);
 }
@@ -1625,13 +1696,13 @@ void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	reservedObjs.insert(obj);
 	reservedHeroesMap[h].insert(obj);
-	logAi->debugStream() << "reserved object id=" << obj->id << "; address=" << (intptr_t)obj << "; name=" << obj->getObjectName();
+	logAi->debug("reserved object id=%d; address=%p; name=%s", obj->id ,obj, obj->getObjectName());
 }
 
 void VCAI::unreserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
-	erase_if_present(reservedObjs, obj); //unreserve objects
-	erase_if_present(reservedHeroesMap[h], obj);
+	vstd::erase_if_present(reservedObjs, obj); //unreserve objects
+	vstd::erase_if_present(reservedHeroesMap[h], obj);
 }
 
 void VCAI::markHeroUnableToExplore (HeroPtr h)
@@ -1640,54 +1711,50 @@ void VCAI::markHeroUnableToExplore (HeroPtr h)
 }
 void VCAI::markHeroAbleToExplore (HeroPtr h)
 {
-	erase_if_present(heroesUnableToExplore, h);
+	vstd::erase_if_present(heroesUnableToExplore, h);
 }
 bool VCAI::isAbleToExplore (HeroPtr h)
 {
 	return !vstd::contains (heroesUnableToExplore, h);
 }
-void VCAI::clearHeroesUnableToExplore()
+void VCAI::clearPathsInfo()
 {
 	heroesUnableToExplore.clear();
+	cachedSectorMaps.clear();
 }
 
 void VCAI::validateVisitableObjs()
 {
-	std::vector<const CGObjectInstance *> hlp;
-	retreiveVisitableObjs(hlp, true);
-
 	std::string errorMsg;
 	auto shouldBeErased = [&](const CGObjectInstance *obj) -> bool
 	{
-		if(!vstd::contains(hlp, obj))
-		{
-			logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << errorMsg;
+		if (obj)
+			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
+		else
 			return true;
-		}
-		return false;
 	};
 
 	//errorMsg is captured by ref so lambda will take the new text
 	errorMsg = " shouldn't be on the visitable objects list!";
-	erase_if(visitableObjs, shouldBeErased);
+	vstd::erase_if(visitableObjs, shouldBeErased);
 
 	//FIXME: how comes our own heroes become inaccessible?
-	erase_if(reservedHeroesMap, [](std::pair<HeroPtr, std::set<const CGObjectInstance *>> hp) -> bool
+	vstd::erase_if(reservedHeroesMap, [](std::pair<HeroPtr, std::set<const CGObjectInstance *>> hp) -> bool
 	{
 		return !hp.first.get(true);
 	});
 	for(auto &p : reservedHeroesMap)
 	{
 		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
-		erase_if(p.second, shouldBeErased);
+		vstd::erase_if(p.second, shouldBeErased);
 	}
 
 	errorMsg = " shouldn't be on the reserved objs list!";
-	erase_if(reservedObjs, shouldBeErased);
+	vstd::erase_if(reservedObjs, shouldBeErased);
 
 	//TODO overkill, hidden object should not be removed. However, we can't know if hidden object is erased from game.
 	errorMsg = " shouldn't be on the already visited objs list!";
-	erase_if(alreadyVisited, shouldBeErased);
+	vstd::erase_if(alreadyVisited, shouldBeErased);
 }
 
 void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
@@ -1717,11 +1784,11 @@ void VCAI::retreiveVisitableObjs()
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
-	retreiveVisitableObjs(ret, true);
-	erase_if(ret, [](const CGObjectInstance *obj)
+	for(const CGObjectInstance *obj : visitableObjs)
 	{
-		return obj->tempOwner != ai->playerID;
-	});
+		if(obj->tempOwner == playerID)
+			ret.push_back(obj);
+	}
 	return ret;
 }
 
@@ -1740,7 +1807,7 @@ const CGObjectInstance * VCAI::lookForArt(int aid) const
 {
 	for(const CGObjectInstance *obj : ai->visitableObjs)
 	{
-		if(obj->ID == 5 && obj->subID == aid)
+		if(obj->ID == Obj::ARTIFACT && obj->subID == aid)
 			return obj;
 	}
 
@@ -1811,7 +1878,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
+	logAi->debug("Moving hero %s to tile %s", h->name, dst());
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1826,16 +1893,45 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		cb->getPathsInfo(h.get())->getPath(dst, path);
+		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-            logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
+			logAi->error("Hero %s cannot reach %s.", h->name, dst());
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
+		int i = path.nodes.size()-1;
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			auto tile = cb->getTile(coord, false);
+			assert(tile);
+			return tile->topVisitableObj(ignoreHero);
+			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+		};
+
+		auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
+		{
+			if(action != CGPathNode::TELEPORT_NORMAL &&
+				action != CGPathNode::TELEPORT_BLOCKING_VISIT &&
+				action != CGPathNode::TELEPORT_BATTLE)
+			{
+				return false;
+			}
+
+			return true;
+		};
+
+		auto getDestTeleportObj = [&](const CGObjectInstance * currentObject, const CGObjectInstance * nextObjectTop, const CGObjectInstance * nextObject) -> const CGObjectInstance *
+		{
+			if(CGTeleport::isConnected(currentObject, nextObjectTop))
+				return nextObjectTop;
+			if(nextObjectTop && nextObjectTop->ID == Obj::HERO &&
+				CGTeleport::isConnected(currentObject, nextObject))
+			{
+				return nextObject;
+			}
+
+			return nullptr;
 		};
 
 		auto doMovement = [&](int3 dst, bool transit)
@@ -1843,38 +1939,43 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
 
-		auto doTeleportMovement = [&](int3 dst, ObjectInstanceID exitId)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
-			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
+			if(exitPos.valid())
+				destinationTeleportPos = CGHeroInstance::convertPosition(exitPos, true);
+			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
+			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
 		};
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentExit = getObj(CGHeroInstance::convertPosition(h->pos,false), false);
-			assert(currentExit);
+			auto currentPos = CGHeroInstance::convertPosition(h->pos,false);
+			auto currentExit = getObj(currentPos, true)->id;
 
 			status.setChannelProbing(true);
 			for(auto exit : teleportChannelProbingList)
-				doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), exit);
+				doTeleportMovement(exit, int3(-1));
 			teleportChannelProbingList.clear();
-			doTeleportMovement(CGHeroInstance::convertPosition(h->pos,false), currentExit->id);
 			status.setChannelProbing(false);
+
+			doTeleportMovement(currentExit, currentPos);
 		};
 
-		int i=path.nodes.size()-1;
 		for(; i>0; i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;
 
 			auto currentObject = getObj(currentCoord, currentCoord == CGHeroInstance::convertPosition(h->pos,false));
-			auto nextObject = getObj(nextCoord, false);
-			if(CGTeleport::isConnected(currentObject, nextObject))
+			auto nextObjectTop = getObj(nextCoord, false);
+			auto nextObject = getObj(nextCoord, true);
+			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
+			if(isTeleportAction(path.nodes[i-1].action) && destTeleportObj != nullptr)
 			{ //we use special login if hero standing on teleporter it's mean we need
-				doTeleportMovement(currentCoord, nextObject->id);
+				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
 
@@ -1893,11 +1994,13 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				continue;
 
 			if((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
-				&& (CGTeleport::isConnected(nextObject, getObj(path.nodes[i-2].coord, false))
-					|| CGTeleport::isTeleport(nextObject)))
+				&& (CGTeleport::isConnected(nextObjectTop, getObj(path.nodes[i-2].coord, false))
+					|| CGTeleport::isTeleport(nextObjectTop)))
 			{ // Hero should be able to go through object if it's allow transit
 				doMovement(endpos, true);
 			}
+			else if(path.nodes[i-1].layer == EPathfindingLayer::AIR)
+				doMovement(endpos, true);
 			else
 				doMovement(endpos, false);
 
@@ -1906,11 +2009,10 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
 		}
-		ret = !i;
 	}
 	if (h)
 	{
-		if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+		if(auto visitedObject = vstd::frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 		{
 			if (visitedObject != *h)
 				performObjectInteraction (visitedObject, h);
@@ -1919,25 +2021,29 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	if(h) //we could have lost hero after last move
 	{
 		completeGoal (sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
-		if (!ret) //reserve object we are heading towards
+		completeGoal (sptr(Goals::ClearWayTo(dst).sethero(h)));
+
+		ret = (dst == h->visitablePos());
+
+		if(!ret) //reserve object we are heading towards
 		{
-			auto obj = frontOrNull(cb->getVisitableObjs(dst));
-			if (obj && obj != *h)
+			auto obj = vstd::frontOrNull(cb->getVisitableObjs(dst));
+			if(obj && obj != *h)
 				reserveObject(h, obj);
 		}
 
-		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
+		if(startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
-			erase_if_present (lockedHeroes, h); //hero seemingly is confused
+			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
-		logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos(), h->visitablePos()(), ret);
 	}
 	return ret;
 }
 void VCAI::tryRealize(Goals::Explore & g)
 {
-	throw cannotFulfillGoalException("EXPLORE is not a elementar goal!");
+	throw cannotFulfillGoalException("EXPLORE is not an elementar goal!");
 }
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
@@ -1956,8 +2062,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos()  &&  cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warnStream() << boost::format("Why do I want to move hero %s to tile %s? Already standing on that tile! ")
-												% g.hero->name % g.tile;
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile());
 		throw goalFulfilledException (sptr(g));
 	}
 	if (ai->moveHeroToTile(g.tile, g.hero.get()))
@@ -2015,7 +2120,7 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 void VCAI::tryRealize(Goals::DigAtTile & g)
 {
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
-	if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
+	if (g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
 		cb->dig(g.hero.get());
 		completeGoal(sptr(g)); // finished digging
@@ -2046,7 +2151,7 @@ void VCAI::tryRealize(Goals::CollectRes & g)
 				cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
 				if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 					return;
-			} 
+			}
 
 			throw cannotFulfillGoalException("I cannot get needed resources by trade!");
 		}
@@ -2066,7 +2171,7 @@ void VCAI::tryRealize(Goals::Build & g)
 {
 	for(const CGTownInstance *t : cb->getTownsInfo())
 	{
-        logAi->debugStream() << boost::format("Looking into %s") % t->name;
+		logAi->debug("Looking into %s", t->name);
 		buildStructure(t);
 		buildArmyIn(t);
 
@@ -2087,8 +2192,8 @@ void VCAI::tryRealize(Goals::Invalid & g)
 
 void VCAI::tryRealize(Goals::AbstractGoal & g)
 {
-    logAi->debugStream() << boost::format("Attempting realizing goal with code %s") % g.name();
-        throw cannotFulfillGoalException("Unknown type of goal !");
+	logAi->debug("Attempting realizing goal with code %s",g.name());
+	throw cannotFulfillGoalException("Unknown type of goal !");
 }
 
 const CGTownInstance * VCAI::findTownWithTavern() const
@@ -2149,10 +2254,10 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-    logAi->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
+	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
 	if(!status.haveTurn())
 	{
-        logAi->errorStream() << "Not having turn at the end of turn???";
+		logAi->error("Not having turn at the end of turn???");
 	}
 	logAi->debugStream() << "Resources at the end of turn: " << cb->getResourceAmount();
 
@@ -2161,7 +2266,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-    logGlobal->infoStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
+	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
 }
 
 void VCAI::striveToGoal(Goals::TSubgoal ultimateGoal)
@@ -2190,11 +2295,11 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 	while(1)
 	{
 		Goals::TSubgoal goal = ultimateGoal;
-        logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
+		logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
 		int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
-            logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
+			logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -2207,12 +2312,12 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				//it is impossible to continue some goals (like exploration, for example)
 				completeGoal (goal);
-                logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
+				logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
 				return sptr(Goals::Invalid());
 			}
 			catch(std::exception &e)
 			{
-                logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
+				logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
 				return sptr(Goals::Invalid());
 			}
 		}
@@ -2235,14 +2340,14 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				}
 				else
 				{
-					erase_if_present (lockedHeroes, goal->hero); // we seemingly don't know what to do with hero
+					vstd::erase_if_present (lockedHeroes, goal->hero); // we seemingly don't know what to do with hero
 				}
 			}
 
 			if (goal->isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-                logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
+				logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
 				break;
 			}
 			else
@@ -2255,7 +2360,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(boost::thread_interrupted &e)
 		{
-            logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
+			logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
 			throw; //rethrow, we want to truly end this thread
 		}
 		catch(goalFulfilledException &e)
@@ -2264,12 +2369,12 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			completeGoal (goal);
 			//completed goal was main goal //TODO: find better condition
 			if (ultimateGoal->fulfillsMe(goal) || maxGoals > searchDepth2)
-				return sptr(Goals::Invalid()); 
+				return sptr(Goals::Invalid());
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
-            logAi->debugStream() << boost::format("The error message was: %s") % e.what();
+			logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
+			logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 			break;
 		}
 	}
@@ -2282,7 +2387,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
-        logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
+		logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
 		auto heroes = cb->getHeroesInfo();
 
 		switch (q.quest->missionType)
@@ -2380,7 +2485,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (int i = 0; i < q.quest->m2stats.size(); ++i)
 				{
-                    logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
+					logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
 				}
 				break;
 			}
@@ -2395,13 +2500,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-                logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
+				logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_PLAYER:
 			{
 				if (playerID.getNum() != q.quest->m13489val)
-                    logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
+					logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_KEYMASTER:
@@ -2417,7 +2522,10 @@ void VCAI::performTypicalActions()
 {
 	for(auto h : getUnblockedHeroes())
 	{
-        logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
+		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
+			continue;
+
+		logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try
@@ -2426,7 +2534,7 @@ void VCAI::performTypicalActions()
 		}
 		catch(std::exception &e)
 		{
-            logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
+			logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
 			continue;
 		}
 	}
@@ -2442,11 +2550,13 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 
 int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
+	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : dirs)
+	for(crint3 dir : int3::getDirs())
 		if(cb->isInTheMap(hpos+dir))
-			if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
-				dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+			if (ourPos != dir) //don't stand in place
+				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
+					dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
 
 	if (dstToRevealedTiles.empty()) //yes, it DID happen!
 		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
@@ -2468,13 +2578,12 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 
 int3 VCAI::explorationNewPoint(HeroPtr h)
 {
-    //logAi->debugStream() << "Looking for an another place for exploration...";
-	int radius = h->getSightRadious();
+	int radius = h->getSightRadius();
+	CCallback * cbp = cb.get();
+	const CGHeroInstance * hero = h.get();
 
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
-
-	CCallback * cbp = cb.get();
 
 	foreach_tile_pos([&](const int3 &pos)
 	{
@@ -2484,19 +2593,22 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 	float bestValue = 0; //discovered tile to node distance ratio
 	int3 bestTile(-1,-1,-1);
+	int3 ourPos = h->convertPosition(h->pos, false);
 
 	for (int i = 1; i < radius; i++)
 	{
 		getVisibleNeighbours(tiles[i-1], tiles[i]);
-		removeDuplicates(tiles[i]);
+		vstd::removeDuplicates(tiles[i]);
 
 		for(const int3 &tile : tiles[i])
 		{
-			if (!cb->getPathsInfo(h.get())->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
+			if (tile == ourPos) //shouldn't happen, but it does
+				continue;
+			if (!cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
-			cb->getPathsInfo(h.get())->getPath(tile, path);
+			cb->getPathsInfo(hero)->getPath(path, tile);
 			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
@@ -2514,10 +2626,9 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 int3 VCAI::explorationDesperate(HeroPtr h)
 {
-    //logAi->debugStream() << "Looking for an another place for exploration...";
-	SectorMap sm(h);
-	int radius = h->getSightRadious();
-	
+	auto sm = getCachedSectorMap(h);
+	int radius = h->getSightRadius();
+
 	std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
 
@@ -2532,10 +2643,10 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 	ui64 lowestDanger = -1;
 	int3 bestTile(-1,-1,-1);
 
-	for (int i = 1; i < radius; i++)
+	for(int i = 1; i < radius; i++)
 	{
 		getVisibleNeighbours(tiles[i-1], tiles[i]);
-		removeDuplicates(tiles[i]);
+		vstd::removeDuplicates(tiles[i]);
 
 		for(const int3 &tile : tiles[i])
 		{
@@ -2544,7 +2655,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 			if (!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
-			auto t = sm.firstTileToGet(h, tile);
+			auto t = sm->firstTileToGet(h, tile);
 			if (t.valid())
 			{
 				ui64 ourDanger = evaluateDanger(t, h.h);
@@ -2622,7 +2733,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-    logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
+	logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())
@@ -2642,48 +2753,46 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 void VCAI::finish()
 {
 	if(makingTurn)
+	{
 		makingTurn->interrupt();
+		makingTurn->join();
+	}
 }
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
 {
-// 	static boost::mutex m;
-// 	boost::unique_lock<boost::mutex> mylock(m);
-
-	boost::barrier b(2);
-	boost::thread newThread([&b,this,whatToDo]()
+	boost::thread newThread([this,whatToDo]()
 	{
-		setThreadName("VCAI::requestActionASAP::helper");
+		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-		b.wait();
 		whatToDo();
 	});
-	b.wait();
 }
 
 void VCAI::lostHero(HeroPtr h)
 {
-    logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
+	logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
 
-	erase_if_present(lockedHeroes, h);
+	vstd::erase_if_present(lockedHeroes, h);
 	for(auto obj : reservedHeroesMap[h])
 	{
-		erase_if_present(reservedObjs, obj); //unreserve all objects for that hero
+		vstd::erase_if_present(reservedObjs, obj); //unreserve all objects for that hero
 	}
-	erase_if_present(reservedHeroesMap, h);
+	vstd::erase_if_present(reservedHeroesMap, h);
+	vstd::erase_if_present(cachedSectorMaps, h);
 }
 
 void VCAI::answerQuery(QueryID queryID, int selection)
 {
-    logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
+	logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
 	if(queryID != QueryID(-1))
 	{
 		cb->selectionMade(selection, queryID);
 	}
 	else
 	{
-        logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
+		logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
 		//do nothing
 	}
 }
@@ -2712,15 +2821,15 @@ void VCAI::validateObject(const CGObjectInstance *obj)
 
 void VCAI::validateObject(ObjectIdRef obj)
 {
-	auto matchesId = [&] (const CGObjectInstance *hlpObj) -> bool { return hlpObj->id == obj.id; };
+	auto matchesId = [&](const CGObjectInstance *hlpObj) -> bool { return hlpObj->id == obj.id; };
 	if(!obj)
 	{
-		erase_if(visitableObjs, matchesId);
+		vstd::erase_if(visitableObjs, matchesId);
 
 		for(auto &p : reservedHeroesMap)
-			erase_if(p.second, matchesId);
+			vstd::erase_if(p.second, matchesId);
 
-		erase_if(reservedObjs, matchesId);
+		vstd::erase_if(reservedObjs, matchesId);
 	}
 }
 
@@ -2730,6 +2839,18 @@ TResources VCAI::freeResources() const
 	myRes[Res::GOLD] -= GOLD_RESERVE;
 	vstd::amax(myRes[Res::GOLD], 0);
 	return myRes;
+}
+
+std::shared_ptr<SectorMap> VCAI::getCachedSectorMap(HeroPtr h)
+{
+	auto it = cachedSectorMaps.find(h);
+	if (it != cachedSectorMaps.end())
+		return it->second;
+	else
+	{
+		cachedSectorMaps[h] = std::make_shared<SectorMap>(h);
+		return cachedSectorMaps[h];
+	}
 }
 
 AIStatus::AIStatus()
@@ -2761,19 +2882,21 @@ BattleState AIStatus::getBattle()
 
 void AIStatus::addQuery(QueryID ID, std::string description)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
 	if(ID == QueryID(-1))
 	{
-        logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
+		logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
-	assert(!vstd::contains(remainingQueries, ID));
 	assert(ID.getNum() >= 0);
+	boost::unique_lock<boost::mutex> lock(mx);
+
+	assert(!vstd::contains(remainingQueries, ID));
 
 	remainingQueries[ID] = description;
+
 	cv.notify_all();
-    logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 void AIStatus::removeQuery(QueryID ID)
@@ -2783,8 +2906,9 @@ void AIStatus::removeQuery(QueryID ID)
 
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
+
 	cv.notify_all();
-    logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 int AIStatus::getQueriesCount()
@@ -2825,7 +2949,7 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
 	std::string description = remainingQueries[queryID];
-    logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
+	logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
 	requestToQueryID[answerRequestID] = queryID;
 }
 
@@ -2842,7 +2966,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 	}
 	else
 	{
-        logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
+		logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
 		//TODO safely retry
 	}
 }
@@ -2854,8 +2978,8 @@ void AIStatus::heroVisit(const CGObjectInstance *obj, bool started)
 		objectsBeingVisited.push_back(obj);
 	else
 	{
-		// There can be more than one object visited at the time (eg. hero visits Subterranean Gate 
-		// causing visit to hero on the other side. 
+		// There can be more than one object visited at the time (eg. hero visits Subterranean Gate
+		// causing visit to hero on the other side.
 		// However, we are guaranteed that start/end visit notification maintain stack order.
 		assert(!objectsBeingVisited.empty());
 		objectsBeingVisited.pop_back();
@@ -2873,7 +2997,7 @@ void AIStatus::setMove(bool ongoing)
 void AIStatus::setChannelProbing(bool ongoing)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	ongoingHeroMovement = ongoing;
+	ongoingChannelProbing = ongoing;
 	cv.notify_all();
 }
 
@@ -2893,7 +3017,7 @@ SectorMap::SectorMap(HeroPtr h)
 	makeParentBFS(h->visitablePos());
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 {
 	if(t->blocked && !t->visitable)
 	{
@@ -2904,13 +3028,15 @@ bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 	return false;
 }
 
-bool markIfBlocked(ui8 &sec, crint3 pos)
+bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 {
-	return markIfBlocked(sec, pos, cb->getTile(pos));
+	return markIfBlocked(sec, pos, getTile(pos));
 }
 
 void SectorMap::update()
 {
+	visibleTiles = cb->getAllVisibleTiles();
+
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
 
@@ -2936,7 +3062,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 {
 	Sector &s = infoOnSectors[num];
 	s.id = num;
-	s.water = cbp->getTile(pos)->isWater();
+	s.water = getTile(pos)->isWater();
 
 	std::queue<int3> toVisit;
 	toVisit.push(pos);
@@ -2947,7 +3073,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 		ui8 &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
-			const TerrainTile *t = cbp->getTile(curPos);
+			const TerrainTile *t = getTile(curPos);
 			if(!markIfBlocked(sec, curPos, t))
 			{
 				if(t->isWater() == s.water) //sector is only-water or only-land
@@ -2961,27 +3087,25 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 							toVisit.push(neighPos);
 							//parent[neighPos] = curPos;
 						}
-						const TerrainTile *nt = cbp->getTile(neighPos, false);
+						const TerrainTile *nt = getTile(neighPos);
 						if(nt && nt->isWater() != s.water && canBeEmbarkmentPoint(nt, s.water))
 						{
 							s.embarkmentPoints.push_back(neighPos);
 						}
 					});
-					
+
 					if(t->visitable)
 					{
 						auto obj = t->visitableObjects.front();
-						if (vstd::contains(ai->knownSubterraneanGates, obj))
-						{
-							s.subterraneanGates.push_back (obj);
-						}
+						if(cb->getObj(obj->id, false)) // FIXME: we have to filter invisible objcts like events, but probably TerrainTile shouldn't be used in SectorMap at all
+							s.visitableObjs.push_back(obj);
 					}
 				}
 			}
 		}
 	}
 
-	removeDuplicates(s.embarkmentPoints);
+	vstd::removeDuplicates(s.embarkmentPoints);
 }
 
 void SectorMap::write(crstring fname)
@@ -3023,7 +3147,7 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
-	{	
+	{
 		case Obj::TOWN:
 		case Obj::HERO: //never visit our heroes at random
 			return obj->tempOwner != h->tempOwner; //do not visit our towns at random
@@ -3041,6 +3165,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		}
 			break;
 		case Obj::BORDERGUARD: //open borderguard if possible
+			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
 		{
@@ -3074,7 +3199,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			return canRecruitCreatures;
 		}
 		case Obj::HILL_FORT:
-		{	
+		{
 			for (auto slot : h->Slots())
 			{
 				if (slot.second->type->upgrades.size())
@@ -3160,21 +3285,6 @@ For ship construction etc, another function (goal?) is needed
 					sectorQueue.push(neigh);
 				}
 			}
-
-			for (auto gate : s->subterraneanGates)
-			{
-				auto gatePair = ai->knownSubterraneanGates.find(gate);
-				if (gatePair != ai->knownSubterraneanGates.end())
-				{
-					//check the other side of gate
-					Sector *neigh = &infoOnSectors[retreiveTile(gatePair->second->visitablePos())];
-					if(!preds[neigh]) //if we didn't come into this sector yet
-					{
-						preds[neigh] = s; //it becomes our new target sector
-						sectorQueue.push(neigh);
-					}
-				}
-			}
 		}
 
 		if(!preds[dest])
@@ -3202,7 +3312,7 @@ For ship construction etc, another function (goal?) is needed
 				//embark on ship -> look for an EP with a boat
 				auto firstEP = boost::find_if(src->embarkmentPoints, [=](crint3 pos) -> bool
 				{
-					const TerrainTile *t = cb->getTile(pos);
+					const TerrainTile *t = getTile(pos);
                     return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT
 						&& retreiveTile(pos) == sectorToReach->id;
 				});
@@ -3280,30 +3390,8 @@ For ship construction etc, another function (goal?) is needed
 				//disembark
 				return ret;
 			}
-			else //use subterranean gates
+			else //use subterranean gates - not needed since gates are now handled via Pathfinder
 			{
-				//auto t = findFirstVisitableTile (h, dst);
-				//if (t.valid())
-				//	return t;
-
-				//TODO: pop sectors linked by Subterranean Gate in loop
-
-				auto firstGate = boost::find_if(src->subterraneanGates, [=](const CGObjectInstance * gate) -> bool
-				{
-					//make sure no hero block the way
-					auto pos = ai->knownSubterraneanGates[gate]->visitablePos();
-					const TerrainTile *t = cb->getTile(pos);
-					return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::SUBTERRANEAN_GATE
-						&& retreiveTile(pos) == sectorToReach->id;
-				});
-
-				if(firstGate != src->subterraneanGates.end())
-				{
-					//TODO: pahtfinder can find path through subterranean gates, but this function only reaches closest gate
-					return (*firstGate)->visitablePos();
-				}
-				//TODO
-				//Monolith? Whirlpool? ...
 				return ret;
 				//throw cannotFulfillGoalException("Land-land and water-water inter-sector transitions are not implemented!");
 			}
@@ -3332,7 +3420,8 @@ int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
 	while(curtile != h->visitablePos())
 	{
 		auto topObj = cb->getTopObj(curtile);
-		if (topObj && topObj->ID == Obj::HERO && topObj != h.h)
+		if(topObj && topObj->ID == Obj::HERO && topObj != h.h &&
+			cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			logAi->warnStream() << ("Another allied hero stands in our way");
 			return ret;
@@ -3373,7 +3462,7 @@ void SectorMap::makeParentBFS(crint3 source)
 		ui8 &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
-	
+
 		foreach_neighbour(curPos, [&](crint3 neighPos)
 		{
 			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))
@@ -3393,3 +3482,25 @@ unsigned char & SectorMap::retreiveTile(crint3 pos)
 	return retreiveTileN(sector, pos);
 }
 
+TerrainTile* SectorMap::getTile(crint3 pos) const
+{
+	//out of bounds access should be handled by boost::multi_array
+	//still we cached this array to avoid any checks
+	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+}
+
+std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)
+{
+	const Sector *heroSector = &infoOnSectors[retreiveTile(h->visitablePos())];
+	if(sectorsAround)
+	{
+		std::vector<const CGObjectInstance *> ret;
+		for(auto embarkPoint : heroSector->embarkmentPoints)
+		{
+			const Sector *embarkSector = &infoOnSectors[retreiveTile(embarkPoint)];
+			range::copy(embarkSector->visitableObjs, std::back_inserter(ret));
+		}
+		return ret;
+	}
+	return heroSector->visitableObjs;
+}

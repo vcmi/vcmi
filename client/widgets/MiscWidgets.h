@@ -17,7 +17,7 @@ class CCreatureAnim;
 class CComponent;
 class CGGarrison;
 class CSelectableComponent;
-class InfoAboutArmy;
+struct InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
 class CAnimImage;
@@ -28,7 +28,7 @@ class CHoverableArea: public virtual CIntObject
 public:
 	std::string hoverText;
 
-	virtual void hover (bool on);
+	virtual void hover (bool on) override;
 
 	CHoverableArea();
 	virtual ~CHoverableArea();
@@ -45,8 +45,8 @@ public:
 	virtual ~LRClickableAreaWText();
 	void init();
 
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
+	virtual void clickLeft(tribool down, bool previousState) override;
+	virtual void clickRight(tribool down, bool previousState) override;
 };
 
 /// base class for hero/town/garrison tooltips
@@ -88,7 +88,7 @@ private:
 	CCreatureAnim *anim; //displayed animation
 	CLabel * amount;
 
-	void show(SDL_Surface *to);
+	void show(SDL_Surface *to) override;
 public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
 
@@ -100,8 +100,8 @@ class CMinorResDataBar : public CIntObject
 {
 public:
 	SDL_Surface *bg; //background bitmap
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	CMinorResDataBar(); //c-tor
 	~CMinorResDataBar(); //d-tor
 };
@@ -114,9 +114,9 @@ public:
 
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void hover(bool on);
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
+	void hover(bool on) override;
 };
 
 /// Can interact on left and right mouse clicks
@@ -125,8 +125,8 @@ class LRClickableAreaWTextComp: public LRClickableAreaWText
 public:
 	int baseType;
 	int bonusValue, type;
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
+	virtual void clickLeft(tribool down, bool previousState) override;
+	virtual void clickRight(tribool down, bool previousState) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 	CComponent * createComponent() const;
@@ -137,8 +137,8 @@ class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(tribool down, bool previousState) override;
 	LRClickableAreaOpenTown();
 };
 

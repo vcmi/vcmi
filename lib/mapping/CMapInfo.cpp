@@ -2,8 +2,6 @@
 #include "CMapInfo.h"
 
 #include "../StartInfo.h"
-#include "CMap.h"
-#include "CCampaignHandler.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
 
@@ -37,11 +35,13 @@ CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
 
 #define STEAL(x) x = std::move(tmp.x)
 
-CMapInfo::CMapInfo(CMapInfo && tmp)
+CMapInfo::CMapInfo(CMapInfo && tmp):
+	scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
+	actualHumanPlayers(0), isRandomMap(false)
 {
+	std::swap(scenarioOpts, tmp.scenarioOpts);
 	STEAL(mapHeader);
 	STEAL(campaignHeader);
-	STEAL(scenarioOpts);
 	STEAL(fileURI);
 	STEAL(date);
 	STEAL(playerAmnt);
@@ -50,6 +50,10 @@ CMapInfo::CMapInfo(CMapInfo && tmp)
 	STEAL(isRandomMap);
 }
 
+CMapInfo::~CMapInfo()
+{
+	vstd::clear_pointer(scenarioOpts);
+}
 
 void CMapInfo::mapInit(const std::string & fname)
 {
