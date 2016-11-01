@@ -13,7 +13,7 @@ endif()
 
 # VCMI version
 set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 98)
+set(VCMI_VERSION_MINOR 99)
 set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
