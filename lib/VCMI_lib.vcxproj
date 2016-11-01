@@ -136,7 +136,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <ClCompile>
       <AdditionalOptions>/Oy- /bigobj /Zm150 </AdditionalOptions>
-      <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VCMI_DLL;VCMI_NO_EXTRA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
@@ -278,6 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
+    <ClInclude Include="..\Version.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
     <ClInclude Include="BattleHex.h" />
