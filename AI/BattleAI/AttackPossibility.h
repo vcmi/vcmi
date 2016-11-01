@@ -9,7 +9,7 @@
  */
 #pragma once
 #include "../../lib/BattleState.h"
-#include "CCallback.h"
+#include "../../CCallback.h"
 #include "common.h"
 
 

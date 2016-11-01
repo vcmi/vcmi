@@ -66,12 +66,24 @@
 			<Add option="-lVCMI_lib" />
 			<Add directory="../.." />
 		</Linker>
+		<Unit filename="AttackPossibility.cpp" />
+		<Unit filename="AttackPossibility.h" />
 		<Unit filename="BattleAI.cpp" />
 		<Unit filename="BattleAI.h" />
+		<Unit filename="EnemyInfo.cpp" />
+		<Unit filename="EnemyInfo.h" />
+		<Unit filename="PotentialTargets.cpp" />
+		<Unit filename="PotentialTargets.h" />
+		<Unit filename="StackWithBonuses.cpp" />
+		<Unit filename="StackWithBonuses.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
+		<Unit filename="ThreatMap.cpp" />
+		<Unit filename="ThreatMap.h" />
+		<Unit filename="common.cpp" />
+		<Unit filename="common.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

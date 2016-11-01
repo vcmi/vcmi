@@ -9,8 +9,8 @@
  */
 #include "StdInc.h"
 #include "EnemyInfo.h"
-#include "CRandomGenerator.h"
-#include "CCallback.h"
+#include "../../lib/CRandomGenerator.h"
+#include "../../CCallback.h"
 #include "common.h"
 
 void EnemyInfo::calcDmg(const CStack * ourStack)
