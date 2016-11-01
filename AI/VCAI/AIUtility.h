@@ -5,8 +5,9 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/Connection.h"
 #include "../../lib/CStopWatch.h"
+#include "../../lib/mapObjects/CObjectHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 /*
  * AIUtility.h, part of VCMI engine

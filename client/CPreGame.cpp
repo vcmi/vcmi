@@ -17,7 +17,8 @@
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
 #include "Graphics.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/CTypeList.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/mapping/CMap.h"
 #include "windows/GUIClasses.h"
@@ -723,10 +724,6 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		else if(current)
 		{
 			SelectMap sm(*current);
-			// FIXME: Super dirty hack to avoid crash on multiplayer game start.
-			// There is some issues with TriggeredEvent serialization that cause it.
-			// We'll look into them once refactored serializer fixed and merged
-			sm.mapInfo->mapHeader->triggeredEvents.clear();
 			*serv << &sm;
 
 			UpdateStartOptions uso(sInfo);
@@ -1011,7 +1008,7 @@ void CSelectionScreen::processPacks()
 	{
 		CPackForSelectionScreen *pack = upcomingPacks.front();
 		upcomingPacks.pop_front();
-		CBaseForPGApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
+		CBaseForPGApply *apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 		apply->applyOnPG(this, pack);
 		delete pack;
 	}
@@ -1147,7 +1144,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 	{
 		try
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(file), minSupportedVersion);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 // 			ui8 sign[8];
 // 			lf >> sign;

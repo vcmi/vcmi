@@ -183,7 +183,6 @@
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
-    <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CPathfinder.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
@@ -193,6 +192,13 @@
     <ClCompile Include="filesystem\FileInfo.cpp" />
     <ClCompile Include="filesystem\FileStream.cpp" />
     <ClCompile Include="filesystem\MinizipExtensions.cpp" />
+    <ClCompile Include="serializer\BinaryDeserializer.cpp" />
+    <ClCompile Include="serializer\BinarySerializer.cpp" />
+    <ClCompile Include="serializer\CLoadIntegrityValidator.cpp" />
+    <ClCompile Include="serializer\CMemorySerializer.cpp" />
+    <ClCompile Include="serializer\CSerializer.cpp" />
+    <ClCompile Include="serializer\CTypeList.cpp" />
+    <ClCompile Include="serializer\Connection.cpp" />
     <ClCompile Include="serializer\JsonDeserializer.cpp" />
     <ClCompile Include="serializer\JsonSerializeFormat.cpp" />
     <ClCompile Include="serializer\JsonSerializer.cpp" />
@@ -298,7 +304,6 @@
     <ClInclude Include="CModHandler.h" />
     <ClInclude Include="CObstacleInstance.h" />
     <ClInclude Include="CondSh.h" />
-    <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CPathfinder.h" />
     <ClInclude Include="CPlayerState.h" />
@@ -383,6 +388,13 @@
     <ClInclude Include="rmg\CZonePlacer.h" />
     <ClInclude Include="rmg\float3.h" />
     <ClInclude Include="ScopeGuard.h" />
+    <ClInclude Include="serializer\BinaryDeserializer.h" />
+    <ClInclude Include="serializer\BinarySerializer.h" />
+    <ClInclude Include="serializer\CLoadIntegrityValidator.h" />
+    <ClInclude Include="serializer\CMemorySerializer.h" />
+    <ClInclude Include="serializer\CSerializer.h" />
+    <ClInclude Include="serializer\CTypeList.h" />
+    <ClInclude Include="serializer\Connection.h" />
     <ClInclude Include="serializer\JsonDeserializer.h" />
     <ClInclude Include="serializer\JsonSerializeFormat.h" />
     <ClInclude Include="serializer\JsonSerializer.h" />

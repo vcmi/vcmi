@@ -1,6 +1,5 @@
 #pragma  once
 
-#include "../Connection.h"
 #include "../NetPacks.h"
 #include "../VCMI_Lib.h"
 #include "../CArtHandler.h"
@@ -23,6 +22,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class BinarySerializer;
+class BinaryDeserializer;
+class CTypeList;
 
 template<typename Serializer>
 void registerTypesMapObjects1(Serializer &s)
@@ -376,8 +379,8 @@ void registerTypes(Serializer &s)
 
 #ifndef INSTANTIATE_REGISTER_TYPES_HERE
 
-extern template DLL_LINKAGE void registerTypes<CISer>(CISer & s);
-extern template DLL_LINKAGE void registerTypes<COSer>(COSer & s);
+extern template DLL_LINKAGE void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
+extern template DLL_LINKAGE void registerTypes<BinarySerializer>(BinarySerializer & s);
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif

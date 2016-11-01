@@ -19,7 +19,9 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/Connection.h"
+#include "../lib/serializer/CTypeList.h"
+#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/CLoadIntegrityValidator.h"
 #ifndef VCMI_ANDROID
 #include "../lib/Interprocess.h"
 #endif
@@ -289,7 +291,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 			throw std::runtime_error("Cannot open server part of " + fname);
 
 		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, minSupportedVersion);
+			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
 			loadCommonState(checkingLoader);
 			loader = checkingLoader.decay();
 		}
@@ -510,7 +512,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 // 	}
 }
 
-void CClient::serialize(COSer & h, const int version)
+void CClient::serialize(BinarySerializer & h, const int version)
 {
 	assert(h.saving);
 	h & hotSeat;
@@ -528,7 +530,7 @@ void CClient::serialize(COSer & h, const int version)
 	}
 }
 
-void CClient::serialize(CISer & h, const int version)
+void CClient::serialize(BinaryDeserializer & h, const int version)
 {
 	assert(!h.saving);
 	h & hotSeat;
@@ -579,7 +581,7 @@ void CClient::serialize(CISer & h, const int version)
 	}
 }
 
-void CClient::serialize(COSer & h, const int version, const std::set<PlayerColor> & playerIDs)
+void CClient::serialize(BinarySerializer & h, const int version, const std::set<PlayerColor> & playerIDs)
 {
 	assert(h.saving);
 	h & hotSeat;
@@ -597,7 +599,7 @@ void CClient::serialize(COSer & h, const int version, const std::set<PlayerColor
 	}
 }
 
-void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor> & playerIDs)
+void CClient::serialize(BinaryDeserializer & h, const int version, const std::set<PlayerColor> & playerIDs)
 {
 	assert(!h.saving);
 	h & hotSeat;
@@ -653,12 +655,12 @@ void CClient::serialize(CISer & h, const int version, const std::set<PlayerColor
 
 void CClient::handlePack( CPack * pack )
 {
-	if (pack == nullptr)
+	if(pack == nullptr)
 	{
 		logNetwork->error("Dropping nullptr CPack! You should check whether client and server ABI matches.");
 		return;
 	}
-	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
+	CBaseForCLApply *apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 	if(apply)
 	{
 		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
