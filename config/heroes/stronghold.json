@@ -68,6 +68,10 @@
 		[
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "pathfinding", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 84 }
 		]
 	},
 	"krellion":
@@ -82,7 +86,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 84 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
 		]
 	},
 	"cragHack":
@@ -96,7 +100,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			{ "type":2, "val": 5, "subtype": 22, "info": 0 }
 		]
 	},
 	"tyraxor":
@@ -111,7 +115,7 @@
 		],
 		"specialties":
 		[
-			{ "type":2, "val": 5, "subtype": 22, "info": 0 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 86 }
 		]
 	},
 	"gird":
@@ -127,7 +131,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 86 }
+			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
 		]
 	},
 	"vey":
@@ -143,7 +147,7 @@
 		],
 		"specialties":
 		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
 		]
 	},
 	"dessa":
@@ -159,7 +163,7 @@
 		],
 		"specialties":
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
 		]
 	},
 	"terek":
@@ -175,7 +179,7 @@
 		],
 		"specialties":
 		[
-			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
+			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
 		]
 	},
 	"zubin":
@@ -191,7 +195,7 @@
 		],
 		"specialties":
 		[
-			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
+			{ "type":8, "val": 0, "subtype": 44, "info": 0 }
 		]
 	},
 	"gundula":
@@ -207,7 +211,7 @@
 		],
 		"specialties":
 		[
-			{ "type":8, "val": 0, "subtype": 44, "info": 0 }
+			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
 		]
 	},
 	"oris":
@@ -223,7 +227,7 @@
 		],
 		"specialties":
 		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
 		]
 	},
 	"saurug":
