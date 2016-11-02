@@ -104,21 +104,6 @@ si32 CStack::magicResistance() const
 	return magicResistance;
 }
 
-void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
-{
-	const CSpell * sp = SpellID(sse.sid).toSpell();
-
-	std::vector<Bonus> tmp;
-	sp->getEffects(tmp, sse.val);
-
-	for(Bonus& b : tmp)
-	{
-		if(b.turnsRemain == 0)
-			b.turnsRemain = sse.turnsRemain;
-		sf.push_back(b);
-	}
-}
-
 bool CStack::willMove(int turn /*= 0*/) const
 {
 	return ( turn ? true : !vstd::contains(state, EBattleStackState::DEFENDING) )

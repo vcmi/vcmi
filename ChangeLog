@@ -3,6 +3,9 @@
 GENERAL:
 * Spectator mode was implemented through command-line options
 
+SPELLS:
+* Implemented cumulative effects for spells
+
 0.98 -> 0.99
 
 GENERAL:

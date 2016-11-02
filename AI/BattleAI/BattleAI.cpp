@@ -259,11 +259,9 @@ void CBattleAI::attemptCastingSpell()
 			{
 				StackWithBonuses swb;
 				swb.stack = sta;
-				Bonus pseudoBonus;
-				pseudoBonus.sid = ps.spell->id;
-				pseudoBonus.val = skillLevel;
-				pseudoBonus.turnsRemain = 1; //TODO
-				CStack::stackEffectToFeature(swb.bonusesToAdd, pseudoBonus);
+				//todo: handle effect actualization in HypotheticChangesToBattleState
+				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, false, hero->getEnchantPower(ps.spell));
+				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, true, hero->getEnchantPower(ps.spell));
 				HypotheticChangesToBattleState state;
 				state.bonusesOfStacks[swb.stack] = &swb;
 				PotentialTargets pt(swb.stack, state);

@@ -1554,33 +1554,39 @@ void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
 
 DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 {
-	if(effect.empty())
+	if(effect.empty() && cumulativeEffects.empty())
 	{
 		logGlobal->errorStream() << "Trying to apply SetStackEffect with no effects";
 		return;
 	}
 
-	int spellid = effect.begin()->sid; //effects' source ID
+	si32 spellid = effect.empty() ? cumulativeEffects.begin()->sid : effect.begin()->sid; //effects' source ID
 
-	auto processEffect = [spellid, this](CStack * sta, const Bonus & effect)
+	auto processEffect = [spellid, this](CStack * sta, const Bonus & effect, bool cumulative)
 	{
-		if(!sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(effect.type, effect.subtype)))
-			|| spellid == SpellID::DISRUPTING_RAY || spellid == SpellID::ACID_BREATH_DEFENSE)
+		if(cumulative || !sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(effect.type, effect.subtype))))
 		{
 			//no such effect or cumulative - add new
 			logBonus->traceStream() << sta->nodeName() << " receives a new bonus: " << effect.Description();
 			sta->addNewBonus(std::make_shared<Bonus>(effect));
 		}
 		else
+		{
+			logBonus->traceStream() << sta->nodeName() << " updated bonus: " << effect.Description();
 			actualizeEffect(sta, effect);
+		}
 	};
 
 	for(ui32 id : stacks)
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
+		{
 			for(const Bonus & fromEffect : effect)
-				processEffect(s, fromEffect);
+				processEffect(s, fromEffect, false);
+			for(const Bonus & fromEffect : cumulativeEffects)
+				processEffect(s, fromEffect, true);
+		}
 		else
 			logNetwork->errorStream() << "Cannot find stack " << id;
 	}
@@ -1589,7 +1595,16 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 	{
 		CStack *s = gs->curB->getStack(para.first);
 		if(s)
-			processEffect(s, para.second);
+			processEffect(s, para.second, false);
+		else
+			logNetwork->errorStream() << "Cannot find stack " << para.first;
+	}
+
+	for(auto & para : cumulativeUniqueBonuses)
+	{
+		CStack *s = gs->curB->getStack(para.first);
+		if(s)
+			processEffect(s, para.second, true);
 		else
 			logNetwork->errorStream() << "Cannot find stack " << para.first;
 	}

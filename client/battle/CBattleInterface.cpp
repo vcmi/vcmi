@@ -1359,52 +1359,44 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	if (sse.effect.back().sid == -1 && sse.stacks.size() == 1 && sse.effect.size() == 2)
+	if(sse.stacks.size() == 1 && sse.effect.size() == 2 && sse.effect.back().sid == -1)
 	{
 		const Bonus & bns = sse.effect.front();
-		if (bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
+		if(bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
 		{
 			//defensive stance
 			const CStack *stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
 			int txtid = 120;
 
-			if (stack->count != 1)
+			if(stack->count != 1)
 				txtid++; //move to plural text
 
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
-			defenseBonuses.remove_if (Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
+			defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
-			auto txt = boost::format (CGI->generaltexth->allTexts[txtid]) % ((stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing) % val;
+			auto txt = boost::format(CGI->generaltexth->allTexts[txtid]) % ((stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing) % val;
 			console->addText(boost::to_string(txt));
 		}
 	}
 
-	if (activeStack != nullptr) //it can be -1 when a creature casts effect
-	{
+	if(activeStack != nullptr)
 		redrawBackgroundWithHexes(activeStack);
-	}
 }
 
-CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell *spell, const ISpellCaster *caster, ECastingMode::ECastingMode mode) const
+CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const ISpellCaster * caster, ECastingMode::ECastingMode mode) const
 {
 	PossibleActions spellSelMode = ANY_LOCATION;
 
 	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
 
-	if (ti.massive || ti.type == CSpell::NO_TARGET)
+	if(ti.massive || ti.type == CSpell::NO_TARGET)
 		spellSelMode = NO_LOCATION;
-	else if (ti.type == CSpell::LOCATION && ti.clearAffected)
-	{
+	else if(ti.type == CSpell::LOCATION && ti.clearAffected)
 		spellSelMode = FREE_LOCATION;
-	}
-	else if (ti.type == CSpell::CREATURE)
-	{
+	else if(ti.type == CSpell::CREATURE)
 		spellSelMode = AIMED_SPELL_CREATURE;
-	}
-	else if (ti.type == CSpell::OBSTACLE)
-	{
+	else if(ti.type == CSpell::OBSTACLE)
 		spellSelMode = OBSTACLE;
-	}
 
 	return spellSelMode;
 }

@@ -445,118 +445,131 @@ void DefaultSpellMechanics::battleLogDefault(std::vector<MetaString> & logLines,
 
 void DefaultSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	//applying effects
 	if(owner->isOffensiveSpell())
-	{
-		const int rawDamage = parameters.getEffectValue();
-		int chainLightningModifier = 0;
-		for(auto & attackedCre : ctx.attackedCres)
-		{
-			BattleStackAttacked bsa;
-			bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, rawDamage) >> chainLightningModifier;
-			ctx.addDamageToDisplay(bsa.damageAmount);
-
-			bsa.stackAttacked = (attackedCre)->ID;
-			if(parameters.mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
-				bsa.attackerID = parameters.casterStack->ID;
-			else
-				bsa.attackerID = -1;
-			(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
-			ctx.si.stacks.push_back(bsa);
-
-			if(owner->id == SpellID::CHAIN_LIGHTNING)
-				++chainLightningModifier;
-		}
-	}
+		defaultDamageEffect(env, parameters, ctx);
 
 	if(owner->hasEffects())
+		defaultTimedEffect(env, parameters, ctx);
+}
+
+void DefaultSpellMechanics::defaultDamageEffect(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	const int rawDamage = parameters.getEffectValue();
+	int chainLightningModifier = 0;
+	for(auto & attackedCre : ctx.attackedCres)
 	{
-		SetStackEffect sse;
-		//get default spell duration (spell power with bonuses for heroes)
-		int duration = parameters.enchantPower;
-		//generate actual stack bonuses
-		{
-			int maxDuration = 0;
-			std::vector<Bonus> tmp;
-			owner->getEffects(tmp, parameters.effectLevel);
-			for(Bonus& b : tmp)
-			{
-				//use configured duration if present
-				if(b.turnsRemain == 0)
-					b.turnsRemain = duration;
-				vstd::amax(maxDuration, b.turnsRemain);
-				sse.effect.push_back(b);
-			}
-			//if all spell effects have special duration, use it
-			duration = maxDuration;
-		}
-		//fix to original config: shield should display damage reduction
-		if(owner->id == SpellID::SHIELD || owner->id == SpellID::AIR_SHIELD)
-		{
-			sse.effect.back().val = (100 - sse.effect.back().val);
-		}
-		//we need to know who cast Bind
-		if(owner->id == SpellID::BIND && parameters.casterStack)
-		{
-			sse.effect.back().additionalInfo =  parameters.casterStack->ID;
-		}
-		std::shared_ptr<Bonus> bonus = nullptr;
-		if(parameters.casterHero)
-			bonus = parameters.casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
-		//TODO does hero specialty should affects his stack casting spells?
+		BattleStackAttacked bsa;
+		bsa.damageAmount = owner->adjustRawDamage(parameters.caster, attackedCre, rawDamage) >> chainLightningModifier;
+		ctx.addDamageToDisplay(bsa.damageAmount);
 
-		si32 power = 0;
-		for(const CStack * affected : ctx.attackedCres)
-		{
-			sse.stacks.push_back(affected->ID);
+		bsa.stackAttacked = (attackedCre)->ID;
+		if(parameters.mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
+			bsa.attackerID = parameters.casterStack->ID;
+		else
+			bsa.attackerID = -1;
+		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
+		ctx.si.stacks.push_back(bsa);
 
-			//Apply hero specials - peculiar enchants
-			const ui8 tier = std::max((ui8)1, affected->getCreature()->level); //don't divide by 0 for certain creatures (commanders, war machines)
-			if(bonus)
-			{
-				switch(bonus->additionalInfo)
-				{
-					case 0: //normal
-					{
-						switch(tier)
-						{
-							case 1: case 2:
-								power = 3;
-							break;
-							case 3: case 4:
-								power = 2;
-							break;
-							case 5: case 6:
-								power = 1;
-							break;
-						}
-						Bonus specialBonus(sse.effect.back());
-						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
-						sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional premy to given effect
-					}
-					break;
-					case 1: //only Coronius as yet
-					{
-						power = std::max(5 - tier, 0);
-						Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, owner->id, PrimarySkill::ATTACK);
-						specialBonus.turnsRemain = duration;
-						sse.uniqueBonuses.push_back(std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional attack to Slayer effect
-					}
-					break;
-				}
-			}
-			if (parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
-			{
-				int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
-				Bonus specialBonus(Bonus::N_TURNS, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, damagePercent, owner->id, 0, Bonus::PERCENT_TO_ALL);
-				specialBonus.turnsRemain = duration;
-				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus));
-			}
-		}
-
-		if(!sse.stacks.empty())
-			env->sendAndApply(&sse);
+		if(owner->id == SpellID::CHAIN_LIGHTNING)
+			++chainLightningModifier;
 	}
+}
+
+void DefaultSpellMechanics::defaultTimedEffect(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
+{
+	SetStackEffect sse;
+	//get default spell duration (spell power with bonuses for heroes)
+	int duration = parameters.enchantPower;
+	//generate actual stack bonuses
+	{
+		si32 maxDuration = 0;
+
+		owner->getEffects(sse.effect, parameters.effectLevel, false, duration, &maxDuration);
+		owner->getEffects(sse.cumulativeEffects, parameters.effectLevel, true, duration, &maxDuration);
+
+		//if all spell effects have special duration, use it later for special bonuses
+		duration = maxDuration;
+	}
+	//fix to original config: shield should display damage reduction
+	if(owner->id == SpellID::SHIELD || owner->id == SpellID::AIR_SHIELD)
+	{
+		sse.effect.at(sse.effect.size() - 1).val = (100 - sse.effect.back().val);
+	}
+	//we need to know who cast Bind
+	else if(owner->id == SpellID::BIND && parameters.casterStack)
+	{
+		sse.effect.at(sse.effect.size() - 1).additionalInfo = parameters.casterStack->ID;
+	}
+	std::shared_ptr<Bonus> bonus = nullptr;
+	if(parameters.casterHero)
+		bonus = parameters.casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, owner->id));
+	//TODO does hero specialty should affects his stack casting spells?
+
+	for(const CStack * affected : ctx.attackedCres)
+	{
+		si32 power = 0;
+		sse.stacks.push_back(affected->ID);
+
+		//Apply hero specials - peculiar enchants
+		const ui8 tier = std::max((ui8)1, affected->getCreature()->level); //don't divide by 0 for certain creatures (commanders, war machines)
+		if(bonus)
+		{
+			switch(bonus->additionalInfo)
+			{
+			case 0: //normal
+				{
+					switch(tier)
+					{
+					case 1:
+					case 2:
+						power = 3;
+						break;
+					case 3:
+					case 4:
+						power = 2;
+						break;
+					case 5:
+					case 6:
+						power = 1;
+						break;
+					}
+					for(const Bonus & b : sse.effect)
+					{
+						Bonus specialBonus(b);
+						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+						specialBonus.turnsRemain = duration;
+						sse.uniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
+					}
+					for(const Bonus & b : sse.cumulativeEffects)
+					{
+						Bonus specialBonus(b);
+						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+						specialBonus.turnsRemain = duration;
+						sse.cumulativeUniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
+					}
+				}
+				break;
+			case 1: //only Coronius as yet
+				{
+					power = std::max(5 - tier, 0);
+					Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, owner->id, PrimarySkill::ATTACK);
+					specialBonus.turnsRemain = duration;
+					sse.uniqueBonuses.push_back(std::pair<ui32,Bonus>(affected->ID, specialBonus)); //additional attack to Slayer effect
+				}
+				break;
+			}
+		}
+		if(parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
+		{
+			int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
+			Bonus specialBonus(Bonus::N_TURNS, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, damagePercent, owner->id, 0, Bonus::PERCENT_TO_ALL);
+			specialBonus.turnsRemain = duration;
+			sse.uniqueBonuses.push_back(std::pair<ui32,Bonus>(affected->ID, specialBonus));
+		}
+	}
+
+	if(!sse.stacks.empty())
+		env->sendAndApply(&sse);
 }
 
 std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
