@@ -995,17 +995,19 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->errorStream() << "Special spell " << spell->name << "in spellbook.";
+			logGlobal->error("Special spell %s in spellbook.", spell->name);
 		}
 		return specificBonus;
 	}
 	else if(!isAllowed)
 	{
 		if(inSpellBook)
-		{//hero has this spell in spellbook
-			logGlobal->errorStream() << "Banned spell " << spell->name << " in spellbook.";
+		{
+			//hero has this spell in spellbook
+			//it is normal if set in map editor, but trace it to possible debug of magic guild
+			logGlobal->trace("Banned spell %s in spellbook.", spell->name);
 		}
-		return specificBonus || schoolBonus || levelBonus;
+		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
 	else
 	{
