@@ -2313,20 +2313,27 @@ void CPlayerInterface::acceptTurn()
 		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
 		MetaString text;
 
-		auto daysWithoutCastle = *cb->getPlayer(playerColor)->daysWithoutCastle;
-		if (daysWithoutCastle < 6)
-		{
-			text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-			text.addReplacement(MetaString::COLOR, playerColor.getNum());
-			text.addReplacement(7 - daysWithoutCastle);
-		}
-		else if (daysWithoutCastle == 6)
-		{
-			text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-			text.addReplacement(MetaString::COLOR, playerColor.getNum());
-		}
+		const auto & optDaysWithoutCastle = cb->getPlayer(playerColor)->daysWithoutCastle;
 
-		showInfoDialogAndWait(components, text);
+		if(optDaysWithoutCastle)
+		{
+			auto daysWithoutCastle = optDaysWithoutCastle.get();
+			if (daysWithoutCastle < 6)
+			{
+				text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
+				text.addReplacement(MetaString::COLOR, playerColor.getNum());
+				text.addReplacement(7 - daysWithoutCastle);
+			}
+			else if (daysWithoutCastle == 6)
+			{
+				text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
+				text.addReplacement(MetaString::COLOR, playerColor.getNum());
+			}
+
+			showInfoDialogAndWait(components, text);
+		}
+		else
+			logGlobal->warn("Player has no towns, but daysWithoutCastle is not set");
 	}
 }
 
