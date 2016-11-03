@@ -997,6 +997,14 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 		assert(!c.connected); //make sure that connection has been marked as broken
 		logGlobal->error(e.what());
 		conns -= &c;
+		for(auto playerConn : connections)
+		{
+			if(playerConn.second == &c)
+			{
+				gs->getPlayer(playerConn.first)->enteredLosingCheatCode = 1;
+				checkVictoryLossConditionsForPlayer(playerConn.first);
+			}
+		}
 	}
 	catch(...)
 	{
