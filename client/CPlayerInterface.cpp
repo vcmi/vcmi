@@ -96,6 +96,18 @@ static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTil
 	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
 }
 
+struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
+{
+	const CGHeroInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
+	{
+		return h;
+	}
+	const CGHeroInstance * operator()(const ConstTransitivePtr<CStackInstance> &s) const
+	{
+		return nullptr;
+	}
+};
+
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
@@ -2511,11 +2523,11 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 {
-	auto hero = dynamic_cast<const CGHeroInstance*>(al.relatedObj());
-	if (hero)
+	auto hero = boost::apply_visitor(HeroObjectRetriever(), al.artHolder);
+	if(hero)
 	{
 		auto art = hero->getArt(al.slot);
-		if (art == nullptr)
+		if(art == nullptr)
 		{
 			logGlobal->error("artifact location %d points to nothing",
 			                 al.slot.num);
