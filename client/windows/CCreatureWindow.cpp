@@ -423,7 +423,7 @@ void CStackWindow::CWindowSection::createCommander()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	createBackground("commander-bg");
 
-	auto getSkillPos = [&](int index)
+	auto getSkillPos = [](int index)
 	{
 		return Point(10 + 80 * (index%3), 20 + 80 * (index/3));
 	};
@@ -451,7 +451,19 @@ void CStackWindow::CWindowSection::createCommander()
 			};
 		}
 	}
-	//TODO: commander artifacts
+
+	auto getArtifactPos = [](int index)
+	{
+		return Point(269 + 47 * (index % 3), 22 + 47 * (index / 3));
+	};
+
+	for (auto equippedArtifact : parent->info->commander->artifactsWorn)
+	{
+		Point artPos = getArtifactPos(equippedArtifact.first);
+		auto icon = new CClickableObject(new CAnimImage("artifact", equippedArtifact.second.artifact.get()->artType.get()->iconIndex, 0, artPos.x, artPos.y), [=] {});
+
+		//TODO: Use CArtPlace or equivalent instead of CClickableObject and handle commander artifact actions to match WOG (return artifact to hero etc.)
+	}
 }
 
 CIntObject * CStackWindow::createSkillEntry(int index)
