@@ -1088,8 +1088,8 @@ void SelectionTab::filter( int size, bool selectFirst )
 		{
 			slider->moveTo(0);
 			onSelect(curItems[0]);
+			selectAbs(0);
 		}
-		selectAbs(0);
 	}
 	else
 	{
@@ -1304,16 +1304,24 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 	switch(tabType)
 	{
 	case CMenuScreen::newGame:
-		selectFName("Maps/Arrogance");
+		logGlobal->error(settings["session"]["lastMap"].String());
+		if(settings["session"]["lastMap"].isNull())
+			selectFName("Maps/Arrogance");
+		else
+			selectFName(settings["session"]["lastMap"].String());
+			
 		break;
-	case CMenuScreen::loadGame:
 	case CMenuScreen::campaignList:
 		select(0);
 		break;
+	case CMenuScreen::loadGame:
 	case CMenuScreen::saveGame:;
 		if(saveGameName.empty())
 		{
-			txt->setText("NEWGAME");
+			if(tabType == CMenuScreen::saveGame)
+				txt->setText("NEWGAME");
+			else
+				select(0);
 		}
 		else
 		{
@@ -1371,6 +1379,12 @@ void SelectionTab::select( int position )
 	else if(position >= positions)
 		slider->moveBy(position - positions + 1);
 
+	if(tabType == CMenuScreen::newGame)
+	{
+		Settings lastMap = settings.write["session"]["lastMap"];
+		lastMap->String() = getSelectedMapInfo()->fileURI;
+	}
+
 	if(txt)
 	{
 		auto filename = *CResourceHandler::get("local")->getResourceName(
@@ -1418,7 +1432,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 	{
 		CMapInfo *currentItem = curItems[elemIdx];
 
-		if (elemIdx == selectionPos)
+		if(elemIdx == selectionPos)
 			itemColor=Colors::YELLOW;
 		else
 			itemColor=Colors::WHITE;
