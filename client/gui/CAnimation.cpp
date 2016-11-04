@@ -572,6 +572,26 @@ IImage::IImage():
 
 }
 
+void IImage::draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src) const
+{
+	int x = 0, y = 0;
+	if(dest)
+	{
+		x = dest->x;
+		y = dest->y;
+	}
+
+	if(src)
+	{
+		Rect srcTemp(*src);
+		draw(where, x, y, &srcTemp);
+	}
+	else
+	{
+		draw(where, x, y);
+	}
+}
+
 bool IImage::decreaseRef()
 {
 	refCount--;
@@ -636,15 +656,45 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	if (!surf)
 		return;
 
-	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
-	//TODO: rotation and scaling
-	if (src)
-	{
-		sourceRect = sourceRect & *src;
-	}
 	Rect destRect(posX, posY, surf->w, surf->h);
-	destRect += sourceRect.topLeft();
-	sourceRect -= margins;
+
+	draw(where, &destRect, src);
+}
+
+void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src) const
+{
+	if (!surf)
+		return;
+
+	Rect sourceRect(0, 0, surf->w, surf->h);
+
+	Point destShift(0,0);
+
+	if(src)
+	{
+		if(src->x < margins.x)
+			destShift.x += margins.x - src->x;
+
+		if(src->y < margins.y)
+			destShift.y += margins.y - src->y;
+
+		sourceRect = Rect(*src) & Rect(margins.x, margins.y, surf->w, surf->h);
+
+		sourceRect -= margins;
+	}
+	else
+		destShift = margins;
+
+	Rect destRect(margins.x, margins.y, surf->w, surf->h);
+
+	if(dest)
+	{
+		destRect = *dest;
+
+		destRect = destRect & Rect(destRect.x, destRect.y, sourceRect.w, sourceRect.h);
+
+		destRect += destShift;
+	}
 
 	if(surf->format->BitsPerPixel == 8)
 	{
@@ -662,9 +712,30 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	}
 }
 
+SDL_Surface * SDLImage::scaleFast(float scale) const
+{
+	//todo: margins
+	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, surf->w * scale, surf->h * scale);
+
+	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
+		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
+	else if(scaled->format && scaled->format->Amask)
+		SDL_SetSurfaceBlendMode(scaled, SDL_BLENDMODE_BLEND);//just in case
+	else
+		CSDL_Ext::setDefaultColorKey(scaled);//just in case
+
+	return scaled;
+}
+
 void SDLImage::playerColored(PlayerColor player)
 {
 	graphics->blueToPlayersAdv(surf, player);
+}
+
+void SDLImage::setFlagColor(PlayerColor player)
+{
+	if(player < PlayerColor::PLAYER_LIMIT || player==PlayerColor::NEUTRAL)
+		CSDL_Ext::setPlayerColor(surf, player);
 }
 
 int SDLImage::width() const
@@ -675,6 +746,17 @@ int SDLImage::width() const
 int SDLImage::height() const
 {
 	return fullSize.y;
+}
+
+void SDLImage::verticalFlip()
+{
+	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
+
+	SDL_FreeSurface(surf);
+
+	surf = flipped;
+
+	margins.x = fullSize.x - surf->w - margins.x;
 }
 
 SDLImage::~SDLImage()
@@ -767,6 +849,15 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 		size = sourceRect.w - currX;
 		BlitBlockWithBpp(bpp, type, size, data, blitPos, alpha, rotation & 2);
 	}
+}
+
+SDL_Surface * CompImage::scaleFast(float scale) const
+{
+	//todo: CompImage::scaleFast
+
+	logAnim->error("CompImage::scaleFast is not implemented");
+
+    return CSDL_Ext::newSurface(width() * scale, height() * scale);
 }
 
 #define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest, alpha); break
@@ -883,6 +974,11 @@ void CompImage::playerColored(PlayerColor player)
 	}
 }
 
+void CompImage::setFlagColor(PlayerColor player)
+{
+	logGlobal->error("CompImage::setFlagColor is not implemented");
+}
+
 int CompImage::width() const
 {
 	return fullSize.x;
@@ -899,6 +995,12 @@ CompImage::~CompImage()
 	delete [] line;
 	delete [] palette;
 }
+
+void CompImage::verticalFlip()
+{
+	logGlobal->error("CompImage::verticalFlip is not implemented");
+}
+
 
 /*************************************************************************
  *  CAnimation for animations handling, can load part of file if needed  *
@@ -1105,6 +1207,22 @@ CAnimation::~CAnimation()
 	}
 }
 
+void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup)
+{
+	//todo: clone actual loaded Image object
+	JsonNode clone(source[sourceGroup][sourceFrame]);
+
+	if(clone.getType() == JsonNode::DATA_NULL)
+	{
+        clone["file"].String() = name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+	}
+
+	source[targetGroup].push_back(clone);
+
+	if(preloaded)
+		load(source[targetGroup].size()-1, targetGroup);
+}
+
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
 	if (source[group].size() <= frame)
@@ -1148,8 +1266,11 @@ void CAnimation::unload()
 
 void CAnimation::preload()
 {
-	preloaded = true;
-	load();
+	if(!preloaded)
+	{
+		preloaded = true;
+		load();
+	}
 }
 
 void CAnimation::loadGroup(size_t group)

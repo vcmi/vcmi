@@ -63,6 +63,9 @@ public:
 
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const=0;
+	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src) const;
+
+	virtual SDL_Surface * scaleFast(float scale) const = 0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -70,8 +73,15 @@ public:
 
 	//Change palette to specific player
 	virtual void playerColored(PlayerColor player)=0;
+
+	//set special color for flag
+	virtual void setFlagColor(PlayerColor player)=0;
+
 	virtual int width() const=0;
 	virtual int height() const=0;
+
+	virtual void verticalFlip() = 0;
+
 	IImage();
 	virtual ~IImage() {};
 };
@@ -99,10 +109,15 @@ public:
 	~SDLImage();
 
 	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src) const override;
+	SDL_Surface * scaleFast(float scale) const override;
 
 	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
 	int width() const override;
 	int height() const override;
+
+	void verticalFlip() override;
 
 	friend class SDLImageLoader;
 };
@@ -146,9 +161,15 @@ public:
 	~CompImage();
 
 	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+
+	SDL_Surface * scaleFast(float scale) const override;
+
 	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
 	int width() const override;
 	int height() const override;
+
+	void verticalFlip() override;
 
 	friend class CompImageLoader;
 };
@@ -197,6 +218,10 @@ public:
 	CAnimation(std::string Name, bool Compressed = false);
 	CAnimation();
 	~CAnimation();
+
+	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
+	//and loads it if animation is preloaded
+	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);

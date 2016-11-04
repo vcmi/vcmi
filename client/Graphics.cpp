@@ -165,7 +165,9 @@ void Graphics::load()
 	heroMoveArrows = std::make_shared<CAnimation>("ADAG");
 	heroMoveArrows->preload();
 
-	loadHeroAnims();
+	loadHeroAnims();//todo: remove
+	loadHeroAnimations();
+	loadHeroFlagAnimations();
 }
 
 void Graphics::loadHeroAnims()
@@ -189,6 +191,87 @@ void Graphics::loadHeroAnims()
 	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));
 	boatAnims.push_back(loadHeroAnim("AB02_.DEF", rotations));
 	boatAnims.push_back(loadHeroAnim("AB03_.DEF", rotations));
+}
+
+void Graphics::loadHeroAnimations()
+{
+	for(auto & elem : CGI->heroh->classes.heroClasses)
+	{
+		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
+		{
+			if (!heroAnimations.count(templ.animationFile))
+				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
+		}
+	}
+
+	boatAnimations[0] = loadHeroAnimation("AB01_.DEF");
+	boatAnimations[1] = loadHeroAnimation("AB02_.DEF");
+	boatAnimations[2] = loadHeroAnimation("AB03_.DEF");
+
+
+	mapObjectAnimations["AB01_.DEF"] = boatAnimations[0];
+	mapObjectAnimations["AB02_.DEF"] = boatAnimations[1];
+	mapObjectAnimations["AB03_.DEF"] = boatAnimations[2];
+}
+void Graphics::loadHeroFlagAnimations()
+{
+	static const std::vector<std::string> HERO_FLAG_ANIMATIONS =
+	{
+		"AF00", "AF01","AF02","AF03",
+		"AF04", "AF05","AF06","AF07"
+	};
+
+	static const std::vector< std::vector<std::string> > BOAT_FLAG_ANIMATIONS =
+	{
+		{
+			"ABF01L", "ABF01G", "ABF01R", "ABF01D",
+			"ABF01B", "ABF01P", "ABF01W", "ABF01K"
+		},
+		{
+			"ABF02L", "ABF02G", "ABF02R", "ABF02D",
+			"ABF02B", "ABF02P", "ABF02W", "ABF02K"
+		},
+		{
+			"ABF03L", "ABF03G", "ABF03R", "ABF03D",
+			"ABF03B", "ABF03P", "ABF03W", "ABF03K"
+		}
+	};
+
+	for(const auto & name : HERO_FLAG_ANIMATIONS)
+		heroFlagAnimations.push_back(loadHeroFlagAnimation(name));
+
+	for(int i = 0; i < BOAT_FLAG_ANIMATIONS.size(); i++)
+		for(const auto & name : BOAT_FLAG_ANIMATIONS[i])
+			boatFlagAnimations[i].push_back(loadHeroFlagAnimation(name));
+}
+
+std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & name)
+{
+	//first - group number to be rotated, second - group number after rotation
+	static const std::vector<std::pair<int,int> > rotations =
+	{
+		{6,10}, {7,11}, {8,12}, {1,13},
+		{2,14}, {3,15}
+	};
+
+	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
+	anim->preload();
+
+	for(const auto & rotation : rotations)
+	{
+        const int sourceGroup = rotation.first;
+        const int targetGroup = rotation.second;
+
+        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
+		{
+			anim->duplicateImage(sourceGroup, frame, targetGroup);
+
+			IImage * image = anim->getImage(frame, targetGroup);
+			image->verticalFlip();
+		}
+	}
+
+	return anim;
 }
 
 CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations)
@@ -228,7 +311,68 @@ CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vect
 	return anim;
 }
 
-void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode)
+std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
+{
+	//first - group number to be rotated, second - group number after rotation
+	static const std::vector<std::pair<int,int> > rotations =
+	{
+		{6,10}, {7,11}, {8,12}, {1,13},
+		{2,14}, {3,15}
+	};
+
+	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
+	anim->preload();
+
+
+	for(const auto & rotation : rotations)
+	{
+        const int sourceGroup = rotation.first;
+        const int targetGroup = rotation.second;
+
+        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
+		{
+			anim->duplicateImage(sourceGroup, frame, targetGroup);
+
+			IImage * image = anim->getImage(frame, targetGroup);
+			image->verticalFlip();
+		}
+	}
+
+	//todo: apply following commented out optimizations or merge with loadHeroFlagAnimation
+
+//	int pom = 0; //how many groups has been rotated
+//	for(int o = 7; pom < 6; ++o)
+//	{
+//		for(int p = 0; p<6; p++)
+//		{
+//			IImage frame = anim->getImage()
+//			if(anim->ourImages[o].groupNumber == rotations[p].first)
+//			{
+//				for(int e=0; e<8; ++e)
+//				{
+//					Cimage nci;
+//					nci.bitmap = CSDL_Ext::verticalFlip(anim->ourImages[o+e].bitmap);
+//					nci.groupNumber = rotations[p].second;
+//					nci.imName = std::string();
+//					anim->ourImages.push_back(nci);
+//					if(pom>2) //we need only one frame for groups 13/14/15
+//						break;
+//				}
+//				if(pom<3) //there are eight frames of animtion of groups 6/7/8 so for speed we'll skip them
+//					o+=8;
+//				else //there is only one frame of 1/2/3
+//					o+=1;
+//				++pom;
+//				if(p==2 && pom<4) //group1 starts at index 1
+//					o = 1;
+//			}
+//		}
+//	}
+
+	return anim;
+}
+
+void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr)
 {
 	for(int i=0;i<8;i++)
 		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
@@ -259,24 +403,23 @@ void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphi
 				}
 			}
 		}
-		if (mode)
+
+		for(size_t o=0; o<curImgs.size(); ++o)
 		{
-			for(size_t o=0; o<curImgs.size(); ++o)
+			if(curImgs[o].groupNumber==1 || curImgs[o].groupNumber==2 || curImgs[o].groupNumber==3)
 			{
-				if(curImgs[o].groupNumber==1 || curImgs[o].groupNumber==2 || curImgs[o].groupNumber==3)
+				for(int e=0; e<8; ++e)
 				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
-						nci.groupNumber = 12 + curImgs[o].groupNumber;
-						nci.imName = std::string();
-						curImgs.push_back(nci);
-					}
-					o+=8;
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
+					nci.groupNumber = 12 + curImgs[o].groupNumber;
+					nci.imName = std::string();
+					curImgs.push_back(nci);
 				}
+				o+=8;
 			}
 		}
+
 		for(auto & curImg : curImgs)
 		{
 			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
@@ -313,19 +456,11 @@ void Graphics::loadHeroFlags()
 		}
 	};
 
-	#if 0
-	boost::thread_group grupa;
-	for(int g=3; g>=0; --g)
-	{
-		grupa.create_thread(std::bind(&Graphics::loadHeroFlagsDetail, this, std::ref(pr[g]), true));
-	}
-	grupa.join_all();
-	#else
 	for(auto p: pr)
 	{
-		loadHeroFlagsDetail(p,true);
+		loadHeroFlagsDetail(p);
 	}
-	#endif
+
 	logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 
@@ -400,6 +535,41 @@ CDefEssential * Graphics::getDef( const ObjectTemplate & info )
 		return nullptr;
 	}
 	return advmapobjGraphics[info.animationFile];
+}
+
+std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
+{
+	return getAnimation(obj->appearance);
+}
+
+std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
+{
+	//the only(?) invisible object
+	if(info.id == Obj::EVENT)
+	{
+		return std::shared_ptr<CAnimation>();
+	}
+
+	if(info.animationFile.empty())
+	{
+		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
+		return std::shared_ptr<CAnimation>();
+	}
+
+	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info.animationFile];
+
+	//already loaded
+	if(ret)
+	{
+		ret->preload();
+		return ret;
+	}
+
+	ret = std::make_shared<CAnimation>(info.animationFile);
+	mapObjectAnimations[info.animationFile] = ret;
+
+	ret->preload();
+	return ret;
 }
 
 void Graphics::loadErmuToPicture()

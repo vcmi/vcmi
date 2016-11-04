@@ -187,6 +187,7 @@ class CMapHandler
 		SDL_Surface * requestWorldViewCache(EMapCacheType type, intptr_t key);
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
 		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale);
+		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, const IImage * fullSurface, float scale);
 		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
 		intptr_t genKey(intptr_t realPtr, ui8 mod);
 	};
@@ -194,11 +195,11 @@ class CMapHandler
 	/// helper struct to pass around resolved bitmaps of an object; surfaces can be nullptr if object doesn't have bitmap of that type
 	struct AnimBitmapHolder
 	{
-		SDL_Surface * objBitmap; // main object bitmap
-		SDL_Surface * flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
+		IImage * objBitmap; // main object bitmap
+		IImage * flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
 		bool isMoving; // indicates if the object is moving (again, heroes/boats only)
 
-		AnimBitmapHolder(SDL_Surface * objBitmap_ = nullptr, SDL_Surface * flagBitmap_ = nullptr, bool moving = false)
+		AnimBitmapHolder(IImage * objBitmap_ = nullptr, IImage * flagBitmap_ = nullptr, bool moving = false)
 			: objBitmap(objBitmap_),
 			  flagBitmap(flagBitmap_),
 			  isMoving(moving)
@@ -226,6 +227,9 @@ class CMapHandler
 		virtual void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
 								 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const = 0;
 
+		//todo: support rotation
+		virtual void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const = 0;
+
 		// first drawing pass
 
 		/// draws terrain bitmap (or custom bitmap if applicable) on current tile
@@ -236,8 +240,8 @@ class CMapHandler
 		virtual void drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
 		/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 		virtual void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const;
-		virtual void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const;
-		virtual void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
+		virtual void drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const;
+		virtual void drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
 
 		// second drawing pass
 
@@ -262,7 +266,7 @@ class CMapHandler
 		/// calculates clip region for map viewport
 		virtual SDL_Rect clip(SDL_Surface * targetSurf) const = 0;
 
-		virtual ui8 getHeroFrameNum(ui8 dir, bool isMoving) const;
+		virtual ui8 getHeroFrameGroup(ui8 dir, bool isMoving) const;
 		///returns appropriate bitmap and info if alpha blitting is necessary
 		virtual std::pair<SDL_Surface *, bool> getVisBitmap() const;
 		virtual ui8 getPhaseShift(const CGObjectInstance *object) const;
@@ -273,11 +277,11 @@ class CMapHandler
 		// internal helper methods to choose correct bitmap(s) for object; called internally by findObjectBitmap
 		AnimBitmapHolder findHeroBitmap(const CGHeroInstance * hero, int anim) const;
 		AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;
-		SDL_Surface * findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
-		SDL_Surface * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int indexOffset) const;
-		SDL_Surface * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int indexOffset, ui8 dir) const;
-		SDL_Surface * findFlagBitmapInternal(const CDefEssential * def, int anim, int indexOffset, ui8 dir, bool moving) const;
-		int findAnimIndexByGroup(const CDefEssential * def, int groupNum) const;
+		IImage * findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+		IImage * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+		IImage * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int group, ui8 dir) const;
+		IImage * findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const;
+		int findAnimIndexByGroup(const CDefEssential * def, int groupNum) const; //deprecated
 
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
@@ -293,6 +297,8 @@ class CMapHandler
 	protected:
 		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
 						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
+
+		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
 
 		void drawTileOverlay(SDL_Surface * targetSurf,const TerrainTile2 & tile) const override {}
 		void init(const MapDrawingInfo * info) override;
@@ -310,15 +316,16 @@ class CMapHandler
 		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
 						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
 
+		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
+
 		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
-		void drawHeroFlag(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
-		void drawObject(SDL_Surface * targetSurf, SDL_Surface * sourceSurf, SDL_Rect * sourceRect, bool moving) const override;
+		void drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
+		void drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
 		void drawOverlayEx(SDL_Surface * targetSurf) override;
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
 
-//		ui8 getHeroFrameNum(ui8 dir, bool isMoving) const override { return 0u; }
 		ui8 getPhaseShift(const CGObjectInstance *object) const override { return 0u; }
 
 		void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
