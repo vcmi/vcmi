@@ -828,7 +828,7 @@ class ArtSlotsTab : public CIntObject
 {
 public:
 	CAnimImage * background;
-	std::vector<CArtPlace*> arts;
+	std::vector<CHeroArtPlace*> arts;
 
 	ArtSlotsTab()
 	{
@@ -836,7 +836,7 @@ public:
 		background = new CAnimImage("OVSLOT", 4);
 		pos = background->pos;
 		for (size_t i=0; i<9; i++)
-			arts.push_back(new CArtPlace(Point(270+i*48, 65)));
+			arts.push_back(new CHeroArtPlace(Point(270+i*48, 65)));
 	}
 };
 
@@ -844,7 +844,7 @@ class BackpackTab : public CIntObject
 {
 public:
 	CAnimImage * background;
-	std::vector<CArtPlace*> arts;
+	std::vector<CHeroArtPlace*> arts;
 	CButton *btnLeft;
 	CButton *btnRight;
 
@@ -856,7 +856,7 @@ public:
 		btnLeft = new CButton(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
 		btnRight = new CButton(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
 		for (size_t i=0; i<8; i++)
-			arts.push_back(new CArtPlace(Point(295+i*48, 65)));
+			arts.push_back(new CHeroArtPlace(Point(295+i*48, 65)));
 	}
 };
 
@@ -882,7 +882,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	assert(arts1->arts.size() == 9);
 	assert(arts2->arts.size() == 9);	
 	
-	std::map<ArtifactPosition, CArtPlace*> arts = 
+	std::map<ArtifactPosition, CHeroArtPlace*> arts = 
 	{
 		{ArtifactPosition::HEAD, arts1->arts[0]}, 
 		{ArtifactPosition::SHOULDERS,arts1->arts[1]}, 
