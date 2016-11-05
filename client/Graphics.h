@@ -40,11 +40,6 @@ class Graphics
 
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
-	void loadHeroFlags(); //deprecated
-	void loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr); //deprecated
-	void loadHeroAnims();//deprecated
-
-	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);//deprecated
 
 	void loadHeroAnimations();
 	//loads animation and adds required rotated frames
@@ -71,7 +66,6 @@ public:
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Color * neutralColorPalette;
 
-	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //DEPRECATED flags blitted on heroes when ,
 	std::shared_ptr<CAnimation> heroMoveArrows;
 
 	// [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
@@ -86,16 +80,11 @@ public:
 	//all other objects (not hero or boat)
 	std::map< std::string, std::shared_ptr<CAnimation> > mapObjectAnimations;
 
-	std::map<std::string, CDefEssential *> heroAnims; // DEPRECATED [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	std::vector<CDefEssential *> boatAnims; // DEPRECATED [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
 
 	std::map<std::string, JsonNode> imageLists;
 
-	std::map<std::string, CDefEssential *> advmapobjGraphics; // DEPRECATED
-	CDefEssential * getDef(const CGObjectInstance * obj); // DEPRECATED
-	CDefEssential * getDef(const ObjectTemplate & info); // DEPRECATED
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles

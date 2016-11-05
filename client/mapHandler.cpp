@@ -292,35 +292,6 @@ void CMapHandler::borderAndTerrainBitmapInit()
 	delete bord;
 }
 
-static void processDef (const ObjectTemplate & objTempl) //deprecated
-{
-	if(objTempl.id == Obj::EVENT)
-	{
-		graphics->advmapobjGraphics[objTempl.animationFile] = nullptr;
-		return;
-	}
-	CDefEssential * ourDef = graphics->getDef(objTempl);
-	if(!ourDef) //if object has already set handler (eg. heroes) it should not be overwritten
-	{
-		if(objTempl.animationFile.size())
-		{
-			graphics->advmapobjGraphics[objTempl.animationFile] = CDefHandler::giveDefEss(objTempl.animationFile);
-		}
-		else
-		{
-			logGlobal->warnStream() << "No def name for " << objTempl.id << "  " << objTempl.subid;
-			return;
-		}
-		ourDef = graphics->getDef(objTempl);
-
-	}
-	//alpha transformation
-	for(auto & elem : ourDef->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
-}
-
 void CMapHandler::initObjectRects()
 {
 	//initializing objects / rects
@@ -388,9 +359,6 @@ void CMapHandler::init()
 	CStopWatch th;
 	th.getDiff();
 
-	graphics->advmapobjGraphics["AB01_.DEF"] = graphics->boatAnims[0];
-	graphics->advmapobjGraphics["AB02_.DEF"] = graphics->boatAnims[1];
-	graphics->advmapobjGraphics["AB03_.DEF"] = graphics->boatAnims[2];
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
 	int mapH = conf.go()->ac.advmapH;
@@ -880,18 +848,6 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 			continue;
 		}
 
-		if (!graphics->getDef(obj))
-			processDef(obj->appearance);
-		if (!graphics->getDef(obj))
-		{
-			if (!obj->appearance.animationFile.empty())
-				logGlobal->errorStream() << "Failed to load image " << obj->appearance.animationFile;
-			else
-				logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
-
-			continue;
-		}
-
 		if (!canDrawObject(obj))
 			continue;
 
@@ -1162,14 +1118,6 @@ IImage * CMapHandler::CMapBlitter::findFlagBitmapInternal(std::shared_ptr<CAnima
 		return animation->getImage((anim / 4) % animation->size(group), group);
 }
 
-int CMapHandler::CMapBlitter::findAnimIndexByGroup(const CDefEssential * def, int groupNum) const
-{
-	auto iter = std::find_if(def->ourImages.begin(), def->ourImages.end(), [&](const Cimage &img){ return img.groupNumber == groupNum; });
-	if (iter == def->ourImages.end())
-		return -1;
-	return static_cast<int>(iter - def->ourImages.begin());
-}
-
 CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const CGObjectInstance * obj, int anim) const
 {
 	if (!obj)
@@ -1322,12 +1270,18 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 
 bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = false */)
 {
-	if (!graphics->getDef(obj))
-		processDef(obj->appearance);
+	auto animation = graphics->getAnimation(obj);
 
-	SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
-	const int tilesW = bitmap->w/32;
-	const int tilesH = bitmap->h/32;
+	if(!animation)
+		return false;
+
+	IImage * bitmap = animation->getImage(0);
+
+	if(!bitmap)
+		return false;
+
+	const int tilesW = bitmap->width()/32;
+	const int tilesH = bitmap->height()/32;
 
 	for(int fx=0; fx<tilesW; ++fx)
 	{
@@ -1364,7 +1318,6 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 				if(i == curt.objects.end())
 					curt.objects.insert(i, toAdd);
 			}
-
 		}
 	}
 	return true;

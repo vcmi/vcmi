@@ -281,7 +281,6 @@ class CMapHandler
 		IImage * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
 		IImage * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int group, ui8 dir) const;
 		IImage * findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const;
-		int findAnimIndexByGroup(const CDefEssential * def, int groupNum) const; //deprecated
 
 	public:
 		CMapBlitter(CMapHandler * p) : parent(p) {}
@@ -289,7 +288,6 @@ class CMapHandler
 		void blit(SDL_Surface * targetSurf, const MapDrawingInfo * info);
 		/// helper method that chooses correct bitmap(s) for given object
 		AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim) const;
-
 	};
 
 	class CMapNormalBlitter : public CMapBlitter

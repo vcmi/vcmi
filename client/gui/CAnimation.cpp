@@ -23,9 +23,136 @@
  *
  */
 
+class SDLImageLoader;
+class CompImageLoader;
+
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
+
+ /// Class for def loading, methods are based on CDefHandler
+/// After loading will store general info (palette and frame offsets) and pointer to file itself
+class CDefFile
+{
+private:
+
+	struct SSpriteDef
+	{
+		ui32 size;
+		ui32 format;    /// format in which pixel data is stored
+		ui32 fullWidth; /// full width and height of frame, including borders
+		ui32 fullHeight;
+		ui32 width;     /// width and height of pixel data, borders excluded
+		ui32 height;
+		si32 leftMargin;
+		si32 topMargin;
+	} PACKED_STRUCT;
+	//offset[group][frame] - offset of frame data in file
+	std::map<size_t, std::vector <size_t> > offset;
+
+	std::unique_ptr<ui8[]>       data;
+	std::unique_ptr<SDL_Color[]> palette;
+
+public:
+	CDefFile(std::string Name);
+	~CDefFile();
+
+	//load frame as SDL_Surface
+	template<class ImageLoader>
+	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
+
+	const std::map<size_t, size_t> getEntries() const;
+};
+
+
+/*
+ * Wrapper around SDL_Surface
+ */
+class SDLImage : public IImage
+{
+public:
+	//Surface without empty borders
+	SDL_Surface * surf;
+	//size of left and top borders
+	Point margins;
+	//total size including borders
+	Point fullSize;
+
+public:
+	//Load image from def file
+	SDLImage(CDefFile *data, size_t frame, size_t group=0, bool compressed=false);
+	//Load from bitmap file
+	SDLImage(std::string filename, bool compressed=false);
+	//Create using existing surface, extraRef will increase refcount on SDL_Surface
+	SDLImage(SDL_Surface * from, bool extraRef);
+	~SDLImage();
+
+	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+	SDL_Surface * scaleFast(float scale) const override;
+
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
+
+	void verticalFlip() override;
+
+	friend class SDLImageLoader;
+};
+
+/*
+ *  RLE-compressed image data for 8-bit images with alpha-channel, currently far from finished
+ *  primary purpose is not high compression ratio but fast drawing.
+ *  Consist of repeatable segments with format similar to H3 def compression:
+ *  1st byte:
+ *  if (byte == 0xff)
+ *  	raw data, opaque and semi-transparent data always in separate blocks
+ *  else
+ *  	RLE-compressed image data with this color
+ *  2nd byte = size of segment
+ *  raw data (if any)
+ */
+class CompImage : public IImage
+{
+	//x,y - margins, w,h - sprite size
+	Rect sprite;
+	//total size including borders
+	Point fullSize;
+
+	//RLE-d data
+	ui8 * surf;
+	//array of offsets for each line
+	ui32 * line;
+	//palette
+	SDL_Color *palette;
+
+	//Used internally to blit one block of data
+	template<int bpp, int dir>
+	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha) const;
+	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha, bool rotated) const;
+
+public:
+	//Load image from def file
+	CompImage(const CDefFile *data, size_t frame, size_t group=0);
+	//TODO: load image from SDL_Surface
+	CompImage(SDL_Surface * surf);
+	~CompImage();
+
+	void draw(SDL_Surface  *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+
+	SDL_Surface * scaleFast(float scale) const override;
+
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
+
+	void verticalFlip() override;
+
+	friend class CompImageLoader;
+};
 
 class SDLImageLoader
 {
@@ -572,26 +699,6 @@ IImage::IImage():
 
 }
 
-void IImage::draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src) const
-{
-	int x = 0, y = 0;
-	if(dest)
-	{
-		x = dest->x;
-		y = dest->y;
-	}
-
-	if(src)
-	{
-		Rect srcTemp(*src);
-		draw(where, x, y, &srcTemp);
-	}
-	else
-	{
-		draw(where, x, y);
-	}
-}
-
 bool IImage::decreaseRef()
 {
 	refCount--;
@@ -661,7 +768,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	draw(where, &destRect, src);
 }
 
-void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src) const
+void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
 {
 	if (!surf)
 		return;
@@ -700,15 +807,9 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src) const
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
 	}
-	else if(surf->format->Amask == 0)
-	{
-		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
-	}
 	else
 	{
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
 		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 	}
 }
 
@@ -782,6 +883,12 @@ CompImage::CompImage(SDL_Surface * surf)
 
 void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
+	Rect dest(posX,posY, width(), height());
+	draw(where, &dest, src, alpha);
+}
+
+void CompImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
+{
 	int rotation = 0; //TODO
 	//rotation & 2 = horizontal rotation
 	//rotation & 4 = vertical rotation
@@ -795,11 +902,18 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 	sourceRect = sourceRect & Rect(0, 0, where->w, where->h);
 
 	//Starting point on SDL surface
-	Point dest(posX+sourceRect.x, posY+sourceRect.y);
+	Point dst(sourceRect.x,sourceRect.y);
+
+	if (dest)
+	{
+		dst.x += dest->x;
+		dst.y += dest->y;
+	}
+
 	if (rotation & 2)
-		dest.y += sourceRect.h;
+		dst.y += sourceRect.h;
 	if (rotation & 4)
-		dest.x += sourceRect.w;
+		dst.x += sourceRect.w;
 
 	sourceRect -= sprite.topLeft();
 
@@ -830,10 +944,10 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 		//Calculate position for blitting: pixels + Y + X
 		ui8* blitPos = (ui8*) where->pixels;
 		if (rotation & 4)
-			blitPos += (dest.y - currY) * where->pitch;
+			blitPos += (dst.y - currY) * where->pitch;
 		else
-			blitPos += (dest.y + currY) * where->pitch;
-		blitPos += dest.x * bpp;
+			blitPos += (dst.y + currY) * where->pitch;
+		blitPos += dst.x * bpp;
 
 		//Blit blocks that must be fully visible
 		while (currX + size < sourceRect.w)
@@ -850,6 +964,7 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 		BlitBlockWithBpp(bpp, type, size, data, blitPos, alpha, rotation & 2);
 	}
 }
+
 
 SDL_Surface * CompImage::scaleFast(float scale) const
 {
@@ -1018,6 +1133,7 @@ IImage * CAnimation::getFromExtraDef(std::string filename)
 	pos = filename.find(':', pos);
 	if (pos != -1)
 	{
+		pos++;
 		group = frame;
 		frame = atoi(filename.c_str()+pos);
 	}
@@ -1065,7 +1181,7 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		std::string filename = source[group][frame].Struct().find("file")->second.String();
+		std::string filename = source[group][frame]["file"].String();
 
 		IImage * img = getFromExtraDef(filename);
 		if (!img)
@@ -1214,13 +1330,14 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(clone.getType() == JsonNode::DATA_NULL)
 	{
-        clone["file"].String() = name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+        clone["file"].String() = temp;
 	}
 
 	source[targetGroup].push_back(clone);
 
 	if(preloaded)
-		load(source[targetGroup].size()-1, targetGroup);
+		load(sourceFrame, targetGroup);
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)

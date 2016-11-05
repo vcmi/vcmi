@@ -141,7 +141,6 @@ Graphics::Graphics()
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += std::bind(&Graphics::loadFonts,this);
 	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
-	tasks += std::bind(&Graphics::loadHeroFlags,this);
 	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += std::bind(&Graphics::loadErmuToPicture,this);
 	tasks += std::bind(&Graphics::initializeImageLists,this);
@@ -151,7 +150,6 @@ Graphics::Graphics()
 	#else
 	loadFonts();
 	loadPaletteAndColors();
-	loadHeroFlags();
 	initializeBattleGraphics();
 	loadErmuToPicture();
 	initializeImageLists();
@@ -165,32 +163,8 @@ void Graphics::load()
 	heroMoveArrows = std::make_shared<CAnimation>("ADAG");
 	heroMoveArrows->preload();
 
-	loadHeroAnims();//todo: remove
 	loadHeroAnimations();
 	loadHeroFlagAnimations();
-}
-
-void Graphics::loadHeroAnims()
-{
-	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations =
-	{
-		{6,10}, {7,11}, {8,12}, {1,13},
-		{2,14}, {3,15}
-	};
-
-	for(auto & elem : CGI->heroh->classes.heroClasses)
-	{
-		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
-		{
-			if (!heroAnims.count(templ.animationFile))
-			heroAnims[templ.animationFile] = loadHeroAnim(templ.animationFile, rotations);
-		}
-	}
-
-	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));
-	boatAnims.push_back(loadHeroAnim("AB02_.DEF", rotations));
-	boatAnims.push_back(loadHeroAnim("AB03_.DEF", rotations));
 }
 
 void Graphics::loadHeroAnimations()
@@ -274,43 +248,6 @@ std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & 
 	return anim;
 }
 
-CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations)
-{
-	CDefEssential *anim = CDefHandler::giveDefEss(name);
-	int pom = 0; //how many groups has been rotated
-	for(int o=7; pom<6; ++o)
-	{
-		for(int p=0;p<6;p++)
-		{
-			if(anim->ourImages[o].groupNumber == rotations[p].first)
-			{
-				for(int e=0; e<8; ++e)
-				{
-					Cimage nci;
-					nci.bitmap = CSDL_Ext::verticalFlip(anim->ourImages[o+e].bitmap);
-					nci.groupNumber = rotations[p].second;
-					nci.imName = std::string();
-					anim->ourImages.push_back(nci);
-					if(pom>2) //we need only one frame for groups 13/14/15
-						break;
-				}
-				if(pom<3) //there are eight frames of animtion of groups 6/7/8 so for speed we'll skip them
-					o+=8;
-				else //there is only one frame of 1/2/3
-					o+=1;
-				++pom;
-				if(p==2 && pom<4) //group1 starts at index 1
-					o = 1;
-			}
-		}
-	}
-	for(auto & elem : anim->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
-	return anim;
-}
-
 std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
 {
 	//first - group number to be rotated, second - group number after rotation
@@ -332,7 +269,6 @@ std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
         for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
 		{
 			anim->duplicateImage(sourceGroup, frame, targetGroup);
-
 			IImage * image = anim->getImage(frame, targetGroup);
 			image->verticalFlip();
 		}
@@ -370,98 +306,6 @@ std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
 //	}
 
 	return anim;
-}
-
-void Graphics::loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr)
-{
-	for(int i=0;i<8;i++)
-		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
-	//first - group number to be rotated1, second - group number after rotation1
-	std::vector<std::pair<int,int> > rotations =
-	{
-		{6,10}, {7,11}, {8,12}
-	};
-
-	for(int q=0; q<8; ++q)
-	{
-		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
-		for(size_t o=0; o<curImgs.size(); ++o)
-		{
-			for(auto & rotation : rotations)
-			{
-				if(curImgs[o].groupNumber==rotation.first)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
-						nci.groupNumber = rotation.second;
-						nci.imName = std::string();
-						curImgs.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-		}
-
-		for(size_t o=0; o<curImgs.size(); ++o)
-		{
-			if(curImgs[o].groupNumber==1 || curImgs[o].groupNumber==2 || curImgs[o].groupNumber==3)
-			{
-				for(int e=0; e<8; ++e)
-				{
-					Cimage nci;
-					nci.bitmap = CSDL_Ext::verticalFlip(curImgs[o+e].bitmap);
-					nci.groupNumber = 12 + curImgs[o].groupNumber;
-					nci.imName = std::string();
-					curImgs.push_back(nci);
-				}
-				o+=8;
-			}
-		}
-
-		for(auto & curImg : curImgs)
-		{
-			CSDL_Ext::setDefaultColorKey(curImg.bitmap);
-			SDL_SetSurfaceBlendMode(curImg.bitmap,SDL_BLENDMODE_NONE);
-		}
-	}
-}
-
-void Graphics::loadHeroFlags()
-{
-	CStopWatch th;
-	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4] =
-	{
-		{
-			&Graphics::flags1,
-			{"ABF01L.DEF","ABF01G.DEF","ABF01R.DEF","ABF01D.DEF","ABF01B.DEF",
-			"ABF01P.DEF","ABF01W.DEF","ABF01K.DEF"}
-		},
-		{
-			&Graphics::flags2,
-			{"ABF02L.DEF","ABF02G.DEF","ABF02R.DEF","ABF02D.DEF","ABF02B.DEF",
-			"ABF02P.DEF","ABF02W.DEF","ABF02K.DEF"}
-
-		},
-		{
-			&Graphics::flags3,
-			{"ABF03L.DEF","ABF03G.DEF","ABF03R.DEF","ABF03D.DEF","ABF03B.DEF",
-			"ABF03P.DEF","ABF03W.DEF","ABF03K.DEF"}
-		},
-		{
-			&Graphics::flags4,
-			{"AF00.DEF","AF01.DEF","AF02.DEF","AF03.DEF","AF04.DEF",
-			"AF05.DEF","AF06.DEF","AF07.DEF"}
-		}
-	};
-
-	for(auto p: pr)
-	{
-		loadHeroFlagsDetail(p);
-	}
-
-	logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
@@ -515,26 +359,6 @@ void Graphics::loadFonts()
 		else
 			fonts[i] = new CBitmapFont(filename);
 	}
-}
-
-CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
-{
-	if (obj->appearance.animationFile.empty())
-	{
-		logGlobal->warnStream() << boost::format("Def name for obj %d (%d,%d) is empty!") % obj->id % obj->ID % obj->subID;
-		return nullptr;
-	}
-	return advmapobjGraphics[obj->appearance.animationFile];
-}
-
-CDefEssential * Graphics::getDef( const ObjectTemplate & info )
-{
-	if (info.animationFile.empty())
-	{
-		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
-		return nullptr;
-	}
-	return advmapobjGraphics[info.animationFile];
 }
 
 std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
