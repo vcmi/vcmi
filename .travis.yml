@@ -6,13 +6,14 @@ dist: trusty
 sudo: required
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then . .travis.linux; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then . .travis.osx; fi
+  - if [[ $VCMI_PLATFORM == 'linux' ]]; then . .travis.linux; fi
+  - if [[ $VCMI_PLATFORM == 'mac' ]]; then . .travis.osx; fi
+  - if [[ $VCMI_PLATFORM == 'mxe' ]]; then . .travis.mxe; fi
 
 before_script:
   - mkdir build
   - cd build
-  - cmake -G "Unix Makefiles" ..
+  - cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
 
 script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd ..; xcodebuild -project osx/osx-vcmibuilder/vcmibuilder.xcodeproj/ -configuration Release CONFIGURATION_BUILD_DIR=..; cd build; fi
@@ -27,17 +28,21 @@ matrix:
   include:
     - os: linux
       compiler: clang
-      env: REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: clang
-      env: REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: clang
-      env: REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: gcc
-      env: REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+      env: VCMI_PLATFORM='linux' REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+    - os: linux
+      env: VCMI_PLATFORM='mxe' MXE_TARGET=i686-w64-mingw32.shared VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
+      sudo: required
     - os: osx
+      env: VCMI_PLATFORM='mac'
 
 notifications:
   email:
