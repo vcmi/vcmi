@@ -146,26 +146,11 @@ struct NeighborTilesInfo
 
 void CMapHandler::prepareFOWDefs()
 {
-	graphics->FoWfullHide = CDefHandler::giveDef("TSHRC.DEF");
-	graphics->FoWpartialHide = CDefHandler::giveDef("TSHRE.DEF");
-
-	//adding necessary rotations
-	static const int missRot [] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
-
-	Cimage nw;
-	for(auto & elem : missRot)
-	{
-		nw = graphics->FoWpartialHide->ourImages[elem];
-		nw.bitmap = CSDL_Ext::verticalFlip(nw.bitmap);
-		graphics->FoWpartialHide->ourImages.push_back(nw);
-	}
-	//necessaary rotations added
-
-	//alpha - transformation
-	for(auto & elem : graphics->FoWpartialHide->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	//assume all frames in group 0
+	size_t size = graphics->fogOfWarFullHide->size(0);
+	FoWfullHide.resize(size);
+	for(size_t frame = 0; frame < size; frame++)
+		FoWfullHide[frame] = graphics->fogOfWarFullHide->getImage(frame);
 
 	//initialization of type of full-hide image
 	hideBitmap.resize(sizes.x);
@@ -180,10 +165,17 @@ void CMapHandler::prepareFOWDefs()
 			elem[j].resize(sizes.z);
 			for(int k = 0; k < sizes.z; ++k)
 			{
-				elem[j][k] = CRandomGenerator::getDefault().nextInt(graphics->FoWfullHide->ourImages.size() - 1);
+				elem[j][k] = CRandomGenerator::getDefault().nextInt(size - 1);
 			}
 		}
 	}
+
+	size = graphics->fogOfWarPartialHide->size(0);
+	FoWpartialHide.resize(size);
+	for(size_t frame = 0; frame < size; frame++)
+		FoWpartialHide[frame] = graphics->fogOfWarPartialHide->getImage(frame);
+
+
 }
 
 EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim /* = false */)
@@ -903,9 +895,21 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 {
+	const NeighborTilesInfo neighborInfo(pos, parent->sizes, *info->visibilityMap);
+
+	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
+	if (retBitmapID < 0)
+		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
+
+	const IImage * image = nullptr;
+
+	if (retBitmapID >= 0)
+		image = parent->FoWpartialHide.at(retBitmapID);
+	else
+		image = parent->FoWfullHide.at(-retBitmapID - 1);
+
 	Rect destRect(realTileRect);
-	std::pair<SDL_Surface *, bool> hide = getVisBitmap();
-	drawElement(EMapCacheType::FOW, hide.first, nullptr, targetSurf, &destRect, hide.second);
+	drawElement(EMapCacheType::FOW, image, nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingInfo * info)
@@ -1172,26 +1176,6 @@ ui8 CMapHandler::CMapBlitter::getHeroFrameGroup(ui8 dir, bool isMoving) const
 	{
 		static const ui8 frame [] = {0xff, 13, 0, 1, 2, 3, 4, 15, 14};
 		return frame[dir];
-	}
-}
-
-std::pair<SDL_Surface *, bool> CMapHandler::CMapBlitter::getVisBitmap() const
-{
-	const NeighborTilesInfo neighborInfo(pos, parent->sizes, *info->visibilityMap);
-
-	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
-	if (retBitmapID < 0)
-	{
-		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
-	}
-
-	if (retBitmapID >= 0)
-	{
-		return std::make_pair(graphics->FoWpartialHide->ourImages[retBitmapID].bitmap, true);
-	}
-	else
-	{
-		return std::make_pair(graphics->FoWfullHide->ourImages[-retBitmapID - 1].bitmap, false);
 	}
 }
 
@@ -1512,11 +1496,6 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 
 CMapHandler::~CMapHandler()
 {
-	delete graphics->FoWfullHide;
-	delete graphics->FoWpartialHide;
-//	if (fadingOffscreenBitmapSurface)
-//		delete fadingOffscreenBitmapSurface;
-
 	delete normalBlitter;
 	delete worldViewBlitter;
 	delete puzzleViewBlitter;
@@ -1543,8 +1522,6 @@ CMapHandler::~CMapHandler()
 CMapHandler::CMapHandler()
 {
 	frameW = frameH = 0;
-	graphics->FoWfullHide = nullptr;
-	graphics->FoWpartialHide = nullptr;
 	normalBlitter = new CMapNormalBlitter(this);
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);

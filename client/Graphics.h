@@ -15,7 +15,6 @@
  *
  */
 
-class CDefEssential;
 struct SDL_Surface;
 class CGHeroInstance;
 class CGTownInstance;
@@ -51,7 +50,7 @@ class Graphics
 	std::shared_ptr<CAnimation> loadHeroFlagAnimation(const std::string &name);
 
 	void loadErmuToPicture();
-
+	void loadFogOfWar();
 	void loadFonts();
 	void initializeImageLists();
 
@@ -80,8 +79,8 @@ public:
 	//all other objects (not hero or boat)
 	std::map< std::string, std::shared_ptr<CAnimation> > mapObjectAnimations;
 
-	CDefHandler * FoWfullHide; //for Fog of War
-	CDefHandler * FoWpartialHide; //for For of War
+	std::shared_ptr<CAnimation> fogOfWarFullHide;
+	std::shared_ptr<CAnimation> fogOfWarPartialHide;
 
 	std::map<std::string, JsonNode> imageLists;
 

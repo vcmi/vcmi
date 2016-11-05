@@ -267,8 +267,6 @@ class CMapHandler
 		virtual SDL_Rect clip(SDL_Surface * targetSurf) const = 0;
 
 		virtual ui8 getHeroFrameGroup(ui8 dir, bool isMoving) const;
-		///returns appropriate bitmap and info if alpha blitting is necessary
-		virtual std::pair<SDL_Surface *, bool> getVisBitmap() const;
 		virtual ui8 getPhaseShift(const CGObjectInstance *object) const;
 
 		virtual bool canDrawObject(const CGObjectInstance * obj) const;
@@ -378,7 +376,9 @@ public:
 	int offsetX;
 	int offsetY;
 
-	//std::set<int> usedHeroes;
+	//Fog of War cache (not owned)
+	std::vector<const IImage *> FoWfullHide;
+	std::vector<const IImage *> FoWpartialHide;
 
 	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
 	std::vector<CDefEssential *> roadDefs;

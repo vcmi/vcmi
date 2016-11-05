@@ -130,14 +130,6 @@ Graphics::Graphics()
 {
 	#if 0
 
-	#define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
-		(std::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))
-
-	#define GET_DEF_ESS(DESTINATION, DEF_NAME) \
-		(GET_DATA \
-			(CDefEssential*,DESTINATION,\
-			std::function<CDefEssential*()>(std::bind(CDefHandler::giveDefEss,DEF_NAME))))
-
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += std::bind(&Graphics::loadFonts,this);
 	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
@@ -165,6 +157,7 @@ void Graphics::load()
 
 	loadHeroAnimations();
 	loadHeroFlagAnimations();
+	loadFogOfWar();
 }
 
 void Graphics::loadHeroAnimations()
@@ -274,37 +267,6 @@ std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
 		}
 	}
 
-	//todo: apply following commented out optimizations or merge with loadHeroFlagAnimation
-
-//	int pom = 0; //how many groups has been rotated
-//	for(int o = 7; pom < 6; ++o)
-//	{
-//		for(int p = 0; p<6; p++)
-//		{
-//			IImage frame = anim->getImage()
-//			if(anim->ourImages[o].groupNumber == rotations[p].first)
-//			{
-//				for(int e=0; e<8; ++e)
-//				{
-//					Cimage nci;
-//					nci.bitmap = CSDL_Ext::verticalFlip(anim->ourImages[o+e].bitmap);
-//					nci.groupNumber = rotations[p].second;
-//					nci.imName = std::string();
-//					anim->ourImages.push_back(nci);
-//					if(pom>2) //we need only one frame for groups 13/14/15
-//						break;
-//				}
-//				if(pom<3) //there are eight frames of animtion of groups 6/7/8 so for speed we'll skip them
-//					o+=8;
-//				else //there is only one frame of 1/2/3
-//					o+=1;
-//				++pom;
-//				if(p==2 && pom<4) //group1 starts at index 1
-//					o = 1;
-//			}
-//		}
-//	}
-
 	return anim;
 }
 
@@ -335,6 +297,26 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		// Or keep palette approach here and replace only colors of specific value(s)
 		// Or just wait for OpenGL support?
 		logGlobal->warnStream() << "Image must have palette to be player-colored!";
+	}
+}
+
+void Graphics::loadFogOfWar()
+{
+	fogOfWarFullHide = std::make_shared<CAnimation>("TSHRC");
+	fogOfWarFullHide->preload();
+	fogOfWarPartialHide = std::make_shared<CAnimation>("TSHRE");
+	fogOfWarPartialHide->preload();
+
+	static const int rotations [] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
+
+	size_t size = fogOfWarPartialHide->size(0);//group size after next rotation
+
+	for(const int rotation : rotations)
+	{
+		fogOfWarPartialHide->duplicateImage(0, rotation, 0);
+		IImage * image = fogOfWarPartialHide->getImage(size, 0);
+		image->verticalFlip();
+		size++;
 	}
 }
 

@@ -341,7 +341,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			//pixel data is not compressed, copy data to surface
 			for (ui32 i=0; i<sprite.height; i++)
 			{
-				loader.Load(sprite.width, FDef[currentOffset]);
+				loader.Load(sprite.width, FDef + currentOffset);
 				currentOffset += sprite.width;
 				loader.EndLine();
 			}
@@ -809,7 +809,7 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 	}
 	else
 	{
-		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
+		SDL_UpperBlit(surf, &sourceRect, where, &destRect);
 	}
 }
 
@@ -1336,8 +1336,10 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	source[targetGroup].push_back(clone);
 
+	size_t index = source[targetGroup].size() - 1;
+
 	if(preloaded)
-		load(sourceFrame, targetGroup);
+		load(index, targetGroup);
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
