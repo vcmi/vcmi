@@ -3,7 +3,6 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
-#include "CDefHandler.h"
 #include "gui/SDL_Extensions.h"
 #include "gui/CAnimation.h"
 #include <SDL_ttf.h>
@@ -335,11 +334,11 @@ void Graphics::loadFonts()
 		std::string filename = bmpConf[i].String();
 
 		if (!hanConf[filename].isNull())
-			fonts[i] = new CBitmapHanFont(hanConf[filename]);
+			fonts[i] = std::make_shared<CBitmapHanFont>(hanConf[filename]);
 		else if (!ttfConf[filename].isNull()) // no ttf override
-			fonts[i] = new CTrueTypeFont(ttfConf[filename]);
+			fonts[i] = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
 		else
-			fonts[i] = new CBitmapFont(filename);
+			fonts[i] = std::make_shared<CBitmapFont>(filename);
 	}
 }
 

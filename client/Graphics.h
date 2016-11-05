@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "gui/Fonts.h"
 #include "../lib/GameConstants.h"
 #include "gui/Geometries.h"
@@ -18,7 +17,6 @@
 struct SDL_Surface;
 class CGHeroInstance;
 class CGTownInstance;
-class CDefHandler;
 class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
@@ -57,7 +55,7 @@ class Graphics
 public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
-	IFont * fonts[FONTS_NUMBER];
+	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
 
 	//various graphics
 	SDL_Color * playerColors; //array [8]

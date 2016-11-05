@@ -133,16 +133,6 @@ template <typename T> class PseudoV
 {
 public:
 	PseudoV() : offset(0) { }
-	PseudoV(std::vector<T> &src, int rest, int before, int after, const T& fill) : offset(before)
-	{
-		inver.resize(before + rest + after);
-		for(int i=0; i<before;i++)
-			inver[i] = fill;
-		for(int i=0;i<src.size();i++)
-			inver[offset+i] = src[i];
-		for(int i=src.size(); i<src.size()+after;i++)
-			inver[offset+i] = fill;
-	}
 	inline T & operator[](const int & n)
 	{
 		return inver[n+offset];
@@ -167,15 +157,15 @@ private:
 };
 class CMapHandler
 {
-	enum class EMapCacheType
+	enum class EMapCacheType : ui8
 	{
-		TERRAIN, TERRAIN_CUSTOM, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS, FRAME
+		TERRAIN, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS, FRAME, AFTER_LAST
 	};
 
 	/// temporarily caches rescaled sdl surfaces for map world view redrawing
 	class CMapCache
 	{
-		std::map<EMapCacheType, std::map<intptr_t, SDL_Surface *>> data;
+		std::array< std::map<intptr_t, SDL_Surface *>, (ui8)EMapCacheType::AFTER_LAST> data;
 		float worldViewCachedScale;
 	public:
 		/// destroys all cached data (frees surfaces)
@@ -405,8 +395,6 @@ public:
 
 	EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
 	void updateWater();
-	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
-	static ui8 getDir(const int3 & a, const int3 & b);  //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
 	/// determines if the map is ready to handle new hero movement (not available during fading animations)
 	bool canStartHeroMovement();
 

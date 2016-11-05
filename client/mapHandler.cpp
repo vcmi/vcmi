@@ -703,11 +703,8 @@ void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, con
 void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile2 & tile) const
 {
 	Rect destRect(realTileRect);
-	if(tile.terbitmap) //if custom terrain graphic - use it
-		drawElement(EMapCacheType::TERRAIN_CUSTOM, tile.terbitmap, nullptr, targetSurf, &destRect);
-	else //use default terrain graphic
-		drawElement(EMapCacheType::TERRAIN, parent->terrainGraphics[tinfo.terType][tinfo.terView],
-				nullptr, targetSurf, &destRect, false, tinfo.extTileFlags % 4);
+
+	drawElement(EMapCacheType::TERRAIN, parent->terrainGraphics[tinfo.terType][tinfo.terView], nullptr, targetSurf, &destRect, false, tinfo.extTileFlags % 4);
 }
 
 void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
@@ -1377,77 +1374,6 @@ bool CMapHandler::removeObject(CGObjectInstance *obj, bool fadeout /* = false */
 	return true;
 }
 
-void CMapHandler::validateRectTerr(SDL_Rect * val, const SDL_Rect * ext)
-{
-	if(ext)
-	{
-		if(val->x<0)
-		{
-			val->w += val->x;
-			val->x = ext->x;
-		}
-		else
-		{
-			val->x += ext->x;
-		}
-		if(val->y<0)
-		{
-			val->h += val->y;
-			val->y = ext->y;
-		}
-		else
-		{
-			val->y += ext->y;
-		}
-
-		if(val->x+val->w > ext->x+ext->w)
-		{
-			val->w = ext->x+ext->w-val->x;
-		}
-		if(val->y+val->h > ext->y+ext->h)
-		{
-			val->h = ext->y+ext->h-val->y;
-		}
-
-		//for sign problems
-		if(val->h > 20000 || val->w > 20000)
-		{
-			val->h = val->w = 0;
-		}
-	}
-}
-
-ui8 CMapHandler::getDir(const int3 &a, const int3 &b)
-{
-	if(a.z!=b.z)
-		return -1; //error!
-	if(a.x==b.x+1 && a.y==b.y+1) //lt
-		return 0;
-
-	else if(a.x==b.x && a.y==b.y+1) //t
-		return 1;
-
-	else if(a.x==b.x-1 && a.y==b.y+1) //rt
-		return 2;
-
-	else if(a.x==b.x-1 && a.y==b.y) //r
-		return 3;
-
-	else if(a.x==b.x-1 && a.y==b.y-1) //rb
-		return 4;
-
-	else if(a.x==b.x && a.y==b.y-1) //b
-		return 5;
-
-	else if(a.x==b.x+1 && a.y==b.y-1) //lb
-		return 6;
-
-	else if(a.x==b.x+1 && a.y==b.y) //l
-		return 7;
-
-	return -2; //shouldn't happen
-}
-
 bool CMapHandler::canStartHeroMovement()
 {
 	return fadeAnims.empty(); // don't allow movement during fade animation
@@ -1561,16 +1487,16 @@ void CMapHandler::discardWorldViewCache()
 
 void CMapHandler::CMapCache::discardWorldViewCache()
 {
-	for (auto &cacheDataPair : data)
+	for (auto & cache : data)
 	{
-		for (auto &cacheEntryPair : cacheDataPair.second)
+		for (auto &cacheEntryPair : cache)
 		{
 			if (cacheEntryPair.second)
 			{
 				SDL_FreeSurface(cacheEntryPair.second);
 			}
 		}
-		data[cacheDataPair.first].clear();
+		cache.clear();
 	}
 	logGlobal->debugStream() << "Discarded world view cache";
 }
@@ -1584,18 +1510,18 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 
 void CMapHandler::CMapCache::removeFromWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
 {
-	auto iter = data[type].find(key);
-	if (iter != data[type].end())
+	auto iter = data[(ui8)type].find(key);
+	if (iter != data[(ui8)type].end())
 	{
 		SDL_FreeSurface((*iter).second);
-		data[type].erase(iter);
+		data[(ui8)type].erase(iter);
 	}
 }
 
 SDL_Surface * CMapHandler::CMapCache::requestWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
 {
-	auto iter = data[type].find(key);
-	if (iter == data[type].end())
+	auto iter = data[(ui8)type].find(key);
+	if (iter == data[(ui8)type].end())
 		return nullptr;
 	return (*iter).second;
 }
@@ -1620,7 +1546,7 @@ SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler:
 
 	auto scaled = fullSurface->scaleFast(scale);
 
-	data[type][key] = scaled;
+	data[(ui8)type][key] = scaled;
 
 	return scaled;
 }
@@ -1632,7 +1558,7 @@ SDL_Surface *CMapHandler::CMapCache::cacheWorldViewEntry(CMapHandler::EMapCacheT
 	if (requestWorldViewCache(type, key)) // valid cache already present, no need to do it again
 		return requestWorldViewCache(type, key);
 
-	data[type][key] = entry;
+	data[(ui8)type][key] = entry;
 	return entry;
 }
 
