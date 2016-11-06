@@ -210,10 +210,6 @@ class CMapHandler
 		const MapDrawingInfo * info; // data for drawing passed from outside
 
 		/// general drawing method, called internally by more specialized ones
-		virtual void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
-								 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const = 0;
-
-		//todo: support rotation
 		virtual void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const = 0;
 
 		// first drawing pass
@@ -277,11 +273,7 @@ class CMapHandler
 	class CMapNormalBlitter : public CMapBlitter
 	{
 	protected:
-		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
-						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
-
 		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
-
 		void drawTileOverlay(SDL_Surface * targetSurf,const TerrainTile2 & tile) const override {}
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
@@ -295,11 +287,7 @@ class CMapHandler
 	private:
 		IImage * objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
 	protected:
-		void drawElement(EMapCacheType cacheType, SDL_Surface * sourceSurf, SDL_Rect * sourceRect,
-						 SDL_Surface * targetSurf, SDL_Rect * destRect, bool alphaBlit = false, ui8 rotationInfo = 0u) const override;
-
 		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
-
 		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
 		void drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
 		void drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const override;
@@ -307,11 +295,7 @@ class CMapHandler
 		void drawOverlayEx(SDL_Surface * targetSurf) override;
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
-
 		ui8 getPhaseShift(const CGObjectInstance *object) const override { return 0u; }
-
-		void drawScaledRotatedElement(EMapCacheType type, SDL_Surface * baseSurf, SDL_Surface * targetSurf, ui8 rotation,
-									  float scale, SDL_Rect * dstRect, SDL_Rect * srcRect = nullptr) const;
 		void calculateWorldViewCameraPos();
 	public:
 		CMapWorldViewBlitter(CMapHandler * parent);
@@ -344,8 +328,8 @@ class CMapHandler
 	bool startObjectFade(TerrainTileObject & obj, bool in, int3 pos);
 
 	void initObjectRects();
-	void borderAndTerrainBitmapInit();
-	void roadsRiverTerrainInit();
+	void initBorderGraphics();
+	void initTerrainGraphics();
 	void prepareFOWDefs();
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
@@ -367,9 +351,19 @@ public:
 	int offsetX;
 	int offsetY;
 
-	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type]
-	std::vector<CDefEssential *> roadDefs;
-	std::vector<CDefEssential *> staticRiverDefs;
+	//terrain graphics
+
+	typedef std::vector<std::array<std::unique_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
+	typedef std::vector<std::vector<std::array<IImage *, 4>>> TFlippedCache;//[type, view type, rotation]
+
+	TFlippedAnimations terrainAnimations;//[terrain type, rotation]
+	TFlippedCache terrainImages;//[terrain type, view type, rotation]
+
+	TFlippedAnimations roadAnimations;//[road type, rotation]
+	TFlippedCache roadImages;//[road type, view type, rotation]
+
+	TFlippedAnimations riverAnimations;//[river type, rotation]
+	TFlippedCache riverImages;//[river type, view type, rotation]
 
 	//Fog of War cache (not owned)
 	std::vector<const IImage *> FoWfullHide;

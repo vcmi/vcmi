@@ -45,6 +45,10 @@ public:
 	virtual int width() const=0;
 	virtual int height() const=0;
 
+	//only indexed bitmaps, 16 colors maximum
+	virtual void shiftPalette(int from, int howMany) = 0;
+
+	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
 
 	IImage();

@@ -96,7 +96,10 @@ public:
 	int width() const override;
 	int height() const override;
 
+	void horizontalFlip() override;
 	void verticalFlip() override;
+
+	void shiftPalette(int from, int howMany) override;
 
 	friend class SDLImageLoader;
 };
@@ -149,7 +152,10 @@ public:
 	int width() const override;
 	int height() const override;
 
+	void horizontalFlip() override;
 	void verticalFlip() override;
+
+	void shiftPalette(int from, int howMany) override;
 
 	friend class CompImageLoader;
 };
@@ -849,6 +855,17 @@ int SDLImage::height() const
 	return fullSize.y;
 }
 
+void SDLImage::horizontalFlip()
+{
+	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
+
+	SDL_FreeSurface(surf);
+
+	surf = flipped;
+
+	margins.y = fullSize.y - surf->h - margins.y;
+}
+
 void SDLImage::verticalFlip()
 {
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
@@ -858,6 +875,23 @@ void SDLImage::verticalFlip()
 	surf = flipped;
 
 	margins.x = fullSize.x - surf->w - margins.x;
+}
+
+void SDLImage::shiftPalette(int from, int howMany)
+{
+	//works with at most 16 colors, if needed more -> increase values
+	assert(howMany < 16);
+
+	if(surf->format->palette)
+	{
+		SDL_Color palette[16];
+
+		for(int i=0; i<howMany; ++i)
+		{
+			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
+		}
+		SDL_SetColors(surf, palette, from, howMany);
+	}
 }
 
 SDLImage::~SDLImage()
@@ -1091,7 +1125,7 @@ void CompImage::playerColored(PlayerColor player)
 
 void CompImage::setFlagColor(PlayerColor player)
 {
-	logGlobal->error("CompImage::setFlagColor is not implemented");
+	logAnim->error("CompImage::setFlagColor is not implemented");
 }
 
 int CompImage::width() const
@@ -1111,9 +1145,19 @@ CompImage::~CompImage()
 	delete [] palette;
 }
 
+void CompImage::horizontalFlip()
+{
+	logAnim->error("CompImage::horizontalFlip is not implemented");
+}
+
 void CompImage::verticalFlip()
 {
-	logGlobal->error("CompImage::verticalFlip is not implemented");
+	logAnim->error("CompImage::verticalFlip is not implemented");
+}
+
+void CompImage::shiftPalette(int from, int howMany)
+{
+	logAnim->error("CompImage::shiftPalette is not implemented");
 }
 
 
