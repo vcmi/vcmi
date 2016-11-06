@@ -80,10 +80,7 @@ struct TerrainTileObject
 
 struct TerrainTile2
 {
-	SDL_Surface * terbitmap; //bitmap of terrain
-
 	std::vector<TerrainTileObject> objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
-	TerrainTile2();
 };
 
 struct MapDrawingInfo
@@ -366,15 +363,20 @@ public:
 	int offsetX;
 	int offsetY;
 
-	//Fog of War cache (not owned)
-	std::vector<const IImage *> FoWfullHide;
-	std::vector<const IImage *> FoWpartialHide;
-
-	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
+	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type]
 	std::vector<CDefEssential *> roadDefs;
 	std::vector<CDefEssential *> staticRiverDefs;
 
-	std::vector<std::vector<std::vector<ui8> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
+	//Fog of War cache (not owned)
+	std::vector<const IImage *> FoWfullHide;
+	std::vector<std::vector<std::vector<ui8> > > hideBitmap; //frame indexes (in FoWfullHide) of graphic that should be used to fully hide a tile
+
+	std::vector<const IImage *> FoWpartialHide;
+
+	//edge graphics
+	std::unique_ptr<CAnimation> egdeAnimation;
+	std::vector<const IImage *> egdeImages;//cache of links to egdeAnimation (for faster access)
+	PseudoV< PseudoV< PseudoV <ui8> > > edgeFrames; //frame indexes (in egdeImages) of tile outside of map
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 

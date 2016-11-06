@@ -174,8 +174,6 @@ void CMapHandler::prepareFOWDefs()
 	FoWpartialHide.resize(size);
 	for(size_t frame = 0; frame < size; frame++)
 		FoWpartialHide[frame] = graphics->fogOfWarPartialHide->getImage(frame);
-
-
 }
 
 EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim /* = false */)
@@ -228,31 +226,32 @@ void CMapHandler::roadsRiverTerrainInit()
 
 void CMapHandler::borderAndTerrainBitmapInit()
 {
-	CDefHandler * bord = CDefHandler::giveDef("EDG.DEF");
-	bord->notFreeImgs =  true;
-	terrainGraphics.resize(10);
-	for (int i = 0; i < 10 ; i++)
+	egdeImages.resize(egdeAnimation->size(0));
+	for(size_t i = 0; i < egdeImages.size(); i++)
+		egdeImages[i] = egdeAnimation->getImage(i);
+
+	edgeFrames.resize(sizes.x, frameW, frameW);
+	for (int i=0-frameW;i<edgeFrames.size()-frameW;i++)
 	{
-		CDefHandler *hlp = CDefHandler::giveDef(nameFromType(i));
-		terrainGraphics[i].resize(hlp->ourImages.size());
-		hlp->notFreeImgs = true;
-		for(size_t j=0; j < hlp->ourImages.size(); ++j)
-			terrainGraphics[i][j] = hlp->ourImages[j].bitmap;
-		delete hlp;
+		edgeFrames[i].resize(sizes.y, frameH, frameH);
 	}
+	for (int i=0-frameW;i<edgeFrames.size()-frameW;i++)
+	{
+		for (int j=0-frameH;j<(int)sizes.y+frameH;j++)
+			edgeFrames[i][j].resize(sizes.z, 0, 0);
+	}
+
+	auto & rand = CRandomGenerator::getDefault();
 
 	for (int i=0-frameW; i<sizes.x+frameW; i++) //by width
 	{
 		for (int j=0-frameH; j<sizes.y+frameH;j++) //by height
 		{
-			for(int k=0; k<sizes.z; ++k) //by levles
+			for(int k=0; k<sizes.z; ++k) //by levels
 			{
+				ui8 terBitmapNum = 0;
 				if(i < 0 || i > (sizes.x-1) || j < 0  || j > (sizes.y-1))
 				{
-					int terBitmapNum = -1;
-
-					auto & rand = CRandomGenerator::getDefault();
-
 					if(i==-1 && j==-1)
 						terBitmapNum = 16;
 					else if(i==-1 && j==(sizes.y))
@@ -272,16 +271,22 @@ void CMapHandler::borderAndTerrainBitmapInit()
 					else
 						terBitmapNum = rand.nextInt(15);
 
-					if(terBitmapNum != -1)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[terBitmapNum].bitmap;
-						continue;
-					}
 				}
+				edgeFrames[i][j][k] = terBitmapNum;
 			}
 		}
 	}
-	delete bord;
+
+	terrainGraphics.resize(10);
+	for (int i = 0; i < 10 ; i++)
+	{
+		CDefHandler *hlp = CDefHandler::giveDef(nameFromType(i));
+		terrainGraphics[i].resize(hlp->ourImages.size());
+		hlp->notFreeImgs = true;
+		for(size_t j=0; j < hlp->ourImages.size(); ++j)
+			terrainGraphics[i][j] = hlp->ourImages[j].bitmap;
+		delete hlp;
+	}
 }
 
 void CMapHandler::initObjectRects()
@@ -791,7 +796,7 @@ CMapHandler::CMapPuzzleViewBlitter::CMapPuzzleViewBlitter(CMapHandler * parent)
 void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 {
 	Rect destRect(realTileRect);
-	drawElement(EMapCacheType::FRAME, parent->ttiles[pos.x][pos.y][topTile.z].terbitmap, nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::FRAME, parent->egdeImages[parent->edgeFrames[pos.x][pos.y][topTile.z]], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawOverlayEx(SDL_Surface * targetSurf)
@@ -1452,6 +1457,9 @@ CMapHandler::CMapHandler()
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
 	fadeAnimCounter = 0;
+
+	egdeAnimation = make_unique<CAnimation>("EDG");
+	egdeAnimation->preload();
 }
 
 void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
@@ -1566,10 +1574,6 @@ intptr_t CMapHandler::CMapCache::genKey(intptr_t realPtr, ui8 mod)
 {
 	return (intptr_t)(realPtr ^ (mod << (sizeof(intptr_t) - 2))); // maybe some cleaner method to pack rotation into cache key?
 }
-
-TerrainTile2::TerrainTile2()
- :terbitmap(nullptr)
-{}
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
 {
