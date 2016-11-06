@@ -598,6 +598,7 @@ void CMapHandler::CMapWorldViewBlitter::drawScaledRotatedElement(EMapCacheType t
 
 		CSDL_Ext::blitSurface(scaledSurf2, srcRect, targetSurf, dstRect);
 		parent->cache.cacheWorldViewEntry(type, key, scaledSurf2);
+		SDL_FreeSurface(baseSurfRotated);
 	}
 }
 
@@ -1373,11 +1374,6 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 
 	return true;
 }
-bool CMapHandler::removeObject(CGObjectInstance *obj, bool fadeout /* = false */)
-{
-	hideObject(obj, fadeout);
-	return true;
-}
 
 bool CMapHandler::canStartHeroMovement()
 {
@@ -1514,16 +1510,6 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 	if (fabs(scale - worldViewCachedScale) > 0.001f)
 		discardWorldViewCache();
 	worldViewCachedScale = scale;
-}
-
-void CMapHandler::CMapCache::removeFromWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
-{
-	auto iter = data[(ui8)type].find(key);
-	if (iter != data[(ui8)type].end())
-	{
-		SDL_FreeSurface((*iter).second);
-		data[(ui8)type].erase(iter);
-	}
 }
 
 SDL_Surface * CMapHandler::CMapCache::requestWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)

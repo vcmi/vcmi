@@ -169,7 +169,6 @@ class CMapHandler
 		void discardWorldViewCache();
 		/// updates scale and determines if currently cached data is still valid
 		void updateWorldViewScale(float scale);
-		void removeFromWorldViewCache(EMapCacheType type, intptr_t key);
 		/// asks for cached data; @returns cached surface or nullptr if data is not in cache
 		SDL_Surface * requestWorldViewCache(EMapCacheType type, intptr_t key);
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
@@ -343,6 +342,11 @@ class CMapHandler
 	CMapBlitter * resolveBlitter(const MapDrawingInfo * info) const;
 	bool updateObjectsFade();
 	bool startObjectFade(TerrainTileObject & obj, bool in, int3 pos);
+
+	void initObjectRects();
+	void borderAndTerrainBitmapInit();
+	void roadsRiverTerrainInit();
+	void prepareFOWDefs();
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
@@ -384,16 +388,9 @@ public:
 	~CMapHandler(); //d-tor
 
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
-	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
 	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to tiles, so obj will be visible on map
 	bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
-	bool removeObject(CGObjectInstance * obj, bool fadeout = false); //removes object from each place in VCMI (I hope)
 	void init();
-	void calculateBlockedPos();
-	void initObjectRects();
-	void borderAndTerrainBitmapInit();
-	void roadsRiverTerrainInit();
-	void prepareFOWDefs();
 
 	EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
 	void updateWater();
