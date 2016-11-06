@@ -59,9 +59,13 @@ public:
 class CCommanderArtPlace : public CArtPlace
 {
 protected:
+	const CGHeroInstance * commanderOwner;
+	ArtifactPosition commanderSlotID;
+
 	void createImage() override;
+	void returnArtToHeroCallback();
 public:
-	CCommanderArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
+	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr); //c-tor
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 

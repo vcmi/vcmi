@@ -960,7 +960,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 	LRClickableAreaWTextComp::clickRight(down, previousState);
 }
 
-CCommanderArtPlace::CCommanderArtPlace(Point position, const CArtifactInstance * Art) : CArtPlace(position, Art)
+CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art) : CArtPlace(position, Art), commanderOwner(commanderOwner), commanderSlotID(artSlot.num)
 {
 	createImage();
 	setArtifact(Art);
@@ -968,8 +968,9 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CArtifactInstance *
 
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
-	if(ourArt && text.size())
-		CArtPlace::clickLeft(down, previousState);	
+	if (down && ourArt && text.size())
+		LOCPLINT->showYesNoDialog("Do you want to give this artifact back to hero?", [this] { returnArtToHeroCallback(); }, [] {});
+		//CArtPlace::clickLeft(down, previousState);	
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)
@@ -989,6 +990,22 @@ void CCommanderArtPlace::createImage()
 	image = new CAnimImage("artifact", graphic);
 	if (!ourArt)
 		image->disable();
+}
+
+void CCommanderArtPlace::returnArtToHeroCallback()
+{
+	ArtifactPosition artifactPos = commanderSlotID;;
+	ArtifactPosition freeSlot = ourArt->firstBackpackSlot(commanderOwner);
+
+	ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
+	ArtifactLocation dst(commanderOwner, freeSlot);
+
+	if (ourArt->canBePutAt(dst, true))
+	{
+		LOCPLINT->cb->swapArtifacts(src, dst);
+		setArtifact(nullptr);
+		parent->redraw();
+	}
 }
 
 void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)

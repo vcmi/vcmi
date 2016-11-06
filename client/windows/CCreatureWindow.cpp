@@ -461,7 +461,7 @@ void CStackWindow::CWindowSection::createCommander()
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
 		//auto icon = new CClickableObject(new CAnimImage("artifact", equippedArtifact.second.artifact.get()->artType.get()->iconIndex, 0, artPos.x, artPos.y), [=] {});
-		auto icon = new CCommanderArtPlace(artPos, equippedArtifact.second.artifact);
+		auto icon = new CCommanderArtPlace(artPos, parent->info->owner, equippedArtifact.first, equippedArtifact.second.artifact);
 
 		//TODO: Use CArtPlace or equivalent instead of CClickableObject and handle commander artifact actions to match WOG (return artifact to hero etc.)
 	}
