@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "gui/Fonts.h"
 #include "../lib/GameConstants.h"
 #include "gui/Geometries.h"
@@ -14,9 +15,11 @@
  *
  */
 
+class CDefEssential;
 struct SDL_Surface;
 class CGHeroInstance;
 class CGTownInstance;
+class CDefHandler;
 class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
@@ -37,25 +40,19 @@ class Graphics
 
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
-
-	void loadHeroAnimations();
-	//loads animation and adds required rotated frames
-	std::shared_ptr<CAnimation> loadHeroAnimation(const std::string &name);
-
-	void loadHeroFlagAnimations();
-
-	//loads animation and adds required rotated frames
-	std::shared_ptr<CAnimation> loadHeroFlagAnimation(const std::string &name);
-
+	void loadHeroFlags();
+	void loadHeroFlagsDetail(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
+	void loadHeroAnims();
+	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();
-	void loadFogOfWar();
+
 	void loadFonts();
 	void initializeImageLists();
 
 public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
-	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
+	IFont * fonts[FONTS_NUMBER];
 
 	//various graphics
 	SDL_Color * playerColors; //array [8]
@@ -63,25 +60,18 @@ public:
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Color * neutralColorPalette;
 
+	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
 	std::shared_ptr<CAnimation> heroMoveArrows;
-
-	// [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	std::map< std::string, std::shared_ptr<CAnimation> > heroAnimations;
-	std::vector< std::shared_ptr<CAnimation> > heroFlagAnimations;
-
-	// [boat type: 0 .. 2]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	std::array< std::shared_ptr<CAnimation>, 3> boatAnimations;
-
-	std::array< std::vector<std::shared_ptr<CAnimation> >, 3> boatFlagAnimations;
-
-	//all other objects (not hero or boat)
-	std::map< std::string, std::shared_ptr<CAnimation> > mapObjectAnimations;
-
-	std::shared_ptr<CAnimation> fogOfWarFullHide;
-	std::shared_ptr<CAnimation> fogOfWarPartialHide;
+	std::map<std::string, CDefEssential *> heroAnims; // [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	CDefHandler * FoWfullHide; //for Fog of War
+	CDefHandler * FoWpartialHide; //for For of War
 
 	std::map<std::string, JsonNode> imageLists;
 
+	std::map<std::string, CDefEssential *> advmapobjGraphics;
+	CDefEssential * getDef(const CGObjectInstance * obj);
+	CDefEssential * getDef(const ObjectTemplate & info);
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
@@ -93,9 +83,6 @@ public:
 	void load();
 
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
-
-	std::shared_ptr<CAnimation> getAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getAnimation(const ObjectTemplate & info);
 };
 
 extern Graphics * graphics;
