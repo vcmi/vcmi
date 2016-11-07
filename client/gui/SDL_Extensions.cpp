@@ -894,11 +894,11 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
 	return ret;
 }
 
-void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect )
+void CSDL_Ext::blitSurface( SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect )
 {
 	if (dst != screen)
 	{
-		SDL_BlitSurface(src, srcRect, dst, dstRect);
+		SDL_UpperBlit(src, srcRect, dst, dstRect);
 	}
 	else
 	{
@@ -912,7 +912,7 @@ void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface *
 			betterDst = Rect(0, 0, dst->w, dst->h);
 		}
 
-		SDL_BlitSurface(src, srcRect, dst, &betterDst);
+		SDL_UpperBlit(src, srcRect, dst, &betterDst);
 	}
 }
 

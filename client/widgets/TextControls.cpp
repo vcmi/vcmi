@@ -107,7 +107,7 @@ void CMultiLineLabel::setText(const std::string &Txt)
 
 void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 {
-	const IFont * f = graphics->fonts[font];
+	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
 
 	// input is rect in which given text should be placed
@@ -164,7 +164,7 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	const IFont * f = graphics->fonts[font];
+	const auto f = graphics->fonts[font];
 
 	// calculate which lines should be visible
 	int totalLines = lines.size();
@@ -201,7 +201,7 @@ void CMultiLineLabel::splitText(const std::string &Txt)
 {
 	lines.clear();
 
-	const IFont * f = graphics->fonts[font];
+	const auto f = graphics->fonts[font];
 	int lineHeight =  f->getLineHeight();
 
 	lines = CMessage::breakText(Txt, pos.w, font);
@@ -427,7 +427,7 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 
 void CTextInput::focusGot()
 {
-	CSDL_Ext::startTextInput(&pos);	
+	CSDL_Ext::startTextInput(&pos);
 }
 
 void CTextInput::focusLost()
@@ -461,7 +461,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	}
 
 	bool redrawNeeded = false;
-	
+
 	switch(key.keysym.sym)
 	{
 	case SDLK_DELETE: // have index > ' ' so it won't be filtered out by default section
@@ -476,7 +476,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		{
 			Unicode::trimRight(text);
 			redrawNeeded = true;
-		}			
+		}
 		break;
 	default:
 		break;
@@ -486,7 +486,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	{
 		redraw();
 		cb(text);
-	}	
+	}
 }
 
 void CTextInput::setText( const std::string &nText, bool callCb )
@@ -500,7 +500,7 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER || key.keysym.sym == SDLK_ESCAPE)
 		return false;
-	
+
 	return true;
 }
 
@@ -509,15 +509,15 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 	if(!focus)
 		return;
 	std::string oldText = text;
-	
-	text += event.text;	
-	
+
+	text += event.text;
+
 	filters(text,oldText);
 	if (text != oldText)
 	{
 		redraw();
 		cb(text);
-	}	
+	}
 	newText = "";
 }
 
@@ -525,10 +525,10 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 {
 	if(!focus)
 		return;
-		
+
 	newText = event.text;
 	redraw();
-	cb(text+newText);	
+	cb(text+newText);
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
@@ -586,7 +586,7 @@ CFocusable::~CFocusable()
 	{
 		focusLost();
 		inputWithFocus = nullptr;
-	}	
+	}
 
 	focusables -= this;
 }
@@ -602,7 +602,7 @@ void CFocusable::giveFocus()
 	focus = true;
 	inputWithFocus = this;
 	focusGot();
-	redraw();	
+	redraw();
 }
 
 void CFocusable::moveFocus()

@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
 #include <SDL_version.h>
 #include <SDL_render.h>
@@ -88,7 +88,7 @@ public:
 
 	/** green color used for in-game console */
 	static const SDL_Color GREEN;
-	
+
 	/** default key color for all 8 & 24 bit graphics */
 	static const SDL_Color DEFAULT_KEY_COLOR;
 };
@@ -167,7 +167,7 @@ namespace CSDL_Ext
 		}
 	};
 
-	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
+	void blitSurface(SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
 	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
 	void fillRectBlack(SDL_Surface * dst, SDL_Rect * dstrect);
 	//fill dest image with source texture.
@@ -228,10 +228,10 @@ namespace CSDL_Ext
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
-	
+
 	void startTextInput(SDL_Rect * where);
 	void stopTextInput();
-	
+
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 	///set key-color to 0,255,255
 	void setDefaultColorKey(SDL_Surface * surface);
