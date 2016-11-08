@@ -30,7 +30,7 @@ public:
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
 	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
 
-	virtual SDL_Surface * scaleFast(float scale) const = 0;
+	virtual std::unique_ptr<IImage> scaleFast(float scale) const = 0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();

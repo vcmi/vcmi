@@ -89,7 +89,7 @@ public:
 
 	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
-	SDL_Surface * scaleFast(float scale) const override;
+	std::unique_ptr<IImage> scaleFast(float scale) const override;
 
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
@@ -145,7 +145,7 @@ public:
 	void draw(SDL_Surface  *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 
-	SDL_Surface * scaleFast(float scale) const override;
+	std::unique_ptr<IImage> scaleFast(float scale) const override;
 
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
@@ -781,7 +781,7 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 
 	Rect sourceRect(0, 0, surf->w, surf->h);
 
-	Point destShift(0,0);
+	Point destShift(0, 0);
 
 	if(src)
 	{
@@ -798,15 +798,12 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 	else
 		destShift = margins;
 
-	Rect destRect(margins.x, margins.y, surf->w, surf->h);
+	Rect destRect(destShift.x, destShift.y, surf->w, surf->h);
 
 	if(dest)
 	{
-		destRect = *dest;
-
-		destRect = destRect & Rect(destRect.x, destRect.y, sourceRect.w, sourceRect.h);
-
-		destRect += destShift;
+		destRect.x += dest->x;
+		destRect.y += dest->y;
 	}
 
 	if(surf->format->BitsPerPixel == 8)
@@ -819,9 +816,8 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 	}
 }
 
-SDL_Surface * SDLImage::scaleFast(float scale) const
+std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
 {
-	//todo: margins
 	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, surf->w * scale, surf->h * scale);
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
@@ -831,7 +827,15 @@ SDL_Surface * SDLImage::scaleFast(float scale) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	return scaled;
+	std::unique_ptr<SDLImage> ret = make_unique<SDLImage>(scaled, false);
+
+	ret->fullSize.x = (int) round((float)fullSize.x * scale);
+	ret->fullSize.y = (int) round((float)fullSize.y * scale);
+
+	ret->margins.x = (int) round((float)margins.x * scale);
+	ret->margins.y = (int) round((float)margins.y * scale);
+
+	return ret;
 }
 
 void SDLImage::playerColored(PlayerColor player)
@@ -857,24 +861,22 @@ int SDLImage::height() const
 
 void SDLImage::horizontalFlip()
 {
-	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
-
-	SDL_FreeSurface(surf);
-
-	surf = flipped;
-
 	margins.y = fullSize.y - surf->h - margins.y;
+
+	//todo: modify in-place
+	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
+	SDL_FreeSurface(surf);
+	surf = flipped;
 }
 
 void SDLImage::verticalFlip()
 {
-	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
-
-	SDL_FreeSurface(surf);
-
-	surf = flipped;
-
 	margins.x = fullSize.x - surf->w - margins.x;
+
+	//todo: modify in-place
+	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
+	SDL_FreeSurface(surf);
+	surf = flipped;
 }
 
 void SDLImage::shiftPalette(int from, int howMany)
@@ -1000,13 +1002,13 @@ void CompImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alph
 }
 
 
-SDL_Surface * CompImage::scaleFast(float scale) const
+std::unique_ptr<IImage> CompImage::scaleFast(float scale) const
 {
 	//todo: CompImage::scaleFast
 
 	logAnim->error("CompImage::scaleFast is not implemented");
 
-    return CSDL_Ext::newSurface(width() * scale, height() * scale);
+    return nullptr;
 }
 
 #define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest, alpha); break

@@ -20,12 +20,9 @@ class CGObjectInstance;
 class CGHeroInstance;
 class CGBoat;
 class CMap;
-class CGDefInfo;
-class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
 struct SDL_Rect;
-class CDefEssential;
 class CAnimation;
 class IImage;
 class CFadeAnimation;
@@ -159,26 +156,21 @@ class CMapHandler
 		TERRAIN, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS, FRAME, AFTER_LAST
 	};
 
-	/// temporarily caches rescaled sdl surfaces for map world view redrawing
+	/// temporarily caches rescaled frames for map world view redrawing
 	class CMapCache
 	{
-		std::array< std::map<intptr_t, SDL_Surface *>, (ui8)EMapCacheType::AFTER_LAST> data;
+		std::array< std::map<intptr_t, std::unique_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
 		float worldViewCachedScale;
 	public:
 		/// destroys all cached data (frees surfaces)
 		void discardWorldViewCache();
 		/// updates scale and determines if currently cached data is still valid
 		void updateWorldViewScale(float scale);
-		/// asks for cached data; @returns cached surface or nullptr if data is not in cache
-		SDL_Surface * requestWorldViewCache(EMapCacheType type, intptr_t key);
-		/// asks for cached data; @returns cached data if found, new scaled surface otherwise
-		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale);
-		SDL_Surface * requestWorldViewCacheOrCreate(EMapCacheType type, intptr_t key, const IImage * fullSurface, float scale);
-		SDL_Surface * cacheWorldViewEntry(EMapCacheType type, intptr_t key, SDL_Surface * entry);
-		intptr_t genKey(intptr_t realPtr, ui8 mod);
+		/// asks for cached data; @returns cached data if found, new scaled surface otherwise, may return nullptr in case of scaling error
+		IImage * requestWorldViewCacheOrCreate(EMapCacheType type, const IImage * fullSurface);
 	};
 
-	/// helper struct to pass around resolved bitmaps of an object; surfaces can be nullptr if object doesn't have bitmap of that type
+	/// helper struct to pass around resolved bitmaps of an object; images can be nullptr if object doesn't have bitmap of that type
 	struct AnimBitmapHolder
 	{
 		IImage * objBitmap; // main object bitmap
@@ -191,7 +183,6 @@ class CMapHandler
 			  isMoving(moving)
 		{}
 	};
-
 
 	class CMapBlitter
 	{

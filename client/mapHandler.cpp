@@ -22,7 +22,6 @@
 #include "../lib/CTownHandler.h"
 #include "Graphics.h"
 #include "../lib/mapping/CMap.h"
-#include "CDefHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/GameConstants.h"
@@ -538,12 +537,10 @@ void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
 
 void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
 {
-	SDL_Surface * scaledSurf = parent->cache.requestWorldViewCacheOrCreate(cacheType, (intptr_t) source, source, info->scale);
+	IImage * scaled = parent->cache.requestWorldViewCacheOrCreate(cacheType, source);
 
-	if(scaledSurf->format->BitsPerPixel == 8)
-		CSDL_Ext::blit8bppAlphaTo24bpp(scaledSurf, sourceRect, targetSurf, destRect);
-	else
-		CSDL_Ext::blitSurface(scaledSurf, sourceRect, targetSurf, destRect);
+	if(scaled)
+		scaled->draw(targetSurf, destRect, sourceRect);
 }
 
 void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const
@@ -813,7 +810,7 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 {
 	Rect destRect(realTileRect);
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType-1][tinfo.riverDir][rotation],nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType-1][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
@@ -1400,18 +1397,9 @@ void CMapHandler::discardWorldViewCache()
 
 void CMapHandler::CMapCache::discardWorldViewCache()
 {
-	for (auto & cache : data)
-	{
-		for (auto &cacheEntryPair : cache)
-		{
-			if (cacheEntryPair.second)
-			{
-				SDL_FreeSurface(cacheEntryPair.second);
-			}
-		}
+	for(auto & cache : data)
 		cache.clear();
-	}
-	logGlobal->debugStream() << "Discarded world view cache";
+	logAnim->debug("Discarded world view cache");
 }
 
 void CMapHandler::CMapCache::updateWorldViewScale(float scale)
@@ -1421,53 +1409,23 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 	worldViewCachedScale = scale;
 }
 
-SDL_Surface * CMapHandler::CMapCache::requestWorldViewCache(CMapHandler::EMapCacheType type, intptr_t key)
+IImage * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, const IImage * fullSurface)
 {
-	auto iter = data[(ui8)type].find(key);
-	if (iter == data[(ui8)type].end())
-		return nullptr;
-	return (*iter).second;
-}
+	intptr_t key = (intptr_t) fullSurface;
+	auto & cache = data[(ui8)type];
 
-SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, intptr_t key, SDL_Surface * fullSurface, float scale)
-{
-	auto cached = requestWorldViewCache(type, key);
-	if (cached)
-		return cached;
-
-	auto scaled = CSDL_Ext::scaleSurfaceFast(fullSurface, fullSurface->w * scale, fullSurface->h * scale);
-	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
-		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
-	return cacheWorldViewEntry(type, key, scaled);
-}
-
-SDL_Surface * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, intptr_t key,const IImage * fullSurface, float scale)
-{
-	auto cached = requestWorldViewCache(type, key);
-	if (cached)
-		return cached;
-
-	auto scaled = fullSurface->scaleFast(scale);
-
-	data[(ui8)type][key] = scaled;
-
-	return scaled;
-}
-
-SDL_Surface *CMapHandler::CMapCache::cacheWorldViewEntry(CMapHandler::EMapCacheType type, intptr_t key, SDL_Surface * entry)
-{
-	if (!entry)
-		return nullptr;
-	if (requestWorldViewCache(type, key)) // valid cache already present, no need to do it again
-		return requestWorldViewCache(type, key);
-
-	data[(ui8)type][key] = entry;
-	return entry;
-}
-
-intptr_t CMapHandler::CMapCache::genKey(intptr_t realPtr, ui8 mod)
-{
-	return (intptr_t)(realPtr ^ (mod << (sizeof(intptr_t) - 2))); // maybe some cleaner method to pack rotation into cache key?
+	auto iter = cache.find(key);
+	if(iter == cache.end())
+	{
+		auto scaled = fullSurface->scaleFast(worldViewCachedScale);
+		IImage * ret = scaled.get();
+		cache[key] = std::move(scaled);
+		return ret;
+	}
+	else
+	{
+		return (*iter).second.get();
+	}
 }
 
 bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
