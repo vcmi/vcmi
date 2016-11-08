@@ -41,13 +41,13 @@ void CHeroArtPlace::createImage()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	int graphic = 0;
+	int imageIndex = 0;
 	if (ourArt)
-		graphic = ourArt->artType->iconIndex;
+		imageIndex = ourArt->artType->iconIndex;
 	if (locked)
-		graphic = ArtifactID::ART_LOCK;
+		imageIndex = ArtifactID::ART_LOCK;
 
-	image = new CAnimImage("artifact", graphic);
+	image = new CAnimImage("artifact", imageIndex);
 	if (!ourArt)
 		image->disable();
 
@@ -969,8 +969,7 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
 	if (down && ourArt && text.size())
-		LOCPLINT->showYesNoDialog("Do you want to give this artifact back to hero?", [this] { returnArtToHeroCallback(); }, [] {});
-		//CArtPlace::clickLeft(down, previousState);	
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this] { returnArtToHeroCallback(); }, [] {});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)
@@ -983,11 +982,11 @@ void CCommanderArtPlace::createImage()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	int graphic = 0;
+	int imageIndex = 0;
 	if (ourArt)
-		graphic = ourArt->artType->iconIndex;
+		imageIndex = ourArt->artType->iconIndex;
 
-	image = new CAnimImage("artifact", graphic);
+	image = new CAnimImage("artifact", imageIndex);
 	if (!ourArt)
 		image->disable();
 }
