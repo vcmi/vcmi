@@ -15,12 +15,6 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-#ifdef VCMI_ANDROID
-#define GetGlobalAiVersion BattleAI_GetGlobalAiVersion
-#define GetAiName BattleAI_GetAiName
-#define GetNewBattleAI BattleAI_GetNewBattleAI
-#endif
-
 static const char *g_cszAiName = "Battle AI";
 
 extern "C" DLL_EXPORT int GetGlobalAiVersion()
@@ -37,3 +31,14 @@ extern "C" DLL_EXPORT void GetNewBattleAI(std::shared_ptr<CBattleGameInterface> 
 {
 	out = std::make_shared<CBattleAI>();
 }
+
+#ifdef VCMI_ANDROID
+#	include "../../lib/CGameInterface.h"
+	
+	__attribute__((constructor)) void AndroidEntryPoint() 
+	{
+		std::function<void(char*)> nameFun = GetAiName;
+		std::function<void(std::shared_ptr<CBattleGameInterface>&)> aiFun = GetNewBattleAI;
+		CGameInterfaceAndroidRegisterAIHook(nameFun, aiFun);
+	}
+#endif

@@ -23,15 +23,42 @@
  */
 
 #ifdef VCMI_ANDROID
-// we can't use shared libraries on Android so here's a hack
-extern "C" DLL_EXPORT void VCAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void VCAI_GetNewAI(std::shared_ptr<CGlobalAI> &out);
-
-extern "C" DLL_EXPORT void StupidAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void StupidAI_GetNewBattleAI(std::shared_ptr<CGlobalAI> &out);
-
-extern "C" DLL_EXPORT void BattleAI_GetAiName(char* name);
-extern "C" DLL_EXPORT void BattleAI_GetNewBattleAI(std::shared_ptr<CBattleGameInterface> &out);
+	std::function<void(char*)> gRegisteredAiNameFun;
+	std::function<void(std::shared_ptr<CGlobalAI>&)> gRegisteredGlobalAiFun;
+	std::function<void(std::shared_ptr<CBattleGameInterface>&)> gRegisteredBattleAiFun;
+	
+	template<>
+	void CGameInterfaceAndroidRegisterAIHook(std::function<void(char*)> &aiNameFun, std::function<void(std::shared_ptr<CGlobalAI>&)> &aiFun)
+	{
+		gRegisteredAiNameFun = aiNameFun;
+		gRegisteredGlobalAiFun = aiFun;
+	}
+	
+	template<>
+	void CGameInterfaceAndroidRegisterAIHook(std::function<void(char*)> &aiNameFun, std::function<void(std::shared_ptr<CBattleGameInterface>&)> &aiFun)
+	{
+		gRegisteredAiNameFun = aiNameFun;
+		gRegisteredBattleAiFun = aiFun;
+	}
+	
+	template<typename rett>
+	std::function<void(std::shared_ptr<rett>&)> loadAndroidAi()
+	{
+		return std::function<void(std::shared_ptr<rett>&)>();
+	}
+	
+	template<>
+	std::function<void(std::shared_ptr<CGlobalAI>&)> loadAndroidAi()
+	{
+		return gRegisteredGlobalAiFun;
+	}
+	
+	template<>
+	std::function<void(std::shared_ptr<CBattleGameInterface>&)> loadAndroidAi()
+	{
+		return gRegisteredBattleAiFun;
+	}
+	
 #endif
 
 template<typename rett>
@@ -46,25 +73,12 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 	TGetNameFun getName = nullptr;
 
 #ifdef VCMI_ANDROID
-	// this is awful but it seems using shared libraries on some devices is even worse
-	const std::string filename = libpath.filename().string();
-	if (filename == "libVCAI.so")
+	auto aiFun = loadAndroidAi<rett>();
+	if (gRegisteredAiNameFun && aiFun)
 	{
-		getName = (TGetNameFun)VCAI_GetAiName;
-		getAI = (TGetAIFun)VCAI_GetNewAI;
+		getName = *gRegisteredAiNameFun.target<TGetNameFun>();
+		getAI = *aiFun.template target<TGetAIFun>();
 	}
-	else if (filename == "libStupidAI.so")
-	{
-		getName = (TGetNameFun)StupidAI_GetAiName;
-		getAI = (TGetAIFun)StupidAI_GetNewBattleAI;
-	}
-	else if (filename == "libBattleAI.so")
-	{
-		getName = (TGetNameFun)BattleAI_GetAiName;
-		getAI = (TGetAIFun)BattleAI_GetNewBattleAI;
-	}
-	else
-		throw std::runtime_error("Don't know what to do with " + libpath.string() + " and method " + methodName);
 #else // !VCMI_ANDROID
 #ifdef VCMI_WINDOWS
 	HMODULE dll = LoadLibraryW(libpath.c_str());
