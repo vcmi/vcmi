@@ -827,7 +827,7 @@ std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
 	else
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
-	std::unique_ptr<SDLImage> ret = make_unique<SDLImage>(scaled, false);
+	SDLImage * ret = new SDLImage(scaled, false);
 
 	ret->fullSize.x = (int) round((float)fullSize.x * scale);
 	ret->fullSize.y = (int) round((float)fullSize.y * scale);
@@ -835,7 +835,7 @@ std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
 	ret->margins.x = (int) round((float)margins.x * scale);
 	ret->margins.y = (int) round((float)margins.y * scale);
 
-	return ret;
+	return std::unique_ptr<IImage>(ret);
 }
 
 void SDLImage::playerColored(PlayerColor player)
