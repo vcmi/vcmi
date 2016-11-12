@@ -457,12 +457,6 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(
 	for(const CGObjectInstance *obj : t->blockingObjects)
 		if(obj->tempOwner != PlayerColor::UNFLAGGABLE)
 			ret.push_back(obj);
-// 	const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
-// 	for(size_t b=0; b<objs.size(); ++b)
-// 	{
-// 		if(objs[b].first->tempOwner!=254 && !((objs[b].first->defInfo->blockMap[pos.y - objs[b].first->pos.y + 5] >> (objs[b].first->pos.x - pos.x)) & 1))
-// 			ret.push_back(CGI->mh->ttiles[pos.x][pos.y][pos.z].objects[b].first);
-// 	}
 	return ret;
 }
 

@@ -8,7 +8,6 @@
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
-#include "../CDefHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CPreGame.h"
 #include "../Graphics.h"

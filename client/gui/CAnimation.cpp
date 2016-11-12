@@ -23,9 +23,142 @@
  *
  */
 
+class SDLImageLoader;
+class CompImageLoader;
+
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
+
+ /// Class for def loading, methods are based on CDefHandler
+/// After loading will store general info (palette and frame offsets) and pointer to file itself
+class CDefFile
+{
+private:
+
+	struct SSpriteDef
+	{
+		ui32 size;
+		ui32 format;    /// format in which pixel data is stored
+		ui32 fullWidth; /// full width and height of frame, including borders
+		ui32 fullHeight;
+		ui32 width;     /// width and height of pixel data, borders excluded
+		ui32 height;
+		si32 leftMargin;
+		si32 topMargin;
+	} PACKED_STRUCT;
+	//offset[group][frame] - offset of frame data in file
+	std::map<size_t, std::vector <size_t> > offset;
+
+	std::unique_ptr<ui8[]>       data;
+	std::unique_ptr<SDL_Color[]> palette;
+
+public:
+	CDefFile(std::string Name);
+	~CDefFile();
+
+	//load frame as SDL_Surface
+	template<class ImageLoader>
+	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
+
+	const std::map<size_t, size_t> getEntries() const;
+};
+
+
+/*
+ * Wrapper around SDL_Surface
+ */
+class SDLImage : public IImage
+{
+public:
+	//Surface without empty borders
+	SDL_Surface * surf;
+	//size of left and top borders
+	Point margins;
+	//total size including borders
+	Point fullSize;
+
+public:
+	//Load image from def file
+	SDLImage(CDefFile *data, size_t frame, size_t group=0, bool compressed=false);
+	//Load from bitmap file
+	SDLImage(std::string filename, bool compressed=false);
+	//Create using existing surface, extraRef will increase refcount on SDL_Surface
+	SDLImage(SDL_Surface * from, bool extraRef);
+	~SDLImage();
+
+	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+	std::unique_ptr<IImage> scaleFast(float scale) const override;
+
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
+
+	void horizontalFlip() override;
+	void verticalFlip() override;
+
+	void shiftPalette(int from, int howMany) override;
+
+	friend class SDLImageLoader;
+};
+
+/*
+ *  RLE-compressed image data for 8-bit images with alpha-channel, currently far from finished
+ *  primary purpose is not high compression ratio but fast drawing.
+ *  Consist of repeatable segments with format similar to H3 def compression:
+ *  1st byte:
+ *  if (byte == 0xff)
+ *  	raw data, opaque and semi-transparent data always in separate blocks
+ *  else
+ *  	RLE-compressed image data with this color
+ *  2nd byte = size of segment
+ *  raw data (if any)
+ */
+class CompImage : public IImage
+{
+	//x,y - margins, w,h - sprite size
+	Rect sprite;
+	//total size including borders
+	Point fullSize;
+
+	//RLE-d data
+	ui8 * surf;
+	//array of offsets for each line
+	ui32 * line;
+	//palette
+	SDL_Color *palette;
+
+	//Used internally to blit one block of data
+	template<int bpp, int dir>
+	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha) const;
+	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha, bool rotated) const;
+
+public:
+	//Load image from def file
+	CompImage(const CDefFile *data, size_t frame, size_t group=0);
+	//TODO: load image from SDL_Surface
+	CompImage(SDL_Surface * surf);
+	~CompImage();
+
+	void draw(SDL_Surface  *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
+	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
+
+	std::unique_ptr<IImage> scaleFast(float scale) const override;
+
+	void playerColored(PlayerColor player) override;
+	void setFlagColor(PlayerColor player) override;
+	int width() const override;
+	int height() const override;
+
+	void horizontalFlip() override;
+	void verticalFlip() override;
+
+	void shiftPalette(int from, int howMany) override;
+
+	friend class CompImageLoader;
+};
 
 class SDLImageLoader
 {
@@ -214,7 +347,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			//pixel data is not compressed, copy data to surface
 			for (ui32 i=0; i<sprite.height; i++)
 			{
-				loader.Load(sprite.width, FDef[currentOffset]);
+				loader.Load(sprite.width, FDef + currentOffset);
 				currentOffset += sprite.width;
 				loader.EndLine();
 			}
@@ -636,35 +769,84 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha
 	if (!surf)
 		return;
 
-	Rect sourceRect(margins.x, margins.y, surf->w, surf->h);
-	//TODO: rotation and scaling
-	if (src)
-	{
-		sourceRect = sourceRect & *src;
-	}
 	Rect destRect(posX, posY, surf->w, surf->h);
-	destRect += sourceRect.topLeft();
-	sourceRect -= margins;
+
+	draw(where, &destRect, src);
+}
+
+void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
+{
+	if (!surf)
+		return;
+
+	Rect sourceRect(0, 0, surf->w, surf->h);
+
+	Point destShift(0, 0);
+
+	if(src)
+	{
+		if(src->x < margins.x)
+			destShift.x += margins.x - src->x;
+
+		if(src->y < margins.y)
+			destShift.y += margins.y - src->y;
+
+		sourceRect = Rect(*src) & Rect(margins.x, margins.y, surf->w, surf->h);
+
+		sourceRect -= margins;
+	}
+	else
+		destShift = margins;
+
+	Rect destRect(destShift.x, destShift.y, surf->w, surf->h);
+
+	if(dest)
+	{
+		destRect.x += dest->x;
+		destRect.y += dest->y;
+	}
 
 	if(surf->format->BitsPerPixel == 8)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(surf, &sourceRect, where, &destRect);
 	}
-	else if(surf->format->Amask == 0)
-	{
-		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
-	}
 	else
 	{
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
-		SDL_BlitSurface(surf, &sourceRect, where, &destRect);
-		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
+		SDL_UpperBlit(surf, &sourceRect, where, &destRect);
 	}
+}
+
+std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
+{
+	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, surf->w * scale, surf->h * scale);
+
+	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
+		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
+	else if(scaled->format && scaled->format->Amask)
+		SDL_SetSurfaceBlendMode(scaled, SDL_BLENDMODE_BLEND);//just in case
+	else
+		CSDL_Ext::setDefaultColorKey(scaled);//just in case
+
+	SDLImage * ret = new SDLImage(scaled, false);
+
+	ret->fullSize.x = (int) round((float)fullSize.x * scale);
+	ret->fullSize.y = (int) round((float)fullSize.y * scale);
+
+	ret->margins.x = (int) round((float)margins.x * scale);
+	ret->margins.y = (int) round((float)margins.y * scale);
+
+	return std::unique_ptr<IImage>(ret);
 }
 
 void SDLImage::playerColored(PlayerColor player)
 {
 	graphics->blueToPlayersAdv(surf, player);
+}
+
+void SDLImage::setFlagColor(PlayerColor player)
+{
+	if(player < PlayerColor::PLAYER_LIMIT || player==PlayerColor::NEUTRAL)
+		CSDL_Ext::setPlayerColor(surf, player);
 }
 
 int SDLImage::width() const
@@ -675,6 +857,43 @@ int SDLImage::width() const
 int SDLImage::height() const
 {
 	return fullSize.y;
+}
+
+void SDLImage::horizontalFlip()
+{
+	margins.y = fullSize.y - surf->h - margins.y;
+
+	//todo: modify in-place
+	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
+	SDL_FreeSurface(surf);
+	surf = flipped;
+}
+
+void SDLImage::verticalFlip()
+{
+	margins.x = fullSize.x - surf->w - margins.x;
+
+	//todo: modify in-place
+	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
+	SDL_FreeSurface(surf);
+	surf = flipped;
+}
+
+void SDLImage::shiftPalette(int from, int howMany)
+{
+	//works with at most 16 colors, if needed more -> increase values
+	assert(howMany < 16);
+
+	if(surf->format->palette)
+	{
+		SDL_Color palette[16];
+
+		for(int i=0; i<howMany; ++i)
+		{
+			palette[(i+1)%howMany] = surf->format->palette->colors[from + i];
+		}
+		SDL_SetColors(surf, palette, from, howMany);
+	}
 }
 
 SDLImage::~SDLImage()
@@ -700,6 +919,12 @@ CompImage::CompImage(SDL_Surface * surf)
 
 void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
+	Rect dest(posX,posY, width(), height());
+	draw(where, &dest, src, alpha);
+}
+
+void CompImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha) const
+{
 	int rotation = 0; //TODO
 	//rotation & 2 = horizontal rotation
 	//rotation & 4 = vertical rotation
@@ -713,11 +938,18 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 	sourceRect = sourceRect & Rect(0, 0, where->w, where->h);
 
 	//Starting point on SDL surface
-	Point dest(posX+sourceRect.x, posY+sourceRect.y);
+	Point dst(sourceRect.x,sourceRect.y);
+
+	if (dest)
+	{
+		dst.x += dest->x;
+		dst.y += dest->y;
+	}
+
 	if (rotation & 2)
-		dest.y += sourceRect.h;
+		dst.y += sourceRect.h;
 	if (rotation & 4)
-		dest.x += sourceRect.w;
+		dst.x += sourceRect.w;
 
 	sourceRect -= sprite.topLeft();
 
@@ -748,10 +980,10 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 		//Calculate position for blitting: pixels + Y + X
 		ui8* blitPos = (ui8*) where->pixels;
 		if (rotation & 4)
-			blitPos += (dest.y - currY) * where->pitch;
+			blitPos += (dst.y - currY) * where->pitch;
 		else
-			blitPos += (dest.y + currY) * where->pitch;
-		blitPos += dest.x * bpp;
+			blitPos += (dst.y + currY) * where->pitch;
+		blitPos += dst.x * bpp;
 
 		//Blit blocks that must be fully visible
 		while (currX + size < sourceRect.w)
@@ -767,6 +999,16 @@ void CompImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alph
 		size = sourceRect.w - currX;
 		BlitBlockWithBpp(bpp, type, size, data, blitPos, alpha, rotation & 2);
 	}
+}
+
+
+std::unique_ptr<IImage> CompImage::scaleFast(float scale) const
+{
+	//todo: CompImage::scaleFast
+
+	logAnim->error("CompImage::scaleFast is not implemented");
+
+    return nullptr;
 }
 
 #define CASEBPP(x,y) case x: BlitBlock<x,y>(type, size, data, dest, alpha); break
@@ -883,6 +1125,11 @@ void CompImage::playerColored(PlayerColor player)
 	}
 }
 
+void CompImage::setFlagColor(PlayerColor player)
+{
+	logAnim->error("CompImage::setFlagColor is not implemented");
+}
+
 int CompImage::width() const
 {
 	return fullSize.x;
@@ -900,6 +1147,22 @@ CompImage::~CompImage()
 	delete [] palette;
 }
 
+void CompImage::horizontalFlip()
+{
+	logAnim->error("CompImage::horizontalFlip is not implemented");
+}
+
+void CompImage::verticalFlip()
+{
+	logAnim->error("CompImage::verticalFlip is not implemented");
+}
+
+void CompImage::shiftPalette(int from, int howMany)
+{
+	logAnim->error("CompImage::shiftPalette is not implemented");
+}
+
+
 /*************************************************************************
  *  CAnimation for animations handling, can load part of file if needed  *
  *************************************************************************/
@@ -916,6 +1179,7 @@ IImage * CAnimation::getFromExtraDef(std::string filename)
 	pos = filename.find(':', pos);
 	if (pos != -1)
 	{
+		pos++;
 		group = frame;
 		frame = atoi(filename.c_str()+pos);
 	}
@@ -963,7 +1227,7 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		std::string filename = source[group][frame].Struct().find("file")->second.String();
+		std::string filename = source[group][frame]["file"].String();
 
 		IImage * img = getFromExtraDef(filename);
 		if (!img)
@@ -1105,6 +1369,25 @@ CAnimation::~CAnimation()
 	}
 }
 
+void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup)
+{
+	//todo: clone actual loaded Image object
+	JsonNode clone(source[sourceGroup][sourceFrame]);
+
+	if(clone.getType() == JsonNode::DATA_NULL)
+	{
+		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
+        clone["file"].String() = temp;
+	}
+
+	source[targetGroup].push_back(clone);
+
+	size_t index = source[targetGroup].size() - 1;
+
+	if(preloaded)
+		load(index, targetGroup);
+}
+
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
 	if (source[group].size() <= frame)
@@ -1148,8 +1431,11 @@ void CAnimation::unload()
 
 void CAnimation::preload()
 {
-	preloaded = true;
-	load();
+	if(!preloaded)
+	{
+		preloaded = true;
+		load();
+	}
 }
 
 void CAnimation::loadGroup(size_t group)

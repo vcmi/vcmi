@@ -369,7 +369,7 @@ void TryMoveHero::applyFirstCl(CClient *cl)
 	}
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK  ||  !humanKnows)
-		CGI->mh->removeObject(h, result == EMBARK && humanKnows);
+		CGI->mh->hideObject(h, result == EMBARK && humanKnows);
 
 
 	if(result == DISEMBARK)

@@ -15,43 +15,8 @@
  */
 
 struct SDL_Surface;
-class SDLImageLoader;
-class CompImageLoader;
 class JsonNode;
-
-/// Class for def loading, methods are based on CDefHandler
-/// After loading will store general info (palette and frame offsets) and pointer to file itself
-class CDefFile
-{
-private:
-
-	struct SSpriteDef
-	{
-		ui32 size;
-		ui32 format;    /// format in which pixel data is stored
-		ui32 fullWidth; /// full width and height of frame, including borders
-		ui32 fullHeight;
-		ui32 width;     /// width and height of pixel data, borders excluded
-		ui32 height;
-		si32 leftMargin;
-		si32 topMargin;
-	} PACKED_STRUCT;
-	//offset[group][frame] - offset of frame data in file
-	std::map<size_t, std::vector <size_t> > offset;
-
-	std::unique_ptr<ui8[]>       data;
-	std::unique_ptr<SDL_Color[]> palette;
-
-public:
-	CDefFile(std::string Name);
-	~CDefFile();
-
-	//load frame as SDL_Surface
-	template<class ImageLoader>
-	void loadFrame(size_t frame, size_t group, ImageLoader &loader) const;
-
-	const std::map<size_t, size_t> getEntries() const;
-};
+class CDefFile;
 
 /*
  * Base class for images, can be used for non-animation pictures as well
@@ -62,7 +27,10 @@ class IImage
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const=0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
+	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
+
+	virtual std::unique_ptr<IImage> scaleFast(float scale) const = 0;
 
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
@@ -70,89 +38,22 @@ public:
 
 	//Change palette to specific player
 	virtual void playerColored(PlayerColor player)=0;
+
+	//set special color for flag
+	virtual void setFlagColor(PlayerColor player)=0;
+
 	virtual int width() const=0;
 	virtual int height() const=0;
+
+	//only indexed bitmaps, 16 colors maximum
+	virtual void shiftPalette(int from, int howMany) = 0;
+
+	virtual void horizontalFlip() = 0;
+	virtual void verticalFlip() = 0;
+
 	IImage();
 	virtual ~IImage() {};
 };
-
-/*
- * Wrapper around SDL_Surface
- */
-class SDLImage : public IImage
-{
-public:
-	//Surface without empty borders
-	SDL_Surface * surf;
-	//size of left and top borders
-	Point margins;
-	//total size including borders
-	Point fullSize;
-
-public:
-	//Load image from def file
-	SDLImage(CDefFile *data, size_t frame, size_t group=0, bool compressed=false);
-	//Load from bitmap file
-	SDLImage(std::string filename, bool compressed=false);
-	//Create using existing surface, extraRef will increase refcount on SDL_Surface
-	SDLImage(SDL_Surface * from, bool extraRef);
-	~SDLImage();
-
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr,  ui8 alpha=255) const override;
-
-	void playerColored(PlayerColor player) override;
-	int width() const override;
-	int height() const override;
-
-	friend class SDLImageLoader;
-};
-
-/*
- *  RLE-compressed image data for 8-bit images with alpha-channel, currently far from finished
- *  primary purpose is not high compression ratio but fast drawing.
- *  Consist of repeatable segments with format similar to H3 def compression:
- *  1st byte:
- *  if (byte == 0xff)
- *  	raw data, opaque and semi-transparent data always in separate blocks
- *  else
- *  	RLE-compressed image data with this color
- *  2nd byte = size of segment
- *  raw data (if any)
- */
-class CompImage : public IImage
-{
-	//x,y - margins, w,h - sprite size
-	Rect sprite;
-	//total size including borders
-	Point fullSize;
-
-	//RLE-d data
-	ui8 * surf;
-	//array of offsets for each line
-	ui32 * line;
-	//palette
-	SDL_Color *palette;
-
-	//Used internally to blit one block of data
-	template<int bpp, int dir>
-	void BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha) const;
-	void BlitBlockWithBpp(ui8 bpp, ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha, bool rotated) const;
-
-public:
-	//Load image from def file
-	CompImage(const CDefFile *data, size_t frame, size_t group=0);
-	//TODO: load image from SDL_Surface
-	CompImage(SDL_Surface * surf);
-	~CompImage();
-
-	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
-	void playerColored(PlayerColor player) override;
-	int width() const override;
-	int height() const override;
-
-	friend class CompImageLoader;
-};
-
 
 /// Class for handling animation
 class CAnimation
@@ -197,6 +98,10 @@ public:
 	CAnimation(std::string Name, bool Compressed = false);
 	CAnimation();
 	~CAnimation();
+
+	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
+	//and loads it if animation is preloaded
+	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
