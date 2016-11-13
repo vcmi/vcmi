@@ -153,11 +153,3 @@ public:
 	virtual void saveGame(BinarySerializer & h, const int version) override; //saving
 	virtual void loadGame(BinaryDeserializer & h, const int version) override; //loading
 };
-
-
-#ifdef VCMI_ANDROID
-	
-	template<typename T>
-	void CGameInterfaceAndroidRegisterAIHook(std::function<void(char*)> &aiNameFun, std::function<void(std::shared_ptr<T>&)> &aiFun);
-	
-#endif

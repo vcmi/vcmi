@@ -182,6 +182,7 @@ void CGuiHandler::handleEvents()
 		this->handleEvent(&ev);
 	}
 }
+#include <android/log.h>
 
 void CGuiHandler::handleEvent(SDL_Event *sEvent)
 {
@@ -214,11 +215,62 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
 				(**i).keyPressed(key);
 	}
+#ifdef VCMI_ANDROID // TODO hacks for now, just to get it working
+	else if (sEvent->type == SDL_FINGERMOTION) {
+		int x = (int) (sEvent->tfinger.x * 800); // TODO access display size in runtime?
+		int y = (int) (sEvent->tfinger.y * 600);
+		CCS->curh->cursorMove(x, y);
+
+		SDL_Event evnt; // TODO make interface to handle mouse+touch together
+		SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
+
+		sme.state = SDL_GetMouseState(&x, &y);
+		sme.x = x;
+		sme.y = y;
+
+		evnt.motion = sme;
+		current = &evnt;
+		handleMouseMotion(sEvent);
+	}
+	else if (sEvent->type == SDL_FINGERDOWN)
+	{
+		lastClickTime = SDL_GetTicks();
+
+		std::list<CIntObject*> hlp = lclickable;
+		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+		{
+			if(!vstd::contains(lclickable,*i)) continue;
+			if (isItIn(&(*i)->pos,sEvent->tfinger.x * 800,sEvent->tfinger.y * 600))
+			{
+				prev = (*i)->pressedL;
+				(*i)->pressedL = true;
+				(*i)->clickLeft(true, prev);
+			}
+		}
+	}
+	else if (sEvent->type == SDL_FINGERUP)
+	{
+		std::list<CIntObject*> hlp = lclickable;
+		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+		{
+			if(!vstd::contains(lclickable,*i)) continue;
+			prev = (*i)->pressedL;
+			(*i)->pressedL = false;
+			if (isItIn(&(*i)->pos,sEvent->tfinger.x * 800,sEvent->tfinger.y * 600))
+			{
+				(*i)->clickLeft(false, prev);
+			}
+			else
+				(*i)->clickLeft(boost::logic::indeterminate, prev);
+		}
+	}
+#else
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
 		CCS->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
 		handleMouseMotion(sEvent);
 	}
+#endif
 	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
 	{
 		if(sEvent->button.button == SDL_BUTTON_LEFT)
@@ -295,6 +347,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 	}	
 	//todo: muiltitouch
+#ifndef VCMI_ANDROID
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<CIntObject*> hlp = lclickable;
@@ -327,6 +380,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				(*i)->clickRight(boost::logic::indeterminate, prev);
 		}
 	}
+#endif
 	current = nullptr;
 } //event end
 

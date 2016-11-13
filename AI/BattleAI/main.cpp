@@ -31,14 +31,3 @@ extern "C" DLL_EXPORT void GetNewBattleAI(std::shared_ptr<CBattleGameInterface> 
 {
 	out = std::make_shared<CBattleAI>();
 }
-
-#ifdef VCMI_ANDROID
-#	include "../../lib/CGameInterface.h"
-	
-	__attribute__((constructor)) void AndroidEntryPoint() 
-	{
-		std::function<void(char*)> nameFun = GetAiName;
-		std::function<void(std::shared_ptr<CBattleGameInterface>&)> aiFun = GetNewBattleAI;
-		CGameInterfaceAndroidRegisterAIHook(nameFun, aiFun);
-	}
-#endif

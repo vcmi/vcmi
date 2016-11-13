@@ -33,8 +33,8 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
-	boost::asio::ip::tcp::no_delay option(true);
-	socket->set_option(option);
+//	boost::asio::ip::tcp::no_delay option(true);
+//	socket->set_option(option);
 
 	enableSmartPointerSerializatoin();
 	disableStackSendingByID();

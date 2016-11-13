@@ -8,6 +8,7 @@
 	#include <windows.h> //for .dll libs
 #else
 	#include <dlfcn.h>
+
 #endif
 #include "serializer/BinaryDeserializer.h"
 #include "serializer/BinarySerializer.h"
@@ -22,45 +23,6 @@
  *
  */
 
-#ifdef VCMI_ANDROID
-	std::function<void(char*)> gRegisteredAiNameFun;
-	std::function<void(std::shared_ptr<CGlobalAI>&)> gRegisteredGlobalAiFun;
-	std::function<void(std::shared_ptr<CBattleGameInterface>&)> gRegisteredBattleAiFun;
-	
-	template<>
-	void CGameInterfaceAndroidRegisterAIHook(std::function<void(char*)> &aiNameFun, std::function<void(std::shared_ptr<CGlobalAI>&)> &aiFun)
-	{
-		gRegisteredAiNameFun = aiNameFun;
-		gRegisteredGlobalAiFun = aiFun;
-	}
-	
-	template<>
-	void CGameInterfaceAndroidRegisterAIHook(std::function<void(char*)> &aiNameFun, std::function<void(std::shared_ptr<CBattleGameInterface>&)> &aiFun)
-	{
-		gRegisteredAiNameFun = aiNameFun;
-		gRegisteredBattleAiFun = aiFun;
-	}
-	
-	template<typename rett>
-	std::function<void(std::shared_ptr<rett>&)> loadAndroidAi()
-	{
-		return std::function<void(std::shared_ptr<rett>&)>();
-	}
-	
-	template<>
-	std::function<void(std::shared_ptr<CGlobalAI>&)> loadAndroidAi()
-	{
-		return gRegisteredGlobalAiFun;
-	}
-	
-	template<>
-	std::function<void(std::shared_ptr<CBattleGameInterface>&)> loadAndroidAi()
-	{
-		return gRegisteredBattleAiFun;
-	}
-	
-#endif
-
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const std::string& methodName)
 {
@@ -73,12 +35,17 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 	TGetNameFun getName = nullptr;
 
 #ifdef VCMI_ANDROID
-	auto aiFun = loadAndroidAi<rett>();
-	if (gRegisteredAiNameFun && aiFun)
+    logGlobal->warnStream() << "xx# Opening AI from " << libpath.string() << " :: " << methodName;
+	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
+	if (dll)
 	{
-		getName = *gRegisteredAiNameFun.target<TGetNameFun>();
-		getAI = *aiFun.template target<TGetAIFun>();
+		getName = (TGetNameFun)dlsym(dll, "GetAiName");
+		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
+		logGlobal->warnStream() << "GOT AI " << (getName == nullptr ? "null" : "ok") << (getAI == nullptr ? "null" : "ok");
 	}
+	else
+		logGlobal->errorStream() << "Error: " << dlerror();
+	//dlclose(dll); // not sure how this works on other platforms, but closing it on android breaks calling methods that we retrieved
 #else // !VCMI_ANDROID
 #ifdef VCMI_WINDOWS
 	HMODULE dll = LoadLibraryW(libpath.c_str());
@@ -129,8 +96,13 @@ template<typename rett>
 std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string& methodName)
 {
 	logGlobal->infoStream() << "Opening " << dllname;
+
 	const boost::filesystem::path filePath =
-		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
+#ifdef VCMI_ANDROID // TODO add VCMIDirs::fullLibraryPath to be able to decide if we need subfolder dynamically
+	VCMIDirs::get().libraryPath() / VCMIDirs::get().libraryName(dllname);
+#else
+	VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
+#endif
 	auto ret = createAny<rett>(filePath, methodName);
 	ret->dllName = std::move(dllname);
 	return ret;

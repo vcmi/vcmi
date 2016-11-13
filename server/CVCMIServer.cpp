@@ -422,13 +422,13 @@ void CVCMIServer::start()
 	acc.join();
 	if (error)
 	{
-		logNetwork->warnStream()<<"Got connection but there is an error " << error;
+		logNetwork->warnStream() << "Got connection but there is an error " << error;
 		return;
 	}
 	logNetwork->info("We've accepted someone... ");
-	firstConnection = new CConnection(s,NAME);
+	firstConnection = new CConnection(s, NAME);
 	logNetwork->info("Got connection!");
-	while(!end2)
+	while (!end2)
 	{
 		ui8 mode;
 		*firstConnection >> mode;
@@ -495,6 +495,8 @@ void CVCMIServer::loadGame()
 
 	gh.run(true);
 }
+
+
 
 static void handleCommandOptions(int argc, char *argv[])
 {
@@ -580,6 +582,7 @@ int main(int argc, char** argv)
 	logConfig.configureDefault();
 	logGlobal->info(NAME);
 
+
 	handleCommandOptions(argc, argv);
 	if(cmdLineOptions.count("port"))
 		port = cmdLineOptions["port"].as<int>();
@@ -598,19 +601,18 @@ int main(int argc, char** argv)
 
 		try
 		{
-			while(!end2)
+			while (!end2)
 			{
 				server.start();
 			}
 			io_service.run();
 		}
-		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
 			end2 = true;
 		}
-		catch(...)
-		{
+		catch (...) {
 			handleException();
 		}
 	}
@@ -627,3 +629,13 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
+#ifdef VCMI_ANDROID
+
+void CVCMIServer::create()
+{
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	char* foo[1] = {"android-server"};
+	main(1, foo);
+}
+#endif

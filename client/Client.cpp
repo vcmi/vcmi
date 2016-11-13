@@ -919,7 +919,11 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 	if(ps.name.size())
 	{
 		const boost::filesystem::path aiPath =
-			VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
+#ifdef VCMI_ANDROID // TODO add VCMIDirs::fullLibraryPath to be able to decide if we need subfolder dynamically
+		VCMIDirs::get().libraryPath() / VCMIDirs::get().libraryName(ps.name);
+#else
+		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
+#endif
 		if (boost::filesystem::exists(aiPath))
 			return ps.name;
 	}
@@ -1023,6 +1027,9 @@ CServerHandler::~CServerHandler()
 void CServerHandler::callServer()
 {
 	setThreadName("CServerHandler::callServer");
+#ifdef VCMI_ANDROID
+
+#else
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
@@ -1034,10 +1041,14 @@ void CServerHandler::callServer()
 		logNetwork->errorStream() << "Check " << logName << " for more info";
 		exit(1);// exit in case of error. Othervice without working server VCMI will hang
 	}
+#endif
 }
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
 {
+#ifdef VCMI_ANDROID
+
+#endif
 	std::string realPort;
 	if(settings["testing"]["enabled"].Bool())
 		realPort = settings["testing"]["port"].String();
