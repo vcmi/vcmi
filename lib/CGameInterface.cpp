@@ -96,12 +96,7 @@ std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string& method
 {
 	logGlobal->infoStream() << "Opening " << dllname;
 
-	const boost::filesystem::path filePath =
-#ifdef VCMI_ANDROID // TODO add VCMIDirs::fullLibraryPath to be able to decide if we need subfolder dynamically
-	VCMIDirs::get().libraryPath() / VCMIDirs::get().libraryName(dllname);
-#else
-	VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(dllname);
-#endif
+	const boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("AI", dllname);
 	auto ret = createAny<rett>(filePath, methodName);
 	ret->dllName = std::move(dllname);
 	return ret;

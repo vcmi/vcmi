@@ -918,12 +918,7 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 {
 	if(ps.name.size())
 	{
-		const boost::filesystem::path aiPath =
-#ifdef VCMI_ANDROID // TODO add VCMIDirs::fullLibraryPath to be able to decide if we need subfolder dynamically
-		VCMIDirs::get().libraryPath() / VCMIDirs::get().libraryName(ps.name);
-#else
-		VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
-#endif
+		const boost::filesystem::path aiPath = VCMIDirs::get().fullLibraryPath("AI", ps.name);
 		if (boost::filesystem::exists(aiPath))
 			return ps.name;
 	}

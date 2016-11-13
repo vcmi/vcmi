@@ -15,6 +15,11 @@ namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
+bfs::path IVCMIDirs::fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const
+{
+	return libraryPath() / desiredFolder / libraryName(baseLibName);
+}
+
 void IVCMIDirs::init()
 {
 	// TODO: Log errors
@@ -544,6 +549,7 @@ class VCMIDirsAndroid : public VCMIDirsXDG
 	std::string basePath;
 	std::string nativePath;
 public:
+	boost::filesystem::path fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const override;
 	boost::filesystem::path libraryPath() const override;
 	boost::filesystem::path userDataPath() const override;
 	boost::filesystem::path userCachePath() const override;
@@ -558,6 +564,12 @@ bfs::path VCMIDirsAndroid::libraryPath() const { return nativePath; }
 bfs::path VCMIDirsAndroid::userDataPath() const { return basePath; }
 bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
 bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
+
+boost::filesystem::path VCMIDirsAndroid::fullLibraryPath(const std::string &desiredFolder,
+														 const std::string &baseLibName) const {
+	// ignore passed folder (all libraries in android are dumped into a single folder
+	return libraryPath() / libraryName(baseLibName);
+}
 
 std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 {
