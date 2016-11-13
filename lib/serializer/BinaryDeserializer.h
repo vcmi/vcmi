@@ -500,6 +500,7 @@ public:
 		{
 			T t;
 			load(t);
+			data = std::move(t);
 		}
 		else
 		{
