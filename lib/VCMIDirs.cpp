@@ -567,8 +567,8 @@ std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 void VCMIDirsAndroid::init()
 {
 	// asks java code to retrieve from system needed paths
-
-	auto env = AndroidVMHelper::attach();
+	AndroidVMHelper envHelper;
+	auto env = envHelper.get();
 	auto javaHelper = env->FindClass("org/libsdl/app/VCMIJavaHelpers");
 	auto methodRootPath = env->GetStaticMethodID(javaHelper, "dataRoot", "()Ljava/lang/String;");
 	jstring jbasePath = static_cast<jstring>(env->CallStaticObjectMethod(javaHelper, methodRootPath));
@@ -578,7 +578,6 @@ void VCMIDirsAndroid::init()
 	jstring jnativePath = static_cast<jstring>(env->CallStaticObjectMethod(javaHelper, methodLibPath));
 	nativePath = std::string(env->GetStringUTFChars(jnativePath, nullptr));
 
-	AndroidVMHelper::detach();
 	IVCMIDirs::init();
 }
 
