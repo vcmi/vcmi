@@ -66,7 +66,7 @@ public:
 
 
 
-#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
+#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving) deserializationFix();
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
