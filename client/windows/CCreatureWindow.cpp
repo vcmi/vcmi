@@ -4,6 +4,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/CArtifactHolder.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -456,11 +457,11 @@ void CStackWindow::CWindowSection::createCommander()
 	{
 		return Point(269 + 47 * (index % 3), 22 + 47 * (index / 3));
 	};
-
 	for (auto equippedArtifact : parent->info->commander->artifactsWorn)
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
-		auto icon = new CClickableObject(new CAnimImage("artifact", equippedArtifact.second.artifact.get()->artType.get()->iconIndex, 0, artPos.x, artPos.y), [=] {});
+		//auto icon = new CClickableObject(new CAnimImage("artifact", equippedArtifact.second.artifact.get()->artType.get()->iconIndex, 0, artPos.x, artPos.y), [=] {});
+		auto icon = new CCommanderArtPlace(artPos, parent->info->owner, equippedArtifact.first, equippedArtifact.second.artifact);
 
 		//TODO: Use CArtPlace or equivalent instead of CClickableObject and handle commander artifact actions to match WOG (return artifact to hero etc.)
 	}

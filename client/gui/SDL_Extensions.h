@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #pragma once
 #include <SDL_version.h>
 #include <SDL_render.h>
@@ -88,7 +88,7 @@ public:
 
 	/** green color used for in-game console */
 	static const SDL_Color GREEN;
-	
+
 	/** default key color for all 8 & 24 bit graphics */
 	static const SDL_Color DEFAULT_KEY_COLOR;
 };
@@ -167,7 +167,7 @@ namespace CSDL_Ext
 		}
 	};
 
-	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
+	void blitSurface(SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
 	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
 	void fillRectBlack(SDL_Surface * dst, SDL_Rect * dstrect);
 	//fill dest image with source texture.
@@ -185,21 +185,6 @@ namespace CSDL_Ext
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
 	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
-	BlitterWithRotationVal getBlitterWithRotation(SDL_Surface *dest);
-	BlitterWithRotationVal getBlitterWithRotationAndAlpha(SDL_Surface *dest);
-
-	template<int bpp> void blitWithRotateClip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect, ui8 rotation);//srcRect is not used, works with 8bpp sources and 24bpp dests preserving clip_rect
-	template<int bpp> void blitWithRotateClipVal(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);//srcRect is not used, works with 8bpp sources and 24bpp dests preserving clip_rect
-
-	template<int bpp> void blitWithRotateClipWithAlpha(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect, ui8 rotation);//srcRect is not used, works with 8bpp sources and 24bpp dests preserving clip_rect
-	template<int bpp> void blitWithRotateClipValWithAlpha(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);//srcRect is not used, works with 8bpp sources and 24bpp dests preserving clip_rect
-
-	template<int bpp> void blitWithRotate1(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
-	template<int bpp> void blitWithRotate2(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
-	template<int bpp> void blitWithRotate3(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
-	template<int bpp> void blitWithRotate1WithAlpha(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
-	template<int bpp> void blitWithRotate2WithAlpha(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
-	template<int bpp> void blitWithRotate3WithAlpha(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
 
 	template<int bpp>
 	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
@@ -228,10 +213,10 @@ namespace CSDL_Ext
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
-	
+
 	void startTextInput(SDL_Rect * where);
 	void stopTextInput();
-	
+
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 	///set key-color to 0,255,255
 	void setDefaultColorKey(SDL_Surface * surface);

@@ -11,13 +11,11 @@
 #include "StdInc.h"
 #include "CMessage.h"
 
-#include "CDefHandler.h"
 #include "CGameInfo.h"
 #include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "windows/GUIClasses.h"
-#include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
+#include "gui/CAnimation.h"
 
 #include "widgets/CComponent.h"
 #include "windows/InfoWindows.h"
@@ -63,53 +61,37 @@ struct ComponentsToBlit
 
 namespace
 {
-	CDefHandler * ok = nullptr, *cancel = nullptr;
-	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
-	SDL_Surface * background = nullptr;
+	std::array<std::unique_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
+	std::array<std::vector<const IImage*>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
+
+	SDL_Surface * background = nullptr;//todo: should be CFilledTexture
 }
 
 void CMessage::init()
 {
+	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		piecesOfBox.resize(PlayerColor::PLAYER_LIMIT_I);
-		for (int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
+		dialogBorders[i] = make_unique<CAnimation>("DIALGBOX");
+		dialogBorders[i]->preload();
+
+        for(int j=0; j < dialogBorders[i]->size(0); j++)
 		{
-			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
-			if (i==1)
-			{
-				for (auto & elem : bluePieces->ourImages)
-				{
-					piecesOfBox[i].push_back(elem.bitmap);
-					elem.bitmap->refcount++;
-				}
-			}
-			for (auto & elem : bluePieces->ourImages)
-			{
-				graphics->blueToPlayersAdv(elem.bitmap, PlayerColor(i));
-				piecesOfBox[i].push_back(elem.bitmap);
-				elem.bitmap->refcount++;
-			}
-			delete bluePieces;
+			IImage * image = dialogBorders[i]->getImage(j, 0);
+			//assume blue color initially
+			if(i != 1)
+				image->playerColored(PlayerColor(i));
+			piecesOfBox[i].push_back(image);
 		}
-		background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
-		CSDL_Ext::setDefaultColorKey(background);
 	}
-	ok = CDefHandler::giveDef("IOKAY.DEF");
-	cancel = CDefHandler::giveDef("ICANCEL.DEF");
+
+	background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
 }
 
 void CMessage::dispose()
 {
-	for (auto & piece : piecesOfBox)
-	{
-		for (auto & elem : piece)
-		{
-			SDL_FreeSurface(elem);
-		}
-	}
+	for(auto & item : dialogBorders)
+		item.reset();
 	SDL_FreeSurface(background);
-	delete ok;
-	delete cancel;
 }
 
 SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
@@ -226,9 +208,9 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 
-	for(int i = 0; 
-		i < ARRAY_COUNT(sizes) 
-			&& sizes[i][0] < screen->w - 150  
+	for(int i = 0;
+		i < ARRAY_COUNT(sizes)
+			&& sizes[i][0] < screen->w - 150
 			&& sizes[i][1] < screen->h - 150
 			&& ret->text->slider;
 		i++)
@@ -254,12 +236,15 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	int bw = 0;
 	if (ret->buttons.size())
 	{
+		int bh = 0;
 		// Compute total width of buttons
 		bw = 20*(ret->buttons.size()-1); // space between all buttons
 		for(auto & elem : ret->buttons) //and add buttons width
+		{
 			bw+=elem->pos.w;
-		winSize.second += 20 + //before button
-		ok->ourImages[0].bitmap->h; //button	
+			vstd::amax(bh, elem->pos.h);
+		}
+		winSize.second += 20 + bh;//before button + button
 	}
 
 	// Clip window size
@@ -310,65 +295,65 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 }
 
 void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
-{	
-	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor.getNum()];
+{
+	std::vector<const IImage*> &box = piecesOfBox.at(playerColor.getNum());
 
 	// Note: this code assumes that the corner dimensions are all the same.
 
 	// Horizontal borders
-	int start_x = x + box[0]->w;
-	const int stop_x = x + w - box[1]->w;
-	const int bottom_y = y+h-box[7]->h+1;
+	int start_x = x + box[0]->width();
+	const int stop_x = x + w - box[1]->width();
+	const int bottom_y = y+h-box[7]->height()+1;
 	while (start_x < stop_x) {
 		int cur_w = stop_x - start_x;
-		if (cur_w > box[6]->w)
-			cur_w = box[6]->w;
+		if (cur_w > box[6]->width())
+			cur_w = box[6]->width();
 
 		// Top border
-		Rect srcR(0, 0, cur_w, box[6]->h);
+		Rect srcR(0, 0, cur_w, box[6]->height());
 		Rect dstR(start_x, y, 0, 0);
-		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
-		
+		box[6]->draw(ret, &dstR, &srcR);
+
 		// Bottom border
 		dstR.y = bottom_y;
-		CSDL_Ext::blitSurface(box[7], &srcR, ret, &dstR);
+		box[7]->draw(ret, &dstR, &srcR);
 
 		start_x += cur_w;
 	}
 
 	// Vertical borders
-	int start_y = y + box[0]->h;
-	const int stop_y = y + h - box[2]->h+1;
-	const int right_x = x+w-box[5]->w;
+	int start_y = y + box[0]->height();
+	const int stop_y = y + h - box[2]->height()+1;
+	const int right_x = x+w-box[5]->width();
 	while (start_y < stop_y) {
 		int cur_h = stop_y - start_y;
-		if (cur_h > box[4]->h)
-			cur_h = box[4]->h;
+		if (cur_h > box[4]->height())
+			cur_h = box[4]->height();
 
 		// Left border
-		Rect srcR(0, 0, box[4]->w, cur_h);
+		Rect srcR(0, 0, box[4]->width(), cur_h);
 		Rect dstR(x, start_y, 0, 0);
-		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
+		box[4]->draw(ret, &dstR, &srcR);
 
 		// Right border
 		dstR.x = right_x;
-		CSDL_Ext::blitSurface(box[5], &srcR, ret, &dstR);
+		box[5]->draw(ret, &dstR, &srcR);
 
 		start_y += cur_h;
 	}
 
 	//corners
-	Rect dstR(x, y, box[0]->w, box[0]->h);
-	CSDL_Ext::blitSurface(box[0], nullptr, ret, &dstR);
+	Rect dstR(x, y, box[0]->width(), box[0]->height());
+	box[0]->draw(ret, &dstR, nullptr);
 
-	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
-	CSDL_Ext::blitSurface(box[1], nullptr, ret, &dstR);
+	dstR=Rect(x+w-box[1]->width(), y,   box[1]->width(), box[1]->height());
+	box[1]->draw(ret, &dstR, nullptr);
 
-	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
-	CSDL_Ext::blitSurface(box[2], nullptr, ret, &dstR);
+	dstR=Rect(x, y+h-box[2]->height()+1, box[2]->width(), box[2]->height());
+	box[2]->draw(ret, &dstR, nullptr);
 
-	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
-	CSDL_Ext::blitSurface(box[3], nullptr, ret, &dstR);
+	dstR=Rect(x+w-box[3]->width(), y+h-box[3]->height()+1, box[3]->width(), box[3]->height());
+	box[3]->draw(ret, &dstR, nullptr);
 }
 
 ComponentResolved::ComponentResolved( CComponent *Comp ):

@@ -27,7 +27,7 @@
 		"fullscreenButton" :
 		{
 			"label" : "Fullscreen",
-			"help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window",
+			"help"  : "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window"
 		},
 		"resolutionButton" :
 		{
@@ -50,13 +50,18 @@
 		"allOf"  :  "All of the following:",
 		"noneOf" : "None of the following:"
 	},
-	"heroWindow" : {
-		"openCommander" :
-		{
-			"label" : "Open commander window",
-			"help" : "Displays information about commander of this hero"
-		}
-	},
+  "heroWindow": 
+  {
+    "openCommander": 
+    {
+      "label": "Open commander window",
+      "help": "Displays information about commander of this hero"
+    }
+  },
+  "commanderWindow": 
+  {
+    "artifactMessage": "Do you want to give this artifact back to hero?"
+  },
 	"creatureWindow" :
 	{
 		"showBonuses" :

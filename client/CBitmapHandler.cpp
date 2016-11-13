@@ -167,6 +167,10 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	{
 		CSDL_Ext::setDefaultColorKeyPresize(ret);
 	}
+	else if (ret->format->Amask)
+	{
+		SDL_SetSurfaceBlendMode(ret, SDL_BLENDMODE_BLEND);
+	}
 	else // always set
 	{
 		CSDL_Ext::setDefaultColorKey(ret);

@@ -85,7 +85,7 @@ public:
 	void disableStackSendingByID();
 	void enableStackSendingByID();
 	void disableSmartPointerSerialization();
-	void enableSmartPointerSerializatoin();
+	void enableSmartPointerSerialization();
 	void disableSmartVectorMemberSerialization();
 	void enableSmartVectorMemberSerializatoin();
 

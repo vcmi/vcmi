@@ -33,10 +33,10 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
-//	boost::asio::ip::tcp::no_delay option(true);
-//	socket->set_option(option);
+	boost::asio::ip::tcp::no_delay option(true);
+	socket->set_option(option);
 
-	enableSmartPointerSerializatoin();
+	enableSmartPointerSerialization();
 	disableStackSendingByID();
 	registerTypes(iser);
 	registerTypes(oser);
@@ -243,7 +243,7 @@ void CConnection::disableSmartPointerSerialization()
 	iser.smartPointerSerialization = oser.smartPointerSerialization = false;
 }
 
-void CConnection::enableSmartPointerSerializatoin()
+void CConnection::enableSmartPointerSerialization()
 {
 	iser.smartPointerSerialization = oser.smartPointerSerialization = true;
 }
@@ -253,7 +253,7 @@ void CConnection::prepareForSendingHeroes()
 	iser.loadedPointers.clear();
 	oser.savedPointers.clear();
 	disableSmartVectorMemberSerialization();
-	enableSmartPointerSerializatoin();
+	enableSmartPointerSerialization();
 	disableStackSendingByID();
 }
 

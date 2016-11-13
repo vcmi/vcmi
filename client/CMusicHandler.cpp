@@ -483,7 +483,7 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-		logGlobal->traceStream()<<"Stoping music file "<<currentName;
+		logGlobal->traceStream()<<"Stopping music file "<<currentName;
 		loop = 0;
 		Mix_FadeOutMusic(fade_ms);
 		return true;

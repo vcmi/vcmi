@@ -93,6 +93,6 @@ public:
 	virtual void updateGarrisons() override;  //updates the morale widget and calls the parent
 
 	//friends
-	friend void CArtPlace::clickLeft(tribool down, bool previousState);
+	friend void CHeroArtPlace::clickLeft(tribool down, bool previousState);
 	friend class CPlayerInterface;
 };
