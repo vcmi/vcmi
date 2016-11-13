@@ -356,16 +356,32 @@ public:
 				{
 					auto actualType = typeList.getTypeInfo(internalPtr);
 					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
-					if(*actualType == *typeWeNeedToReturn)
+
+					auto manip = typeList.getTypeManipulator<T>(actualType);
+					if(manip->isExpiredWeakPtr(itr->second))
 					{
-						// No casting needed, just unpack already stored shared_ptr and return it
-						data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+						//old pointer is expired, create new one
+						auto hlp = std::shared_ptr<NonConstT>(internalPtr);
+						data = hlp; //possibly adds const
+						auto ptrToStore = std::weak_ptr<NonConstT>(hlp);
+						loadedSharedPointers[internalPtrDerived] = typeList.castWeakToMostDerived(ptrToStore);
 					}
 					else
 					{
-						// We need to perform series of casts
-						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = boost::any_cast<std::shared_ptr<T>>(ret);
+						if(strcmp(actualType->name(), typeWeNeedToReturn->name()) == 0)
+						{
+							// No casting needed, just unpack already stored shared_ptr and return it
+							auto storedPtr = boost::any_cast<std::weak_ptr<T>>(itr->second);
+							auto hlp = storedPtr.lock();
+							data = hlp;
+						}
+						else
+						{
+							// We need to perform series of casts
+							auto storedData = typeList.castWeak(itr->second, actualType, typeWeNeedToReturn);
+							auto storedPtr = boost::any_cast<std::weak_ptr<T>>(storedData);
+							data = storedPtr.lock();
+						}
 					}
 				}
 				catch(std::exception &e)
@@ -381,7 +397,8 @@ public:
 			{
 				auto hlp = std::shared_ptr<NonConstT>(internalPtr);
 				data = hlp; //possibly adds const
-				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
+				auto ptrToStore = std::weak_ptr<NonConstT>(hlp);
+				loadedSharedPointers[internalPtrDerived] = typeList.castWeakToMostDerived(ptrToStore);
 			}
 		}
 		else

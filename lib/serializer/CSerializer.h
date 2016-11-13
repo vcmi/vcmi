@@ -30,11 +30,7 @@ struct TypeComparer
 {
 	bool operator()(const std::type_info *a, const std::type_info *b) const
 	{
-	//#ifndef __APPLE__
-	//  return a->before(*b);
-	//#else
 		return strcmp(a->name(), b->name()) < 0;
-	//#endif
 	}
 };
 

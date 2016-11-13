@@ -22,12 +22,8 @@ CTypeList::CTypeList()
 	registerTypes(*this);
 }
 
-CTypeList::TypeInfoPtr CTypeList::registerType(const std::type_info *type)
+CTypeList::TypeInfoPtr CTypeList::registerNewType(const std::type_info *type)
 {
-	if(auto typeDescr = getTypeDescriptor(type, false))
-		return typeDescr;  //type found, return ptr to structure
-
-	//type not found - add it to the list and return given ID
 	auto newType = std::make_shared<TypeDescriptor>();
 	newType->typeID = typeInfos.size() + 1;
 	newType->name = type->name();

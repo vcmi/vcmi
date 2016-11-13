@@ -15,10 +15,14 @@
 
 struct IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
-	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
-	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
-	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+	/// takes From*, returns To*
+	virtual boost::any castRawPtr(const boost::any &ptr) const = 0;
+	/// takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
+	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0;
+	/// takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
+	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0;
+	// takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0;
 };
 
 template <typename From, typename To>
@@ -31,7 +35,7 @@ struct PointerCaster : IPointerCaster
 		return (void*)ret;
 	}
 
-	// Helper function performing casts between smart pointers
+	/// Helper function performing casts between smart pointers
 	template<typename SmartPt>
 	boost::any castSmartPtr(const boost::any &ptr) const
 	{
@@ -58,12 +62,28 @@ struct PointerCaster : IPointerCaster
 	}
 };
 
+struct ITypeManipulator
+{
+    virtual bool isExpiredWeakPtr(const boost::any & ptr) const = 0;
+};
+
+template <typename T>
+struct TypeManipulator : ITypeManipulator
+{
+	typedef typename std::remove_const<T>::type NonConstT;
+
+	bool isExpiredWeakPtr(const boost::any & ptr) const override
+	{
+		auto weak = boost::any_cast<std::weak_ptr<NonConstT>>(ptr);
+		return weak.expired();
+	}
+};
+
 /// Class that implements basic reflection-like mechanisms
 /// For every type registered via registerType() generates inheritance tree
 /// Rarely used directly - usually used as part of CApplier
 class DLL_LINKAGE CTypeList: public boost::noncopyable
 {
-//public:
 	struct TypeDescriptor;
 	typedef std::shared_ptr<TypeDescriptor> TypeInfoPtr;
 	typedef std::weak_ptr<TypeDescriptor> WeakTypeInfoPtr;
@@ -72,6 +92,7 @@ class DLL_LINKAGE CTypeList: public boost::noncopyable
 		ui16 typeID;
 		const char *name;
 		std::vector<WeakTypeInfoPtr> children, parents;
+		std::shared_ptr<ITypeManipulator> manipulator;
 	};
 	typedef boost::shared_mutex TMutex;
 	typedef boost::unique_lock<TMutex> TUniqueLock;
@@ -116,7 +137,18 @@ private:
 	}
 
 	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
-	TypeInfoPtr registerType(const std::type_info *type);
+	TypeInfoPtr registerNewType(const std::type_info *type);
+
+	template <typename T>
+	TypeInfoPtr registerTypeT(const std::type_info * type)
+	{
+		if(auto typeDescr = getTypeDescriptor(type, false))
+			return typeDescr;  //type found, return ptr to structure
+
+		TypeInfoPtr ret = registerNewType(type);
+		ret->manipulator = std::make_shared<TypeManipulator<T>>();
+		return ret;
+	}
 
 public:
 
@@ -131,8 +163,8 @@ public:
 		static_assert(!std::is_same<Base, Derived>::value, "Parameters of registerTypes should be two different types.");
 		auto bt = getTypeInfo(b);
 		auto dt = getTypeInfo(d); //obtain std::type_info
-		auto bti = registerType(bt);
-		auto dti = registerType(dt); //obtain our TypeDescriptor
+		auto bti = registerTypeT<Base>(bt);
+		auto dti = registerTypeT<Derived>(dt); //obtain our TypeDescriptor
 
 		// register the relation between classes
 		bti->children.push_back(dti);
@@ -147,6 +179,16 @@ public:
 	ui16 getTypeID(const T * t = nullptr, bool throws = false) const
 	{
 		return getTypeID(getTypeInfo(t), throws);
+	}
+
+	///Returns manipulator for @type if it is registered, creates new one based on template argument otherwise
+	template <typename T>
+	std::shared_ptr<ITypeManipulator> getTypeManipulator(const std::type_info * type) const
+	{
+		if(auto typeDescr = getTypeDescriptor(type, false))
+			return typeDescr->manipulator;  //type found, return ptr to structure
+		else
+			return std::make_shared<TypeManipulator<T>>();
 	}
 
 	template<typename TInput>
@@ -177,13 +219,31 @@ public:
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, &baseType, derivedType);
 	}
 
+	template<typename TInput>
+	boost::any castWeakToMostDerived(const std::weak_ptr<TInput> inputPtr) const
+	{
+		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		auto derivedType = getTypeInfo(inputPtr.lock().get());
+
+		if (!strcmp(baseType.name(), derivedType->name()))
+			return inputPtr;
+
+		return castHelper<&IPointerCaster::castWeakPtr>(inputPtr, &baseType, derivedType);
+	}
+
 	void * castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
 		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
 	}
+
 	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
 	{
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, from, to);
+	}
+
+	boost::any castWeak(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
+	{
+		return castHelper<&IPointerCaster::castWeakPtr>(inputPtr, from, to);
 	}
 
 	template <typename T> const std::type_info * getTypeInfo(const T * t = nullptr) const
