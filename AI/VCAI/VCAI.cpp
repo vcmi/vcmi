@@ -90,6 +90,14 @@ struct ObjInfo
 	}
 };
 
+void tmpDumpQueries(std::map<int, QueryID> x)
+{
+	for (auto xx : x)
+	{
+		logGlobal->warnStream() << "xx# " << xx.first << ", " << xx.second.getNum();
+	}
+}
+
 std::map<const CGObjectInstance *, ObjInfo> helperObjInfo;
 
 VCAI::VCAI(void)
@@ -2951,10 +2959,13 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 	std::string description = remainingQueries[queryID];
 	logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
 	requestToQueryID[answerRequestID] = queryID;
+	logGlobal->warnStream() << "xx# Added query " << queryID.getNum();
 }
 
 void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 {
+	logGlobal->warnStream() << "xx# looking for query" << answerRequestID;
+	tmpDumpQueries(requestToQueryID);
 	assert(vstd::contains(requestToQueryID, answerRequestID));
 	QueryID query = requestToQueryID[answerRequestID];
 	assert(vstd::contains(remainingQueries, query));

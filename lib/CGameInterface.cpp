@@ -35,13 +35,12 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path& libpath, const st
 	TGetNameFun getName = nullptr;
 
 #ifdef VCMI_ANDROID
-    logGlobal->warnStream() << "xx# Opening AI from " << libpath.string() << " :: " << methodName;
+    logGlobal->debugStream() << "Opening AI from " << libpath.string() << " :: " << methodName;
 	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (dll)
 	{
 		getName = (TGetNameFun)dlsym(dll, "GetAiName");
 		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
-		logGlobal->warnStream() << "GOT AI " << (getName == nullptr ? "null" : "ok") << (getAI == nullptr ? "null" : "ok");
 	}
 	else
 		logGlobal->errorStream() << "Error: " << dlerror();
