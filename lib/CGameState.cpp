@@ -71,62 +71,6 @@ public:
 
 static CApplier<CBaseForGSApply> *applierGs = nullptr;
 
-// class IObjectCaller
-// {
-// public:
-// 	virtual ~IObjectCaller(){};
-// 	virtual void preInit()=0;
-// 	virtual void postInit()=0;
-// };
-//
-// template <typename T>
-// class CObjectCaller : public IObjectCaller
-// {
-// public:
-// 	void preInit()
-// 	{
-// 		//T::preInit();
-// 	}
-// 	void postInit()
-// 	{
-// 		//T::postInit();
-// 	}
-// };
-
-// class CObjectCallersHandler
-// {
-// public:
-// 	std::vector<IObjectCaller*> apps;
-//
-// 	template<typename T> void registerType(const T * t=nullptr)
-// 	{
-// 		apps.push_back(new CObjectCaller<T>);
-// 	}
-//
-// 	CObjectCallersHandler()
-// 	{
-// 		registerTypesMapObjects(*this);
-// 	}
-//
-// 	~CObjectCallersHandler()
-// 	{
-// 		for (auto & elem : apps)
-// 			delete elem;
-// 	}
-//
-// 	void preInit()
-// 	{
-// // 		for (size_t i = 0; i < apps.size(); i++)
-// // 			apps[i]->preInit();
-// 	}
-//
-// 	void postInit()
-// 	{
-// 	//for (size_t i = 0; i < apps.size(); i++)
-// 	//apps[i]->postInit();
-// 	}
-// } *objCaller = nullptr;
-
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
 	int type = txt.first, ser = txt.second;
