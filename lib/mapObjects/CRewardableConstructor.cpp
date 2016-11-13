@@ -21,7 +21,7 @@ namespace {
 	MetaString loadMessage(const JsonNode & value)
 	{
 		MetaString ret;
-		if (value.getType() == JsonNode::DATA_FLOAT)
+		if (value.isNumber())
 			ret.addTxt(MetaString::ADVOB_TXT, value.Float());
 		else
 			ret << value.String();

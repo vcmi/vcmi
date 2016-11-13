@@ -35,7 +35,7 @@ CVcmiTestConfig::CVcmiTestConfig()
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
 	find your test data folder in your build and change TEST_DATA_DIR for it*/
-	const std::string TEST_DATA_DIR = "test/";
+	const std::string TEST_DATA_DIR = "test/testdata/";
 	auto path = boost::filesystem::current_path();
 	path+= "/" + TEST_DATA_DIR;
 	if(boost::filesystem::exists(path)){

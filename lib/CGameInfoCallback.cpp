@@ -99,8 +99,16 @@ const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
 
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
 {
-	ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier), "There is no object with such quest identifier!", nullptr);
-	return getObj(gs->map->questIdentifierToId[identifier]);
+	if(gs->map->questIdentifierToId.empty())
+	{
+		//assume that it is VCMI map and quest identifier equals instance identifier
+		return getObj(ObjectInstanceID(identifier), true);
+	}
+	else
+	{
+		ERROR_RET_VAL_IF(!vstd::contains(gs->map->questIdentifierToId, identifier), "There is no object with such quest identifier!", nullptr);
+		return getObj(gs->map->questIdentifierToId[identifier]);
+	}
 }
 
 /************************************************************************/

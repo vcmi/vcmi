@@ -17,6 +17,8 @@
 #include "../spells/CSpellHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
+#include "../StringConstants.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -375,6 +377,85 @@ CGEvent::CGEvent()
 
 }
 
+void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	CCreatureSet::serializeJson(handler, "guards", 7);
+	handler.serializeString("guardMessage", message);
+
+	handler.serializeInt("experience", gainedExp, 0);
+	handler.serializeInt("mana", manaDiff, 0);
+	handler.serializeInt("morale", moraleDiff, 0);
+	handler.serializeInt("luck", luckDiff, 0);
+
+	resources.serializeJson(handler, "resources");
+
+	{
+		if(!handler.saving)
+			primskills.resize(GameConstants::PRIMARY_SKILLS,0);
+
+		auto s = handler.enterStruct("primarySkills");
+		for(int idx = 0; idx < primskills.size(); idx ++)
+			handler.serializeInt(PrimarySkill::names[idx], primskills[idx], 0);
+
+	}
+	if(handler.saving)
+	{
+		if(handler.getCurrent()["primarySkills"].Struct().empty())
+			handler.getCurrent().Struct().erase("primarySkills");
+	}
+
+	if(handler.saving)
+	{
+		if(!abilities.empty())
+		{
+			auto s = handler.enterStruct("secondarySkills");
+
+			for(size_t idx = 0; idx < abilities.size(); idx++)
+			{
+				handler.serializeEnum(NSecondarySkill::names[abilities[idx]], abilityLevels[idx], NSecondarySkill::levels);
+			}
+		}
+	}
+	else
+	{
+		auto s = handler.enterStruct("secondarySkills");
+
+		const JsonNode & skillMap = handler.getCurrent();
+
+		abilities.clear();
+		abilityLevels.clear();
+
+		for(const auto & p : skillMap.Struct())
+		{
+			const std::string id = p.first;
+			const std::string levelId =  p.second.String();
+
+			const int rawId = vstd::find_pos(NSecondarySkill::names, id);
+			if(rawId < 0)
+			{
+				logGlobal->errorStream() << "Invalid secondary skill " << id;
+				continue;
+			}
+
+			const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
+			if(level < 0)
+			{
+				logGlobal->errorStream() << "Invalid secondary skill level" << levelId;
+				continue;
+			}
+
+			abilities.push_back(SecondarySkill(rawId));
+			abilityLevels.push_back(level);
+		}
+	}
+
+
+	handler.serializeIdArray("artifacts", artifacts, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+	handler.serializeIdArray("spells", spells, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
+
+	creatures.serializeJson(handler, "creatures");
+}
+
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!(availableFor & (1 << h->tempOwner.getNum())))
@@ -415,4 +496,27 @@ void CGEvent::afterSuccessfulVisit() const
 	}
 	else if(hasGuardians)
 		hasGuardians = false;
+}
+
+void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	CGPandoraBox::serializeJsonOptions(handler);
+
+	handler.serializeBool<bool>("aIActivable", computerActivate, true, false, false);
+	handler.serializeBool<bool>("humanActivable", humanActivate, true, false, true);
+	handler.serializeBool<bool>("removeAfterVisit", removeAfterVisit, true, false, false);
+
+	{
+		auto decodePlayer = [](const std::string & id)->si32
+		{
+			return vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, id);
+		};
+
+		auto encodePlayer = [](si32 idx)->std::string
+		{
+			return GameConstants::PLAYER_COLOR_NAMES[idx];
+		};
+
+		handler.serializeIdArray<ui8, PlayerColor::PLAYER_LIMIT_I>("availableFor", availableFor, GameConstants::ALL_PLAYERS, decodePlayer, encodePlayer);
+    }
 }

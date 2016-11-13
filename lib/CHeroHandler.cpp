@@ -281,6 +281,7 @@ CHeroHandler::CHeroHandler()
 	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
 	{
 		VLC->modh->identifiers.registerObject("core", "skill", NSecondarySkill::names[i], i);
+		VLC->modh->identifiers.registerObject("core", "secondarySkill", NSecondarySkill::names[i], i);
 	}
 	loadObstacles();
 	loadTerrains();
@@ -542,7 +543,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->ID = HeroTypeID(heroes.size());
-	object->imageIndex = heroes.size() + 30; // 2 special frames + some extra portraits
+	object->imageIndex = heroes.size() + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
 	heroes.push_back(object);
 

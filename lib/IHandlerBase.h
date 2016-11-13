@@ -39,6 +39,9 @@ public:
 	/// allows handlers to alter object configuration before validation and actual load
 	virtual void beforeValidate(JsonNode & object){};
 
+	/// allows handler to load some custom internal data before identifier finalization
+	virtual void loadCustom(){};
+
 	/// allows handler to do post-loading step for validation or integration of loaded data
 	virtual void afterLoadFinalization(){};
 

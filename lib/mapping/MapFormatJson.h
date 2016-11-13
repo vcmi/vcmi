@@ -17,6 +17,8 @@
 #include "../filesystem/CZipLoader.h"
 #include "../GameConstants.h"
 
+#include "../serializer/JsonSerializeFormat.h"
+
 struct TriggeredEvent;
 struct TerrainTile;
 struct PlayerInfo;
@@ -39,6 +41,8 @@ public:
 	int fileVersionMajor;
 	int fileVersionMinor;
 protected:
+	friend class MapObjectResolver;
+	std::unique_ptr<IInstanceResolver> mapObjectResolver;
 
 	/** ptr to the map object which gets filled by data from the buffer or written to buffer */
 	CMap * map;
@@ -48,6 +52,8 @@ protected:
 	 * (when loading map and mapHeader point to the same object)
 	 */
 	CMapHeader * mapHeader;
+
+	CMapFormatJson();
 
 	void serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value);
 
@@ -66,10 +72,6 @@ protected:
 	 * Saves team settings to header
 	 */
 	void writeTeams(JsonSerializer & handler);
-
-
-	///common part triggered events of saving/loading
-	void serializeTriggeredEvents(JsonSerializeFormat & handler);
 
 	/**
 	 * Reads triggered events, including victory/loss conditions
@@ -91,7 +93,13 @@ protected:
 	 */
 	void writeTriggeredEvent(const TriggeredEvent & event, JsonNode & dest);
 
+	void writeDisposedHeroes(JsonSerializeFormat & handler);
 
+	void readDisposedHeroes(JsonSerializeFormat & handler);
+
+	void serializePredefinedHeroes(JsonSerializeFormat & handler);
+
+	void serializeRumors(JsonSerializeFormat & handler);
 
 	///common part of map attributes saving/loading
 	void serializeOptions(JsonSerializeFormat & handler);
@@ -129,7 +137,6 @@ private:
 	 * Reads subset of header that can be replaced by patching.
 	 */
 	void readPatchData();
-
 
 	JsonNode input;
 };
@@ -174,10 +181,7 @@ private:
 
 		///configures object
 		void configure();
-
 	};
-
-	si32 getIdentifier(const std::string & type, const std::string & name);
 
 	/**
 	 * Reads the map header.

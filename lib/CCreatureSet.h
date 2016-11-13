@@ -32,14 +32,14 @@ public:
 	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
 	virtual ~CStackBasicDescriptor() = default;
 
+	virtual void setType(const CCreature * c);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & type & count;
 	}
 
-	void writeJson(JsonNode & json) const;
-
-	void readJson(const JsonNode & json);
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
@@ -65,9 +65,7 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
-	void writeJson(JsonNode & json) const;
-
-	void readJson(const JsonNode & json);
+	void serializeJson(JsonSerializeFormat & handler);
 
 	//overrides CBonusSystemNode
 	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
@@ -88,10 +86,11 @@ public:
 	virtual ~CStackInstance();
 
 	void setType(CreatureID creID);
-	void setType(const CCreature *c);
+	void setType(const CCreature * c) override;
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
+	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;//from CArtifactSet
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
@@ -222,7 +221,7 @@ public:
 		h & stacks & formation;
 	}
 
-	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize = boost::none);
 
 	operator bool() const
 	{

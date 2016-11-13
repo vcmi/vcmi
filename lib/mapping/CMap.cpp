@@ -11,6 +11,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "CMapEditManager.h"
+#include "../serializer/JsonSerializeFormat.h"
 
 SHeroName::SHeroName() : heroId(-1)
 {
@@ -18,8 +19,8 @@ SHeroName::SHeroName() : heroId(-1)
 }
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
-	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), hasRandomHero(false), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), hasRandomHero(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
+	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
@@ -61,6 +62,7 @@ bool PlayerInfo::hasCustomMainHero() const
 
 EventCondition::EventCondition(EWinLoseType condition):
 	object(nullptr),
+	metaType(EMetaclass::INVALID),
 	value(-1),
 	objectType(-1),
 	objectSubtype(-1),
@@ -71,12 +73,19 @@ EventCondition::EventCondition(EWinLoseType condition):
 
 EventCondition::EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position):
 	object(nullptr),
+	metaType(EMetaclass::INVALID),
 	value(value),
 	objectType(objectType),
 	objectSubtype(-1),
 	position(position),
 	condition(condition)
 {}
+
+void Rumor::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeString("name", name);
+	handler.serializeString("text", text);
+}
 
 DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
 {
@@ -503,22 +512,26 @@ void CMap::checkForObjectives()
 		{
 			switch (cond.condition)
 			{
-				break; case EventCondition::HAVE_ARTIFACT:
+				case EventCondition::HAVE_ARTIFACT:
 					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->artifacts[cond.objectType]->Name());
+					break;
 
-				break; case EventCondition::HAVE_CREATURES:
+				case EventCondition::HAVE_CREATURES:
 					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->creatures[cond.objectType]->nameSing);
 					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+					break;
 
-				break; case EventCondition::HAVE_RESOURCES:
+				case EventCondition::HAVE_RESOURCES:
 					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->generaltexth->restypes[cond.objectType]);
 					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
+					break;
 
-				break; case EventCondition::HAVE_BUILDING:
+				case EventCondition::HAVE_BUILDING:
 					if (isInTheMap(cond.position))
 						cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+					break;
 
-				break; case EventCondition::CONTROL:
+				case EventCondition::CONTROL:
 					if (isInTheMap(cond.position))
 						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
 
@@ -531,8 +544,9 @@ void CMap::checkForObjectives()
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
 					}
+					break;
 
-				break; case EventCondition::DESTROY:
+				case EventCondition::DESTROY:
 					if (isInTheMap(cond.position))
 						cond.object = getObjectiveObjectFrom(cond.position, Obj::EObj(cond.objectType));
 
@@ -542,12 +556,22 @@ void CMap::checkForObjectives()
 						if (hero)
 							boost::algorithm::replace_first(event.onFulfill, "%s", hero->name);
 					}
-				break; case EventCondition::TRANSPORT:
+					break;
+				case EventCondition::TRANSPORT:
 					cond.object = getObjectiveObjectFrom(cond.position, Obj::TOWN);
+					break;
 				//break; case EventCondition::DAYS_PASSED:
 				//break; case EventCondition::IS_HUMAN:
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
+
+				//TODO: support new condition format
+				case EventCondition::HAVE_0:
+					break;
+				case EventCondition::DESTROY_0:
+					break;
+				case EventCondition::HAVE_BUILDING_0:
+					break;
 			}
 			return cond;
 		};

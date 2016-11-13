@@ -20,6 +20,12 @@
 #include "MiscObjects.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+#include "../serializer/JsonSerializeFormat.h"
+#include "../CModHandler.h"
+#include "../GameConstants.h"
+#include "../StringConstants.h"
+#include "../spells/CSpellHandler.h"
+
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
@@ -395,6 +401,86 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 	}
 }
 
+void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+{
+	auto q = handler.enterStruct(fieldName);
+
+	handler.serializeString("firstVisitText", firstVisitText);
+	handler.serializeString("nextVisitText", nextVisitText);
+	handler.serializeString("completedText", completedText);
+
+	if(!handler.saving)
+	{
+		isCustomFirst = firstVisitText.size() > 0;
+		isCustomNext = nextVisitText.size() > 0;
+		isCustomComplete = completedText.size() > 0;
+	}
+
+	static const std::vector<std::string> MISSION_TYPE_JSON =
+	{
+		"None", "Level", "PrimaryStat", "KillHero", "KillCreature", "Artifact", "Army", "Resources", "Hero", "Player"
+	};
+
+	handler.serializeEnum("missionType", missionType, Emission::MISSION_NONE, MISSION_TYPE_JSON);
+	handler.serializeInt("timeLimit", lastDay, -1);
+
+	switch (missionType)
+	{
+	case MISSION_NONE:
+		break;
+	case MISSION_LEVEL:
+		handler.serializeInt("heroLevel", m13489val, -1);
+		break;
+	case MISSION_PRIMARY_STAT:
+		{
+			auto primarySkills = handler.enterStruct("primarySkills");
+			if(!handler.saving)
+				m2stats.resize(GameConstants::PRIMARY_SKILLS);
+
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+				handler.serializeInt(PrimarySkill::names[i], m2stats[i], 0);
+		}
+		break;
+	case MISSION_KILL_HERO:
+	case MISSION_KILL_CREATURE:
+		handler.serializeInstance<ui32>("killTarget", m13489val, ui32(-1));
+		break;
+	case MISSION_ART:
+		//todo: ban artifacts
+		handler.serializeIdArray("artifacts", m5arts, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+		break;
+	case MISSION_ARMY:
+        {
+			auto a = handler.enterArray("creatures");
+			a.serializeStruct(m6creatures);
+        }
+		break;
+	case MISSION_RESOURCES:
+        {
+        	auto r = handler.enterStruct("resources");
+
+        	if(!handler.saving)
+				m7resources.resize(GameConstants::RESOURCE_QUANTITY-1);
+
+			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
+			{
+				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], m7resources[idx], 0);
+			}
+        }
+		break;
+	case MISSION_HERO:
+		handler.serializeId<ui32>("hero", m13489val, 0, &CHeroHandler::decodeHero, &CHeroHandler::encodeHero);
+		break;
+	case MISSION_PLAYER:
+		handler.serializeEnum("player",  m13489val, PlayerColor::CANNOT_DETERMINE.getNum(), GameConstants::PLAYER_COLOR_NAMES);
+		break;
+	default:
+		logGlobal->error("Invalid quest mission type");
+		break;
+	}
+
+}
+
 CGSeerHut::CGSeerHut() : IQuestObject(),
 	rewardType(NOTHING), rID(-1), rVal(-1)
 {
@@ -763,6 +849,165 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) 
 	finishQuest(hero, answer);
 }
 
+void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	static const std::map<ERewardType, std::string> REWARD_MAP =
+	{
+		{NOTHING,		""},
+		{EXPERIENCE,	"experience"},
+		{MANA_POINTS,	"mana"},
+		{MORALE_BONUS,	"morale"},
+		{LUCK_BONUS,	"luck"},
+		{RESOURCES,		"resource"},
+		{PRIMARY_SKILL,	"primarySkill"},
+		{SECONDARY_SKILL,"secondarySkill"},
+		{ARTIFACT,		"artifact"},
+		{SPELL,			"spell"},
+		{CREATURE,		"creature"}
+	};
+
+	static const std::map<std::string, ERewardType> REWARD_RMAP =
+	{
+		{"experience",    EXPERIENCE},
+		{"mana",          MANA_POINTS},
+		{"morale",        MORALE_BONUS},
+		{"luck",          LUCK_BONUS},
+		{"resource",      RESOURCES},
+		{"primarySkill",  PRIMARY_SKILL},
+		{"secondarySkill",SECONDARY_SKILL},
+		{"artifact",      ARTIFACT},
+		{"spell",         SPELL},
+		{"creature",      CREATURE}
+	};
+
+	//quest and reward
+	quest->serializeJson(handler, "quest");
+
+	//only one reward is supported
+	//todo: full reward format support after CRewardInfo integration
+
+	auto s = handler.enterStruct("reward");
+	std::string fullIdentifier, metaTypeName, scope, identifier;
+
+	if(handler.saving)
+	{
+		si32 amount = rVal;
+
+		metaTypeName = REWARD_MAP.at(rewardType);
+		switch (rewardType)
+		{
+		case NOTHING:
+			break;
+		case EXPERIENCE:
+		case MANA_POINTS:
+		case MORALE_BONUS:
+		case LUCK_BONUS:
+			identifier = "";
+			break;
+		case RESOURCES:
+			identifier = GameConstants::RESOURCE_NAMES[rID];
+			break;
+		case PRIMARY_SKILL:
+			identifier = PrimarySkill::names[rID];
+			break;
+		case SECONDARY_SKILL:
+			identifier = NSecondarySkill::names[rID];
+			break;
+		case ARTIFACT:
+			identifier = ArtifactID(rID).toArtifact()->identifier;
+			amount = 1;
+			break;
+		case SPELL:
+			identifier = SpellID(rID).toSpell()->identifier;
+			amount = 1;
+			break;
+		case CREATURE:
+			identifier = CreatureID(rID).toCreature()->identifier;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		if(rewardType != NOTHING)
+		{
+			fullIdentifier = CModHandler::makeFullIdentifier(scope, metaTypeName, identifier);
+			handler.serializeInt(fullIdentifier, amount);
+		}
+	}
+	else
+	{
+		rewardType = NOTHING;
+
+		const JsonNode & rewardsJson = handler.getCurrent();
+
+		fullIdentifier = "";
+
+		if(rewardsJson.Struct().empty())
+			return;
+		else
+		{
+			auto iter = rewardsJson.Struct().begin();
+			fullIdentifier = iter->first;
+		}
+
+		CModHandler::parseIdentifier(fullIdentifier, scope, metaTypeName, identifier);
+
+		auto it = REWARD_RMAP.find(metaTypeName);
+
+		if(it == REWARD_RMAP.end())
+		{
+			logGlobal->errorStream() << instanceName << ": invalid metatype in reward item " << fullIdentifier;
+			return;
+		}
+		else
+		{
+			rewardType = it->second;
+		}
+
+		bool doRequest = false;
+
+		switch (rewardType)
+		{
+		case NOTHING:
+			return;
+		case EXPERIENCE:
+		case MANA_POINTS:
+		case MORALE_BONUS:
+		case LUCK_BONUS:
+			break;
+		case PRIMARY_SKILL:
+			doRequest = true;
+			break;
+		case RESOURCES:
+		case SECONDARY_SKILL:
+		case ARTIFACT:
+		case SPELL:
+		case CREATURE:
+			doRequest = true;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		if(doRequest)
+		{
+			auto rawId = VLC->modh->identifiers.getIdentifier("core", fullIdentifier, false);
+
+			if(rawId)
+			{
+				rID = rawId.get();
+			}
+			else
+			{
+				rewardType = NOTHING;//fallback in case of error
+				return;
+			}
+		}
+		handler.serializeInt(fullIdentifier, rVal);
+	}
+}
+
 void CGQuestGuard::init(CRandomGenerator & rand)
 {
 	blockVisit = true;
@@ -773,6 +1018,12 @@ void CGQuestGuard::init(CRandomGenerator & rand)
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
 	cb->removeObject(this);
+}
+
+void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	//quest only, do not call base class
+	quest->serializeJson(handler, "quest");
 }
 
 void CGKeys::reset()

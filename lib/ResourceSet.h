@@ -14,6 +14,7 @@ typedef si32 TResource;
 typedef si64 TResourceCap; //to avoid overflow when adding integers. Signed values are easier to control.
 
 class JsonNode;
+class JsonSerializeFormat;
 
 namespace Res
 {
@@ -123,6 +124,8 @@ namespace Res
 		{
 			h & static_cast<std::vector<int>&>(*this);
 		}
+
+		DLL_LINKAGE void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 
 		DLL_LINKAGE void amax(const TResourceCap &val); //performs vstd::amax on each element
 		DLL_LINKAGE void amin(const TResourceCap &val); //performs vstd::amin on each element

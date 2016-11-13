@@ -328,9 +328,9 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeString("type", typeName);
 		handler.serializeString("subtype", subTypeName);
 
-		handler.serializeNumeric("x", pos.x);
-		handler.serializeNumeric("y", pos.y);
-		handler.serializeNumeric("l", pos.z);
+		handler.serializeInt("x", pos.x);
+		handler.serializeInt("y", pos.y);
+		handler.serializeInt("l", pos.z);
 		appearance.writeJson(handler.getCurrent()["template"], false);
 	}
 
@@ -352,32 +352,12 @@ void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 {
-	std::string temp;
+	ui8 temp = tempOwner.getNum();
 
-	//todo: use enum serialize
-	if(handler.saving)
-	{
-		if(tempOwner.isValidPlayer())
-		{
-			temp = GameConstants::PLAYER_COLOR_NAMES[tempOwner.getNum()];
-			handler.serializeString("owner", temp);
-		}
-	}
-	else
-	{
-		tempOwner = PlayerColor::NEUTRAL;//this method assumes that object is ownable
+	handler.serializeEnum("owner", temp, PlayerColor::NEUTRAL.getNum(), GameConstants::PLAYER_COLOR_NAMES);
 
-		handler.serializeString("owner", temp);
-
-		if(temp != "")
-		{
-			auto rawOwner = vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, temp);
-			if(rawOwner >=0)
-				tempOwner = PlayerColor(rawOwner);
-			else
-				logGlobal->errorStream() << "Invalid owner :" << temp;
-		}
-	}
+	if(!handler.saving)
+		tempOwner = PlayerColor(temp);
 }
 
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)

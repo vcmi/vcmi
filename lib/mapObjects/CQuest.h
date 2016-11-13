@@ -80,6 +80,8 @@ public:
 			completedOption = 1;
 		}
 	}
+
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
 class DLL_LINKAGE IQuestObject
@@ -133,6 +135,8 @@ protected:
 	static const int OBJPROP_VISITED = 10;
 
 	void setPropertyDer(ui8 what, ui32 val) override;
+
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
@@ -146,6 +150,8 @@ public:
 	{
 		h & static_cast<CGSeerHut&>(*this);
 	}
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards

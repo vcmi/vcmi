@@ -451,12 +451,12 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		{
 			if (cond.object == obj)
 			{
-				if (cond.condition == EventCondition::DESTROY)
+				if (cond.condition == EventCondition::DESTROY || cond.condition == EventCondition::DESTROY_0)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 1; // destroyed object, from now on always fulfilled
 				}
-				if (cond.condition == EventCondition::CONTROL)
+				else if (cond.condition == EventCondition::CONTROL || cond.condition == EventCondition::HAVE_0)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 0; // destroyed object, from now on can not be fulfilled
@@ -1629,7 +1629,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		if(canOverheal) //for example WoG ghost soul steal ability allows getting more units than before battle
 			res = elem.healedHP / changedStack->MaxHealth();
 		else
-			res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);		
+			res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);
 		changedStack->count += res;
 		if(elem.lowLevelResurrection)
 			changedStack->resurrected += res;

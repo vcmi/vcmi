@@ -247,9 +247,9 @@ void CMapEditManager::drawRoad(ERoadType::ERoadType roadType, CRandomGenerator* 
 }
 
 
-void CMapEditManager::insertObject(CGObjectInstance * obj, const int3 & pos)
+void CMapEditManager::insertObject(CGObjectInstance * obj)
 {
-	execute(make_unique<CInsertObjectOperation>(map, obj, pos));
+	execute(make_unique<CInsertObjectOperation>(map, obj));
 }
 
 void CMapEditManager::execute(std::unique_ptr<CMapOperation> && operation)
@@ -422,7 +422,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 						flipPattern(terGroupPattern, i); //FIXME: we flip in place - doesn't make much sense now, but used to work
 						terrainViewPatternFlips.push_back(terGroupPattern);
 					}
-					terrainViewPatterns[terGroup].push_back(terrainViewPatternFlips);	
+					terrainViewPatterns[terGroup].push_back(terrainViewPatternFlips);
 				}
 			}
 			else if(i == 1)
@@ -1069,15 +1069,14 @@ std::string CClearTerrainOperation::getLabel() const
 	return "Clear Terrain";
 }
 
-CInsertObjectOperation::CInsertObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & pos)
-	: CMapOperation(map), pos(pos), obj(obj)
+CInsertObjectOperation::CInsertObjectOperation(CMap * map, CGObjectInstance * obj)
+	: CMapOperation(map), obj(obj)
 {
 
 }
 
 void CInsertObjectOperation::execute()
 {
-	obj->pos = pos;
 	obj->id = ObjectInstanceID(map->objects.size());
 
 	boost::format fmt("%s_%d");

@@ -83,11 +83,12 @@ JsonNode::JsonNode(const JsonNode &copy):
 	switch(type)
 	{
 		break; case DATA_NULL:
-		break; case DATA_BOOL:   Bool() =   copy.Bool();
-		break; case DATA_FLOAT:  Float() =  copy.Float();
-		break; case DATA_STRING: String() = copy.String();
-		break; case DATA_VECTOR: Vector() = copy.Vector();
-		break; case DATA_STRUCT: Struct() = copy.Struct();
+		break; case DATA_BOOL:   Bool()    = copy.Bool();
+		break; case DATA_FLOAT:  Float()   = copy.Float();
+		break; case DATA_STRING: String()  = copy.String();
+		break; case DATA_VECTOR: Vector()  = copy.Vector();
+		break; case DATA_STRUCT: Struct()  = copy.Struct();
+		break; case DATA_INTEGER:Integer() = copy.Integer();
 	}
 }
 
@@ -122,6 +123,7 @@ bool JsonNode::operator == (const JsonNode &other) const
 			case DATA_STRING: return String() == other.String();
 			case DATA_VECTOR: return Vector() == other.Vector();
 			case DATA_STRUCT: return Struct() == other.Struct();
+			case DATA_INTEGER:return Integer()== other.Integer();
 		}
 	}
 	return false;
@@ -167,6 +169,22 @@ void JsonNode::setType(JsonType Type)
 	if (type == Type)
 		return;
 
+	//float<->int conversion
+	if(type == DATA_FLOAT && Type == DATA_INTEGER)
+	{
+		si64 converted = data.Float;
+		type = Type;
+		data.Integer = converted;
+		return;
+	}
+	else if(type == DATA_INTEGER && Type == DATA_FLOAT)
+	{
+		double converted = data.Integer;
+		type = Type;
+		data.Float = converted;
+		return;
+	}
+
 	//Reset node to nullptr
 	if (Type != DATA_NULL)
 		setType(DATA_NULL);
@@ -189,12 +207,18 @@ void JsonNode::setType(JsonType Type)
 		break; case DATA_STRING: data.String = new std::string();
 		break; case DATA_VECTOR: data.Vector = new JsonVector();
 		break; case DATA_STRUCT: data.Struct = new JsonMap();
+		break; case DATA_INTEGER: data.Integer = 0;
 	}
 }
 
 bool JsonNode::isNull() const
 {
 	return type == DATA_NULL;
+}
+
+bool JsonNode::isNumber() const
+{
+	return type == DATA_INTEGER || type == DATA_FLOAT;
 }
 
 void JsonNode::clear()
@@ -212,6 +236,12 @@ double & JsonNode::Float()
 {
 	setType(DATA_FLOAT);
 	return data.Float;
+}
+
+si64 & JsonNode::Integer()
+{
+	setType(DATA_INTEGER);
+	return data.Integer;
 }
 
 std::string & JsonNode::String()
@@ -233,7 +263,7 @@ JsonMap & JsonNode::Struct()
 }
 
 const bool boolDefault = false;
-const bool & JsonNode::Bool() const
+bool JsonNode::Bool() const
 {
 	if (type == DATA_NULL)
 		return boolDefault;
@@ -242,12 +272,27 @@ const bool & JsonNode::Bool() const
 }
 
 const double floatDefault = 0;
-const double & JsonNode::Float() const
+double JsonNode::Float() const
 {
-	if (type == DATA_NULL)
+	if(type == DATA_NULL)
 		return floatDefault;
+	else if(type == DATA_INTEGER)
+		return data.Integer;
+
 	assert(type == DATA_FLOAT);
 	return data.Float;
+}
+
+const si64 integetDefault = 0;
+si64 JsonNode::Integer() const
+{
+	if(type == DATA_NULL)
+		return integetDefault;
+	else if(type == DATA_FLOAT)
+		return data.Float;
+
+	assert(type == DATA_INTEGER);
+	return data.Integer;
 }
 
 const std::string stringDefault = std::string();
@@ -385,6 +430,9 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 	{
 		switch (value.getType())
 		{
+			case JsonNode::DATA_INTEGER:
+				var = value.Integer();
+				break;
 			case JsonNode::DATA_FLOAT:
 				var = value.Float();
 				break;
@@ -404,6 +452,9 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 {
 	switch (node.getType())
 	{
+		case JsonNode::DATA_INTEGER:
+			var = node.Integer();
+			break;
 		case JsonNode::DATA_FLOAT:
 			var = node.Float();
 			break;
@@ -738,6 +789,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 		}
 		case JsonNode::DATA_BOOL:
 		case JsonNode::DATA_FLOAT:
+		case JsonNode::DATA_INTEGER:
 		case JsonNode::DATA_STRING:
 		case JsonNode::DATA_VECTOR:
 		{

@@ -29,7 +29,8 @@ public:
 		DATA_FLOAT,
 		DATA_STRING,
 		DATA_VECTOR,
-		DATA_STRUCT
+		DATA_STRUCT,
+		DATA_INTEGER
 	};
 
 private:
@@ -40,6 +41,7 @@ private:
 		std::string* String;
 		JsonVector* Vector;
 		JsonMap* Struct;
+		si64 Integer;
 	};
 
 	JsonType type;
@@ -75,19 +77,24 @@ public:
 	JsonType getType() const;
 
 	bool isNull() const;
+	bool isNumber() const;
 	/// removes all data from node and sets type to null
 	void clear();
 
 	/// non-const accessors, node will change type on type mismatch
 	bool & Bool();
 	double & Float();
+	si64 & Integer();
 	std::string & String();
 	JsonVector & Vector();
 	JsonMap & Struct();
 
 	/// const accessors, will cause assertion failure on type mismatch
-	const bool & Bool() const;
-	const double & Float() const;
+	bool Bool() const;
+	///float and integer allowed
+	double Float() const;
+	///only integer allowed
+	si64 Integer() const;
 	const std::string & String() const;
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
@@ -117,6 +124,11 @@ public:
 			break; case DATA_STRING: h & data.String;
 			break; case DATA_VECTOR: h & data.Vector;
 			break; case DATA_STRUCT: h & data.Struct;
+		}
+		if(version >= 770)
+		{
+            if(type == DATA_INTEGER)
+				h & data.Integer;
 		}
 	}
 };

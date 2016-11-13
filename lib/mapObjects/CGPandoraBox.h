@@ -51,6 +51,7 @@ public:
 protected:
 	void giveContentsUpToExp(const CGHeroInstance *h) const;
 	void giveContentsAfterExp(const CGHeroInstance *h) const;
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
 	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
@@ -73,6 +74,8 @@ public:
 
 	CGEvent();
 	void onHeroVisit(const CGHeroInstance * h) const override;
+protected:
+	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
 	void activated(const CGHeroInstance * h) const;
 	void afterSuccessfulVisit() const override;

@@ -1,0 +1,7389 @@
+{
+	"mine_0" : {
+		"l" : 0,
+		"subtype" : "alchemistLab",
+		"template" : {
+			"animation" : "AVMALCH0",
+			"editorAnimation" : "AVMALCH0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"BAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 10,
+		"y" : 1,
+		"options" : {
+			"owner" : "red"
+		}
+	},
+	"mine_1" : {
+		"l" : 0,
+		"subtype" : "crystalCavern",
+		"template" : {
+			"animation" : "AVMCRDR0",
+			"editorAnimation" : "AVMCRDR0",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 14,
+		"y" : 1,
+		"options" : {
+			"owner" : "blue"
+		}
+	},
+	"mine_2" : {
+		"l" : 0,
+		"subtype" : "gemPond",
+		"template" : {
+			"animation" : "AVMGEDR0",
+			"editorAnimation" : "AVMGEDR0",
+			"mask" : [
+				"BBB",
+				"BAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			],
+			"zIndex" : 100
+		},
+		"type" : "mine",
+		"x" : 18,
+		"y" : 1,
+		"options" : {
+			"owner" : "tan"
+		}
+	},
+	"mine_3" : {
+		"l" : 0,
+		"subtype" : "goldMine",
+		"template" : {
+			"animation" : "AVMGODR0",
+			"editorAnimation" : "AVMGODR0",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 22,
+		"y" : 1,
+		"options" : {
+			"owner" : "green"
+		}
+	},
+	"mine_4" : {
+		"l" : 0,
+		"subtype" : "orePit",
+		"template" : {
+			"animation" : "AVMORDR0",
+			"editorAnimation" : "AVMORDR0",
+			"mask" : [
+				"BBB",
+				"BAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			],
+			"zIndex" : 100
+		},
+		"type" : "mine",
+		"x" : 26,
+		"y" : 1,
+		"options" : {
+			"owner" : "orange"
+		}
+	},
+	"mine_5" : {
+		"l" : 0,
+		"subtype" : "sawmill",
+		"template" : {
+			"animation" : "AVMSAWD0",
+			"editorAnimation" : "AVMSAWD0",
+			"mask" : [
+				"VVVVV",
+				"VVVBB",
+				"VBBAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 31,
+		"y" : 1,
+		"options" : {
+			"owner" : "purple"
+		}
+	},
+	"mine_6" : {
+		"l" : 0,
+		"subtype" : "sulfurDune",
+		"template" : {
+			"animation" : "AVMSULF0",
+			"editorAnimation" : "AVMSULF0",
+			"mask" : [
+				"VVV",
+				"BAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 35,
+		"y" : 1,
+		"options" : {
+			"owner" : "teal"
+		}
+	},
+	"mine_7" : {
+		"l" : 0,
+		"subtype" : "abandoned",
+		"template" : {
+			"animation" : "AVXABND0",
+			"editorAnimation" : "AVXABND0",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 39,
+		"y" : 1,
+		"options" : {
+			"possibleResources" : [
+				"mercury",
+				"ore",
+				"sulfur",
+				"crystal",
+				"gems",
+				"gold"
+			]
+		}
+	},
+	"mine_8" : {
+		"l" : 0,
+		"subtype" : "abandoned",
+		"template" : {
+			"animation" : "AVXABND0",
+			"editorAnimation" : "AVXABND0",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "mine",
+		"x" : 43,
+		"y" : 1,
+		"options" : {
+			"possibleResources" : [
+				"mercury"
+			]
+		}
+	},
+	"sign_9" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 4,
+		"y" : 1
+	},
+	"sign_10" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 6,
+		"y" : 1,
+		"options" : {
+			"text" : "Previus one have random sign"
+		}
+	},
+	"oceanBottle_11" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBTTL0",
+			"editorAnimation" : "AVXBTTL0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "oceanBottle",
+		"x" : 81,
+		"y" : 5
+	},
+	"oceanBottle_12" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBTTL0",
+			"editorAnimation" : "AVXBTTL0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "oceanBottle",
+		"x" : 83,
+		"y" : 5,
+		"options" : {
+			"text" : "Other one have random text"
+		}
+	},
+	"boat_13" : {
+		"l" : 0,
+		"subtype" : "evil",
+		"template" : {
+			"animation" : "AVXBOAT0",
+			"editorAnimation" : "AVXBOAT0",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "boat",
+		"x" : 80,
+		"y" : 5
+	},
+	"creatureGeneratorCommon_14" : {
+		"l" : 0,
+		"subtype" : "guardhouse",
+		"template" : {
+			"animation" : "AVGPIKE0",
+			"editorAnimation" : "AVGPIKE0",
+			"mask" : [
+				"VVV",
+				"VBV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "creatureGeneratorCommon",
+		"x" : 5,
+		"y" : 8
+	},
+	"creatureGeneratorCommon_15" : {
+		"l" : 0,
+		"subtype" : "archersTower",
+		"template" : {
+			"animation" : "AVGCROS0",
+			"editorAnimation" : "AVGCROS0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "creatureGeneratorCommon",
+		"x" : 9,
+		"y" : 8,
+		"options" : {
+			"owner" : "red"
+		}
+	},
+	"creatureGeneratorCommon_16" : {
+		"l" : 0,
+		"subtype" : "griffinTower",
+		"template" : {
+			"animation" : "AVGGRFF0",
+			"editorAnimation" : "AVGGRFF0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "creatureGeneratorCommon",
+		"x" : 13,
+		"y" : 8,
+		"options" : {
+			"owner" : "tan"
+		}
+	},
+	"witchHut_17" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVSWTCH0",
+			"editorAnimation" : "AVSWTCH0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "witchHut",
+		"x" : 17,
+		"y" : 8,
+		"options" : {
+			"allowedSkills" : {
+				"anyOf" : [
+					"airMagic"
+				]
+			}
+		}
+	},
+	"witchHut_18" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVSWTCH0",
+			"editorAnimation" : "AVSWTCH0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "witchHut",
+		"x" : 20,
+		"y" : 8,
+		"options" : {
+			"allowedSkills" : {
+				"anyOf" : [
+					"airMagic",
+					"archery",
+					"armorer",
+					"artillery"
+				]
+			}
+		}
+	},
+	"witchHut_19" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVSWTCH0",
+			"editorAnimation" : "AVSWTCH0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "witchHut",
+		"x" : 23,
+		"y" : 8,
+		"options" : {
+			"allowedSkills" : {
+				"anyOf" : [
+					"airMagic",
+					"archery",
+					"armorer",
+					"artillery",
+					"ballistics",
+					"diplomacy",
+					"eagleEye",
+					"earthMagic",
+					"estates",
+					"fireMagic",
+					"firstAid",
+					"intelligence",
+					"learning",
+					"logistics",
+					"luck",
+					"mysticism",
+					"navigation",
+					"offence",
+					"pathfinding",
+					"resistance",
+					"scholar",
+					"scouting",
+					"sorcery",
+					"tactics",
+					"waterMagic",
+					"wisdom"
+				]
+			}
+		}
+	},
+	"randomDwelling_20" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 5,
+		"y" : 12,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"conflux",
+					"dungeon",
+					"fortress",
+					"inferno",
+					"necropolis",
+					"rampart",
+					"stronghold",
+					"tower"
+				]
+			},
+			"maxLevel" : 6
+		}
+	},
+	"sign_21" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 15,
+		"y" : 8,
+		"options" : {
+			"text" : "Air Magic"
+		}
+	},
+	"sign_22" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 18,
+		"y" : 8,
+		"options" : {
+			"text" : "Air Magic, Archery, Armorer,Artillery"
+		}
+	},
+	"sign_23" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 8,
+		"options" : {
+			"text" : "Any random skill exclude necromancy (default)"
+		}
+	},
+	"sign_24" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 8,
+		"options" : {
+			"text" : "Not owned by anyone"
+		}
+	},
+	"sign_25" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 7,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by red player"
+		}
+	},
+	"sign_26" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 11,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by tan player"
+		}
+	},
+	"sign_27" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 12,
+		"options" : {
+			"text" : "Default: not owned by anyone, level 1-7, all alignments"
+		}
+	},
+	"sign_28" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 15,
+		"options" : {
+			"text" : "Owned by red, level 6-7, castle, dungeon or fortress"
+		}
+	},
+	"randomDwelling_29" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 5,
+		"y" : 15,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"dungeon",
+					"fortress"
+				]
+			},
+			"maxLevel" : 6,
+			"minLevel" : 5,
+			"owner" : "red"
+		}
+	},
+	"randomDwelling_30" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 7,
+		"y" : 12,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"conflux",
+					"dungeon",
+					"fortress",
+					"inferno",
+					"necropolis",
+					"rampart",
+					"stronghold",
+					"tower"
+				]
+			},
+			"maxLevel" : 6
+		}
+	},
+	"randomDwelling_31" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 9,
+		"y" : 12,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"conflux",
+					"dungeon",
+					"fortress",
+					"inferno",
+					"necropolis",
+					"rampart",
+					"stronghold",
+					"tower"
+				]
+			},
+			"maxLevel" : 6
+		}
+	},
+	"randomDwelling_32" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 11,
+		"y" : 12,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"conflux",
+					"dungeon",
+					"fortress",
+					"inferno",
+					"necropolis",
+					"rampart",
+					"stronghold",
+					"tower"
+				]
+			},
+			"maxLevel" : 6
+		}
+	},
+	"randomDwelling_33" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 13,
+		"y" : 12,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"conflux",
+					"dungeon",
+					"fortress",
+					"inferno",
+					"necropolis",
+					"rampart",
+					"stronghold",
+					"tower"
+				]
+			},
+			"maxLevel" : 6
+		}
+	},
+	"randomDwelling_34" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 7,
+		"y" : 15,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"dungeon",
+					"fortress"
+				]
+			},
+			"maxLevel" : 6,
+			"minLevel" : 5,
+			"owner" : "red"
+		}
+	},
+	"randomDwelling_35" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 9,
+		"y" : 15,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"dungeon",
+					"fortress"
+				]
+			},
+			"maxLevel" : 6,
+			"minLevel" : 5,
+			"owner" : "red"
+		}
+	},
+	"randomDwelling_36" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 11,
+		"y" : 15,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"dungeon",
+					"fortress"
+				]
+			},
+			"maxLevel" : 6,
+			"minLevel" : 5,
+			"owner" : "red"
+		}
+	},
+	"randomDwelling_37" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVRCGEN0",
+			"editorAnimation" : "AVRCGEN0",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwelling",
+		"x" : 13,
+		"y" : 15,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"castle",
+					"dungeon",
+					"fortress"
+				]
+			},
+			"maxLevel" : 6,
+			"minLevel" : 5,
+			"owner" : "red"
+		}
+	},
+	"sign_38" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 18,
+		"options" : {
+			"text" : "Level 1 template! Owned by tan, rampart of conflux"
+		}
+	},
+	"randomDwellingLvl_39" : {
+		"l" : 0,
+		"subtype" : "objectLvl1",
+		"template" : {
+			"animation" : "AVRCGEN1",
+			"editorAnimation" : "AVRCGEN1",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingLvl",
+		"x" : 5,
+		"y" : 18,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"conflux",
+					"rampart"
+				]
+			},
+			"owner" : "tan"
+		}
+	},
+	"randomDwellingLvl_40" : {
+		"l" : 0,
+		"subtype" : "objectLvl1",
+		"template" : {
+			"animation" : "AVRCGEN1",
+			"editorAnimation" : "AVRCGEN1",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingLvl",
+		"x" : 7,
+		"y" : 18,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"conflux",
+					"rampart"
+				]
+			},
+			"owner" : "tan"
+		}
+	},
+	"randomDwellingLvl_41" : {
+		"l" : 0,
+		"subtype" : "objectLvl1",
+		"template" : {
+			"animation" : "AVRCGEN1",
+			"editorAnimation" : "AVRCGEN1",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingLvl",
+		"x" : 9,
+		"y" : 18,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"conflux",
+					"rampart"
+				]
+			},
+			"owner" : "tan"
+		}
+	},
+	"randomDwellingLvl_42" : {
+		"l" : 0,
+		"subtype" : "objectLvl1",
+		"template" : {
+			"animation" : "AVRCGEN1",
+			"editorAnimation" : "AVRCGEN1",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingLvl",
+		"x" : 11,
+		"y" : 18,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"conflux",
+					"rampart"
+				]
+			},
+			"owner" : "tan"
+		}
+	},
+	"randomDwellingLvl_43" : {
+		"l" : 0,
+		"subtype" : "objectLvl1",
+		"template" : {
+			"animation" : "AVRCGEN1",
+			"editorAnimation" : "AVRCGEN1",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingLvl",
+		"x" : 13,
+		"y" : 18,
+		"options" : {
+			"allowedFactions" : {
+				"anyOf" : [
+					"conflux",
+					"rampart"
+				]
+			},
+			"owner" : "tan"
+		}
+	},
+	"randomDwellingFaction_44" : {
+		"l" : 0,
+		"subtype" : "objectConflux",
+		"template" : {
+			"animation" : "AVRCGN08",
+			"editorAnimation" : "AVRCGN08",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingFaction",
+		"x" : 5,
+		"y" : 22,
+		"options" : {
+			"maxLevel" : 5,
+			"minLevel" : 2,
+			"owner" : "teal"
+		}
+	},
+	"sign_45" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 22,
+		"options" : {
+			"text" : "Conflux template! Owned by teal, level 3-6"
+		}
+	},
+	"randomDwellingFaction_46" : {
+		"l" : 0,
+		"subtype" : "objectConflux",
+		"template" : {
+			"animation" : "AVRCGN08",
+			"editorAnimation" : "AVRCGN08",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingFaction",
+		"x" : 7,
+		"y" : 22,
+		"options" : {
+			"maxLevel" : 5,
+			"minLevel" : 2,
+			"owner" : "teal"
+		}
+	},
+	"randomDwellingFaction_47" : {
+		"l" : 0,
+		"subtype" : "objectConflux",
+		"template" : {
+			"animation" : "AVRCGN08",
+			"editorAnimation" : "AVRCGN08",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingFaction",
+		"x" : 9,
+		"y" : 22,
+		"options" : {
+			"maxLevel" : 5,
+			"minLevel" : 2,
+			"owner" : "teal"
+		}
+	},
+	"randomDwellingFaction_48" : {
+		"l" : 0,
+		"subtype" : "objectConflux",
+		"template" : {
+			"animation" : "AVRCGN08",
+			"editorAnimation" : "AVRCGN08",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingFaction",
+		"x" : 11,
+		"y" : 22,
+		"options" : {
+			"maxLevel" : 5,
+			"minLevel" : 2,
+			"owner" : "teal"
+		}
+	},
+	"randomDwellingFaction_49" : {
+		"l" : 0,
+		"subtype" : "objectConflux",
+		"template" : {
+			"animation" : "AVRCGN08",
+			"editorAnimation" : "AVRCGN08",
+			"mask" : [
+				"VVV",
+				"VBB",
+				"VAA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomDwellingFaction",
+		"x" : 13,
+		"y" : 22,
+		"options" : {
+			"maxLevel" : 5,
+			"minLevel" : 2,
+			"owner" : "teal"
+		}
+	},
+	"shrineOfMagicLevel1_50" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL1SH0",
+			"editorAnimation" : "AVXL1SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel1",
+		"x" : 25,
+		"y" : 8
+	},
+	"sign_51" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 24,
+		"y" : 8,
+		"options" : {
+			"text" : "Random level 1 spell"
+		}
+	},
+	"shrineOfMagicLevel1_52" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL1SH0",
+			"editorAnimation" : "AVXL1SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel1",
+		"x" : 28,
+		"y" : 8,
+		"options" : {
+			"spell" : "haste"
+		}
+	},
+	"sign_53" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 27,
+		"y" : 8,
+		"options" : {
+			"text" : "Level 1 spell: Haste "
+		}
+	},
+	"shrineOfMagicLevel2_54" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL2SH0",
+			"editorAnimation" : "AVXL2SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel2",
+		"x" : 31,
+		"y" : 8
+	},
+	"sign_55" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 30,
+		"y" : 8,
+		"options" : {
+			"text" : "Random level 2 spell"
+		}
+	},
+	"sign_56" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 33,
+		"y" : 8,
+		"options" : {
+			"text" : "Level 2 spell: Quicksand"
+		}
+	},
+	"shrineOfMagicLevel2_57" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL2SH0",
+			"editorAnimation" : "AVXL2SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel2",
+		"x" : 34,
+		"y" : 8,
+		"options" : {
+			"spell" : "quicksand"
+		}
+	},
+	"shrineOfMagicLevel3_58" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL3SH0",
+			"editorAnimation" : "AVXL3SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel3",
+		"x" : 37,
+		"y" : 8
+	},
+	"shrineOfMagicLevel3_59" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXL3SH0",
+			"editorAnimation" : "AVXL3SH0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shrineOfMagicLevel3",
+		"x" : 40,
+		"y" : 8,
+		"options" : {
+			"spell" : "teleport"
+		}
+	},
+	"sign_60" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 36,
+		"y" : 8,
+		"options" : {
+			"text" : "Random level 3 spell"
+		}
+	},
+	"sign_61" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 39,
+		"y" : 8,
+		"options" : {
+			"text" : "Level 3 spell: teleport"
+		}
+	},
+	"lighthouse_62" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXLTHS0",
+			"editorAnimation" : "AVXLTHS0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VVV",
+				"VVA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "lighthouse",
+		"x" : 43,
+		"y" : 8,
+		"options" : {
+			"owner" : "green"
+		}
+	},
+	"sign_63" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 42,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by green player"
+		}
+	},
+	"garrisonHorizontal_64" : {
+		"l" : 0,
+		"subtype" : "normal",
+		"template" : {
+			"animation" : "AVCGAR10",
+			"editorAnimation" : "AVCGAR10",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "garrisonHorizontal",
+		"x" : 48,
+		"y" : 8,
+		"options" : {
+			"owner" : "blue",
+			"removableUnits" : true
+		}
+	},
+	"sign_65" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 45,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by blue player and troops are removable (default)"
+		}
+	},
+	"garrisonHorizontal_66" : {
+		"l" : 0,
+		"subtype" : "normal",
+		"template" : {
+			"animation" : "AVCGAR10",
+			"editorAnimation" : "AVCGAR10",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "garrisonHorizontal",
+		"x" : 53,
+		"y" : 8,
+		"options" : {
+			"owner" : "blue"
+		}
+	},
+	"sign_67" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 50,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by blue player and troops are NOT removable"
+		}
+	},
+	"garrisonHorizontal_68" : {
+		"l" : 0,
+		"subtype" : "antiMagic",
+		"template" : {
+			"animation" : "AVCGAR20",
+			"editorAnimation" : "AVCGAR20",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "garrisonHorizontal",
+		"x" : 58,
+		"y" : 8,
+		"options" : {
+			"army" : [
+				{
+					"amount" : 100,
+					"type" : "enchanter"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 10,
+					"type" : "azureDragon"
+				},
+				{},
+				{}
+			],
+			"owner" : "red"
+		}
+	},
+	"sign_69" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 55,
+		"y" : 8,
+		"options" : {
+			"text" : "Owned by red player, troops are NOT removable and contain following troops: slot 1 - 100 enchanters, slot 5 - 10 azure dragons"
+		}
+	},
+	"garrisonHorizontal_70" : {
+		"l" : 0,
+		"subtype" : "antiMagic",
+		"template" : {
+			"animation" : "AVCGAR20",
+			"editorAnimation" : "AVCGAR20",
+			"mask" : [
+				"VVVV",
+				"VBAB"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "garrisonHorizontal",
+		"x" : 63,
+		"y" : 8,
+		"options" : {
+			"army" : [
+				{
+					"amount" : 11,
+					"type" : "gremlin"
+				},
+				{
+					"amount" : 12,
+					"type" : "masterGremlin"
+				},
+				{
+					"amount" : 13,
+					"type" : "stoneGargoyle"
+				},
+				{
+					"amount" : 14,
+					"type" : "obsidianGargoyle"
+				},
+				{
+					"amount" : 15,
+					"type" : "ironGolem"
+				},
+				{
+					"amount" : 16,
+					"type" : "stoneGolem"
+				},
+				{
+					"amount" : 17,
+					"type" : "mage"
+				}
+			]
+		}
+	},
+	"sign_71" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 60,
+		"y" : 8,
+		"options" : {
+			"text" : "NOT owned by anyone, troops are removable and contain following troops: slot 1 - 11 gremlins, slot 2 - 12 master gremlins, slot 3 - 13 stone garg, etc"
+		}
+	},
+	"scholar_72" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 66,
+		"y" : 8
+	},
+	"scholar_73" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 69,
+		"y" : 8,
+		"options" : {
+			"rewardPrimSkill" : "attack"
+		}
+	},
+	"scholar_74" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 72,
+		"y" : 8,
+		"options" : {
+			"rewardPrimSkill" : "defence"
+		}
+	},
+	"shipyard_75" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSHYD0",
+			"editorAnimation" : "AVXSHYD0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"BAB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "shipyard",
+		"x" : 81,
+		"y" : 12,
+		"options" : {
+			"owner" : "pink"
+		}
+	},
+	"sign_76" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 78,
+		"y" : 12,
+		"options" : {
+			"text" : "Owned by pink player"
+		}
+	},
+	"sign_77" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 65,
+		"y" : 8,
+		"options" : {
+			"text" : "Random reward"
+		}
+	},
+	"sign_78" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 68,
+		"y" : 8,
+		"options" : {
+			"text" : "Primary skill: attack"
+		}
+	},
+	"sign_79" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 71,
+		"y" : 8,
+		"options" : {
+			"text" : "Primary skill: defense"
+		}
+	},
+	"sign_80" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 74,
+		"y" : 8,
+		"options" : {
+			"text" : "Primary skill: spell power"
+		}
+	},
+	"sign_81" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 77,
+		"y" : 8,
+		"options" : {
+			"text" : "Primary skill: knowledge"
+		}
+	},
+	"scholar_82" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 75,
+		"y" : 8,
+		"options" : {
+			"rewardPrimSkill" : "spellpower"
+		}
+	},
+	"scholar_83" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 78,
+		"y" : 8,
+		"options" : {
+			"rewardPrimSkill" : "knowledge"
+		}
+	},
+	"scholar_84" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 66,
+		"y" : 10,
+		"options" : {
+			"rewardSkill" : "sorcery"
+		}
+	},
+	"sign_85" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 65,
+		"y" : 10,
+		"options" : {
+			"text" : "Secondary skill: sorcery"
+		}
+	},
+	"sign_86" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 68,
+		"y" : 10,
+		"options" : {
+			"text" : "Secondary skill: first aid"
+		}
+	},
+	"scholar_87" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 69,
+		"y" : 10,
+		"options" : {
+			"rewardSkill" : "firstAid"
+		}
+	},
+	"sign_88" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 71,
+		"y" : 10,
+		"options" : {
+			"text" : "Spell: stone skin"
+		}
+	},
+	"scholar_89" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 72,
+		"y" : 10,
+		"options" : {
+			"rewardSpell" : "stoneSkin"
+		}
+	},
+	"scholar_90" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSCHL0",
+			"editorAnimation" : "AVXSCHL0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "scholar",
+		"x" : 75,
+		"y" : 10,
+		"options" : {
+			"rewardSpell" : "fly"
+		}
+	},
+	"sign_91" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 74,
+		"y" : 10,
+		"options" : {
+			"text" : "Spell: fly"
+		}
+	},
+	"sign_92" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 59,
+		"y" : 20,
+		"options" : {
+			"text" : "EVENT TESTING ZONE"
+		}
+	},
+	"sign_93" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 61,
+		"y" : 18,
+		"options" : {
+			"text" : "Message: test. All players. Computer players can trigger"
+		}
+	},
+	"sign_94" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 65,
+		"y" : 18,
+		"options" : {
+			"text" : "Message: lol, computers CANT trigger, disappear after visit, players 1,3,5 creatures: archer, basilik, pegasus (1 of each)"
+		}
+	},
+	"sign_95" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 69,
+		"y" : 18,
+		"options" : {
+			"text" : "all non default: messagenondefault, players 1,8; allow comp trigger; don't cancel; guardians, pikeman, halberdman, etc; take -777 spell points"
+		}
+	},
+	"sign_96" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 73,
+		"y" : 18,
+		"options" : {
+			"text" : "All pos: 99 999 999 exp, 999 spell points, morale\/luck +3, res 9,8,7,6,5,4,3;pskills: 1,2,3,4; sskill: adv. offence; art: rib cage, sp: blind, 1 troll"
+		}
+	},
+	"event_97" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 62,
+		"y" : 18,
+		"options" : {
+			"aIActivable" : true,
+			"guardMessage" : "test",
+			"removeAfterVisit" : true
+		}
+	},
+	"event_98" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 66,
+		"y" : 18,
+		"options" : {
+			"availableFor" : [
+				"red",
+				"tan",
+				"orange"
+			],
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "archer"
+				},
+				{
+					"amount" : 1,
+					"type" : "basilisk"
+				},
+				{
+					"amount" : 1,
+					"type" : "pegasus"
+				},
+				{},
+				{},
+				{},
+				{}
+			],
+			"removeAfterVisit" : true
+		}
+	},
+	"event_99" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 74,
+		"y" : 18,
+		"options" : {
+			"artifacts" : [
+				"ribCage"
+			],
+			"creatures" : [
+				{
+					"amount" : 1,
+					"type" : "troll"
+				}
+			],
+			"experience" : 99999999,
+			"luck" : 3,
+			"mana" : 999,
+			"morale" : 3,
+			"primarySkills" : {
+				"attack" : 1,
+				"defence" : 2,
+				"knowledge" : 4,
+				"spellpower" : 3
+			},
+			"removeAfterVisit" : true,
+			"resources" : {
+				"crystal" : 5,
+				"gems" : 4,
+				"gold" : 3,
+				"mercury" : 8,
+				"ore" : 7,
+				"sulfur" : 6,
+				"wood" : 9
+			},
+			"secondarySkills" : {
+				"offence" : "advanced"
+			},
+			"spells" : [
+				"blind"
+			]
+		}
+	},
+	"event_100" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 70,
+		"y" : 18,
+		"options" : {
+			"aIActivable" : true,
+			"availableFor" : [
+				"red",
+				"pink"
+			],
+			"guardMessage" : "messagenondefault",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				}
+			],
+			"mana" : -777
+		}
+	},
+	"hero_101" : {
+		"l" : 0,
+		"subtype" : "cleric",
+		"template" : {
+			"animation" : "AH01_E",
+			"editorAnimation" : "AH01_E",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "hero",
+		"x" : 2,
+		"y" : 1,
+		"options" : {
+			"army" : [
+				{
+					"amount" : 1,
+					"type" : "crystalDragon"
+				},
+				{
+					"amount" : 1,
+					"type" : "fairieDragon"
+				},
+				{
+					"amount" : 1,
+					"type" : "rustDragon"
+				},
+				{
+					"amount" : 1,
+					"type" : "azureDragon"
+				},
+				{},
+				{},
+				{}
+			],
+			"artifacts" : {
+				"feet" : "bootsOfLevitation",
+				"spellbook" : "spellBook"
+			},
+			"biography" : "321",
+			"owner" : "red",
+			"primarySkills" : {
+				"attack" : 55,
+				"defence" : 44,
+				"knowledge" : 22,
+				"spellpower" : 33
+			},
+			"secondarySkills" : {
+				"wisdom" : "expert",
+				"sorcery" : "expert"
+			},
+			"spellBook" : [
+				"fly"
+			],
+			"tightFormation" : true,
+			"type" : "ingham"
+		}
+	},
+	"sign_102" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 0,
+		"y" : 1,
+		"options" : {
+			"text" : "Hero: Ingham, bio:321,prim skills:55,44,33,22,spells:fly,arts:spellbook,boots of levithation,creatures:4 dragons,grouped,s skills:wisdom,sorcery exper"
+		}
+	},
+	"randomHero_103" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 124,
+		"y" : 143,
+		"options" : {
+			"owner" : "tan"
+		}
+	},
+	"randomHero_104" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 119,
+		"y" : 143,
+		"options" : {
+			"owner" : "blue"
+		}
+	},
+	"randomHero_105" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 129,
+		"y" : 143,
+		"options" : {
+			"owner" : "green"
+		}
+	},
+	"randomHero_106" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 134,
+		"y" : 143,
+		"options" : {
+			"owner" : "orange"
+		}
+	},
+	"randomHero_107" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 139,
+		"y" : 143,
+		"options" : {
+			"owner" : "purple"
+		}
+	},
+	"randomHero_108" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 144,
+		"y" : 143,
+		"options" : {
+			"owner" : "teal"
+		}
+	},
+	"randomHero_109" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AHRANDOM",
+			"editorAnimation" : "AHRANDOM",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomHero",
+		"x" : 114,
+		"y" : 143,
+		"options" : {
+			"owner" : "pink"
+		}
+	},
+	"event_110" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 78,
+		"y" : 18,
+		"options" : {
+			"removeAfterVisit" : true
+		}
+	},
+	"event_111" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 82,
+		"y" : 18,
+		"options" : {
+			"artifacts" : [
+				"admiralsHat",
+				"ambassadorsSash",
+				"amuletOfTheUndertaker",
+				"angelFeatherArrows",
+				"angelWings",
+				"angelicAlliance",
+				"angelicAlliance",
+				"armageddonsBlade",
+				"armorOfTheDamned",
+				"armorOfWonder",
+				"badgeOfCourage",
+				"birdOfPerception",
+				"blackshardOfTheDeadKnight",
+				"bootsOfLevitation",
+				"bootsOfPolarity",
+				"bootsOfSpeed",
+				"bowOfElvenCherrywood",
+				"bowOfTheSharpshooter",
+				"bowstringOfTheUnicornsMane",
+				"breastplateOfBrimstone",
+				"breastplateOfPetrifiedWood",
+				"bucklerOfTheGnollKing",
+				"capeOfVelocity",
+				"cardsOfProphecy",
+				"celestialNecklaceOfBliss",
+				"centaurAxe",
+				"charmOfMana",
+				"cloakOfTheUndeadKing",
+				"cloverOfFortune",
+				"collarOfConjuring",
+				"cornucopia",
+				"crestOfValor",
+				"capeOfConjuring",
+				"crownOfDragontooth",
+				"crownOfTheSupremeMagi",
+				"deadMansBoots",
+				"diplomatsRing",
+				"dragonScaleArmor",
+				"dragonScaleShield",
+				"dragonWingTabard",
+				"dragonboneGreaves",
+				"elixirOfLife",
+				"emblemOfCognizance",
+				"endlessPurseOfGold",
+				"endlessSackOfGold",
+				"endlessBagOfGold",
+				"equestriansGloves",
+				"everflowingCrystalCloak",
+				"everpouringVialOfMercury",
+				"eversmokingRingOfSulfur",
+				"garnitureOfInterference",
+				"glyphOfGallantry",
+				"goldenBow",
+				"greaterGnollsFlail",
+				"headOfLegion",
+				"hellstormHelmet",
+				"hellstormHelmet",
+				"helmOfChaos",
+				"helmOfHeavenlyEnlightenment",
+				"helmOfTheAlabasterUnicorn",
+				"helmOfTheAlabasterUnicorn",
+				"hourglassOfTheEvilHour",
+				"inexhaustibleCartOfLumber",
+				"inexhaustibleCartOfOre"
+			],
+			"removeAfterVisit" : true
+		}
+	},
+	"event_112" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 86,
+		"y" : 18,
+		"options" : {
+			"removeAfterVisit" : true,
+			"spells" : [
+				"airElemental",
+				"airShield",
+				"animateDead",
+				"antiMagic",
+				"armageddon",
+				"berserk",
+				"bless",
+				"blind",
+				"bloodlust",
+				"chainLightning",
+				"clone",
+				"counterstrike",
+				"cure",
+				"curse",
+				"deathRipple",
+				"destroyUndead",
+				"dimensionDoor",
+				"disguise",
+				"dispel",
+				"disruptingRay",
+				"earthElemental",
+				"earthquake",
+				"fireElemental",
+				"fireShield",
+				"fireWall",
+				"fireball",
+				"fly",
+				"forceField",
+				"forgetfulness",
+				"fortune",
+				"frenzy",
+				"frostRing",
+				"haste",
+				"hypnotize",
+				"iceBolt",
+				"implosion",
+				"inferno",
+				"landMine",
+				"lightningBolt",
+				"magicArrow",
+				"magicMirror",
+				"meteorShower",
+				"mirth",
+				"misfortune",
+				"prayer",
+				"precision",
+				"protectEarth",
+				"protectWater",
+				"protectAir",
+				"protectFire",
+				"quicksand",
+				"removeObstacle",
+				"resurrection",
+				"sacrifice",
+				"scuttleBoat",
+				"shield",
+				"slayer",
+				"slow",
+				"sorrow",
+				"stoneSkin",
+				"summonBoat",
+				"teleport",
+				"townPortal",
+				"viewAir",
+				"viewEarth",
+				"visions",
+				"waterElemental",
+				"waterWalk",
+				"weakness"
+			]
+		}
+	},
+	"event_113" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 90,
+		"y" : 18,
+		"options" : {
+			"creatures" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				}
+			],
+			"removeAfterVisit" : true
+		}
+	},
+	"event_114" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVZEVNT0",
+			"editorAnimation" : "AVZEVNT0",
+			"mask" : [
+				"0"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "event",
+		"x" : 94,
+		"y" : 18,
+		"options" : {
+			"creatures" : [
+				{
+					"amount" : 9999,
+					"type" : "rustDragon"
+				},
+				{
+					"amount" : 9999,
+					"type" : "fairieDragon"
+				},
+				{
+					"amount" : 9999,
+					"type" : "crystalDragon"
+				},
+				{
+					"amount" : 9999,
+					"type" : "azureDragon"
+				},
+				{
+					"amount" : 9999,
+					"type" : "enchanter"
+				},
+				{
+					"amount" : 9999,
+					"type" : "diamondGolem"
+				},
+				{
+					"amount" : 9999,
+					"type" : "troll"
+				}
+			],
+			"removeAfterVisit" : true
+		}
+	},
+	"sign_115" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 77,
+		"y" : 18,
+		"options" : {
+			"text" : "give 30 wizard well's"
+		}
+	},
+	"sign_116" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 81,
+		"y" : 18,
+		"options" : {
+			"text" : "Give 64 first artifacts up to Inexhaustible card of Ore"
+		}
+	},
+	"sign_117" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 85,
+		"y" : 18,
+		"options" : {
+			"text" : "gives all possible spells"
+		}
+	},
+	"sign_118" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 89,
+		"y" : 18,
+		"options" : {
+			"text" : "Give 7 stacks of 1 pikeman"
+		}
+	},
+	"sign_119" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 93,
+		"y" : 18,
+		"options" : {
+			"text" : "Give 9999 of each last creature in list: Rust, Faerie, Azure, Crystal dragons, Enchanters, Diamond Golems, Trolls"
+		}
+	},
+	"sign_120" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 32,
+		"options" : {
+			"text" : "Resource template: default"
+		}
+	},
+	"randomResource_121" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 4,
+		"y" : 32
+	},
+	"randomResource_122" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 5,
+		"y" : 32
+	},
+	"randomResource_123" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 6,
+		"y" : 32
+	},
+	"randomResource_124" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 7,
+		"y" : 32
+	},
+	"randomResource_125" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 8,
+		"y" : 32
+	},
+	"sign_126" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 34,
+		"options" : {
+			"text" : "Resource template: amount 150"
+		}
+	},
+	"randomResource_127" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 4,
+		"y" : 34,
+		"options" : {
+			"amount" : 150
+		}
+	},
+	"randomResource_128" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 5,
+		"y" : 34,
+		"options" : {
+			"amount" : 150
+		}
+	},
+	"randomResource_129" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 6,
+		"y" : 34,
+		"options" : {
+			"amount" : 150
+		}
+	},
+	"randomResource_130" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 7,
+		"y" : 34,
+		"options" : {
+			"amount" : 150
+		}
+	},
+	"randomResource_131" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 8,
+		"y" : 34,
+		"options" : {
+			"amount" : 150
+		}
+	},
+	"sign_132" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 36,
+		"options" : {
+			"text" : "Resource template: amount 255, message:testresource, creatures: pikeman, halberdier, archer (slots and amount 1,2,3) and 15 fairie dragons (slot 7)"
+		}
+	},
+	"randomResource_133" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 4,
+		"y" : 36,
+		"options" : {
+			"amount" : 255,
+			"guardMessage" : "testresource",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 2,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 3,
+					"type" : "archer"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 15,
+					"type" : "fairieDragon"
+				}
+			]
+		}
+	},
+	"randomResource_134" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 5,
+		"y" : 36,
+		"options" : {
+			"amount" : 255,
+			"guardMessage" : "testresource",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 2,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 3,
+					"type" : "archer"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 15,
+					"type" : "fairieDragon"
+				}
+			]
+		}
+	},
+	"randomResource_135" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 6,
+		"y" : 36,
+		"options" : {
+			"amount" : 255,
+			"guardMessage" : "testresource",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 2,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 3,
+					"type" : "archer"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 15,
+					"type" : "fairieDragon"
+				}
+			]
+		}
+	},
+	"randomResource_136" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 7,
+		"y" : 36,
+		"options" : {
+			"amount" : 255,
+			"guardMessage" : "testresource",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 2,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 3,
+					"type" : "archer"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 15,
+					"type" : "fairieDragon"
+				}
+			]
+		}
+	},
+	"randomResource_137" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVTRNDM0",
+			"editorAnimation" : "AVTRNDM0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomResource",
+		"x" : 8,
+		"y" : 36,
+		"options" : {
+			"amount" : 255,
+			"guardMessage" : "testresource",
+			"guards" : [
+				{
+					"amount" : 1,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 2,
+					"type" : "halberdier"
+				},
+				{
+					"amount" : 3,
+					"type" : "archer"
+				},
+				{},
+				{},
+				{},
+				{
+					"amount" : 15,
+					"type" : "fairieDragon"
+				}
+			]
+		}
+	},
+	"resource_138" : {
+		"l" : 0,
+		"subtype" : "crystal",
+		"template" : {
+			"animation" : "AVTCRYS0",
+			"editorAnimation" : "AVTCRYS0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "resource",
+		"x" : 4,
+		"y" : 38
+	},
+	"sign_139" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 38,
+		"options" : {
+			"text" : "Resource crystal: default"
+		}
+	},
+	"sign_140" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 40,
+		"options" : {
+			"text" : "Resource crystal: default, amount 400"
+		}
+	},
+	"resource_141" : {
+		"l" : 0,
+		"subtype" : "crystal",
+		"template" : {
+			"animation" : "AVTCRYS0",
+			"editorAnimation" : "AVTCRYS0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "resource",
+		"x" : 4,
+		"y" : 40,
+		"options" : {
+			"amount" : 400
+		}
+	},
+	"sign_142" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 42,
+		"options" : {
+			"text" : "Resource crystal: default, amount 500, message: crystalalot"
+		}
+	},
+	"resource_143" : {
+		"l" : 0,
+		"subtype" : "crystal",
+		"template" : {
+			"animation" : "AVTCRYS0",
+			"editorAnimation" : "AVTCRYS0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "resource",
+		"x" : 4,
+		"y" : 42,
+		"options" : {
+			"amount" : 500,
+			"guardMessage" : "crystalalot"
+		}
+	},
+	"sign_144" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 44,
+		"options" : {
+			"text" : "Resource crystal: default, amount 600, message: crystalguard, creatures: 100 rust dragons (slot 1)"
+		}
+	},
+	"resource_145" : {
+		"l" : 0,
+		"subtype" : "crystal",
+		"template" : {
+			"animation" : "AVTCRYS0",
+			"editorAnimation" : "AVTCRYS0",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "resource",
+		"x" : 4,
+		"y" : 44,
+		"options" : {
+			"amount" : 600,
+			"guardMessage" : "crystalguard",
+			"guards" : [
+				{
+					"amount" : 100,
+					"type" : "rustDragon"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"sign_146" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 46,
+		"options" : {
+			"text" : "Spell scroll: default (always magic arrow?)"
+		}
+	},
+	"spellScroll_147" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0001",
+			"editorAnimation" : "AVA0001",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "spellScroll",
+		"x" : 4,
+		"y" : 46,
+		"options" : {
+			"spell" : "magicArrow"
+		}
+	},
+	"sign_148" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 48,
+		"options" : {
+			"text" : "Spell scroll: spell prayer, message \"prayerspell\""
+		}
+	},
+	"spellScroll_149" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0001",
+			"editorAnimation" : "AVA0001",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "spellScroll",
+		"x" : 4,
+		"y" : 48,
+		"options" : {
+			"guardMessage" : "prayerspell",
+			"spell" : "prayer"
+		}
+	},
+	"sign_150" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 50,
+		"options" : {
+			"text" : "Spell scroll: spell inferno, message \"infernospell\", creatures: slot 6 - 666 devils"
+		}
+	},
+	"spellScroll_151" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0001",
+			"editorAnimation" : "AVA0001",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "spellScroll",
+		"x" : 4,
+		"y" : 50,
+		"options" : {
+			"guardMessage" : "infernospell",
+			"guards" : [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{
+					"amount" : 666,
+					"type" : "devil"
+				},
+				{}
+			],
+			"spell" : "inferno"
+		}
+	},
+	"artifact_152" : {
+		"l" : 0,
+		"subtype" : "centaurAxe",
+		"template" : {
+			"animation" : "AVA0007",
+			"editorAnimation" : "AVA0007",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "artifact",
+		"x" : 4,
+		"y" : 52
+	},
+	"sign_153" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 52,
+		"options" : {
+			"text" : "Artifact centaurs axe: default"
+		}
+	},
+	"sign_154" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 54,
+		"options" : {
+			"text" : "Artifact centaurs axe: message longtext"
+		}
+	},
+	"artifact_155" : {
+		"l" : 0,
+		"subtype" : "centaurAxe",
+		"template" : {
+			"animation" : "AVA0007",
+			"editorAnimation" : "AVA0007",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "artifact",
+		"x" : 4,
+		"y" : 54,
+		"options" : {
+			"guardMessage" : "longtext"
+		}
+	},
+	"sign_156" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 56,
+		"options" : {
+			"text" : "Artifact centaurs axe: message trolled, creatures: slot 3 - 44 trolls"
+		}
+	},
+	"artifact_157" : {
+		"l" : 0,
+		"subtype" : "centaurAxe",
+		"template" : {
+			"animation" : "AVA0007",
+			"editorAnimation" : "AVA0007",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "artifact",
+		"x" : 4,
+		"y" : 56,
+		"options" : {
+			"guardMessage" : "trolled",
+			"guards" : [
+				{},
+				{},
+				{
+					"amount" : 44,
+					"type" : "troll"
+				},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifact_158" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 4,
+		"y" : 58
+	},
+	"sign_159" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 58,
+		"options" : {
+			"text" : "Artifact template: default"
+		}
+	},
+	"randomArtifact_160" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 5,
+		"y" : 58
+	},
+	"randomArtifact_161" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 6,
+		"y" : 58
+	},
+	"randomArtifact_162" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 7,
+		"y" : 58
+	},
+	"randomArtifact_163" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 8,
+		"y" : 58
+	},
+	"sign_164" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 60,
+		"options" : {
+			"text" : "Artifact template: message \"artifactdefault\", creatures slot 1 -: 500 mages"
+		}
+	},
+	"randomArtifact_165" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 4,
+		"y" : 60,
+		"options" : {
+			"guardMessage" : "artifactdefault",
+			"guards" : [
+				{
+					"amount" : 500,
+					"type" : "mage"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifact_166" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 5,
+		"y" : 60,
+		"options" : {
+			"guardMessage" : "artifactdefault",
+			"guards" : [
+				{
+					"amount" : 500,
+					"type" : "mage"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifact_167" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 6,
+		"y" : 60,
+		"options" : {
+			"guardMessage" : "artifactdefault",
+			"guards" : [
+				{
+					"amount" : 500,
+					"type" : "mage"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifact_168" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 7,
+		"y" : 60,
+		"options" : {
+			"guardMessage" : "artifactdefault",
+			"guards" : [
+				{
+					"amount" : 500,
+					"type" : "mage"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifact_169" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARAND",
+			"editorAnimation" : "AVARAND",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifact",
+		"x" : 8,
+		"y" : 60,
+		"options" : {
+			"guardMessage" : "artifactdefault",
+			"guards" : [
+				{
+					"amount" : 500,
+					"type" : "mage"
+				},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"randomArtifactMajor_170" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 4,
+		"y" : 62
+	},
+	"sign_171" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 62,
+		"options" : {
+			"text" : "Artifact template 3: default"
+		}
+	},
+	"randomArtifactMajor_172" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 5,
+		"y" : 62
+	},
+	"randomArtifactMajor_173" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 6,
+		"y" : 62
+	},
+	"randomArtifactMajor_174" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 8,
+		"y" : 62
+	},
+	"randomArtifactMajor_175" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 7,
+		"y" : 62
+	},
+	"sign_176" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 64,
+		"options" : {
+			"text" : "Artifact template 3: message \"artifactthree\", creatures: slot 3 - 333 of royal griffins"
+		}
+	},
+	"randomArtifactMajor_177" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVARND3",
+			"editorAnimation" : "AVARND3",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomArtifactMajor",
+		"x" : 4,
+		"y" : 64,
+		"options" : {
+			"guardMessage" : "artifactthree",
+			"guards" : [
+				{},
+				{},
+				{
+					"amount" : 333,
+					"type" : "royalGriffin"
+				},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	},
+	"pandoraBox_178" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0128",
+			"editorAnimation" : "AVA0128",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "pandoraBox",
+		"x" : 4,
+		"y" : 66
+	},
+	"sign_179" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 66,
+		"options" : {
+			"text" : "Pandora box: default"
+		}
+	},
+	"sign_180" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 68,
+		"options" : {
+			"text" : "Pandora box: message \"giveexp\", creatures: slot 5 - 5 pixies, take mana points -555"
+		}
+	},
+	"pandoraBox_181" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0128",
+			"editorAnimation" : "AVA0128",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "pandoraBox",
+		"x" : 4,
+		"y" : 68,
+		"options" : {
+			"guardMessage" : "giveexp",
+			"guards" : [
+				{},
+				{},
+				{},
+				{},
+				{
+					"amount" : 5,
+					"type" : "pixie"
+				},
+				{},
+				{}
+			],
+			"mana" : -555
+		}
+	},
+	"sign_182" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 70,
+		"options" : {
+			"text" : "Pandora box: 1000exp, give 100 mana points, +3 morale, +2 luck, resource + 9,8,7,6,5,4, primary skills +9,8,7,6"
+		}
+	},
+	"pandoraBox_183" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0128",
+			"editorAnimation" : "AVA0128",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "pandoraBox",
+		"x" : 4,
+		"y" : 70,
+		"options" : {
+			"experience" : 1000,
+			"luck" : 2,
+			"mana" : 100,
+			"morale" : 3,
+			"primarySkills" : {
+				"attack" : 9,
+				"defence" : 8,
+				"knowledge" : 6,
+				"spellpower" : 7
+			},
+			"resources" : {
+				"crystal" : 6,
+				"gems" : 5,
+				"gold" : 4,
+				"mercury" : 9,
+				"ore" : 8,
+				"sulfur" : 7,
+				"wood" : 10
+			}
+		}
+	},
+	"sign_184" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 72,
+		"options" : {
+			"text" : "Pandora box: secondar skills: expert pathfinding, advanced wisdom, basic necromancy, expert armorer"
+		}
+	},
+	"pandoraBox_185" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0128",
+			"editorAnimation" : "AVA0128",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "pandoraBox",
+		"x" : 4,
+		"y" : 72,
+		"options" : {
+			"secondarySkills" : {
+				"pathfinding" : "expert",
+				"wisdom" : "advanced",
+				"necromancy" : "basic",
+				"armorer" : "expert"
+			}
+		}
+	},
+	"sign_186" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 3,
+		"y" : 74,
+		"options" : {
+			"text" : "Pandora box: artifacts: angel winge, helm of chaos, wizards well, spells: armageddon, water elemental; creatures: 111 crusader, 100 rogues"
+		}
+	},
+	"pandoraBox_187" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVA0128",
+			"editorAnimation" : "AVA0128",
+			"mask" : [
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "pandoraBox",
+		"x" : 4,
+		"y" : 74,
+		"options" : {
+			"artifacts" : [
+				"angelWings",
+				"helmOfChaos",
+				"wizardsWell"
+			],
+			"creatures" : [
+				{
+					"amount" : 111,
+					"type" : "crusader"
+				},
+				{
+					"amount" : 100,
+					"type" : "rogue"
+				}
+			],
+			"spells" : [
+				"armageddon",
+				"waterElemental"
+			]
+		}
+	},
+	"town_188" : {
+		"l" : 0,
+		"subtype" : "castle",
+		"template" : {
+			"animation" : "AVCCASX0",
+			"editorAnimation" : "AVCCASX0",
+			"mask" : [
+				"VVVVVV",
+				"VVVVVV",
+				"VVVVVV",
+				"VVBBBV",
+				"VBBBBB",
+				"VBBABB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "town",
+		"x" : 26,
+		"y" : 14,
+		"options" : {
+			"army" : [
+				{
+					"amount" : 7,
+					"type" : "pikeman"
+				},
+				{
+					"amount" : 6,
+					"type" : "archer"
+				},
+				{
+					"amount" : 5,
+					"type" : "griffin"
+				},
+				{
+					"amount" : 4,
+					"type" : "swordsman"
+				},
+				{
+					"amount" : 3,
+					"type" : "monk"
+				},
+				{
+					"amount" : 2,
+					"type" : "cavalier"
+				},
+				{
+					"amount" : 1,
+					"type" : "angel"
+				}
+			],
+			"buildings" : {},
+			"hasFort" : false,
+			"spells" : {},
+			"tightFormation" : true
+		}
+	},
+	"sign_189" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 14,
+		"options" : {
+			"text" : "Don't owned by anyone, dont have fort, non-upgraded creatures: 7,6,5,4,3,2,1"
+		}
+	},
+	"randomTown_190" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVCRANX0",
+			"editorAnimation" : "AVCRANX0",
+			"mask" : [
+				"VVVVVV",
+				"VVVVVV",
+				"VVVVVV",
+				"VVBBBV",
+				"VBBBBB",
+				"VBBABB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomTown",
+		"x" : 26,
+		"y" : 21,
+		"options" : {
+			"buildings" : {
+				"allOf" : [
+					"blacksmith",
+					"capitol",
+					"castle",
+					"citadel",
+					"cityHall",
+					"dwellingLvl1",
+					"dwellingLvl2",
+					"dwellingLvl3",
+					"dwellingLvl4",
+					"dwellingLvl5",
+					"dwellingLvl6",
+					"dwellingLvl7",
+					"dwellingUpLvl1",
+					"dwellingUpLvl2",
+					"dwellingUpLvl3",
+					"dwellingUpLvl4",
+					"dwellingUpLvl5",
+					"dwellingUpLvl6",
+					"dwellingUpLvl7",
+					"fort",
+					"grail",
+					"horde1",
+					"horde2",
+					"horde3",
+					"horde4",
+					"horde5",
+					"mageGuild1",
+					"mageGuild2",
+					"mageGuild3",
+					"mageGuild4",
+					"mageGuild5",
+					"marketplace",
+					"resourceSilo",
+					"shipyard",
+					"tavern",
+					"townHall"
+				]
+			},
+			"name" : "TownAsRed",
+			"spells" : {}
+		}
+	},
+	"sign_191" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 21,
+		"options" : {
+			"text" : "Same as red player, name \"TownAsRed\". everything built"
+		}
+	},
+	"randomTown_192" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVCRANX0",
+			"editorAnimation" : "AVCRANX0",
+			"mask" : [
+				"VVVVVV",
+				"VVVVVV",
+				"VVVVVV",
+				"VVBBBV",
+				"VBBBBB",
+				"VBBABB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomTown",
+		"x" : 26,
+		"y" : 27,
+		"options" : {
+			"buildings" : {},
+			"hasFort" : false,
+			"spells" : {}
+		}
+	},
+	"sign_193" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 27,
+		"options" : {
+			"text" : "Don't have fort, one timed evernt on day 3, every 3 days"
+		}
+	},
+	"randomTown_194" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVCRANX0",
+			"editorAnimation" : "AVCRANX0",
+			"mask" : [
+				"VVVVVV",
+				"VVVVVV",
+				"VVVVVV",
+				"VVBBBV",
+				"VBBBBB",
+				"VBBABB"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomTown",
+		"x" : 26,
+		"y" : 32,
+		"options" : {
+			"buildings" : {
+				"allOf" : [
+					"grail"
+				],
+				"noneOf" : [
+					"blacksmith",
+					"dwellingLvl1",
+					"dwellingLvl2",
+					"dwellingLvl3",
+					"dwellingLvl4",
+					"dwellingLvl5",
+					"dwellingLvl6",
+					"dwellingLvl7",
+					"fort",
+					"mageGuild1",
+					"marketplace",
+					"shipyard",
+					"tavern",
+					"townHall"
+				]
+			},
+			"spells" : {}
+		}
+	},
+	"sign_195" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 32,
+		"options" : {
+			"text" : "Don't have fort, all buildings blocked, grail built"
+		}
+	},
+	"seerHut_196" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 4,
+		"y" : 83,
+		"options" : {
+			"quest" : {},
+			"reward" : {}
+		}
+	},
+	"sign_197" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 83,
+		"options" : {
+			"text" : "Default quest objects: empty"
+		}
+	},
+	"sign_198" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 86,
+		"options" : {
+			"text" : "Require red player, deadline 1 month, reward 999 diamond golems, messages: text1one, text2two, text3three"
+		}
+	},
+	"seerHut_199" : {
+		"l" : 0,
+		"subtype" : "0",
+		"template" : {
+			"animation" : "AVXSEER0",
+			"editorAnimation" : "AVXSEER0",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 6,
+		"y" : 83,
+		"options" : {
+			"quest" : {},
+			"reward" : {}
+		}
+	},
+	"seerHut_200" : {
+		"l" : 0,
+		"subtype" : "1",
+		"template" : {
+			"animation" : "AVXSEEY0",
+			"editorAnimation" : "AVXSEEY0",
+			"mask" : [
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 8,
+		"y" : 83,
+		"options" : {
+			"quest" : {},
+			"reward" : {}
+		}
+	},
+	"seerHut_201" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 4,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"completedText" : "text3three",
+				"firstVisitText" : "text1one",
+				"missionType" : "Player",
+				"nextVisitText" : "text2two",
+				"player" : "red",
+				"timeLimit" : 28
+			},
+			"reward" : {
+				"creature.diamondGolem" : 999
+			}
+		}
+	},
+	"questGuard_202" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 19,
+		"y" : 83,
+		"options" : {
+			"quest" : {}
+		}
+	},
+	"questGuard_203" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 22,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"missionType" : "Resources",
+				"resources" : {
+					"crystal" : 5,
+					"gems" : 6,
+					"gold" : 7,
+					"mercury" : 2,
+					"ore" : 3,
+					"sulfur" : 4,
+					"wood" : 1
+				},
+				"timeLimit" : 56
+			}
+		}
+	},
+	"questGuard_204" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 25,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"completedText" : "testextthree",
+				"firstVisitText" : "testextone",
+				"missionType" : "PrimaryStat",
+				"nextVisitText" : "testexttwo",
+				"primarySkills" : {
+					"attack" : 5,
+					"defence" : 6,
+					"knowledge" : 8,
+					"spellpower" : 7
+				}
+			}
+		}
+	},
+	"questGuard_205" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 28,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"heroLevel" : 4,
+				"missionType" : "Level",
+				"timeLimit" : 4
+			}
+		}
+	},
+	"sign_206" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 18,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: empty default"
+		}
+	},
+	"sign_207" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 21,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: require 1,2,3,4,5,6,7 resources, deadline 3 months, "
+		}
+	},
+	"sign_208" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 24,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: require skill 5,6,7,8; Texts: testextone, testexttwo, testextthree"
+		}
+	},
+	"sign_209" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 27,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: require level 4, deadline 5 days"
+		}
+	},
+	"sign_210" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 30,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: defeat specific hero: Orrin"
+		}
+	},
+	"questGuard_211" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 31,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"killTarget" : "prison_266",
+				"missionType" : "KillHero"
+			}
+		}
+	},
+	"sign_212" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 33,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: defeat specific monster: Pikeman above"
+		}
+	},
+	"questGuard_213" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 34,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"killTarget" : "monster_214",
+				"missionType" : "KillCreature"
+			}
+		}
+	},
+	"monster_214" : {
+		"l" : 0,
+		"subtype" : "pikeman",
+		"template" : {
+			"animation" : "AVWPIKE",
+			"editorAnimation" : "AVWPIKE",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "monster",
+		"x" : 34,
+		"y" : 81,
+		"options" : {
+			"character" : "aggressive"
+		}
+	},
+	"sign_215" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 36,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: return with specific artifact: diplomat's ring"
+		}
+	},
+	"questGuard_216" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 37,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"artifacts" : [
+					"diplomatsRing"
+				],
+				"missionType" : "Artifact"
+			}
+		}
+	},
+	"sign_217" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 39,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: return with specific creature: 1 azure dragon"
+		}
+	},
+	"questGuard_218" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 40,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"creatures" : [
+					{
+						"amount" : 1,
+						"type" : "azureDragon"
+					}
+				],
+				"missionType" : "Army"
+			}
+		}
+	},
+	"sign_219" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 42,
+		"y" : 83,
+		"options" : {
+			"text" : "Quest guard: be specific hero: Wizard, Solmyr"
+		}
+	},
+	"questGuard_220" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 43,
+		"y" : 83,
+		"options" : {
+			"quest" : {
+				"hero" : "solmyr",
+				"missionType" : "Hero"
+			}
+		}
+	},
+	"sign_221" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 42,
+		"y" : 85,
+		"options" : {
+			"text" : "Quest guard: belong to player: teal"
+		}
+	},
+	"questGuard_222" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXBOR80",
+			"editorAnimation" : "AVXBOR80",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "questGuard",
+		"x" : 43,
+		"y" : 85,
+		"options" : {
+			"quest" : {
+				"missionType" : "Player",
+				"player" : "teal"
+			}
+		}
+	},
+	"randomMonster_223" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 89,
+		"options" : {
+			"character" : "aggressive"
+		}
+	},
+	"sign_224" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 89,
+		"options" : {
+			"text" : "monster template: default"
+		}
+	},
+	"sign_225" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 91,
+		"options" : {
+			"text" : "monster template: custom amount 543"
+		}
+	},
+	"randomMonster_226" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 91,
+		"options" : {
+			"amount" : 543,
+			"character" : "aggressive"
+		}
+	},
+	"sign_227" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 93,
+		"options" : {
+			"text" : "monster template: custom amount 432, don't grow, savage, never flees, message: savagemonster"
+		}
+	},
+	"sign_228" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 95,
+		"options" : {
+			"text" : "monster template: treasure resources: 1,2,3,4,5,6,7 and artifact: diplomat's ring"
+		}
+	},
+	"sign_229" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 97,
+		"options" : {
+			"text" : "monster template: treasure artifact: angel wings"
+		}
+	},
+	"sign_230" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 99,
+		"options" : {
+			"text" : "monster template: message: treasureresources; treature resources: wood 10, gold 1000"
+		}
+	},
+	"sign_231" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 101,
+		"options" : {
+			"text" : "monster template all non-default options: quanlity don't grow 1, complaint, never flees, msg test123, resource treasure: 7,6,5,4,3,2,1, art: spyglass"
+		}
+	},
+	"randomMonster_232" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 95,
+		"options" : {
+			"character" : "aggressive",
+			"rewardArtifact" : "diplomatsRing",
+			"rewardResources" : {
+				"crystal" : 5,
+				"gems" : 6,
+				"gold" : 7,
+				"mercury" : 2,
+				"ore" : 3,
+				"sulfur" : 4,
+				"wood" : 1
+			}
+		}
+	},
+	"randomMonster_233" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 97,
+		"options" : {
+			"character" : "aggressive",
+			"rewardArtifact" : "angelWings"
+		}
+	},
+	"randomMonster_234" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 99,
+		"options" : {
+			"character" : "aggressive",
+			"neverFlees" : true,
+			"rewardMessage" : "treasureresources",
+			"rewardResources" : {
+				"gold" : 1000,
+				"wood" : 10
+			}
+		}
+	},
+	"randomMonster_235" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 101,
+		"options" : {
+			"amount" : 1,
+			"character" : "compliant",
+			"neverFlees" : true,
+			"noGrowing" : true,
+			"rewardArtifact" : "spyglass",
+			"rewardMessage" : "test123",
+			"rewardResources" : {
+				"crystal" : 3,
+				"gems" : 2,
+				"gold" : 1,
+				"mercury" : 6,
+				"ore" : 5,
+				"sulfur" : 4,
+				"wood" : 7
+			}
+		}
+	},
+	"randomMonster_236" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMRND0",
+			"editorAnimation" : "AVWMRND0",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonster",
+		"x" : 3,
+		"y" : 93,
+		"options" : {
+			"amount" : 432,
+			"character" : "savage",
+			"neverFlees" : true,
+			"noGrowing" : true,
+			"rewardMessage" : "savagemonster"
+		}
+	},
+	"sign_237" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 103,
+		"options" : {
+			"text" : "monster lvl 7 template: random quanlity don't grow, hostile, never flees"
+		}
+	},
+	"randomMonsterLevel7_238" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVWMON7",
+			"editorAnimation" : "AVWMON7",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "randomMonsterLevel7",
+		"x" : 3,
+		"y" : 103,
+		"options" : {
+			"character" : "hostile",
+			"neverFlees" : true,
+			"noGrowing" : true
+		}
+	},
+	"sign_239" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 5,
+		"y" : 86,
+		"options" : {
+			"text" : "Require achieve level 99; reward: 100 exp"
+		}
+	},
+	"seerHut_240" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 7,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"heroLevel" : 99,
+				"missionType" : "Level"
+			},
+			"reward" : {
+				"experience" : 100
+			}
+		}
+	},
+	"sign_241" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 8,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: achieve primary skills: 5,4,3,2; reward: 999 mana"
+		}
+	},
+	"seerHut_242" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 10,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"missionType" : "PrimaryStat",
+				"primarySkills" : {
+					"attack" : 5,
+					"defence" : 4,
+					"knowledge" : 2,
+					"spellpower" : 3
+				}
+			},
+			"reward" : {
+				"mana" : 999
+			}
+		}
+	},
+	"seerHut_243" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 13,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"killTarget" : "prison_263",
+				"missionType" : "KillHero"
+			},
+			"reward" : {
+				"morale" : 3
+			}
+		}
+	},
+	"sign_244" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 11,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: defeat specific hero: Valeska the Knight; reward: morale +3 "
+		}
+	},
+	"seerHut_245" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 16,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"killTarget" : "monster_214",
+				"missionType" : "KillCreature"
+			},
+			"reward" : {
+				"luck" : 2
+			}
+		}
+	},
+	"sign_246" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 14,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: defeat specific monster: Pikeman at quest guard; reward: luck +2"
+		}
+	},
+	"sign_247" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 17,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: return with artifacts: angel wings; reward: 99999 gold"
+		}
+	},
+	"seerHut_248" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 19,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"artifacts" : [
+					"angelWings"
+				],
+				"missionType" : "Artifact"
+			},
+			"reward" : {
+				"resource.gold" : 99999
+			}
+		}
+	},
+	"sign_249" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 20,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: creature 100 archers ; reward: 99 knowledge"
+		}
+	},
+	"sign_250" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 23,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: resources 10,20,30,40,50,60,70 ; reward: expert Necromancy"
+		}
+	},
+	"sign_251" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 29,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: belong to specific player Purple; reward: spell Fly"
+		}
+	},
+	"sign_252" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 26,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: be specific hero Catherine the Knight ; reward: artifact Angelic Alliance"
+		}
+	},
+	"sign_253" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 32,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: return with 8 artifacts: angel wings - bird of perception; reward: 777 cyclops knight"
+		}
+	},
+	"sign_254" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 35,
+		"y" : 86,
+		"options" : {
+			"text" : "Require: return with 7 creatures: pikeman - marksman ; reward: none"
+		}
+	},
+	"seerHut_255" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 22,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"creatures" : [
+					{
+						"amount" : 100,
+						"type" : "archer"
+					}
+				],
+				"missionType" : "Army"
+			},
+			"reward" : {
+				"primarySkill.knowledge" : 99
+			}
+		}
+	},
+	"seerHut_256" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 25,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"missionType" : "Resources",
+				"resources" : {
+					"crystal" : 50,
+					"gems" : 60,
+					"gold" : 70,
+					"mercury" : 20,
+					"ore" : 30,
+					"sulfur" : 40,
+					"wood" : 10
+				}
+			},
+			"reward" : {
+				"secondarySkill.necromancy" : 3
+			}
+		}
+	},
+	"seerHut_257" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 28,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"hero" : "catherine",
+				"missionType" : "Hero"
+			},
+			"reward" : {
+				"artifact.angelicAlliance" : 1
+			}
+		}
+	},
+	"seerHut_258" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 31,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"missionType" : "Player",
+				"player" : "purple"
+			},
+			"reward" : {
+				"spell.fly" : 1
+			}
+		}
+	},
+	"seerHut_259" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 34,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"artifacts" : [
+					"armorOfWonder",
+					"badgeOfCourage",
+					"birdOfPerception",
+					"angelWings",
+					"armsOfLegion",
+					"armageddonsBlade",
+					"angelicAlliance",
+					"armorOfTheDamned"
+				],
+				"missionType" : "Artifact"
+			},
+			"reward" : {
+				"creature.cyclopKing" : 777
+			}
+		}
+	},
+	"seerHut_260" : {
+		"l" : 0,
+		"subtype" : "2",
+		"template" : {
+			"animation" : "AVXSEEB0",
+			"editorAnimation" : "AVXSEEB0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VAV"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "seerHut",
+		"x" : 37,
+		"y" : 86,
+		"options" : {
+			"quest" : {
+				"creatures" : [
+					{
+						"amount" : 1,
+						"type" : "pikeman"
+					},
+					{
+						"amount" : 1,
+						"type" : "halberdier"
+					},
+					{
+						"amount" : 1,
+						"type" : "archer"
+					},
+					{
+						"amount" : 1,
+						"type" : "marksman"
+					},
+					{
+						"amount" : 1,
+						"type" : "griffin"
+					},
+					{
+						"amount" : 1,
+						"type" : "royalGriffin"
+					},
+					{
+						"amount" : 1,
+						"type" : "swordsman"
+					}
+				],
+				"missionType" : "Army"
+			},
+			"reward" : {}
+		}
+	},
+	"sign_261" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 2,
+		"y" : 105,
+		"options" : {
+			"text" : "monster peasant: 777 don't grow, friendly, never flee, msg \"peasantmsg\", treasure resource: 99999 each, torso of legion"
+		}
+	},
+	"monster_262" : {
+		"l" : 0,
+		"subtype" : "peasant",
+		"template" : {
+			"animation" : "AVWPEAS",
+			"editorAnimation" : "AVWPEAS",
+			"mask" : [
+				"VV",
+				"VA"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "monster",
+		"x" : 3,
+		"y" : 105,
+		"options" : {
+			"amount" : 777,
+			"character" : "friendly",
+			"neverFlees" : true,
+			"noGrowing" : true,
+			"rewardArtifact" : "torsoOfLegion",
+			"rewardMessage" : "peasantmsg",
+			"rewardResources" : {
+				"crystal" : 99999,
+				"gems" : 99999,
+				"gold" : 99999,
+				"mercury" : 99999,
+				"ore" : 99999,
+				"sulfur" : 99999,
+				"wood" : 99999
+			}
+		}
+	},
+	"prison_263" : {
+		"l" : 0,
+		"subtype" : "prison",
+		"template" : {
+			"animation" : "AVXPRSN0",
+			"editorAnimation" : "AVXPRSN0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "prison",
+		"x" : 33,
+		"y" : 13,
+		"options" : {
+			"type" : "valeska"
+		}
+	},
+	"sign_264" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 31,
+		"y" : 13,
+		"options" : {
+			"text" : "default options"
+		}
+	},
+	"prison_265" : {
+		"l" : 0,
+		"subtype" : "prison",
+		"template" : {
+			"animation" : "AVXPRSN0",
+			"editorAnimation" : "AVXPRSN0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "prison",
+		"x" : 33,
+		"y" : 16,
+		"options" : {
+			"experience" : 99999999,
+			"name" : "Anul",
+			"patrolRadius" : 9,
+			"portrait" : "orrin",
+			"type" : "luna",
+			"female" : false
+		}
+	},
+	"prison_266" : {
+		"l" : 0,
+		"subtype" : "prison",
+		"template" : {
+			"animation" : "AVXPRSN0",
+			"editorAnimation" : "AVXPRSN0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "prison",
+		"x" : 33,
+		"y" : 19,
+		"options" : {
+			"secondarySkills" : {
+				"artillery" : "advanced",
+				"learning" : "expert",
+				"offence" : "basic",
+				"armorer" : "advanced",
+				"intelligence" : "expert",
+				"sorcery" : "basic",
+				"resistance" : "advanced",
+				"firstAid" : "expert"
+			},
+			"type" : "orrin"
+		}
+	},
+	"prison_267" : {
+		"l" : 0,
+		"subtype" : "prison",
+		"template" : {
+			"animation" : "AVXPRSN0",
+			"editorAnimation" : "AVXPRSN0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "prison",
+		"x" : 33,
+		"y" : 22,
+		"options" : {
+			"artifacts" : {
+				"head" : "admiralsHat",
+				"leftHand" : "shieldOfTheDamned",
+				"rightHand" : "armageddonsBlade",
+				"shoulders" : "angelWings",
+				"spellbook" : "spellBook",
+				"torso" : "armorOfWonder"
+			},
+			"type" : "edric"
+		}
+	},
+	"prison_268" : {
+		"l" : 0,
+		"subtype" : "prison",
+		"template" : {
+			"animation" : "AVXPRSN0",
+			"editorAnimation" : "AVXPRSN0",
+			"mask" : [
+				"VVV",
+				"VVV",
+				"VBA"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "prison",
+		"x" : 33,
+		"y" : 25,
+		"options" : {
+			"spellBook" : [
+				"summonBoat",
+				"scuttleBoat",
+				"visions",
+				"viewEarth",
+				"disguise",
+				"viewAir",
+				"fly",
+				"waterWalk",
+				"dimensionDoor",
+				"townPortal",
+				"quicksand",
+				"landMine",
+				"forceField",
+				"fireWall",
+				"earthquake",
+				"magicArrow",
+				"iceBolt",
+				"lightningBolt",
+				"implosion",
+				"chainLightning",
+				"frostRing",
+				"fireball",
+				"inferno",
+				"meteorShower",
+				"deathRipple",
+				"destroyUndead",
+				"armageddon",
+				"shield",
+				"airShield",
+				"fireShield",
+				"protectAir",
+				"protectFire",
+				"protectWater",
+				"protectEarth",
+				"antiMagic",
+				"dispel",
+				"magicMirror",
+				"cure",
+				"resurrection",
+				"animateDead",
+				"sacrifice",
+				"bless",
+				"curse",
+				"bloodlust",
+				"precision",
+				"weakness",
+				"stoneSkin",
+				"disruptingRay",
+				"prayer",
+				"mirth",
+				"sorrow",
+				"fortune",
+				"misfortune",
+				"haste",
+				"slow",
+				"slayer",
+				"frenzy",
+				"counterstrike",
+				"berserk",
+				"hypnotize",
+				"forgetfulness",
+				"blind",
+				"teleport",
+				"removeObstacle",
+				"clone",
+				"fireElemental",
+				"earthElemental",
+				"waterElemental",
+				"airElemental"
+			],
+			"type" : "sorsha"
+		}
+	},
+	"sign_269" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 31,
+		"y" : 16,
+		"options" : {
+			"text" : "Elementalist, Luna, Anul, 99999999 exp, Orrin avatar, male, patrol 9 squares"
+		}
+	},
+	"sign_270" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 31,
+		"y" : 19,
+		"options" : {
+			"text" : "secondary skills from end of list: Expert (first aid),  Advanced, Basic (Offence), Expert, Advanced, Basic, Expert, Advanced"
+		}
+	},
+	"sign_271" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 31,
+		"y" : 22,
+		"options" : {
+			"text" : "Arts: have spellbook, head: Admirals hat, shoulders: angel wings, right hand: armagedons blade; left hand: shield of damned; torso: armor of wonder"
+		}
+	},
+	"sign_272" : {
+		"l" : 0,
+		"subtype" : "object",
+		"template" : {
+			"animation" : "AVXSNDG0",
+			"editorAnimation" : "AVXSNDG0",
+			"mask" : [
+				"A"
+			],
+			"visitableFrom" : [
+				"---",
+				"+-+",
+				"+++"
+			]
+		},
+		"type" : "sign",
+		"x" : 31,
+		"y" : 25,
+		"options" : {
+			"text" : "have all spells"
+		}
+	}
+}

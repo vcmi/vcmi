@@ -82,7 +82,7 @@ CFaction::~CFaction()
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
 {
-
+	faction = nullptr;
 }
 
 CTown::~CTown()
@@ -100,13 +100,47 @@ std::vector<BattleHex> CTown::defaultMoatHexes()
 	return moatHexes;
 }
 
+std::string CTown::getFactionName() const
+{
+	if(faction == nullptr)
+		return "Random";
+	else
+		return faction->name;
+}
+
+std::string CTown::getBuildingScope() const
+{
+	if(faction == nullptr)
+		//no faction == random faction
+		return "building";
+	else
+		return "building." + faction->identifier;
+}
+
+std::set<si32> CTown::getAllBuildings() const
+{
+	std::set<si32> res;
+
+	for(const auto & b : buildings)
+	{
+		res.insert(b.first.num);
+	}
+
+	return std::move(res);
+}
+
+
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
+
+	randomTown = new CTown();
 }
 
 CTownHandler::~CTownHandler()
 {
+	delete randomTown;
+
 	for(auto faction : factions)
 		faction.dellNull();
 }
@@ -119,8 +153,6 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	//note: this code will try to parse mithril as well but wil always return 0 for it
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
-
-
 
 	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
 
@@ -283,28 +315,28 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
 	return dest;
 }
 
-void CTownHandler::loadBuildingRequirements(CTown &town, CBuilding & building, const JsonNode & source)
+void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode & source)
 {
 	if (source.isNull())
 		return;
 
 	BuildingRequirementsHelper hlp;
-	hlp.building = &building;
-	hlp.faction  = town.faction;
+	hlp.building = building;
+	hlp.town = building->town;
 	hlp.json = source;
 	requirementsToLoad.push_back(hlp);
 }
 
-void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const JsonNode & source)
+void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
-	auto  ret = new CBuilding;
+	auto ret = new CBuilding;
 
 	static const std::string modes [] = {"normal", "auto", "special", "grail"};
 
 	ret->mode = static_cast<CBuilding::EBuildMode>(boost::find(modes, source["mode"].String()) - modes);
 
 	ret->identifier = stringID;
-	ret->town = &town;
+	ret->town = town;
 	ret->bid = BuildingID(source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
@@ -339,7 +371,7 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 		}
 	}
 
-	loadBuildingRequirements(town, *ret, source["requires"]);
+	loadBuildingRequirements(ret, source["requires"]);
 
 	if (!source["upgrades"].isNull())
 	{
@@ -347,10 +379,10 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 		if(stringID == source["upgrades"].String())
 		{
 			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-												stringID % town.faction->name));
+												stringID % ret->town->getFactionName()));
 		}
 
-		VLC->modh->identifiers.requestIdentifier("building." + town.faction->identifier, source["upgrades"], [=](si32 identifier)
+		VLC->modh->identifiers.requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
 		{
 			ret->upgrade = BuildingID(identifier);
 		});
@@ -358,13 +390,14 @@ void CTownHandler::loadBuilding(CTown &town, const std::string & stringID, const
 	else
 		ret->upgrade = BuildingID::NONE;
 
-	town.buildings[ret->bid] = ret;
-	VLC->modh->identifiers.registerObject(source.meta, "building." + town.faction->identifier, ret->identifier, ret->bid);
+	ret->town->buildings[ret->bid] = ret;
+
+	VLC->modh->identifiers.registerObject(source.meta, ret->town->getBuildingScope(), ret->identifier, ret->bid);
 }
 
-void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
+void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
 {
-	for(auto &node : source.Struct())
+	for(auto & node : source.Struct())
 	{
 		if (!node.second.isNull())
 		{
@@ -624,7 +657,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		town.dwellingNames.push_back (d["name"].String());
 	}
 
-	loadBuildings(town, source["buildings"]);
+	loadBuildings(&town, source["buildings"]);
 	loadClientData(town,source);
 }
 
@@ -756,6 +789,20 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
 
+void CTownHandler::loadRandomFaction()
+{
+	static const ResourceID randomFactionPath("config/factions/random.json");
+
+	JsonNode randomFactionJson(randomFactionPath);
+	randomFactionJson.setMeta("core", true);
+	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
+}
+
+void CTownHandler::loadCustom()
+{
+    loadRandomFaction();
+}
+
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
@@ -773,7 +820,7 @@ void CTownHandler::initializeRequirements()
 				logGlobal->warnStream() << "Unexpected length of town buildings requirements: " << node.Vector().size();
 				logGlobal->warnStream() << "Entry contains " << node;
 			}
-			return BuildingID(VLC->modh->identifiers.getIdentifier("building." + requirement.faction->identifier, node.Vector()[0]).get());
+			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).get());
 		});
 	}
 	requirementsToLoad.clear();
@@ -788,6 +835,7 @@ std::vector<bool> CTownHandler::getDefaultAllowed() const
 	}
 	return allowedFactions;
 }
+
 std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown /*=true*/) const
 {
 	std::set<TFaction> allowedFactions;

@@ -242,6 +242,8 @@ public:
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(si32 type) const;
 
+
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & objects;

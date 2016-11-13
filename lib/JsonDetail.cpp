@@ -60,17 +60,17 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 
 void JsonWriter::writeString(const std::string &string)
 {
-	static const std::string escaped = "\"\\\b\f\n\r\t";
-	
-	static const std::array<char, 7> escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't'};
-	
+	static const std::string escaped = "\"\\\b\f\n\r\t/";
+
+	static const std::array<char, 8> escaped_code = {'\"', '\\', 'b', 'f', 'n', 'r', 't', '/'};
+
 	out <<'\"';
 	size_t pos=0, start=0;
 	for (; pos<string.size(); pos++)
 	{
-		//we need to check if special character was been already escaped		
-		if((string[pos] == '\\') 
-			&& (pos+1 < string.size()) 
+		//we need to check if special character was been already escaped
+		if((string[pos] == '\\')
+			&& (pos+1 < string.size())
 			&& (std::find(escaped_code.begin(), escaped_code.end(), string[pos+1]) != escaped_code.end()) )
 		{
 			pos++; //write unchanged, next simbol also checked
@@ -84,7 +84,7 @@ void JsonWriter::writeString(const std::string &string)
 				out.write(string.data()+start, pos - start);
 				out << '\\' << escaped_code[escapedPos];
 				start = pos+1;
-			}			
+			}
 		}
 
 	}
@@ -120,6 +120,8 @@ void JsonWriter::writeNode(const JsonNode &node)
 			out << "{" << "\n";
 			writeContainer(node.Struct().begin(), node.Struct().end());
 			out << prefix << "}";
+		break; case JsonNode::DATA_INTEGER:
+			out << node.Integer();
 	}
 }
 
@@ -252,6 +254,7 @@ bool JsonParser::extractEscaping(std::string &str)
 		break; case 'n': str += '\n';
 		break; case 'r': str += '\r';
 		break; case 't': str += '\t';
+		break; case '/': str += '/';
 		break; default: return error("Unknown escape sequence!", true);
 	};
 	return true;
@@ -458,6 +461,8 @@ bool JsonParser::extractFloat(JsonNode &node)
 	assert(input[pos] == '-' || (input[pos] >= '0' && input[pos] <= '9'));
 	bool negative=false;
 	double result=0;
+	si64 integerPart = 0;
+	bool isFloat = false;
 
 	if (input[pos] == '-')
 	{
@@ -471,13 +476,16 @@ bool JsonParser::extractFloat(JsonNode &node)
 	//Extract integer part
 	while (input[pos] >= '0' && input[pos] <= '9')
 	{
-		result = result*10+(input[pos]-'0');
+		integerPart = integerPart*10+(input[pos]-'0');
 		pos++;
 	}
+
+	result = integerPart;
 
 	if (input[pos] == '.')
 	{
 		//extract fractional part
+		isFloat = true;
 		pos++;
 		double fractMult = 0.1;
 		if (input[pos] < '0' || input[pos] > '9')
@@ -490,12 +498,57 @@ bool JsonParser::extractFloat(JsonNode &node)
 			pos++;
 		}
 	}
-	//TODO: exponential part
-	if (negative)
-		result = -result;
 
-	node.setType(JsonNode::DATA_FLOAT);
-	node.Float() = result;
+	if(input[pos] == 'e')
+	{
+		//extract exponential part
+		pos++;
+		isFloat = true;
+		bool powerNegative = false;
+		double power = 0;
+
+		if(input[pos] == '-')
+		{
+			pos++;
+			powerNegative = true;
+		}
+		else if(input[pos] == '+')
+		{
+			pos++;
+		}
+
+		if (input[pos] < '0' || input[pos] > '9')
+			return error("Exponential part expected!");
+
+		while (input[pos] >= '0' && input[pos] <= '9')
+		{
+			power = power*10 + (input[pos]-'0');
+			pos++;
+		}
+
+		if(powerNegative)
+			power = -power;
+
+		result *= std::pow(10, power);
+	}
+
+	if(isFloat)
+	{
+		if(negative)
+			result = -result;
+
+		node.setType(JsonNode::DATA_FLOAT);
+		node.Float() = result;
+	}
+	else
+	{
+		if(negative)
+			integerPart = -integerPart;
+
+		node.setType(JsonNode::DATA_INTEGER);
+		node.Integer() = integerPart;
+	}
+
 	return true;
 }
 
@@ -513,13 +566,15 @@ bool JsonParser::error(const std::string &message, bool warning)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//TODO: integer support
+
 static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
 {
-	{"null",   JsonNode::DATA_NULL},   
+	{"null",   JsonNode::DATA_NULL},
 	{"boolean", JsonNode::DATA_BOOL},
-	{"number", JsonNode::DATA_FLOAT},  
+	{"number", JsonNode::DATA_FLOAT},
 	{"string",  JsonNode::DATA_STRING},
-	{"array",  JsonNode::DATA_VECTOR}, 
+	{"array",  JsonNode::DATA_VECTOR},
 	{"object",  JsonNode::DATA_STRUCT}
 };
 
@@ -612,8 +667,13 @@ namespace
 			{
 				return validator.makeErrorMessage("Unknown type in schema:" + typeName);
 			}
-			
+
 			JsonNode::JsonType type = it->second;
+
+			//FIXME: hack for integer values
+			if(data.isNumber() && type == JsonNode::DATA_FLOAT)
+				return "";
+
 			if(type != data.getType() && data.getType() != JsonNode::DATA_NULL)
 				return validator.makeErrorMessage("Type mismatch! Expected " + schema.String());
 			return "";
@@ -969,7 +1029,7 @@ namespace
 				return testAnimation(node.String().substr(0, node.String().find(':')), node.meta);
 			return "Image file \"" + node.String() + "\" was not found";
 		}
-		
+
 		std::string videoFile(const JsonNode & node)
 		{
 			TEST_FILE(node.meta, "Video/", node.String(), EResType::VIDEO);
@@ -1128,7 +1188,9 @@ namespace Validation
 
 		switch (type)
 		{
-			case JsonNode::DATA_FLOAT:  return numberFields;
+			case JsonNode::DATA_FLOAT:
+			case JsonNode::DATA_INTEGER:
+				return numberFields;
 			case JsonNode::DATA_STRING: return stringFields;
 			case JsonNode::DATA_VECTOR: return vectorFields;
 			case JsonNode::DATA_STRUCT: return structFields;

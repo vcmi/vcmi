@@ -763,7 +763,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 	auto pq = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
-	
+
 	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
@@ -1432,7 +1432,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 			playerInfo.allowedFactions.clear();
 			playerInfo.allowedFactions.insert(townType);
 			playerInfo.hasMainTown = true;
-			playerInfo.posOfMainTown = town->pos - town->getVisitableOffset();
+			playerInfo.posOfMainTown = town->pos;
 			playerInfo.generateHeroAtMainTown = true;
 
 			//now create actual towns
@@ -2092,7 +2092,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 		object->appearance = templates.front();
 	}
 
-	gen->editManager->insertObject(object, pos);
+	gen->editManager->insertObject(object);
 	//logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }
 

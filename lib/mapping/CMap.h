@@ -68,16 +68,22 @@ struct DLL_LINKAGE PlayerInfo
 	std::set<TFaction> allowedFactions;
 	bool isFactionRandom;
 
-	si32 mainCustomHeroPortrait; /// The default value is -1.
+	///main hero instance (VCMI maps only)
+	std::string mainHeroInstance;
+	/// Player has a random main hero
+	bool hasRandomHero;
+	/// The default value is -1.
+	si32 mainCustomHeroPortrait;
 	std::string mainCustomHeroName;
-	si32 mainCustomHeroId; /// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
+	/// ID of custom hero (only if portrait and hero name are set, otherwise unpredicted value), -1 if none (not always -1)
+	si32 mainCustomHeroId;
 
 	std::vector<SHeroName> heroesNames; /// list of placed heroes on the map
 	bool hasMainTown; /// The default value is false.
 	bool generateHeroAtMainTown; /// The default value is false.
 	int3 posOfMainTown;
 	TeamID team; /// The default value NO_TEAM
-	bool hasRandomHero; /// Player has a random hero
+
 
 	bool generateHero; /// Unused.
 	si32 p7; /// Unknown and unused.
@@ -91,6 +97,11 @@ struct DLL_LINKAGE PlayerInfo
 		h & p7 & hasRandomHero & mainCustomHeroId & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
 				mainCustomHeroPortrait & mainCustomHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
 				posOfMainTown & team & generateHero;
+
+		if(version >= 770)
+		{
+			h & mainHeroInstance;
+		}
 	}
 };
 
@@ -124,6 +135,7 @@ struct DLL_LINKAGE EventCondition
 	EventCondition(EWinLoseType condition, si32 value, si32 objectType, int3 position = int3(-1, -1, -1));
 
 	const CGObjectInstance * object; // object that was at specified position or with instance name on start
+	EMetaclass metaType;
 	si32 value;
 	si32 objectType;
 	si32 objectSubtype;
@@ -144,6 +156,8 @@ struct DLL_LINKAGE EventCondition
 			h & objectSubtype;
 			h & objectInstanceName;
 		}
+		if(version >= 770)
+			h & metaType;
 	}
 };
 
@@ -203,11 +217,16 @@ struct DLL_LINKAGE Rumor
 	std::string name;
 	std::string text;
 
+	Rumor() = default;
+	~Rumor() = default;
+
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & name & text;
 	}
+
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 /// The disposed hero struct describes which hero can be hired from which player.
