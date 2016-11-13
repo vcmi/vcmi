@@ -625,7 +625,7 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	GH.pushInt(nwindow);
 }
 
-void CTradeWindow::artifactSelected(CArtPlace *slot)
+void CTradeWindow::artifactSelected(CHeroArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->ourArt);

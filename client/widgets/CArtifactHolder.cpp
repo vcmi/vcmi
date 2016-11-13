@@ -31,25 +31,23 @@
  *
  */
 
-CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
-	locked(false), picked(false), marked(false), ourArt(Art)
+CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art): CArtPlace(position, Art),
+	locked(false), picked(false), marked(false)
 {
-	pos += position;
-	pos.w = pos.h = 44;
 	createImage();
 }
 
-void CArtPlace::createImage()
+void CHeroArtPlace::createImage()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	int graphic = 0;
+	int imageIndex = 0;
 	if (ourArt)
-		graphic = ourArt->artType->iconIndex;
+		imageIndex = ourArt->artType->iconIndex;
 	if (locked)
-		graphic = ArtifactID::ART_LOCK;
+		imageIndex = ArtifactID::ART_LOCK;
 
-	image = new CAnimImage("artifact", graphic);
+	image = new CAnimImage("artifact", imageIndex);
 	if (!ourArt)
 		image->disable();
 
@@ -57,7 +55,7 @@ void CArtPlace::createImage()
 	selection->disable();
 }
 
-void CArtPlace::lockSlot(bool on)
+void CHeroArtPlace::lockSlot(bool on)
 {
 	if (locked == on)
 		return;
@@ -70,7 +68,7 @@ void CArtPlace::lockSlot(bool on)
 		image->setFrame(ourArt->artType->iconIndex);
 }
 
-void CArtPlace::pickSlot(bool on)
+void CHeroArtPlace::pickSlot(bool on)
 {
 	if (picked == on)
 		return;
@@ -82,7 +80,7 @@ void CArtPlace::pickSlot(bool on)
 		image->enable();
 }
 
-void CArtPlace::selectSlot(bool on)
+void CHeroArtPlace::selectSlot(bool on)
 {
 	if (marked == on)
 		return;
@@ -94,7 +92,7 @@ void CArtPlace::selectSlot(bool on)
 		selection->disable();
 }
 
-void CArtPlace::clickLeft(tribool down, bool previousState)
+void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
 	bool inBackpack = slotID >= GameConstants::BACKPACK_START,
@@ -211,7 +209,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	}
 }
 
-bool CArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
+bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
                               const CGHeroInstance *hero)
 {
 	assert(art != nullptr);
@@ -239,7 +237,7 @@ bool CArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slo
 	return false;
 }
 
-void CArtPlace::clickRight(tribool down, bool previousState)
+void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
@@ -277,7 +275,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 /**
  * Selects artifact slot so that the containing artifact looks like it's picked up.
  */
-void CArtPlace::select ()
+void CHeroArtPlace::select ()
 {
 	if (locked)
 		return;
@@ -288,7 +286,7 @@ void CArtPlace::select ()
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
-			CArtPlace * ap = ourOwner->getArtPlace(i);
+			CHeroArtPlace * ap = ourOwner->getArtPlace(i);
 			if(nullptr != ap)//getArtPlace may return null
 				ap->pickSlot(ourArt->isPart(ap->ourArt));
 		}
@@ -308,7 +306,7 @@ void CArtPlace::select ()
 /**
  * Deselects the artifact slot.
  */
-void CArtPlace::deselect ()
+void CHeroArtPlace::deselect ()
 {
 	pickSlot(false);
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
@@ -333,7 +331,7 @@ void CArtPlace::deselect ()
 	ourOwner->safeRedraw();
 }
 
-void CArtPlace::showAll(SDL_Surface * to)
+void CHeroArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
@@ -358,7 +356,7 @@ void CArtPlace::showAll(SDL_Surface * to)
 	}
 }
 
-bool CArtPlace::fitsHere(const CArtifactInstance * art) const
+bool CHeroArtPlace::fitsHere(const CArtifactInstance * art) const
 {
 	// You can place 'no artifact' anywhere.
 	if(!art)
@@ -371,12 +369,12 @@ bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
 }
 
-void CArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
+void CHeroArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
 {
 	ourOwner->commonInfo->dst.setTo(this, backpackAsVoid);
 }
 
-void CArtPlace::setArtifact(const CArtifactInstance *art)
+void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 {
 	baseType = -1; //by default we don't store any component
 	ourArt = art;
@@ -544,7 +542,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 {
 	for(auto p : artWorn)
 		p.second->selectSlot(false);
-	for(CArtPlace *place : backpack)
+	for(CHeroArtPlace *place : backpack)
 		place->selectSlot(false);
 
 	if(withRedraw)
@@ -554,7 +552,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 /**
  * Assigns an artifacts to an artifact place depending on it's new slot ID.
  */
-void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition slotID)
+void CArtifactsOfHero::setSlotData(CHeroArtPlace* artPlace, ArtifactPosition slotID)
 {
 	if(!artPlace && slotID >= GameConstants::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
@@ -576,14 +574,14 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition slotID)
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
  */
-void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition slotID)
+void CArtifactsOfHero::eraseSlotData (CHeroArtPlace* artPlace, ArtifactPosition slotID)
 {
 	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
 	artPlace->setArtifact(nullptr);
 }
 
-CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
+CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> ArtWorn, std::vector<CHeroArtPlace *> Backpack,
 	CButton *leftScroll, CButton *rightScroll, bool createCommonPart):
 
 	curHero(nullptr),
@@ -642,7 +640,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for worn artifacts.
 	for (size_t g = 0; g < GameConstants::BACKPACK_START ; g++)
 	{
-		artWorn[ArtifactPosition(g)] = new CArtPlace(slotPos[g]);
+		artWorn[ArtifactPosition(g)] = new CHeroArtPlace(slotPos[g]);
 		artWorn[ArtifactPosition(g)]->ourOwner = this;
 		eraseSlotData(artWorn[ArtifactPosition(g)], ArtifactPosition(g));
 	}
@@ -650,7 +648,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		auto add = new CArtPlace(Point(403 + 46 * s, 365));
+		auto add = new CHeroArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
 		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
@@ -750,7 +748,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		assert(dst.slot >= GameConstants::BACKPACK_START);
 		commonInfo->reset();
 
-		CArtPlace *ap = nullptr;
+		CHeroArtPlace *ap = nullptr;
 		for(CArtifactsOfHero *aoh : commonInfo->participants)
 		{
 			if(dst.isHolder(aoh->curHero))
@@ -815,7 +813,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 	}
 }
 
-CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
+CHeroArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
@@ -829,7 +827,7 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 	}
 	else
 	{
-		for(CArtPlace *ap : backpack)
+		for(CHeroArtPlace *ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
 		return nullptr;
@@ -919,7 +917,7 @@ CArtifactsOfHero::SCommonPart::Artpos::Artpos()
 	clear();
 }
 
-void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CArtPlace *place, bool dontTakeBackpack)
+void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CHeroArtPlace *place, bool dontTakeBackpack)
 {
 	slotID = place->slotID;
 	AOH = place->ourOwner;
@@ -944,4 +942,102 @@ bool CArtifactsOfHero::SCommonPart::Artpos::valid()
 {
 	assert(AOH && art);
 	return art == AOH->curHero->getArt(slotID);
+}
+
+CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art) : ourArt(Art)
+{
+	pos += position;
+	pos.w = pos.h = 44;
+}
+
+void CArtPlace::clickLeft(tribool down, bool previousState)
+{
+	LRClickableAreaWTextComp::clickLeft(down, previousState);
+}
+
+void CArtPlace::clickRight(tribool down, bool previousState)
+{
+	LRClickableAreaWTextComp::clickRight(down, previousState);
+}
+
+CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art) : CArtPlace(position, Art), commanderOwner(commanderOwner), commanderSlotID(artSlot.num)
+{
+	createImage();
+	setArtifact(Art);
+}
+
+void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
+{
+	if (down && ourArt && text.size())
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this] { returnArtToHeroCallback(); }, [] {});
+}
+
+void CCommanderArtPlace::clickRight(tribool down, bool previousState)
+{
+	if (down && ourArt && text.size())
+		CArtPlace::clickRight(down, previousState);
+}
+
+void CCommanderArtPlace::createImage()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	int imageIndex = 0;
+	if (ourArt)
+		imageIndex = ourArt->artType->iconIndex;
+
+	image = new CAnimImage("artifact", imageIndex);
+	if (!ourArt)
+		image->disable();
+}
+
+void CCommanderArtPlace::returnArtToHeroCallback()
+{
+	ArtifactPosition artifactPos = commanderSlotID;;
+	ArtifactPosition freeSlot = ourArt->firstBackpackSlot(commanderOwner);
+
+	ArtifactLocation src(commanderOwner->commander.get(), artifactPos);
+	ArtifactLocation dst(commanderOwner, freeSlot);
+
+	if (ourArt->canBePutAt(dst, true))
+	{
+		LOCPLINT->cb->swapArtifacts(src, dst);
+		setArtifact(nullptr);
+		parent->redraw();
+	}
+}
+
+void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
+{
+	baseType = -1; //by default we don't store any component
+	ourArt = art;
+	if (!art)
+	{
+		image->disable();
+		text = std::string();
+		return;
+	}
+
+	image->enable();
+	image->setFrame(art->artType->iconIndex);
+
+	text = art->getEffectiveDescription();
+
+	if (art->artType->id == ArtifactID::SPELL_SCROLL)
+	{
+		int spellID = art->getGivenSpellID();
+		if (spellID >= 0)
+		{
+			//add spell component info (used to provide a pic in r-click popup)
+			baseType = CComponent::spell;
+			type = spellID;
+			bonusValue = 0;
+		}
+	}
+	else
+	{
+		baseType = CComponent::artifact;
+		type = art->artType->id;
+		bonusValue = 0;
+	}
 }
