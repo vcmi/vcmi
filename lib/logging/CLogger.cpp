@@ -333,7 +333,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-	__android_log_write(ELogLevel::toAndroid(record.level), "VCMI", message.c_str());
+    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
 #endif
 
 	const bool printToStdErr = record.level >= ELogLevel::WARN;
