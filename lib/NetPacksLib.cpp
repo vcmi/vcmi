@@ -1838,5 +1838,4 @@ DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
 	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
-	type = 2002;
 }
