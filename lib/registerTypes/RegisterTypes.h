@@ -233,12 +233,10 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, ChangeFormation>();
 	s.template registerType<CPackForClient, RemoveObject>();
 	s.template registerType<CPackForClient, TryMoveHero>();
-	//s.template registerType<CPackForClient, SetGarrisons>();
 	s.template registerType<CPackForClient, NewStructures>();
 	s.template registerType<CPackForClient, RazeStructures>();
 	s.template registerType<CPackForClient, SetAvailableCreatures>();
 	s.template registerType<CPackForClient, SetHeroesInTown>();
-	//s.template registerType<CPackForClient, SetHeroArtifacts>();
 	s.template registerType<CPackForClient, HeroRecruited>();
 	s.template registerType<CPackForClient, GiveHero>();
 	s.template registerType<CPackForClient, NewTurn>();

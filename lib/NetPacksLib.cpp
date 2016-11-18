@@ -63,7 +63,6 @@ DLL_LINKAGE void SetSecSkill::applyGs(CGameState *gs)
 	hero->setSecSkillLevel(which, val, abs);
 }
 
-
 DLL_LINKAGE SelectMap::SelectMap(const CMapInfo &src)
 {
 	mapInfo = &src;
@@ -237,6 +236,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 			team->fogOfWarMap[t.x][t.y][t.z] = 1;
 	}
 }
+
 DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 {
 	PlayerState *p = gs->getPlayer(player);
@@ -1300,7 +1300,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
-			logNetwork->warnStream() << "Unrecognized trigger effect type "<< type;
+			logNetwork->warnStream() << "Unrecognized trigger effect type "<< effect;
 	}
 }
 
@@ -1687,7 +1687,6 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs(CGameState *gs)
 
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
-	type = 3015;
 }
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()
