@@ -271,8 +271,6 @@ public:
 				assert (hero);
 				base = hero->commander;
 			}
-			else if(slot == SlotID::WAR_MACHINES_SLOT || slot == SlotID::ARROW_TOWERS_SLOT)
-				base = nullptr;
 			else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 			{
 				base = nullptr;
