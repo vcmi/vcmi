@@ -1012,7 +1012,7 @@ const CGHeroInstance * CStack::getMyHero() const
 
 ui32 CStack::totalHealth() const
 {
-	return (MaxHealth() * (count-1)) + firstHPleft;
+	return ((count > 0) ? MaxHealth() * (count-1) : 0) + firstHPleft;//do not hide possible invalid firstHPleft for dead stack
 }
 
 std::string CStack::nodeName() const
@@ -1032,10 +1032,8 @@ std::string CStack::nodeName() const
 
 std::pair<int,int> CStack::countKilledByAttack(int damageReceived) const
 {
-	int killedCount = 0;
 	int newRemainingHP = 0;
-
-	killedCount = damageReceived / MaxHealth();
+	int killedCount = damageReceived / MaxHealth();
 	unsigned damageFirst = damageReceived % MaxHealth();
 
 	if (damageReceived && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
@@ -1054,6 +1052,9 @@ std::pair<int,int> CStack::countKilledByAttack(int damageReceived) const
 			newRemainingHP = firstHPleft - damageFirst;
 		}
 	}
+
+	if(killedCount == count)
+		newRemainingHP = 0;
 
 	return std::make_pair(killedCount, newRemainingHP);
 }

@@ -1610,9 +1610,12 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
 		if(resurrected)
 		{
+			if(changedStack->count > 0 || changedStack->firstHPleft > 0)
+				logGlobal->warn("Dead stack %s with positive total HP", changedStack->nodeName(), changedStack->totalHealth());
+
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}
-		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
+
 		int res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);
 		changedStack->count += res;
 		if(elem.lowLevelResurrection)

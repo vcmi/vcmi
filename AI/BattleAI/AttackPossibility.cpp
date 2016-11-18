@@ -56,8 +56,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 	//TODO other damage related to attack (eg. fire shield and other abilities)
 
 	//Limit damages by total stack health
-	vstd::amin(ap.damageDealt, enemy->count * enemy->MaxHealth() - (enemy->MaxHealth() - enemy->firstHPleft));
-	vstd::amin(ap.damageReceived, attacker->count * attacker->MaxHealth() - (attacker->MaxHealth() - attacker->firstHPleft));
+	vstd::amin(ap.damageDealt, enemy->totalHealth());
+	vstd::amin(ap.damageReceived, attacker->totalHealth());
 
 	return ap;
 }
