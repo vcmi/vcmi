@@ -433,11 +433,6 @@ int main(int argc, char** argv)
 
 	logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
-#if defined(VCMI_ANDROID)
-	//on Android threaded init is broken
-	#define VCMI_NO_THREADED_LOAD
-#endif // defined
-
 	//initializing audio
 	CCS->soundh = new CSoundHandler;
 	CCS->soundh->init();

@@ -43,6 +43,8 @@
 extern std::string NAME;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
+#else
+#include "AndroidVMHelper.h"
 #endif
 
 /*
@@ -54,6 +56,10 @@ namespace intpr = boost::interprocess;
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#ifdef VCMI_ANDROID
+std::atomic_bool androidTestServerReadyFlag;
+#endif
 
 template <typename T> class CApplyOnCL;
 
@@ -944,7 +950,12 @@ void CServerHandler::startServer()
 
 	th.update();
 
+#ifdef VCMI_ANDROID
+	AndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+#else
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
+#endif
 	if(verbose)
 		logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
 }
@@ -958,12 +969,22 @@ void CServerHandler::waitForServer()
 		startServer();
 
 	th.update();
+
 #ifndef VCMI_ANDROID
 	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
 	while(!shared->sr->ready)
 	{
 		shared->sr->cond.wait(slock);
 	}
+#else
+	logNetwork->infoStream() << "waiting for server";
+	while (!androidTestServerReadyFlag.load())
+	{
+		logNetwork->warnStream() << "still waiting...";
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	}
+	logNetwork->infoStream() << "waiting for server finished...";
+	androidTestServerReadyFlag = false;
 #endif
 	if(verbose)
 		logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
@@ -1070,3 +1091,12 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 	}
 	return ret;
 }
+
+#ifdef VCMI_ANDROID
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv *env, jobject cls)
+{
+	logNetwork->infoStream() << "Received server ready signal";
+	androidTestServerReadyFlag.store(true);
+}
+
+#endif

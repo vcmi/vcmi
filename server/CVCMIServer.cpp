@@ -19,7 +19,9 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#ifndef VCMI_ANDROID
+#ifdef VCMI_ANDROID
+#include "AndroidVMHelper.h"
+#else
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/VCMI_Lib.h"
@@ -417,6 +419,12 @@ void CVCMIServer::start()
 #ifndef VCMI_ANDROID
 	sr->setToTrueAndNotify();
 	delete mr;
+#else
+	{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
+		AndroidVMHelper envHelper;
+		envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+		logNetwork->info("Sending server ready message to client");
+	}
 #endif
 
 	acc.join();
@@ -575,7 +583,7 @@ int main(int argc, char** argv)
 	// to log stacktrace
 	#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
 	signal(SIGSEGV, handleLinuxSignal);
-	#endif
+    #endif
 
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
@@ -584,7 +592,7 @@ int main(int argc, char** argv)
 
 
 	handleCommandOptions(argc, argv);
-	if(cmdLineOptions.count("port"))
+	if (cmdLineOptions.count("port"))
 		port = cmdLineOptions["port"].as<int>();
 	logNetwork->info("Port %d will be used.", port);
 
@@ -610,6 +618,7 @@ int main(int argc, char** argv)
 		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
+			server.close();
 			end2 = true;
 		}
 		catch (...) {
@@ -623,6 +632,10 @@ int main(int argc, char** argv)
 		//and return non-zero status so client can detect error
 		throw;
 	}
+#ifdef VCMI_ANDROID
+	AndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
+#endif
 	delete VLC;
 	VLC = nullptr;
 	CResourceHandler::clear();
@@ -638,4 +651,15 @@ void CVCMIServer::create()
 	char* foo[1] = {"android-server"};
 	main(1, foo);
 }
+
+void CVCMIServer::close()
+{
+	logNetwork->infoStream() << "Closing server socket";
+//	if (acceptor)
+//	{
+//		acceptor->close();
+//	}
+}
+
+
 #endif
