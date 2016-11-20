@@ -424,7 +424,7 @@ public:
 	TInternalContainer::size_type operator-=(std::shared_ptr<Bonus> const &i);
 
 	// BonusList functions
-	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
+	int totalValue() const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonuses(BonusList &out) const;
 

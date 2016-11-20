@@ -679,8 +679,7 @@ void CClient::handlePack( CPack * pack )
 	}
 	else
 	{
-		logNetwork->error("Message cannot be applied, cannot find applier! type %d - %s",
-                      pack->type, typeList.getTypeInfo(pack)->name());
+		logNetwork->error("Message %s cannot be applied, cannot find applier!", typeList.getTypeInfo(pack)->name());
 	}
 	delete pack;
 }

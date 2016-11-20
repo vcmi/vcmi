@@ -19,32 +19,26 @@ class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
 
-
-
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 
-
 struct DLL_LINKAGE CPack
 {
-	ui16 type;
-
 	CPack() {};
 	virtual ~CPack() {};
-	ui16 getType() const { return type; }
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		logNetwork->errorStream() << "CPack serialized... this should not happen!";
 		assert(false && "CPack serialized");
 	}
 	void applyGs(CGameState *gs) { }
-	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%d'}") % type); }
+	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%s'}") % typeid(this).name()); }
 };
 
 std::ostream & operator<<(std::ostream & out, const CPack * pack);
 
-
-struct DLL_LINKAGE MetaString : public CPack //2001 helper for object scrips
+struct DLL_LINKAGE MetaString
 {
 private:
 	enum EMessage {TEXACT_STRING, TLOCAL_STRING, TNUMBER, TREPLACE_ESTRING, TREPLACE_LSTRING, TREPLACE_NUMBER, TREPLACE_PLUSNUMBER};
@@ -116,16 +110,13 @@ public:
 		numbers.clear();
 	}
 	void toString(std::string &dst) const;
-	std::string toString() const override;
+	std::string toString() const;
 	void getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const;
 
-	MetaString()
-	{
-		type = 2001;
-	}
+	MetaString(){}
 };
 
-struct Component : public CPack //2002 helper for object scrips informations
+struct Component
 {
 	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO_PORTRAIT, FLAG};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
@@ -138,13 +129,11 @@ struct Component : public CPack //2002 helper for object scrips informations
 	}
 	Component()
 	{
-		type = 2002;
 	}
 	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);
 	Component(Component::EComponentType Type, ui16 Subtype, si32 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
 	{
-		type = 2002;
 	}
 };
 

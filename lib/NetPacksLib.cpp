@@ -63,7 +63,6 @@ DLL_LINKAGE void SetSecSkill::applyGs(CGameState *gs)
 	hero->setSecSkillLevel(which, val, abs);
 }
 
-
 DLL_LINKAGE SelectMap::SelectMap(const CMapInfo &src)
 {
 	mapInfo = &src;
@@ -237,6 +236,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 			team->fogOfWarMap[t.x][t.y][t.z] = 1;
 	}
 }
+
 DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 {
 	PlayerState *p = gs->getPlayer(player);
@@ -1300,7 +1300,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
-			logNetwork->warnStream() << "Unrecognized trigger effect type "<< type;
+			logNetwork->warnStream() << "Unrecognized trigger effect type "<< effect;
 	}
 }
 
@@ -1610,9 +1610,12 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
 		if(resurrected)
 		{
+			if(changedStack->count > 0 || changedStack->firstHPleft > 0)
+				logGlobal->warn("Dead stack %s with positive total HP", changedStack->nodeName(), changedStack->totalHealth());
+
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}
-		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
+
 		int res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);
 		changedStack->count += res;
 		if(elem.lowLevelResurrection)
@@ -1684,7 +1687,6 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs(CGameState *gs)
 
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
-	type = 3015;
 }
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()
@@ -1835,5 +1837,4 @@ DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
 	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
-	type = 2002;
 }

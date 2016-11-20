@@ -880,8 +880,16 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 	if(!stack || !dst)
 		return false;
 
-	if(stack->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
-		return false;
+	//forgetfulness
+	TBonusListPtr forgetfulList = stack->getBonuses(Selector::type(Bonus::FORGETFULL),"");
+	if(!forgetfulList->empty())
+	{
+		int forgetful = forgetfulList->valOfBonuses(Selector::type(Bonus::FORGETFULL));
+
+		//advanced+ level
+		if(forgetful > 1)
+			return false;
+	}
 
 	if(stack->getCreature()->idNumber == CreatureID::CATAPULT && dst) //catapult cannot attack creatures
 		return false;
@@ -1038,6 +1046,25 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	else if(info.shooting) //eg. air shield
 	{
 		multBonus *= (100 - info.defenderBonuses->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0;
+	}
+
+	if(info.shooting)
+	{
+		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
+
+		//get list first, total value of 0 also counts
+		TBonusListPtr forgetfulList = info.attackerBonuses->getBonuses(Selector::type(Bonus::FORGETFULL),"");
+
+		if(!forgetfulList->empty())
+		{
+			int forgetful = forgetfulList->valOfBonuses(Selector::type(Bonus::FORGETFULL));
+
+			//none of basic level
+			if(forgetful == 0 || forgetful == 1)
+				multBonus *= 0.5;
+			else
+				logGlobal->warn("Attempt to calculate shooting damage with adv+ FORGETFULL effect");
+		}
 	}
 
 	TBonusListPtr curseEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MINIMUM_DAMAGE));

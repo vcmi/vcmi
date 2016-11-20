@@ -92,9 +92,9 @@ Go to /LIB_PATH/vcmi, and type:
   ln -s .../trunk/build/lib/libvcmi.so libvcmi.so
   
 Go to /LIB_PATH/vcmi/AI, and type: 
-  ln -s .../trunk/build/AI/VCAI/VCAI.so
-  ln -s .../trunk/build/AI/StupidAI/StupidAI.so
-  ln -s .../trunk/build/AI/BattleAI/BattleAI.so
+  ln -s .../trunk/build/AI/VCAI/libVCAI.so
+  ln -s .../trunk/build/AI/StupidAI/libStupidAI.so
+  ln -s .../trunk/build/AI/BattleAI/libBattleAI.so
 
 Go to /DATA_PATH/vcmi, and type:
   ln -s .../trunk/source/config

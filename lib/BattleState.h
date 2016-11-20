@@ -256,29 +256,34 @@ public:
 			& shots & casts & count & resurrected;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);
-		SlotID slot = (base ? base->armyObj->findStack(base) : SlotID());
+		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
 
 		if(h.saving)
 		{
-			h & army & slot;
+			h & army & extSlot;
 		}
 		else
 		{
-			h & army & slot;
-			if (slot == SlotID::COMMANDER_SLOT_PLACEHOLDER) //TODO
+			h & army & extSlot;
+			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 			{
 				auto hero = dynamic_cast<const CGHeroInstance *>(army);
 				assert (hero);
 				base = hero->commander;
 			}
-			else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
+			else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
+			{
+				//no external slot possible, so no base stack
+				base = nullptr;
+			}
+			else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
 			{
 				base = nullptr;
 				logGlobal->warnStream() << type->nameSing << " doesn't have a base stack!";
 			}
 			else
 			{
-				base = &army->getStack(slot);
+				base = &army->getStack(extSlot);
 			}
 		}
 

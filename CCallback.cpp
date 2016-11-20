@@ -30,11 +30,6 @@
  *
  */
 
-template <ui16 N> bool isType(CPack *pack)
-{
-	return pack->getType() == N;
-}
-
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {
 	CastleTeleportHero pack(who->id, where->id, 1);

@@ -467,26 +467,6 @@ void SetHeroesInTown::applyCl(CClient *cl)
 	}
 }
 
-// void SetHeroArtifacts::applyCl(CClient *cl)
-// {
-// // 	CGHeroInstance *h = GS(cl)->getHero(hid);
-// // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : nullptr);
-// // 	if(!player)
-// // 		return;
-//
-// 	//h->recreateArtBonuses();
-// 	//player->heroArtifactSetChanged(h);
-//
-// // 	for(Bonus bonus : gained)
-// // 	{
-// // 		player->heroBonusChanged(h,bonus,true);
-// // 	}
-// // 	for(Bonus bonus : lost)
-// // 	{
-// // 		player->heroBonusChanged(h,bonus,false);
-// // 	}
-// }
-
 void HeroRecruited::applyCl(CClient *cl)
 {
 	CGHeroInstance *h = GS(cl)->map->heroesOnMap.back();

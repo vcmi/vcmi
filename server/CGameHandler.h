@@ -26,7 +26,6 @@ struct BattleAttack;
 struct BattleStackAttacked;
 struct CPack;
 struct Query;
-struct SetGarrisons;
 struct SetResource;
 struct SetResources;
 struct NewStructures;
