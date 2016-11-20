@@ -60,7 +60,6 @@ public:
 
 #ifdef VCMI_ANDROID
     static void create();
-	void close();
 #endif
 };
 

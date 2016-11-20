@@ -26,8 +26,6 @@
 #define FL_FUZZYLITE_H
 
 #include <algorithm>
-#include <cctype>
-#include <vector>
 #include <cmath>
 #include <iostream>
 #include <sstream>

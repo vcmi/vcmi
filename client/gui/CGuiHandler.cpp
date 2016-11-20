@@ -182,7 +182,6 @@ void CGuiHandler::handleEvents()
 		this->handleEvent(&ev);
 	}
 }
-#include <android/log.h>
 
 void CGuiHandler::handleEvent(SDL_Event *sEvent)
 {

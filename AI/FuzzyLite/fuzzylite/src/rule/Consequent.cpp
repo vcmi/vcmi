@@ -67,7 +67,7 @@ namespace fl {
             Proposition* proposition = _conclusions.at(i);
             if (proposition->variable->isEnabled()) {
                 if (not proposition->hedges.empty()) {
-                    for (std::vector<Hedge*>::reverse_iterator rit = proposition->hedges.rbegin();
+                    for (std::vector<Hedge*>::const_reverse_iterator rit = proposition->hedges.rbegin();
                             rit != proposition->hedges.rend(); ++rit) {
                         activationDegree = (*rit)->hedge(activationDegree);
                     }

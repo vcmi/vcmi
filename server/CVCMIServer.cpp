@@ -618,7 +618,6 @@ int main(int argc, char** argv)
 		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
-			server.close();
 			end2 = true;
 		}
 		catch (...) {
@@ -651,15 +650,5 @@ void CVCMIServer::create()
 	char* foo[1] = {"android-server"};
 	main(1, foo);
 }
-
-void CVCMIServer::close()
-{
-	logNetwork->infoStream() << "Closing server socket";
-//	if (acceptor)
-//	{
-//		acceptor->close();
-//	}
-}
-
 
 #endif
