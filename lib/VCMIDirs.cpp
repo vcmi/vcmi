@@ -546,6 +546,7 @@ std::string VCMIDirsXDG::libraryName(const std::string& basename) const { return
 class VCMIDirsAndroid : public VCMIDirsXDG
 {
 	std::string basePath;
+	std::string internalPath;
 	std::string nativePath;
 public:
 	boost::filesystem::path fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const override;
@@ -572,7 +573,10 @@ boost::filesystem::path VCMIDirsAndroid::fullLibraryPath(const std::string &desi
 
 std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 {
-	return std::vector<bfs::path>(1, userDataPath());
+	std::vector<bfs::path> paths(2);
+	paths.push_back(internalPath);
+	paths.push_back(userDataPath());
+	return paths;
 }
 
 void VCMIDirsAndroid::init()
@@ -580,6 +584,7 @@ void VCMIDirsAndroid::init()
 	// asks java code to retrieve needed paths from environment
 	AndroidVMHelper envHelper;
 	basePath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "dataRoot");
+	internalPath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "internalDataRoot");
 	nativePath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "nativePath");
 	IVCMIDirs::init();
 }
