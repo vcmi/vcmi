@@ -463,6 +463,9 @@ int main(int argc, char** argv)
 
 	CSDL_Ext::update(screen);
 #ifndef VCMI_NO_THREADED_LOAD
+	// TODO (android) threaded load works correctly, but joining the loading thread to main blocks the ui; if the loading takes the long time
+	// (expected situation on a phone), the main thread will be blocked and the app looks broken; instead of join(), there probably should be a
+	// callback from the worker thread after data is loaded
 	loading.join();
 #endif
 	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
