@@ -73,7 +73,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 		pos = pos | name->pos;
 	if (value)
 		pos = pos | value->pos;
-	
+
 	hover = new CHoverableArea;
 	hover->hoverText = data->getHoverText();
 	hover->pos = pos;
@@ -564,7 +564,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	for(const CGObjectInstance * object : ownedObjects)
 	{
 		//Mines
-		if ( object->ID == Obj::MINE )
+		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
 		{
 			const CGMine *mine = dynamic_cast<const CGMine*>(object);
 			assert(mine);
@@ -877,23 +877,23 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	backpack->recActions = DISPOSE | SHARE_POS;
 
 	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
-	
+
 	//layout is not trivial: MACH4 - catapult - excluded, MISC[x] rearranged
 	assert(arts1->arts.size() == 9);
-	assert(arts2->arts.size() == 9);	
-	
-	std::map<ArtifactPosition, CHeroArtPlace*> arts = 
+	assert(arts2->arts.size() == 9);
+
+	std::map<ArtifactPosition, CHeroArtPlace*> arts =
 	{
-		{ArtifactPosition::HEAD, arts1->arts[0]}, 
-		{ArtifactPosition::SHOULDERS,arts1->arts[1]}, 
-		{ArtifactPosition::NECK,arts1->arts[2]}, 
-		{ArtifactPosition::RIGHT_HAND,arts1->arts[3]}, 
-		{ArtifactPosition::LEFT_HAND,arts1->arts[4]}, 
+		{ArtifactPosition::HEAD, arts1->arts[0]},
+		{ArtifactPosition::SHOULDERS,arts1->arts[1]},
+		{ArtifactPosition::NECK,arts1->arts[2]},
+		{ArtifactPosition::RIGHT_HAND,arts1->arts[3]},
+		{ArtifactPosition::LEFT_HAND,arts1->arts[4]},
 		{ArtifactPosition::TORSO, arts1->arts[5]},
 		{ArtifactPosition::RIGHT_RING,arts1->arts[6]},
 		{ArtifactPosition::LEFT_RING, arts1->arts[7]},
 		{ArtifactPosition::FEET, arts1->arts[8]},
-		
+
 		{ArtifactPosition::MISC1, arts2->arts[0]},
 		{ArtifactPosition::MISC2, arts2->arts[1]},
 		{ArtifactPosition::MISC3, arts2->arts[2]},
@@ -936,7 +936,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
 
 	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 
+		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL,
 		                   new InfoBoxHeroData(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i)));
 
 	for (size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
