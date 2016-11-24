@@ -1309,7 +1309,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 			selectFName("Maps/Arrogance");
 		else
 			selectFName(settings["session"]["lastMap"].String());
-			
+
 		break;
 	case CMenuScreen::campaignList:
 		select(0);

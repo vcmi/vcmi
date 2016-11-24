@@ -2374,8 +2374,6 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 		});
 		return *(it->second);
 	}
-
-	return ObjectInfo(); // unreachable
 }
 
 void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)

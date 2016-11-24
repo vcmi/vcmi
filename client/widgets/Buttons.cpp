@@ -41,6 +41,7 @@ void ClickableArea::addCallback(std::function<void()> callback)
 void ClickableArea::setArea(CIntObject * object)
 {
 	delete area;
+	area = object;
 	addChild(area);
 	pos.w = object->pos.w;
 	pos.h = object->pos.h;

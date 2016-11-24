@@ -46,10 +46,13 @@ int CCreature::estimateCreatureCount(ui32 countID)
 {
 	static const int creature_count[] = { 0, 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
 
-	if (countID > 9)
-		assert("Wrong countID!");
-
-	return creature_count[countID];
+	if(countID > 9)
+	{
+		logGlobal->error("Wrong countID %d!", countID);
+		return 0;
+	}
+	else
+		return creature_count[countID];
 }
 
 bool CCreature::isDoubleWide() const
