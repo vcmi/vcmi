@@ -680,7 +680,7 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	std::set <TModID> resolvedMods;
 
 	// Check if all mod dependencies are resolved (moved to resolvedMods)
-	auto isResolved = [&](const CModInfo mod) -> bool
+	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
 		for(const TModID & dependency : mod.dependencies)
 		{
