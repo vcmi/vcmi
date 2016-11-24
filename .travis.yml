@@ -6,6 +6,7 @@ dist: trusty
 sudo: required
 
 before_install:
+  - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
   - if [[ $VCMI_PLATFORM == 'linux' ]]; then . .travis.linux; fi
   - if [[ $VCMI_PLATFORM == 'mac' ]]; then . .travis.osx; fi
   - if [[ $VCMI_PLATFORM == 'mxe' ]]; then . .travis.mxe; fi
@@ -16,11 +17,16 @@ before_script:
   - cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
 
 script:
+  - test $TRAVIS_BRANCH != coverity_scan || exit 0
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd ..; xcodebuild -project osx/osx-vcmibuilder/vcmibuilder.xcodeproj/ -configuration Release CONFIGURATION_BUILD_DIR=..; cd build; fi
   - make -j2
 
 env:
   - ignore=this
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    secure: NMg+qtQB4DIZ/KqlDeIn3K7A7Ydksdpnbv6Ha9n4bSSA0AT8wlPwbHXvQmiR8qYs6cnz4fyY6NVcBe7X3bdR8jWyPNAS0l0QByqG12q3dBpEtNNn0X5u/GS3wHse5+ObNAF9a83+xACTQj2UdxqHgJ3LFGzdBpQt3kLsc8NDnn8=
 
 matrix:
   exclude:
@@ -43,6 +49,15 @@ matrix:
       sudo: required
     - os: osx
       env: VCMI_PLATFORM='mac'
+
+addons:
+  coverity_scan:
+    project:
+      name: vcmi/vcmi
+      description: Build submitted via Travis CI
+    build_command_prepend: cmake -G "Unix Makefiles" . -DENABLE_LAUNCHER=1 -DENABLE_TEST=1
+    build_command: make
+    branch_pattern: coverity_scan
 
 notifications:
   email:
