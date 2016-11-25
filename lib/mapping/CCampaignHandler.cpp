@@ -169,7 +169,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	{
 		ret.artifsKeptByHero.fill(0);
 		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size() - 1);
-	} 
+	}
 	else
 	{
 		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size());
@@ -323,12 +323,24 @@ bool CCampaign::conquerable( int whichScenario ) const
 	{
 		if( vstd::contains(scenarios[whichScenario].preconditionRegions, g) && !scenarios[g].conquered)
 			return false; //prerequisite does not met
-			
+
 	}
 	return true;
 }
 
 CCampaign::CCampaign()
+{
+
+}
+
+CCampaignScenario::SScenarioPrologEpilog::SScenarioPrologEpilog()
+	: hasPrologEpilog(false), prologVideo(0), prologMusic(0), prologText()
+{
+
+}
+
+CCampaignScenario::CCampaignScenario()
+	: mapName(), scenarioName(), packedMapSize(0), regionColor(0), difficulty(0), conquered(false)
 {
 
 }
