@@ -27,6 +27,29 @@ namespace fs = boost::filesystem;
  *
  */
 
+CCampaignHeader::CCampaignHeader()
+	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
+{
+
+}
+
+CScenarioTravel::STravelBonus::STravelBonus()
+	:type(SPELL), info1(0), info2(0), info3(0)
+{
+
+}
+
+bool CScenarioTravel::STravelBonus::isBonusForHero() const
+{
+	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
+		|| type == SECONDARY_SKILL;
+}
+
+CScenarioTravel::CScenarioTravel()
+	:whatHeroKeeps(0), startOptions(0), playerColor(0)
+{
+
+}
 
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 {
@@ -376,12 +399,6 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
 		}
 	}
 	return lostCrossoverHeroes;
-}
-
-bool CScenarioTravel::STravelBonus::isBonusForHero() const
-{
-	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
-		|| type == SECONDARY_SKILL;
 }
 
 void CCampaignState::setCurrentMapAsConquered( const std::vector<CGHeroInstance*> & heroes )

@@ -39,6 +39,8 @@ public:
 	std::string filename;
 	ui8 loadFromLod; //if true, this campaign must be loaded fro, .lod file
 
+	CCampaignHeader();
+
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music & filename & loadFromLod;
@@ -65,6 +67,8 @@ public:
 
 		bool isBonusForHero() const;
 
+		STravelBonus();
+
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
 			h & type & info1 & info2 & info3;
@@ -72,6 +76,8 @@ public:
 	};
 
 	std::vector<STravelBonus> bonusesToChoose;
+
+	CScenarioTravel();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
