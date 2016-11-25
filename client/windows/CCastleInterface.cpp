@@ -1298,15 +1298,19 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	pos.h = 92;
 
 	state = LOCPLINT->cb->canBuildStructure(town,building->bid);
-	assert(state < EBuildingState::BUILDING_ERROR);
-	static int panelIndex[10] = { 3,  3,  3, 0, 0, 2, 2,  1, 2, 2};
-	static int  iconIndex[10] = {-1, -1, -1, 0, 0, 1, 2, -1, 1, 1};
+
+	static int panelIndex[12] = { 3,  3,  3, 0, 0, 2, 2,  1, 2, 2,  3,  3};
+	static int  iconIndex[12] = {-1, -1, -1, 0, 0, 1, 2, -1, 1, 1, -1, -1};
 
 	picture = new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
 	panel = new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
 	if ( iconIndex[state] >=0 )
 		icon  = new CAnimImage("TPTHCHK",  iconIndex[state], 0, 136, 56);
 	label = new CLabel(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
+
+	//todo: add support for all possible states
+	if(state >= EBuildingState::BUILDING_ERROR)
+		state = EBuildingState::FORBIDDEN;
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
