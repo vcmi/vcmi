@@ -101,15 +101,18 @@ struct StackLocation
 
 struct PackageApplied : public CPackForClient
 {
-	PackageApplied() {}
-	PackageApplied(ui8 Result) : result(Result) {}
+	PackageApplied()
+		: result(0), packType(0),requestID(0)
+	{}
+	PackageApplied(ui8 Result)
+		: result(Result), packType(0), requestID(0)
+	{}
 	void applyCl(CClient *cl);
 
 	ui8 result; //0 - something went wrong, request hasn't been realized; 1 - OK
 	ui32 packType; //type id of applied package
 	ui32 requestID; //an ID given by client to the request that was applied
 	PlayerColor player;
-
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -119,8 +122,8 @@ struct PackageApplied : public CPackForClient
 
 struct SystemMessage : public CPackForClient
 {
-	SystemMessage(const std::string & Text) : text(Text){};
-	SystemMessage(){};
+	SystemMessage(const std::string & Text) : text(Text){}
+	SystemMessage(){}
 	void applyCl(CClient *cl);
 
 	std::string text;
@@ -133,7 +136,7 @@ struct SystemMessage : public CPackForClient
 
 struct PlayerBlocked : public CPackForClient
 {
-	PlayerBlocked(){};
+	PlayerBlocked() : reason(UPCOMING_BATTLE), startOrEnd(BLOCKADE_STARTED) {}
 	void applyCl(CClient *cl);
 
 	enum EReason { UPCOMING_BATTLE, ONGOING_MOVEMENT };
@@ -151,7 +154,7 @@ struct PlayerBlocked : public CPackForClient
 
 struct YourTurn : public CPackForClient
 {
-	YourTurn(){};
+	YourTurn(){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -166,7 +169,9 @@ struct YourTurn : public CPackForClient
 
 struct SetResource : public CPackForClient
 {
-	SetResource(){};
+	SetResource()
+		: resid(Res::GOLD), val(0)
+	{}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -197,7 +202,9 @@ struct SetResources : public CPackForClient
 
 struct SetPrimSkill : public CPackForClient
 {
-	SetPrimSkill(){};
+	SetPrimSkill()
+		: abs(0), which(PrimarySkill::ATTACK), val(0)
+	{}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -214,7 +221,9 @@ struct SetPrimSkill : public CPackForClient
 
 struct SetSecSkill : public CPackForClient
 {
-	SetSecSkill(){};
+	SetSecSkill()
+		: abs(0), val(0)
+	{}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -248,9 +257,10 @@ struct HeroVisitCastle : public CPackForClient
 		h & flags & tid & hid;
 	}
 };
+
 struct ChangeSpells : public CPackForClient
 {
-	ChangeSpells(){};
+	ChangeSpells():learn(1){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -266,7 +276,7 @@ struct ChangeSpells : public CPackForClient
 
 struct SetMana : public CPackForClient
 {
-	SetMana(){val = 0; absolute=true;};
+	SetMana(){val = 0; absolute=true;}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -283,7 +293,7 @@ struct SetMana : public CPackForClient
 
 struct SetMovePoints : public CPackForClient
 {
-	SetMovePoints(){val = 0;};
+	SetMovePoints(){val = 0;}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -298,7 +308,7 @@ struct SetMovePoints : public CPackForClient
 
 struct FoWChange : public CPackForClient
 {
-	FoWChange(){mode = 0; waitForDialogs = false;};
+	FoWChange(){mode = 0; waitForDialogs = false;}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -336,6 +346,7 @@ struct GiveBonus :  public CPackForClient
 	GiveBonus(ui8 Who = 0)
 	{
 		who = Who;
+		id = 0;
 	}
 
 	void applyCl(CClient *cl);
@@ -397,6 +408,9 @@ struct RemoveBonus :  public CPackForClient
 	RemoveBonus(ui8 Who = 0)
 	{
 		who = Who;
+		whoID = 0;
+		source = 0;
+		id = 0;
 	}
 
 	void applyCl(CClient *cl);
@@ -435,7 +449,9 @@ struct SetCommanderProperty : public CPackForClient
 {
 	enum ECommanderProperty {ALIVE, BONUS, SECONDARY_SKILL, EXPERIENCE, SPECIAL_SKILL};
 
-	SetCommanderProperty(){};
+	SetCommanderProperty()
+		:which(ALIVE), amount(0), additionalInfo(0)
+	{}
 	void applyCl(CClient *cl){};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -480,7 +496,7 @@ struct PrepareForAdvancingCampaign : public CPackForClient
 
 struct UpdateArtHandlerLists : public CPackForClient
 {
-	UpdateArtHandlerLists(){};
+	UpdateArtHandlerLists(){}
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -518,7 +534,7 @@ struct UpdateCastleEvents : public CPackForClient
 
 struct ChangeFormation : public CPackForClient
 {
-	ChangeFormation(){}
+	ChangeFormation():formation(0){}
 
 	ObjectInstanceID hid;
 	ui8 formation;
@@ -532,7 +548,7 @@ struct ChangeFormation : public CPackForClient
 
 struct RemoveObject : public CPackForClient
 {
-	RemoveObject(){};
+	RemoveObject(){}
 	RemoveObject(ObjectInstanceID ID){id = ID;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
@@ -548,7 +564,9 @@ struct RemoveObject : public CPackForClient
 
 struct TryMoveHero : public CPackForClient
 {
-	TryMoveHero(){humanKnows=false;};
+	TryMoveHero()
+		: movePoints(0), result(FAILED), humanKnows(false)
+	{}
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs);
@@ -575,7 +593,7 @@ struct TryMoveHero : public CPackForClient
 
 struct NewStructures : public CPackForClient
 {
-	NewStructures(){};
+	NewStructures():builded(0){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -591,7 +609,7 @@ struct NewStructures : public CPackForClient
 
 struct RazeStructures : public CPackForClient
 {
-	RazeStructures() {};
+	RazeStructures():destroyed(0){}
 	void applyCl (CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -607,7 +625,7 @@ struct RazeStructures : public CPackForClient
 
 struct SetAvailableCreatures : public CPackForClient
 {
-	SetAvailableCreatures(){};
+	SetAvailableCreatures(){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -622,7 +640,7 @@ struct SetAvailableCreatures : public CPackForClient
 
 struct SetHeroesInTown : public CPackForClient
 {
-	SetHeroesInTown(){};
+	SetHeroesInTown(){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -636,7 +654,7 @@ struct SetHeroesInTown : public CPackForClient
 
 struct HeroRecruited : public CPackForClient
 {
-	HeroRecruited(){};
+	HeroRecruited():hid(-1){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -653,7 +671,7 @@ struct HeroRecruited : public CPackForClient
 
 struct GiveHero : public CPackForClient
 {
-	GiveHero(){};
+	GiveHero(){}
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -669,7 +687,7 @@ struct GiveHero : public CPackForClient
 
 struct OpenWindow : public CPackForClient
 {
-	OpenWindow(){};
+	OpenWindow():id1(-1),id2(-1){}
 	void applyCl(CClient *cl);
 
 	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD,
@@ -685,10 +703,7 @@ struct OpenWindow : public CPackForClient
 
 struct NewObject  : public CPackForClient
 {
-	NewObject()
-	{
-
-	}
+	NewObject():subID(0){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -706,7 +721,7 @@ struct NewObject  : public CPackForClient
 
 struct SetAvailableArtifacts  : public CPackForClient
 {
-	SetAvailableArtifacts(){};
+	SetAvailableArtifacts():id(0){}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -721,7 +736,7 @@ struct SetAvailableArtifacts  : public CPackForClient
 
 struct NewArtifact : public CPackForClient
 {
-	NewArtifact(){};
+	NewArtifact(){}
 	//void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
@@ -883,8 +898,6 @@ struct AssembledArtifact : CArtifactOperationPack
 {
 	ArtifactLocation al; //where assembly will be put
 	CArtifact *builtArt;
-	//std::vector<CArtifactInstance *> constituents;
-
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -943,14 +956,13 @@ struct NewTurn : public CPackForClient
 	};
 
 	std::set<Hero> heroes; //updates movement and mana points
-	//std::vector<SetResources> res;//resource list
 	std::map<PlayerColor, TResources> res; //player ID => resource value[res_id]
 	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	ui8 specialWeek; //weekType
 	CreatureID creatureid; //for creature weeks
 
-	NewTurn(){};
+	NewTurn():day(0),specialWeek(0){};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1002,7 +1014,7 @@ struct SetObjectProperty : public CPackForClient
 	ObjectInstanceID id;
 	ui8 what; // see ObjProperty enum
 	ui32 val;
-	SetObjectProperty(){};
+	SetObjectProperty():what(0),val(0){}
 	SetObjectProperty(ObjectInstanceID ID, ui8 What, ui32 Val):id(ID),what(What),val(Val){};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1027,13 +1039,14 @@ struct ChangeObjectVisitors : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ChangeObjectVisitors()
-	{  }
+		: mode(VISITOR_CLEAR)
+	{}
 
 	ChangeObjectVisitors(ui32 mode, ObjectInstanceID object, ObjectInstanceID heroID = ObjectInstanceID(-1)):
 		mode(mode),
 		object(object),
 		hero(heroID)
-	{  }
+	{}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1050,7 +1063,7 @@ struct PrepareHeroLevelUp : public CPackForClient
 	/// Do not serialize, used by server only
 	std::vector<SecondarySkill> skills;
 
-	PrepareHeroLevelUp(){};
+	PrepareHeroLevelUp():hero(nullptr){}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1067,7 +1080,7 @@ struct HeroLevelUp : public Query
 	PrimarySkill::PrimarySkill primskill;
 	std::vector<SecondarySkill> skills;
 
-	HeroLevelUp(){};
+	HeroLevelUp():hero(nullptr),primskill(PrimarySkill::ATTACK){}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1084,7 +1097,7 @@ struct CommanderLevelUp : public Query
 
 	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
 
-	CommanderLevelUp(){};
+	CommanderLevelUp():hero(nullptr){}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1160,7 +1173,7 @@ struct BlockingDialog : public Query
 
 struct GarrisonDialog : public Query
 {
-	GarrisonDialog(){}
+	GarrisonDialog():removableUnits(false){}
 	void applyCl(CClient *cl);
 	ObjectInstanceID objid, hid;
 	bool removableUnits;
@@ -1186,7 +1199,7 @@ struct ExchangeDialog : public Query
 
 struct TeleportDialog : public Query
 {
-	TeleportDialog() {}
+	TeleportDialog(){}
 	TeleportDialog(const CGHeroInstance *Hero, TeleportChannelID Channel)
 		: hero(Hero), channel(Channel), impassable(false)
 	{
@@ -1208,7 +1221,7 @@ struct TeleportDialog : public Query
 struct BattleInfo;
 struct BattleStart : public CPackForClient
 {
-	BattleStart(){};
+	BattleStart(){}
 
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
