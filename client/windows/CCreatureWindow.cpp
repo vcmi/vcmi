@@ -818,6 +818,9 @@ void CStackWindow::initBonusesList()
 
 void CStackWindow::init()
 {
+	expRankIcon = nullptr;
+	expArea = nullptr;
+	expLabel = nullptr;
 	if (!info->stackNode)
 		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
 
