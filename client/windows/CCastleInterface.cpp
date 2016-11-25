@@ -141,6 +141,7 @@ SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, double f)
 	ret.r = a.r*f + b.r*(1-f);
 	ret.g = a.g*f + b.g*(1-f);
 	ret.b = a.b*f + b.b*(1-f);
+	ret.a = a.a*f + b.b*(1-f);
 	return ret;
 }
 
