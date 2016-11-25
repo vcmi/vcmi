@@ -1732,7 +1732,8 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
 				std::function<void(int)> Callback):
 	CWindowObject(PLAYER_COLORED, "TPGATE"),
-	onSelect(Callback)
+	onSelect(Callback),
+	selected(0)
 {
 	items.reserve(_items.size());
 	for(int id : _items)
@@ -1746,7 +1747,8 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject 
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
 				std::function<void(int)> Callback):
 	CWindowObject(PLAYER_COLORED, "TPGATE"),
-	onSelect(Callback)
+	onSelect(Callback),
+	selected(0)
 {
 	items.reserve(_items.size());
 
