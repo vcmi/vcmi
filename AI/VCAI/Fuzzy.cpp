@@ -219,7 +219,7 @@ ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 		totalStrength += config.second.totalStrength * config.first;
 		totalChance += config.first;
 	}
-	return totalStrength / totalChance;
+	return totalStrength / std::max<ui8>(totalChance, 1); //avoid division by zero
 
 }
 
