@@ -230,7 +230,7 @@ void MapComparer::compareObjects()
 		{
 			auto it = actual->instanceNames.find(expectedObject->instanceName);
 
-			BOOST_REQUIRE(it != expected->instanceNames.end());
+			BOOST_REQUIRE(it != actual->instanceNames.end());
 
 			auto actualObject = it->second;
 
