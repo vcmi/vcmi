@@ -2807,7 +2807,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&]
 	{
-		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
+		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 
 		if (curInt->isAutoFightOn)
 		{
@@ -2823,12 +2823,11 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 			}
 			else
 			{
-				givenCommand->setn(ba);
+				givenCommand->setn(ba.release());
 			}
 		}
 		else
 		{
-			delete ba;
 			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 			activateStack();
 		}
