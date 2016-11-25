@@ -374,7 +374,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 	}
 	logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
 
-	if (maxRatio > maxDistanceMovementRatio)
+	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
 		CRmgTemplateZone * targetZone = nullptr;
 		float3 ourCenter = misplacedZone->getCenter();
@@ -419,14 +419,17 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 					targetZone = otherZone.second;
 				}
 			}
-			float3 vec = ourCenter - targetZone->getCenter();
-			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-			logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
-				misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
-			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+			if (targetZone)
+			{
+				float3 vec = ourCenter - targetZone->getCenter();
+				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
+					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
+				logGlobal->traceStream() << boost::format("direction is %s") % vec();
 
-			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+			}
 		}
 	}
 }
