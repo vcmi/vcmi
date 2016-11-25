@@ -58,7 +58,6 @@ public:
 
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;
-	bool logging;
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
 	boost::asio::io_service *io_service;

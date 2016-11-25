@@ -1231,7 +1231,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
 	{
-		auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 		animsAreDisplayed.waitUntil(false);
 	}
 	displayBattleFinished();
@@ -1969,7 +1969,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 void CBattleInterface::waitForAnims()
 {
-	auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 	animsAreDisplayed.waitWhileTrue();
 }
 
@@ -2828,7 +2828,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 		}
 		else
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			activateStack();
 		}
 	});

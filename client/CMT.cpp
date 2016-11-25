@@ -836,7 +836,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gosolo")
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		PlayerColor color;
 		if(session["aiSolo"].Bool())
 		{
@@ -870,7 +870,7 @@ void processCommand(const std::string &message)
 		readed >> colorName;
 		boost::to_lower(colorName);
 
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		PlayerColor color;
 		if(LOCPLINT)
 			color = LOCPLINT->playerID;
@@ -892,7 +892,7 @@ void processCommand(const std::string &message)
 	// Check mantis issue 2292 for details
 /* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		LOCPLINT->cb->sendMessage(message);
 	}*/
 }
@@ -1113,7 +1113,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayInde
 
 static void fullScreenChanged()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 
 	Settings full = settings.write["video"]["fullscreen"];
 	const bool toFullscreen = full->Bool();

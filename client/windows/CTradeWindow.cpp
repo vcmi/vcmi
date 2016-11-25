@@ -1299,14 +1299,6 @@ void CAltarWindow::selectionChanged(bool side)
 	if(mode != EMarketMode::CREATURE_EXP)
 		return;
 
-	CTradeableItem *&selected = side ? hLeft : hRight;
-	CTradeableItem *&theOther = side ? hRight : hLeft;
-
-	theOther = *std::find_if(items[!side].begin(), items[!side].end(), [&](const CTradeableItem * item)
-	{
-		return item->serial == selected->serial;
-	});
-
 	int stackCount = 0;
 	for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 		if(hero->getStackCount(SlotID(i)) > sacrificedUnits[i])
