@@ -90,6 +90,8 @@ public:
 	virtual bool givesSpells() const { return false; }
 
 	virtual bool givesBonuses() const { return false; }
+
+	virtual ~IObjectInfo() = default;
 };
 
 class CGObjectInstance;

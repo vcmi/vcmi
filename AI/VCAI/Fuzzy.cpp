@@ -25,7 +25,6 @@
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 struct BankConfig;
-class IObjectInfo;
 class CBankInfo;
 class Engine;
 class InputVariable;

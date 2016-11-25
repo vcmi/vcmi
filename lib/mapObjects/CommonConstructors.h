@@ -18,8 +18,6 @@ class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
 class CGDwelling;
-//class CGArtifact;
-//class CGCreature;
 class CHeroClass;
 class CBank;
 class CStackBasicDescriptor;
