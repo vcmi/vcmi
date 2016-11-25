@@ -1,3 +1,5 @@
+#include "StdInc.h"
+
 /*
  * ThreatMap.cpp, part of VCMI engine
  *
