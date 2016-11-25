@@ -442,6 +442,11 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 
 void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs/*=false*/)
 {
+	if(!hero)
+	{
+		logGlobal->error("changeSecSkill provided no hero");
+		return;
+	}
 	SetSecSkill sss;
 	sss.id = hero->id;
 	sss.which = which;
@@ -451,7 +456,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 	if (which == SecondarySkill::WISDOM)
 	{
-		if (hero && hero->visitedTown)
+		if (hero->visitedTown)
 			giveSpells(hero->visitedTown, hero);
 	}
 }
