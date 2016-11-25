@@ -124,6 +124,8 @@ public:
 	 * @return a unique ptr of the loaded map header class
 	 */
 	virtual std::unique_ptr<CMapHeader> loadMapHeader() = 0;
+
+	virtual ~IMapLoader(){}
 };
 
 class DLL_LINKAGE IMapPatcher
@@ -134,6 +136,8 @@ public:
 	 *
 	 */
 	virtual void patchMapHeader(std::unique_ptr<CMapHeader> & header) = 0;
+
+	virtual ~IMapPatcher(){}
 };
 
 /**
@@ -147,4 +151,6 @@ public:
 	 *
 	 */
 	 virtual void saveMap(const std::unique_ptr<CMap> & map) = 0;
+
+	 virtual ~IMapSaver(){}
 };
