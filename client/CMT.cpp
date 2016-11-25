@@ -701,7 +701,7 @@ void processCommand(const std::string &message)
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);
 			else
-				std::cout << typeid(*obj).name() << std::endl;
+				std::cout << typeid(*child).name() << std::endl;
 		}
 	}
 	else if(cn=="tell")
