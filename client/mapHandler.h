@@ -344,7 +344,8 @@ public:
 
 	//terrain graphics
 
-	typedef std::vector<std::array<std::unique_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
+	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
+	typedef std::vector<std::array<std::shared_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
 	typedef std::vector<std::vector<std::array<IImage *, 4>>> TFlippedCache;//[type, view type, rotation]
 
 	TFlippedAnimations terrainAnimations;//[terrain type, rotation]
