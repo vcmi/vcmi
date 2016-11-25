@@ -18,6 +18,8 @@
 CObstacleInstance::CObstacleInstance()
 {
 	obstacleType = USUAL;
+	uniqueID = -1;
+	ID = -1;
 }
 
 CObstacleInstance::~CObstacleInstance()
@@ -33,12 +35,9 @@ const CObstacleInfo & CObstacleInstance::getInfo() const
 		return VLC->heroh->absoluteObstacles[ID];
 	case USUAL:
 		return VLC->heroh->obstacles[ID];
-	case MOAT:
-		assert(0);
 	default:
-		assert(0);
+		throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
 	}
-	throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
 }
 
 std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const
