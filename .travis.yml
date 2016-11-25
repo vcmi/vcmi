@@ -56,6 +56,7 @@ addons:
     project:
       name: vcmi/vcmi
       description: Build submitted via Travis CI
+    notification_email: coverity@arseniyshestakov.com
     build_command_prepend: cmake -G "Unix Makefiles" . -DENABLE_LAUNCHER=1 -DENABLE_TEST=1
     build_command: make
     branch_pattern: coverity_scan
