@@ -88,13 +88,14 @@ public:
 
 	ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
 
+	CArtifactsOfHero * ourOwner;
+
+	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
+
 	void lockSlot(bool on);
 	void pickSlot(bool on);
 	void selectSlot(bool on);
 
-	CArtifactsOfHero * ourOwner;
-
-	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void select();

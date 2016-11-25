@@ -32,7 +32,7 @@
  */
 
 CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art): CArtPlace(position, Art),
-	locked(false), picked(false), marked(false)
+	locked(false), picked(false), marked(false), ourOwner(nullptr)
 {
 	createImage();
 }
