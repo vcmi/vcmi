@@ -22,7 +22,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "CMusicHandler.h"
-#include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
@@ -43,6 +42,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
+#include "gui/CAnimation.h"
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -764,21 +764,9 @@ void processCommand(const std::string &message)
 	{
 		std::string URI;
 		readed >> URI;
-		if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + URI)))
-		{
-			CDefEssential * cde = CDefHandler::giveDefEss(URI);
-
-			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extracted" / URI;
-			bfs::create_directories(outPath);
-
-			for (size_t i = 0; i < cde->ourImages.size(); ++i)
-			{
-				const bfs::path filePath = outPath / (boost::lexical_cast<std::string>(i)+".bmp");
-				SDL_SaveBMP(cde->ourImages[i].bitmap, filePath.string().c_str());
-			}
-		}
-		else
-			logGlobal->errorStream() << "File not found!";
+		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		anim->preload();
+		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted");
 	}
 	else if(cn == "extract")
 	{

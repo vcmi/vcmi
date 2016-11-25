@@ -32,6 +32,8 @@ public:
 
 	virtual std::unique_ptr<IImage> scaleFast(float scale) const = 0;
 
+	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
+
 	//decrease ref count, returns true if image can be deleted (refCount <= 0)
 	bool decreaseRef();
 	void increaseRef();
@@ -108,6 +110,8 @@ public:
 
 	//get pointer to image from specific group, nullptr if not found
 	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
+
+	void exportBitmaps(const boost::filesystem::path & path) const;
 
 	//all available frames
 	void load  ();
