@@ -148,9 +148,11 @@ std::string InfoBoxAbstractHeroData::getValueText()
 			si64 value = getValue();
 			if (value)
 				return CGI->generaltexth->levels[value];
+			else
+				return "";
 		}
 	default:
-		assert(0);
+		logGlobal->error("Invalid InfoBox info type");
 	}
 	return "";
 }
@@ -173,7 +175,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 		else
 			return "";
 	default:
-		assert(0);
+		logGlobal->error("Invalid InfoBox info type");
 	}
 	return "";
 }
