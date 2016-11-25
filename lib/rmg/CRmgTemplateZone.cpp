@@ -2379,7 +2379,6 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 {
 	ObjectInfo oi;
-	oi.maxPerMap = std::numeric_limits<ui32>().max();
 
 	int numZones = gen->getZones().size();
 
@@ -2827,6 +2826,12 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			possibleObjects.push_back(oi);
 		}
 	}
+}
+
+ObjectInfo::ObjectInfo()
+	: templ(), value(0), probability(0), maxPerZone(1)
+{
+
 }
 
 void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)

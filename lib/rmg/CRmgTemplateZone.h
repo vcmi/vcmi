@@ -85,10 +85,12 @@ struct DLL_LINKAGE ObjectInfo
 	ui32 value;
 	ui16 probability;
 	ui32 maxPerZone;
-	ui32 maxPerMap;
+	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 
 	void setTemplate (si32 type, si32 subtype, ETerrainType terrain);
+
+	ObjectInfo();
 
 	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
 };
