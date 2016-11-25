@@ -326,6 +326,10 @@ CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHe
 	arts(nullptr),
 	hLeft(nullptr),
 	hRight(nullptr),
+	ok(nullptr),
+	max(nullptr),
+	deal(nullptr),
+	slider(nullptr),
 	readyToTrade(false)
 {
 	type |= BLOCK_ADV_HOTKEYS;
