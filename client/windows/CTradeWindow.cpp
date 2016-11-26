@@ -1006,7 +1006,7 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 	return Point(0,0);
 }
 
-void CMarketplaceWindow::resourceChanged(int type, int val)
+void CMarketplaceWindow::resourceChanged()
 {
 	initSubs(true);
 }

@@ -228,7 +228,7 @@ public:
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
 	virtual void requestRealized(PackageApplied *pa) override;
-	virtual void receivedResource(int type, int val) override;
+	virtual void receivedResource() override;
 	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) override;
 	virtual void objectRemoved(const CGObjectInstance *obj) override;
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
@@ -239,7 +239,7 @@ public:
 	virtual void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override;
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;	
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
 
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
 	virtual void battleEnd(const BattleResult *br) override;
@@ -315,7 +315,7 @@ public:
 	void requestSent(const CPackForServer *pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
-	void requestActionASAP(std::function<void()> whatToDo); 
+	void requestActionASAP(std::function<void()> whatToDo);
 
 	template <typename Handler> void registerGoals(Handler &h)
 	{

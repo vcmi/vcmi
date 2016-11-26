@@ -502,9 +502,9 @@ void VCAI::requestRealized(PackageApplied *pa)
 	}
 }
 
-void VCAI::receivedResource(int type, int val)
+void VCAI::receivedResource()
 {
-	LOG_TRACE_PARAMS(logAi, "type '%i', val '%i'", type % val);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 

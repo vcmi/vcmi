@@ -35,6 +35,7 @@ namespace GameConstants
 
 	const int HERO_GOLD_COST = 2500;
 	const int SPELLBOOK_GOLD_COST = 500;
+	const int SKILL_GOLD_COST = 2000;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;
 	const int SKILL_PER_HERO=8;

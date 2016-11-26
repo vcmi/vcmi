@@ -160,7 +160,7 @@ public:
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
-	void receivedResource(int type, int val) override;
+	void receivedResource() override;
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;

@@ -119,7 +119,7 @@ public:
 
 	void garrisonChanged() override; //removes creatures with count 0 from the list (apparently whole stack has been sold)
 	void artifactsChanged(bool left) override;
-	void resourceChanged(int type, int val);
+	void resourceChanged();
 
 	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
 	void updateTraderText();
