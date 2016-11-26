@@ -1731,7 +1731,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	case ECastingMode::HERO_CASTING:
 		{
 			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			assert(castingHero);
+			if(!castingHero)
+			{
+				logGlobal->error("battleCanCastThisSpell: invalid caster");
+				return ESpellCastProblem::INVALID;
+			}
+
 			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
 				return ESpellCastProblem::NO_SPELLBOOK;
 			if(!castingHero->canCastThisSpell(spell))
