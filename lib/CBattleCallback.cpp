@@ -357,6 +357,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	}
 	const PlayerColor player = caster->getOwner();
 	const ui8 side = playerToSide(player);
+	if((si8)side < 0)
+		return ESpellCastProblem::INVALID;
 	if(!battleDoWeKnowAbout(side))
 	{
 		logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
