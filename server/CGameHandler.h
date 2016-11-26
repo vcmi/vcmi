@@ -26,7 +26,6 @@ struct BattleAttack;
 struct BattleStackAttacked;
 struct CPack;
 struct Query;
-struct SetResource;
 struct SetResources;
 struct NewStructures;
 class CGHeroInstance;
@@ -250,7 +249,6 @@ public:
 	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
-	void sendAndApply(SetResource * info);
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);
 

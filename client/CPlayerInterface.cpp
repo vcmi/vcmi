@@ -507,11 +507,11 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->heroList.update(hero);
 }
-void CPlayerInterface::receivedResource(int type, int val)
+void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt()))
-		mw->resourceChanged(type, val);
+		mw->resourceChanged();
 
 	GH.totalRedraw();
 }

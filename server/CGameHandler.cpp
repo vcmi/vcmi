@@ -2226,17 +2226,18 @@ void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 void CGameHandler::giveResource(PlayerColor player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
 {
 	if (!val) return; //don't waste time on empty call
-	SetResource sr;
-	sr.player = player;
-	sr.resid = which;
-	sr.val = getPlayer(player)->resources.at(which) + val;
-	sendAndApply(&sr);
+
+	TResources resources;
+	resources.at(which) = val;
+	giveResources(player, resources);
 }
 
 void CGameHandler::giveResources(PlayerColor player, TResources resources)
 {
-	for (TResources::nziterator i(resources); i.valid(); i++)
-		giveResource(player, i->resType, i->resVal);
+	SetResources sr;
+	sr.abs = false;
+	sr.player = player;
+	sr.res = resources;
 }
 
 void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
@@ -2547,12 +2548,6 @@ void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
 {
 	sendAndApply(static_cast<CPackForClient*>(info));
 	checkVictoryLossConditionsForAll();
-}
-
-void CGameHandler::sendAndApply(SetResource * info)
-{
-	sendAndApply(static_cast<CPackForClient*>(info));
-	checkVictoryLossConditionsForPlayer(info->player);
 }
 
 void CGameHandler::sendAndApply(SetResources * info)
@@ -2924,10 +2919,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Take cost
 	if (!force)
 	{
-		SetResources sr;
-		sr.player = t->tempOwner;
-		sr.res = getPlayer(t->tempOwner)->resources - requestedBuilding->resources;
-		sendAndApply(&sr);
+		giveResources(t->tempOwner, -requestedBuilding->resources);
 	}
 
 	//We know what has been built, appluy changes. Do this as final step to properly update town window
@@ -3027,16 +3019,12 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	}
 
 	//recruit
-	SetResources sr;
-	sr.player = dst->tempOwner;
-	sr.res = getPlayer(dst->tempOwner)->resources - (c->cost * cram);
+	giveResources(dst->tempOwner, -(c->cost * cram));
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
 	sac.creatures = dw->creatures;
 	sac.creatures[level].first -= cram;
-
-	sendAndApply(&sr);
 	sendAndApply(&sac);
 
 	if (warMachine)
@@ -3094,10 +3082,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 		COMPLAIN_RET("Cannot upgrade, not enough resources!");
 
 	//take resources
-	SetResources sr;
-	sr.player = player;
-	sr.res = p->resources - totalCost;
-	sendAndApply(&sr);
+	giveResources(player, -totalCost);
 
 	//upgrade creature
 	changeStackType(StackLocation(obj, pos), VLC->creh->creatures.at(upgID));
@@ -3351,12 +3336,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 	if (getResource(h->tempOwner, rid) < b1)
 		COMPLAIN_RET("You can't afford to buy this artifact!");
 
-	SetResource sr;
-	sr.player = h->tempOwner;
-	sr.resid = rid;
-	sr.val = getResource(h->tempOwner, rid) - b1;
-	sendAndApply(&sr);
-
+	giveResource(h->tempOwner, rid, -b1);
 
 	SetAvailableArtifacts saa;
 	if (m->o->ID == Obj::TOWN)
@@ -3433,14 +3413,10 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))
 		COMPLAIN_RET("That skill is unavailable!");
 
-	if (getResource(h->tempOwner, Res::GOLD) < 2000)//TODO: remove hardcoded resource\summ?
+	if (getResource(h->tempOwner, Res::GOLD) < GameConstants::SKILL_GOLD_COST)//TODO: remove hardcoded resource\summ?
 		COMPLAIN_RET("You can't afford to buy this skill");
 
-	SetResource sr;
-	sr.player = h->tempOwner;
-	sr.resid = Res::GOLD;
-	sr.val = getResource(h->tempOwner, Res::GOLD) - 2000;
-	sendAndApply(&sr);
+	giveResource(h->tempOwner, Res::GOLD, -GameConstants::SKILL_GOLD_COST);
 
 	changeSecSkill(h, skill, 1, true);
 	return true;
@@ -3448,8 +3424,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 
 bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2)
 {
-	int r1 = getPlayer(player)->resources.at(id1),
-		r2 = getPlayer(player)->resources.at(id2);
+	TResourceCap r1 = getPlayer(player)->resources.at(id1);
 
 	vstd::amin(val, r1); //can't trade more resources than have
 
@@ -3459,19 +3434,11 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor p
 
 	if (val%b1) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
 	{
-		//TODO: complain?
-		assert(0);
+		COMPLAIN_RET("Invalid deal, not all offered units of resource were used.");
 	}
 
-	SetResource sr;
-	sr.player = player;
-	sr.resid = static_cast<Res::ERes>(id1);
-	sr.val = r1 - b1 * units;
-	sendAndApply(&sr);
-
-	sr.resid = static_cast<Res::ERes>(id2);
-	sr.val = r2 + b2 * units;
-	sendAndApply(&sr);
+	giveResource(player, static_cast<Res::ERes>(id1), - b1 * units);
+	giveResource(player, static_cast<Res::ERes>(id2), b2 * units);
 
 	return true;
 }
@@ -3501,11 +3468,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	changeStackCount(StackLocation(hero, slot), -count);
 
-	SetResource sr;
-	sr.player = hero->tempOwner;
-	sr.resid = resourceID;
-	sr.val = getResource(hero->tempOwner, resourceID) + b2 * units;
-	sendAndApply(&sr);
+	giveResource(hero->tempOwner, resourceID, b2 * units);
 
 	return true;
 }
@@ -3546,19 +3509,12 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, Pla
 		return false;
 	}
 
-	si32 curRes1 = getPlayer(player)->resources.at(r1),
-		 curRes2 = getPlayer(r2)->resources.at(r1);
-	val = std::min(si32(val),curRes1);
+	TResourceCap curRes1 = getPlayer(player)->resources.at(r1);
 
-	SetResource sr;
-	sr.player = player;
-	sr.resid = r1;
-	sr.val = curRes1 - val;
-	sendAndApply(&sr);
+	vstd::amin(val, curRes1);
 
-	sr.player = r2;
-	sr.val = curRes2 + val;
-	sendAndApply(&sr);
+	giveResource(player, r1, -val);
+	giveResource(r2, r1, val);
 
 	return true;
 }
@@ -3651,11 +3607,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	sah.hid[!hid] = theOtherHero ? theOtherHero->subID : -1;
 	sendAndApply(&sah);
 
-	SetResource sr;
-	sr.player = player;
-	sr.resid = Res::GOLD;
-	sr.val = p->resources.at(Res::GOLD) - GameConstants::HERO_GOLD_COST;
-	sendAndApply(&sr);
+	giveResource(player, Res::GOLD, -GameConstants::HERO_GOLD_COST);
 
 	if (t)
 	{
@@ -4635,9 +4587,7 @@ void CGameHandler::handleTimeEvents()
 			)
 			{
 				//give resources
-				SetResources sr;
-				sr.player = color;
-				sr.res = pinfo->resources + ev.resources;
+				giveResources(color, ev.resources);
 
 				//prepare dialog
 				InfoWindow iw;
@@ -4648,12 +4598,6 @@ void CGameHandler::handleTimeEvents()
 				{
 					if (ev.resources.at(i)) //if resource is changed, we add it to the dialog
 						iw.components.push_back(Component(Component::RESOURCE,i,ev.resources.at(i),0));
-				}
-
-				if (iw.components.size())
-				{
-					sr.res.amax(0); // If removing too much resources, adjust the amount so the total doesn't become negative.
-					sendAndApply(&sr); //update player resources if changed
 				}
 
 				sendAndApply(&iw); //show dialog
@@ -4916,10 +4860,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid)
 	}
 
 	//take boat cost
-	SetResources sr;
-	sr.player = playerID;
-	sr.res = (aviable - boatCost);
-	sendAndApply(&sr);
+	giveResources(playerID, -boatCost);
 
 	//create boat
 	NewObject no;

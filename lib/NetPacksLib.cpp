@@ -37,17 +37,18 @@ std::ostream & operator<<(std::ostream & out, const CPack * pack)
 	return out << (pack? pack->toString() : "<nullptr>");
 }
 
-DLL_LINKAGE void SetResource::applyGs(CGameState *gs)
-{
-	assert(player < PlayerColor::PLAYER_LIMIT);
-	vstd::amax(val, 0); //new value must be >= 0
-	gs->getPlayer(player)->resources[resid] = val;
-}
-
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
-	gs->getPlayer(player)->resources = res;
+	if(abs)
+		gs->getPlayer(player)->resources = res;
+	else
+		gs->getPlayer(player)->resources += res;
+
+	//just ensure that player resources are not negative
+	//server is responsible to check if player can afford deal
+	//but events on server side are allowed to take more than player have
+	gs->getPlayer(player)->resources.positive();
 }
 
 DLL_LINKAGE void SetPrimSkill::applyGs(CGameState *gs)

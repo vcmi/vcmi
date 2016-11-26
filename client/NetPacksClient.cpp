@@ -108,12 +108,8 @@
 
 void SetResources::applyCl(CClient *cl)
 {
-	INTERFACE_CALL_IF_PRESENT(player,receivedResource,-1,-1);
-}
-
-void SetResource::applyCl(CClient *cl)
-{
-	INTERFACE_CALL_IF_PRESENT(player,receivedResource,resid,val);
+	//todo: inform on actual resource set transfered
+	INTERFACE_CALL_IF_PRESENT(player,receivedResource);
 }
 
 void SetPrimSkill::applyCl(CClient *cl)

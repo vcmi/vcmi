@@ -167,36 +167,19 @@ struct YourTurn : public CPackForClient
 	}
 };
 
-struct SetResource : public CPackForClient
-{
-	SetResource()
-		: resid(Res::GOLD), val(0)
-	{}
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	PlayerColor player;
-	Res::ERes resid;
-	TResourceCap val;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & player & resid & val;
-	}
-};
-
 struct SetResources : public CPackForClient
 {
-	SetResources(){};
+	SetResources():abs(true){};
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
+	bool abs; //false - changes by value; 1 - sets to value
 	PlayerColor player;
 	TResources res; //res[resid] => res amount
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & res;
+		h & abs & player & res;
 	}
 };
 
