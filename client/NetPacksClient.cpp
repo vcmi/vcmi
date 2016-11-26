@@ -926,20 +926,3 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 		INTERFACE_CALL_IF_PRESENT(cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, availableArtifactsChanged, bm);
 	}
 }
-
-void TradeComponents::applyCl(CClient *cl)
-{///Shop handler
-	switch (CGI->mh->map->objects.at(objectid)->ID)
-	{
-	case Obj::BLACK_MARKET:
-		break;
-	case Obj::TAVERN:
-		break;
-	case Obj::DEN_OF_THIEVES:
-		break;
-	case Obj::TRADING_POST_SNOW:
-		break;
-	default:
-		logNetwork->warnStream() << "Shop type not supported!";
-	}
-}
