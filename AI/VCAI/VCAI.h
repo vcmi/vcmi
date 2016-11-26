@@ -372,11 +372,13 @@ public:
 };
 class goalFulfilledException : public std::exception
 {
+	std::string msg;
 public:
 	Goals::TSubgoal goal;
 
 	explicit goalFulfilledException(Goals::TSubgoal Goal) : goal(Goal)
 	{
+		msg = goal->name();
 	}
 
 	virtual ~goalFulfilledException() throw ()
@@ -385,7 +387,7 @@ public:
 
 	const char *what() const throw () override
 	{
-		return goal->name().c_str();
+		return msg.c_str();
 	}
 };
 
