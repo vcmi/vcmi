@@ -5274,12 +5274,14 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	ArtifactLocation al(hero, slot);
 	const CArtifactInstance *a = al.getArt();
 
-	if (!a)
-		COMPLAIN_RET("Cannot find artifact to sacrifice!");
-
+	COMPLAIN_RET_FALSE_IF(!a,"Cannot find artifact to sacrifice!");
 
 	int dmp, expToGive;
-	m->getOffer(hero->getArtTypeId(slot), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+	auto typId = hero->getArtTypeId(slot);
+
+	COMPLAIN_RET_FALSE_IF(typId<0, "No artifact at position!");
+
+	m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 
 	removeArtifact(al);
 	changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
