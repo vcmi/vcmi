@@ -237,7 +237,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * 1000;
+	temppower = stacks[SlotID(0)]->count * (ui64)1000;
 	refusedJoining = false;
 }
 
