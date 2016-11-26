@@ -3723,6 +3723,16 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	}
 
+	auto wrapAction = [this](BattleAction &ba)
+	{
+		StartAction startAction(ba);
+		sendAndApply(&startAction);
+
+		return vstd::makeScopeGuard([&]
+		{
+			sendAndApply(&end_action);
+		});
+	};
 
 	switch(ba.actionType)
 	{
@@ -3730,20 +3740,15 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	case Battle::BAD_MORALE:
 	case Battle::NO_ACTION:
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
-			sendAndApply(&end_action);
+			auto wrapper = wrapAction(ba);
 			break;
 		}
 	case Battle::WALK:
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action); //start movement
+			auto wrapper = wrapAction(ba);
 			int walkedTiles = moveStack(ba.stackNumber,ba.destinationTile); //move
 			if (!walkedTiles)
 				complain("Stack failed movement!");
-
-			sendAndApply(&end_action);
 			break;
 		}
 	case Battle::DEFEND:
@@ -3760,9 +3765,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case Battle::WAIT:
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
-			sendAndApply(&end_action);
+			auto wrapper = wrapAction(ba);
 			break;
 		}
 	case Battle::RETREAT: //retreat/flee
@@ -3790,12 +3793,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case Battle::WALK_AND_ATTACK: //walk or attack
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action); //start movement and attack
-
+			auto wrapper = wrapAction(ba);
 			if (!stack || !destinationStack)
 			{
-				sendAndApply(&end_action);
 				break;
 			}
 
@@ -3812,7 +3812,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			{
 				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
 				ok = false;
-				sendAndApply(&end_action);
 				break;
 			}
 
@@ -3825,14 +3824,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			{
 				complain(boost::str(boost::format("walk and attack error: no stack at additionalInfo tile (%d)!\n") % ba.additionalInfo));
 				ok = false;
-				sendAndApply(&end_action);
 				break;
 			}
 
 			if (!CStack::isMeleeAttackPossible(stack, destinationStack))
 			{
 				complain("Attack cannot be performed!");
-				sendAndApply(&end_action);
 				ok = false;
 				break;
 			}
@@ -3876,8 +3873,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				moveStack(ba.stackNumber, startingPos);
 				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
 			}
-
-			sendAndApply(&end_action);
 			break;
 		}
 	case Battle::SHOOT:
@@ -3888,8 +3883,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				break;
 			}
 
-			StartAction start_action(ba);
-			sendAndApply(&start_action); //start shooting
+			auto wrapper = wrapAction(ba);
 
 			{
 				BattleAttack bat;
@@ -3933,8 +3927,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					handleAfterAttackCasting(bat);
 				}
 			}
-
-			sendAndApply(&end_action);
 			break;
 		}
 	case Battle::CATAPULT:
@@ -3960,9 +3952,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 			};
 
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
-			auto onExit = vstd::makeScopeGuard([&]{ sendAndApply(&end_action); }); //if we started than we have to finish
+			auto wrapper = wrapAction(ba);
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
@@ -4081,8 +4071,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 		case Battle::STACK_HEAL: //healing with First Aid Tent
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
+			auto wrapper = wrapAction(ba);
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 			const CStack *healer = gs->curB->battleGetStackByID(ba.stackNumber),
 				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile);
@@ -4119,7 +4108,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				shr.healedStacks.push_back(hi);
 				sendAndApply(&shr);
 			}
-			sendAndApply(&end_action);
 			break;
 		}
 		case Battle::DAEMON_SUMMONING:
@@ -4147,8 +4135,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			if (bsa.amount) //there's rare possibility single creature cannot rise desired type
 			{
-				StartAction start_action(ba);
-				sendAndApply(&start_action);
+				auto wrapper = wrapAction(ba);
 
 				BattleStacksRemoved bsr; //remove body
 				bsr.stackIDs.insert(destStack->ID);
@@ -4161,15 +4148,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				ssp.val = -1;
 				ssp.absolute = false;
 				sendAndApply(&ssp);
-
-				sendAndApply(&end_action);
 			}
 			break;
 		}
 		case Battle::MONSTER_SPELL:
 		{
-			StartAction start_action(ba);
-			sendAndApply(&start_action);
+			auto wrapper = wrapAction(ba);
 
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
 			SpellID spellID = SpellID(ba.additionalInfo);
@@ -4199,7 +4183,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				parameters.aimToHex(destination);//todo: allow multiple destinations
 				parameters.cast(spellEnv);
 			}
-			sendAndApply(&end_action);
 			break;
 		}
 	}
