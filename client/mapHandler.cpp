@@ -709,6 +709,14 @@ CMapHandler::CMapPuzzleViewBlitter::CMapPuzzleViewBlitter(CMapHandler * parent)
 	unblittableObjects.push_back(Obj::HOLE);
 }
 
+CMapHandler::CMapBlitter::CMapBlitter(CMapHandler * p)
+	:parent(p), tileSize(0), halfTileSizeCeil(0), info(nullptr)
+{
+
+}
+
+CMapHandler::CMapBlitter::~CMapBlitter() = default;
+
 void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 {
 	Rect destRect(realTileRect);
