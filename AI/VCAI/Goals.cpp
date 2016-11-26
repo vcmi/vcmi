@@ -1112,8 +1112,21 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
 		}
 	}
+
 	if (ai->canRecruitAnyHero()) //this is not stupid in early phase of game
-		ret.push_back (sptr(Goals::RecruitHero()));
+	{
+		if (auto t = ai->findTownWithTavern())
+		{
+			for (auto h : cb->getAvailableHeroes(t)) //we assume that all towns have same set of heroes
+			{
+				if (h && h->getTotalStrength() > 500) //do not buy heroes with single creatures for GatherArmy
+				{
+					ret.push_back(sptr(Goals::RecruitHero()));
+					break;
+				}
+			}
+		}
+	}
 
 	if (ret.empty())
 	{
