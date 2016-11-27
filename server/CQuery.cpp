@@ -324,7 +324,10 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &obj
 {
 	// do not change to dynamic_ptr_cast - SIGSEGV!
 	auto obj = dynamic_cast<const CGTeleport*>(objectVisit.visitedObject);
-	obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
+	if(obj)
+		obj->teleportDialogAnswered(objectVisit.visitingHero, *answer, td.exits);
+	else
+		logGlobal->error("Invalid instance in teleport query");
 }
 
 CTeleportDialogQuery::CTeleportDialogQuery(const TeleportDialog &td)

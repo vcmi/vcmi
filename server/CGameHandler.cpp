@@ -947,11 +947,13 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 				{
 					logGlobal->error("Received a null package marked as request %d from player %d", requestID, player);
 				}
+				else
+				{
+					packType = typeList.getTypeID(pack); //get the id of type
 
-				packType = typeList.getTypeID(pack); //get the id of type
-
-				logGlobal->trace("Received client message (request %d by player %d (%s)) of type with ID=%d (%s).\n",
-				                 requestID, player, player.getStr(), packType, typeid(*pack).name());
+					logGlobal->trace("Received client message (request %d by player %d (%s)) of type with ID=%d (%s).\n",
+									 requestID, player, player.getStr(), packType, typeid(*pack).name());
+				}
 			}
 
 			//prepare struct informing that action was applied
@@ -2148,7 +2150,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGTownInstance *t = getTown(dstid);
 
 	if (!h || !t || h->getOwner() != gs->currentPlayer)
-		logGlobal->error("Invalid call to teleportHero!");
+		COMPLAIN_RET("Invalid call to teleportHero!");
 
 	const CGTownInstance *from = h->visitedTown;
 	if (((h->getOwner() != t->getOwner())
@@ -2173,11 +2175,11 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	std::set<PlayerColor> playerColors = {owner, oldOwner};
 	checkVictoryLossConditions(playerColors);
 
-	if (dynamic_cast<const CGTownInstance *>(obj)) //town captured
+	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
+	if (town) //town captured
 	{
 		if (owner < PlayerColor::PLAYER_LIMIT) //new owner is real player
 		{
-			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 			if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(town, true, false);
 		}
@@ -3327,6 +3329,9 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 
 bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid)
 {
+	if(!h)
+		COMPLAIN_RET("Only hero can buy artifacts!");
+
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), aid))
 		COMPLAIN_RET("That artifact is unavailable!");
 
@@ -3374,11 +3379,10 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 
 bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, ArtifactInstanceID aid, Res::ERes rid)
 {
+	COMPLAIN_RET_FALSE_IF((!h), "Only hero can sell artifacts!");
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
-	if (!art)
-		COMPLAIN_RET("There is no artifact to sell!");
-	if (!art->artType->isTradable())
-		COMPLAIN_RET("Cannot sell a war machine or spellbook!");
+	COMPLAIN_RET_FALSE_IF((!art), "There is no artifact to sell!");
+	COMPLAIN_RET_FALSE_IF((!art->artType->isTradable()), "Cannot sell a war machine or spellbook!");
 
 	int resVal = 0, dump = 1;
 	m->getOffer(art->artType->id, rid, dump, resVal, EMarketMode::ARTIFACT_RESOURCE);
@@ -3387,14 +3391,6 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, Artif
 	giveResource(h->tempOwner, rid, resVal);
 	return true;
 }
-
-//void CGameHandler::lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts)
-//{
-//	//const CGHeroInstance * h1 = dynamic_cast<CGHeroInstance *> source;
-//	//auto s = boost::apply_visitor(GetArtifactSetPtr(), source);
-//	{
-//	}
-//}
 
 bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, SecondarySkill skill)
 {
@@ -3445,6 +3441,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor p
 
 bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, Res::ERes resourceID)
 {
+	if(!hero)
+		COMPLAIN_RET("Only hero can sell creatures!");
 	if (!vstd::contains(hero->Slots(), slot))
 		COMPLAIN_RET("Hero doesn't have any creature in that slot!");
 
@@ -4488,6 +4486,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
+
 	const ui8 side = !curStack->attackerOwned; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
 	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);//FIXME: there may be no hero - landmines in Tower
 
@@ -4497,6 +4496,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	}
 	else if (obstacle.obstacleType == CObstacleInstance::LAND_MINE)
 	{
+		COMPLAIN_RET_IF((!spellObstacle), "Invalid obstacle instance");
 		//You don't get hit by a Mine you can see.
 		if (gs->curB->battleIsObstacleVisibleForSide(obstacle, (BattlePerspective::BattlePerspective)side))
 			return;
@@ -4516,6 +4516,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	}
 	else if (obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
 	{
+		COMPLAIN_RET_IF((!spellObstacle), "Invalid obstacle instance");
 		const CSpell * sp = SpellID(SpellID::FIRE_WALL).toSpell();
 
 		if (sp->isImmuneByStack(hero, curStack))
@@ -5250,6 +5251,9 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 
 bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, SlotID slot, ui32 count)
 {
+	if (!hero)
+		COMPLAIN_RET("You need hero to sacrifice creature!");
+
 	int oldCount = hero->getStackCount(slot);
 
 	if (oldCount < count)
@@ -5271,6 +5275,9 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 
 bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot)
 {
+	if (!hero)
+		COMPLAIN_RET("You need hero to sacrifice artifact!");
+
 	ArtifactLocation al(hero, slot);
 	const CArtifactInstance *a = al.getArt();
 
