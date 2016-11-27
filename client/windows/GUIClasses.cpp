@@ -788,13 +788,13 @@ void CTavernWindow::show(SDL_Surface * to)
 
 void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 {
-	if(previousState && !down && h)
+	if(h && previousState && !down)
 		*_sel = _id;
 }
 
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
-	if(down && h)
+	if(h && down)
 	{
 		GH.pushInt(new CRClickPopupInt(new CHeroWindow(h), true));
 	}

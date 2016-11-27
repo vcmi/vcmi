@@ -269,7 +269,7 @@ bool CGarrisonSlot::mustForceReselection() const
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
-	if(down && creature)
+	if(creature && down)
 	{
 		GH.pushInt(new CStackWindow(myStack, true));
 	}

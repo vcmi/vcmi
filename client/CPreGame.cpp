@@ -2251,7 +2251,7 @@ void InfoCard::changeSelection( const CMapInfo *to )
 void InfoCard::clickRight( tribool down, bool previousState )
 {
 	static const Rect flagArea(19, 397, 335, 23);
-	if(down && SEL->current && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
+	if(SEL->current && down && SEL->current && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
 		showTeamsPopup();
 }
 

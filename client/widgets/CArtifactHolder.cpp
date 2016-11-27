@@ -239,7 +239,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 
 void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
+	if(ourArt && down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
 		if (slotID < GameConstants::BACKPACK_START)
 		{

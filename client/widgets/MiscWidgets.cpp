@@ -134,13 +134,13 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
 
 void CHeroArea::clickLeft(tribool down, bool previousState)
 {
-	if((!down) && previousState && hero)
+	if(hero && (!down) && previousState)
 		LOCPLINT->openHeroWindow(hero);
 }
 
 void CHeroArea::clickRight(tribool down, bool previousState)
 {
-	if((!down) && previousState && hero)
+	if(hero && (!down) && previousState)
 		LOCPLINT->openHeroWindow(hero);
 }
 
@@ -154,19 +154,19 @@ void CHeroArea::hover(bool on)
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 {
-	if((!down) && previousState && town)
-		{
+	if(town && (!down) && previousState)
+	{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )
 			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::VILLAGE_HALL);
 		else if ( type == 3 && town->fortLevel() )
 			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
-		}
+	}
 }
 
 void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 {
-	if((!down) && previousState && town)
+	if(town && (!down) && previousState)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 

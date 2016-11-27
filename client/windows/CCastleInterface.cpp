@@ -109,7 +109,7 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && !down && area && (parent->selectedBuilding==this) && getBuilding() )
+	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 			parent->buildingClicked(getBuilding()->bid);
 }
