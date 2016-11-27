@@ -139,7 +139,7 @@ public:
 	const CGTownInstance * town;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	LRClickableAreaOpenTown();
+	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp

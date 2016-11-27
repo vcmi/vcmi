@@ -475,6 +475,7 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
     inSplittingMode(false),
     interx(inx),
     garOffset(garsOffset),
+    pb(false),
     smallIcons(smallImgs),
     removableUnits(_removableUnits),
     twoRows(_twoRows)

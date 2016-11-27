@@ -33,12 +33,12 @@ class CKingdHeroList;
 class CKingdTownList;
 class IInfoBoxData;
 
-/* 
+/*
  * Several classes to display basically any data.
  * Main part - class InfoBox which controls how data will be formatted\positioned
  * InfoBox have image and 0-2 labels
  * In constructor it should receive object that implements IInfoBoxData interface
- * 
+ *
  * interface IInfoBoxData defines way to get data for use in InfoBox
  * have several implementations:
  * InfoBoxHeroData - to display one of fields from hero (e.g. absolute value of primary skills)
@@ -265,7 +265,6 @@ class CTownItem : public CIntObject, public CGarrisonHolder
 	CLabel *name;
 	CLabel *income;
 	CGarrisonInt *garr;
-	LRClickableAreaOpenTown *townArea;
 
 	HeroSlots *heroes;
 	CTownInfo *hall, *fort;
@@ -338,11 +337,11 @@ private:
 	CLabel * townLabel;
 	CLabel * garrHeroLabel;
 	CLabel * visitHeroLabel;
-	
+
 	CIntObject* createTownItem(size_t index);
 public:
 	CKingdTownList(size_t maxSize);
-	
+
 	void townChanged(const CGTownInstance *town);
 	void updateGarrisons() override;
 };

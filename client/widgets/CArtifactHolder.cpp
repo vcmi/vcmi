@@ -946,6 +946,7 @@ bool CArtifactsOfHero::SCommonPart::Artpos::valid()
 
 CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art) : ourArt(Art)
 {
+	image = nullptr;
 	pos += position;
 	pos.w = pos.h = 44;
 }
