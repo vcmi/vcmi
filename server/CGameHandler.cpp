@@ -6277,6 +6277,8 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const
 CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 {
 	winnerHero = loserHero = nullptr;
+	duel = false;
+	remainingBattleQueriesCount = 0;
 }
 
 CRandomGenerator & CGameHandler::getRandomGenerator()

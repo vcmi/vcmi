@@ -37,7 +37,9 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 
 
 CMapGenerator::CMapGenerator() :
-    zonesTotal(0), monolithIndex(0)
+	mapGenOptions(nullptr), randomSeed(0), editManager(nullptr),
+	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
+    monolithIndex(0)
 {
 }
 
@@ -639,7 +641,7 @@ void CMapGenerator::createConnections2()
 						}
 					}
 				}
-				if (!continueOuterLoop) //we didn't find ANY tile - break outer loop			
+				if (!continueOuterLoop) //we didn't find ANY tile - break outer loop
 					break;
 			}
 			if (!guardPos.valid()) //cleanup? is this safe / enough?
@@ -751,7 +753,7 @@ TRmgTemplateZoneId CMapGenerator::getZoneID(const int3& tile) const
 	return zoneColouring[tile.z][tile.x][tile.y];
 }
 
-void CMapGenerator::setZoneID(const int3& tile, TRmgTemplateZoneId zid) 
+void CMapGenerator::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 {
 	checkIsOnMap(tile);
 

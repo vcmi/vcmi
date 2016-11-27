@@ -239,8 +239,9 @@ CBattleQuery::CBattleQuery(const BattleInfo *Bi)
 }
 
 CBattleQuery::CBattleQuery()
+	:bi(nullptr)
 {
-
+	belligerents[0] = belligerents[1] = nullptr;
 }
 
 bool CBattleQuery::blocksPack(const CPack *pack) const
