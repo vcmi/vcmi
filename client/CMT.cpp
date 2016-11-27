@@ -667,11 +667,6 @@ void processCommand(const std::string &message)
 	{
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
-	else if (cn == "ai")
-	{
-		VLC->IS_AI_ENABLED = !VLC->IS_AI_ENABLED;
-		std::cout << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
-	}
 	else if(cn == "mp" && adventureInt)
 	{
 		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))

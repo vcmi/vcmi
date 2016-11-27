@@ -43,6 +43,11 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 	assert(hero);
 	assert(hero == getHero(hero->id));
 
+    cp = dp = nullptr;
+    ct = dt = nullptr;
+    ctObj = dtObj = nullptr;
+    destAction = CGPathNode::UNKNOWN;
+
 	out.hero = hero;
 	out.hpos = hero->getPosition(false);
 	if(!isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input

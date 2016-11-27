@@ -656,6 +656,7 @@ CGameState::CGameState()
 	//objCaller = new CObjectCallersHandler;
 	globalEffects.setDescription("Global effects");
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
+	day = 0;
 }
 
 CGameState::~CGameState()
@@ -2866,8 +2867,8 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 }
 
 PlayerState::PlayerState()
- : color(-1), enteredWinningCheatCode(0),
-   enteredLosingCheatCode(0), status(EPlayerStatus::INGAME)
+ : color(-1), human(false), enteredWinningCheatCode(false),
+   enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
 }

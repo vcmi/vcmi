@@ -76,6 +76,9 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
+	iconIndex = ArtifactID::NONE;
+	price = 0;
+	aClass = ART_SPECIAL;
 }
 
 CArtifact::~CArtifact()

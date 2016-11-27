@@ -54,6 +54,12 @@ public:
 	std::string large; // big image for cutom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
 	si32 iconIndex;
+	ui32 price;
+	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
+	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
+	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
+	EartClass aClass;
+	ArtifactID id;
 
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
@@ -67,13 +73,6 @@ public:
 	void addNewBonus(const std::shared_ptr<Bonus>& b) override;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
-
-	ui32 price;
-	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or nullptr.
-	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
-	EartClass aClass;
-	ArtifactID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

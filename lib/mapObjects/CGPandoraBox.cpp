@@ -34,6 +34,13 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
+CGPandoraBox::CGPandoraBox()
+	: hasGuardians(false), gainedExp(0), manaDiff(0), moraleDiff(0), luckDiff(0)
+{
+
+}
+
+
 void CGPandoraBox::initObj(CRandomGenerator & rand)
 {
 	blockVisit = (ID==Obj::PANDORAS_BOX); //block only if it's really pandora's box (events also derive from that class)
@@ -360,6 +367,12 @@ void CGPandoraBox::heroLevelUpDone(const CGHeroInstance *hero) const
 void CGPandoraBox::afterSuccessfulVisit() const
 {
 	cb->removeAfterVisit(this);
+}
+
+CGEvent::CGEvent()
+	: CGPandoraBox(), removeAfterVisit(false), availableFor(0), computerActivate(false), humanActivate(false)
+{
+
 }
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const

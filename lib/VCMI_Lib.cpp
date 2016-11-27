@@ -125,8 +125,6 @@ void LibClasses::init()
 
 	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
-
-	IS_AI_ENABLED = false;
 }
 
 void LibClasses::clear()
@@ -164,6 +162,7 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
+	IS_AI_ENABLED = false;
 	//init pointers to handlers
 	makeNull();
 }

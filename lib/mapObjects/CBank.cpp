@@ -28,6 +28,8 @@ static std::string & visitedTxt(const bool visited)
 
 CBank::CBank()
 {
+	daycounter = 0;
+	resetDuration = 0;
 }
 
 CBank::~CBank()

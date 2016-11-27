@@ -128,6 +128,7 @@ struct Component
 		h & id & subtype & val & when;
 	}
 	Component()
+		:id(0), subtype(0), val(0), when(0)
 	{
 	}
 	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);

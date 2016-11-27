@@ -33,8 +33,8 @@ class DLL_LINKAGE LibClasses
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
 public:
-	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
-	
+	bool IS_AI_ENABLED; //unused?
+
 	const IBonusTypeHandler * getBth() const;
 
 	CArtHandler * arth;

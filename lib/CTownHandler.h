@@ -56,6 +56,8 @@ public:
 		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
 	} mode;
 
+	CBuilding();
+
 	const std::string &Name() const;
 	const std::string &Description() const;
 
