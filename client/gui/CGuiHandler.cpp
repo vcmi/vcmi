@@ -170,15 +170,15 @@ void CGuiHandler::updateTime()
 
 void CGuiHandler::handleEvents()
 {
-	//player interface may want special event handling 	
+	//player interface may want special event handling
 	if(nullptr != LOCPLINT && LOCPLINT->capturedAllEvents())
 		return;
-	
-	boost::unique_lock<boost::mutex> lock(eventsM);	
+
+	boost::unique_lock<boost::mutex> lock(eventsM);
 	while(!events.empty())
 	{
 		SDL_Event ev = events.front();
-		events.pop();		
+		events.pop();
 		this->handleEvent(&ev);
 	}
 }
@@ -286,14 +286,14 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		{
 			it->textInputed(sEvent->text);
 		}
-	}	
+	}
 	else if(sEvent->type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
 			it->textEdited(sEvent->edit);
 		}
-	}	
+	}
 	//todo: muiltitouch
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
@@ -398,9 +398,9 @@ void CGuiHandler::renderFrame()
 	// Updating GUI requires locking pim mutex (that protects screen and GUI state).
 	// During game:
 	// When ending the game, the pim mutex might be hold by other thread,
-	// that will notify us about the ending game by setting terminate_cond flag.		
-	//in PreGame terminate_cond stay false 
-		
+	// that will notify us about the ending game by setting terminate_cond flag.
+	//in PreGame terminate_cond stay false
+
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
 	while(!terminate_cond.get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
 		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
@@ -412,25 +412,25 @@ void CGuiHandler::renderFrame()
 
 		if(nullptr != curInt)
 			curInt->update();
-		
+
 		if (settings["general"]["showfps"].Bool())
-			drawFPSCounter();		
-			
+			drawFPSCounter();
+
 		// draw the mouse cursor and update the screen
 		CCS->curh->render();
 
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
 			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
 
-		SDL_RenderPresent(mainRenderer);			
-	}					
+		SDL_RenderPresent(mainRenderer);
+	}
 
-	mainFPSmng->framerateDelay(); // holds a constant FPS	
+	mainFPSmng->framerateDelay(); // holds a constant FPS
 }
 
 
 CGuiHandler::CGuiHandler()
-:lastClick(-500, -500)
+	: lastClick(-500, -500),lastClickTime(0), defActionsDef(0), captureChildren(false)
 {
 	curInt = nullptr;
 	current = nullptr;
@@ -439,7 +439,7 @@ CGuiHandler::CGuiHandler()
 	// Creates the FPS manager and sets the framerate to 48 which is doubled the value of the original Heroes 3 FPS rate
 	mainFPSmng = new CFramerateManager(48);
 	//do not init CFramerateManager here --AVS
-	
+
 	terminate_cond.set(false);
 }
 
@@ -477,7 +477,7 @@ SDL_Keycode CGuiHandler::arrowToNum(SDL_Keycode key)
 		return SDLK_KP_6;
 	default:
 		throw std::runtime_error("Wrong key!");
-	}	
+	}
 }
 
 SDL_Keycode CGuiHandler::numToDigit(SDL_Keycode key)
@@ -495,7 +495,7 @@ SDL_Keycode CGuiHandler::numToDigit(SDL_Keycode key)
 		REMOVE_KP(6)
 		REMOVE_KP(7)
 		REMOVE_KP(8)
-		REMOVE_KP(9)		
+		REMOVE_KP(9)
 		REMOVE_KP(PERIOD)
 		REMOVE_KP(MINUS)
 		REMOVE_KP(PLUS)
@@ -546,6 +546,8 @@ CFramerateManager::CFramerateManager(int rate)
 	this->fps = 0;
 	this->accumulatedFrames = 0;
 	this->accumulatedTime = 0;
+	this->lastticks = 0;
+	this->timeElapsed = 0;
 }
 
 void CFramerateManager::init()
@@ -557,23 +559,23 @@ void CFramerateManager::framerateDelay()
 {
 	ui32 currentTicks = SDL_GetTicks();
 	timeElapsed = currentTicks - lastticks;
-	
+
 	// FPS is higher than it should be, then wait some time
 	if (timeElapsed < rateticks)
 	{
 		SDL_Delay(ceil(this->rateticks) - timeElapsed);
 	}
-	
+
 	accumulatedTime += timeElapsed;
 	accumulatedFrames++;
 
 	if(accumulatedFrames >= 100)
 	{
 		//about 2 second should be passed
-		fps = ceil(1000.0 / (accumulatedTime/accumulatedFrames));		
+		fps = ceil(1000.0 / (accumulatedTime/accumulatedFrames));
 		accumulatedTime = 0;
-		accumulatedFrames = 0;	
-	};	
+		accumulatedFrames = 0;
+	};
 
 	currentTicks = SDL_GetTicks();
 	// recalculate timeElapsed for external calls via getElapsed()

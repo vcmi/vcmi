@@ -129,7 +129,6 @@ class InfoCard : public CIntObject
 	std::shared_ptr<CAnimation> sFlags;
 public:
 	CPicture *bg;
-	CMenuScreen::EState type;
 
 	bool network;
 	bool chatOn;  //if chat is shown, then description is hidden
@@ -554,9 +553,6 @@ private:
 	class CCampaignButton : public CIntObject
 	{
 	private:
-		CPicture *image;
-		CPicture *checkMark;
-
 		CLabel *hoverLabel;
 		CampaignStatus status;
 
@@ -572,7 +568,6 @@ private:
 		void show(SDL_Surface * to) override;
 	};
 
-	CButton *back;
 	std::vector<CCampaignButton*> campButtons;
 	std::vector<CPicture*> images;
 

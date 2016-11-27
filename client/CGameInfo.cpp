@@ -18,7 +18,9 @@ CClientState * CCS = nullptr;
 
 CGameInfo::CGameInfo()
 {
+	generaltexth = nullptr;
 	mh = nullptr;
+	townh = nullptr;
 }
 
 void CGameInfo::setFromLib()

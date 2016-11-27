@@ -1557,8 +1557,7 @@ bool CFadeAnimation::isFinished() const
 }
 
 CFadeAnimation::CFadeAnimation()
-	: fadingSurface(nullptr),
-	  fading(false),
+	: delta(0),	fadingSurface(nullptr), fading(false), fadingCounter(0), shouldFreeSurface(false),
 	  fadingMode(EMode::NONE)
 {
 }

@@ -49,11 +49,11 @@ public:
 
 private:
 	typedef std::list<CIntObject*> CIntObjectList;
-	
+
 	//active GUI elements (listening for events
-	CIntObjectList lclickable, 
-				   rclickable, 
-				   hoverable, 
+	CIntObjectList lclickable,
+				   rclickable,
+				   hoverable,
 				   keyinterested,
 				   motioninterested,
 	               timeinterested,
@@ -61,12 +61,12 @@ private:
 	               doubleClickInterested,
 	               textInterested;
 
-	               
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);               
+
+	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
 	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
-	
+
 public:
 	//objs to blit
 	std::vector<IShowable*> objsToBlit;
@@ -77,9 +77,13 @@ public:
 	Point lastClick;
 	unsigned lastClickTime;
 
+	ui8 defActionsDef; //default auto actions
+	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
+	std::list<CIntObject *> createdObj; //stack of objs being created
+
 	CGuiHandler();
 	~CGuiHandler();
-	
+
 	void renderFrame();
 
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
@@ -99,9 +103,6 @@ public:
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
-	ui8 defActionsDef; //default auto actions
-	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
-	std::list<CIntObject *> createdObj; //stack of objs being created
 
 	static SDL_Keycode arrowToNum(SDL_Keycode key); //converts arrow key to according numpad key
 	static SDL_Keycode numToDigit(SDL_Keycode key);//converts numpad digit key to normal digit key
@@ -109,7 +110,7 @@ public:
 	static bool isArrowKey(SDL_Keycode key);
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
-	
+
 	static CondSh<bool> terminate_cond; // confirm termination
 };
 

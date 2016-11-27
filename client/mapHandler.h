@@ -162,6 +162,7 @@ class CMapHandler
 		std::array< std::map<intptr_t, std::unique_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
 		float worldViewCachedScale;
 	public:
+		CMapCache();
 		/// destroys all cached data (frees surfaces)
 		void discardWorldViewCache();
 		/// updates scale and determines if currently cached data is still valid

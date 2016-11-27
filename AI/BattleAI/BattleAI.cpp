@@ -36,7 +36,7 @@
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
 CBattleAI::CBattleAI(void)
-	: side(-1)
+	: side(-1), wasWaitingForRealize(false), wasUnlockingGs(false)
 {
 }
 

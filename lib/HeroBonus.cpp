@@ -1329,6 +1329,7 @@ bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 }
 
 CPropagatorNodeType::CPropagatorNodeType()
+	:nodeType(0)
 {
 
 }
@@ -1349,6 +1350,7 @@ CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType)
 }
 
 CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
+	: terrainType(-1)
 {
 
 }
@@ -1366,6 +1368,7 @@ CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
 }
 
 CreatureFactionLimiter::CreatureFactionLimiter()
+	: faction(-1)
 {
 }
 
@@ -1376,6 +1379,7 @@ int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 }
 
 CreatureAlignmentLimiter::CreatureAlignmentLimiter()
+	: alignment(-1)
 {
 }
 

@@ -133,13 +133,13 @@ bool CAttackAnimation::checkInitialConditions()
 }
 
 CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
-: CBattleStackAnimation(_owner, attacker),
-  soundPlayed(false),
-  dest(_dest), attackedStack(defender), attackingStack(attacker)
+	: CBattleStackAnimation(_owner, attacker),
+		shooting(false), group(CCreatureAnim::SHOOT_FRONT),
+		soundPlayed(false),
+		dest(_dest), attackedStack(defender), attackingStack(attacker)
 {
-
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
-	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT) 
+	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT)
 							&& owner->getCurrentPlayerInterface()->cb->battleHexToWallPart(_dest) >= 0;
 
 	assert(attackedStack || isCatapultAttack);
@@ -150,7 +150,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
 : CBattleStackAnimation(_owner, _attackedInfo.defender),
 attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.indirectAttack),
-killed(_attackedInfo.killed) 
+killed(_attackedInfo.killed), timeToWait(0)
 {
 	logAnim->debugStream() << "Created defence anim for " << _attackedInfo.defender->getName();
 }
@@ -198,7 +198,7 @@ bool CDefenceAnimation::init()
 	//unit reversed
 
 	if(rangedAttack) //delay hit animation
-	{		
+	{
 		for(std::list<ProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{
 			if(it->creID == attacker->getCreature()->idNumber)
@@ -243,7 +243,7 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 {
 	if(killed)
 		return CCreatureAnim::DEATH;
-	
+
 	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
 		return CCreatureAnim::DEFENCE;
 
@@ -281,7 +281,7 @@ void CDefenceAnimation::endAnim()
 	delete this;
 }
 
-CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames) 
+CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames)
 : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
 {
 	logAnim->debugStream() << "Created dummy animation for " << howManyFrames <<" frames";
@@ -314,7 +314,7 @@ bool CMeleeAttackAnimation::init()
 	if(!attackingStack || myAnim->isDead())
 	{
 		endAnim();
-		
+
 		return false;
 	}
 
@@ -370,7 +370,7 @@ bool CMeleeAttackAnimation::init()
 }
 
 CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
-: CAttackAnimation(_owner, attacker, _dest, _attacked) 
+: CAttackAnimation(_owner, attacker, _dest, _attacked)
 {
 	logAnim->debugStream() << "Created melee attack anim for " << attacker->getName();
 }
@@ -534,7 +534,7 @@ CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_
 }
 
 CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile)
-: CBattleStackAnimation(_owner, _stack), destinationTile(destTile) 
+: CBattleStackAnimation(_owner, _stack), destinationTile(destTile)
 {
 	logAnim->debugStream() << "Created movement end anim for " << stack->getName();
 }
@@ -573,7 +573,7 @@ void CMovementEndAnimation::endAnim()
 }
 
 CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
-: CBattleStackAnimation(_owner, _stack) 
+: CBattleStackAnimation(_owner, _stack)
 {
 	logAnim->debugStream() << "Created movement start anim for " << stack->getName();
 }
@@ -776,7 +776,7 @@ bool CShootingAnimation::init()
 		spi.dx = (destPos.x - spi.x) / spi.lastStep;
 		spi.dy = (destPos.y - spi.y) / spi.lastStep;
 	}
-	else 
+	else
 	{
 		// Catapult attack
 		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
@@ -885,7 +885,7 @@ CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::str
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
 	:CBattleAnimation(_owner), effect(-1), destTile(_destTile), customAnim(_customAnim), x(-1), y(-1), dx(0), dy(0), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
-	logAnim->debugStream() << "Created spell anim for " << customAnim;	
+	logAnim->debugStream() << "Created spell anim for " << customAnim;
 }
 
 
@@ -893,21 +893,21 @@ bool CSpellEffectAnimation::init()
 {
 	if(!isEarliest(true))
 		return false;
-		
+
 	if(customAnim.empty() && effect != ui32(-1) && !graphics->battleACToDef[effect].empty())
-	{		
+	{
 		customAnim = graphics->battleACToDef[effect][0];
 	}
-	
+
 	if(customAnim.empty())
 	{
 		endAnim();
-		return false;		
+		return false;
 	}
-	
+
 	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
 
-	if(areaEffect) //f.e. armageddon 
+	if(areaEffect) //f.e. armageddon
 	{
 		CDefHandler * anim = CDefHandler::giveDef(customAnim);
 
@@ -934,7 +934,7 @@ bool CSpellEffectAnimation::init()
 				owner->battleEffects.push_back(be);
 			}
 		}
-		
+
 		delete anim;
 	}
 	else // Effects targeted at a specific creature/hex.
@@ -956,9 +956,9 @@ bool CSpellEffectAnimation::init()
 
 			be.currentFrame = 0;
 			be.maxFrame = be.anim->ourImages.size();
-			
+
 			//todo: lightning anim frame count override
-			
+
 //			if(effect == 1)
 //				be.maxFrame = 3;
 
@@ -970,7 +970,7 @@ bool CSpellEffectAnimation::init()
 			{
 				be.x = x;
 			}
-			
+
 			if(y == -1)
 			{
 				if(alignToBottom)
@@ -993,7 +993,7 @@ bool CSpellEffectAnimation::init()
 			owner->battleEffects.push_back(be);
 
 	}
-	//battleEffects 
+	//battleEffects
 	return true;
 }
 

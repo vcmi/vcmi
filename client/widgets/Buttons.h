@@ -199,9 +199,6 @@ class CSlider : public CIntObject
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)
 	bool horizontal;
-	bool wheelScrolling;
-	bool keyScrolling;
-
 	int amount; //total amount of elements (e.g. hero list = 0-8)
 	int value; //first active element
 	int scrollStep; // how many elements will be scrolled via one click, default = 1
