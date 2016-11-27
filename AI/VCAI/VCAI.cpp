@@ -1618,14 +1618,19 @@ void VCAI::wander(HeroPtr h)
 }
 
 void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
-{ //TODO: check for presence?
+{
 	if(goal->invalid())
 		vstd::erase_if_present(lockedHeroes, h);
 	else
 	{
 		lockedHeroes[h] = goal;
-		goal->setisElementar(false); //always evaluate goals before realizing
+		goal->setisElementar(false); //Force always evaluate goals before realizing
 	}
+}
+void VCAI::evaluateGoal(HeroPtr h)
+{
+	if (vstd::contains(lockedHeroes, h))
+		fh->setPriority(lockedHeroes[h]);
 }
 
 void VCAI::completeGoal (Goals::TSubgoal goal)
@@ -2037,6 +2042,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
+		evaluateGoal(h); //new hero position means new game situation
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos(), h->visitablePos()(), ret);
 	}
 	return ret;
