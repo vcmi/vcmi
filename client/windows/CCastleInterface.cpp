@@ -398,7 +398,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 
 void CHeroGSlot::clickRight(tribool down, bool previousState)
 {
-	if(down && hero)
+	if(hero && down)
 	{
 		GH.pushInt(new CInfoBoxPopup(Point(pos.x + 175, pos.y + 100), hero));
 	}
@@ -1157,7 +1157,7 @@ void CTownInfo::hover(bool on)
 
 void CTownInfo::clickRight(tribool down, bool previousState)
 {
-	if(down && building)
+	if(building && down)
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()),
 		                            new CComponent(CComponent::building, building->town->faction->index, building->bid));
 
@@ -1663,9 +1663,6 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 {
 	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
-
-
-
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) :CWindowObject(BORDERED,imagem)
 {

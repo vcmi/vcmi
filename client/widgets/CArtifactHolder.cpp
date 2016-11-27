@@ -969,13 +969,13 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
-	if (down && ourArt && text.size())
+	if (ourArt && text.size() && down)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this] { returnArtToHeroCallback(); }, [] {});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)
 {
-	if (down && ourArt && text.size())
+	if (ourArt && text.size() && down)
 		CArtPlace::clickRight(down, previousState);
 }
 
