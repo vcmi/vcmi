@@ -46,7 +46,7 @@
  *
  */
 
-CondSh<bool> CBattleInterface::animsAreDisplayed;
+CondSh<bool> CBattleInterface::animsAreDisplayed(false);
 
 static void onAnimationFinished(const CStack *stack, CCreatureAnimation *anim)
 {

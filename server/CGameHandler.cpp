@@ -75,7 +75,7 @@ private:
 	mutable CGameHandler * gh;
 };
 
-CondSh<bool> battleMadeAction;
+CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
 template <typename T> class CApplyOnGH;
 

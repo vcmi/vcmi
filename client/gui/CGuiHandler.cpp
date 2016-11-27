@@ -16,7 +16,7 @@
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
-CondSh<bool> CGuiHandler::terminate_cond;
+CondSh<bool> CGuiHandler::terminate_cond(false);
 boost::thread_specific_ptr<bool> inGuiThread;
 
 SObjectConstruction::SObjectConstruction(CIntObject *obj)
