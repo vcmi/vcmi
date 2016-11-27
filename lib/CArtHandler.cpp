@@ -1340,17 +1340,6 @@ bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck /*= f
 	return true; //no slot means not used
 }
 
-si32 CArtifactSet::getArtTypeId(ArtifactPosition pos) const
-{
-	const CArtifactInstance * const a = getArt(pos);
-	if(!a)
-	{
-		logGlobal->warnStream() << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)";
-		return -1;
-	}
-	return a->artType->id;
-}
-
 ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));

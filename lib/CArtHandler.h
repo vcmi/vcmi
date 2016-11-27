@@ -320,7 +320,6 @@ public:
 	/// Checks if hero possess artifact of given id (either in backack or worn)
 	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
-	si32 getArtTypeId(ArtifactPosition pos) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual ~CArtifactSet() = default;

@@ -5284,9 +5284,10 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	COMPLAIN_RET_FALSE_IF(!a,"Cannot find artifact to sacrifice!");
 
 	int dmp, expToGive;
-	auto typId = hero->getArtTypeId(slot);
+	const CArtifactInstance * art = hero->getArt(slot);
+	COMPLAIN_RET_FALSE_IF((!art), "No artifact at position to sacrifice!");
 
-	COMPLAIN_RET_FALSE_IF(typId<0, "No artifact at position!");
+	si32 typId = art->artType->id;
 
 	m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 
