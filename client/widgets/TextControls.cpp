@@ -577,6 +577,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 
 CFocusable::CFocusable()
 {
+	focus = false;
 	focusables.push_back(this);
 }
 
