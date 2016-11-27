@@ -26,24 +26,6 @@ namespace config
  *
  */
 
-class ClickableArea : public CIntObject //TODO: derive from LRCLickableArea? Or somehow use its right-click/hover data?
-{
-	CFunctionList<void()> callback;
-
-	CIntObject * area;
-
-protected:
-	void onClick();
-
-public:
-	ClickableArea(CIntObject * object, CFunctionList<void()> callback);
-
-	void addCallback(std::function<void()> callback);
-	void setArea(CIntObject * object);
-
-	void clickLeft(tribool down, bool previousState) override;
-};
-
 /// Typical Heroes 3 button which can be inactive or active and can
 /// hold further information if you right-click it
 class CButton : public CKeyShortcut
@@ -149,13 +131,6 @@ public:
 	void setSelected(bool on);
 
 	void addCallback(std::function<void(bool)> callback);
-};
-
-class ClickableToggle : public ClickableArea, public CToggleBase
-{
-public:
-	ClickableToggle(CIntObject * object, CFunctionList<void()> selectFun, CFunctionList<void()> deselectFun);
-	void clickLeft(tribool down, bool previousState) override;
 };
 
 /// A button which can be selected/deselected, checkbox
