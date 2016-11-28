@@ -153,6 +153,7 @@
 		<Unit filename="CGameInterface.h" />
 		<Unit filename="CGameState.cpp" />
 		<Unit filename="CGameState.h" />
+		<Unit filename="CGameStateFwd.h" />
 		<Unit filename="CGeneralTextHandler.cpp" />
 		<Unit filename="CGeneralTextHandler.h" />
 		<Unit filename="CHeroHandler.cpp" />

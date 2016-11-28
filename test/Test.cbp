@@ -47,6 +47,8 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-Wno-unused-local-typedefs" />
+			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32" />
 			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../include" />
@@ -71,6 +73,7 @@
 		</Unit>
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
+			<Option weight="0" />
 		</Unit>
 		<Extensions>
 			<code_completion />

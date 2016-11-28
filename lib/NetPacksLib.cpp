@@ -1612,7 +1612,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		if(resurrected)
 		{
 			if(changedStack->count > 0 || changedStack->firstHPleft > 0)
-				logGlobal->warn("Dead stack %s with positive total HP", changedStack->nodeName(), changedStack->totalHealth());
+				logGlobal->warn("Dead stack %s with positive total HP %d", changedStack->nodeName(), changedStack->totalHealth());
 
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}

@@ -51,13 +51,14 @@ namespace vstd
 		virtual ~CLoggerBase(){};
 
 		virtual void log(ELogLevel::ELogLevel level, const std::string & message) const = 0;
+		virtual void log(ELogLevel::ELogLevel level, const boost::format & fmt) const = 0;
 
 		template<typename T, typename ... Args>
 		void log(ELogLevel::ELogLevel level, const std::string & format, T t, Args ... args) const
 		{
 			boost::format fmt(format);
 			makeFormat(fmt, t, args...);
-			log(level, fmt.str());
+			log(level, fmt);
 		}
 
 		/// Log methods for various log levels
