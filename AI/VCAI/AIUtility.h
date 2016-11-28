@@ -145,6 +145,7 @@ void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out
 
 bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);
+bool isBlockVisitObj(const int3 &pos);
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
 bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);

@@ -1870,6 +1870,8 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
+
 	auto afterMovementCheck = [&]() -> void
 	{
 		waitTillFree(); //movement may cause battle or blocking dialog
@@ -2558,11 +2560,19 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : int3::getDirs())
-		if(cb->isInTheMap(hpos+dir))
+	for (crint3 dir : int3::getDirs())
+	{
+		int3 tile = hpos + dir;
+		if (cb->isInTheMap(tile))
 			if (ourPos != dir) //don't stand in place
-				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
-					dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+				if (isSafeToVisit(h, tile) && isAccessibleForHero(tile, h))
+				{
+					if (isBlockVisitObj(tile))
+						continue;
+					else
+						dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+				}
+	}
 
 	if (dstToRevealedTiles.empty()) //yes, it DID happen!
 		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
@@ -2619,8 +2629,10 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				if(isSafeToVisit(h, tile) && !isBlockedBorderGate(tile))
+				if(isSafeToVisit(h, tile))
 				{
+					if (isBlockVisitObj(tile)) //we can't stand on that object
+						continue;
 					bestTile = tile;
 					bestValue = ourValue;
 				}
@@ -2667,7 +2679,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 				ui64 ourDanger = evaluateDanger(t, h.h);
 				if (ourDanger < lowestDanger)
 				{
-					if(!isBlockedBorderGate(t))
+					if(!isBlockVisitObj(t))
 					{
 						if (!ourDanger) //at least one safe place found
 							return t;

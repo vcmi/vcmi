@@ -400,10 +400,18 @@ int3 whereToExplore(HeroPtr h)
 	}
 }
 
-bool isBlockedBorderGate(int3 tileToHit)
+bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should be handled by pathfinder
 {
     return cb->getTile(tileToHit)->topVisitableId() == Obj::BORDER_GATE &&
 	       (dynamic_cast <const CGKeys *>(cb->getTile(tileToHit)->visitableObjects.back()))->wasMyColorVisited (ai->playerID);
+}
+bool isBlockVisitObj(const int3 &pos)
+{
+	if (auto obj = cb->getTopObj(pos))
+		if (obj->blockVisit) //we can't stand on that object
+			return true;
+
+	return false;
 }
 
 int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp)
