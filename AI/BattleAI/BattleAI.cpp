@@ -13,25 +13,6 @@
 #include "EnemyInfo.h"
 #include "../../lib/spells/CSpellHandler.h"
 
-
-
-/*
-	//
-	// //set has its own order, so remove_if won't work. TODO - reuse for map
-	// template<typename Elem, typename Predicate>
-	// void erase_if(std::set<Elem> &setContainer, Predicate pred)
-	// {
-	// 	auto itr = setContainer.begin();
-	// 	auto endItr = setContainer.end();
-	// 	while(itr != endItr)
-	// 	{
-	// 		auto tmpItr = itr++;
-	// 		if(pred(*tmpItr))
-	// 			setContainer.erase(tmpItr);
-	// 	}
-	// }
-	*/
-
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
@@ -82,8 +63,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				return BattleAction::makeHeal(stack, woundHpToStack.rbegin()->second); //last element of the woundHpToStack is the most wounded stack
 		}
 
-		if(cb->battleCanCastSpell())
-			attemptCastingSpell();
+		attemptCastingSpell();
+
 		if(auto ret = getCbc()->battleIsFinished())
 		{
 			//spellcast may finish battle
@@ -201,8 +182,14 @@ SpellTypes spellType(const CSpell *spell)
 
 void CBattleAI::attemptCastingSpell()
 {
+	auto hero = cb->battleGetMyHero();
+	if(!hero)
+		return;
+
+	if(!cb->battleCanCastSpell())
+		return;
+
 	LOGL("Casting spells sounds like fun. Let's see...");
-	auto hero = cb->battleGetMyHero(); //auto known = cb->battleGetFightingHero(side);
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this] (const CSpell *s) -> bool
