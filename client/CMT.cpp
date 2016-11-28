@@ -2,6 +2,9 @@
 //
 #include "StdInc.h"
 #include <SDL_mixer.h>
+
+#include <boost/program_options.hpp>
+
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
