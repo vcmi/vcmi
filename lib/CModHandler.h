@@ -191,7 +191,7 @@ public:
 
 	JsonNode config;
 
-	CModInfo(){}
+	CModInfo();
 	CModInfo(std::string identifier, const JsonNode & local, const JsonNode & config);
 
 	JsonNode saveLocalData() const;

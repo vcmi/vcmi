@@ -785,7 +785,12 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
 	for(auto town : LOCPLINT->towns)
-		halls[town->hallLevel()]++;
+	{
+		int hallLevel = town->hallLevel();
+		//negative value means no village hall, unlikely but possible
+		if(hallLevel >= 0)
+			halls.at(hallLevel)++;
+	}
 
 	std::vector<PlayerColor> allies, enemies;
 

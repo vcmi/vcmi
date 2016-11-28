@@ -370,7 +370,7 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 	if(ti.smart)
 	{
 		//if spell targeting is smart, then only attacker can use it
-		if(cb->playerToSide(caster->getOwner()) != 0)
+		if(cb->playerToSide(caster->getOwner()) != BattleSide::ATTACKER)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
@@ -406,7 +406,9 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 ///ObstacleMechanics
 ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	ui8 side = cb->playerToSide(ctx.caster->getOwner());
+	const si8 side = cb->playerToSide(ctx.caster->getOwner());
+	if(side < 0)
+		return ESpellCastProblem::INVALID;
 
 	bool hexesOutsideBattlefield = false;
 
@@ -496,7 +498,11 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 ESpellCastProblem::ESpellCastProblem LandMineMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
 	//LandMine are useless if enemy has native stack and can see mines, check for LandMine damage immunity is done in general way by CSpell
-	const ui8 otherSide = !cb->playerToSide(caster->getOwner());
+	const si8 playerSide = cb->playerToSide(caster->getOwner());
+	if(playerSide < 0)
+		return ESpellCastProblem::INVALID;
+
+	const si8 otherSide = !playerSide;
 
 	if(cb->battleHasNativeStack(otherSide))
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;

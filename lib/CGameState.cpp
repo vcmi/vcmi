@@ -656,6 +656,7 @@ CGameState::CGameState()
 	//objCaller = new CObjectCallersHandler;
 	globalEffects.setDescription("Global effects");
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
+	day = 0;
 }
 
 CGameState::~CGameState()
@@ -2866,8 +2867,8 @@ CGHeroInstance * CGameState::getUsedHero(HeroTypeID hid) const
 }
 
 PlayerState::PlayerState()
- : color(-1), enteredWinningCheatCode(0),
-   enteredLosingCheatCode(0), status(EPlayerStatus::INGAME)
+ : color(-1), human(false), enteredWinningCheatCode(false),
+   enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
 {
 	setNodeType(PLAYER);
 }
@@ -2933,6 +2934,7 @@ void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
 
 void InfoAboutHero::assign(const InfoAboutHero & iah)
 {
+	vstd::clear_pointer(details);
 	InfoAboutArmy::operator = (iah);
 
 	details = (iah.details ? new Details(*iah.details) : nullptr);
@@ -2962,7 +2964,7 @@ InfoAboutHero::InfoAboutHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel 
 
 InfoAboutHero::~InfoAboutHero()
 {
-	delete details;
+	vstd::clear_pointer(details);
 }
 
 InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
@@ -2973,6 +2975,7 @@ InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 
 void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
 {
+	vstd::clear_pointer(details);
 	if(!h)
 		return;
 
@@ -3013,14 +3016,18 @@ InfoAboutTown::InfoAboutTown():
 
 }
 
-InfoAboutTown::InfoAboutTown(const CGTownInstance *t, bool detailed)
+InfoAboutTown::InfoAboutTown(const CGTownInstance *t, bool detailed):
+	details(nullptr),
+	tType(nullptr),
+	built(0),
+	fortLevel(0)
 {
 	initFromTown(t, detailed);
 }
 
 InfoAboutTown::~InfoAboutTown()
 {
-	delete details;
+	vstd::clear_pointer(details);
 }
 
 void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
@@ -3031,6 +3038,8 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	fortLevel = t->fortLevel();
 	name = t->name;
 	tType = t->town;
+
+	vstd::clear_pointer(details);
 
 	if(detailed)
 	{

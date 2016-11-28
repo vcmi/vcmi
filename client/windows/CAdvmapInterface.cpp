@@ -86,6 +86,7 @@ static void setScrollingCursor(ui8 direction)
 
 CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr),
+	  lastRedrawStatus(EMapAnimRedrawStatus::OK),
 	  fadeAnim(new CFadeAnimation()),
 	  curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)

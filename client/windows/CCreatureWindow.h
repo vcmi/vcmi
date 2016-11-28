@@ -49,8 +49,6 @@ class CStackWindow : public CWindowObject
 	{
 		CStackWindow *parent;
 
-		CPicture *background;
-
 		void createBackground(std::string path);
 		void createBonusItem(size_t index, Point position);
 

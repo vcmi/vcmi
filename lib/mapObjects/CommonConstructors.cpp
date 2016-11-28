@@ -87,6 +87,7 @@ void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 }
 
 CHeroInstanceConstructor::CHeroInstanceConstructor()
+	:heroClass(nullptr)
 {
 
 }
@@ -257,7 +258,9 @@ std::vector<const CCreature *> CDwellingInstanceConstructor::getProducedCreature
 }
 
 CBankInstanceConstructor::CBankInstanceConstructor()
+	: bankResetDuration(0)
 {
+
 }
 
 void CBankInstanceConstructor::initTypeData(const JsonNode & input)

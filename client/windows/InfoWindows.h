@@ -47,7 +47,6 @@ public:
 	CTextBox *text;
 	std::vector<CButton *> buttons;
 	std::vector<CComponent*> components;
-	CSlider *slider;
 
 	void setDelComps(bool DelComps);
 	virtual void close();

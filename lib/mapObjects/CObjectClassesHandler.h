@@ -118,8 +118,8 @@ public:
 
 	si32 type;
 	si32 subtype;
-
-	virtual ~AObjectTypeHandler(){}
+	AObjectTypeHandler();
+	virtual ~AObjectTypeHandler();
 
 	void setType(si32 type, si32 subtype);
 	void setTypeName(std::string type, std::string subtype);

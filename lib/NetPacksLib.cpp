@@ -1688,6 +1688,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs(CGameState *gs)
 
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
+	attacker = -1;
 }
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()

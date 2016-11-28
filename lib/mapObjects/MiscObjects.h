@@ -142,7 +142,7 @@ public:
 	EBonusType bonusType;
 	ui16 bonusID; //ID of skill/spell
 
-	CGScholar() : bonusType(EBonusType::RANDOM){};
+	CGScholar() : bonusType(EBonusType::RANDOM),bonusID(0){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
 	template <typename Handler> void serialize(Handler &h, const int version)

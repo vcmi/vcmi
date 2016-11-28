@@ -95,10 +95,11 @@ CSpell::LevelInfo::~LevelInfo()
 ///CSpell
 CSpell::CSpell():
 	id(SpellID::NONE), level(0),
+	power(0),
 	combatSpell(false), creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
-	isRising(false), isDamage(false), isOffensive(false),
+	isRising(false), isDamage(false), isOffensive(false), isSpecial(true),
 	targetType(ETargetType::NO_TARGET),
 	mechanics(),
 	adventureMechanics()

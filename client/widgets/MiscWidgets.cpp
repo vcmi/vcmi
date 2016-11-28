@@ -94,7 +94,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 }
 
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
-	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
+	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1), type(-1)
 {
 }
 
@@ -134,13 +134,13 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
 
 void CHeroArea::clickLeft(tribool down, bool previousState)
 {
-	if((!down) && previousState && hero)
+	if(hero && (!down) && previousState)
 		LOCPLINT->openHeroWindow(hero);
 }
 
 void CHeroArea::clickRight(tribool down, bool previousState)
 {
-	if((!down) && previousState && hero)
+	if(hero && (!down) && previousState)
 		LOCPLINT->openHeroWindow(hero);
 }
 
@@ -154,24 +154,24 @@ void CHeroArea::hover(bool on)
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 {
-	if((!down) && previousState && town)
-		{
+	if(town && (!down) && previousState)
+	{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )
 			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::VILLAGE_HALL);
 		else if ( type == 3 && town->fortLevel() )
 			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
-		}
+	}
 }
 
 void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
 {
-	if((!down) && previousState && town)
+	if(town && (!down) && previousState)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
-LRClickableAreaOpenTown::LRClickableAreaOpenTown()
-	: LRClickableAreaWTextComp(Rect(0,0,0,0), -1)
+LRClickableAreaOpenTown::LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town)
+	: LRClickableAreaWTextComp(Pos, -1), town(Town)
 {
 }
 
@@ -376,9 +376,9 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	baseType = componentType[morale];
 	text = CGI->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",CGI->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
-	
-	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD) 
-			|| node->hasBonusOfType(Bonus::BLOCK_MORALE) 
+
+	if (morale && node && (node->hasBonusOfType(Bonus::UNDEAD)
+			|| node->hasBonusOfType(Bonus::BLOCK_MORALE)
 			|| node->hasBonusOfType(Bonus::NON_LIVING)))
 	{
 		text += CGI->generaltexth->arraytxt[113]; //unaffected by morale

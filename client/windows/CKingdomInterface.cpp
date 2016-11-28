@@ -792,9 +792,7 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);
-	townArea = new LRClickableAreaOpenTown;
-	townArea->pos = Rect(pos.x+5, pos.y+6, 58, 64);
-	townArea->town = town;
+	new LRClickableAreaOpenTown(Rect(5, 6, 58, 64), town);
 
 	for (size_t i=0; i<town->creatures.size(); i++)
 	{

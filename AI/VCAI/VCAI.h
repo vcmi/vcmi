@@ -83,6 +83,7 @@ struct SectorMap
 		Sector()
 		{
 			id = -1;
+			water = false;
 		}
 	};
 

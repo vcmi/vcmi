@@ -26,6 +26,12 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
+CBuilding::CBuilding():
+	town(nullptr),mode(BUILD_NORMAL)
+{
+
+}
+
 const std::string & CBuilding::Name() const
 {
 	return name;
@@ -64,6 +70,8 @@ si32 CBuilding::getDistance(BuildingID buildID) const
 CFaction::CFaction()
 {
 	town = nullptr;
+	index = 0;
+	alignment = EAlignment::NEUTRAL;
 }
 
 CFaction::~CFaction()
@@ -72,6 +80,7 @@ CFaction::~CFaction()
 }
 
 CTown::CTown()
+	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
 {
 
 }

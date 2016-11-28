@@ -161,7 +161,6 @@ class CObjectListWindow : public CWindowObject
 	CLabel * descr;
 
 	CListBox * list;
-	CIntObject * titleImage;//title image (castle gate\town portal picture)
 	CButton *ok, *exit;
 
 	std::vector< std::pair<int, std::string> > items;//all items present in list
@@ -243,7 +242,6 @@ public:
 
 	} *h1, *h2; //recruitable heroes
 
-	CGStatusBar *bar; //tavern's internal status bar
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
 

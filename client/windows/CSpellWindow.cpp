@@ -529,7 +529,7 @@ CSpellWindow::SpellArea::~SpellArea()
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
-	if(!down && mySpell)
+	if(mySpell && !down)
 	{
 		int spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
@@ -752,7 +752,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 {
-	if(down && mySpell)
+	if(mySpell && down)
 	{
 		std::string dmgInfo;
 		int causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);

@@ -229,7 +229,8 @@ bool FileStream::CreateFile(const boost::filesystem::path& filename)
 {
 	FILE* f = do_open(filename.c_str(), CHAR_LITERAL("wb"));
 	bool result = (f != nullptr);
-	fclose(f);
+	if(result)
+		fclose(f);
 	return result;
 }
 

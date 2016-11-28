@@ -788,13 +788,13 @@ void CTavernWindow::show(SDL_Surface * to)
 
 void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 {
-	if(previousState && !down && h)
+	if(h && previousState && !down)
 		*_sel = _id;
 }
 
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
-	if(down && h)
+	if(h && down)
 	{
 		GH.pushInt(new CRClickPopupInt(new CHeroWindow(h), true));
 	}
@@ -1771,11 +1771,10 @@ void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::str
 
 	if (titlePic)
 	{
-		titleImage = titlePic;
-		addChild(titleImage);
-		titleImage->recActions = defActions;
-		titleImage->pos.x = pos.w/2 + pos.x - titleImage->pos.w/2;
-		titleImage->pos.y =75 + pos.y - titleImage->pos.h/2;
+		addChild(titlePic);
+		titlePic->recActions = defActions;
+		titlePic->pos.x = pos.w/2 + pos.x - titlePic->pos.w/2;
+		titlePic->pos.y =75 + pos.y - titlePic->pos.h/2;
 	}
 	list = new CListBox(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );

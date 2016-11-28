@@ -59,7 +59,7 @@ EAlignment::EAlignment CHeroClass::getAlignment() const
 }
 
 CHeroClass::CHeroClass()
- : commander(nullptr)
+ : faction(0), id(0), affinity(0), defaultTavernChance(0), commander(nullptr)
 {
 }
 

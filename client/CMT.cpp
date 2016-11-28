@@ -70,7 +70,7 @@ namespace bfs = boost::filesystem;
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-static CClient *client=nullptr;
+static CClient *client = nullptr;
 
 int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
@@ -619,17 +619,22 @@ void processCommand(const std::string &message)
 	}
 	else if(cn=="save")
 	{
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		std::string fname;
 		readed >> fname;
 		client->save(fname);
 	}
-	else if(cn=="load")
-	{
-		// TODO: this code should end the running game and manage to call startGame instead
-		std::string fname;
-		readed >> fname;
-		client->loadGame(fname);
-	}
+//	else if(cn=="load")
+//	{
+//		// TODO: this code should end the running game and manage to call startGame instead
+//		std::string fname;
+//		readed >> fname;
+//		client->loadGame(fname);
+//	}
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";
@@ -666,11 +671,6 @@ void processCommand(const std::string &message)
 	else if(cn == "onlyai")
 	{
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
-	}
-	else if (cn == "ai")
-	{
-		VLC->IS_AI_ENABLED = !VLC->IS_AI_ENABLED;
-		std::cout << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
 	}
 	else if(cn == "mp" && adventureInt)
 	{
@@ -837,6 +837,11 @@ void processCommand(const std::string &message)
 	else if(cn == "gosolo")
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		PlayerColor color;
 		if(session["aiSolo"].Bool())
 		{
@@ -871,6 +876,11 @@ void processCommand(const std::string &message)
 		boost::to_lower(colorName);
 
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		PlayerColor color;
 		if(LOCPLINT)
 			color = LOCPLINT->playerID;
@@ -1250,7 +1260,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		}
 	}
 
-    client = new CClient;
+    client = new CClient();
 	CPlayerInterface::howManyPeople = 0;
 	switch(options->mode) //new game
 	{
@@ -1269,7 +1279,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		break;
 	}
 
-		client->connectionHandler = new boost::thread(&CClient::run, client);
+	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 
 void endGame()

@@ -620,6 +620,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	if (screenType == CMenuScreen::campaignList)
 	{
 		opt = nullptr;
+		randMapTab = nullptr;
 	}
 	else
 	{
@@ -2250,7 +2251,7 @@ void InfoCard::changeSelection( const CMapInfo *to )
 void InfoCard::clickRight( tribool down, bool previousState )
 {
 	static const Rect flagArea(19, 397, 335, 23);
-	if(down && SEL->current && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
+	if(SEL->current && down && SEL->current && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
 		showTeamsPopup();
 }
 
@@ -3912,6 +3913,7 @@ CSavingScreen::~CSavingScreen()
 ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> *Names /*= nullptr*/)
 {
 	multiPlayer = CMenuScreen::SINGLE_PLAYER;
+	screenType = CMenuScreen::mainMenu;
 	assert(!SEL);
 	SEL = this;
 	current = nullptr;
@@ -4102,6 +4104,8 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	pos.x += config["x"].Float();
 	pos.y += config["y"].Float();
 	pos.w = 200;
@@ -4110,24 +4114,23 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 	campFile = config["file"].String();
 	video = config["video"].String();
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
 	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
 	hoverText = header.name;
 
+	hoverLabel = nullptr;
 	if (status != CCampaignScreen::DISABLED)
 	{
 		addUsedEvents(LCLICK | HOVER);
-		image = new CPicture(config["image"].String());
+		new CPicture(config["image"].String());
 
 		hoverLabel = new CLabel(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel);
 	}
 
 	if (status == CCampaignScreen::COMPLETED)
-		checkMark = new CPicture("CAMPCHK");
+		new CPicture("CAMPCHK");
 }
 
 void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
@@ -4142,10 +4145,13 @@ void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousStat
 
 void CCampaignScreen::CCampaignButton::hover(bool on)
 {
-	if (on)
-		hoverLabel->setText(hoverText); // Shows the name of the campaign when you get into the bounds of the button
-	else
-		hoverLabel->setText(" ");
+	if (hoverLabel)
+	{
+		if (on)
+			hoverLabel->setText(hoverText); // Shows the name of the campaign when you get into the bounds of the button
+		else
+			hoverLabel->setText(" ");
+	}
 }
 
 void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
@@ -4198,7 +4204,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode &config)
 
 	if (!config["exitbutton"].isNull())
 	{
-		back = createExitButton(config["exitbutton"]);
+		CButton * back = createExitButton(config["exitbutton"]);
 		back->hoverable = true;
 	}
 

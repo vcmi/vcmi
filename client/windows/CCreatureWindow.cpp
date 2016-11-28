@@ -103,7 +103,7 @@ StackWindowInfo::StackWindowInfo():
 
 void CStackWindow::CWindowSection::createBackground(std::string path)
 {
-	background = new CPicture("stackWindow/" + path);
+	CPicture * background = new CPicture("stackWindow/" + path);
 	pos = background->pos;
 }
 

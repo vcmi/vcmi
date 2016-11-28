@@ -709,6 +709,14 @@ CMapHandler::CMapPuzzleViewBlitter::CMapPuzzleViewBlitter(CMapHandler * parent)
 	unblittableObjects.push_back(Obj::HOLE);
 }
 
+CMapHandler::CMapBlitter::CMapBlitter(CMapHandler * p)
+	:parent(p), tileSize(0), halfTileSizeCeil(0), info(nullptr)
+{
+
+}
+
+CMapHandler::CMapBlitter::~CMapBlitter() = default;
+
 void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 {
 	Rect destRect(realTileRect);
@@ -1369,6 +1377,9 @@ CMapHandler::CMapHandler()
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
 	fadeAnimCounter = 0;
+	map = nullptr;
+	tilesW = tilesH = 0;
+	offsetX = offsetY = 0;
 
 	egdeAnimation = make_unique<CAnimation>("EDG");
 	egdeAnimation->preload();
@@ -1403,6 +1414,11 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 void CMapHandler::discardWorldViewCache()
 {
 	cache.discardWorldViewCache();
+}
+
+CMapHandler::CMapCache::CMapCache()
+{
+	worldViewCachedScale = 0;
 }
 
 void CMapHandler::CMapCache::discardWorldViewCache()

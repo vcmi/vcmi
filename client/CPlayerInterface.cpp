@@ -87,7 +87,7 @@ CPlayerInterface * LOCPLINT;
 CBattleInterface * CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
-CondSh<EMoveState> stillMoveHero; //used during hero movement
+CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
 int CPlayerInterface::howManyPeople = 0;
 
@@ -1133,7 +1133,7 @@ void CPlayerInterface::showOkDialog(std::vector<Component> & components, const M
 	CInfoWindow::showOkDialog(str, &intComps, onOk, true, playerID);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();

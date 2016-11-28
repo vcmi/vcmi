@@ -127,7 +127,6 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 			ms.addTxt(MetaString::GENERAL_TXT,243);
 			break;
 		default: //decision = cost in gold
-			VLC->generaltexth->allTexts[244];
 			ms << boost::to_string(boost::format(VLC->generaltexth->allTexts[244]) % decision);
 			break;
 		}
@@ -237,7 +236,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * 1000;
+	temppower = stacks[SlotID(0)]->count * (ui64)1000;
 	refusedJoining = false;
 }
 

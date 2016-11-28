@@ -43,7 +43,7 @@ enum class EAdvMapMode
 class CAdventureOptions : public CWindowObject
 {
 public:
-	CButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
+	CButton *exit, *viewWorld, *puzzle, *dig, *scenInfo/*, *replay*/;
 
 	CAdventureOptions();
 	static void showScenarioInfo();
