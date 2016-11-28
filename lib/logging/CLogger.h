@@ -89,6 +89,7 @@ public:
 	CLoggerStream errorStream() const;
 
 	void log(ELogLevel::ELogLevel level, const std::string & message) const override;
+	void log(ELogLevel::ELogLevel level, const boost::format & fmt) const override;
 
 	void addTarget(std::unique_ptr<ILogTarget> && target);
 	void clearTargets();

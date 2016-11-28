@@ -71,6 +71,7 @@
 		</Unit>
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
+			<Option weight="0" />
 		</Unit>
 		<Extensions>
 			<code_completion />
