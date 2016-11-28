@@ -2240,6 +2240,7 @@ void CGameHandler::giveResources(PlayerColor player, TResources resources)
 	sr.abs = false;
 	sr.player = player;
 	sr.res = resources;
+	sendAndApply(&sr);
 }
 
 void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
