@@ -3258,6 +3258,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::BOAT:
 			return false;
 			//Boats are handled by pathfinder
+		case Obj::EYE_OF_MAGI:
+			return false; //this object is useless to visit, but could be visited indefinitely
 	}
 
 	if (obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
