@@ -297,6 +297,7 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 			return cre->getArmyStrength();
 		}
 	case Obj::CREATURE_GENERATOR1:
+	case Obj::CREATURE_GENERATOR4:
 		{
 			const CGDwelling *d = dynamic_cast<const CGDwelling*>(obj);
 			return d->getArmyStrength();
