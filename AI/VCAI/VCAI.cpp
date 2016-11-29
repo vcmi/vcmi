@@ -271,6 +271,11 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 {
 	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
 	NET_EVENT_HANDLER;
+	if (!visitedObj)
+	{
+		logAi->error("VCAI::heroVisit called for null object!"); //FIXME: how was that possible anyway and why we need check for it?
+		return;
+	}
 	if(start)
 	{
 		markObjectVisited (visitedObj);
