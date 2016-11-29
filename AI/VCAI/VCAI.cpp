@@ -1076,7 +1076,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
 			const CGHeroInstance * target = nullptr;
-			if (giveStuffToFirstHero)
+			if (giveStuffToFirstHero || !otherh)
 				target = h;
 			else
 				target = otherh;
