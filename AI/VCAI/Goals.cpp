@@ -929,6 +929,8 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 
 		// find hero who is nearest to a dwelling
 		const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
+		if(nearest) // FIXME: Find out what regression / bug cause this. Issue 2624
+			throw cannotFulfillGoalException("Cannot find nearest dwelling!");
 
 		return sptr (Goals::GetObj(nearest->id.getNum()));
 	}
