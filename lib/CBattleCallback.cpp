@@ -429,7 +429,7 @@ bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const 
 {
 	RETURN_IF_NOT_BATTLE(false);
 	const si8 playerSide = playerToSide(player);
-	if (playerSide > 0)
+	if (playerSide >= 0)
 	{
 		if (getBattle()->sides[!playerSide].hero == h)
 			return true;
