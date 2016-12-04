@@ -259,7 +259,6 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	}
 	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
 	throw std::runtime_error("Object type handler not found");
-	return nullptr;
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::string subtype) const
@@ -272,9 +271,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::s
 	}
 	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
 	throw std::runtime_error("Object type handler not found");
-	return nullptr;
 }
-
 
 std::set<si32> CObjectClassesHandler::knownObjects() const
 {
