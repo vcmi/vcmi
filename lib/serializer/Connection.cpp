@@ -191,8 +191,7 @@ void CConnection::close()
 	if(socket)
 	{
 		socket->close();
-		delete socket;
-		socket = nullptr;
+		vstd::clear_pointer(socket);
 	}
 }
 

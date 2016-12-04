@@ -1273,8 +1273,11 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
-	serverAlive.waitWhileTrue();
-	serverAlive.setn(true);
+	if(!CServerHandler::DO_NOT_START_SERVER)
+	{
+		serverAlive.waitWhileTrue();
+		serverAlive.setn(true);
+	}
 
 	if(vm.count("onlyAI"))
 	{

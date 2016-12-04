@@ -708,16 +708,13 @@ void CClient::stopConnection()
 			connectionHandler->join();
 
 		logNetwork->infoStream() << "Connection handler thread joined";
-
-		delete connectionHandler;
-		connectionHandler = nullptr;
+		vstd::clear_pointer(connectionHandler);
 	}
 
 	if (serv) //and delete connection
 	{
 		serv->close();
-		delete serv;
-		serv = nullptr;
+		vstd::clear_pointer(serv);
 		logNetwork->warnStream() << "Our socket has been closed.";
 	}
 }
@@ -990,6 +987,7 @@ CConnection * CServerHandler::connectToServer()
 #ifndef VCMI_ANDROID
 	if(!shared->sr->ready)
 		waitForServer();
+	port = boost::lexical_cast<std::string>(shared->sr->port);
 #else
 	waitForServer();
 #endif

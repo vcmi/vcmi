@@ -19,19 +19,22 @@
 struct ServerReady
 {
 	bool ready;
+	uint16_t port; //ui16?
 	boost::interprocess::interprocess_mutex  mutex;
 	boost::interprocess::interprocess_condition  cond;
 
 	ServerReady()
 	{
 		ready = false;
+		port = 0;
 	}
 
-	void setToTrueAndNotify()
+	void setToTrueAndNotify(uint16_t Port)
 	{
 		{
 			boost::unique_lock<boost::interprocess::interprocess_mutex> lock(mutex); 
 			ready = true;
+			port = Port;
 		}
 		cond.notify_all();
 	}

@@ -43,6 +43,7 @@ typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::s
 
 class CVCMIServer
 {
+	ui16 port;
 	boost::asio::io_service *io;
 	TAcceptor * acceptor;
 

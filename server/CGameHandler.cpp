@@ -2716,10 +2716,16 @@ void CGameHandler::close()
 	}
 	end2 = true;
 
-	//for (CConnection *cc : conns)
-	//	if (cc && cc->socket && cc->socket->is_open())
-	//		cc->socket->close();
-	//exit(0);
+	for (auto & elem : conns)
+	{
+		if(!elem->isOpen())
+			continue;
+
+		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
+		elem->close();
+		elem->connected = false;
+	}
+	exit(0);
 }
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
