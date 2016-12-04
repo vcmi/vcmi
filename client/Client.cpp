@@ -147,19 +147,15 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 			MakeAction temp_action(ba);
 			sendRequest(&temp_action, color);
 		}
-		return;
 	}
 	catch(boost::thread_interrupted&)
 	{
 		logNetwork->debugStream() << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?";
-		return;
 	}
 	catch(...)
 	{
 		handleException();
-		return;
 	}
-	logNetwork->errorStream() << "We should not be here!";
 }
 
 void CClient::run()
