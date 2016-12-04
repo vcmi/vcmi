@@ -278,9 +278,6 @@
     <ClInclude Include="CGameInfoCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interprocess.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NetPacks.h">
       <Filter>Header Files</Filter>
     </ClInclude>

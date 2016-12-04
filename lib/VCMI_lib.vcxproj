@@ -376,7 +376,6 @@
     <ClInclude Include="CGameInfoCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />
     <ClInclude Include="int3.h" />
-    <ClInclude Include="Interprocess.h" />
     <ClInclude Include="JsonNode.h" />
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="ResourceSet.h" />

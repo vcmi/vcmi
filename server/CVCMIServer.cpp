@@ -19,9 +19,6 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#ifndef VCMI_ANDROID
-#include "../lib/Interprocess.h"
-#endif
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
@@ -39,9 +36,6 @@
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#endif
 bool end2 = false;
 int port = 3030;
 
@@ -204,20 +198,29 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 		return;
 	}
 
-	logNetwork->info("We got a new connection! :)");
-	CConnection *pc = new CConnection(upcomingConnection, NAME);
-	initConnection(pc);
-	upcomingConnection = nullptr;
+	try
+	{
+		logNetwork->info("We got a new connection! :)");
+		std::string name = NAME;
+		CConnection *pc = new CConnection(upcomingConnection, name.append(" STATE_PREGAME"));
+		initConnection(pc);
+		upcomingConnection = nullptr;
 
-	startListeningThread(pc);
+		startListeningThread(pc);
 
-	*pc << (ui8)pc->connectionID << curmap;
+		*pc << (ui8)pc->connectionID << curmap;
 
-	announceTxt(pc->name + " joins the game");
-	auto pj = new PlayerJoined();
-	pj->playerName = pc->name;
-	pj->connectionID = pc->connectionID;
-	toAnnounce.push_back(pj);
+		announceTxt(pc->name + " joins the game");
+		auto pj = new PlayerJoined();
+		pj->playerName = pc->name;
+		pj->connectionID = pc->connectionID;
+		toAnnounce.push_back(pj);
+	}
+	catch(std::exception& e)
+	{
+		upcomingConnection = nullptr;
+		logNetwork->info("I guess it was just my imagination!");
+	}
 
 	start_async_accept();
 }
@@ -391,64 +394,54 @@ void CVCMIServer::newPregame()
 
 void CVCMIServer::start()
 {
-#ifndef VCMI_ANDROID
-	ServerReady *sr = nullptr;
-	intpr::mapped_region *mr;
-	try
-	{
-		intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = reinterpret_cast<ServerReady*>(mr->get_address());
-	}
-	catch(...)
-	{
-		intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = new(mr->get_address())ServerReady();
-	}
-#endif
-
 	boost::system::error_code error;
 	logNetwork->info("Listening for connections at port %d", acceptor->local_endpoint().port());
-	auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
-	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
-#ifndef VCMI_ANDROID
-	sr->setToTrueAndNotify();
-	delete mr;
-#endif
-
-	acc.join();
-	if (error)
+	for (;;)
 	{
-		logNetwork->warnStream()<<"Got connection but there is an error " << error;
-		return;
-	}
-	logNetwork->info("We've accepted someone... ");
-	firstConnection = new CConnection(s,NAME);
-	logNetwork->info("Got connection!");
-	while(!end2)
-	{
-		ui8 mode;
-		*firstConnection >> mode;
-		switch (mode)
+		try
 		{
-		case 0:
-			firstConnection->close();
-			exit(0);
-		case 1:
-			firstConnection->close();
-			return;
-		case 2:
-			newGame();
+			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
+			boost::thread acc(std::bind(vaccept,acceptor,s,&error));
+
+			acc.join();
+			if (error)
+			{
+				logNetwork->warnStream()<<"Got connection but there is an error " << error;
+				return;
+			}
+			logNetwork->info("We've accepted someone... ");
+			std::string name = NAME;
+			firstConnection = new CConnection(s, name.append(" STATE_WAITING"));
+			logNetwork->info("Got connection!");
+			while(!end2)
+			{
+				ui8 mode;
+				*firstConnection >> mode;
+				switch (mode)
+				{
+				case 0:
+					firstConnection->close();
+					exit(0);
+				case 1:
+					firstConnection->close();
+					return;
+				case 2:
+					newGame();
+					break;
+				case 3:
+					loadGame();
+					break;
+				case 4:
+					newPregame();
+					break;
+				}
+			}
 			break;
-		case 3:
-			loadGame();
-			break;
-		case 4:
-			newPregame();
-			break;
+		}
+		catch(std::exception& e)
+		{
+			vstd::clear_pointer(firstConnection);
+			logNetwork->info("I guess it was just my imagination!");
 		}
 	}
 }

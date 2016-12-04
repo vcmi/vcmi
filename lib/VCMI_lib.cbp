@@ -188,7 +188,6 @@
 		<Unit filename="IGameEventsReceiver.h" />
 		<Unit filename="IHandlerBase.cpp" />
 		<Unit filename="IHandlerBase.h" />
-		<Unit filename="Interprocess.h" />
 		<Unit filename="JsonDetail.cpp" />
 		<Unit filename="JsonDetail.h" />
 		<Unit filename="JsonNode.cpp" />
