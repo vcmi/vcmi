@@ -49,7 +49,7 @@ namespace Channels
 		{
 			Uint16 * const pixel = (Uint16*)ptr;
 			Uint8 subpx = value >> (8 - bits);
-			*pixel = (*pixel & !mask) | ((subpx << shift) & mask );
+			*pixel = (*pixel & ~mask) | ((subpx << shift) & mask );
 		}
 
 		static Uint8 STRONG_INLINE get(const Uint8 *ptr)
