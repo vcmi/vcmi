@@ -3427,10 +3427,6 @@ For ship construction etc, another function (goal?) is needed
 	{
 		return findFirstVisitableTile(h, dst);
 	}
-
-	//FIXME: find out why this line is reached
-	logAi->errorStream() << ("Impossible happened at SectorMap::firstTileToGet");
-	return ret;
 }
 
 int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
