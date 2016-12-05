@@ -185,22 +185,23 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 template<int bpp>
 int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
-	if (src && src->format->BytesPerPixel==1 && dst && (bpp==3 || bpp==4 || bpp==2)) //everything's ok
+	/* Make sure the surfaces aren't locked */
+	if ( ! src || ! dst )
+	{
+		SDL_SetError("SDL_UpperBlit: passed a nullptr surface");
+		return -1;
+	}
+
+	if ( src->locked || dst->locked )
+	{
+		SDL_SetError("Surfaces must not be locked during blit");
+		return -1;
+	}
+
+	if (src->format->BytesPerPixel==1 && (bpp==3 || bpp==4 || bpp==2)) //everything's ok
 	{
 		SDL_Rect fulldst;
 		int srcx, srcy, w, h;
-
-		/* Make sure the surfaces aren't locked */
-		if ( ! src || ! dst )
-		{
-			SDL_SetError("SDL_UpperBlit: passed a nullptr surface");
-			return -1;
-		}
-		if ( src->locked || dst->locked )
-		{
-			SDL_SetError("Surfaces must not be locked during blit");
-			return -1;
-		}
 
 		/* If the destination rectangle is nullptr, use the entire dest surface */
 		if ( dstRect == nullptr )
