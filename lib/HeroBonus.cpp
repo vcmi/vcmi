@@ -632,9 +632,6 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 
 		afterLimiting.getBonuses(*ret, selector, limit);
 	}
-	else
-		beforeLimiting.getBonuses(*ret, selector, limit);
-
 	return ret;
 }
 
