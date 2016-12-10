@@ -269,18 +269,19 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
 
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
-	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
 	InfoAboutHero::EInfoLevel infoLevel = InfoAboutHero::EInfoLevel::BASIC;
 
 	if(hasAccess(h->tempOwner))
 		infoLevel = InfoAboutHero::EInfoLevel::DETAILED;
 
-	if ( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && gs->curB) //if it's battle we can get enemy hero full data
+	if (infoLevel == InfoAboutHero::EInfoLevel::BASIC)
 	{
-		if(gs->curB->playerHasAccessToHeroInfo(*player, h))
+		if(gs->curB && gs->curB->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
-	}
+		else
+			ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
+	}	
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
 	{
