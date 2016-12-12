@@ -87,9 +87,12 @@ struct SectorMap
 		}
 	};
 
+	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
+	typedef boost::multi_array<TSectorID, 3> TSectorArray;
+
 	bool valid; //some kind of lazy eval
 	std::map<int3, int3> parent;
-	std::vector<std::vector<std::vector<unsigned char>>> sector;
+	TSectorArray sector;
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
@@ -102,9 +105,11 @@ struct SectorMap
 	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
-	bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t);
-	bool markIfBlocked(ui8 &sec, crint3 pos);
-	unsigned char &retreiveTile(crint3 pos);
+	bool markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t);
+	bool markIfBlocked(TSectorID &sec, crint3 pos);
+	TSectorID &retreiveTile(crint3 pos);
+	TSectorID &SectorMap::retreiveTileN(TSectorArray &vectors, const int3 &pos);
+	const TSectorID &SectorMap::retreiveTileN(const TSectorArray &vectors, const int3 &pos);
 	TerrainTile* getTile(crint3 pos) const;
 	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 

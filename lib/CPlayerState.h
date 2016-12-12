@@ -62,6 +62,7 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
+	//TODO: boost::array, bool if possible
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 
 	TeamState();

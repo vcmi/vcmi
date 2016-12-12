@@ -110,6 +110,7 @@ struct TimeCheck
 	}
 };
 
+//TODO: replace with vstd::
 struct AtScopeExit
 {
 	std::function<void()> foo;

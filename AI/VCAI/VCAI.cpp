@@ -60,21 +60,11 @@ struct SetGlobalState
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
-unsigned char &retreiveTileN(std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
-{
-	return vectors[pos.x][pos.y][pos.z];
-}
-
-const unsigned char &retreiveTileN(const std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
-{
-	return vectors[pos.x][pos.y][pos.z];
-}
-
 void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, std::function<void(unsigned char &in)> foo)
 {
-	for(auto & vector : vectors)
-		for(auto j = vector.begin(); j != vector.end(); j++)
-			for(auto & elem : *j)
+	for (auto & vector : vectors)
+		for (auto j = vector.begin(); j != vector.end(); j++)
+			for (auto & elem : *j)
 				foo(elem);
 }
 
@@ -3036,7 +3026,7 @@ SectorMap::SectorMap(HeroPtr h)
 	makeParentBFS(h->visitablePos());
 }
 
-bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
+bool SectorMap::markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t)
 {
 	if(t->blocked && !t->visitable)
 	{
@@ -3047,7 +3037,7 @@ bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 	return false;
 }
 
-bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
+bool SectorMap::markIfBlocked(TSectorID &sec, crint3 pos)
 {
 	return markIfBlocked(sec, pos, getTile(pos));
 }
@@ -3055,6 +3045,8 @@ bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 void SectorMap::update()
 {
 	visibleTiles = cb->getAllVisibleTiles();
+	auto shape = visibleTiles->shape();
+	sector.resize(boost::extents[shape[0]][shape[1]][shape[2]]);
 
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
@@ -3071,9 +3063,28 @@ void SectorMap::update()
 	valid = true;
 }
 
+SectorMap::TSectorID &SectorMap::retreiveTileN(SectorMap::TSectorArray &a, const int3 &pos)
+{
+	return a[pos.x][pos.y][pos.z];
+}
+
+const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArray &a, const int3 &pos)
+{
+	return a[pos.x][pos.y][pos.z];
+}
+
 void SectorMap::clear()
 {
-	sector = cb->getVisibilityMap();
+	//TODO: rotate to [z][x][y]
+	//TODO: any magic to automate this?
+	auto fow = cb->getVisibilityMap();
+	auto width = fow.size();
+	auto height = fow.front().size();
+	auto depth = fow.front().front().size();
+	for (size_t x = 0; x < width; x++)
+		for (size_t y = 0; y < height; y++ )
+			for (size_t z = 0; z < depth; z++)
+				sector[x][y][z] = fow[x][y][z];
 	valid = false;
 }
 
@@ -3089,7 +3100,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		ui8 &sec = retreiveTile(curPos);
+		TSectorID &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
 			const TerrainTile *t = getTile(curPos);
@@ -3476,7 +3487,7 @@ void SectorMap::makeParentBFS(crint3 source)
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		ui8 &sec = retreiveTile(curPos);
+		TSectorID &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
 
@@ -3494,7 +3505,7 @@ void SectorMap::makeParentBFS(crint3 source)
 	}
 }
 
-unsigned char & SectorMap::retreiveTile(crint3 pos)
+SectorMap::TSectorID & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
 }
