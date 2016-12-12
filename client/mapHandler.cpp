@@ -47,7 +47,7 @@ struct NeighborTilesInfo
 		 d1,
 		 d2,
 		 d3;
-	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap)
+	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const boost::multi_array<ui8, 3> & visibilityMap)
 	{
 		auto getTile = [&](int dx, int dy)->bool
 		{
@@ -563,7 +563,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		const CGObjectInstance * obj = object.obj;
 
 		const bool sameLevel = obj->pos.z == pos.z;
-		const bool isVisible = (*info->visibilityMap)[pos.x][pos.y][pos.z];
+		const bool isVisible = info->visibilityMap[pos.x][pos.y][pos.z];
 		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
 
 		if(sameLevel && isVisible && isVisitable)
@@ -823,7 +823,7 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 {
-	const NeighborTilesInfo neighborInfo(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighborInfo(pos, parent->sizes, info->visibilityMap);
 
 	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
@@ -895,7 +895,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			{
 				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
 
-				if (!(*info->visibilityMap)[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
+				if (!info->visibilityMap[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells
@@ -1099,7 +1099,7 @@ bool CMapHandler::CMapBlitter::canDrawObject(const CGObjectInstance * obj) const
 
 bool CMapHandler::CMapBlitter::canDrawCurrentTile() const
 {
-	const NeighborTilesInfo neighbors(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighbors(pos, parent->sizes, info->visibilityMap);
 	return !neighbors.areAllHidden();
 }
 

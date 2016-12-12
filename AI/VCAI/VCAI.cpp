@@ -3075,20 +3075,10 @@ const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArr
 
 void SectorMap::clear()
 {
-	//TODO: rotate to [z][x][y]
 	auto fow = cb->getVisibilityMap();
-	//TODO: any magic to automate this? will need array->array conversion
-	//std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
-	//{
-	//	return f; //type conversion
-	//});
-	auto width = fow.size();
-	auto height = fow.front().size();
-	auto depth = fow.front().front().size();
-	for (size_t x = 0; x < width; x++)
-		for (size_t y = 0; y < height; y++ )
-			for (size_t z = 0; z < depth; z++)
-				sector[x][y][z] = fow[x][y][z];
+	for (int i = 0; i < fow.num_elements(); i++)
+		sector.data()[i] = fow.data()[i]; //type conversion
+
 	valid = false;
 }
 

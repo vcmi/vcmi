@@ -1633,11 +1633,12 @@ void CGameHandler::newTurn()
 				fw.player = player;
 				// find all hidden tiles
 				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-				for (size_t i=0; i<fow.size(); i++)
-					for (size_t j=0; j<fow.at(i).size(); j++)
-						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
-							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3(i,j,k));
+				auto shape = fow.shape();
+				for (size_t x = 0; x < shape[0]; x++)
+					for (size_t y = 0; y < shape[1]; y++)
+						for (size_t z = 0; x < shape[2]; z++)
+							if (!fow[x][y][z])
+								fw.tiles.insert(int3(x, y, z));
 
 				sendAndApply (&fw);
 			}
@@ -5986,7 +5987,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		for (int i = 0; i < gs->map->width; i++)
 			for (int j = 0; j < gs->map->height; j++)
 				for (int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if (!fowMap.at(i).at(j).at(k) || !fc.mode)
+					if (!fowMap[i][j][k] || !fc.mode)
 						hlp_tab[lastUnc++] = int3(i, j, k);
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;

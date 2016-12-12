@@ -1559,18 +1559,10 @@ void CGameState::initFogOfWar()
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
-
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
-
-		for(int g=0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
-					elem.second.fogOfWarMap[g][h][v] = 0;
+		auto &fow = elem.second.fogOfWarMap;
+		fow.resize(boost::extents[map->width][map->height][map->twoLevel ? 2 : 1]);
+		for (int i = 0; i < fow.num_elements(); i++)
+			fow.data()[i] = 0;
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1580,7 +1572,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
+				fow[tile.x][tile.y][tile.z] = 1;
 			}
 		}
 	}

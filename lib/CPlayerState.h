@@ -63,7 +63,7 @@ public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
 	//TODO: boost::array, bool if possible
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	boost::multi_array<ui8, 3> fogOfWarMap; //true - visible, false - hidden
 
 	TeamState();
 	TeamState(TeamState && other);

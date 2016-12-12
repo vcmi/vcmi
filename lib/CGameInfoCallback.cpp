@@ -678,7 +678,7 @@ CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor
 	player = Player;
 }
 
-const std::vector< std::vector< std::vector<ui8> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
+const boost::multi_array<ui8, 3> & CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPlayerTeam(*player)->fogOfWarMap;

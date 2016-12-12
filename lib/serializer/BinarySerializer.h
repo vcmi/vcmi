@@ -344,6 +344,12 @@ public:
 			save((ui8)0);
 		}
 	}
+
+	template <typename T>
+	void save(const boost::multi_array<T, 3> &data)
+	{
+		//TODO
+	}
 };
 
 class DLL_LINKAGE CSaveFile : public IBinaryWriter

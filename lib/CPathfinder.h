@@ -161,7 +161,7 @@ private:
 
 	CPathsInfo & out;
 	const CGHeroInstance * hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
+	const boost::multi_array<ui8, 3> &FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
 
 	enum EPatrolState {

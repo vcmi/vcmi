@@ -507,6 +507,24 @@ public:
 			data = boost::optional<T>();
 		}
 	}
+
+	template <typename T>
+	void load(boost::multi_array<T, 3> & data)
+	{
+		//TODO
+		//ui8 present;
+		//load(present);
+		//if (present)
+		//{
+		//	T t;
+		//	load(t);
+		//	data = std::move(t);
+		//}
+		//else
+		//{
+		//	data = boost::optional<T>();
+		//}
+	}
 };
 
 class DLL_LINKAGE CLoadFile : public IBinaryReader
