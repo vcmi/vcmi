@@ -3076,8 +3076,12 @@ const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArr
 void SectorMap::clear()
 {
 	//TODO: rotate to [z][x][y]
-	//TODO: any magic to automate this?
 	auto fow = cb->getVisibilityMap();
+	//TODO: any magic to automate this? will need array->array conversion
+	//std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
+	//{
+	//	return f; //type conversion
+	//});
 	auto width = fow.size();
 	auto height = fow.front().size();
 	auto depth = fow.front().front().size();
