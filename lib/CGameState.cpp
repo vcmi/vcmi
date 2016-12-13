@@ -2063,7 +2063,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 void CGameState::updateRumor()

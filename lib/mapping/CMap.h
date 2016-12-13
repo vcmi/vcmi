@@ -355,8 +355,8 @@ public:
 	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
 
 private:
-	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	boost::multi_array<TerrainTile, 3> terrain;
+	/// a 3-dimensional array of terrain tiles, where level=1 is underground
+	boost::multi_array<TerrainTile, 3> terrain; //[z][x][y]
 
 public:
 	template <typename Handler>
