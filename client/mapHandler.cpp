@@ -204,6 +204,7 @@ void CMapHandler::initTerrainGraphics()
 
 	// Create enough room for the whole map and its frame
 	ttiles.resize(boost::extents[sizes.z][sizes.x + 2 * frameW][sizes.y + 2 * frameH]); //TODO: need to move starting coordinates?
+	ttiles.reindex(std::list<int>{ 0, -frameW, -frameH });
 }
 
 void CMapHandler::initBorderGraphics()
