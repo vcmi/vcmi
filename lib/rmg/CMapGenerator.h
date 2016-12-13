@@ -105,7 +105,7 @@ private:
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 
-	boost::multi_array<CTileInfo, 3> tiles;
+	boost::multi_array<CTileInfo, 3> tiles; //[z][x][y]
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
 
 	int prisonsRemaining;
