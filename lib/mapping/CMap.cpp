@@ -218,8 +218,7 @@ CMapHeader::~CMapHeader()
 }
 
 CMap::CMap()
-	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr)
+	: checksum(0), grailPos(-1, -1, -1), grailRadius(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
@@ -229,22 +228,6 @@ CMap::CMap()
 
 CMap::~CMap()
 {
-	if(terrain)
-	{
-		for (int i=0; i<width; i++)
-		{
-			for(int j=0; j<height; j++)
-			{
-				delete [] terrain[i][j];
-				delete [] guardingCreaturePositions[i][j];
-			}
-			delete [] terrain[i];
-			delete [] guardingCreaturePositions[i];
-		}
-		delete [] terrain;
-		delete [] guardingCreaturePositions;
-	}
-
 	for(auto obj : objects)
 		obj.dellNull();
 
@@ -612,18 +595,9 @@ void CMap::addNewObject(CGObjectInstance * obj)
 void CMap::initTerrain()
 {
 	int level = twoLevel ? 2 : 1;
-	terrain = new TerrainTile**[width];
-	guardingCreaturePositions = new int3**[width];
-	for (int i = 0; i < width; ++i)
-	{
-		terrain[i] = new TerrainTile*[height];
-		guardingCreaturePositions[i] = new int3*[height];
-		for (int j = 0; j < height; ++j)
-		{
-			terrain[i][j] = new TerrainTile[level];
-			guardingCreaturePositions[i][j] = new int3[level];
-		}
-	}
+	//TODO: rotate [z][x][y]
+	terrain.resize(boost::extents[width][height][level]);
+	guardingCreaturePositions.resize(boost::extents[width][height][level]);
 }
 
 CMapEditManager * CMap::getEditManager()

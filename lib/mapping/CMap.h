@@ -350,13 +350,13 @@ public:
 
 	std::unique_ptr<CMapEditManager> editManager;
 
-	int3 ***guardingCreaturePositions;
+	boost::multi_array<int3, 3> guardingCreaturePositions;
 
 	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	TerrainTile*** terrain;
+	boost::multi_array<TerrainTile, 3> terrain;
 
 public:
 	template <typename Handler>
@@ -366,52 +366,9 @@ public:
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & events & grailPos;
 		h & artInstances & quests & allHeroes;
 		h & questIdentifierToId;
+		h & terrain & guardingCreaturePositions;
 
 		//TODO: viccondetails
-		int level = twoLevel ? 2 : 1;
-		if(h.saving)
-		{
-			// Save terrain
-			for(int i = 0; i < width ; ++i)
-			{
-				for(int j = 0; j < height ; ++j)
-				{
-					for(int k = 0; k < level; ++k)
-					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
-					}
-				}
-			}
-		}
-		else
-		{
-			// Load terrain
-			terrain = new TerrainTile**[width];
-			guardingCreaturePositions = new int3**[width];
-			for(int i = 0; i < width; ++i)
-			{
-				terrain[i] = new TerrainTile*[height];
-				guardingCreaturePositions[i] = new int3*[height];
-				for(int j = 0; j < height; ++j)
-				{
-					terrain[i][j] = new TerrainTile[level];
-					guardingCreaturePositions[i][j] = new int3[level];
-				}
-			}
-			for(int i = 0; i < width ; ++i)
-			{
-				for(int j = 0; j < height ; ++j)
-				{
-					for(int k = 0; k < level; ++k)
-					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
-					}
-				}
-			}
-		}
-
 		h & objects;
 		h & heroesOnMap & teleportChannels & towns & artInstances;
 
