@@ -2103,13 +2103,13 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
 
 	//restoring good order of objects
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x-2][details.end.y-1].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x-2][details.end.y-1].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x-1][details.end.y-1].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x-1][details.end.y-1].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x][details.end.y-1].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x][details.end.y-1].objects.end(), objectBlitOrderSorter);
 
-	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x-2][details.end.y].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x-2][details.end.y].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x-1][details.end.y].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x-1][details.end.y].objects.end(), objectBlitOrderSorter);
+	std::stable_sort(CGI->mh->ttiles[details.end.z][details.end.x][details.end.y].objects.begin(), CGI->mh->ttiles[details.end.z][details.end.x][details.end.y].objects.end(), objectBlitOrderSorter);
 }
 
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )
