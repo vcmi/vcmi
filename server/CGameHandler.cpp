@@ -1636,7 +1636,7 @@ void CGameHandler::newTurn()
 				auto shape = fow.shape();
 				for (size_t x = 0; x < shape[0]; x++)
 					for (size_t y = 0; y < shape[1]; y++)
-						for (size_t z = 0; x < shape[2]; z++)
+						for (size_t z = 0; z < shape[2]; z++)
 							if (!fow[x][y][z])
 								fw.tiles.insert(int3(x, y, z));
 

@@ -511,19 +511,15 @@ public:
 	template <typename T>
 	void load(boost::multi_array<T, 3> & data)
 	{
-		//TODO
-		//ui8 present;
-		//load(present);
-		//if (present)
-		//{
-		//	T t;
-		//	load(t);
-		//	data = std::move(t);
-		//}
-		//else
-		//{
-		//	data = boost::optional<T>();
-		//}
+		READ_CHECK_U32(length);
+		ui32 x, y, z;
+		load(x);
+		load(y);
+		load(z);
+		data.resize(boost::extents[x][y][z]);
+		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
+		for (ui32 i = 0; i<length; i++)
+			load(data.data()[i]);
 	}
 };
 
