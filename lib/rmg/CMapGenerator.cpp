@@ -38,7 +38,7 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 
 CMapGenerator::CMapGenerator() :
 	mapGenOptions(nullptr), randomSeed(0), editManager(nullptr),
-	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
+	zonesTotal(0), prisonsRemaining(0),
     monolithIndex(0)
 {
 }
@@ -51,35 +51,12 @@ void CMapGenerator::initTiles()
 	int height = map->height;
 
 	int level = map->twoLevel ? 2 : 1;
-	tiles = new CTileInfo**[width];
-	for (int i = 0; i < width; ++i)
-	{
-		tiles[i] = new CTileInfo*[height];
-		for (int j = 0; j < height; ++j)
-		{
-			tiles[i][j] = new CTileInfo[level];
-		}
-	}
-
-	zoneColouring.resize(boost::extents[map->twoLevel ? 2 : 1][map->width][map->height]);
+	tiles.resize(boost::extents[width][height][level]); //TODO: rotate [z][x][y]
+	zoneColouring.resize(boost::extents[level][map->width][map->height]);
 }
 
 CMapGenerator::~CMapGenerator()
 {
-	if (tiles)
-	{
-		int width = mapGenOptions->getWidth();
-		int height = mapGenOptions->getHeight();
-		for (int i=0; i < width; i++)
-		{
-			for(int j=0; j < height; j++)
-			{
-				delete [] tiles[i][j];
-			}
-			delete [] tiles[i];
-		}
-		delete [] tiles;
-	}
 }
 
 void CMapGenerator::initPrisonsRemaining()
