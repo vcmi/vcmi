@@ -3202,7 +3202,11 @@ TeamState::TeamState(TeamState && other):
 	id(other.id)
 {
 	std::swap(players, other.players);
-	std::swap(fogOfWarMap, other.fogOfWarMap);
+
+	//need to resize before assign :/
+	auto shape = other.fogOfWarMap.shape();
+	fogOfWarMap.resize(boost::extents[shape[0]][shape[1]][shape[2]]);
+	fogOfWarMap = std::move(other.fogOfWarMap);
 }
 
 CRandomGenerator & CGameState::getRandomGenerator()
