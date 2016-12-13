@@ -51,7 +51,7 @@ void CMapGenerator::initTiles()
 	int height = map->height;
 
 	int level = map->twoLevel ? 2 : 1;
-	tiles.resize(boost::extents[level][width][height]); //TODO: rotate [z][x][y]
+	tiles.resize(boost::extents[level][width][height]);
 	zoneColouring.resize(boost::extents[level][width][height]);
 }
 

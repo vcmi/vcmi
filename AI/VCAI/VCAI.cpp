@@ -3065,12 +3065,12 @@ void SectorMap::update()
 
 SectorMap::TSectorID &SectorMap::retreiveTileN(SectorMap::TSectorArray &a, const int3 &pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArray &a, const int3 &pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 void SectorMap::clear()
@@ -3135,6 +3135,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 void SectorMap::write(crstring fname)
 {
 	std::ofstream out(fname);
+	//TODO: rotate [z][x][y]
 	for(int k = 0; k < cb->getMapSize().z; k++)
 	{
 		for(int j = 0; j < cb->getMapSize().y; j++)
@@ -3508,7 +3509,7 @@ TerrainTile* SectorMap::getTile(crint3 pos) const
 {
 	//out of bounds access should be handled by boost::multi_array
 	//still we cached this array to avoid any checks
-	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+	return visibleTiles->operator[](pos.z)[pos.x][pos.y];
 }
 
 std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)
