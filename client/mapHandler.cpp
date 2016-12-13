@@ -1266,7 +1266,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 			for (size_t y = 0; y < map->height; y++)
 			{
 				auto &objs = ttiles[z][x][y].objects;
-				for (size_t i = 0; i < objs.size(); x++)
+				for (size_t i = 0; i < objs.size(); i++)
 				{
 					if (objs[i].obj && objs[i].obj->id == obj->id)
 					{

@@ -1747,12 +1747,12 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 1)));
+		CGI->mh->ttiles[hp.z][hp.x+1][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 1)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 33)));
+		CGI->mh->ttiles[hp.z][hp.x+1][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 33)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.z][hp.x-2][hp.y-2].objects.begin(), CGI->mh->ttiles[hp.z][hp.x-2][hp.y-2].objects.end(), objectBlitOrderSorter);
 		std::stable_sort(CGI->mh->ttiles[hp.z][hp.x-1][hp.y-2].objects.begin(), CGI->mh->ttiles[hp.z][hp.x-1][hp.y-2].objects.end(), objectBlitOrderSorter);
