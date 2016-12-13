@@ -54,13 +54,13 @@ struct NeighborTilesInfo
 			if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
 			  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
 				return false;
-			return visibilityMap[dx+pos.x][dy+pos.y][pos.z];
+			return visibilityMap[pos.z][dx+pos.x][dy+pos.y];
 		};
 		d7 = getTile(-1, -1); //789
 		d8 = getTile( 0, -1); //456
 		d9 = getTile(+1, -1); //123
 		d4 = getTile(-1, 0);
-		d5 = visibilityMap[pos.x][pos.y][pos.z];
+		d5 = visibilityMap[pos.z][pos.x][pos.y];
 		d6 = getTile(+1, 0);
 		d1 = getTile(-1, +1);
 		d2 = getTile( 0, +1);
@@ -109,20 +109,9 @@ void CMapHandler::prepareFOWDefs()
 
 	//initialization of type of full-hide image
 	hideBitmap.resize(sizes.x);
-	for (auto & elem : hideBitmap)
+	for (int i = 0; i < hideBitmap.num_elements(); i++)
 	{
-		elem.resize(sizes.y);
-	}
-	for (auto & elem : hideBitmap)
-	{
-		for (int j = 0; j < sizes.y; ++j)
-		{
-			elem[j].resize(sizes.z);
-			for(int k = 0; k < sizes.z; ++k)
-			{
-				elem[j][k] = CRandomGenerator::getDefault().nextInt(size - 1);
-			}
-		}
+		hideBitmap.data()[i] = CRandomGenerator::getDefault().nextInt(size - 1);
 	}
 
 	size = graphics->fogOfWarPartialHide->size(0);
@@ -563,7 +552,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		const CGObjectInstance * obj = object.obj;
 
 		const bool sameLevel = obj->pos.z == pos.z;
-		const bool isVisible = info->visibilityMap[pos.x][pos.y][pos.z];
+		const bool isVisible = info->visibilityMap[pos.z][pos.x][pos.y];
 		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
 
 		if(sameLevel && isVisible && isVisitable)
@@ -827,7 +816,7 @@ void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 
 	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
-		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
+		retBitmapID = - parent->hideBitmap[pos.z][pos.x][pos.y] - 1; //fully hidden
 
 	const IImage * image = nullptr;
 
@@ -893,9 +882,9 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			}
 			else
 			{
-				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
+				const TerrainTile2 & tile = parent->ttiles[pos.z][pos.x][pos.y];
 
-				if (!info->visibilityMap[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
+				if (!info->visibilityMap[topTile.z][pos.x][pos.y] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells

@@ -1560,7 +1560,7 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto &fow = elem.second.fogOfWarMap;
-		fow.resize(boost::extents[map->width][map->height][map->twoLevel ? 2 : 1]);
+		fow.resize(boost::extents[map->twoLevel ? 2 : 1][map->width][map->height]);
 		for (int i = 0; i < fow.num_elements(); i++)
 			fow.data()[i] = 0;
 
@@ -1572,7 +1572,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				fow[tile.x][tile.y][tile.z] = 1;
+				fow[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -2143,7 +2143,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 {
 	if(player == PlayerColor::NEUTRAL)
 		return false;
-	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
+	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )

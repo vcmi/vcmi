@@ -498,11 +498,11 @@ std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVi
 
 	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[levels][width][height]);
 
-	for (size_t x = 0; x < width; x++)
-		for (size_t y = 0; y < height; y++)
-			for (size_t z = 0; z < levels; z++)
+	for (size_t z = 0; z < levels; z++)
+		for (size_t x = 0; x < width; x++)
+			for (size_t y = 0; y < height; y++)
 			{
-				if (team->fogOfWarMap[x][y][z])
+				if (team->fogOfWarMap[z][x][y])
 					tileArray[z][x][y] = &gs->map->getTile(int3(x, y, z));
 				else
 					tileArray[z][x][y] = nullptr;

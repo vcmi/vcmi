@@ -5984,11 +5984,11 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
 		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
 		int lastUnc = 0;
-		for (int i = 0; i < gs->map->width; i++)
-			for (int j = 0; j < gs->map->height; j++)
-				for (int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
-					if (!fowMap[i][j][k] || !fc.mode)
-						hlp_tab[lastUnc++] = int3(i, j, k);
+		for (int z = 0; z < (gs->map->twoLevel ? 2 : 1); z++)
+			for (int x = 0; x < gs->map->width; x++)
+				for (int y = 0; y < gs->map->height; y++)
+					if (!fowMap[z][x][y] || !fc.mode)
+						hlp_tab[lastUnc++] = int3(x, y, z);
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);
 		delete [] hlp_tab;
 		sendAndApply(&fc);

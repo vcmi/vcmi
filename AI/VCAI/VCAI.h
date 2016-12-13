@@ -87,7 +87,7 @@ struct SectorMap
 		}
 	};
 
-	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
+	typedef ui16 TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
 	typedef boost::multi_array<TSectorID, 3> TSectorArray;
 
 	bool valid; //some kind of lazy eval
