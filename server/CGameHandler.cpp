@@ -1634,10 +1634,10 @@ void CGameHandler::newTurn()
 				// find all hidden tiles
 				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
 				auto shape = fow.shape();
-				for (size_t x = 0; x < shape[0]; x++)
-					for (size_t y = 0; y < shape[1]; y++)
-						for (size_t z = 0; z < shape[2]; z++)
-							if (!fow[x][y][z])
+				for (size_t z = 0; z < shape[0]; z++)
+					for (size_t x = 0; x < shape[1]; x++)
+						for (size_t y = 0; y < shape[2]; y++)
+							if (!fow[z][x][y])
 								fw.tiles.insert(int3(x, y, z));
 
 				sendAndApply (&fw);
