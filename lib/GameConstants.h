@@ -543,7 +543,7 @@ namespace ESiegeHex
 
 namespace ETileType
 {
-	enum ETileType
+	enum ETileType : ui8
 	{
 		FREE,
 		POSSIBLE,
@@ -563,7 +563,7 @@ enum class ETeleportChannelType
 
 namespace ERiverType
 {
-	enum ERiverType
+	enum ERiverType : ui8
 	{
 		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
 	};
@@ -571,7 +571,7 @@ namespace ERiverType
 
 namespace ERoadType
 {
-	enum ERoadType
+	enum ERoadType : ui8
 	{
 		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
 	};
@@ -801,7 +801,7 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 class DLL_LINKAGE ETerrainType
 {
 public:
-	enum EETerrainType
+	enum EETerrainType : si8
 	{
 		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
 		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK

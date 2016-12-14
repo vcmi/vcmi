@@ -73,6 +73,7 @@ struct DLL_LINKAGE TerrainTile
 	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
+	//all 1 byte
 	ETerrainType terType;
 	ui8 terView;
 	ERiverType::ERiverType riverType;
