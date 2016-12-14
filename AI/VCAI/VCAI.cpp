@@ -3065,26 +3065,20 @@ void SectorMap::update()
 
 SectorMap::TSectorID &SectorMap::retreiveTileN(SectorMap::TSectorArray &a, const int3 &pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArray &a, const int3 &pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 void SectorMap::clear()
 {
-	//TODO: rotate to [z][x][y]
-	//TODO: any magic to automate this?
 	auto fow = cb->getVisibilityMap();
-	auto width = fow.size();
-	auto height = fow.front().size();
-	auto depth = fow.front().front().size();
-	for (size_t x = 0; x < width; x++)
-		for (size_t y = 0; y < height; y++ )
-			for (size_t z = 0; z < depth; z++)
-				sector[x][y][z] = fow[x][y][z];
+	for (int i = 0; i < fow.num_elements(); i++)
+		sector.data()[i] = fow.data()[i]; //type conversion
+
 	valid = false;
 }
 
@@ -3141,13 +3135,14 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 void SectorMap::write(crstring fname)
 {
 	std::ofstream out(fname);
+
 	for(int k = 0; k < cb->getMapSize().z; k++)
 	{
 		for(int j = 0; j < cb->getMapSize().y; j++)
 		{
 			for(int i = 0; i < cb->getMapSize().x; i++)
 			{
-				out << (int)sector[i][j][k] << '\t';
+				out << (int)sector[k][i][j] << '\t';
 			}
 			out << std::endl;
 		}
@@ -3514,7 +3509,7 @@ TerrainTile* SectorMap::getTile(crint3 pos) const
 {
 	//out of bounds access should be handled by boost::multi_array
 	//still we cached this array to avoid any checks
-	return visibleTiles->operator[](pos.x)[pos.y][pos.z];
+	return visibleTiles->operator[](pos.z)[pos.x][pos.y];
 }
 
 std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)

@@ -47,20 +47,20 @@ struct NeighborTilesInfo
 		 d1,
 		 d2,
 		 d3;
-	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap)
+	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const boost::multi_array<ui8, 3> & visibilityMap)
 	{
 		auto getTile = [&](int dx, int dy)->bool
 		{
 			if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
 			  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
 				return false;
-			return visibilityMap[dx+pos.x][dy+pos.y][pos.z];
+			return visibilityMap[pos.z][dx+pos.x][dy+pos.y];
 		};
 		d7 = getTile(-1, -1); //789
 		d8 = getTile( 0, -1); //456
 		d9 = getTile(+1, -1); //123
 		d4 = getTile(-1, 0);
-		d5 = visibilityMap[pos.x][pos.y][pos.z];
+		d5 = visibilityMap[pos.z][pos.x][pos.y];
 		d6 = getTile(+1, 0);
 		d1 = getTile(-1, +1);
 		d2 = getTile( 0, +1);
@@ -108,22 +108,9 @@ void CMapHandler::prepareFOWDefs()
 		FoWfullHide[frame] = graphics->fogOfWarFullHide->getImage(frame);
 
 	//initialization of type of full-hide image
-	hideBitmap.resize(sizes.x);
-	for (auto & elem : hideBitmap)
-	{
-		elem.resize(sizes.y);
-	}
-	for (auto & elem : hideBitmap)
-	{
-		for (int j = 0; j < sizes.y; ++j)
-		{
-			elem[j].resize(sizes.z);
-			for(int k = 0; k < sizes.z; ++k)
-			{
-				elem[j][k] = CRandomGenerator::getDefault().nextInt(size - 1);
-			}
-		}
-	}
+	hideBitmap.resize(boost::extents[sizes.z][sizes.x][sizes.y]);
+	for (int i = 0; i < hideBitmap.num_elements(); i++)
+		hideBitmap.data()[i] = CRandomGenerator::getDefault().nextInt(size - 1);
 
 	size = graphics->fogOfWarPartialHide->size(0);
 	FoWpartialHide.resize(size);
@@ -216,17 +203,8 @@ void CMapHandler::initTerrainGraphics()
 	loadFlipped(4, riverAnimations, riverImages, RIVER_FILES);
 
 	// Create enough room for the whole map and its frame
-
-	ttiles.resize(sizes.x, frameW, frameW);
-	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
-	{
-		ttiles[i].resize(sizes.y, frameH, frameH);
-	}
-	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
-	{
-		for (int j=0-frameH;j<(int)sizes.y+frameH;j++)
-			ttiles[i][j].resize(sizes.z, 0, 0);
-	}
+	ttiles.resize(boost::extents[sizes.z][sizes.x + 2 * frameW][sizes.y + 2 * frameH]); 
+	ttiles.reindex(std::list<int>{ 0, -frameW, -frameH }); //need to move starting coordinates so that used index is always positive
 }
 
 void CMapHandler::initBorderGraphics()
@@ -327,19 +305,21 @@ void CMapHandler::initObjectRects()
 					obj->coveringAt(currTile.x, currTile.y) // object is visible here
 				  )
 				{
-					ttiles[currTile.x][currTile.y][currTile.z].objects.push_back(toAdd);
+					ttiles[currTile.z][currTile.x][currTile.y].objects.push_back(toAdd);
 				}
 			}
 		}
 	}
 
-	for(int ix=0; ix<ttiles.size()-frameW; ++ix)
+	auto shape = ttiles.shape();
+	for (size_t z = 0; z < shape[0]; z++)
 	{
-		for(int iy=0; iy<ttiles[0].size()-frameH; ++iy)
+		for(size_t x=0; x< shape[1]-frameW; x++)
 		{
-			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
+			for(size_t y=0; y < shape[2]-frameH; y++)
 			{
-				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), objectBlitOrderSorter);
+				auto & objects = ttiles[z][x][y].objects;
+				stable_sort(objects.begin(), objects.end(), objectBlitOrderSorter);
 			}
 		}
 	}
@@ -563,7 +543,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		const CGObjectInstance * obj = object.obj;
 
 		const bool sameLevel = obj->pos.z == pos.z;
-		const bool isVisible = (*info->visibilityMap)[pos.x][pos.y][pos.z];
+		const bool isVisible = info->visibilityMap[pos.z][pos.x][pos.y];
 		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
 
 		if(sameLevel && isVisible && isVisitable)
@@ -823,11 +803,11 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 {
-	const NeighborTilesInfo neighborInfo(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighborInfo(pos, parent->sizes, info->visibilityMap);
 
 	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
-		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
+		retBitmapID = - parent->hideBitmap[pos.z][pos.x][pos.y] - 1; //fully hidden
 
 	const IImage * image = nullptr;
 
@@ -862,7 +842,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			realTileRect.x = realPos.x;
 			realTileRect.y = realPos.y;
 
-			const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
+			const TerrainTile2 & tile = parent->ttiles[pos.z][pos.x][pos.y];
 			const TerrainTile & tinfo = parent->map->getTile(pos);
 			const TerrainTile * tinfoUpper = pos.y > 0 ? &parent->map->getTile(int3(pos.x, pos.y - 1, pos.z)) : nullptr;
 
@@ -893,9 +873,9 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			}
 			else
 			{
-				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
+				const TerrainTile2 & tile = parent->ttiles[pos.z][pos.x][pos.y];
 
-				if (!(*info->visibilityMap)[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
+				if (!info->visibilityMap[topTile.z][pos.x][pos.y] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells
@@ -1099,7 +1079,7 @@ bool CMapHandler::CMapBlitter::canDrawObject(const CGObjectInstance * obj) const
 
 bool CMapHandler::CMapBlitter::canDrawCurrentTile() const
 {
-	const NeighborTilesInfo neighbors(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighbors(pos, parent->sizes, info->visibilityMap);
 	return !neighbors.areAllHidden();
 }
 
@@ -1130,7 +1110,7 @@ bool CMapHandler::updateObjectsFade()
 			++iter;
 		else // fade finished
 		{
-			auto &objs = ttiles[pos.x][pos.y][pos.z].objects;
+			auto &objs = ttiles[pos.z][pos.x][pos.y].objects;
 			for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter)
 			{
 				if ((*objIter).fadeAnimKey == (*iter).first)
@@ -1219,7 +1199,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
 				int3 pos(obj->pos.x + fx - tilesW + 1, obj->pos.y + fy - tilesH + 1, obj->pos.z);
-				TerrainTile2 & curt = ttiles[pos.x][pos.y][pos.z];
+				TerrainTile2 & curt = ttiles[pos.z][pos.x][pos.y];
 
 				if (fadein && ADVOPT.objectFading)
 				{
@@ -1280,26 +1260,26 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = fals
 
 	//}
 
-	for (size_t i = 0; i<map->width; i++)
+	for (size_t z = 0; z < (map->twoLevel ? 2 : 1); z++)
 	{
-		for (size_t j = 0; j<map->height; j++)
+		for (size_t x = 0; x < map->width; x++)
 		{
-			for (size_t k = 0; k<(map->twoLevel ? 2 : 1); k++)
+			for (size_t y = 0; y < map->height; y++)
 			{
-				auto &objs = ttiles[i][j][k].objects;
-				for (size_t x = 0; x < objs.size(); x++)
+				auto &objs = ttiles[z][x][y].objects;
+				for (size_t i = 0; i < objs.size(); i++)
 				{
-					if (objs[x].obj && objs[x].obj->id == obj->id)
+					if (objs[i].obj && objs[i].obj->id == obj->id)
 					{
 						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
 						{
-							if (startObjectFade(objs[x], false, int3(i, j, k)))
-								objs[x].obj = nullptr;
+							if (startObjectFade(objs[i], false, int3(x, y, z)))
+								objs[i].obj = nullptr;
 							else
-								objs.erase(objs.begin() + x);
+								objs.erase(objs.begin() + i);
 						}
 						else
-							objs.erase(objs.begin() + x);
+							objs.erase(objs.begin() + i);
 						break;
 					}
 				}
@@ -1388,7 +1368,7 @@ CMapHandler::CMapHandler()
 void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
 {
 	out.clear();
-	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+	TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
 	const TerrainTile &t = map->getTile(pos);
 	for(auto & elem : tt.objects)
 	{

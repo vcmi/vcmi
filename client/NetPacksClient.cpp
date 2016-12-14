@@ -359,7 +359,7 @@ void TryMoveHero::applyFirstCl(CClient *cl)
 		if(i->first >= PlayerColor::PLAYER_LIMIT)
 			continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
+		if((t->fogOfWarMap[start.z][start.x-1][start.y] || t->fogOfWarMap[end.z][end.x-1][end.y])
 				&& GS(cl)->getPlayer(i->first)->human)
 			humanKnows = true;
 	}
@@ -396,7 +396,7 @@ void TryMoveHero::applyCl(CClient *cl)
 	{
 		if(i->first >= PlayerColor::PLAYER_LIMIT) continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
+		if(t->fogOfWarMap[start.z][start.x-1][start.y] || t->fogOfWarMap[end.z][end.x-1][end.y])
 		{
 			i->second->heroMoved(*this);
 		}

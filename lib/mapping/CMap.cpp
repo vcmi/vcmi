@@ -218,8 +218,7 @@ CMapHeader::~CMapHeader()
 }
 
 CMap::CMap()
-	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr)
+	: checksum(0), grailPos(-1, -1, -1), grailRadius(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
@@ -229,22 +228,6 @@ CMap::CMap()
 
 CMap::~CMap()
 {
-	if(terrain)
-	{
-		for (int i=0; i<width; i++)
-		{
-			for(int j=0; j<height; j++)
-			{
-				delete [] terrain[i][j];
-				delete [] guardingCreaturePositions[i][j];
-			}
-			delete [] terrain[i];
-			delete [] guardingCreaturePositions[i];
-		}
-		delete [] terrain;
-		delete [] guardingCreaturePositions;
-	}
-
 	for(auto obj : objects)
 		obj.dellNull();
 
@@ -263,7 +246,7 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 			int zVal = obj->pos.z;
 			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(total || obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects -= obj;
@@ -290,7 +273,7 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 			int zVal = obj->pos.z;
 			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if( obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects.push_back(obj);
@@ -309,12 +292,14 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 void CMap::calculateGuardingGreaturePositions()
 {
 	int levels = twoLevel ? 2 : 1;
-	for (int i=0; i<width; i++)
+	for (int k = 0; k < levels; k++)
 	{
-		for(int j=0; j<height; j++)
+		for (int i = 0; i < width; i++)
 		{
-			for (int k = 0; k < levels; k++)
-				guardingCreaturePositions[i][j][k] = guardingCreaturePosition(int3(i,j,k));
+			for (int j = 0; j < height; j++)
+			{
+				guardingCreaturePositions[k][i][j] = guardingCreaturePosition(int3(i, j, k));
+			}
 		}
 	}
 }
@@ -372,13 +357,13 @@ bool CMap::isInTheMap(const int3 & pos) const
 TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 bool CMap::isWaterTile(const int3 &pos) const
@@ -612,18 +597,8 @@ void CMap::addNewObject(CGObjectInstance * obj)
 void CMap::initTerrain()
 {
 	int level = twoLevel ? 2 : 1;
-	terrain = new TerrainTile**[width];
-	guardingCreaturePositions = new int3**[width];
-	for (int i = 0; i < width; ++i)
-	{
-		terrain[i] = new TerrainTile*[height];
-		guardingCreaturePositions[i] = new int3*[height];
-		for (int j = 0; j < height; ++j)
-		{
-			terrain[i][j] = new TerrainTile[level];
-			guardingCreaturePositions[i][j] = new int3[level];
-		}
-	}
+	terrain.resize(boost::extents[level][width][height]);
+	guardingCreaturePositions.resize(boost::extents[level][width][height]);
 }
 
 CMapEditManager * CMap::getEditManager()

@@ -905,18 +905,14 @@ void CMapLoaderH3M::readTerrain()
 	map->initTerrain();
 
 	// Read terrain
-	for(int a = 0; a < 2; ++a)
+	//file format has quite unusual rotation
+	for(int z = 0; z < (map->twoLevel ? 2 : 1); z++)
 	{
-		if(a == 1 && !map->twoLevel)
+		for(int y = 0; y < map->height; y++)
 		{
-			break;
-		}
-
-		for(int c = 0; c < map->width; c++)
-		{
-			for(int z = 0; z < map->height; z++)
+			for(int x = 0; x < map->width; x++)
 			{
-				auto & tile = map->getTile(int3(z, c, a));
+				auto & tile = map->getTile(int3(x, y, z));
 				tile.terType = ETerrainType(reader.readUInt8());
 				tile.terView = reader.readUInt8();
 				tile.riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());

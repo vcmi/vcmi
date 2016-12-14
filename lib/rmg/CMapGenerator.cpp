@@ -38,7 +38,7 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 
 CMapGenerator::CMapGenerator() :
 	mapGenOptions(nullptr), randomSeed(0), editManager(nullptr),
-	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
+	zonesTotal(0), prisonsRemaining(0),
     monolithIndex(0)
 {
 }
@@ -51,35 +51,12 @@ void CMapGenerator::initTiles()
 	int height = map->height;
 
 	int level = map->twoLevel ? 2 : 1;
-	tiles = new CTileInfo**[width];
-	for (int i = 0; i < width; ++i)
-	{
-		tiles[i] = new CTileInfo*[height];
-		for (int j = 0; j < height; ++j)
-		{
-			tiles[i][j] = new CTileInfo[level];
-		}
-	}
-
-	zoneColouring.resize(boost::extents[map->twoLevel ? 2 : 1][map->width][map->height]);
+	tiles.resize(boost::extents[level][width][height]);
+	zoneColouring.resize(boost::extents[level][width][height]);
 }
 
 CMapGenerator::~CMapGenerator()
 {
-	if (tiles)
-	{
-		int width = mapGenOptions->getWidth();
-		int height = mapGenOptions->getHeight();
-		for (int i=0; i < width; i++)
-		{
-			for(int j=0; j < height; j++)
-			{
-				delete [] tiles[i][j];
-			}
-			delete [] tiles[i];
-		}
-		delete [] tiles;
-	}
 }
 
 void CMapGenerator::initPrisonsRemaining()
@@ -690,52 +667,52 @@ bool CMapGenerator::isBlocked(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].isBlocked();
+	return tiles[tile.z][tile.x][tile.y].isBlocked();
 }
 bool CMapGenerator::shouldBeBlocked(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
+	return tiles[tile.z][tile.x][tile.y].shouldBeBlocked();
 }
 bool CMapGenerator::isPossible(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].isPossible();
+	return tiles[tile.z][tile.x][tile.y].isPossible();
 }
 bool CMapGenerator::isFree(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].isFree();
+	return tiles[tile.z][tile.x][tile.y].isFree();
 }
 bool CMapGenerator::isUsed(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].isUsed();
+	return tiles[tile.z][tile.x][tile.y].isUsed();
 }
 
 bool CMapGenerator::isRoad(const int3& tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].isRoad();
+	return tiles[tile.z][tile.x][tile.y].isRoad();
 }
 
 void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
 	checkIsOnMap(tile);
 
-	tiles[tile.x][tile.y][tile.z].setOccupied(state);
+	tiles[tile.z][tile.x][tile.y].setOccupied(state);
 }
 
 void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
 {
 	checkIsOnMap(tile);
 
-	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
+	tiles[tile.z][tile.x][tile.y].setRoadType(roadType);
 }
 
 
@@ -743,7 +720,7 @@ CTileInfo CMapGenerator::getTile(const int3& tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z];
+	return tiles[tile.z][tile.x][tile.y];
 }
 
 TRmgTemplateZoneId CMapGenerator::getZoneID(const int3& tile) const
@@ -775,14 +752,14 @@ void CMapGenerator::setNearestObjectDistance(int3 &tile, float value)
 {
 	checkIsOnMap(tile);
 
-	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
+	tiles[tile.z][tile.x][tile.y].setNearestObjectDistance(value);
 }
 
 float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 {
 	checkIsOnMap(tile);
 
-	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
+	return tiles[tile.z][tile.x][tile.y].getNearestObjectDistance();
 }
 
 int CMapGenerator::getNextMonlithIndex()

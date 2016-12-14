@@ -715,7 +715,7 @@ void CPathfinder::initializeGraph()
 
 CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const
 {
-	if(tinfo->terType == ETerrainType::ROCK || !FoW[pos.x][pos.y][pos.z])
+	if(tinfo->terType == ETerrainType::ROCK || !FoW[pos.z][pos.x][pos.y])
 		return CGPathNode::BLOCKED;
 
 	switch(layer)

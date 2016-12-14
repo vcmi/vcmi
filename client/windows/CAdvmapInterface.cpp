@@ -294,7 +294,7 @@ void CTerrainRect::show(SDL_Surface * to)
 {
 	if (adventureInt->mode == EAdvMapMode::NORMAL)
 	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos);
 		info.otherheroAnim = true;
 		info.anim = adventureInt->anim;
 		info.heroAnim = adventureInt->heroAnim;
@@ -321,7 +321,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 	// world view map is static and doesn't need redraw every frame
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
 		info.scaled = true;
 		info.scale = adventureInt->worldViewScale;
 		adventureInt->worldViewOptions.adjustDrawingInfo(info);

@@ -496,16 +496,16 @@ std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVi
 	size_t levels = (gs->map->twoLevel ? 2 : 1);
 
 
-	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
+	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[levels][width][height]);
 
-	for (size_t x = 0; x < width; x++)
-		for (size_t y = 0; y < height; y++)
-			for (size_t z = 0; z < levels; z++)
+	for (size_t z = 0; z < levels; z++)
+		for (size_t x = 0; x < width; x++)
+			for (size_t y = 0; y < height; y++)
 			{
-				if (team->fogOfWarMap[x][y][z])
-					tileArray[x][y][z] = &gs->map->getTile(int3(x, y, z));
+				if (team->fogOfWarMap[z][x][y])
+					tileArray[z][x][y] = &gs->map->getTile(int3(x, y, z));
 				else
-					tileArray[x][y][z] = nullptr;
+					tileArray[z][x][y] = nullptr;
 			}
 	return std::make_shared<boost::multi_array<TerrainTile*, 3>>(tileArray);
 }
@@ -678,7 +678,7 @@ CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor
 	player = Player;
 }
 
-const std::vector< std::vector< std::vector<ui8> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
+const boost::multi_array<ui8, 3> & CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPlayerTeam(*player)->fogOfWarMap;

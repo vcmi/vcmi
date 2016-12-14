@@ -501,22 +501,23 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 	2. find current center of mass for each zone. Move zone to that center to balance zones sizes
 	*/
 
-	for (int i = 0; i<width; i++)
+	for (int z = 0; z < levels; z++)
 	{
-		for (int j = 0; j<height; j++)
+		for (int x = 0; x<width; x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for (int y = 0; y<height; y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
+				int3 pos(x, y, z);
 				for (auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
-						distances.push_back(std::make_pair(zone.second, pos.dist2dSQ(zone.second->getPos())));
+					if (zone.second->getPos().z == z)
+						distances.push_back(std::make_pair(zone.second, metric(pos, zone.second->getPos())));
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
-				boost::min_element(distances, compareByDistance)->first->addTile(pos); //closest tile belongs to zone
+				auto zone = boost::min_element(distances, compareByDistance)->first; //closest tile belongs to zone
+				zone->addTile(pos);
 			}
 		}
 	}
@@ -529,17 +530,17 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 	for (auto zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	for (int i=0; i<width; i++)
+	for (int z = 0; z < levels; z++)
 	{
-		for(int j=0; j<height; j++)
+		for (int x=0; x<width; x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for(int y=0; y<height; y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
+				int3 pos(x, y, z);
 				for (auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == z)
 						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
 					else
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
