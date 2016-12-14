@@ -3135,14 +3135,14 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 void SectorMap::write(crstring fname)
 {
 	std::ofstream out(fname);
-	//TODO: rotate [z][x][y]
+
 	for(int k = 0; k < cb->getMapSize().z; k++)
 	{
 		for(int j = 0; j < cb->getMapSize().y; j++)
 		{
 			for(int i = 0; i < cb->getMapSize().x; i++)
 			{
-				out << (int)sector[i][j][k] << '\t';
+				out << (int)sector[k][i][j] << '\t';
 			}
 			out << std::endl;
 		}
