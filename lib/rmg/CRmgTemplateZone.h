@@ -17,6 +17,7 @@
 #include "../int3.h"
 #include "../ResourceSet.h" //for TResource (?)
 #include "../mapObjects/ObjectTemplate.h"
+#include <boost/heap/priority_queue.hpp> //A*
 
 class CMapGenerator;
 class CTileInfo;
@@ -210,6 +211,17 @@ public:
 	void placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard = false);
 	void addRoadNode(const int3 & node);
 	void connectRoads(CMapGenerator * gen); //fills "roads" according to "roadNodes"
+
+	//A* priority queue
+	typedef std::pair<int3, float> TDistance;
+	struct NodeComparer
+	{
+		bool operator()(const TDistance & lhs, const TDistance & rhs) const
+		{
+			return (rhs.second < lhs.second);
+		}
+	};
+	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPiorityQueue();
 
 private:
 	//template info

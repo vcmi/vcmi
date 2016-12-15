@@ -24,8 +24,6 @@
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CRewardableObject.h"
 
-#include <boost/heap/priority_queue.hpp> //A*
-
 class CMap;
 class CMapEditManager;
 //class CGObjectInstance;
@@ -751,22 +749,17 @@ do not leave zone border
 
 	return result;
 }
+boost::heap::priority_queue<CRmgTemplateZone::TDistance, boost::heap::compare<CRmgTemplateZone::NodeComparer>> CRmgTemplateZone::createPiorityQueue()
+{
+	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
+}
 
 bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int3& dst)
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
-	typedef std::pair<int3, float> TDistance;
-	struct NodeComparer
-	{
-		bool operator()(const TDistance & lhs, const TDistance & rhs) const
-		{
-			return (rhs.second < lhs.second);
-		}
-	};
-
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> pq;    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto pq = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 	
