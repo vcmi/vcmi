@@ -24,6 +24,8 @@
 #include "../mapObjects/CGPandoraBox.h"
 #include "../mapObjects/CRewardableObject.h"
 
+#include <boost/heap/priority_queue.hpp> //A*
+
 class CMap;
 class CMapEditManager;
 //class CGObjectInstance;
@@ -754,27 +756,32 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
+	typedef std::pair<int3, float> TDistance;
+	struct NodeComparer
+	{
+		bool operator()(const TDistance & lhs, const TDistance & rhs) const
+		{
+			return (rhs.second < lhs.second);
+		}
+	};
+
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	std::set<int3> open{src};    // The set of tentative nodes to be evaluated, initially containing the start node
+	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> pq;    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
-
-	//int3 currentNode = src;
+	
 	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
-	distances[src] = 0;
+	pq.push(std::make_pair(src, 0.f));
+	distances[src] = 0.f;
 	// Cost from start along best known path.
-	// Estimated total cost from start to goal through y.
 
-	while (open.size())
+	while (!pq.empty())
 	{
-		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
-		{
-			return distances[pos1] < distances[pos2];
-		});
-
-		vstd::erase_if_present (open, currentNode);
+		auto node = pq.top();
+		pq.pop(); //remove top element
+		int3 currentNode = node.first;
 		closed.insert (currentNode);
 
 		if (currentNode == dst || gen->isRoad(currentNode))
@@ -798,25 +805,28 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			bool directNeighbourFound = false;
 			float movementCost = 1;
 
-			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound, movementCost](int3& pos) -> void
+			auto foo = [gen, this, &pq, &distances, &closed, &cameFrom, &currentNode, &node, &dst, &directNeighbourFound, &movementCost](int3& pos) -> void
 			{
-				float distance = distances[currentNode] + movementCost;
-				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				if (vstd::contains(closed, pos)) //we already visited that node
+					return;
+				float distance = node.second + movementCost;
+				float bestDistanceSoFar = std::numeric_limits<float>::max();
 				auto it = distances.find(pos);
 				if (it != distances.end())
 					bestDistanceSoFar = it->second;
 
-				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				if (distance < bestDistanceSoFar)
 				{
 					auto obj = gen->map->getTile(pos).topVisitableObj();
+					//FIXME: make road go through any empty or visitable tile
 					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
-					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
+					if (gen->isFree(pos) || (obj && obj->ID == Obj::MONSTER) || pos == dst)
 					{
 						if (gen->getZoneID(pos) == id || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
 							cameFrom[pos] = currentNode;
-							open.insert(pos);
 							distances[pos] = distance;
+							pq.push(std::make_pair(pos, distance));
 							directNeighbourFound = true;
 							//logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
 						}
@@ -828,7 +838,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			if (!directNeighbourFound)
 			{
 				movementCost = 2.1f; //moving diagonally is penalized over moving two tiles straight
-				gen->foreach_neighbour(currentNode, foo);
+				gen->foreachDiagonaltNeighbour(currentNode, foo);
 			}
 		}
 

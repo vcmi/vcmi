@@ -12,6 +12,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
+static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
@@ -31,6 +32,16 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 	{
 		int3 n = pos + dir;
 		if(map->isInTheMap(n))
+			foo(n);
+	}
+}
+
+void CMapGenerator::foreachDiagonaltNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+{
+	for (const int3 &dir : dirsDiagonal)
+	{
+		int3 n = pos + dir;
+		if (map->isInTheMap(n))
 			foo(n);
 	}
 }
