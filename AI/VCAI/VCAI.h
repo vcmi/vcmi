@@ -107,9 +107,9 @@ struct SectorMap
 
 	bool markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t);
 	bool markIfBlocked(TSectorID &sec, crint3 pos);
-	TSectorID &retreiveTile(crint3 pos);
-	TSectorID &SectorMap::retreiveTileN(TSectorArray &vectors, const int3 &pos);
-	const TSectorID &SectorMap::retreiveTileN(const TSectorArray &vectors, const int3 &pos);
+	TSectorID & retreiveTile(crint3 pos);
+	TSectorID & retreiveTileN(TSectorArray &vectors, const int3 &pos);
+	const TSectorID & retreiveTileN(const TSectorArray &vectors, const int3 &pos);
 	TerrainTile* getTile(crint3 pos) const;
 	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 
