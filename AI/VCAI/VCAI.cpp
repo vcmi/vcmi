@@ -132,6 +132,9 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				}
 			}
 		}
+		//FIXME: teleports are not correctly visited
+		unreserveObject(hero, t1);
+		unreserveObject(hero, t2);
 	}
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
@@ -1681,7 +1684,9 @@ void VCAI::waitTillFree()
 
 void VCAI::markObjectVisited (const CGObjectInstance *obj)
 {
-	if(dynamic_cast<const CGVisitableOPH *>(obj) || //we may want to wisit it with another hero
+	if(!obj)
+		return;
+	if(dynamic_cast<const CGVisitableOPH *>(obj) || //we may want to visit it with another hero
 		dynamic_cast<const CGBonusingObject *>(obj) || //or another time
 		(obj->ID == Obj::MONSTER))
 		return;
@@ -1976,6 +1981,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
+				markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
 
 				continue;
 			}
@@ -3245,7 +3251,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::MONOLITH_TWO_WAY:
 		case Obj::WHIRLPOOL:
-			//TODO: mechanism for handling monoliths
 			return false;
 		case Obj::SCHOOL_OF_MAGIC:
 		case Obj::SCHOOL_OF_WAR:
