@@ -2112,13 +2112,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		}
 	}
 	if (updateDistance)
-	{
-		for(auto tile : possibleTiles) //don't need to mark distance for not possible tiles
-		{
-			si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-			gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
-		}
-	}
+		updateDistances(gen, pos);
 
 	switch (object->ID)
 	{
@@ -2135,6 +2129,15 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 
 	default:
 		break;
+	}
+}
+
+void CRmgTemplateZone::updateDistances(CMapGenerator* gen, const int3 & pos)
+{
+	for (auto tile : possibleTiles) //don't need to mark distance for not possible tiles
+	{
+		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+		gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
 	}
 }
 
