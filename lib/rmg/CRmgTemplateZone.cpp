@@ -1319,17 +1319,11 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 
 	auto cutPathAroundTown = [gen, this](const CGTownInstance * town)
 	{
-		//cut contour around town in case it was placed in a middle of path. TODO: find better solution
-		for (auto tile : town->getBlockedPos())
+		//cut contour around town entrance
+		for (auto pos: getAccessibleOffsets(gen, town))
 		{
-			gen->foreach_neighbour(tile, [gen, &tile](int3& pos)
-			{
-				if (gen->isPossible(pos))
-				{
-					gen->setOccupied(pos, ETileType::FREE);
-				}
-			});
-		}
+			gen->setOccupied(pos, ETileType::FREE);
+		};
 	};
 
 	auto addNewTowns = [&totalTowns, gen, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
@@ -1369,9 +1363,9 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//register MAIN town of zone
 				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
-				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
+				placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 				cutPathAroundTown(town);
-				setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
+				setPos(town->pos + int3(0, 1, 0)); //roads lead to tile below the town
 			}
 			else
 				addRequiredObject (town);
@@ -1414,9 +1408,9 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
-		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
+		placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 		cutPathAroundTown(town);
-		setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
+		setPos(town->pos + int3(0, 1, 0)); //roads lead to tile below the town
 
 		totalTowns++;
 		//register MAIN town of zone only
@@ -1902,7 +1896,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	initTerrainType(gen);
 
 	//zone center should be always clear to allow other tiles to connect
-	gen->setOccupied(this->getPos(), ETileType::FREE);
+	gen->setOccupied(pos, ETileType::FREE);
 	freePaths.insert(pos);
 
 	addAllPossibleObjects (gen);
@@ -2156,7 +2150,7 @@ void CRmgTemplateZone::placeSubterraneanGate(CMapGenerator* gen, int3 pos, si32 
 	guardObject (gen, gate, guardStrength, true);
 }
 
-std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)
+std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, const CGObjectInstance* object)
 {
 	//get all tiles from which this object can be accessed
 	int3 visitable = object->visitablePos();

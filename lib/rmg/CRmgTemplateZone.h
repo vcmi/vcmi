@@ -194,7 +194,7 @@ public:
 	bool connectWithCenter(CMapGenerator* gen, const int3& src, bool onlyStraight);
 	void updateDistances(CMapGenerator* gen, const int3 & pos);
 
-	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object);
+	std::vector<int3> getAccessibleOffsets (CMapGenerator* gen, const CGObjectInstance* object);
 	bool areAllTilesAvailable(CMapGenerator* gen, CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 
 	void addConnection(TRmgTemplateZoneId otherZone);

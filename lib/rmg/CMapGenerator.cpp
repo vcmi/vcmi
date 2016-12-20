@@ -283,7 +283,12 @@ void CMapGenerator::fillZones()
 
 	logGlobal->infoStream() << "Started filling zones";
 
-	//initialize possible tiles before any object is actually placed
+	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
+	//place main town in the middle
+	for (auto it : zones)
+		it.second->initTownType(this);
+
+	//make sure there are some free tiles in the zone
 	for (auto it : zones)
 		it.second->initFreeTiles(this);
 
@@ -293,10 +298,6 @@ void CMapGenerator::fillZones()
 		it.second->createBorder(this); //once direct connections are done
 
 	createConnections2(); //subterranean gates and monoliths
-
-	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
-	for (auto it : zones)
-		it.second->initTownType(this);
 
 	std::vector<CRmgTemplateZone*> treasureZones;
 	for (auto it : zones)
@@ -532,12 +533,16 @@ void CMapGenerator::createDirectConnections()
 				guardPos = tile;
 				if (guardPos.valid())
 				{
-					setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-					zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
-					zoneB->updateDistances(this, guardPos); //place next objects away from guard in both zones
 					//zones can make paths only in their own area
-					zoneA->crunchPath(this, guardPos, posA, true, zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->connectWithCenter(this, guardPos, true);
+					zoneB->connectWithCenter(this, guardPos, true);
+
+					bool monsterPresent = zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
+					zoneB->updateDistances(this, guardPos); //place next objects away from guard in both zones
+
+					//set free tile only after connection is made to the center of the zone
+					if (!monsterPresent)
+						setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 
 					zoneA->addRoadNode(guardPos);
 					zoneB->addRoadNode(guardPos);
