@@ -1322,11 +1322,15 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 
 	auto cutPathAroundTown = [gen, this](const CGTownInstance * town)
 	{
-		//cut contour around town entrance
-		for (auto pos: getAccessibleOffsets(gen, town))
+		//clear tiles under town to ensure passability
+		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->setOccupied(pos, ETileType::FREE);
-		};
+			gen->foreach_neighbour(blockedTile, [gen, town](const int3& pos)
+			{
+				if (pos.y > town->pos.y)
+					gen->setOccupied(pos, ETileType::FREE);
+			});
+		}
 	};
 
 	auto addNewTowns = [&totalTowns, gen, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
