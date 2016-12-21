@@ -776,6 +776,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		pq.pop(); //remove top element
 		int3 currentNode = node.first;
 		closed.insert (currentNode);
+		auto currentTile = &gen->map->getTile(currentNode);
 
 		if (currentNode == dst || gen->isRoad(currentNode))
 		{
@@ -798,7 +799,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			bool directNeighbourFound = false;
 			float movementCost = 1;
 
-			auto foo = [gen, this, &pq, &distances, &closed, &cameFrom, &currentNode, &node, &dst, &directNeighbourFound, &movementCost](int3& pos) -> void
+			auto foo = [gen, this, &pq, &distances, &closed, &cameFrom, &currentNode, &currentTile, &node, &dst, &directNeighbourFound, &movementCost](int3& pos) -> void
 			{
 				if (vstd::contains(closed, pos)) //we already visited that node
 					return;
@@ -810,10 +811,13 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 
 				if (distance < bestDistanceSoFar)
 				{
-					auto obj = gen->map->getTile(pos).topVisitableObj();
-					//FIXME: make road go through any empty or visitable tile
-					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
-					if (gen->isFree(pos) || (obj && obj->ID == Obj::MONSTER) || pos == dst)
+					auto tile = &gen->map->getTile(pos);
+					auto obj = tile->topVisitableObj();
+					bool canMoveBetween = gen->map->canMoveBetween(currentNode, pos);
+
+					if (gen->isFree(pos) && gen->isFree(currentNode) //empty path
+						|| ((tile->visitable || currentTile->visitable) && canMoveBetween) //moving from or to visitable object
+						|| pos == dst) //we already compledted the path
 					{
 						if (gen->getZoneID(pos) == id || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
@@ -821,7 +825,6 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 							distances[pos] = distance;
 							pq.push(std::make_pair(pos, distance));
 							directNeighbourFound = true;
-							//logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
 						}
 					}
 				}

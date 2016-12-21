@@ -304,6 +304,7 @@ public:
 	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
 
+	bool canMoveBetween(const int3 &src, const int3 &dst) const;
 	bool checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const;
 	int3 guardingCreaturePosition (int3 pos) const;
 

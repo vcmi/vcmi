@@ -385,6 +385,12 @@ bool CMap::isWaterTile(const int3 &pos) const
 {
 	return isInTheMap(pos) && getTile(pos).isWater();
 }
+bool CMap::canMoveBetween(const int3 &src, const int3 &dst) const
+{
+	const TerrainTile * dstTile = &getTile(dst);
+	const TerrainTile * srcTile = &getTile(src);
+	return checkForVisitableDir(src, dstTile, dst) && checkForVisitableDir(dst, srcTile, src);
+}
 
 bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst ) const
 {

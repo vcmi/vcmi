@@ -319,7 +319,7 @@ void CMapGenerator::fillZones()
 		it.second->createObstacles2(this);
 	}
 
-	#define PRINT_MAP_BEFORE_ROADS true
+	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
 		std::ofstream out("road debug");
