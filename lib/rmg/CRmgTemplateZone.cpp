@@ -1325,7 +1325,8 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		//clear tiles under town to ensure passability
 		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->foreach_neighbour(blockedTile, [gen, town](const int3& pos)
+			auto fixedPos = blockedTile + int3(2,0,0); //dunno why, but...
+			gen->foreach_neighbour(fixedPos, [gen, town](const int3& pos)
 			{
 				if (pos.y > town->pos.y)
 					gen->setOccupied(pos, ETileType::FREE);
@@ -1372,7 +1373,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//first town in zone goes in the middle
 				placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 				cutPathAroundTown(town);
-				setPos(town->pos + int3(0, 1, 0)); //roads lead to tile below the town
+				setPos(town->visitablePos()); //roads lead to mian town
 			}
 			else
 				addRequiredObject (town);
@@ -1417,7 +1418,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 		//towns are big objects and should be centered around visitable position
 		placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 		cutPathAroundTown(town);
-		setPos(town->pos + int3(0, 1, 0)); //roads lead to tile below the town
+		setPos(town->visitablePos()); //roads lead to mian town
 
 		totalTowns++;
 		//register MAIN town of zone only
