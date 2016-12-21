@@ -540,6 +540,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 	}
 
+	//cut straight paths towards the center. A* is too slow for that.
 	for (auto node : nodes)
 	{
 		boost::sort(nodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
@@ -1320,15 +1321,14 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
 
+	//cut a ring around town to ensure crunchPath always hits it.
 	auto cutPathAroundTown = [gen, this](const CGTownInstance * town)
 	{
-		//clear tiles under town to ensure passability
 		for (auto blockedTile : town->getBlockedPos())
 		{
-			auto fixedPos = blockedTile + int3(2,0,0); //dunno why, but...
-			gen->foreach_neighbour(fixedPos, [gen, town](const int3& pos)
+			gen->foreach_neighbour(blockedTile, [gen, town](const int3& pos)
 			{
-				if (pos.y > town->pos.y)
+				if (gen->isPossible(pos))
 					gen->setOccupied(pos, ETileType::FREE);
 			});
 		}
