@@ -22,16 +22,16 @@ struct UpgradeInfo;
 class CTabbedInt;
 class CButton;
 
-class CClickableObject : public LRClickableAreaWText
+class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
 	CIntObject * object; // passive object that will be used to determine clickable area
 public:
-	CClickableObject(CIntObject * object, std::function<void()> callback);
+	CCommanderSkillIcon(CIntObject * object, std::function<void()> callback);
 
-	std::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
+	std::function<void()> callback;
 
 	void clickLeft(tribool down, bool previousState) override;
-	//void clickRight(tribool down, bool previousState){};
+	void clickRight(tribool down, bool previousState) override;
 
 	void setObject(CIntObject * object);
 };
@@ -83,8 +83,8 @@ class CStackWindow : public CWindowObject
 
 	std::map<int, CButton *> switchButtons;
 
-	void setSelection(si32 newSkill, CClickableObject * newIcon);
-	CClickableObject * selectedIcon;
+	void setSelection(si32 newSkill, CCommanderSkillIcon * newIcon);
+	CCommanderSkillIcon * selectedIcon;
 	si32 selectedSkill;
 
 	CIntObject * createBonusEntry(size_t index);

@@ -490,4 +490,15 @@ CGeneralTextHandler::CGeneralTextHandler()
 		}
 		while (parser.endLine());
 	}
+	if (VLC->modh->modules.COMMANDERS)
+	{
+		CLegacyConfigParser parser("DATA/ZNPC00.TXT");
+		parser.endLine();//header
+
+		do
+		{
+			znpc00.push_back(parser.readString());
+		}
+		while (parser.endLine());
+	}
 }
