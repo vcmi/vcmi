@@ -492,13 +492,19 @@ CGeneralTextHandler::CGeneralTextHandler()
 	}
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		CLegacyConfigParser parser("DATA/ZNPC00.TXT");
-		parser.endLine();//header
-
-		do
+		try
 		{
-			znpc00.push_back(parser.readString());
+			CLegacyConfigParser parser("DATA/ZNPC00.TXT");
+			parser.endLine();//header
+
+			do
+			{
+				znpc00.push_back(parser.readString());
+			} while (parser.endLine());
 		}
-		while (parser.endLine());
+		catch (std::runtime_error)
+		{
+			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
+		}
 	}
 }

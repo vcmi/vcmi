@@ -437,6 +437,9 @@ void CStackWindow::CWindowSection::createCommander()
 
 	auto getSkillDescription = [this](int skillIndex) -> std::string
 	{
+		if (CGI->generaltexth->znpc00.size() == 0)
+			return "";
+
 		return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
 	};
 
@@ -536,6 +539,9 @@ void CStackWindow::setSelection(si32 newSkill, CCommanderSkillIcon * newIcon)
 {
 	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
 	{
+		if (CGI->generaltexth->znpc00.size() == 0)
+			return "";
+
 		if(selected)
 			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
 		else
