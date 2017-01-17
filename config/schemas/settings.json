@@ -212,7 +212,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "neutralAI" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -230,9 +230,17 @@
 					"type" : "string",
 					"default" : "VCAI"
 				},
+				"friendlyAI" : {
+					"type" : "string",
+					"default" : "BattleAI"
+				},
 				"neutralAI" : {
 					"type" : "string",
 					"default" : "StupidAI"
+				},
+				"enemyAI" : {
+					"type" : "string",
+					"default" : "BattleAI"
 				}
 			}
 		},

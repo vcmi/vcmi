@@ -11,7 +11,8 @@ class QTableWidgetItem;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
-
+private:
+	Ui::MainWindow *ui;
 	void load();
 	void startExecutable(QString name);
 public:
@@ -20,7 +21,4 @@ public:
 
 private slots:
 	void on_startGameButton_clicked();
-
-private:
-	Ui::MainWindow *ui;
 };
