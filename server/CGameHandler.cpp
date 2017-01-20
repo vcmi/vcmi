@@ -906,7 +906,28 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 			bsa.healedStacks.push_back(shi);
 		}
 	}
-	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
+
+	//soul steal handling
+	if (att->hasBonusOfType(Bonus::SOUL_STEAL) && def->isLiving())
+	{
+		StacksHealedOrResurrected shi;
+		shi.lifeDrain = true;
+		shi.tentHealing = false;
+		shi.cure = false;
+		shi.drainedFrom = def->ID;
+
+		StacksHealedOrResurrected::HealInfo hi;
+		hi.stackID = att->ID;
+		hi.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL) * att->MaxHealth(); //TODO: Should unit be additionally healed after life drain?
+		hi.lowLevelResurrection = false;
+		shi.healedStacks.push_back(hi);
+
+		if (hi.healedHP > 0)
+		{
+			bsa.healedStacks.push_back(shi);
+		}
+	}
+	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated 
 
 	//fire shield handling
 	if (!bat.shot() && !vstd::contains(def->state, EBattleStackState::CLONED) &&
@@ -6219,6 +6240,12 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 			else if (st->count < army->getStackCount(st->slot))
 			{
 				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->slot) - st->count);
+				StackLocation sl(army, st->slot);
+				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
+			}
+			else if (st->count > army->getStackCount(st->slot) && st->hasBonusOfType(Bonus::SOUL_STEAL, 0)) //allow WoG ghost amount grow from battles
+			{
+				logGlobal->debug("Stack gained %d units.", army->getStackCount(st->slot) - st->count);
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}

@@ -1305,9 +1305,9 @@ struct StacksHealedOrResurrected : public CPackForClient
 	};
 
 	std::vector<HealInfo> healedStacks;
-	bool lifeDrain; //if true, this heal is an effect of life drain
+	bool lifeDrain; //if true, this heal is an effect of life drain or soul steal
 	bool tentHealing; //if true, than it's healing via First Aid Tent
-	si32 drainedFrom; //if life drain - then stack life was drain from, if tentHealing - stack that is a healer
+	si32 drainedFrom; //if life drain or soul steal - then stack life was drain from, if tentHealing - stack that is a healer
 	bool cure; //archangel cast also remove negative effects
 
 	template <typename Handler> void serialize(Handler &h, const int version)

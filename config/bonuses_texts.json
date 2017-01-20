@@ -328,6 +328,12 @@
 		"name": "Ranged",
 		"description": "Creature can shoot"
 	},
+	
+	"SOUL_STEAL":
+	{
+		"name": "Soul Steal",
+		"description": "Gains ${val}% new creatures for each enemy killed"
+	},
 
 	"SPELLCASTER":
 	{
