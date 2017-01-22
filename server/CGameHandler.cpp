@@ -5188,6 +5188,8 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 	if (!attacker || bat.bsa.empty()) // can be already dead
 		return;
 
+	const CStack *defender = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked);
+
 	auto cast = [=](SpellID spellID, int power)
 	{
 		const CSpell * spell = SpellID(spellID).toSpell();
@@ -5245,6 +5247,44 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 	if (acidDamage)
 	{
 		cast(SpellID::ACID_BREATH_DAMAGE, acidDamage * attacker->count);
+	}
+
+	if (attacker->hasBonusOfType(Bonus::TRANSMUTATION) && defender->isLiving()) //transmutation mechanics, similar to WoG werewolf ability
+	{
+		double chanceToTrigger = attacker->valOfBonuses(Bonus::TRANSMUTATION) / 100.0f;
+		vstd::amin(chanceToTrigger, 1); //cap at 100%
+
+		if (getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+			return;
+		
+		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo;
+
+		if (defender->getCreature()->idNumber == bonusAdditionalInfo ||
+			(bonusAdditionalInfo == -1 && defender->getCreature()->idNumber == attacker->getCreature()->idNumber))
+			return;
+
+		BattleStackAdded resurrectInfo;
+		resurrectInfo.pos = defender->position;
+
+		if (bonusAdditionalInfo != -1)
+			resurrectInfo.creID = (CreatureID)bonusAdditionalInfo;
+		else
+			resurrectInfo.creID = attacker->getCreature()->idNumber;
+		
+		if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 0))
+		{
+			resurrectInfo.amount = std::max((defender->count * defender->MaxHealth()) / resurrectInfo.creID.toCreature()->MaxHealth(), 1u);
+		}
+		else if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 1))
+			resurrectInfo.amount = defender->count;
+		else
+			return; //wrong subtype
+
+		BattleStacksRemoved victimInfo;
+		victimInfo.stackIDs.insert(bat.bsa.at(0).stackAttacked);
+
+		sendAndApply(&victimInfo);
+		sendAndApply(&resurrectInfo);
 	}
 }
 

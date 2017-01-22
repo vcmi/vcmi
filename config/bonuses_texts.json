@@ -388,6 +388,12 @@
 		"name": "Three-headed attack",
 		"description": "Attacks three adjacent units"
 	},
+	
+	"TRANSMUTATION":
+	{
+		"name": "Transmutation",
+		"description": "${val}% chance to transform attacked unit to other type"
+	},
 
 	"UNDEAD":
 	{
