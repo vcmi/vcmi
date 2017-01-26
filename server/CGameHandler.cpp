@@ -5537,8 +5537,105 @@ void CGameHandler::runBattle()
 	}
 
 	//initial stacks appearance triggers, e.g. built-in bonus spells
-	for (auto stack : gs->curB->stacks)
+	auto initialStacks = gs->curB->stacks;
+
+	for (CStack * stack : initialStacks)
 	{
+		if (stack->hasBonusOfType(Bonus::SUMMON_GUARDIANS))
+		{
+			const std::shared_ptr<Bonus> summonInfo = stack->getBonus(Selector::type(Bonus::SUMMON_GUARDIANS));
+			auto accessibility = getAccesibility();
+			CreatureID creatureData = CreatureID(summonInfo->subtype);
+			std::vector<BattleHex> targetHexes;
+			bool targetIsBig = stack->getCreature()->isDoubleWide(); //target = creature to guard
+
+			if (!creatureData.toCreature()->isDoubleWide())
+				targetHexes = stack->getSurroundingHexes();
+			else
+			{
+				if(stack->attackerOwned) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::RIGHT, false), targetHexes);
+				else
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::LEFT, false), targetHexes);
+
+				//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
+				if (stack->attackerOwned && ( (stack->position.getY() % 2 == 0) || (stack->position.getX() > 1) ))
+				{
+					if (targetIsBig && (stack->position.getY() % 2 == 1) && (stack->position.getX() == 2)) //handle exceptional case
+					{
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::TOP_RIGHT, false), targetHexes);
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::BOTTOM_RIGHT, false), targetHexes);
+					}
+					else
+					{	//add back-side guardians for two-hex target, side guardians for one-hex
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(targetIsBig ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false), targetHexes);
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(targetIsBig ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false), targetHexes);
+
+						if (!targetIsBig && stack->position.getX() > 2) //back guard for one-hex
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false), targetHexes);
+						else if (targetIsBig)//front-side guardians for two-hex target
+						{
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::TOP_RIGHT, false), targetHexes);
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::BOTTOM_RIGHT, false), targetHexes);
+							if (stack->position.getX() > 3) //back guard for two-hex
+								BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::LEFT, false), targetHexes);
+						}
+					}
+					
+				}
+
+				else if (!stack->attackerOwned && ((stack->position.getY() % 2 == 1) || (stack->position.getX() < GameConstants::BFIELD_WIDTH - 2)))
+				{
+					if (targetIsBig && (stack->position.getY() % 2 == 0) && (stack->position.getX() == GameConstants::BFIELD_WIDTH - 3 )) //handle exceptional case... equivalent for above for defender side
+					{
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::TOP_LEFT, false), targetHexes);
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::BOTTOM_LEFT, false), targetHexes);
+					}
+					else
+					{
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(targetIsBig ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false), targetHexes);
+						BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(targetIsBig ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false), targetHexes);
+
+						if (!targetIsBig && stack->position.getX() < GameConstants::BFIELD_WIDTH - 3)
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false), targetHexes);
+						else if (targetIsBig)
+						{
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::TOP_LEFT, false), targetHexes);
+							BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::BOTTOM_LEFT, false), targetHexes);
+							if (stack->position.getX() < GameConstants::BFIELD_WIDTH - 4)
+								BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::RIGHT, false), targetHexes);
+						}
+					}
+				}
+
+				else if (!stack->attackerOwned && stack->position.getY() % 2 == 0)
+				{
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::TOP_LEFT, false), targetHexes);
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::LEFT, false).moveInDir(BattleHex::EDir::BOTTOM_LEFT, false), targetHexes);
+				}
+
+				else if (stack->attackerOwned && stack->position.getY() % 2 == 1)
+				{
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::TOP_RIGHT, false), targetHexes);
+					BattleHex::checkAndPush(BattleHex(stack->position).moveInDir(BattleHex::EDir::RIGHT, false).moveInDir(BattleHex::EDir::BOTTOM_RIGHT, false), targetHexes);
+				}
+			}
+				
+
+			for (auto hex : targetHexes)
+			{
+				if (accessibility.accessible(hex, creatureData.toCreature()->isDoubleWide(), stack->attackerOwned)) //without this multiple creatures can occupy one hex
+				{
+					BattleStackAdded newStack;
+					newStack.amount = std::max(1, stack->count) * 0.01 * summonInfo->val;
+					newStack.creID = creatureData.num;
+					newStack.attacker = stack->attackerOwned;
+					newStack.summoned = true;
+					newStack.pos = hex.hex;
+					sendAndApply(&newStack);
+				}
+			}
+		}
 		stackAppearTrigger(stack);
 	}
 

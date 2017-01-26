@@ -799,7 +799,7 @@ bool CShootingAnimation::init()
 	double pi = boost::math::constants::pi<double>();
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile[spi.creID]->ourImages.size());
+	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->ourImages.size());
 
 	assert(maxFrame > 0);
 
