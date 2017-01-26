@@ -659,7 +659,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
-		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->init(cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;

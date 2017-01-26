@@ -2823,10 +2823,10 @@ void VCAI::requestSent(const CPackForServer *pack, int requestID)
 
 std::string VCAI::getBattleAIName() const
 {
-	if(settings["server"]["neutralAI"].getType() == JsonNode::DATA_STRING)
-		return settings["server"]["neutralAI"].String();
+	if(settings["server"]["enemyAI"].getType() == JsonNode::DATA_STRING)
+		return settings["server"]["enemyAI"].String();
 	else
-		return "StupidAI";
+		return "BattleAI";
 }
 
 void VCAI::validateObject(const CGObjectInstance *obj)
