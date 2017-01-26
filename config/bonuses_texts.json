@@ -376,6 +376,12 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
+	
+	"SUMMON_GUARDIANS":
+	{
+		"name": "Summon guardians",
+		"description": "At battle start summons ${subtype.creature} (${val}%)"
+	},
 
 	"TWO_HEX_ATTACK_BREATH":
 	{
