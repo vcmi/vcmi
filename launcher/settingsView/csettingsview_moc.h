@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../StdInc.h"
 
 namespace Ui {
@@ -9,7 +8,6 @@ namespace Ui {
 class CSettingsView : public QWidget
 {
 	Q_OBJECT
-
 public:
 	explicit CSettingsView(QWidget *parent = 0);
 	~CSettingsView();
@@ -24,7 +22,11 @@ private slots:
 
 	void on_comboBoxPlayerAI_currentIndexChanged(const QString &arg1);
 
+	void on_comboBoxFriendlyAI_currentIndexChanged(const QString &arg1);
+
 	void on_comboBoxNeutralAI_currentIndexChanged(const QString &arg1);
+
+	void on_comboBoxEnemyAI_currentIndexChanged(const QString &arg1);
 
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 

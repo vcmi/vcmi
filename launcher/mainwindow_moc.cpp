@@ -84,5 +84,4 @@ void MainWindow::startExecutable(QString name)
 		                      QMessageBox::Ok);
 		return;
 	}
-
 }
