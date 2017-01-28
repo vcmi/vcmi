@@ -14,18 +14,19 @@
     <ProjectGuid>{5B6946C8-A24F-4223-8415-5E16A238ACED}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VCMI_launcher</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -46,6 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>.\GeneratedFiles;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <LinkIncremental>
@@ -54,7 +56,7 @@
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
     <LibraryPath>$(QTDIR)\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>..</OutDir>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

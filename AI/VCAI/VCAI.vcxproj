@@ -81,7 +81,7 @@
     <OutDir>$(VCMI_Out)\AI\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>..</OutDir>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <OutDir>$(VCMI_Out)\AI\</OutDir>
@@ -95,7 +95,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\libs;$(SolutionDir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\libs;$(SolutionDir);..</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

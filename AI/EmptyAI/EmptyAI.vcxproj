@@ -97,7 +97,7 @@
     <OutDir>$(VCMI_Out)\AI\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>..</OutDir>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <OutDir>$(VCMI_Out)\AI\</OutDir>
