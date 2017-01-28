@@ -219,6 +219,7 @@ public:
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
+	BONUS_NAME(WIDE_BREATH) /* Kuririn skill */\
 	/* end of list */
 
 
