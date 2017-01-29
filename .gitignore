@@ -33,20 +33,28 @@ build-*
 CMakeLists.txt.user.*
 Doxyfile
 doc/*
-VCMI_VS11.sdf
 *.ipch
-VCMI_VS11.opensdf
 
 # Visual Studio
 *.suo
 *.user
-/AI/*/RD
-/client/RD
-/launcher/RD
-/lib/RD
-/lib/minizip/RD
-/scripting/erm/RD
-/server/RD
-/test/RD
-/VCMI_VS11.VC.opendb
+*.opensdf
+*.sdf
+*.db
+*.opendb
+*.pdb
+*.ilk
+*.tlog
+*.log
+*.exp
+Debug/
+RD/
 /AI/FuzzyLite.lib
+/*.lib
+
+# Game Files
+/Data/
+/Mp3/
+/Maps/
+
+
