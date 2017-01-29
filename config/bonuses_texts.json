@@ -332,7 +332,7 @@
 	"SOUL_STEAL":
 	{
 		"name": "Soul Steal",
-		"description": "Gains ${val}% new creatures for each enemy killed"
+		"description": "Gains ${val} new creatures for each enemy killed"
 	},
 
 	"SPELLCASTER":

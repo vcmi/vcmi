@@ -145,7 +145,7 @@ static void SummonGuardiansHelper(std::vector<BattleHex> & output, const BattleH
 	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
 		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::RIGHT, false), output);
 	else
-		BattleHex::checkAndPush(BattleHex(targetPosition).movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
 
 	//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
 	if (targetIsAttacker && ((y % 2 == 0) || (x > 1)))
@@ -993,7 +993,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		StacksHealedOrResurrected::HealInfo hi;
 		hi.stackID = att->ID;
 		hi.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL) * att->MaxHealth(); //TODO: Should unit be additionally healed after life drain?
-		hi.lowLevelResurrection = false;
+		hi.lowLevelResurrection = att->hasBonusOfType(Bonus::SOUL_STEAL, 1);
 		shi.healedStacks.push_back(hi);
 
 		if (hi.healedHP > 0)
@@ -6391,7 +6391,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
-			else if (st->count > army->getStackCount(st->slot) && !st->hasBonusOfType(Bonus::SOUL_STEAL, 1))
+			else if (st->count > army->getStackCount(st->slot))
 			{
 				logGlobal->debug("Stack gained %d units.", st->count - army->getStackCount(st->slot));
 				StackLocation sl(army, st->slot);
