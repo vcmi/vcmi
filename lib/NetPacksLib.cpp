@@ -1617,7 +1617,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}
 		int res;
-		if(changedStack->hasBonusOfType(Bonus::SOUL_STEAL)) //WoG ghost soul steal ability allows getting more units than before battle
+		if(canOverheal) //for example WoG ghost soul steal ability allows getting more units than before battle
 			res = elem.healedHP / changedStack->MaxHealth();
 		else
 			res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);		
