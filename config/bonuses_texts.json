@@ -17,6 +17,12 @@
 		"name": "Additional retaliations",
 		"description": "May Retaliate ${val} extra times"
 	},
+	
+	"ADVANCED_CATAPULT":
+	{
+		"name": "Advanced wall breaker",
+		"description": "Can hit siege walls ${val} extra times per attack"
+	},
 
 	"AIR_IMMUNITY":
 	{
