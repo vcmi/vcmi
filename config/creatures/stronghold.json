@@ -273,7 +273,7 @@
 		{
 			"siegeDoubleAttack" :
 			{
-				"type" : "ADVANCED_CATAPULT",
+				"type" : "CATAPULT_EXTRA_SHOTS",
 				"val" : 1
 			}
 		},

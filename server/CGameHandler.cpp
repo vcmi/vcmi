@@ -3961,7 +3961,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			else //may need to use higher ballistics level for creatures in future for some cases to match original H3 (upgraded cyclops etc)
 			{
 				sbi = VLC->heroh->ballistics.at(1);
-				sbi.shots += std::max(stack->valOfBonuses(Bonus::ADVANCED_CATAPULT), 0);
+				sbi.shots += std::max(stack->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
 			}
 
 			auto wallPart = gs->curB->battleHexToWallPart(ba.destinationTile);

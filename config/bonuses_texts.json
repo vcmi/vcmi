@@ -18,9 +18,9 @@
 		"description": "May Retaliate ${val} extra times"
 	},
 	
-	"ADVANCED_CATAPULT":
+	"CATAPULT_EXTRA_SHOTS":
 	{
-		"name": "Advanced wall breaker",
+		"name": "Additional siege attacks",
 		"description": "Can hit siege walls ${val} extra times per attack"
 	},
 
