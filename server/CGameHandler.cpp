@@ -983,7 +983,6 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	//soul steal handling
 	if (att->hasBonusOfType(Bonus::SOUL_STEAL) && def->isLiving())
 	{
-		
 		StacksHealedOrResurrected shi;
 		shi.lifeDrain = true;
 		shi.tentHealing = false;
@@ -991,36 +990,20 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		shi.canOverheal = true;
 		shi.drainedFrom = def->ID;
 
-		if (att->hasBonusOfType(Bonus::SOUL_STEAL, 0) && att->hasBonusOfType(Bonus::SOUL_STEAL, 1))
+		for (int i = 0; i < 2; i++) //we can have two bonuses - one with subtype 0 and another with subtype 1
 		{
-			StacksHealedOrResurrected::HealInfo hi0;
-			hi0.stackID = att->ID;
-			hi0.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, 0) * att->MaxHealth();
-			hi0.lowLevelResurrection = false;
-
-			StacksHealedOrResurrected::HealInfo hi1;
-			hi1.stackID = att->ID;
-			hi1.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, 1) * att->MaxHealth();
-			hi1.lowLevelResurrection = true;
-
-			shi.healedStacks.push_back(hi0);
-			shi.healedStacks.push_back(hi1);
-
-			if (hi0.healedHP > 0 || hi1.healedHP > 0)
-				bsa.healedStacks.push_back(shi);
-		}
-		else
-		{
-			StacksHealedOrResurrected::HealInfo hi;
-			hi.stackID = att->ID;
-			hi.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL) * att->MaxHealth(); //TODO: Should unit be additionally healed after life drain?
-			hi.lowLevelResurrection = att->hasBonusOfType(Bonus::SOUL_STEAL, 1);
-			shi.healedStacks.push_back(hi);
-
-			if (hi.healedHP > 0)
+			if (att->hasBonusOfType(Bonus::SOUL_STEAL, i))
 			{
-				bsa.healedStacks.push_back(shi);
+				StacksHealedOrResurrected::HealInfo hi;
+				hi.stackID = att->ID;
+				hi.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, i) * att->MaxHealth();
+				hi.lowLevelResurrection = (bool)i;
+				shi.healedStacks.push_back(hi);
 			}
+		}
+		if (std::any_of(shi.healedStacks.begin(), shi.healedStacks.end(), [](StacksHealedOrResurrected::HealInfo healInfo) { return healInfo.healedHP > 0; }))
+		{
+			bsa.healedStacks.push_back(shi);
 		}
 	}
 	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated 
