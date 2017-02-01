@@ -4054,7 +4054,15 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			auto wrapper = wrapAction(ba);
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
+
+			CHeroHandler::SBallisticsLevelInfo sbi;
+			if(stack->getCreature()->idNumber == CreatureID::CATAPULT)
+				sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
+			else //may need to use higher ballistics level for creatures in future for some cases to match original H3 (upgraded cyclops etc)
+			{
+				sbi = VLC->heroh->ballistics.at(1);
+				sbi.shots += std::max(stack->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
+			}
 
 			auto wallPart = gs->curB->battleHexToWallPart(ba.destinationTile);
 			if (!gs->curB->isWallPartPotentiallyAttackable(wallPart))

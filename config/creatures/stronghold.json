@@ -269,6 +269,14 @@
 		"index": 95,
 		"level": 6,
 		"faction": "stronghold",
+		"abilities":
+		{
+			"siegeDoubleAttack" :
+			{
+				"type" : "CATAPULT_EXTRA_SHOTS",
+				"val" : 1
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCYCLLOR.DEF",

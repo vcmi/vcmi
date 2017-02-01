@@ -17,6 +17,12 @@
 		"name": "Additional retaliations",
 		"description": "May Retaliate ${val} extra times"
 	},
+	
+	"CATAPULT_EXTRA_SHOTS":
+	{
+		"name": "Additional siege attacks",
+		"description": "Can hit siege walls ${val} extra times per attack"
+	},
 
 	"AIR_IMMUNITY":
 	{
