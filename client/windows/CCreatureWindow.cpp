@@ -822,8 +822,8 @@ void CStackWindow::init()
 		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
 
 	selectedIcon = nullptr;
-	selectedSkill = 0;
-	if (info->levelupInfo)
+	selectedSkill = -1;
+	if (info->levelupInfo && !info->levelupInfo->skills.empty())
 		selectedSkill = info->levelupInfo->skills.front();
 
 	commanderTab = nullptr;
@@ -913,6 +913,6 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 
 CStackWindow::~CStackWindow()
 {
-	if (info->levelupInfo)
+	if (info->levelupInfo && !info->levelupInfo->skills.empty())
 		info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
 }
