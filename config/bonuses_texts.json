@@ -334,6 +334,12 @@
 		"name": "Ranged",
 		"description": "Creature can shoot"
 	},
+	
+	"SOUL_STEAL":
+	{
+		"name": "Soul Steal",
+		"description": "Gains ${val} new creatures for each enemy killed"
+	},
 
 	"SPELLCASTER":
 	{
@@ -376,6 +382,12 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
+	
+	"SUMMON_GUARDIANS":
+	{
+		"name": "Summon guardians",
+		"description": "At battle start summons ${subtype.creature} (${val}%)"
+	},
 
 	"TWO_HEX_ATTACK_BREATH":
 	{
@@ -387,6 +399,12 @@
 	{
 		"name": "Three-headed attack",
 		"description": "Attacks three adjacent units"
+	},
+	
+	"TRANSMUTATION":
+	{
+		"name": "Transmutation",
+		"description": "${val}% chance to transform attacked unit to other type"
 	},
 
 	"UNDEAD":

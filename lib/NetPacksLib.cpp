@@ -1616,8 +1616,11 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}
-
-		int res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);
+		int res;
+		if(canOverheal) //for example WoG ghost soul steal ability allows getting more units than before battle
+			res = elem.healedHP / changedStack->MaxHealth();
+		else
+			res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);		
 		changedStack->count += res;
 		if(elem.lowLevelResurrection)
 			changedStack->resurrected += res;

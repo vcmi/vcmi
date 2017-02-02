@@ -137,6 +137,79 @@ static void giveExp(BattleResult &r)
 	}
 }
 
+static void SummonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, bool targetIsAttacker, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+{
+	int x = targetPosition.getX();
+	int y = targetPosition.getY();
+
+	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::RIGHT, false), output);
+	else
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
+
+	//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
+	if (targetIsAttacker && ((y % 2 == 0) || (x > 1)))
+	{
+		if (targetIsTwoHex && (y % 2 == 1) && (x == 2)) //handle exceptional case
+		{
+			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+		}
+		else
+		{	//add back-side guardians for two-hex target, side guardians for one-hex
+			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false), output);
+
+			if (!targetIsTwoHex && x > 2) //back guard for one-hex
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false), output);
+			else if (targetIsTwoHex)//front-side guardians for two-hex target
+			{
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+				if (x > 3) //back guard for two-hex
+					BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
+			}
+		}
+
+	}
+
+	else if (!targetIsAttacker && ((y % 2 == 1) || (x < GameConstants::BFIELD_WIDTH - 2)))
+	{
+		if (targetIsTwoHex && (y % 2 == 0) && (x == GameConstants::BFIELD_WIDTH - 3)) //handle exceptional case... equivalent for above for defender side
+		{
+			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+		}
+		else
+		{
+			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false), output);
+
+			if (!targetIsTwoHex && x < GameConstants::BFIELD_WIDTH - 3)
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false), output);
+			else if (targetIsTwoHex)
+			{
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
+				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+				if (x < GameConstants::BFIELD_WIDTH - 4)
+					BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::RIGHT, false), output);
+			}
+		}
+	}
+
+	else if (!targetIsAttacker && y % 2 == 0)
+	{
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+	}
+
+	else if (targetIsAttacker && y % 2 == 1)
+	{
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
+		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+	}
+}
+
 PlayerStatus PlayerStatuses::operator[](PlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
@@ -906,7 +979,34 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 			bsa.healedStacks.push_back(shi);
 		}
 	}
-	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
+
+	//soul steal handling
+	if (att->hasBonusOfType(Bonus::SOUL_STEAL) && def->isLiving())
+	{
+		StacksHealedOrResurrected shi;
+		shi.lifeDrain = true;
+		shi.tentHealing = false;
+		shi.cure = false;
+		shi.canOverheal = true;
+		shi.drainedFrom = def->ID;
+
+		for (int i = 0; i < 2; i++) //we can have two bonuses - one with subtype 0 and another with subtype 1
+		{
+			if (att->hasBonusOfType(Bonus::SOUL_STEAL, i))
+			{
+				StacksHealedOrResurrected::HealInfo hi;
+				hi.stackID = att->ID;
+				hi.healedHP = bsa.killedAmount * att->valOfBonuses(Bonus::SOUL_STEAL, i) * att->MaxHealth();
+				hi.lowLevelResurrection = (bool)i;
+				shi.healedStacks.push_back(hi);
+			}
+		}
+		if (std::any_of(shi.healedStacks.begin(), shi.healedStacks.end(), [](StacksHealedOrResurrected::HealInfo healInfo) { return healInfo.healedHP > 0; }))
+		{
+			bsa.healedStacks.push_back(shi);
+		}
+	}
+	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated 
 
 	//fire shield handling
 	if (!bat.shot() && !vstd::contains(def->state, EBattleStackState::CLONED) &&
@@ -5175,6 +5275,8 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 	if (!attacker || bat.bsa.empty()) // can be already dead
 		return;
 
+	const CStack *defender = gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked);
+
 	auto cast = [=](SpellID spellID, int power)
 	{
 		const CSpell * spell = SpellID(spellID).toSpell();
@@ -5232,6 +5334,44 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 	if (acidDamage)
 	{
 		cast(SpellID::ACID_BREATH_DAMAGE, acidDamage * attacker->count);
+	}
+
+	if (attacker->hasBonusOfType(Bonus::TRANSMUTATION) && defender->isLiving()) //transmutation mechanics, similar to WoG werewolf ability
+	{
+		double chanceToTrigger = attacker->valOfBonuses(Bonus::TRANSMUTATION) / 100.0f;
+		vstd::amin(chanceToTrigger, 1); //cap at 100%
+
+		if (getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+			return;
+		
+		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo;
+
+		if (defender->getCreature()->idNumber == bonusAdditionalInfo ||
+			(bonusAdditionalInfo == -1 && defender->getCreature()->idNumber == attacker->getCreature()->idNumber))
+			return;
+
+		BattleStackAdded resurrectInfo;
+		resurrectInfo.pos = defender->position;
+
+		if (bonusAdditionalInfo != -1)
+			resurrectInfo.creID = (CreatureID)bonusAdditionalInfo;
+		else
+			resurrectInfo.creID = attacker->getCreature()->idNumber;
+		
+		if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 0))
+		{
+			resurrectInfo.amount = std::max((defender->count * defender->MaxHealth()) / resurrectInfo.creID.toCreature()->MaxHealth(), 1u);
+		}
+		else if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 1))
+			resurrectInfo.amount = defender->count;
+		else
+			return; //wrong subtype
+
+		BattleStacksRemoved victimInfo;
+		victimInfo.stackIDs.insert(bat.bsa.at(0).stackAttacked);
+
+		sendAndApply(&victimInfo);
+		sendAndApply(&resurrectInfo);
 	}
 }
 
@@ -5484,8 +5624,42 @@ void CGameHandler::runBattle()
 	}
 
 	//initial stacks appearance triggers, e.g. built-in bonus spells
-	for (auto stack : gs->curB->stacks)
+	auto initialStacks = gs->curB->stacks; //use temporary variable to outclude summoned stacks added to gs->curB->stacks from processing
+
+	for (CStack * stack : initialStacks)
 	{
+		if (stack->hasBonusOfType(Bonus::SUMMON_GUARDIANS))
+		{
+			const std::shared_ptr<Bonus> summonInfo = stack->getBonus(Selector::type(Bonus::SUMMON_GUARDIANS));
+			auto accessibility = getAccesibility();
+			CreatureID creatureData = CreatureID(summonInfo->subtype);
+			std::vector<BattleHex> targetHexes;
+			bool targetIsBig = stack->getCreature()->isDoubleWide(); //target = creature to guard
+
+			/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
+			For one-hex targets there are four guardians - front, back and one per side (up + down).
+			Two-hex targets are wider and the difference is there are two guardians per side to cover 3 hexes + extra hex in the front
+			Additionally, there are special cases for starting positions etc., where guardians would be outside of battlefield if spawned normally*/
+			if (!creatureData.toCreature()->isDoubleWide())
+				targetHexes = stack->getSurroundingHexes();
+			else
+				SummonGuardiansHelper(targetHexes, stack->position, stack->attackerOwned, stack->getCreature()->isDoubleWide());
+				
+			for (auto hex : targetHexes)
+			{
+				if (accessibility.accessible(hex, creatureData.toCreature()->isDoubleWide(), stack->attackerOwned)) //without this multiple creatures can occupy one hex
+				{
+					BattleStackAdded newStack;
+					newStack.amount = std::max(1, (int)(stack->count * 0.01 * summonInfo->val));
+					newStack.creID = creatureData.num;
+					newStack.attacker = stack->attackerOwned;
+					newStack.summoned = true;
+					newStack.pos = hex.hex;
+					sendAndApply(&newStack);
+				}
+			}
+		}
+
 		stackAppearTrigger(stack);
 	}
 
@@ -6227,6 +6401,12 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 			else if (st->count < army->getStackCount(st->slot))
 			{
 				logGlobal->debug("Stack lost %d units.", army->getStackCount(st->slot) - st->count);
+				StackLocation sl(army, st->slot);
+				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
+			}
+			else if (st->count > army->getStackCount(st->slot))
+			{
+				logGlobal->debug("Stack gained %d units.", st->count - army->getStackCount(st->slot));
 				StackLocation sl(army, st->slot);
 				newStackCounts.push_back(TStackAndItsNewCount(sl, st->count));
 			}
