@@ -985,20 +985,25 @@ void CBattleInterface::newStack(const CStack *stack)
 	//loading projectiles for units
 	if (stack->getCreature()->isShooting())
 	{
-		CDefHandler *&projectile = idToProjectile[stack->getCreature()->idNumber];
+		initStackProjectile(stack);
+	}
+}
 
-		const CCreature *creature;//creature whose shots should be loaded
-		if (stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-			creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
-		else
-			creature = stack->getCreature();
+void CBattleInterface::initStackProjectile(const CStack * stack)
+{
+	CDefHandler *&projectile = idToProjectile[stack->getCreature()->idNumber];
 
-		projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
+	const CCreature *creature;//creature whose shots should be loaded
+	if (stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+		creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+	else
+		creature = stack->getCreature();
 
-		for (auto & elem : projectile->ourImages) //alpha transforming
-		{
-			CSDL_Ext::alphaTransform(elem.bitmap);
-		}
+	projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
+
+	for (auto & elem : projectile->ourImages) //alpha transforming
+	{
+		CSDL_Ext::alphaTransform(elem.bitmap);
 	}
 }
 
