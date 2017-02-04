@@ -41,6 +41,12 @@
 		"name": "No retaliation",
 		"description": "Enemy cannot Retaliate"
 	},
+	
+	"BLOCKS_RANGED_RETALIATION":
+	{
+		"name": "No ranged retaliation",
+		"description": "Enemy cannot Retaliate by shooting"
+	},
 
 	"CATAPULT":
 	{
@@ -298,6 +304,12 @@
 	{
 		"name": "Random spellcaster",
 		"description": "Can cast random spell"
+	},
+	
+	"RANGED_RETALIATION":
+	{
+		"name": "Ranged retaliation",
+		"description": "Can perform ranged counterattack"
 	},
 
 	"RECEPTIVE":
