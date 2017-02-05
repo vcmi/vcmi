@@ -3993,6 +3993,20 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				handleAfterAttackCasting(bat);
 			}
 
+			//ranged counterattack
+			if (destinationStack
+				&& destinationStack->hasBonusOfType(Bonus::RANGED_RETALIATION)
+				&& !stack->hasBonusOfType(Bonus::BLOCKS_RANGED_RETALIATION)
+				&& destinationStack->ableToRetaliate()
+				&& stack->alive()) //attacker may have died (fire shield)
+			{
+				BattleAttack bat;
+				prepareAttack(bat, destinationStack, stack, 0, stack->position);
+				bat.flags |= BattleAttack::COUNTER | BattleAttack::SHOT;
+				sendAndApply(&bat);
+				handleAfterAttackCasting(bat);
+			}
+
 			//second shot for ballista, only if hero has advanced artillery
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
