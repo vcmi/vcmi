@@ -798,6 +798,9 @@ bool CShootingAnimation::init()
 	auto & angles = shooterInfo->animation.missleFrameAngles;
 	double pi = boost::math::constants::pi<double>();
 
+	if (owner->idToProjectile.count(spi.creID) == 0) //in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
+		owner->initStackProjectile(shooter);
+
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
 	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->ourImages.size());
 

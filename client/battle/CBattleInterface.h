@@ -363,6 +363,8 @@ public:
 
 	void gateStateChanged(const EGateState state);
 
+	void initStackProjectile(const CStack *stack);
+
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
 
