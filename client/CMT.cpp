@@ -1179,7 +1179,8 @@ static void handleEvent(SDL_Event & ev)
 			{
 				StartInfo si = *client->getStartInfo(true);
 				endGame();
-				startGame(&si);
+				boost::this_thread::sleep_for(boost::chrono::seconds(1)); //TODO: replace with check if game closed on server side and delay until it is done
+				startGame(&si); //it seems without above line it is likely for game to start before server is fully closed, and that causes game quit on some machines
 			}
 			break;
 		case PREPARE_RESTART_CAMPAIGN:
