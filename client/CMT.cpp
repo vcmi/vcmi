@@ -1178,6 +1178,7 @@ static void handleEvent(SDL_Event & ev)
 		case RESTART_GAME:
 			{
 				StartInfo si = *client->getStartInfo(true);
+				si.seedToBeUsed = 0; //server gives new random generator seed if 0
 				endGame();
 				boost::this_thread::sleep_for(boost::chrono::seconds(1)); //TODO: replace with check if game closed on server side and delay until it is done
 				startGame(&si); //it seems without above line it is likely for game to start before server is fully closed, and that causes game quit on some machines
