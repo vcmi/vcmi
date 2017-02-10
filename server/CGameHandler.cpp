@@ -3953,7 +3953,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 
 				//counterattack
-				if (destinationStack
+				if (i == 0 && destinationStack
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
 					&& destinationStack->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
