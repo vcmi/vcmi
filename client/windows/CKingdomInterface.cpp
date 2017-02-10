@@ -308,9 +308,10 @@ int InfoBoxHeroData::getSubID()
 		case HERO_SECONDARY_SKILL:
 			if (hero->secSkills.size() > index)
 				return hero->secSkills[index].first;
+		case HERO_SPECIAL:
+			return hero->type->ID.getNum();
 		case HERO_MANA:
 		case HERO_EXPERIENCE:
-		case HERO_SPECIAL:
 			return 0;
 		default:
 			assert(0);
