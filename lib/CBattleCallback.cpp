@@ -1479,11 +1479,11 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	RETURN_IF_NOT_BATTLE(at);
 
 	const int WN = GameConstants::BFIELD_WIDTH;
-	ui16 hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
+	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
 	bool reverse = isToReverse (hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
-	if (reverse)
+	if (reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
 	}
