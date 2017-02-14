@@ -26,7 +26,6 @@ struct BattleAttack;
 struct BattleStackAttacked;
 struct CPack;
 struct Query;
-struct SetResource;
 struct SetResources;
 struct NewStructures;
 class CGHeroInstance;
@@ -84,7 +83,6 @@ public:
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
 	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
 
-	CVCMIServer *s;
 	std::map<PlayerColor, CConnection*> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
@@ -250,7 +248,6 @@ public:
 	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
 	void sendAndApply(CGarrisonOperationPack * info);
-	void sendAndApply(SetResource * info);
 	void sendAndApply(SetResources * info);
 	void sendAndApply(NewStructures * info);
 

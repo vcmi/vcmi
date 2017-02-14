@@ -86,6 +86,7 @@ static void setScrollingCursor(ui8 direction)
 
 CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr),
+	  lastRedrawStatus(EMapAnimRedrawStatus::OK),
 	  fadeAnim(new CFadeAnimation()),
 	  curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)
@@ -1122,7 +1123,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				return;
 			if(h && key.state == SDL_PRESSED)
 			{
-				auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+				auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 				//TODO!!!!!!! possible freeze, when GS mutex is locked and network thread can't apply package
 				//this thread leaves scope and tries to lock pim while holding gs,
 				//network thread tries to lock gs (appluy cl) while holding pim

@@ -1263,6 +1263,7 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 
 int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/, const TurnInfo * ti) const
 {
+	int ret = 0; //take all MPs by default
 	bool localTi = false;
 	if(!ti)
 	{
@@ -1273,12 +1274,12 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		return (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
+		ret = (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
 
 	if(localTi)
 		delete ti;
 
-	return 0; //take all MPs otherwise
+	return ret;
 }
 
 EDiggingStatus CGHeroInstance::diggingStatus() const

@@ -12,6 +12,7 @@
 #include "../mapObjects/CObjectClassesHandler.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
+static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
 void CMapGenerator::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
 {
@@ -35,9 +36,21 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 	}
 }
 
+void CMapGenerator::foreachDiagonaltNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+{
+	for (const int3 &dir : dirsDiagonal)
+	{
+		int3 n = pos + dir;
+		if (map->isInTheMap(n))
+			foo(n);
+	}
+}
+
 
 CMapGenerator::CMapGenerator() :
-    zonesTotal(0), monolithIndex(0)
+	mapGenOptions(nullptr), randomSeed(0), editManager(nullptr),
+	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
+    monolithIndex(0)
 {
 }
 
@@ -270,7 +283,12 @@ void CMapGenerator::fillZones()
 
 	logGlobal->infoStream() << "Started filling zones";
 
-	//initialize possible tiles before any object is actually placed
+	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
+	//place main town in the middle
+	for (auto it : zones)
+		it.second->initTownType(this);
+
+	//make sure there are some free tiles in the zone
 	for (auto it : zones)
 		it.second->initFreeTiles(this);
 
@@ -280,10 +298,6 @@ void CMapGenerator::fillZones()
 		it.second->createBorder(this); //once direct connections are done
 
 	createConnections2(); //subterranean gates and monoliths
-
-	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
-	for (auto it : zones)
-		it.second->initTownType(this);
 
 	std::vector<CRmgTemplateZone*> treasureZones;
 	for (auto it : zones)
@@ -305,7 +319,7 @@ void CMapGenerator::fillZones()
 		it.second->createObstacles2(this);
 	}
 
-	#define PRINT_MAP_BEFORE_ROADS true
+	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
 		std::ofstream out("road debug");
@@ -519,11 +533,16 @@ void CMapGenerator::createDirectConnections()
 				guardPos = tile;
 				if (guardPos.valid())
 				{
-					setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
-					zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
 					//zones can make paths only in their own area
-					zoneA->crunchPath(this, guardPos, posA, true, zoneA->getFreePaths()); //make connection towards our zone center
-					zoneB->crunchPath(this, guardPos, posB, true, zoneB->getFreePaths()); //make connection towards other zone center
+					zoneA->connectWithCenter(this, guardPos, true);
+					zoneB->connectWithCenter(this, guardPos, true);
+
+					bool monsterPresent = zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
+					zoneB->updateDistances(this, guardPos); //place next objects away from guard in both zones
+
+					//set free tile only after connection is made to the center of the zone
+					if (!monsterPresent)
+						setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 
 					zoneA->addRoadNode(guardPos);
 					zoneB->addRoadNode(guardPos);
@@ -639,7 +658,7 @@ void CMapGenerator::createConnections2()
 						}
 					}
 				}
-				if (!continueOuterLoop) //we didn't find ANY tile - break outer loop			
+				if (!continueOuterLoop) //we didn't find ANY tile - break outer loop
 					break;
 			}
 			if (!guardPos.valid()) //cleanup? is this safe / enough?
@@ -751,7 +770,7 @@ TRmgTemplateZoneId CMapGenerator::getZoneID(const int3& tile) const
 	return zoneColouring[tile.z][tile.x][tile.y];
 }
 
-void CMapGenerator::setZoneID(const int3& tile, TRmgTemplateZoneId zid) 
+void CMapGenerator::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 {
 	checkIsOnMap(tile);
 

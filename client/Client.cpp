@@ -153,19 +153,15 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 			MakeAction temp_action(ba);
 			sendRequest(&temp_action, color);
 		}
-		return;
 	}
 	catch(boost::thread_interrupted&)
 	{
 		logNetwork->debugStream() << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?";
-		return;
 	}
 	catch(...)
 	{
 		handleException();
-		return;
 	}
-	logNetwork->errorStream() << "We should not be here!";
 }
 
 void CClient::run()
@@ -225,7 +221,7 @@ void CClient::endGame(bool closeConnection /*= true*/)
 
 	GH.curInt = nullptr;
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		logNetwork->infoStream() << "Ending current game!";
 		if(GH.topInt())
 		{
@@ -487,7 +483,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	{
 		if(!gNoGUI)
 		{
-			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			auto p = std::make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
 			p->observerInDuelMode = true;
 			installNewPlayerInterface(p, boost::none);
@@ -669,7 +665,7 @@ void CClient::handlePack( CPack * pack )
 	CBaseForCLApply *apply = applier->getApplier(typeList.getTypeID(pack)); //find the applier
 	if(apply)
 	{
-		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> guiLock(*CPlayerInterface::pim);
 		apply->applyOnClBefore(this, pack);
 		logNetwork->trace("\tMade first apply on cl");
 		gs->apply(pack);
@@ -756,7 +752,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
 			Rect((screen->w - 800)/2,
 			     (screen->h - 600)/2, 800, 600), att, def);
@@ -883,7 +879,7 @@ void CClient::campaignMapFinished( std::shared_ptr<CCampaignState> camp )
 
 void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
 	if(!color)
@@ -902,7 +898,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 
 void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
 	if(!color)

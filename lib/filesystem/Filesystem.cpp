@@ -42,7 +42,8 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 			logGlobal->debugStream() << "\t\tLoading resource at " << prefix + entry["path"].String();
 
 			auto map = genFunctorMap();
-			auto functor = map.find(entry["type"].String());
+			auto typeName = entry["type"].String();
+			auto functor = map.find(typeName);
 
 			if (functor != map.end())
 			{
@@ -51,7 +52,7 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 			}
 			else
 			{
-				logGlobal->errorStream() << "Unknown filesystem format: " << functor->first;
+				logGlobal->error("Unknown filesystem format: %s", typeName);
 			}
 		}
 	}

@@ -78,19 +78,14 @@ public:
 	std::vector<CButton *> splitButtons;  ///< May be empty if no buttons
 
 	SlotID p2; ///< TODO: comment me
-	int	shiftPos; ///< 1st slot of the second row, set shiftPoint for effect
 	bool pb,
 		 smallIcons,      ///< true - 32x32 imgs, false - 58x64
 		 removableUnits,  ///< player Can remove units from up
 		 twoRows,         ///< slots Will be placed in 2 rows
 		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
-// 	const CCreatureSet *set1;  ///< Top set of creatures
-// 	const CCreatureSet *set2;  ///< Bottom set of creatures
-
 	std::vector<CGarrisonSlot*> slotsUp, slotsDown;  ///< Slots of upper and lower garrison
 	const CArmedInstance *armedObjs[2];  ///< [0] is upper, [1] is down
-	//const CArmedInstance *oup, *odown;  ///< Upper and lower garrisons (heroes or towns)
 
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(CButton * button);

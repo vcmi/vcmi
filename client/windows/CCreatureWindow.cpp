@@ -103,7 +103,7 @@ StackWindowInfo::StackWindowInfo():
 
 void CStackWindow::CWindowSection::createBackground(std::string path)
 {
-	background = new CPicture("stackWindow/" + path);
+	CPicture * background = new CPicture("stackWindow/" + path);
 	pos = background->pos;
 }
 
@@ -460,10 +460,7 @@ void CStackWindow::CWindowSection::createCommander()
 	for (auto equippedArtifact : parent->info->commander->artifactsWorn)
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
-		//auto icon = new CClickableObject(new CAnimImage("artifact", equippedArtifact.second.artifact.get()->artType.get()->iconIndex, 0, artPos.x, artPos.y), [=] {});
 		auto icon = new CCommanderArtPlace(artPos, parent->info->owner, equippedArtifact.first, equippedArtifact.second.artifact);
-
-		//TODO: Use CArtPlace or equivalent instead of CClickableObject and handle commander artifact actions to match WOG (return artifact to hero etc.)
 	}
 }
 
@@ -818,12 +815,15 @@ void CStackWindow::initBonusesList()
 
 void CStackWindow::init()
 {
+	expRankIcon = nullptr;
+	expArea = nullptr;
+	expLabel = nullptr;
 	if (!info->stackNode)
 		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
 
 	selectedIcon = nullptr;
-	selectedSkill = 0;
-	if (info->levelupInfo)
+	selectedSkill = -1;
+	if (info->levelupInfo && !info->levelupInfo->skills.empty())
 		selectedSkill = info->levelupInfo->skills.front();
 
 	commanderTab = nullptr;
@@ -913,6 +913,6 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 
 CStackWindow::~CStackWindow()
 {
-	if (info->levelupInfo)
+	if (info->levelupInfo && !info->levelupInfo->skills.empty())
 		info->levelupInfo->callback(vstd::find_pos(info->levelupInfo->skills, selectedSkill));
 }

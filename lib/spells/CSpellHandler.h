@@ -111,6 +111,8 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & projectile & hit & cast;
+			if(version >= 762)
+				h & affect;
 		}
 
 		std::string selectProjectile(const double angle) const;

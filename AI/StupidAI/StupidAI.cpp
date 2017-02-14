@@ -40,7 +40,7 @@ struct EnemyInfo
 	const CStack * s;
 	int adi, adr;
 	std::vector<BattleHex> attackFrom; //for melee fight
-	EnemyInfo(const CStack * _s) : s(_s)
+	EnemyInfo(const CStack * _s) : s(_s), adi(0), adr(0)
 	{}
 	void calcDmg(const CStack * ourStack)
 	{

@@ -6,6 +6,7 @@ dist: trusty
 sudo: required
 
 before_install:
+  - test $TRAVIS_BRANCH != coverity_scan -o ${TRAVIS_JOB_NUMBER##*.} = 1 || exit 0
   - if [[ $VCMI_PLATFORM == 'linux' ]]; then . .travis.linux; fi
   - if [[ $VCMI_PLATFORM == 'mac' ]]; then . .travis.osx; fi
   - if [[ $VCMI_PLATFORM == 'mxe' ]]; then . .travis.mxe; fi
@@ -13,14 +14,20 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
+  - if [[ $TRAVIS_BRANCH != 'coverity_scan' ]]; then cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS; fi
 
 script:
+  - test $TRAVIS_BRANCH != coverity_scan || exit 0
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd ..; xcodebuild -project osx/osx-vcmibuilder/vcmibuilder.xcodeproj/ -configuration Release CONFIGURATION_BUILD_DIR=..; cd build; fi
   - make -j2
 
 env:
-  - ignore=this
+  matrix:
+    - ignore=this
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "NMg+qtQB4DIZ/KqlDeIn3K7A7Ydksdpnbv6Ha9n4bSSA0AT8wlPwbHXvQmiR8qYs6cnz4fyY6NVcBe7X3bdR8jWyPNAS0l0QByqG12q3dBpEtNNn0X5u/GS3wHse5+ObNAF9a83+xACTQj2UdxqHgJ3LFGzdBpQt3kLsc8NDnn8="
 
 matrix:
   exclude:
@@ -28,13 +35,13 @@ matrix:
   include:
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: clang
       env: VCMI_PLATFORM='linux' REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev
     - os: linux
       compiler: gcc
       env: VCMI_PLATFORM='linux' REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
@@ -43,6 +50,16 @@ matrix:
       sudo: required
     - os: osx
       env: VCMI_PLATFORM='mac'
+
+addons:
+  coverity_scan:
+    project:
+      name: vcmi/vcmi
+      description: Build submitted via Travis CI
+    notification_email: coverity@arseniyshestakov.com
+    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=1"
+    build_command: ninja -j 2
+    branch_pattern: coverity_scan
 
 notifications:
   email:

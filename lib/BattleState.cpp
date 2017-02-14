@@ -102,14 +102,12 @@ ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender,
 
 	if(range.first != range.second)
 	{
-		int valuesToAverage[10];
-		int howManyToAv = std::min<ui32>(10, attacker->count);
-		for (int g=0; g<howManyToAv; ++g)
-		{
-			valuesToAverage[g] = rand.nextInt(range.first, range.second);
-		}
+		ui32 sum = 0;
+		ui32 howManyToAv = std::min<ui32>(10, attacker->count);
+		for(int g=0; g<howManyToAv; ++g)
+			sum += (ui32)rand.nextInt(range.first, range.second);
 
-		return std::accumulate(valuesToAverage, valuesToAverage + howManyToAv, 0) / howManyToAv;
+		return sum / howManyToAv;
 	}
 	else
 		return range.first;

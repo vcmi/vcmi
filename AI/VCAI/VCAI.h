@@ -83,12 +83,16 @@ struct SectorMap
 		Sector()
 		{
 			id = -1;
+			water = false;
 		}
 	};
 
+	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
+	typedef boost::multi_array<TSectorID, 3> TSectorArray;
+
 	bool valid; //some kind of lazy eval
 	std::map<int3, int3> parent;
-	std::vector<std::vector<std::vector<unsigned char>>> sector;
+	TSectorArray sector;
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
@@ -101,9 +105,11 @@ struct SectorMap
 	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
 	void write(crstring fname);
 
-	bool markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t);
-	bool markIfBlocked(ui8 &sec, crint3 pos);
-	unsigned char &retreiveTile(crint3 pos);
+	bool markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t);
+	bool markIfBlocked(TSectorID &sec, crint3 pos);
+	TSectorID & retreiveTile(crint3 pos);
+	TSectorID & retreiveTileN(TSectorArray &vectors, const int3 &pos);
+	const TSectorID & retreiveTileN(const TSectorArray &vectors, const int3 &pos);
 	TerrainTile* getTile(crint3 pos) const;
 	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 
@@ -228,7 +234,7 @@ public:
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
 	virtual void requestRealized(PackageApplied *pa) override;
-	virtual void receivedResource(int type, int val) override;
+	virtual void receivedResource() override;
 	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) override;
 	virtual void objectRemoved(const CGObjectInstance *obj) override;
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
@@ -239,7 +245,7 @@ public:
 	virtual void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override;
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) override;
 	virtual void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) override;
-	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;	
+	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
 
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
 	virtual void battleEnd(const BattleResult *br) override;
@@ -254,6 +260,7 @@ public:
 	void endTurn();
 	void wander(HeroPtr h);
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);
+	void evaluateGoal(HeroPtr h); //evaluates goal assigned to hero, if any
 	void completeGoal (Goals::TSubgoal goal); //safely removes goal from reserved hero
 	void striveToQuest (const QuestInfo &q);
 
@@ -315,7 +322,7 @@ public:
 	void requestSent(const CPackForServer *pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
-	void requestActionASAP(std::function<void()> whatToDo); 
+	void requestActionASAP(std::function<void()> whatToDo);
 
 	template <typename Handler> void registerGoals(Handler &h)
 	{
@@ -372,11 +379,13 @@ public:
 };
 class goalFulfilledException : public std::exception
 {
+	std::string msg;
 public:
 	Goals::TSubgoal goal;
 
 	explicit goalFulfilledException(Goals::TSubgoal Goal) : goal(Goal)
 	{
+		msg = goal->name();
 	}
 
 	virtual ~goalFulfilledException() throw ()
@@ -385,7 +394,7 @@ public:
 
 	const char *what() const throw () override
 	{
-		return goal->name().c_str();
+		return msg.c_str();
 	}
 };
 

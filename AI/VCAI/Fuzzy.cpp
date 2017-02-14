@@ -25,7 +25,6 @@
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 struct BankConfig;
-class IObjectInfo;
 class CBankInfo;
 class Engine;
 class InputVariable;
@@ -220,7 +219,7 @@ ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 		totalStrength += config.second.totalStrength * config.first;
 		totalChance += config.first;
 	}
-	return totalStrength / totalChance;
+	return totalStrength / std::max<ui8>(totalChance, 1); //avoid division by zero
 
 }
 

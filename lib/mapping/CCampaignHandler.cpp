@@ -27,6 +27,29 @@ namespace fs = boost::filesystem;
  *
  */
 
+CCampaignHeader::CCampaignHeader()
+	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
+{
+
+}
+
+CScenarioTravel::STravelBonus::STravelBonus()
+	:type(SPELL), info1(0), info2(0), info3(0)
+{
+
+}
+
+bool CScenarioTravel::STravelBonus::isBonusForHero() const
+{
+	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
+		|| type == SECONDARY_SKILL;
+}
+
+CScenarioTravel::CScenarioTravel()
+	:whatHeroKeeps(0), startOptions(0), playerColor(0)
+{
+
+}
 
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 {
@@ -169,7 +192,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 	{
 		ret.artifsKeptByHero.fill(0);
 		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size() - 1);
-	} 
+	}
 	else
 	{
 		reader.getStream()->read(ret.artifsKeptByHero.data(), ret.artifsKeptByHero.size());
@@ -323,12 +346,24 @@ bool CCampaign::conquerable( int whichScenario ) const
 	{
 		if( vstd::contains(scenarios[whichScenario].preconditionRegions, g) && !scenarios[g].conquered)
 			return false; //prerequisite does not met
-			
+
 	}
 	return true;
 }
 
 CCampaign::CCampaign()
+{
+
+}
+
+CCampaignScenario::SScenarioPrologEpilog::SScenarioPrologEpilog()
+	: hasPrologEpilog(false), prologVideo(0), prologMusic(0), prologText()
+{
+
+}
+
+CCampaignScenario::CCampaignScenario()
+	: mapName(), scenarioName(), packedMapSize(0), regionColor(0), difficulty(0), conquered(false)
 {
 
 }
@@ -364,12 +399,6 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
 		}
 	}
 	return lostCrossoverHeroes;
-}
-
-bool CScenarioTravel::STravelBonus::isBonusForHero() const
-{
-	return type == SPELL || type == MONSTER || type == ARTIFACT || type == SPELL_SCROLL || type == PRIMARY_SKILL
-		|| type == SECONDARY_SKILL;
 }
 
 void CCampaignState::setCurrentMapAsConquered( const std::vector<CGHeroInstance*> & heroes )

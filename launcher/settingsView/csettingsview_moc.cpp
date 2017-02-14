@@ -45,10 +45,14 @@ void CSettingsView::loadSettings()
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
 
+	int friendlyAIIndex = ui->comboBoxFriendlyAI->findText(QString::fromUtf8(settings["server"]["friendlyAI"].String().c_str()));
 	int neutralAIIndex = ui->comboBoxNeutralAI->findText(QString::fromUtf8(settings["server"]["neutralAI"].String().c_str()));
+	int enemyAIIndex = ui->comboBoxEnemyAI->findText(QString::fromUtf8(settings["server"]["enemyAI"].String().c_str()));
 	int playerAIIndex = ui->comboBoxPlayerAI->findText(QString::fromUtf8(settings["server"]["playerAI"].String().c_str()));
 
+	ui->comboBoxFriendlyAI->setCurrentIndex(friendlyAIIndex);
 	ui->comboBoxNeutralAI->setCurrentIndex(neutralAIIndex);
+	ui->comboBoxEnemyAI->setCurrentIndex(enemyAIIndex);
 	ui->comboBoxPlayerAI->setCurrentIndex(playerAIIndex);
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Float());
@@ -118,9 +122,21 @@ void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString &arg1)
 	node->String() = arg1.toUtf8().data();
 }
 
+void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(const QString & arg1)
+{
+	Settings node = settings.write["server"]["friendlyAI"];
+	node->String() = arg1.toUtf8().data();
+}
+
 void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(const QString &arg1)
 {
 	Settings node = settings.write["server"]["neutralAI"];
+	node->String() = arg1.toUtf8().data();
+}
+
+void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(const QString & arg1)
+{
+	Settings node = settings.write["server"]["enemyAI"];
 	node->String() = arg1.toUtf8().data();
 }
 

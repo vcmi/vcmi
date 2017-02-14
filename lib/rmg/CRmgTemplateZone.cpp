@@ -540,6 +540,7 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 	}
 
+	//cut straight paths towards the center. A* is too slow for that.
 	for (auto node : nodes)
 	{
 		boost::sort(nodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
@@ -749,33 +750,34 @@ do not leave zone border
 
 	return result;
 }
+boost::heap::priority_queue<CRmgTemplateZone::TDistance, boost::heap::compare<CRmgTemplateZone::NodeComparer>> CRmgTemplateZone::createPiorityQueue()
+{
+	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
+}
 
 bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int3& dst)
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	std::set<int3> open{src};    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto pq = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
-
-	//int3 currentNode = src;
+	
 	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
-	distances[src] = 0;
+	pq.push(std::make_pair(src, 0.f));
+	distances[src] = 0.f;
 	// Cost from start along best known path.
-	// Estimated total cost from start to goal through y.
 
-	while (open.size())
+	while (!pq.empty())
 	{
-		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
-		{
-			return distances[pos1] < distances[pos2];
-		});
-
-		vstd::erase_if_present (open, currentNode);
+		auto node = pq.top();
+		pq.pop(); //remove top element
+		int3 currentNode = node.first;
 		closed.insert (currentNode);
+		auto currentTile = &gen->map->getTile(currentNode);
 
 		if (currentNode == dst || gen->isRoad(currentNode))
 		{
@@ -798,27 +800,32 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			bool directNeighbourFound = false;
 			float movementCost = 1;
 
-			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances, &dst, &directNeighbourFound, movementCost](int3& pos) -> void
+			auto foo = [gen, this, &pq, &distances, &closed, &cameFrom, &currentNode, &currentTile, &node, &dst, &directNeighbourFound, &movementCost](int3& pos) -> void
 			{
-				float distance = distances[currentNode] + movementCost;
-				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				if (vstd::contains(closed, pos)) //we already visited that node
+					return;
+				float distance = node.second + movementCost;
+				float bestDistanceSoFar = std::numeric_limits<float>::max();
 				auto it = distances.find(pos);
 				if (it != distances.end())
 					bestDistanceSoFar = it->second;
 
-				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				if (distance < bestDistanceSoFar)
 				{
-					auto obj = gen->map->getTile(pos).topVisitableObj();
-					//if (gen->map->checkForVisitableDir(currentNode, &gen->map->getTile(pos), pos)) //TODO: why it has no effect?
-					if (gen->isFree(pos) || pos == dst || (obj && obj->ID == Obj::MONSTER))
+					auto tile = &gen->map->getTile(pos);
+					auto obj = tile->topVisitableObj();
+					bool canMoveBetween = gen->map->canMoveBetween(currentNode, pos);
+
+					if (gen->isFree(pos) && gen->isFree(currentNode) //empty path
+						|| ((tile->visitable || currentTile->visitable) && canMoveBetween) //moving from or to visitable object
+						|| pos == dst) //we already compledted the path
 					{
 						if (gen->getZoneID(pos) == id || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
 							cameFrom[pos] = currentNode;
-							open.insert(pos);
 							distances[pos] = distance;
+							pq.push(std::make_pair(pos, distance));
 							directNeighbourFound = true;
-							//logGlobal->traceStream() << boost::format("Found connection between node %s and %s, current distance %d") % currentNode % pos % distance;
 						}
 					}
 				}
@@ -828,7 +835,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 			if (!directNeighbourFound)
 			{
 				movementCost = 2.1f; //moving diagonally is penalized over moving two tiles straight
-				gen->foreach_neighbour(currentNode, foo);
+				gen->foreachDiagonaltNeighbour(currentNode, foo);
 			}
 		}
 
@@ -844,25 +851,24 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	std::set<int3> open{ src };    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
 	//int3 currentNode = src;
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
-	distances[src] = 0;
+	distances[src] = 0.f;
+	open.push(std::make_pair(src, 0.f));
 	// Cost from start along best known path.
 	// Estimated total cost from start to goal through y.
 
-	while (open.size())
+	while (!open.empty())
 	{
-		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
-		{
-			return distances[pos1] < distances[pos2];
-		});
+		auto node = open.top();
+		open.pop();
+		int3 currentNode = node.first;
 
-		vstd::erase_if_present(open, currentNode);
 		closed.insert(currentNode);
 
 		if (gen->isFree(currentNode)) //we reached free paths, stop
@@ -880,24 +886,24 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 		{
 			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
 			{
-				if (gen->isBlocked(pos)) //no paths through blocked or occupied tiles
+				if (vstd::contains(closed, pos))
+					return;
+
+				//no paths through blocked or occupied tiles, stay within zone
+				if (gen->isBlocked(pos) || gen->getZoneID(pos) != id)
 					return;
 
 				int distance = distances[currentNode] + 1;
-				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);
 				if (it != distances.end())
 					bestDistanceSoFar = it->second;
 
-				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				if (distance < bestDistanceSoFar)
 				{
-					//auto obj = gen->map->getTile(pos).topVisitableObj();
-					if (gen->getZoneID(pos) == id)
-					{
-						cameFrom[pos] = currentNode;
-						open.insert(pos);
-						distances[pos] = distance;
-					}
+					cameFrom[pos] = currentNode;
+					open.push(std::make_pair(pos, distance));
+					distances[pos] = distance;
 				}
 			};
 
@@ -910,7 +916,6 @@ bool CRmgTemplateZone::connectPath(CMapGenerator* gen, const int3& src, bool onl
 	}
 	for (auto tile : closed) //these tiles are sealed off and can't be connected anymore
 	{
-		//TODO: refactor, unify?
 		gen->setOccupied (tile, ETileType::BLOCKED);
 		vstd::erase_if_present(possibleTiles, tile);
 	}
@@ -923,25 +928,21 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	std::set<int3> open{ src };    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = std::move(createPiorityQueue()); // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	//int3 currentNode = src;
-
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
+	open.push(std::make_pair(src, 0.f));
 	// Cost from start along best known path.
-	// Estimated total cost from start to goal through y.
 
-	while (open.size())
+	while (!open.empty())
 	{
-		int3 currentNode = *boost::min_element(open, [&distances](const int3 &pos1, const int3 &pos2) -> bool
-		{
-			return distances[pos1] < distances[pos2];
-		});
+		auto node = open.top();
+		open.pop();
+		int3 currentNode = node.first;
 
-		vstd::erase_if_present(open, currentNode);
 		closed.insert(currentNode);
 
 		if (currentNode == pos) //we reached center of the zone, stop
@@ -959,6 +960,12 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 		{
 			auto foo = [gen, this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
 			{
+				if (vstd::contains(closed, pos))
+					return;
+
+				if (gen->getZoneID(pos) != id)
+					return;
+
 				float movementCost = 0;
 				if (gen->isFree(pos))
 					movementCost = 1;
@@ -968,20 +975,16 @@ bool CRmgTemplateZone::connectWithCenter(CMapGenerator* gen, const int3& src, bo
 					return;
 
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
-				int bestDistanceSoFar = 1e6; //FIXME: boost::limits
+				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits
 				auto it = distances.find(pos);
 				if (it != distances.end())
 					bestDistanceSoFar = it->second;
 
-				if (distance < bestDistanceSoFar || !vstd::contains(closed, pos))
+				if (distance < bestDistanceSoFar)
 				{
-					//auto obj = gen->map->getTile(pos).topVisitableObj();
-					if (gen->getZoneID(pos) == id)
-					{
-						cameFrom[pos] = currentNode;
-						open.insert(pos);
-						distances[pos] = distance;
-					}
+					cameFrom[pos] = currentNode;
+					open.push(std::make_pair(pos, distance));
+					distances[pos] = distance;
 				}
 			};
 
@@ -1318,17 +1321,15 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
 
+	//cut a ring around town to ensure crunchPath always hits it.
 	auto cutPathAroundTown = [gen, this](const CGTownInstance * town)
 	{
-		//cut contour around town in case it was placed in a middle of path. TODO: find better solution
-		for (auto tile : town->getBlockedPos())
+		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->foreach_neighbour(tile, [gen, &tile](int3& pos)
+			gen->foreach_neighbour(blockedTile, [gen, town](const int3& pos)
 			{
 				if (gen->isPossible(pos))
-				{
 					gen->setOccupied(pos, ETileType::FREE);
-				}
 			});
 		}
 	};
@@ -1370,9 +1371,9 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				//register MAIN town of zone
 				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
-				placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0);
+				placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 				cutPathAroundTown(town);
-				setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
+				setPos(town->visitablePos()); //roads lead to mian town
 			}
 			else
 				addRequiredObject (town);
@@ -1415,9 +1416,9 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
-		placeAndGuardObject(gen, town, getPos() + town->getVisitableOffset(), 0); //generate no guards, but free path to entrance
+		placeObject(gen, town, getPos() + town->getVisitableOffset(), true);
 		cutPathAroundTown(town);
-		setPos(town->visitablePos() + int3(0, 1, 0)); //new center of zone that paths connect to
+		setPos(town->visitablePos()); //roads lead to mian town
 
 		totalTowns++;
 		//register MAIN town of zone only
@@ -1903,7 +1904,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	initTerrainType(gen);
 
 	//zone center should be always clear to allow other tiles to connect
-	gen->setOccupied(this->getPos(), ETileType::FREE);
+	gen->setOccupied(pos, ETileType::FREE);
 	freePaths.insert(pos);
 
 	addAllPossibleObjects (gen);
@@ -2113,13 +2114,7 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 		}
 	}
 	if (updateDistance)
-	{
-		for(auto tile : possibleTiles) //don't need to mark distance for not possible tiles
-		{
-			si32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-			gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
-		}
-	}
+		updateDistances(gen, pos);
 
 	switch (object->ID)
 	{
@@ -2139,6 +2134,15 @@ void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object,
 	}
 }
 
+void CRmgTemplateZone::updateDistances(CMapGenerator* gen, const int3 & pos)
+{
+	for (auto tile : possibleTiles) //don't need to mark distance for not possible tiles
+	{
+		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+		gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
+	}
+}
+
 void CRmgTemplateZone::placeAndGuardObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, si32 str, bool zoneGuard)
 {
 	placeObject(gen, object, pos);
@@ -2154,7 +2158,7 @@ void CRmgTemplateZone::placeSubterraneanGate(CMapGenerator* gen, int3 pos, si32 
 	guardObject (gen, gate, guardStrength, true);
 }
 
-std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, CGObjectInstance* object)
+std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (CMapGenerator* gen, const CGObjectInstance* object)
 {
 	//get all tiles from which this object can be accessed
 	int3 visitable = object->visitablePos();
@@ -2374,14 +2378,11 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CMapGenerator* gen, CTreasurePileIn
 		});
 		return *(it->second);
 	}
-
-	return ObjectInfo(); // unreachable
 }
 
 void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 {
 	ObjectInfo oi;
-	oi.maxPerMap = std::numeric_limits<ui32>().max();
 
 	int numZones = gen->getZones().size();
 
@@ -2829,6 +2830,12 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			possibleObjects.push_back(oi);
 		}
 	}
+}
+
+ObjectInfo::ObjectInfo()
+	: templ(), value(0), probability(0), maxPerZone(1)
+{
+
 }
 
 void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)

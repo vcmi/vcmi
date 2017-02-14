@@ -119,6 +119,18 @@ void CLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
 		callTargets(LogRecord(domain, level, message));
 }
 
+void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
+{
+	try
+	{
+		log(level, fmt.str());
+	}
+	catch(...)
+	{
+        log(ELogLevel::ERROR, "Invalid log format!");
+	}
+}
+
 ELogLevel::ELogLevel CLogger::getLevel() const
 {
 	TLockGuard _(mx);

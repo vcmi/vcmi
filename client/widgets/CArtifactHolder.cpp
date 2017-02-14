@@ -32,7 +32,7 @@
  */
 
 CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art): CArtPlace(position, Art),
-	locked(false), picked(false), marked(false)
+	locked(false), picked(false), marked(false), ourOwner(nullptr)
 {
 	createImage();
 }
@@ -239,7 +239,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 
 void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
-	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
+	if(ourArt && down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
 		if (slotID < GameConstants::BACKPACK_START)
 		{
@@ -946,6 +946,7 @@ bool CArtifactsOfHero::SCommonPart::Artpos::valid()
 
 CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art) : ourArt(Art)
 {
+	image = nullptr;
 	pos += position;
 	pos.w = pos.h = 44;
 }
@@ -968,13 +969,13 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
-	if (down && ourArt && text.size())
+	if (ourArt && text.size() && down)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this] { returnArtToHeroCallback(); }, [] {});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)
 {
-	if (down && ourArt && text.size())
+	if (ourArt && text.size() && down)
 		CArtPlace::clickRight(down, previousState);
 }
 

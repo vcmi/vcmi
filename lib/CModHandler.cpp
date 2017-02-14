@@ -486,12 +486,22 @@ JsonNode addMeta(JsonNode config, std::string meta)
 	return config;
 }
 
+CModInfo::CModInfo():
+	checksum(0),
+	enabled(false),
+	validation(PENDING)
+{
+
+}
+
 CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode & config):
 	identifier(identifier),
 	name(config["name"].String()),
 	description(config["description"].String()),
 	dependencies(config["depends"].convertTo<std::set<std::string> >()),
 	conflicts(config["conflicts"].convertTo<std::set<std::string> >()),
+	checksum(0),
+	enabled(false),
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
@@ -554,6 +564,10 @@ void CModInfo::loadLocalData(const JsonNode & data)
 
 CModHandler::CModHandler()
 {
+    modules.COMMANDERS = false;
+    modules.STACK_ARTIFACT = false;
+    modules.STACK_EXP = false;
+    modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject("core", "resource", GameConstants::RESOURCE_NAMES[i], i);
@@ -680,7 +694,7 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 	std::set <TModID> resolvedMods;
 
 	// Check if all mod dependencies are resolved (moved to resolvedMods)
-	auto isResolved = [&](const CModInfo mod) -> bool
+	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
 		for(const TModID & dependency : mod.dependencies)
 		{

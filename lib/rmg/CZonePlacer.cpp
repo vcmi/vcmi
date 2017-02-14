@@ -24,7 +24,9 @@ CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone)
 
 }
 
-CZonePlacer::CZonePlacer(CMapGenerator * Gen) : gen(Gen)
+CZonePlacer::CZonePlacer(CMapGenerator * Gen)
+	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
+	gen(Gen)
 {
 
 }
@@ -153,7 +155,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 }
 
 void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand)
-{	
+{
 	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
 
 	const float radius = 0.4f;
@@ -168,7 +170,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 
 	//first pass - determine fixed surface for zones
 	for (auto zone : zonesVector)
-	{	
+	{
 		if (!underground) //this step is ignored
 			zonesToPlace.push_back(zone);
 		else //place players depending on their factions
@@ -374,7 +376,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 	}
 	logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
 
-	if (maxRatio > maxDistanceMovementRatio)
+	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
 		CRmgTemplateZone * targetZone = nullptr;
 		float3 ourCenter = misplacedZone->getCenter();
@@ -419,14 +421,17 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 					targetZone = otherZone.second;
 				}
 			}
-			float3 vec = ourCenter - targetZone->getCenter();
-			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-			logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
-				misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
-			logGlobal->traceStream() << boost::format("direction is %s") % vec();
+			if (targetZone)
+			{
+				float3 vec = ourCenter - targetZone->getCenter();
+				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
+				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
+					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
+				logGlobal->traceStream() << boost::format("direction is %s") % vec();
 
-			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-			logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+			}
 		}
 	}
 }

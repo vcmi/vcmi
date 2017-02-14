@@ -326,6 +326,10 @@ CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHe
 	arts(nullptr),
 	hLeft(nullptr),
 	hRight(nullptr),
+	ok(nullptr),
+	max(nullptr),
+	deal(nullptr),
+	slider(nullptr),
 	readyToTrade(false)
 {
 	type |= BLOCK_ADV_HOTKEYS;
@@ -1002,7 +1006,7 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 	return Point(0,0);
 }
 
-void CMarketplaceWindow::resourceChanged(int type, int val)
+void CMarketplaceWindow::resourceChanged()
 {
 	initSubs(true);
 }
@@ -1294,14 +1298,6 @@ void CAltarWindow::selectionChanged(bool side)
 {
 	if(mode != EMarketMode::CREATURE_EXP)
 		return;
-
-	CTradeableItem *&selected = side ? hLeft : hRight;
-	CTradeableItem *&theOther = side ? hRight : hLeft;
-
-	theOther = *std::find_if(items[!side].begin(), items[!side].end(), [&](const CTradeableItem * item)
-	{
-		return item->serial == selected->serial;
-	});
 
 	int stackCount = 0;
 	for (int i = 0; i < GameConstants::ARMY_SIZE; i++)

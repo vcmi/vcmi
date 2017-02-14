@@ -60,21 +60,11 @@ struct SetGlobalState
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
-unsigned char &retreiveTileN(std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
-{
-	return vectors[pos.x][pos.y][pos.z];
-}
-
-const unsigned char &retreiveTileN(const std::vector< std::vector< std::vector<unsigned char> > > &vectors, const int3 &pos)
-{
-	return vectors[pos.x][pos.y][pos.z];
-}
-
 void foreach_tile(std::vector< std::vector< std::vector<unsigned char> > > &vectors, std::function<void(unsigned char &in)> foo)
 {
-	for(auto & vector : vectors)
-		for(auto j = vector.begin(); j != vector.end(); j++)
-			for(auto & elem : *j)
+	for (auto & vector : vectors)
+		for (auto j = vector.begin(); j != vector.end(); j++)
+			for (auto & elem : *j)
 				foo(elem);
 }
 
@@ -142,6 +132,9 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				}
 			}
 		}
+		//FIXME: teleports are not correctly visited
+		unreserveObject(hero, t1);
+		unreserveObject(hero, t2);
 	}
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
@@ -271,7 +264,8 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 {
 	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
 	NET_EVENT_HANDLER;
-	if(start)
+
+	if(start && visitedObj) //we can end visit with null object, anyway
 	{
 		markObjectVisited (visitedObj);
 		unreserveObject(visitor, visitedObj);
@@ -502,9 +496,9 @@ void VCAI::requestRealized(PackageApplied *pa)
 	}
 }
 
-void VCAI::receivedResource(int type, int val)
+void VCAI::receivedResource()
 {
-	LOG_TRACE_PARAMS(logAi, "type '%i', val '%i'", type % val);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
@@ -1071,7 +1065,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
 			const CGHeroInstance * target = nullptr;
-			if (giveStuffToFirstHero)
+			if (giveStuffToFirstHero || !otherh)
 				target = h;
 			else
 				target = otherh;
@@ -1618,14 +1612,19 @@ void VCAI::wander(HeroPtr h)
 }
 
 void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
-{ //TODO: check for presence?
+{
 	if(goal->invalid())
 		vstd::erase_if_present(lockedHeroes, h);
 	else
 	{
 		lockedHeroes[h] = goal;
-		goal->setisElementar(false); //always evaluate goals before realizing
+		goal->setisElementar(false); //Force always evaluate goals before realizing
 	}
+}
+void VCAI::evaluateGoal(HeroPtr h)
+{
+	if (vstd::contains(lockedHeroes, h))
+		fh->setPriority(lockedHeroes[h]);
 }
 
 void VCAI::completeGoal (Goals::TSubgoal goal)
@@ -1685,7 +1684,9 @@ void VCAI::waitTillFree()
 
 void VCAI::markObjectVisited (const CGObjectInstance *obj)
 {
-	if(dynamic_cast<const CGVisitableOPH *>(obj) || //we may want to wisit it with another hero
+	if(!obj)
+		return;
+	if(dynamic_cast<const CGVisitableOPH *>(obj) || //we may want to visit it with another hero
 		dynamic_cast<const CGBonusingObject *>(obj) || //or another time
 		(obj->ID == Obj::MONSTER))
 		return;
@@ -1865,6 +1866,8 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
+
 	auto afterMovementCheck = [&]() -> void
 	{
 		waitTillFree(); //movement may cause battle or blocking dialog
@@ -1978,6 +1981,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
+				markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
 
 				continue;
 			}
@@ -2037,6 +2041,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
+		evaluateGoal(h); //new hero position means new game situation
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos(), h->visitablePos()(), ret);
 	}
 	return ret;
@@ -2552,11 +2557,19 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
-	for(crint3 dir : int3::getDirs())
-		if(cb->isInTheMap(hpos+dir))
+	for (crint3 dir : int3::getDirs())
+	{
+		int3 tile = hpos + dir;
+		if (cb->isInTheMap(tile))
 			if (ourPos != dir) //don't stand in place
-				if (isSafeToVisit(h, hpos + dir) && isAccessibleForHero (hpos + dir, h))
-					dstToRevealedTiles[hpos + dir] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+				if (isSafeToVisit(h, tile) && isAccessibleForHero(tile, h))
+				{
+					if (isBlockVisitObj(tile))
+						continue;
+					else
+						dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+				}
+	}
 
 	if (dstToRevealedTiles.empty()) //yes, it DID happen!
 		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
@@ -2613,8 +2626,10 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 			if (ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				if(isSafeToVisit(h, tile) && !isBlockedBorderGate(tile))
+				if(isSafeToVisit(h, tile))
 				{
+					if (isBlockVisitObj(tile)) //we can't stand on that object
+						continue;
 					bestTile = tile;
 					bestValue = ourValue;
 				}
@@ -2661,7 +2676,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 				ui64 ourDanger = evaluateDanger(t, h.h);
 				if (ourDanger < lowestDanger)
 				{
-					if(!isBlockedBorderGate(t))
+					if(!isBlockVisitObj(t))
 					{
 						if (!ourDanger) //at least one safe place found
 							return t;
@@ -2808,10 +2823,10 @@ void VCAI::requestSent(const CPackForServer *pack, int requestID)
 
 std::string VCAI::getBattleAIName() const
 {
-	if(settings["server"]["neutralAI"].getType() == JsonNode::DATA_STRING)
-		return settings["server"]["neutralAI"].String();
+	if(settings["server"]["enemyAI"].getType() == JsonNode::DATA_STRING)
+		return settings["server"]["enemyAI"].String();
 	else
-		return "StupidAI";
+		return "BattleAI";
 }
 
 void VCAI::validateObject(const CGObjectInstance *obj)
@@ -3017,7 +3032,7 @@ SectorMap::SectorMap(HeroPtr h)
 	makeParentBFS(h->visitablePos());
 }
 
-bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
+bool SectorMap::markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t)
 {
 	if(t->blocked && !t->visitable)
 	{
@@ -3028,7 +3043,7 @@ bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos, const TerrainTile *t)
 	return false;
 }
 
-bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
+bool SectorMap::markIfBlocked(TSectorID &sec, crint3 pos)
 {
 	return markIfBlocked(sec, pos, getTile(pos));
 }
@@ -3036,6 +3051,8 @@ bool SectorMap::markIfBlocked(ui8 &sec, crint3 pos)
 void SectorMap::update()
 {
 	visibleTiles = cb->getAllVisibleTiles();
+	auto shape = visibleTiles->shape();
+	sector.resize(boost::extents[shape[0]][shape[1]][shape[2]]);
 
 	clear();
 	int curSector = 3; //0 is invisible, 1 is not explored
@@ -3052,9 +3069,32 @@ void SectorMap::update()
 	valid = true;
 }
 
+SectorMap::TSectorID &SectorMap::retreiveTileN(SectorMap::TSectorArray &a, const int3 &pos)
+{
+	return a[pos.x][pos.y][pos.z];
+}
+
+const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArray &a, const int3 &pos)
+{
+	return a[pos.x][pos.y][pos.z];
+}
+
 void SectorMap::clear()
 {
-	sector = cb->getVisibilityMap();
+	//TODO: rotate to [z][x][y]
+	auto fow = cb->getVisibilityMap();
+	//TODO: any magic to automate this? will need array->array conversion
+	//std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
+	//{
+	//	return f; //type conversion
+	//});
+	auto width = fow.size();
+	auto height = fow.front().size();
+	auto depth = fow.front().front().size();
+	for (size_t x = 0; x < width; x++)
+		for (size_t y = 0; y < height; y++ )
+			for (size_t z = 0; z < depth; z++)
+				sector[x][y][z] = fow[x][y][z];
 	valid = false;
 }
 
@@ -3070,7 +3110,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		ui8 &sec = retreiveTile(curPos);
+		TSectorID &sec = retreiveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
 			const TerrainTile *t = getTile(curPos);
@@ -3211,7 +3251,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::MONOLITH_TWO_WAY:
 		case Obj::WHIRLPOOL:
-			//TODO: mechanism for handling monoliths
 			return false;
 		case Obj::SCHOOL_OF_MAGIC:
 		case Obj::SCHOOL_OF_WAR:
@@ -3240,6 +3279,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::BOAT:
 			return false;
 			//Boats are handled by pathfinder
+		case Obj::EYE_OF_MAGI:
+			return false; //this object is useless to visit, but could be visited indefinitely
 	}
 
 	if (obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
@@ -3406,10 +3447,6 @@ For ship construction etc, another function (goal?) is needed
 	{
 		return findFirstVisitableTile(h, dst);
 	}
-
-	//FIXME: find out why this line is reached
-	logAi->errorStream() << ("Impossible happened at SectorMap::firstTileToGet");
-	return ret;
 }
 
 int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
@@ -3459,7 +3496,7 @@ void SectorMap::makeParentBFS(crint3 source)
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		ui8 &sec = retreiveTile(curPos);
+		TSectorID &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
 
@@ -3477,7 +3514,7 @@ void SectorMap::makeParentBFS(crint3 source)
 	}
 }
 
-unsigned char & SectorMap::retreiveTile(crint3 pos)
+SectorMap::TSectorID & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
 }

@@ -49,13 +49,20 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 
 CVideoPlayer::CVideoPlayer()
 {
+	stream = -1;
 	format = nullptr;
-	frame = nullptr;
+	codecContext = nullptr;
 	codec = nullptr;
+	frame = nullptr;
 	sws = nullptr;
+	context = nullptr;
 	texture = nullptr;
 	dest = nullptr;
-	context = nullptr;
+	destRect = genRect(0,0,0,0);
+	pos = genRect(0,0,0,0);
+	refreshWait = 0;
+	refreshCount = 0;
+	doLoop = false;
 
 	// Register codecs. TODO: May be overkill. Should call a
 	// combination of av_register_input_format() /
@@ -143,17 +150,17 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 	// Allocate video frame
 	frame = av_frame_alloc();
-	
+
 	//setup scaling
 	if(scale)
 	{
-		pos.w = screen->w;		
+		pos.w = screen->w;
 		pos.h = screen->h;
 	}
 	else
 	{
-		pos.w  = codecContext->width;		
-		pos.h = codecContext->height;		
+		pos.w  = codecContext->width;
+		pos.h = codecContext->height;
 	}
 
 	// Allocate a place to put our YUV image on that screen
@@ -174,7 +181,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	if (texture)
 	{ // Convert the image into YUV format that SDL uses
-		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
+		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
 							 pos.w, pos.h,
 							 AV_PIX_FMT_YUV420P,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
@@ -205,8 +212,8 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 			}
 		}
 
-		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt, 
-							 pos.w, pos.h, screenFormat, 
+		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
+							 pos.w, pos.h, screenFormat,
 							 SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
@@ -357,7 +364,7 @@ void CVideoPlayer::close()
 
 	if (frame)
 	{
-		av_frame_free(&frame);//will be set to null		
+		av_frame_free(&frame);//will be set to null
 	}
 
 	if (codec)

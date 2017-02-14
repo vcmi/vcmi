@@ -709,6 +709,14 @@ CMapHandler::CMapPuzzleViewBlitter::CMapPuzzleViewBlitter(CMapHandler * parent)
 	unblittableObjects.push_back(Obj::HOLE);
 }
 
+CMapHandler::CMapBlitter::CMapBlitter(CMapHandler * p)
+	:parent(p), tileSize(0), halfTileSizeCeil(0), info(nullptr)
+{
+
+}
+
+CMapHandler::CMapBlitter::~CMapBlitter() = default;
+
 void CMapHandler::CMapBlitter::drawFrame(SDL_Surface * targetSurf) const
 {
 	Rect destRect(realTileRect);
@@ -1036,10 +1044,14 @@ IImage * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int a
 
 IImage * CMapHandler::CMapBlitter::findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const
 {
+	size_t groupSize = animation->size(group);
+	if(groupSize == 0)
+		return nullptr;
+
 	if(moving)
-		return animation->getImage(anim % animation->size(group), group);
+		return animation->getImage(anim % groupSize, group);
 	else
-		return animation->getImage((anim / 4) % animation->size(group), group);
+		return animation->getImage((anim / 4) % groupSize, group);
 }
 
 CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const CGObjectInstance * obj, int anim) const
@@ -1053,7 +1065,13 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const C
 
 	// normal object
 	std::shared_ptr<CAnimation> animation = graphics->getAnimation(obj);
-	IImage * bitmap = animation->getImage((anim + getPhaseShift(obj)) % animation->size());
+	size_t groupSize = animation->size();
+    if(groupSize == 0)
+		return CMapHandler::AnimBitmapHolder();
+
+	IImage * bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
+	if(!bitmap)
+		return CMapHandler::AnimBitmapHolder();
 
 	bitmap->setFlagColor(obj->tempOwner);
 
@@ -1359,6 +1377,9 @@ CMapHandler::CMapHandler()
 	worldViewBlitter = new CMapWorldViewBlitter(this);
 	puzzleViewBlitter = new CMapPuzzleViewBlitter(this);
 	fadeAnimCounter = 0;
+	map = nullptr;
+	tilesW = tilesH = 0;
+	offsetX = offsetY = 0;
 
 	egdeAnimation = make_unique<CAnimation>("EDG");
 	egdeAnimation->preload();
@@ -1393,6 +1414,11 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 void CMapHandler::discardWorldViewCache()
 {
 	cache.discardWorldViewCache();
+}
+
+CMapHandler::CMapCache::CMapCache()
+{
+	worldViewCachedScale = 0;
 }
 
 void CMapHandler::CMapCache::discardWorldViewCache()

@@ -2,6 +2,9 @@
 //
 #include "StdInc.h"
 #include <SDL_mixer.h>
+
+#include <boost/program_options.hpp>
+
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
@@ -22,7 +25,6 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "CMusicHandler.h"
-#include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
@@ -43,6 +45,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
+#include "gui/CAnimation.h"
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -70,7 +73,7 @@ namespace bfs = boost::filesystem;
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-static CClient *client=nullptr;
+static CClient *client = nullptr;
 
 int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
@@ -617,17 +620,22 @@ void processCommand(const std::string &message)
 	}
 	else if(cn=="save")
 	{
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		std::string fname;
 		readed >> fname;
 		client->save(fname);
 	}
-	else if(cn=="load")
-	{
-		// TODO: this code should end the running game and manage to call startGame instead
-		std::string fname;
-		readed >> fname;
-		client->loadGame(fname);
-	}
+//	else if(cn=="load")
+//	{
+//		// TODO: this code should end the running game and manage to call startGame instead
+//		std::string fname;
+//		readed >> fname;
+//		client->loadGame(fname);
+//	}
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";
@@ -665,11 +673,6 @@ void processCommand(const std::string &message)
 	{
 		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
-	else if (cn == "ai")
-	{
-		VLC->IS_AI_ENABLED = !VLC->IS_AI_ENABLED;
-		std::cout << "Current AI status: " << (VLC->IS_AI_ENABLED ? "enabled" : "disabled") << std::endl;
-	}
 	else if(cn == "mp" && adventureInt)
 	{
 		if(const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
@@ -699,7 +702,7 @@ void processCommand(const std::string &message)
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);
 			else
-				std::cout << typeid(*obj).name() << std::endl;
+				std::cout << typeid(*child).name() << std::endl;
 		}
 	}
 	else if(cn=="tell")
@@ -762,21 +765,9 @@ void processCommand(const std::string &message)
 	{
 		std::string URI;
 		readed >> URI;
-		if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + URI)))
-		{
-			CDefEssential * cde = CDefHandler::giveDefEss(URI);
-
-			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extracted" / URI;
-			bfs::create_directories(outPath);
-
-			for (size_t i = 0; i < cde->ourImages.size(); ++i)
-			{
-				const bfs::path filePath = outPath / (boost::lexical_cast<std::string>(i)+".bmp");
-				SDL_SaveBMP(cde->ourImages[i].bitmap, filePath.string().c_str());
-			}
-		}
-		else
-			logGlobal->errorStream() << "File not found!";
+		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		anim->preload();
+		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted");
 	}
 	else if(cn == "extract")
 	{
@@ -846,7 +837,12 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gosolo")
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		PlayerColor color;
 		if(session["aiSolo"].Bool())
 		{
@@ -880,7 +876,12 @@ void processCommand(const std::string &message)
 		readed >> colorName;
 		boost::to_lower(colorName);
 
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+		if(!client)
+		{
+			std::cout << "Game in not active";
+			return;
+		}
 		PlayerColor color;
 		if(LOCPLINT)
 			color = LOCPLINT->playerID;
@@ -902,7 +903,7 @@ void processCommand(const std::string &message)
 	// Check mantis issue 2292 for details
 /* 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		LOCPLINT->cb->sendMessage(message);
 	}*/
 }
@@ -1126,7 +1127,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayInde
 
 static void fullScreenChanged()
 {
-	boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
 
 	Settings full = settings.write["video"]["fullscreen"];
 	const bool toFullscreen = full->Bool();
@@ -1263,7 +1264,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		}
 	}
 
-    client = new CClient;
+    client = new CClient();
 	CPlayerInterface::howManyPeople = 0;
 	switch(options->mode) //new game
 	{
@@ -1282,7 +1283,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		break;
 	}
 
-		client->connectionHandler = new boost::thread(&CClient::run, client);
+	client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 
 void endGame()

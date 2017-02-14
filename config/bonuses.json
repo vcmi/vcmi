@@ -442,6 +442,15 @@
 			"icon":  "zvs/Lib1.res/E_SHOOT"
 		}
 	},
+	
+	"SOUL_STEAL":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SUMMON2"
+		}
+	},
+	
 	"SPELLCASTER":
 	{
 		"graphics":
@@ -513,6 +522,14 @@
 		"graphics":
 		{
 			"icon":  "zvs/Lib1.res/ThreeHeaded"
+		}
+	},
+	
+	"TRANSMUTATION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/E_SGTYPE"
 		}
 	},
 

@@ -26,24 +26,6 @@ namespace config
  *
  */
 
-class ClickableArea : public CIntObject //TODO: derive from LRCLickableArea? Or somehow use its right-click/hover data?
-{
-	CFunctionList<void()> callback;
-
-	CIntObject * area;
-
-protected:
-	void onClick();
-
-public:
-	ClickableArea(CIntObject * object, CFunctionList<void()> callback);
-
-	void addCallback(std::function<void()> callback);
-	void setArea(CIntObject * object);
-
-	void clickLeft(tribool down, bool previousState) override;
-};
-
 /// Typical Heroes 3 button which can be inactive or active and can
 /// hold further information if you right-click it
 class CButton : public CKeyShortcut
@@ -151,13 +133,6 @@ public:
 	void addCallback(std::function<void(bool)> callback);
 };
 
-class ClickableToggle : public ClickableArea, public CToggleBase
-{
-public:
-	ClickableToggle(CIntObject * object, CFunctionList<void()> selectFun, CFunctionList<void()> deselectFun);
-	void clickLeft(tribool down, bool previousState) override;
-};
-
 /// A button which can be selected/deselected, checkbox
 class CToggleButton : public CButton, public CToggleBase
 {
@@ -224,9 +199,6 @@ class CSlider : public CIntObject
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)
 	bool horizontal;
-	bool wheelScrolling;
-	bool keyScrolling;
-
 	int amount; //total amount of elements (e.g. hero list = 0-8)
 	int value; //first active element
 	int scrollStep; // how many elements will be scrolled via one click, default = 1

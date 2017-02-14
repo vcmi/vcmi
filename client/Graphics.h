@@ -90,6 +90,7 @@ public:
 
 	//functions
 	Graphics();
+	~Graphics();
 
 	void load();
 

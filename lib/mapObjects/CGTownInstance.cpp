@@ -370,7 +370,6 @@ CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - for
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
-
 	if (hasBuilt(BuildingID::CAPITOL))
 		return 3;
 	if (hasBuilt(BuildingID::CITY_HALL))
@@ -381,6 +380,7 @@ int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - c
 		return 0;
 	return -1;
 }
+
 int CGTownInstance::mageGuildLevel() const
 {
 	if (hasBuilt(BuildingID::MAGES_GUILD_5))

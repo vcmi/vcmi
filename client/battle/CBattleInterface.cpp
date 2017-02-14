@@ -46,7 +46,7 @@
  *
  */
 
-CondSh<bool> CBattleInterface::animsAreDisplayed;
+CondSh<bool> CBattleInterface::animsAreDisplayed(false);
 
 static void onAnimationFinished(const CStack *stack, CCreatureAnimation *anim)
 {
@@ -301,29 +301,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	for (const CStack *s : stacks)  //stacks gained at top of this function
 		if (s->position >= 0) //turrets have position < 0
 			bfield[s->position]->accessible = false;
-
-	//loading projectiles for units
-	for (const CStack *s : stacks)
-	{
-		if (s->getCreature()->isShooting())
-		{
-			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];
-
-			const CCreature *creature;//creature whose shots should be loaded
-			if (s->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-				creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
-			else
-				creature = s->getCreature();
-
-			projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
-
-			for (auto & elem : projectile->ourImages) //alpha transforming
-			{
-				CSDL_Ext::alphaTransform(elem.bitmap);
-			}
-		}
-	}
-
 
 	//preparing graphic with cell borders
 	cellBorders = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
@@ -879,7 +856,7 @@ void CBattleInterface::bAutofightf()
 		curInt->isAutoFightOn = true;
 		blockUI(true);
 
-		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		ai->init(curInt->cb);
 		ai->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
 		curInt->autofightingAI = ai;
@@ -1005,6 +982,29 @@ void CBattleInterface::newStack(const CStack *stack)
 	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 
+	//loading projectiles for units
+	if (stack->getCreature()->isShooting())
+	{
+		initStackProjectile(stack);
+	}
+}
+
+void CBattleInterface::initStackProjectile(const CStack * stack)
+{
+	CDefHandler *&projectile = idToProjectile[stack->getCreature()->idNumber];
+
+	const CCreature *creature;//creature whose shots should be loaded
+	if (stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+		creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+	else
+		creature = stack->getCreature();
+
+	projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
+
+	for (auto & elem : projectile->ourImages) //alpha transforming
+	{
+		CSDL_Ext::alphaTransform(elem.bitmap);
+	}
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -1231,7 +1231,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
 	{
-		auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 		animsAreDisplayed.waitUntil(false);
 	}
 	displayBattleFinished();
@@ -1969,7 +1969,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 void CBattleInterface::waitForAnims()
 {
-	auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 	animsAreDisplayed.waitWhileTrue();
 }
 
@@ -2807,7 +2807,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&]
 	{
-		auto ba = new BattleAction(curInt->autofightingAI->activeStack(activeStack));
+		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 
 		if (curInt->isAutoFightOn)
 		{
@@ -2823,13 +2823,12 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 			}
 			else
 			{
-				givenCommand->setn(ba);
+				givenCommand->setn(ba.release());
 			}
 		}
 		else
 		{
-			delete ba;
-			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			activateStack();
 		}
 	});

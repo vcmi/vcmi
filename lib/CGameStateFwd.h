@@ -173,7 +173,9 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	const CGObjectInstance * obj; //related object, most likely Seer Hut
 	int3 tile;
 
-	QuestInfo(){};
+	QuestInfo()
+		: quest(nullptr), obj(nullptr), tile(-1,-1,-1)
+	{};
 	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
 		quest (Quest), obj (Obj), tile (Tile){};
 

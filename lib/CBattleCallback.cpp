@@ -356,7 +356,9 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 		return ESpellCastProblem::INVALID;
 	}
 	const PlayerColor player = caster->getOwner();
-	const ui8 side = playerToSide(player);
+	const si8 side = playerToSide(player);
+	if(side < 0)
+		return ESpellCastProblem::INVALID;
 	if(!battleDoWeKnowAbout(side))
 	{
 		logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
@@ -391,7 +393,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	ui8 mySide = playerToSide(player);
+	const si8 mySide = playerToSide(player);
 	const CGHeroInstance *myHero = battleGetFightingHero(mySide);
 
 	//current player have no hero
@@ -413,7 +415,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 	return true;
 }
 
-ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
+si8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
@@ -426,8 +428,8 @@ ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	ui8 playerSide = playerToSide(player);
-	if (playerSide != (ui8)-1)
+	const si8 playerSide = playerToSide(player);
+	if (playerSide >= 0)
 	{
 		if (getBattle()->sides[!playerSide].hero == h)
 			return true;
@@ -1477,11 +1479,11 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	RETURN_IF_NOT_BATTLE(at);
 
 	const int WN = GameConstants::BFIELD_WIDTH;
-	ui16 hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
+	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
 	bool reverse = isToReverse (hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
-	if (reverse)
+	if (reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
 	}
@@ -1714,7 +1716,11 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return ESpellCastProblem::INVALID;
 	}
 	const PlayerColor player = caster->getOwner();
-	const ui8 side = playerToSide(player);
+	const si8 side = playerToSide(player);
+
+	if(side < 0)
+		return ESpellCastProblem::INVALID;
+
 	if(!battleDoWeKnowAbout(side))
 		return ESpellCastProblem::INVALID;
 
@@ -1727,7 +1733,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	case ECastingMode::HERO_CASTING:
 		{
 			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			assert(castingHero);
+			if(!castingHero)
+			{
+				logGlobal->error("battleCanCastThisSpell: invalid caster");
+				return ESpellCastProblem::INVALID;
+			}
+
 			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
 				return ESpellCastProblem::NO_SPELLBOOK;
 			if(!castingHero->canCastThisSpell(spell))
@@ -1994,13 +2005,17 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	if(!battleCanSurrender(Player))
 		return -1;
 
+	const si8 playerSide = playerToSide(Player);
+	if(playerSide < 0)
+		return -1;
+
 	int ret = 0;
 	double discount = 0;
-	for(const CStack *s : battleAliveStacks(playerToSide(Player)))
+	for(const CStack *s : battleAliveStacks(playerSide))
 		if(s->base) //we pay for our stack that comes from our army slots - condition eliminates summoned cres and war machines
 			ret += s->getCreature()->cost[Res::GOLD] * s->count;
 
-	if(const CGHeroInstance *h = battleGetFightingHero(playerToSide(Player)))
+	if(const CGHeroInstance *h = battleGetFightingHero(playerSide))
 		discount += h->valOfBonuses(Bonus::SURRENDER_DISCOUNT);
 
 	ret *= (100.0 - discount) / 100.0;

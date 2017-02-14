@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <boost/program_options.hpp>
 
 /*
  * CVCMIServer.h, part of VCMI engine

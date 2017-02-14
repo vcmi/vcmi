@@ -108,12 +108,8 @@
 
 void SetResources::applyCl(CClient *cl)
 {
-	INTERFACE_CALL_IF_PRESENT(player,receivedResource,-1,-1);
-}
-
-void SetResource::applyCl(CClient *cl)
-{
-	INTERFACE_CALL_IF_PRESENT(player,receivedResource,resid,val);
+	//todo: inform on actual resource set transfered
+	INTERFACE_CALL_IF_PRESENT(player,receivedResource);
 }
 
 void SetPrimSkill::applyCl(CClient *cl)
@@ -928,22 +924,5 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl->getObj(ObjectInstanceID(id)));
 		assert(bm);
 		INTERFACE_CALL_IF_PRESENT(cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, availableArtifactsChanged, bm);
-	}
-}
-
-void TradeComponents::applyCl(CClient *cl)
-{///Shop handler
-	switch (CGI->mh->map->objects.at(objectid)->ID)
-	{
-	case Obj::BLACK_MARKET:
-		break;
-	case Obj::TAVERN:
-		break;
-	case Obj::DEN_OF_THIEVES:
-		break;
-	case Obj::TRADING_POST_SNOW:
-		break;
-	default:
-		logNetwork->warnStream() << "Shop type not supported!";
 	}
 }

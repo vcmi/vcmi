@@ -17,6 +17,12 @@
 		"name": "Additional retaliations",
 		"description": "May Retaliate ${val} extra times"
 	},
+	
+	"CATAPULT_EXTRA_SHOTS":
+	{
+		"name": "Additional siege attacks",
+		"description": "Can hit siege walls ${val} extra times per attack"
+	},
 
 	"AIR_IMMUNITY":
 	{
@@ -34,6 +40,12 @@
 	{
 		"name": "No retaliation",
 		"description": "Enemy cannot Retaliate"
+	},
+	
+	"BLOCKS_RANGED_RETALIATION":
+	{
+		"name": "No ranged retaliation",
+		"description": "Enemy cannot Retaliate by shooting"
 	},
 
 	"CATAPULT":
@@ -293,6 +305,12 @@
 		"name": "Random spellcaster",
 		"description": "Can cast random spell"
 	},
+	
+	"RANGED_RETALIATION":
+	{
+		"name": "Ranged retaliation",
+		"description": "Can perform ranged counterattack"
+	},
 
 	"RECEPTIVE":
 	{
@@ -327,6 +345,12 @@
 	{
 		"name": "Ranged",
 		"description": "Creature can shoot"
+	},
+	
+	"SOUL_STEAL":
+	{
+		"name": "Soul Steal",
+		"description": "Gains ${val} new creatures for each enemy killed"
 	},
 
 	"SPELLCASTER":
@@ -370,6 +394,12 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
+	
+	"SUMMON_GUARDIANS":
+	{
+		"name": "Summon guardians",
+		"description": "At battle start summons ${subtype.creature} (${val}%)"
+	},
 
 	"TWO_HEX_ATTACK_BREATH":
 	{
@@ -381,6 +411,12 @@
 	{
 		"name": "Three-headed attack",
 		"description": "Attacks three adjacent units"
+	},
+	
+	"TRANSMUTATION":
+	{
+		"name": "Transmutation",
+		"description": "${val}% chance to transform attacked unit to other type"
 	},
 
 	"UNDEAD":

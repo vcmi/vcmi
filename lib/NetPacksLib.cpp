@@ -37,17 +37,18 @@ std::ostream & operator<<(std::ostream & out, const CPack * pack)
 	return out << (pack? pack->toString() : "<nullptr>");
 }
 
-DLL_LINKAGE void SetResource::applyGs(CGameState *gs)
-{
-	assert(player < PlayerColor::PLAYER_LIMIT);
-	vstd::amax(val, 0); //new value must be >= 0
-	gs->getPlayer(player)->resources[resid] = val;
-}
-
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
-	gs->getPlayer(player)->resources = res;
+	if(abs)
+		gs->getPlayer(player)->resources = res;
+	else
+		gs->getPlayer(player)->resources += res;
+
+	//just ensure that player resources are not negative
+	//server is responsible to check if player can afford deal
+	//but events on server side are allowed to take more than player have
+	gs->getPlayer(player)->resources.positive();
 }
 
 DLL_LINKAGE void SetPrimSkill::applyGs(CGameState *gs)
@@ -1611,12 +1612,15 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		if(resurrected)
 		{
 			if(changedStack->count > 0 || changedStack->firstHPleft > 0)
-				logGlobal->warn("Dead stack %s with positive total HP", changedStack->nodeName(), changedStack->totalHealth());
+				logGlobal->warn("Dead stack %s with positive total HP %d", changedStack->nodeName(), changedStack->totalHealth());
 
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}
-
-		int res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);
+		int res;
+		if(canOverheal) //for example WoG ghost soul steal ability allows getting more units than before battle
+			res = elem.healedHP / changedStack->MaxHealth();
+		else
+			res = std::min(elem.healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count);		
 		changedStack->count += res;
 		if(elem.lowLevelResurrection)
 			changedStack->resurrected += res;
@@ -1687,6 +1691,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs(CGameState *gs)
 
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
+	attacker = -1;
 }
 
 DLL_LINKAGE CatapultAttack::~CatapultAttack()

@@ -479,26 +479,20 @@ void CVCMIServer::loadGame()
 
 	c << ui8(0);
 
-	CConnection* cc; //tcp::socket * ss;
-	for(int i=0; i<clients; i++)
+	gh.conns.insert(firstConnection);
+
+	for(int i=1; i<clients; i++)
 	{
-		if(!i)
+		auto s = make_unique<boost::asio::ip::tcp::socket>(acceptor->get_io_service());
+		acceptor->accept(*s,error);
+		if(error) //retry
 		{
-			cc = &c;
+			logNetwork->warn("Cannot establish connection - retrying...");
+			i--;
+			continue;
 		}
-		else
-		{
-			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
-			acceptor->accept(*s,error);
-			if(error) //retry
-			{
-				logNetwork->warn("Cannot establish connection - retrying...");
-				i--;
-				continue;
-			}
-			cc = new CConnection(s,NAME);
-		}
-		gh.conns.insert(cc);
+
+		gh.conns.insert(new CConnection(s.release(),NAME));
 	}
 
 	gh.run(true);

@@ -41,7 +41,6 @@
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CGameState.cpp" />
-    <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
@@ -255,6 +254,13 @@
     <ClCompile Include="filesystem\MinizipExtensions.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
+    <ClCompile Include="serializer\BinaryDeserializer.cpp" />
+    <ClCompile Include="serializer\BinarySerializer.cpp" />
+    <ClCompile Include="serializer\CLoadIntegrityValidator.cpp" />
+    <ClCompile Include="serializer\CMemorySerializer.cpp" />
+    <ClCompile Include="serializer\CSerializer.cpp" />
+    <ClCompile Include="serializer\CTypeList.cpp" />
+    <ClCompile Include="serializer\Connection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -264,9 +270,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CondSh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HeroBonus.h">
@@ -630,6 +633,27 @@
       <Filter>filesystem</Filter>
     </ClInclude>
     <ClInclude Include="..\Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\BinaryDeserializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\BinarySerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CLoadIntegrityValidator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CMemorySerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CSerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CTypeList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

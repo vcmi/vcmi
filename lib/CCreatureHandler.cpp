@@ -46,10 +46,13 @@ int CCreature::estimateCreatureCount(ui32 countID)
 {
 	static const int creature_count[] = { 0, 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
 
-	if (countID > 9)
-		assert("Wrong countID!");
-
-	return creature_count[countID];
+	if(countID > 9)
+	{
+		logGlobal->error("Wrong countID %d!", countID);
+		return 0;
+	}
+	else
+		return creature_count[countID];
 }
 
 bool CCreature::isDoubleWide() const
@@ -102,9 +105,15 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 
 CCreature::CCreature()
 {
-	doubleWide = false;
 	setNodeType(CBonusSystemNode::CREATURE);
+	faction = 0;
+	level = 0;
+	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
+	doubleWide = false;
+	special = true;
+	iconIndex = -1;
 }
+
 void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);

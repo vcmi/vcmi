@@ -269,7 +269,7 @@ bool CGarrisonSlot::mustForceReselection() const
 
 void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
-	if(down && creature)
+	if(creature && down)
 	{
 		GH.pushInt(new CStackWindow(myStack, true));
 	}
@@ -475,6 +475,7 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
     inSplittingMode(false),
     interx(inx),
     garOffset(garsOffset),
+    pb(false),
     smallIcons(smallImgs),
     removableUnits(_removableUnits),
     twoRows(_twoRows)
@@ -547,17 +548,23 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	quit = new CButton(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&]{ close(); }, SDLK_RETURN);
 
 	std::string titleText;
-	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
+	if (down->tempOwner == up->tempOwner)
 		titleText = CGI->generaltexth->allTexts[709];
 	else
 	{
-		titleText = CGI->generaltexth->allTexts[35];
-		boost::algorithm::replace_first(titleText, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
+		//assume that this is joining monsters dialog
+		if(up->Slots().size() > 0)
+		{
+			titleText = CGI->generaltexth->allTexts[35];
+			boost::algorithm::replace_first(titleText, "%s", up->Slots().begin()->second->type->namePl);
+		}
+		else
+			logGlobal->error("Invalid armed instance for garrison window.");
 	}
 	new CLabel(275, 30, FONT_BIG, CENTER, Colors::YELLOW, titleText);
 
-	new CAnimImage("CREST58", garr->armedObjs[0]->getOwner().getNum(), 0, 28, 124);
-	new CAnimImage("PortraitsLarge", dynamic_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait, 0, 29, 222);
+	new CAnimImage("CREST58", up->getOwner().getNum(), 0, 28, 124);
+	new CAnimImage("PortraitsLarge", down->portrait, 0, 29, 222);
 }
 
 CGarrisonHolder::CGarrisonHolder()

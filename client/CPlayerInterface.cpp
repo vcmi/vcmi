@@ -87,7 +87,7 @@ CPlayerInterface * LOCPLINT;
 CBattleInterface * CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
-CondSh<EMoveState> stillMoveHero; //used during hero movement
+CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
 int CPlayerInterface::howManyPeople = 0;
 
@@ -507,11 +507,11 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->heroList.update(hero);
 }
-void CPlayerInterface::receivedResource(int type, int val)
+void CPlayerInterface::receivedResource()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt()))
-		mw->resourceChanged(type, val);
+		mw->resourceChanged();
 
 	GH.totalRedraw();
 }
@@ -659,7 +659,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
-		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->init(cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
@@ -1133,7 +1133,7 @@ void CPlayerInterface::showOkDialog(std::vector<Component> & components, const M
 	CInfoWindow::showOkDialog(str, &intComps, onOk, true, playerID);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();

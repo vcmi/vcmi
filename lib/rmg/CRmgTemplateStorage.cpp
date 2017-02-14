@@ -251,7 +251,7 @@ CRmgTemplate::CSize CRmgTemplateStorage::parseMapTemplateSize(const std::string 
 	if(it == mapSizeMapping.end())
 	{
 		// Map size is given as a number representation
-		const auto & numericalRep = parts[0];
+		const std::string numericalRep = parts[0];
 		parts.clear();
 		boost::split(parts, numericalRep, boost::is_any_of("x"));
 		assert(parts.size() == 3);

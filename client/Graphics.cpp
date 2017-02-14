@@ -149,6 +149,14 @@ Graphics::Graphics()
 	//(!) do not load any CAnimation here
 }
 
+Graphics::~Graphics()
+{
+	delete[] playerColors;
+	delete neutralColor;
+	delete[] playerColorPalette;
+	delete[] neutralColorPalette;
+}
+
 void Graphics::load()
 {
 	heroMoveArrows = std::make_shared<CAnimation>("ADAG");

@@ -35,7 +35,7 @@ public:
 	std::vector<SpellID> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 
-	CGPandoraBox() : gainedExp(0), manaDiff(0), moraleDiff(0), luckDiff(0){};
+	CGPandoraBox();
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -71,7 +71,7 @@ public:
 		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
 	}
 
-	CGEvent() : CGPandoraBox(){};
+	CGEvent();
 	void onHeroVisit(const CGHeroInstance * h) const override;
 private:
 	void activated(const CGHeroInstance * h) const;

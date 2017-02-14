@@ -189,7 +189,7 @@ public:
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
-	ui8 playerToSide(PlayerColor player) const;
+	si8 playerToSide(PlayerColor player) const;
 	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;

@@ -24,38 +24,6 @@
  *
  */
 
-ClickableArea::ClickableArea(CIntObject * object, CFunctionList<void()> callback):
-	callback(callback),
-	area(nullptr)
-{
-	if (object)
-		pos = object->pos;
-	setArea(object);
-}
-
-void ClickableArea::addCallback(std::function<void()> callback)
-{
-	this->callback += callback;
-}
-
-void ClickableArea::setArea(CIntObject * object)
-{
-	delete area;
-	addChild(area);
-	pos.w = object->pos.w;
-	pos.h = object->pos.h;
-}
-
-void ClickableArea::onClick()
-{
-	callback();
-}
-
-void ClickableArea::clickLeft(tribool down, bool previousState)
-{
-	if (down)
-		onClick();
-}
 
 void CButton::update()
 {

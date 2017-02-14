@@ -401,6 +401,12 @@
 				"subtype" : "spell.protectEarth",
 				"val" : 2
 			},
+			"meteorShowerVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.meteorShower",
+				"val" : 100
+			},
 			"lightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",

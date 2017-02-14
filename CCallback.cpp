@@ -275,8 +275,8 @@ CCallback::~CCallback()
 
 bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
-	//TODO: merge with Pathfinder::canMoveBetween
-	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
+	//bidirectional
+	return gs->map->canMoveBetween(a, b);
 }
 
 const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)

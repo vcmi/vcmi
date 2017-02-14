@@ -926,11 +926,17 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 		{
 			nearestDwellings[hero] = *boost::range::min_element(dwellings, CDistanceSorter(hero));
 		}
+		if (nearestDwellings.size())
+		{
+			// find hero who is nearest to a dwelling
+			const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
+			if (!nearest)
+				throw cannotFulfillGoalException("Cannot find nearest dwelling!");
 
-		// find hero who is nearest to a dwelling
-		const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
-
-		return sptr (Goals::GetObj(nearest->id.getNum()));
+			return sptr(Goals::GetObj(nearest->id.getNum()));
+		}
+		else
+			return sptr(Goals::Explore());
 	}
 	else
 		return sptr (Goals::Explore());
@@ -1112,8 +1118,21 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				ret.push_back (sptr (Goals::VisitTile(pos).sethero(h)));
 		}
 	}
+
 	if (ai->canRecruitAnyHero()) //this is not stupid in early phase of game
-		ret.push_back (sptr(Goals::RecruitHero()));
+	{
+		if (auto t = ai->findTownWithTavern())
+		{
+			for (auto h : cb->getAvailableHeroes(t)) //we assume that all towns have same set of heroes
+			{
+				if (h && h->getTotalStrength() > 500) //do not buy heroes with single creatures for GatherArmy
+				{
+					ret.push_back(sptr(Goals::RecruitHero()));
+					break;
+				}
+			}
+		}
+	}
 
 	if (ret.empty())
 	{

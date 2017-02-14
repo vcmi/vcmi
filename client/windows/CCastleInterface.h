@@ -240,12 +240,6 @@ class CHallInterface : public CWindowObject
 		const CBuilding * building;
 
 		ui32 state;//Buildings::EBuildStructure enum
-
-		CAnimImage * picture;
-		CAnimImage * panel;
-		CAnimImage * icon;
-		CLabel * label;
-
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
@@ -270,12 +264,8 @@ class CBuildWindow: public CWindowObject
 	const CGTownInstance *town;
 	const CBuilding *building;
 
-	CButton *buy;
-	CButton *cancel;
-
 	std::string getTextForState(int state);
 	void buyFunc();
-
 public:
 	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick); //c-tor
 };
@@ -303,14 +293,10 @@ class CFortScreen : public CWindowObject
 		int level;
 
 		std::string hoverText;
-		CLabel * creatureName;
-		CLabel * dwellingName;
 		CLabel * availableCount;
 
 		std::vector<LabeledValue*> values;
 		CPicture *icons;
-		CAnimImage * buildingPic;
-		CCreaturePic *creatureAnim;
 
 		const CCreature * getMyCreature();
 		const CBuilding * getMyBuilding();

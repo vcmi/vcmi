@@ -454,6 +454,7 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 CRewardableObject::CRewardableObject():
 	soundID(soundBase::invalid),
 	selectMode(0),
+	visitMode(0),
 	selectedReward(0),
 	resetDuration(0),
 	canRefuse(false)

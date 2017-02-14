@@ -90,7 +90,7 @@ public:
 	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 	std::unique_ptr<IImage> scaleFast(float scale) const override;
-
+	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
 	int width() const override;
@@ -146,6 +146,8 @@ public:
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 
 	std::unique_ptr<IImage> scaleFast(float scale) const override;
+
+	void exportBitmap(const boost::filesystem::path & path) const override;
 
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
@@ -838,6 +840,11 @@ std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
 	return std::unique_ptr<IImage>(ret);
 }
 
+void SDLImage::exportBitmap(const boost::filesystem::path& path) const
+{
+	SDL_SaveBMP(surf, path.string().c_str());
+}
+
 void SDLImage::playerColored(PlayerColor player)
 {
 	graphics->blueToPlayersAdv(surf, player);
@@ -1162,6 +1169,11 @@ void CompImage::shiftPalette(int from, int howMany)
 	logAnim->error("CompImage::shiftPalette is not implemented");
 }
 
+void CompImage::exportBitmap(const boost::filesystem::path& path) const
+{
+	logAnim->error("CompImage::exportBitmap is not implemented");
+}
+
 
 /*************************************************************************
  *  CAnimation for animations handling, can load part of file if needed  *
@@ -1287,6 +1299,39 @@ void CAnimation::initFromJson(const JsonNode & config)
 		std::string filename =  node["file"].String();
 		source[group][frame]["file"].String() = basepath + filename;
 	}
+}
+
+void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
+{
+	if(images.empty())
+	{
+		logGlobal->error("Nothing to export, animation is empty");
+		return;
+	}
+
+	boost::filesystem::path actualPath = path / "SPRITES" / name;
+	boost::filesystem::create_directories(actualPath);
+
+	size_t counter = 0;
+
+	for(const auto & groupPair : images)
+	{
+		size_t group = groupPair.first;
+
+		for(const auto & imagePair : groupPair.second)
+		{
+			size_t frame = imagePair.first;
+			const IImage * img = imagePair.second;
+
+			boost::format fmt("%d_%d.bmp");
+			fmt % group % frame;
+
+			img->exportBitmap(actualPath / fmt.str());
+			counter++;
+		}
+	}
+
+	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
 }
 
 void CAnimation::init(CDefFile * file)
@@ -1512,8 +1557,7 @@ bool CFadeAnimation::isFinished() const
 }
 
 CFadeAnimation::CFadeAnimation()
-	: fadingSurface(nullptr),
-	  fading(false),
+	: delta(0),	fadingSurface(nullptr), fading(false), fadingCounter(0), shouldFreeSurface(false),
 	  fadingMode(EMode::NONE)
 {
 }

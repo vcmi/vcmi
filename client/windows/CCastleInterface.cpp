@@ -109,7 +109,7 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && !down && area && (parent->selectedBuilding==this) && getBuilding() )
+	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
 		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 			parent->buildingClicked(getBuilding()->bid);
 }
@@ -141,6 +141,7 @@ SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, double f)
 	ret.r = a.r*f + b.r*(1-f);
 	ret.g = a.g*f + b.g*(1-f);
 	ret.b = a.b*f + b.b*(1-f);
+	ret.a = a.a*f + b.b*(1-f);
 	return ret;
 }
 
@@ -397,7 +398,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 
 void CHeroGSlot::clickRight(tribool down, bool previousState)
 {
-	if(down && hero)
+	if(hero && down)
 	{
 		GH.pushInt(new CInfoBoxPopup(Point(pos.x + 175, pos.y + 100), hero));
 	}
@@ -1013,6 +1014,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool
 		level = -1;
 		label = nullptr;
 		picture = nullptr;
+		creature = nullptr;
 		return;//No creature
 	}
 	addUsedEvents(LCLICK | RCLICK | HOVER);
@@ -1124,6 +1126,8 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance* Town, bool townHa
 	pos.y += posY;
 	int buildID;
 
+	picture = nullptr;
+
 	if (townHall)
 	{
 		buildID = 10 + town->hallLevel();
@@ -1133,7 +1137,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance* Town, bool townHa
 	{
 		buildID = 6 + town->fortLevel();
 		if (buildID == 6)
-			return;
+			return;//FIXME: suspicious statement, fix or comment
 		picture = new CAnimImage("ITMCL.DEF", town->fortLevel()-1);
 	}
 	building = town->town->buildings.at(BuildingID(buildID));
@@ -1153,7 +1157,7 @@ void CTownInfo::hover(bool on)
 
 void CTownInfo::clickRight(tribool down, bool previousState)
 {
-	if(down && building)
+	if(building && down)
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()),
 		                            new CComponent(CComponent::building, building->town->faction->index, building->bid));
 
@@ -1297,15 +1301,19 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	pos.h = 92;
 
 	state = LOCPLINT->cb->canBuildStructure(town,building->bid);
-	assert(state < EBuildingState::BUILDING_ERROR);
-	static int panelIndex[10] = { 3,  3,  3, 0, 0, 2, 2,  1, 2, 2};
-	static int  iconIndex[10] = {-1, -1, -1, 0, 0, 1, 2, -1, 1, 1};
 
-	picture = new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
-	panel = new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
-	if ( iconIndex[state] >=0 )
-		icon  = new CAnimImage("TPTHCHK",  iconIndex[state], 0, 136, 56);
-	label = new CLabel(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
+	static int panelIndex[12] = { 3,  3,  3, 0, 0, 2, 2,  1, 2, 2,  3,  3};
+	static int  iconIndex[12] = {-1, -1, -1, 0, 0, 1, 2, -1, 1, 1, -1, -1};
+
+	new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
+	new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
+	if (iconIndex[state] >=0)
+		new CAnimImage("TPTHCHK",  iconIndex[state], 0, 136, 56);
+	new CLabel(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
+
+	//todo: add support for all possible states
+	if(state >= EBuildingState::BUILDING_ERROR)
+		state = EBuildingState::FORBIDDEN;
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
@@ -1422,12 +1430,12 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		std::string tooltipYes = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name());
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name());
 
-		buy = new CButton(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&]{ buyFunc(); }, SDLK_RETURN);
+		CButton * buy = new CButton(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&]{ buyFunc(); }, SDLK_RETURN);
 		buy->borderColor = Colors::METALLIC_GOLD;
-
-		cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&] { close();}, SDLK_ESCAPE);
-		cancel->borderColor = Colors::METALLIC_GOLD;
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
+
+		CButton * cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&] { close();}, SDLK_ESCAPE);
+		cancel->borderColor = Colors::METALLIC_GOLD;
 	}
 }
 
@@ -1592,10 +1600,11 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
 
 	icons = new CPicture("TPCAINFO", 261, 3);
+
 	if (getMyBuilding() != nullptr)
 	{
-		buildingPic = new CAnimImage(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
-		dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::WHITE, getMyBuilding()->Name());
+		new CAnimImage(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
+		new CLabel(78, 101, FONT_SMALL, CENTER, Colors::WHITE, getMyBuilding()->Name());
 
 		if (vstd::contains(town->builtBuildings, getMyBuilding()->bid))
 		{
@@ -1608,8 +1617,8 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if (getMyCreature() != nullptr)
 	{
 		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->namePl);
-		creatureAnim = new CCreaturePic(159, 4, getMyCreature(), false);
-		creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
+		new CCreaturePic(159, 4, getMyCreature(), false);
+		new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
 
 		Rect sizes(287, 4, 96, 18);
 		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->Attack()));
@@ -1654,9 +1663,6 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 {
 	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
-
-
-
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) :CWindowObject(BORDERED,imagem)
 {

@@ -76,6 +76,9 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
+	iconIndex = ArtifactID::NONE;
+	price = 0;
+	aClass = ART_SPECIAL;
 }
 
 CArtifact::~CArtifact()
@@ -1335,17 +1338,6 @@ bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck /*= f
 		return (onlyLockCheck || !s->artifact) && !s->locked;
 
 	return true; //no slot means not used
-}
-
-si32 CArtifactSet::getArtTypeId(ArtifactPosition pos) const
-{
-	const CArtifactInstance * const a = getArt(pos);
-	if(!a)
-	{
-		logGlobal->warnStream() << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)";
-		return -1;
-	}
-	return a->artType->id;
 }
 
 ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ArtifactPosition slot)

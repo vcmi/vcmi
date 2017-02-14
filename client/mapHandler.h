@@ -162,6 +162,7 @@ class CMapHandler
 		std::array< std::map<intptr_t, std::unique_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
 		float worldViewCachedScale;
 	public:
+		CMapCache();
 		/// destroys all cached data (frees surfaces)
 		void discardWorldViewCache();
 		/// updates scale and determines if currently cached data is still valid
@@ -254,8 +255,8 @@ class CMapHandler
 		IImage * findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const;
 
 	public:
-		CMapBlitter(CMapHandler * p) : parent(p) {}
-		virtual ~CMapBlitter(){}
+		CMapBlitter(CMapHandler * p);
+		virtual ~CMapBlitter();
 		void blit(SDL_Surface * targetSurf, const MapDrawingInfo * info);
 		/// helper method that chooses correct bitmap(s) for given object
 		AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim) const;
@@ -344,7 +345,8 @@ public:
 
 	//terrain graphics
 
-	typedef std::vector<std::array<std::unique_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
+	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
+	typedef std::vector<std::array<std::shared_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
 	typedef std::vector<std::vector<std::array<IImage *, 4>>> TFlippedCache;//[type, view type, rotation]
 
 	TFlippedAnimations terrainAnimations;//[terrain type, rotation]

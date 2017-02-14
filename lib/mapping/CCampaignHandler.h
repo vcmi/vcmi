@@ -39,6 +39,8 @@ public:
 	std::string filename;
 	ui8 loadFromLod; //if true, this campaign must be loaded fro, .lod file
 
+	CCampaignHeader();
+
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music & filename & loadFromLod;
@@ -65,6 +67,8 @@ public:
 
 		bool isBonusForHero() const;
 
+		STravelBonus();
+
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
 			h & type & info1 & info2 & info3;
@@ -72,6 +76,8 @@ public:
 	};
 
 	std::vector<STravelBonus> bonusesToChoose;
+
+	CScenarioTravel();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -89,6 +95,8 @@ public:
 		ui8 prologVideo; // from CmpMovie.txt
 		ui8 prologMusic; // from CmpMusic.txt
 		std::string prologText;
+
+		SScenarioPrologEpilog();
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
@@ -117,9 +125,11 @@ public:
 	bool isNotVoid() const;
 	std::vector<CGHeroInstance *> getLostCrossoverHeroes() const; /// returns a list of crossover heroes which started the scenario, but didn't complete it
 
+	CCampaignScenario();
+
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText & 
+		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText &
 			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes & keepHeroes;
 	}
 };
@@ -145,7 +155,7 @@ class DLL_LINKAGE CCampaignState
 {
 public:
 	std::unique_ptr<CCampaign> camp;
-	std::string campaignName; 
+	std::string campaignName;
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	boost::optional<si32> currentMap;
 
