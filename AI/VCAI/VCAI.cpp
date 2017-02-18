@@ -1404,6 +1404,16 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		return;
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
 		return;
+
+	//at the end, try to get and build any extra dwelling upgrades (for example HotA 3rd level dwelling)
+	std::vector<BuildingID> extraDwellingUpgrades;
+
+	for (auto buildingInfo : t->town->buildings)
+		if (buildingInfo.first > 43)
+			extraDwellingUpgrades.push_back(buildingInfo.first);
+
+	if (tryBuildAnyStructure(t, extraDwellingUpgrades))
+		return;
 }
 
 bool VCAI::isGoodForVisit(const CGObjectInstance *obj, HeroPtr h, SectorMap &sm)
