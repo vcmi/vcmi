@@ -1405,14 +1405,14 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
 		return;
 
-	//at the end, try to get and build any extra dwelling upgrades (for example HotA 3rd level dwelling)
-	std::vector<BuildingID> extraDwellingUpgrades;
+	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
+	std::vector<BuildingID> extraBuildings;
 
 	for (auto buildingInfo : t->town->buildings)
 		if (buildingInfo.first > 43)
-			extraDwellingUpgrades.push_back(buildingInfo.first);
+			extraBuildings.push_back(buildingInfo.first);
 
-	if (tryBuildAnyStructure(t, extraDwellingUpgrades))
+	if (tryBuildAnyStructure(t, extraBuildings))
 		return;
 }
 
