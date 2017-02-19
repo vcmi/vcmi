@@ -78,7 +78,7 @@ class CModFilterModel : public QSortFilterProxyModel
 
 	bool filterMatchesThis(const QModelIndex & source) const;
 
-	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 public:
 	void setTypeFilter(int filteredType, int filterMask);
 
