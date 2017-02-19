@@ -442,11 +442,9 @@ namespace fl {
 
     template FL_API std::string Operation::join(int items, const std::string& separator,
             int first, ...);
-    template FL_API std::string Operation::join(int items, const std::string& separator,
-            double first, ...);
 
     template <> FL_API std::string Operation::join(int items, const std::string& separator,
-            float first, ...) {
+            double first, ...) {
         std::ostringstream ss;
         ss << str(first);
         if (items > 1) ss << separator;
