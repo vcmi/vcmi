@@ -1,13 +1,14 @@
-cmake_minimum_required(VERSION 2.6)
-
+cmake_minimum_required(VERSION 2.8.7)
+project(test)
 enable_testing()
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/test)
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(test_SRCS
-		StdInc.cpp
-		CVcmiTestConfig.cpp
-		CMapEditManagerTest.cpp
+    StdInc.cpp
+    Battlefield.cpp
+    CVcmiTestConfig.cpp
+    CMapEditManagerTest.cpp
     MapComparer.cpp
     CMapFormatTest.cpp
 )
@@ -22,12 +23,12 @@ cotire(vcmitest)
 # Files to copy to the build directory
 add_custom_target(vcmitestFiles ALL)
 set(vcmitest_FILES
-		TerrainViewTest.h3m
-		terrainViewMappings.json
+                TerrainViewTest.h3m
+                terrainViewMappings.json
 )
 
 foreach(file ${vcmitest_FILES})
-		add_custom_command(TARGET vcmitestFiles POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
-	)
+                add_custom_command(TARGET vcmitestFiles POST_BUILD
+                                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
+        )
 endforeach()

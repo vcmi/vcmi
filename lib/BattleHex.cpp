@@ -1,6 +1,3 @@
-#include "StdInc.h"
-#include "BattleHex.h"
-
 /*
  * BattleHex.cpp, part of VCMI engine
  *
@@ -10,12 +7,78 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "BattleHex.h"
+
+BattleHex::BattleHex() : hex(INVALID) {}
+
+BattleHex::BattleHex(si16 _hex) : hex(_hex) {}
+
+BattleHex::BattleHex(si16 x, si16 y)
+{
+	setXY(x, y);
+}
+
+BattleHex::BattleHex(std::pair<si16, si16> xy)
+{
+	setXY(xy);
+}
+
+BattleHex::operator si16() const
+{
+	return hex;
+}
+
+bool BattleHex::isValid() const
+{
+	return hex >= 0 && hex < GameConstants::BFIELD_SIZE;
+}
+
+bool BattleHex::isAvailable() const
+{
+	return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH-1;
+}
+
+void BattleHex::setX(si16 x)
+{
+	setXY(x, getY());
+}
+
+void BattleHex::setY(si16 y)
+{
+	setXY(getX(), y);
+}
+
+void BattleHex::setXY(si16 x, si16 y, bool hasToBeValid)
+{
+	if(hasToBeValid)
+		assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT);
+	hex = x + y * GameConstants::BFIELD_WIDTH;
+}
+
+void BattleHex::setXY(std::pair<si16, si16> xy)
+{
+	setXY(xy.first, xy.second);
+}
+
+si16 BattleHex::getX() const
+{
+	return hex % GameConstants::BFIELD_WIDTH;
+}
+
+si16 BattleHex::getY() const
+{
+	return hex / GameConstants::BFIELD_WIDTH;
+}
+
+std::pair<si16, si16> BattleHex::getXY() const
+{
+	return std::make_pair(getX(), getY());
+}
 
 BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 {
-	si16 x = getX(),
-		y = getY();
-
+	si16 x(getX()), y(getY());
 	switch(dir)
 	{
 	case TOP_LEFT:
@@ -39,9 +102,25 @@ BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 	default:
 		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
-	}
-
+}
 	return *this;
+}
+
+BattleHex &BattleHex::operator+=(BattleHex::EDir dir)
+{
+	return moveInDir(dir);
+}
+
+BattleHex BattleHex::movedInDir(BattleHex::EDir dir, bool hasToBeValid) const
+{
+	BattleHex result(*this);
+	result.moveInDir(dir, hasToBeValid);
+	return result;
+}
+
+BattleHex BattleHex::operator+(BattleHex::EDir dir) const
+{
+	return movedInDir(dir);
 }
 
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
@@ -66,32 +145,29 @@ signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 		return 0;
 	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
 		return 1;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
-		return 5;
 	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
 		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
-		return 4;
 	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
 		return 3;
+	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
+		return 4;
+	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
+		return 5;
 	return -1;
 }
 
 char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
-{	
-	int y1 = hex1.getY(), 
-		y2 = hex2.getY();
-	
+{
+	int y1 = hex1.getY(), y2 = hex2.getY();
+
 	// FIXME: Omit floating point arithmetics
-	int x1 = (int)(hex1.getX() + y1 * 0.5),
-		x2 = (int)(hex2.getX() + y2 * 0.5);
+	int x1 = (hex1.getX() + y1 * 0.5), x2 = (hex2.getX() + y2 * 0.5);
 
-	int xDst = x2 - x1,
-		yDst = y2 - y1;
+	int xDst = x2 - x1, yDst = y2 - y1;
 
-	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0)) 
+	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0))
 		return std::max(std::abs(xDst), std::abs(yDst));
-	
+
 	return std::abs(xDst) + std::abs(yDst);
 }
 
@@ -101,32 +177,21 @@ void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)
 		ret.push_back(tile);
 }
 
-bool BattleHex::isAvailable() const
-{
-	return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH-1;
-}
-
 BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities)
 {
 	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
-
 	BattleHex initialHex = BattleHex(initialPos);
 	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
 	{
 		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
 	};
-
 	boost::sort (sortedTiles, compareDistance); //closest tiles at front
-
 	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
-
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
 	{
 		return closestDistance < here.getDistance (initialPos, here);
 	};
-
 	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
-
 	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool
 	{
 		if(left.getX() != right.getX())
@@ -142,9 +207,7 @@ BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, st
 			return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
 		}
 	};
-
 	boost::sort (sortedTiles, compareHorizontal);
-
 	return sortedTiles.front();
 }
 
