@@ -61,6 +61,7 @@
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
 			<Add directory="../" />
 		</Linker>
+		<Unit filename="Battlefield.cpp" />
 		<Unit filename="CMapEditManagerTest.cpp" />
 		<Unit filename="CMapFormatTest.cpp" />
 		<Unit filename="CMemoryBufferTest.cpp" />

@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include <boost/test/unit_test.hpp>
-#include "lib/BattleHex.h"
+#include "../lib/BattleHex.h"
 
 BOOST_AUTO_TEST_SUITE(BattlefieldHex_Suite)
 
