@@ -8,13 +8,12 @@
  *
  */
 #pragma once
-#include <bits/stl_pair.h>
 #include "GameConstants.h"
 
 // for battle stacks' positions
-class DLL_LINKAGE BattleHex
+struct DLL_LINKAGE BattleHex
 {
-public:
+//public:
 	si16 hex;
 	static const si16 INVALID = -1;
 	enum EDir { RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT };
