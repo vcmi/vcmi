@@ -57,7 +57,7 @@ addons:
       name: vcmi/vcmi
       description: Build submitted via Travis CI
     notification_email: coverity@arseniyshestakov.com
-    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=1"
+    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=0"
     build_command: ninja -j 2
     branch_pattern: coverity_scan
 
