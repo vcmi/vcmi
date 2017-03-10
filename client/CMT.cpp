@@ -176,7 +176,7 @@ static void prog_version(void)
 static void prog_help(const po::options_description &opts)
 {
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-	printf("Copyright (C) 2007-2016 VCMI dev team - see AUTHORS file\n");
+	printf("Copyright (C) 2007-2017 VCMI dev team - see AUTHORS file\n");
 	printf("This is free software; see the source for copying conditions. There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
