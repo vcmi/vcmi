@@ -432,10 +432,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	// Init map handler
 	if(gs->map)
 	{
-		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
-		CGI->mh->map = gs->map;
-		logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
-		CGI->mh->init();
+		if(!settings["session"]["headless"].Bool())
+		{
+			const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+			CGI->mh->map = gs->map;
+			logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
+			CGI->mh->init();
+		}
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		logNetwork->infoStream() << "Initializing mapHandler (together): " << tmh.getDiff();
 	}
@@ -472,7 +475,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	if(si->mode == StartInfo::DUEL)
 	{
-		if(!gNoGUI)
+		if(!settings["session"]["headless"].Bool())
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			auto p = std::make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
@@ -744,7 +747,8 @@ void CClient::battleStarted(const BattleInfo * info)
 			def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[rightSide.color] );
 	}
 
-	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
+	if(!settings["session"]["headless"].Bool()
+		 && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 		auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,

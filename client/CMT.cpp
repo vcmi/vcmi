@@ -91,7 +91,6 @@ SDL_Surface *screen = nullptr, //main screen surface
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
-bool gNoGUI = false;
 CondSh<bool> serverAlive(false);
 static po::variables_map vm;
 
@@ -113,6 +112,29 @@ void endGame();
 #endif
 #include <getopt.h>
 #endif
+
+void startTestMap(const std::string &mapname)
+{
+	StartInfo si;
+	si.mapname = mapname;
+	si.mode = StartInfo::NEW_GAME;
+	for (int i = 0; i < 8; i++)
+	{
+		PlayerSettings &pset = si.playerInfos[PlayerColor(i)];
+		pset.color = PlayerColor(i);
+		pset.name = CGI->generaltexth->allTexts[468];//Computer
+		pset.playerID = i;
+		pset.compOnly = true;
+		pset.castle = 0;
+		pset.hero = -1;
+		pset.heroPortrait = -1;
+		pset.handicap = PlayerSettings::NO_HANDICAP;
+	}
+
+	while(GH.topInt())
+		GH.popIntTotally(GH.topInt());
+	startGame(&si);
+}
 
 void startGameFromFile(const bfs::path &fname)
 {
@@ -150,7 +172,7 @@ void init()
 	logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
 		CCS->curh = new CCursorHandler;
@@ -240,8 +262,9 @@ int main(int argc, char** argv)
 		("version,v", "display version information and exit")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
+		("testmap", po::value<std::string>(), "")
 		("onlyAI", "runs without human player, all players will be default AI")
-		("noGUI", "runs without GUI, implies --onlyAI")
+		("headless", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
@@ -281,11 +304,6 @@ int main(int argc, char** argv)
 		prog_version();
 		return 0;
 	}
-	if(vm.count("noGUI"))
-	{
-		gNoGUI = true;
-		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
-	}
 	if(vm.count("donotstartserver"))
 	{
 		CServerHandler::DO_NOT_START_SERVER = true;
@@ -314,9 +332,14 @@ int main(int argc, char** argv)
 	// Init filesystem and settings
 	preinitDLL(::console);
 	settings.init();
+	Settings session = settings.write["session"];
+	if(vm.count("headless"))
+	{
+		session["headless"].Bool() = true;
+		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
+	}
 
 	// Init special testing settings
-	Settings session = settings.write["session"];
 	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
 	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
 	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
@@ -364,7 +387,7 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
 		{
@@ -427,7 +450,7 @@ int main(int argc, char** argv)
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
-	if (!gNoGUI && !vm.count("disable-video"))
+	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
 		CCS->videoh = new CVideoPlayer;
 	else
 		CCS->videoh = new CEmptyVideoPlayer;
@@ -456,7 +479,7 @@ int main(int argc, char** argv)
 	init();
 #endif
 
-	if(!gNoGUI )
+	if(!settings["session"]["headless"].Bool())
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
@@ -480,7 +503,6 @@ int main(int argc, char** argv)
 
 	if(!vm.count("battle"))
 	{
-		Settings session = settings.write["session"];
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 		session["aiSolo"].Bool() = false;
@@ -488,8 +510,13 @@ int main(int argc, char** argv)
 		bfs::path fileToStartFrom; //none by default
 		if(vm.count("start"))
 			fileToStartFrom = vm["start"].as<bfs::path>();
+		std::string testmap;
+		if(vm.count("testmap"))
+			testmap = vm["testmap"].as<std::string>();
 
-		if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
+		if(!testmap.empty())
+			startTestMap(testmap);
+		else if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
 			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
 		else
 		{
@@ -511,7 +538,7 @@ int main(int argc, char** argv)
 		startGame(si);
 	}
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		mainLoop();
 	}
@@ -1327,7 +1354,7 @@ void handleQuit(bool ask/* = true*/)
 		dispose();
 		vstd::clear_pointer(console);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
-		if(!gNoGUI)
+		if(!settings["session"]["headless"].Bool())
 		{
 			cleanupRenderer();
 			SDL_Quit();
