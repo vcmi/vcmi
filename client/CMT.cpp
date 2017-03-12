@@ -50,6 +50,9 @@
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
 #endif
+#ifdef VCMI_ANDROID
+#include "AndroidVMHelper.h"
+#endif
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"
 
@@ -461,16 +464,22 @@ int main(int argc, char** argv)
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
-		SDL_FillRect(screen,nullptr,0);
+		SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+		SDL_RenderClear(mainRenderer);
 	}
-
-	CSDL_Ext::update(screen);
+	SDL_RenderPresent(mainRenderer);
 #ifndef VCMI_NO_THREADED_LOAD
-	// TODO (android) threaded load works correctly, but joining the loading thread to main blocks the ui; if the loading takes the long time
-	// (expected situation on a phone), the main thread will be blocked and the app looks broken; instead of join(), there probably should be a
-	// callback from the worker thread after data is loaded
-	loading.join();
-#endif
+	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
+	{
+		AndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
+	#endif // ANDROID
+		loading.join();
+	#ifdef VCMI_ANDROID
+		vmHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
+	}
+	#endif // ANDROID
+#endif // THREADED
 	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
 	if(!vm.count("battle"))
@@ -1028,7 +1037,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(fullscreen)
 	{
 		//in full-screen mode always use desktop resolution
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	}
 	else
