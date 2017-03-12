@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "BattleState.h"
+#include "BattleHex.h"
 
 #include <numeric>
 #include "VCMI_Lib.h"

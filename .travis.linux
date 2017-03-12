@@ -7,7 +7,7 @@ sudo add-apt-repository --yes ppa:h-rayflood/llvm
 sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
 
 #new Qt
-sudo add-apt-repository --yes ppa:beineri/opt-qt57-trusty
+sudo add-apt-repository --yes ppa:beineri/opt-qt571-trusty
 
 #new CMake
 sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x

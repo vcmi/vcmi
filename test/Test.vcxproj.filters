@@ -4,6 +4,7 @@
     <ClCompile Include="CMapEditManagerTest.cpp" />
     <ClCompile Include="CVcmiTestConfig.cpp" />
     <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="Battlefield.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CVcmiTestConfig.h" />

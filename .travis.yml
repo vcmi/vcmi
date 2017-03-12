@@ -35,16 +35,16 @@ matrix:
   include:
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev
+      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       compiler: gcc
-      env: VCMI_PLATFORM='linux' REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
+      env: VCMI_PLATFORM='linux' REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT= VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       env: VCMI_PLATFORM='mxe' MXE_TARGET=i686-w64-mingw32.shared VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
       sudo: required
@@ -57,7 +57,7 @@ addons:
       name: vcmi/vcmi
       description: Build submitted via Travis CI
     notification_email: coverity@arseniyshestakov.com
-    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=1"
+    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=0"
     build_command: ninja -j 2
     branch_pattern: coverity_scan
 

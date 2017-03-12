@@ -426,6 +426,9 @@
    </item>
    <item row="1" column="4">
     <widget class="QComboBox" name="comboBoxResolution">
+     <property name="maxVisibleItems">
+      <number>11</number>
+     </property>
      <item>
       <property name="text">
        <string>800x600</string>

@@ -165,6 +165,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Battlefield.cpp" />
     <ClCompile Include="CMapEditManagerTest.cpp" />
     <ClCompile Include="CVcmiTestConfig.cpp" />
     <ClCompile Include="StdInc.cpp">

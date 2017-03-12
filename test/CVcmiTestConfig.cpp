@@ -33,10 +33,15 @@ CVcmiTestConfig::CVcmiTestConfig()
 	loadDLLClasses();
 	logGlobal->info("Initialized global test setup.");
 
+	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
+	find your test data folder in your build and change TEST_DATA_DIR for it*/
 	const std::string TEST_DATA_DIR = "test/";
-
-	auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
-	dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+	auto path = boost::filesystem::current_path();
+	path+= "/" + TEST_DATA_DIR;
+	if(boost::filesystem::exists(path)){
+		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+	}
 }
 
 CVcmiTestConfig::~CVcmiTestConfig()
