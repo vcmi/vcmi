@@ -333,10 +333,11 @@ int main(int argc, char** argv)
 	preinitDLL(::console);
 	settings.init();
 	Settings session = settings.write["session"];
+	session["onlyai"].Bool() = vm.count("onlyAI");
 	if(vm.count("headless"))
 	{
 		session["headless"].Bool() = true;
-		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
+		session["onlyai"].Bool() = true;
 	}
 
 	// Init special testing settings
@@ -581,6 +582,20 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 		printInfoAboutIntObject(child, level+1);
 }
 
+void removeGUI()
+{
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar = nullptr;
+	logGlobal->infoStream() << "Removed GUI.";
+
+	LOCPLINT = nullptr;
+};
+
 void processCommand(const std::string &message)
 {
 	std::istringstream readed;
@@ -700,10 +715,6 @@ void processCommand(const std::string &message)
 		int *ptr = nullptr;
 		*ptr = 666;
 		//disaster!
-	}
-	else if(cn == "onlyai")
-	{
-		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
 	else if(cn == "mp" && adventureInt)
 	{
@@ -840,20 +851,6 @@ void processCommand(const std::string &message)
 		}
 	}
 
-	auto removeGUI = [&]()
-	{
-		// CClient::endGame
-		GH.curInt = nullptr;
-		if(GH.topInt())
-			GH.topInt()->deactivate();
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-		GH.statusbar = nullptr;
-		logNetwork->infoStream() << "Removed GUI.";
-
-		LOCPLINT = nullptr;
-
-	};
 	auto giveTurn = [&](PlayerColor player)
 	{
 		YourTurn yt;
@@ -1302,7 +1299,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 		serverAlive.setn(true);
 	}
 
-	if(vm.count("onlyAI"))
+	if(settings["session"]["onlyai"].Bool())
 	{
 		auto ais = vm.count("ai") ? vm["ai"].as<std::vector<std::string>>() : std::vector<std::string>();
 

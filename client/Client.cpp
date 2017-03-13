@@ -642,6 +642,18 @@ void CClient::serialize(BinaryDeserializer & h, const int version, const std::se
 				installNewPlayerInterface(nInt, pid);
 
 			nInt->loadGame(h, version);
+			if(settings["session"]["onlyai"].Bool() && isHuman)
+			{
+				removeGUI();
+				nInt.reset();
+				dllname = aiNameForPlayer(false);
+				nInt = CDynLibHandler::getNewAI(dllname);
+				nInt->dllName = dllname;
+				nInt->human = false;
+				nInt->playerID = pid;
+				installNewPlayerInterface(nInt, pid);
+				GH.totalRedraw();
+			}
 		}
 
 		if(playerIDs.count(PlayerColor::NEUTRAL))
@@ -922,6 +934,11 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 			return ps.name;
 	}
 
+	return aiNameForPlayer(battleAI);
+}
+
+std::string CClient::aiNameForPlayer(bool battleAI)
+{
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	std::string goodAI = battleAI ? settings["server"]["neutralAI"].String() : settings["server"]["playerAI"].String();
 	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
