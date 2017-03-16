@@ -90,7 +90,7 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 bool gNoGUI = false;
-bool serverNotDead = false;
+std::atomic_bool serverAlive = false;
 static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
@@ -1179,6 +1179,7 @@ static void handleEvent(SDL_Event & ev)
 		case RESTART_GAME:
 			{
 				StartInfo si = *client->getStartInfo(true);
+				si.seedToBeUsed = 0; //server gives new random generator seed if 0
 				endGame();
 				startGame(&si);
 			}
@@ -1249,9 +1250,9 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
-	while (serverNotDead == true)
+	while (serverAlive)
 		boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
-	serverNotDead = true;
+	serverAlive = true;
 
 	if(vm.count("onlyAI"))
 	{
