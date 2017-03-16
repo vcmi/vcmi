@@ -4,7 +4,6 @@
 #include "CTownHandler.h"
 #include "VCMI_Lib.h"
 #include "spells/CSpellHandler.h"
-#include "BattleHex.h"
 
 /*
  * CObstacleInstance.cpp, part of VCMI engine
