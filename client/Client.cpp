@@ -1022,7 +1022,10 @@ void CServerHandler::callServer()
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
 	if (result == 0)
+	{
 		logNetwork->infoStream() << "Server closed correctly";
+		serverNotDead = false;
+	}
 	else
 	{
 		logNetwork->errorStream() << "Error: server failed to close correctly or crashed!";

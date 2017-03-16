@@ -14,4 +14,6 @@ extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present
 
 extern bool gNoGUI; //if true there is no client window and game is silently played between AIs
 
+extern bool serverNotDead; //used to prevent game start from executing if server is already running
+
 void handleQuit(bool ask = true);

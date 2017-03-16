@@ -90,6 +90,7 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 bool gNoGUI = false;
+bool serverNotDead = false;
 static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
@@ -1171,7 +1172,7 @@ static void handleEvent(SDL_Event & ev)
 		case RETURN_TO_MAIN_MENU:
 			{
 				endGame();
-				GH.curInt = CGPreGame::create();;
+				GH.curInt = CGPreGame::create();
 				GH.defActionsDef = 63;
 			}
 			break;
@@ -1248,6 +1249,10 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
+	while (serverNotDead == true)
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+	serverNotDead = true;
+
 	if(vm.count("onlyAI"))
 	{
 		auto ais = vm.count("ai") ? vm["ai"].as<std::vector<std::string>>() : std::vector<std::string>();
