@@ -8,7 +8,8 @@
  *
  */
 #pragma once
-#include "../../lib/BattleState.h"
+
+#include "../../lib/BattleHex.h"
 
 class CStack;
 

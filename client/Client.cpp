@@ -11,7 +11,7 @@
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../lib/StartInfo.h"
-#include "../lib/BattleState.h"
+#include "../lib/BattleInfo.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"

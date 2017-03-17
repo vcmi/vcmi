@@ -25,7 +25,7 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"

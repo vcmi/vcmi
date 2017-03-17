@@ -22,7 +22,8 @@
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
 #include "../CBattleCallback.h"
 #include "../CGameState.h" //todo: remove
 

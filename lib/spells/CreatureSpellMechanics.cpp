@@ -13,7 +13,8 @@
 #include "CreatureSpellMechanics.h"
 
 #include "../NetPacks.h"
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
 
 ///AcidBreathDamageMechanics
 void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

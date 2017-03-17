@@ -17,7 +17,7 @@
 #include "CCreatureSet.h"
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
-#include "BattleState.h"
+#include "CStack.h"
 #include "CArtHandler.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)

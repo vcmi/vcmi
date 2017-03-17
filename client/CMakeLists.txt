@@ -62,7 +62,7 @@ set(client_SRCS
 
 set(client_HEADERS
 		gui/SDL_Pixels.h
-		gui/SDL_Compat.h
+                gui/SDL_Compat.h
 )
 
 if(APPLE)

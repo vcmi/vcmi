@@ -12,7 +12,8 @@
 
 #include "CDefaultSpellMechanics.h"
 
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
 
 #include "../CGeneralTextHandler.h"
 

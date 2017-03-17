@@ -9,7 +9,8 @@
  */
 #include "StdInc.h"
 #include "StackWithBonuses.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
+
 
 const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit,
 						    const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
