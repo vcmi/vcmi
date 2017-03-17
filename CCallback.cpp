@@ -18,6 +18,7 @@
 #include "lib/GameConstants.h"
 #include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
+#include "lib/BattleInfo.h"
 
 /*
  * CCallback.cpp, part of VCMI engine

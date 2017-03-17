@@ -169,7 +169,7 @@
   <ItemGroup>
     <ClCompile Include="BattleAction.cpp" />
     <ClCompile Include="BattleHex.cpp" />
-    <ClCompile Include="BattleState.cpp" />
+    <ClCompile Include="BattleInfo.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBonusTypeHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
@@ -184,6 +184,7 @@
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
     <ClCompile Include="CPathfinder.cpp" />
+    <ClCompile Include="CStack.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="CRandomGenerator.cpp" />
@@ -202,6 +203,8 @@
     <ClCompile Include="serializer\JsonDeserializer.cpp" />
     <ClCompile Include="serializer\JsonSerializeFormat.cpp" />
     <ClCompile Include="serializer\JsonSerializer.cpp" />
+    <ClCompile Include="SideInBattle.cpp" />
+    <ClCompile Include="SiegeInfo.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\ISpellMechanics.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
@@ -288,7 +291,7 @@
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
     <ClInclude Include="BattleHex.h" />
-    <ClInclude Include="BattleState.h" />
+    <ClInclude Include="BattleInfo.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBonusTypeHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
@@ -310,6 +313,7 @@
     <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSoundBase.h" />
+    <ClInclude Include="CStack.h" />
     <ClInclude Include="CStopWatch.h" />
     <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
@@ -398,6 +402,8 @@
     <ClInclude Include="serializer\JsonDeserializer.h" />
     <ClInclude Include="serializer\JsonSerializeFormat.h" />
     <ClInclude Include="serializer\JsonSerializer.h" />
+    <ClInclude Include="SideInBattle.h" />
+    <ClInclude Include="SiegeInfo.h" />
     <ClInclude Include="spells\AdventureSpellMechanics.h" />
     <ClInclude Include="spells\BattleSpellMechanics.h" />
     <ClInclude Include="spells\CDefaultSpellMechanics.h" />
