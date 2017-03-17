@@ -514,11 +514,14 @@ void CGarrisonInt::setSplittingMode(bool on)
 
 	if (inSplittingMode || on)
 	{
-		for(CGarrisonSlot * slot : slotsUp)
-			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
-
-		for(CGarrisonSlot * slot : slotsDown)
-			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+		for(CGarrisonSlot * slot : slotsUp){
+			if(slot!=getSelection())
+				slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+		}
+		for(CGarrisonSlot * slot : slotsDown){
+			if(slot!=getSelection())
+				slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+		}
 		inSplittingMode = on;
 	}
 }
