@@ -42,7 +42,6 @@
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/CondSh.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
 #include "gui/CAnimation.h"
@@ -90,7 +89,7 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 bool gNoGUI = false;
-std::atomic_bool serverAlive = false;
+CondSh<bool> serverAlive(false);
 static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
@@ -1250,9 +1249,8 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
-	while (serverAlive)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
-	serverAlive = true;
+	serverAlive.waitWhileTrue();
+	serverAlive.set(true);
 
 	if(vm.count("onlyAI"))
 	{

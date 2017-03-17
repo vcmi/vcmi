@@ -1024,7 +1024,7 @@ void CServerHandler::callServer()
 	if (result == 0)
 	{
 		logNetwork->infoStream() << "Server closed correctly";
-		serverAlive = false;
+		serverAlive.setn(false);
 	}
 	else
 	{

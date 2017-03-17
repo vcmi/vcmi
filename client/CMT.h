@@ -1,6 +1,6 @@
 #pragma once
-#include <atomic>
 #include <SDL_render.h>
+#include "../lib/CondSh.h"
 
 extern SDL_Texture * screenTexture;
 
@@ -14,6 +14,6 @@ extern SDL_Surface *screenBuf; // points to screen (if only advmapint is present
 
 extern bool gNoGUI; //if true there is no client window and game is silently played between AIs
 
-extern std::atomic_bool serverAlive; //used to prevent game start from executing if server is already running
+extern CondSh<bool> serverAlive; //used to prevent game start from executing if server is already running
 
 void handleQuit(bool ask = true);
