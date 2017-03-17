@@ -12,7 +12,8 @@
 #include "BattleSpellMechanics.h"
 
 #include "../NetPacks.h"
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 

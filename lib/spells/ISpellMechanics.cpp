@@ -11,7 +11,9 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
+
 #include "../NetPacks.h"
 
 #include "CDefaultSpellMechanics.h"

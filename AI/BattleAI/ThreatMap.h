@@ -11,7 +11,6 @@
 #pragma once
 
 #include "common.h"
-#include "../../lib/BattleState.h"
 #include "CCallback.h"
 /*
 class ThreatMap

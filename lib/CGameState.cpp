@@ -17,7 +17,7 @@
 #include "NetPacks.h"
 #include "registerTypes/RegisterTypes.h"
 #include "mapping/CMapInfo.h"
-#include "BattleState.h"
+#include "BattleInfo.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "GameConstants.h"

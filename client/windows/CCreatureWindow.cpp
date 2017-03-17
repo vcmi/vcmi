@@ -12,7 +12,7 @@
 #include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"

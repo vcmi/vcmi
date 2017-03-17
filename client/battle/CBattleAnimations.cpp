@@ -17,7 +17,7 @@
 #include "../gui/SDL_Extensions.h"
 
 #include "../../CCallback.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
