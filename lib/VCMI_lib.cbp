@@ -129,8 +129,8 @@
 		<Unit filename="BattleAction.h" />
 		<Unit filename="BattleHex.cpp" />
 		<Unit filename="BattleHex.h" />
-		<Unit filename="BattleState.cpp" />
-		<Unit filename="BattleState.h" />
+		<Unit filename="BattleInfo.cpp" />
+		<Unit filename="BattleInfo.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
 		<Unit filename="CBattleCallback.cpp" />
@@ -170,6 +170,8 @@
 		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSoundBase.h" />
+		<Unit filename="CStack.cpp" />
+		<Unit filename="CStack.h" />
 		<Unit filename="CStopWatch.h" />
 		<Unit filename="CThreadHelper.cpp" />
 		<Unit filename="CThreadHelper.h" />
@@ -201,6 +203,10 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
+		<Unit filename="SideInBattle.cpp" />
+		<Unit filename="SideInBattle.h" />
+		<Unit filename="SiegeInfo.cpp" />
+		<Unit filename="SiegeInfo.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
