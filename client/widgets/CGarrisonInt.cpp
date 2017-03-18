@@ -431,7 +431,6 @@ void CGarrisonInt::createSlots()
 			}
 		}
 		std::copy(garrisonSlots.begin(), garrisonSlots.end(), std::back_inserter(availableSlots));
-		logGlobal->infoStream()<<availableSlots.size();
 	}
 }
 
