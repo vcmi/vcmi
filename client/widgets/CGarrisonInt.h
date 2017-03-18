@@ -84,12 +84,12 @@ public:
 		 twoRows,         ///< slots Will be placed in 2 rows
 		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
-	std::vector<CGarrisonSlot*> slotsUp, slotsDown;  ///< Slots of upper and lower garrison
+	std::vector<CGarrisonSlot*> availableSlots;  ///< Slots of upper and lower garrison
+
 	const CArmedInstance *armedObjs[2];  ///< [0] is upper, [1] is down
 
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(CButton * button);
-	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, CGarrisonSlot::EGarrisonType Upg );
 
 	void createSlots();
 	void recreateSlots();
