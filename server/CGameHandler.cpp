@@ -4581,9 +4581,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 					BattleSpellCastParameters parameters(gs->curB, st, spell);
 					parameters.spellLvl = bonus->val;
 					parameters.effectLevel = bonus->val;//todo: recheck
-					parameters.aimToHex(BattleHex::INVALID);
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-
 					parameters.cast(spellEnv);
 
 					//todo: move to mechanics
@@ -5302,7 +5300,6 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		parameters.aimToStack(gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked));
 		parameters.effectPower = power;
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-
 		parameters.cast(spellEnv);
 	};
 
@@ -5691,16 +5688,12 @@ void CGameHandler::runBattle()
 			{
 				const CSpell * spell = SpellID(b->subtype).toSpell();
 
-				if (ESpellCastProblem::OK != gs->curB->battleCanCastThisSpell(h, spell, ECastingMode::PASSIVE_CASTING))
-					continue;
-
 				BattleSpellCastParameters parameters(gs->curB, h, spell);
 				parameters.spellLvl = 3;
 				parameters.effectLevel = 3;
-				parameters.aimToHex(BattleHex::INVALID);
 				parameters.mode = ECastingMode::PASSIVE_CASTING;
 				parameters.enchantPower = b->val;
-				parameters.cast(spellEnv);
+				parameters.castIfPossible(spellEnv);
 			}
 		}
 	}
