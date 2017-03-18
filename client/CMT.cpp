@@ -1250,7 +1250,7 @@ static void mainLoop()
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
 	serverAlive.waitWhileTrue();
-	serverAlive.set(true);
+	serverAlive.setn(true);
 
 	if(vm.count("onlyAI"))
 	{
