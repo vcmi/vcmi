@@ -43,7 +43,7 @@ engineBase::engineBase()
 
 void engineBase::configure()
 {
-	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid");
+	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid", "General");
 	logAi->info(engine.toString());
 }
 
@@ -230,33 +230,33 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 		armyStructure ourStructure = evaluateArmyStructure(we);
 		armyStructure enemyStructure = evaluateArmyStructure(enemy);
 
-		ta.ourWalkers->setInputValue(ourStructure.walkers);
-		ta.ourShooters->setInputValue(ourStructure.shooters);
-		ta.ourFlyers->setInputValue(ourStructure.flyers);
-		ta.ourSpeed->setInputValue(ourStructure.maxSpeed);
+		ta.ourWalkers->setValue(ourStructure.walkers);
+		ta.ourShooters->setValue(ourStructure.shooters);
+		ta.ourFlyers->setValue(ourStructure.flyers);
+		ta.ourSpeed->setValue(ourStructure.maxSpeed);
 
-		ta.enemyWalkers->setInputValue(enemyStructure.walkers);
-		ta.enemyShooters->setInputValue(enemyStructure.shooters);
-		ta.enemyFlyers->setInputValue(enemyStructure.flyers);
-		ta.enemySpeed->setInputValue(enemyStructure.maxSpeed);
+		ta.enemyWalkers->setValue(enemyStructure.walkers);
+		ta.enemyShooters->setValue(enemyStructure.shooters);
+		ta.enemyFlyers->setValue(enemyStructure.flyers);
+		ta.enemySpeed->setValue(enemyStructure.maxSpeed);
 
 		bool bank = dynamic_cast<const CBank*> (enemy);
 		if (bank)
-			ta.bankPresent->setInputValue(1);
+			ta.bankPresent->setValue(1);
 		else
-			ta.bankPresent->setInputValue(0);
+			ta.bankPresent->setValue(0);
 
 		const CGTownInstance * fort = dynamic_cast<const CGTownInstance*> (enemy);
 		if (fort)
 		{
-			ta.castleWalls->setInputValue(fort->fortLevel());
+			ta.castleWalls->setValue(fort->fortLevel());
 		}
 		else
-			ta.castleWalls->setInputValue(0);
+			ta.castleWalls->setValue(0);
 
 		//engine.process(TACTICAL_ADVANTAGE);//TODO: Process only Tactical_Advantage
 		ta.engine.process();
-		output = ta.threat->getOutputValue();
+		output = ta.threat->getValue();
 	}
 	catch (fl::Exception & fe)
 	{
@@ -270,7 +270,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
 
 		for (int i = 0; i < boost::size(tab); i++)
-			log << names[i] << ": " << tab[i]->getInputValue() << " ";
+			log << names[i] << ": " << tab[i]->getValue() << " ";
 		logAi->error(log.str());
 		assert(false);
 	}
@@ -460,15 +460,15 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		
 	try
 	{
-		vt.strengthRatio->setInputValue(strengthRatio);
-		vt.heroStrength->setInputValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
-		vt.turnDistance->setInputValue(turns);
-		vt.missionImportance->setInputValue(missionImportance);
-		vt.estimatedReward->setInputValue(tilePriority);
+		vt.strengthRatio->setValue(strengthRatio);
+		vt.heroStrength->setValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		vt.turnDistance->setValue(turns);
+		vt.missionImportance->setValue(missionImportance);
+		vt.estimatedReward->setValue(tilePriority);
 
 		vt.engine.process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
-		g.priority = vt.value->getOutputValue();
+		g.priority = vt.value->getValue();
 	}
 	catch (fl::Exception & fe)
 	{
