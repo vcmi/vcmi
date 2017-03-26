@@ -472,9 +472,9 @@ CAdvMapInt::CAdvMapInt():
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false)
 {
   adventureInt = this;
-	pos.x = pos.y = 0;
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos.x = pos.y = -1;
+	pos.w = screen->w+1;
+	pos.h = screen->h+1;
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	if (ADVOPT.worldViewGraphic != "")
