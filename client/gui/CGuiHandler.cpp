@@ -370,7 +370,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 	std::list<CIntObject*> miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
-		if ((elem)->strongInterest || isItIn(&(elem)->pos, motion.x, motion.y))
+		if ((elem)->strongInterest || isItIn(&(elem)->pos, motion.x-1, motion.y-1)) //-1 offset to include lower bound, fixes bug #2476
 		{
 			(elem)->mouseMoved(motion);
 		}
