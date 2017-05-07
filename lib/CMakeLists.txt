@@ -124,6 +124,8 @@ set(lib_SRCS
 		registerTypes/TypesMapObjects3.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
+		
+		${VCMILIB_ADDITIONAL_SOURCES}
 )
 
 set(lib_HEADERS
@@ -177,9 +179,11 @@ if(WIN32)
 	set_target_properties(vcmi PROPERTIES OUTPUT_NAME VCMI_lib)
 endif()
 
-set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmi)
+if (NOT ANDROID)
+	set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
+	cotire(vcmi)
 
-if (NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
+	if (NOT APPLE) # Already inside vcmiclient bundle
+		install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
+	endif()
 endif()

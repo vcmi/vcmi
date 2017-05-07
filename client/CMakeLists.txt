@@ -65,6 +65,10 @@ set(client_HEADERS
 		gui/SDL_Compat.h
 )
 
+if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
+	return()
+endif()
+
 if(APPLE)
 	# OS X specific includes
 	include_directories(${SPARKLE_INCLUDE_DIR})
@@ -133,4 +137,3 @@ cotire(vcmiclient)
 
 
 install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
-

@@ -698,3 +698,16 @@ namespace vstd
 }
 using vstd::operator-=;
 using vstd::make_unique;
+
+#if defined VCMI_ANDROID && defined NO_STD_TOSTRING
+namespace std
+{
+	template <typename T>
+	inline std::string to_string(const T& value)
+	{
+		std::ostringstream ss;
+		ss << value;
+		return ss.str();
+	}
+}
+#endif //VCMI_ANDROID

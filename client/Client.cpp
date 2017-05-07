@@ -44,7 +44,7 @@ extern std::string NAME;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #else
-#include "AndroidVMHelper.h"
+#include "lib/AndroidVMHelper.h"
 #endif
 
 /*

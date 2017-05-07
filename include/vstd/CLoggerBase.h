@@ -38,7 +38,11 @@ namespace ELogLevel
 			case ERROR:
 				return "error";
 			default:
+#ifdef NO_STD_TOSTRING
+				return "invalid";
+#else
 				return std::string("invalid (") + std::to_string(level) + ")";
+#endif
 		}
 	}
 }
