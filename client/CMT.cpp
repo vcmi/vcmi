@@ -50,7 +50,7 @@
 #include "SDL_syswm.h"
 #endif
 #ifdef VCMI_ANDROID
-#include "AndroidVMHelper.h"
+#include "lib/AndroidVMHelper.h"
 #endif
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"

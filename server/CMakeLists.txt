@@ -12,6 +12,10 @@ set(server_SRCS
 		NetPacksServer.cpp
 )
 
+if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
+	return()
+endif()
+
 add_executable(vcmiserver ${server_SRCS})
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${SYSTEM_LIBS})
@@ -27,4 +31,3 @@ cotire(vcmiserver)
 if (NOT APPLE) # Already inside vcmiclient bundle
 	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
 endif()
-

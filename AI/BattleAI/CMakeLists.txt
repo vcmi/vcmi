@@ -15,13 +15,15 @@ set(battleAI_SRCS
 		ThreatMap.cpp
 )
 
-add_library(BattleAI SHARED ${battleAI_SRCS})
-target_link_libraries(BattleAI vcmi)
+if (NOT ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+	add_library(BattleAI SHARED ${battleAI_SRCS})
+	target_link_libraries(BattleAI vcmi)
 
-set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
-cotire(BattleAI)
+	set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
+	cotire(BattleAI)
 
-if (NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+	if (NOT APPLE) # Already inside vcmiclient bundle
+		install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+	endif()
 endif()
 

@@ -20,7 +20,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #ifdef VCMI_ANDROID
-#include "AndroidVMHelper.h"
+#include "../lib/AndroidVMHelper.h"
 #else
 #include "../lib/Interprocess.h"
 #endif
