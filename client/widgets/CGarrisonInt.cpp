@@ -405,38 +405,33 @@ void CGarrisonInt::addSplitBtn(CButton * button)
 	button->block(getSelection() == nullptr);
 }
 
-void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, CGarrisonSlot::EGarrisonType Upg )
-{
-	ret.resize(7);
-
-	if (set)
-	{
-		for(auto & elem : set->Slots())
-		{
-			ret[elem.first.getNum()] = new CGarrisonSlot(this, posX + (elem.first.getNum()*distance), posY, elem.first, Upg, elem.second);
-		}
-	}
-
-	for(int i=0; i<ret.size(); i++)
-		if(!ret[i])
-			ret[i] = new CGarrisonSlot(this, posX + (i*distance), posY, SlotID(i), Upg, nullptr);
-
-	if (twoRows)
-		for (int i=4; i<ret.size(); i++)
-		{
-			ret[i]->pos.x -= 126;
-			ret[i]->pos.y += 37;
-		};
-}
-
 void CGarrisonInt::createSlots()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	int width = smallIcons? 32 : 58;
-
-	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, CGarrisonSlot::EGarrisonType::UP);
-	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, CGarrisonSlot::EGarrisonType::DOWN);
+	int distance = interx + (smallIcons? 32 : 58);
+	for(int i=0; i<2; i++)
+	{
+		std::vector<CGarrisonSlot*> garrisonSlots;
+		garrisonSlots.resize(7);
+		if (armedObjs[i])
+		{
+			for(auto & elem : armedObjs[i]->Slots())
+			{
+				garrisonSlots[elem.first.getNum()] = new CGarrisonSlot(this, i*garOffset.x + (elem.first.getNum()*distance), i*garOffset.y, elem.first, static_cast<CGarrisonSlot::EGarrisonType>(i), elem.second);
+			}
+		}
+		for(int j=0; j<7; j++)
+		{
+			if(!garrisonSlots[j])
+				garrisonSlots[j] = new CGarrisonSlot(this, i*garOffset.x + (j*distance), i*garOffset.y, SlotID(j), static_cast<CGarrisonSlot::EGarrisonType>(i), nullptr);
+			if (twoRows && j>=4)
+			{
+				garrisonSlots[j]->pos.x -= 326;
+				garrisonSlots[j]->pos.y += 37;
+			}
+		}
+		std::copy(garrisonSlots.begin(), garrisonSlots.end(), std::back_inserter(availableSlots));
+	}
 }
 
 void CGarrisonInt::recreateSlots()
@@ -448,11 +443,9 @@ void CGarrisonInt::recreateSlots()
 		elem->block(true);
 
 
-	for(CGarrisonSlot * slot : slotsUp)
+	for(CGarrisonSlot * slot : availableSlots)
 		slot->update();
 
-	for(CGarrisonSlot * slot : slotsDown)
-		slot->update();
 }
 
 void CGarrisonInt::splitClick()
@@ -514,11 +507,11 @@ void CGarrisonInt::setSplittingMode(bool on)
 
 	if (inSplittingMode || on)
 	{
-		for(CGarrisonSlot * slot : slotsUp)
-			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
-
-		for(CGarrisonSlot * slot : slotsDown)
-			slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+		for(CGarrisonSlot * slot : availableSlots)
+		{
+			if(slot!=getSelection())
+				slot->setHighlight( ( on && (slot->our() || slot->ally()) && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
+		}
 		inSplittingMode = on;
 	}
 }

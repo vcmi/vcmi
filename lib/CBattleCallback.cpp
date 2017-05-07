@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CBattleCallback.h"
-#include "BattleState.h"
+#include "CStack.h"
+#include "BattleInfo.h"
 #include "CGameState.h"
 #include "NetPacks.h"
 #include "spells/CSpellHandler.h"

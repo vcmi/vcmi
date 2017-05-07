@@ -887,7 +887,8 @@ void CInfoBar::showSelection()
 void CInfoBar::tick()
 {
 	removeUsedEvents(TIME);
-	showSelection();
+	if(GH.topInt() == adventureInt)
+		showSelection();
 }
 
 void CInfoBar::clickLeft(tribool down, bool previousState)

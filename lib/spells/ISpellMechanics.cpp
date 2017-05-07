@@ -11,7 +11,9 @@
 #include "StdInc.h"
 #include "ISpellMechanics.h"
 
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
+
 #include "../NetPacks.h"
 
 #include "CDefaultSpellMechanics.h"
@@ -80,11 +82,24 @@ void BattleSpellCastParameters::aimToStack(const CStack * destination)
 
 void BattleSpellCastParameters::cast(const SpellCastEnvironment * env)
 {
+	if(destinations.empty())
+		aimToHex(BattleHex::INVALID);
 	spell->battleCast(env, *this);
+}
+
+void BattleSpellCastParameters::castIfPossible(const SpellCastEnvironment * env)
+{
+	if(ESpellCastProblem::OK == cb->battleCanCastThisSpell(caster, spell, mode))
+		cast(env);
 }
 
 BattleHex BattleSpellCastParameters::getFirstDestinationHex() const
 {
+	if(destinations.empty())
+	{
+		logGlobal->error("Spell have no destinations.");
+        return BattleHex::INVALID;
+	}
 	return destinations.at(0).hexValue;
 }
 

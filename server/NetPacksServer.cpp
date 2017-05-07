@@ -5,7 +5,8 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CGameState.h"
-#include "../lib/BattleState.h"
+#include "../lib/CStack.h"
+#include "../lib/BattleInfo.h"
 #include "../lib/BattleAction.h"
 #include "../lib/serializer/Connection.h"
 

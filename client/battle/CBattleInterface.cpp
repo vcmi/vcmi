@@ -22,7 +22,7 @@
 #include "../windows/CSpellWindow.h"
 
 #include "../../CCallback.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
@@ -1245,6 +1245,7 @@ void CBattleInterface::displayBattleFinished()
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	resWindow = new CBattleResultWindow(*bresult, temp_rect, *this->curInt);
 	GH.pushInt(resWindow);
+	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 }
 
 void CBattleInterface::spellCast(const BattleSpellCast *sc)

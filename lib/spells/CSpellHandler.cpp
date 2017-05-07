@@ -22,7 +22,8 @@
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 
-#include "../BattleState.h"
+#include "../CStack.h"
+#include "../BattleInfo.h"
 #include "../CBattleCallback.h"
 #include "../CGameState.h" //todo: remove
 
@@ -132,11 +133,6 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastP
 void CSpell::battleCast(const SpellCastEnvironment * env,  const BattleSpellCastParameters & parameters) const
 {
 	assert(env);
-	if(parameters.destinations.size()<1)
-	{
-		env->complain("Spell must have at least one destination");
-		return;
-	}
 	mechanics->battleCast(env, parameters);
 }
 

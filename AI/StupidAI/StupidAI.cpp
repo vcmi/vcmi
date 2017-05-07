@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "../../lib/AI_Base.h"
 #include "StupidAI.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 

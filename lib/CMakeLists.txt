@@ -78,7 +78,10 @@ set(lib_SRCS
 
 		BattleAction.cpp
 		BattleHex.cpp
-		BattleState.cpp
+                BattleInfo.cpp
+                SiegeInfo.cpp
+                SideInBattle.cpp
+                CStack.cpp
 		CArtHandler.cpp
 		CBattleCallback.cpp
 		CBonusTypeHandler.cpp

@@ -11,7 +11,7 @@
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
 #include "../lib/StartInfo.h"
-#include "../lib/BattleState.h"
+#include "../lib/BattleInfo.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -1045,7 +1045,10 @@ void CServerHandler::callServer()
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
 	if (result == 0)
+	{
 		logNetwork->infoStream() << "Server closed correctly";
+		serverAlive.setn(false);
+	}
 	else
 	{
 		logNetwork->errorStream() << "Error: server failed to close correctly or crashed!";

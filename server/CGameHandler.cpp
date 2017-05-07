@@ -15,7 +15,8 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CGameState.h"
-#include "../lib/BattleState.h"
+#include "../lib/CStack.h"
+#include "../lib/BattleInfo.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
@@ -137,7 +138,7 @@ static void giveExp(BattleResult &r)
 	}
 }
 
-static void SummonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, bool targetIsAttacker, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, bool targetIsAttacker, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();
@@ -1006,7 +1007,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 			bsa.healedStacks.push_back(shi);
 		}
 	}
-	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated 
+	bat.bsa.push_back(bsa); //add this stack to the list of victims after drain life has been calculated
 
 	//fire shield handling
 	if (!bat.shot() && !vstd::contains(def->state, EBattleStackState::CLONED) &&
@@ -4580,9 +4581,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 					BattleSpellCastParameters parameters(gs->curB, st, spell);
 					parameters.spellLvl = bonus->val;
 					parameters.effectLevel = bonus->val;//todo: recheck
-					parameters.aimToHex(BattleHex::INVALID);
 					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-
 					parameters.cast(spellEnv);
 
 					//todo: move to mechanics
@@ -5301,7 +5300,6 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		parameters.aimToStack(gs->curB->battleGetStackByID(bat.bsa.at(0).stackAttacked));
 		parameters.effectPower = power;
 		parameters.mode = ECastingMode::AFTER_ATTACK_CASTING;
-
 		parameters.cast(spellEnv);
 	};
 
@@ -5357,7 +5355,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 
 		if (getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
 			return;
-		
+
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo;
 
 		if (defender->getCreature()->idNumber == bonusAdditionalInfo ||
@@ -5371,7 +5369,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 			resurrectInfo.creID = (CreatureID)bonusAdditionalInfo;
 		else
 			resurrectInfo.creID = attacker->getCreature()->idNumber;
-		
+
 		if (attacker->hasBonusOfType((Bonus::TRANSMUTATION), 0))
 		{
 			resurrectInfo.amount = std::max((defender->count * defender->MaxHealth()) / resurrectInfo.creID.toCreature()->MaxHealth(), 1u);
@@ -5648,20 +5646,21 @@ void CGameHandler::runBattle()
 			auto accessibility = getAccesibility();
 			CreatureID creatureData = CreatureID(summonInfo->subtype);
 			std::vector<BattleHex> targetHexes;
-			bool targetIsBig = stack->getCreature()->isDoubleWide(); //target = creature to guard
+			const bool targetIsBig = stack->getCreature()->isDoubleWide(); //target = creature to guard
+			const bool guardianIsBig = creatureData.toCreature()->isDoubleWide();
 
 			/*Chosen idea for two hex units was to cover all possible surrounding hexes of target unit with as small number of stacks as possible.
 			For one-hex targets there are four guardians - front, back and one per side (up + down).
 			Two-hex targets are wider and the difference is there are two guardians per side to cover 3 hexes + extra hex in the front
 			Additionally, there are special cases for starting positions etc., where guardians would be outside of battlefield if spawned normally*/
-			if (!creatureData.toCreature()->isDoubleWide())
+			if (!guardianIsBig)
 				targetHexes = stack->getSurroundingHexes();
 			else
-				SummonGuardiansHelper(targetHexes, stack->position, stack->attackerOwned, stack->getCreature()->isDoubleWide());
-				
+				summonGuardiansHelper(targetHexes, stack->position, stack->attackerOwned, targetIsBig);
+
 			for (auto hex : targetHexes)
 			{
-				if (accessibility.accessible(hex, creatureData.toCreature()->isDoubleWide(), stack->attackerOwned)) //without this multiple creatures can occupy one hex
+				if (accessibility.accessible(hex, guardianIsBig, stack->attackerOwned)) //without this multiple creatures can occupy one hex
 				{
 					BattleStackAdded newStack;
 					newStack.amount = std::max(1, (int)(stack->count * 0.01 * summonInfo->val));
@@ -5689,16 +5688,12 @@ void CGameHandler::runBattle()
 			{
 				const CSpell * spell = SpellID(b->subtype).toSpell();
 
-				if (ESpellCastProblem::OK != gs->curB->battleCanCastThisSpell(h, spell, ECastingMode::PASSIVE_CASTING))
-					continue;
-
 				BattleSpellCastParameters parameters(gs->curB, h, spell);
 				parameters.spellLvl = 3;
 				parameters.effectLevel = 3;
-				parameters.aimToHex(BattleHex::INVALID);
 				parameters.mode = ECastingMode::PASSIVE_CASTING;
 				parameters.enchantPower = b->val;
-				parameters.cast(spellEnv);
+				parameters.castIfPossible(spellEnv);
 			}
 		}
 	}

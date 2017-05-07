@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CGameInterface.h"
 
-#include "BattleState.h"
+#include "CStack.h"
 #include "VCMIDirs.h"
 
 #ifdef VCMI_WINDOWS

@@ -20,7 +20,7 @@
 #include "../windows/CSpellWindow.h"
 
 #include "../../CCallback.h"
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CGameState.h"

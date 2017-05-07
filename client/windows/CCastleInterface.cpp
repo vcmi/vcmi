@@ -897,6 +897,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	updateShadow();
 
 	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
+	garr->type |= REDRAW_PARENT;
+
 	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
 	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
@@ -980,7 +982,6 @@ void CCastleInterface::recreateIcons()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	delete fort;
 	delete hall;
-
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);

@@ -21,7 +21,7 @@
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 #include "../CCreatureHandler.h"
-#include "../BattleState.h"
+#include "../CStack.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMap.h"
 #include "CGTownInstance.h"

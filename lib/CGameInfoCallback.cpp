@@ -15,7 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "mapObjects/CObjectHandler.h" // for CGObjectInstance
 #include "StartInfo.h" // for StartInfo
-#include "BattleState.h" // for BattleInfo
+#include "BattleInfo.h" // for BattleInfo
 #include "NetPacks.h" // for InfoWindow
 #include "CModHandler.h"
 #include "spells/CSpellHandler.h"

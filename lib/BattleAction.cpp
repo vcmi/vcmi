@@ -1,7 +1,8 @@
 #include "StdInc.h"
 #include "BattleAction.h"
 
-#include "BattleState.h"
+#include "CStack.h"
+
 
 /*
  * BattleAction.cpp, part of VCMI engine

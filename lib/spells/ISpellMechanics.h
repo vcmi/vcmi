@@ -56,6 +56,9 @@ public:
 
 	void cast(const SpellCastEnvironment * env);
 
+	///cast with silent check for permitted cast
+	void castIfPossible(const SpellCastEnvironment * env);
+
 	BattleHex getFirstDestinationHex() const;
 
 	int getEffectValue() const;

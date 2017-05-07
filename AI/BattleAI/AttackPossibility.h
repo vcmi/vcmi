@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "../../lib/BattleState.h"
+#include "../../lib/CStack.h"
 #include "../../CCallback.h"
 #include "common.h"
 
