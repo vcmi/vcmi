@@ -170,9 +170,9 @@ void CList::selectIndex(int which)
 void CList::selectNext()
 {
 	int index = getSelectedIndex();
-	if (index < 0)
+	if (index < 0 || index+1 >= list->size())
 		selectIndex(0);
-	else if (index + 1 < list->size())
+	else
 		selectIndex(index+1);
 }
 
