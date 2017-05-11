@@ -1302,6 +1302,13 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 					gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
 					gb.id = heroID.getNum();
 					cb->giveHeroBonus(&gb);
+
+					SetMovePoints mp;
+					mp.val = 600;
+					mp.absolute = false;
+					mp.hid = heroID;
+					cb->setMovePoints(&mp);
+
 					iw.text << VLC->generaltexth->allTexts[580];
 					cb->showInfoDialog(&iw);
 				}
