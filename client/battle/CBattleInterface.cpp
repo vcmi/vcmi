@@ -1234,8 +1234,8 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
 		animsAreDisplayed.waitUntil(false);
 	}
-	displayBattleFinished();
 	setActiveStack(nullptr);
+	displayBattleFinished();
 }
 
 void CBattleInterface::displayBattleFinished()
