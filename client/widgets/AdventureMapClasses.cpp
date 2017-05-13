@@ -169,11 +169,10 @@ void CList::selectIndex(int which)
 
 void CList::selectNext()
 {
-	int index = getSelectedIndex();
-	if (index < 0 || index+1 >= list->size())
-		selectIndex(0);
-	else
-		selectIndex(index+1);
+	int index = getSelectedIndex() + 1;
+	if (index >= list->size())
+		index = 0;
+	selectIndex(index);
 }
 
 void CList::selectPrev()
