@@ -1166,6 +1166,12 @@ static void handleEvent(SDL_Event & ev)
 #endif
 		return;
 	}
+#ifdef VCMI_ANDROID
+	else if (ev.type == SDL_KEYDOWN && ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
+	{
+		handleQuit(true);
+	}
+#endif
 	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 	{
 		Settings full = settings.write["video"]["fullscreen"];

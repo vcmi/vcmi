@@ -1097,4 +1097,15 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerRe
 	androidTestServerReadyFlag.store(true);
 }
 
+extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv *env, jobject cls)
+{
+	logGlobal->infoStream() << "Received emergency save game request";
+	if (!LOCPLINT || !LOCPLINT->cb)
+	{
+		return false;
+	}
+
+	LOCPLINT->cb->save("Saves/_Android_Autosave");
+	return true;
+}
 #endif
