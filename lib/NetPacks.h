@@ -276,16 +276,17 @@ struct SetMana : public CPackForClient
 
 struct SetMovePoints : public CPackForClient
 {
-	SetMovePoints(){val = 0;}
+	SetMovePoints(){val = 0; absolute=true;}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ObjectInstanceID hid;
 	si32 val;
+	bool absolute;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & val & hid;
+		h & val & hid & absolute;
 	}
 };
 

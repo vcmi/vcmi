@@ -206,7 +206,15 @@ DLL_LINKAGE void SetMana::applyGs(CGameState *gs)
 DLL_LINKAGE void SetMovePoints::applyGs(CGameState *gs)
 {
 	CGHeroInstance *hero = gs->getHero(hid);
-	hero->movement = val;
+
+	assert(hero);
+
+	if(absolute)
+		hero->movement = val;
+	else
+		hero->movement += val;
+
+	vstd::amax(hero->movement, 0); //not less than 0
 }
 
 DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
