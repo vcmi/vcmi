@@ -119,8 +119,13 @@ public:
 	bool duringAITurn;
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
+#ifdef VCMI_ANDROID
+	bool swipeMovementRequested;
+	int3 swipeTargetPosition;
+#else // !VCMI_ANDROID
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
 	bool scrollingState;
+#endif // !VCMI_ANDROID
 
 	enum{NA, INGAME, WAITING} state;
 
