@@ -42,11 +42,11 @@ On Arch-based distributions, there is a development package available for VCMI o
 II. Getting the sources
 
 VCMI is still in development. We recommend the following initial directory structure:
-trunk
-trunk/vcmi -> contains sources and is under git control
-trunk/build -> contains build output, makefiles, object files,...
+.
+├── vcmi -> contains sources and is under git control
+└── build -> contains build output, makefiles, object files,...
 
-You can get latest sources with subversion:
+You can get latest sources with:
   git clone https://github.com/vcmi/vcmi.git
 
 III. Compilation
