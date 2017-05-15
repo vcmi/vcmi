@@ -641,8 +641,8 @@ int main(int argc, char** argv)
 void CVCMIServer::create()
 {
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	char* foo[1] = {"android-server"};
-	main(1, foo);
+	const char* foo[1] = {"android-server"};
+	main(1, const_cast<char**>(foo));
 }
 
 #endif
