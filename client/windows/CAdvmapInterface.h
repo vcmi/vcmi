@@ -63,7 +63,9 @@ class CTerrainRect
 	static constexpr float SwipeTouchSlop = 16.0f;
 
 	void handleHover(const SDL_MouseMotionEvent &sEvent);
+#ifdef VCMI_ANDROID
 	void handleSwipeMove(const SDL_MouseMotionEvent &sEvent);
+#endif // VCMI_ANDROID
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;

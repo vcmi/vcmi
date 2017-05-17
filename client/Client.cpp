@@ -975,7 +975,7 @@ void CServerHandler::waitForServer()
 	logNetwork->infoStream() << "waiting for server";
 	while (!androidTestServerReadyFlag.load())
 	{
-		logNetwork->warnStream() << "still waiting...";
+		logNetwork->infoStream() << "still waiting...";
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
 	logNetwork->infoStream() << "waiting for server finished...";
@@ -1037,10 +1037,8 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::callServer()
 {
+#ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::callServer");
-#ifdef VCMI_ANDROID
-
-#else
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
 	int result = std::system(comm.c_str());
@@ -1060,9 +1058,6 @@ void CServerHandler::callServer()
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
 {
-#ifdef VCMI_ANDROID
-
-#endif
 	std::string realPort;
 	if(settings["testing"]["enabled"].Bool())
 		realPort = settings["testing"]["port"].String();

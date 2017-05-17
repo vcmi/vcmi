@@ -182,11 +182,13 @@ if(WIN32)
 	set_target_properties(vcmi PROPERTIES OUTPUT_NAME VCMI_lib)
 endif()
 
-if (NOT ANDROID)
-	set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
-	cotire(vcmi)
+if (ANDROID)
+	return()
+endif()
 
-	if (NOT APPLE) # Already inside vcmiclient bundle
-		install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
-	endif()
+set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
+cotire(vcmi)
+
+if (NOT APPLE) # Already inside vcmiclient bundle
+	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()

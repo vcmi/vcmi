@@ -177,6 +177,7 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 #endif // !VCMI_ANDROID
 }
 
+#ifdef VCMI_ANDROID
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent &sEvent)
 {
 	if (!isSwiping)
@@ -195,6 +196,7 @@ void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent &sEvent)
 		adventureInt->swipeMovementRequested = true;
 	}
 }
+#endif // VCMI_ANDROID
 
 void CTerrainRect::handleHover(const SDL_MouseMotionEvent &sEvent)
 {

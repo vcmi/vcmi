@@ -6,8 +6,8 @@
 
 #ifdef VCMI_WINDOWS
 #include <windows.h> //for .dll libs
-#else
-
+#elif !defined VCMI_ANDROID
+#include <dlfcn.h>
 #endif
 
 #include "serializer/BinaryDeserializer.h"
@@ -40,8 +40,8 @@
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path &libpath, const std::string &methodName)
 {
-    typedef void(*TGetAIFun)(std::shared_ptr<rett> &);
-    typedef void(*TGetNameFun)(char *);
+    typedef void(*TGetAIFun)(std::shared_ptr<rett>&);
+    typedef void(*TGetNameFun)(char*);
 
     char temp[150];
 
@@ -114,7 +114,7 @@ template<> std::shared_ptr<CBattleGameInterface> createAny(const boost::filesyst
 #endif
 
 template<typename rett>
-std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string &methodName)
+std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string & methodName)
 {
     logGlobal->infoStream() << "Opening " << dllname;
 
@@ -157,7 +157,7 @@ void CAdventureAI::battleNewRound(int round)
     battleAI->battleNewRound(round);
 }
 
-void CAdventureAI::battleCatapultAttacked(const CatapultAttack &ca)
+void CAdventureAI::battleCatapultAttacked(const CatapultAttack & ca)
 {
     battleAI->battleCatapultAttacked(ca);
 }
@@ -172,12 +172,12 @@ void CAdventureAI::battleStart(const CCreatureSet *army1, const CCreatureSet *ar
     battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> &bsa)
+void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
     battleAI->battleStacksAttacked(bsa);
 }
 
-void CAdventureAI::actionStarted(const BattleAction &action)
+void CAdventureAI::actionStarted(const BattleAction & action)
 {
     battleAI->actionStarted(action);
 }
@@ -187,22 +187,22 @@ void CAdventureAI::battleNewRoundFirst(int round)
     battleAI->battleNewRoundFirst(round);
 }
 
-void CAdventureAI::actionFinished(const BattleAction &action)
+void CAdventureAI::actionFinished(const BattleAction & action)
 {
     battleAI->actionFinished(action);
 }
 
-void CAdventureAI::battleStacksEffectsSet(const SetStackEffect &sse)
+void CAdventureAI::battleStacksEffectsSet(const SetStackEffect & sse)
 {
     battleAI->battleStacksEffectsSet(sse);
 }
 
-void CAdventureAI::battleStacksRemoved(const BattleStacksRemoved &bsr)
+void CAdventureAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 {
     battleAI->battleStacksRemoved(bsr);
 }
 
-void CAdventureAI::battleObstaclesRemoved(const std::set<si32> &removedObstacles)
+void CAdventureAI::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
 {
     battleAI->battleObstaclesRemoved(removedObstacles);
 }
@@ -233,7 +233,7 @@ void CAdventureAI::battleEnd(const BattleResult *br)
     battleAI.reset();
 }
 
-void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > &healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
+void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
     battleAI->battleStacksHealedRes(healedStacks, lifeDrain, tentHeal, lifeDrainFrom);
 }
@@ -248,7 +248,7 @@ void CAdventureAI::yourTacticPhase(int distance)
     battleAI->yourTacticPhase(distance);
 }
 
-void CAdventureAI::saveGame(BinarySerializer &h, const int version) /*saving */
+void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
 {
     LOG_TRACE_PARAMS(logAi, "version '%i'", version);
     CGlobalAI::saveGame(h, version);
@@ -261,7 +261,7 @@ void CAdventureAI::saveGame(BinarySerializer &h, const int version) /*saving */
     }
 }
 
-void CAdventureAI::loadGame(BinaryDeserializer &h, const int version) /*loading */
+void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading */
 {
     LOG_TRACE_PARAMS(logAi, "version '%i'", version);
     CGlobalAI::loadGame(h, version);
@@ -278,10 +278,10 @@ void CAdventureAI::loadGame(BinaryDeserializer &h, const int version) /*loading 
     }
 }
 
-void CBattleGameInterface::saveGame(BinarySerializer &h, const int version)
+void CBattleGameInterface::saveGame(BinarySerializer & h, const int version)
 {
 }
 
-void CBattleGameInterface::loadGame(BinaryDeserializer &h, const int version)
+void CBattleGameInterface::loadGame(BinaryDeserializer & h, const int version)
 {
 }
