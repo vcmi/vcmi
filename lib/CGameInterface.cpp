@@ -60,7 +60,6 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	}
 	else
 		logGlobal->errorStream() << "Error: " << dlerror();
-	}
 //	dlclose(dll); // not sure how this works on other platforms, but closing it on android breaks calling methods that we retrieved
 #endif
 #else // !VCMI_ANDROID
