@@ -20,7 +20,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #ifdef VCMI_ANDROID
-#include "../lib/AndroidVMHelper.h"
+#include "lib/CAndroidVMHelper.h"
 #else
 #include "../lib/Interprocess.h"
 #endif
@@ -421,8 +421,8 @@ void CVCMIServer::start()
 	delete mr;
 #else
 	{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
-		AndroidVMHelper envHelper;
-		envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+		CAndroidVMHelper envHelper;
+		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 		logNetwork->info("Sending server ready message to client");
 	}
 #endif
@@ -626,8 +626,8 @@ int main(int argc, char** argv)
 		throw;
 	}
 #ifdef VCMI_ANDROID
-	AndroidVMHelper envHelper;
-	envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
+	CAndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	delete VLC;
 	VLC = nullptr;
@@ -641,8 +641,8 @@ int main(int argc, char** argv)
 void CVCMIServer::create()
 {
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	const char* foo[1] = {"android-server"};
-	main(1, const_cast<char**>(foo));
+	const char * foo[1] = {"android-server"};
+	main(1, const_cast<char **>(foo));
 }
 
 #endif

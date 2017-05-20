@@ -50,7 +50,7 @@
 #include "SDL_syswm.h"
 #endif
 #ifdef VCMI_ANDROID
-#include "lib/AndroidVMHelper.h"
+#include "lib/CAndroidVMHelper.h"
 #endif
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"
@@ -471,12 +471,12 @@ int main(int argc, char** argv)
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
-		AndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
 	#endif // ANDROID
 		loading.join();
 	#ifdef VCMI_ANDROID
-		vmHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
 	}
 	#endif // ANDROID
 #endif // THREADED

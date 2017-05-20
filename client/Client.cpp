@@ -44,7 +44,7 @@ extern std::string NAME;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #else
-#include "lib/AndroidVMHelper.h"
+#include "lib/CAndroidVMHelper.h"
 #endif
 
 /*
@@ -946,8 +946,8 @@ void CServerHandler::startServer()
 	th.update();
 
 #ifdef VCMI_ANDROID
-	AndroidVMHelper envHelper;
-	envHelper.callStaticVoidMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+	CAndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 #else
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 #endif
@@ -1086,16 +1086,16 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 }
 
 #ifdef VCMI_ANDROID
-extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv *env, jobject cls)
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jobject cls)
 {
 	logNetwork->infoStream() << "Received server ready signal";
 	androidTestServerReadyFlag.store(true);
 }
 
-extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv *env, jobject cls)
+extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jobject cls)
 {
 	logGlobal->infoStream() << "Received emergency save game request";
-	if (!LOCPLINT || !LOCPLINT->cb)
+	if(!LOCPLINT || !LOCPLINT->cb)
 	{
 		return false;
 	}

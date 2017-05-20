@@ -30,7 +30,7 @@ void IVCMIDirs::init()
 }
 
 #ifdef VCMI_ANDROID
-#include "AndroidVMHelper.h"
+#include "CAndroidVMHelper.h"
 
 #endif
 
@@ -542,14 +542,17 @@ bfs::path VCMIDirsXDG::libraryPath() const { return M_LIB_DIR; }
 bfs::path VCMIDirsXDG::binaryPath() const { return M_BIN_DIR; }
 
 std::string VCMIDirsXDG::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
+
 #ifdef VCMI_ANDROID
+
 class VCMIDirsAndroid : public VCMIDirsXDG
 {
 	std::string basePath;
 	std::string internalPath;
 	std::string nativePath;
 public:
-	boost::filesystem::path fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const override;
+	boost::filesystem::path fullLibraryPath(const std::string & desiredFolder,
+											const std::string & baseLibName) const override;
 	boost::filesystem::path libraryPath() const override;
 	boost::filesystem::path userDataPath() const override;
 	boost::filesystem::path userCachePath() const override;
@@ -565,8 +568,9 @@ bfs::path VCMIDirsAndroid::userDataPath() const { return basePath; }
 bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
 bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
 
-boost::filesystem::path VCMIDirsAndroid::fullLibraryPath(const std::string &desiredFolder,
-														 const std::string &baseLibName) const {
+boost::filesystem::path VCMIDirsAndroid::fullLibraryPath(const std::string & desiredFolder,
+														 const std::string & baseLibName) const
+{
 	// ignore passed folder (all libraries in android are dumped into a single folder
 	return libraryPath() / libraryName(baseLibName);
 }
@@ -582,10 +586,10 @@ std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 void VCMIDirsAndroid::init()
 {
 	// asks java code to retrieve needed paths from environment
-	AndroidVMHelper envHelper;
-	basePath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "dataRoot");
-	internalPath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "internalDataRoot");
-	nativePath = envHelper.callStaticStringMethod(AndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "nativePath");
+	CAndroidVMHelper envHelper;
+	basePath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "dataRoot");
+	internalPath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "internalDataRoot");
+	nativePath = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "nativePath");
 	IVCMIDirs::init();
 }
 
