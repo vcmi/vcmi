@@ -15,16 +15,8 @@
 
 #ifdef VCMI_ANDROID
 
-// currently not using dlopen/dlsym to handle AI libs, because dlopen()ing doesn't support RTLD_GLOBAL and basically rtti handling between
-// shared libraries is broken (all dynamic_casts will fail), so currently using xyzz's solution and AI libs are compiled directly into lib
-#define THIS_COULD_BE_USED_WHEN_ANDROID_FIXES_RTTI_SUPPORT 0
-
-#if THIS_COULD_BE_USED_WHEN_ANDROID_FIXES_RTTI_SUPPORT == 0
-
 #include "AI/VCAI/VCAI.h"
 #include "AI/BattleAI/BattleAI.h"
-//#include "AI/StupidAI/StupidAI.h"
-#endif
 
 #endif
 
@@ -41,6 +33,11 @@
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
+#ifdef VCMI_ANDROID
+	// android currently doesn't support loading libs dynamically, so the access to the known libraries
+	// is possible only via specializations of this template
+	throw std::runtime_error("Could not resolve ai library " + libpath.generic_string());
+#else
 	typedef void(* TGetAIFun)(std::shared_ptr<rett> &);
 	typedef void(* TGetNameFun)(char *);
 
@@ -49,20 +46,6 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	TGetAIFun getAI = nullptr;
 	TGetNameFun getName = nullptr;
 
-#ifdef VCMI_ANDROID
-#if THIS_COULD_BE_USED_WHEN_ANDROID_FIXES_RTTI_SUPPORT
-	logGlobal->debugStream() << "Opening AI from " << libpath.string();
-	void *dll = dlopen(libpath.string().c_str(), RTLD_LOCAL | RTLD_LAZY);
-	if (dll)
-	{
-		getName = (TGetNameFun) dlsym(dll, "GetAiName");
-		getAI = (TGetAIFun) dlsym(dll, methodName.c_str());
-	}
-	else
-		logGlobal->errorStream() << "Error: " << dlerror();
-//	dlclose(dll); // not sure how this works on other platforms, but closing it on android breaks calling methods that we retrieved
-#endif
-#else // !VCMI_ANDROID
 #ifdef VCMI_WINDOWS
 	HMODULE dll = LoadLibraryW(libpath.c_str());
 	if (dll)
@@ -80,6 +63,7 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	else
 		logGlobal->errorStream() << "Error: " << dlerror();
 #endif // VCMI_WINDOWS
+
 	if (!dll)
 	{
 		logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
@@ -95,7 +79,6 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 #endif
 		throw std::runtime_error("Cannot find method " + methodName);
 	}
-#endif // VCMI_ANDROID
 
 	getName(temp);
 	logGlobal->infoStream() << "Loaded " << temp;
@@ -106,9 +89,10 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 		logGlobal->error("Cannot get AI!");
 
 	return ret;
+#endif //!VCMI_ANDROID
 }
 
-#if defined VCMI_ANDROID && THIS_COULD_BE_USED_WHEN_ANDROID_FIXES_RTTI_SUPPORT == 0
+#ifdef VCMI_ANDROID
 
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
