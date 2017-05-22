@@ -96,6 +96,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
 #endif
 
+#ifdef VCMI_ANDROID
+#  define NO_STD_TOSTRING // android runtime (gnustl) currently doesn't support std::to_string, so we provide our impl in this case
+#endif // VCMI_ANDROID
+
 /* ---------------------------------------------------------------------------- */
 /* A macro to force inlining some of our functions */
 /* ---------------------------------------------------------------------------- */
@@ -699,7 +703,7 @@ namespace vstd
 using vstd::operator-=;
 using vstd::make_unique;
 
-#if defined VCMI_ANDROID && defined NO_STD_TOSTRING
+#ifdef NO_STD_TOSTRING
 namespace std
 {
 	template <typename T>
@@ -710,4 +714,4 @@ namespace std
 		return ss.str();
 	}
 }
-#endif //VCMI_ANDROID
+#endif // NO_STD_TOSTRING

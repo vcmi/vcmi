@@ -551,14 +551,13 @@ class VCMIDirsAndroid : public VCMIDirsXDG
 	std::string internalPath;
 	std::string nativePath;
 public:
-	boost::filesystem::path fullLibraryPath(const std::string & desiredFolder,
-											const std::string & baseLibName) const override;
-	boost::filesystem::path libraryPath() const override;
-	boost::filesystem::path userDataPath() const override;
-	boost::filesystem::path userCachePath() const override;
-	boost::filesystem::path userConfigPath() const override;
+	bfs::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
+	bfs::path libraryPath() const override;
+	bfs::path userDataPath() const override;
+	bfs::path userCachePath() const override;
+	bfs::path userConfigPath() const override;
 
-	std::vector<boost::filesystem::path> dataPaths() const override;
+	std::vector<bfs::path> dataPaths() const override;
 
 	void init() override;
 };
@@ -568,10 +567,9 @@ bfs::path VCMIDirsAndroid::userDataPath() const { return basePath; }
 bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
 bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
 
-boost::filesystem::path VCMIDirsAndroid::fullLibraryPath(const std::string & desiredFolder,
-														 const std::string & baseLibName) const
+bfs::path VCMIDirsAndroid::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
 {
-	// ignore passed folder (all libraries in android are dumped into a single folder
+	// ignore passed folder (all libraries in android are dumped into a single folder)
 	return libraryPath() / libraryName(baseLibName);
 }
 
