@@ -426,8 +426,7 @@ void CGarrisonInt::createSlots()
 				garrisonSlots[j] = new CGarrisonSlot(this, i*garOffset.x + (j*distance), i*garOffset.y, SlotID(j), static_cast<CGarrisonSlot::EGarrisonType>(i), nullptr);
 			if (twoRows && j>=4)
 			{
-				garrisonSlots[j]->pos.x -= 326;
-				garrisonSlots[j]->pos.y += 37;
+				garrisonSlots[j]->moveBy(Point(-126, 37));
 			}
 		}
 		std::copy(garrisonSlots.begin(), garrisonSlots.end(), std::back_inserter(availableSlots));
