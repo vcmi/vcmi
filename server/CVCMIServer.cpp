@@ -614,7 +614,8 @@ int main(int argc, char** argv)
 			logNetwork->error(e.what());
 			end2 = true;
 		}
-		catch (...) {
+		catch (...)
+		{
 			handleException();
 		}
 	}

@@ -1052,35 +1052,36 @@ void CAdvMapInt::handleMapScrollingUpdate()
 {
 	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if ((animValHitCount % (4 / scrollSpeed)) == 0
-			&& ((GH.topInt() == this) || isCtrlKeyDown()))
+	if((animValHitCount % (4 / scrollSpeed)) == 0
+	   && ((GH.topInt() == this) || isCtrlKeyDown()))
+	{
+		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
+			position.x--;
+
+		if((scrollingDir & RIGHT) && (position.x < CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW))
+			position.x++;
+
+		if((scrollingDir & UP) && (position.y > -CGI->mh->frameH))
+			position.y--;
+
+		if((scrollingDir & DOWN) && (position.y < CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH))
+			position.y++;
+
+		if(scrollingDir)
 		{
-			if ((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
-				position.x--;
-
-			if ((scrollingDir & RIGHT) && (position.x < CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW))
-				position.x++;
-
-			if ((scrollingDir & UP) && (position.y > -CGI->mh->frameH))
-				position.y--;
-
-			if ((scrollingDir & DOWN) && (position.y < CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH))
-				position.y++;
-
-			if (scrollingDir)
-			{
-				setScrollingCursor(scrollingDir);
-				scrollingState = true;
-				updateScreen = true;
-				minimap.redraw();
-				if (mode == EAdvMapMode::WORLD_VIEW)
-					terrain.redraw();
-			} else if (scrollingState)
-			{
-				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-				scrollingState = false;
-			}
+			setScrollingCursor(scrollingDir);
+			scrollingState = true;
+			updateScreen = true;
+			minimap.redraw();
+			if(mode == EAdvMapMode::WORLD_VIEW)
+				terrain.redraw();
 		}
+		else if(scrollingState)
+		{
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			scrollingState = false;
+		}
+	}
 }
 
 #ifdef VCMI_ANDROID
