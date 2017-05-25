@@ -22,9 +22,6 @@
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/CLoadIntegrityValidator.h"
-#ifndef VCMI_ANDROID
-#include "../lib/Interprocess.h"
-#endif
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
@@ -41,9 +38,6 @@
 #include "CMT.h"
 
 extern std::string NAME;
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#endif
 
 /*
  * Client.cpp, part of VCMI engine
@@ -385,7 +379,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	else
 	{
 		serv = con;
-		networkMode = (con->connectionID == 1) ? HOST : GUEST;
+		networkMode = con->isHost() ? HOST : GUEST;
 	}
 
 	CConnection &c = *serv;
@@ -687,7 +681,7 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv) //request closing connection
+	if (serv && serv->isHost()) //request closing connection
 	{
 		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
@@ -954,25 +948,14 @@ void CServerHandler::waitForServer()
 		startServer();
 
 	th.update();
-#ifndef VCMI_ANDROID
-	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
-	while(!shared->sr->ready)
-	{
-		shared->sr->cond.wait(slock);
-	}
-#endif
+
 	if(verbose)
 		logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
 }
 
 CConnection * CServerHandler::connectToServer()
 {
-#ifndef VCMI_ANDROID
-	if(!shared->sr->ready)
-		waitForServer();
-#else
 	waitForServer();
-#endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
 
@@ -987,31 +970,15 @@ CConnection * CServerHandler::connectToServer()
 CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = nullptr;
-	shared = nullptr;
 	if(settings["testing"]["enabled"].Bool())
 		port = settings["testing"]["port"].String();
 	else
 		port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
-
-#ifndef VCMI_ANDROID
-	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
-	try
-	{
-		shared = new SharedMem();
-	}
-	catch(...)
-	{
-		logNetwork->error("Cannot open interprocess memory.");
-		handleException();
-		throw;
-	}
-#endif
 }
 
 CServerHandler::~CServerHandler()
 {
-	delete shared;
 	delete serverThread; //detaches, not kills thread
 }
 
