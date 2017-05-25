@@ -49,6 +49,9 @@
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
 #endif
+#ifdef VCMI_ANDROID
+#include "lib/CAndroidVMHelper.h"
+#endif
 #include "../lib/UnlockGuard.h"
 #include "CMT.h"
 
@@ -203,7 +206,7 @@ void OSX_checkForUpdates();
 
 #if defined(VCMI_WINDOWS) && !defined (__GNUC__)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_APPLE)
+#elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char** argv)
@@ -436,11 +439,6 @@ int main(int argc, char** argv)
 
 	logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
-#if defined(VCMI_ANDROID)
-	//on Android threaded init is broken
-	#define VCMI_NO_THREADED_LOAD
-#endif // defined
-
 	//initializing audio
 	CCS->soundh = new CSoundHandler;
 	CCS->soundh->init();
@@ -466,13 +464,22 @@ int main(int argc, char** argv)
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
-		SDL_FillRect(screen,nullptr,0);
+		SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
+		SDL_RenderClear(mainRenderer);
 	}
-
-	CSDL_Ext::update(screen);
+	SDL_RenderPresent(mainRenderer);
 #ifndef VCMI_NO_THREADED_LOAD
-	loading.join();
-#endif
+	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
+	{
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "showProgress");
+	#endif // ANDROID
+		loading.join();
+	#ifdef VCMI_ANDROID
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hideProgress");
+	}
+	#endif // ANDROID
+#endif // THREADED
 	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
 	if(!vm.count("battle"))
@@ -1027,6 +1034,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	cleanupRenderer();
 
+#ifdef VCMI_ANDROID
+	mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
+#else
 	if(fullscreen)
 	{
 		//in full-screen mode always use desktop resolution
@@ -1037,6 +1047,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	{
 		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 	}
+#endif
 
 	if(nullptr == mainWindow)
 	{
@@ -1058,7 +1069,10 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	SDL_RenderSetLogicalSize(mainRenderer, w, h);
 
+#ifndef VCMI_ANDROID
+    // on android this stretches the game to fit the screen, not preserving aspect and apparently this also breaks coordinates scaling in mouse events
 	SDL_RenderSetViewport(mainRenderer, nullptr);
+#endif
 
 
 
@@ -1149,9 +1163,19 @@ static void handleEvent(SDL_Event & ev)
 {
 	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 	{
+#ifdef VCMI_ANDROID
+		handleQuit(false);
+#else
 		handleQuit();
+#endif
 		return;
 	}
+#ifdef VCMI_ANDROID
+	else if (ev.type == SDL_KEYDOWN && ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK)
+	{
+		handleQuit(true);
+	}
+#endif
 	else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 	{
 		Settings full = settings.write["video"]["fullscreen"];

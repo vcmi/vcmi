@@ -17,16 +17,20 @@ set(VCAI_SRCS
     Fuzzy.cpp
 )
 
+if (ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+	return()
+endif()
+
 add_library(VCAI SHARED ${VCAI_SRCS})
 if (FL_FOUND)
-    target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
+	target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
 else()
-    target_link_libraries(VCAI fl-static vcmi)
+	target_link_libraries(VCAI fl-static vcmi)
 endif()
 
 set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
 cotire(VCAI)
 
 if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+	install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()

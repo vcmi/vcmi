@@ -116,13 +116,36 @@ void CTerrainRect::deactivate()
 
 void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
-	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
-	if ((down==false) || indeterminate(down))
+	if(indeterminate(down))
 		return;
 
+#ifdef VCMI_ANDROID
+	if(adventureInt->swipeEnabled)
+	{
+		if(down == true)
+		{
+			swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
+			swipeInitialMapPos = int3(adventureInt->position);
+			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
+		}
+		else if(isSwiping) // only accept this touch if it wasn't a swipe
+		{
+			isSwiping = false;
+			return;
+		}
+	}
+	else
+	{
+#endif
+		if(down == false)
+			return;
+#ifdef VCMI_ANDROID
+	}
+#endif
 	int3 mp = whichTileIsIt();
-	if (mp.x<0 || mp.y<0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
+	if(mp.x < 0 || mp.y < 0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
 		return;
 
 	adventureInt->tileLClicked(mp);
@@ -130,17 +153,59 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
-	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+#ifdef VCMI_ANDROID
+	if(adventureInt->swipeEnabled && isSwiping)
+		return;
+#endif
+	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
 	int3 mp = whichTileIsIt();
 
-	if (CGI->mh->map->isInTheMap(mp) && down)
+	if(CGI->mh->map->isInTheMap(mp) && down)
 		adventureInt->tileRClicked(mp);
 }
 
 void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 {
-	int3 tHovered = whichTileIsIt(sEvent.x,sEvent.y);
+	handleHover(sEvent);
+
+#ifdef VCMI_ANDROID
+	if(!adventureInt->swipeEnabled || sEvent.state == 0)
+		return;
+
+	handleSwipeMove(sEvent);
+#endif // !VCMI_ANDROID
+}
+
+#ifdef VCMI_ANDROID
+
+void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
+{
+	if(!isSwiping)
+	{
+		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
+		if(abs(sEvent.x - swipeInitialRealPos.x) > SwipeTouchSlop ||
+		   abs(sEvent.y - swipeInitialRealPos.y) > SwipeTouchSlop)
+		{
+			isSwiping = true;
+		}
+	}
+
+	if(isSwiping)
+	{
+		adventureInt->swipeTargetPosition.x =
+			swipeInitialMapPos.x + static_cast<si32>(swipeInitialRealPos.x - sEvent.x) / 32;
+		adventureInt->swipeTargetPosition.y =
+			swipeInitialMapPos.y + static_cast<si32>(swipeInitialRealPos.y - sEvent.y) / 32;
+		adventureInt->swipeMovementRequested = true;
+	}
+}
+
+#endif // VCMI_ANDROID
+
+void CTerrainRect::handleHover(const SDL_MouseMotionEvent &sEvent)
+{
+	int3 tHovered = whichTileIsIt(sEvent.x, sEvent.y);
 	int3 pom = adventureInt->verifyPos(tHovered);
 
 	if(tHovered != pom) //tile outside the map
@@ -150,12 +215,12 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 	}
 
 	if (pom != curHoveredTile)
+	{
 		curHoveredTile = pom;
-	else
-		return;
-
-	adventureInt->tileHovered(pom);
+		adventureInt->tileHovered(pom);
+	}
 }
+
 void CTerrainRect::hover(bool on)
 {
 	if (!on)
@@ -470,6 +535,10 @@ CAdvMapInt::CAdvMapInt():
   spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
   updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false)
+#ifdef VCMI_ANDROID
+	, swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
+	swipeTargetPosition(int3(-1, -1, -1))
+#endif
 {
   adventureInt = this;
 	pos.x = pos.y = 0;
@@ -938,42 +1007,19 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	++heroAnim;
 
-	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
-	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if((animValHitCount % (4/scrollSpeed)) == 0
-		&&  (
-			(GH.topInt() == this)
-			|| isCtrlKeyDown()
-		)
-	)
+#ifdef VCMI_ANDROID
+	if(swipeEnabled)
 	{
-		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
-			position.x--;
-
-		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW) )
-			position.x++;
-
-		if( (scrollingDir & UP)  &&  (position.y>-CGI->mh->frameH) )
-			position.y--;
-
-		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH) )
-			position.y++;
-
-		if(scrollingDir)
-		{
-			setScrollingCursor(scrollingDir);
-			scrollingState = true;
-			updateScreen = true;
-			minimap.redraw();
-			if (mode == EAdvMapMode::WORLD_VIEW)
-				terrain.redraw();
-		}
-		else if(scrollingState)
-		{
-			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-			scrollingState = false;
-		}
+		handleSwipeUpdate();
 	}
+	else
+	{
+#endif // !VCMI_ANDROID
+		handleMapScrollingUpdate();
+#ifdef VCMI_ANDROID
+	}
+#endif
+
 	for(int i = 0; i < 4; i++)
 		gems[i]->setFrame(LOCPLINT->playerID.getNum());
 	if(updateScreen)
@@ -1001,6 +1047,59 @@ void CAdvMapInt::show(SDL_Surface * to)
 	infoBar.show(to);
 	statusbar.showAll(to);
 }
+
+void CAdvMapInt::handleMapScrollingUpdate()
+{
+	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
+	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
+	if((animValHitCount % (4 / scrollSpeed)) == 0
+	   && ((GH.topInt() == this) || isCtrlKeyDown()))
+	{
+		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
+			position.x--;
+
+		if((scrollingDir & RIGHT) && (position.x < CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW))
+			position.x++;
+
+		if((scrollingDir & UP) && (position.y > -CGI->mh->frameH))
+			position.y--;
+
+		if((scrollingDir & DOWN) && (position.y < CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH))
+			position.y++;
+
+		if(scrollingDir)
+		{
+			setScrollingCursor(scrollingDir);
+			scrollingState = true;
+			updateScreen = true;
+			minimap.redraw();
+			if(mode == EAdvMapMode::WORLD_VIEW)
+				terrain.redraw();
+		}
+		else if(scrollingState)
+		{
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+			scrollingState = false;
+		}
+	}
+}
+
+#ifdef VCMI_ANDROID
+
+void CAdvMapInt::handleSwipeUpdate()
+{
+	if(swipeMovementRequested)
+	{
+		position.x = swipeTargetPosition.x;
+		position.y = swipeTargetPosition.y;
+		CCS->curh->changeGraphic(ECursor::DEFAULT, 0);
+		updateScreen = true;
+		minimap.redraw();
+		swipeMovementRequested = false;
+	}
+}
+
+#endif
 
 void CAdvMapInt::selectionChanged()
 {
@@ -1315,6 +1414,10 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
+#ifdef VCMI_ANDROID
+	if(swipeEnabled)
+		return;
+#endif
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
 	if(!isCtrlKeyDown() &&  isActive() && mode == EAdvMapMode::NORMAL)

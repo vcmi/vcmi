@@ -57,8 +57,13 @@ public:
 	void newGame();
 	void loadGame();
 	void newPregame();
+
+#ifdef VCMI_ANDROID
+    static void create();
+#endif
 };
 
+struct StartInfo;
 class CPregameServer
 {
 public:

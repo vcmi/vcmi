@@ -19,7 +19,9 @@
 #include "../lib/StartInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#ifndef VCMI_ANDROID
+#ifdef VCMI_ANDROID
+#include "lib/CAndroidVMHelper.h"
+#else
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/VCMI_Lib.h"
@@ -417,18 +419,24 @@ void CVCMIServer::start()
 #ifndef VCMI_ANDROID
 	sr->setToTrueAndNotify();
 	delete mr;
+#else
+	{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
+		CAndroidVMHelper envHelper;
+		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+		logNetwork->info("Sending server ready message to client");
+	}
 #endif
 
 	acc.join();
 	if (error)
 	{
-		logNetwork->warnStream()<<"Got connection but there is an error " << error;
+		logNetwork->warnStream() << "Got connection but there is an error " << error;
 		return;
 	}
 	logNetwork->info("We've accepted someone... ");
-	firstConnection = new CConnection(s,NAME);
+	firstConnection = new CConnection(s, NAME);
 	logNetwork->info("Got connection!");
-	while(!end2)
+	while (!end2)
 	{
 		ui8 mode;
 		*firstConnection >> mode;
@@ -489,6 +497,8 @@ void CVCMIServer::loadGame()
 
 	gh.run(true);
 }
+
+
 
 static void handleCommandOptions(int argc, char *argv[])
 {
@@ -567,15 +577,16 @@ int main(int argc, char** argv)
 	// to log stacktrace
 	#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
 	signal(SIGSEGV, handleLinuxSignal);
-	#endif
+    #endif
 
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 	logGlobal->info(NAME);
 
+
 	handleCommandOptions(argc, argv);
-	if(cmdLineOptions.count("port"))
+	if (cmdLineOptions.count("port"))
 		port = cmdLineOptions["port"].as<int>();
 	logNetwork->info("Port %d will be used.", port);
 
@@ -592,18 +603,18 @@ int main(int argc, char** argv)
 
 		try
 		{
-			while(!end2)
+			while (!end2)
 			{
 				server.start();
 			}
 			io_service.run();
 		}
-		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
 			end2 = true;
 		}
-		catch(...)
+		catch (...)
 		{
 			handleException();
 		}
@@ -615,9 +626,23 @@ int main(int argc, char** argv)
 		//and return non-zero status so client can detect error
 		throw;
 	}
+#ifdef VCMI_ANDROID
+	CAndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
+#endif
 	delete VLC;
 	VLC = nullptr;
 	CResourceHandler::clear();
 
   return 0;
 }
+
+#ifdef VCMI_ANDROID
+
+void CVCMIServer::create()
+{
+	const char * foo[1] = {"android-server"};
+	main(1, const_cast<char **>(foo));
+}
+
+#endif

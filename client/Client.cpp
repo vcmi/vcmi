@@ -43,6 +43,8 @@
 extern std::string NAME;
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
+#else
+#include "lib/CAndroidVMHelper.h"
 #endif
 
 /*
@@ -54,6 +56,10 @@ namespace intpr = boost::interprocess;
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#ifdef VCMI_ANDROID
+std::atomic_bool androidTestServerReadyFlag;
+#endif
 
 template <typename T> class CApplyOnCL;
 
@@ -913,8 +919,7 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 {
 	if(ps.name.size())
 	{
-		const boost::filesystem::path aiPath =
-			VCMIDirs::get().libraryPath() / "AI" / VCMIDirs::get().libraryName(ps.name);
+		const boost::filesystem::path aiPath = VCMIDirs::get().fullLibraryPath("AI", ps.name);
 		if (boost::filesystem::exists(aiPath))
 			return ps.name;
 	}
@@ -940,7 +945,12 @@ void CServerHandler::startServer()
 
 	th.update();
 
+#ifdef VCMI_ANDROID
+	CAndroidVMHelper envHelper;
+	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+#else
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
+#endif
 	if(verbose)
 		logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
 }
@@ -954,12 +964,22 @@ void CServerHandler::waitForServer()
 		startServer();
 
 	th.update();
+
 #ifndef VCMI_ANDROID
 	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
 	while(!shared->sr->ready)
 	{
 		shared->sr->cond.wait(slock);
 	}
+#else
+	logNetwork->infoStream() << "waiting for server";
+	while (!androidTestServerReadyFlag.load())
+	{
+		logNetwork->infoStream() << "still waiting...";
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	}
+	logNetwork->infoStream() << "waiting for server finished...";
+	androidTestServerReadyFlag = false;
 #endif
 	if(verbose)
 		logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
@@ -1017,6 +1037,7 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::callServer()
 {
+#ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::callServer");
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
 	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
@@ -1032,6 +1053,7 @@ void CServerHandler::callServer()
 		logNetwork->errorStream() << "Check " << logName << " for more info";
 		exit(1);// exit in case of error. Othervice without working server VCMI will hang
 	}
+#endif
 }
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
@@ -1062,3 +1084,23 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 	}
 	return ret;
 }
+
+#ifdef VCMI_ANDROID
+extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerReady(JNIEnv * env, jobject cls)
+{
+	logNetwork->infoStream() << "Received server ready signal";
+	androidTestServerReadyFlag.store(true);
+}
+
+extern "C" JNIEXPORT bool JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jobject cls)
+{
+	logGlobal->infoStream() << "Received emergency save game request";
+	if(!LOCPLINT || !LOCPLINT->cb)
+	{
+		return false;
+	}
+
+	LOCPLINT->cb->save("Saves/_Android_Autosave");
+	return true;
+}
+#endif

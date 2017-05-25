@@ -127,6 +127,8 @@ set(lib_SRCS
 		registerTypes/TypesMapObjects3.cpp
 		registerTypes/TypesPregamePacks.cpp
 		registerTypes/TypesServerPacks.cpp
+		
+		${VCMILIB_ADDITIONAL_SOURCES}
 )
 
 set(lib_HEADERS
@@ -178,6 +180,10 @@ target_link_libraries(vcmi ${MINIZIP_LIBRARIES} ${Boost_LIBRARIES} ${SDL_LIBRARY
 
 if(WIN32)
 	set_target_properties(vcmi PROPERTIES OUTPUT_NAME VCMI_lib)
+endif()
+
+if (ANDROID)
+	return()
 endif()
 
 set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})

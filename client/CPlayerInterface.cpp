@@ -353,7 +353,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	for (int i=1; i<32; i+=2*speed)
 	{
 		movementPxStep(details, i, hp, hero);
+#ifndef VCMI_ANDROID
+		// currently android doesn't seem to be able to handle all these full redraws here, so let's disable it so at least it looks less choppy;
+		// most likely this is connected with the way that this manual animation+framerate handling is solved
 		adventureInt->updateScreen = true;
+#endif
 		adventureInt->show(screen);
 		{
 			//evil returns here ...
@@ -1647,7 +1651,11 @@ void CPlayerInterface::update()
 	GH.updateTime();
 	GH.handleEvents();
 
+#ifdef VCMI_ANDROID
+	if (adventureInt && !adventureInt->isActive() && (adventureInt->swipeTargetPosition.x >= 0 || adventureInt->swipeTargetPosition.y >= 0))
+#else // !VCMI_ANDROID
 	if (adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
+#endif // !VCMI_ANDROID
 		GH.totalRedraw();
 	else
 		GH.simpleRedraw();

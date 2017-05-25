@@ -15,6 +15,9 @@ set(battleAI_SRCS
 		ThreatMap.cpp
 )
 
+if (ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+	return()
+endif()
 add_library(BattleAI SHARED ${battleAI_SRCS})
 target_link_libraries(BattleAI vcmi)
 

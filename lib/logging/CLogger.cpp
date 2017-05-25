@@ -345,8 +345,8 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-	__android_log_write(ELogLevel::toAndroid(record.level), "VCMI", message.c_str());
-#endif
+    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+#else
 
 	const bool printToStdErr = record.level >= ELogLevel::WARN;
 	if(console)
@@ -364,6 +364,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 		else
 			std::cout << message << std::endl;
 	}
+#endif
 }
 
 bool CLogConsoleTarget::isColoredOutputEnabled() const { return coloredOutputEnabled; }

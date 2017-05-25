@@ -15,12 +15,6 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-#ifdef VCMI_ANDROID
-#define GetGlobalAiVersion BattleAI_GetGlobalAiVersion
-#define GetAiName BattleAI_GetAiName
-#define GetNewBattleAI BattleAI_GetNewBattleAI
-#endif
-
 static const char *g_cszAiName = "Battle AI";
 
 extern "C" DLL_EXPORT int GetGlobalAiVersion()

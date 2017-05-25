@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -38,7 +38,11 @@
 				"encoding" : {
 					"type" : "string",
 					"default" : "CP1252"
-				}
+				},
+				"swipe" : {
+					"type" : "boolean",
+					"default" : false
+				},
 			}
 		},
 		"video" : {

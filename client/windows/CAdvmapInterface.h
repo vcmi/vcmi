@@ -56,6 +56,16 @@ class CTerrainRect
 	SDL_Surface * fadeSurface;
 	EMapAnimRedrawStatus lastRedrawStatus;
 	CFadeAnimation * fadeAnim;
+
+	int3 swipeInitialMapPos;
+	int3 swipeInitialRealPos;
+	bool isSwiping;
+	static constexpr float SwipeTouchSlop = 16.0f;
+
+	void handleHover(const SDL_MouseMotionEvent &sEvent);
+#ifdef VCMI_ANDROID
+	void handleSwipeMove(const SDL_MouseMotionEvent &sEvent);
+#endif // VCMI_ANDROID
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
@@ -80,6 +90,7 @@ public:
 	/// animates view by caching current surface and crossfading it with normal screen
 	void fadeFromCurrentView();
 	bool needsAnimUpdate();
+
 };
 
 /// Resources bar which shows information about how many gold, crystals,... you have
@@ -121,6 +132,11 @@ public:
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
 	bool scrollingState;
+#ifdef VCMI_ANDROID
+	bool swipeEnabled;
+	bool swipeMovementRequested;
+	int3 swipeTargetPosition;
+#endif // !VCMI_ANDROID
 
 	enum{NA, INGAME, WAITING} state;
 
@@ -242,6 +258,12 @@ public:
 
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
 	void changeMode(EAdvMapMode newMode, float newScale = 0.36f);
+
+	void handleMapScrollingUpdate();
+#ifdef VCMI_ANDROID
+	void handleSwipeUpdate();
+#endif
+
 };
 
 extern CAdvMapInt *adventureInt;
