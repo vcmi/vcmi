@@ -245,7 +245,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 	if (!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
 	{
-		QDir(destDir + modDirName).removeRecursively();
+		removeModDir(destDir + modDirName);
 		return addError(modname, "Failed to extract mod data");
 	}
 
@@ -270,7 +270,7 @@ bool CModManager::doUninstallMod(QString modname)
 	if (!localMods.contains(modname))
 		return addError(modname, "Data with this mod was not found");
 
-	if (!QDir(modDir).removeRecursively())
+	if (!removeModDir(modDir))
 		return addError(modname, "Failed to delete mod data");
 
 	localMods.remove(modname);
@@ -278,4 +278,22 @@ bool CModManager::doUninstallMod(QString modname)
 	modList->modChanged(modname);
 
 	return true;
+}
+
+bool CModManager::removeModDir(QString path)
+{
+	// issues 2673 and 2680 its why you do not recursively remove without sanity check
+	QDir checkDir(path);
+	if(!checkDir.cdUp() || QString::compare("Mods", checkDir.dirName(), Qt::CaseInsensitive))
+		return false;
+	if(!checkDir.cdUp() || QString::compare("vcmi", checkDir.dirName(), Qt::CaseInsensitive))
+		return false;
+
+	QDir dir(path);
+	if(!dir.absolutePath().contains("vcmi", Qt::CaseInsensitive))
+		return false;
+	if(!dir.absolutePath().contains("Mods", Qt::CaseInsensitive))
+		return false;
+
+	return dir.removeRecursively();
 }
