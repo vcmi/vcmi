@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+includedir=${exec_prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: fuzzylite
+Description: A fuzzy logic control library in C++
+Version: @FL_VERSION@
+Libs: -L${libdir} -lfuzzylite
+Cflags: -I${includedir}

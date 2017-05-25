@@ -1,0 +1,4 @@
+[submodule "FuzzyLite"]
+	path = AI/FuzzyLite
+	url = https://github.com/fuzzylite/fuzzylite.git
+	branch = release
