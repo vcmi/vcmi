@@ -705,10 +705,10 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						}
 					}
 
-					auto castTownPortal = [this, h](int townId)
+					auto castTownPortal = [h](int townId)
 					{
-						const CGTownInstance * dest = owner->myInt->cb->getTown(ObjectInstanceID(townId));
-						owner->myInt->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
+						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
+						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
 					};
 
 					if (availableTowns.empty())
