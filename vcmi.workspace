@@ -12,13 +12,13 @@
 		<Project filename="server/VCMI_server.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
-		<Project filename="AI/FuzzyLite/FuzzyLite.cbp" />
+		<Project filename="AI/FuzzyLite.cbp" />
 		<Project filename="AI/EmptyAI/EmptyAI.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
 		<Project filename="AI/VCAI/VCAI.cbp">
-			<Depends filename="AI/FuzzyLite/FuzzyLite.cbp" />
 			<Depends filename="lib/VCMI_lib.cbp" />
+			<Depends filename="AI/FuzzyLite.cbp" />
 		</Project>
 		<Project filename="AI/StupidAI/StupidAI.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
