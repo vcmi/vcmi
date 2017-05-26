@@ -143,6 +143,10 @@ public:
 	// TODO: remove once save and mod compatability not needed
 	static std::vector<BattleHex> defaultMoatHexes();
 
+	std::string getFactionName() const;
+	std::string getBuildingScope() const;
+	std::set<si32> getAllBuildings() const;
+
 	CFaction * faction;
 
 	std::vector<std::string> names; //names of the town instances
@@ -222,16 +226,6 @@ public:
 			moatHexes = defaultMoatHexes();
 		}
 		h & defaultTavernChance;
-
-		auto findNull = [](const std::pair<BuildingID, ConstTransitivePtr<CBuilding>> &building)
-		{ return building.second == nullptr; };
-
-		//Fix #1444 corrupted save
-		while(auto badElem = vstd::tryFindIf(buildings, findNull))
-		{
-			logGlobal->errorStream() << "#1444-like bug encountered in CTown::serialize, fixing buildings list by removing bogus entry " << badElem->first << " from " << faction->name;
-			buildings.erase(badElem->first);
-		}
 	}
 };
 
@@ -241,16 +235,16 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 	{
 		JsonNode json;
 		CBuilding * building;
-		CFaction * faction;
+		CTown * town;
 	};
 
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	void initializeRequirements();
 
 	/// loads CBuilding's into town
-	void loadBuildingRequirements(CTown &town, CBuilding & building, const JsonNode & source);
-	void loadBuilding(CTown &town, const std::string & stringID, const JsonNode & source);
-	void loadBuildings(CTown &town, const JsonNode & source);
+	void loadBuildingRequirements(CBuilding * building, const JsonNode & source);
+	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
+	void loadBuildings(CTown * town, const JsonNode & source);
 
 	/// loads CStructure's into town
 	void loadStructure(CTown &town, const std::string & stringID, const JsonNode & source);
@@ -268,8 +262,11 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 
+	void loadRandomFaction();
 public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;
+
+	CTown * randomTown;
 
 	CTownHandler(); //c-tor, set pointer in VLC to this
 	~CTownHandler();
@@ -279,6 +276,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
+	void loadCustom() override;
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
@@ -293,5 +291,14 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & factions;
+
+		if(version >= 770)
+		{
+			h & randomTown;
+		}
+		else if(!h.saving)
+		{
+			loadRandomFaction();
+		}
 	}
 };

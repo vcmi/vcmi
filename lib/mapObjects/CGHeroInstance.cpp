@@ -26,6 +26,7 @@
 #include "../mapping/CMap.h"
 #include "CGTownInstance.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../StringConstants.h"
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -1542,47 +1543,225 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	return (distance < visionsRange) && (target->pos.z == pos.z);
 }
 
-void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat& handler)
+std::string CGHeroInstance::getHeroTypeName() const
 {
-	serializeJsonOwner(handler);
-
-	if(handler.saving)
+	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
 		if(type)
 		{
-			handler.serializeString("type", type->identifier);
+			return type->identifier;
 		}
 		else
 		{
-			auto temp = VLC->heroh->heroes[subID]->identifier;
-			handler.serializeString("type", temp);
+			return VLC->heroh->heroes[subID]->identifier;
+		}
+	}
+	return "";
+}
+
+void CGHeroInstance::setHeroTypeName(const std::string & identifier)
+{
+	if(ID == Obj::HERO || ID == Obj::PRISON)
+	{
+		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+
+		if(rawId)
+			subID = rawId.get();
+		else
+			subID = 0; //fallback to Orrin, throw error instead?
+	}
+}
+
+void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
+{
+	handler.serializeString("biography", biography);
+	handler.serializeInt("experience", exp, 0);
+	handler.serializeString("name", name);
+	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
+
+	{
+		const int legacyHeroes = VLC->modh->settings.data["textData"]["hero"].Integer();
+		const int moddedStart = legacyHeroes + GameConstants::HERO_PORTRAIT_SHIFT;
+
+		if(handler.saving)
+		{
+			if(portrait >= 0)
+			{
+				if(portrait < legacyHeroes || portrait >= moddedStart)
+					handler.serializeId("portrait", portrait, -1, &VLC->heroh->decodeHero, &VLC->heroh->encodeHero);
+				else
+					handler.serializeInt("portrait", portrait, -1);
+			}
+		}
+		else
+		{
+			const JsonNode & portraitNode = handler.getCurrent()["portrait"];
+
+			if(portraitNode.getType() == JsonNode::DATA_STRING)
+				handler.serializeId("portrait", portrait, -1, &VLC->heroh->decodeHero, &VLC->heroh->encodeHero);
+			else
+				handler.serializeInt("portrait", portrait, -1);
+		}
+	}
+
+	{
+		if(handler.saving)
+		{
+			bool haveSkills = false;
+
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+			{
+				if(valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL))) != 0)
+				{
+					haveSkills = true;
+					break;
+				}
+			}
+
+			if(haveSkills)
+			{
+				auto primarySkills = handler.enterStruct("primarySkills");
+
+				for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+				{
+					int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+
+					handler.serializeInt(PrimarySkill::names[i], value, 0);
+				}
+			}
+		}
+		else
+		{
+			auto primarySkills = handler.enterStruct("primarySkills");
+
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+			{
+				int value = 0;
+				handler.serializeInt(PrimarySkill::names[i], value, 0);
+				if(value != 0)
+					pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
+			}
+		}
+	}
+
+	//secondary skills
+	if(handler.saving)
+	{
+		//does hero have default skills?
+		bool defaultSkills = false;
+		bool normalSkills = false;
+		for(const auto & p : secSkills)
+		{
+			if(p.first == SecondarySkill(SecondarySkill::DEFAULT))
+				defaultSkills = true;
+			else
+				normalSkills = true;
+		}
+
+		if(defaultSkills && normalSkills)
+			logGlobal->error("Mixed default and normal secondary skills");
+
+		//in json default skills means no field/null
+		if(!defaultSkills)
+		{
+			//enter structure here as handler initialize it
+			auto secondarySkills = handler.enterStruct("secondarySkills");
+
+			for(auto & p : secSkills)
+			{
+				const si32 rawId = p.first.num;
+
+				if(rawId < 0 || rawId >= GameConstants::SKILL_QUANTITY)
+					logGlobal->errorStream() << "Invalid secondary skill " << rawId;
+
+				handler.serializeEnum(NSecondarySkill::names[rawId], p.second, 0, NSecondarySkill::levels);
+			}
 		}
 	}
 	else
 	{
-		if(ID == Obj::HERO || ID == Obj::PRISON)
+		auto secondarySkills = handler.enterStruct("secondarySkills");
+		const JsonNode & skillMap = handler.getCurrent();
+
+		secSkills.clear();
+		if(skillMap.getType() == JsonNode::DATA_NULL)
 		{
-			std::string typeName;
-			handler.serializeString("type", typeName);
+			secSkills.push_back(std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1));
+		}
+		else
+		{
+			for(const auto & p : skillMap.Struct())
+			{
+				const std::string id = p.first;
+				const std::string levelId =  p.second.String();
 
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", typeName);
+				const int rawId = vstd::find_pos(NSecondarySkill::names, id);
+				if(rawId < 0)
+				{
+					logGlobal->errorStream() << "Invalid secondary skill " << id;
+					continue;
+				}
 
-			if(rawId)
-				subID = rawId.get();
-			else
-				subID = 0; //fallback to Orrin, throw error instead?
+				const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
+				if(level < 0)
+				{
+					logGlobal->errorStream() << "Invalid secondary skill level" << levelId;
+					continue;
+				}
+
+				secSkills.push_back(std::pair<SecondarySkill,ui8>(SecondarySkill(rawId), level));
+			}
 		}
 	}
-	CCreatureSet::serializeJson(handler, "army");
 
+	handler.serializeIdArray("spellBook", spells, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
+
+	if(handler.saving)
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", nullptr);
+}
+
+void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
+{
+	serializeCommonOptions(handler);
+
+	serializeJsonOwner(handler);
+
+	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto artifacts = handler.enterStruct("artifacts");
+		std::string typeName;
 		if(handler.saving)
-			CArtifactSet::writeJson(handler.getCurrent());
-		else
-			CArtifactSet::readJson(handler.getCurrent());
+			typeName = getHeroTypeName();
+		handler.serializeString("type", typeName);
+		if(!handler.saving)
+			setHeroTypeName(typeName);
 	}
 
+	CCreatureSet::serializeJson(handler, "army", 7);
+	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
+
+	{
+		static const int NO_PATROLING = -1;
+		int rawPatrolRadius = NO_PATROLING;
+
+		if(handler.saving)
+		{
+			rawPatrolRadius = patrol.patrolling ? patrol.patrolRadius : NO_PATROLING;
+		}
+
+		handler.serializeInt("patrolRadius", rawPatrolRadius, NO_PATROLING);
+
+		if(!handler.saving)
+		{
+			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
+			patrol.initialPos = convertPosition(pos, false);
+			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
+		}
+	}
+}
+
+void CGHeroInstance::serializeJsonDefinition(JsonSerializeFormat & handler)
+{
+	serializeCommonOptions(handler);
 }
 
 bool CGHeroInstance::isMissionCritical() const
@@ -1591,7 +1770,7 @@ bool CGHeroInstance::isMissionCritical() const
 	{
 		if(event.trigger.test([&](const EventCondition & condition)
 		{
-			if (condition.condition == EventCondition::CONTROL && condition.object)
+			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::HAVE_0) && condition.object)
 			{
 				auto hero = dynamic_cast<const CGHeroInstance*>(condition.object);
 				return (hero != this);

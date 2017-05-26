@@ -2512,9 +2512,9 @@ void OptionsTab::recreate()
 		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
 		const std::vector<SHeroName> &heroes = SEL->current->mapHeader->players[it->first.getNum()].heroesNames;
 		for(auto & heroe : heroes)
-			usedHeroes.insert(heroe.heroId);
+			if(heroe.heroId >= 0)//in VCMI map format heroId = -1 means random hero
+				usedHeroes.insert(heroe.heroId);
 	}
-
 }
 
 void OptionsTab::setTurnLength( int npos )

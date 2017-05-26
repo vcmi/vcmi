@@ -119,10 +119,10 @@ public:
 	static const int FLIP_PATTERN_VERTICAL = 2;
 	static const int FLIP_PATTERN_BOTH = 3;
 
-protected:	
+protected:
 	MapRect extendTileAround(const int3 & centerPos) const;
-	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size	
-	
+	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
+
 	CMap * map;
 };
 
@@ -170,11 +170,11 @@ public:
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
 	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
-	
+
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
-	
-	void insertObject(CGObjectInstance * obj, const int3 & pos);	
+
+	void insertObject(CGObjectInstance * obj);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();
@@ -267,7 +267,7 @@ struct DLL_LINKAGE TerrainViewPattern
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
 
-	private:		
+	private:
 		bool standardRule;
 		bool anyRule;
 		bool dirtRule;
@@ -421,7 +421,7 @@ private:
 class CInsertObjectOperation : public CMapOperation
 {
 public:
-	CInsertObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & pos);
+	CInsertObjectOperation(CMap * map, CGObjectInstance * obj);
 
 	void execute() override;
 	void undo() override;
@@ -429,6 +429,5 @@ public:
 	std::string getLabel() const override;
 
 private:
-	int3 pos;
 	CGObjectInstance * obj;
 };

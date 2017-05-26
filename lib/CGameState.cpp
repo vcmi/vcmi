@@ -510,8 +510,29 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
 				faction = getRandomGenerator().nextInt(VLC->townh->factions.size() - 1);
-				if (info->asCastle)
+				if(info->asCastle && info->instanceId != "")
 				{
+					auto iter = map->instanceNames.find(info->instanceId);
+
+					if(iter == map->instanceNames.end())
+						logGlobal->errorStream() << "Map object not found: " << info->instanceId;
+					else
+					{
+						auto elem = iter->second;
+						if(elem->ID==Obj::RANDOM_TOWN)
+						{
+							randomizeObject(elem.get()); //we have to randomize the castle first
+							faction = elem->subID;
+						}
+						else if(elem->ID==Obj::TOWN)
+							faction = elem->subID;
+						else
+							logGlobal->errorStream() << "Map object must be town: " << info->instanceId;
+					}
+				}
+				else if(info->asCastle)
+				{
+
 					for(auto & elem : map->objects)
 					{
 						if(!elem)
@@ -534,12 +555,16 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 				}
 				else
 				{
-					while(!(info->castles[0]&(1<<faction)))
-					{
-						if((faction>7) && (info->castles[1]&(1<<(faction-8))))
-							break;
-						faction = getRandomGenerator().nextInt(GameConstants::F_NUMBER - 1);
-					}
+					std::set<int> temp;
+
+					for(int i = 0; i < info->allowedFactions.size(); i++)
+						if(info->allowedFactions[i])
+							temp.insert(i);
+
+					if(temp.empty())
+						logGlobal->error("Random faction selection failed. Nothing is allowed. Fall back to random.");
+					else
+						faction = *RandomGeneratorUtil::nextItem(temp, getRandomGenerator());
 				}
 			}
 			else // castle alignment fixed
@@ -1119,7 +1144,7 @@ void CGameState::placeCampaignHeroes()
 
 				hero->subID = heroTypeId;
 				hero->portrait = hero->subID;
-				map->getEditManager()->insertObject(hero, hero->pos);
+				map->getEditManager()->insertObject(hero);
 			}
 		}
 	}
@@ -1127,10 +1152,11 @@ void CGameState::placeCampaignHeroes()
 
 void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos)
 {
-	townPos.x += 1;
+	townPos.x -= 2; //FIXME: use actual visitable offset of town
 
-	CGHeroInstance * hero =  static_cast<CGHeroInstance*>(createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor));
-	map->getEditManager()->insertObject(hero, townPos);
+	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
+	hero->pos += hero->getVisitableOffset();
+	map->getEditManager()->insertObject(hero);
 }
 
 CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenarios() const
@@ -1651,7 +1677,7 @@ void CGameState::initTowns()
 					PlayerInfo & pi = map->players[owner->color.getNum()];
 
 					if (owner->human && //human-owned
-						map->towns[g]->pos == pi.posOfMainTown + int3(2, 0, 0))
+						map->towns[g]->pos == pi.posOfMainTown)
 					{
 						map->towns[g]->builtBuildings.insert(
 							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings));
@@ -2351,9 +2377,28 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		{
 			return condition.value; // just convert to bool
 		}
+		case EventCondition::HAVE_0:
+		{
+			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
+			//TODO: support new condition format
+			return false;
+		}
+		case EventCondition::HAVE_BUILDING_0:
+		{
+			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
+			//TODO: support new condition format
+			return false;
+		}
+		case EventCondition::DESTROY_0:
+		{
+			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
+			//TODO: support new condition format
+			return false;
+		}
+		default:
+			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
+			return false;
 	}
-	assert(0);
-	return false;
 }
 
 PlayerColor CGameState::checkForStandardWin() const
@@ -3126,7 +3171,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			i++;
 		}
 
-		if(n["heroid"].getType() == JsonNode::DATA_FLOAT)
+		if(n["heroid"].isNumber())
 			ss.heroId = n["heroid"].Float();
 		else
 			ss.heroId = -1;
@@ -3169,7 +3214,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		}
 		else
 		{
-			assert(n.getType() == JsonNode::DATA_FLOAT);
+			assert(n.isNumber());
 			oi->ID = 21;
 			oi->pos = n.Float();
 		}
@@ -3183,7 +3228,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		cc.id = n["id"].Float();
 
 #define retrieve(name)								\
-	if(n[ #name ].getType() == JsonNode::DATA_FLOAT)\
+	if(n[ #name ].isNumber())\
 	cc.name = n[ #name ].Float();			\
 	else											\
 	cc.name = -1;

@@ -23,8 +23,12 @@ cotire(vcmitest)
 # Files to copy to the build directory
 add_custom_target(vcmitestFiles ALL)
 set(vcmitest_FILES
-                TerrainViewTest.h3m
-                terrainViewMappings.json
+		testdata/TerrainViewTest.h3m
+		testdata/terrainViewMappings.json
+		testdata/ObjectPropertyTest/header.json
+		testdata/ObjectPropertyTest/objects.json
+		testdata/ObjectPropertyTest/surface_terrain.json
+		testdata/ObjectPropertyTest/underground_terrain.json
 )
 
 foreach(file ${vcmitest_FILES})

@@ -600,50 +600,30 @@ static const std::vector<std::string> CHARACTER_JSON  =
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeNumericEnum("character", CHARACTER_JSON, (si8)0, character);
+	handler.serializeEnum("character", character, CHARACTER_JSON);
 
 	if(handler.saving)
 	{
 		if(hasStackAtSlot(SlotID(0)))
 		{
 			si32 amount = getStack(SlotID(0)).count;
-			handler.serializeNumeric("amount", amount);
+			handler.serializeInt("amount", amount, 0);
 		}
-
-		if(resources.nonZero())
-		{
-			for(size_t idx = 0; idx < resources.size(); idx++)
-				handler.getCurrent()["rewardResources"][GameConstants::RESOURCE_NAMES[idx]].Float() = resources[idx];
-		}
-
-		auto tmp = (gainedArtifact == ArtifactID(ArtifactID::NONE) ? "" : gainedArtifact.toArtifact()->identifier);
-		handler.serializeString("rewardArtifact", tmp);
 	}
 	else
 	{
 		si32 amount = 0;
-		handler.serializeNumeric("amount", amount);
+		handler.serializeInt("amount", amount);
 		auto  hlp = new CStackInstance();
 		hlp->count = amount;
 		//type will be set during initialization
 		putStack(SlotID(0), hlp);
-		{
-			TResources tmp(handler.getCurrent()["rewardResources"]);
-			std::swap(tmp,resources);
-		}
-		{
-			gainedArtifact = ArtifactID(ArtifactID::NONE);
-			std::string tmp;
-			handler.serializeString("rewardArtifact", tmp);
-
-			if(tmp != "")
-			{
-				auto artid = VLC->modh->identifiers.getIdentifier("core", "artifact", tmp);
-				if(artid)
-					gainedArtifact = ArtifactID(artid.get());
-			}
-		}
 	}
+
+	resources.serializeJson(handler, "rewardResources");
+
+	handler.serializeId("rewardArtifact", gainedArtifact, ArtifactID(ArtifactID::NONE), &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+
 	handler.serializeBool("noGrowing", notGrowingTeam);
 	handler.serializeBool("neverFlees", neverFlees);
 	handler.serializeString("rewardMessage", message);
@@ -793,7 +773,7 @@ void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) con
 
 void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "army");
+	CCreatureSet::serializeJson(handler, "army", 7);
 
 	if(isAbandoned())
 	{
@@ -934,8 +914,8 @@ void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	CCreatureSet::serializeJson(handler, "guards");
-	handler.serializeNumeric("amount", amount);
+	CCreatureSet::serializeJson(handler, "guards", 7);
+	handler.serializeInt("amount", amount, 0);
 	handler.serializeString("guardMessage", message);
 }
 
@@ -1428,15 +1408,14 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeString("guardMessage", message);
-	CCreatureSet::serializeJson(handler, "guards");
+	CCreatureSet::serializeJson(handler, "guards" ,7);
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
 		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type(Bonus::SPELL));
 		SpellID spellId(b->subtype);
 
-		std::string spell = SpellID(b->subtype).toSpell()->identifier;
-		handler.serializeString("spell", spell);
+		handler.serializeId("spell", spellId, SpellID::NONE, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
 	}
 }
 
@@ -1665,7 +1644,7 @@ std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 
 void CGShrine::serializeJsonOptions(JsonSerializeFormat& handler)
 {
-	handler.serializeId("spell", &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell, SpellID(SpellID::NONE), spell);
+	handler.serializeId("spell", spell, SpellID::NONE, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
 }
 
 void CGSignBottle::initObj(CRandomGenerator & rand)
@@ -1861,7 +1840,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeBool("removableUnits", removableUnits);
 	serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army");
+	CCreatureSet::serializeJson(handler, "army", 7);
 }
 
 void CGMagi::reset()

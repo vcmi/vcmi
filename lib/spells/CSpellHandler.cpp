@@ -925,7 +925,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 				if("bottom" == vPosStr)
 					newItem.verticalPosition = VerticalPosition::BOTTOM;
 			}
-			else if(item.getType() == JsonNode::DATA_FLOAT)
+			else if(item.isNumber())
 			{
 				newItem.pause = item.Float();
 			}

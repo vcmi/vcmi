@@ -12,6 +12,7 @@
 #include "ResourceSet.h"
 #include "StringConstants.h"
 #include "JsonNode.h"
+#include "serializer/JsonSerializeFormat.h"
 
 Res::ResourceSet::ResourceSet()
 {
@@ -23,6 +24,19 @@ Res::ResourceSet::ResourceSet(const JsonNode & node)
 	reserve(GameConstants::RESOURCE_QUANTITY);
 	for(std::string name : GameConstants::RESOURCE_NAMES)
 		push_back(node[name].Float());
+}
+
+void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+{
+	if(!handler.saving)
+		resize(GameConstants::RESOURCE_QUANTITY, 0);
+	if(handler.saving && !nonZero())
+		return;
+	auto s = handler.enterStruct(fieldName);
+
+	//TODO: add proper support for mithril to map format
+	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx ++)
+		handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], this->operator[](idx), 0);
 }
 
 bool Res::ResourceSet::nonZero() const

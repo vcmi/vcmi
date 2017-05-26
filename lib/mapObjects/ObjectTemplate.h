@@ -33,6 +33,8 @@ class DLL_LINKAGE ObjectTemplate
 	/// list of terrains on which this object can be placed
 	std::set<ETerrainType> allowedTerrains;
 
+	void afterLoadFixup();
+
 public:
 	/// H3 ID/subID of this object
 	Obj id;
@@ -41,6 +43,9 @@ public:
 	si32 printPriority;
 	/// animation file that should be used to display object
 	std::string animationFile;
+
+	/// map editor only animation file
+	std::string editorAnimationFile;
 
 	/// string ID, equals to def base name for h3m files (lower case, no extension) or specified in mod data
 	std::string stringID;
@@ -86,6 +91,10 @@ public:
 	{
 		h & usedTiles & allowedTerrains & animationFile & stringID;
 		h & id & subid & printPriority & visitDir;
+		if(version >= 770)
+		{
+			h & editorAnimationFile;
+		}
 	}
 };
 

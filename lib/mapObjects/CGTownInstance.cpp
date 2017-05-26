@@ -25,6 +25,64 @@
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
+void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeString("sameAsTown", instanceId);
+
+	if(!handler.saving)
+	{
+		asCastle = (instanceId != "");
+		allowedFactions.clear();
+	}
+
+	if(!asCastle)
+	{
+		std::vector<bool> standard;
+		standard.resize(VLC->townh->factions.size(), true);
+
+		JsonSerializeFormat::LIC allowedLIC(standard, &CTownHandler::decodeFaction, &CTownHandler::encodeFaction);
+		allowedLIC.any = allowedFactions;
+
+		handler.serializeLIC("allowedFactions", allowedLIC);
+
+		if(!handler.saving)
+		{
+			allowedFactions = allowedLIC.any;
+		}
+	}
+}
+
+void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("minLevel", minLevel, ui8(1));
+	handler.serializeInt("maxLevel", maxLevel, ui8(7));
+
+	if(!handler.saving)
+	{
+		//todo: safely allow any level > 7
+		vstd::amax(minLevel, 1);
+		vstd::amin(minLevel, 7);
+		vstd::abetween(maxLevel, minLevel, 7);
+	}
+}
+
+void CCreGenLeveledCastleInfo::serializeJson(JsonSerializeFormat & handler)
+{
+	CCreGenAsCastleInfo::serializeJson(handler);
+	CCreGenLeveledInfo::serializeJson(handler);
+}
+
+CGDwelling::CGDwelling():
+	CArmedInstance()
+{
+	info = nullptr;
+}
+
+CGDwelling::~CGDwelling()
+{
+	vstd::clear_pointer(info);
+}
+
 void CGDwelling::initObj(CRandomGenerator & rand)
 {
 	switch(ID)
@@ -56,6 +114,23 @@ void CGDwelling::initObj(CRandomGenerator & rand)
 		assert(0);
 		break;
 	}
+}
+
+void CGDwelling::initRandomObjectInfo()
+{
+	vstd::clear_pointer(info);
+	switch(ID)
+	{
+		case Obj::RANDOM_DWELLING: info = new CCreGenLeveledCastleInfo();
+			break;
+		case Obj::RANDOM_DWELLING_LVL: info = new CCreGenAsCastleInfo();
+			break;
+		case Obj::RANDOM_DWELLING_FACTION: info = new CCreGenLeveledInfo();
+			break;
+	}
+
+	if(info)
+		info->owner = this;
 }
 
 void CGDwelling::setPropertyDer(ui8 what, ui32 val)
@@ -318,9 +393,24 @@ void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	//todo: CGDwelling::serializeJsonOptions
-	if(ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
+	if(!handler.saving)
+		initRandomObjectInfo();
+
+	switch (ID)
+	{
+	case Obj::WAR_MACHINE_FACTORY:
+	case Obj::REFUGEE_CAMP:
+		//do nothing
+		break;
+	case Obj::RANDOM_DWELLING:
+	case Obj::RANDOM_DWELLING_LVL:
+	case Obj::RANDOM_DWELLING_FACTION:
+		info->serializeJson(handler);
+		//fall through
+	default:
 		serializeJsonOwner(handler);
+		break;
+	}
 }
 
 int CGTownInstance::getSightRadius() const //returns sight distance
@@ -495,7 +585,7 @@ bool CGTownInstance::hasCapitol() const
 	return hasBuilt(BuildingID::CAPITOL);
 }
 CGTownInstance::CGTownInstance()
-	:IShipyard(this), IMarket(this), town(nullptr), builded(0), destroyed(0), identifier(0), alignment(0xff)
+	:CGDwelling(), IShipyard(this), IMarket(this), town(nullptr), builded(0), destroyed(0), identifier(0), alignment(0xff)
 {
 
 }
@@ -1101,6 +1191,21 @@ bool CGTownInstance::armedGarrison() const
 	return stacksCount() || garrisonHero;
 }
 
+const CTown * CGTownInstance::getTown() const
+{
+    if(ID == Obj::RANDOM_TOWN)
+		return VLC->townh->randomTown;
+	else
+	{
+		if(nullptr == town)
+		{
+			return VLC->townh->factions[subID]->town;
+		}
+		else
+			return town;
+	}
+}
+
 int CGTownInstance::getTownLevel() const
 {
 	// count all buildings that are not upgrades
@@ -1214,34 +1319,100 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CGObjectInstance::serializeJsonOwner(handler);
-	CCreatureSet::serializeJson(handler, "army");
-	handler.serializeBool<ui8>("tightFormation", 1, 0, formation);
+	CCreatureSet::serializeJson(handler, "army", 7);
+	handler.serializeBool<ui8>("tightFormation", formation, 1, 0, 0);
 	handler.serializeString("name", name);
 
-
-
-	if(!handler.saving)
 	{
-		builtBuildings.insert(BuildingID::DEFAULT);//just in case
+		auto decodeBuilding = [this](const std::string & identifier) -> si32
+		{
+			auto rawId = VLC->modh->identifiers.getIdentifier("core", getTown()->getBuildingScope(), identifier);
+
+			if(rawId)
+				return rawId.get();
+			else
+				return -1;
+		};
+
+		auto encodeBuilding = [this](si32 index) -> std::string
+		{
+			return getTown()->buildings.at(BuildingID(index))->identifier;
+		};
+
+		const std::set<si32> standard = getTown()->getAllBuildings();//by default all buildings are allowed
+		JsonSerializeFormat::LICSet buildingsLIC(standard, decodeBuilding, encodeBuilding);
+
+		if(handler.saving)
+		{
+			bool customBuildings = false;
+
+			boost::logic::tribool hasFort(false);
+
+			for(const BuildingID id : forbiddenBuildings)
+			{
+				buildingsLIC.none.insert(id);
+				customBuildings = true;
+			}
+
+			for(const BuildingID id : builtBuildings)
+			{
+				if(id == BuildingID::DEFAULT)
+					continue;
+
+				const CBuilding * building = getTown()->buildings.at(id);
+
+				if(building->mode == CBuilding::BUILD_AUTO)
+					continue;
+
+				if(id == BuildingID::FORT)
+					hasFort = true;
+
+				buildingsLIC.all.insert(id);
+				customBuildings = true;
+			}
+
+			if(customBuildings)
+				handler.serializeLIC("buildings", buildingsLIC);
+			else
+				handler.serializeBool("hasFort",hasFort);
+		}
+		else
+		{
+			handler.serializeLIC("buildings", buildingsLIC);
+
+			builtBuildings.insert(BuildingID::VILLAGE_HALL);
+
+			if(buildingsLIC.none.empty() && buildingsLIC.all.empty())
+			{
+				builtBuildings.insert(BuildingID::DEFAULT);
+
+				bool hasFort = false;
+				handler.serializeBool("hasFort",hasFort);
+				if(hasFort)
+					builtBuildings.insert(BuildingID::FORT);
+			}
+			else
+			{
+				for(const si32 item : buildingsLIC.none)
+					forbiddenBuildings.insert(BuildingID(item));
+				for(const si32 item : buildingsLIC.all)
+					builtBuildings.insert(BuildingID(item));
+			}
+		}
 	}
 
-	//todo: serialize buildings
-//	{
-//		std::vector<bool> standard;
-//		standard.resize(44, true);
-//
-//
-//		JsonSerializeFormat::LIC buildingsLIC(, CTownHandler::decodeBuilding, CTownHandler::encodeBuilding);
-//	}
-
 	{
-		JsonSerializeFormat::LIC spellsLIC(VLC->spellh->getDefaultAllowed(), CSpellHandler::decodeSpell, CSpellHandler::encodeSpell);
+		std::vector<bool> standard = VLC->spellh->getDefaultAllowed();
+		JsonSerializeFormat::LIC spellsLIC(standard, CSpellHandler::decodeSpell, CSpellHandler::encodeSpell);
 
-		for(SpellID id : possibleSpells)
-			spellsLIC.any[id.num] = true;
+		if(handler.saving)
+		{
+			for(SpellID id : possibleSpells)
+				spellsLIC.any[id.num] = true;
 
-		for(SpellID id : obligatorySpells)
-			spellsLIC.all[id.num] = true;
+			for(SpellID id : obligatorySpells)
+				spellsLIC.all[id.num] = true;
+		}
 
 		handler.serializeLIC("spells", spellsLIC);
 
@@ -1251,18 +1422,14 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(si32 idx = 0; idx < spellsLIC.any.size(); idx++)
 			{
 				if(spellsLIC.any[idx])
-				{
 					possibleSpells.push_back(SpellID(idx));
-				}
 			}
 
 			obligatorySpells.clear();
 			for(si32 idx = 0; idx < spellsLIC.all.size(); idx++)
 			{
 				if(spellsLIC.all[idx])
-				{
 					obligatorySpells.push_back(SpellID(idx));
-				}
 			}
 		}
 	}

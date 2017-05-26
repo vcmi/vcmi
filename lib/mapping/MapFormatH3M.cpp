@@ -130,6 +130,7 @@ void CMapLoaderH3M::init()
 		}
 	}
 	map->calculateGuardingGreaturePositions();
+	afterRead();
 }
 
 void CMapLoaderH3M::readHeader()
@@ -1322,7 +1323,8 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_DWELLING_LVL: //same as castle, fixed level
 		case Obj::RANDOM_DWELLING_FACTION: //level range, fixed faction
 			{
-				nobj = new CGDwelling();
+				auto dwelling = new CGDwelling();
+				nobj = dwelling;
 				CSpecObjInfo * spec = nullptr;
 				switch(objTempl.id)
 				{
@@ -1330,18 +1332,31 @@ void CMapLoaderH3M::readObjects()
 					break; case Obj::RANDOM_DWELLING_LVL: spec = new CCreGenAsCastleInfo();
 					break; case Obj::RANDOM_DWELLING_FACTION: spec = new CCreGenLeveledInfo();
 				}
+				spec->owner = dwelling;
 
-				spec->player = PlayerColor(reader.readUInt32());
+				nobj->setOwner(PlayerColor(reader.readUInt32()));
 
 				//216 and 217
 				if (auto castleSpec = dynamic_cast<CCreGenAsCastleInfo *>(spec))
 				{
-					castleSpec->identifier =  reader.readUInt32();
+					castleSpec->instanceId = "";
+					castleSpec->identifier = reader.readUInt32();
 					if(!castleSpec->identifier)
 					{
 						castleSpec->asCastle = false;
-						castleSpec->castles[0] = reader.readUInt8();
-						castleSpec->castles[1] = reader.readUInt8();
+						const int MASK_SIZE = 8;
+						ui8 mask[2];
+						mask[0] = reader.readUInt8();
+						mask[1] = reader.readUInt8();
+
+						castleSpec->allowedFactions.clear();
+						castleSpec->allowedFactions.resize(VLC->townh->factions.size(), false);
+
+						for(int i = 0; i < MASK_SIZE; i++)
+							castleSpec->allowedFactions[i] = ((mask[0] & (1 << i))>0);
+
+						for(int i = 0; i < (GameConstants::F_NUMBER-MASK_SIZE); i++)
+							castleSpec->allowedFactions[i+MASK_SIZE] = ((mask[1] & (1 << i))>0);
 					}
 					else
 					{
@@ -1355,8 +1370,7 @@ void CMapLoaderH3M::readObjects()
 					lvlSpec->minLevel = std::max(reader.readUInt8(), ui8(1));
 					lvlSpec->maxLevel = std::min(reader.readUInt8(), ui8(7));
 				}
-				nobj->setOwner(spec->player);
-				static_cast<CGDwelling *>(nobj)->info = spec;
+				dwelling->info = spec;
 				break;
 			}
 		case Obj::QUEST_GUARD:
@@ -1819,9 +1833,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 
 	switch(guard->quest->missionType)
 	{
-	case 0:
+	case CQuest::MISSION_NONE:
 		return;
-	case 2:
+	case CQuest::MISSION_PRIMARY_STAT:
 		{
 			guard->quest->m2stats.resize(4);
 			for(int x = 0; x < 4; ++x)
@@ -1830,14 +1844,14 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			}
 		}
 		break;
-	case 1:
-	case 3:
-	case 4:
+	case CQuest::MISSION_LEVEL:
+	case CQuest::MISSION_KILL_HERO:
+	case CQuest::MISSION_KILL_CREATURE:
 		{
 			guard->quest->m13489val = reader.readUInt32();
 			break;
 		}
-	case 5:
+	case CQuest::MISSION_ART:
 		{
 			int artNumber = reader.readUInt8();
 			for(int yy = 0; yy < artNumber; ++yy)
@@ -1848,7 +1862,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			}
 			break;
 		}
-	case 6:
+	case CQuest::MISSION_ARMY:
 		{
 			int typeNumber = reader.readUInt8();
 			guard->quest->m6creatures.resize(typeNumber);
@@ -1859,7 +1873,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			}
 			break;
 		}
-	case 7:
+	case CQuest::MISSION_RESOURCES:
 		{
 			guard->quest->m7resources.resize(7);
 			for(int x = 0; x < 7; ++x)
@@ -1868,8 +1882,8 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			}
 			break;
 		}
-	case 8:
-	case 9:
+	case CQuest::MISSION_HERO:
+	case CQuest::MISSION_PLAYER:
 		{
 			guard->quest->m13489val = reader.readUInt8();
 			break;
@@ -2134,7 +2148,6 @@ void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* gua
 	}
 }
 
-
 void CMapLoaderH3M::readSpells(std::set<SpellID>& dest)
 {
 	readBitmask(dest,9,GameConstants::SPELLS_QUANTITY,false);
@@ -2149,8 +2162,8 @@ void CMapLoaderH3M::readResourses(TResources& resources)
 	}
 }
 
-template <class Indenifier>
-void CMapLoaderH3M::readBitmask(std::set<Indenifier>& dest, const int byteCount, const int limit, bool negate)
+template <class Indentifier>
+void CMapLoaderH3M::readBitmask(std::set<Indentifier>& dest, const int byteCount, const int limit, bool negate)
 {
 	std::vector<bool> temp;
 	temp.resize(limit,true);
@@ -2160,17 +2173,10 @@ void CMapLoaderH3M::readBitmask(std::set<Indenifier>& dest, const int byteCount,
 	{
 		if(temp[i])
 		{
-			dest.insert(static_cast<Indenifier>(i));
+			dest.insert(static_cast<Indentifier>(i));
 		}
-//		else
-//		{
-//			dest.erase(static_cast<Indenifier>(i));
-//		}
 	}
-
 }
-
-
 
 void CMapLoaderH3M::readBitmask(std::vector<bool>& dest, const int byteCount, const int limit, bool negate)
 {
@@ -2189,7 +2195,6 @@ void CMapLoaderH3M::readBitmask(std::vector<bool>& dest, const int byteCount, co
 	}
 }
 
-
 ui8 CMapLoaderH3M::reverse(ui8 arg)
 {
 	ui8 ret = 0;
@@ -2201,4 +2206,34 @@ ui8 CMapLoaderH3M::reverse(ui8 arg)
 		}
 	}
 	return ret;
+}
+
+void CMapLoaderH3M::afterRead()
+{
+    //convert main town positions for all players to actual object position, in H3M it is position of active tile
+
+    for(auto & p : map->players)
+	{
+		int3 posOfMainTown = p.posOfMainTown;
+		if(posOfMainTown.valid() && map->isInTheMap(posOfMainTown))
+		{
+			const TerrainTile & t = map->getTile(posOfMainTown);
+
+			const CGObjectInstance * mainTown = nullptr;
+
+			for(auto obj : t.visitableObjects)
+			{
+				if(obj->ID = Obj::TOWN)
+				{
+					mainTown = obj;
+					break;
+				}
+			}
+
+			if(mainTown == nullptr)
+				continue;
+
+			p.posOfMainTown = posOfMainTown + mainTown->getVisitableOffset();
+		}
+	}
 }

@@ -12,6 +12,7 @@
 #include "CHeroHandler.h"
 #include "IBonusTypeHandler.h"
 #include "serializer/JsonSerializeFormat.h"
+#include "NetPacksBase.h"
 
 /*
  * CCreatureSet.cpp, part of VCMI engine
@@ -483,31 +484,46 @@ void CCreatureSet::armyChanged()
 
 }
 
-void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
+void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize)
 {
 	if(handler.saving && stacks.empty())
 		return;
-	JsonNode & json = handler.getCurrent()[fieldName];
+
+	auto a = handler.enterArray(fieldName);
+
 
 	if(handler.saving)
 	{
+		size_t sz = 0;
+
+		for(const auto & p : stacks)
+			vstd::amax(sz, p.first.getNum()+1);
+
+		if(fixedSize)
+			vstd::amax(sz, fixedSize.get());
+
+		a.resize(sz, JsonNode::DATA_STRUCT);
+
 		for(const auto & p : stacks)
 		{
-			JsonNode stack_node;
-			p.second->writeJson(stack_node);
-			json.Vector()[p.first.getNum()] = stack_node;
+			auto s = a.enterStruct(p.first.getNum());
+			p.second->serializeJson(handler);
 		}
 	}
 	else
 	{
-		for(size_t idx = 0; idx < json.Vector().size(); idx++)
+		for(size_t idx = 0; idx < a.size(); idx++)
 		{
-			if(json.Vector()[idx]["amount"].Float() > 0)
+			auto s = a.enterStruct(idx);
+
+			TQuantity amount = 0;
+
+			handler.serializeInt("amount", amount);
+
+			if(amount > 0)
 			{
 				CStackInstance * new_stack = new CStackInstance();
-
-				new_stack->readJson(json.Vector()[idx]);
-
+				new_stack->serializeJson(handler);
 				putStack(SlotID(idx), new_stack);
 			}
 		}
@@ -624,7 +640,8 @@ void CStackInstance::setType(const CCreature *c)
 			experience *= VLC->creh->expAfterUpgrade / 100.0;
 	}
 
-	type = c;
+	CStackBasicDescriptor::setType(c);
+
 	if(type)
 		attachTo(const_cast<CCreature*>(type));
 }
@@ -733,23 +750,43 @@ ArtBearer::ArtBearer CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
-void CStackInstance::writeJson(JsonNode& json) const
+void CStackInstance::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
-	if(idRand > -1)
-	{
-		json["level"].Float() = (int)idRand / 2;
-		json["upgraded"].Bool() = (idRand % 2) > 0;
-	}
-	CStackBasicDescriptor::writeJson(json);
+	assert(!getArt(pos));
+	art->putAt(ArtifactLocation(this, pos));
 }
 
-void CStackInstance::readJson(const JsonNode& json)
+void CStackInstance::serializeJson(JsonSerializeFormat & handler)
 {
-	if(json["type"].String() == "")
+	//todo: artifacts
+	CStackBasicDescriptor::serializeJson(handler);//must be first
+
+	if(handler.saving)
 	{
-		idRand = json["level"].Float() * 2 + (int)json["upgraded"].Bool();
+		if(idRand > -1)
+		{
+			int level = (int)idRand / 2;
+
+			boost::logic::tribool upgraded = (idRand % 2) > 0;
+
+			handler.serializeInt("level", level, 0);
+			handler.serializeBool("upgraded", upgraded);
+		}
 	}
-	CStackBasicDescriptor::readJson(json);
+	else
+	{
+		//type set by CStackBasicDescriptor::serializeJson
+		if(type == nullptr)
+		{
+			int level = 0;
+			bool upgraded = false;
+
+			handler.serializeInt("level", level, 0);
+			handler.serializeBool("upgraded", upgraded);
+
+			idRand = level * 2 + (int)(bool)upgraded;
+		}
+	}
 }
 
 CCommanderInstance::CCommanderInstance()
@@ -844,20 +881,30 @@ CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count
 {
 }
 
-void CStackBasicDescriptor::writeJson(JsonNode& json) const
+void CStackBasicDescriptor::setType(const CCreature * c)
 {
-	json.setType(JsonNode::DATA_STRUCT);
-	if(type)
-		json["type"].String() = type->identifier;
-	json["amount"].Float() = count;
+	type = c;
 }
 
-void CStackBasicDescriptor::readJson(const JsonNode& json)
+void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 {
-	auto typeName = json["type"].String();
-	if(typeName != "")
-		type = VLC->creh->getCreature("core", json["type"].String());
-	count = json["amount"].Float();
+	handler.serializeInt("amount", count);
+
+	if(handler.saving)
+	{
+		if(type)
+		{
+			std::string typeName = type->identifier;
+			handler.serializeString("type", typeName);
+		}
+	}
+	else
+	{
+		std::string typeName("");
+		handler.serializeString("type", typeName);
+		if(typeName != "")
+			setType(VLC->creh->getCreature("core", typeName));
+	}
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)

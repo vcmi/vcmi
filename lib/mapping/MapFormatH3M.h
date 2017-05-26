@@ -242,6 +242,8 @@ private:
 		return p;
 	}
 
+	void afterRead();
+
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
 	std::vector<ObjectTemplate> templates;

@@ -28,7 +28,7 @@ namespace JsonRandom
 	{
 		if (value.isNull())
 			return defaultValue;
-		if (value.getType() == JsonNode::DATA_FLOAT)
+		if (value.isNumber())
 			return value.Float();
 		if (!value["amount"].isNull())
 			return value["amount"].Float();

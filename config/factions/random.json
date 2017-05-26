@@ -1,0 +1,69 @@
+{
+	"random":
+	{
+        "index": -1,
+        "town":
+		{
+			"mapObject" :
+			{
+				"templates" :
+				{
+					"castle" :  { "editorAnimation" : "AVCRANX0.def" },
+					"village" : { "editorAnimation" : "AVCRAND0.def" },
+					"capitol" : { "editorAnimation" : "AVCRANZ0.def" }
+				}
+			},
+			"buildings" :
+			{
+				"mageGuild1":     { "id" : 0 },
+				"mageGuild2":     { "id" : 1,  "upgrades" : "mageGuild1" },
+				"mageGuild3":     { "id" : 2,  "upgrades" : "mageGuild2" },
+				"mageGuild4":     { "id" : 3,  "upgrades" : "mageGuild3" },
+				"mageGuild5":     { "id" : 4,  "upgrades" : "mageGuild4" },
+
+				"tavern":         { "id" : 5 },
+				"shipyard":       { "id" : 6 },
+				"fort":           { "id" : 7 },
+				"citadel":        { "id" : 8,  "upgrades" : "fort" },
+				"castle":         { "id" : 9,  "upgrades" : "citadel" },
+
+
+				"villageHall":    { "id" : 10, "mode" : "auto", "produce" : { "gold": 500 } },
+				"townHall":       { "id" : 11, "upgrades" : "villageHall", "requires" : [ "tavern" ], "produce" : { "gold": 1000 } },
+				"cityHall":       { "id" : 12, "upgrades" : "townHall", "requires" : [ "allOf", [ "mageGuild1" ], [ "marketplace" ], [ "blacksmith" ] ], "produce": { "gold": 2000 } },
+				"capitol":        { "id" : 13, "upgrades" : "cityHall", "requires" : [ "castle" ], "produce" : { "gold": 4000 } },
+
+
+				"marketplace":    { "id" : 14 },
+				"resourceSilo":   { "id" : 15, "upgrades" : "marketplace" },
+				"blacksmith":     { "id" : 16 },
+
+				"horde1":         { "id" : -30, "upgrades" : "dwellingLvl1" },
+				"horde2":         { "id" : -31, "upgrades" : "dwellingLvl2" },
+				"horde3":         { "id" : -32, "upgrades" : "dwellingLvl3" },
+				"horde4":         { "id" : -33, "upgrades" : "dwellingLvl4" },
+				"horde5":         { "id" : -34, "upgrades" : "dwellingLvl5" },
+				"horde6":         { "id" : -35, "upgrades" : "dwellingLvl6" },
+				"horde7":         { "id" : -36, "upgrades" : "dwellingLvl7" },
+
+				"grail":          { "id" : 26, "mode" : "grail", "produce" : { "gold": 5000 } },
+
+				"dwellingLvl1":   { "id" : 30 },
+				"dwellingLvl2":   { "id" : 31 },
+				"dwellingLvl3":   { "id" : 32 },
+				"dwellingLvl4":   { "id" : 33 },
+				"dwellingLvl5":   { "id" : 34 },
+				"dwellingLvl6":   { "id" : 35 },
+				"dwellingLvl7":   { "id" : 36 },
+
+				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1" },
+				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
+				"dwellingUpLvl3": { "id" : 39, "upgrades" : "dwellingLvl3" },
+				"dwellingUpLvl4": { "id" : 40, "upgrades" : "dwellingLvl4" },
+				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
+				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
+				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7" }
+			}
+		}
+	}
+}

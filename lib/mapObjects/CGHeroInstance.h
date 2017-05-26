@@ -65,8 +65,8 @@ public:
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
 
-	static const ui32 UNINITIALIZED_PORTRAIT = -1;
-	static const ui32 UNINITIALIZED_MANA = -1;
+	static const si32 UNINITIALIZED_PORTRAIT = -1;
+	static const si32 UNINITIALIZED_MANA = -1;
 	static const ui32 UNINITIALIZED_MOVEMENT = -1;
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
@@ -204,7 +204,7 @@ public:
 	void initHero(CRandomGenerator & rand);
 	void initHero(CRandomGenerator & rand, HeroTypeID SUBID);
 
-	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
+	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
 	void putInBackpack(CArtifactInstance *art);
 	void initExp(CRandomGenerator & rand);
 	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
@@ -258,12 +258,20 @@ public:
 	std::string getObjectName() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
+	///common part of hero instance and hero definition
+	void serializeCommonOptions(JsonSerializeFormat & handler);
+
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
 	void levelUpAutomatically(CRandomGenerator & rand);
 
 public:
+	std::string getHeroTypeName() const;
+	void setHeroTypeName(const std::string & identifier);
+
+	void serializeJsonDefinition(JsonSerializeFormat & handler);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);

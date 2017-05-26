@@ -64,7 +64,8 @@ ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
 	id(other.id),
 	subid(other.subid),
 	printPriority(other.printPriority),
-	animationFile(other.animationFile)
+	animationFile(other.animationFile),
+	editorAnimationFile(other.editorAnimationFile)
 {
 	//default copy constructor is failing with usedTiles this for unknown reason
 
@@ -81,12 +82,23 @@ ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
 	subid = rhs.subid;
 	printPriority = rhs.printPriority;
 	animationFile = rhs.animationFile;
+	editorAnimationFile = rhs.editorAnimationFile;
 
 	usedTiles.clear();
 	usedTiles.resize(rhs.usedTiles.size());
 	for(size_t i = 0; i < usedTiles.size(); i++)
 		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
 	return *this;
+}
+
+void ObjectTemplate::afterLoadFixup()
+{
+	if(id == Obj::EVENT)
+	{
+		setSize(1,1);
+		usedTiles[0][0] = VISITABLE;
+		visitDir = 0xFF;
+	}
 }
 
 void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
@@ -207,16 +219,13 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	reader.skip(16);
 	readMsk();
 
-	if (id == Obj::EVENT)
-	{
-		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
-	}
+	afterLoadFixup();
 }
 
 void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 {
 	animationFile = node["animation"].String();
+	editorAnimationFile = node["editorAnimation"].String();
 
 	const JsonVector & visitDirs = node["visitableFrom"].Vector();
 	if (!visitDirs.empty())
@@ -284,11 +293,14 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 
 	printPriority = node["zIndex"].Float();
+
+	afterLoadFixup();
 }
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 {
 	node["animation"].String() = animationFile;
+	node["editorAnimation"].String() = editorAnimationFile;
 
 	if(visitDir != 0x0 && isVisitable())
 	{
