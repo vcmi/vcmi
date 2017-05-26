@@ -872,9 +872,17 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	bool isArt  =  aid != artmask;
 	if(isArt)
 	{
-		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= GameConstants::BACKPACK_START)
+		const CArtifact * art = ArtifactID(aid).toArtifact();
+
+		if(nullptr == art)
 		{
-			logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
+			logGlobal->warnStream() << "Invalid artifact in hero's backpack, ignoring...";
+			return false;
+		}
+
+		if(art->isBig() && slot >= GameConstants::BACKPACK_START)
+		{
+			logGlobal->warnStream() << "A big artifact (war machine) in hero's backpack, ignoring...";
 			return false;
 		}
 		if(aid == 0 && slot == ArtifactPosition::MISC5)

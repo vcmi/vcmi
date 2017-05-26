@@ -3135,7 +3135,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
 	const CArmedInstance *dst = nullptr;
 	const CCreature *c = VLC->creh->creatures.at(crid);
-	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
+	const bool warMachine = c->warMachine != ArtifactID::NONE;
 
 	//TODO: test for owning
 	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
@@ -3186,24 +3186,18 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	if (warMachine)
 	{
 		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
-		if (!h)
-			COMPLAIN_RET("Only hero can buy war machines");
 
-		switch(crid)
-		{
-		case CreatureID::BALLISTA:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
-			break;
-		case CreatureID::FIRST_AID_TENT:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
-			break;
-		case CreatureID::AMMO_CART:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
-			break;
-		default:
-			complain("This war machine cannot be recruited!");
-			return false;
-		}
+		COMPLAIN_RET_FALSE_IF(!h, "Only hero can buy war machines");
+
+		ArtifactID artId = c->warMachine;
+
+		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
+
+		const CArtifact * art = artId.toArtifact();
+
+		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
+
+		return giveHeroNewArtifact(h, art);
 	}
 	else
 	{
@@ -3444,7 +3438,10 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 {
 	const CGHeroInstance * hero = getHero(hid);
+	COMPLAIN_RET_FALSE_IF(nullptr == hero, "Invalid hero index");
 	const CGTownInstance * town = hero->visitedTown;
+	COMPLAIN_RET_FALSE_IF(nullptr == town, "Hero not in town");
+
 	if (aid==ArtifactID::SPELLBOOK)
 	{
 		if ((!town->hasBuilt(BuildingID::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
@@ -3459,26 +3456,24 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		giveSpells(town,hero);
 		return true;
 	}
-	else if (aid < 7  &&  aid > 3) //war machine
+	else
 	{
-		int price = VLC->arth->artifacts[aid]->price;
+		const CArtifact * art = aid.toArtifact();
+		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid artifact index to buy");
+		COMPLAIN_RET_FALSE_IF(art->warMachine == CreatureID::NONE, "War machine artifact required");
+		COMPLAIN_RET_FALSE_IF(hero->hasArt(aid),"Hero already has this machine!");
+		const int price = art->price;
+		COMPLAIN_RET_FALSE_IF(getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price, "Not enough gold!");
 
-		if ((hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
-		 || (getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
-		{
-			return false;
-		}
 		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
 		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], ArtifactPosition(9+aid));
-			return true;
+			return giveHeroNewArtifact(hero, art);
 		}
 		else
 			COMPLAIN_RET("This machine is unavailable here!");
 	}
-	return false;
 }
 
 bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid)
@@ -6053,6 +6048,18 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance* h, const CArtifact* art)
+{
+	COMPLAIN_RET_FALSE_IF(art->possibleSlots.at(ArtBearer::HERO).empty(),"Not a hero artifact!");
+
+	ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
+
+	COMPLAIN_RET_FALSE_IF(nullptr != h->getArt(slot, false), "Hero already has artifact in slot");
+
+	giveHeroNewArtifact(h, art, slot);
+	return true;
+}
+
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos)
 {
 	CArtifactInstance *a = nullptr;
@@ -6415,10 +6422,12 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		}
 		else if (st->slot == SlotID::WAR_MACHINES_SLOT)
 		{
-			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
+			auto warMachine = st->type->warMachine;
 
 			if (warMachine == ArtifactID::NONE)
+			{
 				logGlobal->error("Invalid creature in war machine virtual slot. Stack: %s", st->nodeName());
+			}
 			//catapult artifact remain even if "creature" killed in siege
 			else if (warMachine != ArtifactID::CATAPULT && !st->count)
 			{

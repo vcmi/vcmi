@@ -584,7 +584,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	VLC->modh->identifiers.requestIdentifier("creature", source["warMachine"],
 	[&town](si32 creature)
 	{
-		town.warMachine = CArtHandler::creatureToMachineID(CreatureID(creature));
+		town.warMachine = CreatureID(creature).toCreature()->warMachine;
 	});
 
 	town.moatDamage = source["moatDamage"].Float();
