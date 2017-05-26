@@ -435,17 +435,31 @@ void CStackWindow::CWindowSection::createCommander()
 		return skillToFile(skillIndex, parent->info->commander->secondarySkills[skillIndex], selected);
 	};
 
+	auto getSkillDescription = [this](int skillIndex) -> std::string
+	{
+		if (CGI->generaltexth->znpc00.size() == 0)
+			return "";
+
+		return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (parent->info->commander->secondarySkills[skillIndex] * 2)];
+	};
+
 	for (int index = ECommander::ATTACK; index <= ECommander::SPELL_POWER; ++index)
 	{
 		Point skillPos = getSkillPos(index);
 
-		auto icon = new CClickableObject(new CPicture(getSkillImage(index), skillPos.x, skillPos.y), [=]{});
+		auto icon = new CCommanderSkillIcon(new CPicture(getSkillImage(index), skillPos.x, skillPos.y),
+			[=] { LOCPLINT->showInfoDialog(getSkillDescription(index)); });
 
-		if (parent->selectedSkill == index)
+		icon->text = getSkillDescription(index); //used to handle right click description via LRClickableAreaWText::ClickRight()
+
+		if(parent->selectedSkill == index)
 			parent->selectedIcon = icon;
 
-		if (parent->info->levelupInfo && vstd::contains(parent->info->levelupInfo->skills, index)) // can be upgraded - enable selection switch
+		if(parent->info->levelupInfo && vstd::contains(parent->info->levelupInfo->skills, index)) // can be upgraded - enable selection switch
 		{
+			if(parent->selectedSkill == index)
+				parent->setSelection(index, icon);
+
 			icon->callback = [=]
 			{
 				parent->setSelection(index, icon);
@@ -472,7 +486,7 @@ CIntObject * CStackWindow::createSkillEntry(int index)
 		{
 			const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 			const CStackInstance *stack = info->commander;
-			CClickableObject * icon = new CClickableObject(new CPicture(stack->bonusToGraphics(bonus)), []{});
+			CCommanderSkillIcon * icon = new CCommanderSkillIcon(new CPicture(stack->bonusToGraphics(bonus)), []{});
 			icon->callback = [=]
 			{
 				setSelection(skillID, icon);
@@ -518,8 +532,19 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 	}
 }
 
-void CStackWindow::setSelection(si32 newSkill, CClickableObject * newIcon)
+void CStackWindow::setSelection(si32 newSkill, CCommanderSkillIcon * newIcon)
 {
+	auto getSkillDescription = [this](int skillIndex, bool selected) -> std::string
+	{
+		if (CGI->generaltexth->znpc00.size() == 0)
+			return "";
+
+		if(selected)
+			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + ((info->commander->secondarySkills[skillIndex] + 1) * 2)]; //upgrade description
+		else
+			return CGI->generaltexth->znpc00[151 + (12 * skillIndex) + (info->commander->secondarySkills[skillIndex] * 2)];
+	};
+
 	auto getSkillImage = [this](int skillIndex) -> std::string
 	{
 		bool selected = ((selectedSkill == skillIndex) && info->levelupInfo );
@@ -533,9 +558,14 @@ void CStackWindow::setSelection(si32 newSkill, CClickableObject * newIcon)
 	if (selectedIcon && oldSelection < 100) // recreate image on old selection, only for skills
 		selectedIcon->setObject(new CPicture(getSkillImage(oldSelection)));
 
+	selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+
 	selectedIcon = newIcon; // update new selection
 	if (newSkill < 100)
+	{
 		newIcon->setObject(new CPicture(getSkillImage(newSkill)));
+		newIcon->text = getSkillDescription(newSkill, true); //update currently selected icon's message to show upgrade description
+	}
 }
 
 void CStackWindow::CWindowSection::createBonuses(boost::optional<size_t> preferredSize)
@@ -646,7 +676,7 @@ CStackWindow::CWindowSection::CWindowSection(CStackWindow * parent):
 {
 }
 
-CClickableObject::CClickableObject(CIntObject *object, std::function<void()> callback):
+CCommanderSkillIcon::CCommanderSkillIcon(CIntObject *object, std::function<void()> callback):
 	object(nullptr),
 	callback(callback)
 {
@@ -654,7 +684,7 @@ CClickableObject::CClickableObject(CIntObject *object, std::function<void()> cal
 	setObject(object);
 }
 
-void CClickableObject::setObject(CIntObject *newObject)
+void CCommanderSkillIcon::setObject(CIntObject *newObject)
 {
 	delete object;
 	object = newObject;
@@ -663,10 +693,16 @@ void CClickableObject::setObject(CIntObject *newObject)
 	redraw();
 }
 
-void CClickableObject::clickLeft(tribool down, bool previousState)
+void CCommanderSkillIcon::clickLeft(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 		callback();
+}
+
+void CCommanderSkillIcon::clickRight(tribool down, bool previousState)
+{
+	if(down)
+		LRClickableAreaWText::clickRight(down, previousState);
 }
 
 CIntObject * CStackWindow::createBonusEntry(size_t index)
