@@ -64,8 +64,10 @@ void CHeroArtPlace::lockSlot(bool on)
 
 	if (on)
 		image->setFrame(ArtifactID::ART_LOCK);
-	else
+	else if (ourArt)
 		image->setFrame(ourArt->artType->iconIndex);
+	else
+		image->setFrame(0);
 }
 
 void CHeroArtPlace::pickSlot(bool on)
