@@ -1039,6 +1039,8 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	{
 		if (cre->special)
 			continue;
+		if (!cre->AIValue) //bug #2681
+			continue;
 		if (!vstd::contains(monsterTypes, cre->faction))
 			continue;
 		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
@@ -2569,6 +2571,9 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 
 	auto creatureToCount = [](CCreature * creature) -> int
 	{
+		if (!creature->AIValue) //bug #2681
+			return 0; //this box won't be generated
+
 		int actualTier = creature->level > 7 ? 6 : creature->level - 1;
 		float creaturesAmount = ((float)tierValues[actualTier]) / creature->AIValue;
 		if (creaturesAmount <= 5)
