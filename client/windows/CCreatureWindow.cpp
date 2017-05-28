@@ -563,7 +563,8 @@ void CStackWindow::setSelection(si32 newSkill, CCommanderSkillIcon * newIcon)
 	if (selectedIcon && oldSelection < 100) // recreate image on old selection, only for skills
 		selectedIcon->setObject(new CPicture(getSkillImage(oldSelection)));
 
-	selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
+	if(selectedIcon)
+		selectedIcon->text = getSkillDescription(oldSelection, false); //update previously selected icon's message to existing skill level
 
 	selectedIcon = newIcon; // update new selection
 	if (newSkill < 100)
