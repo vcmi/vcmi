@@ -136,8 +136,8 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 		auto distToDestNeighbour = [&](BattleHex hex) -> int
 		{
 			auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
-			{return BattleHex::getDistance(a, hex);});
-			return BattleHex::getDistance(*nearestNeighbourToHex, hex);
+			{return BattleHex::getDistanceBetweenHexes(a, hex);});
+			return BattleHex::getDistanceBetweenHexes(*nearestNeighbourToHex, hex);
 		};
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, distToDestNeighbour);
 		return BattleAction::makeMove(stack, *nearestAvailableHex);

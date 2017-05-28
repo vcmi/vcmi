@@ -144,31 +144,31 @@ static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleH
 	int y = targetPosition.getY();
 
 	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::RIGHT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::RIGHT, false), output);
 	else
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::LEFT, false), output);
 
 	//guardian spawn locations for four default position cases for attacker and defender, non-default starting location for att and def is handled in first two if's
 	if (targetIsAttacker && ((y % 2 == 0) || (x > 1)))
 	{
 		if (targetIsTwoHex && (y % 2 == 1) && (x == 2)) //handle exceptional case
 		{
-			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
-			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
 		}
 		else
 		{	//add back-side guardians for two-hex target, side guardians for one-hex
-			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false), output);
-			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_LEFT : BattleHex::EDir::TOP_RIGHT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_LEFT : BattleHex::EDir::BOTTOM_RIGHT, false), output);
 
 			if (!targetIsTwoHex && x > 2) //back guard for one-hex
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false), output);
 			else if (targetIsTwoHex)//front-side guardians for two-hex target
 			{
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
 				if (x > 3) //back guard for two-hex
-					BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::LEFT, false), output);
+					BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::LEFT, false), output);
 			}
 		}
 
@@ -178,36 +178,36 @@ static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleH
 	{
 		if (targetIsTwoHex && (y % 2 == 0) && (x == GameConstants::BFIELD_WIDTH - 3)) //handle exceptional case... equivalent for above for defender side
 		{
-			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
-			BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::TOP_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
 		}
 		else
 		{
-			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false), output);
-			BattleHex::checkAndPush(targetPosition.movedInDir(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(targetIsTwoHex ? BattleHex::EDir::TOP_RIGHT : BattleHex::EDir::TOP_LEFT, false), output);
+			BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(targetIsTwoHex ? BattleHex::EDir::BOTTOM_RIGHT : BattleHex::EDir::BOTTOM_LEFT, false), output);
 
 			if (!targetIsTwoHex && x < GameConstants::BFIELD_WIDTH - 3)
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false), output);
 			else if (targetIsTwoHex)
 			{
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
-				BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::TOP_LEFT, false), output);
+				BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
 				if (x < GameConstants::BFIELD_WIDTH - 4)
-					BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::RIGHT, false), output);
+					BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::RIGHT, false), output);
 			}
 		}
 	}
 
 	else if (!targetIsAttacker && y % 2 == 0)
 	{
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::TOP_LEFT, false), output);
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::LEFT, false).movedInDir(BattleHex::EDir::BOTTOM_LEFT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::TOP_LEFT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::LEFT, false).generateHexMovedInDirection(BattleHex::EDir::BOTTOM_LEFT, false), output);
 	}
 
 	else if (targetIsAttacker && y % 2 == 1)
 	{
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::TOP_RIGHT, false), output);
-		BattleHex::checkAndPush(targetPosition.movedInDir(BattleHex::EDir::RIGHT, false).movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::TOP_RIGHT, false), output);
+		BattleHex::checkAndPush(targetPosition.generateHexMovedInDirection(BattleHex::EDir::RIGHT, false).generateHexMovedInDirection(BattleHex::EDir::BOTTOM_RIGHT, false), output);
 	}
 }
 

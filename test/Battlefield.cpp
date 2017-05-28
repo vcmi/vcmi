@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include <boost/test/unit_test.hpp>
 #include "../lib/BattleHex.h"
-
 BOOST_AUTO_TEST_SUITE(BattlefieldHex_Suite)
 
 BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
@@ -37,30 +36,30 @@ BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
 	BOOST_TEST(neighbouringTiles.size()==6);
 
 	BOOST_REQUIRE(neighbouringTiles.size()==6 && mainHex==93);
-	BOOST_TEST(neighbouringTiles.at(0)==75);
-	BOOST_TEST(neighbouringTiles.at(1)==94);
-	BOOST_TEST(neighbouringTiles.at(2)==110);
-	BOOST_TEST(neighbouringTiles.at(3)==109);
-	BOOST_TEST(neighbouringTiles.at(4)==92);
-	BOOST_TEST(neighbouringTiles.at(5)==76);
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 75) != neighbouringTiles.end());
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 76) != neighbouringTiles.end());
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 94) != neighbouringTiles.end());
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 110) != neighbouringTiles.end());
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 109) != neighbouringTiles.end());
+	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 92) != neighbouringTiles.end());
 }
 
 BOOST_AUTO_TEST_CASE(getDistance)
 {
 	BattleHex firstHex(0,0), secondHex(16,0);
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==16);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==16);
 	firstHex=0, secondHex=170;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==10);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==10);
 	firstHex=16, secondHex=181;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==10);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==10);
 	firstHex=186, secondHex=70;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==17);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==17);
 	firstHex=166, secondHex=39;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==11);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==11);
 	firstHex=25, secondHex=103;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==9);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==9);
 	firstHex=18, secondHex=71;
-	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==4);
+	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==4);
 }
 
 BOOST_AUTO_TEST_CASE(mutualPositions)
@@ -107,17 +106,17 @@ BOOST_AUTO_TEST_CASE(getClosestTile)
 BOOST_AUTO_TEST_CASE(moveEDir)
 {
 	BattleHex mainHex(20);
-	mainHex.moveInDir(BattleHex::EDir::BOTTOM_RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::BOTTOM_RIGHT);
 	BOOST_TEST(mainHex==37);
-	mainHex.moveInDir(BattleHex::EDir::RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::RIGHT);
 	BOOST_TEST(mainHex==38);
-	mainHex.moveInDir(BattleHex::EDir::TOP_RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::TOP_RIGHT);
 	BOOST_TEST(mainHex==22);
-	mainHex.moveInDir(BattleHex::EDir::TOP_LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::TOP_LEFT);
 	BOOST_TEST(mainHex==4);
-	mainHex.moveInDir(BattleHex::EDir::LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::LEFT);
 	BOOST_TEST(mainHex==3);
-	mainHex.moveInDir(BattleHex::EDir::BOTTOM_LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::BOTTOM_LEFT);
 	BOOST_TEST(mainHex==20);
 }
 

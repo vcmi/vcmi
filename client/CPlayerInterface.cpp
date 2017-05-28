@@ -993,8 +993,8 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		int shift = 0;
 		if (ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = BattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = BattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = BattleHex::getDistanceBetweenHexes(curAction->destinationTile + 1, attacker->position);
+			int distm = BattleHex::getDistanceBetweenHexes(curAction->destinationTile - 1, attacker->position);
 
 			if ( distp < distm )
 				shift = 1;

@@ -1463,7 +1463,7 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 		if(ret.accessibility.accessible(i, params.doubleWide, params.attackerOwned))
 		{
 			ret.predecessors[i] = params.startPosition;
-			ret.distances[i] = BattleHex::getDistance(params.startPosition, i);
+			ret.distances[i] = BattleHex::getDistanceBetweenHexes(params.startPosition, i);
 		}
 	}
 
@@ -1655,14 +1655,14 @@ si8 CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer *bonusBeare
 	{
 		//If any hex of target creature is within range, there is no penalty
 		for(auto hex : dstStack->getHexes())
-			if(BattleHex::getDistance(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
+			if(BattleHex::getDistanceBetweenHexes(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
 				return false;
 
 		//TODO what about two-hex shooters?
 	}
 	else
 	{
-		if (BattleHex::getDistance(shooterPosition, destHex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
+		if (BattleHex::getDistanceBetweenHexes(shooterPosition, destHex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
 			return false;
 	}
 

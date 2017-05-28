@@ -76,7 +76,7 @@ std::pair<si16, si16> BattleHex::getXY() const
 	return std::make_pair(getX(), getY());
 }
 
-BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
+BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 {
 	si16 x(getX()), y(getY());
 	switch(dir)
@@ -102,61 +102,57 @@ BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 	default:
 		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
-}
+	}
 	return *this;
 }
 
 BattleHex &BattleHex::operator+=(BattleHex::EDir dir)
 {
-	return moveInDir(dir);
+	return moveInDirection(dir);
 }
 
-BattleHex BattleHex::movedInDir(BattleHex::EDir dir, bool hasToBeValid) const
+BattleHex BattleHex::generateHexMovedInDirection(BattleHex::EDir dir, bool hasToBeValid) const
 {
-	BattleHex result(*this);
-	result.moveInDir(dir, hasToBeValid);
+	BattleHex result(hex);
+	result.moveInDirection(dir, hasToBeValid);
 	return result;
 }
 
 BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 {
-	return movedInDir(dir);
+	return generateHexMovedInDirection(dir);
 }
 
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
-	const int WN = GameConstants::BFIELD_WIDTH;
-	// H3 order : TR, R, BR, BL, L, TL (T = top, B = bottom ...)
-
-	checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret); // 1
-	checkAndPush(hex + 1, ret); // 2
-	checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), ret); // 3
-	checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), ret); // 4
-	checkAndPush(hex - 1, ret); // 5
-	checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret); // 6
-
+	checkAndPush(generateHexMovedInDirection(TOP_LEFT, true), ret);
+	checkAndPush(generateHexMovedInDirection(TOP_RIGHT, true), ret);
+	checkAndPush(generateHexMovedInDirection(RIGHT, true), ret);
+	checkAndPush(generateHexMovedInDirection(BOTTOM_RIGHT, true), ret);
+	checkAndPush(generateHexMovedInDirection(BOTTOM_LEFT, true), ret);
+	checkAndPush(generateHexMovedInDirection(LEFT, true), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
+	if(hex2 == hex1.generateHexMovedInDirection(TOP_LEFT,true))
 		return 0;
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
+	if(hex2 == hex1.generateHexMovedInDirection(TOP_RIGHT,true))
 		return 1;
-	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
+	if(hex2 == hex1.generateHexMovedInDirection(RIGHT,true))
 		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
+	if(hex2 == hex1.generateHexMovedInDirection(BOTTOM_RIGHT,true))
 		return 3;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
+	if(hex2 == hex1.generateHexMovedInDirection(BOTTOM_LEFT,true))
 		return 4;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
+	if(hex2 == hex1.generateHexMovedInDirection(LEFT,true))
 		return 5;
 	return -1;
 }
 
-char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
+char BattleHex::getDistanceBetweenHexes(BattleHex hex1, BattleHex hex2)
 {
 	int y1 = hex1.getY(), y2 = hex2.getY();
 
@@ -183,13 +179,13 @@ BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, st
 	BattleHex initialHex = BattleHex(initialPos);
 	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
 	{
-		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
+		return initialHex.getDistanceBetweenHexes (initialHex, left) < initialHex.getDistanceBetweenHexes (initialHex, right);
 	};
 	boost::sort (sortedTiles, compareDistance); //closest tiles at front
-	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
+	int closestDistance = initialHex.getDistanceBetweenHexes(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
 	{
-		return closestDistance < here.getDistance (initialPos, here);
+		return closestDistance < here.getDistanceBetweenHexes (initialPos, here);
 	};
 	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
 	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool
