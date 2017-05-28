@@ -1561,7 +1561,7 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	if(ID = Obj::HERO)
+	if(ID == Obj::HERO)
 		map->heroesOnMap.push_back(this);
 }
 

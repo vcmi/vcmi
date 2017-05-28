@@ -1337,7 +1337,7 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	if(ID = Obj::TOWN)
+	if(ID == Obj::TOWN)
 		map->towns.push_back(this);
 }
 
