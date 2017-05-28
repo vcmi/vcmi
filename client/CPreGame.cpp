@@ -81,18 +81,10 @@ struct EvilHlpStruct
 	CConnection *serv;
 	StartInfo *sInfo;
 
-	void reset(bool strong = true)
+	void reset()
 	{
-		if(strong)
-		{
-			vstd::clear_pointer(serv);
-			vstd::clear_pointer(sInfo);
-		}
-		else
-		{
-			serv = nullptr;
-			sInfo = nullptr;
-		}
+		vstd::clear_pointer(serv);
+		vstd::clear_pointer(sInfo);
 	}
 
 } startingInfo;
