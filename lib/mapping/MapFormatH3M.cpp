@@ -1328,9 +1328,17 @@ void CMapLoaderH3M::readObjects()
 				CSpecObjInfo * spec = nullptr;
 				switch(objTempl.id)
 				{
-					break; case Obj::RANDOM_DWELLING: spec = new CCreGenLeveledCastleInfo();
-					break; case Obj::RANDOM_DWELLING_LVL: spec = new CCreGenAsCastleInfo();
-					break; case Obj::RANDOM_DWELLING_FACTION: spec = new CCreGenLeveledInfo();
+				case Obj::RANDOM_DWELLING:
+					spec = new CCreGenLeveledCastleInfo();
+					break;
+				case Obj::RANDOM_DWELLING_LVL:
+					spec = new CCreGenAsCastleInfo();
+					break;
+				case Obj::RANDOM_DWELLING_FACTION:
+					spec = new CCreGenLeveledInfo();
+					break;
+				default:
+					throw std::runtime_error("Invalid random dwelling format");
 				}
 				spec->owner = dwelling;
 
