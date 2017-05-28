@@ -1337,7 +1337,8 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	map->towns.push_back(this);
+	if(ID = Obj::TOWN)
+		map->towns.push_back(this);
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)

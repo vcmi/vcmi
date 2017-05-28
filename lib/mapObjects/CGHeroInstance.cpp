@@ -1561,7 +1561,8 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	map->heroesOnMap.push_back(this);
+	if(ID = Obj::HERO)
+		map->heroesOnMap.push_back(this);
 }
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
