@@ -36,12 +36,12 @@ BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
 	BOOST_TEST(neighbouringTiles.size()==6);
 
 	BOOST_REQUIRE(neighbouringTiles.size()==6 && mainHex==93);
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 75) != neighbouringTiles.end());
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 76) != neighbouringTiles.end());
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 94) != neighbouringTiles.end());
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 110) != neighbouringTiles.end());
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 109) != neighbouringTiles.end());
-	BOOST_CHECK(std::find(neighbouringTiles.begin(), neighbouringTiles.end(), 92) != neighbouringTiles.end());
+	BOOST_TEST(neighbouringTiles.at(0)==75);
+	BOOST_TEST(neighbouringTiles.at(1)==76);
+	BOOST_TEST(neighbouringTiles.at(2)==94);
+	BOOST_TEST(neighbouringTiles.at(3)==110);
+	BOOST_TEST(neighbouringTiles.at(4)==109);
+	BOOST_TEST(neighbouringTiles.at(5)==92);
 }
 
 BOOST_AUTO_TEST_CASE(getDistance)

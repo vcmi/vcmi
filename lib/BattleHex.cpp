@@ -126,29 +126,16 @@ BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
-	checkAndPush(cloneInDirection(TOP_LEFT, true), ret);
-	checkAndPush(cloneInDirection(TOP_RIGHT, true), ret);
-	checkAndPush(cloneInDirection(RIGHT, true), ret);
-	checkAndPush(cloneInDirection(BOTTOM_RIGHT, true), ret);
-	checkAndPush(cloneInDirection(BOTTOM_LEFT, true), ret);
-	checkAndPush(cloneInDirection(LEFT, true), ret);
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+		checkAndPush(cloneInDirection(dir, true), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	if(hex2 == hex1.cloneInDirection(TOP_LEFT,true))
-		return TOP_LEFT;
-	if(hex2 == hex1.cloneInDirection(TOP_RIGHT,true))
-		return TOP_RIGHT;
-	if(hex2 == hex1.cloneInDirection(RIGHT,true))
-		return RIGHT;
-	if(hex2 == hex1.cloneInDirection(BOTTOM_RIGHT,true))
-		return BOTTOM_RIGHT;
-	if(hex2 == hex1.cloneInDirection(BOTTOM_LEFT,true))
-		return BOTTOM_LEFT;
-	if(hex2 == hex1.cloneInDirection(LEFT,true))
-		return LEFT;
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+		if(hex2 == hex1.cloneInDirection(dir,true))
+			return dir;
 	return INVALID;
 }
 
