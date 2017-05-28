@@ -98,6 +98,8 @@ public:
 	{
 		h & quest;
 	}
+protected:
+	void afterAddToMapCommon(CMap * map);
 };
 
 class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
@@ -125,6 +127,8 @@ public:
 	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	virtual void completeQuest (const CGHeroInstance * h) const;
+
+	void afterAddToMap(CMap * map) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -198,6 +202,8 @@ public:
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;
 	bool checkQuest (const CGHeroInstance * h) const override;
+
+	void afterAddToMap(CMap * map) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

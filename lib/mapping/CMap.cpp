@@ -418,7 +418,6 @@ bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const 
 
 int3 CMap::guardingCreaturePosition (int3 pos) const
 {
-
 	const int3 originalPos = pos;
 	// Give monster at position priority.
 	if (!isInTheMap(pos))
@@ -591,6 +590,12 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 	artInstances[art->id.getNum()].dellNull();
 }
 
+void CMap::addNewQuestInstance(CQuest* quest)
+{
+	quest->qid = quests.size();
+	quests.push_back(quest);
+}
+
 void CMap::addNewObject(CGObjectInstance * obj)
 {
 	if(obj->id != ObjectInstanceID(objects.size()))
@@ -607,36 +612,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
 
-	//todo: make this virtual method of CGObjectInstance
-	switch (obj->ID)
-	{
-	case Obj::TOWN:
-		towns.push_back(static_cast<CGTownInstance *>(obj));
-		break;
-	case Obj::HERO:
-		heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
-		break;
-	case Obj::SEER_HUT:
-	case Obj::QUEST_GUARD:
-	case Obj::BORDERGUARD:
-	case Obj::BORDER_GATE:
-		{
-			auto q = dynamic_cast<IQuestObject *>(obj);
-			q->quest->qid = quests.size();
-			quests.push_back(q->quest);
-		}
-		break;
-	case Obj::SPELL_SCROLL:
-		{
-			CGArtifact * art = dynamic_cast<CGArtifact *>(obj);
-
-			if(art->storedArtifact && art->storedArtifact->id.getNum() < 0)
-				addNewArtifactInstance(art->storedArtifact);
-		}
-		break;
-	default:
-		break;
-	}
+	obj->afterAddToMap(this);
 }
 
 void CMap::initTerrain()

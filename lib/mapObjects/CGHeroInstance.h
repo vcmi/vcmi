@@ -256,6 +256,8 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
+
+	void afterAddToMap(CMap * map) override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 	///common part of hero instance and hero definition

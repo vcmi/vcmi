@@ -23,6 +23,7 @@ struct MetaString;
 struct BattleResult;
 class JsonSerializeFormat;
 class CRandomGenerator;
+class CMap;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -172,7 +173,7 @@ public:
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ui8 what, ui32 val) override final;
 
-	//friend class CGameHandler;
+	virtual void afterAddToMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)

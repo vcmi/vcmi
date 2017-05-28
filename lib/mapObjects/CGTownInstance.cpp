@@ -18,7 +18,7 @@
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"
 
@@ -1333,6 +1333,11 @@ void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResu
 		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
 		cb->sendAndApply (&fw);
 	}
+}
+
+void CGTownInstance::afterAddToMap(CMap * map)
+{
+	map->towns.push_back(this);
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)

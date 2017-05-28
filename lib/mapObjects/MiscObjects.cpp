@@ -1405,6 +1405,12 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 		cb->startBattleI(hero, this);
 }
 
+void CGArtifact::afterAddToMap(CMap * map)
+{
+	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->id.getNum() < 0)
+        map->addNewArtifactInstance(storedArtifact);
+}
+
 void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	handler.serializeString("guardMessage", message);

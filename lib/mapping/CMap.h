@@ -334,6 +334,9 @@ public:
 	void addNewArtifactInstance(CArtifactInstance * art);
 	void eraseArtifactInstance(CArtifactInstance * art);
 
+	void addNewQuestInstance(CQuest * quest);
+
+	///Use only this method when creating new map object instances
 	void addNewObject(CGObjectInstance * obj);
 
 	/// Gets object of specified type on requested position

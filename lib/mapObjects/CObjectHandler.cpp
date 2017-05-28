@@ -345,9 +345,14 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
+void CGObjectInstance::afterAddToMap(CMap * map)
+{
+	//nothing here
+}
+
 void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-
+	//nothing here
 }
 
 void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)

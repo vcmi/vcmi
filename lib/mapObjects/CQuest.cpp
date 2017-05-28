@@ -25,6 +25,7 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../spells/CSpellHandler.h"
+#include "../mapping/CMap.h"
 
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
@@ -599,6 +600,11 @@ void IQuestObject::getVisitText (MetaString &text, std::vector<Component> &compo
 	quest->getVisitText (text,components, isCustom, FirstVisit, h);
 }
 
+void IQuestObject::afterAddToMapCommon(CMap * map)
+{
+	map->addNewQuestInstance(quest);
+}
+
 void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h) const
 {
 	quest->getCompletionText (text, components, isCustom, h);
@@ -847,6 +853,11 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
 	finishQuest(hero, answer);
+}
+
+void CGSeerHut::afterAddToMap(CMap* map)
+{
+	IQuestObject::afterAddToMapCommon(map);
 }
 
 void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1126,6 +1137,11 @@ void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answ
 {
 	if (answer)
 		cb->removeObject(this);
+}
+
+void CGBorderGuard::afterAddToMap(CMap * map)
+{
+	IQuestObject::afterAddToMapCommon(map);
 }
 
 void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passability

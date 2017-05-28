@@ -277,6 +277,8 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
 	std::string getObjectName() const override;
+
+	void afterAddToMap(CMap * map) override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

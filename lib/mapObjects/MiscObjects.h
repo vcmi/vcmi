@@ -189,6 +189,8 @@ public:
 	void pick( const CGHeroInstance * h ) const;
 	void initObj(CRandomGenerator & rand) override;
 
+	void afterAddToMap(CMap * map) override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);

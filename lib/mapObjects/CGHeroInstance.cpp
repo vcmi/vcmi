@@ -1559,6 +1559,11 @@ std::string CGHeroInstance::getHeroTypeName() const
 	return "";
 }
 
+void CGHeroInstance::afterAddToMap(CMap * map)
+{
+	map->heroesOnMap.push_back(this);
+}
+
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
