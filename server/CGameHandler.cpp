@@ -3982,6 +3982,11 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				complain("Cannot shoot!");
 				break;
 			}
+			if (!destinationStack)
+			{
+				complain("No target to shoot!");
+				break;
+			}
 
 			auto wrapper = wrapAction(ba);
 
@@ -3995,8 +4000,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 
 			//ranged counterattack
-			if (destinationStack
-				&& destinationStack->hasBonusOfType(Bonus::RANGED_RETALIATION)
+			if (destinationStack->hasBonusOfType(Bonus::RANGED_RETALIATION)
 				&& !stack->hasBonusOfType(Bonus::BLOCKS_RANGED_RETALIATION)
 				&& destinationStack->ableToRetaliate()
 				&& stack->alive()) //attacker may have died (fire shield)
