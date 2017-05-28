@@ -54,7 +54,8 @@ ObjectTemplate::ObjectTemplate():
 	visitDir(8|16|32|64|128), // all but top
 	id(Obj::NO_OBJ),
 	subid(0),
-	printPriority(0)
+	printPriority(0),
+	stringID("")
 {
 }
 
@@ -65,7 +66,8 @@ ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
 	subid(other.subid),
 	printPriority(other.printPriority),
 	animationFile(other.animationFile),
-	editorAnimationFile(other.editorAnimationFile)
+	editorAnimationFile(other.editorAnimationFile),
+	stringID(other.stringID)
 {
 	//default copy constructor is failing with usedTiles this for unknown reason
 
@@ -83,6 +85,7 @@ ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
 	printPriority = rhs.printPriority;
 	animationFile = rhs.animationFile;
 	editorAnimationFile = rhs.editorAnimationFile;
+	stringID = rhs.stringID;
 
 	usedTiles.clear();
 	usedTiles.resize(rhs.usedTiles.size());
