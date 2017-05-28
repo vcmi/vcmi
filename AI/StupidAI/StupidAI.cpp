@@ -297,10 +297,10 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 		{
 			auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
 			{
-				return BattleHex::getDistanceBetweenHexes(a, hex);
+				return BattleHex::getDistance(a, hex);
 			});
 
-			return BattleHex::getDistanceBetweenHexes(*nearestNeighbourToHex, hex);
+			return BattleHex::getDistance(*nearestNeighbourToHex, hex);
 		};
 
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, distToDestNeighbour);

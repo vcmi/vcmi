@@ -47,19 +47,19 @@ BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
 BOOST_AUTO_TEST_CASE(getDistance)
 {
 	BattleHex firstHex(0,0), secondHex(16,0);
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==16);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==16);
 	firstHex=0, secondHex=170;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==10);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==10);
 	firstHex=16, secondHex=181;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==10);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==10);
 	firstHex=186, secondHex=70;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==17);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==17);
 	firstHex=166, secondHex=39;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==11);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==11);
 	firstHex=25, secondHex=103;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==9);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==9);
 	firstHex=18, secondHex=71;
-	BOOST_TEST((int)firstHex.getDistanceBetweenHexes(firstHex,secondHex)==4);
+	BOOST_TEST((int)firstHex.getDistance(firstHex,secondHex)==4);
 }
 
 BOOST_AUTO_TEST_CASE(mutualPositions)
