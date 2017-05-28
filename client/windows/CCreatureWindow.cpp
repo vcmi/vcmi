@@ -180,6 +180,11 @@ std::string CStackWindow::generateStackExpDescription()
 void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 {
 	auto art = info->stackNode->getArt(ArtifactPosition::CREATURE_SLOT);
+	if(!art)
+	{
+		logGlobal->error("Attempt to remove missing artifact");
+		return;
+	}
 	LOCPLINT->cb->swapArtifacts(ArtifactLocation(info->stackNode, pos),
 								ArtifactLocation(info->owner, art->firstBackpackSlot(info->owner)));
 	stackArtifactButton.reset();
