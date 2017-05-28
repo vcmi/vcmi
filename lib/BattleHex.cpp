@@ -138,21 +138,21 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
 	if(hex2 == hex1.cloneInDirection(TOP_LEFT,true))
-		return 0;
+		return TOP_LEFT;
 	if(hex2 == hex1.cloneInDirection(TOP_RIGHT,true))
-		return 1;
+		return TOP_RIGHT;
 	if(hex2 == hex1.cloneInDirection(RIGHT,true))
-		return 2;
+		return RIGHT;
 	if(hex2 == hex1.cloneInDirection(BOTTOM_RIGHT,true))
-		return 3;
+		return BOTTOM_RIGHT;
 	if(hex2 == hex1.cloneInDirection(BOTTOM_LEFT,true))
-		return 4;
+		return BOTTOM_LEFT;
 	if(hex2 == hex1.cloneInDirection(LEFT,true))
-		return 5;
-	return -1;
+		return LEFT;
+	return INVALID;
 }
 
-char BattleHex::getDistanceBetweenHexes(BattleHex hex1, BattleHex hex2)
+char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 {
 	int y1 = hex1.getY(), y2 = hex2.getY();
 
@@ -179,13 +179,13 @@ BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, st
 	BattleHex initialHex = BattleHex(initialPos);
 	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
 	{
-		return initialHex.getDistanceBetweenHexes (initialHex, left) < initialHex.getDistanceBetweenHexes (initialHex, right);
+		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
 	};
 	boost::sort (sortedTiles, compareDistance); //closest tiles at front
-	int closestDistance = initialHex.getDistanceBetweenHexes(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
+	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
 	{
-		return closestDistance < here.getDistanceBetweenHexes (initialPos, here);
+		return closestDistance < here.getDistance (initialPos, here);
 	};
 	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
 	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool

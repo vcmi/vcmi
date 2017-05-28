@@ -15,7 +15,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 {
 	si16 hex;
 	static const si16 INVALID = -1;
-	enum EDir { RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT, TOP_LEFT, TOP_RIGHT };
+	enum EDir { TOP_LEFT, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, LEFT};
 
 	BattleHex();
 	BattleHex(si16 _hex);
@@ -37,7 +37,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	BattleHex operator+(EDir dir) const;
 	std::vector<BattleHex> neighbouringTiles() const;
 	static signed char mutualPosition(BattleHex hex1, BattleHex hex2);
-	static char getDistanceBetweenHexes(BattleHex hex1, BattleHex hex2);
+	static char getDistance(BattleHex hex1, BattleHex hex2);
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
 	static BattleHex getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 
