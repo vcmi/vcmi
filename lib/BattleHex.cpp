@@ -111,7 +111,7 @@ BattleHex &BattleHex::operator+=(BattleHex::EDir dir)
 	return moveInDirection(dir);
 }
 
-BattleHex BattleHex::generateHexMovedInDirection(BattleHex::EDir dir, bool hasToBeValid) const
+BattleHex BattleHex::cloneInDirection(BattleHex::EDir dir, bool hasToBeValid) const
 {
 	BattleHex result(hex);
 	result.moveInDirection(dir, hasToBeValid);
@@ -120,34 +120,34 @@ BattleHex BattleHex::generateHexMovedInDirection(BattleHex::EDir dir, bool hasTo
 
 BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 {
-	return generateHexMovedInDirection(dir);
+	return cloneInDirection(dir);
 }
 
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
-	checkAndPush(generateHexMovedInDirection(TOP_LEFT, true), ret);
-	checkAndPush(generateHexMovedInDirection(TOP_RIGHT, true), ret);
-	checkAndPush(generateHexMovedInDirection(RIGHT, true), ret);
-	checkAndPush(generateHexMovedInDirection(BOTTOM_RIGHT, true), ret);
-	checkAndPush(generateHexMovedInDirection(BOTTOM_LEFT, true), ret);
-	checkAndPush(generateHexMovedInDirection(LEFT, true), ret);
+	checkAndPush(cloneInDirection(TOP_LEFT, true), ret);
+	checkAndPush(cloneInDirection(TOP_RIGHT, true), ret);
+	checkAndPush(cloneInDirection(RIGHT, true), ret);
+	checkAndPush(cloneInDirection(BOTTOM_RIGHT, true), ret);
+	checkAndPush(cloneInDirection(BOTTOM_LEFT, true), ret);
+	checkAndPush(cloneInDirection(LEFT, true), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	if(hex2 == hex1.generateHexMovedInDirection(TOP_LEFT,true))
+	if(hex2 == hex1.cloneInDirection(TOP_LEFT,true))
 		return 0;
-	if(hex2 == hex1.generateHexMovedInDirection(TOP_RIGHT,true))
+	if(hex2 == hex1.cloneInDirection(TOP_RIGHT,true))
 		return 1;
-	if(hex2 == hex1.generateHexMovedInDirection(RIGHT,true))
+	if(hex2 == hex1.cloneInDirection(RIGHT,true))
 		return 2;
-	if(hex2 == hex1.generateHexMovedInDirection(BOTTOM_RIGHT,true))
+	if(hex2 == hex1.cloneInDirection(BOTTOM_RIGHT,true))
 		return 3;
-	if(hex2 == hex1.generateHexMovedInDirection(BOTTOM_LEFT,true))
+	if(hex2 == hex1.cloneInDirection(BOTTOM_LEFT,true))
 		return 4;
-	if(hex2 == hex1.generateHexMovedInDirection(LEFT,true))
+	if(hex2 == hex1.cloneInDirection(LEFT,true))
 		return 5;
 	return -1;
 }

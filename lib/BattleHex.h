@@ -33,7 +33,7 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	std::pair<si16, si16> getXY() const;
 	BattleHex& moveInDirection(EDir dir, bool hasToBeValid = true);
 	BattleHex& operator+=(EDir dir);
-	BattleHex generateHexMovedInDirection(EDir dir, bool hasToBeValid = true) const;
+	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
 	BattleHex operator+(EDir dir) const;
 	std::vector<BattleHex> neighbouringTiles() const;
 	static signed char mutualPosition(BattleHex hex1, BattleHex hex2);
