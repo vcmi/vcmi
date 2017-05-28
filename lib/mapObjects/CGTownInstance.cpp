@@ -25,6 +25,18 @@
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
+CSpecObjInfo::CSpecObjInfo():
+	owner(nullptr)
+{
+
+}
+
+CCreGenAsCastleInfo::CCreGenAsCastleInfo():
+	CSpecObjInfo(),	asCastle(false),identifier(0)
+{
+
+}
+
 void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeString("sameAsTown", instanceId);
@@ -50,6 +62,13 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 			allowedFactions = allowedLIC.any;
 		}
 	}
+}
+
+CCreGenLeveledInfo::CCreGenLeveledInfo():
+	CSpecObjInfo(),
+	minLevel(0), maxLevel(7)
+{
+
 }
 
 void CCreGenLeveledInfo::serializeJson(JsonSerializeFormat & handler)

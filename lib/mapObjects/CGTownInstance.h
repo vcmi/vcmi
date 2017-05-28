@@ -23,7 +23,7 @@ class CGDwelling;
 class DLL_LINKAGE CSpecObjInfo
 {
 public:
-	CSpecObjInfo() = default;
+	CSpecObjInfo();
 	virtual ~CSpecObjInfo() = default;
 
 	virtual void serializeJson(JsonSerializeFormat & handler) = 0;
@@ -34,7 +34,7 @@ public:
 class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
 {
 public:
-	CCreGenAsCastleInfo() = default;
+	CCreGenAsCastleInfo();
 	bool asCastle;
 	ui32 identifier;//h3m internal identifier
 
@@ -47,7 +47,7 @@ public:
 class DLL_LINKAGE CCreGenLeveledInfo : public virtual CSpecObjInfo
 {
 public:
-	CCreGenLeveledInfo() = default;
+	CCreGenLeveledInfo();
 	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <1, 7>
 
 	void serializeJson(JsonSerializeFormat & handler) override;
