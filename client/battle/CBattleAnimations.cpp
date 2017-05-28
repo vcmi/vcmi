@@ -123,7 +123,7 @@ bool CAttackAnimation::checkInitialConditions()
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
 		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
 
-		if(revAnim) // enemy must be fully reversed
+		if(revAnim && attackedStack) // enemy must be fully reversed
 		{
 			if (revAnim->stack->ID == attackedStack->ID)
 				return false;
