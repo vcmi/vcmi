@@ -342,7 +342,9 @@ const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
 CMapFormatJson::CMapFormatJson():
-	mapObjectResolver(make_unique<MapObjectResolver>(this))
+	fileVersionMajor(0), fileVersionMinor(0),
+	mapObjectResolver(make_unique<MapObjectResolver>(this)),
+	map(nullptr), mapHeader(nullptr)
 {
 
 }
