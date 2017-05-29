@@ -82,7 +82,6 @@ CFaction::~CFaction()
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
 {
-	faction = nullptr;
 }
 
 CTown::~CTown()
