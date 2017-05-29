@@ -1335,6 +1335,8 @@ void handleQuit(bool ask/* = true*/)
 		}
 
 		std::cout << "Ending...\n";
+		dispose();
+		SDL_Quit();
 		exit(0);
 	};
 
