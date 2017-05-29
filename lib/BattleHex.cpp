@@ -127,14 +127,14 @@ std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
 	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
-		checkAndPush(cloneInDirection(dir, true), ret);
+		checkAndPush(cloneInDirection(dir, false), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
 	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
-		if(hex2 == hex1.cloneInDirection(dir,true))
+		if(hex2 == hex1.cloneInDirection(dir,false))
 			return dir;
 	return INVALID;
 }
