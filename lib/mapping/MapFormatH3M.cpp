@@ -2231,7 +2231,7 @@ void CMapLoaderH3M::afterRead()
 
 			for(auto obj : t.visitableObjects)
 			{
-				if(obj->ID = Obj::TOWN)
+				if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
 				{
 					mainTown = obj;
 					break;
