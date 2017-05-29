@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include <boost/test/unit_test.hpp>
 #include "../lib/BattleHex.h"
-
 BOOST_AUTO_TEST_SUITE(BattlefieldHex_Suite)
 
 BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
@@ -38,11 +37,11 @@ BOOST_AUTO_TEST_CASE(getNeighbouringTiles)
 
 	BOOST_REQUIRE(neighbouringTiles.size()==6 && mainHex==93);
 	BOOST_TEST(neighbouringTiles.at(0)==75);
-	BOOST_TEST(neighbouringTiles.at(1)==94);
-	BOOST_TEST(neighbouringTiles.at(2)==110);
-	BOOST_TEST(neighbouringTiles.at(3)==109);
-	BOOST_TEST(neighbouringTiles.at(4)==92);
-	BOOST_TEST(neighbouringTiles.at(5)==76);
+	BOOST_TEST(neighbouringTiles.at(1)==76);
+	BOOST_TEST(neighbouringTiles.at(2)==94);
+	BOOST_TEST(neighbouringTiles.at(3)==110);
+	BOOST_TEST(neighbouringTiles.at(4)==109);
+	BOOST_TEST(neighbouringTiles.at(5)==92);
 }
 
 BOOST_AUTO_TEST_CASE(getDistance)
@@ -107,17 +106,17 @@ BOOST_AUTO_TEST_CASE(getClosestTile)
 BOOST_AUTO_TEST_CASE(moveEDir)
 {
 	BattleHex mainHex(20);
-	mainHex.moveInDir(BattleHex::EDir::BOTTOM_RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::BOTTOM_RIGHT);
 	BOOST_TEST(mainHex==37);
-	mainHex.moveInDir(BattleHex::EDir::RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::RIGHT);
 	BOOST_TEST(mainHex==38);
-	mainHex.moveInDir(BattleHex::EDir::TOP_RIGHT);
+	mainHex.moveInDirection(BattleHex::EDir::TOP_RIGHT);
 	BOOST_TEST(mainHex==22);
-	mainHex.moveInDir(BattleHex::EDir::TOP_LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::TOP_LEFT);
 	BOOST_TEST(mainHex==4);
-	mainHex.moveInDir(BattleHex::EDir::LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::LEFT);
 	BOOST_TEST(mainHex==3);
-	mainHex.moveInDir(BattleHex::EDir::BOTTOM_LEFT);
+	mainHex.moveInDirection(BattleHex::EDir::BOTTOM_LEFT);
 	BOOST_TEST(mainHex==20);
 }
 

@@ -566,9 +566,9 @@ std::vector<BattleHex> WallMechanics::rangeInHexes(BattleHex centralHex, ui8 sch
 	};
 
 	ret.push_back(centralHex);
-	addIfValid(centralHex.moveInDir(firstStep, false));
+	addIfValid(centralHex.moveInDirection(firstStep, false));
 	if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
-		addIfValid(centralHex.moveInDir(secondStep, false)); //moveInDir function modifies subject hex
+		addIfValid(centralHex.moveInDirection(secondStep, false)); //moveInDir function modifies subject hex
 
 	return ret;
 }

@@ -76,7 +76,7 @@ std::pair<si16, si16> BattleHex::getXY() const
 	return std::make_pair(getX(), getY());
 }
 
-BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
+BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 {
 	si16 x(getX()), y(getY());
 	switch(dir)
@@ -102,58 +102,41 @@ BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 	default:
 		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
-}
+	}
 	return *this;
 }
 
 BattleHex &BattleHex::operator+=(BattleHex::EDir dir)
 {
-	return moveInDir(dir);
+	return moveInDirection(dir);
 }
 
-BattleHex BattleHex::movedInDir(BattleHex::EDir dir, bool hasToBeValid) const
+BattleHex BattleHex::cloneInDirection(BattleHex::EDir dir, bool hasToBeValid) const
 {
-	BattleHex result(*this);
-	result.moveInDir(dir, hasToBeValid);
+	BattleHex result(hex);
+	result.moveInDirection(dir, hasToBeValid);
 	return result;
 }
 
 BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 {
-	return movedInDir(dir);
+	return cloneInDirection(dir);
 }
 
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
-	const int WN = GameConstants::BFIELD_WIDTH;
-	// H3 order : TR, R, BR, BL, L, TL (T = top, B = bottom ...)
-
-	checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), ret); // 1
-	checkAndPush(hex + 1, ret); // 2
-	checkAndPush(hex + ( (hex/WN)%2 ? WN : WN+1 ), ret); // 3
-	checkAndPush(hex + ( (hex/WN)%2 ? WN-1 : WN ), ret); // 4
-	checkAndPush(hex - 1, ret); // 5
-	checkAndPush(hex - ( (hex/WN)%2 ? WN : WN-1 ), ret); // 6
-
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+		checkAndPush(cloneInDirection(dir, false), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
-		return 0;
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
-		return 1;
-	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
-		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
-		return 3;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
-		return 4;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
-		return 5;
-	return -1;
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+		if(hex2 == hex1.cloneInDirection(dir,false))
+			return dir;
+	return INVALID;
 }
 
 char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
