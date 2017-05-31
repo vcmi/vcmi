@@ -339,6 +339,11 @@ CVCMIServer::CVCMIServer()
 	catch(...)
 	{
 		logNetwork->info("Port %d is busy, trying to use random port instead", port);
+		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("use-shm"))
+		{
+			logNetwork->error("Cant pass port number to client without shared memory!", port);
+			exit(0);
+		}
 		acceptor = new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
 		port = acceptor->local_endpoint().port();
 	}
@@ -422,19 +427,22 @@ void CVCMIServer::start()
 #ifndef VCMI_ANDROID
 	ServerReady *sr = nullptr;
 	intpr::mapped_region *mr;
-	try
+	if(cmdLineOptions.count("use-shm"))
 	{
-		intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = reinterpret_cast<ServerReady*>(mr->get_address());
-	}
-	catch(...)
-	{
-		intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = new(mr->get_address())ServerReady();
+		try
+		{
+			intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
+			smo.truncate(sizeof(ServerReady));
+			mr = new intpr::mapped_region(smo,intpr::read_write);
+			sr = reinterpret_cast<ServerReady*>(mr->get_address());
+		}
+		catch(...)
+		{
+			intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
+			smo.truncate(sizeof(ServerReady));
+			mr = new intpr::mapped_region(smo,intpr::read_write);
+			sr = new(mr->get_address())ServerReady();
+		}
 	}
 #endif
 
@@ -452,8 +460,11 @@ void CVCMIServer::start()
 				logNetwork->info("Sending server ready message to client");
 			}
 #else
-			sr->setToTrueAndNotify(port);
-			delete mr;
+			if(cmdLineOptions.count("use-shm"))
+			{
+				sr->setToTrueAndNotify(port);
+				delete mr;
+			}
 #endif
 
 			acc.join();
@@ -545,6 +556,8 @@ static void handleCommandOptions(int argc, char *argv[])
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
+		("run-by-client", "indicate that server launched by client on same machine")
+		("use-shm", "enable usage of shared memory")
 		("port", po::value<ui16>(), "port at which server will listen to connections from client")
 		("resultsFile", po::value<std::string>()->default_value("./results.txt"), "file to which the battle result will be appended. Used only in the DUEL mode.");
 
