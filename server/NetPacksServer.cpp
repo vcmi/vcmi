@@ -65,6 +65,12 @@ bool CloseServer::applyGh( CGameHandler *gh )
 	return true;
 }
 
+bool LeaveGame::applyGh( CGameHandler *gh )
+{
+	gh->playerLeftGame(c->connectionID);
+	return true;
+}
+
 bool EndTurn::applyGh( CGameHandler *gh )
 {
 	PlayerColor player = GS(gh)->currentPlayer;

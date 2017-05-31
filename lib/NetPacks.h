@@ -1774,6 +1774,13 @@ struct CloseServer : public CPackForServer
 	{}
 };
 
+struct LeaveGame : public CPackForServer
+{
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
 struct EndTurn : public CPackForServer
 {
 	bool applyGh(CGameHandler *gh);

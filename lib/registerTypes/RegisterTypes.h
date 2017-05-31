@@ -314,6 +314,7 @@ void registerTypesServerPacks(Serializer &s)
 {
 	s.template registerType<CPack, CPackForServer>();
 	s.template registerType<CPackForServer, CloseServer>();
+	s.template registerType<CPackForServer, LeaveGame>();
 	s.template registerType<CPackForServer, EndTurn>();
 	s.template registerType<CPackForServer, DismissHero>();
 	s.template registerType<CPackForServer, MoveHero>();

@@ -83,7 +83,7 @@ struct EvilHlpStruct
 
 	void reset()
 	{
-		vstd::clear_pointer(serv);
+//		vstd::clear_pointer(serv);
 		vstd::clear_pointer(sInfo);
 	}
 

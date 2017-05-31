@@ -701,6 +701,12 @@ void CClient::stopConnection()
 		sendRequest(&close_server, PlayerColor::NEUTRAL);
 		logNetwork->infoStream() << "Sent closing signal to the server";
 	}
+	else
+	{
+		LeaveGame leave_Game;
+		sendRequest(&leave_Game, PlayerColor::NEUTRAL);
+		logNetwork->infoStream() << "Sent leaving signal to the server";
+	}
 
 	if(connectionHandler)//end connection handler
 	{
