@@ -69,6 +69,7 @@ public:
 	 */
 	static std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name);
 
+	static void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath);
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.

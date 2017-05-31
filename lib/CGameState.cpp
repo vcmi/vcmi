@@ -24,8 +24,10 @@
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
+#include "mapping/CMapService.h"
 #include "serializer/CTypeList.h"
 #include "serializer/CMemorySerializer.h"
+#include "VCMIDirs.h"
 
 #ifdef min
 #undef min
@@ -698,7 +700,7 @@ CGameState::~CGameState()
 		ptr.second.dellNull();
 }
 
-void CGameState::init(StartInfo * si)
+void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 {
 	logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
 	getRandomGenerator().setSeed(si->seedToBeUsed);
@@ -709,7 +711,7 @@ void CGameState::init(StartInfo * si)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		initNewGame();
+		initNewGame(allowSavingRandomMap);
 		break;
 	case StartInfo::CAMPAIGN:
 		initCampaign();
@@ -771,7 +773,7 @@ void CGameState::init(StartInfo * si)
 	}
 }
 
-void CGameState::initNewGame()
+void CGameState::initNewGame(bool allowSavingRandomMap)
 {
 	if(scenarioOps->createRandomMap())
 	{
@@ -780,8 +782,37 @@ void CGameState::initNewGame()
 
 		// Gen map
 		CMapGenerator mapGenerator;
-		map = mapGenerator.generate(scenarioOps->mapGenOptions.get(), scenarioOps->seedToBeUsed).release();
 
+		std::unique_ptr<CMap> randomMap = mapGenerator.generate(scenarioOps->mapGenOptions.get(), scenarioOps->seedToBeUsed);
+
+		if(allowSavingRandomMap)
+		{
+			try
+			{
+				auto path = VCMIDirs::get().userCachePath() / "RandomMaps";
+				boost::filesystem::create_directories(path);
+
+				std::shared_ptr<CMapGenOptions> options = scenarioOps->mapGenOptions;
+
+				const std::string templateName = options->getMapTemplate()->getName();
+				const ui32 seed = scenarioOps->seedToBeUsed;
+
+				const std::string fileName = boost::str(boost::format("%s_%d.vmap") % templateName % seed );
+				const auto fullPath = path / fileName;
+
+				CMapService::saveMap(randomMap, fullPath);
+
+				logGlobal->info("Random map has been saved to:");
+				logGlobal->info(fullPath.string());
+			}
+			catch(...)
+			{
+				logGlobal->error("Saving random map failed with exception");
+				handleException();
+			}
+		}
+
+		map = randomMap.release();
 		// Update starting options
 		for(int i = 0; i < map->players.size(); ++i)
 		{
