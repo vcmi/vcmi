@@ -1040,7 +1040,10 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 		{
 			if(playerConn.second == &c)
 			{
-				gs->getPlayer(playerConn.first)->enteredLosingCheatCode = 1;
+				PlayerCheated pc;
+				pc.player = playerConn.first;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
 				checkVictoryLossConditionsForPlayer(playerConn.first);
 			}
 		}
@@ -6210,12 +6213,18 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	else if (cheat == "vcmisilmaril")
 	{
 		///Player wins
-		gs->getPlayer(player)->enteredWinningCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.winningCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmimelkor")
 	{
 		///Player looses
-		gs->getPlayer(player)->enteredLosingCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.losingCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{

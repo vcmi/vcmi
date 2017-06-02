@@ -210,6 +210,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, PackageApplied>();
 	s.template registerType<CPackForClient, SystemMessage>();
 	s.template registerType<CPackForClient, PlayerBlocked>();
+	s.template registerType<CPackForClient, PlayerCheated>();
 	s.template registerType<CPackForClient, YourTurn>();
 	s.template registerType<CPackForClient, SetResources>();
 	s.template registerType<CPackForClient, SetPrimSkill>();
