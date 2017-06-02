@@ -391,7 +391,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	else
 	{
 		serv = con;
-		networkMode = (con->connectionID == 1) ? HOST : GUEST;
+		networkMode = con->isHost() ? HOST : GUEST;
 	}
 
 	CConnection &c = *serv;
@@ -693,13 +693,19 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv) //request closing connection
+	if (serv && serv->isHost()) //request closing connection
 	{
 		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		CloseServer close_server;
 		sendRequest(&close_server, PlayerColor::NEUTRAL);
 		logNetwork->infoStream() << "Sent closing signal to the server";
+	}
+	else
+	{
+		LeaveGame leave_Game;
+		sendRequest(&leave_Game, PlayerColor::NEUTRAL);
+		logNetwork->infoStream() << "Sent leaving signal to the server";
 	}
 
 	if(connectionHandler)//end connection handler
@@ -708,16 +714,13 @@ void CClient::stopConnection()
 			connectionHandler->join();
 
 		logNetwork->infoStream() << "Connection handler thread joined";
-
-		delete connectionHandler;
-		connectionHandler = nullptr;
+		vstd::clear_pointer(connectionHandler);
 	}
 
 	if (serv) //and delete connection
 	{
 		serv->close();
-		delete serv;
-		serv = nullptr;
+		vstd::clear_pointer(serv);
 		logNetwork->warnStream() << "Our socket has been closed.";
 	}
 }
@@ -966,10 +969,13 @@ void CServerHandler::waitForServer()
 	th.update();
 
 #ifndef VCMI_ANDROID
-	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
-	while(!shared->sr->ready)
+	if(shared)
 	{
-		shared->sr->cond.wait(slock);
+		intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
+		while(!shared->sr->ready)
+		{
+			shared->sr->cond.wait(slock);
+		}
 	}
 #else
 	logNetwork->infoStream() << "waiting for server";
@@ -988,8 +994,12 @@ void CServerHandler::waitForServer()
 CConnection * CServerHandler::connectToServer()
 {
 #ifndef VCMI_ANDROID
-	if(!shared->sr->ready)
-		waitForServer();
+	if(shared)
+	{
+		if(!shared->sr->ready)
+			waitForServer();
+		port = boost::lexical_cast<std::string>(shared->sr->port);
+	}
 #else
 	waitForServer();
 #endif
@@ -1015,6 +1025,9 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	verbose = true;
 
 #ifndef VCMI_ANDROID
+	if(DO_NOT_START_SERVER)
+		return;
+
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try
 	{
@@ -1022,6 +1035,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	}
 	catch(...)
 	{
+		vstd::clear_pointer(shared);
 		logNetwork->error("Cannot open interprocess memory.");
 		handleException();
 		throw;
@@ -1040,7 +1054,12 @@ void CServerHandler::callServer()
 #ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::callServer");
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
-	const std::string comm = VCMIDirs::get().serverPath().string() + " --port=" + port + " > \"" + logName + '\"';
+	const std::string comm = VCMIDirs::get().serverPath().string()
+		+ " --port=" + port
+		+ " --run-by-client"
+		+ (shared ? " --use-shm" : "")
+		+ " > \"" + logName + '\"';
+
 	int result = std::system(comm.c_str());
 	if (result == 0)
 	{
@@ -1075,6 +1094,7 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(),
 									realPort,
 									NAME);
+			ret->connectionID = 1; // TODO: Refactoring for the server so IDs set outside of CConnection
 		}
 		catch(...)
 		{

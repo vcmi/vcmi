@@ -1031,6 +1031,24 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 {
 	setThreadName("CGameHandler::handleConnection");
 
+	auto handleDisconnection = [&](const std::exception & e)
+	{
+		assert(!c.connected); //make sure that connection has been marked as broken
+		logGlobal->error(e.what());
+		conns -= &c;
+		for(auto playerConn : connections)
+		{
+			if(playerConn.second == &c)
+			{
+				PlayerCheated pc;
+				pc.player = playerConn.first;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
+				checkVictoryLossConditionsForPlayer(playerConn.first);
+			}
+		}
+	};
+
 	try
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
@@ -1042,6 +1060,8 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
+				if(!c.connected)
+					throw clientDisconnectedException();
 				c >> player >> requestID >> pack; //get the package
 
 				if (!pack)
@@ -1060,6 +1080,11 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			//prepare struct informing that action was applied
 			auto sendPackageResponse = [&](bool succesfullyApplied)
 			{
+				//dont reply to disconnected client
+				//TODO: this must be implemented as option of CPackForServer
+				if(dynamic_cast<LeaveGame *>(pack) || dynamic_cast<CloseServer *>(pack))
+					return;
+
 				PackageApplied applied;
 				applied.player = player;
 				applied.result = succesfullyApplied;
@@ -1095,9 +1120,11 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
-		assert(!c.connected); //make sure that connection has been marked as broken
-		logGlobal->error(e.what());
-		end2 = true;
+		handleDisconnection(e);
+	}
+	catch(clientDisconnectedException & e)
+	{
+		handleDisconnection(e);
 	}
 	catch(...)
 	{
@@ -2631,6 +2658,9 @@ void CGameHandler::sendToAllClients(CPackForClient * info)
 	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for (auto & elem : conns)
 	{
+		if(!elem->isOpen())
+			continue;
+
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
 		*elem << info;
 	}
@@ -2703,11 +2733,32 @@ void CGameHandler::close()
 	{
 		exit(0);
 	}
+	end2 = true;
 
-	//for (CConnection *cc : conns)
-	//	if (cc && cc->socket && cc->socket->is_open())
-	//		cc->socket->close();
-	//exit(0);
+	for (auto & elem : conns)
+	{
+		if(!elem->isOpen())
+			continue;
+
+		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
+		elem->close();
+		elem->connected = false;
+	}
+	exit(0);
+}
+
+void CGameHandler::playerLeftGame(int cid)
+{
+	for (auto & elem : conns)
+	{
+		if(elem->isOpen() && elem->connectionID == cid)
+		{
+			boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
+			elem->close();
+			elem->connected = false;
+			break;
+		}
+	}
 }
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
@@ -6162,12 +6213,18 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	else if (cheat == "vcmisilmaril")
 	{
 		///Player wins
-		gs->getPlayer(player)->enteredWinningCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.winningCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmimelkor")
 	{
 		///Player looses
-		gs->getPlayer(player)->enteredLosingCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.losingCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{

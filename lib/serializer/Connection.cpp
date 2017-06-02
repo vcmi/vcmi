@@ -191,14 +191,18 @@ void CConnection::close()
 	if(socket)
 	{
 		socket->close();
-		delete socket;
-		socket = nullptr;
+		vstd::clear_pointer(socket);
 	}
 }
 
 bool CConnection::isOpen() const
 {
 	return socket && connected;
+}
+
+bool CConnection::isHost() const
+{
+	return connectionID == 1;
 }
 
 void CConnection::reportState(CLogger * out)

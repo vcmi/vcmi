@@ -210,6 +210,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, PackageApplied>();
 	s.template registerType<CPackForClient, SystemMessage>();
 	s.template registerType<CPackForClient, PlayerBlocked>();
+	s.template registerType<CPackForClient, PlayerCheated>();
 	s.template registerType<CPackForClient, YourTurn>();
 	s.template registerType<CPackForClient, SetResources>();
 	s.template registerType<CPackForClient, SetPrimSkill>();
@@ -314,6 +315,7 @@ void registerTypesServerPacks(Serializer &s)
 {
 	s.template registerType<CPack, CPackForServer>();
 	s.template registerType<CPackForServer, CloseServer>();
+	s.template registerType<CPackForServer, LeaveGame>();
 	s.template registerType<CPackForServer, EndTurn>();
 	s.template registerType<CPackForServer, DismissHero>();
 	s.template registerType<CPackForServer, MoveHero>();

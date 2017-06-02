@@ -1840,6 +1840,12 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 	}
 }
 
+DLL_LINKAGE void PlayerCheated::applyGs(CGameState *gs)
+{
+	gs->getPlayer(player)->enteredLosingCheatCode = losingCheatCode;
+	gs->getPlayer(player)->enteredWinningCheatCode = winningCheatCode;
+}
+
 DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
 {
 	gs->currentPlayer = player;
