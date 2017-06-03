@@ -96,6 +96,10 @@
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0].color, function, __VA_ARGS__)	\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1].color, function, __VA_ARGS__)	\
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())	\
+	{																					\
+		CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, function, __VA_ARGS__)	\
+	}																					\
 	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
@@ -358,12 +362,12 @@ void TryMoveHero::applyFirstCl(CClient *cl)
 	//check if playerint will have the knowledge about movement - if not, directly update maphandler
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT)
-			continue;
-		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
-				&& GS(cl)->getPlayer(i->first)->human)
-			humanKnows = true;
+		auto ps = GS(cl)->getPlayer(i->first);
+		if(ps && (GS(cl)->isVisible(start - int3(1, 0, 0), i->first) || GS(cl)->isVisible(end - int3(1, 0, 0), i->first)))
+		{
+			if(ps->human)
+				humanKnows = true;
+		}
 	}
 
 	if(!CGI->mh)
@@ -399,9 +403,8 @@ void TryMoveHero::applyCl(CClient *cl)
 	//notify interfaces about move
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT) continue;
-		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
+		if(GS(cl)->isVisible(start - int3(1, 0, 0), i->first)
+			|| GS(cl)->isVisible(end - int3(1, 0, 0), i->first))
 		{
 			i->second->heroMoved(*this);
 		}
@@ -592,6 +595,8 @@ void BattleStart::applyFirstCl(CClient *cl)
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[1].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
+	CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
+		info->tile, info->sides[0].hero, info->sides[1].hero);
 	BATTLE_INTERFACE_CALL_RECEIVERS(battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 }
@@ -711,7 +716,7 @@ void BattleResultsApplied::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
-	INTERFACE_CALL_IF_PRESENT(PlayerColor::UNFLAGGABLE, battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(PlayerColor::SPECTATOR, battleResultsApplied);
 	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
 	{
 		handleQuit();
@@ -812,7 +817,10 @@ void PlayerMessage::applyCl(CClient *cl)
 	logNetwork->debugStream() << "Player "<< player <<" sends a message: " << text;
 
 	std::ostringstream str;
-	str << cl->getPlayer(player)->nodeName() <<": " << text;
+	if(player.isSpectator())
+		str << "Spectator: " << text;
+	else
+		str << cl->getPlayer(player)->nodeName() <<": " << text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }

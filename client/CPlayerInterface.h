@@ -236,6 +236,7 @@ public:
 	void updateInfo(const CGObjectInstance * specific);
 	void init(std::shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
+	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
 	// show dialogs
 	void showInfoDialog(const std::string &text, CComponent * component);

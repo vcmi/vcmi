@@ -1878,7 +1878,8 @@ void CGameHandler::run(bool resume)
 			sbuffer << color << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[color] = cc;
+				if(!color.isSpectator()) // there can be more than one spectator
+					connections[color] = cc;
 			}
 		}
 		logGlobal->info(sbuffer.str());
@@ -4430,7 +4431,9 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
-		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
+
+		if(!player.isSpectator())
+			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
 	}
 }
 

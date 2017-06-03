@@ -225,9 +225,13 @@ void CWindowObject::setShadow(bool on)
 
 void CWindowObject::showAll(SDL_Surface *to)
 {
+	auto color = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1);
+	if(settings["session"]["spectate"].Bool())
+		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
+
 	CIntObject::showAll(to);
 	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 void CWindowObject::close()

@@ -2208,6 +2208,9 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 {
 	if(player == PlayerColor::NEUTRAL)
 		return false;
+	if(player.isSpectator())
+		return true;
+
 	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
 }
 

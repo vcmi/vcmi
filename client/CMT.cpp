@@ -123,7 +123,7 @@ void startTestMap(const std::string &mapname)
 		PlayerSettings &pset = si.playerInfos[PlayerColor(i)];
 		pset.color = PlayerColor(i);
 		pset.name = CGI->generaltexth->allTexts[468];//Computer
-		pset.playerID = i;
+		pset.playerID = PlayerSettings::PLAYER_AI;
 		pset.compOnly = true;
 		pset.castle = 0;
 		pset.hero = -1;
@@ -263,6 +263,12 @@ int main(int argc, char** argv)
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
 		("testmap", po::value<std::string>(), "")
+		("spectate,s", "enable spectator interface for AI-only games")
+		("spectate-ignore-hero", "wont follow heroes on adventure map")
+		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
+		("spectate-battle-speed", po::value<int>(), "battle animation speed for spectator")
+		("spectate-skip-battle", "skip battles in spectator view")
+		("spectate-skip-battle-result", "skip battle result window")
 		("onlyAI", "runs without human player, all players will be default AI")
 		("headless", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
@@ -515,18 +521,34 @@ int main(int argc, char** argv)
 		if(vm.count("testmap"))
 			testmap = vm["testmap"].as<std::string>();
 
+		session["spectate"].Bool() = vm.count("spectate");
+		if(session["spectate"].Bool())
+		{
+			session["spectate-ignore-hero"].Bool() = vm.count("spectate-ignore-hero");
+			session["spectate-skip-battle"].Bool() = vm.count("spectate-skip-battle");
+			session["spectate-skip-battle-result"].Bool() = vm.count("spectate-skip-battle-result");
+			if(vm.count("spectate-hero-speed"))
+				session["spectate-hero-speed"].Integer() = vm["spectate-hero-speed"].as<int>();
+			if(vm.count("spectate-battle-speed"))
+				session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
+		}
 		if(!testmap.empty())
+		{
 			startTestMap(testmap);
-		else if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
-			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
+		}
 		else
 		{
-			if(!fileToStartFrom.empty())
+			if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
+				startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
+			else
 			{
-				logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
-					<< "). Falling back to main menu.";
+				if(!fileToStartFrom.empty())
+				{
+					logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
+						<< "). Falling back to main menu.";
+				}
+				GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 			}
-			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 		}
 	}
 	else

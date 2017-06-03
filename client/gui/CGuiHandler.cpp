@@ -361,7 +361,8 @@ void CGuiHandler::simpleRedraw()
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
-	objsToBlit.back()->show(screen); //blit active interface/window
+	if(!objsToBlit.empty())
+		objsToBlit.back()->show(screen); //blit active interface/window
 }
 
 void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
