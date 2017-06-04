@@ -68,7 +68,7 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
 	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, boost::lexical_cast<std::string>(port)),error);
+	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
 	if(error)
 	{
 		logNetwork->errorStream() << "Problem with resolving: \n" << error;
