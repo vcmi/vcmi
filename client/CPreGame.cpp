@@ -131,10 +131,10 @@ void setPlayer(PlayerSettings &pset, ui8 player, const std::map<ui8, std::string
 		playerColor = pset.color;
 }
 
-void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui8, std::string> &playerNames)
+void updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader, const std::map<ui8, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
-	if(!mapHeader)
+	if(!mapHeader.get())
 	{
 		return;
 	}
@@ -799,7 +799,12 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 	   SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
 	if(screenType != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader.get() : nullptr);
+		std::unique_ptr<CMapHeader> emptyHeader;
+        if(to)
+			updateStartInfo(to->fileURI, sInfo, to->mapHeader);
+		else
+			updateStartInfo("", sInfo, emptyHeader);
+
 		if(screenType == CMenuScreen::newGame)
 		{
 			if(to && to->isRandomMap)
@@ -3219,7 +3224,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 void CBonusSelection::init()
 {
 	highlightedRegion = nullptr;
-	ourHeader = nullptr;
+	ourHeader.reset();
 	diffLb = nullptr;
 	diffRb = nullptr;
 	bonuses = nullptr;
@@ -3342,7 +3347,6 @@ CBonusSelection::CBonusSelection(const std::string & campaignFName)
 CBonusSelection::~CBonusSelection()
 {
 	SDL_FreeSurface(background);
-	delete ourHeader;
 	sFlags->unload();
 }
 
@@ -3423,10 +3427,9 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 		scenarioName += ':' + boost::lexical_cast<std::string>(selectedMap);
 
 		//get header
-		delete ourHeader;
 		std::string & headerStr = ourCampaign->camp->mapPieces.find(mapNr)->second;
 		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName).release();
+		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
 
 		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();
@@ -3922,7 +3925,7 @@ ISelectionScreenInfo::~ISelectionScreenInfo()
 	SEL = nullptr;
 }
 
-void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader)
+void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader)
 {
 	::updateStartInfo(filename, sInfo, mapHeader, playerNames);
 }

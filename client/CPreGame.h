@@ -341,7 +341,7 @@ public:
 	virtual void postChatMessage(const std::string &txt){};
 
 	void setPlayer(PlayerSettings &pset, ui8 player);
-	void updateStartInfo( std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader );
+	void updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader);
 
 	ui8 getIdOfFirstUnallocatedPlayer(); //returns 0 if none
 	bool isGuest() const;
@@ -539,7 +539,7 @@ private:
 	int selectedMap;
 	boost::optional<int> selectedBonus;
 	StartInfo startInfo;
-	CMapHeader * ourHeader;
+	std::unique_ptr<CMapHeader> ourHeader;
 };
 
 /// Campaign selection screen
