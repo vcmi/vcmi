@@ -185,6 +185,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/variant.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846

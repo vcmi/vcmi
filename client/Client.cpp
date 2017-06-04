@@ -41,9 +41,7 @@
 #include "CMT.h"
 
 extern std::string NAME;
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#else
+#ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
 
@@ -1019,13 +1017,7 @@ void CServerHandler::waitForServer()
 
 #ifndef VCMI_ANDROID
 	if(shared)
-	{
-		intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
-		while(!shared->sr->ready)
-		{
-			shared->sr->cond.wait(slock);
-		}
-	}
+		shared->sr->waitTillReady();
 #else
 	logNetwork->infoStream() << "waiting for server";
 	while (!androidTestServerReadyFlag.load())
@@ -1042,15 +1034,7 @@ void CServerHandler::waitForServer()
 
 CConnection * CServerHandler::connectToServer()
 {
-#ifndef VCMI_ANDROID
-	if(shared)
-	{
-		if(!shared->sr->ready)
-			waitForServer();
-	}
-#else
 	waitForServer();
-#endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
 
@@ -1084,15 +1068,21 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	serverThread = nullptr;
 	shared = nullptr;
 	verbose = true;
+	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 
 #ifndef VCMI_ANDROID
-	if(DO_NOT_START_SERVER)
+	if(DO_NOT_START_SERVER || settings["session"]["disable-shm"].Bool())
 		return;
 
-	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
+	std::string sharedMemoryName = "vcmi_memory";
+	if(settings["session"]["enable-shm-uuid"].Bool())
+	{
+		//used or automated testing when multiple clients start simultaneously
+		sharedMemoryName += "_" + uuid;
+	}
 	try
 	{
-		shared = new SharedMem();
+		shared = new SharedMemory(sharedMemoryName, true);
 	}
 	catch(...)
 	{
@@ -1115,11 +1105,17 @@ void CServerHandler::callServer()
 #ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::callServer");
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
-	const std::string comm = VCMIDirs::get().serverPath().string()
+	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + getDefaultPortStr()
 		+ " --run-by-client"
-		+ (shared ? " --use-shm" : "")
-		+ " > \"" + logName + '\"';
+		+ " --uuid=" + uuid;
+	if(shared)
+	{
+		comm += " --enable-shm";
+		if(settings["session"]["enable-shm-uuid"].Bool())
+			comm += " --enable-shm-uuid";
+	}
+	comm += " > \"" + logName + '\"';
 
 	int result = std::system(comm.c_str());
 	if (result == 0)

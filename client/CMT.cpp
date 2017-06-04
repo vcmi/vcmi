@@ -260,6 +260,8 @@ int main(int argc, char** argv)
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
+		("disable-shm", "force disable shared memory usage")
+		("enable-shm-uuid", "use UUID for shared memory identifier")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
 		("testmap", po::value<std::string>(), "")
@@ -345,6 +347,9 @@ int main(int argc, char** argv)
 		session["headless"].Bool() = true;
 		session["onlyai"].Bool() = true;
 	}
+	// Shared memory options
+	session["disable-shm"].Bool() = vm.count("disable-shm");
+	session["enable-shm-uuid"].Bool() = vm.count("enable-shm-uuid");
 
 	// Init special testing settings
 	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;

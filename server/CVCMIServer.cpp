@@ -41,9 +41,6 @@
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#endif
 std::atomic<bool> serverShuttingDown(false);
 
 boost::program_options::variables_map cmdLineOptions;
@@ -326,7 +323,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 }
 
 CVCMIServer::CVCMIServer()
-	: port(3030), io(new boost::asio::io_service()), firstConnection(nullptr)
+	: port(3030), io(new boost::asio::io_service()), firstConnection(nullptr), shared(nullptr)
 {
 	logNetwork->trace("CVCMIServer created!");
 	if(cmdLineOptions.count("port"))
@@ -339,7 +336,7 @@ CVCMIServer::CVCMIServer()
 	catch(...)
 	{
 		logNetwork->info("Port %d is busy, trying to use random port instead", port);
-		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("use-shm"))
+		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("enable-shm"))
 		{
 			logNetwork->error("Cant pass port number to client without shared memory!", port);
 			exit(0);
@@ -425,24 +422,14 @@ void CVCMIServer::newPregame()
 void CVCMIServer::start()
 {
 #ifndef VCMI_ANDROID
-	ServerReady *sr = nullptr;
-	intpr::mapped_region *mr;
-	if(cmdLineOptions.count("use-shm"))
+	if(cmdLineOptions.count("enable-shm"))
 	{
-		try
+		std::string sharedMemoryName = "vcmi_memory";
+		if(cmdLineOptions.count("enable-shm-uuid") && cmdLineOptions.count("uuid"))
 		{
-			intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
-			smo.truncate(sizeof(ServerReady));
-			mr = new intpr::mapped_region(smo,intpr::read_write);
-			sr = reinterpret_cast<ServerReady*>(mr->get_address());
+			sharedMemoryName += "_" + cmdLineOptions["uuid"].as<std::string>();
 		}
-		catch(...)
-		{
-			intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
-			smo.truncate(sizeof(ServerReady));
-			mr = new intpr::mapped_region(smo,intpr::read_write);
-			sr = new(mr->get_address())ServerReady();
-		}
+		shared = new SharedMemory(sharedMemoryName);
 	}
 #endif
 
@@ -460,10 +447,9 @@ void CVCMIServer::start()
 				logNetwork->info("Sending server ready message to client");
 			}
 #else
-			if(cmdLineOptions.count("use-shm"))
+			if(shared)
 			{
-				sr->setToTrueAndNotify(port);
-				delete mr;
+				shared->sr->setToReadyAndNotify(port);
 			}
 #endif
 
@@ -557,7 +543,9 @@ static void handleCommandOptions(int argc, char *argv[])
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
 		("run-by-client", "indicate that server launched by client on same machine")
-		("use-shm", "enable usage of shared memory")
+		("uuid", po::value<std::string>(), "")
+		("enable-shm-uuid", "use UUID for shared memory identifier")
+		("enable-shm", "enable usage of shared memory")
 		("port", po::value<ui16>(), "port at which server will listen to connections from client")
 		("resultsFile", po::value<std::string>()->default_value("./results.txt"), "file to which the battle result will be appended. Used only in the DUEL mode.");
 

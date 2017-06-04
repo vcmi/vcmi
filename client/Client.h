@@ -28,7 +28,7 @@ class CGameInterface;
 class CConnection;
 class CCallback;
 struct BattleAction;
-struct SharedMem;
+struct SharedMemory;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;
@@ -46,7 +46,8 @@ public:
 
 	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
-	SharedMem *shared; //interprocess memory (for waiting for server)
+	SharedMemory * shared;
+	std::string uuid;
 	bool verbose; //whether to print log msgs
 
 	//functions setting up local server
