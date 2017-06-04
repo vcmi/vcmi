@@ -44,7 +44,7 @@ std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX 
 #ifndef VCMI_ANDROID
 namespace intpr = boost::interprocess;
 #endif
-bool end2 = false;
+std::atomic<bool> serverShuttingDown(false);
 
 boost::program_options::variables_map cmdLineOptions;
 
@@ -107,7 +107,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			}
 			else if(quitting) // Server must be stopped if host is leaving from lobby to avoid crash
 			{
-				end2 = true;
+				serverShuttingDown = true;
 			}
 		}
 	}
@@ -477,7 +477,7 @@ void CVCMIServer::start()
 			std::string name = NAME;
 			firstConnection = new CConnection(s, name.append(" STATE_WAITING"));
 			logNetwork->info("Got connection!");
-			while(!end2)
+			while(!serverShuttingDown)
 			{
 				ui8 mode;
 				*firstConnection >> mode;
@@ -649,7 +649,7 @@ int main(int argc, char** argv)
 
 		try
 		{
-			while (!end2)
+			while(!serverShuttingDown)
 			{
 				server.start();
 			}
@@ -658,7 +658,7 @@ int main(int argc, char** argv)
 		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
-			end2 = true;
+			serverShuttingDown = true;
 		}
 		catch (...)
 		{

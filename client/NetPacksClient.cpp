@@ -302,6 +302,10 @@ void ChangeObjPos::applyCl(CClient *cl)
 void PlayerEndsGame::applyCl(CClient *cl)
 {
 	CALL_IN_ALL_INTERFACES(gameOver, player, victoryLossCheckResult);
+
+	// In auto testing mode we always close client if red player won or lose
+	if(!settings["session"]["testmap"].isNull() && player == PlayerColor(0))
+		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 }
 
 void RemoveBonus::applyCl(CClient *cl)

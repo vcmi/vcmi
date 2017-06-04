@@ -517,9 +517,10 @@ int main(int argc, char** argv)
 		bfs::path fileToStartFrom; //none by default
 		if(vm.count("start"))
 			fileToStartFrom = vm["start"].as<bfs::path>();
-		std::string testmap;
 		if(vm.count("testmap"))
-			testmap = vm["testmap"].as<std::string>();
+		{
+			session["testmap"].String() = vm["testmap"].as<std::string>();
+		}
 
 		session["spectate"].Bool() = vm.count("spectate");
 		if(session["spectate"].Bool())
@@ -532,9 +533,9 @@ int main(int argc, char** argv)
 			if(vm.count("spectate-battle-speed"))
 				session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
 		}
-		if(!testmap.empty())
+		if(!session["testmap"].isNull())
 		{
-			startTestMap(testmap);
+			startTestMap(session["testmap"].String());
 		}
 		else
 		{

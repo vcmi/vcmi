@@ -714,19 +714,22 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv && serv->isHost()) //request closing connection
+	if(serv)
 	{
-		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
-		CloseServer close_server;
-		sendRequest(&close_server, PlayerColor::NEUTRAL);
-		logNetwork->infoStream() << "Sent closing signal to the server";
-	}
-	else
-	{
-		LeaveGame leave_Game;
-		sendRequest(&leave_Game, PlayerColor::NEUTRAL);
-		logNetwork->infoStream() << "Sent leaving signal to the server";
+		if(serv->isHost()) //request closing connection
+		{
+			logNetwork->infoStream() << "Connection has been requested to be closed.";
+			CloseServer close_server;
+			sendRequest(&close_server, PlayerColor::NEUTRAL);
+			logNetwork->infoStream() << "Sent closing signal to the server";
+		}
+		else
+		{
+			LeaveGame leave_Game;
+			sendRequest(&leave_Game, PlayerColor::NEUTRAL);
+			logNetwork->infoStream() << "Sent leaving signal to the server";
+		}
 	}
 
 	if(connectionHandler)//end connection handler
