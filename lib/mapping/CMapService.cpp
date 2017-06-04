@@ -5,6 +5,7 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CCompressedStream.h"
 #include "../filesystem/CMemoryStream.h"
+#include "../filesystem/CMemoryBuffer.h"
 
 #include "CMap.h"
 
@@ -50,6 +51,23 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int s
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
 	getMapPatcher(name)->patchMapHeader(header);
 	return header;
+}
+
+void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath)
+{
+	CMemoryBuffer serializeBuffer;
+	{
+		CMapSaverJson saver(&serializeBuffer);
+		saver.saveMap(map);
+	}
+	{
+		boost::filesystem::remove(fullPath);
+		boost::filesystem::ofstream tmp(fullPath, boost::filesystem::ofstream::binary);
+
+		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
+		tmp.flush();
+		tmp.close();
+	}
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const std::string & name)

@@ -1212,6 +1212,8 @@ void CMapSaverJson::saveMap(const std::unique_ptr<CMap>& map)
 
 void CMapSaverJson::writeHeader()
 {
+	logGlobal->trace("Saving header");
+
 	JsonNode header;
 	JsonSerializer handler(mapObjectResolver.get(), header);
 
@@ -1283,6 +1285,7 @@ JsonNode CMapSaverJson::writeTerrainLevel(const int index)
 
 void CMapSaverJson::writeTerrain()
 {
+	logGlobal->trace("Saving terrain");
 	//todo: multilevel map save support
 
 	JsonNode surface = writeTerrainLevel(0);
@@ -1297,12 +1300,14 @@ void CMapSaverJson::writeTerrain()
 
 void CMapSaverJson::writeObjects()
 {
+	logGlobal->trace("Saving objects");
 	JsonNode data(JsonNode::DATA_STRUCT);
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
 	for(CGObjectInstance * obj : map->objects)
 	{
+		logGlobal->trace("\t%s", obj->instanceName);
 		auto temp = handler.enterStruct(obj->instanceName);
 
 		obj->serializeJson(handler);

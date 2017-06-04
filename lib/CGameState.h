@@ -201,7 +201,7 @@ public:
 	CGameState();
 	virtual ~CGameState();
 
-	void init(StartInfo * si);
+	void init(StartInfo * si, bool allowSavingRandomMap = false);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	PlayerColor currentPlayer; //ID of player currently having turn
@@ -283,7 +283,7 @@ private:
 
 	// ----- initialization -----
 
-	void initNewGame();
+	void initNewGame(bool allowSavingRandomMap);
 	void initCampaign();
 	void initDuel();
 	void checkMapChecksum();

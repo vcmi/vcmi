@@ -408,10 +408,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	// Initialize game state
 	gs = new CGameState();
-	logNetwork->infoStream() <<"\tCreating gamestate: "<<tmh.getDiff();
+	logNetwork->info("\tCreating gamestate: %i",tmh.getDiff());
 
-	gs->scenarioOps = si;
-	gs->init(si);
+	gs->init(si, settings["general"]["saveRandomMaps"].Bool());
 	logNetwork->infoStream() <<"Initializing GameState (together): "<<tmh.getDiff();
 
 	// Now after possible random map gen, we know exact player count.
