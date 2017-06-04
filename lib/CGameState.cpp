@@ -16,7 +16,6 @@
 #include "StartInfo.h"
 #include "NetPacks.h"
 #include "registerTypes/RegisterTypes.h"
-#include "mapping/CMapInfo.h"
 #include "BattleInfo.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
@@ -840,7 +839,8 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 	else
 	{
 		logGlobal->infoStream() << "Open map file: " << scenarioOps->mapname;
-		map = CMapService::loadMap(scenarioOps->mapname).release();
+		const ResourceID mapURI(scenarioOps->mapname, EResType::MAP);
+		map = CMapService::loadMap(mapURI).release();
 	}
 }
 

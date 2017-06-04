@@ -13,24 +13,16 @@
 #include "MapFormatJson.h"
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const std::string & name)
+std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name)
 {
 	auto stream = getStreamFromFS(name);
-	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
-	std::unique_ptr<CMapHeader> header(map.get());
-
-	getMapPatcher(name)->patchMapHeader(header);
-	header.release();
-
-	return map;
+	return getMapLoader(stream)->loadMap();
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const std::string & name)
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name)
 {
 	auto stream = getStreamFromFS(name);
-	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
-	getMapPatcher(name)->patchMapHeader(header);
-	return header;
+	return getMapLoader(stream)->loadMapHeader();
 }
 
 std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name)
@@ -39,6 +31,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
 	std::unique_ptr<CMapHeader> header(map.get());
 
+	//might be original campaign and require patch
 	getMapPatcher(name)->patchMapHeader(header);
 	header.release();
 
@@ -49,6 +42,8 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int s
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
+
+	//might be original campaign and require patch
 	getMapPatcher(name)->patchMapHeader(header);
 	return header;
 }
@@ -70,9 +65,9 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 	}
 }
 
-std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const std::string & name)
+std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourceID & name)
 {
-	return CResourceHandler::get()->load(ResourceID(name, EResType::MAP));
+	return CResourceHandler::get()->load(name);
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromMem(const ui8 * buffer, int size)

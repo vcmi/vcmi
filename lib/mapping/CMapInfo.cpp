@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CMapInfo.h"
 
+#include "../filesystem/ResourceID.h"
 #include "../StartInfo.h"
 #include "../GameConstants.h"
 #include "CMapService.h"
@@ -58,7 +59,7 @@ CMapInfo::~CMapInfo()
 void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;
-	mapHeader = CMapService::loadMapHeader(fname);
+	mapHeader = CMapService::loadMapHeader(ResourceID(fname, EResType::MAP));
 	countPlayers();
 }
 
@@ -81,3 +82,4 @@ CMapInfo & CMapInfo::operator=(CMapInfo &&tmp)
 	return *this;
 }
 
+#undef STEAL
