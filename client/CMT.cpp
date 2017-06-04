@@ -254,9 +254,9 @@ int main(int argc, char** argv)
         ("loadplayer", po::value<int>(),"specifies which player we are in multiplayer loaded games (0=Red, etc.)")
         ("loadserverip",po::value<std::string>(),"IP for loaded game server")
 		("loadserverport",po::value<std::string>(),"port for loaded game server")
-		("testingport",po::value<std::string>(),"port for testing, override specified in config file")
-		("testingfileprefix",po::value<std::string>(),"prefix for auto save files")
-		("testingsavefrequency",po::value<int>(),"how often auto save should be created");
+		("serverport", po::value<si64>(), "override port specified in config file")
+		("saveprefix", po::value<std::string>(), "prefix for auto save files")
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
 
 	if(argc > 1)
 	{
@@ -316,14 +316,10 @@ int main(int argc, char** argv)
 	settings.init();
 
 	// Init special testing settings
-	Settings testingSettings = settings.write["testing"];
-	if(vm.count("testingport") && vm.count("testingfileprefix"))
-	{
-		testingSettings["enabled"].Bool() = true;
-		testingSettings["port"].String() = vm["testingport"].as<std::string>();
-		testingSettings["prefix"].String() = vm["testingfileprefix"].as<std::string>();
-		testingSettings["savefrequency"].Float() = vm.count("testingsavefrequency") ? vm["testingsavefrequency"].as<int>() : 1;
-	}
+	Settings session = settings.write["session"];
+	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
+	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
+	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
 
 	// Initialize logging based on settings
 	logConfig.configure();
@@ -1309,7 +1305,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
         if(!vm.count("loadplayer"))
             client->loadGame(fname);
         else
-            client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<std::string>() : "3030");
+			client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
 		break;
 	}
 

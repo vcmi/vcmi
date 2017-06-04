@@ -171,12 +171,7 @@ void CPlayerInterface::yourTurn()
 		GH.curInt = this;
 		adventureInt->selection = nullptr;
 
-		std::string prefix = "";
-		if (settings["testing"]["enabled"].Bool())
-		{
-			prefix = settings["testing"]["prefix"].String();
-		}
-
+		std::string prefix = settings["session"]["saveprefix"].String();
 		if (firstCall)
 		{
 			if (howManyPeople == 1)
@@ -192,7 +187,7 @@ void CPlayerInterface::yourTurn()
 			}
 			firstCall = 0;
 		}
-		else if (settings["testing"].isNull() || cb->getDate() % static_cast<int>(settings["testing"]["savefrequency"].Float()) == 0)
+		else if (cb->getDate() % static_cast<int>(settings["session"]["savefrequency"].Integer()) == 0)
 		{
 			LOCPLINT->cb->save("Saves/" + prefix + "Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
 			autosaveCount %= 5;

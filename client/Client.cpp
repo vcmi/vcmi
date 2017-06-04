@@ -251,24 +251,16 @@ void CClient::endGame(bool closeConnection /*= true*/)
 }
 
 #if 1
-void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const std::string & port)
+void CClient::loadGame(const std::string & fname, const bool server, const std::vector<int>& humanplayerindices, const int loadNumPlayers, int player_, const std::string & ipaddr, const ui16 port)
 {
 	PlayerColor player(player_); //intentional shadowing
 	logNetwork->infoStream() << "Loading procedure started!";
-
-	std::string realPort;
-	if(settings["testing"]["enabled"].Bool())
-		realPort = settings["testing"]["port"].String();
-	else if(port.size())
-		realPort = port;
-	else
-		realPort = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 
 	CServerHandler sh;
 	if(server)
 		sh.startServer();
 	else
-		serv = sh.justConnectToServer(ipaddr, realPort);
+		serv = sh.justConnectToServer(ipaddr, port);
 
 	CStopWatch tmh;
 	std::unique_ptr<CLoadFile> loader;
@@ -998,7 +990,6 @@ CConnection * CServerHandler::connectToServer()
 	{
 		if(!shared->sr->ready)
 			waitForServer();
-		port = boost::lexical_cast<std::string>(shared->sr->port);
 	}
 #else
 	waitForServer();
@@ -1006,7 +997,11 @@ CConnection * CServerHandler::connectToServer()
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
 
-	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
+#ifndef VCMI_ANDROID
+	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), shared ? shared->sr->port : 0);
+#else
+	CConnection *ret = justConnectToServer(settings["server"]["server"].String());
+#endif
 
 	if(verbose)
 		logNetwork->infoStream()<<"\tConnecting to the server: "<<th.getDiff();
@@ -1014,14 +1009,23 @@ CConnection * CServerHandler::connectToServer()
 	return ret;
 }
 
+ui16 CServerHandler::getDefaultPort()
+{
+	if(settings["session"]["serverport"].Integer())
+		return settings["session"]["serverport"].Integer();
+	else
+		return settings["server"]["port"].Integer();
+}
+
+std::string CServerHandler::getDefaultPortStr()
+{
+	return boost::lexical_cast<std::string>(getDefaultPort());
+}
+
 CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = nullptr;
 	shared = nullptr;
-	if(settings["testing"]["enabled"].Bool())
-		port = settings["testing"]["port"].String();
-	else
-		port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = true;
 
 #ifndef VCMI_ANDROID
@@ -1055,7 +1059,7 @@ void CServerHandler::callServer()
 	setThreadName("CServerHandler::callServer");
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
 	const std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + port
+		+ " --port=" + getDefaultPortStr()
 		+ " --run-by-client"
 		+ (shared ? " --use-shm" : "")
 		+ " > \"" + logName + '\"';
@@ -1075,16 +1079,8 @@ void CServerHandler::callServer()
 #endif
 }
 
-CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)
+CConnection * CServerHandler::justConnectToServer(const std::string &host, const ui16 port)
 {
-	std::string realPort;
-	if(settings["testing"]["enabled"].Bool())
-		realPort = settings["testing"]["port"].String();
-	else if(port.size())
-		realPort = port;
-	else
-		realPort = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
-
 	CConnection *ret = nullptr;
 	while(!ret)
 	{
@@ -1092,7 +1088,7 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 		{
 			logNetwork->infoStream() << "Establishing connection...";
 			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(),
-									realPort,
+									port ? port : getDefaultPort(),
 									NAME);
 			ret->connectionID = 1; // TODO: Refactoring for the server so IDs set outside of CConnection
 		}

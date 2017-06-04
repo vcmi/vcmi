@@ -559,7 +559,7 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const std::string & Port /*= ""*/)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const ui16 Port)
 	: ISelectionScreenInfo(Names), serverHandlingThread(nullptr), mx(new boost::recursive_mutex),
 	  serv(nullptr), ongoingClosing(false), myNameID(255)
 {
@@ -4320,7 +4320,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EMultiMode mode)
 	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
-	port->setText(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);
+	port->setText(CServerHandler::getDefaultPortStr(), true);
 	address->setText(settings["server"]["server"].String(), true);
 	address->giveFocus();
 }
@@ -4332,7 +4332,7 @@ void CSimpleJoinScreen::enterSelectionScreen(CMenuScreen::EMultiMode mode)
 
 	GH.popIntTotally(this);
 
-	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, mode, nullptr, textAddress, textPort));
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, mode, nullptr, textAddress, boost::lexical_cast<ui16>(textPort)));
 }
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {

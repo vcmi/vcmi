@@ -61,14 +61,14 @@ void CConnection::init()
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
-CConnection::CConnection(std::string host, std::string port, std::string Name)
+CConnection::CConnection(std::string host, ui16 port, std::string Name)
 :iser(this), oser(this), io_service(new asio::io_service), name(Name)
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
 	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
+	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, boost::lexical_cast<std::string>(port)),error);
 	if(error)
 	{
 		logNetwork->errorStream() << "Problem with resolving: \n" << error;

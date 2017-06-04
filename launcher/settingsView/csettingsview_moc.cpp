@@ -55,7 +55,7 @@ void CSettingsView::loadSettings()
 	ui->comboBoxEnemyAI->setCurrentIndex(enemyAIIndex);
 	ui->comboBoxPlayerAI->setCurrentIndex(playerAIIndex);
 
-	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Float());
+	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 
 	ui->comboBoxAutoCheck->setCurrentIndex(settings["launcher"]["autoCheckRepositories"].Bool());
 	// all calls to plainText will trigger textChanged() signal overwriting config. Create backup before editing widget
