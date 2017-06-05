@@ -87,10 +87,14 @@ void BattleSpellCastParameters::cast(const SpellCastEnvironment * env)
 	spell->battleCast(env, *this);
 }
 
-void BattleSpellCastParameters::castIfPossible(const SpellCastEnvironment * env)
+bool BattleSpellCastParameters::castIfPossible(const SpellCastEnvironment * env)
 {
 	if(ESpellCastProblem::OK == cb->battleCanCastThisSpell(caster, spell, mode))
+	{
 		cast(env);
+		return true;
+	}
+	return false;
 }
 
 BattleHex BattleSpellCastParameters::getFirstDestinationHex() const

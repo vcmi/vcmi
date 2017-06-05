@@ -57,7 +57,8 @@ public:
 	void cast(const SpellCastEnvironment * env);
 
 	///cast with silent check for permitted cast
-	void castIfPossible(const SpellCastEnvironment * env);
+	///returns true if cast was permitted
+	bool castIfPossible(const SpellCastEnvironment * env);
 
 	BattleHex getFirstDestinationHex() const;
 

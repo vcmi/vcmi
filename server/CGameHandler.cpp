@@ -4631,14 +4631,14 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus* b){return b==bonus.get();});
 
-				if (gs->curB->battleCanCastThisSpell(st, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
-				{
-					BattleSpellCastParameters parameters(gs->curB, st, spell);
-					parameters.spellLvl = bonus->val;
-					parameters.effectLevel = bonus->val;//todo: recheck
-					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.cast(spellEnv);
+				BattleSpellCastParameters parameters(gs->curB, st, spell);
+				parameters.spellLvl = bonus->val;
+				parameters.effectLevel = bonus->val;//todo: recheck
+				parameters.mode = ECastingMode::ENCHANTER_CASTING;
 
+				cast = parameters.castIfPossible(spellEnv);
+				if(cast)
+				{
 					//todo: move to mechanics
 					BattleSetStackProperty ssp;
 					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
@@ -4646,8 +4646,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 					ssp.val = bonus->additionalInfo; //increase cooldown counter
 					ssp.stackID = st->ID;
 					sendAndApply(&ssp);
-
-					cast = true;
 				}
 			}
 		}
