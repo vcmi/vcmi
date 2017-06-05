@@ -186,7 +186,7 @@ void CBattleAI::attemptCastingSpell()
 	if(!hero)
 		return;
 
-	if(!cb->battleCanCastSpell())
+	if(cb->battleCanCastSpell(hero, ECastingMode::HERO_CASTING) != ESpellCastProblem::OK)
 		return;
 
 	LOGL("Casting spells sounds like fun. Let's see...");

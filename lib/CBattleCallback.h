@@ -340,7 +340,6 @@ public:
 
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
 
-	bool battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem = nullptr) const; //returns true, if caller can cast a spell. If not, if pointer is given via arg, the reason will be written.
 	const CGHeroInstance * battleGetMyHero() const;
 	InfoAboutHero battleGetEnemyHero() const;
 };

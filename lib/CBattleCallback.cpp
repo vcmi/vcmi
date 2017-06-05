@@ -2153,26 +2153,6 @@ int CPlayerBattleCallback::battleGetSurrenderCost() const
 	return CBattleInfoCallback::battleGetSurrenderCost(*player);
 }
 
-bool CPlayerBattleCallback::battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem /*= nullptr*/) const
-{
-	RETURN_IF_NOT_BATTLE(false);
-	ASSERT_IF_CALLED_WITH_PLAYER
-
-	const CGHeroInstance * hero = battleGetMyHero();
-	if(!hero)
-	{
-		if(outProblem)
-			*outProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		return false;
-	}
-
-	auto problem = CBattleInfoCallback::battleCanCastSpell(hero, ECastingMode::HERO_CASTING);
-	if(outProblem)
-		*outProblem = problem;
-
-	return problem == ESpellCastProblem::OK;
-}
-
 const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
 {
 	return CBattleInfoEssentials::battleGetFightingHero(battleGetMySide());
