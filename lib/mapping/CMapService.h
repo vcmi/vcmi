@@ -11,6 +11,8 @@
 
 #pragma once
 
+class ResourceID;
+
 class CMap;
 class CMapHeader;
 class CInputStream;
@@ -31,7 +33,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMap> loadMap(const std::string & name);
+	static std::unique_ptr<CMap> loadMap(const ResourceID & name);
 
 	/**
 	 * Loads the VCMI/H3 map header specified by the name.
@@ -39,7 +41,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map header class
 	 */
-	static std::unique_ptr<CMapHeader> loadMapHeader(const std::string & name);
+	static std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name);
 
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
@@ -77,7 +79,7 @@ private:
 	 * @param name the name of the map
 	 * @return a unique ptr to the input stream class
 	 */
-	static std::unique_ptr<CInputStream> getStreamFromFS(const std::string & name);
+	static std::unique_ptr<CInputStream> getStreamFromFS(const ResourceID & name);
 
 	/**
 	 * Gets a map input stream from a buffer.

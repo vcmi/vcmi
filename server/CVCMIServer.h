@@ -74,7 +74,6 @@ public:
 	std::list<CPackForSelectionScreen*> toAnnounce;
 	boost::recursive_mutex mx;
 
-	//std::vector<CMapInfo> maps;
 	TAcceptor *acceptor;
 	TSocket *upcomingConnection;
 
