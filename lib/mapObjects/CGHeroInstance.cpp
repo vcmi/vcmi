@@ -1644,8 +1644,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			{
 				int value = 0;
 				handler.serializeInt(PrimarySkill::names[i], value, 0);
-				if(value != 0)
-					pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
+				pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
 			}
 		}
 	}
