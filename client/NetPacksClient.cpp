@@ -96,7 +96,7 @@
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0].color, function, __VA_ARGS__)	\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1].color, function, __VA_ARGS__)	\
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())	\
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)	\
 	{																					\
 		CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, function, __VA_ARGS__)	\
 	}																					\

@@ -453,6 +453,7 @@ CBattleInterface::~CBattleInterface()
 		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
 		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
+	animsAreDisplayed.setn(false);
 }
 
 void CBattleInterface::setPrintCellBorders(bool set)
