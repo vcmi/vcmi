@@ -157,10 +157,25 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
-	const ESpellCastProblem::ESpellCastProblem generalProblem = mechanics->canBeCast(cb, mode, caster);
+	if(!isCombatSpell())
+		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
-	if(generalProblem != ESpellCastProblem::OK)
-		return generalProblem;
+	const PlayerColor player = caster->getOwner();
+	const si8 side = cb->playerToSide(player);
+
+	if(side < 0)
+		return ESpellCastProblem::INVALID;
+
+	//effect like Recanter's Cloak. Blocks also passive casting.
+	//TODO: check creature abilities to block
+	//TODO: check any possible caster
+	if(cb->battleMaxSpellLevel(side) < level)
+		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
+
+	const ESpellCastProblem::ESpellCastProblem specificProblem = mechanics->canBeCast(cb, mode, caster);
+
+	if(specificProblem != ESpellCastProblem::OK)
+		return specificProblem;
 
 	//check for creature target existence
 	//allow to cast spell if there is at least one smart target

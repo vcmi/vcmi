@@ -337,7 +337,7 @@ void CSpellWindow::computeSpellsPerArea()
 	spellsCurSite.reserve(mySpells.size());
 	for(const CSpell * spell : mySpells)
 	{
-		if(spell->combatSpell ^ !battleSpellsOnly
+		if(spell->isCombatSpell() ^ !battleSpellsOnly
 			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
 			)
 		{

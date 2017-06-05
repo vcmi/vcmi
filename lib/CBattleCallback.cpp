@@ -1716,14 +1716,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpell: no spellcaster.";
 		return ESpellCastProblem::INVALID;
 	}
-	const PlayerColor player = caster->getOwner();
-	const si8 side = playerToSide(player);
-
-	if(side < 0)
-		return ESpellCastProblem::INVALID;
-
-	if(!battleDoWeKnowAbout(side))
-		return ESpellCastProblem::INVALID;
 
 	ESpellCastProblem::ESpellCastProblem genProblem = battleCanCastSpell(caster, mode);
 	if(genProblem != ESpellCastProblem::OK)
@@ -1749,14 +1741,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		}
 		break;
 	}
-
-	if(!spell->combatSpell)
-		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
-
-	//effect like Recanter's Cloak. Blocks also passive casting.
-	//TODO: check creature abilities to block
-	if(battleMaxSpellLevel(side) < spell->level)
-		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	return spell->canBeCast(this, mode, caster);
 }
