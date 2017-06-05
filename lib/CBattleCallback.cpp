@@ -2111,18 +2111,6 @@ ReachabilityInfo::Parameters::Parameters(const CStack *Stack)
 	knownAccessible = stack->getHexes();
 }
 
-ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCastThisSpell(const CSpell * spell) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	ASSERT_IF_CALLED_WITH_PLAYER
-
-	const ISpellCaster * hero = battleGetMyHero();
-	if(hero == nullptr)
-		return ESpellCastProblem::INVALID;
-	else
-		return CBattleInfoCallback::battleCanCastThisSpell(hero, spell, ECastingMode::HERO_CASTING);
-}
-
 bool CPlayerBattleCallback::battleCanFlee() const
 {
 	RETURN_IF_NOT_BATTLE(false);

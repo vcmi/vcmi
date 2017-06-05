@@ -336,7 +336,6 @@ class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
 public:
 	bool battleCanFlee() const; //returns true if caller can flee from the battle
 	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell) const; //determines if given spell can be cast (and returns problem description)
 
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
 
