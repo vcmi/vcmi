@@ -549,7 +549,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(mySpell->isCombatSpell() && owner->myInt->battleInt) //if battle window is open
 		{
-			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(owner->myHero, mySpell, ECastingMode::HERO_CASTING);
+			ESpellCastProblem::ESpellCastProblem problem = mySpell->canBeCast(owner->myInt->cb.get(), ECastingMode::HERO_CASTING, owner->myHero);
 			switch (problem)
 			{
 			case ESpellCastProblem::OK:

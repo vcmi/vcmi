@@ -157,6 +157,31 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
+	ESpellCastProblem::ESpellCastProblem genProblem = cb->battleCanCastSpell(caster, mode);
+	if(genProblem != ESpellCastProblem::OK)
+		return genProblem;
+
+	switch(mode)
+	{
+	case ECastingMode::HERO_CASTING:
+		{
+			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
+			if(!castingHero)
+			{
+				logGlobal->debug("CSpell::canBeCast: invalid caster");
+				return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+			}
+
+			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+				return ESpellCastProblem::NO_SPELLBOOK;
+			if(!castingHero->canCastThisSpell(this))
+				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
+			if(castingHero->mana < cb->battleGetSpellCost(this, castingHero)) //not enough mana
+				return ESpellCastProblem::NOT_ENOUGH_MANA;
+		}
+		break;
+	}
+
 	if(!isCombatSpell())
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
@@ -383,7 +408,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
-	ESpellCastProblem::ESpellCastProblem problem = cb->battleCanCastThisSpell(caster, this, mode);
+	ESpellCastProblem::ESpellCastProblem problem = canBeCast(cb, mode, caster);
 	if(problem != ESpellCastProblem::OK)
 		return problem;
 

@@ -4458,7 +4458,7 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 			if (ba.selectedStack >= 0)
 				parameters.aimToStack(gs->curB->battleGetStackByID(ba.selectedStack, false));
 
-			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast?
+			ESpellCastProblem::ESpellCastProblem escp = s->canBeCast(gs->curB, ECastingMode::HERO_CASTING, h);//todo: should we check aimed cast?
 			if (escp != ESpellCastProblem::OK)
 			{
 				logGlobal->warn("Spell cannot be cast! Problem: %d", escp);

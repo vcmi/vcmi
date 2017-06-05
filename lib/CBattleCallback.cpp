@@ -1708,43 +1708,6 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	return attackableBattleHexes;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	if(caster == nullptr)
-	{
-		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpell: no spellcaster.";
-		return ESpellCastProblem::INVALID;
-	}
-
-	ESpellCastProblem::ESpellCastProblem genProblem = battleCanCastSpell(caster, mode);
-	if(genProblem != ESpellCastProblem::OK)
-		return genProblem;
-
-	switch(mode)
-	{
-	case ECastingMode::HERO_CASTING:
-		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			if(!castingHero)
-			{
-				logGlobal->error("battleCanCastThisSpell: invalid caster");
-				return ESpellCastProblem::INVALID;
-			}
-
-			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
-				return ESpellCastProblem::NO_SPELLBOOK;
-			if(!castingHero->canCastThisSpell(spell))
-				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			if(castingHero->mana < battleGetSpellCost(spell, castingHero)) //not enough mana
-				return ESpellCastProblem::NOT_ENOUGH_MANA;
-		}
-		break;
-	}
-
-	return spell->canBeCast(this, mode, caster);
-}
-
 ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
