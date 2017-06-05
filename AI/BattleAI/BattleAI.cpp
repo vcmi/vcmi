@@ -186,16 +186,15 @@ void CBattleAI::attemptCastingSpell()
 	if(!hero)
 		return;
 
-	if(!cb->battleCanCastSpell())
+	if(cb->battleCanCastSpell(hero, ECastingMode::HERO_CASTING) != ESpellCastProblem::OK)
 		return;
 
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this] (const CSpell *s) -> bool
+	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this, hero] (const CSpell *s) -> bool
 	{
-		auto problem = getCbc()->battleCanCastThisSpell(s);
-		return problem == ESpellCastProblem::OK;
+		return s->canBeCast(getCbc().get(), ECastingMode::HERO_CASTING, hero) == ESpellCastProblem::OK;
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 

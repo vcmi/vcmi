@@ -871,19 +871,24 @@ void CBattleInterface::bSpellf()
 	if (spellDestSelectMode) //we are casting a spell
 		return;
 
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
-
 	if (!myTurn)
 		return;
 
 	auto myHero = currentHero();
-	ESpellCastProblem::ESpellCastProblem spellCastProblem;
-	if (curInt->cb->battleCanCastSpell(&spellCastProblem))
+	if(!myHero)
+		return;
+
+	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+
+	ESpellCastProblem::ESpellCastProblem spellCastProblem = curInt->cb->battleCanCastSpell(myHero, ECastingMode::HERO_CASTING);
+
+	if(spellCastProblem == ESpellCastProblem::OK)
 	{
 		GH.pushInt(new CSpellWindow(myHero, curInt.get()));
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
+		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
 		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type(Bonus::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
@@ -1658,8 +1663,7 @@ void CBattleInterface::enterCreatureCastingMode()
 	{
 		const ISpellCaster *caster = activeStack;
 		const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
-
-		const bool isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, spell, ECastingMode::CREATURE_ACTIVE_CASTING, BattleHex::INVALID) == ESpellCastProblem::OK);
+		const bool isCastingPossible = (spell->canBeCastAt(curInt->cb.get(), caster, ECastingMode::CREATURE_ACTIVE_CASTING, BattleHex::INVALID) == ESpellCastProblem::OK);
 
 		if (isCastingPossible)
 		{
@@ -1849,11 +1853,17 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::blockUI(bool on)
 {
-	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
-	bool canCastSpells = curInt->cb->battleCanCastSpell(&spellcastingProblem);
-	//if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
-	if (!canCastSpells)
-		canCastSpells = spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
+	bool canCastSpells = false;
+	auto hero = curInt->cb->battleGetMyHero();
+
+	if(hero)
+	{
+		ESpellCastProblem::ESpellCastProblem spellcastingProblem = curInt->cb->battleCanCastSpell(hero, ECastingMode::HERO_CASTING);
+
+		//if magic is blocked, we leave button active, so the message can be displayed after button click
+		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
+	}
+
 	bool canWait = activeStack ? !activeStack->waited() : false;
 
 	bOptions->block(on);
@@ -2511,7 +2521,7 @@ bool CBattleInterface::isCastingPossibleHere(const CStack *sactive, const CStack
 		else
 		{
 			const ECastingMode::ECastingMode mode = creatureCasting ? ECastingMode::CREATURE_ACTIVE_CASTING : ECastingMode::HERO_CASTING;
-			isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, sp, mode, myNumber) == ESpellCastProblem::OK);
+			isCastingPossible = (sp->canBeCastAt(curInt->cb.get(), caster, mode, myNumber) == ESpellCastProblem::OK);
 		}
 	}
 	else

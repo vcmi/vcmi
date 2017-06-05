@@ -157,10 +157,50 @@ ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affecte
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
-	const ESpellCastProblem::ESpellCastProblem generalProblem = mechanics->canBeCast(cb, mode, caster);
+	ESpellCastProblem::ESpellCastProblem genProblem = cb->battleCanCastSpell(caster, mode);
+	if(genProblem != ESpellCastProblem::OK)
+		return genProblem;
 
-	if(generalProblem != ESpellCastProblem::OK)
-		return generalProblem;
+	switch(mode)
+	{
+	case ECastingMode::HERO_CASTING:
+		{
+			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
+			if(!castingHero)
+			{
+				logGlobal->debug("CSpell::canBeCast: invalid caster");
+				return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+			}
+
+			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+				return ESpellCastProblem::NO_SPELLBOOK;
+			if(!castingHero->canCastThisSpell(this))
+				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
+			if(castingHero->mana < cb->battleGetSpellCost(this, castingHero)) //not enough mana
+				return ESpellCastProblem::NOT_ENOUGH_MANA;
+		}
+		break;
+	}
+
+	if(!isCombatSpell())
+		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
+
+	const PlayerColor player = caster->getOwner();
+	const si8 side = cb->playerToSide(player);
+
+	if(side < 0)
+		return ESpellCastProblem::INVALID;
+
+	//effect like Recanter's Cloak. Blocks also passive casting.
+	//TODO: check creature abilities to block
+	//TODO: check any possible caster
+	if(cb->battleMaxSpellLevel(side) < level)
+		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
+
+	const ESpellCastProblem::ESpellCastProblem specificProblem = mechanics->canBeCast(cb, mode, caster);
+
+	if(specificProblem != ESpellCastProblem::OK)
+		return specificProblem;
 
 	//check for creature target existence
 	//allow to cast spell if there is at least one smart target
@@ -368,6 +408,10 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
+	ESpellCastProblem::ESpellCastProblem problem = canBeCast(cb, mode, caster);
+	if(problem != ESpellCastProblem::OK)
+		return problem;
+
 	SpellTargetingContext ctx(this, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
 	return mechanics->canBeCast(cb, ctx);

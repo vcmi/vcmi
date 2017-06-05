@@ -4458,7 +4458,7 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 			if (ba.selectedStack >= 0)
 				parameters.aimToStack(gs->curB->battleGetStackByID(ba.selectedStack, false));
 
-			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
+			ESpellCastProblem::ESpellCastProblem escp = s->canBeCast(gs->curB, ECastingMode::HERO_CASTING, h);//todo: should we check aimed cast?
 			if (escp != ESpellCastProblem::OK)
 			{
 				logGlobal->warn("Spell cannot be cast! Problem: %d", escp);
@@ -4631,14 +4631,14 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus* b){return b==bonus.get();});
 
-				if (gs->curB->battleCanCastThisSpell(st, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
-				{
-					BattleSpellCastParameters parameters(gs->curB, st, spell);
-					parameters.spellLvl = bonus->val;
-					parameters.effectLevel = bonus->val;//todo: recheck
-					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.cast(spellEnv);
+				BattleSpellCastParameters parameters(gs->curB, st, spell);
+				parameters.spellLvl = bonus->val;
+				parameters.effectLevel = bonus->val;//todo: recheck
+				parameters.mode = ECastingMode::ENCHANTER_CASTING;
 
+				cast = parameters.castIfPossible(spellEnv);
+				if(cast)
+				{
 					//todo: move to mechanics
 					BattleSetStackProperty ssp;
 					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
@@ -4646,8 +4646,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 					ssp.val = bonus->additionalInfo; //increase cooldown counter
 					ssp.stackID = st->ID;
 					sendAndApply(&ssp);
-
-					cast = true;
 				}
 			}
 		}
@@ -5302,7 +5300,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if (gs->curB->battleCanCastThisSpellHere(attacker, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
+			if(spell->canBeCastAt(gs->curB, attacker, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 
 			//check if spell should be cast (probability handling)
