@@ -1663,8 +1663,7 @@ void CBattleInterface::enterCreatureCastingMode()
 	{
 		const ISpellCaster *caster = activeStack;
 		const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
-
-		const bool isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, spell, ECastingMode::CREATURE_ACTIVE_CASTING, BattleHex::INVALID) == ESpellCastProblem::OK);
+		const bool isCastingPossible = (spell->canBeCastAt(curInt->cb.get(), caster, ECastingMode::CREATURE_ACTIVE_CASTING, BattleHex::INVALID) == ESpellCastProblem::OK);
 
 		if (isCastingPossible)
 		{
@@ -2522,7 +2521,7 @@ bool CBattleInterface::isCastingPossibleHere(const CStack *sactive, const CStack
 		else
 		{
 			const ECastingMode::ECastingMode mode = creatureCasting ? ECastingMode::CREATURE_ACTIVE_CASTING : ECastingMode::HERO_CASTING;
-			isCastingPossible = (curInt->cb->battleCanCastThisSpellHere(caster, sp, mode, myNumber) == ESpellCastProblem::OK);
+			isCastingPossible = (sp->canBeCastAt(curInt->cb.get(), caster, mode, myNumber) == ESpellCastProblem::OK);
 		}
 	}
 	else

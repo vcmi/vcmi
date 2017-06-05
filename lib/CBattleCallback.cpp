@@ -1773,22 +1773,6 @@ ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInst
 	return ret - manaReduction + manaIncrease;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	if(caster == nullptr)
-	{
-		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpellHere: no spellcaster.";
-		return ESpellCastProblem::INVALID;
-	}
-
-	ESpellCastProblem::ESpellCastProblem problem = battleCanCastThisSpell(caster, spell, mode);
-	if(problem != ESpellCastProblem::OK)
-		return problem;
-
-	return spell->canBeCastAt(this, caster, mode, dest);
-}
-
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
@@ -1871,7 +1855,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 
 		if(subject->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
 			//TODO: this ability has special limitations
-			|| battleCanCastThisSpellHere(subject, spellID.toSpell(), ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
+			|| spellID.toSpell()->canBeCastAt(this, subject, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
 			continue;
 
 		switch (spellID)

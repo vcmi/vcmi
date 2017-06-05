@@ -383,6 +383,10 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level) const
 
 ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
 {
+	ESpellCastProblem::ESpellCastProblem problem = cb->battleCanCastThisSpell(caster, this, mode);
+	if(problem != ESpellCastProblem::OK)
+		return problem;
+
 	SpellTargetingContext ctx(this, mode, caster, caster->getSpellSchoolLevel(this), destination);
 
 	return mechanics->canBeCast(cb, ctx);
