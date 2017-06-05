@@ -1610,40 +1610,33 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		}
 	}
 
+	//primary skills
+	if(handler.saving)
 	{
-		if(handler.saving)
-		{
-			bool haveSkills = false;
+		const bool haveSkills = hasBonus(Selector::type(Bonus::PRIMARY_SKILL).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
 
-			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-			{
-				if(valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL))) != 0)
-				{
-					haveSkills = true;
-					break;
-				}
-			}
-
-			if(haveSkills)
-			{
-				auto primarySkills = handler.enterStruct("primarySkills");
-
-				for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-				{
-					int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
-
-					handler.serializeInt(PrimarySkill::names[i], value, 0);
-				}
-			}
-		}
-		else
+		if(haveSkills)
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
 
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				int value = 0;
+				int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+
 				handler.serializeInt(PrimarySkill::names[i], value, 0);
+			}
+		}
+	}
+	else
+	{
+		auto primarySkills = handler.enterStruct("primarySkills");
+
+		if(primarySkills.get().getType() == JsonNode::DATA_STRUCT)
+		{
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+			{
+				int value = 0;
+				primarySkills->serializeInt(PrimarySkill::names[i], value, 0);
 				pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
 			}
 		}
