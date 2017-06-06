@@ -143,6 +143,7 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override;
 
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art);
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;

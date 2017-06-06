@@ -152,6 +152,26 @@ void CCreature::setId(CreatureID ID)
 	CBonusSystemNode::treeHasChanged();
 }
 
+void CCreature::fillWarMachine()
+{
+	switch (idNumber)
+	{
+	case CreatureID::CATAPULT: //Catapult
+		warMachine = ArtifactID::CATAPULT;
+		break;
+	case CreatureID::BALLISTA: //Ballista
+		warMachine = ArtifactID::BALLISTA;
+		break;
+	case CreatureID::FIRST_AID_TENT: //First Aid tent
+		warMachine = ArtifactID::FIRST_AID_TENT;
+		break;
+	case CreatureID::AMMO_CART: //Ammo cart
+		warMachine = ArtifactID::AMMO_CART;
+		break;
+	}
+	warMachine = ArtifactID::NONE; //this creature is not artifact
+}
+
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
 	auto nsf = std::make_shared<Bonus>();

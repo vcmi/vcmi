@@ -432,22 +432,36 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
+		auto handleWarMachine= [&](int side, ArtifactPosition artslot, BattleHex hex)
 		{
-			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
+			const CArtifactInstance * warMachineArt = heroes[side]->getArt(artslot);
+
+			if(nullptr != warMachineArt)
+			{
+				CreatureID cre = warMachineArt->artType->warMachine;
+
+				if(cre != CreatureID::NONE)
+					stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cre, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
+			}
 		};
 
-		handleWarMachine(0, ArtifactPosition::MACH1, CreatureID::BALLISTA, 52);
-		handleWarMachine(0, ArtifactPosition::MACH2, CreatureID::AMMO_CART, 18);
-		handleWarMachine(0, ArtifactPosition::MACH3, CreatureID::FIRST_AID_TENT, 154);
-		if(town && town->hasFort())
-			handleWarMachine(0, ArtifactPosition::MACH4, CreatureID::CATAPULT, 120);
+		if(heroes[0])
+		{
 
-		if(!town) //defending hero shouldn't receive ballista (bug #551)
-			handleWarMachine(1, ArtifactPosition::MACH1, CreatureID::BALLISTA, 66);
-		handleWarMachine(1, ArtifactPosition::MACH2, CreatureID::AMMO_CART, 32);
-		handleWarMachine(1, ArtifactPosition::MACH3, CreatureID::FIRST_AID_TENT, 168);
+			handleWarMachine(0, ArtifactPosition::MACH1, 52);
+			handleWarMachine(0, ArtifactPosition::MACH2, 18);
+			handleWarMachine(0, ArtifactPosition::MACH3, 154);
+			if(town && town->hasFort())
+				handleWarMachine(0, ArtifactPosition::MACH4, 120);
+		}
+
+		if(heroes[1])
+		{
+			if(!town) //defending hero shouldn't receive ballista (bug #551)
+				handleWarMachine(1, ArtifactPosition::MACH1, 66);
+			handleWarMachine(1, ArtifactPosition::MACH2, 32);
+			handleWarMachine(1, ArtifactPosition::MACH3, 168);
+		}
 	}
 	//war machines added
 

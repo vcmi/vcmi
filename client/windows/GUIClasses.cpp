@@ -205,7 +205,7 @@ void CRecruitmentWindow::buy()
 	CreatureID crid =  selected->creature->idNumber;
 	SlotID dstslot = dst-> getSlotFor(crid);
 
-	if(!dstslot.validSlot() && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->creatureToMachineID(crid))) //no available slot
+	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
 		std::string txt;
 		if(dst->ID == Obj::HERO)
