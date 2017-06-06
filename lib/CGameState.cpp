@@ -146,6 +146,9 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		case COLOR:
 			vec = &VLC->generaltexth->capColors;
 			break;
+		case JK_TXT:
+			vec = &VLC->generaltexth->jktexts;
+			break;
 		default:
 			logGlobal->errorStream() << "Failed string substitution because type is " << type;
 			dst = "#@#";

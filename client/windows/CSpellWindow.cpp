@@ -646,7 +646,6 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				//special case
 				//todo: move to mechanics
 
-				std::vector <int> availableTowns;
 				std::vector <const CGTownInstance*> Towns = owner->myInt->cb->getTownsInfo(false);
 
 				vstd::erase_if(Towns, [this](const CGTownInstance * t)
@@ -671,31 +670,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 				if (h->getSpellSchoolLevel(mySpell) < 2) //not advanced or expert - teleport to nearest available city
 				{
-					auto nearest = Towns.cbegin(); //nearest town's iterator
-					si32 dist = owner->myInt->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
-
-					for (auto i = nearest + 1; i != Towns.cend(); ++i)
-					{
-						const CGTownInstance * dest = owner->myInt->cb->getTown((*i)->id);
-						si32 curDist = dest->pos.dist2dSQ(h->pos);
-
-						if (curDist < dist)
-						{
-							nearest = i;
-							dist = curDist;
-						}
-					}
-
-					if ((*nearest)->visitingHero)
-						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[123]);
-					else
-					{
-						const CGTownInstance * town = owner->myInt->cb->getTown((*nearest)->id);
-						owner->myInt->cb->castSpell(h, mySpell->id, town->visitablePos());// - town->getVisitableOffset());
-					}
+					owner->myInt->cb->castSpell(h, mySpell->id, int3());// - town->getVisitableOffset());
 				}
 				else
 				{ //let the player choose
+					std::vector <int> availableTowns;
 					for(auto & Town : Towns)
 					{
 						const CGTownInstance *t = Town;
@@ -720,18 +699,6 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							castTownPortal));
 				}
 				return;
-			}
-
-			if(mySpell->id == SpellID::SUMMON_BOAT)
-			{
-				//special case
-				//todo: move to mechanics
-				int3 pos = h->bestLocation();
-				if(pos.x < 0)
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
-					return;
-				}
 			}
 
 			if(mySpell->getTargetType() == CSpell::LOCATION)

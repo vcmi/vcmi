@@ -290,6 +290,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<Query, GarrisonDialog>();
 	s.template registerType<Query, ExchangeDialog>();
 	s.template registerType<Query, TeleportDialog>();
+	s.template registerType<Query, MapObjectSelectDialog>();
 
 	s.template registerType<CPackForClient, CGarrisonOperationPack>();
 	s.template registerType<CGarrisonOperationPack, ChangeStackCount>();

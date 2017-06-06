@@ -61,6 +61,7 @@ public:
 	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 
 	virtual int selectionMade(int selection, QueryID queryID) =0;
+	virtual int sendQueryReply(const JsonNode & reply, QueryID queryID) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)=0;//joins first stack to the second (creatures must be same type)
 	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) =0; //first goes to the second
@@ -121,6 +122,7 @@ public:
 	bool moveHero(const CGHeroInstance *h, int3 dst, bool transit = false) override; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, QueryID queryID) override;
+	int sendQueryReply(const JsonNode & reply, QueryID queryID) override;
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override;
 	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second

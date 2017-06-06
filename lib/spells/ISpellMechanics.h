@@ -13,7 +13,6 @@
 #include "CSpellHandler.h"
 #include "../battle/BattleHex.h"
 
-
 ///callback to be provided by server
 class DLL_LINKAGE SpellCastEnvironment
 {
@@ -101,13 +100,12 @@ struct DLL_LINKAGE SpellTargetingContext
 	SpellTargetingContext(const CSpell * s, ECastingMode::ECastingMode mode_, const ISpellCaster * caster_, int schoolLvl_, BattleHex destination_)
 		: ti(s,schoolLvl_, mode_), mode(mode_), destination(destination_), caster(caster_), schoolLvl(schoolLvl_)
 	{};
-
 };
 
 class DLL_LINKAGE ISpellMechanics
 {
 public:
-	ISpellMechanics(CSpell * s);
+	ISpellMechanics(const CSpell * s);
 	virtual ~ISpellMechanics(){};
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
@@ -125,9 +123,9 @@ public:
 	//if true use generic algorithm for target existence check, see CSpell::canBeCast
 	virtual bool requiresCreatureTarget() const = 0;
 
-	static std::unique_ptr<ISpellMechanics> createMechanics(CSpell * s);
+	static std::unique_ptr<ISpellMechanics> createMechanics(const CSpell * s);
 protected:
-	CSpell * owner;
+	const CSpell * owner;
 };
 
 struct DLL_LINKAGE AdventureSpellCastParameters
@@ -139,12 +137,12 @@ struct DLL_LINKAGE AdventureSpellCastParameters
 class DLL_LINKAGE IAdventureSpellMechanics
 {
 public:
-	IAdventureSpellMechanics(CSpell * s);
+	IAdventureSpellMechanics(const CSpell * s);
 	virtual ~IAdventureSpellMechanics() = default;
 
 	virtual bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const = 0;
 
-	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(CSpell * s);
+	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
 protected:
-	CSpell * owner;
+	const CSpell * owner;
 };

@@ -246,6 +246,11 @@ void SpellCastContext::afterCast()
 }
 
 ///DefaultSpellMechanics
+DefaultSpellMechanics::DefaultSpellMechanics(const CSpell * s):
+	ISpellMechanics(s)
+{
+};
+
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	if (packet->castByHero)
@@ -882,6 +887,12 @@ bool DefaultSpellMechanics::requiresCreatureTarget() const
 	//most spells affects creatures somehow regardless of Target Type
 	//for few exceptions see overrides
 	return true;
+}
+
+///SpecialSpellMechanics
+SpecialSpellMechanics::SpecialSpellMechanics(const CSpell * s):
+	DefaultSpellMechanics(s)
+{
 }
 
 ESpellCastProblem::ESpellCastProblem SpecialSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const

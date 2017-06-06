@@ -1191,6 +1191,39 @@ void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportEx
 	cb->selectionMade(choosenExit, askID);
 }
 
+void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	auto selectCallback = [=](int selection)
+	{
+		JsonNode reply(JsonNode::DATA_INTEGER);
+		reply.Integer() = selection;
+		cb->sendQueryReply(reply, askID);
+	};
+
+	auto cancelCallback = [=]()
+	{
+		JsonNode reply(JsonNode::DATA_NULL);
+		cb->sendQueryReply(reply, askID);
+	};
+
+	CComponent * localIcon = new CComponent(icon);
+
+	const std::string localTitle = title.toString();
+	const std::string localDescription = description.toString();
+
+	std::vector<int> tempList;
+	tempList.reserve(objects.size());
+
+	for(auto item : objects)
+		tempList.push_back(item.getNum());
+
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
+	wnd->onExit = cancelCallback;
+	GH.pushInt(wnd);
+}
+
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

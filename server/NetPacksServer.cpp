@@ -235,7 +235,7 @@ bool QueryReply::applyGh( CGameHandler *gh )
 		COMPLAIN_AND_RETURN("Cannot answer the query with id -1!");
 
 	assert(vstd::contains(gh->states.players, player));
-	return gh->queryReply(qid, answer, player);
+	return gh->queryReply(qid, reply, player);
 }
 
 bool MakeAction::applyGh( CGameHandler *gh )
@@ -275,10 +275,22 @@ bool DigWithHero::applyGh( CGameHandler *gh )
 	return gh->dig(gh->getHero(id));
 }
 
-bool CastAdvSpell::applyGh( CGameHandler *gh )
+bool CastAdvSpell::applyGh(CGameHandler * gh)
 {
 	ERROR_IF_NOT_OWNS(hid);
-	return gh->castSpell(gh->getHero(hid), sid, pos);
+
+	const CSpell * s = sid.toSpell();
+	if(!s)
+		ERROR_AND_RETURN;
+	const CGHeroInstance * h = gh->getHero(hid);
+	if(!h)
+		ERROR_AND_RETURN;
+
+	auto query = std::make_shared<AdventureSpellCastQuery>(&gh->queries, gh->spellEnv, s, h, pos);
+
+	gh->queries.addQuery(query);
+	gh->queries.popIfTop(query);//if we already can perform cast do it now
+	return true;
 }
 
 bool PlayerMessage::applyGh( CGameHandler *gh )

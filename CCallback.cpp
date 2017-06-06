@@ -46,14 +46,21 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
 
 int CCallback::selectionMade(int selection, QueryID queryID)
 {
+	JsonNode reply(JsonNode::DATA_INTEGER);
+	reply.Integer() = selection;
+	return sendQueryReply(reply, queryID);
+}
+
+int CCallback::sendQueryReply(const JsonNode & reply, QueryID queryID)
+{
 	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == QueryID(-1))
 	{
 		logGlobal->errorStream() << "Cannot answer the query -1!";
-		return false;
+		return -1;
 	}
 
-	QueryReply pack(queryID,selection);
+	QueryReply pack(queryID,reply);
 	pack.player = *player;
 	return sendRequest(&pack);
 }

@@ -31,7 +31,7 @@ struct NewStructures;
 class CGHeroInstance;
 class IMarket;
 
-class ServerSpellCastEnvironment;
+class SpellCastEnvironment;
 
 struct PlayerStatus
 {
@@ -91,6 +91,8 @@ public:
 	boost::recursive_mutex gsm;
 	ui32 QID;
 	Queries queries;
+
+	SpellCastEnvironment * spellEnv;
 
 	bool isValidObject(const CGObjectInstance *obj) const;
 	bool isBlockedByQueries(const CPack *pack, PlayerColor player);
@@ -199,7 +201,7 @@ public:
 	void stackTurnTrigger(const CStack *stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
 	void removeObstacle(const CObstacleInstance &obstacle);
-	bool queryReply( QueryID qid, ui32 answer, PlayerColor player );
+	bool queryReply( QueryID qid, const JsonNode & answer, PlayerColor player );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
@@ -231,7 +233,6 @@ public:
 	void objectVisitEnded(const CObjectVisitQuery &query);
 	void engageIntoBattle( PlayerColor player );
 	bool dig(const CGHeroInstance *h);
-	bool castSpell(const CGHeroInstance *h, SpellID spellID, const int3 &pos);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -257,7 +258,6 @@ public:
 		FinishingBattleHelper();
 		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
 
-		//std::shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 
@@ -265,7 +265,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & /*query & */winnerHero & loserHero & victor & loser;
+			h & winnerHero & loserHero & victor & loser;
 			if(version < 774 && !h.saving)
 			{
 				bool duel;
@@ -292,8 +292,6 @@ public:
 	CRandomGenerator & getRandomGenerator();
 
 private:
-	ServerSpellCastEnvironment * spellEnv;
-
 	std::list<PlayerColor> generatePlayerTurnOrder() const;
 	void makeStackDoNothing(const CStack * next);
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
