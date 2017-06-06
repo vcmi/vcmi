@@ -1842,6 +1842,9 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 
 DLL_LINKAGE void PlayerCheated::applyGs(CGameState *gs)
 {
+	if(!player.isValidPlayer())
+		return;
+
 	gs->getPlayer(player)->enteredLosingCheatCode = losingCheatCode;
 	gs->getPlayer(player)->enteredWinningCheatCode = winningCheatCode;
 }

@@ -237,7 +237,7 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() const
 {
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
-	if(!player)
+	if(!player || player.get().isSpectator())
 		return BattlePerspective::ALL_KNOWING;
 	if(*player == getBattle()->sides[0].color)
 		return BattlePerspective::LEFT_SIDE;

@@ -257,12 +257,14 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 		PLAYER_LIMIT_I = 8
 	};
 
+	DLL_LINKAGE static const PlayerColor SPECTATOR; //252
 	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253
 	DLL_LINKAGE static const PlayerColor UNFLAGGABLE; //254 - neutral objects (pandora, banks)
 	DLL_LINKAGE static const PlayerColor NEUTRAL; //255
 	DLL_LINKAGE static const PlayerColor PLAYER_LIMIT; //player limit per map
 
 	DLL_LINKAGE bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
+	DLL_LINKAGE bool isSpectator() const;
 
 	DLL_LINKAGE std::string getStr(bool L10n = false) const;
 	DLL_LINKAGE std::string getStrCap(bool L10n = false) const;

@@ -335,6 +335,8 @@ void CRClickPopup::close()
 void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
 {
 	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue
+	if(settings["session"]["spectate"].Bool())//TODO: there must be better way to implement this
+		player = PlayerColor(1);
 
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
 	temp->center(Point(GH.current->motion)); //center on mouse

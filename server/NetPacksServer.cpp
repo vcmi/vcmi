@@ -283,8 +283,11 @@ bool CastAdvSpell::applyGh( CGameHandler *gh )
 
 bool PlayerMessage::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT(player);
-	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
+	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
+	{
+		ERROR_IF_NOT(player);
+		if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
+	}
 	gh->playerMessage(player,text, currObj);
 	return true;
 }

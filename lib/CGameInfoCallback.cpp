@@ -595,7 +595,7 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 
 bool CGameInfoCallback::hasAccess(boost::optional<PlayerColor> playerId) const
 {
-	return !player || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
+	return !player || player.get().isSpectator() || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
 }
 
 EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const

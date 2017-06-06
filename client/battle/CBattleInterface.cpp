@@ -95,7 +95,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation *anim)
 CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 								   const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 								   const SDL_Rect & myRect,
-								   std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen)
+								   std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt)
 	: background(nullptr), queue(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
       activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
@@ -105,11 +105,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 {
 	OBJ_CONSTRUCTION;
 
-	if (!curInt)
+	if(spectatorInt)
+		curInt = spectatorInt;
+	else if(!curInt)
 	{
 		//May happen when we are defending during network MP game -> attacker interface is just not present
 		curInt = defenderInt;
 	}
+
 
 	animsAreDisplayed.setn(false);
 	pos = myRect;
@@ -377,6 +380,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	currentAction = INVALID;
 	selectedAction = INVALID;
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
+
+	blockUI(settings["session"]["spectate"].Bool());
 }
 
 CBattleInterface::~CBattleInterface()
@@ -448,6 +453,7 @@ CBattleInterface::~CBattleInterface()
 		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
 		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
+	animsAreDisplayed.setn(false);
 }
 
 void CBattleInterface::setPrintCellBorders(bool set)
@@ -1246,6 +1252,11 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 void CBattleInterface::displayBattleFinished()
 {
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
+	{
+		GH.popIntTotally(this);
+		return;
+	}
 
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	resWindow = new CBattleResultWindow(*bresult, temp_rect, *this->curInt);
@@ -1531,6 +1542,9 @@ void CBattleInterface::setAnimSpeed(int set)
 
 int CBattleInterface::getAnimSpeed() const
 {
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
+		return vstd::round(settings["session"]["spectate-battle-speed"].Float() *100);
+
 	return vstd::round(settings["battle"]["animationSpeed"].Float() *100);
 }
 

@@ -48,7 +48,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-extern bool end2;
+extern std::atomic<bool> serverShuttingDown;
 #ifdef min
 #undef min
 #endif
@@ -1033,12 +1033,13 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 
 	auto handleDisconnection = [&](const std::exception & e)
 	{
+		boost::unique_lock<boost::mutex> lock(*c.wmx);
 		assert(!c.connected); //make sure that connection has been marked as broken
 		logGlobal->error(e.what());
 		conns -= &c;
 		for(auto playerConn : connections)
 		{
-			if(playerConn.second == &c)
+			if(!serverShuttingDown && playerConn.second == &c)
 			{
 				PlayerCheated pc;
 				pc.player = playerConn.first;
@@ -1128,7 +1129,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	}
 	catch(...)
 	{
-		end2 = true;
+		serverShuttingDown = true;
 		handleException();
 		throw;
 	}
@@ -1878,7 +1879,8 @@ void CGameHandler::run(bool resume)
 			sbuffer << color << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[color] = cc;
+				if(!color.isSpectator()) // there can be more than one spectator
+					connections[color] = cc;
 			}
 		}
 		logGlobal->info(sbuffer.str());
@@ -1901,7 +1903,7 @@ void CGameHandler::run(bool resume)
 	if (gs->scenarioOps->mode == StartInfo::DUEL)
 	{
 		runBattle();
-		end2 = true;
+		serverShuttingDown = true;
 
 
 		while(conns.size() && (*conns.begin())->isOpen())
@@ -1912,7 +1914,7 @@ void CGameHandler::run(bool resume)
 
 	auto playerTurnOrder = generatePlayerTurnOrder();
 
-	while(!end2)
+	while(!serverShuttingDown)
 	{
 		if (!resume) newTurn();
 
@@ -1953,7 +1955,7 @@ void CGameHandler::run(bool resume)
 
 					//wait till turn is done
 					boost::unique_lock<boost::mutex> lock(states.mx);
-					while (states.players.at(playerColor).makingTurn && !end2)
+					while(states.players.at(playerColor).makingTurn && !serverShuttingDown)
 					{
 						static time_duration p = milliseconds(100);
 						states.cv.timed_wait(lock, p);
@@ -1969,7 +1971,7 @@ void CGameHandler::run(bool resume)
 					activePlayer = true;
 		}
 		if (!activePlayer)
-			end2 = true;
+			serverShuttingDown = true;
 	}
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
@@ -2733,7 +2735,7 @@ void CGameHandler::close()
 	{
 		exit(0);
 	}
-	end2 = true;
+	serverShuttingDown = true;
 
 	for (auto & elem : conns)
 	{
@@ -2744,7 +2746,6 @@ void CGameHandler::close()
 		elem->close();
 		elem->connected = false;
 	}
-	exit(0);
 }
 
 void CGameHandler::playerLeftGame(int cid)
@@ -4430,7 +4431,9 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
-		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
+
+		if(!player.isSpectator())
+			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
 	}
 }
 
@@ -5100,7 +5103,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if (p->human)
 			{
-				end2 = true;
+				serverShuttingDown = true;
 
 				if (gs->scenarioOps->campState)
 				{

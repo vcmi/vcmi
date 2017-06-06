@@ -296,6 +296,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {
+	if(playerColor.isSpectator())
+		playerColor = PlayerColor(1);
 	std::vector<const IImage*> &box = piecesOfBox.at(playerColor.getNum());
 
 	// Note: this code assumes that the corner dimensions are all the same.

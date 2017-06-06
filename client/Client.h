@@ -28,7 +28,7 @@ class CGameInterface;
 class CConnection;
 class CCallback;
 struct BattleAction;
-struct SharedMem;
+struct SharedMemory;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;
@@ -46,7 +46,8 @@ public:
 
 	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
-	SharedMem *shared; //interprocess memory (for waiting for server)
+	SharedMemory * shared;
+	std::string uuid;
 	bool verbose; //whether to print log msgs
 
 	//functions setting up local server
@@ -148,9 +149,10 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
-	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
+	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
 	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
+	std::string aiNameForPlayer(bool battleAI);
 
 	void endGame(bool closeConnection = true);
 	void stopConnection();

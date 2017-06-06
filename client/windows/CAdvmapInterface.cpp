@@ -1021,7 +1021,12 @@ void CAdvMapInt::show(SDL_Surface * to)
 #endif
 
 	for(int i = 0; i < 4; i++)
-		gems[i]->setFrame(LOCPLINT->playerID.getNum());
+	{
+		if(settings["session"]["spectate"].Bool())
+			gems[i]->setFrame(PlayerColor(1).getNum());
+		else
+			gems[i]->setFrame(LOCPLINT->playerID.getNum());
+	}
 	if(updateScreen)
 	{
 		int3 betterPos = LOCPLINT->repairScreenPos(position);
@@ -1481,7 +1486,8 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 void CAdvMapInt::startTurn()
 {
 	state = INGAME;
-	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID)
+	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID
+		|| settings["session"]["spectate"].Bool())
 	{
 		adjustActiveness(false);
 		minimap.setAIRadar(false);
@@ -1490,6 +1496,9 @@ void CAdvMapInt::startTurn()
 
 void CAdvMapInt::endingTurn()
 {
+	if(settings["session"]["spectate"].Bool())
+		return;
+
 	if(LOCPLINT->cingconsole->active)
 		LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;
@@ -1817,6 +1826,9 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 
 void CAdvMapInt::aiTurnStarted()
 {
+	if(settings["session"]["spectate"].Bool())
+		return;
+
 	adjustActiveness(true);
 	CCS->musich->playMusicFromSet("enemy-turn", true);
 	adventureInt->minimap.setAIRadar(true);

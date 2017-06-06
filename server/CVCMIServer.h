@@ -17,6 +17,7 @@ class CMapInfo;
 class CConnection;
 struct CPackForSelectionScreen;
 class CGameHandler;
+struct SharedMemory;
 
 namespace boost
 {
@@ -46,6 +47,7 @@ class CVCMIServer
 	ui16 port;
 	boost::asio::io_service *io;
 	TAcceptor * acceptor;
+	SharedMemory * shared;
 
 	CConnection *firstConnection;
 public:

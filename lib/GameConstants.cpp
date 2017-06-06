@@ -29,6 +29,7 @@ const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
 const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
 const SlotID SlotID::ARROW_TOWERS_SLOT = SlotID(-5);
 
+const PlayerColor PlayerColor::SPECTATOR = PlayerColor(252);
 const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
 const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
 const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
@@ -70,6 +71,11 @@ const CSpell * SpellID::toSpell() const
 bool PlayerColor::isValidPlayer() const
 {
 	return num < PLAYER_LIMIT_I;
+}
+
+bool PlayerColor::isSpectator() const
+{
+	return num == 252;
 }
 
 std::string PlayerColor::getStr(bool L10n) const

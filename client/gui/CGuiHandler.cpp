@@ -12,6 +12,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
+#include "../battle/CBattleInterface.h"
 
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
@@ -191,6 +192,46 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
 		SDL_KeyboardEvent key = sEvent->key;
+		if(sEvent->type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
+		{
+			//TODO: we need some central place for all interface-independent hotkeys
+			Settings s = settings.write["session"];
+			switch(key.keysym.sym)
+			{
+			case SDLK_F5:
+				if(settings["session"]["spectate-locked-pim"].Bool())
+					LOCPLINT->pim->unlock();
+				else
+					LOCPLINT->pim->lock();
+				s["spectate-locked-pim"].Bool() = !settings["session"]["spectate-locked-pim"].Bool();
+				break;
+
+			case SDLK_F6:
+				s["spectate-ignore-hero"].Bool() = !settings["session"]["spectate-ignore-hero"].Bool();
+				break;
+
+			case SDLK_F7:
+				s["spectate-skip-battle"].Bool() = !settings["session"]["spectate-skip-battle"].Bool();
+				break;
+
+			case SDLK_F8:
+				s["spectate-skip-battle-result"].Bool() = !settings["session"]["spectate-skip-battle-result"].Bool();
+				break;
+
+			case SDLK_F9:
+				//not working yet since CClient::run remain locked after CBattleInterface removal
+				if(LOCPLINT->battleInt)
+				{
+					GH.popIntTotally(GH.topInt());
+					vstd::clear_pointer(LOCPLINT->battleInt);
+				}
+				break;
+
+			default:
+				break;
+			}
+			return;
+		}
 
 		//translate numpad keys
 		if(key.keysym.sym == SDLK_KP_ENTER)
@@ -361,7 +402,8 @@ void CGuiHandler::simpleRedraw()
 	//update only top interface and draw background
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
-	objsToBlit.back()->show(screen); //blit active interface/window
+	if(!objsToBlit.empty())
+		objsToBlit.back()->show(screen); //blit active interface/window
 }
 
 void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)

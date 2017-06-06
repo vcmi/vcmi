@@ -245,6 +245,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if (LOCPLINT != this)
 		return;
 
+	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-ignore-hero"].Bool())
+		return;
+
 	const CGHeroInstance * hero = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
@@ -321,7 +324,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 
 	ui32 speed;
-	if (makingTurn) // our turn, our hero moves
+	if(settings["session"]["spectate"].Bool())
+	{
+		if(!settings["session"]["spectate-hero-speed"].isNull())
+			speed = settings["session"]["spectate-hero-speed"].Integer();
+	}
+	else if (makingTurn) // our turn, our hero moves
 		speed = settings["adventure"]["heroSpeed"].Float();
 	else
 		speed = settings["adventure"]["enemySpeed"].Float();
@@ -333,7 +341,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		CGI->mh->printObject(hero);
 		return; // no animation
 	}
-
 
 	adventureInt->centerOn(hero); //actualizing screen pos
 	adventureInt->minimap.redraw();
@@ -471,6 +478,14 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 		pos.y = CGI->mh->sizes.y - adventureInt->terrain.tilesh + CGI->mh->frameH;
 	return pos;
 }
+
+void CPlayerInterface::activateForSpectator()
+{
+	adventureInt->state = CAdvMapInt::INGAME;
+	adventureInt->activate();
+	adventureInt->minimap.activate();
+}
+
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1637,7 +1652,8 @@ void CPlayerInterface::update()
 	}
 
 	//in some conditions we may receive calls before selection is initialized - we must ignore them
-	if (adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
+	if(adventureInt && GH.topInt() == adventureInt
+		&& (!adventureInt->selection && !settings["session"]["spectate"].Bool()))
 	{
 		return;
 	}
@@ -2131,7 +2147,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 
 		--howManyPeople;
 
-		if (howManyPeople == 0) //all human players eliminated
+		if(howManyPeople == 0 && !settings["session"]["spectate"].Bool()) //all human players eliminated
 		{
 			if (adventureInt)
 			{
@@ -2152,7 +2168,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		}
 		else
 		{
-			if (howManyPeople == 0) //all human players eliminated
+			if(howManyPeople == 0 && !settings["session"]["spectate"].Bool()) //all human players eliminated
 			{
 				requestReturningToMainMenu();
 			}

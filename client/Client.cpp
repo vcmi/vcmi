@@ -41,9 +41,7 @@
 #include "CMT.h"
 
 extern std::string NAME;
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#else
+#ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
 
@@ -432,10 +430,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	// Init map handler
 	if(gs->map)
 	{
-		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
-		CGI->mh->map = gs->map;
-		logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
-		CGI->mh->init();
+		if(!settings["session"]["headless"].Bool())
+		{
+			const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
+			CGI->mh->map = gs->map;
+			logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
+			CGI->mh->init();
+		}
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		logNetwork->infoStream() << "Initializing mapHandler (together): " << tmh.getDiff();
 	}
@@ -472,7 +473,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	if(si->mode == StartInfo::DUEL)
 	{
-		if(!gNoGUI)
+		if(!settings["session"]["headless"].Bool())
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			auto p = std::make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
@@ -484,6 +485,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 	else
 	{
+		if(settings["session"]["spectate"].Bool())
+		{
+			installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
+		}
 		loadNeutralBattleAI();
 	}
 
@@ -635,10 +640,33 @@ void CClient::serialize(BinaryDeserializer & h, const int version, const std::se
 			nInt->human = isHuman;
 			nInt->playerID = pid;
 
-			if(playerIDs.count(pid))
-				installNewPlayerInterface(nInt, pid);
-
 			nInt->loadGame(h, version);
+			if(settings["session"]["onlyai"].Bool() && isHuman)
+			{
+				removeGUI();
+				nInt.reset();
+				dllname = aiNameForPlayer(false);
+				nInt = CDynLibHandler::getNewAI(dllname);
+				nInt->dllName = dllname;
+				nInt->human = false;
+				nInt->playerID = pid;
+				installNewPlayerInterface(nInt, pid);
+				GH.totalRedraw();
+			}
+			else
+			{
+				if(playerIDs.count(pid))
+					installNewPlayerInterface(nInt, pid);
+			}
+		}
+		if(settings["session"]["spectate"].Bool())
+		{
+			removeGUI();
+			auto p = std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR);
+			installNewPlayerInterface(p, PlayerColor::SPECTATOR, true);
+			GH.curInt = p.get();
+			LOCPLINT->activateForSpectator();
+			GH.totalRedraw();
 		}
 
 		if(playerIDs.count(PlayerColor::NEUTRAL))
@@ -684,19 +712,22 @@ void CClient::stopConnection()
 {
 	terminate = true;
 
-	if (serv && serv->isHost()) //request closing connection
+	if(serv)
 	{
-		logNetwork->infoStream() << "Connection has been requested to be closed.";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
-		CloseServer close_server;
-		sendRequest(&close_server, PlayerColor::NEUTRAL);
-		logNetwork->infoStream() << "Sent closing signal to the server";
-	}
-	else
-	{
-		LeaveGame leave_Game;
-		sendRequest(&leave_Game, PlayerColor::NEUTRAL);
-		logNetwork->infoStream() << "Sent leaving signal to the server";
+		if(serv->isHost()) //request closing connection
+		{
+			logNetwork->infoStream() << "Connection has been requested to be closed.";
+			CloseServer close_server;
+			sendRequest(&close_server, PlayerColor::NEUTRAL);
+			logNetwork->infoStream() << "Sent closing signal to the server";
+		}
+		else
+		{
+			LeaveGame leave_Game;
+			sendRequest(&leave_Game, PlayerColor::NEUTRAL);
+			logNetwork->infoStream() << "Sent leaving signal to the server";
+		}
 	}
 
 	if(connectionHandler)//end connection handler
@@ -744,14 +775,29 @@ void CClient::battleStarted(const BattleInfo * info)
 			def = std::dynamic_pointer_cast<CPlayerInterface>( playerint[rightSide.color] );
 	}
 
-	if(!gNoGUI && (!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL))
+	if(!settings["session"]["headless"].Bool())
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
-			Rect((screen->w - 800)/2,
-			     (screen->h - 600)/2, 800, 600), att, def);
+		if(!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL)
+		{
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+			auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
+				Rect((screen->w - 800)/2,
+					 (screen->h - 600)/2, 800, 600), att, def);
 
-		GH.pushInt(bi);
+			GH.pushInt(bi);
+		}
+		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		{
+			//TODO: This certainly need improvement
+			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
+			spectratorInt->cb->setBattle(info);
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
+			auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
+				Rect((screen->w - 800)/2,
+					 (screen->h - 600)/2, 800, 600), att, def, spectratorInt);
+
+			GH.pushInt(bi);
+		}
 	}
 
 	auto callBattleStart = [&](PlayerColor color, ui8 side){
@@ -762,6 +808,8 @@ void CClient::battleStarted(const BattleInfo * info)
 	callBattleStart(leftSide.color, 0);
 	callBattleStart(rightSide.color, 1);
 	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		callBattleStart(PlayerColor::SPECTATOR, 1);
 
 	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide].color))
 	{
@@ -774,6 +822,9 @@ void CClient::battleFinished()
 	for(auto & side : gs->curB->sides)
 		if(battleCallbacks.count(side.color))
 			battleCallbacks[side.color]->setBattle(nullptr);
+
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
 }
 
 void CClient::loadNeutralBattleAI()
@@ -871,7 +922,7 @@ void CClient::campaignMapFinished( std::shared_ptr<CCampaignState> camp )
 	}
 }
 
-void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color)
+void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color, bool battlecb)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
@@ -887,7 +938,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	battleCallbacks[colorUsed] = cb;
 	gameInterface->init(cb);
 
-	installNewBattleInterface(gameInterface, color, false);
+	installNewBattleInterface(gameInterface, color, battlecb);
 }
 
 void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
@@ -918,6 +969,11 @@ std::string CClient::aiNameForPlayer(const PlayerSettings &ps, bool battleAI)
 			return ps.name;
 	}
 
+	return aiNameForPlayer(battleAI);
+}
+
+std::string CClient::aiNameForPlayer(bool battleAI)
+{
 	const int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	std::string goodAI = battleAI ? settings["server"]["neutralAI"].String() : settings["server"]["playerAI"].String();
 	std::string badAI = battleAI ? "StupidAI" : "EmptyAI";
@@ -961,13 +1017,7 @@ void CServerHandler::waitForServer()
 
 #ifndef VCMI_ANDROID
 	if(shared)
-	{
-		intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
-		while(!shared->sr->ready)
-		{
-			shared->sr->cond.wait(slock);
-		}
-	}
+		shared->sr->waitTillReady();
 #else
 	logNetwork->infoStream() << "waiting for server";
 	while (!androidTestServerReadyFlag.load())
@@ -984,15 +1034,7 @@ void CServerHandler::waitForServer()
 
 CConnection * CServerHandler::connectToServer()
 {
-#ifndef VCMI_ANDROID
-	if(shared)
-	{
-		if(!shared->sr->ready)
-			waitForServer();
-	}
-#else
 	waitForServer();
-#endif
 
 	th.update(); //put breakpoint here to attach to server before it does something stupid
 
@@ -1026,15 +1068,21 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	serverThread = nullptr;
 	shared = nullptr;
 	verbose = true;
+	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 
 #ifndef VCMI_ANDROID
-	if(DO_NOT_START_SERVER)
+	if(DO_NOT_START_SERVER || settings["session"]["disable-shm"].Bool())
 		return;
 
-	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
+	std::string sharedMemoryName = "vcmi_memory";
+	if(settings["session"]["enable-shm-uuid"].Bool())
+	{
+		//used or automated testing when multiple clients start simultaneously
+		sharedMemoryName += "_" + uuid;
+	}
 	try
 	{
-		shared = new SharedMem();
+		shared = new SharedMemory(sharedMemoryName, true);
 	}
 	catch(...)
 	{
@@ -1057,11 +1105,17 @@ void CServerHandler::callServer()
 #ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::callServer");
 	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
-	const std::string comm = VCMIDirs::get().serverPath().string()
+	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + getDefaultPortStr()
 		+ " --run-by-client"
-		+ (shared ? " --use-shm" : "")
-		+ " > \"" + logName + '\"';
+		+ " --uuid=" + uuid;
+	if(shared)
+	{
+		comm += " --enable-shm";
+		if(settings["session"]["enable-shm-uuid"].Bool())
+			comm += " --enable-shm-uuid";
+	}
+	comm += " > \"" + logName + '\"';
 
 	int result = std::system(comm.c_str());
 	if (result == 0)
