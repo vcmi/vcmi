@@ -166,7 +166,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 						//should not happen, catapult cannot be selected
 						logGlobal->error("Attempt to move Catapult");
 					}
-					else if (cur->isBig())
+					else if(cur->isBig())
 					{
 						//war machines cannot go to backpack
 						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));

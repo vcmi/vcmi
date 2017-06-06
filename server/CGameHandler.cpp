@@ -6048,9 +6048,9 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
-bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance* h, const CArtifact* art)
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art)
 {
-	COMPLAIN_RET_FALSE_IF(art->possibleSlots.at(ArtBearer::HERO).empty(),"Not a hero artifact!");
+	COMPLAIN_RET_FALSE_IF(art->possibleSlots.at(ArtBearer::HERO).empty(), "Not a hero artifact!");
 
 	ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
 
