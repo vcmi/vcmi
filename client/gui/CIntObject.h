@@ -61,6 +61,7 @@ public:
 	virtual ~IShowActivatable(){}; //d-tor
 };
 
+enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
 //typedef ui16 ActivityFlag;
 
 // Base UI element
@@ -72,6 +73,8 @@ class CIntObject : public IShowActivatable //interface object
 	//time handling
 	int toNextTick;
 	int timerDelay;
+
+	std::map<EIntObjMouseBtnType, bool> currentMouseState;
 
 	void onTimer(int timePassed);
 
@@ -104,13 +107,13 @@ public:
 	CIntObject(int used=0, Point offset=Point());
 	virtual ~CIntObject(); //d-tor
 
-	//l-clicks handling
-	/*const*/ bool pressedL; //for determining if object is L-pressed
-	virtual void clickLeft(tribool down, bool previousState){}
+	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
+	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	//r-clicks handling
-	/*const*/ bool pressedR; //for determining if object is R-pressed
-	virtual void clickRight(tribool down, bool previousState){}
+	virtual void click(EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void clickLeft(tribool down, bool previousState) {}
+	virtual void clickRight(tribool down, bool previousState) {}
+	virtual void clickMiddle(tribool down, bool previousState) {}
 
 	//hover handling
 	/*const*/ bool hovered;  //for determining if object is hovered
@@ -138,7 +141,7 @@ public:
 	//double click
 	virtual void onDoubleClick(){}
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, ALL=0xffff};
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
 	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);

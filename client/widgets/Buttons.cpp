@@ -623,7 +623,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->pressedL);
+		slider->clickLeft(true, slider->mouseState(EIntObjMouseBtnType::LEFT));
 		moveTo(rw * positions  +  0.5);
 		return;
 	}

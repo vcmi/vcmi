@@ -16,7 +16,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 	parent(parent_m),
 	active(active_m)
 {
-	pressedL = pressedR = hovered = captureAllKeys = strongInterest = false;
+	hovered = captureAllKeys = strongInterest = false;
 	toNextTick = timerDelay = 0;
 	used = used_;
 
@@ -132,6 +132,23 @@ CIntObject::~CIntObject()
 
 	if(parent_m)
 		parent_m->removeChild(this);
+}
+
+void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState)
+{
+	switch(btn)
+	{
+	default:
+	case EIntObjMouseBtnType::LEFT:
+		clickLeft(down, previousState);
+		break;
+	case EIntObjMouseBtnType::MIDDLE:
+		clickMiddle(down, previousState);
+		break;
+	case EIntObjMouseBtnType::RIGHT:
+		clickRight(down, previousState);
+		break;
+	}
 }
 
 void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
@@ -340,16 +357,9 @@ void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 	if(vstd::contains(assignedKeys,key.keysym.sym)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
-		bool prev = pressedL;
-		if(key.state == SDL_PRESSED)
-		{
-			pressedL = true;
-			clickLeft(true, prev);
-		}
-		else
-		{
-			pressedL = false;
-			clickLeft(false, prev);
-		}
+		bool prev = mouseState(EIntObjMouseBtnType::LEFT);		
+		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
+		clickLeft(key.state == SDL_PRESSED, prev);
+		
 	}
 }
