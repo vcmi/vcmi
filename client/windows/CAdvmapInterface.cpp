@@ -98,7 +98,7 @@ CTerrainRect::CTerrainRect()
 	pos.w=ADVOPT.advmapW;
 	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
-	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
+	addUsedEvents(LCLICK | RCLICK | MCLICK | HOVER | MOVE);
 }
 
 CTerrainRect::~CTerrainRect()
@@ -124,16 +124,9 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled)
 	{
-		if(down == true)
+		if(handleSwipeStateChange(down == true))
 		{
-			swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
-			swipeInitialMapPos = int3(adventureInt->position);
 			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
-		}
-		else if(isSwiping) // only accept this touch if it wasn't a swipe
-		{
-			isSwiping = false;
-			return;
 		}
 	}
 	else
@@ -165,22 +158,32 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 		adventureInt->tileRClicked(mp);
 }
 
+void CTerrainRect::clickMiddle(tribool down, bool previousState)
+{
+	handleSwipeStateChange(down == true);
+}
+
 void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 {
 	handleHover(sEvent);
 
-#ifdef VCMI_ANDROID
-	if(!adventureInt->swipeEnabled || sEvent.state == 0)
+	if(!adventureInt->swipeEnabled)
 		return;
 
 	handleSwipeMove(sEvent);
-#endif // !VCMI_ANDROID
 }
-
-#ifdef VCMI_ANDROID
 
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
+#ifdef VCMI_ANDROID
+	if(sEvent.state == 0) // any "button" is enough on android
+#else //!VCMI_ANDROID
+	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
+#endif //!VCMI_ANDROID
+	{
+		return;
+	}
+
 	if(!isSwiping)
 	{
 		// try to distinguish if this touch was meant to be a swipe or just fat-fingering press
@@ -201,7 +204,21 @@ void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 	}
 }
 
-#endif // VCMI_ANDROID
+bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
+{
+	if(btnPressed)
+	{
+		swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
+		swipeInitialMapPos = int3(adventureInt->position);
+		return true;
+	}
+	else if(isSwiping) // only accept this touch if it wasn't a swipe
+	{
+		isSwiping = false;
+		return true;
+	}
+	return false;
+}
 
 void CTerrainRect::handleHover(const SDL_MouseMotionEvent &sEvent)
 {
@@ -534,11 +551,9 @@ CAdvMapInt::CAdvMapInt():
 	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
   spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
   updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
-	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false)
-#ifdef VCMI_ANDROID
-	, swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
+	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false), 
+	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(int3(-1, -1, -1))
-#endif
 {
   adventureInt = this;
 	pos.x = pos.y = 0;
@@ -1007,18 +1022,16 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	++heroAnim;
 
-#ifdef VCMI_ANDROID
 	if(swipeEnabled)
 	{
 		handleSwipeUpdate();
 	}
+#ifdef VCMI_ANDROID // on android, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
 	else
+#endif // VCMI_ANDROID
 	{
-#endif // !VCMI_ANDROID
 		handleMapScrollingUpdate();
-#ifdef VCMI_ANDROID
 	}
-#endif
 
 	for(int i = 0; i < 4; i++)
 	{
@@ -1089,22 +1102,19 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	}
 }
 
-#ifdef VCMI_ANDROID
-
 void CAdvMapInt::handleSwipeUpdate()
 {
 	if(swipeMovementRequested)
 	{
-		position.x = swipeTargetPosition.x;
-		position.y = swipeTargetPosition.y;
+		auto fixedPos = LOCPLINT->repairScreenPos(swipeTargetPosition);
+		position.x = fixedPos.x;
+		position.y = fixedPos.y;
 		CCS->curh->changeGraphic(ECursor::DEFAULT, 0);
 		updateScreen = true;
 		minimap.redraw();
 		swipeMovementRequested = false;
 	}
 }
-
-#endif
 
 void CAdvMapInt::selectionChanged()
 {
