@@ -64,7 +64,7 @@ private:
 	               textInterested;
 
 
-	void handleMouseButtonClick(CIntObjectList &interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
+	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
 public:
 	void handleElementActivate(CIntObject * elem, ui16 activityFlag);

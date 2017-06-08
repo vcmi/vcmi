@@ -62,8 +62,8 @@ class CTerrainRect
 	bool isSwiping;
 	static constexpr float SwipeTouchSlop = 16.0f;
 
-	void handleHover(const SDL_MouseMotionEvent &sEvent);
-	void handleSwipeMove(const SDL_MouseMotionEvent &sEvent);
+	void handleHover(const SDL_MouseMotionEvent & sEvent);
+	void handleSwipeMove(const SDL_MouseMotionEvent & sEvent);
 	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
 	bool handleSwipeStateChange(bool btnPressed);
 public:
