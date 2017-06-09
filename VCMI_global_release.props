@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <VCMI_Out>C:\Temp\RD</VCMI_Out>
+    <VCMI_Out>$(SolutionDir)</VCMI_Out>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>

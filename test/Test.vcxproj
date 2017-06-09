@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BA25F3F0-EB87-4164-AAB9-073C50A3557A}</ProjectGuid>
     <RootNamespace>VCMI_client</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" Label="Configuration">
@@ -75,7 +76,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VCMI_Out)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">..</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(VCMI_Out)</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(VCMI_Out)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(Configuration)\</IntDir>
@@ -92,6 +93,9 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>
@@ -101,13 +105,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <AdditionalOptions>/MP4 /Zm150</AdditionalOptions>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OptimizeReferences>false</OptimizeReferences>
-      <Profile>true</Profile>
-      <AdditionalLibraryDirectories>..\..\libs</AdditionalLibraryDirectories>
+      <OptimizeReferences>
+      </OptimizeReferences>
+      <Profile>false</Profile>
+      <AdditionalLibraryDirectories>..\..\libs;$(SolutionDir)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest />
   </ItemDefinitionGroup>

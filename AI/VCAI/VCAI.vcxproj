@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{276C3DB0-7A6B-4417-8E5C-322B08633AAC}</ProjectGuid>
     <RootNamespace>StupidAI</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -74,13 +75,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(VCMI_Out)\AI\</OutDir>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(VCMI_Out)\AI\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>..</OutDir>
+    <OutDir>$(VCMI_Out)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <OutDir>$(VCMI_Out)\AI\</OutDir>
@@ -94,7 +95,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\libs;..\..;..</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\libs;$(SolutionDir);..</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
