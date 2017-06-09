@@ -41,7 +41,7 @@
 				},
 				"swipe" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
 				"saveRandomMaps" : {
 					"type" : "boolean",

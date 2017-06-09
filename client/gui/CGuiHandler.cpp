@@ -60,6 +60,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 {
 	processList(CIntObject::LCLICK,activityFlag,&lclickable,cb);
 	processList(CIntObject::RCLICK,activityFlag,&rclickable,cb);
+	processList(CIntObject::MCLICK,activityFlag,&mclickable,cb);
 	processList(CIntObject::HOVER,activityFlag,&hoverable,cb);
 	processList(CIntObject::MOVE,activityFlag,&motioninterested,cb);
 	processList(CIntObject::KEYBOARD,activityFlag,&keyinterested,cb);
@@ -260,18 +261,18 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		CCS->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
 		handleMouseMotion(sEvent);
 	}
-	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
+	else if(sEvent->type == SDL_MOUSEBUTTONDOWN)
 	{
-		if(sEvent->button.button == SDL_BUTTON_LEFT)
+		switch(sEvent->button.button)
 		{
-
-			if(lastClick == sEvent->motion  &&  (SDL_GetTicks() - lastClickTime) < 300)
+		case SDL_BUTTON_LEFT:
+			if(lastClick == sEvent->motion && (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<CIntObject*> hlp = doubleClickInterested;
-				for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+				for(auto i = hlp.begin(); i != hlp.end() && current; i++)
 				{
-					if(!vstd::contains(doubleClickInterested,*i)) continue;
-					if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+					if(!vstd::contains(doubleClickInterested, *i)) continue;
+					if(isItIn(&(*i)->pos, sEvent->motion.x, sEvent->motion.y))
 					{
 						(*i)->onDoubleClick();
 					}
@@ -282,31 +283,16 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			lastClick = sEvent->motion;
 			lastClickTime = SDL_GetTicks();
 
-			std::list<CIntObject*> hlp = lclickable;
-			for(auto i=hlp.begin(); i != hlp.end() && current; i++)
-			{
-				if(!vstd::contains(lclickable,*i)) continue;
-				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-				{
-					prev = (*i)->pressedL;
-					(*i)->pressedL = true;
-					(*i)->clickLeft(true, prev);
-				}
-			}
-		}
-		else if (sEvent->button.button == SDL_BUTTON_RIGHT)
-		{
-			std::list<CIntObject*> hlp = rclickable;
-			for(auto i=hlp.begin(); i != hlp.end() && current; i++)
-			{
-				if(!vstd::contains(rclickable,*i)) continue;
-				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-				{
-					prev = (*i)->pressedR;
-					(*i)->pressedR = true;
-					(*i)->clickRight(true, prev);
-				}
-			}
+			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
+			break;
+		case SDL_BUTTON_RIGHT:
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, true);
+			break;
+		case SDL_BUTTON_MIDDLE:
+			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, true);
+			break;
+		default:
+			break;
 		}
 	}
 	else if (sEvent->type == SDL_MOUSEWHEEL)
@@ -336,40 +322,44 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 	}
 	//todo: muiltitouch
-	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
+	else if(sEvent->type == SDL_MOUSEBUTTONUP)
 	{
-		std::list<CIntObject*> hlp = lclickable;
-		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
+		switch(sEvent->button.button)
 		{
-			if(!vstd::contains(lclickable,*i)) continue;
-			prev = (*i)->pressedL;
-			(*i)->pressedL = false;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickLeft(false, prev);
-			}
-			else
-				(*i)->clickLeft(boost::logic::indeterminate, prev);
-		}
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
-	{
-		std::list<CIntObject*> hlp = rclickable;
-		for(auto i=hlp.begin(); i != hlp.end() && current; i++)
-		{
-			if(!vstd::contains(rclickable,*i)) continue;
-			prev = (*i)->pressedR;
-			(*i)->pressedR = false;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickRight(false, prev);
-			}
-			else
-				(*i)->clickRight(boost::logic::indeterminate, prev);
+		case SDL_BUTTON_LEFT:
+			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);
+			break;
+		case SDL_BUTTON_RIGHT:
+			handleMouseButtonClick(rclickable, EIntObjMouseBtnType::RIGHT, false);
+			break;
+		case SDL_BUTTON_MIDDLE:
+			handleMouseButtonClick(mclickable, EIntObjMouseBtnType::MIDDLE, false);
+			break;
 		}
 	}
 	current = nullptr;
 } //event end
+
+void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed)
+{
+	auto hlp = interestedObjs;
+	for(auto i = hlp.begin(); i != hlp.end() && current; i++)
+	{
+		if(!vstd::contains(interestedObjs, *i)) continue;
+
+		auto prev = (*i)->mouseState(btn);
+		if(!isPressed)
+			(*i)->updateMouseState(btn, isPressed);
+		if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+		{
+			if(isPressed)
+				(*i)->updateMouseState(btn, isPressed);
+			(*i)->click(btn, isPressed, prev);
+		}
+		else if(!isPressed)
+			(*i)->click(btn, boost::logic::indeterminate, prev);
+	}
+}
 
 void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 {
