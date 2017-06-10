@@ -17,6 +17,7 @@ class CMapInfo;
 class CConnection;
 struct CPackForSelectionScreen;
 class CGameHandler;
+struct SharedMemory;
 
 namespace boost
 {
@@ -43,8 +44,10 @@ typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::s
 
 class CVCMIServer
 {
+	ui16 port;
 	boost::asio::io_service *io;
 	TAcceptor * acceptor;
+	SharedMemory * shared;
 
 	CConnection *firstConnection;
 public:
@@ -73,7 +76,6 @@ public:
 	std::list<CPackForSelectionScreen*> toAnnounce;
 	boost::recursive_mutex mx;
 
-	//std::vector<CMapInfo> maps;
 	TAcceptor *acceptor;
 	TSocket *upcomingConnection;
 

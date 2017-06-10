@@ -152,6 +152,21 @@ struct PlayerBlocked : public CPackForClient
 	}
 };
 
+struct PlayerCheated : public CPackForClient
+{
+	PlayerCheated() : losingCheatCode(false), winningCheatCode(false) {}
+	DLL_LINKAGE void applyGs(CGameState *gs);
+
+	PlayerColor player;
+	bool losingCheatCode;
+	bool winningCheatCode;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & losingCheatCode & winningCheatCode;
+	}
+};
+
 struct YourTurn : public CPackForClient
 {
 	YourTurn(){}
@@ -1768,6 +1783,13 @@ struct CommitPackage : public CPackForServer
 
 
 struct CloseServer : public CPackForServer
+{
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+struct LeaveGame : public CPackForServer
 {
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)

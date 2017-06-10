@@ -4,7 +4,7 @@
 	"title" : "VCMI artifact format",
 	"description" : "Format used to define new artifacts in VCMI",
 	"required" : [ "class", "text", "type", "value" ],
-	
+
 	"definitions" : {
 		"growingBonusList" : {
 			"type" : "array",
@@ -117,6 +117,12 @@
 		"value": {
 			"type":"number",
 			"description": "Cost of this artifact, in gold"
+		},
+		"warMachine":
+		{
+			"type":"string",
+			"description": "Creature id to use on battle field. If set, this artifact is war machine"
 		}
+
 	}
 }

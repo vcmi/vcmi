@@ -115,9 +115,10 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	logGlobal->info("CMapEditManager_DrawTerrain_View start");
 	try
 	{
+		const ResourceID testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
-		const auto originalMap = CMapService::loadMap("test/TerrainViewTest");
-		auto map = CMapService::loadMap("test/TerrainViewTest");
+		const auto originalMap = CMapService::loadMap(testMap);
+		auto map = CMapService::loadMap(testMap);
 		logGlobal->info("Loaded test map successfully.");
 
 		// Validate edit manager

@@ -68,12 +68,13 @@ public:
 
 	bool receivedStop, sendStop;
 
-	CConnection(std::string host, std::string port, std::string Name);
+	CConnection(std::string host, ui16 port, std::string Name);
 	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
 	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
 
 	void close();
 	bool isOpen() const;
+	bool isHost() const;
 	template<class T>
 	CConnection &operator&(const T&);
 	virtual ~CConnection(void);

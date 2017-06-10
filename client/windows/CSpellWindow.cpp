@@ -337,7 +337,7 @@ void CSpellWindow::computeSpellsPerArea()
 	spellsCurSite.reserve(mySpells.size());
 	for(const CSpell * spell : mySpells)
 	{
-		if(spell->combatSpell ^ !battleSpellsOnly
+		if(spell->isCombatSpell() ^ !battleSpellsOnly
 			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
 			)
 		{
@@ -547,9 +547,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 
 		//we will cast a spell
-		if(mySpell->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
+		if(mySpell->isCombatSpell() && owner->myInt->battleInt) //if battle window is open
 		{
-			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(mySpell);
+			ESpellCastProblem::ESpellCastProblem problem = mySpell->canBeCast(owner->myInt->cb.get(), ECastingMode::HERO_CASTING, owner->myHero);
 			switch (problem)
 			{
 			case ESpellCastProblem::OK:

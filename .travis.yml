@@ -38,9 +38,6 @@ matrix:
       env: VCMI_PLATFORM='linux' REAL_CC=clang-3.6 REAL_CXX=clang++-3.6 PACKAGE=clang-3.6 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       compiler: clang
-      env: VCMI_PLATFORM='linux' REAL_CC=clang-3.5 REAL_CXX=clang++-3.5 PACKAGE=clang-3.5 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
-    - os: linux
-      compiler: clang
       env: VCMI_PLATFORM='linux' REAL_CC=clang-3.4 REAL_CXX=clang++-3.4 PACKAGE=clang-3.4 SUPPORT=libstdc++-4.8-dev VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     - os: linux
       compiler: gcc
@@ -57,14 +54,15 @@ addons:
       name: vcmi/vcmi
       description: Build submitted via Travis CI
     notification_email: coverity@arseniyshestakov.com
-    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=1 -DENABLE_TEST=0"
-    build_command: ninja -j 2
+    build_command_prepend: "cov-configure --compiler clang-3.6 --comptype clangcc && cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja .. -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=0 -DENABLE_TEST=0"
+    build_command: ninja -j 3
     branch_pattern: coverity_scan
 
 notifications:
   email:
     recipients:
-      - vcmi.fail@mixaill.tk
-      - saven.ivan@gmail.com
+      - noreply@vcmi.eu
     on_success: change
     on_failure: always
+  slack:
+    secure: "KHXFe14FFKtw5mErWbj730+utqy7i/3AUobWfAMAGvWI5sJYlhbBU+KvvCoD2SlRQg3mQqgwVw8NBJF1Mffs7WcRmrFFFmuMqZxFLAfKBd3T0CxWpAGfnfNgDmlfV4OfEgQWk1pakEPOymhxbbmLUuCjykZDuTcioxAk0UAHDwY="

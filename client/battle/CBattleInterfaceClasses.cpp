@@ -191,7 +191,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if(myHero != nullptr && !down &&  myOwner->myTurn && myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell()) //check conditions
+	if(myHero != nullptr && !down &&  myOwner->myTurn && myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, ECastingMode::HERO_CASTING) == ESpellCastProblem::OK) //check conditions
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
@@ -211,14 +211,10 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 	windowPosition.y = myOwner->pos.y + 135;
 
 	InfoAboutHero targetHero;
-
-	if (down && myOwner->myTurn)
+	if(down && (myOwner->myTurn || settings["session"]["spectate"].Bool()))
 	{
-		if (myHero != nullptr)
-			targetHero.initFromHero(myHero, InfoAboutHero::EInfoLevel::INBATTLE);
-		else
-			targetHero = myOwner->enemyHero();
-
+		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
+		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
 		GH.pushInt(new CHeroInfoWindow(targetHero, &windowPosition));
 	}
 }

@@ -341,7 +341,7 @@ public:
 	virtual void postChatMessage(const std::string &txt){};
 
 	void setPlayer(PlayerSettings &pset, ui8 player);
-	void updateStartInfo( std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader );
+	void updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader);
 
 	ui8 getIdOfFirstUnallocatedPlayer(); //returns 0 if none
 	bool isGuest() const;
@@ -371,7 +371,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const std::string & Port = "");
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const ui16 Port = 0);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -539,7 +539,7 @@ private:
 	int selectedMap;
 	boost::optional<int> selectedBonus;
 	StartInfo startInfo;
-	CMapHeader * ourHeader;
+	std::unique_ptr<CMapHeader> ourHeader;
 };
 
 /// Campaign selection screen

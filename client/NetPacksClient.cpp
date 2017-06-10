@@ -96,6 +96,10 @@
 #define BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(function,...) 				\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[0].color, function, __VA_ARGS__)	\
 	CALL_ONLY_THAT_BATTLE_INTERFACE(GS(cl)->curB->sides[1].color, function, __VA_ARGS__)	\
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && LOCPLINT->battleInt)	\
+	{																					\
+		CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, function, __VA_ARGS__)	\
+	}																					\
 	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
 /*
  * NetPacksClient.cpp, part of VCMI engine
@@ -283,13 +287,13 @@ void GiveBonus::applyCl(CClient *cl)
 void ChangeObjPos::applyFirstCl(CClient *cl)
 {
 	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
-	if(flags & 1)
+	if(flags & 1 && CGI->mh)
 		CGI->mh->hideObject(obj);
 }
 void ChangeObjPos::applyCl(CClient *cl)
 {
 	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
-	if(flags & 1)
+	if(flags & 1 && CGI->mh)
 		CGI->mh->printObject(obj);
 
 	cl->invalidatePaths();
@@ -298,6 +302,10 @@ void ChangeObjPos::applyCl(CClient *cl)
 void PlayerEndsGame::applyCl(CClient *cl)
 {
 	CALL_IN_ALL_INTERFACES(gameOver, player, victoryLossCheckResult);
+
+	// In auto testing mode we always close client if red player won or lose
+	if(!settings["session"]["testmap"].isNull() && player == PlayerColor(0))
+		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 }
 
 void RemoveBonus::applyCl(CClient *cl)
@@ -335,7 +343,8 @@ void RemoveObject::applyFirstCl(CClient *cl)
 {
 	const CGObjectInstance *o = cl->getObj(id);
 
-	CGI->mh->hideObject(o, true);
+	if(CGI->mh)
+		CGI->mh->hideObject(o, true);
 
 	//notify interfaces about removal
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
@@ -357,17 +366,19 @@ void TryMoveHero::applyFirstCl(CClient *cl)
 	//check if playerint will have the knowledge about movement - if not, directly update maphandler
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT)
-			continue;
-		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
-				&& GS(cl)->getPlayer(i->first)->human)
-			humanKnows = true;
+		auto ps = GS(cl)->getPlayer(i->first);
+		if(ps && (GS(cl)->isVisible(start - int3(1, 0, 0), i->first) || GS(cl)->isVisible(end - int3(1, 0, 0), i->first)))
+		{
+			if(ps->human)
+				humanKnows = true;
+		}
 	}
+
+	if(!CGI->mh)
+		return;
 
 	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK  ||  !humanKnows)
 		CGI->mh->hideObject(h, result == EMBARK && humanKnows);
-
 
 	if(result == DISEMBARK)
 		CGI->mh->printObject(h->boat);
@@ -378,13 +389,14 @@ void TryMoveHero::applyCl(CClient *cl)
 	const CGHeroInstance *h = cl->getHero(id);
 	cl->invalidatePaths();
 
-	if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
+	if(CGI->mh)
 	{
-		CGI->mh->printObject(h, result == DISEMBARK);
-	}
+		if(result == TELEPORTATION  ||  result == EMBARK  ||  result == DISEMBARK)
+			CGI->mh->printObject(h, result == DISEMBARK);
 
-	if(result == EMBARK)
-		CGI->mh->hideObject(h->boat);
+		if(result == EMBARK)
+			CGI->mh->hideObject(h->boat);
+	}
 
 	PlayerColor player = h->tempOwner;
 
@@ -395,18 +407,17 @@ void TryMoveHero::applyCl(CClient *cl)
 	//notify interfaces about move
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= PlayerColor::PLAYER_LIMIT) continue;
-		TeamState *t = GS(cl)->getPlayerTeam(i->first);
-		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
+		if(GS(cl)->isVisible(start - int3(1, 0, 0), i->first)
+			|| GS(cl)->isVisible(end - int3(1, 0, 0), i->first))
 		{
 			i->second->heroMoved(*this);
 		}
 	}
 
-	if(!humanKnows) //maphandler didn't get update from playerint, do it now
-	{				//TODO: restructure nicely
+	//maphandler didn't get update from playerint, do it now
+	//TODO: restructure nicely
+	if(!humanKnows && CGI->mh)
 		CGI->mh->printObject(h);
-	}
 }
 
 void NewStructures::applyCl(CClient *cl)
@@ -482,22 +493,22 @@ void HeroRecruited::applyCl(CClient *cl)
 			needsPrinting = false;
 		}
 	}
-	if (needsPrinting)
-	{
+	if(needsPrinting && CGI->mh)
 		CGI->mh->printObject(h);
-	}
 }
 
 void GiveHero::applyCl(CClient *cl)
 {
 	CGHeroInstance *h = GS(cl)->getHero(id);
-	CGI->mh->printObject(h);
+	if(CGI->mh)
+		CGI->mh->printObject(h);
 	cl->playerint[h->tempOwner]->heroCreated(h);
 }
 
 void GiveHero::applyFirstCl(CClient *cl)
 {
-	CGI->mh->hideObject(GS(cl)->getHero(id));
+	if(CGI->mh)
+		CGI->mh->hideObject(GS(cl)->getHero(id));
 }
 
 void InfoWindow::applyCl(CClient *cl)
@@ -587,6 +598,8 @@ void BattleStart::applyFirstCl(CClient *cl)
 	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[0].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 	CALL_ONLY_THAT_BATTLE_INTERFACE(info->sides[1].color, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
+		info->tile, info->sides[0].hero, info->sides[1].hero);
+	CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 	BATTLE_INTERFACE_CALL_RECEIVERS(battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
@@ -707,7 +720,7 @@ void BattleResultsApplied::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
-	INTERFACE_CALL_IF_PRESENT(PlayerColor::UNFLAGGABLE, battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(PlayerColor::SPECTATOR, battleResultsApplied);
 	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
 	{
 		handleQuit();
@@ -808,7 +821,10 @@ void PlayerMessage::applyCl(CClient *cl)
 	logNetwork->debugStream() << "Player "<< player <<" sends a message: " << text;
 
 	std::ostringstream str;
-	str << cl->getPlayer(player)->nodeName() <<": " << text;
+	if(player.isSpectator())
+		str << "Spectator: " << text;
+	else
+		str << cl->getPlayer(player)->nodeName() <<": " << text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }
@@ -904,7 +920,8 @@ void NewObject::applyCl(CClient *cl)
 	cl->invalidatePaths();
 
 	const CGObjectInstance *obj = cl->getObj(id);
-	CGI->mh->printObject(obj, true);
+	if(CGI->mh)
+		CGI->mh->printObject(obj, true);
 
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{

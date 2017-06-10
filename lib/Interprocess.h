@@ -19,40 +19,63 @@
 struct ServerReady
 {
 	bool ready;
-	boost::interprocess::interprocess_mutex  mutex;
-	boost::interprocess::interprocess_condition  cond;
+	uint16_t port; //ui16?
+	boost::interprocess::interprocess_mutex mutex;
+	boost::interprocess::interprocess_condition cond;
 
 	ServerReady()
 	{
 		ready = false;
+		port = 0;
 	}
 
-	void setToTrueAndNotify()
+	void waitTillReady()
+	{
+		boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> slock(mutex);
+		while(!ready)
+		{
+			cond.wait(slock);
+		}
+	}
+
+	void setToReadyAndNotify(const uint16_t Port)
 	{
 		{
-			boost::unique_lock<boost::interprocess::interprocess_mutex> lock(mutex); 
+			boost::unique_lock<boost::interprocess::interprocess_mutex> lock(mutex);
 			ready = true;
+			port = Port;
 		}
 		cond.notify_all();
 	}
 };
 
-struct SharedMem 
+struct SharedMemory
 {
+	const char * name;
 	boost::interprocess::shared_memory_object smo;
-	boost::interprocess::mapped_region *mr;
-	ServerReady *sr;
+	boost::interprocess::mapped_region * mr;
+	ServerReady * sr;
 	
-	SharedMem() //c-tor
-		:smo(boost::interprocess::open_or_create,"vcmi_memory",boost::interprocess::read_write) 
+	SharedMemory(std::string Name, bool initialize = false)
+		: name(Name.c_str())
 	{
+		if(initialize)
+		{
+			//if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
+			boost::interprocess::shared_memory_object::remove(name);
+		}
+		smo = boost::interprocess::shared_memory_object(boost::interprocess::open_or_create, name, boost::interprocess::read_write);
 		smo.truncate(sizeof(ServerReady));
 		mr = new boost::interprocess::mapped_region(smo,boost::interprocess::read_write);
-		sr = new(mr->get_address())ServerReady();
+		if(initialize)
+			sr = new(mr->get_address())ServerReady();
+		else
+			sr = reinterpret_cast<ServerReady*>(mr->get_address());
 	};
-	~SharedMem() //d-tor
+
+	~SharedMemory()
 	{
 		delete mr;
-		boost::interprocess::shared_memory_object::remove("vcmi_memory");
+		boost::interprocess::shared_memory_object::remove(name);
 	}
 };

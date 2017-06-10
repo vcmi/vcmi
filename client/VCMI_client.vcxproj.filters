@@ -109,17 +109,10 @@
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="..\CCallback.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="CQuestLog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="SDLRWwrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
-    <ClInclude Include="CQuestLog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcmi.ico" />
@@ -254,5 +247,6 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="..\CCallback.h" />
+    <ClInclude Include="SDLRWwrapper.h" />
   </ItemGroup>
 </Project>

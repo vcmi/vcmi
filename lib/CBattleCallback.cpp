@@ -237,7 +237,7 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() const
 {
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
-	if(!player)
+	if(!player || player.get().isSpectator())
 		return BattlePerspective::ALL_KNOWING;
 	if(*player == getBattle()->sides[0].color)
 		return BattlePerspective::LEFT_SIDE;
@@ -1708,59 +1708,6 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	return attackableBattleHexes;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	if(caster == nullptr)
-	{
-		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpell: no spellcaster.";
-		return ESpellCastProblem::INVALID;
-	}
-	const PlayerColor player = caster->getOwner();
-	const si8 side = playerToSide(player);
-
-	if(side < 0)
-		return ESpellCastProblem::INVALID;
-
-	if(!battleDoWeKnowAbout(side))
-		return ESpellCastProblem::INVALID;
-
-	ESpellCastProblem::ESpellCastProblem genProblem = battleCanCastSpell(caster, mode);
-	if(genProblem != ESpellCastProblem::OK)
-		return genProblem;
-
-	switch(mode)
-	{
-	case ECastingMode::HERO_CASTING:
-		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			if(!castingHero)
-			{
-				logGlobal->error("battleCanCastThisSpell: invalid caster");
-				return ESpellCastProblem::INVALID;
-			}
-
-			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
-				return ESpellCastProblem::NO_SPELLBOOK;
-			if(!castingHero->canCastThisSpell(spell))
-				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			if(castingHero->mana < battleGetSpellCost(spell, castingHero)) //not enough mana
-				return ESpellCastProblem::NOT_ENOUGH_MANA;
-		}
-		break;
-	}
-
-	if(!spell->combatSpell)
-		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
-
-	//effect like Recanter's Cloak. Blocks also passive casting.
-	//TODO: check creature abilities to block
-	if(battleMaxSpellLevel(side) < spell->level)
-		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
-
-	return spell->canBeCast(this, mode, caster);
-}
-
 ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
@@ -1787,22 +1734,6 @@ ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInst
 	}
 
 	return ret - manaReduction + manaIncrease;
-}
-
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere(const ISpellCaster * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	if(caster == nullptr)
-	{
-		logGlobal->errorStream() << "CBattleInfoCallback::battleCanCastThisSpellHere: no spellcaster.";
-		return ESpellCastProblem::INVALID;
-	}
-
-	ESpellCastProblem::ESpellCastProblem problem = battleCanCastThisSpell(caster, spell, mode);
-	if(problem != ESpellCastProblem::OK)
-		return problem;
-
-	return spell->canBeCastAt(this, caster, mode, dest);
 }
 
 const CStack * CBattleInfoCallback::getStackIf(std::function<bool(const CStack*)> pred) const
@@ -1887,7 +1818,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 
 		if(subject->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
 			//TODO: this ability has special limitations
-			|| battleCanCastThisSpellHere(subject, spellID.toSpell(), ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
+			|| spellID.toSpell()->canBeCastAt(this, subject, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
 			continue;
 
 		switch (spellID)
@@ -2127,18 +2058,6 @@ ReachabilityInfo::Parameters::Parameters(const CStack *Stack)
 	knownAccessible = stack->getHexes();
 }
 
-ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCastThisSpell(const CSpell * spell) const
-{
-	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	ASSERT_IF_CALLED_WITH_PLAYER
-
-	const ISpellCaster * hero = battleGetMyHero();
-	if(hero == nullptr)
-		return ESpellCastProblem::INVALID;
-	else
-		return CBattleInfoCallback::battleCanCastThisSpell(hero, spell, ECastingMode::HERO_CASTING);
-}
-
 bool CPlayerBattleCallback::battleCanFlee() const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -2167,26 +2086,6 @@ int CPlayerBattleCallback::battleGetSurrenderCost() const
 	RETURN_IF_NOT_BATTLE(-3)
 	ASSERT_IF_CALLED_WITH_PLAYER
 	return CBattleInfoCallback::battleGetSurrenderCost(*player);
-}
-
-bool CPlayerBattleCallback::battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem /*= nullptr*/) const
-{
-	RETURN_IF_NOT_BATTLE(false);
-	ASSERT_IF_CALLED_WITH_PLAYER
-
-	const CGHeroInstance * hero = battleGetMyHero();
-	if(!hero)
-	{
-		if(outProblem)
-			*outProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		return false;
-	}
-
-	auto problem = CBattleInfoCallback::battleCanCastSpell(hero, ECastingMode::HERO_CASTING);
-	if(outProblem)
-		*outProblem = problem;
-
-	return problem == ESpellCastProblem::OK;
 }
 
 const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const

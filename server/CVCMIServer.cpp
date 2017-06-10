@@ -41,11 +41,7 @@
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
-#ifndef VCMI_ANDROID
-namespace intpr = boost::interprocess;
-#endif
-bool end2 = false;
-int port = 3030;
+std::atomic<bool> serverShuttingDown(false);
 
 boost::program_options::variables_map cmdLineOptions;
 
@@ -105,6 +101,10 @@ void CPregameServer::handleConnection(CConnection *cpc)
 				//wait for sending thread to announce start
 				auto unlock = vstd::makeUnlockGuard(mx);
 				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			}
+			else if(quitting) // Server must be stopped if host is leaving from lobby to avoid crash
+			{
+				serverShuttingDown = true;
 			}
 		}
 	}
@@ -206,20 +206,29 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 		return;
 	}
 
-	logNetwork->info("We got a new connection! :)");
-	CConnection *pc = new CConnection(upcomingConnection, NAME);
-	initConnection(pc);
-	upcomingConnection = nullptr;
+	try
+	{
+		logNetwork->info("We got a new connection! :)");
+		std::string name = NAME;
+		CConnection *pc = new CConnection(upcomingConnection, name.append(" STATE_PREGAME"));
+		initConnection(pc);
+		upcomingConnection = nullptr;
 
-	startListeningThread(pc);
+		startListeningThread(pc);
 
-	*pc << (ui8)pc->connectionID << curmap;
+		*pc << (ui8)pc->connectionID << curmap;
 
-	announceTxt(pc->name + " joins the game");
-	auto pj = new PlayerJoined();
-	pj->playerName = pc->name;
-	pj->connectionID = pc->connectionID;
-	toAnnounce.push_back(pj);
+		announceTxt(pc->name + " joins the game");
+		auto pj = new PlayerJoined();
+		pj->playerName = pc->name;
+		pj->connectionID = pc->connectionID;
+		toAnnounce.push_back(pj);
+	}
+	catch(std::exception& e)
+	{
+		upcomingConnection = nullptr;
+		logNetwork->info("I guess it was just my imagination!");
+	}
 
 	start_async_accept();
 }
@@ -314,9 +323,28 @@ void CPregameServer::startListeningThread(CConnection * pc)
 }
 
 CVCMIServer::CVCMIServer()
-: io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))), firstConnection(nullptr)
+	: port(3030), io(new boost::asio::io_service()), firstConnection(nullptr), shared(nullptr)
 {
 	logNetwork->trace("CVCMIServer created!");
+	if(cmdLineOptions.count("port"))
+		port = cmdLineOptions["port"].as<ui16>();
+	logNetwork->info("Port %d will be used", port);
+	try
+	{
+		acceptor = new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+	}
+	catch(...)
+	{
+		logNetwork->info("Port %d is busy, trying to use random port instead", port);
+		if(cmdLineOptions.count("run-by-client") && !cmdLineOptions.count("enable-shm"))
+		{
+			logNetwork->error("Cant pass port number to client without shared memory!", port);
+			exit(0);
+		}
+		acceptor = new TAcceptor(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 0));
+		port = acceptor->local_endpoint().port();
+	}
+	logNetwork->info("Listening for connections at port %d", port);
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -394,69 +422,76 @@ void CVCMIServer::newPregame()
 void CVCMIServer::start()
 {
 #ifndef VCMI_ANDROID
-	ServerReady *sr = nullptr;
-	intpr::mapped_region *mr;
-	try
+	if(cmdLineOptions.count("enable-shm"))
 	{
-		intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = reinterpret_cast<ServerReady*>(mr->get_address());
-	}
-	catch(...)
-	{
-		intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = new(mr->get_address())ServerReady();
+		std::string sharedMemoryName = "vcmi_memory";
+		if(cmdLineOptions.count("enable-shm-uuid") && cmdLineOptions.count("uuid"))
+		{
+			sharedMemoryName += "_" + cmdLineOptions["uuid"].as<std::string>();
+		}
+		shared = new SharedMemory(sharedMemoryName);
 	}
 #endif
 
 	boost::system::error_code error;
-	logNetwork->info("Listening for connections at port %d", acceptor->local_endpoint().port());
-	auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
-	boost::thread acc(std::bind(vaccept,acceptor,s,&error));
-#ifndef VCMI_ANDROID
-	sr->setToTrueAndNotify();
-	delete mr;
+	for (;;)
+	{
+		try
+		{
+			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
+			boost::thread acc(std::bind(vaccept,acceptor,s,&error));
+#ifdef VCMI_ANDROID
+			{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
+				CAndroidVMHelper envHelper;
+				envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+				logNetwork->info("Sending server ready message to client");
+			}
 #else
-	{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
-		CAndroidVMHelper envHelper;
-		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
-		logNetwork->info("Sending server ready message to client");
-	}
+			if(shared)
+			{
+				shared->sr->setToReadyAndNotify(port);
+			}
 #endif
 
-	acc.join();
-	if (error)
-	{
-		logNetwork->warnStream() << "Got connection but there is an error " << error;
-		return;
-	}
-	logNetwork->info("We've accepted someone... ");
-	firstConnection = new CConnection(s, NAME);
-	logNetwork->info("Got connection!");
-	while (!end2)
-	{
-		ui8 mode;
-		*firstConnection >> mode;
-		switch (mode)
+			acc.join();
+			if (error)
+			{
+				logNetwork->warnStream()<<"Got connection but there is an error " << error;
+				return;
+			}
+			logNetwork->info("We've accepted someone... ");
+			std::string name = NAME;
+			firstConnection = new CConnection(s, name.append(" STATE_WAITING"));
+			logNetwork->info("Got connection!");
+			while(!serverShuttingDown)
+			{
+				ui8 mode;
+				*firstConnection >> mode;
+				switch (mode)
+				{
+				case 0:
+					firstConnection->close();
+					exit(0);
+				case 1:
+					firstConnection->close();
+					return;
+				case 2:
+					newGame();
+					break;
+				case 3:
+					loadGame();
+					break;
+				case 4:
+					newPregame();
+					break;
+				}
+			}
+			break;
+		}
+		catch(std::exception& e)
 		{
-		case 0:
-			firstConnection->close();
-			exit(0);
-		case 1:
-			firstConnection->close();
-			return;
-		case 2:
-			newGame();
-			break;
-		case 3:
-			loadGame();
-			break;
-		case 4:
-			newPregame();
-			break;
+			vstd::clear_pointer(firstConnection);
+			logNetwork->info("I guess it was just my imagination!");
 		}
 	}
 }
@@ -507,7 +542,11 @@ static void handleCommandOptions(int argc, char *argv[])
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
-		("port", po::value<int>()->default_value(3030), "port at which server will listen to connections from client")
+		("run-by-client", "indicate that server launched by client on same machine")
+		("uuid", po::value<std::string>(), "")
+		("enable-shm-uuid", "use UUID for shared memory identifier")
+		("enable-shm", "enable usage of shared memory")
+		("port", po::value<ui16>(), "port at which server will listen to connections from client")
 		("resultsFile", po::value<std::string>()->default_value("./results.txt"), "file to which the battle result will be appended. Used only in the DUEL mode.");
 
 	if(argc > 1)
@@ -584,12 +623,7 @@ int main(int argc, char** argv)
 	logConfig.configureDefault();
 	logGlobal->info(NAME);
 
-
 	handleCommandOptions(argc, argv);
-	if (cmdLineOptions.count("port"))
-		port = cmdLineOptions["port"].as<int>();
-	logNetwork->info("Port %d will be used.", port);
-
 	preinitDLL(console);
 	settings.init();
 	logConfig.configure();
@@ -603,7 +637,7 @@ int main(int argc, char** argv)
 
 		try
 		{
-			while (!end2)
+			while(!serverShuttingDown)
 			{
 				server.start();
 			}
@@ -612,7 +646,7 @@ int main(int argc, char** argv)
 		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
-			end2 = true;
+			serverShuttingDown = true;
 		}
 		catch (...)
 		{
@@ -630,11 +664,9 @@ int main(int argc, char** argv)
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
-	delete VLC;
-	VLC = nullptr;
+	vstd::clear_pointer(VLC);
 	CResourceHandler::clear();
-
-  return 0;
+	return 0;
 }
 
 #ifdef VCMI_ANDROID

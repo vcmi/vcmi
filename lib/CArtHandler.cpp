@@ -15,6 +15,7 @@
 #include "CGeneralTextHandler.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
+#include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
 #include "mapObjects/MapObjects.h"
 #include "NetPacksBase.h"
@@ -61,14 +62,21 @@ const std::string & CArtifact::EventText() const
 	return eventText;
 }
 
-bool CArtifact::isBig () const
+bool CArtifact::isBig() const
 {
-	return VLC->arth->isBigArtifact(id);
+	return warMachine != CreatureID::NONE;
 }
 
-bool CArtifact::isTradable () const
+bool CArtifact::isTradable() const
 {
-	return VLC->arth->isTradableArtifact(id);
+	switch(id)
+	{
+	case ArtifactID::SPELLBOOK:
+	case ArtifactID::GRAIL:
+		return false;
+	default:
+		return !isBig();
+	}
 }
 
 CArtifact::CArtifact()
@@ -120,6 +128,26 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 	CBonusSystemNode::addNewBonus(b);
 }
 
+void CArtifact::fillWarMachine()
+{
+	switch (id)
+	{
+	case ArtifactID::CATAPULT:
+		warMachine = CreatureID::CATAPULT;
+		break;
+	case ArtifactID::BALLISTA:
+		warMachine = CreatureID::BALLISTA;
+		break;
+	case ArtifactID::FIRST_AID_TENT:
+		warMachine = CreatureID::FIRST_AID_TENT;
+		break;
+	case ArtifactID::AMMO_CART:
+		warMachine = CreatureID::AMMO_CART;
+		break;
+	}
+	warMachine = CreatureID::NONE; //this artifact is not a creature
+}
+
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 {
 	auto b = std::make_shared<Bonus>();
@@ -146,11 +174,6 @@ void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 
 CArtHandler::CArtHandler()
 {
-	//VLC->arth = this;
-
-	// War machines are the default big artifacts.
-	for (ArtifactID i = ArtifactID::CATAPULT; i <= ArtifactID::FIRST_AID_TENT; i.advance(1))
-		bigArtifacts.insert(i);
 }
 
 CArtHandler::~CArtHandler()
@@ -310,6 +333,19 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 		auto bonus = JsonUtils::parseBonus(b);
 		art->addNewBonus(bonus);
 	}
+
+	const JsonNode & warMachine = node["warMachine"];
+	if(warMachine.getType() == JsonNode::DATA_STRING && warMachine.String() != "")
+	{
+		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
+		{
+			art->warMachine = CreatureID(id);
+
+			//this assumes that creature object is stored before registration
+			VLC->creh->creatures.at(id)->warMachine = art->id;
+		});
+	}
+
 	return art;
 }
 
@@ -453,47 +489,6 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 	}
 }
 
-//TODO: use bimap
-ArtifactID CArtHandler::creatureToMachineID(CreatureID id)
-{
-	switch (id)
-	{
-	case CreatureID::CATAPULT: //Catapult
-		return ArtifactID::CATAPULT;
-		break;
-	case CreatureID::BALLISTA: //Ballista
-		return ArtifactID::BALLISTA;
-		break;
-	case CreatureID::FIRST_AID_TENT: //First Aid tent
-		return ArtifactID::FIRST_AID_TENT;
-		break;
-	case CreatureID::AMMO_CART: //Ammo cart
-		return ArtifactID::AMMO_CART;
-		break;
-	}
-	return ArtifactID::NONE; //this creature is not artifact
-}
-
-CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
-{
-	switch (id)
-	{
-	case ArtifactID::CATAPULT:
-		return CreatureID::CATAPULT;
-		break;
-	case ArtifactID::BALLISTA:
-		return CreatureID::BALLISTA;
-		break;
-	case ArtifactID::FIRST_AID_TENT:
-		return CreatureID::FIRST_AID_TENT;
-		break;
-	case ArtifactID::AMMO_CART:
-		return CreatureID::AMMO_CART;
-		break;
-	}
-	return CreatureID::NONE; //this artifact is not a creature
-}
-
 ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts)
 {
 	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
@@ -633,22 +628,6 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 		!(art->constituents) && //no combo artifacts spawning
 		art->aClass >= CArtifact::ART_TREASURE &&
 		art->aClass <= CArtifact::ART_RELIC);
-}
-
-bool CArtHandler::isTradableArtifact(ArtifactID id) const
-{
-	switch (id)
-	{
-	case ArtifactID::SPELLBOOK:
-	case ArtifactID::GRAIL:
-	case ArtifactID::CATAPULT:
-	case ArtifactID::BALLISTA:
-	case ArtifactID::AMMO_CART:
-	case ArtifactID::FIRST_AID_TENT:
-		return false;
-	default:
-		return true;
-	}
 }
 
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)

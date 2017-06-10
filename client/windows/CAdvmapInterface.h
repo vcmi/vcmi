@@ -62,10 +62,10 @@ class CTerrainRect
 	bool isSwiping;
 	static constexpr float SwipeTouchSlop = 16.0f;
 
-	void handleHover(const SDL_MouseMotionEvent &sEvent);
-#ifdef VCMI_ANDROID
-	void handleSwipeMove(const SDL_MouseMotionEvent &sEvent);
-#endif // VCMI_ANDROID
+	void handleHover(const SDL_MouseMotionEvent & sEvent);
+	void handleSwipeMove(const SDL_MouseMotionEvent & sEvent);
+	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
+	bool handleSwipeStateChange(bool btnPressed);
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
@@ -77,6 +77,7 @@ public:
 	void deactivate() override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
+	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
 	void show(SDL_Surface * to) override;
@@ -132,11 +133,9 @@ public:
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
 	bool scrollingState;
-#ifdef VCMI_ANDROID
 	bool swipeEnabled;
 	bool swipeMovementRequested;
 	int3 swipeTargetPosition;
-#endif // !VCMI_ANDROID
 
 	enum{NA, INGAME, WAITING} state;
 
@@ -260,9 +259,7 @@ public:
 	void changeMode(EAdvMapMode newMode, float newScale = 0.36f);
 
 	void handleMapScrollingUpdate();
-#ifdef VCMI_ANDROID
 	void handleSwipeUpdate();
-#endif
 
 };
 

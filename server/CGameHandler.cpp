@@ -48,7 +48,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-extern bool end2;
+extern std::atomic<bool> serverShuttingDown;
 #ifdef min
 #undef min
 #endif
@@ -1031,6 +1031,25 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 {
 	setThreadName("CGameHandler::handleConnection");
 
+	auto handleDisconnection = [&](const std::exception & e)
+	{
+		boost::unique_lock<boost::mutex> lock(*c.wmx);
+		assert(!c.connected); //make sure that connection has been marked as broken
+		logGlobal->error(e.what());
+		conns -= &c;
+		for(auto playerConn : connections)
+		{
+			if(!serverShuttingDown && playerConn.second == &c)
+			{
+				PlayerCheated pc;
+				pc.player = playerConn.first;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
+				checkVictoryLossConditionsForPlayer(playerConn.first);
+			}
+		}
+	};
+
 	try
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
@@ -1042,6 +1061,8 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
+				if(!c.connected)
+					throw clientDisconnectedException();
 				c >> player >> requestID >> pack; //get the package
 
 				if (!pack)
@@ -1060,6 +1081,11 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			//prepare struct informing that action was applied
 			auto sendPackageResponse = [&](bool succesfullyApplied)
 			{
+				//dont reply to disconnected client
+				//TODO: this must be implemented as option of CPackForServer
+				if(dynamic_cast<LeaveGame *>(pack) || dynamic_cast<CloseServer *>(pack))
+					return;
+
 				PackageApplied applied;
 				applied.player = player;
 				applied.result = succesfullyApplied;
@@ -1095,13 +1121,15 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
-		assert(!c.connected); //make sure that connection has been marked as broken
-		logGlobal->error(e.what());
-		end2 = true;
+		handleDisconnection(e);
+	}
+	catch(clientDisconnectedException & e)
+	{
+		handleDisconnection(e);
 	}
 	catch(...)
 	{
-		end2 = true;
+		serverShuttingDown = true;
 		handleException();
 		throw;
 	}
@@ -1851,7 +1879,8 @@ void CGameHandler::run(bool resume)
 			sbuffer << color << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[color] = cc;
+				if(!color.isSpectator()) // there can be more than one spectator
+					connections[color] = cc;
 			}
 		}
 		logGlobal->info(sbuffer.str());
@@ -1874,7 +1903,7 @@ void CGameHandler::run(bool resume)
 	if (gs->scenarioOps->mode == StartInfo::DUEL)
 	{
 		runBattle();
-		end2 = true;
+		serverShuttingDown = true;
 
 
 		while(conns.size() && (*conns.begin())->isOpen())
@@ -1885,7 +1914,7 @@ void CGameHandler::run(bool resume)
 
 	auto playerTurnOrder = generatePlayerTurnOrder();
 
-	while(!end2)
+	while(!serverShuttingDown)
 	{
 		if (!resume) newTurn();
 
@@ -1926,7 +1955,7 @@ void CGameHandler::run(bool resume)
 
 					//wait till turn is done
 					boost::unique_lock<boost::mutex> lock(states.mx);
-					while (states.players.at(playerColor).makingTurn && !end2)
+					while(states.players.at(playerColor).makingTurn && !serverShuttingDown)
 					{
 						static time_duration p = milliseconds(100);
 						states.cv.timed_wait(lock, p);
@@ -1942,7 +1971,7 @@ void CGameHandler::run(bool resume)
 					activePlayer = true;
 		}
 		if (!activePlayer)
-			end2 = true;
+			serverShuttingDown = true;
 	}
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
@@ -2631,6 +2660,9 @@ void CGameHandler::sendToAllClients(CPackForClient * info)
 	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
 	for (auto & elem : conns)
 	{
+		if(!elem->isOpen())
+			continue;
+
 		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
 		*elem << info;
 	}
@@ -2703,11 +2735,31 @@ void CGameHandler::close()
 	{
 		exit(0);
 	}
+	serverShuttingDown = true;
 
-	//for (CConnection *cc : conns)
-	//	if (cc && cc->socket && cc->socket->is_open())
-	//		cc->socket->close();
-	//exit(0);
+	for (auto & elem : conns)
+	{
+		if(!elem->isOpen())
+			continue;
+
+		boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
+		elem->close();
+		elem->connected = false;
+	}
+}
+
+void CGameHandler::playerLeftGame(int cid)
+{
+	for (auto & elem : conns)
+	{
+		if(elem->isOpen() && elem->connectionID == cid)
+		{
+			boost::unique_lock<boost::mutex> lock(*(elem)->wmx);
+			elem->close();
+			elem->connected = false;
+			break;
+		}
+	}
 }
 
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
@@ -3083,7 +3135,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	const CGDwelling * dw = static_cast<const CGDwelling *>(getObj(objid));
 	const CArmedInstance *dst = nullptr;
 	const CCreature *c = VLC->creh->creatures.at(crid);
-	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
+	const bool warMachine = c->warMachine != ArtifactID::NONE;
 
 	//TODO: test for owning
 	//TODO: check if dst can recruit objects (e.g. hero is actually visiting object, town and source are same, etc)
@@ -3134,24 +3186,18 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	if (warMachine)
 	{
 		const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(dst);
-		if (!h)
-			COMPLAIN_RET("Only hero can buy war machines");
 
-		switch(crid)
-		{
-		case CreatureID::BALLISTA:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::BALLISTA], ArtifactPosition::MACH1);
-			break;
-		case CreatureID::FIRST_AID_TENT:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::FIRST_AID_TENT], ArtifactPosition::MACH3);
-			break;
-		case CreatureID::AMMO_CART:
-			giveHeroNewArtifact(h, VLC->arth->artifacts[ArtifactID::AMMO_CART], ArtifactPosition::MACH2);
-			break;
-		default:
-			complain("This war machine cannot be recruited!");
-			return false;
-		}
+		COMPLAIN_RET_FALSE_IF(!h, "Only hero can buy war machines");
+
+		ArtifactID artId = c->warMachine;
+
+		COMPLAIN_RET_FALSE_IF(artId == ArtifactID::CATAPULT, "Catapult cannot be recruited!");
+
+		const CArtifact * art = artId.toArtifact();
+
+		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid war machine artifact");
+
+		return giveHeroNewArtifact(h, art);
 	}
 	else
 	{
@@ -3392,7 +3438,10 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 {
 	const CGHeroInstance * hero = getHero(hid);
+	COMPLAIN_RET_FALSE_IF(nullptr == hero, "Invalid hero index");
 	const CGTownInstance * town = hero->visitedTown;
+	COMPLAIN_RET_FALSE_IF(nullptr == town, "Hero not in town");
+
 	if (aid==ArtifactID::SPELLBOOK)
 	{
 		if ((!town->hasBuilt(BuildingID::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
@@ -3407,26 +3456,24 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		giveSpells(town,hero);
 		return true;
 	}
-	else if (aid < 7  &&  aid > 3) //war machine
+	else
 	{
-		int price = VLC->arth->artifacts[aid]->price;
+		const CArtifact * art = aid.toArtifact();
+		COMPLAIN_RET_FALSE_IF(nullptr == art, "Invalid artifact index to buy");
+		COMPLAIN_RET_FALSE_IF(art->warMachine == CreatureID::NONE, "War machine artifact required");
+		COMPLAIN_RET_FALSE_IF(hero->hasArt(aid),"Hero already has this machine!");
+		const int price = art->price;
+		COMPLAIN_RET_FALSE_IF(getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price, "Not enough gold!");
 
-		if ((hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
-		 || (getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price && complain("Not enough gold!")))
-		{
-			return false;
-		}
 		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
 		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], ArtifactPosition(9+aid));
-			return true;
+			return giveHeroNewArtifact(hero, art);
 		}
 		else
 			COMPLAIN_RET("This machine is unavailable here!");
 	}
-	return false;
 }
 
 bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid)
@@ -4379,7 +4426,9 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts.at(260));
 		sendAndApply(&temp_message);
-		checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
+
+		if(!player.isSpectator())
+			checkVictoryLossConditionsForPlayer(player);//Player enter win code or got required art\creature
 	}
 }
 
@@ -4407,7 +4456,7 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 			if (ba.selectedStack >= 0)
 				parameters.aimToStack(gs->curB->battleGetStackByID(ba.selectedStack, false));
 
-			ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h, s, ECastingMode::HERO_CASTING);//todo: should we check aimed cast(battleCanCastThisSpellHere)?
+			ESpellCastProblem::ESpellCastProblem escp = s->canBeCast(gs->curB, ECastingMode::HERO_CASTING, h);//todo: should we check aimed cast?
 			if (escp != ESpellCastProblem::OK)
 			{
 				logGlobal->warn("Spell cannot be cast! Problem: %d", escp);
@@ -4580,14 +4629,14 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus* b){return b==bonus.get();});
 
-				if (gs->curB->battleCanCastThisSpell(st, spell, ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK)
-				{
-					BattleSpellCastParameters parameters(gs->curB, st, spell);
-					parameters.spellLvl = bonus->val;
-					parameters.effectLevel = bonus->val;//todo: recheck
-					parameters.mode = ECastingMode::ENCHANTER_CASTING;
-					parameters.cast(spellEnv);
+				BattleSpellCastParameters parameters(gs->curB, st, spell);
+				parameters.spellLvl = bonus->val;
+				parameters.effectLevel = bonus->val;//todo: recheck
+				parameters.mode = ECastingMode::ENCHANTER_CASTING;
 
+				cast = parameters.castIfPossible(spellEnv);
+				if(cast)
+				{
 					//todo: move to mechanics
 					BattleSetStackProperty ssp;
 					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
@@ -4595,8 +4644,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 					ssp.val = bonus->additionalInfo; //increase cooldown counter
 					ssp.stackID = st->ID;
 					sendAndApply(&ssp);
-
-					cast = true;
 				}
 			}
 		}
@@ -5051,7 +5098,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if (p->human)
 			{
-				end2 = true;
+				serverShuttingDown = true;
 
 				if (gs->scenarioOps->campState)
 				{
@@ -5251,7 +5298,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if (gs->curB->battleCanCastThisSpellHere(attacker, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
+			if(spell->canBeCastAt(gs->curB, attacker, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -6001,6 +6048,18 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
+bool CGameHandler::giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art)
+{
+	COMPLAIN_RET_FALSE_IF(art->possibleSlots.at(ArtBearer::HERO).empty(), "Not a hero artifact!");
+
+	ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
+
+	COMPLAIN_RET_FALSE_IF(nullptr != h->getArt(slot, false), "Hero already has artifact in slot");
+
+	giveHeroNewArtifact(h, art, slot);
+	return true;
+}
+
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos)
 {
 	CArtifactInstance *a = nullptr;
@@ -6162,12 +6221,18 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	else if (cheat == "vcmisilmaril")
 	{
 		///Player wins
-		gs->getPlayer(player)->enteredWinningCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.winningCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmimelkor")
 	{
 		///Player looses
-		gs->getPlayer(player)->enteredLosingCheatCode = 1;
+		PlayerCheated pc;
+		pc.player = player;
+		pc.losingCheatCode = true;
+		sendAndApply(&pc);
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{
@@ -6357,10 +6422,12 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		}
 		else if (st->slot == SlotID::WAR_MACHINES_SLOT)
 		{
-			auto warMachine = VLC->arth->creatureToMachineID(st->type->idNumber);
+			auto warMachine = st->type->warMachine;
 
 			if (warMachine == ArtifactID::NONE)
+			{
 				logGlobal->error("Invalid creature in war machine virtual slot. Stack: %s", st->nodeName());
+			}
 			//catapult artifact remain even if "creature" killed in siege
 			else if (warMachine != ArtifactID::CATAPULT && !st->count)
 			{

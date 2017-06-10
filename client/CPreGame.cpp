@@ -83,7 +83,7 @@ struct EvilHlpStruct
 
 	void reset()
 	{
-		vstd::clear_pointer(serv);
+//		vstd::clear_pointer(serv);
 		vstd::clear_pointer(sInfo);
 	}
 
@@ -131,10 +131,10 @@ void setPlayer(PlayerSettings &pset, ui8 player, const std::map<ui8, std::string
 		playerColor = pset.color;
 }
 
-void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui8, std::string> &playerNames)
+void updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader, const std::map<ui8, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
-	if(!mapHeader)
+	if(!mapHeader.get())
 	{
 		return;
 	}
@@ -559,7 +559,7 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const std::string & Port /*= ""*/)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const ui16 Port)
 	: ISelectionScreenInfo(Names), serverHandlingThread(nullptr), mx(new boost::recursive_mutex),
 	  serv(nullptr), ongoingClosing(false), myNameID(255)
 {
@@ -799,7 +799,12 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 	   SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
 	if(screenType != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader.get() : nullptr);
+		std::unique_ptr<CMapHeader> emptyHeader;
+        if(to)
+			updateStartInfo(to->fileURI, sInfo, to->mapHeader);
+		else
+			updateStartInfo("", sInfo, emptyHeader);
+
 		if(screenType == CMenuScreen::newGame)
 		{
 			if(to && to->isRandomMap)
@@ -3219,7 +3224,7 @@ void CHotSeatPlayers::enterSelectionScreen()
 void CBonusSelection::init()
 {
 	highlightedRegion = nullptr;
-	ourHeader = nullptr;
+	ourHeader.reset();
 	diffLb = nullptr;
 	diffRb = nullptr;
 	bonuses = nullptr;
@@ -3342,7 +3347,6 @@ CBonusSelection::CBonusSelection(const std::string & campaignFName)
 CBonusSelection::~CBonusSelection()
 {
 	SDL_FreeSurface(background);
-	delete ourHeader;
 	sFlags->unload();
 }
 
@@ -3423,10 +3427,9 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 		scenarioName += ':' + boost::lexical_cast<std::string>(selectedMap);
 
 		//get header
-		delete ourHeader;
 		std::string & headerStr = ourCampaign->camp->mapPieces.find(mapNr)->second;
 		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName).release();
+		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
 
 		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();
@@ -3922,7 +3925,7 @@ ISelectionScreenInfo::~ISelectionScreenInfo()
 	SEL = nullptr;
 }
 
-void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader)
+void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader)
 {
 	::updateStartInfo(filename, sInfo, mapHeader, playerNames);
 }
@@ -4320,7 +4323,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EMultiMode mode)
 	cancel = new CButton(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 186, 218, 18), 0));
 
-	port->setText(boost::lexical_cast<std::string>(settings["server"]["port"].Float()), true);
+	port->setText(CServerHandler::getDefaultPortStr(), true);
 	address->setText(settings["server"]["server"].String(), true);
 	address->giveFocus();
 }
@@ -4332,7 +4335,7 @@ void CSimpleJoinScreen::enterSelectionScreen(CMenuScreen::EMultiMode mode)
 
 	GH.popIntTotally(this);
 
-	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, mode, nullptr, textAddress, textPort));
+	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, mode, nullptr, textAddress, boost::lexical_cast<ui16>(textPort)));
 }
 void CSimpleJoinScreen::onChange(const std::string & newText)
 {

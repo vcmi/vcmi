@@ -1477,7 +1477,7 @@ std::string CGWitchHut::getHoverText(PlayerColor player) const
 std::string CGWitchHut::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName = getHoverText(hero->tempOwner);
-	if(hero->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
+	if(wasVisited(hero->tempOwner) && hero->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
 		hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	return hoverName;
 }

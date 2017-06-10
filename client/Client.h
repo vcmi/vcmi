@@ -28,7 +28,7 @@ class CGameInterface;
 class CConnection;
 class CCallback;
 struct BattleAction;
-struct SharedMem;
+struct SharedMemory;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;
@@ -46,9 +46,9 @@ public:
 
 	CStopWatch th;
 	boost::thread *serverThread; //thread that called system to run server
-	SharedMem *shared; //interprocess memory (for waiting for server)
+	SharedMemory * shared;
+	std::string uuid;
 	bool verbose; //whether to print log msgs
-	std::string port; //port number in text form
 
 	//functions setting up local server
 	void startServer(); //creates a thread with callServer
@@ -56,7 +56,9 @@ public:
 	CConnection * connectToServer(); //connects to server
 
 	//////////////////////////////////////////////////////////////////////////
-	static CConnection * justConnectToServer(const std::string &host = "", const std::string &port = ""); //connects to given host without taking any other actions (like setting up server)
+	static CConnection * justConnectToServer(const std::string &host = "", const ui16 port = 0); //connects to given host without taking any other actions (like setting up server)
+	static ui16 getDefaultPort();
+	static std::string getDefaultPortStr();
 
 	CServerHandler(bool runServer = false);
 	virtual ~CServerHandler();
@@ -147,14 +149,15 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 
 	void loadNeutralBattleAI();
-	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color);
+	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback = true);
 	std::string aiNameForPlayer(const PlayerSettings &ps, bool battleAI); //empty means no AI -> human
+	std::string aiNameForPlayer(bool battleAI);
 
 	void endGame(bool closeConnection = true);
 	void stopConnection();
 	void save(const std::string & fname);
-	void loadGame(const std::string & fname, const bool server = true, const std::vector<int>& humanplayerindices = std::vector<int>(), const int loadnumplayers = 1, int player_ = -1, const std::string & ipaddr = "", const std::string & port = "");
+	void loadGame(const std::string & fname, const bool server = true, const std::vector<int>& humanplayerindices = std::vector<int>(), const int loadnumplayers = 1, int player_ = -1, const std::string & ipaddr = "", const ui16 port = 0);
 	void run();
 	void campaignMapFinished( std::shared_ptr<CCampaignState> camp );
 	void finishCampaign( std::shared_ptr<CCampaignState> camp );

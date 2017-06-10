@@ -352,34 +352,43 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor *dst /*= 
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
-		if(stack.creature >= CreatureID::CATAPULT &&
-		   stack.creature <= CreatureID::ARROW_TOWERS) //war machine
+		const CCreature * creature = stack.creature.toCreature();
+
+		if(creature == nullptr)
+		{
+			logGlobal->error("Hero %s has invalid creature with id %d in initial army", name, stack.creature.toEnum());
+			continue;
+		}
+
+		if(creature->warMachine != ArtifactID::NONE) //war machine
 		{
 			warMachinesGiven++;
 			if(dst != this)
 				continue;
 
 			int slot = -1;
-			ArtifactID aid = ArtifactID::NONE;
-			switch (stack.creature)
+			ArtifactID aid = creature->warMachine;
+			const CArtifact * art = aid.toArtifact();
+
+			if(art != nullptr && !art->possibleSlots.at(ArtBearer::HERO).empty())
 			{
-			case CreatureID::CATAPULT:
-				slot = ArtifactPosition::MACH4;
-				aid = ArtifactID::CATAPULT;
-				break;
-			default:
-				aid = CArtHandler::creatureToMachineID(stack.creature);
-				slot = 9 + aid;
-				break;
+				//TODO: should we try another possible slots?
+				ArtifactPosition slot = art->possibleSlots.at(ArtBearer::HERO).front();
+
+				if(!getArt(slot))
+					putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
+				else
+					logGlobal->warnStream() << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid;
 			}
-			auto convSlot = ArtifactPosition(slot);
-			if(!getArt(convSlot))
-				putArtifact(convSlot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
-				logGlobal->warnStream() << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid;
+			{
+				logGlobal->error("Hero %s has invalid war machine in initial army", name);
+			}
 		}
 		else
+		{
 			dst->setCreature(SlotID(stackNo-warMachinesGiven), stack.creature, count);
+		}
 	}
 }
 
@@ -1610,42 +1619,34 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		}
 	}
 
+	//primary skills
+	if(handler.saving)
 	{
-		if(handler.saving)
-		{
-			bool haveSkills = false;
+		const bool haveSkills = hasBonus(Selector::type(Bonus::PRIMARY_SKILL).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
 
-			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-			{
-				if(valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL))) != 0)
-				{
-					haveSkills = true;
-					break;
-				}
-			}
-
-			if(haveSkills)
-			{
-				auto primarySkills = handler.enterStruct("primarySkills");
-
-				for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
-				{
-					int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
-
-					handler.serializeInt(PrimarySkill::names[i], value, 0);
-				}
-			}
-		}
-		else
+		if(haveSkills)
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
 
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				int value = 0;
+				int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+
 				handler.serializeInt(PrimarySkill::names[i], value, 0);
-				if(value != 0)
-					pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
+			}
+		}
+	}
+	else
+	{
+		auto primarySkills = handler.enterStruct("primarySkills");
+
+		if(primarySkills.get().getType() == JsonNode::DATA_STRUCT)
+		{
+			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
+			{
+				int value = 0;
+				primarySkills->serializeInt(PrimarySkill::names[i], value, 0);
+				pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), value);
 			}
 		}
 	}

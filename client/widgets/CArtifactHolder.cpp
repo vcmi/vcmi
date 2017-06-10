@@ -161,16 +161,18 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 				{
 					const CArtifact * const cur = ourOwner->commonInfo->src.art->artType;
 
-					switch(cur->id)
+					if(cur->id == ArtifactID::CATAPULT)
 					{
-					case ArtifactID::CATAPULT:
 						//should not happen, catapult cannot be selected
-						assert(cur->id != ArtifactID::CATAPULT);
-						break;
-					case ArtifactID::BALLISTA: case ArtifactID::AMMO_CART: case ArtifactID::FIRST_AID_TENT: //war machines cannot go to backpack
+						logGlobal->error("Attempt to move Catapult");
+					}
+					else if(cur->isBig())
+					{
+						//war machines cannot go to backpack
 						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
-						break;
-					default:
+					}
+					else
+					{
 						setMeAsDest();
 						vstd::amin(ourOwner->commonInfo->dst.slotID, ArtifactPosition(
 							ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
@@ -184,7 +186,6 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 							deselect();
 						else
 							ourOwner->realizeCurrentTransaction();
-						break;
 					}
 				}
 			}
@@ -366,7 +367,7 @@ bool CHeroArtPlace::fitsHere(const CArtifactInstance * art) const
 
 	// Anything but War Machines can be placed in backpack.
 	if (slotID >= GameConstants::BACKPACK_START)
-		return !CGI->arth->isBigArtifact(art->artType->id);
+		return !art->artType->isBig();
 
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
 }

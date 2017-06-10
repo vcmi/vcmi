@@ -98,6 +98,8 @@ public:
 		}
 	} sounds;
 
+	ArtifactID warMachine;
+
 	bool isItNativeTerrain(int terrain) const;
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
@@ -142,9 +144,20 @@ public:
 		{
 			h & identifier;
 		}
+		if(version >= 771)
+		{
+			h & warMachine;
+		}
+		else if(!h.saving)
+		{
+			fillWarMachine();
+		}
 	}
 
 	CCreature();
+
+private:
+	void fillWarMachine();
 };
 
 class DLL_LINKAGE CCreatureHandler : public IHandlerBase

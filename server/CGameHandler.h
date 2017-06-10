@@ -143,6 +143,7 @@ public:
 
 	void removeAfterVisit(const CGObjectInstance *object) override;
 
+	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * art);
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) override;
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) override;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
@@ -223,6 +224,7 @@ public:
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
 	void save(const std::string &fname);
 	void close();
+	void playerLeftGame(int cid);
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
@@ -296,6 +298,11 @@ private:
 	void checkVictoryLossConditionsForPlayer(PlayerColor player);
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
+};
+
+class clientDisconnectedException : public std::exception
+{
+
 };
 
 void makeStackDoNothing();

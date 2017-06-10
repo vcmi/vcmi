@@ -91,7 +91,6 @@ SDL_Surface *screen = nullptr, //main screen surface
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
-bool gNoGUI = false;
 CondSh<bool> serverAlive(false);
 static po::variables_map vm;
 
@@ -113,6 +112,29 @@ void endGame();
 #endif
 #include <getopt.h>
 #endif
+
+void startTestMap(const std::string &mapname)
+{
+	StartInfo si;
+	si.mapname = mapname;
+	si.mode = StartInfo::NEW_GAME;
+	for (int i = 0; i < 8; i++)
+	{
+		PlayerSettings &pset = si.playerInfos[PlayerColor(i)];
+		pset.color = PlayerColor(i);
+		pset.name = CGI->generaltexth->allTexts[468];//Computer
+		pset.playerID = PlayerSettings::PLAYER_AI;
+		pset.compOnly = true;
+		pset.castle = 0;
+		pset.hero = -1;
+		pset.heroPortrait = -1;
+		pset.handicap = PlayerSettings::NO_HANDICAP;
+	}
+
+	while(GH.topInt())
+		GH.popIntTotally(GH.topInt());
+	startGame(&si);
+}
 
 void startGameFromFile(const bfs::path &fname)
 {
@@ -150,7 +172,7 @@ void init()
 	logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
 		CCS->curh = new CCursorHandler;
@@ -238,10 +260,19 @@ int main(int argc, char** argv)
 	opts.add_options()
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
+		("disable-shm", "force disable shared memory usage")
+		("enable-shm-uuid", "use UUID for shared memory identifier")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
+		("testmap", po::value<std::string>(), "")
+		("spectate,s", "enable spectator interface for AI-only games")
+		("spectate-ignore-hero", "wont follow heroes on adventure map")
+		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
+		("spectate-battle-speed", po::value<int>(), "battle animation speed for spectator")
+		("spectate-skip-battle", "skip battles in spectator view")
+		("spectate-skip-battle-result", "skip battle result window")
 		("onlyAI", "runs without human player, all players will be default AI")
-		("noGUI", "runs without GUI, implies --onlyAI")
+		("headless", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
@@ -254,9 +285,9 @@ int main(int argc, char** argv)
         ("loadplayer", po::value<int>(),"specifies which player we are in multiplayer loaded games (0=Red, etc.)")
         ("loadserverip",po::value<std::string>(),"IP for loaded game server")
 		("loadserverport",po::value<std::string>(),"port for loaded game server")
-		("testingport",po::value<std::string>(),"port for testing, override specified in config file")
-		("testingfileprefix",po::value<std::string>(),"prefix for auto save files")
-		("testingsavefrequency",po::value<int>(),"how often auto save should be created");
+		("serverport", po::value<si64>(), "override port specified in config file")
+		("saveprefix", po::value<std::string>(), "prefix for auto save files")
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
 
 	if(argc > 1)
 	{
@@ -280,11 +311,6 @@ int main(int argc, char** argv)
 	{
 		prog_version();
 		return 0;
-	}
-	if(vm.count("noGUI"))
-	{
-		gNoGUI = true;
-		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
 	if(vm.count("donotstartserver"))
 	{
@@ -314,16 +340,21 @@ int main(int argc, char** argv)
 	// Init filesystem and settings
 	preinitDLL(::console);
 	settings.init();
+	Settings session = settings.write["session"];
+	session["onlyai"].Bool() = vm.count("onlyAI");
+	if(vm.count("headless"))
+	{
+		session["headless"].Bool() = true;
+		session["onlyai"].Bool() = true;
+	}
+	// Shared memory options
+	session["disable-shm"].Bool() = vm.count("disable-shm");
+	session["enable-shm-uuid"].Bool() = vm.count("enable-shm-uuid");
 
 	// Init special testing settings
-	Settings testingSettings = settings.write["testing"];
-	if(vm.count("testingport") && vm.count("testingfileprefix"))
-	{
-		testingSettings["enabled"].Bool() = true;
-		testingSettings["port"].String() = vm["testingport"].as<std::string>();
-		testingSettings["prefix"].String() = vm["testingfileprefix"].as<std::string>();
-		testingSettings["savefrequency"].Float() = vm.count("testingsavefrequency") ? vm["testingsavefrequency"].as<int>() : 1;
-	}
+	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
+	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
+	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
 
 	// Initialize logging based on settings
 	logConfig.configure();
@@ -368,7 +399,7 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
 		{
@@ -431,7 +462,7 @@ int main(int argc, char** argv)
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
-	if (!gNoGUI && !vm.count("disable-video"))
+	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
 		CCS->videoh = new CVideoPlayer;
 	else
 		CCS->videoh = new CEmptyVideoPlayer;
@@ -460,7 +491,7 @@ int main(int argc, char** argv)
 	init();
 #endif
 
-	if(!gNoGUI )
+	if(!settings["session"]["headless"].Bool())
 	{
 		if(!vm.count("battle") && !vm.count("nointro") && settings["video"]["showIntro"].Bool())
 			playIntro();
@@ -484,7 +515,6 @@ int main(int argc, char** argv)
 
 	if(!vm.count("battle"))
 	{
-		Settings session = settings.write["session"];
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 		session["aiSolo"].Bool() = false;
@@ -492,17 +522,39 @@ int main(int argc, char** argv)
 		bfs::path fileToStartFrom; //none by default
 		if(vm.count("start"))
 			fileToStartFrom = vm["start"].as<bfs::path>();
+		if(vm.count("testmap"))
+		{
+			session["testmap"].String() = vm["testmap"].as<std::string>();
+		}
 
-		if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
-			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
+		session["spectate"].Bool() = vm.count("spectate");
+		if(session["spectate"].Bool())
+		{
+			session["spectate-ignore-hero"].Bool() = vm.count("spectate-ignore-hero");
+			session["spectate-skip-battle"].Bool() = vm.count("spectate-skip-battle");
+			session["spectate-skip-battle-result"].Bool() = vm.count("spectate-skip-battle-result");
+			if(vm.count("spectate-hero-speed"))
+				session["spectate-hero-speed"].Integer() = vm["spectate-hero-speed"].as<int>();
+			if(vm.count("spectate-battle-speed"))
+				session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
+		}
+		if(!session["testmap"].isNull())
+		{
+			startTestMap(session["testmap"].String());
+		}
 		else
 		{
-			if(!fileToStartFrom.empty())
+			if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
+				startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
+			else
 			{
-				logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
-					<< "). Falling back to main menu.";
+				if(!fileToStartFrom.empty())
+				{
+					logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
+						<< "). Falling back to main menu.";
+				}
+				GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 			}
-			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 		}
 	}
 	else
@@ -515,7 +567,7 @@ int main(int argc, char** argv)
 		startGame(si);
 	}
 
-	if(!gNoGUI)
+	if(!settings["session"]["headless"].Bool())
 	{
 		mainLoop();
 	}
@@ -557,6 +609,20 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 	for(const CIntObject *child : obj->children)
 		printInfoAboutIntObject(child, level+1);
 }
+
+void removeGUI()
+{
+	// CClient::endGame
+	GH.curInt = nullptr;
+	if(GH.topInt())
+		GH.topInt()->deactivate();
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+	GH.statusbar = nullptr;
+	logGlobal->infoStream() << "Removed GUI.";
+
+	LOCPLINT = nullptr;
+};
 
 void processCommand(const std::string &message)
 {
@@ -677,10 +743,6 @@ void processCommand(const std::string &message)
 		int *ptr = nullptr;
 		*ptr = 666;
 		//disaster!
-	}
-	else if(cn == "onlyai")
-	{
-		vm.insert(std::pair<std::string, po::variable_value>("onlyAI", po::variable_value()));
 	}
 	else if(cn == "mp" && adventureInt)
 	{
@@ -817,20 +879,6 @@ void processCommand(const std::string &message)
 		}
 	}
 
-	auto removeGUI = [&]()
-	{
-		// CClient::endGame
-		GH.curInt = nullptr;
-		if(GH.topInt())
-			GH.topInt()->deactivate();
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-		GH.statusbar = nullptr;
-		logNetwork->infoStream() << "Removed GUI.";
-
-		LOCPLINT = nullptr;
-
-	};
 	auto giveTurn = [&](PlayerColor player)
 	{
 		YourTurn yt;
@@ -1273,10 +1321,13 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
-	serverAlive.waitWhileTrue();
-	serverAlive.setn(true);
+	if(!CServerHandler::DO_NOT_START_SERVER)
+	{
+		serverAlive.waitWhileTrue();
+		serverAlive.setn(true);
+	}
 
-	if(vm.count("onlyAI"))
+	if(settings["session"]["onlyai"].Bool())
 	{
 		auto ais = vm.count("ai") ? vm["ai"].as<std::vector<std::string>>() : std::vector<std::string>();
 
@@ -1306,7 +1357,7 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
         if(!vm.count("loadplayer"))
             client->loadGame(fname);
         else
-            client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<std::string>() : "3030");
+			client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
 		break;
 	}
 
@@ -1328,7 +1379,7 @@ void handleQuit(bool ask/* = true*/)
 		dispose();
 		vstd::clear_pointer(console);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
-		if(!gNoGUI)
+		if(!settings["session"]["headless"].Bool())
 		{
 			cleanupRenderer();
 			SDL_Quit();

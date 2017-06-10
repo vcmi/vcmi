@@ -61,6 +61,7 @@ public:
 	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
 	ArtifactID id;
+	CreatureID warMachine;
 
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
@@ -84,12 +85,23 @@ public:
 		{
 			h & identifier;
 		}
+
+		if(version >= 771)
+		{
+			h & warMachine;
+		}
+		else if(!h.saving)
+		{
+			fillWarMachine();
+		}
 	}
 
 	CArtifact();
 	~CArtifact();
 
 	friend class CArtHandler;
+private:
+	void fillWarMachine();
 };
 
 class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
@@ -213,7 +225,6 @@ public:
 
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
-	std::set<ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 	std::set<ArtifactID> growingArtifacts;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
@@ -231,13 +242,7 @@ public:
 	ArtifactID pickRandomArtifact(CRandomGenerator & rand, int flags, std::function<bool(ArtifactID)> accepts);
 
 	bool legalArtifact(ArtifactID id);
-	//void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
-	//void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
-	bool isBigArtifact (ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	bool isTradableArtifact (ArtifactID id) const;
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
-	static ArtifactID creatureToMachineID(CreatureID id);
-	static CreatureID machineIDToCreature(ArtifactID id);
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
 	void makeItCreatureArt (ArtifactID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
@@ -264,7 +269,6 @@ public:
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics
 			& growingArtifacts;
-		//if(!h.saving) sortArts();
 	}
 
 private:

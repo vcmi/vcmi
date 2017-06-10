@@ -5,8 +5,8 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
 	"definitions" : {
-		"logLevelEnum" : { 
-			"type" : "string", 
+		"logLevelEnum" : {
+			"type" : "string",
 			"enum" : [ "trace", "debug", "info", "warn", "error" ]
 		}
 	},
@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -41,8 +41,12 @@
 				},
 				"swipe" : {
 					"type" : "boolean",
-					"default" : false
+					"default" : true
 				},
+				"saveRandomMaps" : {
+					"type" : "boolean",
+					"default" : false
+				}
 			}
 		},
 		"video" : {

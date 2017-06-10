@@ -587,7 +587,7 @@ void CMinimap::hover(bool on)
 
 void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 {
-	if (pressedL)
+	if(mouseState(EIntObjMouseBtnType::LEFT))
 		moveAdvMapSelection();
 }
 

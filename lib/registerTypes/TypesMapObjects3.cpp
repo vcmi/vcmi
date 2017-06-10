@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "RegisterTypes.h"
 
-#include "../mapping/CMapInfo.h"
 #include "../StartInfo.h"
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
