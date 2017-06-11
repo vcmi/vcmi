@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../lib/vcmi_endian.h"
-#include "gui/Geometries.h"
+#include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
 /*

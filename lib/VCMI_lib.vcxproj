@@ -98,7 +98,7 @@
       <AdditionalOptions>/MP4 %(AdditionalOptions) /bigobj
  /Zm150</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>D:\VCMI\include\boost;D:\VCMI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOSTDIR); $(ZLIBDIR);$(SDLDIR)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -139,6 +139,7 @@
       <PreprocessorDefinitions>VCMI_DLL;VCMI_NO_EXTRA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(BOOSTDIR); $(ZLIBDIR);$(SDLDIR)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>

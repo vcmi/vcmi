@@ -5,7 +5,7 @@
 
 #include "SDL_Extensions.h"
 #include "CGuiHandler.h"
-#include "widgets/Images.h"
+#include "../widgets/Images.h"
 
 #include "../CMT.h"
 

@@ -2341,21 +2341,18 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		{
 			boost::this_thread::interruption_point();
 
-			if (!maxGoals)
+			if (!maxGoals) //we counted down to 0 and found no solution
 			{
+				if (ultimateGoal->hero) // we seemingly don't know what to do with hero, free him
+					vstd::erase_if_present(lockedHeroes, ultimateGoal->hero);
 				std::runtime_error e("Too many subgoals, don't know what to do");
 				throw (e);
 			}
-
-			if (goal->hero) //lock this hero to fulfill ultimate goal
+			else //we can proceed
 			{
-				if (maxGoals)
+				if (goal->hero) //lock this hero to fulfill ultimate goal
 				{
 					setGoal(goal->hero, goal);
-				}
-				else
-				{
-					vstd::erase_if_present (lockedHeroes, goal->hero); // we seemingly don't know what to do with hero
 				}
 			}
 
