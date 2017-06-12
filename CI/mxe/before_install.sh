@@ -22,6 +22,9 @@ mxe-$MXE_TARGET-ffmpeg \
 mxe-$MXE_TARGET-qt \
 mxe-$MXE_TARGET-qtbase
 
+# Install nsis for installer creation
+sudo apt-get install -qq nsis
+
 # alias for CMake
 sudo mv /usr/bin/cmake /usr/bin/cmake.orig
 sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake /usr/bin/cmake
