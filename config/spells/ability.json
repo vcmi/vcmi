@@ -101,6 +101,7 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				//no cumulative effect even with mods here
 				"effects" : {
 					"bindEffect" : {
 						"val" : 0,
@@ -335,7 +336,7 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
+				"cumulativeEffects" : {
 					"primarySkill" : {
 						"val" : -3,
 						"type" : "PRIMARY_SKILL",
