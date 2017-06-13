@@ -5750,11 +5750,14 @@ void CGameHandler::runBattle()
 		}
 	}
 
+	bool firstRound = true;//FIXME: why first round is -1?
+
 	//main loop
 	while (!battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
+		logGlobal->debug("Round %d", bnr.round);
 		sendAndApply(&bnr);
 
 		auto obstacles = gs->curB->obstacles; //we copy container, because we're going to modify it
@@ -5769,7 +5772,7 @@ void CGameHandler::runBattle()
 
 		for(auto stack : curB.stacks)
 		{
-			if(stack->alive() && curB.round > 1)
+			if(stack->alive() && !firstRound)
 				stackEnchantedTrigger(stack);
 		}
 
@@ -6001,6 +6004,7 @@ void CGameHandler::runBattle()
 			}
 
 		}
+		firstRound = false;
 	}
 
 	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
