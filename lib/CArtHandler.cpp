@@ -130,7 +130,7 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 
 void CArtifact::fillWarMachine()
 {
-	switch (id)
+	switch(id)
 	{
 	case ArtifactID::CATAPULT:
 		warMachine = CreatureID::CATAPULT;
@@ -144,8 +144,10 @@ void CArtifact::fillWarMachine()
 	case ArtifactID::AMMO_CART:
 		warMachine = CreatureID::AMMO_CART;
 		break;
+	default:
+		warMachine = CreatureID::NONE;
+		break;
 	}
-	warMachine = CreatureID::NONE; //this artifact is not a creature
 }
 
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
