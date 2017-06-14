@@ -1634,7 +1634,7 @@ void CPlayerInterface::setSelection(const CArmedInstance * obj)
 void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 
 	// While mutexes were locked away we may be have stopped being the active interface
 	if (LOCPLINT != this)

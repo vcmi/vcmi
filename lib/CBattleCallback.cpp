@@ -100,11 +100,6 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 
 using namespace SiegeStuffThatShouldBeMovedToHandlers;
 
-boost::shared_mutex& CCallbackBase::getGsMutex()
-{
-	return *gs->mx;
-}
-
 bool CCallbackBase::duringBattle() const
 {
 	return getBattle() != nullptr;

@@ -746,7 +746,7 @@ void VCAI::makeTurn()
 	logGlobal->info("Player %d (%s) starting turn", playerID, playerID.getStr());
 
 	MAKING_TURN;
-	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
@@ -1688,7 +1688,7 @@ void VCAI::battleEnd(const BattleResult *br)
 
 void VCAI::waitTillFree()
 {
-	auto unlock = vstd::makeUnlockSharedGuard(cb->getGsMutex());
+	auto unlock = vstd::makeUnlockSharedGuard(CGameState::mutex);
 	status.waitTillFree();
 }
 
@@ -2787,7 +2787,7 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 	{
 		setThreadName("VCAI::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
-		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
 }

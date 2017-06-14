@@ -213,7 +213,7 @@ public:
 	CBonusSystemNode globalEffects;
 	RumorState rumor;
 
-	boost::shared_mutex *mx;
+	static boost::shared_mutex mutex;
 
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
