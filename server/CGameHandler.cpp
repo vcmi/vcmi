@@ -574,10 +574,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
-		if (gs->initialOpts->mode == StartInfo::DUEL)
-		{
-			battleQuery = std::make_shared<CBattleQuery>(gs->curB);
-		}
 	}
 	if (battleQuery != queries.topQuery(gs->curB->sides[0].color))
 		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " although in battle has no battle query at the top!");
@@ -586,18 +582,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0;
-	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, gs->initialOpts->mode == StartInfo::DUEL, queriedPlayers);
+	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
-
-	if (finishingBattle->duel)
-	{
-		duelFinished();
-		sendAndApply(battleResult.data); //after this point casualties objects are destroyed
-		return;
-	}
-
 
 	ChangeSpells cs; //for Eagle Eye
 
@@ -1900,18 +1888,6 @@ void CGameHandler::run(bool resume)
 		boost::thread(std::bind(&CGameHandler::handleConnection,this,pom,std::ref(*elem)));
 	}
 
-	if (gs->scenarioOps->mode == StartInfo::DUEL)
-	{
-		runBattle();
-		serverShuttingDown = true;
-
-
-		while(conns.size() && (*conns.begin())->isOpen())
-			boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
-
-		return;
-	}
-
 	auto playerTurnOrder = generatePlayerTurnOrder();
 
 	while(!serverShuttingDown)
@@ -2730,11 +2706,6 @@ void CGameHandler::save(const std::string & filename)
 void CGameHandler::close()
 {
 	logGlobal->info("We have been requested to close.");
-
-	if (gs->initialOpts->mode == StartInfo::DUEL)
-	{
-		exit(0);
-	}
 	serverShuttingDown = true;
 
 	for (auto & elem : conns)
@@ -6370,48 +6341,6 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	return true;
 }
 
-void CGameHandler::duelFinished()
-{
-	auto si = getStartInfo();
-	auto getName = [&](int i){ return si->getIthPlayersSettings(gs->curB->sides.at(i).color).name; };
-
-	int casualtiesPoints = 0;
-	logGlobal->debug("Winner side %d\nWinner casualties:", (int)battleResult.data->winner);
-
-	for (auto & elem : battleResult.data->casualties[battleResult.data->winner])
-	{
-		const CCreature *c = VLC->creh->creatures[elem.first];
-		logGlobal->debug("\t* %d of %s", elem.second, c->namePl);
-		casualtiesPoints += c->AIValue * elem.second;
-	}
-	logGlobal->debug("Total casualties points: %d", casualtiesPoints);
-
-
-	time_t timeNow;
-	time(&timeNow);
-
-	std::ofstream out(cmdLineOptions["resultsFile"].as<std::string>(), std::ios::app);
-	if (out)
-	{
-		out << boost::format("%s\t%s\t%s\t%d\t%d\t%d\t%s\n") % si->mapname % getName(0) % getName(1)
-			% battleResult.data->winner % battleResult.data->result % casualtiesPoints
-			% asctime(localtime(&timeNow));
-	}
-	else
-	{
-		logGlobal->error("Cannot open to write %s", cmdLineOptions["resultsFile"].as<std::string>());
-	}
-
-	CSaveFile resultFile("result.vdrst");
-	resultFile << *battleResult.data;
-
-	BattleResultsApplied resultsApplied;
-	resultsApplied.player1 = finishingBattle->victor;
-	resultsApplied.player2 = finishingBattle->loser;
-	sendAndApply(&resultsApplied);
-	return;
-}
-
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat):
 	army(_army)
 {
@@ -6554,7 +6483,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 	}
 }
 
-CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount)
+CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount)
 {
 	assert(Query->result);
 	assert(Query->bi);
@@ -6565,14 +6494,12 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const
 	loserHero = result.winner != 0 ? info.sides[0].hero : info.sides[1].hero;
 	victor = info.sides[result.winner].color;
 	loser = info.sides[!result.winner].color;
-	duel = Duel;
 	remainingBattleQueriesCount = RemainingBattleQueriesCount;
 }
 
 CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 {
 	winnerHero = loserHero = nullptr;
-	duel = false;
 	remainingBattleQueriesCount = 0;
 }
 

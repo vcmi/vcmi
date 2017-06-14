@@ -113,7 +113,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
-	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
@@ -147,8 +146,6 @@ CPlayerInterface::~CPlayerInterface()
 void CPlayerInterface::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
-	if (observerInDuelMode)
-		return;
 
 	if (!towns.size() && !wanderingHeroes.size())
 		initializeHeroTownList();
@@ -1300,8 +1297,11 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
-
-	h & observerInDuelMode;
+	if(version < 774 && !h.saving)
+	{
+		bool observerInDuelMode;
+		h & observerInDuelMode;
+	}
 
 	h & wanderingHeroes & towns & sleepingHeroes;
 

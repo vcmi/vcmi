@@ -546,8 +546,7 @@ static void handleCommandOptions(int argc, char *argv[])
 		("uuid", po::value<std::string>(), "")
 		("enable-shm-uuid", "use UUID for shared memory identifier")
 		("enable-shm", "enable usage of shared memory")
-		("port", po::value<ui16>(), "port at which server will listen to connections from client")
-		("resultsFile", po::value<std::string>()->default_value("./results.txt"), "file to which the battle result will be appended. Used only in the DUEL mode.");
+		("port", po::value<ui16>(), "port at which server will listen to connections from client");
 
 	if(argc > 1)
 	{

@@ -108,7 +108,6 @@ public:
 	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
-	void duelFinished();
 
 	CGameHandler(void);
 	~CGameHandler(void);
@@ -256,18 +255,23 @@ public:
 	struct FinishingBattleHelper
 	{
 		FinishingBattleHelper();
-		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
+		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
 
 		//std::shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
-		bool duel;
 
 		int remainingBattleQueriesCount;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & /*query & */winnerHero & loserHero & victor & loser & duel & remainingBattleQueriesCount;
+			h & /*query & */winnerHero & loserHero & victor & loser;
+			if(version < 774 && !h.saving)
+			{
+				bool duel;
+				h & duel;
+			}
+			h & remainingBattleQueriesCount;
 		}
 	};
 

@@ -493,12 +493,6 @@ void CBattleResultWindow::show(SDL_Surface * to)
 
 void CBattleResultWindow::bExitf()
 {
-	if(LOCPLINT->cb->getStartInfo()->mode == StartInfo::DUEL)
-	{
-		CGuiHandler::pushSDLEvent(SDL_QUIT);
-		return;
-	}
-
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 	GH.popIntTotally(this);
 	if(dynamic_cast<CBattleInterface*>(GH.topInt()))
