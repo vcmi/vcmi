@@ -6218,6 +6218,13 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		smp.hid = hero->id;
 		smp.val = 1000000;
 		sendAndApply(&smp);
+
+		GiveBonus gb(GiveBonus::HERO);
+		gb.bonus.type = Bonus::FREE_SHIP_BOARDING;
+		gb.bonus.duration = Bonus::ONE_DAY;
+		gb.bonus.source = Bonus::OTHER;
+		gb.id = hero->id.getNum();
+		giveHeroBonus(&gb);
 	}
 	else if (cheat == "vcmiformenos")
 	{
