@@ -9,11 +9,6 @@ env:
     - ignore=this
   global:
   - secure: NMg+qtQB4DIZ/KqlDeIn3K7A7Ydksdpnbv6Ha9n4bSSA0AT8wlPwbHXvQmiR8qYs6cnz4fyY6NVcBe7X3bdR8jWyPNAS0l0QByqG12q3dBpEtNNn0X5u/GS3wHse5+ObNAF9a83+xACTQj2UdxqHgJ3LFGzdBpQt3kLsc8NDnn8=
-cache:
-  timeout: 500
-  directories:
-  - $HOME/Library/Caches/Homebrew
-  - /usr/local/Cellar
 
 matrix:
   exclude:
