@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #include "StdInc.h"
 #include "CZipSaver.h"
 
@@ -17,10 +17,10 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 	owner(owner_)
 {
 	zip_fileinfo fileInfo;
-	
+
 	std::time_t t = time(nullptr);
-	fileInfo.dosDate = 0;	
-	
+	fileInfo.dosDate = 0;
+
 	struct tm * localTime = std::localtime(&t);
 	fileInfo.tmz_date.tm_hour = localTime->tm_hour;
 	fileInfo.tmz_date.tm_mday = localTime->tm_mday;
@@ -28,10 +28,10 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 	fileInfo.tmz_date.tm_mon  = localTime->tm_mon;
 	fileInfo.tmz_date.tm_sec  = localTime->tm_sec;
 	fileInfo.tmz_date.tm_year = localTime->tm_year;
-		
-	fileInfo.external_fa = 0; //??? 
-	fileInfo.internal_fa = 0;	
-	
+
+	fileInfo.external_fa = 0; //???
+	fileInfo.internal_fa = 0;
+
 	int status = zipOpenNewFileInZip4_64(
 						handle,
 						archiveFilename.c_str(),
@@ -53,10 +53,10 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 						0,//flagBase
 						0//zip64
 						);
-    
+
     if(status != ZIP_OK)
 		throw new std::runtime_error("CZipOutputStream: zipOpenNewFileInZip failed");
-	
+
 	owner->activeStream = this;
 }
 
@@ -71,7 +71,7 @@ CZipOutputStream::~CZipOutputStream()
 si64 CZipOutputStream::write(const ui8 * data, si64 size)
 {
 	int ret = zipWriteInFileInZip(handle, (const void*)data, (unsigned)size);
-	
+
 	if (ret == ZIP_OK)
 		return size;
 	else
@@ -79,41 +79,41 @@ si64 CZipOutputStream::write(const ui8 * data, si64 size)
 }
 
 ///CZipSaver
-CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const std::string & path):
+CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const boost::filesystem::path & path):
 	ioApi(api),
 	zipApi(ioApi->getApiStructure()),
 	handle(nullptr),
 	activeStream(nullptr)
 {
-	handle = zipOpen2_64(path.c_str(), APPEND_STATUS_CREATE, nullptr, &zipApi);
-	
+	handle = zipOpen2_64((const void *) & path, APPEND_STATUS_CREATE, nullptr, &zipApi);
+
 	if (handle == nullptr)
-		throw new std::runtime_error("CZipSaver: Failed to create archive");	
+		throw new std::runtime_error("CZipSaver: Failed to create archive");
 }
 
 CZipSaver::~CZipSaver()
 {
 	if(activeStream != nullptr)
 	{
-		logGlobal->error("CZipSaver::~CZipSaver: active stream found");	
+		logGlobal->error("CZipSaver::~CZipSaver: active stream found");
 		zipCloseFileInZip(handle);
 	}
-		
-	
+
+
 	if(handle != nullptr)
 	{
 		int status = zipClose(handle, nullptr);
 		if (status != ZIP_OK)
-			logGlobal->errorStream() << "CZipSaver: archive finalize failed: "<<status;		
+			logGlobal->errorStream() << "CZipSaver: archive finalize failed: "<<status;
 	}
-		
+
 }
 
 std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFilename)
 {
 	if(activeStream != nullptr)
 		throw new std::runtime_error("CZipSaver::addFile: stream already opened");
-	
+
 	std::unique_ptr<COutputStream> stream(new CZipOutputStream(this, handle, archiveFilename));
 	return std::move(stream);
 }

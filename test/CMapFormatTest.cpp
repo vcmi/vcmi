@@ -26,7 +26,9 @@
 
 static const int TEST_RANDOM_SEED = 1337;
 
-BOOST_AUTO_TEST_CASE(MapFormat_Random)
+BOOST_AUTO_TEST_SUITE(MapFormat_Suite)
+
+BOOST_AUTO_TEST_CASE(Random)
 {
 	logGlobal->info("MapFormat_Random start");
 	BOOST_TEST_CHECKPOINT("MapFormat_Random start");
@@ -115,7 +117,7 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 	}
 }
 
-BOOST_AUTO_TEST_CASE(MapFormat_Objects)
+BOOST_AUTO_TEST_CASE(Objects)
 {
 	logGlobal->info("MapFormat_Objects start");
 
@@ -202,3 +204,5 @@ BOOST_AUTO_TEST_CASE(MapFormat_Objects)
 
 	logGlobal->info("MapFormat_Objects finish");
 }
+
+BOOST_AUTO_TEST_SUITE_END()

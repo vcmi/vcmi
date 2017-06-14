@@ -21,7 +21,9 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMI_Lib.h"
 
-BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
+BOOST_AUTO_TEST_SUITE(CMapEditManager_Suite)
+
+BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 {
 	logGlobal->info("CMapEditManager_DrawTerrain_Type start");
 	try
@@ -110,7 +112,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_Type)
 	logGlobal->info("CMapEditManager_DrawTerrain_Type finish");
 }
 
-BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
+BOOST_AUTO_TEST_CASE(DrawTerrain_View)
 {
 	logGlobal->info("CMapEditManager_DrawTerrain_View start");
 	try
@@ -178,3 +180,5 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain_View)
 	}
 	logGlobal->info("CMapEditManager_DrawTerrain_View finish");
 }
+
+BOOST_AUTO_TEST_SUITE_END()
