@@ -47,6 +47,7 @@
  */
 
 CondSh<bool> CBattleInterface::animsAreDisplayed(false);
+CondSh<BattleAction *> CBattleInterface::givenCommand(nullptr);
 
 static void onAnimationFinished(const CStack *stack, CCreatureAnimation *anim)
 {
@@ -101,7 +102,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	  currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
 	  creatureSpellToCast(-1),
 	  siegeH(nullptr), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
-	  givenCommand(nullptr), myTurn(false), resWindow(nullptr), moveStarted(false), moveSoundHander(-1), bresult(nullptr)
+	  myTurn(false), resWindow(nullptr), moveStarted(false), moveSoundHander(-1), bresult(nullptr)
 {
 	OBJ_CONSTRUCTION;
 
@@ -117,7 +118,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
-	givenCommand = new CondSh<BattleAction *>(nullptr);
+	givenCommand.setn(nullptr);
 
 	//hot-seat -> check tactics for both players (defender may be local human)
 	if (attackerInt && attackerInt->cb->battleGetTacticDist())
@@ -387,8 +388,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 CBattleInterface::~CBattleInterface()
 {
 	curInt->battleInt = nullptr;
-	givenCommand->cond.notify_all(); //that two lines should make any activeStack waiting thread to finish
-
+	givenCommand.cond.notify_all(); //that two lines should make any activeStack waiting thread to finish
 
 	if (active) //dirty fix for #485
 	{
@@ -416,7 +416,6 @@ CBattleInterface::~CBattleInterface()
 	delete bConsoleUp;
 	delete bConsoleDown;
 	delete console;
-	delete givenCommand;
 
 	delete attackingHero;
 	delete defendingHero;
@@ -1028,7 +1027,7 @@ void CBattleInterface::stackRemoved(int stackID)
 			action->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
 			action->actionType = Battle::CANCEL;
 			action->stackNumber = activeStack->ID;
-			givenCommand->setn(action);
+			givenCommand.setn(action);
 			setActiveStack(nullptr);
 		}
 	}
@@ -1149,7 +1148,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 		logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
 		myTurn = false;
 		setActiveStack(nullptr);
-		givenCommand->setn(ba);
+		givenCommand.setn(ba);
 	}
 	else
 	{
@@ -2840,7 +2839,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 			}
 			else
 			{
-				givenCommand->setn(ba.release());
+				givenCommand.setn(ba.release());
 			}
 		}
 		else

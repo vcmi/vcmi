@@ -264,10 +264,13 @@ private:
 
 	PossibleActions getCasterAction(const CSpell *spell, const ISpellCaster *caster, ECastingMode::ECastingMode mode) const;
 public:
+	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
+	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
+
 	std::list<std::pair<CBattleAnimation *, bool>> pendingAnims; //currently displayed animations <anim, initialized>
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	ui32 animIDhelper; //for giving IDs for animations
-	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
+
 
 	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr); //c-tor
 	virtual ~CBattleInterface(); //d-tor
@@ -282,7 +285,7 @@ public:
 
 	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
 	SDL_Surface *cellBorder, *cellShade;
-	CondSh<BattleAction *> *givenCommand; //data != nullptr if we have i.e. moved current unit
+
 	bool myTurn; //if true, interface is active (commands can be ordered)
 	CBattleResultWindow *resWindow; //window of end of battle
 
