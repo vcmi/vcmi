@@ -123,7 +123,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	currentSelection = nullptr;
 	castleInt = nullptr;
 	battleInt = nullptr;
-	//pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole;
@@ -140,8 +139,6 @@ CPlayerInterface::~CPlayerInterface()
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << playerID << " being destructed";
 	//howManyPeople--;
-	//delete pim;
-	//vstd::clear_pointer(pim);
 	delete showingDialog;
 	delete cingconsole;
 	if (LOCPLINT == this)
