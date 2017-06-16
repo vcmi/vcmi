@@ -1519,11 +1519,19 @@ struct SetStackEffect : public CPackForClient
 	void applyCl(CClient *cl);
 
 	std::vector<ui32> stacks; //affected stacks (IDs)
+
+	//regular effects
 	std::vector<Bonus> effect; //bonuses to apply
 	std::vector<std::pair<ui32, Bonus> > uniqueBonuses; //bonuses per single stack
+
+	//cumulative effects
+	std::vector<Bonus> cumulativeEffects; //bonuses to apply
+	std::vector<std::pair<ui32, Bonus> > cumulativeUniqueBonuses; //bonuses per single stack
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect & uniqueBonuses;
+		h & cumulativeEffects & cumulativeUniqueBonuses;
 	}
 };
 

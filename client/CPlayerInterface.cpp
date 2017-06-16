@@ -123,7 +123,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	currentSelection = nullptr;
 	castleInt = nullptr;
 	battleInt = nullptr;
-	//pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	cingconsole = new CInGameConsole;
@@ -140,8 +139,6 @@ CPlayerInterface::~CPlayerInterface()
 {
 	logGlobal->traceStream() << "\tHuman player interface for player " << playerID << " being destructed";
 	//howManyPeople--;
-	//delete pim;
-	//vstd::clear_pointer(pim);
 	delete showingDialog;
 	delete cingconsole;
 	if (LOCPLINT == this)
@@ -821,10 +818,10 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	CBattleInterface *b = battleInt;
 
-	if (b->givenCommand->get())
+	if(CBattleInterface::givenCommand.get())
 	{
 		logGlobal->errorStream() << "Command buffer must be clean! (we don't want to use old command)";
-		vstd::clear_pointer(b->givenCommand->data);
+		vstd::clear_pointer(CBattleInterface::givenCommand.data);
 	}
 
 	{
@@ -833,17 +830,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
-	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
-	while(!b->givenCommand->data)
+	boost::unique_lock<boost::mutex> lock(CBattleInterface::givenCommand.mx);
+	while(!CBattleInterface::givenCommand.data)
 	{
-		b->givenCommand->cond.wait(lock);
+		CBattleInterface::givenCommand.cond.wait(lock);
 		if (!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
 			throw boost::thread_interrupted(); //will shut the thread peacefully
 	}
 
 	//tidy up
-	BattleAction ret = *(b->givenCommand->data);
-	vstd::clear_pointer(b->givenCommand->data);
+	BattleAction ret = *(CBattleInterface::givenCommand.data);
+	vstd::clear_pointer(CBattleInterface::givenCommand.data);
 
 	if (ret.actionType == Battle::CANCEL)
 	{
@@ -1637,7 +1634,7 @@ void CPlayerInterface::setSelection(const CArmedInstance * obj)
 void CPlayerInterface::update()
 {
 	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 
 	// While mutexes were locked away we may be have stopped being the active interface
 	if (LOCPLINT != this)

@@ -16,6 +16,10 @@ set(VCMI_VERSION_MAJOR 0)
 set(VCMI_VERSION_MINOR 99)
 set(VCMI_VERSION_PATCH 0)
 
+# Allow to pass package name from Travis CI
+set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
+set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
+
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
@@ -238,14 +242,17 @@ endif()
 # For apple these files will be already inside vcmiclient bundle
 if (NOT APPLE)
 	# copy whole directory but .svn control files
-	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE)
+	install(DIRECTORY config DESTINATION ${DATA_DIR})
 	# copy vcmi mod along with all its content
-	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
+	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods)
 
-	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
-		OWNER_WRITE OWNER_READ OWNER_EXECUTE
-		            GROUP_READ GROUP_EXECUTE
-		            WORLD_READ WORLD_EXECUTE)
+	# that script is useless for Windows
+	if (NOT WIN32)
+		install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
+			OWNER_WRITE OWNER_READ OWNER_EXECUTE
+						GROUP_READ GROUP_EXECUTE
+						WORLD_READ WORLD_EXECUTE)			
+	endif()
 endif()
 
 if(WIN32)
@@ -317,15 +324,28 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 
+if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
+	set(CPACK_PACKAGE_NAME "VCMI")
+else()
+	set(CPACK_PACKAGE_NAME "VCMI ${PACKAGE_NAME_SUFFIX}")
+endif()
+if("${PACKAGE_FILE_NAME}" STREQUAL "")
+	set(CPACK_PACKAGE_FILE_NAME "vcmi-${CPACK_PACKAGE_VERSION}")
+else()
+	set(CPACK_PACKAGE_FILE_NAME "${PACKAGE_FILE_NAME}")
+endif()
+set(CPACK_PACKAGE_VENDOR "VCMI team")
+
 if(WIN32)
 	set(CPACK_MONOLITHIC_INSTALL 1)
-	set(CPACK_PACKAGE_NAME "VCMI")
-	set(CPACK_PACKAGE_VENDOR "VCMI team")
-	set(CPACK_PACKAGE_FILE_NAME "vcmi-${CPACK_PACKAGE_VERSION}-win32")
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/license.txt")
 	set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
-	set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION}")
+	if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
+		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION}")
+	else()
+		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION} ${PACKAGE_NAME_SUFFIX} ")
+	endif()
 	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
@@ -340,8 +360,9 @@ else()
 	set(CPACK_GENERATOR TGZ)
 endif()
 
-INCLUDE(CPack)
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+
+INCLUDE(CPack)

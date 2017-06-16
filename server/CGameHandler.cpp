@@ -4489,30 +4489,32 @@ bool CGameHandler::makeCustomAction(BattleAction &ba)
 }
 
 
-void CGameHandler::stackAppearTrigger(const CStack *st)
+void CGameHandler::stackEnchantedTrigger(const CStack * st)
 {
 	auto bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
-	for (auto b : bl)
+	for(auto b : bl)
 	{
 		SetStackEffect sse;
 		int val = bl.valOfBonuses(Selector::typeSubtype(b->type, b->subtype));
-		if (val > 3)
+		if(val > 3)
 		{
-			for (auto s : gs->curB->battleGetAllStacks())
+			for(auto s : gs->curB->battleGetAllStacks())
 			{
-				if (battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
+				if(battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
 					sse.stacks.push_back (s->ID);
 			}
 		}
 		else
 			sse.stacks.push_back (st->ID);
 
-		Bonus pseudoBonus;
-		pseudoBonus.sid = b->subtype;
-		pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
-		pseudoBonus.turnsRemain = 50;
-		st->stackEffectToFeature(sse.effect, pseudoBonus);
-		if (sse.effect.size())
+		const CSpell * sp = SpellID(b->subtype).toSpell();
+		const int level = ((val > 3) ?  (val - 3) : val);
+
+		sp->getEffects(sse.effect, level, false, 50);
+		//this makes effect accumulate for at most 50 turns by default, but effect may be permanent and last till the end of battle
+		sp->getEffects(sse.cumulativeEffects, level, true, 50);
+
+		if(!sse.effect.empty() || !sse.cumulativeEffects.empty())
 			sendAndApply(&sse);
 	}
 }
@@ -4526,7 +4528,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
-		stackAppearTrigger(st);
 		//unbind
 		if (st->hasBonus(Selector::type(Bonus::BIND_EFFECT)))
 		{
@@ -5724,7 +5725,7 @@ void CGameHandler::runBattle()
 			}
 		}
 
-		stackAppearTrigger(stack);
+		stackEnchantedTrigger(stack);
 	}
 
 	//spells opening battle
@@ -5749,11 +5750,14 @@ void CGameHandler::runBattle()
 		}
 	}
 
+	bool firstRound = true;//FIXME: why first round is -1?
+
 	//main loop
 	while (!battleResult.get()) //till the end of the battle ;]
 	{
 		BattleNextRound bnr;
 		bnr.round = gs->curB->round + 1;
+		logGlobal->debug("Round %d", bnr.round);
 		sendAndApply(&bnr);
 
 		auto obstacles = gs->curB->obstacles; //we copy container, because we're going to modify it
@@ -5765,6 +5769,12 @@ void CGameHandler::runBattle()
 		}
 
 		const BattleInfo & curB = *gs->curB;
+
+		for(auto stack : curB.stacks)
+		{
+			if(stack->alive() && !firstRound)
+				stackEnchantedTrigger(stack);
+		}
 
 		//stack loop
 
@@ -5994,6 +6004,7 @@ void CGameHandler::runBattle()
 			}
 
 		}
+		firstRound = false;
 	}
 
 	endBattle(gs->curB->tile, gs->curB->battleGetFightingHero(0), gs->curB->battleGetFightingHero(1));
@@ -6207,6 +6218,13 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		smp.hid = hero->id;
 		smp.val = 1000000;
 		sendAndApply(&smp);
+
+		GiveBonus gb(GiveBonus::HERO);
+		gb.bonus.type = Bonus::FREE_SHIP_BOARDING;
+		gb.bonus.duration = Bonus::ONE_DAY;
+		gb.bonus.source = Bonus::OTHER;
+		gb.id = hero->id.getNum();
+		giveHeroBonus(&gb);
 	}
 	else if (cheat == "vcmiformenos")
 	{

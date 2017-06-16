@@ -45,6 +45,8 @@
  *
  */
 
+boost::shared_mutex CGameState::mutex;
+
 template <typename T> class CApplyOnGS;
 
 class CBaseForGSApply
@@ -65,7 +67,7 @@ public:
 	{
 		T *ptr = static_cast<T*>(pack);
 
-		boost::unique_lock<boost::shared_mutex> lock(*gs->mx);
+		boost::unique_lock<boost::shared_mutex> lock(CGameState::mutex);
 		ptr->applyGs(gs);
 	}
 };
@@ -675,7 +677,6 @@ int CGameState::getDate(Date::EDateType mode) const
 CGameState::CGameState()
 {
 	gs = this;
-	mx = new boost::shared_mutex();
 	applierGs = new CApplier<CBaseForGSApply>;
 	registerTypesClientPacks1(*applierGs);
 	registerTypesClientPacks2(*applierGs);
@@ -687,7 +688,6 @@ CGameState::CGameState()
 
 CGameState::~CGameState()
 {
-	//delete mx;//TODO: crash on Linux (mutex must be unlocked before destruction)
 	map.dellNull();
 	curB.dellNull();
 	//delete scenarioOps; //TODO: fix for loading ind delete

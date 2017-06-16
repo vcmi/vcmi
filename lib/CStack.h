@@ -62,7 +62,6 @@ public:
 	ui32 calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const;
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
-	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
 	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 	ui32 totalHealth() const; // total health for all creatures in stack;

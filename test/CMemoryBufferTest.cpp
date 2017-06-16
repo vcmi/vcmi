@@ -9,44 +9,45 @@
  *
  */
 #include "StdInc.h"
-
 #include <boost/test/unit_test.hpp>
-
 #include "../lib/filesystem/CMemoryBuffer.h"
-
 
 struct CMemoryBufferFixture
 {
 	CMemoryBuffer subject;
 };
 
-BOOST_FIXTURE_TEST_CASE(CMemoryBuffer_Empty, CMemoryBufferFixture)
+BOOST_AUTO_TEST_SUITE(CMemoryBuffer_Suite)
+
+BOOST_FIXTURE_TEST_CASE(empty, CMemoryBufferFixture)
 {
 	BOOST_REQUIRE_EQUAL(0, subject.tell());
 	BOOST_REQUIRE_EQUAL(0, subject.getSize());
-	
+
 	si32 dummy = 1337;
-	
+
 	auto ret = subject.read((ui8 *)&dummy, sizeof(si32));
-	
-	BOOST_CHECK_EQUAL(0, ret);	
+
+	BOOST_CHECK_EQUAL(0, ret);
 	BOOST_CHECK_EQUAL(1337, dummy);
 	BOOST_CHECK_EQUAL(0, subject.tell());
 }
 
-BOOST_FIXTURE_TEST_CASE(CMemoryBuffer_Write, CMemoryBufferFixture)
+BOOST_FIXTURE_TEST_CASE(write, CMemoryBufferFixture)
 {
 	const si32 initial = 1337;
-	
+
 	subject.write((const ui8 *)&initial, sizeof(si32));
-	
+
 	BOOST_CHECK_EQUAL(4, subject.tell());
 	subject.seek(0);
 	BOOST_CHECK_EQUAL(0, subject.tell());
-	
+
 	si32 current = 0;
 	auto ret = subject.read((ui8 *)&current, sizeof(si32));
-	BOOST_CHECK_EQUAL(sizeof(si32), ret);	
+	BOOST_CHECK_EQUAL(sizeof(si32), ret);
 	BOOST_CHECK_EQUAL(initial, current);
-	BOOST_CHECK_EQUAL(4, subject.tell());	
+	BOOST_CHECK_EQUAL(4, subject.tell());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

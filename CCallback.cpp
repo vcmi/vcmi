@@ -180,7 +180,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 	if(waitTillRealize)
 	{
 		logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
-		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(getGsMutex(), unlockGsWhenWaiting);
+		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(CGameState::mutex, unlockGsWhenWaiting);
 		cl->waitingRequest.waitWhileContains(requestID);
 	}
 

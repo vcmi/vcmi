@@ -23,16 +23,16 @@ public:
 	 * @brief constructs zip stream from already opened file
 	 * @param archive archive handle, must be opened
 	 * @param archiveFilename name of file to write
-	 */	
+	 */
 	explicit CZipOutputStream(CZipSaver * owner_, zipFile archive, const std::string & archiveFilename);
 	~CZipOutputStream();
-	
+
 	si64 write(const ui8 * data, si64 size) override;
 
 	si64 seek(si64 position) override {return -1;};
 	si64 tell() override {return 0;};
 	si64 skip(si64 delta) override {return 0;};
-	si64 getSize() override {return 0;};	
+	si64 getSize() override {return 0;};
 private:
 	zipFile handle;
 	CZipSaver * owner;
@@ -40,17 +40,17 @@ private:
 
 class DLL_LINKAGE CZipSaver
 {
-public:	
-	explicit CZipSaver(std::shared_ptr<CIOApi> api, const std::string & path);
+public:
+	explicit CZipSaver(std::shared_ptr<CIOApi> api, const boost::filesystem::path & path);
 	virtual ~CZipSaver();
-	
+
 	std::unique_ptr<COutputStream> addFile(const std::string & archiveFilename);
 private:
 	std::shared_ptr<CIOApi> ioApi;
-	zlib_filefunc64_def zipApi;	
-	
+	zlib_filefunc64_def zipApi;
+
 	zipFile handle;
-	
+
 	///due to minizip design only one file stream may opened at a time
 	COutputStream * activeStream;
 	friend class CZipOutputStream;
