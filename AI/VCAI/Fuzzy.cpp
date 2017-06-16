@@ -473,7 +473,8 @@ float FuzzyHelper::evaluate (Goals::GatherArmy & g)
 	//the more army we need, the more important goal
 	//the more army we lack, the less important goal
 	float army = g.hero->getArmyStrength();
-	return g.value / std::max(g.value - army, 1000.0f);
+	float ratio =  g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
+	return 5 * (ratio / (ratio + 2)); //so 50% army gives 2.5, asymptotic 5
 }
 
 float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
