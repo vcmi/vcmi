@@ -406,6 +406,16 @@ int main(int argc, char** argv)
 			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
 			exit(-1);
 		}
+
+		#ifdef VCMI_ANDROID
+		// manually setting egl pixel format, as a possible solution for sdl2<->android problem
+		// https://bugzilla.libsdl.org/show_bug.cgi?id=2291
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+		#endif // VCMI_ANDROID
+
 		GH.mainFPSmng->init(); //(!)init here AFTER SDL_Init() while using SDL for FPS management
 
 		SDL_LogSetOutputFunction(&SDLLogCallback, nullptr);
