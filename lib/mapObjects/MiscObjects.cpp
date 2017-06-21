@@ -68,7 +68,7 @@ void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 
 bool CPlayersVisited::wasVisited( PlayerColor player ) const
 {
-	return vstd::contains(players,player);
+	return wasVisited(cb->getPlayer(player)->team);
 }
 
 bool CPlayersVisited::wasVisited( TeamID team ) const
