@@ -2,14 +2,14 @@
 
 #include "NetPacksBase.h"
 
-#include "BattleAction.h"
+#include "battle/BattleAction.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "ConstTransitivePtr.h"
 #include "int3.h"
 #include "ResourceSet.h"
 #include "CGameStateFwd.h"
 #include "mapping/CMapDefines.h"
-#include "CObstacleInstance.h"
+#include "battle/CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"
 

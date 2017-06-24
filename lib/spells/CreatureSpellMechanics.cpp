@@ -14,7 +14,7 @@
 
 #include "../NetPacks.h"
 #include "../CStack.h"
-#include "../BattleInfo.h"
+#include "../battle/BattleInfo.h"
 
 ///AcidBreathDamageMechanics
 void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const

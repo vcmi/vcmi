@@ -1,8 +1,3 @@
-#pragma once
-
-
-#include "BattleHex.h"
-
 /*
  * BattleAction.h, part of VCMI engine
  *
@@ -12,10 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+#include "BattleHex.h"
 
-/// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 class CStack;
 
+/// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 struct DLL_LINKAGE BattleAction
 {
 	ui8 side; //who made this action: false - left, true - right player

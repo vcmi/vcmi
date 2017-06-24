@@ -3,7 +3,7 @@
 
 #include "../lib/FunctionList.h"
 #include "../lib/IGameCallback.h"
-#include "../lib/BattleAction.h"
+#include "../lib/battle/BattleAction.h"
 #include "CQuery.h"
 
 

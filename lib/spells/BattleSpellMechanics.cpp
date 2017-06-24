@@ -13,7 +13,7 @@
 
 #include "../NetPacks.h"
 #include "../CStack.h"
-#include "../BattleInfo.h"
+#include "../battle/BattleInfo.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 

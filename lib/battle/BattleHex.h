@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "GameConstants.h"
+#include "../GameConstants.h"
 
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design

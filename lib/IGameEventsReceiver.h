@@ -10,7 +10,7 @@
 #pragma once
 
 
-#include "BattleHex.h"
+#include "battle/BattleHex.h"
 #include "int3.h"
 
 class CGTownInstance;

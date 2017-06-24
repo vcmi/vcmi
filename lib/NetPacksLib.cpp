@@ -13,7 +13,7 @@
 #include "CCreatureHandler.h"
 #include "CGameState.h"
 #include "CStack.h"
-#include "BattleInfo.h"
+#include "battle/BattleInfo.h"
 #include "CTownHandler.h"
 #include "mapping/CMapInfo.h"
 #include "StartInfo.h"

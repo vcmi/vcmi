@@ -13,7 +13,7 @@
 #include "CDefaultSpellMechanics.h"
 
 #include "../CStack.h"
-#include "../BattleInfo.h"
+#include "../battle/BattleInfo.h"
 
 #include "../CGeneralTextHandler.h"
 

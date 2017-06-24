@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "CStack.h"
-#include "BattleInfo.h"
+#include "battle/BattleInfo.h"
 #include "spells/CSpellHandler.h"
 #include "CRandomGenerator.h"
 #include "NetPacks.h"

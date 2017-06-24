@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CQuery.h"
 #include "CGameHandler.h"
-#include "../lib/BattleInfo.h"
+#include "../lib/battle/BattleInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
 
 boost::mutex Queries::mx;

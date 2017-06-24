@@ -6,7 +6,7 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
-#include "BattleHex.h"
+#include "battle/BattleHex.h"
 
 /*
  * CTownHandler.h, part of VCMI engine

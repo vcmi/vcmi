@@ -12,7 +12,7 @@
 #include "ISpellMechanics.h"
 
 #include "../CStack.h"
-#include "../BattleInfo.h"
+#include "../battle/BattleInfo.h"
 
 #include "../NetPacks.h"
 

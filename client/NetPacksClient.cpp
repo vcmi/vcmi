@@ -25,7 +25,7 @@
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CStack.h"
-#include "../lib/BattleInfo.h"
+#include "../lib/battle/BattleInfo.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CPlayerState.h"
 #include "gui/CGuiHandler.h"

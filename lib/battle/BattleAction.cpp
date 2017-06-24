@@ -1,9 +1,3 @@
-#include "StdInc.h"
-#include "BattleAction.h"
-
-#include "CStack.h"
-
-
 /*
  * BattleAction.cpp, part of VCMI engine
  *
@@ -13,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#include "StdInc.h"
+#include "BattleAction.h"
+#include "CStack.h"
 
 using namespace Battle;
 

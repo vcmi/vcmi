@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
-#include "../../lib/BattleHex.h"
+#include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
 
 struct SDL_Surface;

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "CSpellHandler.h"
-#include "../BattleHex.h"
+#include "../battle/BattleHex.h"
 
 
 ///callback to be provided by server

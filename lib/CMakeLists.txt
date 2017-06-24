@@ -76,9 +76,9 @@ set(lib_SRCS
 		spells/CDefaultSpellMechanics.cpp
 		spells/ViewSpellInt.cpp
 
-		BattleAction.cpp
-		BattleHex.cpp
-		BattleInfo.cpp
+		battle/BattleAction.cpp
+		battle/BattleHex.cpp
+		battle/BattleInfo.cpp
 		battle/AccessibilityInfo.cpp
 		battle/BattleAttackInfo.cpp
 		battle/CBattleInfoCallback.cpp
@@ -100,7 +100,7 @@ set(lib_SRCS
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
 		CModHandler.cpp
-		CObstacleInstance.cpp
+		battle/CObstacleInstance.cpp
 		CRandomGenerator.cpp
 
 		CThreadHelper.cpp
