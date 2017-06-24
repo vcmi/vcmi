@@ -60,18 +60,18 @@ static std::string & visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
-void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
+void CTeamVisited::setPropertyDer( ui8 what, ui32 val )
 {
-	if(what == CPlayersVisited::OBJPROP_VISITED)
+	if(what == CTeamVisited::OBJPROP_VISITED)
 		players.insert(PlayerColor(val));
 }
 
-bool CPlayersVisited::wasVisited( PlayerColor player ) const
+bool CTeamVisited::wasVisited( PlayerColor player ) const
 {
 	return wasVisited(cb->getPlayer(player)->team);
 }
 
-bool CPlayersVisited::wasVisited( TeamID team ) const
+bool CTeamVisited::wasVisited( TeamID team ) const
 {
 	for(auto i : players)
 	{
@@ -2127,7 +2127,7 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 				break;
 			}
 		default:
-			CPlayersVisited::setPropertyDer(what, val);
+			CTeamVisited::setPropertyDer(what, val);
 			break;
 	}
 }
