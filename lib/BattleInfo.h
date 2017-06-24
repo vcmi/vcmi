@@ -11,7 +11,7 @@
 #include "SiegeInfo.h"
 #include "SideInBattle.h"
 #include "HeroBonus.h"
-#include "CBattleCallback.h"
+#include "battle/CBattleInfoCallback.h"
 #include "int3.h"
 
 class CStack;

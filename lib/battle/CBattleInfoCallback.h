@@ -1,6 +1,3 @@
-#pragma once
-#include "BattleHex.h"
-
 /*
  * CBattleCallback.h, part of VCMI engine
  *
@@ -10,63 +7,18 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+#include "CCallbackBase.h"
+#include "ReachabilityInfo.h"
+#include "BattleAttackInfo.h"
 
-class CGameState;
-class CGTownInstance;
 class CGHeroInstance;
 class CStack;
 class ISpellCaster;
 class CSpell;
-struct BattleInfo;
 struct CObstacleInstance;
 class IBonusBearer;
-struct InfoAboutHero;
-class CArmedInstance;
 class CRandomGenerator;
-
-namespace boost
-{class shared_mutex;}
-
-namespace BattleSide
-{
-	enum {ATTACKER = 0, DEFENDER = 1};
-}
-
-typedef std::vector<const CStack*> TStacks;
-typedef std::function<bool(const CStack *)> TStackFilter;
-
-class CBattleInfoEssentials;
-
-//Basic class for various callbacks (interfaces called by players to get info about game and so forth)
-class DLL_LINKAGE CCallbackBase
-{
-	const BattleInfo *battle; //battle to which the player is engaged, nullptr if none or not applicable
-
-	const BattleInfo * getBattle() const
-	{
-		return battle;
-	}
-
-protected:
-	CGameState *gs;
-	boost::optional<PlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
-
-	CCallbackBase(CGameState *GS, boost::optional<PlayerColor> Player)
-		: battle(nullptr), gs(GS), player(Player)
-	{}
-	CCallbackBase()
-		: battle(nullptr), gs(nullptr)
-	{}
-
-	void setBattle(const BattleInfo *B);
-	bool duringBattle() const;
-
-public:
-	boost::optional<PlayerColor> getPlayerID() const;
-
-	friend class CBattleInfoEssentials;
-};
-
 
 struct DLL_LINKAGE AttackableTiles
 {
@@ -78,170 +30,6 @@ struct DLL_LINKAGE AttackableTiles
 	}
 };
 
-//Accessibility is property of hex in battle. It doesn't depend on stack, side's perspective and so on.
-namespace EAccessibility
-{
-	enum EAccessibility
-	{
-		ACCESSIBLE,
-		ALIVE_STACK,
-		OBSTACLE,
-		DESTRUCTIBLE_WALL,
-		GATE, //sieges -> gate opens only for defender stacks
-		UNAVAILABLE, //indestructible wall parts, special battlefields (like boat-to-boat)
-		SIDE_COLUMN //used for first and last columns of hexes that are unavailable but wat machines can stand there
-	};
-}
-
-typedef std::array<EAccessibility::EAccessibility, GameConstants::BFIELD_SIZE> TAccessibilityArray;
-
-struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
-{
-	bool occupiable(const CStack *stack, BattleHex tile) const;
-	bool accessible(BattleHex tile, const CStack *stack) const; //checks for both tiles if stack is double wide
-	bool accessible(BattleHex tile, bool doubleWide, bool attackerOwned) const; //checks for both tiles if stack is double wide
-};
-
-namespace BattlePerspective
-{
-	enum BattlePerspective
-	{
-		INVALID = -2,
-		ALL_KNOWING = -1,
-		LEFT_SIDE,
-		RIGHT_SIDE
-	};
-}
-
-// Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
-// startPosition and perpective.
-struct DLL_LINKAGE ReachabilityInfo
-{
-	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
-	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
-
-	enum { 	INFINITE_DIST = 1000000 };
-
-	struct DLL_LINKAGE Parameters
-	{
-		const CStack *stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
-
-		bool attackerOwned;
-		bool doubleWide;
-		bool flying;
-		std::vector<BattleHex> knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
-
-		BattleHex startPosition; //assumed position of stack
-		BattlePerspective::BattlePerspective perspective; //some obstacles (eg. quicksands) may be invisible for some side
-
-		Parameters();
-		Parameters(const CStack *Stack);
-	};
-
-	Parameters params;
-	AccessibilityInfo accessibility;
-	TDistances distances;
-	TPredecessors predecessors;
-
-	ReachabilityInfo()
-	{
-		distances.fill(INFINITE_DIST);
-		predecessors.fill(BattleHex::INVALID);
-	}
-
-	bool isReachable(BattleHex hex) const
-	{
-		return distances[hex] < INFINITE_DIST;
-	}
-};
-
-class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
-{
-protected:
-	bool battleDoWeKnowAbout(ui8 side) const;
-	const IBonusBearer * getBattleNode() const;
-public:
-	enum EStackOwnership
-	{
-		ONLY_MINE, ONLY_ENEMY, MINE_AND_ENEMY
-	};
-
-	BattlePerspective::BattlePerspective battleGetMySide() const;
-
-	ETerrainType battleTerrainType() const;
-	BFieldType battleGetBattlefieldType() const;
-	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
-
-    /** @brief Main method for getting battle stacks
-     *
-     * @param predicate Functor that shall return true for desired stack
-     * @return filtered stacks
-     *
-     */
-	TStacks battleGetStacksIf(TStackFilter predicate) const;
-
-	bool battleHasNativeStack(ui8 side) const;
-	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
-	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
-	const CStack *battleActiveStack() const;
-	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
-	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
-	bool battleCanFlee(PlayerColor player) const;
-	bool battleCanSurrender(PlayerColor player) const;
-	si8 playerToSide(PlayerColor player) const;
-	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
-	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
-	bool battleHasHero(ui8 side) const;
-	int battleCastSpells(ui8 side) const; //how many spells has given side cast
-	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
-	const CArmedInstance * battleGetArmyObject(ui8 side) const;
-	InfoAboutHero battleGetHeroInfo(ui8 side) const;
-
-	// for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall,
-	// [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	si8 battleGetWallState(int partOfWall) const;
-	EGateState battleGetGateState() const;
-
-	//helpers
-	///returns all stacks, alive or dead or undead or mechanical :)
-	TStacks battleGetAllStacks(bool includeTurrets = false) const;
-
-	///returns all alive stacks excluding turrets
-	TStacks battleAliveStacks() const;
-	///returns all alive stacks from particular side excluding turrets
-	TStacks battleAliveStacks(ui8 side) const;
-	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
-	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
-
-	///returns player that controls given stack; mind control included
-	PlayerColor battleGetOwner(const CStack * stack) const;
-
-	///returns hero that controls given stack; nullptr if none; mind control included
-	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const;
-
-	///check that stacks are controlled by same|other player(s) depending on positiveness
-	///mind control included
-	bool battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
-};
-
-struct DLL_LINKAGE BattleAttackInfo
-{
-	const IBonusBearer *attackerBonuses, *defenderBonuses;
-	const CStack *attacker, *defender;
-	BattleHex attackerPosition, defenderPosition;
-
-	int attackerCount, defenderCount;
-	bool shooting;
-	int chargedFields;
-
-	bool luckyHit;
-	bool unluckyHit;
-	bool deathBlow;
-	bool ballistaDoubleDamage;
-
-	BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting = false);
-	BattleAttackInfo reverse() const;
-};
 
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
@@ -299,10 +87,7 @@ public:
 
 	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
 
-	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex)
-	{
-		return battleHasDistancePenalty(stack, destHex) || battleHasWallPenalty(stack, destHex);
-	}
+	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex);
 	si8 battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel) const; //checks if teleportation of given stack to given position can take place
 
 
@@ -326,16 +111,4 @@ protected:
 	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters &params) const;
 	ReachabilityInfo makeBFS(const CStack *stack) const; //uses default parameters -> stack position and owner's perspective
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
-};
-
-class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
-{
-public:
-	bool battleCanFlee() const; //returns true if caller can flee from the battle
-	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true) const; //returns stacks on battlefield
-
-	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
-
-	const CGHeroInstance * battleGetMyHero() const;
-	InfoAboutHero battleGetEnemyHero() const;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceSet.h" // for Res::ERes
-#include "CBattleCallback.h" //for CCallbackBase
+#include "battle/CPlayerBattleCallback.h"
 
 /*
  * CGameInfoCallback.h, part of VCMI engine
