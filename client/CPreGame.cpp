@@ -339,10 +339,9 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 				{
 					switch (std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 					{
-                        case 0: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_PLAYER);
-                        case 1: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT);
-						//TODO: load campaign
-                        case 2: return std::bind(CInfoWindow::showInfoDialog, "This function is not implemented yet. Campaign saves can be loaded from \"Single Player\" menu", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
+						case 0: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_PLAYER);
+						case 1: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT);
+						case 2: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_CAMPAIGN);
 						//TODO: load tutorial
                         case 3: return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
 					}
@@ -485,9 +484,9 @@ CGPreGame::~CGPreGame()
 		GH.curInt = nullptr;
 }
 
-void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
+void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EGameMode gameMode /*= CMenuScreen::SINGLE_PLAYER*/)
 {
-	GH.pushInt(new CSelectionScreen(screenType, multi));
+	GH.pushInt(new CSelectionScreen(screenType, gameMode));
 }
 
 void CGPreGame::loadGraphics()
@@ -559,13 +558,13 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const ui16 Port)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameMode GameMode /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const ui16 Port)
 	: ISelectionScreenInfo(Names), serverHandlingThread(nullptr), mx(new boost::recursive_mutex),
 	  serv(nullptr), ongoingClosing(false), myNameID(255)
 {
 	CGPreGame::create(); //we depend on its graphics
 	screenType = Type;
-	multiPlayer = MultiPlayer;
+	gameMode = GameMode;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -623,7 +622,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
         randMapTab->getMapInfoChanged() += std::bind(&CSelectionScreen::changeSelection, this, _1);
 		randMapTab->recActions = DISPOSE;
 	}
-    sel = new SelectionTab(screenType, std::bind(&CSelectionScreen::changeSelection, this, _1), multiPlayer); //scenario selection tab
+	sel = new SelectionTab(screenType, std::bind(&CSelectionScreen::changeSelection, this, _1), gameMode); //scenario selection tab
 	sel->recActions = DISPOSE;
 
 	switch(screenType)
@@ -1136,7 +1135,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 	}
 }
 
-void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool multi)
+void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, CMenuScreen::EGameMode gameMode)
 {
 	for(auto & file : files)
 	{
@@ -1161,10 +1160,23 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, bool 
 			std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
 			mapInfo.date = std::asctime(std::localtime(&time));
 
-			// If multi mode then only multi games, otherwise single
-			if((mapInfo.actualHumanPlayers > 1) != multi)
+			// Filter out other game modes
+			bool isCampaign = mapInfo.scenarioOpts->mode == StartInfo::CAMPAIGN;
+			bool isMultiplayer = mapInfo.actualHumanPlayers > 1;
+			switch(gameMode)
 			{
-				mapInfo.mapHeader.reset();
+			case CMenuScreen::SINGLE_PLAYER:
+				if(isMultiplayer || isCampaign)
+					mapInfo.mapHeader.reset();
+				break;
+			case CMenuScreen::SINGLE_CAMPAIGN:
+				if(!isCampaign)
+					mapInfo.mapHeader.reset();
+				break;
+			default:
+				if(!isMultiplayer)
+					mapInfo.mapHeader.reset();
+				break;
 			}
 
 			allItems.push_back(std::move(mapInfo));
@@ -1189,7 +1201,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> &files )
 	}
 }
 
-SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/)
+SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EGameMode GameMode /*= CMenuScreen::SINGLE_PLAYER*/)
 	:bg(nullptr), onSelect(OnSelect)
 {
 	OBJ_CONSTRUCTION;
@@ -1213,7 +1225,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 		pos.x += 3; pos.y += 6;
 	}
 
-	if(MultiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
+	if(GameMode == CMenuScreen::MULTI_NETWORK_GUEST)
 	{
 		positions = 18;
 	}
@@ -1228,7 +1240,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 
 		case CMenuScreen::loadGame:
 		case CMenuScreen::saveGame:
-			parseGames(getFiles("Saves/", EResType::CLIENT_SAVEGAME), MultiPlayer);
+			parseGames(getFiles("Saves/", EResType::CLIENT_SAVEGAME), GameMode);
 			if(tabType == CMenuScreen::loadGame)
 			{
 				positions = 18;
@@ -3893,7 +3905,10 @@ void CBonusSelection::CRegion::show(SDL_Surface * to)
 }
 
 CSavingScreen::CSavingScreen(bool hotseat)
- : CSelectionScreen(CMenuScreen::saveGame, hotseat ? CMenuScreen::MULTI_HOT_SEAT : CMenuScreen::SINGLE_PLAYER)
+	: CSelectionScreen(
+		CMenuScreen::saveGame,
+		hotseat ? CMenuScreen::MULTI_HOT_SEAT : (LOCPLINT->cb->getStartInfo()->mode == StartInfo::CAMPAIGN ? CMenuScreen::SINGLE_CAMPAIGN : CMenuScreen::SINGLE_PLAYER)
+	)
 {
 	ourGame = mapInfoFromGame();
 	sInfo = *LOCPLINT->cb->getStartInfo();
@@ -3907,7 +3922,7 @@ CSavingScreen::~CSavingScreen()
 
 ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> *Names /*= nullptr*/)
 {
-	multiPlayer = CMenuScreen::SINGLE_PLAYER;
+	gameMode = CMenuScreen::SINGLE_PLAYER;
 	screenType = CMenuScreen::mainMenu;
 	assert(!SEL);
 	SEL = this;
@@ -3946,12 +3961,12 @@ ui8 ISelectionScreenInfo::getIdOfFirstUnallocatedPlayer()
 
 bool ISelectionScreenInfo::isGuest() const
 {
-	return multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST;
+	return gameMode == CMenuScreen::MULTI_NETWORK_GUEST;
 }
 
 bool ISelectionScreenInfo::isHost() const
 {
-	return multiPlayer == CMenuScreen::MULTI_NETWORK_HOST;
+	return gameMode == CMenuScreen::MULTI_NETWORK_HOST;
 }
 
 void ChatMessage::apply(CSelectionScreen *selScreen)
@@ -4303,7 +4318,7 @@ void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
 	exitCb();
 }
 
-CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EMultiMode mode)
+CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EGameMode mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("MUDIALOG.bmp"); // address background
@@ -4328,7 +4343,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(CMenuScreen::EMultiMode mode)
 	address->giveFocus();
 }
 
-void CSimpleJoinScreen::enterSelectionScreen(CMenuScreen::EMultiMode mode)
+void CSimpleJoinScreen::enterSelectionScreen(CMenuScreen::EGameMode mode)
 {
 	std::string textAddress = address->text;
 	std::string textPort = port->text;

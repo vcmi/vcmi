@@ -73,8 +73,8 @@ public:
 		mainMenu, newGame, loadGame, campaignMain, saveGame, scenarioInfo, campaignList
 	};
 
-	enum EMultiMode {
-		SINGLE_PLAYER = 0, MULTI_HOT_SEAT, MULTI_NETWORK_HOST, MULTI_NETWORK_GUEST
+	enum EGameMode {
+		SINGLE_PLAYER = 0, MULTI_HOT_SEAT, MULTI_NETWORK_HOST, MULTI_NETWORK_GUEST, SINGLE_CAMPAIGN
 	};
 	CMenuScreen(const JsonNode& configNode);
 
@@ -155,9 +155,9 @@ private:
 	std::shared_ptr<CAnimation> formatIcons;
 
 	void parseMaps(const std::unordered_set<ResourceID> &files);
-	void parseGames(const std::unordered_set<ResourceID> &files, bool multi);
-	void parseCampaigns(const std::unordered_set<ResourceID> & files );
+	void parseGames(const std::unordered_set<ResourceID> &files, CMenuScreen::EGameMode gameMode);
 	std::unordered_set<ResourceID> getFiles(std::string dirURI, int resType);
+	void parseCampaigns(const std::unordered_set<ResourceID> & files );
 	CMenuScreen::EState tabType;
 public:
 	int positions; //how many entries (games/maps) can be shown
@@ -191,7 +191,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	void onDoubleClick() override;
-	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
+	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EGameMode GameMode = CMenuScreen::SINGLE_PLAYER);
     ~SelectionTab();
 };
 
@@ -327,7 +327,7 @@ private:
 class ISelectionScreenInfo
 {
 public:
-	CMenuScreen::EMultiMode multiPlayer;
+	CMenuScreen::EGameMode gameMode;
 	CMenuScreen::EState screenType; //new/save/load#Game
 	const CMapInfo *current;
 	StartInfo sInfo;
@@ -371,7 +371,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const ui16 Port = 0);
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameMode GameMode = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const ui16 Port = 0);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -610,7 +610,7 @@ public:
 
 	~CGPreGame();
 	void update() override;
-	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
+	void openSel(CMenuScreen::EState type, CMenuScreen::EGameMode gameMode = CMenuScreen::SINGLE_PLAYER);
 
 	void openCampaignScreen(std::string name);
 
@@ -641,10 +641,10 @@ class CSimpleJoinScreen : public CIntObject
 	CTextInput * address;
 	CTextInput * port;
 
-	void enterSelectionScreen(CMenuScreen::EMultiMode mode);
+	void enterSelectionScreen(CMenuScreen::EGameMode mode);
 	void onChange(const std::string & newText);
 public:
-	CSimpleJoinScreen(CMenuScreen::EMultiMode mode);
+	CSimpleJoinScreen(CMenuScreen::EGameMode mode);
 };
 
 extern ISelectionScreenInfo *SEL;
