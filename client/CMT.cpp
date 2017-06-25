@@ -60,6 +60,7 @@
 #endif
 
 namespace po = boost::program_options;
+namespace po_style = boost::program_options::command_line_style;
 namespace bfs = boost::filesystem;
 
 /*
@@ -200,15 +201,13 @@ static void prog_version(void)
 
 static void prog_help(const po::options_description &opts)
 {
+	auto time = std::time(0);
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-	printf("Copyright (C) 2007-2017 VCMI dev team - see AUTHORS file\n");
+	printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 	printf("This is free software; see the source for copying conditions. There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
-	printf("Usage:\n");
 	std::cout << opts;
-// 	printf("  -h, --help        display this help and exit\n");
-// 	printf("  -v, --version     display version information and exit\n");
 }
 
 static void SDLLogCallback(void*           userdata,
@@ -293,7 +292,7 @@ int main(int argc, char** argv)
 	{
 		try
 		{
-			po::store(po::parse_command_line(argc, argv, opts), vm);
+			po::store(po::parse_command_line(argc, argv, opts, po_style::unix_style|po_style::case_insensitive), vm);
 		}
 		catch(std::exception &e)
 		{
@@ -312,16 +311,6 @@ int main(int argc, char** argv)
 		prog_version();
 		return 0;
 	}
-	if(vm.count("donotstartserver"))
-	{
-		CServerHandler::DO_NOT_START_SERVER = true;
-	}
-
-	// Have effect on X11 system only (Linux).
-	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
-	// (DGA = Direct graphics access). Because this is raw input (before any speed\acceleration proceesing)
-	// it may result in very small \ very fast mouse when game in fullscreen mode
-	putenv((char*)"SDL_VIDEO_X11_DGAMOUSE=0");
 
 	// Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
@@ -347,6 +336,9 @@ int main(int argc, char** argv)
 		session["headless"].Bool() = true;
 		session["onlyai"].Bool() = true;
 	}
+	// Server settings
+	session["donotstartserver"].Bool() = vm.count("donotstartserver");
+
 	// Shared memory options
 	session["disable-shm"].Bool() = vm.count("disable-shm");
 	session["enable-shm-uuid"].Bool() = vm.count("enable-shm-uuid");
@@ -1331,7 +1323,7 @@ static void mainLoop()
 
 void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 {
-	if(!CServerHandler::DO_NOT_START_SERVER)
+	if(!settings["session"]["donotstartserver"].Bool())
 	{
 		serverAlive.waitWhileTrue();
 		serverAlive.setn(true);

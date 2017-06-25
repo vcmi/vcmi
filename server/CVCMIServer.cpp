@@ -562,15 +562,14 @@ static void handleCommandOptions(int argc, char *argv[])
 	}
 
 	po::notify(cmdLineOptions);
-
 	if (cmdLineOptions.count("help"))
 	{
+		auto time = std::time(0);
 		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-		printf("Copyright (C) 2007-2014 VCMI dev team - see AUTHORS file\n");
+		printf("Copyright (C) 2007-%d VCMI dev team - see AUTHORS file\n", std::localtime(&time)->tm_year + 1900);
 		printf("This is free software; see the source for copying conditions. There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		printf("\n");
-		printf("Usage:\n");
 		std::cout << opts;
 		exit(0);
 	}

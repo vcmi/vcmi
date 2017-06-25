@@ -986,11 +986,9 @@ std::string CClient::aiNameForPlayer(bool battleAI)
 	return goodAI;
 }
 
-bool CServerHandler::DO_NOT_START_SERVER = false;
-
 void CServerHandler::startServer()
 {
-	if(DO_NOT_START_SERVER)
+	if(settings["session"]["donotstartserver"].Bool())
 		return;
 
 	th.update();
@@ -1007,7 +1005,7 @@ void CServerHandler::startServer()
 
 void CServerHandler::waitForServer()
 {
-	if(DO_NOT_START_SERVER)
+	if(settings["session"]["donotstartserver"].Bool())
 		return;
 
 	if(!serverThread)
@@ -1071,7 +1069,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 
 #ifndef VCMI_ANDROID
-	if(DO_NOT_START_SERVER || settings["session"]["disable-shm"].Bool())
+	if(settings["session"]["donotstartserver"].Bool() || settings["session"]["disable-shm"].Bool())
 		return;
 
 	std::string sharedMemoryName = "vcmi_memory";

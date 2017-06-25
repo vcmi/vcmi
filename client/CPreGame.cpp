@@ -693,7 +693,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameM
 		if(isHost())
 		{
 			assert(playerNames.size() == 1  &&  vstd::contains(playerNames, 1)); //TODO hot-seat/network combo
-			if(CServerHandler::DO_NOT_START_SERVER)
+			if(settings["session"]["donotstartserver"].Bool())
 				serv = CServerHandler::justConnectToServer(Address, Port);
 			else
 				serv = sh->connectToServer();
@@ -3170,7 +3170,7 @@ void CMultiMode::hostTCP()
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
 	GH.popIntTotally(this);
-	if(CServerHandler::DO_NOT_START_SERVER)
+	if(settings["session"]["donotstartserver"].Bool())
 		GH.pushInt(new CSimpleJoinScreen(CMenuScreen::MULTI_NETWORK_HOST));
 	else
 		GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_HOST));
