@@ -11,7 +11,7 @@
 #include "AccessibilityInfo.h"
 #include "CStack.h"
 
-bool AccessibilityInfo::accessible(BattleHex tile, const CStack *stack) const
+bool AccessibilityInfo::accessible(BattleHex tile, const CStack * stack) const
 {
 	return accessible(tile, stack->doubleWide(), stack->attackerOwned);
 }
@@ -35,12 +35,11 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, bool attacke
 	return true;
 }
 
-bool AccessibilityInfo::occupiable(const CStack *stack, BattleHex tile) const
+bool AccessibilityInfo::occupiable(const CStack * stack, BattleHex tile) const
 {
 	//obviously, we can occupy tile by standing on it
 	if(accessible(tile, stack))
 		return true;
-
 	if(stack->doubleWide())
 	{
 		//Check the tile next to -> if stack stands there, it'll also occupy considered hex
@@ -48,6 +47,5 @@ bool AccessibilityInfo::occupiable(const CStack *stack, BattleHex tile) const
 		if(accessible(anotherTile, stack))
 			return true;
 	}
-
 	return false;
 }

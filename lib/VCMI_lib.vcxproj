@@ -168,9 +168,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BattleAction.cpp" />
-    <ClCompile Include="BattleHex.cpp" />
-    <ClCompile Include="BattleInfo.cpp" />
+    <ClCompile Include="battle\BattleAction.cpp" />
+    <ClCompile Include="battle\BattleHex.cpp" />
+    <ClCompile Include="battle\BattleInfo.cpp" />
+    <ClCompile Include="battle\AccessibilityInfo.cpp" />
+    <ClCompile Include="battle\BattleAttackInfo.cpp" />
+    <ClCompile Include="battle\CBattleInfoCallback.cpp" />
+    <ClCompile Include="battle\CBattleInfoEssentials.cpp" />
+    <ClCompile Include="battle\CCallbackBase.cpp" />
+    <ClCompile Include="battle\CPlayerBattleCallback.cpp" />
+    <ClCompile Include="battle\ReachabilityInfo.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBonusTypeHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
@@ -183,7 +190,7 @@
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CModHandler.cpp" />
-    <ClCompile Include="CObstacleInstance.cpp" />
+    <ClCompile Include="battle\CObstacleInstance.cpp" />
     <ClCompile Include="CPathfinder.cpp" />
     <ClCompile Include="CStack.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
@@ -262,7 +269,6 @@
     <ClCompile Include="logging\CLogger.cpp" />
     <ClCompile Include="logging\CBasicLogConfigurator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
-    <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="CGameInfoCallback.cpp" />
     <ClCompile Include="JsonNode.cpp" />
@@ -290,9 +296,16 @@
     <ClInclude Include="..\Global.h" />
     <ClInclude Include="..\Version.h" />
     <ClInclude Include="AI_Base.h" />
-    <ClInclude Include="BattleAction.h" />
-    <ClInclude Include="BattleHex.h" />
-    <ClInclude Include="BattleInfo.h" />
+    <ClInclude Include="battle\BattleAction.h" />
+    <ClInclude Include="battle\BattleHex.h" />
+    <ClInclude Include="battle\BattleInfo.h" />
+    <ClInclude Include="battle\AccessibilityInfo.h" />
+    <ClInclude Include="battle\BattleAttackInfo.h" />
+    <ClInclude Include="battle\CBattleInfoCallback.h" />
+    <ClInclude Include="battle\CBattleInfoEssentials.h" />
+    <ClInclude Include="battle\CCallbackBase.h" />
+    <ClInclude Include="battle\CPlayerBattleCallback.h" />
+    <ClInclude Include="battle\ReachabilityInfo.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBonusTypeHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
@@ -306,7 +319,7 @@
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
     <ClInclude Include="CModHandler.h" />
-    <ClInclude Include="CObstacleInstance.h" />
+    <ClInclude Include="battle\CObstacleInstance.h" />
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CPathfinder.h" />
@@ -376,7 +389,6 @@
     <ClInclude Include="logging\CBasicLogConfigurator.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
-    <ClInclude Include="CBattleCallback.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="CGameInfoCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />

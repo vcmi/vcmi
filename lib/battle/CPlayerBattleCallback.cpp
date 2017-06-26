@@ -11,7 +11,6 @@
 #include "CPlayerBattleCallback.h"
 #include "CStack.h"
 #include "CGameState.h"
-#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->errorStream() << __FUNCTION__ << " called when no battle!"; return X; }
 
 bool CPlayerBattleCallback::battleCanFlee() const
 {
@@ -29,8 +28,8 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AN
 
 	return battleGetStacksIf([=](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
-								  || (whose == ONLY_MINE && s->owner == player)
-								  || (whose == ONLY_ENEMY && s->owner != player);
+								|| (whose == ONLY_MINE && s->owner == player)
+								|| (whose == ONLY_ENEMY && s->owner != player);
 
 		return ownerMatches && s->isValidTarget(!onlyAlive);
 	});

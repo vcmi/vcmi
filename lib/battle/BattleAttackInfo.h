@@ -28,6 +28,6 @@ struct DLL_LINKAGE BattleAttackInfo
 	bool deathBlow;
 	bool ballistaDoubleDamage;
 
-	BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting = false);
+	BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting = false);
 	BattleAttackInfo reverse() const;
 };

@@ -14,8 +14,6 @@
 #include "NetPacks.h"
 #include "mapObjects/CGTownInstance.h"
 
-#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->errorStream() << __FUNCTION__ << " called when no battle!"; return X; }
-
 ETerrainType CBattleInfoEssentials::battleTerrainType() const
 {
 	RETURN_IF_NOT_BATTLE(ETerrainType::WRONG);
@@ -42,7 +40,7 @@ std::vector<std::shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::ba
 	{
 		if(!!player && *perspective != battleGetMySide())
 		{
-			logGlobal->errorStream() << "Unauthorized access attempt!";
+			logGlobal->error("Unauthorized access attempt!");
 			assert(0); //I want to notice if that happens
 			//perspective = battleGetMySide();
 		}
@@ -67,9 +65,9 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	for(const CStack *s : battleGetAllStacks())
+	for(const CStack * s : battleGetAllStacks())
 	{
-		if(s->attackerOwned == !side  &&  s->getCreature()->isItNativeTerrain(getBattle()->terrainType))
+		if(s->attackerOwned == !side && s->getCreature()->isItNativeTerrain(getBattle()->terrainType))
 			return true;
 	}
 
@@ -111,22 +109,17 @@ TStacks CBattleInfoEssentials::battleAliveStacks(ui8 side) const
 int CBattleInfoEssentials::battleGetMoatDmg() const
 {
 	RETURN_IF_NOT_BATTLE(0);
-
 	auto town = getBattle()->town;
 	if(!town)
 		return 0;
-
 	return town->town->moatDamage;
 }
 
 const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
-
-
 	if(!getBattle() || getBattle()->town == nullptr)
 		return nullptr;
-
 	return getBattle()->town;
 }
 
@@ -169,7 +162,7 @@ bool CBattleInfoEssentials::battleDoWeKnowAbout(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	auto p = battleGetMySide();
-	return p == BattlePerspective::ALL_KNOWING  ||  p == side;
+	return p == BattlePerspective::ALL_KNOWING || p == side;
 }
 
 si8 CBattleInfoEssentials::battleTacticDist() const
@@ -210,17 +203,15 @@ const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(ui8 side) cons
 		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
 		return nullptr;
 	}
-
 	if(!battleDoWeKnowAbout(side))
 	{
 		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
 		return nullptr;
 	}
-
 	return getBattle()->sides[side].armyObject;
 }
 
-InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
+InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 {
 	auto hero = getBattle()->sides[side].hero;
 	if(!hero)
@@ -228,7 +219,6 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 		logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
 		return InfoAboutHero();
 	}
-
 	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
 	return InfoAboutHero(hero, infoLevel);
 }
@@ -259,7 +249,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 		return false;
 
 	//we are besieged defender
-	if(mySide == BattleSide::DEFENDER  &&  battleGetSiegeLevel())
+	if(mySide == BattleSide::DEFENDER && battleGetSiegeLevel())
 	{
 		auto town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingID::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
@@ -301,7 +291,7 @@ bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ui8 mySide = playerToSide(player);
-	bool iAmSiegeDefender = ( mySide == BattleSide::DEFENDER  &&  battleGetSiegeLevel() );
+	bool iAmSiegeDefender = (mySide == BattleSide::DEFENDER && battleGetSiegeLevel());
 	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
 	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(!mySide);
 }
@@ -353,7 +343,7 @@ bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CSta
 	if(boost::logic::indeterminate(positivness))
 		return true;
 	else if(defender->owner != battleGetOwner(defender))
-		return true;//mind controlled unit is attackable for both sides
+		return true; //mind controlled unit is attackable for both sides
 	else
 		return (battleGetOwner(attacker) == battleGetOwner(defender)) == positivness;
 }

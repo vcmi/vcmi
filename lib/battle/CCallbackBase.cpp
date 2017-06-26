@@ -30,7 +30,7 @@ CCallbackBase::CCallbackBase()
 	: battle(nullptr), gs(nullptr)
 {}
 
-void CCallbackBase::setBattle(const BattleInfo *B)
+void CCallbackBase::setBattle(const BattleInfo * B)
 {
 	battle = B;
 }

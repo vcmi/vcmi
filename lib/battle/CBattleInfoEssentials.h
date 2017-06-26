@@ -23,18 +23,18 @@ typedef std::function<bool(const CStack *)> TStackFilter;
 
 namespace BattlePerspective
 {
-enum BattlePerspective
-{
-	INVALID = -2,
-	ALL_KNOWING = -1,
-	LEFT_SIDE,
-	RIGHT_SIDE
-};
+	enum BattlePerspective
+	{
+		INVALID = -2,
+		ALL_KNOWING = -1,
+		LEFT_SIDE,
+		RIGHT_SIDE
+	};
 }
 
 namespace BattleSide
 {
-enum {ATTACKER = 0, DEFENDER = 1};
+	enum {ATTACKER = 0, DEFENDER = 1};
 }
 
 

@@ -31,7 +31,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BattleAction.cpp" />
+    <ClCompile Include="battle\BattleAction.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
@@ -49,14 +49,20 @@
     <ClCompile Include="ResourceSet.cpp" />
     <ClCompile Include="CGameInterface.cpp" />
     <ClCompile Include="JsonNode.cpp" />
-    <ClCompile Include="BattleHex.cpp" />
+    <ClCompile Include="battle\BattleHex.cpp" />
     <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="CObstacleInstance.cpp" />
+    <ClCompile Include="battle\CObstacleInstance.cpp" />
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
-    <ClCompile Include="CBattleCallback.cpp" />
+    <ClCompile Include="battle\AccessibilityInfo.cpp" />
+    <ClCompile Include="battle\BattleAttackInfo.cpp" />
+    <ClCompile Include="battle\CBattleInfoCallback.cpp" />
+    <ClCompile Include="battle\CBattleInfoEssentials.cpp" />
+    <ClCompile Include="battle\CCallbackBase.cpp" />
+    <ClCompile Include="battle\CPlayerBattleCallback.cpp" />
+    <ClCompile Include="battle\ReachabilityInfo.cpp" />
     <ClCompile Include="Mapping\CCampaignHandler.cpp" />
     <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="VCMIDirs.cpp" />
@@ -263,7 +269,7 @@
     <ClCompile Include="CStack.cpp" />
     <ClCompile Include="SideInBattle.cpp" />
     <ClCompile Include="SiegeInfo.cpp" />
-    <ClCompile Include="BattleInfo.cpp" />
+    <ClCompile Include="battle\BattleInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -317,10 +323,10 @@
     <ClInclude Include="CTownHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BattleAction.h">
+    <ClInclude Include="battle\BattleAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CObstacleInstance.h">
+    <ClInclude Include="battle\CObstacleInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGameEventsReceiver.h">
@@ -344,7 +350,7 @@
     <ClInclude Include="AI_Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BattleHex.h">
+    <ClInclude Include="battle\BattleHex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CConsoleHandler.h">
@@ -380,7 +386,25 @@
     <ClInclude Include="CConfigHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CBattleCallback.h">
+    <ClInclude Include="AccessibilityInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleAttackInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CBattleInfoCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CBattleInfoEssentials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCallbackBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerBattleCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReachabilityInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mapping\CCampaignHandler.h">
@@ -656,7 +680,7 @@
     <ClInclude Include="serializer\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BattleInfo.h">
+    <ClInclude Include="battle\BattleInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CStack.h">

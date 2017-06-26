@@ -12,7 +12,7 @@
 #include "CStack.h"
 
 
-BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting)
+BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting)
 {
 	attacker = Attacker;
 	defender = Defender;

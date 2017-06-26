@@ -21,11 +21,11 @@ struct DLL_LINKAGE ReachabilityInfo
 	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
 	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
 
-	enum { 	INFINITE_DIST = 1000000 };
+	enum { INFINITE_DIST = 1000000 };
 
 	struct DLL_LINKAGE Parameters
 	{
-		const CStack *stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
+		const CStack * stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
 
 		bool attackerOwned;
 		bool doubleWide;
@@ -36,7 +36,7 @@ struct DLL_LINKAGE ReachabilityInfo
 		BattlePerspective::BattlePerspective perspective; //some obstacles (eg. quicksands) may be invisible for some side
 
 		Parameters();
-		Parameters(const CStack *Stack);
+		Parameters(const CStack * Stack);
 	};
 
 	Parameters params;

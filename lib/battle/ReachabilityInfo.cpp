@@ -20,7 +20,7 @@ ReachabilityInfo::Parameters::Parameters()
 	attackerOwned = doubleWide = flying = false;
 }
 
-ReachabilityInfo::Parameters::Parameters(const CStack *Stack)
+ReachabilityInfo::Parameters::Parameters(const CStack * Stack)
 {
 	stack = Stack;
 	perspective = (BattlePerspective::BattlePerspective)(!Stack->attackerOwned);
