@@ -1,4 +1,10 @@
 #!/bin/sh
+if [ -z "$encrypted_1d30f79f8582_key" ];
+then
+	# Due to security measures travis not expose encryption keys for PR from forks
+	exit 0
+fi
+
 cpack
 
 touch /tmp/deploy_rsa
