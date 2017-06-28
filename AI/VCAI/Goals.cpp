@@ -720,10 +720,12 @@ TSubgoal VisitTile::whatToDoToAchieve()
 {
 	auto ret = fh->chooseSolution(getAllPossibleSubgoals());
 
-	if (ret->hero)
+	if(ret->hero)
 	{
-		if (isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
+		if(isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
 		{
+			if(cb->getTile(tile)->topVisitableId().num == Obj::TOWN) //if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
+				ret->objid = Obj::TOWN; //TODO: move to getObj eventually and add appropiate logic there
 			ret->setisElementar(true);
 			return ret;
 		}
@@ -974,40 +976,44 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 	};
 
 	std::vector<const CGObjectInstance *> objs;
-	for (auto obj : ai->visitableObjs)
+	for(auto obj : ai->visitableObjs)
 	{
-		if (conquerable(obj))
+		if(conquerable(obj))
 			objs.push_back (obj);
 	}
 
-	for (auto h : cb->getHeroesInfo())
+	for(auto h : cb->getHeroesInfo())
 	{
 		auto sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
-		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
+		for(auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
 		{
-			if (conquerable(obj))
+			if(conquerable(obj))
 				ourObjs.push_back(obj);
 		}
-		for (auto obj : ourObjs)
+		for(auto obj : ourObjs)
 		{
 			int3 dest = obj->visitablePos();
 			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
-			if (t.valid()) //we know any path at all
+			if(t.valid()) //we know any path at all
 			{
-				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
+				if(ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
 				{
-					if (isSafeToVisit(h, dest))
+					if(isSafeToVisit(h, dest))
 					{
-						if (dest != t) //there is something blocking our way
+						if(dest != t) //there is something blocking our way
 							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
 						else
 						{
-							if (obj->ID.num == Obj::HERO) //enemy hero may move to other position
+							if(obj->ID.num == Obj::HERO) //enemy hero may move to other position
 								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
 							else //just visit that tile
-								ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+								if(obj->ID.num == Obj::TOWN)
+									//if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
+									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setobjid(obj->ID.num).setisAbstract(true))); //TODO: change to getObj eventually and and move appropiate logic there
+								else
+									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
 						}
 					}
 					else //we need to get army in order to conquer that place
