@@ -8,8 +8,8 @@
  *
  */
 #pragma once
-#include "../SiegeInfo.h"
-#include "../SideInBattle.h"
+#include "SiegeInfo.h"
+#include "SideInBattle.h"
 #include "../HeroBonus.h"
 #include "CBattleInfoCallback.h"
 #include "../int3.h"
