@@ -5,15 +5,24 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CM
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(test_SRCS
-    StdInc.cpp
-    Battlefield.cpp
-    CVcmiTestConfig.cpp
-    CMapEditManagerTest.cpp
-    MapComparer.cpp
-    CMapFormatTest.cpp
+		StdInc.cpp
+
+		Battlefield.cpp
+		CMapEditManagerTest.cpp
+		CMapFormatTest.cpp
+		CMemoryBufferTest.cpp
+		CVcmiTestConfig.cpp
+		MapComparer.cpp
 )
 
-add_executable(vcmitest ${test_SRCS})
+set(test_HEADERS
+		StdInc.h
+
+		CVcmiTestConfig.h
+		MapComparer.h
+)
+
+add_executable(vcmitest ${test_SRCS} ${test_HEADERS})
 target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 add_test(vcmitest vcmitest)
 

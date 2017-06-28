@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#ifdef VCMI_ANDROID
 #include <jni.h>
 #include <string>
 
@@ -39,3 +40,5 @@ public:
 
 	static constexpr const char * NATIVE_METHODS_DEFAULT_CLASS = "eu/vcmi/vcmi/NativeMethods";
 };
+
+#endif

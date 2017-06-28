@@ -5,11 +5,18 @@ include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_D
 
 set(stupidAI_SRCS
 		StdInc.cpp
-		StupidAI.cpp
+
 		main.cpp
+		StupidAI.cpp
 )
 
-add_library(StupidAI SHARED ${stupidAI_SRCS})
+set(stupidAI_HEADERS
+		StdInc.h
+
+		StupidAI.h
+)
+
+add_library(StupidAI SHARED ${stupidAI_SRCS} ${stupidAI_HEADERS})
 target_link_libraries(StupidAI vcmi)
 
 set_target_properties(StupidAI PROPERTIES ${PCH_PROPERTIES})

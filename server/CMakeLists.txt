@@ -6,17 +6,25 @@ include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
 
 set(server_SRCS
 		StdInc.cpp
+
 		CGameHandler.cpp
-		CVCMIServer.cpp
 		CQuery.cpp
+		CVCMIServer.cpp
 		NetPacksServer.cpp
 )
 
+set(server_HEADERS
+		StdInc.h
+
+		CGameHandler.h
+		CQuery.h
+		CVCMIServer.h
+)
 if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
 	return()
 endif()
 
-add_executable(vcmiserver ${server_SRCS})
+add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${SYSTEM_LIBS})
 

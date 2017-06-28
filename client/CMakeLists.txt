@@ -9,9 +9,9 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
-		battle/CBattleInterface.cpp
 		battle/CBattleAnimations.cpp
 		battle/CBattleInterfaceClasses.cpp
+		battle/CBattleInterface.cpp
 		battle/CCreatureAnimation.cpp
 
 		gui/CAnimation.cpp
@@ -40,9 +40,9 @@ set(client_SRCS
 		windows/CQuestLog.cpp
 		windows/CSpellWindow.cpp
 		windows/CTradeWindow.cpp
-		windows/CWindowObject
-		windows/InfoWindows.cpp
+		windows/CWindowObject.cpp
 		windows/GUIClasses.cpp
+		windows/InfoWindows.cpp
 
 		CBitmapHandler.cpp
 		CDefHandler.cpp
@@ -61,8 +61,59 @@ set(client_SRCS
 )
 
 set(client_HEADERS
+		StdInc.h
+
+		battle/CBattleAnimations.h
+		battle/CBattleInterfaceClasses.h
+		battle/CBattleInterface.h
+		battle/CCreatureAnimation.h
+
+		gui/CAnimation.h
+		gui/CCursorHandler.h
+		gui/CGuiHandler.h
+		gui/CIntObject.h
+		gui/Fonts.h
+		gui/Geometries.h
+		gui/SDL_Compat.h
+		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
-                gui/SDL_Compat.h
+
+		widgets/AdventureMapClasses.h
+		widgets/Buttons.h
+		widgets/CArtifactHolder.h
+		widgets/CComponent.h
+		widgets/CGarrisonInt.h
+		widgets/Images.h
+		widgets/MiscWidgets.h
+		widgets/ObjectLists.h
+		widgets/TextControls.h
+		windows/CAdvmapInterface.h
+		windows/CCastleInterface.h
+		windows/CCreatureWindow.h
+		windows/CHeroWindow.h
+		windows/CKingdomInterface.h
+		windows/CQuestLog.h
+		windows/CSpellWindow.h
+		windows/CTradeWindow.h
+		windows/CWindowObject.h
+		windows/GUIClasses.h
+		windows/InfoWindows.h
+
+		CBitmapHandler.h
+		CDefHandler.h
+		CGameInfo.h
+		Client.h
+		CMessage.h
+		CMT.h
+		CMusicHandler.h
+		CPlayerInterface.h
+		CPreGame.h
+		CVideoHandler.h
+		Graphics.h
+		mapHandler.h
+		resource.h
+		SDLMain.h
+		SDLRWwrapper.h
 )
 
 if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
@@ -121,9 +172,9 @@ if(APPLE)
 
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 elseif(WIN32)
-	add_executable(vcmiclient ${client_SRCS} VCMI_client.rc)
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 else()
-	add_executable(vcmiclient ${client_SRCS})
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
 endif()
 
 if(WIN32)

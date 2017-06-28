@@ -5,20 +5,33 @@ include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_D
 
 set(battleAI_SRCS
 		StdInc.cpp
-		BattleAI.cpp
-		StackWithBonuses.cpp
-		EnemyInfo.cpp
+
 		AttackPossibility.cpp
-		PotentialTargets.cpp
-		main.cpp
+		BattleAI.cpp
 		common.cpp
+		EnemyInfo.cpp
+		main.cpp
+		PotentialTargets.cpp
+		StackWithBonuses.cpp
 		ThreatMap.cpp
+)
+
+set(battleAI_HEADERS
+		StdInc.h
+
+		AttackPossibility.h
+		BattleAI.h
+		common.h
+		EnemyInfo.h
+		PotentialTargets.h
+		StackWithBonuses.h
+		ThreatMap.h
 )
 
 if (ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
 	return()
 endif()
-add_library(BattleAI SHARED ${battleAI_SRCS})
+add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_link_libraries(BattleAI vcmi)
 
 set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})

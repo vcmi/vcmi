@@ -9,19 +9,29 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 
 set(VCAI_SRCS
-    StdInc.cpp
-    VCAI.cpp
-    Goals.cpp
-    AIUtility.cpp
-    main.cpp
-    Fuzzy.cpp
+		StdInc.cpp
+
+		AIUtility.cpp
+		Fuzzy.cpp
+		Goals.cpp
+		main.cpp
+		VCAI.cpp
+)
+
+set(VCAI_HEADERS
+		StdInc.h
+
+		AIUtility.h
+		Fuzzy.h
+		Goals.h
+		VCAI.h
 )
 
 if (ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
 	return()
 endif()
 
-add_library(VCAI SHARED ${VCAI_SRCS})
+add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 if (FL_FOUND)
 	target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
 else()

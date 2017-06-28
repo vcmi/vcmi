@@ -9,6 +9,7 @@
  */
 #include "CAndroidVMHelper.h"
 
+#ifdef VCMI_ANDROID
 static JavaVM * vmCache = nullptr;
 
 /// cached java classloader so that we can find our classes from other threads
@@ -103,3 +104,4 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_initClassloade
 	vcmiClassLoader = (jclass) env->NewGlobalRef(env->CallObjectMethod(anyVCMIClass, getClassLoaderMethod));
 	vcmiFindClassMethod = env->GetMethodID(classLoaderClass, "findClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 }
+#endif
