@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "GameConstants.h"
+#include "../GameConstants.h"
 
 #define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->errorStream() << __FUNCTION__ << " called when no battle!"; return X; }
 
