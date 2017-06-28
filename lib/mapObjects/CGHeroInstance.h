@@ -148,6 +148,7 @@ public:
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;
+	TFaction getFaction() const;
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	int getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
