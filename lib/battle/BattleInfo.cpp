@@ -7,13 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "BattleInfo.h"
-#include "CStack.h"
-#include "CHeroHandler.h"
-#include "NetPacks.h"
-#include "filesystem/Filesystem.h"
-#include "mapObjects/CGTownInstance.h"
+#include "../CStack.h"
+#include "../CHeroHandler.h"
+#include "../NetPacks.h"
+#include "../filesystem/Filesystem.h"
+#include "../mapObjects/CGTownInstance.h"
 
 const CStack * BattleInfo::getNextStack() const
 {

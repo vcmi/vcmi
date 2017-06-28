@@ -7,9 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "SideInBattle.h"
-#include "mapObjects/CArmedInstance.h"
+#include "../mapObjects/CArmedInstance.h"
 
 SideInBattle::SideInBattle()
 {
@@ -20,7 +20,7 @@ SideInBattle::SideInBattle()
 	enchanterCounter = 0;
 }
 
-void SideInBattle::init(const CGHeroInstance *Hero, const CArmedInstance *Army)
+void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army)
 {
 	hero = Hero;
 	armyObject = Army;

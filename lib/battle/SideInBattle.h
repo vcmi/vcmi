@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "GameConstants.h"
+#include "../GameConstants.h"
 
 class CGHeroInstance;
 class CArmedInstance;
@@ -16,15 +16,15 @@ class CArmedInstance;
 struct DLL_LINKAGE SideInBattle
 {
 	PlayerColor color;
-	const CGHeroInstance *hero; //may be NULL if army is not commanded by hero
-	const CArmedInstance *armyObject; //adv. map object with army that participates in battle; may be same as hero
+	const CGHeroInstance * hero; //may be NULL if army is not commanded by hero
+	const CArmedInstance * armyObject; //adv. map object with army that participates in battle; may be same as hero
 
 	ui8 castSpellsCount; //how many spells each side has cast this turn
 	std::vector<const CSpell *> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
 	si16 enchanterCounter; //tends to pass through 0, so sign is needed
 
 	SideInBattle();
-	void init(const CGHeroInstance *Hero, const CArmedInstance *Army);
+	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
 
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -8,9 +8,9 @@
  *
  */
 
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "BattleAction.h"
-#include "CStack.h"
+#include "../CStack.h"
 
 using namespace Battle;
 

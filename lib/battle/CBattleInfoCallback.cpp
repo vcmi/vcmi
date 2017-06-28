@@ -7,13 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "CBattleInfoCallback.h"
-#include "CStack.h"
+#include "../CStack.h"
 #include "BattleInfo.h"
-#include "NetPacks.h"
-#include "spells/CSpellHandler.h"
-#include "mapObjects/CGTownInstance.h"
+#include "../NetPacks.h"
+#include "../spells/CSpellHandler.h"
+#include "../mapObjects/CGTownInstance.h"
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {

@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "GameConstants.h"
+#include "../GameConstants.h"
 
 //only for use in BattleInfo
 struct DLL_LINKAGE SiegeInfo

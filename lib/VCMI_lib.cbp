@@ -145,6 +145,10 @@
 		<Unit filename="battle/CPlayerBattleCallback.h" />
 		<Unit filename="battle/ReachabilityInfo.cpp" />
 		<Unit filename="battle/ReachabilityInfo.h" />
+		<Unit filename="battle/SideInBattle.cpp" />
+		<Unit filename="battle/SideInBattle.h" />
+		<Unit filename="battle/SiegeInfo.cpp" />
+		<Unit filename="battle/SiegeInfo.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
 		<Unit filename="CBonusTypeHandler.cpp" />
@@ -215,10 +219,6 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
-		<Unit filename="SideInBattle.cpp" />
-		<Unit filename="SideInBattle.h" />
-		<Unit filename="SiegeInfo.cpp" />
-		<Unit filename="SiegeInfo.h" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />

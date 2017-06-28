@@ -7,10 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "CCallbackBase.h"
 #include "BattleInfo.h"
-#include "CGameState.h"
+#include "../CGameState.h"
 
 bool CCallbackBase::duringBattle() const
 {

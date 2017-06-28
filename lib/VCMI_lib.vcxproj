@@ -211,8 +211,8 @@
     <ClCompile Include="serializer\JsonDeserializer.cpp" />
     <ClCompile Include="serializer\JsonSerializeFormat.cpp" />
     <ClCompile Include="serializer\JsonSerializer.cpp" />
-    <ClCompile Include="SideInBattle.cpp" />
-    <ClCompile Include="SiegeInfo.cpp" />
+    <ClCompile Include="battle\SideInBattle.cpp" />
+    <ClCompile Include="battle\SiegeInfo.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\ISpellMechanics.cpp" />
     <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
@@ -415,8 +415,8 @@
     <ClInclude Include="serializer\JsonDeserializer.h" />
     <ClInclude Include="serializer\JsonSerializeFormat.h" />
     <ClInclude Include="serializer\JsonSerializer.h" />
-    <ClInclude Include="SideInBattle.h" />
-    <ClInclude Include="SiegeInfo.h" />
+    <ClInclude Include="battle\SideInBattle.h" />
+    <ClInclude Include="battle\SiegeInfo.h" />
     <ClInclude Include="spells\AdventureSpellMechanics.h" />
     <ClInclude Include="spells\BattleSpellMechanics.h" />
     <ClInclude Include="spells\CDefaultSpellMechanics.h" />

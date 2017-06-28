@@ -7,9 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "AccessibilityInfo.h"
-#include "CStack.h"
+#include "../CStack.h"
 
 bool AccessibilityInfo::accessible(BattleHex tile, const CStack * stack) const
 {

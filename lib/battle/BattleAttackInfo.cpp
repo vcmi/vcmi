@@ -7,9 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "BattleAttackInfo.h"
-#include "CStack.h"
+#include "../CStack.h"
 
 
 BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting)
