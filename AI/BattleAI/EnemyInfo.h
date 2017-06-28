@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../../lib/BattleHex.h"
+#include "../../lib/battle/BattleHex.h"
 
 class CStack;
 

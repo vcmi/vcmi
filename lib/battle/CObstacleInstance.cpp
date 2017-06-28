@@ -69,7 +69,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 
 // bool CObstacleInstance::spellGenerated() const
 // {
-// 	if(obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE)
+// 	if(obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE)
 // 		return false;
 //
 // 	return true;
@@ -83,12 +83,12 @@ bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
 
 bool CObstacleInstance::stopsMovement() const
 {
-	return obstacleType == QUICKSAND  ||  obstacleType == MOAT;
+	return obstacleType == QUICKSAND || obstacleType == MOAT;
 }
 
 bool CObstacleInstance::blocksTiles() const
 {
-	return obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE  ||  obstacleType == FORCE_FIELD;
+	return obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE || obstacleType == FORCE_FIELD;
 }
 
 SpellCreatedObstacle::SpellCreatedObstacle()
@@ -113,7 +113,7 @@ bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 		//we hide mines and not discovered quicksands
 		//quicksands are visible to the caster or if owned unit stepped into that particular patch
 		//additionally if side has a native unit, mines/quicksands will be visible
-		return casterSide == side  ||  visibleForAnotherSide  ||  hasNativeStack;
+		return casterSide == side || visibleForAnotherSide || hasNativeStack;
 	default:
 		assert(0);
 		return false;

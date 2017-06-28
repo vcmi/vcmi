@@ -1,8 +1,3 @@
-#pragma once
-
-
-#include "BattleHex.h"
-
 /*
  * BattleAction.h, part of VCMI engine
  *
@@ -12,14 +7,16 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+#include "BattleHex.h"
 
-/// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 class CStack;
 
+/// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 struct DLL_LINKAGE BattleAction
 {
 	ui8 side; //who made this action: false - left, true - right player
-	ui32 stackNumber;//stack ID, -1 left hero, -2 right hero,
+	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
 	Battle::ActionType actionType; //use ActionType enum for values
 	BattleHex destinationTile;
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
@@ -32,12 +29,12 @@ struct DLL_LINKAGE BattleAction
 
 	BattleAction();
 
-	static BattleAction makeHeal(const CStack *healer, const CStack *healed);
-	static BattleAction makeDefend(const CStack *stack);
-	static BattleAction makeWait(const CStack *stack);
-	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, BattleHex attackFrom = BattleHex::INVALID);
-	static BattleAction makeShotAttack(const CStack *shooter, const CStack *target);
-	static BattleAction makeMove(const CStack *stack, BattleHex dest);
+	static BattleAction makeHeal(const CStack * healer, const CStack * healed);
+	static BattleAction makeDefend(const CStack * stack);
+	static BattleAction makeWait(const CStack * stack);
+	static BattleAction makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom = BattleHex::INVALID);
+	static BattleAction makeShotAttack(const CStack * shooter, const CStack * target);
+	static BattleAction makeMove(const CStack * stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 };
 

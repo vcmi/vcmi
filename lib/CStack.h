@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "BattleHex.h"
+#include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
 

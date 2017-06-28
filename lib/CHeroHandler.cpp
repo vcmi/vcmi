@@ -6,7 +6,7 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 #include "StringConstants.h"
-#include "BattleHex.h"
+#include "battle/BattleHex.h"
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"

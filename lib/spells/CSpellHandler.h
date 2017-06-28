@@ -14,7 +14,7 @@
 #include "../ConstTransitivePtr.h"
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "../BattleHex.h"
+#include "../battle/BattleHex.h"
 #include "../HeroBonus.h"
 
 class CGObjectInstance;

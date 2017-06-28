@@ -2,7 +2,7 @@
 
 
 #include "../lib/IGameCallback.h"
-#include "../lib/BattleAction.h"
+#include "../lib/battle/BattleAction.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/int3.h"
 

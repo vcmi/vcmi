@@ -23,8 +23,8 @@
 #include "../StringConstants.h"
 
 #include "../CStack.h"
-#include "../BattleInfo.h"
-#include "../CBattleCallback.h"
+#include "../battle/BattleInfo.h"
+#include "../battle/CBattleInfoCallback.h"
 #include "../CGameState.h" //todo: remove
 
 #include "../NetPacks.h" //todo: remove

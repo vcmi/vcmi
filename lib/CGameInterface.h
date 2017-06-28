@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "BattleAction.h"
+#include "battle/BattleAction.h"
 #include "IGameEventsReceiver.h"
 #include "CGameStateFwd.h"
 

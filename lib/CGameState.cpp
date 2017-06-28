@@ -16,7 +16,7 @@
 #include "StartInfo.h"
 #include "NetPacks.h"
 #include "registerTypes/RegisterTypes.h"
-#include "BattleInfo.h"
+#include "battle/BattleInfo.h"
 #include "JsonNode.h"
 #include "filesystem/Filesystem.h"
 #include "GameConstants.h"

@@ -944,7 +944,7 @@ bool CSpellEffectAnimation::init()
 	{
 
 			const CStack* destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
-			Rect &tilePos = owner->bfield[destTile]->pos;
+			Rect & tilePos = owner->bfield[destTile]->pos;
 			BattleEffect be;
 			be.effectID = ID;
 			be.anim = CDefHandler::giveDef(customAnim);

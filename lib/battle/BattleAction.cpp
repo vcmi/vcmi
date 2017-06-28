@@ -1,9 +1,3 @@
-#include "StdInc.h"
-#include "BattleAction.h"
-
-#include "CStack.h"
-
-
 /*
  * BattleAction.cpp, part of VCMI engine
  *
@@ -13,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#include "StdInc.h"
+#include "BattleAction.h"
+#include "CStack.h"
 
 using namespace Battle;
 
@@ -26,7 +24,7 @@ BattleAction::BattleAction():
 {
 }
 
-BattleAction BattleAction::makeHeal(const CStack *healer, const CStack *healed)
+BattleAction BattleAction::makeHeal(const CStack * healer, const CStack * healed)
 {
 	BattleAction ba;
 	ba.side = !healer->attackerOwned;
@@ -36,7 +34,7 @@ BattleAction BattleAction::makeHeal(const CStack *healer, const CStack *healed)
 	return ba;
 }
 
-BattleAction BattleAction::makeDefend(const CStack *stack)
+BattleAction BattleAction::makeDefend(const CStack * stack)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
@@ -46,7 +44,7 @@ BattleAction BattleAction::makeDefend(const CStack *stack)
 }
 
 
-BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, BattleHex attackFrom /*= BattleHex::INVALID*/)
+BattleAction BattleAction::makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom /*= BattleHex::INVALID*/)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
@@ -57,7 +55,7 @@ BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * a
 	return ba;
 
 }
-BattleAction BattleAction::makeWait(const CStack *stack)
+BattleAction BattleAction::makeWait(const CStack * stack)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
@@ -66,7 +64,7 @@ BattleAction BattleAction::makeWait(const CStack *stack)
 	return ba;
 }
 
-BattleAction BattleAction::makeShotAttack(const CStack *shooter, const CStack *target)
+BattleAction BattleAction::makeShotAttack(const CStack * shooter, const CStack * target)
 {
 	BattleAction ba;
 	ba.side = !shooter->attackerOwned;
@@ -76,7 +74,7 @@ BattleAction BattleAction::makeShotAttack(const CStack *shooter, const CStack *t
 	return ba;
 }
 
-BattleAction BattleAction::makeMove(const CStack *stack, BattleHex dest)
+BattleAction BattleAction::makeMove(const CStack * stack, BattleHex dest)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;

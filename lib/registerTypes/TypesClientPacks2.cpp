@@ -3,7 +3,7 @@
 
 #include "../StartInfo.h"
 #include "../CStack.h"
-#include "../BattleInfo.h"
+#include "../battle/BattleInfo.h"
 #include "../CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CModHandler.h"

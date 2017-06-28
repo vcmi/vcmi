@@ -76,14 +76,20 @@ set(lib_SRCS
 		spells/CDefaultSpellMechanics.cpp
 		spells/ViewSpellInt.cpp
 
-		BattleAction.cpp
-		BattleHex.cpp
-                BattleInfo.cpp
-                SiegeInfo.cpp
-                SideInBattle.cpp
-                CStack.cpp
+		battle/BattleAction.cpp
+		battle/BattleHex.cpp
+		battle/BattleInfo.cpp
+		battle/AccessibilityInfo.cpp
+		battle/BattleAttackInfo.cpp
+		battle/CBattleInfoCallback.cpp
+		battle/CBattleInfoEssentials.cpp
+		battle/CCallbackBase.cpp
+		battle/CPlayerBattleCallback.cpp
+		battle/ReachabilityInfo.cpp
+		SiegeInfo.cpp
+		SideInBattle.cpp
+		CStack.cpp
 		CArtHandler.cpp
-		CBattleCallback.cpp
 		CBonusTypeHandler.cpp
 		CBuildingHandler.cpp
 		CConfigHandler.cpp
@@ -94,7 +100,7 @@ set(lib_SRCS
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
 		CModHandler.cpp
-		CObstacleInstance.cpp
+		battle/CObstacleInstance.cpp
 		CRandomGenerator.cpp
 
 		CThreadHelper.cpp

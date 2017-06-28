@@ -57,7 +57,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 	return BattleHex::getClosestTile(attackerOwned, pos, occupyable);
 }
 
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack *stack)
+std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -78,8 +78,8 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender,
-	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand )
+ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender,
+	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand)
 {
 	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
 
@@ -96,7 +96,7 @@ ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender,
 		return range.first;
 }
 
-void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
+void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 {
 	for(auto & elem : stacks)//setting casualties
 	{
@@ -112,12 +112,12 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 {
 	int stackID = getIdForNewStack();
 	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
-	assert((owner >= PlayerColor::PLAYER_LIMIT)  ||
-		   (base.armyObj && base.armyObj->tempOwner == owner));
+	assert((owner >= PlayerColor::PLAYER_LIMIT) ||
+		(base.armyObj && base.armyObj->tempOwner == owner));
 
-	auto  ret = new CStack(&base, owner, stackID, attackerOwned, slot);
+	auto ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = getAvaliableHex (base.getCreatureID(), attackerOwned, position); //TODO: what if no free tile on battlefield was found?
-	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
+	ret->state.insert(EBattleStackState::ALIVE); //alive state indication
 	return ret;
 }
 
@@ -125,9 +125,9 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 {
 	int stackID = getIdForNewStack();
 	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
-	auto  ret = new CStack(&base, owner, stackID, attackerOwned, slot);
+	auto ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
-	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
+	ret->state.insert(EBattleStackState::ALIVE); //alive state indication
 	return ret;
 }
 
@@ -261,7 +261,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
+BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -644,7 +644,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	return curB;
 }
 
-const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
+const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 {
 	for(int i = 0; i < sides.size(); i++)
 		if(sides[i].color == player)
@@ -741,7 +741,7 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 }
 
 
-bool CMP_stack::operator()( const CStack* a, const CStack* b )
+bool CMP_stack::operator()(const CStack* a, const CStack* b)
 {
 	switch(phase)
 	{
@@ -772,7 +772,7 @@ bool CMP_stack::operator()( const CStack* a, const CStack* b )
 
 }
 
-CMP_stack::CMP_stack( int Phase /*= 1*/, int Turn )
+CMP_stack::CMP_stack(int Phase /*= 1*/, int Turn)
 {
 	phase = Phase;
 	turn = Turn;
