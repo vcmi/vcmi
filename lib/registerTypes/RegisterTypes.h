@@ -153,11 +153,11 @@ void registerTypesMapObjects2(Serializer &s)
 		s.template registerType<CRewardableObject, CGOnceVisitable>();
 			s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
-	s.template registerType<CGObjectInstance, CPlayersVisited>();
-		s.template registerType<CPlayersVisited, CGWitchHut>();
-		s.template registerType<CPlayersVisited, CGShrine>();
-		s.template registerType<CPlayersVisited, CCartographer>();
-		s.template registerType<CPlayersVisited, CGObelisk>();
+	s.template registerType<CGObjectInstance, CTeamVisited>();
+		s.template registerType<CTeamVisited, CGWitchHut>();
+		s.template registerType<CTeamVisited, CGShrine>();
+		s.template registerType<CTeamVisited, CCartographer>();
+		s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();
 	//s.template registerType<IQuestObject>();
