@@ -16,7 +16,8 @@
 
 class CMap;
 
-class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
+/// Legacy class, use CRewardableObject instead
+class DLL_LINKAGE CTeamVisited: public CGObjectInstance
 {
 public:
 	std::set<PlayerColor> players; //players that visited this object
@@ -116,7 +117,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGWitchHut : public CPlayersVisited
+class DLL_LINKAGE CGWitchHut : public CTeamVisited
 {
 public:
 	std::vector<si32> allowedAbilities;
@@ -128,7 +129,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CPlayersVisited&>(*this);
+		h & static_cast<CTeamVisited&>(*this);
 		h & allowedAbilities & ability;
 	}
 protected:
@@ -224,7 +225,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
 
-class DLL_LINKAGE CGShrine : public CPlayersVisited
+class DLL_LINKAGE CGShrine : public CTeamVisited
 {
 public:
 	SpellID spell; //id of spell or NONE if random
@@ -235,7 +236,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CPlayersVisited&>(*this);;
+		h & static_cast<CTeamVisited&>(*this);;
 		h & spell;
 	}
 protected:
@@ -454,7 +455,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CCartographer : public CPlayersVisited
+class DLL_LINKAGE CCartographer : public CTeamVisited
 {
 ///behaviour varies depending on surface and  floor
 public:
@@ -463,7 +464,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CPlayersVisited&>(*this);
+		h & static_cast<CTeamVisited&>(*this);
 	}
 };
 
@@ -472,7 +473,7 @@ class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 	void onHeroVisit(const CGHeroInstance * h) const override;
 };
 
-class DLL_LINKAGE CGObelisk : public CPlayersVisited
+class DLL_LINKAGE CGObelisk : public CTeamVisited
 {
 public:
 	static const int OBJPROP_INC = 20;
@@ -486,7 +487,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CPlayersVisited&>(*this);
+		h & static_cast<CTeamVisited&>(*this);
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
