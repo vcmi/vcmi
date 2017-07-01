@@ -120,6 +120,13 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
+if(MSVC)
+	# workaround ffmpeg linking problems
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
+	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
+endif()
+
 if(APPLE)
 	# OS X specific includes
 	include_directories(${SPARKLE_INCLUDE_DIR})
