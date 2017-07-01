@@ -1231,7 +1231,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 	else //for non-flying creatures
 	{
-		std::shared_ptr<const CObstacleInstance> obstacle, obstacle2; //obstacle that interrupted movement
+		std::vector<std::shared_ptr<const CObstacleInstance>> obstacle, obstacle2; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
@@ -1330,7 +1330,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					}
 
 					//if we walked onto something, finalize this portion of stack movement check into obstacle
-					if ((obstacle = battleGetObstacleOnPos(hex, false)))
+					obstacle = battleGetAllObstaclesOnPos(hex, false);
+					if(!obstacle.empty())
 						obstacleHit = true;
 
 					if (curStack->doubleWide())
@@ -1338,7 +1339,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 						BattleHex otherHex = curStack->occupiedHex(hex);
 
 						//two hex creature hit obstacle by backside
-						if (otherHex.isValid() && ((obstacle2 = battleGetObstacleOnPos(otherHex, false))))
+						obstacle2 = battleGetAllObstaclesOnPos(otherHex, false);
+						if(otherHex.isValid() && !obstacle2.empty())
 							obstacleHit = true;
 					}
 				}
@@ -1359,17 +1361,18 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if (curStack->position != dest)
 			{
-				auto processObstacle = [&](std::shared_ptr<const CObstacleInstance> & obs)
+				auto processObstacle = [&](std::vector<std::shared_ptr<const CObstacleInstance>> & obs)
 				{
-					if (obs)
+					if(!obs.empty())
 					{
-						handleDamageFromObstacle(*obs, curStack);
-
-						//if stack die in explosion or interrupted by obstacle, abort movement
-						if (obs->stopsMovement() || !curStack->alive())
-							stackIsMoving = false;
-
-						obs.reset();
+						for(auto & i : obs)
+						{
+							handleDamageFromObstacle(*i, curStack);
+							//if stack die in explosion or interrupted by obstacle, abort movement
+							if(i->stopsMovement() || !curStack->alive())
+								stackIsMoving = false;
+							i.reset();
+						}
 					}
 				};
 
@@ -1406,22 +1409,23 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
 	if (curStack->alive())
 	{
-		if (auto theLastObstacle = battleGetObstacleOnPos(curStack->position, false))
-		{
-			handleDamageFromObstacle(*theLastObstacle, curStack);
-		}
+		auto theLastObstacle = battleGetAllObstaclesOnPos(curStack->position, false);
+		for(auto & i : theLastObstacle)
+			if(curStack->alive())
+				handleDamageFromObstacle(*i, curStack);
 	}
 
 	if (curStack->alive() && curStack->doubleWide())
 	{
 		BattleHex otherHex = curStack->occupiedHex(curStack->position);
-
 		if (otherHex.isValid())
-			if (auto theLastObstacle = battleGetObstacleOnPos(otherHex, false))
-			{
-				//two hex creature hit obstacle by backside
-				handleDamageFromObstacle(*theLastObstacle, curStack);
-			}
+		{
+			//two hex creature hit obstacle by backside
+			auto theLastObstacle = battleGetAllObstaclesOnPos(otherHex, false);
+			for(auto & i : theLastObstacle)
+				if(curStack->alive())
+					handleDamageFromObstacle(*i, curStack);
+		}
 	}
 	return ret;
 }
