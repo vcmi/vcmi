@@ -828,20 +828,19 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(CRandomGenerator
 	return ret;
 }
 
-std::shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking) const
 {
-	RETURN_IF_NOT_BATTLE(std::shared_ptr<const CObstacleInstance>());
-
-	for(auto &obs : battleGetAllObstacles())
+	std::vector<std::shared_ptr<const CObstacleInstance>> obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	RETURN_IF_NOT_BATTLE(obstacles);
+	for(auto & obs : battleGetAllObstacles())
 	{
 		if(vstd::contains(obs->getBlockedTiles(), tile)
-		|| (!onlyBlocking && vstd::contains(obs->getAffectedTiles(), tile)))
+				|| (!onlyBlocking && vstd::contains(obs->getAffectedTiles(), tile)))
 		{
-			return obs;
+			obstacles.push_back(obs);
 		}
 	}
-
-	return std::shared_ptr<const CObstacleInstance>();
+	return obstacles;
 }
 
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const

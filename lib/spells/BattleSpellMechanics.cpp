@@ -438,15 +438,17 @@ bool ObstacleMechanics::isHexAviable(const CBattleInfoCallback * cb, const Battl
 	if(cb->battleGetStackByPos(hex, true))
 		return false;
 
-	auto obst = cb->battleGetObstacleOnPos(hex, false);
-	if(obst /*&& obst->type != CObstacleInstance::MOAT*/)//todo: issue 2366, uncomment once obstacle tile sharing implemented
-		return false;
+	auto obst = cb->battleGetAllObstaclesOnPos(hex, false);
 
-	if(nullptr != cb->battleGetDefendedTown() && CGTownInstance::NONE != cb->battleGetDefendedTown()->fortLevel())
+	for(auto & i : obst)
+		if(i->obstacleType != CObstacleInstance::MOAT)
+			return false;
+
+	if(cb->battleGetDefendedTown() != nullptr && cb->battleGetDefendedTown()->fortLevel() != CGTownInstance::NONE)
 	{
 		EWallPart::EWallPart part = cb->battleHexToWallPart(hex);
 
-		if(part == EWallPart::INVALID)
+		if(part == EWallPart::INVALID || part == EWallPart::INDESTRUCTIBLE_PART_OF_GATE)
 			return true;//no fortification here
 		else if(static_cast<int>(part) < 0)
 			return false;//indestuctible part (cant be checked by battleGetWallState)
@@ -631,18 +633,23 @@ void ForceFieldMechanics::setupObstacle(SpellCreatedObstacle * obstacle) const
 ///RemoveObstacleMechanics
 void RemoveObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	if(auto obstacleToRemove = parameters.cb->battleGetObstacleOnPos(parameters.getFirstDestinationHex(), false))
+	auto obstacleToRemove = parameters.cb->battleGetAllObstaclesOnPos(parameters.getFirstDestinationHex(), false);
+	if(!obstacleToRemove.empty())
 	{
-		if(canRemove(obstacleToRemove.get(), parameters.spellLvl))
+		ObstaclesRemoved obr;
+		bool complain = true;
+		for(auto & i : obstacleToRemove)
 		{
-			ObstaclesRemoved obr;
-			obr.obstacles.insert(obstacleToRemove->uniqueID);
+			if(canRemove(i.get(), parameters.spellLvl))
+			{
+				obr.obstacles.insert(i->uniqueID);
+				complain = false;
+			}
+		}
+		if(!complain)
 			env->sendAndApply(&obr);
-		}
-		else
-		{
+		else if(complain || obr.obstacles.empty())
 			env->complain("Cant remove this obstacle!");
-		}
 	}
 	else
 		env->complain("There's no obstacle to remove!");
@@ -667,9 +674,11 @@ ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CB
 
 ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	if(auto obstacle = cb->battleGetObstacleOnPos(ctx.destination, false))
-		if(canRemove(obstacle.get(), ctx.schoolLvl))
-			return ESpellCastProblem::OK;
+	auto obstacles = cb->battleGetAllObstaclesOnPos(ctx.destination, false);
+	if(!obstacles.empty())
+		for(auto & i : obstacles)
+			if(canRemove(i.get(), ctx.schoolLvl))
+				return ESpellCastProblem::OK;
 
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
@@ -734,7 +743,7 @@ ESpellCastProblem::ESpellCastProblem SacrificeMechanics::canBeCast(const CBattle
 		//therefore we do not need to check caster and casting mode
 		//TODO: check that we really should check immunity for both stacks
 		ESpellCastProblem::ESpellCastProblem res = owner->internalIsImmune(caster, stack);
-		const bool immune =  ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
+		const bool immune = ESpellCastProblem::OK != res && ESpellCastProblem::NOT_DECIDED != res;
 		const bool casterStack = stack->owner == caster->getOwner();
 
 		if(!immune && casterStack)
