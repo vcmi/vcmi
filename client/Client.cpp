@@ -450,47 +450,24 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			continue;
 
 		logNetwork->traceStream() << "Preparing interface for player " << color;
-		if(si->mode != StartInfo::DUEL)
+		if(elem.second.playerID == PlayerSettings::PLAYER_AI)
 		{
-			if(elem.second.playerID == PlayerSettings::PLAYER_AI)
-			{
-				auto AiToGive = aiNameForPlayer(elem.second, false);
-				logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % color % AiToGive;
-				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
-			}
-			else
-			{
-				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
-				humanPlayers++;
-			}
+			auto AiToGive = aiNameForPlayer(elem.second, false);
+			logNetwork->info("Player %s will be lead by %s", color, AiToGive);
+			installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 		}
 		else
 		{
-			std::string AItoGive = aiNameForPlayer(elem.second, true);
-			installNewBattleInterface(CDynLibHandler::getNewBattleAI(AItoGive), color);
+			installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+			humanPlayers++;
 		}
 	}
 
-	if(si->mode == StartInfo::DUEL)
+	if(settings["session"]["spectate"].Bool())
 	{
-		if(!settings["session"]["headless"].Bool())
-		{
-			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			auto p = std::make_shared<CPlayerInterface>(PlayerColor::NEUTRAL);
-			p->observerInDuelMode = true;
-			installNewPlayerInterface(p, boost::none);
-			GH.curInt = p.get();
-		}
-		battleStarted(gs->curB);
+		installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
 	}
-	else
-	{
-		if(settings["session"]["spectate"].Bool())
-		{
-			installNewPlayerInterface(std::make_shared<CPlayerInterface>(PlayerColor::SPECTATOR), PlayerColor::SPECTATOR, true);
-		}
-		loadNeutralBattleAI();
-	}
+	loadNeutralBattleAI();
 
 	serv->addStdVecItems(gs);
 	hotSeat = (humanPlayers > 1);
@@ -777,7 +754,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(!!att || !!def || gs->scenarioOps->mode == StartInfo::DUEL)
+		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,

@@ -261,7 +261,6 @@ int main(int argc, char** argv)
 		("version,v", "display version information and exit")
 		("disable-shm", "force disable shared memory usage")
 		("enable-shm-uuid", "use UUID for shared memory identifier")
-		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
 		("testmap", po::value<std::string>(), "")
 		("spectate,s", "enable spectator interface for AI-only games")
@@ -515,58 +514,46 @@ int main(int argc, char** argv)
 #endif // THREADED
 	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
 
-	if(!vm.count("battle"))
+	session["autoSkip"].Bool()  = vm.count("autoSkip");
+	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
+	session["aiSolo"].Bool() = false;
+
+	bfs::path fileToStartFrom; //none by default
+	if(vm.count("start"))
+		fileToStartFrom = vm["start"].as<bfs::path>();
+	if(vm.count("testmap"))
 	{
-		session["autoSkip"].Bool()  = vm.count("autoSkip");
-		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
-		session["aiSolo"].Bool() = false;
+		session["testmap"].String() = vm["testmap"].as<std::string>();
+	}
 
-		bfs::path fileToStartFrom; //none by default
-		if(vm.count("start"))
-			fileToStartFrom = vm["start"].as<bfs::path>();
-		if(vm.count("testmap"))
-		{
-			session["testmap"].String() = vm["testmap"].as<std::string>();
-		}
-
-		session["spectate"].Bool() = vm.count("spectate");
-		if(session["spectate"].Bool())
-		{
-			session["spectate-ignore-hero"].Bool() = vm.count("spectate-ignore-hero");
-			session["spectate-skip-battle"].Bool() = vm.count("spectate-skip-battle");
-			session["spectate-skip-battle-result"].Bool() = vm.count("spectate-skip-battle-result");
-			if(vm.count("spectate-hero-speed"))
-				session["spectate-hero-speed"].Integer() = vm["spectate-hero-speed"].as<int>();
-			if(vm.count("spectate-battle-speed"))
-				session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
-		}
-		if(!session["testmap"].isNull())
-		{
-			startTestMap(session["testmap"].String());
-		}
-		else
-		{
-			if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
-				startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
-			else
-			{
-				if(!fileToStartFrom.empty())
-				{
-					logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
-						<< "). Falling back to main menu.";
-				}
-				GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
-			}
-		}
+	session["spectate"].Bool() = vm.count("spectate");
+	if(session["spectate"].Bool())
+	{
+		session["spectate-ignore-hero"].Bool() = vm.count("spectate-ignore-hero");
+		session["spectate-skip-battle"].Bool() = vm.count("spectate-skip-battle");
+		session["spectate-skip-battle-result"].Bool() = vm.count("spectate-skip-battle-result");
+		if(vm.count("spectate-hero-speed"))
+			session["spectate-hero-speed"].Integer() = vm["spectate-hero-speed"].as<int>();
+		if(vm.count("spectate-battle-speed"))
+			session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
+	}
+	if(!session["testmap"].isNull())
+	{
+		startTestMap(session["testmap"].String());
 	}
 	else
 	{
-		auto  si = new StartInfo();
-		si->mode = StartInfo::DUEL;
-		si->mapname = vm["battle"].as<std::string>();
-		si->playerInfos[PlayerColor(0)].color = PlayerColor(0);
-		si->playerInfos[PlayerColor(1)].color = PlayerColor(1);
-		startGame(si);
+		if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
+			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
+		else
+		{
+			if(!fileToStartFrom.empty())
+			{
+				logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
+					<< "). Falling back to main menu.";
+			}
+			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
+		}
 	}
 
 	if(!settings["session"]["headless"].Bool())
@@ -1350,7 +1337,6 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 	{
 	case StartInfo::NEW_GAME:
 	case StartInfo::CAMPAIGN:
-	case StartInfo::DUEL:
 		client->newGame(serv, options);
 		break;
 	case StartInfo::LOAD_GAME:

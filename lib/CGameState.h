@@ -117,66 +117,6 @@ struct UpgradeInfo
 	UpgradeInfo(){oldID = CreatureID::NONE;};
 };
 
-struct DLL_EXPORT DuelParameters
-{
-	ETerrainType terType;
-	BFieldType bfieldType;
-	struct DLL_EXPORT SideSettings
-	{
-		struct DLL_EXPORT StackSettings
-		{
-			CreatureID type;
-			si32 count;
-			template <typename Handler> void serialize(Handler &h, const int version)
-			{
-				h & type & count;
-			}
-
-			StackSettings();
-			StackSettings(CreatureID Type, si32 Count);
-		} stacks[GameConstants::ARMY_SIZE];
-
-		si32 heroId; //-1 if none
-		std::vector<si32> heroPrimSkills; //may be empty
-		std::map<si32, CArtifactInstance*> artifacts;
-		std::vector<std::pair<si32, si8> > heroSecSkills; //may be empty; pairs <id, level>, level [0-3]
-		std::set<SpellID> spells;
-
-		SideSettings();
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & stacks & heroId & heroPrimSkills & artifacts & heroSecSkills & spells;
-		}
-	} sides[2];
-
-	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
-
-	static DuelParameters fromJSON(const std::string &fname);
-
-	struct CusomCreature
-	{
-		int id;
-		int attack, defense, dmg, HP, speed, shoots;
-
-		CusomCreature()
-		{
-			id = attack = defense = dmg = HP = speed = shoots = -1;
-		}
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & id & attack & defense & dmg & HP & speed & shoots;
-		}
-	};
-
-	std::vector<CusomCreature> creatures;
-
-	DuelParameters();
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & terType & bfieldType & sides & obstacles & creatures;
-	}
-};
-
 struct BattleInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
@@ -285,7 +225,6 @@ private:
 
 	void initNewGame(bool allowSavingRandomMap);
 	void initCampaign();
-	void initDuel();
 	void checkMapChecksum();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();

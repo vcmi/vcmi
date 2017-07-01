@@ -721,10 +721,6 @@ void BattleResultsApplied::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(PlayerColor::SPECTATOR, battleResultsApplied);
-	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
-	{
-		handleQuit();
-	}
 }
 
 void StacksHealedOrResurrected::applyCl(CClient *cl)
