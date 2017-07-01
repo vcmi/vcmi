@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "../StdInc.h"
+#include "StdInc.h"
 #include "SideInBattle.h"
 #include "../mapObjects/CArmedInstance.h"
 
