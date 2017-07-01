@@ -338,7 +338,7 @@ bool CMeleeAttackAnimation::init()
 	static const CCreatureAnim::EAnimType mutPosToGroup[] = {CCreatureAnim::ATTACK_UP, CCreatureAnim::ATTACK_UP,
 		CCreatureAnim::ATTACK_FRONT, CCreatureAnim::ATTACK_DOWN, CCreatureAnim::ATTACK_DOWN, CCreatureAnim::ATTACK_FRONT};
 
-	int revShiftattacker = (attackingStack->attackerOwned ? -1 : 1);
+	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
 
 	int mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackingStack->doubleWide())
@@ -988,7 +988,7 @@ bool CSpellEffectAnimation::init()
 
 			// Correction for 2-hex creatures.
 			if (destStack != nullptr && destStack->doubleWide())
-				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
+				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
 			//Indicate if effect should be drawn on top of everything or just on top of the hex
 			be.position = destTile;

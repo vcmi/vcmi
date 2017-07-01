@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "CCallbackBase.h"
+#include "BattleHex.h"
 
 class CGTownInstance;
 class CGHeroInstance;
@@ -31,12 +32,6 @@ namespace BattlePerspective
 		RIGHT_SIDE
 	};
 }
-
-namespace BattleSide
-{
-	enum {ATTACKER = 0, DEFENDER = 1};
-}
-
 
 class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
 {
@@ -71,7 +66,8 @@ public:
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
-	si8 playerToSide(PlayerColor player) const;
+	ui8 otherSide(ui8 side) const;
+	BattleSideOpt playerToSide(PlayerColor player) const;
 	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;

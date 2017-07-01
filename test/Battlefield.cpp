@@ -91,16 +91,16 @@ BOOST_AUTO_TEST_CASE(getClosestTile)
 	possibilities.insert(119);
 	possibilities.insert(186);
 
-	BOOST_TEST(mainHex.getClosestTile(true,mainHex,possibilities)==3);
+	BOOST_TEST(mainHex.getClosestTile(0,mainHex,possibilities)==3);
 	mainHex = 139;
-	BOOST_TEST(mainHex.getClosestTile(false,mainHex,possibilities)==119);
+	BOOST_TEST(mainHex.getClosestTile(1,mainHex,possibilities)==119);
 	mainHex = 16;
-	BOOST_TEST(mainHex.getClosestTile(false,mainHex,possibilities)==100);
+	BOOST_TEST(mainHex.getClosestTile(1,mainHex,possibilities)==100);
 	mainHex = 166;
-	BOOST_TEST(mainHex.getClosestTile(true,mainHex,possibilities)==186);
+	BOOST_TEST(mainHex.getClosestTile(0,mainHex,possibilities)==186);
 	mainHex = 76;
-	BOOST_TEST(mainHex.getClosestTile(false,mainHex,possibilities)==3);
-	BOOST_TEST(mainHex.getClosestTile(true,mainHex,possibilities)==100);
+	BOOST_TEST(mainHex.getClosestTile(1,mainHex,possibilities)==3);
+	BOOST_TEST(mainHex.getClosestTile(0,mainHex,possibilities)==100);
 }
 
 BOOST_AUTO_TEST_CASE(moveEDir)
@@ -117,6 +117,8 @@ BOOST_AUTO_TEST_CASE(moveEDir)
 	mainHex.moveInDirection(BattleHex::EDir::LEFT);
 	BOOST_TEST(mainHex==3);
 	mainHex.moveInDirection(BattleHex::EDir::BOTTOM_LEFT);
+	BOOST_TEST(mainHex==20);
+	mainHex.moveInDirection(BattleHex::EDir::NONE);
 	BOOST_TEST(mainHex==20);
 }
 

@@ -855,7 +855,7 @@ void CClient::commenceTacticPhaseForInt(std::shared_ptr<CBattleGameInterface> ba
 		battleInt->yourTacticPhase(gs->curB->tacticDistance);
 		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
 		{
-			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID)));
+			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID).get()));
 			sendRequest(&ma, battleInt->playerID);
 		}
 	}

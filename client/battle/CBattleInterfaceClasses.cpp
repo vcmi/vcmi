@@ -384,7 +384,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		{
 			auto stacks = owner.cb->battleGetAllStacks();
 			vstd::erase_if(stacks, [i](const CStack *stack) //erase stack of other side and not coming from garrison
-				{ return stack->attackerOwned == i  ||  !stack->base; });
+				{ return stack->side != i  ||  !stack->base; });
 
 			auto best = vstd::maxElementByFun(stacks, [](const CStack *stack){ return stack->type->AIValue; });
 			if(best != stacks.end()) //should be always but to be safe...
@@ -548,7 +548,7 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 			//shifting position for double - hex creatures
 			if(stack->doubleWide())
 			{
-				if(stack->attackerOwned)
+				if(stack->side == BattleSide::ATTACKER)
 				{
 					if(cbi->creDir[stack->ID])
 						ret.x -= 44;

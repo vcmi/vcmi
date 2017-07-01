@@ -31,7 +31,7 @@ ThreatMap::ThreatMap(const CStack *Endangered) : endangered(Endangered)
 	for(const CStack *enemy : getCbc()->battleGetStacks())
 	{
 		//Consider only stacks of different owner
-		if(enemy->attackerOwned == endangered->attackerOwned)
+		if(enemy->side == endangered->side)
 			continue;
 
 		//Look-up which tiles can be melee-attacked

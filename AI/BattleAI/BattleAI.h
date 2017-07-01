@@ -24,7 +24,7 @@ struct CurrentOffensivePotential
 	{
 		for(auto stack : cbc->battleGetStacks())
 		{
-			if(stack->attackerOwned == !side)
+			if(stack->side == side)
 				ourAttacks[stack] = PotentialTargets(stack);
 			else
 				enemyAttacks[stack] = PotentialTargets(stack);

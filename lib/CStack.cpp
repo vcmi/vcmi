@@ -15,8 +15,8 @@
 #include "NetPacks.h"
 
 
-CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
-	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
+CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, ui8 Side, SlotID S)
+	: base(Base), ID(I), owner(O), slot(S), side(Side),
 	counterAttacksPerformed(0),counterAttacksTotalCache(0), cloneID(-1),
 	firstHPleft(-1), position(), shots(0), casts(0), resurrected(0)
 {
@@ -30,8 +30,8 @@ CStack::CStack()
 	init();
 	setNodeType(STACK_BATTLE);
 }
-CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
-	: base(nullptr), ID(I), owner(O), slot(S), attackerOwned(AO),
+CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, ui8 Side, SlotID S)
+	: base(nullptr), ID(I), owner(O), slot(S), side(Side),
 	counterAttacksPerformed(0), counterAttacksTotalCache(0), cloneID(-1),
 	firstHPleft(-1), position(), shots(0), casts(0), resurrected(0)
 {
@@ -49,7 +49,7 @@ void CStack::init()
 	firstHPleft = -1;
 	owner = PlayerColor::NEUTRAL;
 	slot = SlotID(255);
-	attackerOwned = false;
+	side = 1;
 	position = BattleHex();
 	counterAttacksPerformed = 0;
 	counterAttacksTotalCache = 0;
@@ -145,9 +145,9 @@ BattleHex CStack::occupiedHex() const
 
 BattleHex CStack::occupiedHex(BattleHex assumedPos) const
 {
-	if (doubleWide())
+	if(doubleWide())
 	{
-		if (attackerOwned)
+		if(side == BattleSide::ATTACKER)
 			return assumedPos - 1;
 		else
 			return assumedPos + 1;
@@ -165,17 +165,17 @@ std::vector<BattleHex> CStack::getHexes() const
 
 std::vector<BattleHex> CStack::getHexes(BattleHex assumedPos) const
 {
-	return getHexes(assumedPos, doubleWide(), attackerOwned);
+	return getHexes(assumedPos, doubleWide(), side);
 }
 
-std::vector<BattleHex> CStack::getHexes(BattleHex assumedPos, bool twoHex, bool AttackerOwned)
+std::vector<BattleHex> CStack::getHexes(BattleHex assumedPos, bool twoHex, ui8 side)
 {
 	std::vector<BattleHex> hexes;
 	hexes.push_back(assumedPos);
 
-	if (twoHex)
+	if(twoHex)
 	{
-		if (AttackerOwned)
+		if(side == BattleSide::ATTACKER)
 			hexes.push_back(assumedPos - 1);
 		else
 			hexes.push_back(assumedPos + 1);
@@ -193,10 +193,10 @@ std::vector<BattleHex> CStack::getSurroundingHexes(BattleHex attackerPos) const
 {
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : position; //use hypothetical position
 	std::vector<BattleHex> hexes;
-	if (doubleWide())
+	if(doubleWide())
 	{
 		const int WN = GameConstants::BFIELD_WIDTH;
-		if(attackerOwned)
+		if(side == BattleSide::ATTACKER)
 		{ //position is equal to front hex
 			BattleHex::checkAndPush(hex - ( (hex/WN)%2 ? WN+2 : WN+1 ), hexes);
 			BattleHex::checkAndPush(hex - ( (hex/WN)%2 ? WN+1 : WN ), hexes);
@@ -223,6 +223,21 @@ std::vector<BattleHex> CStack::getSurroundingHexes(BattleHex attackerPos) const
 	else
 	{
 		return hex.neighbouringTiles();
+	}
+}
+
+BattleHex::EDir CStack::destShiftDir() const
+{
+	if(doubleWide())
+	{
+		if(side == BattleSide::ATTACKER)
+			return BattleHex::EDir::RIGHT;
+		else
+			return BattleHex::EDir::LEFT;
+	}
+	else
+	{
+		return BattleHex::EDir::NONE;
 	}
 }
 
@@ -382,11 +397,11 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 	return
 		(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0)						//front <=> front
 		|| (attacker->doubleWide()									//back <=> front
-		&& BattleHex::mutualPosition(attackerPos + (attacker->attackerOwned ? -1 : 1), defenderPos) >= 0)
+		&& BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos) >= 0)
 		|| (defender->doubleWide()									//front <=> back
-		&& BattleHex::mutualPosition(attackerPos, defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0)
+		&& BattleHex::mutualPosition(attackerPos, defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0)
 		|| (defender->doubleWide() && attacker->doubleWide()//back <=> back
-		&& BattleHex::mutualPosition(attackerPos + (attacker->attackerOwned ? -1 : 1), defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0);
+		&& BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0);
 
 }
 

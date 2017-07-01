@@ -26,7 +26,7 @@ const CStack * BattleInfo::getNextStack() const
 		return nullptr;
 }
 
-int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initialPos) const
+int BattleInfo::getAvaliableHex(CreatureID creID, ui8 side, int initialPos) const
 {
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 	//bool flying = VLC->creh->creatures[creID]->isFlying();
@@ -36,7 +36,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 		pos = initialPos;
 	else //summon elementals depending on player side
 	{
- 		if (attackerOwned)
+ 		if(side == BattleSide::ATTACKER)
 	 		pos = 0; //top left
  		else
  			pos = GameConstants::BFIELD_WIDTH - 1; //top right
@@ -46,7 +46,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 
 	std::set<BattleHex> occupyable;
 	for(int i = 0; i < accessibility.size(); i++)
-		if(accessibility.accessible(i, twoHex, attackerOwned))
+		if(accessibility.accessible(i, twoHex, side))
 			occupyable.insert(i);
 
 	if (occupyable.empty())
@@ -54,7 +54,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 		return BattleHex::INVALID; //all tiles are covered
 	}
 
-	return BattleHex::getClosestTile(attackerOwned, pos, occupyable);
+	return BattleHex::getClosestTile(side, pos, occupyable);
 }
 
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
@@ -104,28 +104,28 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 		si32 killed = (st->alive() ? (st->baseAmount - st->count + st->resurrected) : st->baseAmount);
 		vstd::amax(killed, 0);
 		if(killed)
-			casualties[!st->attackerOwned][st->getCreature()->idNumber] += killed;
+			casualties[st->side][st->getCreature()->idNumber] += killed;
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackInstance & base, ui8 side, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
+	PlayerColor owner = sides[side].color;
 	assert((owner >= PlayerColor::PLAYER_LIMIT) ||
 		(base.armyObj && base.armyObj->tempOwner == owner));
 
-	auto ret = new CStack(&base, owner, stackID, attackerOwned, slot);
-	ret->position = getAvaliableHex (base.getCreatureID(), attackerOwned, position); //TODO: what if no free tile on battlefield was found?
+	auto ret = new CStack(&base, owner, stackID, side, slot);
+	ret->position = getAvaliableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
 	ret->state.insert(EBattleStackState::ALIVE); //alive state indication
 	return ret;
 }
 
-CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor & base, ui8 side, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	PlayerColor owner = sides[attackerOwned ? 0 : 1].color;
-	auto ret = new CStack(&base, owner, stackID, attackerOwned, slot);
+	PlayerColor owner = sides[side].color;
+	auto ret = new CStack(&base, owner, stackID, side, slot);
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE); //alive state indication
 	return ret;
@@ -155,7 +155,7 @@ void BattleInfo::localInitStack(CStack * s)
 	}
 	else //attach directly to obj to which stack belongs and creature type
 	{
-		CArmedInstance *army = battleGetArmyObject(!s->attackerOwned);
+		CArmedInstance *army = battleGetArmyObject(s->side);
 		s->attachTo(army);
 		assert(s->type);
 		s->attachTo(const_cast<CCreature*>(s->type));
@@ -486,7 +486,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 			if(creatureBank && i->second->type->isDoubleWide())
 				pos += side ? BattleHex::LEFT : BattleHex::RIGHT;
 
-			CStack * stack = curB->generateNewStack(*i->second, !side, i->first, pos);
+			CStack * stack = curB->generateNewStack(*i->second, side, i->first, pos);
 			stacks.push_back(stack);
 		}
 	}
@@ -496,7 +496,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	{
 		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
 		{
-			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
+			CStack * stack = curB->generateNewStack (*heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
 				creatureBank ? commanderBank[i] : commanderField[i]);
 			stacks.push_back(stack);
 		}
@@ -506,15 +506,15 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, -2);
 		stacks.push_back(stack);
 
 		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID::ARROW_TOWERS_SLOT, -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, -3);
 			stacks.push_back(stack);
 		}
 

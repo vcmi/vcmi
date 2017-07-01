@@ -17,16 +17,17 @@ ReachabilityInfo::Parameters::Parameters()
 {
 	stack = nullptr;
 	perspective = BattlePerspective::ALL_KNOWING;
-	attackerOwned = doubleWide = flying = false;
+	side = 0;
+	doubleWide = flying = false;
 }
 
 ReachabilityInfo::Parameters::Parameters(const CStack * Stack)
 {
 	stack = Stack;
-	perspective = (BattlePerspective::BattlePerspective)(!Stack->attackerOwned);
+	perspective = (BattlePerspective::BattlePerspective)(Stack->side);
 	startPosition = Stack->position;
 	doubleWide = stack->doubleWide();
-	attackerOwned = stack->attackerOwned;
+	side = stack->side;
 	flying = stack->hasBonusOfType(Bonus::FLYING);
 	knownAccessible = stack->getHexes();
 }

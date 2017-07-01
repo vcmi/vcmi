@@ -27,7 +27,7 @@ BattleAction::BattleAction():
 BattleAction BattleAction::makeHeal(const CStack * healer, const CStack * healed)
 {
 	BattleAction ba;
-	ba.side = !healer->attackerOwned;
+	ba.side = healer->side;
 	ba.actionType = STACK_HEAL;
 	ba.stackNumber = healer->ID;
 	ba.destinationTile = healed->position;
@@ -37,7 +37,7 @@ BattleAction BattleAction::makeHeal(const CStack * healer, const CStack * healed
 BattleAction BattleAction::makeDefend(const CStack * stack)
 {
 	BattleAction ba;
-	ba.side = !stack->attackerOwned;
+	ba.side = stack->side;
 	ba.actionType = DEFEND;
 	ba.stackNumber = stack->ID;
 	return ba;
@@ -47,7 +47,7 @@ BattleAction BattleAction::makeDefend(const CStack * stack)
 BattleAction BattleAction::makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom /*= BattleHex::INVALID*/)
 {
 	BattleAction ba;
-	ba.side = !stack->attackerOwned;
+	ba.side = stack->side;
 	ba.actionType = WALK_AND_ATTACK;
 	ba.stackNumber = stack->ID;
 	ba.destinationTile = attackFrom;
@@ -58,7 +58,7 @@ BattleAction BattleAction::makeMeleeAttack(const CStack * stack, const CStack * 
 BattleAction BattleAction::makeWait(const CStack * stack)
 {
 	BattleAction ba;
-	ba.side = !stack->attackerOwned;
+	ba.side = stack->side;
 	ba.actionType = WAIT;
 	ba.stackNumber = stack->ID;
 	return ba;
@@ -67,7 +67,7 @@ BattleAction BattleAction::makeWait(const CStack * stack)
 BattleAction BattleAction::makeShotAttack(const CStack * shooter, const CStack * target)
 {
 	BattleAction ba;
-	ba.side = !shooter->attackerOwned;
+	ba.side = shooter->side;
 	ba.actionType = SHOOT;
 	ba.stackNumber = shooter->ID;
 	ba.destinationTile = target->position;
@@ -77,7 +77,7 @@ BattleAction BattleAction::makeShotAttack(const CStack * shooter, const CStack *
 BattleAction BattleAction::makeMove(const CStack * stack, BattleHex dest)
 {
 	BattleAction ba;
-	ba.side = !stack->attackerOwned;
+	ba.side = stack->side;
 	ba.actionType = WALK;
 	ba.stackNumber = stack->ID;
 	ba.destinationTile = dest;

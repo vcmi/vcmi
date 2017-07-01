@@ -18,7 +18,7 @@ PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChang
 	for(const CStack *enemy : getCbc()->battleGetStacks())
 	{
 		//Consider only stacks of different owner
-		if(enemy->attackerOwned == attacker->attackerOwned)
+		if(enemy->side == attacker->side)
 			continue;
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility

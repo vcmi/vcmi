@@ -1628,13 +1628,13 @@ struct BattleStacksRemoved : public CPackForClient
 struct BattleStackAdded : public CPackForClient
 {
 	BattleStackAdded()
-		: attacker(0), amount(0), pos(0), summoned(0), newStackID(0)
+		: side(0), amount(0), pos(0), summoned(0), newStackID(0)
 	{};
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	int attacker; // if true, stack belongs to attacker
+	ui8 side;
 	CreatureID creID;
 	int amount;
 	int pos;
@@ -1645,7 +1645,7 @@ struct BattleStackAdded : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & attacker & creID & amount & pos & summoned;
+		h & side & creID & amount & pos & summoned;
 	}
 };
 
