@@ -1,0 +1,83 @@
+version: 1.0.{build}
+branches:
+  only:
+  - /msvc/
+max_jobs: 2
+clone_depth: 10
+clone_folder: c:\projects\vcmi\source
+init:
+- cmd: set QTDIR=C:\Qt\5.7\msvc2015
+environment:
+  BUILD_PLATFORM: x86
+  BUILD_CONFIGURATION: Release
+install:
+- cmd: >-
+    cd c:\projects\vcmi\
+
+    curl -fsS -o vcmi_depends_%BUILD_PLATFORM%.zip https://dependencies.vcmi.download/msvc/vcmi_depends_%BUILD_PLATFORM%.zip
+
+    7z x vcmi_depends_%BUILD_PLATFORM%.zip -odepends
+
+    cd source
+
+    git submodule update --init --recursive
+
+    cd ..
+
+    mkdir build_%BUILD_PLATFORM%
+
+    cd build_%BUILD_PLATFORM%
+
+    cmake -DCMAKE_TOOLCHAIN_FILE=../source/appveyor_toolchain.txt ../source
+build_script:
+- cmd: >-
+    cd c:\projects\vcmi\build_%BUILD_PLATFORM%
+
+    msbuild vcmi.sln /p:configuration=%BUILD_CONFIGURATION% /maxcpucount:2
+
+    IF "%APPVEYOR_REPO_TAG%"=="true" cpack
+
+
+    mkdir dist_%BUILD_PLATFORM%
+
+    cp launcher\%BUILD_CONFIGURATION%\VCMI_launcher.exe dist_%BUILD_PLATFORM%
+
+    cp client\%BUILD_CONFIGURATION%\VCMI_client.exe dist_%BUILD_PLATFORM%
+
+    cp server\%BUILD_CONFIGURATION%\VCMI_server.exe dist_%BUILD_PLATFORM%
+
+    cp lib\%BUILD_CONFIGURATION%\VCMI_lib.dll dist_%BUILD_PLATFORM%
+
+    cp lib\minizip\%BUILD_CONFIGURATION%\minizip.dll dist_%BUILD_PLATFORM%
+
+
+    mkdir dist_%BUILD_PLATFORM%\AI
+
+    cp AI\VCAI\%BUILD_CONFIGURATION%\VCAI.dll dist_%BUILD_PLATFORM%\AI
+
+    cp AI\EmptyAI\%BUILD_CONFIGURATION%\EmptyAI.dll dist_%BUILD_PLATFORM%\AI
+
+    cp AI\BattleAI\%BUILD_CONFIGURATION%\BattleAI.dll dist_%BUILD_PLATFORM%\AI
+
+    cp AI\StupidAI\%BUILD_CONFIGURATION%\StupidAI.dll dist_%BUILD_PLATFORM%\AI
+
+
+    cd dist_%BUILD_PLATFORM%
+
+    mkdir platforms
+
+    copy %QTDIR%\bin\Qt5Core.dll .
+
+    copy %QTDIR%\bin\Qt5Gui.dll .
+
+    copy %QTDIR%\bin\Qt5Widgets.dll .
+
+    copy %QTDIR%\bin\Qt5Network.dll .
+
+    copy %QTDIR%\plugins\platforms\qwindows.dll platforms
+
+    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip * -r -x!*.exp -x!*.lib
+
+    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip c:\projects\vcmi\depends\bin\*.dll
+artifacts:
+- path: vcmi-x86-Release.zip
