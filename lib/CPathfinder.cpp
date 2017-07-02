@@ -577,7 +577,7 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 
 			if(action == CGPathNode::NORMAL)
 			{
-				if(options.originalMovementRules && isDestinationGuarded())
+				if(isDestinationGuarded())
 					action = CGPathNode::BATTLE;
 				else
 					action = CGPathNode::VISIT;
