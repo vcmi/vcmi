@@ -8,7 +8,7 @@
  *
  */
 
-#include "../StdInc.h"
+#include "StdInc.h"
 #include "BattleAction.h"
 #include "../CStack.h"
 

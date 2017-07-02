@@ -1,4 +1,4 @@
-#include "../StdInc.h"
+#include "StdInc.h"
 #include "CObstacleInstance.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
