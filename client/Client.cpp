@@ -342,7 +342,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 		std::cout << x << std::endl;
 	std::cout << "ENDCLIENTPLAYERS\n";
 
-	serialize(loader->serializer,0,clientPlayers);
+	serialize(loader->serializer, loader->serializer.fileVersion, clientPlayers);
 	*serv << ui32(clientPlayers.size());
 	for(auto & elem : clientPlayers)
 		*serv << ui8(elem.getNum());
