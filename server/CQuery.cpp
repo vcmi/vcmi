@@ -3,7 +3,6 @@
 #include "CGameHandler.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
-#include "../lib/spells/ISpellMechanics.h"
 
 boost::mutex Queries::mx;
 
@@ -86,6 +85,7 @@ void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) cons
 
 void CQuery::onExposure(QueryPtr topQuery)
 {
+	logGlobal->trace("Exposed query with id %d", queryID);
 	owner->popQuery(*this);
 }
 
@@ -472,66 +472,29 @@ void CHeroMovementQuery::onAdding(PlayerColor color)
 	gh->sendAndApply(&pb);
 }
 
-CMapObjectSelectQuery::CMapObjectSelectQuery(Queries * Owner):
-	CQuery(Owner)
+CGenericQuery::CGenericQuery(Queries * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback):
+	CQuery(Owner), callback(Callback)
 {
-
+	addPlayer(color);
 }
 
-bool CMapObjectSelectQuery::blocksPack(const CPack * pack) const
+bool CGenericQuery::blocksPack(const CPack * pack) const
 {
 	return blockAllButReply(pack);
 }
 
-bool CMapObjectSelectQuery::endsByPlayerAnswer() const
+bool CGenericQuery::endsByPlayerAnswer() const
 {
 	return true;
 }
 
-void CMapObjectSelectQuery::setReply(const JsonNode & reply)
+void CGenericQuery::onExposure(QueryPtr topQuery)
 {
-	//TODO:
+	//do nothing
 }
 
-CSpellQuery::CSpellQuery(Queries * Owner, const SpellCastEnvironment * SpellEnv):
-	CQuery(Owner), spellEnv(SpellEnv)
+void CGenericQuery::setReply(const JsonNode & reply)
 {
-
-}
-
-AdventureSpellCastQuery::AdventureSpellCastQuery(Queries * Owner, const SpellCastEnvironment * SpellEnv, const CSpell * Spell, const CGHeroInstance * Caster, const int3 & Position):
-	CSpellQuery(Owner, SpellEnv), spell(Spell), caster(Caster), position(Position), requiresPositions(false)
-{
-	assert(owner);
-	assert(spellEnv);
-	assert(spell);
-	assert(caster);
-
-	addPlayer(caster->getOwner());
-}
-
-bool AdventureSpellCastQuery::blocksPack(const CPack * pack) const
-{
-	return true;
-}
-
-void AdventureSpellCastQuery::onAdded(PlayerColor color)
-{
-	//TODO: destination select request
-
-}
-
-void AdventureSpellCastQuery::onExposure(QueryPtr topQuery)
-{
-	CQuery::onExposure(topQuery);
-}
-
-void AdventureSpellCastQuery::onRemoval(PlayerColor color)
-{
-	AdventureSpellCastParameters p;
-	p.caster = caster;
-	p.pos = position;
-
-	spell->adventureCast(spellEnv, p);
+	callback(reply);
 }
 

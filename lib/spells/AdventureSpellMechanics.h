@@ -18,6 +18,7 @@ enum class ESpellCastResult
 {
 	OK,
 	CANCEL,//cast failed but it is not an error
+	PENDING,
 	ERROR//internal error occurred
 };
 
@@ -26,10 +27,13 @@ class DLL_LINKAGE AdventureSpellMechanics : public IAdventureSpellMechanics
 public:
 	AdventureSpellMechanics(const CSpell * s);
 
-	bool adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const override final;
+	bool adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override final;
 protected:
 	///actual adventure cast implementation
 	virtual ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	virtual ESpellCastResult beginCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	void performCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	void endCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const ESpellCastResult result) const;
 };
 
 class DLL_LINKAGE SummonBoatMechanics : public AdventureSpellMechanics
@@ -62,8 +66,10 @@ public:
 	TownPortalMechanics(const CSpell * s);
 protected:
 	ESpellCastResult applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult beginCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 private:
 	const CGTownInstance * findNearestTown(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance*> & pool) const;
+	int movementCost(const AdventureSpellCastParameters & parameters) const;
 	std::vector <const CGTownInstance*> getPossibleTowns(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 

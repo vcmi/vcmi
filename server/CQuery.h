@@ -175,39 +175,17 @@ public:
 	CommanderLevelUp clu;
 };
 
-class CMapObjectSelectQuery : public CQuery
+class CGenericQuery : public CQuery
 {
 public:
-	CMapObjectSelectQuery(Queries * Owner);
+	CGenericQuery(Queries * Owner, PlayerColor color, std::function<void(const JsonNode &)> Callback);
 
 	bool blocksPack(const CPack * pack) const override;
 	bool endsByPlayerAnswer() const override;
-	void setReply(const JsonNode & reply) override;
-};
-
-class CSpellQuery : public CQuery
-{
-public:
-	CSpellQuery(Queries * Owner, const SpellCastEnvironment * SpellEnv);
-protected:
-	const SpellCastEnvironment * spellEnv;
-};
-
-class AdventureSpellCastQuery  : public CSpellQuery
-{
-public:
-	AdventureSpellCastQuery(Queries * Owner, const SpellCastEnvironment * SpellEnv, const CSpell * Spell, const CGHeroInstance * Caster, const int3 & Position);
-
-	bool blocksPack(const CPack * pack) const override;
-
-	void onAdded(PlayerColor color) override;
 	void onExposure(QueryPtr topQuery) override;
-	void onRemoval(PlayerColor color) override;
-
-	const CSpell * spell;
-	const CGHeroInstance * caster;
-	int3 position;
-	bool requiresPositions;
+	void setReply(const JsonNode & reply) override;
+private:
+	std::function<void(const JsonNode &)> callback;
 };
 
 class Queries

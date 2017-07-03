@@ -33,6 +33,7 @@ class CToggleButton;
 class CToggleGroup;
 class CVolumeSlider;
 class CGStatusBar;
+struct Component;
 
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CWindowObject
@@ -177,6 +178,10 @@ public:
 	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
+
+	CObjectListWindow(const std::vector<int> &_items, const Component & titlePic, std::string _title, std::string _descr,
+                      std::function<void(int)> Callback);
+
 	CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
 

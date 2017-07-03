@@ -9,6 +9,8 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/spells/CSpellHandler.h"
+#include "../lib/spells/ISpellMechanics.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
@@ -286,11 +288,11 @@ bool CastAdvSpell::applyGh(CGameHandler * gh)
 	if(!h)
 		ERROR_AND_RETURN;
 
-	auto query = std::make_shared<AdventureSpellCastQuery>(&gh->queries, gh->spellEnv, s, h, pos);
+	AdventureSpellCastParameters p;
+	p.caster = h;
+	p.pos = pos;
 
-	gh->queries.addQuery(query);
-	gh->queries.popIfTop(query);//if we already can perform cast do it now
-	return true;
+	return s->adventureCast(gh->spellEnv, p);
 }
 
 bool PlayerMessage::applyGh( CGameHandler *gh )

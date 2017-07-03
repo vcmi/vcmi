@@ -641,78 +641,12 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				delete owner;
 			});
 
-			if(mySpell->id == SpellID::TOWN_PORTAL)
-			{
-				//special case
-				//todo: move to mechanics
-
-				std::vector <const CGTownInstance*> Towns = owner->myInt->cb->getTownsInfo(false);
-
-				vstd::erase_if(Towns, [this](const CGTownInstance * t)
-				{
-					const auto relations = owner->myInt->cb->getPlayerRelations(t->tempOwner, owner->myInt->playerID);
-					return relations == PlayerRelations::ENEMIES;
-				});
-
-				if (Towns.empty())
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
-					return;
-				}
-
-				const int movementCost = (h->getSpellSchoolLevel(mySpell) >= 3) ? 200 : 300;
-
-				if(h->movement < movementCost)
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[125]);
-					return;
-				}
-
-				if (h->getSpellSchoolLevel(mySpell) < 2) //not advanced or expert - teleport to nearest available city
-				{
-					owner->myInt->cb->castSpell(h, mySpell->id, int3());// - town->getVisitableOffset());
-				}
-				else
-				{ //let the player choose
-					std::vector <int> availableTowns;
-					for(auto & Town : Towns)
-					{
-						const CGTownInstance *t = Town;
-						if (t->visitingHero == nullptr) //empty town and this is
-						{
-							availableTowns.push_back(t->id.getNum());//add to the list
-						}
-					}
-
-					auto castTownPortal = [h](int townId)
-					{
-						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
-						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
-					};
-
-					if (availableTowns.empty())
-						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
-					else
-						GH.pushInt (new CObjectListWindow(availableTowns,
-							new CAnimImage("SPELLSCR",mySpell->id),
-							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-							castTownPortal));
-				}
-				return;
-			}
-
 			if(mySpell->getTargetType() == CSpell::LOCATION)
-			{
 				adventureInt->enterCastingMode(mySpell);
-			}
 			else if(mySpell->getTargetType() == CSpell::NO_TARGET)
-			{
 				owner->myInt->cb->castSpell(h, mySpell->id);
-			}
 			else
-			{
 				logGlobal->error("Invalid spell target type");
-			}
 		}
 	}
 }

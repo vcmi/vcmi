@@ -71,7 +71,8 @@ public:
 	void complain(const std::string & problem) const override;
 	const CMap * getMap() const override;
 	const CGameInfoCallback * getCb() const override;
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const override;
+	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const override;
 private:
 	mutable CGameHandler * gh;
 };
@@ -6516,13 +6517,20 @@ const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 	return gh;
 }
 
-
 const CMap * ServerSpellCastEnvironment::getMap() const
 {
 	return gh->gameState()->map;
 }
 
-bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker) const
+bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const
 {
-	return gh->moveHero(hid, dst, teleporting, false, asker);
+	return gh->moveHero(hid, dst, teleporting, false);
+}
+
+void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback) const
+{
+	auto query = std::make_shared<CGenericQuery>(&gh->queries, color, callback);
+	request->queryID = query->queryID;
+	gh->queries.addQuery(query);
+	gh->sendAndApply(request);
 }

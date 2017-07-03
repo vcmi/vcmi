@@ -1208,8 +1208,6 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 		cb->sendQueryReply(reply, askID);
 	};
 
-	CComponent * localIcon = new CComponent(icon);
-
 	const std::string localTitle = title.toString();
 	const std::string localDescription = description.toString();
 
@@ -1219,7 +1217,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	for(auto item : objects)
 		tempList.push_back(item.getNum());
 
-	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, icon, localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
 	GH.pushInt(wnd);
 }

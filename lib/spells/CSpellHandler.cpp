@@ -118,7 +118,7 @@ void CSpell::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) co
 	mechanics->applyBattle(battle, packet);
 }
 
-bool CSpell::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+bool CSpell::adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	assert(env);
 
