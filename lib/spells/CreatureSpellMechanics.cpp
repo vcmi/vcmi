@@ -17,6 +17,11 @@
 #include "../battle/BattleInfo.h"
 
 ///AcidBreathDamageMechanics
+AcidBreathDamageMechanics::AcidBreathDamageMechanics(const CSpell * s):
+	DefaultSpellMechanics(s)
+{
+}
+
 void AcidBreathDamageMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//todo: this should be effectValue
@@ -56,6 +61,11 @@ ESpellCastProblem::ESpellCastProblem AcidBreathDamageMechanics::isImmuneByStack(
 }
 
 ///DeathStareMechanics
+DeathStareMechanics::DeathStareMechanics(const CSpell * s):
+	DefaultSpellMechanics(s)
+{
+}
+
 void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	//calculating dmg to display
@@ -80,6 +90,11 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 }
 
 ///DispellHelpfulMechanics
+DispellHelpfulMechanics::DispellHelpfulMechanics(const CSpell * s):
+	DefaultSpellMechanics(s)
+{
+}
+
 void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
 	DefaultSpellMechanics::applyBattle(battle, packet);

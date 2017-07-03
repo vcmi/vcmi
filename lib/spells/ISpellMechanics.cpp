@@ -113,13 +113,12 @@ int BattleSpellCastParameters::getEffectValue() const
 }
 
 ///ISpellMechanics
-ISpellMechanics::ISpellMechanics(CSpell * s):
+ISpellMechanics::ISpellMechanics(const CSpell * s):
 	owner(s)
 {
-
 }
 
-std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(CSpell * s)
+std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(const CSpell * s)
 {
 	switch (s->id)
 	{
@@ -174,13 +173,12 @@ std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(CSpell * s)
 }
 
 //IAdventureSpellMechanics
-IAdventureSpellMechanics::IAdventureSpellMechanics(CSpell * s):
+IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s):
 	owner(s)
 {
-
 }
 
-std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(CSpell * s)
+std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
 	switch (s->id)
 	{

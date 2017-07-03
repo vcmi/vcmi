@@ -166,13 +166,18 @@ class CObjectListWindow : public CWindowObject
 	std::vector< std::pair<int, std::string> > items;//all items present in list
 
 	void init(CIntObject * titlePic, std::string _title, std::string _descr);
+	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
+
+	std::function<void()> onExit;//optional exit callback
+
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
+
 	CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
                       std::function<void(int)> Callback);
 

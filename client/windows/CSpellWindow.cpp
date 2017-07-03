@@ -636,116 +636,16 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 			auto guard = vstd::makeScopeGuard([this]
 			{
-				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
-				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;
-				delete owner;
+				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
+				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
-			if(mySpell->id == SpellID::TOWN_PORTAL)
-			{
-				//special case
-				//todo: move to mechanics
-
-				std::vector <int> availableTowns;
-				std::vector <const CGTownInstance*> Towns = owner->myInt->cb->getTownsInfo(false);
-
-				vstd::erase_if(Towns, [this](const CGTownInstance * t)
-				{
-					const auto relations = owner->myInt->cb->getPlayerRelations(t->tempOwner, owner->myInt->playerID);
-					return relations == PlayerRelations::ENEMIES;
-				});
-
-				if (Towns.empty())
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
-					return;
-				}
-
-				const int movementCost = (h->getSpellSchoolLevel(mySpell) >= 3) ? 200 : 300;
-
-				if(h->movement < movementCost)
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[125]);
-					return;
-				}
-
-				if (h->getSpellSchoolLevel(mySpell) < 2) //not advanced or expert - teleport to nearest available city
-				{
-					auto nearest = Towns.cbegin(); //nearest town's iterator
-					si32 dist = owner->myInt->cb->getTown((*nearest)->id)->pos.dist2dSQ(h->pos);
-
-					for (auto i = nearest + 1; i != Towns.cend(); ++i)
-					{
-						const CGTownInstance * dest = owner->myInt->cb->getTown((*i)->id);
-						si32 curDist = dest->pos.dist2dSQ(h->pos);
-
-						if (curDist < dist)
-						{
-							nearest = i;
-							dist = curDist;
-						}
-					}
-
-					if ((*nearest)->visitingHero)
-						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[123]);
-					else
-					{
-						const CGTownInstance * town = owner->myInt->cb->getTown((*nearest)->id);
-						owner->myInt->cb->castSpell(h, mySpell->id, town->visitablePos());// - town->getVisitableOffset());
-					}
-				}
-				else
-				{ //let the player choose
-					for(auto & Town : Towns)
-					{
-						const CGTownInstance *t = Town;
-						if (t->visitingHero == nullptr) //empty town and this is
-						{
-							availableTowns.push_back(t->id.getNum());//add to the list
-						}
-					}
-
-					auto castTownPortal = [h](int townId)
-					{
-						const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(townId));
-						LOCPLINT->cb->castSpell(h, SpellID::TOWN_PORTAL, dest->visitablePos());
-					};
-
-					if (availableTowns.empty())
-						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[124]);
-					else
-						GH.pushInt (new CObjectListWindow(availableTowns,
-							new CAnimImage("SPELLSCR",mySpell->id),
-							CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-							castTownPortal));
-				}
-				return;
-			}
-
-			if(mySpell->id == SpellID::SUMMON_BOAT)
-			{
-				//special case
-				//todo: move to mechanics
-				int3 pos = h->bestLocation();
-				if(pos.x < 0)
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[334]); //There is no place to put the boat.
-					return;
-				}
-			}
-
 			if(mySpell->getTargetType() == CSpell::LOCATION)
-			{
 				adventureInt->enterCastingMode(mySpell);
-			}
 			else if(mySpell->getTargetType() == CSpell::NO_TARGET)
-			{
 				owner->myInt->cb->castSpell(h, mySpell->id);
-			}
 			else
-			{
 				logGlobal->error("Invalid spell target type");
-			}
 		}
 	}
 }

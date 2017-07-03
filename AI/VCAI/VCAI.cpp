@@ -701,6 +701,14 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	});
 }
 
+void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+{
+	status.addQuery(askID, "Map object select query");
+	requestActionASAP([=]{ answerQuery(askID, 0); });
+
+	//TODO: Town portal destination selection goes here
+}
+
 void VCAI::saveGame(BinarySerializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);

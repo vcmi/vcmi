@@ -592,6 +592,11 @@ void TeleportDialog::applyCl(CClient *cl)
 	CALL_ONLY_THAT_INTERFACE(hero->tempOwner,showTeleportDialog,channel,exits,impassable,queryID);
 }
 
+void MapObjectSelectDialog::applyCl(CClient * cl)
+{
+	CALL_ONLY_THAT_INTERFACE(player, showMapObjectSelectDialog, queryID, icon, title, description, objects);
+}
+
 void BattleStart::applyFirstCl(CClient *cl)
 {
 	//Cannot use the usual macro because curB is not set yet

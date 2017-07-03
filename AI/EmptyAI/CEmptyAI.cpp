@@ -38,3 +38,8 @@ void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance
 {
 	cb->selectionMade(0, queryID);
 }
+
+void CEmptyAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+{
+	cb->selectionMade(0, askID);
+}

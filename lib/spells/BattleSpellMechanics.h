@@ -25,7 +25,7 @@ public:
 		TRUE_RESURRECT
 	};
 
-	HealingSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	HealingSpellMechanics(const CSpell * s);
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	virtual int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
@@ -35,15 +35,14 @@ protected:
 class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
 {
 public:
-	AntimagicMechanics(CSpell * s): DefaultSpellMechanics(s){};
-
+	AntimagicMechanics(const CSpell * s);
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 };
 
 class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
 {
 public:
-	ChainLightningMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	ChainLightningMechanics(const CSpell * s);
 protected:
 	std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 };
@@ -51,7 +50,7 @@ protected:
 class DLL_LINKAGE CloneMechanics : public DefaultSpellMechanics
 {
 public:
-	CloneMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	CloneMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -60,11 +59,9 @@ protected:
 class DLL_LINKAGE CureMechanics : public HealingSpellMechanics
 {
 public:
-	CureMechanics(CSpell * s): HealingSpellMechanics(s){};
-
+	CureMechanics(const CSpell * s);
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
-
 	EHealLevel getHealLevel(int effectLevel) const override final;
 private:
     static bool dispellSelector(const Bonus * b);
@@ -73,9 +70,8 @@ private:
 class DLL_LINKAGE DispellMechanics : public DefaultSpellMechanics
 {
 public:
-	DispellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	DispellMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
-
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -84,7 +80,7 @@ protected:
 class DLL_LINKAGE EarthquakeMechanics : public SpecialSpellMechanics
 {
 public:
-	EarthquakeMechanics(CSpell * s): SpecialSpellMechanics(s){};
+	EarthquakeMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
@@ -94,14 +90,14 @@ protected:
 class DLL_LINKAGE HypnotizeMechanics : public DefaultSpellMechanics
 {
 public:
-	HypnotizeMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	HypnotizeMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
 
 class DLL_LINKAGE ObstacleMechanics : public SpecialSpellMechanics
 {
 public:
-	ObstacleMechanics(CSpell * s): SpecialSpellMechanics(s){};
+	ObstacleMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 protected:
 	static bool isHexAviable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
@@ -112,7 +108,7 @@ protected:
 class PatchObstacleMechanics : public ObstacleMechanics
 {
 public:
-	PatchObstacleMechanics(CSpell * s): ObstacleMechanics(s){};
+	PatchObstacleMechanics(const CSpell * s);
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 };
@@ -120,7 +116,7 @@ protected:
 class DLL_LINKAGE LandMineMechanics : public PatchObstacleMechanics
 {
 public:
-	LandMineMechanics(CSpell * s): PatchObstacleMechanics(s){};
+	LandMineMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
@@ -130,7 +126,7 @@ protected:
 class DLL_LINKAGE QuicksandMechanics : public PatchObstacleMechanics
 {
 public:
-	QuicksandMechanics(CSpell * s): PatchObstacleMechanics(s){};
+	QuicksandMechanics(const CSpell * s);
 	bool requiresCreatureTarget() const	override;
 protected:
 	void setupObstacle(SpellCreatedObstacle * obstacle) const override;
@@ -139,14 +135,14 @@ protected:
 class DLL_LINKAGE WallMechanics : public ObstacleMechanics
 {
 public:
-	WallMechanics(CSpell * s): ObstacleMechanics(s){};
+	WallMechanics(const CSpell * s);
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = nullptr) const override;
 };
 
 class DLL_LINKAGE FireWallMechanics : public WallMechanics
 {
 public:
-	FireWallMechanics(CSpell * s): WallMechanics(s){};
+	FireWallMechanics(const CSpell * s);
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -156,7 +152,7 @@ protected:
 class DLL_LINKAGE ForceFieldMechanics : public WallMechanics
 {
 public:
-	ForceFieldMechanics(CSpell * s): WallMechanics(s){};
+	ForceFieldMechanics(const CSpell * s);
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -166,7 +162,7 @@ protected:
 class DLL_LINKAGE RemoveObstacleMechanics : public SpecialSpellMechanics
 {
 public:
-	RemoveObstacleMechanics(CSpell * s): SpecialSpellMechanics(s){};
+	RemoveObstacleMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 	bool requiresCreatureTarget() const	override;
@@ -180,16 +176,14 @@ private:
 class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
-	RisingSpellMechanics(CSpell * s): HealingSpellMechanics(s){};
-
+	RisingSpellMechanics(const CSpell * s);
 	EHealLevel getHealLevel(int effectLevel) const override;
 };
 
 class DLL_LINKAGE SacrificeMechanics : public RisingSpellMechanics
 {
 public:
-	SacrificeMechanics(CSpell * s): RisingSpellMechanics(s){};
-
+	SacrificeMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
@@ -201,7 +195,7 @@ protected:
 class DLL_LINKAGE SpecialRisingSpellMechanics : public RisingSpellMechanics
 {
 public:
-	SpecialRisingSpellMechanics(CSpell * s): RisingSpellMechanics(s){};
+	SpecialRisingSpellMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 };
@@ -209,8 +203,7 @@ public:
 class DLL_LINKAGE SummonMechanics : public SpecialSpellMechanics
 {
 public:
-	SummonMechanics(CSpell * s, CreatureID cre): SpecialSpellMechanics(s), creatureToSummon(cre){};
-
+	SummonMechanics(const CSpell * s, CreatureID cre);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
@@ -222,8 +215,7 @@ private:
 class DLL_LINKAGE TeleportMechanics: public DefaultSpellMechanics
 {
 public:
-	TeleportMechanics(CSpell * s): DefaultSpellMechanics(s){};
-
+	TeleportMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;

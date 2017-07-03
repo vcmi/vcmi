@@ -20,7 +20,12 @@
 #include "../CPlayerState.h"
 
 ///AdventureSpellMechanics
-bool AdventureSpellMechanics::adventureCast(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s):
+	IAdventureSpellMechanics(s)
+{
+}
+
+bool AdventureSpellMechanics::adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	if(!owner->isAdventureSpell())
 	{
@@ -50,32 +55,15 @@ bool AdventureSpellMechanics::adventureCast(const SpellCastEnvironment * env, Ad
 		return false;
 	}
 
-	{
-		AdvmapSpellCast asc;
-		asc.caster = caster;
-		asc.spellID = owner->id;
-		env->sendAndApply(&asc);
-	}
+	ESpellCastResult result = beginCast(env, parameters);
 
-	switch(applyAdventureEffects(env, parameters))
-	{
-	case ESpellCastResult::OK:
-		{
-			SetMana sm;
-			sm.hid = caster->id;
-			sm.absolute = false;
-			sm.val = -cost;
-			env->sendAndApply(&sm);
-			return true;
-		}
-		break;
-	case ESpellCastResult::CANCEL:
-		return true;
-	}
-	return false;
+	if(result == ESpellCastResult::OK)
+		performCast(env, parameters);
+
+	return result != ESpellCastResult::ERROR;
 }
 
-ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	if(owner->hasEffects())
 	{
@@ -104,10 +92,62 @@ ESpellCastResult AdventureSpellMechanics::applyAdventureEffects(const SpellCastE
 	}
 }
 
-///SummonBoatMechanics
-ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult AdventureSpellMechanics::beginCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
+    return ESpellCastResult::OK;
+}
+
+void AdventureSpellMechanics::performCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	AdvmapSpellCast asc;
+	asc.caster = parameters.caster;
+	asc.spellID = owner->id;
+	env->sendAndApply(&asc);
+
+	ESpellCastResult result = applyAdventureEffects(env, parameters);
+	endCast(env, parameters, result);
+}
+
+void AdventureSpellMechanics::endCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const ESpellCastResult result) const
+{
+	const int cost = parameters.caster->getSpellCost(owner);
+
+	switch(result)
+	{
+	case ESpellCastResult::OK:
+		{
+			SetMana sm;
+			sm.hid = parameters.caster->id;
+			sm.absolute = false;
+			sm.val = -cost;
+			env->sendAndApply(&sm);
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+///SummonBoatMechanics
+SummonBoatMechanics::SummonBoatMechanics(const CSpell * s):
+	AdventureSpellMechanics(s)
+{
+}
+
+ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	int3 summonPos = parameters.caster->bestLocation();
+	if(summonPos.x < 0)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 334);//There is no place to put the boat.
+		env->sendAndApply(&iw);
+		return ESpellCastResult::CANCEL;
+	}
+
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
+
 	//check if spell works at all
 	if(env->getRandomGenerator().nextInt(99) >= owner->getPower(schoolLevel)) //power is % chance of success
 	{
@@ -122,13 +162,6 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvir
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	int3 summonPos = parameters.caster->bestLocation();
-	if(summonPos.x < 0)
-	{
-		env->complain("There is no water tile available!");
-		return ESpellCastResult::ERROR;
-	}
-
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
 		if(obj && obj->ID == Obj::BOAT)
@@ -150,7 +183,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvir
 	{
 		ChangeObjPos cop;
 		cop.objid = nearest->id;
-		cop.nPos = summonPos + int3(1,0,0);;
+		cop.nPos = summonPos + int3(1,0,0);
 		cop.flags = 1;
 		env->sendAndApply(&cop);
 	}
@@ -166,14 +199,19 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvir
 		NewObject no;
 		no.ID = Obj::BOAT;
 		no.subID = parameters.caster->getBoatType();
-		no.pos = summonPos + int3(1,0,0);;
+		no.pos = summonPos + int3(1,0,0);
 		env->sendAndApply(&no);
 	}
 	return ESpellCastResult::OK;
 }
 
 ///ScuttleBoatMechanics
-ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+ScuttleBoatMechanics::ScuttleBoatMechanics(const CSpell * s):
+	AdventureSpellMechanics(s)
+{
+}
+
+ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const int schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 	//check if spell works at all
@@ -208,7 +246,12 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(const SpellCastEnvi
 }
 
 ///DimensionDoorMechanics
-ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment* env, AdventureSpellCastParameters& parameters) const
+DimensionDoorMechanics::DimensionDoorMechanics(const CSpell * s):
+	AdventureSpellMechanics(s)
+{
+}
+
+ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	if(!env->getMap()->isInTheMap(parameters.pos))
 	{
@@ -276,77 +319,221 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 }
 
 ///TownPortalMechanics
-ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters& parameters) const
+TownPortalMechanics::TownPortalMechanics(const CSpell * s):
+	AdventureSpellMechanics(s)
 {
-	if (!env->getMap()->isInTheMap(parameters.pos))
-	{
-		env->complain("Destination tile not present!");
-		return ESpellCastResult::ERROR;
-	}
+}
 
-	TerrainTile tile = env->getMap()->getTile(parameters.pos);
-	if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN)
-	{
-		env->complain("Town not found for Town Portal!");
-		return ESpellCastResult::ERROR;
-	}
+ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	const CGTownInstance * destination = nullptr;
+	const int moveCost = movementCost(parameters);
 
-	CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());
+    if(parameters.caster->getSpellSchoolLevel(owner) < 2)
+    {
+		std::vector <const CGTownInstance*> pool = getPossibleTowns(env, parameters);
+		destination = findNearestTown(env, parameters, pool);
 
-	const auto relations = env->getCb()->getPlayerRelations(town->tempOwner, parameters.caster->tempOwner);
+		if(nullptr == destination)
+			return ESpellCastResult::ERROR;
 
-	if(relations == PlayerRelations::ENEMIES)
-	{
-		env->complain("Can't teleport to enemy!");
-		return ESpellCastResult::ERROR;
-	}
+		if(parameters.caster->movement < moveCost)
+			return ESpellCastResult::ERROR;
 
-	if (town->visitingHero)
-	{
-		env->complain("Can't teleport to occupied town!");
-		return ESpellCastResult::ERROR;
-	}
-
-	if (parameters.caster->getSpellSchoolLevel(owner) < 2)
-	{
-		si32 dist = town->pos.dist2dSQ(parameters.caster->pos);
-		ObjectInstanceID nearest = town->id; //nearest town's ID
-		for(const CGTownInstance * currTown : env->getCb()->getPlayer(parameters.caster->tempOwner)->towns)
+		if(destination->visitingHero)
 		{
-			si32 currDist = currTown->pos.dist2dSQ(parameters.caster->pos);
-			if (currDist < dist)
-			{
-				nearest = currTown->id;
-				dist = currDist;
-			}
+			InfoWindow iw;
+			iw.player = parameters.caster->tempOwner;
+			iw.text.addTxt(MetaString::GENERAL_TXT, 123);
+			env->sendAndApply(&iw);
+			return ESpellCastResult::CANCEL;
 		}
-		if (town->id != nearest)
+    }
+    else if(env->getMap()->isInTheMap(parameters.pos))
+	{
+		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
+		if(tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN)
 		{
-			env->complain("This hero can only teleport to nearest town!");
+			env->complain("No town at destination tile");
 			return ESpellCastResult::ERROR;
 		}
 
+		destination = dynamic_cast<CGTownInstance*>(tile.visitableObjects.back());
+
+		if(nullptr == destination)
+		{
+			env->complain("[Internal error] invalid town object");
+			return ESpellCastResult::ERROR;
+		}
+
+		const auto relations = env->getCb()->getPlayerRelations(destination->tempOwner, parameters.caster->tempOwner);
+
+		if(relations == PlayerRelations::ENEMIES)
+		{
+			env->complain("Can't teleport to enemy!");
+			return ESpellCastResult::ERROR;
+		}
+
+		if(parameters.caster->movement < moveCost)
+		{
+			env->complain("This hero has not enough movement points!");
+			return ESpellCastResult::ERROR;
+		}
+
+		if(destination->visitingHero)
+		{
+			env->complain("Can't teleport to occupied town!");
+			return ESpellCastResult::ERROR;
+		}
 	}
-
-	const int movementCost = GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
-
-	if(parameters.caster->movement < movementCost)
+	else
 	{
-		env->complain("This hero has not enough movement points!");
+		env->complain("Invalid destination tile");
 		return ESpellCastResult::ERROR;
 	}
 
-	if(env->moveHero(parameters.caster->id, town->visitablePos() + parameters.caster->getVisitableOffset() ,1))
+	if(env->moveHero(parameters.caster->id, destination->visitablePos() + parameters.caster->getVisitableOffset(), true))
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
+		smp.val = std::max<ui32>(0, parameters.caster->movement - moveCost);
 		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
 }
 
-ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, AdventureSpellCastParameters & parameters) const
+ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	std::vector<const CGTownInstance *>	towns = getPossibleTowns(env, parameters);
+
+	if(towns.empty())
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 124);
+		env->sendAndApply(&iw);
+		return ESpellCastResult::CANCEL;
+	}
+
+	const int moveCost = movementCost(parameters);
+
+	if(parameters.caster->movement < moveCost)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 125);
+		env->sendAndApply(&iw);
+		return ESpellCastResult::CANCEL;
+	}
+
+	if(!parameters.pos.valid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
+	{
+		auto queryCallback = [=](const JsonNode & reply) -> void
+		{
+			if(reply.getType() == JsonNode::DATA_INTEGER)
+			{
+				ObjectInstanceID townId(reply.Integer());
+
+				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
+				if(o == nullptr)
+				{
+					env->complain("Invalid object instance selected");
+					return;
+				}
+
+				if(!dynamic_cast<const CGTownInstance *>(o))
+				{
+					env->complain("Object instance is not town");
+					return;
+				}
+
+				AdventureSpellCastParameters p;
+				p.caster = parameters.caster;
+				p.pos = o->visitablePos();
+				performCast(env, p);
+			}
+		};
+
+		MapObjectSelectDialog request;
+
+		for(auto t : towns)
+		{
+			if(t->visitingHero == nullptr) //empty town
+				request.objects.push_back(t->id);
+		}
+
+		if(request.objects.empty())
+		{
+			InfoWindow iw;
+			iw.player = parameters.caster->tempOwner;
+			iw.text.addTxt(MetaString::GENERAL_TXT, 124);
+			env->sendAndApply(&iw);
+			return ESpellCastResult::CANCEL;
+		}
+
+		request.player = parameters.caster->getOwner();
+		request.title.addTxt(MetaString::JK_TXT, 40);
+		request.description.addTxt(MetaString::JK_TXT, 41);
+		request.icon.id = Component::SPELL;
+		request.icon.subtype = owner->id.toEnum();
+
+		env->genericQuery(&request, request.player, queryCallback);
+
+		return ESpellCastResult::PENDING;
+	}
+
+	return ESpellCastResult::OK;
+}
+
+const CGTownInstance * TownPortalMechanics::findNearestTown(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance *> & pool) const
+{
+	if(pool.empty())
+		return nullptr;
+
+	auto nearest = pool.cbegin(); //nearest town's iterator
+	si32 dist = (*nearest)->pos.dist2dSQ(parameters.caster->pos);
+
+	for(auto i = nearest + 1; i != pool.cend(); ++i)
+	{
+		si32 curDist = (*i)->pos.dist2dSQ(parameters.caster->pos);
+
+		if(curDist < dist)
+		{
+			nearest = i;
+			dist = curDist;
+		}
+	}
+	return *nearest;
+}
+
+std::vector <const CGTownInstance*> TownPortalMechanics::getPossibleTowns(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+{
+	std::vector <const CGTownInstance*> ret;
+
+	const TeamState * team = env->getCb()->getPlayerTeam(parameters.caster->getOwner());
+
+	for(const auto & color : team->players)
+	{
+		for(auto currTown : env->getCb()->getPlayer(color)->towns)
+		{
+			ret.push_back(currTown.get());
+		}
+	}
+	return ret;
+}
+
+int TownPortalMechanics::movementCost(const AdventureSpellCastParameters & parameters) const
+{
+	return GameConstants::BASE_MOVEMENT_COST * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
+}
+
+///ViewMechanics
+ViewMechanics::ViewMechanics(const CSpell * s):
+	AdventureSpellMechanics(s)
+{
+}
+
+ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	ShowWorldViewEx pack;
 
@@ -373,13 +560,25 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(const SpellCastEnvironment
 	return ESpellCastResult::OK;
 }
 
+///ViewAirMechanics
+ViewAirMechanics::ViewAirMechanics(const CSpell * s):
+	ViewMechanics(s)
+{
+}
+
 bool ViewAirMechanics::filterObject(const CGObjectInstance * obj, const int spellLevel) const
 {
-	return (obj->ID == Obj::ARTIFACT) || (spellLevel>1 && obj->ID == Obj::HERO) || (spellLevel>2 && obj->ID == Obj::TOWN);
+	return (obj->ID == Obj::ARTIFACT) || (spellLevel > 1 && obj->ID == Obj::HERO) || (spellLevel > 2 && obj->ID == Obj::TOWN);
+}
+
+///ViewEarthMechanics
+ViewEarthMechanics::ViewEarthMechanics(const CSpell * s):
+	ViewMechanics(s)
+{
 }
 
 bool ViewEarthMechanics::filterObject(const CGObjectInstance * obj, const int spellLevel) const
 {
-	return (obj->ID == Obj::RESOURCE) || (spellLevel>1 && obj->ID == Obj::MINE);
+	return (obj->ID == Obj::RESOURCE) || (spellLevel > 1 && obj->ID == Obj::MINE);
 }
 

@@ -1767,7 +1767,7 @@ void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::str
 
 	ok = new CButton(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
 	ok->block(true);
-	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CGuiHandler::popIntTotally,&GH, this), SDLK_ESCAPE);
+	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
 
 	if (titlePic)
 	{
@@ -1794,6 +1794,14 @@ void CObjectListWindow::elementSelected()
 	int where = items[selected].first;      //required variables
 	GH.popIntTotally(this);//then destroy window
 	toCall(where);//and send selected object
+}
+
+void CObjectListWindow::exitPressed()
+{
+	std::function<void()> toCall = onExit;//save
+	GH.popIntTotally(this);//then destroy window
+	if(toCall)
+		toCall();
 }
 
 void CObjectListWindow::changeSelection(size_t which)

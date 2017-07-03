@@ -9,6 +9,8 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleAction.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/spells/CSpellHandler.h"
+#include "../lib/spells/ISpellMechanics.h"
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
@@ -235,7 +237,7 @@ bool QueryReply::applyGh( CGameHandler *gh )
 		COMPLAIN_AND_RETURN("Cannot answer the query with id -1!");
 
 	assert(vstd::contains(gh->states.players, player));
-	return gh->queryReply(qid, answer, player);
+	return gh->queryReply(qid, reply, player);
 }
 
 bool MakeAction::applyGh( CGameHandler *gh )
@@ -275,10 +277,22 @@ bool DigWithHero::applyGh( CGameHandler *gh )
 	return gh->dig(gh->getHero(id));
 }
 
-bool CastAdvSpell::applyGh( CGameHandler *gh )
+bool CastAdvSpell::applyGh(CGameHandler * gh)
 {
 	ERROR_IF_NOT_OWNS(hid);
-	return gh->castSpell(gh->getHero(hid), sid, pos);
+
+	const CSpell * s = sid.toSpell();
+	if(!s)
+		ERROR_AND_RETURN;
+	const CGHeroInstance * h = gh->getHero(hid);
+	if(!h)
+		ERROR_AND_RETURN;
+
+	AdventureSpellCastParameters p;
+	p.caster = h;
+	p.pos = pos;
+
+	return s->adventureCast(gh->spellEnv, p);
 }
 
 bool PlayerMessage::applyGh( CGameHandler *gh )

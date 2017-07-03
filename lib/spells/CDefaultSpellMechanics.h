@@ -45,7 +45,7 @@ private:
 class DLL_LINKAGE DefaultSpellMechanics : public ISpellMechanics
 {
 public:
-	DefaultSpellMechanics(CSpell * s): ISpellMechanics(s){};
+	DefaultSpellMechanics(const CSpell * s);
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const override;
 	std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override final;
@@ -94,7 +94,7 @@ private:
 class DLL_LINKAGE SpecialSpellMechanics : public DefaultSpellMechanics
 {
 public:
-	SpecialSpellMechanics(CSpell * s): DefaultSpellMechanics(s){};
+	SpecialSpellMechanics(const CSpell * s);
 
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 protected:

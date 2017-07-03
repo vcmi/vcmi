@@ -71,7 +71,8 @@ public:
 	void complain(const std::string & problem) const override;
 	const CMap * getMap() const override;
 	const CGameInfoCallback * getCb() const override;
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker = PlayerColor::NEUTRAL) const override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const override;
+	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const override;
 private:
 	mutable CGameHandler * gh;
 };
@@ -310,7 +311,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 	else if (hlu.skills.size() > 1)
 	{
-		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(hlu);
+		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu);
 		hlu.queryID = levelUpQuery->queryID;
 		queries.addQuery(levelUpQuery);
 		sendAndApply(&hlu);
@@ -448,7 +449,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	else if (skillAmount > 1) //apply and ask for secondary skill
 	{
-		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(clu);
+		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu);
 		clu.queryID = commanderLevelUp->queryID;
 		queries.addQuery(commanderLevelUp);
 		sendAndApply(&clu);
@@ -1438,7 +1439,6 @@ CGameHandler::CGameHandler(void)
 	applier = new CApplier<CBaseForGHApply>;
 	registerTypesServerPacks(*applier);
 	visitObjectAfterVictory = false;
-	queries.gh = this;
 
 	spellEnv = new ServerSpellCastEnvironment(this);
 }
@@ -2144,7 +2144,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	{
 		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start % tmh.end);
 
-		auto moveQuery = std::make_shared<CHeroMovementQuery>(tmh, h);
+		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
 		queries.addQuery(moveQuery);
 
 		if (leavingTile == LEAVING_TILE)
@@ -2317,7 +2317,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 
 void CGameHandler::showBlockingDialog(BlockingDialog *iw)
 {
-	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(*iw);
+	auto dialogQuery = std::make_shared<CBlockingDialogQuery>(this, *iw);
 	queries.addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
@@ -2325,7 +2325,7 @@ void CGameHandler::showBlockingDialog(BlockingDialog *iw)
 
 void CGameHandler::showTeleportDialog(TeleportDialog *iw)
 {
-	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(*iw);
+	auto dialogQuery = std::make_shared<CTeleportDialogQuery>(this, *iw);
 	queries.addQuery(dialogQuery);
 	iw->queryID = dialogQuery->queryID;
 	sendToAllClients(iw);
@@ -2453,7 +2453,7 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	auto battleQuery = std::make_shared<CBattleQuery>(gs->curB);
+	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
 	queries.addQuery(battleQuery);
 
 	boost::thread(&CGameHandler::runBattle, this);
@@ -2620,7 +2620,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	if (getPlayerRelations(h1->getOwner(), h2->getOwner()))
 	{
-		auto exchange = std::make_shared<CGarrisonDialogQuery>(h1, h2);
+		auto exchange = std::make_shared<CGarrisonDialogQuery>(this, h1, h2);
 		ExchangeDialog hex;
 		hex.queryID = exchange->queryID;
 		hex.heroes[0] = getHero(hero1);
@@ -3735,20 +3735,19 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	return true;
 }
 
-bool CGameHandler::queryReply(QueryID qid, ui32 answer, PlayerColor player)
+bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 
-	logGlobal->trace("Player %s attempts answering query %d with answer %d", player, qid, answer);
+	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
+	logGlobal->traceStream() << answer;
 
 	auto topQuery = queries.topQuery(player);
 	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");
 	COMPLAIN_RET_FALSE_IF(topQuery->queryID != qid, "This player top query has different ID!");
 	COMPLAIN_RET_FALSE_IF(!topQuery->endsByPlayerAnswer(), "This query cannot be ended by player's answer!");
 
-	if (auto dialogQuery = std::dynamic_pointer_cast<CDialogQuery>(topQuery))
-		dialogQuery->answer = answer;
-
+	topQuery->setReply(answer);
 	queries.popQuery(topQuery);
 	return true;
 }
@@ -4853,7 +4852,7 @@ void CGameHandler::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID h
 	assert(lowerArmy);
 	assert(upperArmy);
 
-	auto garrisonQuery = std::make_shared<CGarrisonDialogQuery>(upperArmy, lowerArmy);
+	auto garrisonQuery = std::make_shared<CGarrisonDialogQuery>(this, upperArmy, lowerArmy);
 	queries.addQuery(garrisonQuery);
 
 	GarrisonDialog gd;
@@ -4924,7 +4923,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInstance * h)
 {
 	logGlobal->debug("%s visits %s (%d:%d)", h->nodeName(), obj->getObjectName(), obj->ID, obj->subID);
-	auto visitQuery = std::make_shared<CObjectVisitQuery>(obj, h, obj->visitablePos());
+	auto visitQuery = std::make_shared<CObjectVisitQuery>(this, obj, h, obj->visitablePos());
 	queries.addQuery(visitQuery); //TODO real visit pos
 
 	HeroVisit hv;
@@ -5407,17 +5406,6 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		sendAndApply(&victimInfo);
 		sendAndApply(&resurrectInfo);
 	}
-}
-
-bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int3 &pos)
-{
-	const CSpell *s = spellID.toSpell();
-
-	AdventureSpellCastParameters p;
-	p.caster = h;
-	p.pos = pos;
-
-	return s->adventureCast(spellEnv, p);
 }
 
 void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
@@ -6533,13 +6521,20 @@ const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 	return gh;
 }
 
-
 const CMap * ServerSpellCastEnvironment::getMap() const
 {
 	return gh->gameState()->map;
 }
 
-bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, PlayerColor asker) const
+bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const
 {
-	return gh->moveHero(hid, dst, teleporting, false, asker);
+	return gh->moveHero(hid, dst, teleporting, false);
+}
+
+void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback) const
+{
+	auto query = std::make_shared<CGenericQuery>(&gh->queries, color, callback);
+	request->queryID = query->queryID;
+	gh->queries.addQuery(query);
+	gh->sendAndApply(request);
 }

@@ -15,6 +15,7 @@
 #include "gui/SDL_Extensions.h"
 #include "widgets/CComponent.h"
 #include "windows/CTradeWindow.h"
+#include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
@@ -1191,6 +1192,43 @@ void CPlayerInterface::showTeleportDialog(TeleportChannelID channel, TTeleportEx
 	cb->selectionMade(choosenExit, askID);
 }
 
+void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	auto selectCallback = [=](int selection)
+	{
+		JsonNode reply(JsonNode::DATA_INTEGER);
+		reply.Integer() = selection;
+		cb->sendQueryReply(reply, askID);
+	};
+
+	auto cancelCallback = [=]()
+	{
+		JsonNode reply(JsonNode::DATA_NULL);
+		cb->sendQueryReply(reply, askID);
+	};
+
+	const std::string localTitle = title.toString();
+	const std::string localDescription = description.toString();
+
+	std::vector<int> tempList;
+	tempList.reserve(objects.size());
+
+	for(auto item : objects)
+		tempList.push_back(item.getNum());
+
+	CComponent * localIconC = new CComponent(icon);
+
+	CIntObject * localIcon = localIconC->image;
+	localIconC->removeChild(localIcon, false);
+	delete localIconC;
+
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
+	wnd->onExit = cancelCallback;
+	GH.pushInt(wnd);
+}
+
 void CPlayerInterface::tileRevealed(const std::unordered_set<int3, ShashInt3> &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -2213,13 +2251,16 @@ void CPlayerInterface::viewWorldMap()
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-	{
-		eraseCurrentPathOf(caster, false);
-	}
-	const CSpell * spell = CGI->spellh->objects[spellID];
 
-	if (spellID == SpellID::VIEW_EARTH)
+	if(dynamic_cast<CSpellWindow *>(GH.topInt()))
+		GH.popIntTotally(GH.topInt());
+
+	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
+		eraseCurrentPathOf(caster, false);
+
+	const CSpell * spell = CGI->spellh->objects.at(spellID);
+
+	if(spellID == SpellID::VIEW_EARTH)
 	{
 		//TODO: implement on server side
 		int level = caster->getSpellSchoolLevel(spell);
@@ -2227,7 +2268,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 
 	auto castSoundPath = spell->getCastSound();
-	if (!castSoundPath.empty())
+	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 }
 
