@@ -1218,7 +1218,13 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	for(auto item : objects)
 		tempList.push_back(item.getNum());
 
-	CObjectListWindow * wnd = new CObjectListWindow(tempList, icon, localTitle, localDescription, selectCallback);
+	CComponent * localIconC = new CComponent(icon);
+
+	CIntObject * localIcon = localIconC->image;
+	localIconC->removeChild(localIcon, false);
+	delete localIconC;
+
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
 	GH.pushInt(wnd);
 }
