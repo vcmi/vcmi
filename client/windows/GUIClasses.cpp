@@ -1744,26 +1744,6 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject 
 	init(titlePic, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, const Component & titlePic, std::string _title, std::string _descr,
-				std::function<void(int)> Callback):
-	CWindowObject(PLAYER_COLORED, "TPGATE"),
-	onSelect(Callback),
-	selected(0)
-{
-	items.reserve(_items.size());
-	for(int id : _items)
-	{
-		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->getObjectName()));
-	}
-
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	CComponent * icon = new CComponent(titlePic);
-
-	init(icon, _title, _descr);
-}
-
-
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
 				std::function<void(int)> Callback):
 	CWindowObject(PLAYER_COLORED, "TPGATE"),

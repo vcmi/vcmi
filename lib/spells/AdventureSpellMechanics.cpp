@@ -426,7 +426,7 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 		return ESpellCastResult::CANCEL;
 	}
 
-    if(!parameters.pos.valid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
+	if(!parameters.pos.valid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
 	{
 		auto queryCallback = [=](const JsonNode & reply) -> void
 		{
@@ -458,7 +458,7 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 
 		for(auto t : towns)
 		{
-			if (t->visitingHero == nullptr) //empty town
+			if(t->visitingHero == nullptr) //empty town
 				request.objects.push_back(t->id);
 		}
 
@@ -472,10 +472,10 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 		}
 
 		request.player = parameters.caster->getOwner();
-        request.title.addTxt(MetaString::JK_TXT, 40);
-        request.description.addTxt(MetaString::JK_TXT, 41);
-        request.icon.id = Component::SPELL;
-        request.icon.subtype = owner->id.toEnum();
+		request.title.addTxt(MetaString::JK_TXT, 40);
+		request.description.addTxt(MetaString::JK_TXT, 41);
+		request.icon.id = Component::SPELL;
+		request.icon.subtype = owner->id.toEnum();
 
 		env->genericQuery(&request, request.player, queryCallback);
 
@@ -493,11 +493,11 @@ const CGTownInstance * TownPortalMechanics::findNearestTown(const SpellCastEnvir
 	auto nearest = pool.cbegin(); //nearest town's iterator
 	si32 dist = (*nearest)->pos.dist2dSQ(parameters.caster->pos);
 
-	for (auto i = nearest + 1; i != pool.cend(); ++i)
+	for(auto i = nearest + 1; i != pool.cend(); ++i)
 	{
 		si32 curDist = (*i)->pos.dist2dSQ(parameters.caster->pos);
 
-		if (curDist < dist)
+		if(curDist < dist)
 		{
 			nearest = i;
 			dist = curDist;

@@ -60,7 +60,7 @@ int CCallback::sendQueryReply(const JsonNode & reply, QueryID queryID)
 		return -1;
 	}
 
-	QueryReply pack(queryID,reply);
+	QueryReply pack(queryID, reply);
 	pack.player = *player;
 	return sendRequest(&pack);
 }

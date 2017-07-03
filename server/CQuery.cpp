@@ -7,7 +7,7 @@
 boost::mutex Queries::mx;
 
 template <typename Container>
-std::string formatContainer(const Container &c, std::string delimeter=", ", std::string opener="(", std::string closer=")")
+std::string formatContainer(const Container & c, std::string delimeter = ", ", std::string opener = "(", std::string closer=")")
 {
 	std::string ret = opener;
 	auto itr = std::begin(c);
@@ -24,12 +24,12 @@ std::string formatContainer(const Container &c, std::string delimeter=", ", std:
 	return ret;
 }
 
-std::ostream & operator<<(std::ostream &out, const CQuery &query)
+std::ostream & operator<<(std::ostream & out, const CQuery & query)
 {
 	return out << query.toString();
 }
 
-std::ostream & operator<<(std::ostream &out, QueryPtr query)
+std::ostream & operator<<(std::ostream & out, QueryPtr query)
 {
 	return out << "[" << query.get() << "] " << query->toString();
 }
@@ -54,9 +54,7 @@ CQuery::~CQuery(void)
 void CQuery::addPlayer(PlayerColor color)
 {
 	if(color.isValidPlayer())
-	{
 		players.push_back(color);
-	}
 }
 
 std::string CQuery::toString() const
@@ -72,15 +70,17 @@ bool CQuery::endsByPlayerAnswer() const
 
 void CQuery::onRemoval(PlayerColor color)
 {
+
 }
 
-bool CQuery::blocksPack(const CPack *pack) const
+bool CQuery::blocksPack(const CPack * pack) const
 {
 	return false;
 }
 
-void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
+
 }
 
 void CQuery::onExposure(QueryPtr topQuery)
@@ -108,9 +108,7 @@ bool CQuery::blockAllButReply(const CPack * pack) const
 {
 	//We accept only query replies from correct player
 	if(auto reply = dynamic_ptr_cast<QueryReply>(pack))
-	{
 		return !vstd::contains(players, reply->player);
-	}
 
 	return true;
 }
@@ -169,9 +167,7 @@ void Queries::popQuery(PlayerColor player, QueryPtr query)
 
 	//Exposure on query below happens only if removal didn't trigger any new query
 	if(nextQuery && nextQuery == topQuery(player))
-	{
 		nextQuery->onExposure(query);
-	}
 }
 
 void Queries::popQuery(const CQuery &query)
@@ -225,7 +221,7 @@ void Queries::popIfTop(QueryPtr query)
 	popIfTop(*query);
 }
 
-void Queries::popIfTop(const CQuery &query)
+void Queries::popIfTop(const CQuery & query)
 {
 	for(PlayerColor color : query.players)
 		if(topQuery(color).get() == &query)
@@ -235,8 +231,8 @@ void Queries::popIfTop(const CQuery &query)
 std::vector<std::shared_ptr<const CQuery>> Queries::allQueries() const
 {
 	std::vector<std::shared_ptr<const CQuery>> ret;
-	for(auto &playerQueries : queries)
-		for(auto &query : playerQueries.second)
+	for(auto & playerQueries : queries)
+		for(auto & query : playerQueries.second)
 			ret.push_back(query);
 
 	return ret;
@@ -246,20 +242,20 @@ std::vector<std::shared_ptr<CQuery>> Queries::allQueries()
 {
 	//TODO code duplication with const function :(
 	std::vector<std::shared_ptr<CQuery>> ret;
-	for(auto &playerQueries : queries)
-		for(auto &query : playerQueries.second)
-		ret.push_back(query);
+	for(auto & playerQueries : queries)
+		for(auto & query : playerQueries.second)
+			ret.push_back(query);
 
 	return ret;
 }
 
-void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	assert(result);
 	objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
-CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo *Bi):
+CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
 	CGhQuery(owner)
 {
 	belligerents[0] = Bi->sides[0].armyObject;
@@ -267,7 +263,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo *Bi):
 
 	bi = Bi;
 
-	for(auto &side : bi->sides)
+	for(auto & side : bi->sides)
 		addPlayer(side.color);
 }
 
@@ -277,7 +273,7 @@ CBattleQuery::CBattleQuery(CGameHandler * owner):
 	belligerents[0] = belligerents[1] = nullptr;
 }
 
-bool CBattleQuery::blocksPack(const CPack *pack) const
+bool CBattleQuery::blocksPack(const CPack * pack) const
 {
 	const char * name = typeid(*pack).name();
 	return strcmp(name, typeid(MakeAction).name()) && strcmp(name, typeid(MakeCustomAction).name());
@@ -288,7 +284,7 @@ void CBattleQuery::onRemoval(PlayerColor color)
 	gh->battleAfterLevelUp(*result);
 }
 
-void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	objectVisit.visitedObject->garrisonDialogClosed(objectVisit.visitingHero);
 }
@@ -303,18 +299,16 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedIns
 	addPlayer(down->tempOwner);
 }
 
-bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
+bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 {
 	std::set<ObjectInstanceID> ourIds;
 	ourIds.insert(this->exchangingArmies[0]->id);
 	ourIds.insert(this->exchangingArmies[1]->id);
 
-	if (auto stacks = dynamic_ptr_cast<ArrangeStacks>(pack))
-	{
+	if(auto stacks = dynamic_ptr_cast<ArrangeStacks>(pack))
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
-	}
 
-	if (auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
+	if(auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
 	{
 		if(auto id1 = boost::apply_visitor(GetEngagedHeroIds(), arts->src.artHolder))
 			if(!vstd::contains(ourIds, *id1))
@@ -325,24 +319,19 @@ bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const
 				return true;
 		return false;
 	}
-	if (auto dismiss = dynamic_ptr_cast<DisbandCreature>(pack))
-	{
+	if(auto dismiss = dynamic_ptr_cast<DisbandCreature>(pack))
 		return !vstd::contains(ourIds, dismiss->id);
-	}
 
-	if (auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))
-	{
+	if(auto dismiss = dynamic_ptr_cast<AssembleArtifacts>(pack))
 		return !vstd::contains(ourIds, dismiss->heroID);
-	}
 
 	if(auto upgrade = dynamic_ptr_cast<UpgradeCreature>(pack))
-	{
 		return !vstd::contains(ourIds, upgrade->id);
-	}
+
 	return CDialogQuery::blocksPack(pack);
 }
 
-void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	assert(answer);
 	objectVisit.visitedObject->blockingDialogAnswered(objectVisit.visitingHero, *answer);
@@ -386,7 +375,7 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
 }
 
-void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
@@ -405,7 +394,7 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
 }
 
-void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const
+void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
@@ -497,4 +486,3 @@ void CGenericQuery::setReply(const JsonNode & reply)
 {
 	callback(reply);
 }
-

@@ -2252,16 +2252,15 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-    if(dynamic_cast<CSpellWindow *>(GH.topInt()))
+	if(dynamic_cast<CSpellWindow *>(GH.topInt()))
 		GH.popIntTotally(GH.topInt());
 
-	if (spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
-	{
+	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 		eraseCurrentPathOf(caster, false);
-	}
+
 	const CSpell * spell = CGI->spellh->objects.at(spellID);
 
-	if (spellID == SpellID::VIEW_EARTH)
+	if(spellID == SpellID::VIEW_EARTH)
 	{
 		//TODO: implement on server side
 		int level = caster->getSpellSchoolLevel(spell);
@@ -2269,7 +2268,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 
 	auto castSoundPath = spell->getCastSound();
-	if (!castSoundPath.empty())
+	if(!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 }
 
