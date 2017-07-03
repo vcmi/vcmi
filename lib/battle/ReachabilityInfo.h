@@ -27,7 +27,7 @@ struct DLL_LINKAGE ReachabilityInfo
 	{
 		const CStack * stack; //stack for which calculation is mage => not required (kept for debugging mostly), following variables are enough
 
-		bool attackerOwned;
+		ui8 side;
 		bool doubleWide;
 		bool flying;
 		std::vector<BattleHex> knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)

@@ -949,7 +949,7 @@ void CBattleInterface::bConsoleDownf()
 
 void CBattleInterface::newStack(const CStack *stack)
 {
-	creDir[stack->ID] = stack->attackerOwned; // must be set before getting stack position
+	creDir[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
 	Point coords = CClickableHex::getXYUnitAnim(stack->position, stack, this);
 
@@ -1180,15 +1180,15 @@ bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 
-const CGHeroInstance *CBattleInterface::getActiveHero()
+const CGHeroInstance * CBattleInterface::getActiveHero()
 {
 	const CStack *attacker = activeStack;
-	if (!attacker)
+	if(!attacker)
 	{
 		return nullptr;
 	}
 
-	if (attacker->attackerOwned)
+	if(attacker->side == BattleSide::ATTACKER)
 	{
 		return attackingHeroInstance;
 	}
@@ -1801,7 +1801,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	for (const CStack *s : stacks)
 	{
-		if (s && creDir[s->ID] != bool(s->attackerOwned) && s->alive()
+		if (s && creDir[s->ID] != (s->side == BattleSide::ATTACKER) && s->alive()
 		   && creAnims[s->ID]->isIdle())
 		{
 			addNewAnim(new CReverseAnimation(this, s, s->position, false));
@@ -2033,10 +2033,10 @@ std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 		return (boost::format("%d") % dmgRange.first).str();
 }
 
-bool CBattleInterface::canStackMoveHere (const CStack *activeStack, BattleHex myNumber)
+bool CBattleInterface::canStackMoveHere(const CStack * activeStack, BattleHex myNumber)
 {
 	std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
-	int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
+	BattleHex shiftedDest = myNumber.cloneInDirection(activeStack->destShiftDir(), false);
 
 	if (vstd::contains(acc, myNumber))
 		return true;
@@ -2262,14 +2262,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 				realizeAction = [=]
 				{
-					if (activeStack->doubleWide())
+					if(activeStack->doubleWide())
 					{
 						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-						int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
-						if (vstd::contains(acc, myNumber))
-							giveCommand (Battle::WALK ,myNumber, activeStack->ID);
-						else if (vstd::contains(acc, shiftedDest))
-							giveCommand (Battle::WALK, shiftedDest, activeStack->ID);
+						BattleHex shiftedDest = myNumber.cloneInDirection(activeStack->destShiftDir(), false);
+						if(vstd::contains(acc, myNumber))
+							giveCommand(Battle::WALK, myNumber, activeStack->ID);
+						else if(vstd::contains(acc, shiftedDest))
+							giveCommand(Battle::WALK, shiftedDest, activeStack->ID);
 					}
 					else
 					{
@@ -2547,17 +2547,17 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 		{
 			bool doubleWide = activeStack->doubleWide();
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
-				(activeStack->attackerOwned && doubleWide ? 1 : 0);
-			if (vstd::contains(occupyableHexes, destHex))
+				(activeStack->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
+			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (activeStack->attackerOwned) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
 				if (vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
 			else //if we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
@@ -2567,21 +2567,21 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
 			if (vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (activeStack->attackerOwned) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
-				if (vstd::contains(occupyableHexes, destHex+1))
+				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
-			else //if we are defender
+			else //we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
 		}
 	case 8: //from left
 		{
-			if (activeStack->doubleWide() && !activeStack->attackerOwned)
+			if(activeStack->doubleWide() && activeStack->side == activeStack->side == BattleSide::DEFENDER)
 			{
 				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 				if (vstd::contains(acc, myNumber))
@@ -2597,17 +2597,17 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 		}
 	case 9: //from top left
 		{
-			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH+1 : GameConstants::BFIELD_WIDTH );
-			if (vstd::contains(occupyableHexes, destHex))
+			destHex = myNumber - ((myNumber/GameConstants::BFIELD_WIDTH) % 2 ? GameConstants::BFIELD_WIDTH + 1 : GameConstants::BFIELD_WIDTH);
+			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (activeStack->attackerOwned) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
-				if (vstd::contains(occupyableHexes, destHex+1))
+				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
 			else //if we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
@@ -2616,27 +2616,27 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 		{
 			bool doubleWide = activeStack->doubleWide();
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
-				(activeStack->attackerOwned && doubleWide ? 1 : 0);
-			if (vstd::contains(occupyableHexes, destHex))
+				(activeStack->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
+			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (activeStack->attackerOwned) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
-				if (vstd::contains(occupyableHexes, destHex+1))
+				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
 			else //if we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
 		}
 	case 11: //from right
 		{
-			if (activeStack->doubleWide() && activeStack->attackerOwned)
+			if(activeStack->doubleWide() && activeStack->side == BattleSide::ATTACKER)
 			{
 				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-				if (vstd::contains(acc, myNumber))
+				if(vstd::contains(acc, myNumber))
 					return myNumber + 1;
 				else
 					return myNumber + 2;
@@ -2650,16 +2650,16 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 	case 13: //from bottom
 		{
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
-			if (vstd::contains(occupyableHexes, destHex))
+			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
-				if (vstd::contains(occupyableHexes, destHex+1))
+				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
 			else //if we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
@@ -2669,14 +2669,14 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
 			if (vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if (attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+			else if(activeStack->side == BattleSide::ATTACKER)
 			{
-				if (vstd::contains(occupyableHexes, destHex+1))
+				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
 			}
 			else //if we are defender
 			{
-				if (vstd::contains(occupyableHexes, destHex-1))
+				if(vstd::contains(occupyableHexes, destHex-1))
 					return destHex-1;
 			}
 			break;
@@ -3082,52 +3082,52 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface *to)
 
 void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 {
-	for (int b=0; b<GameConstants::BFIELD_SIZE; ++b)
+	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
-		if (bfield[b]->strictHovered && bfield[b]->hovered)
+		if(bfield[b]->strictHovered && bfield[b]->hovered)
 		{
-			if (previouslyHoveredHex == -1)
+			if(previouslyHoveredHex == -1)
 				previouslyHoveredHex = b; //something to start with
-			if (currentlyHoveredHex == -1)
+			if(currentlyHoveredHex == -1)
 				currentlyHoveredHex = b; //something to start with
 
-			if (currentlyHoveredHex != b) //repair hover info
+			if(currentlyHoveredHex != b) //repair hover info
 			{
 				previouslyHoveredHex = currentlyHoveredHex;
 				currentlyHoveredHex = b;
 			}
-			if (settings["battle"]["mouseShadow"].Bool())
+			if(settings["battle"]["mouseShadow"].Bool())
 			{
 				const ISpellCaster *caster = nullptr;
 				const CSpell *spell = nullptr;
 
-                if (spellToCast)//hero casts spell
+                if(spellToCast)//hero casts spell
 				{
 					spell = SpellID(spellToCast->additionalInfo).toSpell();
-					caster = activeStack->attackerOwned ? attackingHeroInstance : defendingHeroInstance;
+					caster = getActiveHero();
 				}
-				else if (creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
+				else if(creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
 				{
-                    spell = SpellID(creatureSpellToCast).toSpell();
-                    caster = activeStack;
+					spell = SpellID(creatureSpellToCast).toSpell();
+					caster = activeStack;
 				}
 
-				if (caster && spell) //when casting spell
+				if(caster && spell) //when casting spell
 				{
 					//calculating spell school level
 					ui8 schoolLevel = caster->getSpellSchoolLevel(spell);
 
 					// printing shaded hex(es)
 					auto shaded = spell->rangeInHexes(currentlyHoveredHex, schoolLevel, curInt->cb->battleGetMySide());
-					for (BattleHex shadedHex : shaded)
+					for(BattleHex shadedHex : shaded)
 					{
-						if ((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH -1))
+						if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
 							showHighlightedHex(to, shadedHex);
 					}
 				}
-				else if (active)//always highlight pointed hex
+				else if(active)//always highlight pointed hex
 				{
-					if (currentlyHoveredHex.getX() != 0
+					if(currentlyHoveredHex.getX() != 0
 					 && currentlyHoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
 						showHighlightedHex(to, currentlyHoveredHex);
 				}
@@ -3135,18 +3135,18 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 		}
 	}
 
-	if (activeStack && settings["battle"]["stackRange"].Bool())
+	if(activeStack && settings["battle"]["stackRange"].Bool())
 	{
 		std::set<BattleHex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
-		for (BattleHex hex : set)
+		for(BattleHex hex : set)
 			showHighlightedHex(to, hex);
 
 		// display the movement shadow of the stack at b (i.e. stack under mouse)
-		const CStack *const shere = curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
-		if (shere && shere != activeStack && shere->alive())
+		const CStack * const shere = curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
+		if(shere && shere != activeStack && shere->alive())
 		{
 			std::vector<BattleHex> v = curInt->cb->battleGetAvailableHexes(shere, true );
-			for (BattleHex hex : v)
+			for(BattleHex hex : v)
 				showHighlightedHex(to, hex);
 		}
 	}
@@ -3321,13 +3321,15 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 		//printing amount
 		if (isAmountBoxVisible(stack))
 		{
-			const BattleHex nextPos = stack->position + (stack->attackerOwned ? 1 : -1);
-			const bool edge = stack->position % GameConstants::BFIELD_WIDTH == (stack->attackerOwned ? GameConstants::BFIELD_WIDTH - 2 : 1);
+			const int sideShift = stack->side == BattleSide::ATTACKER ? 1 : -1;
+			const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
+			const BattleHex nextPos = stack->position + sideShift;
+			const bool edge = stack->position % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
 			const bool moveInside = !edge && !stackCountOutsideHexes[nextPos];
-			int xAdd = (stack->attackerOwned ? 220 : 202) +
-					   (stack->doubleWide() ? 44 : 0) *(stack->attackerOwned ? +1 : -1) +
-					   (moveInside ? amountNormal->w + 10 : 0) *(stack->attackerOwned ? -1 : +1);
-			int yAdd = 260 + ((stack->attackerOwned || moveInside) ? 0 : -15);
+			int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
+					   (stack->doubleWide() ? 44 : 0) * sideShift +
+					   (moveInside ? amountNormal->w + 10 : 0) * reverseSideShift;
+			int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
 
 			//blitting amount background box
 			SDL_Surface *amountBG = amountNormal;

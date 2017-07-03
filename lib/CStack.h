@@ -24,7 +24,7 @@ public:
 	ui32 firstHPleft; //HP of first creature in stack
 	PlayerColor owner; //owner - player colour (255 for neutrals)
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
-	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
+	ui8 side;
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	///how many times this stack has been counterattacked this round
 	ui8 counterAttacksPerformed;
@@ -39,8 +39,8 @@ public:
 	//overrides
 	const CCreature* getCreature() const {return type;}
 
-	CStack(const CStackInstance *base, PlayerColor O, int I, bool AO, SlotID S); //c-tor
-	CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S = SlotID(255)); //c-tor
+	CStack(const CStackInstance *base, PlayerColor O, int I, ui8 Side, SlotID S); //c-tor
+	CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255)); //c-tor
 	CStack(); //c-tor
 	~CStack();
 	std::string nodeName() const override;
@@ -73,9 +73,11 @@ public:
 	BattleHex occupiedHex(BattleHex assumedPos) const; //returns number of occupied hex (not the position) if stack is double wide and would stand on assumedPos; otherwise -1
 	std::vector<BattleHex> getHexes() const; //up to two occupied hexes, starting from front
 	std::vector<BattleHex> getHexes(BattleHex assumedPos) const; //up to two occupied hexes, starting from front
-	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, bool AttackerOwned); //up to two occupied hexes, starting from front
+	static std::vector<BattleHex> getHexes(BattleHex assumedPos, bool twoHex, ui8 side); //up to two occupied hexes, starting from front
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
 	std::vector<BattleHex> getSurroundingHexes(BattleHex attackerPos = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+
+	BattleHex::EDir destShiftDir() const;
 
 	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
 	void prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
@@ -110,7 +112,7 @@ public:
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacksPerformed
+		h & ID & baseAmount & firstHPleft & owner & slot & side & position & state & counterAttacksPerformed
 			& shots & casts & count & resurrected;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);

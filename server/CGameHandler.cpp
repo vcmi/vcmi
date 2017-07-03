@@ -138,10 +138,12 @@ static void giveExp(BattleResult &r)
 	}
 }
 
-static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, bool targetIsAttacker, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
+static void summonGuardiansHelper(std::vector<BattleHex> & output, const BattleHex & targetPosition, ui8 side, bool targetIsTwoHex) //return hexes for summoning two hex monsters in output, target = unit to guard
 {
 	int x = targetPosition.getX();
 	int y = targetPosition.getY();
+
+	const bool targetIsAttacker = side == BattleSide::ATTACKER;
 
 	if (targetIsAttacker) //handle front guardians, TODO: should we handle situation when units start battle near opposite side of the battlefield? Cannot happen in normal H3...
 		BattleHex::checkAndPush(targetPosition.cloneInDirection(BattleHex::EDir::RIGHT, false).cloneInDirection(BattleHex::EDir::RIGHT, false), output);
@@ -1148,21 +1150,15 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	auto accessibility = getAccesibility(curStack);
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
-	if (!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
+	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
-		if (curStack->attackerOwned)
-		{
-			if (accessibility.accessible(dest+1, curStack))
-				dest += BattleHex::RIGHT;
-		}
-		else
-		{
-			if (accessibility.accessible(dest-1, curStack))
-				dest += BattleHex::LEFT;
-		}
+		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir(), false);
+
+		if(accessibility.accessible(shifted, curStack))
+			dest = shifted;
 	}
 
-	if ((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
+	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
 	{
 		complain("Given destination is not accessible!");
 		return 0;
@@ -1170,7 +1166,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	bool canUseGate = false;
 	auto dbState = gs->curB->si.gateState;
-	if (battleGetSiegeLevel() > 0 && !curStack->attackerOwned &&
+	if(battleGetSiegeLevel() > 0 && curStack->side == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{
@@ -3828,7 +3824,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 		if (battleTacticDist())
 		{
-			if (stack && !stack->attackerOwned != battleGetTacticsSide())
+			if (stack && stack->side != battleGetTacticsSide())
 			{
 				complain("This is not a stack of side that has tactics!");
 				return false;
@@ -3922,10 +3918,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
-			if (stack->position != ba.destinationTile //we wasn't able to reach destination tile
-				&& !(stack->doubleWide()
-					&&  (stack->position == ba.destinationTile + (stack->attackerOwned ?  +1 : -1))
-						) //nor occupy specified hex
+			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
+				&& !(stack->doubleWide() && (stack->position == ba.destinationTile.cloneInDirection(stack->destShiftDir(), false))) //nor occupy specified hex
 				)
 			{
 				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
@@ -4263,7 +4257,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
 			BattleStackAdded bsa;
-			bsa.attacker = summoner->attackerOwned;
+			bsa.side = summoner->side;
 
 			bsa.creID = summonedType;
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
@@ -4274,7 +4268,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			bsa.amount = std::min(canRiseAmount, destStack->baseAmount);
 
-			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.attacker, destStack->position);
+			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.side, destStack->position);
 			bsa.summoned = false;
 
 			if (bsa.amount) //there's rare possibility single creature cannot rise desired type
@@ -4632,7 +4626,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
 
-	const ui8 side = !curStack->attackerOwned; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
+	const ui8 side = curStack->side; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
 	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);//FIXME: there may be no hero - landmines in Tower
 
 	if (obstacle.obstacleType == CObstacleInstance::MOAT)
@@ -5387,6 +5381,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 
 		BattleStackAdded resurrectInfo;
 		resurrectInfo.pos = defender->position;
+		resurrectInfo.side = defender->side;
 
 		if (bonusAdditionalInfo != -1)
 			resurrectInfo.creID = (CreatureID)bonusAdditionalInfo;
@@ -5486,7 +5481,7 @@ void CGameHandler::makeStackDoNothing(const CStack * next)
 	doNothing.actionType = Battle::NO_ACTION;
 	doNothing.additionalInfo = 0;
 	doNothing.destinationTile = -1;
-	doNothing.side = !next->attackerOwned;
+	doNothing.side = next->side;
 	doNothing.stackNumber = next->ID;
 
 	makeAutomaticAction(next, doNothing);
@@ -5679,16 +5674,16 @@ void CGameHandler::runBattle()
 			if (!guardianIsBig)
 				targetHexes = stack->getSurroundingHexes();
 			else
-				summonGuardiansHelper(targetHexes, stack->position, stack->attackerOwned, targetIsBig);
+				summonGuardiansHelper(targetHexes, stack->position, stack->side, targetIsBig);
 
 			for (auto hex : targetHexes)
 			{
-				if (accessibility.accessible(hex, guardianIsBig, stack->attackerOwned)) //without this multiple creatures can occupy one hex
+				if (accessibility.accessible(hex, guardianIsBig, stack->side)) //without this multiple creatures can occupy one hex
 				{
 					BattleStackAdded newStack;
 					newStack.amount = std::max(1, (int)(stack->count * 0.01 * summonInfo->val));
 					newStack.creID = creatureData.num;
-					newStack.attacker = stack->attackerOwned;
+					newStack.side = stack->side;
 					newStack.summoned = true;
 					newStack.pos = hex.hex;
 					sendAndApply(&newStack);
@@ -5779,7 +5774,7 @@ void CGameHandler::runBattle()
 					BattleAction ba;
 					ba.actionType = Battle::BAD_MORALE;
 					ba.additionalInfo = 1;
-					ba.side = !next->attackerOwned;
+					ba.side = next->side;
 					ba.stackNumber = next->ID;
 
 					makeAutomaticAction(next, ba);
@@ -5790,12 +5785,12 @@ void CGameHandler::runBattle()
 			if (next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
 			{
 				logGlobal->debug("Handle Berserk effect");
-				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
+				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::none);
 				if (attackInfo.first != nullptr)
 				{
 					BattleAction attack;
 					attack.actionType = Battle::WALK_AND_ATTACK;
-					attack.side = !next->attackerOwned;
+					attack.side = next->side;
 					attack.stackNumber = next->ID;
 					attack.additionalInfo = attackInfo.first->position;
 					attack.destinationTile = attackInfo.second;
@@ -5818,7 +5813,7 @@ void CGameHandler::runBattle()
 			{
 				BattleAction attack;
 				attack.actionType = Battle::SHOOT;
-				attack.side = !next->attackerOwned;
+				attack.side = next->side;
 				attack.stackNumber = next->ID;
 
 				for (auto & elem : gs->curB->stacks)
@@ -5851,7 +5846,7 @@ void CGameHandler::runBattle()
 												getRandomGenerator());
 					attack.actionType = Battle::CATAPULT;
 					attack.additionalInfo = 0;
-					attack.side = !next->attackerOwned;
+					attack.side = next->side;
 					attack.stackNumber = next->ID;
 
 					makeAutomaticAction(next, attack);
@@ -5881,7 +5876,7 @@ void CGameHandler::runBattle()
 					heal.actionType = Battle::STACK_HEAL;
 					heal.additionalInfo = 0;
 					heal.destinationTile = toBeHealed->position;
-					heal.side = !next->attackerOwned;
+					heal.side = next->side;
 					heal.stackNumber = next->ID;
 
 					makeAutomaticAction(next, heal);

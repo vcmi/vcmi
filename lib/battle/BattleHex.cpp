@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleHex.h"
+#include "../GameConstants.h"
 
 BattleHex::BattleHex() : hex(INVALID) {}
 
@@ -99,6 +100,8 @@ BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 	case LEFT:
 		setXY(x-1, y, hasToBeValid);
 		break;
+	case NONE:
+		break;
 	default:
 		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
@@ -160,7 +163,7 @@ void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)
 		ret.push_back(tile);
 }
 
-BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities)
+BattleHex BattleHex::getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities)
 {
 	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
 	BattleHex initialHex = BattleHex(initialPos);
@@ -175,11 +178,11 @@ BattleHex BattleHex::getClosestTile(bool attackerOwned, BattleHex initialPos, st
 		return closestDistance < here.getDistance (initialPos, here);
 	};
 	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
-	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool
+	auto compareHorizontal = [side, initialPos](const BattleHex left, const BattleHex right) -> bool
 	{
 		if(left.getX() != right.getX())
 		{
-			if (attackerOwned)
+			if(side == BattleSide::ATTACKER)
 				return left.getX() > right.getX(); //find furthest right
 			else
 				return left.getX() < right.getX(); //find furthest left

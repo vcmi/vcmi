@@ -649,10 +649,10 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 {
 	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
-	const si8 playerSide = cb->playerToSide(ctx.caster->getOwner());
-	if(playerSide < 0)
+	const auto side = cb->playerToSide(ctx.caster->getOwner());
+	if(!side)
 		return std::vector<const CStack *>();
-	auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, playerSide);
+	auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, side.get());
 
 	//hackfix for banned creature massive spells
 	if(!ctx.ti.massive && owner->getLevelInfo(ctx.schoolLvl).range == "X")

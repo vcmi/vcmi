@@ -104,7 +104,7 @@ std::vector<const CStack *> ChainLightningMechanics::calculateAffectedStacks(con
 		}
 		if(possibleHexes.empty()) //not enough targets
 			break;
-		lightningHex = BattleHex::getClosestTile(stack->attackerOwned, lightningHex, possibleHexes);
+		lightningHex = BattleHex::getClosestTile(stack->side, lightningHex, possibleHexes);
 	}
 
 	return res;
@@ -121,13 +121,12 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const 
 		env->complain ("No target stack to clone!");
 		return;
 	}
-	const int attacker = !(bool)parameters.casterSide;
 
 	BattleStackAdded bsa;
 	bsa.creID = clonedStack->type->idNumber;
-	bsa.attacker = attacker;
+	bsa.side = parameters.casterSide;
 	bsa.summoned = true;
-	bsa.pos = parameters.cb->getAvaliableHex(bsa.creID, attacker); //TODO: unify it
+	bsa.pos = parameters.cb->getAvaliableHex(bsa.creID, parameters.casterSide);
 	bsa.amount = clonedStack->count;
 	env->sendAndApply(&bsa);
 
@@ -370,8 +369,11 @@ ESpellCastProblem::ESpellCastProblem EarthquakeMechanics::canBeCast(const CBattl
 	CSpell::TargetInfo ti(owner, caster->getSpellSchoolLevel(owner));
 	if(ti.smart)
 	{
+		const auto side = cb->playerToSide(caster->getOwner());
+		if(!side)
+			return ESpellCastProblem::INVALID;
 		//if spell targeting is smart, then only attacker can use it
-		if(cb->playerToSide(caster->getOwner()) != BattleSide::ATTACKER)
+		if(side.get() != BattleSide::ATTACKER)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
@@ -407,13 +409,13 @@ ESpellCastProblem::ESpellCastProblem HypnotizeMechanics::isImmuneByStack(const I
 ///ObstacleMechanics
 ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	const si8 side = cb->playerToSide(ctx.caster->getOwner());
-	if(side < 0)
+	const auto side = cb->playerToSide(ctx.caster->getOwner());
+	if(!side)
 		return ESpellCastProblem::INVALID;
 
 	bool hexesOutsideBattlefield = false;
 
-	auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side, &hexesOutsideBattlefield);
+	auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side.get(), &hexesOutsideBattlefield);
 
 	for(const BattleHex & hex : tilesThatMustBeClear)
 		if(!isHexAviable(cb, hex, ctx.ti.clearAffected))
@@ -499,11 +501,11 @@ void PatchObstacleMechanics::applyBattleEffects(const SpellCastEnvironment * env
 ESpellCastProblem::ESpellCastProblem LandMineMechanics::canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
 {
 	//LandMine are useless if enemy has native stack and can see mines, check for LandMine damage immunity is done in general way by CSpell
-	const si8 playerSide = cb->playerToSide(caster->getOwner());
-	if(playerSide < 0)
+	const auto side = cb->playerToSide(caster->getOwner());
+	if(!side)
 		return ESpellCastProblem::INVALID;
 
-	const si8 otherSide = !playerSide;
+	const ui8 otherSide = cb->otherSide(side.get());
 
 	if(cb->battleHasNativeStack(otherSide))
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
@@ -887,9 +889,9 @@ void SummonMechanics::applyBattleEffects(const SpellCastEnvironment * env, const
 {
 	BattleStackAdded bsa;
 	bsa.creID = creatureToSummon;
-	bsa.attacker = !(bool)parameters.casterSide;
+	bsa.side = parameters.casterSide;
 	bsa.summoned = true;
-	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, !(bool)parameters.casterSide); //TODO: unify it
+	bsa.pos = parameters.cb->getAvaliableHex(creatureToSummon, parameters.casterSide); //TODO: unify it
 
 	//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
 	int percentBonus = parameters.casterHero ? parameters.casterHero->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, owner->id.toEnum()) : 0;

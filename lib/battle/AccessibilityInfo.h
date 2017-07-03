@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "BattleHex.h"
+#include "../GameConstants.h"
 
 class CStack;
 
@@ -29,7 +30,6 @@ typedef std::array<EAccessibility, GameConstants::BFIELD_SIZE> TAccessibilityArr
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {
-	bool occupiable(const CStack * stack, BattleHex tile) const;
 	bool accessible(BattleHex tile, const CStack * stack) const; //checks for both tiles if stack is double wide
-	bool accessible(BattleHex tile, bool doubleWide, bool attackerOwned) const; //checks for both tiles if stack is double wide
+	bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
 };

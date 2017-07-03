@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "BattleHex.h"
+#include "../GameConstants.h"
 
 class CStack;
 

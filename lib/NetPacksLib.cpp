@@ -1384,7 +1384,7 @@ void BattleStackMoved::applyGs(CGameState *gs)
 		{
 			SpellCreatedObstacle *sands = dynamic_cast<SpellCreatedObstacle*>(oi.get());
 			assert(sands);
-			if(sands->casterSide != !s->attackerOwned)
+			if(sands->casterSide != s->side)
 				sands->visibleForAnotherSide = true;
 		}
 	}
@@ -1803,7 +1803,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, side, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 

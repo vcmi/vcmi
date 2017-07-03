@@ -103,10 +103,10 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 		return ESpellCastProblem::INVALID;
 	}
 	const PlayerColor player = caster->getOwner();
-	const si8 side = playerToSide(player);
-	if(side < 0)
+	const auto side = playerToSide(player);
+	if(!side)
 		return ESpellCastProblem::INVALID;
-	if(!battleDoWeKnowAbout(side))
+	if(!battleDoWeKnowAbout(side.get()))
 	{
 		logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
 		return ESpellCastProblem::INVALID;
@@ -119,7 +119,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 	{
 	case ECastingMode::HERO_CASTING:
 	{
-		if(battleCastSpells(side) > 0)
+		if(battleCastSpells(side.get()) > 0)
 			return ESpellCastProblem::ALREADY_CASTED_THIS_TURN;
 
 		auto hero = dynamic_cast<const CGHeroInstance *>(caster);
@@ -255,7 +255,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		int bestSpeed = fastest->Speed(turn);
 
 		//FIXME: comparison between bool and integer. Logic does not makes sense either
-		if(fastest->attackerOwned != lastMoved)
+		if(fastest->side != lastMoved)
 		{
 			ret = fastest;
 		}
@@ -264,7 +264,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 			for(j = i + 1; j < st.size(); j++)
 			{
 				if(!st[j]) continue;
-				if(st[j]->attackerOwned != lastMoved || st[j]->Speed(turn) != bestSpeed)
+				if(st[j]->side != lastMoved || st[j]->Speed(turn) != bestSpeed)
 					break;
 			}
 
@@ -288,7 +288,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		else
 			st[j] = nullptr;
 
-		lastMoved = ret->attackerOwned;
+		lastMoved = ret->side;
 		return ret;
 	};
 
@@ -362,9 +362,9 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		{
 			//FIXME: both branches contain same code!!!
 			if(out.size() && out.front() == active)
-				lastMoved = active->attackerOwned;
+				lastMoved = active->side;
 			else
-				lastMoved = active->attackerOwned;
+				lastMoved = active->side;
 		}
 		else
 		{
@@ -418,7 +418,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 		if(!reachability.isReachable(i))
 			continue;
 
-		if(battleTacticDist() && battleGetTacticsSide() == !stack->attackerOwned)
+		if(battleTacticDist() && battleGetTacticsSide() == stack->side)
 		{
 			//Stack has to perform tactic-phase movement -> can enter any reachable tile within given range
 			if(!isInTacticRange(i))
@@ -453,7 +453,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack
 			});
 			return availableNeighbor != ret.end();
 		};
-		for(const CStack * otherSt : battleAliveStacks(stack->attackerOwned))
+		for(const CStack * otherSt : battleAliveStacks(1-stack->side))
 		{
 			if(!otherSt->isValidTarget(false))
 				continue;
@@ -800,7 +800,6 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(CRandomGenerator
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 
 	//const bool shooting = battleCanShoot(bai.attacker, bai.defenderPosition); //TODO handle bonus bearer
-	//const ui8 mySide = !attacker->attackerOwned;
 
 	TDmgRange ret = calculateDmgRange(bai);
 
@@ -965,7 +964,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 		const int costToNeighbour = ret.distances[curHex] + 1;
 		for(BattleHex neighbour : curHex.neighbouringTiles())
 		{
-			const bool accessible = accessibility.accessible(neighbour, params.doubleWide, params.attackerOwned);
+			const bool accessible = accessibility.accessible(neighbour, params.doubleWide, params.side);
 			const int costFoundSoFar = ret.distances[neighbour];
 
 			if(accessible && costToNeighbour < costFoundSoFar)
@@ -1001,7 +1000,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 	return ret;
 }
 
-std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
+std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, BattleSideOpt side) const
 {
 	auto reachability = getReachability(closest);
 	auto avHexes = battleGetAvailableHexes(closest, false);
@@ -1018,7 +1017,7 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 
 	std::vector<const CStack *> possibleStacks = battleGetStacksIf([=](const CStack * s)
 	{
-		return s->isValidTarget(false) && s != closest && (boost::logic::indeterminate(attackerOwned) || s->attackerOwned == attackerOwned);
+		return s->isValidTarget(false) && s != closest && (!side || side.get() == s->side);
 	});
 
 	for(const CStack * st : possibleStacks)
@@ -1064,7 +1063,7 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const CStack *stack) const
 {
 	ReachabilityInfo::Parameters params(stack);
 
-	if(!battleDoWeKnowAbout(!stack->attackerOwned))
+	if(!battleDoWeKnowAbout(stack->side))
 	{
 		//Stack is held by enemy, we can't use his perspective to check for reachability.
 		// Happens ie. when hovering enemy stack for its range. The arg could be set properly, but it's easier to fix it here.
@@ -1089,7 +1088,7 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
-		if(ret.accessibility.accessible(i, params.doubleWide, params.attackerOwned))
+		if(ret.accessibility.accessible(i, params.doubleWide, params.side))
 		{
 			ret.predecessors[i] = params.startPosition;
 			ret.distances[i] = BattleHex::getDistance(params.startPosition, i);
@@ -1103,7 +1102,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 {
 	//does not return hex attacked directly
 	//TODO: apply rotation to two-hex attackers
-	bool isAttacker = attacker->attackerOwned;
+	bool isAttacker = attacker->side == BattleSide::ATTACKER;
 
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
@@ -1482,7 +1481,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::PROTECTION_FROM_FIRE:
 		case SpellID::PROTECTION_FROM_WATER:
 		{
-			const ui8 enemySide = (ui8)subject->attackerOwned;
+			const ui8 enemySide = 1 - subject->side;
 			//todo: only if enemy has spellbook
 			if (!battleHasHero(enemySide)) //only if there is enemy hero
 				continue;
@@ -1567,17 +1566,17 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	if(!battleCanSurrender(Player))
 		return -1;
 
-	const si8 playerSide = playerToSide(Player);
-	if(playerSide < 0)
+	const auto side = playerToSide(Player);
+	if(!side)
 		return -1;
 
 	int ret = 0;
 	double discount = 0;
-	for(const CStack *s : battleAliveStacks(playerSide))
+	for(const CStack * s : battleAliveStacks(side.get()))
 		if(s->base) //we pay for our stack that comes from our army slots - condition eliminates summoned cres and war machines
 			ret += s->getCreature()->cost[Res::GOLD] * s->count;
 
-	if(const CGHeroInstance * h = battleGetFightingHero(playerSide))
+	if(const CGHeroInstance * h = battleGetFightingHero(side.get()))
 		discount += h->valOfBonuses(Bonus::SURRENDER_DISCOUNT);
 
 	ret *= (100.0 - discount) / 100.0;
@@ -1616,7 +1615,7 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 	{
 		if(stack->alive() && !stack->hasBonusOfType(Bonus::SIEGE_WEAPON))
 		{
-			hasStack[1-stack->attackerOwned] = true;
+			hasStack[stack->side] = true;
 		}
 	}
 

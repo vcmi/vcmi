@@ -67,7 +67,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 
 	for(const CStack * s : battleGetAllStacks())
 	{
-		if(s->attackerOwned == !side && s->getCreature()->isItNativeTerrain(getBattle()->terrainType))
+		if(s->side == side && s->getCreature()->isItNativeTerrain(getBattle()->terrainType))
 			return true;
 	}
 
@@ -102,7 +102,7 @@ TStacks CBattleInfoEssentials::battleAliveStacks() const
 TStacks CBattleInfoEssentials::battleAliveStacks(ui8 side) const
 {
 	return battleGetStacksIf([=](const CStack * s){
-		return s->isValidTarget(false) && s->attackerOwned == !side;
+		return s->isValidTarget(false) && s->side == side;
 	});
 }
 
@@ -237,8 +237,11 @@ const IBonusBearer * CBattleInfoEssentials::getBattleNode() const
 bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	const si8 mySide = playerToSide(player);
-	const CGHeroInstance *myHero = battleGetFightingHero(mySide);
+	const auto side = playerToSide(player);
+	if(!side)
+		return false;
+
+	const CGHeroInstance *myHero = battleGetFightingHero(side.get());
 
 	//current player have no hero
 	if(!myHero)
@@ -249,7 +252,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 		return false;
 
 	//we are besieged defender
-	if(mySide == BattleSide::DEFENDER && battleGetSiegeLevel())
+	if(side.get() == BattleSide::DEFENDER && battleGetSiegeLevel())
 	{
 		auto town = battleGetDefendedTown();
 		if(!town->hasBuilt(BuildingID::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
@@ -259,23 +262,31 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 	return true;
 }
 
-si8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
+BattleSideOpt CBattleInfoEssentials::playerToSide(PlayerColor player) const
 {
-	RETURN_IF_NOT_BATTLE(-1);
+	RETURN_IF_NOT_BATTLE(boost::none);
 	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
 	if(ret < 0)
 		logGlobal->warnStream() << "Cannot find side for player " << player;
 
-	return ret;
+	return BattleSideOpt(ret);
+}
+
+ui8 CBattleInfoEssentials::otherSide(ui8 side) const
+{
+    if(side == BattleSide::ATTACKER)
+		return BattleSide::DEFENDER;
+	else
+		return BattleSide::ATTACKER;
 }
 
 bool CBattleInfoEssentials::playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	const si8 playerSide = playerToSide(player);
-	if (playerSide >= 0)
+	const auto side = playerToSide(player);
+	if(side)
 	{
-		if (getBattle()->sides[!playerSide].hero == h)
+		if (getBattle()->sides[otherSide(side.get())].hero == h)
 			return true;
 	}
 	return false;
@@ -290,10 +301,12 @@ ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	ui8 mySide = playerToSide(player);
-	bool iAmSiegeDefender = (mySide == BattleSide::DEFENDER && battleGetSiegeLevel());
+	const auto side = playerToSide(player);
+	if(!side)
+		return false;
+	bool iAmSiegeDefender = (side.get() == BattleSide::DEFENDER && battleGetSiegeLevel());
 	//conditions like for fleeing (except escape tunnel presence) + enemy must have a hero
-	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(!mySide);
+	return battleCanFlee(player) && !iAmSiegeDefender && battleHasHero(otherSide(side.get()));
 }
 
 bool CBattleInfoEssentials::battleHasHero(ui8 side) const
@@ -334,7 +347,10 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const CStack * stack) const
 const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const CStack * stack) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
-	return getBattle()->sides.at(playerToSide(battleGetOwner(stack))).hero;
+	const auto side = playerToSide(battleGetOwner(stack));
+	if(!side)
+		return nullptr;
+	return getBattle()->sides.at(side.get()).hero;
 }
 
 bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness /* = false*/) const
