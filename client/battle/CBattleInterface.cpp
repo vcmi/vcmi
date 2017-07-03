@@ -2036,7 +2036,7 @@ std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 bool CBattleInterface::canStackMoveHere(const CStack * activeStack, BattleHex myNumber)
 {
 	std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
-	BattleHex shiftedDest = myNumber + activeStack->destShiftDir();
+	BattleHex shiftedDest = myNumber.cloneInDirection(activeStack->destShiftDir(), false);
 
 	if (vstd::contains(acc, myNumber))
 		return true;
@@ -2265,7 +2265,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					if(activeStack->doubleWide())
 					{
 						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-						BattleHex shiftedDest = myNumber + activeStack->destShiftDir();
+						BattleHex shiftedDest = myNumber.cloneInDirection(activeStack->destShiftDir(), false);
 						if(vstd::contains(acc, myNumber))
 							giveCommand(Battle::WALK, myNumber, activeStack->ID);
 						else if(vstd::contains(acc, shiftedDest))

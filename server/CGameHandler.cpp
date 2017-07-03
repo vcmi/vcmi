@@ -1164,7 +1164,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
-		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir());
+		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir(), false);
 
 		if(accessibility.accessible(shifted, curStack))
 			dest = shifted;
@@ -3948,7 +3948,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
-				&& !(stack->doubleWide() && (stack->position == ba.destinationTile.cloneInDirection(stack->destShiftDir()))) //nor occupy specified hex
+				&& !(stack->doubleWide() && (stack->position == ba.destinationTile.cloneInDirection(stack->destShiftDir(), false))) //nor occupy specified hex
 				)
 			{
 				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
