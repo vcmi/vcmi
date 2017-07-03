@@ -15,6 +15,7 @@
 #include "gui/SDL_Extensions.h"
 #include "widgets/CComponent.h"
 #include "windows/CTradeWindow.h"
+#include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
@@ -2244,11 +2245,15 @@ void CPlayerInterface::viewWorldMap()
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+    if(dynamic_cast<CSpellWindow *>(GH.topInt()))
+		GH.popIntTotally(GH.topInt());
+
 	if (spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 	{
 		eraseCurrentPathOf(caster, false);
 	}
-	const CSpell * spell = CGI->spellh->objects[spellID];
+	const CSpell * spell = CGI->spellh->objects.at(spellID);
 
 	if (spellID == SpellID::VIEW_EARTH)
 	{

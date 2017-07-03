@@ -636,9 +636,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 			auto guard = vstd::makeScopeGuard([this]
 			{
-				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastTabBattle : owner->myInt->spellbookSettings.spellbookLastTabAdvmap) = owner->selectedTab;
-				(owner->myInt->battleInt ? owner->myInt->spellbookSettings.spellbookLastPageBattle : owner->myInt->spellbookSettings.spellbokLastPageAdvmap) = owner->currentPage;
-				delete owner;
+				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
+				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
 			if(mySpell->getTargetType() == CSpell::LOCATION)
