@@ -3104,12 +3104,12 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
                 if(spellToCast)//hero casts spell
 				{
 					spell = SpellID(spellToCast->additionalInfo).toSpell();
-					caster = activeStack->side == BattleSide::ATTACKER ? attackingHeroInstance : defendingHeroInstance;
+					caster = getActiveHero();
 				}
 				else if(creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
 				{
-                    spell = SpellID(creatureSpellToCast).toSpell();
-                    caster = activeStack;
+					spell = SpellID(creatureSpellToCast).toSpell();
+					caster = activeStack;
 				}
 
 				if(caster && spell) //when casting spell
