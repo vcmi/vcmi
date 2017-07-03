@@ -441,7 +441,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 				CreatureID cre = warMachineArt->artType->warMachine;
 
 				if(cre != CreatureID::NONE)
-					stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cre, 1), !side, SlotID::WAR_MACHINES_SLOT, hex));
+					stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex));
 			}
 		};
 
