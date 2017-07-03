@@ -177,7 +177,7 @@ private:
 		{
 			if(rhs->turns > lhs->turns)
 				return false;
-			else if(rhs->turns == lhs->turns && rhs->moveRemains < lhs->moveRemains)
+			else if(rhs->turns == lhs->turns && rhs->moveRemains <= lhs->moveRemains)
 				return false;
 
 			return true;
