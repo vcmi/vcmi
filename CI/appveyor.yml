@@ -40,27 +40,13 @@ build_script:
 
     mkdir dist_%BUILD_PLATFORM%
 
-    cp launcher\%BUILD_CONFIGURATION%\VCMI_launcher.exe dist_%BUILD_PLATFORM%
+    copy %BUILD_CONFIGURATION%\*.exe dist_%BUILD_PLATFORM%
 
-    cp client\%BUILD_CONFIGURATION%\VCMI_client.exe dist_%BUILD_PLATFORM%
-
-    cp server\%BUILD_CONFIGURATION%\VCMI_server.exe dist_%BUILD_PLATFORM%
-
-    cp lib\%BUILD_CONFIGURATION%\VCMI_lib.dll dist_%BUILD_PLATFORM%
-
-    cp lib\minizip\%BUILD_CONFIGURATION%\minizip.dll dist_%BUILD_PLATFORM%
-
+    copy %BUILD_CONFIGURATION%\*.dll dist_%BUILD_PLATFORM%
 
     mkdir dist_%BUILD_PLATFORM%\AI
 
-    cp AI\VCAI\%BUILD_CONFIGURATION%\VCAI.dll dist_%BUILD_PLATFORM%\AI
-
-    cp AI\EmptyAI\%BUILD_CONFIGURATION%\EmptyAI.dll dist_%BUILD_PLATFORM%\AI
-
-    cp AI\BattleAI\%BUILD_CONFIGURATION%\BattleAI.dll dist_%BUILD_PLATFORM%\AI
-
-    cp AI\StupidAI\%BUILD_CONFIGURATION%\StupidAI.dll dist_%BUILD_PLATFORM%\AI
-
+    copy %BUILD_CONFIGURATION%\AI\*.dll dist_%BUILD_PLATFORM%\AI
 
     cd dist_%BUILD_PLATFORM%
 
