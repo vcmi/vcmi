@@ -13,57 +13,172 @@
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
 
 struct BattleStackAttacked;
+struct BattleInfo;
+class CStack;
+class CHealthInfo;
 
-class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor, public ISpellCaster
+template <typename Quantity>
+class DLL_LINKAGE CStackResource
 {
 public:
-	const CStackInstance *base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
+	CStackResource(const CStack * Owner):
+		owner(Owner)
+	{
+		reset();
+	}
+
+	virtual void reset()
+	{
+		used = 0;
+	};
+
+protected:
+	const CStack * owner;
+	Quantity used;
+};
+
+class DLL_LINKAGE CAmmo : public CStackResource<int32_t>
+{
+public:
+	CAmmo(const CStack * Owner, CSelector totalSelector);
+
+	int32_t available() const;
+	bool canUse(int32_t amount = 1) const;
+	virtual void reset() override;
+	virtual int32_t total() const;
+	virtual void use(int32_t amount = 1);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		if(!h.saving)
+			reset();
+		h & used;
+	}
+protected:
+	CBonusProxy totalProxy;
+};
+
+class DLL_LINKAGE CShots : public CAmmo
+{
+public:
+	CShots(const CStack * Owner);
+	void use(int32_t amount = 1) override;
+};
+
+class DLL_LINKAGE CCasts : public CAmmo
+{
+public:
+	CCasts(const CStack * Owner);
+};
+
+class DLL_LINKAGE CRetaliations : public CAmmo
+{
+public:
+	CRetaliations(const CStack * Owner);
+	int32_t total() const override;
+	void reset() override;
+private:
+	mutable int32_t totalCache;
+};
+
+class DLL_LINKAGE CHealth
+{
+public:
+	CHealth(const CStack * Owner);
+	CHealth(const CHealth & other);
+
+	void init(const int32_t baseAmount);
+	void reset();
+
+	void damage(int32_t & amount);
+	void heal(int32_t & amount, EHealLevel level, EHealPower power);
+
+	int32_t getCount() const;
+	int32_t getFirstHPleft() const;
+	int32_t getResurrected() const;
+
+	int64_t available() const;
+	int64_t total() const;
+
+	void toInfo(CHealthInfo & info) const;
+	void fromInfo(const CHealthInfo & info);
+
+	void takeResurrected();
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		if(!h.saving)
+			reset();
+		h & firstHPleft & fullUnits & resurrected;
+	}
+private:
+	void addResurrected(int32_t amount);
+	void setFromTotal(const int64_t totalHealth);
+	const CStack * owner;
+
+	int32_t firstHPleft;
+	int32_t fullUnits;
+	int32_t resurrected;
+};
+
+class DLL_LINKAGE CStack : public CBonusSystemNode, public ISpellCaster
+{
+public:
+	const CStackInstance * base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 
 	ui32 ID; //unique ID of stack
 	ui32 baseAmount;
-	ui32 firstHPleft; //HP of first creature in stack
-	PlayerColor owner; //owner - player colour (255 for neutrals)
+	const CCreature * type;
+
+	PlayerColor owner; //owner - player color (255 for neutrals)
 	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 side;
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
-	///how many times this stack has been counterattacked this round
-	ui8 counterAttacksPerformed;
-	///cached total count of counterattacks; should be cleared each round;do not serialize
-	mutable ui8 counterAttacksTotalCache;
-	si16 shots; //how many shots left
-	ui8 casts; //how many casts left
-	TQuantity resurrected; // these units will be taken back after battle is over
+
+	CRetaliations counterAttacks;
+	CShots shots;
+	CCasts casts;
+	CHealth health;
+
 	///id of alive clone of this stack clone if any
 	si32 cloneID;
 	std::set<EBattleStackState::EBattleStackState> state;
-	//overrides
-	const CCreature* getCreature() const {return type;}
 
-	CStack(const CStackInstance *base, PlayerColor O, int I, ui8 Side, SlotID S); //c-tor
-	CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255)); //c-tor
+	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S); //c-tor
+	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255)); //c-tor
 	CStack(); //c-tor
 	~CStack();
+
+	int32_t getKilled() const;
+	int32_t getCount() const;
+	int32_t getFirstHPleft() const;
+	const CCreature * getCreature() const;
+
 	std::string nodeName() const override;
 
 	void init(); //set initial (invalid) values
-	void postInit(); //used to finish initialization when inheriting creature parameters is working
+	void localInit(BattleInfo * battleInfo);
 	std::string getName() const; //plural or singular
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool ableToRetaliate() const; //if stack can retaliate after attacked
-	///how many times this stack can counterattack in one round
-	ui8 counterAttacksTotal() const;
-	///how many times this stack can counterattack in one round more
-	si8 counterAttacksRemaining() const;
+
 	bool moved(int turn = 0) const; //if stack was already moved this turn
 	bool waited(int turn = 0) const;
+
+	bool canCast() const;
+	bool isCaster() const;
+
 	bool canMove(int turn = 0) const; //if stack can move
+
+	bool canShoot() const;
+	bool isShooter() const;
+
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
-	///returns actual heal value based on internal state
-	ui32 calculateHealedHealthPoints(ui32 toHeal, const bool resurrect) const;
+
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast
-	const CGHeroInstance *getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
+	const CGHeroInstance * getMyHero() const; //if stack belongs to hero (directly or was by him summoned) returns hero, nullptr otherwise
 	ui32 totalHealth() const; // total health for all creatures in stack;
 
 	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
@@ -79,11 +194,15 @@ public:
 
 	BattleHex::EDir destShiftDir() const;
 
-	std::pair<int,int> countKilledByAttack(int damageReceived) const; //returns pair<killed count, new left HP>
-	void prepareAttacked(BattleStackAttacked &bsa, CRandomGenerator & rand, boost::optional<int> customCount = boost::none) const; //requires bsa.damageAmout filled
+	CHealth healthAfterAttacked(int32_t & damage) const;
+	CHealth healthAfterHealed(int32_t & toHeal, EHealLevel level, EHealPower power) const;
+
+	void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand) const; //requires bsa.damageAmout filled
+	void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const CHealth & customHealth) const; //requires bsa.damageAmout filled
 
 	///ISpellCaster
-	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+
+	ui8 getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
 
 	///default spell school level for effect calculation
@@ -99,21 +218,29 @@ public:
 	int getEffectValue(const CSpell * spell) const override;
 
 	const PlayerColor getOwner() const override;
-
 	void getCasterName(MetaString & text) const override;
-
 	void getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const override;
+
+	///MetaStrings
+
+	void addText(MetaString & text, ui8 type, int32_t serial, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
+	void addNameReplacement(MetaString & text, const boost::logic::tribool & plural = boost::logic::indeterminate) const;
+	std::string formatGeneralMessage(const int32_t baseTextId) const;
+
+	///Non const API for NetPacks
 
 	///stack will be ghost in next battle state update
 	void makeGhost();
+	void setHealth(const CHealthInfo & value);
+	void setHealth(const CHealth & value);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & ID & baseAmount & firstHPleft & owner & slot & side & position & state & counterAttacksPerformed
-			& shots & casts & count & resurrected;
+		h & type;
+		h & ID & baseAmount & owner & slot & side & position & state
+			& shots & casts & counterAttacks & health;
 
 		const CArmedInstance *army = (base ? base->armyObj : nullptr);
 		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
@@ -150,8 +277,13 @@ public:
 	}
 	bool alive() const;
 
+	bool isClone() const;
 	bool isDead() const;
 	bool isGhost() const; //determines if stack was removed
 	bool isValidTarget(bool allowDead = false) const; //non-turret non-ghost stacks (can be attacked or be object of magic effect)
 	bool isTurret() const;
+
+	friend class CShots; //for BattleInfo access
+private:
+	const BattleInfo * battle; //do not serialize
 };

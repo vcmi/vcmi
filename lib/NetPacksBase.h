@@ -189,3 +189,22 @@ struct ArtifactLocation
 		h & artHolder & slot;
 	}
 };
+
+class CHealthInfo
+{
+public:
+	CHealthInfo():
+		stackId(0), delta(0), firstHPleft(0), fullUnits(0), resurrected(0)
+	{
+	}
+	uint32_t stackId;
+	int32_t delta;
+	int32_t firstHPleft;
+	int32_t fullUnits;
+	int32_t resurrected;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & stackId & delta & firstHPleft & fullUnits & resurrected;
+	}
+};

@@ -79,6 +79,29 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
 }; //untested
 
+///CBonusProxy
+CBonusProxy::CBonusProxy(const IBonusBearer * Target, CSelector Selector):
+	cachedLast(0), target(Target), selector(Selector), data()
+{
+
+}
+
+TBonusListPtr CBonusProxy::get() const
+{
+	if(CBonusSystemNode::treeChanged != cachedLast || !data)
+	{
+        data = target->getAllBonuses(selector, nullptr);
+        data->eliminateDuplicates();
+        cachedLast = CBonusSystemNode::treeChanged;
+	}
+
+	return data;
+}
+
+const BonusList * CBonusProxy::operator->() const
+{
+	return get().get();
+}
 
 #define BONUS_LOG_LINE(x) logBonus->traceStream() << x
 

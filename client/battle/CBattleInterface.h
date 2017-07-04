@@ -54,7 +54,7 @@ class CBattleGameInterface;
 struct StackAttackedInfo
 {
 	const CStack *defender; //attacked stack
-	unsigned int dmg; //damage dealt
+	int32_t dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack *attacker; //attacking stack
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack

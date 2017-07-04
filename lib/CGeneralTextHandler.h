@@ -38,7 +38,7 @@ namespace Unicode
 	/// NOTE: usage of these functions should be avoided if possible
 	std::string DLL_LINKAGE fromUnicode(const std::string & text);
 	std::string DLL_LINKAGE fromUnicode(const std::string & text, const std::string & encoding);
-	
+
 	///delete (amount) UTF characters from right
 	DLL_LINKAGE void trimRight(std::string & text, const size_t amount = 1);
 };
@@ -104,7 +104,7 @@ public:
 	std::vector<std::string> overview;//text for Kingdom Overview window
 	std::vector<std::string> colors; //names of player colors ("red",...)
 	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
-	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited) 
+	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited)
 
 	//towns
 	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
@@ -143,6 +143,8 @@ public:
 	std::vector<std::vector<std::string>> campaignRegionNames;
 
 	static void readToVector(std::string sourceName, std::vector<std::string> &dest);
+
+	int32_t pluralText(const int32_t textIndex, const int32_t count) const;
 
 	CGeneralTextHandler();
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;

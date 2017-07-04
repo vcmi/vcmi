@@ -1364,17 +1364,19 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		if(bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
 		{
 			//defensive stance
-			const CStack *stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
-			int txtid = 120;
+			const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
 
-			if(stack->count != 1)
-				txtid++; //move to plural text
+			int textId = CGI->generaltexth->pluralText(120, stack->getCount());
 
 			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
 			defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
 			int val = stack->Defense() - defenseBonuses.totalValue();
-			auto txt = boost::format(CGI->generaltexth->allTexts[txtid]) % ((stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing) % val;
-			console->addText(boost::to_string(txt));
+
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, textId);
+			stack->addNameReplacement(text);
+			text.addReplacement(val);
+			console->addText(text.toString());
 		}
 	}
 
@@ -1594,10 +1596,10 @@ void CBattleInterface::activateStack()
 	//set casting flag to true if creature can use it to not check it every time
 	const auto spellcaster = s->getBonusLocalFirst(Selector::type(Bonus::SPELLCASTER)),
 		randomSpellcaster = s->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
-	if (s->casts &&  (spellcaster || randomSpellcaster))
+	if(s->canCast() && (spellcaster || randomSpellcaster))
 	{
 		stackCanCastSpell = true;
-		if (randomSpellcaster)
+		if(randomSpellcaster)
 			creatureSpellToCast = -1; //spell will be set later on cast
 		else
 			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
@@ -1698,16 +1700,16 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack, const boo
 	{
 		PossibleActions notPriority = INVALID;
 		//first action will be prioritized over later ones
-		if (stack->casts) //TODO: check for battlefield effects that prevent casting?
+		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
 		{
-			if (stack->hasBonusOfType (Bonus::SPELLCASTER))
+			if(stack->hasBonusOfType (Bonus::SPELLCASTER))
 			{
-				if (creatureSpellToCast != -1)
+				if(creatureSpellToCast != -1)
 				{
 					const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
 					PossibleActions act = getCasterAction(spell, stack, ECastingMode::CREATURE_ACTIVE_CASTING);
 
-					if (forceCast)
+					if(forceCast)
 					{
 						//forced action to be only one possible
 						possibleActions.push_back(act);
@@ -1723,10 +1725,10 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack, const boo
 			if (stack->hasBonusOfType (Bonus::DAEMON_SUMMONING))
 				possibleActions.push_back (RISE_DEMONS);
 		}
-		if (stack->shots && stack->hasBonusOfType (Bonus::SHOOTER))
-			possibleActions.push_back (SHOOT);
-		if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE))
-			possibleActions.push_back (ATTACK_AND_RETURN);
+		if(stack->canShoot())
+			possibleActions.push_back(SHOOT);
+		if(stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE))
+			possibleActions.push_back(ATTACK_AND_RETURN);
 
 		possibleActions.push_back(ATTACK); //all active stacks can attack
 		possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
@@ -1744,38 +1746,38 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack, const boo
 	}
 }
 
-void CBattleInterface::printConsoleAttacked( const CStack *defender, int dmg, int killed, const CStack *attacker, bool multiple )
+void CBattleInterface::printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple)
 {
 	std::string formattedText;
-	if (attacker) //ignore if stacks were killed by spell
+	if(attacker) //ignore if stacks were killed by spell
 	{
-		boost::format txt = boost::format (CGI->generaltexth->allTexts[attacker->count > 1 ? 377 : 376]) %
-			(attacker->count > 1 ? attacker->getCreature()->namePl : attacker->getCreature()->nameSing) % dmg;
-		formattedText.append(boost::to_string(txt));
+		MetaString text;
+		text.addTxt(MetaString::GENERAL_TXT, CGI->generaltexth->pluralText(376, attacker->getCount()));
+		attacker->addNameReplacement(text);
+		text.addReplacement(dmg);
+		formattedText = text.toString();
 	}
-	if (killed > 0)
+
+	if(killed > 0)
 	{
-		if (attacker)
+		if(attacker)
 			formattedText.append(" ");
 
 		boost::format txt;
-		if (killed > 1)
+		if(killed > 1)
 		{
-			txt = boost::format (CGI->generaltexth->allTexts[379]) % killed % (multiple ? CGI->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
+			txt = boost::format(CGI->generaltexth->allTexts[379]) % killed % (multiple ? CGI->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
 		}
 		else //killed == 1
 		{
-			txt = boost::format (CGI->generaltexth->allTexts[378]) % (multiple ? CGI->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
+			txt = boost::format(CGI->generaltexth->allTexts[378]) % (multiple ? CGI->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
 		std::string trimmed = boost::to_string(txt);
 		boost::algorithm::trim(trimmed); // these default h3 texts have unnecessary new lines, so get rid of them before displaying
 		formattedText.append(trimmed);
 	}
 	console->addText(formattedText);
-
 }
-
-
 
 void CBattleInterface::endAction(const BattleAction* action)
 {
@@ -1962,19 +1964,11 @@ void CBattleInterface::startAction(const BattleAction* action)
 		break;
 	}
 
-	if (txtid > 0  &&  stack->count != 1)
-		txtid++; //move to plural text
-	else if (txtid < 0)
-		txtid = -txtid;
-
-	if (txtid)
-	{
-		std::string name = (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str();
-		console->addText((boost::format(CGI->generaltexth->allTexts[txtid].c_str()) % name).str());
-	}
+	if(txtid != 0)
+		console->addText(stack->formatGeneralMessage(txtid));
 
 	//displaying special abilities
-	switch (action->actionType)
+	switch(action->actionType)
 	{
 		case Battle::STACK_HEAL:
 			displayEffect(74, action->destinationTile);
@@ -2202,7 +2196,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					if (!(shere->hasBonusOfType(Bonus::UNDEAD)
 						|| shere->hasBonusOfType(Bonus::NON_LIVING)
 						|| vstd::contains(shere->state, EBattleStackState::SUMMONED)
-						|| vstd::contains(shere->state, EBattleStackState::CLONED)
+						|| shere->isClone()
 						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
 						))
 						legalAction = true;
@@ -2306,7 +2300,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				realizeAction = [=] {giveCommand(Battle::SHOOT, myNumber, activeStack->ID);};
 				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(CRandomGenerator::getDefault(), sactive, shere)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
-				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots.available() % estDmgText).str();
 			}
 				break;
 			case AIMED_SPELL_CREATURE:
@@ -3275,10 +3269,10 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 {
 	auto isAmountBoxVisible = [&](const CStack *stack) -> bool
 	{
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->count == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 			return false;
 
-		if(stack->count == 0) //hide box when target is going to die anyway - do not display "0 creatures"
+		if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
 			return false;
 
 		for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
@@ -3355,7 +3349,7 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 			//blitting amount
 			Point textPos(creAnims[stack->ID]->pos.x + xAdd + amountNormal->w/2,
 			              creAnims[stack->ID]->pos.y + yAdd + amountNormal->h/2);
-			graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->count), Colors::WHITE, textPos);
+			graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->getCount()), Colors::WHITE, textPos);
 		}
 	}
 }

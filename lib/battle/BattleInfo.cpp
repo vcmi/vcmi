@@ -78,15 +78,22 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender,
+ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender,
 	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand)
 {
-	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
+	BattleAttackInfo bai(attacker, defender, shooting);
+	bai.chargedFields = charge;
+	bai.luckyHit = lucky;
+	bai.unluckyHit = unlucky;
+	bai.deathBlow = deathBlow;
+	bai.ballistaDoubleDamage = ballistaDoubleDmg;
+
+	TDmgRange range = calculateDmgRange(bai);
 
 	if(range.first != range.second)
 	{
 		ui32 sum = 0;
-		ui32 howManyToAv = std::min<ui32>(10, attacker->count);
+		ui32 howManyToAv = std::min<ui32>(10, attacker->getCount());
 		for(int g=0; g<howManyToAv; ++g)
 			sum += (ui32)rand.nextInt(range.first, range.second);
 
@@ -101,9 +108,8 @@ void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
 	for(auto & elem : stacks)//setting casualties
 	{
 		const CStack * const st = elem;
-		si32 killed = (st->alive() ? (st->baseAmount - st->count + st->resurrected) : st->baseAmount);
-		vstd::amax(killed, 0);
-		if(killed)
+		si32 killed = st->getKilled();
+		if(killed > 0)
 			casualties[st->side][st->getCreature()->idNumber] += killed;
 	}
 }
@@ -140,27 +146,10 @@ void BattleInfo::localInit()
 		armyObj->attachTo(this);
 	}
 
-	for(CStack *s : stacks)
-		localInitStack(s);
+	for(CStack * s : stacks)
+		s->localInit(this);
 
 	exportBonuses();
-}
-
-void BattleInfo::localInitStack(CStack * s)
-{
-	s->exportBonuses();
-	if(s->base) //stack originating from "real" stack in garrison -> attach to it
-	{
-		s->attachTo(const_cast<CStackInstance*>(s->base));
-	}
-	else //attach directly to obj to which stack belongs and creature type
-	{
-		CArmedInstance *army = battleGetArmyObject(s->side);
-		s->attachTo(army);
-		assert(s->type);
-		s->attachTo(const_cast<CCreature*>(s->type));
-	}
-	s->postInit();
 }
 
 namespace CGH

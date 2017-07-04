@@ -26,21 +26,24 @@ HealingSpellMechanics::HealingSpellMechanics(const CSpell * s):
 void HealingSpellMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
 	EHealLevel healLevel = getHealLevel(parameters.effectLevel);
+	EHealPower healPower = getHealPower(parameters.effectLevel);
+
 	int hpGained = calculateHealedHP(env, parameters, ctx);
 	StacksHealedOrResurrected shr;
 	shr.lifeDrain = false;
 	shr.tentHealing = false;
+
 	//special case for Archangel
 	shr.cure = parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING && owner->id == SpellID::RESURRECTION;
 
-	const bool resurrect = (healLevel != EHealLevel::HEAL);
 	for(auto & attackedCre : ctx.attackedCres)
 	{
-		StacksHealedOrResurrected::HealInfo hi;
-		hi.stackID = (attackedCre)->ID;
-		int stackHPgained = parameters.caster->getSpellBonus(owner, hpGained, attackedCre);
-		hi.healedHP = attackedCre->calculateHealedHealthPoints(stackHPgained, resurrect);
-		hi.lowLevelResurrection = (healLevel == EHealLevel::RESURRECT);
+		int32_t stackHPgained = parameters.caster->getSpellBonus(owner, hpGained, attackedCre);
+		CHealth health = attackedCre->healthAfterHealed(stackHPgained, healLevel, healPower);
+
+		CHealthInfo hi;
+		health.toInfo(hi);
+		hi.delta = stackHPgained;
 		shr.healedStacks.push_back(hi);
 	}
 	if(!shr.healedStacks.empty())
@@ -147,7 +150,7 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const 
 	bsa.side = parameters.casterSide;
 	bsa.summoned = true;
 	bsa.pos = parameters.cb->getAvaliableHex(bsa.creID, parameters.casterSide);
-	bsa.amount = clonedStack->count;
+	bsa.amount = clonedStack->getCount();
 	env->sendAndApply(&bsa);
 
 	BattleSetStackProperty ssp;
@@ -174,19 +177,16 @@ void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const 
 ESpellCastProblem::ESpellCastProblem CloneMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	//can't clone already cloned creature
-	if(vstd::contains(obj->state, EBattleStackState::CLONED))
+	if(obj->isClone())
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	//can`t clone if old clone still alive
 	if(obj->cloneID != -1)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 	ui8 schoolLevel;
 	if(caster)
-	{
 		schoolLevel = caster->getEffectLevel(owner);
-	}
 	else
-	{
 		schoolLevel = 3;//todo: remove
-	}
 
 	if(schoolLevel < 3)
 	{
@@ -211,9 +211,14 @@ void CureMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * pac
 	doDispell(battle, packet, dispellSelector);
 }
 
-HealingSpellMechanics::EHealLevel CureMechanics::getHealLevel(int effectLevel) const
+EHealLevel CureMechanics::getHealLevel(int effectLevel) const
 {
 	return EHealLevel::HEAL;
+}
+
+EHealPower CureMechanics::getHealPower(int effectLevel) const
+{
+	return EHealPower::PERMANENT;
 }
 
 bool CureMechanics::dispellSelector(const Bonus * b)
@@ -798,13 +803,18 @@ RisingSpellMechanics::RisingSpellMechanics(const CSpell * s):
 {
 }
 
-HealingSpellMechanics::EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
+EHealLevel RisingSpellMechanics::getHealLevel(int effectLevel) const
+{
+	return EHealLevel::RESURRECT;
+}
+
+EHealPower RisingSpellMechanics::getHealPower(int effectLevel) const
 {
 	//this may be even distinct class
 	if((effectLevel <= 1) && (owner->id == SpellID::RESURRECTION))
-		return EHealLevel::RESURRECT;
-
-	return EHealLevel::TRUE_RESURRECT;
+		return EHealPower::ONE_BATTLE;
+	else
+		return EHealPower::PERMANENT;
 }
 
 ///SacrificeMechanics
@@ -889,7 +899,7 @@ int SacrificeMechanics::calculateHealedHP(const SpellCastEnvironment* env, const
 		return 0;
 	}
 
-	return (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->count;
+	return (parameters.effectPower + victim->MaxHealth() + owner->getPower(parameters.effectLevel)) * victim->getCount();
 }
 
 bool SacrificeMechanics::requiresCreatureTarget() const
@@ -949,16 +959,22 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::isImmuneByStac
 	// following does apply to resurrect and animate dead(?) only
 	// for sacrifice health calculation and health limit check don't matter
 
-	if(obj->count >= obj->baseAmount)
+	if(obj->getCount() >= obj->baseAmount)
 		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
-	//FIXME: Archangels can cast immune stack and this should be applied for them and not hero
-//	if(caster)
-//	{
-//		auto maxHealth = calculateHealedHP(caster, obj, nullptr);
-//		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
-//			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-//	}
+	//FIXME: code duplication with BattleSpellCastParameters
+	auto getEffectValue = [&]() -> si32
+	{
+		si32 effectValue = caster->getEffectValue(owner);
+		return (effectValue == 0) ? owner->calculateRawEffectValue(caster->getEffectLevel(owner), caster->getEffectPower(owner)) : effectValue;
+	};
+
+	if(caster)
+	{
+		auto maxHealth = getEffectValue();
+		if (maxHealth < obj->MaxHealth()) //must be able to rise at least one full creature
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+	}
 
 	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
 }
@@ -983,7 +999,7 @@ ESpellCastProblem::ESpellCastProblem SummonMechanics::canBeCast(const CBattleInf
 	{
 		return (st->owner == caster->getOwner())
 			&& (vstd::contains(st->state, EBattleStackState::SUMMONED))
-			&& (!vstd::contains(st->state, EBattleStackState::CLONED))
+			&& (!st->isClone())
 			&& (st->getCreature()->idNumber != creatureToSummon);
 	});
 

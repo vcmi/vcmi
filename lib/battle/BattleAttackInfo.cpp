@@ -9,10 +9,10 @@
  */
 #include "StdInc.h"
 #include "BattleAttackInfo.h"
-#include "../CStack.h"
 
 
-BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting)
+BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting):
+	attackerHealth(Attacker), defenderHealth(Defender) //todo: copy
 {
 	attacker = Attacker;
 	defender = Defender;
@@ -22,9 +22,6 @@ BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defen
 
 	attackerPosition = Attacker->position;
 	defenderPosition = Defender->position;
-
-	attackerCount = Attacker->count;
-	defenderCount = Defender->count;
 
 	shooting = Shooting;
 	chargedFields = 0;
@@ -41,7 +38,7 @@ BattleAttackInfo BattleAttackInfo::reverse() const
 	std::swap(ret.attacker, ret.defender);
 	std::swap(ret.attackerBonuses, ret.defenderBonuses);
 	std::swap(ret.attackerPosition, ret.defenderPosition);
-	std::swap(ret.attackerCount, ret.defenderCount);
+	std::swap(ret.attackerHealth, ret.defenderHealth);
 
 	ret.shooting = false;
 	ret.chargedFields = 0;

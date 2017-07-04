@@ -596,9 +596,10 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
 			attackedStack->alive())
 		{
-			const std::string & attackedName = attackedStack->count == 1 ? attackedStack->getCreature()->nameSing : attackedStack->getCreature()->namePl;
-			auto txt = boost::format (CGI->generaltexth->allTexts[220]) % attackedName;
-			myInterface->console->alterTxt = boost::to_string(txt);
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 220);
+			attackedStack->addNameReplacement(text);
+			myInterface->console->alterTxt = text.toString();
 			setAlterText = true;
 		}
 	}
@@ -745,9 +746,9 @@ void CStackQueue::StackBox::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	if(small)
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
+		printAtMiddleLoc(makeNumberShort(stack->getCount()), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
 	else
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
+		printAtMiddleLoc(makeNumberShort(stack->getCount()), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
 }
 
 void CStackQueue::StackBox::setStack( const CStack *stack )
