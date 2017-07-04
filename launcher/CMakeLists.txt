@@ -68,6 +68,8 @@ else()
 	target_link_libraries(vcmilauncher vcmi ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${SDL_LIBRARY})
 endif()
 
+vcmi_set_output_dir(vcmilauncher "")
+
 # temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
 #set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
 #cotire(vcmilauncher)

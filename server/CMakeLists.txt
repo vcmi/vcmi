@@ -32,6 +32,8 @@ if(WIN32)
 	set_target_properties(vcmiserver PROPERTIES OUTPUT_NAME VCMI_server)
 endif()
 
+vcmi_set_output_dir(vcmiserver "")
+
 set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
 set_target_properties(vcmiserver PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
 cotire(vcmiserver)

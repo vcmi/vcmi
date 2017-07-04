@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 2.8.12)
 # where to look for cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 
+include(VCMIUtils)
+
 # enable Release mode but only if it was not set
 if (NOT CMAKE_BUILD_TYPE)
 		set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -362,7 +364,6 @@ elseif(APPLE)
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()
-
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)

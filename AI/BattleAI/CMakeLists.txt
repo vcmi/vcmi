@@ -34,6 +34,8 @@ endif()
 add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_link_libraries(BattleAI vcmi)
 
+vcmi_set_output_dir(BattleAI "AI")
+
 set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
 cotire(BattleAI)
 
