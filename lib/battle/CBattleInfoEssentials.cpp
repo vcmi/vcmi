@@ -358,6 +358,8 @@ bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CSta
 	RETURN_IF_NOT_BATTLE(false);
 	if(boost::logic::indeterminate(positivness))
 		return true;
+	else if(attacker == defender)
+		return positivness;
 	else if(defender->owner != battleGetOwner(defender))
 		return true; //mind controlled unit is attackable for both sides
 	else
