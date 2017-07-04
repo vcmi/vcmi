@@ -132,6 +132,8 @@ set(lib_SRCS
 		ResourceSet.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
+
+		${VCMILIB_ADDITIONAL_SOURCES}
 )
 
 set(lib_HEADERS
@@ -284,8 +286,6 @@ set(lib_HEADERS
 		VCMIDirs.h
 		vcmi_endian.h
 		VCMI_Lib.h
-
-		${VCMILIB_ADDITIONAL_SOURCES}
 )
 
 add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
