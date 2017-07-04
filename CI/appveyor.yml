@@ -81,3 +81,7 @@ build_script:
     7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip c:\projects\vcmi\depends\bin\*.dll
 artifacts:
 - path: vcmi-x86-Release.zip
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: zxT3HTnxL744HiSv7ig7sjGL4LmJ8n3MsY8PEA/kinbVMkmcxrSgVBVkHV79RfSWSyq4oLMSRvMMpG8SuDWnf6oK/qvgaiAWfwwlCIiA7uQ=
