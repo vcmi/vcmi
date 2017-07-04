@@ -47,3 +47,4 @@ CVcmiTestConfig::~CVcmiTestConfig()
 {
 	std::cout << "Ending global test tear-down." << std::endl;
 }
+
