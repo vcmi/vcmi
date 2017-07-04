@@ -28,7 +28,7 @@ install:
 
     cd build_%BUILD_PLATFORM%
 
-    cmake -DCMAKE_TOOLCHAIN_FILE=../source/appveyor_toolchain.txt ../source
+    cmake -DCMAKE_TOOLCHAIN_FILE=../source/CI/msvc/appveyor_toolchain.txt ../source
 build_script:
 - cmd: >-
     cd c:\projects\vcmi\build_%BUILD_PLATFORM%
