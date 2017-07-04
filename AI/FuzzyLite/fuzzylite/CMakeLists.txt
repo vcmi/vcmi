@@ -94,7 +94,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "/WX /W4 /EHsc")
+    set(CMAKE_CXX_FLAGS "/W4 /EHsc")
+    #set(CMAKE_CXX_FLAGS "/WX /W4 /EHsc")
     #Wx: Treat warnings as errors. W4: All warnings
     #http://msdn.microsoft.com/en-us/library/thxezb7y.aspx
     #EHsc: call destructors on __try __catch, and to ignore C4530: C++ exception handler used. Note, unwind semantics are not enabled

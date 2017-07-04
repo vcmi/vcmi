@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.7)
 project(test)
 enable_testing()
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/test)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR})
 
 set(test_SRCS
 		StdInc.cpp
