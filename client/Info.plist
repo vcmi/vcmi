@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.vcmi.vcmiclient</string>
 	<key>SUFeedURL</key>
-	<string>http://vcmi.eu/sparkle_appcast.xml</string>
+	<string>https://vcmi.eu/sparkle_appcast.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>vcmi_dsa_public.pem</string>
 </dict>
