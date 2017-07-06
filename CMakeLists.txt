@@ -24,6 +24,8 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+# TODO: default to ON when we start distributing macOS binaries
+option(ENABLE_SPARKLE "Enable auto-updating with Sparkle on macOS" OFF)
 
 ############################################
 #        Documentation section             #
@@ -53,9 +55,14 @@ if (APPLE)
 	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-	# On OS X we use Sparkle framework for updates
-	find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
-	find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
+  if(ENABLE_SPARKLE)
+    # so that OSX_checkForUpdates knows whether to be a noop
+    add_definitions(-DSPARKLE)
+
+    # On OS X we use Sparkle framework for updates
+    find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
+    find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
+  endif()
 
 	# Xcode 5.0 fix
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
@@ -70,7 +77,7 @@ if (WIN32)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
-	set(CMAKE_SHARED_LIBRARY_PREFIX "") 
+	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MINGW)
 		#MinGW: check for iconv (may be needed for boost.locale)
@@ -82,8 +89,8 @@ if (WIN32)
 
 		#MinGW: copy runtime to VCMI location
 		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll") 
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll") 
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll")
+		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll")
 		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
 
 		#MinGW: use O1 to prevent compiler crash in some cases
@@ -209,7 +216,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # precompiled header configuration
 SET(PCH_PROPERTIES
 	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
-	COTIRE_ADD_UNITY_BUILD FALSE 
+	COTIRE_ADD_UNITY_BUILD FALSE
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
 )
 
@@ -247,24 +254,24 @@ if (NOT APPLE)
 		install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 			OWNER_WRITE OWNER_READ OWNER_EXECUTE
 						GROUP_READ GROUP_EXECUTE
-						WORLD_READ WORLD_EXECUTE)			
+						WORLD_READ WORLD_EXECUTE)
 	endif()
 endif()
 
 if(WIN32)
-	file(GLOB dep_files 
-		${dep_files} 
+	file(GLOB dep_files
+		${dep_files}
 		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
 
 	#Copy debug versions of libraries if build type is debug. Doesn't work in MSVC!
 	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
 		set(debug_postfix d)
 	endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
-	
+
 	if(ENABLE_LAUNCHER)
 		get_target_property(QtCore_location Qt5::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
-		file(GLOB dep_files 
+		file(GLOB dep_files
 			${dep_files}
 			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
@@ -273,7 +280,7 @@ if(WIN32)
 		file(GLOB dep_qwindows
 			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
 		if(MSVC)
-			file(GLOB dep_files 
+			file(GLOB dep_files
 				${dep_files}
 				${Qtbin_folder}/libEGL.dll
 				${Qtbin_folder}/libGLESv2.dll)
@@ -281,8 +288,8 @@ if(WIN32)
 	endif()
 
 	if (ENABLE_LAUNCHER)
-		file(GLOB dep_files 
-			${dep_files} 
+		file(GLOB dep_files
+			${dep_files}
 			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
 	endif()
 
@@ -345,7 +352,7 @@ if(WIN32)
 	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
-	
+
 	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
 	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
 elseif(APPLE)

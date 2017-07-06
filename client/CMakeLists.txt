@@ -128,15 +128,18 @@ if(MSVC)
 endif()
 
 if(APPLE)
-	# OS X specific includes
-	include_directories(${SPARKLE_INCLUDE_DIR})
-
 	# OS X specific source files
-	set(client_SRCS ${client_SRCS} SDLMain.m OSX.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
-	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
+	set(client_SRCS ${client_SRCS} SDLMain.m Autoupdate.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
 
-	# OS X specific libraries
-	target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
+  if(ENABLE_SPARKLE)
+    # OS X specific includes
+    include_directories(${SPARKLE_INCLUDE_DIR})
+
+    # OS X specific libraries
+    target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
+  endif()
+
+	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
 
 	# Because server and AI libs would be copies to bundle they need to be built before client
 	add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
