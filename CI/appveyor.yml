@@ -44,6 +44,8 @@ build_script:
 
     copy %BUILD_CONFIGURATION%\*.dll dist_%BUILD_PLATFORM%
 
+    copy %BUILD_CONFIGURATION%\lib\*.dll dist_%BUILD_PLATFORM%
+
     mkdir dist_%BUILD_PLATFORM%\AI
 
     copy %BUILD_CONFIGURATION%\AI\*.dll dist_%BUILD_PLATFORM%\AI
