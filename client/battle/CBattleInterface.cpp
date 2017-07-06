@@ -2581,7 +2581,7 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 		}
 	case 8: //from left
 		{
-			if(activeStack->doubleWide() && activeStack->side == activeStack->side == BattleSide::DEFENDER)
+			if(activeStack->doubleWide() && activeStack->side == BattleSide::DEFENDER)
 			{
 				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 				if (vstd::contains(acc, myNumber))
