@@ -155,12 +155,16 @@ if(APPLE)
 
 	# Copy server executable, libs and game data to bundle
 	set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
+
+  set(CopyVendoredMinizip
+		mkdir -p ${BUNDLE_PATH}/MacOS &&
+    cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
+
 	set(MakeVCMIBundle
 		# Copy all needed binaries
 		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
 		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
 		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib &&
 		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
 		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
 		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
@@ -180,6 +184,9 @@ if(APPLE)
 		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/hota/ ${BUNDLE_PATH}/Data/Mods/hota/ || echo "Download HOTA mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
 		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
 
+  if(NOT MINIZIP_FOUND)
+    add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${CopyVendoredMinizip})
+  endif()
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 elseif(WIN32)
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} VCMI_client.rc)
