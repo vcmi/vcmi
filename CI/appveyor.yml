@@ -64,9 +64,9 @@ build_script:
 
     copy %QTDIR%\plugins\platforms\qwindows.dll platforms
 
-    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip * -r -x!*.exp -x!*.lib
+    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip * -mx=7 -r -x!*.exp -x!*.lib
 
-    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip c:\projects\vcmi\depends\bin\*.dll
+    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip c:\projects\vcmi\depends\bin\*.dll -mx=7
 artifacts:
 - path: vcmi-x86-Release.zip
 notifications:
