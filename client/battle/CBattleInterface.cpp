@@ -3275,19 +3275,31 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 {
 	auto isAmountBoxVisible = [&](const CStack *stack) -> bool
 	{
-		if (stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) // siege weapons are always singular
+		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) // siege weapons are always singular
 			return false;
 
-		if (curInt->curAction)
+		if(stack->count == 0) //hide box when target is going to die anyway - do not display "0 creatures"
+			return false;
+
+		for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
 		{
-			if (curInt->curAction->stackNumber == stack->ID) // stack is currently taking an action
+			auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim.first);
+			if(hitAnimation && (hitAnimation->stack->ID == stack->ID)) //we process only "current creature" as other creatures will be processed reliably on their own iteration
 				return false;
+		}
 
-			if (curInt->curAction->actionType == Battle::WALK_AND_ATTACK && // stack is being targeted
-				stack->position == curInt->curAction->additionalInfo)
-				return false;
+		if(curInt->curAction)
+		{
+			if(curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
+			{
+				if(curInt->curAction->actionType == Battle::WALK || curInt->curAction->actionType == Battle::SHOOT) //hide when stack walks or shoots
+					return false;
 
-			if (curInt->curAction->destinationTile == stack->position) // stack is moving
+				else if(curInt->curAction->actionType == Battle::WALK_AND_ATTACK && curInt->curAction->destinationTile != stack->position) //when attacking, hide until walk phase finished
+					return false;
+			}
+
+			if(curInt->curAction->actionType == Battle::SHOOT && curInt->curAction->destinationTile == stack->position) //hide if we are ranged attack target
 				return false;
 		}
 
