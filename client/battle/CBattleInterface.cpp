@@ -3275,7 +3275,7 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 {
 	auto isAmountBoxVisible = [&](const CStack *stack) -> bool
 	{
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON)) // siege weapons are always singular
+		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->count == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 			return false;
 
 		if(stack->count == 0) //hide box when target is going to die anyway - do not display "0 creatures"
