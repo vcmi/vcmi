@@ -38,6 +38,8 @@ else()
 	target_link_libraries(VCAI fl-static vcmi)
 endif()
 
+vcmi_set_output_dir(VCAI "AI")
+
 set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
 cotire(VCAI)
 

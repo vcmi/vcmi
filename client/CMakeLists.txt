@@ -156,19 +156,18 @@ if(APPLE)
 	# Copy server executable, libs and game data to bundle
 	set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
 
-  set(CopyVendoredMinizip
-		mkdir -p ${BUNDLE_PATH}/MacOS &&
-    cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
+	set(CopyVendoredMinizip
+		mkdir -p ${BUNDLE_PATH}/MacOS && cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/lib/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
 
 	set(MakeVCMIBundle
 		# Copy all needed binaries
 		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
-		cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
 		cp -r ${CMAKE_HOME_DIRECTORY}/osx/vcmibuilder.app ${BUNDLE_PATH}/MacOS/vcmibuilder.app &&
 
 		# Copy frameworks
@@ -184,9 +183,10 @@ if(APPLE)
 		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/hota/ ${BUNDLE_PATH}/Data/Mods/hota/ || echo "Download HOTA mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
 		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
 
-  if(NOT MINIZIP_FOUND)
-    add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${CopyVendoredMinizip})
-  endif()
+	if(NOT MINIZIP_FOUND)
+		add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${CopyVendoredMinizip})
+	endif()
+
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 elseif(WIN32)
 	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} VCMI_client.rc)
@@ -199,6 +199,8 @@ if(WIN32)
 endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
+
+vcmi_set_output_dir(vcmiclient "")
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)

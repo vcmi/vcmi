@@ -301,6 +301,8 @@ if (ANDROID)
 	return()
 endif()
 
+vcmi_set_output_dir(vcmi "")
+
 set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmi)
 

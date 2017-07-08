@@ -26,6 +26,8 @@ add_executable(vcmitest ${test_SRCS} ${test_HEADERS})
 target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 add_test(vcmitest vcmitest)
 
+vcmi_set_output_dir(vcmitest "")
+
 set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmitest)
 

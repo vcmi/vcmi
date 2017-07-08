@@ -19,6 +19,8 @@ set(emptyAI_HEADERS
 add_library(EmptyAI SHARED ${emptyAI_SRCS} ${emptyAI_HEADERS})
 target_link_libraries(EmptyAI vcmi)
 
+vcmi_set_output_dir(EmptyAI "AI")
+
 if (NOT APPLE) # Already inside vcmiclient bundle
     install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()

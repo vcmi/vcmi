@@ -19,6 +19,8 @@ set(stupidAI_HEADERS
 add_library(StupidAI SHARED ${stupidAI_SRCS} ${stupidAI_HEADERS})
 target_link_libraries(StupidAI vcmi)
 
+vcmi_set_output_dir(StupidAI "AI")
+
 set_target_properties(StupidAI PROPERTIES ${PCH_PROPERTIES})
 cotire(StupidAI)
 
