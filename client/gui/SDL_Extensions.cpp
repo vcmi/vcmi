@@ -62,6 +62,11 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 	return (x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h);
 }
 
+bool isItInOrLowerBounds(const SDL_Rect * rect, int x, int y)
+{
+	return (x >= rect->x && x < rect->x + rect->w) && (y >= rect->y && y < rect->y + rect->h);
+}
+
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	if(!dst) dst = screen;
