@@ -1409,24 +1409,24 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	if (curStack->alive())
+	if(curStack->alive())
 	{
 		auto theLastObstacle = battleGetAllObstaclesOnPos(curStack->position, false);
-		for(auto & i : theLastObstacle)
-			if(curStack->alive())
-				handleDamageFromObstacle(*i, curStack);
-	}
-
-	if (curStack->alive() && curStack->doubleWide())
-	{
-		BattleHex otherHex = curStack->occupiedHex(curStack->position);
-		if (otherHex.isValid())
+		if(curStack->doubleWide())
 		{
-			//two hex creature hit obstacle by backside
-			auto theLastObstacle = battleGetAllObstaclesOnPos(otherHex, false);
-			for(auto & i : theLastObstacle)
-				if(curStack->alive())
+			BattleHex otherHex = curStack->occupiedHex(curStack->position);
+			if(otherHex.isValid())
+				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
+					theLastObstacle.push_back(i);
+		}
+		bool containDamageFromMoat = false;
+		for(auto & i : theLastObstacle)
+		{
+			if(curStack->alive())
+				if(i->obstacleType != CObstacleInstance::MOAT || !containDamageFromMoat)
 					handleDamageFromObstacle(*i, curStack);
+			if(i->obstacleType == CObstacleInstance::MOAT)
+				containDamageFromMoat = true;
 		}
 	}
 	return ret;
