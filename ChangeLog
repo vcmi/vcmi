@@ -2,9 +2,21 @@
 
 GENERAL:
 * Spectator mode was implemented through command-line options
+* Some main menu settings get saved after returning to main menu - last selected map, save etc.
+* Restart scenario button should work correctly now
+* New bonuses:
+- SOUL_STEAL - "WoG ghost" ability, should work somewhat same as in H3
+- TRANSMUTATION - "WoG werewolf"-like ability
+- SUMMON_GUARDIANS - "WoG santa gremlin"-like ability + two-hex unit extension
+- CATAPULT_EXTRA_SHOTS - defines number of extra wall attacks for units that can do so
+- RANGED_RETALIATION - allows ranged counterattack
+- BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
 
 SPELLS:
 * Implemented cumulative effects for spells
+
+MODS:
+* Improve support for WoG commander artifacts and skill descriptions
 
 0.98 -> 0.99
 
@@ -29,7 +41,7 @@ BATTLES:
 * Merging of town and visiting hero armies on siege implemented
 * Hero info tooltip for skills and mana implemented
 
-ADVETURE AI:
+ADVENTURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
 * AI can again pick best artifacts and exchange artifacts between heroes
