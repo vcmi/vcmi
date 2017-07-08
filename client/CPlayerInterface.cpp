@@ -710,9 +710,8 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 			battleInt->displayEffect(52, attacker->position); //TODO: transparency
 			CCS->soundh->playSound(soundBase::DRAINLIF);
 
-			int textID = CGI->generaltexth->pluralText(361, attacker->getCount());
 			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, textID);
+			attacker->addText(text, MetaString::GENERAL_TXT, 361);
 			attacker->addNameReplacement(text, false);
 			text.addReplacement(healedStacks[0].second);
 			defender->addNameReplacement(text, true);

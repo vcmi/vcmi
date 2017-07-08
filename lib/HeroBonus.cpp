@@ -90,11 +90,11 @@ TBonusListPtr CBonusProxy::get() const
 {
 	if(CBonusSystemNode::treeChanged != cachedLast || !data)
 	{
-        data = target->getAllBonuses(selector, nullptr);
-        data->eliminateDuplicates();
-        cachedLast = CBonusSystemNode::treeChanged;
+		//TODO: support limiters
+		data = target->getAllBonuses(selector, nullptr);
+		data->eliminateDuplicates();
+		cachedLast = CBonusSystemNode::treeChanged;
 	}
-
 	return data;
 }
 

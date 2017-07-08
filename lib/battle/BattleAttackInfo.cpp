@@ -12,7 +12,7 @@
 
 
 BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting):
-	attackerHealth(Attacker), defenderHealth(Defender) //todo: copy
+	attackerHealth(Attacker->health), defenderHealth(Defender->health)
 {
 	attacker = Attacker;
 	defender = Defender;

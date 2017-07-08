@@ -1365,18 +1365,18 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		{
 			//defensive stance
 			const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
+			if(stack)
+			{
+				BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
+				defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
+				int val = stack->Defense() - defenseBonuses.totalValue();
 
-			int textId = CGI->generaltexth->pluralText(120, stack->getCount());
-
-			BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
-			defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
-			int val = stack->Defense() - defenseBonuses.totalValue();
-
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, textId);
-			stack->addNameReplacement(text);
-			text.addReplacement(val);
-			console->addText(text.toString());
+				MetaString text;
+				stack->addText(text, MetaString::GENERAL_TXT, 120);
+				stack->addNameReplacement(text);
+				text.addReplacement(val);
+				console->addText(text.toString());
+			}
 		}
 	}
 
@@ -1752,7 +1752,7 @@ void CBattleInterface::printConsoleAttacked(const CStack * defender, int dmg, in
 	if(attacker) //ignore if stacks were killed by spell
 	{
 		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, CGI->generaltexth->pluralText(376, attacker->getCount()));
+		attacker->addText(text, MetaString::GENERAL_TXT, 376);
 		attacker->addNameReplacement(text);
 		text.addReplacement(dmg);
 		formattedText = text.toString();

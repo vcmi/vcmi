@@ -515,7 +515,7 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 		return 0;
 	else if(textIndex < 0)
 		return -textIndex;
-    else if(count == 1)
+	else if(count == 1)
 		return textIndex;
 	else
 		return textIndex + 1;
