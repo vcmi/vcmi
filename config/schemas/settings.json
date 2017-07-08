@@ -53,7 +53,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -69,7 +69,11 @@
 					"type" : "number",
 					"default" : 32
 				},
-				"fullscreen" : {
+				"fullscreen": {
+					"type": "boolean",
+					"default": false
+				},
+				"realFullscreen" : {
 					"type" : "boolean",
 					"default" : false
 				},

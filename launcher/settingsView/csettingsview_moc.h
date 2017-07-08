@@ -16,6 +16,8 @@ public:
 	void setDisplayList(const QStringList& displayList);
 
 private slots:
+	void on_checkBoxFullScreen_stateChanged(int state);
+
 	void on_comboBoxResolution_currentIndexChanged(const QString &arg1);
 
 	void on_comboBoxFullScreen_currentIndexChanged(int index);

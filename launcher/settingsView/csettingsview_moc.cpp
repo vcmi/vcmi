@@ -44,6 +44,7 @@ void CSettingsView::loadSettings()
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
+	ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
 
 	int friendlyAIIndex = ui->comboBoxFriendlyAI->findText(QString::fromUtf8(settings["server"]["friendlyAI"].String().c_str()));
 	int neutralAIIndex = ui->comboBoxNeutralAI->findText(QString::fromUtf8(settings["server"]["neutralAI"].String().c_str()));
@@ -89,6 +90,7 @@ CSettingsView::~CSettingsView()
 	delete ui;
 }
 
+
 void CSettingsView::on_comboBoxResolution_currentIndexChanged(const QString &arg1)
 {
 	QStringList list = arg1.split("x");
@@ -102,6 +104,12 @@ void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"]["fullscreen"];
 	node->Bool() = index;
+}
+
+void CSettingsView::on_checkBoxFullScreen_stateChanged(int state)
+{
+	Settings node = settings.write["video"]["realFullscreen"];
+	node->Bool() = state;
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
