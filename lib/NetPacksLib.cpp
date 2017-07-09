@@ -1640,8 +1640,8 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
 		if(resurrected)
 		{
-			if(changedStack->getCount() > 0 || changedStack->getFirstHPleft() > 0)
-				logGlobal->warn("Dead stack %s with positive total HP %d", changedStack->nodeName(), changedStack->totalHealth());
+			if(auto totalHealth = changedStack->health.available())
+				logGlobal->warn("Dead stack %s with positive total HP %d", changedStack->nodeName(), totalHealth);
 
 			changedStack->state.insert(EBattleStackState::ALIVE);
 		}

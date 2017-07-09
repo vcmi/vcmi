@@ -589,11 +589,6 @@ const CGHeroInstance * CStack::getMyHero() const
 	return nullptr;
 }
 
-ui32 CStack::totalHealth() const
-{
-	return health.available();//do not hide possible invalid firstHPleft for dead stack
-}
-
 std::string CStack::nodeName() const
 {
 	std::ostringstream oss;

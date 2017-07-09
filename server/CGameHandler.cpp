@@ -1014,7 +1014,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa2.flags |= BattleStackAttacked::EFFECT; //FIXME: play animation upon efreet and not attacker
 		bsa2.effect = 11;
 
-		bsa2.damageAmount = (std::min<si32>(def->totalHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
+		bsa2.damageAmount = (std::min<int64_t>(def->health.available(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
 		att->prepareAttacked(bsa2, getRandomGenerator());
 		bat.bsa.push_back(bsa2);
 	}
