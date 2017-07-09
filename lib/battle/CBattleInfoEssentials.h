@@ -101,4 +101,5 @@ public:
 	///check that stacks are controlled by same|other player(s) depending on positiveness
 	///mind control included
 	bool battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
+	bool battleMatchOwner(const PlayerColor & attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
 };

@@ -915,22 +915,23 @@ SpecialRisingSpellMechanics::SpecialRisingSpellMechanics(const CSpell * s):
 
 ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	//find alive possible target
-	const CStack * stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
+	auto mainFilter = [cb, ctx, this](const CStack * s) -> bool
 	{
-		const bool ownerMatches = !ctx.ti.smart || s->owner == ctx.caster->getOwner();
-
-		return ownerMatches && s->isValidTarget(false) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
+		const bool ownerMatches = !ctx.ti.smart || cb->battleMatchOwner(ctx.caster->getOwner(), s, owner->getPositiveness());
+		return ownerMatches && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
+	};
+	//find alive possible target
+	const CStack * stackToHeal = cb->getStackIf([mainFilter](const CStack * s)
+	{
+		return s->isValidTarget(false) && mainFilter(s);
 	});
 
 	if(nullptr == stackToHeal)
 	{
 		//find dead possible target if there is no alive target
-		stackToHeal = cb->getStackIf([ctx, this](const CStack * s)
+		stackToHeal = cb->getStackIf([mainFilter](const CStack * s)
 		{
-			const bool ownerMatches = !ctx.ti.smart || s->owner == ctx.caster->getOwner();
-
-			return ownerMatches && s->isValidTarget(true) && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
+			return s->isValidTarget(true) && mainFilter(s);
 		});
 
 		//we have found dead target
@@ -940,7 +941,7 @@ ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(cons
 			{
 				const CStack * other = cb->getStackIf([hex, stackToHeal](const CStack * s)
 				{
-					return s->isValidTarget(false) && s->coversPos(hex) && s != stackToHeal;
+					return s->isValidTarget(true) && s->coversPos(hex) && s != stackToHeal;
 				});
 				if(nullptr != other)
 					return ESpellCastProblem::NO_APPROPRIATE_TARGET;//alive stack blocks resurrection

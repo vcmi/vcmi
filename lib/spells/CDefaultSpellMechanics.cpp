@@ -652,10 +652,9 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 
 	auto mainFilter = [=](const CStack * s)
 	{
-		const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
-		const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
+		const bool ownerMatches = cb->battleMatchOwner(ctx.caster->getOwner(), s, owner->getPositiveness());
 		const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
-		const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+		const bool positivenessFlag = !ctx.ti.smart || ownerMatches;
 
 		return positivenessFlag && validTarget;
 	};
@@ -719,28 +718,12 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	{
 		std::vector<const CStack *> affected = getAffectedStacks(cb, ctx);
 
-		//allow to cast spell if affects is at least one smart target
+		//allow to cast spell if it affects at least one smart target
 		bool targetExists = false;
 
 		for(const CStack * stack : affected)
 		{
-			bool casterStack = stack->owner == ctx.caster->getOwner();
-
-			switch (owner->positiveness)
-			{
-			case CSpell::POSITIVE:
-				if(casterStack)
-					targetExists = true;
-				break;
-			case CSpell::NEUTRAL:
-				targetExists = true;
-				break;
-			case CSpell::NEGATIVE:
-				if(!casterStack)
-					targetExists = true;
-				break;
-			}
-
+			targetExists = cb->battleMatchOwner(ctx.caster->getOwner(), stack, owner->getPositiveness());
 			if(targetExists)
 				break;
 		}

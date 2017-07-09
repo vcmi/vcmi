@@ -807,7 +807,7 @@ int CStack::getEffectValue(const CSpell * spell) const
 
 const PlayerColor CStack::getOwner() const
 {
-	return owner;
+	return battle->battleGetOwner(this);
 }
 
 void CStack::getCasterName(MetaString & text) const

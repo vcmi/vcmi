@@ -219,26 +219,9 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback
 
 				for(const CStack * stack : cb->battleGetAllStacks())
 				{
-					bool immune = !(stack->isValidTarget(!tinfo.onlyAlive) && ESpellCastProblem::OK == isImmuneByStack(caster, stack));
-					bool casterStack = stack->owner == caster->getOwner();
-
-					if(!immune)
-					{
-						switch (positiveness)
-						{
-						case CSpell::POSITIVE:
-							if(casterStack)
-								targetExists = true;
-							break;
-						case CSpell::NEUTRAL:
-								targetExists = true;
-								break;
-						case CSpell::NEGATIVE:
-							if(!casterStack)
-								targetExists = true;
-							break;
-						}
-					}
+					const bool immune = !(stack->isValidTarget(!tinfo.onlyAlive) && ESpellCastProblem::OK == isImmuneByStack(caster, stack));
+					const bool ownerMatches = cb->battleMatchOwner(caster->getOwner(), stack, getPositiveness());
+					targetExists = !immune && ownerMatches;
 					if(targetExists)
 						break;
 				}
