@@ -202,10 +202,10 @@ void CHealth::heal(int32_t & amount, EHealLevel level, EHealPower power)
 	if(amount == 0)
 		return;
 
-	int64_t totalHealth = total();
+	int64_t availableHealth = available();
 
-	totalHealth	+= amount;
-	setFromTotal(totalHealth);
+	availableHealth	+= amount;
+	setFromTotal(availableHealth);
 
 	if(power == EHealPower::ONE_BATTLE)
 		addResurrected(getCount() - oldCount);
