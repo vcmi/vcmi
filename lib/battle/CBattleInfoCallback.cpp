@@ -843,6 +843,24 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	return obstacles;
 }
 
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const CStack * stack) const
+{
+	std::vector<std::shared_ptr<const CObstacleInstance>> affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	RETURN_IF_NOT_BATTLE(affectedObstacles);
+	if(stack->alive())
+	{
+		affectedObstacles = battleGetAllObstaclesOnPos(stack->position, false);
+		if(stack->doubleWide())
+		{
+			BattleHex otherHex = stack->occupiedHex(stack->position);
+			if(otherHex.isValid())
+				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
+					affectedObstacles.push_back(i);
+		}
+	}
+	return affectedObstacles;
+}
+
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 {
 	AccessibilityInfo ret;
