@@ -12,12 +12,15 @@
 #include <boost/test/unit_test.hpp>
 #include "../../lib/CStack.h"
 
+static const int32_t UNIT_HEALTH = 123;
+static const int32_t UNIT_AMOUNT = 300;
+
 class CUnitHealthInfoMock : public IUnitHealthInfo
 {
 public:
 	CUnitHealthInfoMock():
-		maxHealth(123),
-		baseAmount(300)
+		maxHealth(UNIT_HEALTH),
+		baseAmount(UNIT_AMOUNT)
 	{}
 
 	int32_t maxHealth;
@@ -106,16 +109,16 @@ BOOST_AUTO_TEST_CASE(damage)
 	checkFullHealth(health, uhi);
 
 	checkNormalDamage(health, uhi.maxHealth - 1);
-	BOOST_CHECK_EQUAL(health.getCount(), uhi.baseAmount);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
 	BOOST_CHECK_EQUAL(health.getFirstHPleft(), 1);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkNormalDamage(health, 1);
-	BOOST_CHECK_EQUAL(health.getCount(), uhi.baseAmount - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), uhi.maxHealth);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
-	checkNormalDamage(health, uhi.maxHealth * (uhi.baseAmount - 1));
+	checkNormalDamage(health, UNIT_HEALTH * (UNIT_AMOUNT - 1));
 	checkEmptyHealth(health, uhi);
 
 	checkNoDamage(health, 1337);
@@ -128,21 +131,89 @@ BOOST_AUTO_TEST_CASE(heal)
 	CHealth health(&uhi);
 	health.init();
 	checkNormalDamage(health, 99);
-	BOOST_CHECK_EQUAL(health.getCount(), uhi.baseAmount);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), uhi.maxHealth-99);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-99);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::HEAL, EHealPower::PERMANENT, 9, 9);
-	BOOST_CHECK_EQUAL(health.getCount(), uhi.baseAmount);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), uhi.maxHealth-90);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-90);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, 40, 40);
-	BOOST_CHECK_EQUAL(health.getCount(), uhi.baseAmount);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), uhi.maxHealth-50);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-50);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::OVERHEAL, EHealPower::PERMANENT, 50, 50);
+	checkFullHealth(health, uhi);
+}
+
+BOOST_AUTO_TEST_CASE(resurrectOneBattle)
+{
+	CUnitHealthInfoMock uhi;
+	CHealth health(&uhi);
+	health.init();
+
+	checkNormalDamage(health, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, UNIT_HEALTH, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 1);
+
+	checkNormalDamage(health, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	health.init();
+
+	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
+	checkEmptyHealth(health, uhi);
+
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, UNIT_HEALTH * UNIT_AMOUNT, UNIT_HEALTH * UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), UNIT_AMOUNT);
+
+	health.takeResurrected();
+	checkEmptyHealth(health, uhi);
+}
+
+BOOST_AUTO_TEST_CASE(resurrectPermanent)
+{
+	CUnitHealthInfoMock uhi;
+	CHealth health(&uhi);
+	health.init();
+
+	checkNormalDamage(health, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, UNIT_HEALTH, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	checkNormalDamage(health, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	health.init();
+
+	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
+	checkEmptyHealth(health, uhi);
+
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, UNIT_HEALTH * UNIT_AMOUNT, UNIT_HEALTH * UNIT_AMOUNT);
+	checkFullHealth(health, uhi);
+
+	health.takeResurrected();
 	checkFullHealth(health, uhi);
 }
 
