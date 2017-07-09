@@ -237,12 +237,12 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		assert(isIndependentNode());
-		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
 		h & type;
-		h & ID & baseAmount & owner & slot & side & position & state
-			& shots & casts & counterAttacks & health;
+		h & ID & baseAmount & owner & slot & side & position & state;
+		h & shots & casts & counterAttacks & health;
 
-		const CArmedInstance *army = (base ? base->armyObj : nullptr);
+		const CArmedInstance * army = (base ? base->armyObj : nullptr);
 		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
 
 		if(h.saving)
@@ -255,7 +255,7 @@ public:
 			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 			{
 				auto hero = dynamic_cast<const CGHeroInstance *>(army);
-				assert (hero);
+				assert(hero);
 				base = hero->commander;
 			}
 			else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
