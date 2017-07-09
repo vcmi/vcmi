@@ -81,13 +81,20 @@ private:
 	mutable int32_t totalCache;
 };
 
+class DLL_LINKAGE IUnitHealthInfo
+{
+public:
+	virtual int32_t unitMaxHealth() const = 0;
+	virtual int32_t unitBaseAmount() const = 0;
+};
+
 class DLL_LINKAGE CHealth
 {
 public:
-	CHealth(const CStack * Owner);
+	CHealth(const IUnitHealthInfo * Owner);
 	CHealth(const CHealth & other);
 
-	void init(const int32_t baseAmount);
+	void init();
 	void reset();
 
 	void damage(int32_t & amount);
@@ -114,14 +121,14 @@ public:
 private:
 	void addResurrected(int32_t amount);
 	void setFromTotal(const int64_t totalHealth);
-	const CStack * owner;
+	const IUnitHealthInfo * owner;
 
 	int32_t firstHPleft;
 	int32_t fullUnits;
 	int32_t resurrected;
 };
 
-class DLL_LINKAGE CStack : public CBonusSystemNode, public ISpellCaster
+class DLL_LINKAGE CStack : public CBonusSystemNode, public ISpellCaster, public IUnitHealthInfo
 {
 public:
 	const CStackInstance * base; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
@@ -195,6 +202,8 @@ public:
 	BattleHex::EDir destShiftDir() const;
 
 	CHealth healthAfterAttacked(int32_t & damage) const;
+	CHealth healthAfterAttacked(int32_t & damage, const CHealth & customHealth) const;
+
 	CHealth healthAfterHealed(int32_t & toHeal, EHealLevel level, EHealPower power) const;
 
 	void prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand) const; //requires bsa.damageAmout filled
@@ -220,6 +229,11 @@ public:
 	const PlayerColor getOwner() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const override;
+
+	///IUnitHealthInfo
+
+	int32_t unitMaxHealth() const override;
+	int32_t unitBaseAmount() const override;
 
 	///MetaStrings
 

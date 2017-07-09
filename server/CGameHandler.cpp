@@ -965,6 +965,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 
 		CHealthInfo hi;
 		health.toInfo(hi);
+		hi.stackId = att->ID;
 		hi.delta = toHeal;
 		shi.healedStacks.push_back(hi);
 
@@ -989,6 +990,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 				CHealth health = att->healthAfterHealed(toHeal, EHealLevel::OVERHEAL, ((i == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
 				CHealthInfo hi;
 				health.toInfo(hi);
+				hi.stackId = att->ID;
 				hi.delta = toHeal;
 				if(hi.delta > 0)
 					shi.healedStacks.push_back(hi);
@@ -4242,7 +4244,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 					CHealthInfo hi;
 					health.toInfo(hi);
-
+					hi.stackId = destStack->ID;
+					hi.delta = toHeal;
 					shr.healedStacks.push_back(hi);
 					sendAndApply(&shr);
 				}

@@ -108,7 +108,7 @@ void CRetaliations::reset()
 }
 
 ///CHealth
-CHealth::CHealth(const CStack * Owner):
+CHealth::CHealth(const IUnitHealthInfo * Owner):
 	owner(Owner)
 {
 	reset();
@@ -123,11 +123,11 @@ CHealth::CHealth(const CHealth & other):
 
 }
 
-void CHealth::init(const int32_t baseAmount)
+void CHealth::init()
 {
 	reset();
-	fullUnits = baseAmount > 1 ? baseAmount - 1 : 0;
-	firstHPleft = baseAmount > 0 ? owner->MaxHealth() : 0;
+	fullUnits = owner->unitBaseAmount() > 1 ? owner->unitBaseAmount() - 1 : 0;
+	firstHPleft = owner->unitBaseAmount() > 0 ? owner->unitMaxHealth() : 0;
 }
 
 void CHealth::addResurrected(int32_t amount)
@@ -138,24 +138,16 @@ void CHealth::addResurrected(int32_t amount)
 
 int64_t CHealth::available() const
 {
-	return static_cast<int64_t>(firstHPleft) + owner->MaxHealth() * fullUnits;
+	return static_cast<int64_t>(firstHPleft) + owner->unitMaxHealth() * fullUnits;
 }
 
 int64_t CHealth::total() const
 {
-	return static_cast<int64_t>(owner->MaxHealth()) * owner->baseAmount;
+	return static_cast<int64_t>(owner->unitMaxHealth()) * owner->unitBaseAmount();
 }
 
 void CHealth::damage(int32_t & amount)
 {
-	if(owner->isClone())
-	{
-		// block ability should not kill clone (0 damage)
-		if(amount > 0)
-			reset();
-		return;
-	}
-
 	const int32_t oldCount = getCount();
 
 	const bool withKills = amount >= firstHPleft;
@@ -186,7 +178,7 @@ void CHealth::damage(int32_t & amount)
 
 void CHealth::heal(int32_t & amount, EHealLevel level, EHealPower power)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->unitMaxHealth();
 	const int32_t oldCount = getCount();
 
 	int32_t maxHeal = std::numeric_limits<int32_t>::max();
@@ -223,7 +215,7 @@ void CHealth::heal(int32_t & amount, EHealLevel level, EHealPower power)
 
 void CHealth::setFromTotal(const int64_t totalHealth)
 {
-	const int32_t unitHealth = owner->MaxHealth();
+	const int32_t unitHealth = owner->unitMaxHealth();
 	firstHPleft = totalHealth % unitHealth;
 	fullUnits = totalHealth / unitHealth;
 
@@ -265,7 +257,6 @@ void CHealth::fromInfo(const CHealthInfo & info)
 
 void CHealth::toInfo(CHealthInfo & info) const
 {
-	info.stackId = owner->ID;
 	info.firstHPleft = firstHPleft;
 	info.fullUnits = fullUnits;
 	info.resurrected = resurrected;
@@ -275,7 +266,7 @@ void CHealth::takeResurrected()
 {
 	int64_t totalHealth = total();
 
-	totalHealth -= resurrected * owner->MaxHealth();
+	totalHealth -= resurrected * owner->unitMaxHealth();
 	vstd::amax(totalHealth, 0);
 	setFromTotal(totalHealth);
 	resurrected = 0;
@@ -290,7 +281,7 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 	assert(base);
 	type = base->type;
 	baseAmount = base->count;
-	health.init(baseAmount); //???
+	health.init(); //???
 	setNodeType(STACK_BATTLE);
 }
 
@@ -308,7 +299,7 @@ CStack::CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Si
 {
 	type = stack->type;
 	baseAmount = stack->count;
-	health.init(baseAmount); //???
+	health.init(); //???
 	setNodeType(STACK_BATTLE);
 }
 
@@ -350,6 +341,7 @@ void CStack::init()
 void CStack::localInit(BattleInfo * battleInfo)
 {
 	battle = battleInfo;
+	cloneID = -1;
 	assert(type);
 
 	exportBonuses();
@@ -367,8 +359,7 @@ void CStack::localInit(BattleInfo * battleInfo)
 	shots.reset();
 	counterAttacks.reset();
 	casts.reset();
-	health.init(baseAmount);
-	cloneID = -1;
+	health.init();
 }
 
 ui32 CStack::level() const
@@ -620,8 +611,27 @@ std::string CStack::nodeName() const
 
 CHealth CStack::healthAfterAttacked(int32_t & damage) const
 {
-	CHealth res = health;
-	res.damage(damage);
+	return healthAfterAttacked(damage, health);
+}
+
+CHealth CStack::healthAfterAttacked(int32_t & damage, const CHealth & customHealth) const
+{
+	CHealth res = customHealth;
+
+	if(isClone())
+	{
+		// block ability should not kill clone (0 damage)
+		if(damage > 0)
+		{
+			damage = 1;//??? what should be actual damage against clone?
+			res.reset();
+		}
+	}
+	else
+	{
+		res.damage(damage);
+	}
+
 	return res;
 }
 
@@ -646,11 +656,11 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand)
 
 void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand, const CHealth & customHealth) const
 {
-	CHealth afterAttack = customHealth;
-	afterAttack.damage(bsa.damageAmount);
+	CHealth afterAttack = healthAfterAttacked(bsa.damageAmount, customHealth);
 
 	bsa.killedAmount = customHealth.getCount() - afterAttack.getCount();
 	afterAttack.toInfo(bsa.newHealth);
+	bsa.newHealth.stackId = ID;
 	bsa.newHealth.delta = -bsa.damageAmount;
 
 	if(afterAttack.available() <= 0 && isClone())
@@ -822,6 +832,16 @@ void CStack::getCastDescription(const CSpell * spell, const std::vector<const CS
 	//todo: use text 566 for single creature
 	getCasterName(text);
 	text.addReplacement(MetaString::SPELL_NAME, spell->id.toEnum());
+}
+
+int32_t CStack::unitMaxHealth() const
+{
+	return MaxHealth();
+}
+
+int32_t CStack::unitBaseAmount() const
+{
+	return baseAmount;
 }
 
 void CStack::addText(MetaString & text, ui8 type, int32_t serial, const boost::logic::tribool & plural) const
