@@ -3876,13 +3876,13 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			Bonus bonus1(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
 			Bonus bonus2(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, stack->valOfBonuses(Bonus::DEFENSIVE_STANCE),
 				 -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE);
-			TBonusListPtr defence = stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-			int oldDefenceValue = defence->totalValue();
+			BonusList defence = *stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
+			int oldDefenceValue = defence.totalValue();
 
-			defence->push_back(std::make_shared<Bonus>(bonus1));
-			defence->push_back(std::make_shared<Bonus>(bonus2));
+			defence.push_back(std::make_shared<Bonus>(bonus1));
+			defence.push_back(std::make_shared<Bonus>(bonus2));
 
-			int difference = defence->totalValue() - oldDefenceValue;
+			int difference = defence.totalValue() - oldDefenceValue;
 
 			MetaString text;
 			stack->addText(text, MetaString::GENERAL_TXT, 120);
