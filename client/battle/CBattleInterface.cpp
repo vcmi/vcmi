@@ -1358,27 +1358,8 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	if(sse.stacks.size() == 1 && sse.effect.size() == 2 && sse.effect.back().sid == -1)
-	{
-		const Bonus & bns = sse.effect.front();
-		if(bns.source == Bonus::OTHER && bns.type == Bonus::PRIMARY_SKILL)
-		{
-			//defensive stance
-			const CStack * stack = LOCPLINT->cb->battleGetStackByID(*sse.stacks.begin());
-			if(stack)
-			{
-				BonusList defenseBonuses = *(stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE)));
-				defenseBonuses.remove_if(Bonus::UntilGetsTurn); //remove bonuses gained from defensive stance
-				int val = stack->Defense() - defenseBonuses.totalValue();
-
-				MetaString text;
-				stack->addText(text, MetaString::GENERAL_TXT, 120);
-				stack->addNameReplacement(text);
-				text.addReplacement(val);
-				console->addText(text.toString());
-			}
-		}
-	}
+	for(const MetaString & line : sse.battleLog)
+		console->addText(line.toString());
 
 	if(activeStack != nullptr)
 		redrawBackgroundWithHexes(activeStack);
