@@ -1,7 +1,4 @@
 version: 1.0.{build}
-branches:
-  only:
-  - /develop/
 max_jobs: 2
 clone_depth: 10
 clone_folder: c:\projects\vcmi\source
