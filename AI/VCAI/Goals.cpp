@@ -1131,13 +1131,13 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	if(ai->canRecruitAnyHero()) //this is not stupid in early phase of game
+	if(ai->canRecruitAnyHero() && ai->freeResources()[Res::GOLD] > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
 		if(auto t = ai->findTownWithTavern())
 		{
 			for (auto h : cb->getAvailableHeroes(t)) //we assume that all towns have same set of heroes
 			{
-				if(h && (h->getTotalStrength() > 500 && ai->freeResources()[Res::GOLD] > GameConstants::HERO_GOLD_COST)) //do not buy heroes with single creatures for GatherArmy
+				if(h && h->getTotalStrength() > 500) //do not buy heroes with single creatures for GatherArmy
 				{
 					ret.push_back(sptr(Goals::RecruitHero()));
 					break;

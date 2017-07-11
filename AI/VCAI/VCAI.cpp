@@ -1366,64 +1366,63 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	//below algorithm focuses on economy growth at start of the game.
-
 	TResources currentRes = cb->getResourceAmount();
 	TResources currentIncome = t->dailyIncome();
 	int townIncome = currentIncome[Res::GOLD];
 
-	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
+	if(tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
 
 	//the more gold the better and less problems later
-	if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+	if(tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 		return;
 
 	//workaround for mantis #2696 - build fort and citadel - building castle will be handled without bug
-	if (vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL &&
+	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL &&
 		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
-		if (tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements, capitolRequirements + ARRAY_COUNT(capitolRequirements))))
+		if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements, capitolRequirements + ARRAY_COUNT(capitolRequirements))))
 			return;
 
-	if( (!vstd::contains(t->builtBuildings, BuildingID::CAPITOL) && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
+	if((!vstd::contains(t->builtBuildings, BuildingID::CAPITOL) && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
 		|| (!vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && cb->canBuildStructure(t, BuildingID::CAPITOL) == EBuildingState::HAVE_CAPITAL && cb->canBuildStructure(t, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
-		|| (!vstd::contains(t->builtBuildings, BuildingID::TOWN_HALL) && cb->canBuildStructure(t, BuildingID::TOWN_HALL) != EBuildingState::FORBIDDEN) )
+		|| (!vstd::contains(t->builtBuildings, BuildingID::TOWN_HALL) && cb->canBuildStructure(t, BuildingID::TOWN_HALL) != EBuildingState::FORBIDDEN))
 		return; //save money for capitol or city hall if capitol unavailable, do not build other things (unless gold source buildings are disabled in map editor)
 
-	if (cb->getDate(Date::DAY_OF_WEEK) > 6)// last 2 days of week - try to focus on growth
+	if(cb->getDate(Date::DAY_OF_WEEK) > 6)// last 2 days of week - try to focus on growth
 	{
-		if (tryBuildNextStructure(t, std::vector<BuildingID>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
+		if(tryBuildNextStructure(t, std::vector<BuildingID>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
 			return;
 	}
 
 	// first in-game week or second half of any week: try build dwellings
-	if (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
-		if (tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
+	if(cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
+		if(tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
 			return;
 
 	//try to upgrade dwelling
 	for(int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
 	{
-		if (t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]))
+		if(t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]))
 		{
-			if (tryBuildStructure(t, unitsUpgrade[i]))
+			if(tryBuildStructure(t, unitsUpgrade[i]))
 				return;
 		}
 	}
 
 	//remaining tasks
-	if (tryBuildNextStructure(t, std::vector<BuildingID>(spells, spells + ARRAY_COUNT(spells))))
+	if(tryBuildNextStructure(t, std::vector<BuildingID>(spells, spells + ARRAY_COUNT(spells))))
 		return;
-	if (tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
+	if(tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
 		return;
 
 	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
 	std::vector<BuildingID> extraBuildings;
 
-	for (auto buildingInfo : t->town->buildings)
-		if (buildingInfo.first > 43)
+	for(auto buildingInfo : t->town->buildings)
+		if(buildingInfo.first > 43)
 			extraBuildings.push_back(buildingInfo.first);
 
-	if (tryBuildAnyStructure(t, extraBuildings))
+	if(tryBuildAnyStructure(t, extraBuildings))
 		return;
 }
 
@@ -2870,7 +2869,7 @@ TResources VCAI::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
 	auto iterator = cb->getTownsInfo();
-	if (std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool 
+	if(std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x)->bool 
 	{ 
 		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end(); 
 	})
