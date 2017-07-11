@@ -75,7 +75,8 @@ endif()
 
 if (WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
-	add_definitions(-D_WIN32_WINNT=0x0501)
+	# Windows Vista or newer for FuzzyLite 6 to compile
+	add_definitions(-D_WIN32_WINNT=0x0600)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
