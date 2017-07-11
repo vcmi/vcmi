@@ -70,6 +70,7 @@ extern SDL_Surface * screen, *screen2, *screenBuf;
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
+bool isItInOrLowerBounds(const SDL_Rect * rect, int x, int y);
 
 /**
  * The colors class defines color constants of type SDL_Color.
