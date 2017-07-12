@@ -28,7 +28,7 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
 	#include <windows.h>
-	#include <dbghelp.h>	
+	#include <dbghelp.h>
 #ifndef __MINGW32__
 	#pragma comment(lib, "dbghelp.lib")
 #endif
@@ -192,7 +192,10 @@ int CConsoleHandler::run()
 {
 	setThreadName("CConsoleHandler::run");
 	//disabling sync to make in_avail() work (othervice always returns 0)
-	std::ios::sync_with_stdio(false);
+	{
+		TLockGuard _(smx);
+		std::ios::sync_with_stdio(false);
+	}
 	std::string buffer;
 
 	while ( std::cin.good() )
