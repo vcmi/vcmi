@@ -693,12 +693,20 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	}
 	else
 	{
-		switch (market->o->ID)
+		switch(market->o->ID)
 		{
-		break; case Obj::BLACK_MARKET:   title = CGI->generaltexth->allTexts[349];
-		break; case Obj::TRADING_POST:  title = CGI->generaltexth->allTexts[159];
-		break; case Obj::TRADING_POST_SNOW: title = CGI->generaltexth->allTexts[159];
-		break; default:  title = market->o->getObjectName();
+		case Obj::BLACK_MARKET:
+			title = CGI->generaltexth->allTexts[349];
+			sliderNeeded = false;
+			break;
+		case Obj::TRADING_POST:
+			title = CGI->generaltexth->allTexts[159];
+			break;
+		case Obj::TRADING_POST_SNOW:
+			title = CGI->generaltexth->allTexts[159];
+			break;
+		default:
+			title = market->o->getObjectName();
 		}
 	}
 
