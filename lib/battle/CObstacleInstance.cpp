@@ -88,7 +88,7 @@ bool CObstacleInstance::stopsMovement() const
 
 bool CObstacleInstance::blocksTiles() const
 {
-	return obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE || obstacleType == FORCE_FIELD;
+	return obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE || obstacleType == FORCE_FIELD || obstacleType == BATTLEFIELD_LIMITER;
 }
 
 SpellCreatedObstacle::SpellCreatedObstacle()
@@ -140,6 +140,19 @@ void SpellCreatedObstacle::battleTurnPassed()
 {
 	if(turnsRemaining > 0)
 		turnsRemaining--;
+}
+
+std::vector<BattleHex> BattlefieldLimiterObstacle::getAffectedTiles() const
+{
+	std::vector<BattleHex> impassableTiles;
+	switch(battlefieldType.num)
+	{
+	case BFieldType::SHIP_TO_SHIP:
+		impassableTiles = { 6, 7, 8, 9, 24, 25, 26, 58, 59, 60, 75, 76, 77, 92, 93, 94, 109, 110, 111, 126, 127, 128, 159, 160, 161, 162, 163, 176, 177, 178, 179, 180 };
+		return impassableTiles;
+	default:
+		return std::vector<BattleHex>();
+	}
 }
 
 std::vector<BattleHex> MoatObstacle::getAffectedTiles() const

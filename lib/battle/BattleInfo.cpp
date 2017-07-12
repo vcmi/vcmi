@@ -311,7 +311,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	}
 
 	//randomize obstacles
- 	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
+ 	if (town == nullptr && !creatureBank && battlefieldType != BFieldType::SHIP_TO_SHIP) //do it only when it's not siege (or special battlefield) and not creature bank
  	{
 		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
 
@@ -352,6 +352,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
 				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
+				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place absolute obstacle");
 			}
 		}
 
@@ -401,7 +402,15 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		}
 		catch(RangeGenerator::ExhaustedPossibilities &)
 		{
+			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place usual obstacle");
 		}
+	}
+	else if(battlefieldType == BFieldType::SHIP_TO_SHIP) //special battlefield (two ships) gets hardcoded special handling
+	{
+		auto impassableTiles = std::make_shared<BattlefieldLimiterObstacle>();
+		impassableTiles->obstacleType = CObstacleInstance::BATTLEFIELD_LIMITER;
+		impassableTiles->battlefieldType = BFieldType::SHIP_TO_SHIP;
+		curB->obstacles.push_back(impassableTiles);
 	}
 
 	//reading battleStartpos - add creatures AFTER random obstacles are generated

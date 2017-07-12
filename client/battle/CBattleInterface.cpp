@@ -3253,6 +3253,16 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 		showStacks(to, data.dead);
 	showStacks(to, objects.afterAll.dead);
 
+	//do not try to blit battlefield limiter (logical) obstacles - their image is nullptr
+	auto bfieldLimiterObstacles = std::remove_if(objects.beforeAll.obstacles.begin(), objects.beforeAll.obstacles.end(), [](std::shared_ptr<const CObstacleInstance> target)->bool
+	{
+		if(target->obstacleType == CObstacleInstance::BATTLEFIELD_LIMITER)
+			return true;
+		else
+			return false;
+	});
+	objects.beforeAll.obstacles.erase(bfieldLimiterObstacles);
+
 	// display objects that must be blit before anything else (e.g. topmost walls)
 	showHexEntry(objects.beforeAll);
 
@@ -3613,7 +3623,8 @@ SDL_Surface *CBattleInterface::getObstacleImage(const CObstacleInstance &oi)
 			else
 				return vstd::circularAt(smallForceField[forceField.casterSide]->ourImages, frameIndex).bitmap;
 		}
-
+	case CObstacleInstance::BATTLEFIELD_LIMITER: //this kind of obstacle just disables selected hexes on battlefield - has no visual representation
+		return nullptr;
 	case CObstacleInstance::MOAT://moat is blitted by SiegeHelper, this shouldn't be called
 	default:
 		assert(0);
