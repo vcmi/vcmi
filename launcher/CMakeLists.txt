@@ -14,8 +14,21 @@ set(launcher_modmanager_SRCS
     modManager/imageviewer_moc.cpp
 )
 
+set(launcher_modmanager_HEADERS
+	modManager/cdownloadmanager_moc.h
+	modManager/cmodlist.h
+	modManager/cmodlistmodel_moc.h
+	modManager/cmodlistview_moc.h
+	modManager/cmodmanager.h
+	modManager/imageviewer_moc.h
+)
+
 set(launcher_settingsview_SRCS
     settingsView/csettingsview_moc.cpp
+)
+
+set(launcher_settingsview_HEADERS
+	settingsView/csettingsview_moc.h
 )
 
 set(launcher_SRCS
@@ -27,6 +40,16 @@ set(launcher_SRCS
     launcherdirs.cpp
     jsonutils.cpp
     sdldisplayquery.cpp
+)
+
+set(launcher_HEADERS
+    StdInc.h
+    ${launcher_modmanager_HEADERS}
+    ${launcher_settingsview_HEADERS}
+    mainwindow_moc.h
+    launcherdirs.h
+    jsonutils.h
+    sdldisplayquery.h
 )
 
 set(launcher_FORMS
@@ -54,10 +77,10 @@ set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
 qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 
 if(WIN32)
-	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_UI_HEADERS} VCMI_launcher.rc)
+	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} VCMI_launcher.rc)
 	set_target_properties(vcmilauncher PROPERTIES OUTPUT_NAME VCMI_launcher)
 else()
-	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_UI_HEADERS})
+	add_executable(vcmilauncher ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
 endif()
 
 if(MSVC)
