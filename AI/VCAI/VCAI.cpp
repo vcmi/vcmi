@@ -778,7 +778,6 @@ void VCAI::makeTurn()
 	markHeroAbleToExplore (primaryHero());
 
 	makeTurnInternal();
-	makingTurn.reset();
 
 	return;
 }
@@ -2786,6 +2785,7 @@ void VCAI::finish()
 	{
 		makingTurn->interrupt();
 		makingTurn->join();
+		makingTurn.reset();
 	}
 }
 
