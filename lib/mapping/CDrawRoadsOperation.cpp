@@ -257,7 +257,7 @@ void CDrawRoadsOperation::updateTiles(std::set<int3> & invalidated)
 		}
 
 	}
-};
+}
 
 bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {

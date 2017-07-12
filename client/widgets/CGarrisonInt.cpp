@@ -84,7 +84,7 @@ void CGarrisonSlot::hover (bool on)
 					temp = CGI->generaltexth->allTexts[481]; //Select %s
 				}
 				boost::algorithm::replace_first(temp,"%s",creature->nameSing);
-			};
+			}
 		}
 		else
 		{

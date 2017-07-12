@@ -43,7 +43,7 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
 	init();
 
-	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));;
+	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
 }
 
 std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
@@ -1409,7 +1409,7 @@ void CMapLoaderH3M::readObjects()
 
 				hp->setOwner(PlayerColor(reader.readUInt8()));
 
-				int htid = reader.readUInt8();; //hero type id
+				int htid = reader.readUInt8(); //hero type id
 				nobj->subID = htid;
 
 				if(htid == 0xff)

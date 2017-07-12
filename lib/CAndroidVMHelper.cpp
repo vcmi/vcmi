@@ -61,7 +61,7 @@ jclass CAndroidVMHelper::findClassloadedClass(const std::string & name)
 {
 	auto env = get();
 	return static_cast<jclass>(env->CallObjectMethod(vcmiClassLoader, vcmiFindClassMethod,
-		env->NewStringUTF(name.c_str())));;
+		env->NewStringUTF(name.c_str())));
 }
 
 void CAndroidVMHelper::callStaticVoidMethod(const std::string & cls, const std::string & method,

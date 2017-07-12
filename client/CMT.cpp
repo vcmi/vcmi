@@ -611,7 +611,7 @@ void removeGUI()
 	logGlobal->infoStream() << "Removed GUI.";
 
 	LOCPLINT = nullptr;
-};
+}
 
 void processCommand(const std::string &message)
 {

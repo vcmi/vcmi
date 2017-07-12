@@ -897,7 +897,7 @@ void CBattleInterface::bSpellf()
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
 		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type(Bonus::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
-			return;;
+			return;
 
 		if (blockingBonus->source == Bonus::ARTIFACT)
 		{

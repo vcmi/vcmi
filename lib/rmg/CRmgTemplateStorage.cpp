@@ -386,4 +386,4 @@ std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files
-};
+}

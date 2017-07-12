@@ -781,7 +781,7 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 	else
 	{
 		curTab = nullptr;
-	};
+	}
 	GH.totalRedraw();
 }
 

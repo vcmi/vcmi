@@ -6282,7 +6282,7 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 				return;
 			}
 		}
-	};
+	}
 
 	//If we haven't returned so far, there is no query and no visit, call was wrong
 	assert("This function needs to be called during the object visit!");

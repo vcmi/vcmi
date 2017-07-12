@@ -710,7 +710,7 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 		{
 			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
 				if(mainFilter(st))
-					attackedCres.insert(st);;
+					attackedCres.insert(st);
 		}
 	}
 

@@ -256,7 +256,7 @@ bool JsonParser::extractEscaping(std::string &str)
 		break; case 't': str += '\t';
 		break; case '/': str += '/';
 		break; default: return error("Unknown escape sequence!", true);
-	};
+	}
 	return true;
 }
 

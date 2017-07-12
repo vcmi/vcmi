@@ -471,7 +471,7 @@ namespace ERM
 		qi::rule<Iterator, TVExp(), ascii::space_type> vexp;
 		qi::rule<Iterator, TLine(), ascii::space_type> vline;
 	};
-};
+}
 
 ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 {

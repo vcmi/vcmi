@@ -997,7 +997,7 @@ void CCommanderArtPlace::createImage()
 
 void CCommanderArtPlace::returnArtToHeroCallback()
 {
-	ArtifactPosition artifactPos = commanderSlotID;;
+	ArtifactPosition artifactPos = commanderSlotID;
 	ArtifactPosition freeSlot = ourArt->firstBackpackSlot(commanderOwner);
 
 	ArtifactLocation src(commanderOwner->commander.get(), artifactPos);

@@ -50,7 +50,7 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 {
 	init();
 	bg = BitmapHandler::loadBitmap(bmpname);
-	freeSurf = true;;
+	freeSurf = true;
 	pos.x += x;
 	pos.y += y;
 	if(bg)
@@ -445,7 +445,7 @@ CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 fl
 		pos.w = picPos.w;
 	if (picPos.h)
 		pos.h = picPos.h;
-};
+}
 
 void CCreatureAnim::loopPreview(bool warMachine)
 {

@@ -81,7 +81,7 @@ void LibClasses::loadFilesystem()
 static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
 {
    logGlobal->infoStream()<<"\t\t" << name << " handler: "<<timer.getDiff();
-};
+}
 
 template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
 {

@@ -35,7 +35,7 @@ void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
 {
 	setCbc(CB);
 	cb = CB;
-	playerID = *CB->getPlayerID();; //TODO should be sth in callback
+	playerID = *CB->getPlayerID(); //TODO should be sth in callback
 	wasWaitingForRealize = cb->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = true;

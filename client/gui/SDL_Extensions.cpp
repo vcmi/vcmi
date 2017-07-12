@@ -139,7 +139,7 @@ SDL_Surface * CSDL_Ext::horizontalFlip(SDL_Surface * toRot)
 	SDL_UnlockSurface(ret);
 	SDL_UnlockSurface(toRot);
 	return ret;
-};
+}
 
 Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {

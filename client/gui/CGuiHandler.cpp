@@ -607,7 +607,7 @@ void CFramerateManager::framerateDelay()
 		fps = ceil(1000.0 / (accumulatedTime/accumulatedFrames));
 		accumulatedTime = 0;
 		accumulatedFrames = 0;
-	};
+	}
 
 	currentTicks = SDL_GetTicks();
 	// recalculate timeElapsed for external calls via getElapsed()

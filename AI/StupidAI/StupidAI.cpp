@@ -215,7 +215,7 @@ void CStupidAI::battleNewRound(int round)
 
 void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
-	print("battleStackMoved called");;
+	print("battleStackMoved called");
 }
 
 void CStupidAI::battleSpellCast(const BattleSpellCast *sc)

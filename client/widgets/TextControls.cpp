@@ -618,7 +618,7 @@ void CFocusable::moveFocus()
 		if((*i)->active)
 		{
 			(*i)->giveFocus();
-			break;;
+			break;
 		}
 	}
 }

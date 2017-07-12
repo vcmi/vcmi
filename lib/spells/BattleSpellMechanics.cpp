@@ -377,7 +377,7 @@ void EarthquakeMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 			if(bsr.stackIDs.size() > 0)
 				env->sendAndApply(&bsr);
 		}
-	};
+	}
 
 	env->sendAndApply(&ca);
 }

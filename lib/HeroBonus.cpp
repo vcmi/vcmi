@@ -1050,7 +1050,7 @@ std::string Bonus::Description() const
 		{
 		case ARTIFACT:
 			str << VLC->arth->artifacts[sid]->Name();
-			break;;
+			break;
 		case SPELL_EFFECT:
 			str << SpellID(sid).toSpell()->name;
 			break;

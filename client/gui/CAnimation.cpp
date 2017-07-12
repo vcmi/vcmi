@@ -449,7 +449,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	logGlobal->errorStream()<<"Error: unsupported format of def file: "<<sprite.format;
 		break;
 	}
-};
+}
 
 CDefFile::~CDefFile() = default;
 

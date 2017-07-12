@@ -297,7 +297,7 @@ void CGDwelling::updateGuards() const
 			const CCreature * crea = VLC->creh->creatures[creatureEntry.second.at(0)];
 
 			SlotID slot = getSlotFor(crea->idNumber);
-			StackLocation stackLocation = StackLocation(this, slot);;
+			StackLocation stackLocation = StackLocation(this, slot);
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
 			{
 				ChangeStackCount csc;

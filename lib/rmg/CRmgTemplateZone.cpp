@@ -2003,7 +2003,7 @@ int3 CRmgTemplateZone::getAccessibleOffset(CMapGenerator* gen, ObjectTemplate &a
 					}
 				}
 			}
-		};
+		}
 	}
 	return ret;
 }
@@ -2545,7 +2545,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = i * 5000;;
+		oi.value = i * 5000;
 		oi.probability = 5;
 		possibleObjects.push_back(oi);
 	}
@@ -2561,7 +2561,7 @@ void CRmgTemplateZone::addAllPossibleObjects(CMapGenerator* gen)
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = i * 6000;;
+		oi.value = i * 6000;
 		oi.probability = 20;
 		possibleObjects.push_back(oi);
 	}
