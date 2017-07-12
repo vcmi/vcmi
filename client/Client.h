@@ -172,7 +172,8 @@ public:
 	const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
 
 	bool terminate;	// tell to terminate
-	boost::thread *connectionHandler; //thread running run() method
+	std::unique_ptr<boost::thread> connectionHandler; //thread running run() method
+	boost::mutex connectionHandlerMutex;
 
 	//////////////////////////////////////////////////////////////////////////
 	virtual PlayerColor getLocalPlayer() const override;

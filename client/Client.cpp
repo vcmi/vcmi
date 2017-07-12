@@ -113,7 +113,10 @@ void CClient::init()
 {
 	waitingRequest.clear();
 	hotSeat = false;
-	connectionHandler = nullptr;
+	{
+		TLockGuard _(connectionHandlerMutex);
+		connectionHandler.reset();
+	}
 	pathInfo = nullptr;
 	applier = new CApplier<CBaseForCLApply>;
 	registerTypesClientPacks1(*applier);
@@ -710,14 +713,18 @@ void CClient::stopConnection()
 		}
 	}
 
-	if(connectionHandler)//end connection handler
 	{
-		if(connectionHandler->get_id() != boost::this_thread::get_id())
-			connectionHandler->join();
+		TLockGuard _(connectionHandlerMutex);
+		if(connectionHandler)//end connection handler
+		{
+			if(connectionHandler->get_id() != boost::this_thread::get_id())
+				connectionHandler->join();
 
-		logNetwork->infoStream() << "Connection handler thread joined";
-		vstd::clear_pointer(connectionHandler);
+			logNetwork->infoStream() << "Connection handler thread joined";
+			connectionHandler.reset();
+		}
 	}
+
 
 	if (serv) //and delete connection
 	{

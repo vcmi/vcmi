@@ -1355,8 +1355,10 @@ void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
 			client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
 		break;
 	}
-
-	client->connectionHandler = new boost::thread(&CClient::run, client);
+	{
+		TLockGuard _(client->connectionHandlerMutex);
+		client->connectionHandler = make_unique<boost::thread>(&CClient::run, client);
+	}
 }
 
 void endGame()
