@@ -72,6 +72,13 @@ class ThreadSafeVector
 	boost::condition_variable cond;
 
 public:
+	void clear()
+	{
+		TLock lock(mx);
+		items.clear();
+		cond.notify_all();
+	}
+
 	void pushBack(const T &item)
 	{
 		TLock lock(mx);
@@ -135,7 +142,7 @@ public:
 
 	CScriptingModule *erm;
 
-	ThreadSafeVector<int> waitingRequest;
+	static ThreadSafeVector<int> waitingRequest;//FIXME: make this normal field (need to join all threads before client destruction)
 
 	void waitForMoveAndSend(PlayerColor color);
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);

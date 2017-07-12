@@ -59,6 +59,8 @@ extern std::string NAME;
 std::atomic_bool androidTestServerReadyFlag;
 #endif
 
+ThreadSafeVector<int> CClient::waitingRequest;
+
 template <typename T> class CApplyOnCL;
 
 class CBaseForCLApply
@@ -109,6 +111,7 @@ static CApplier<CBaseForCLApply> *applier = nullptr;
 
 void CClient::init()
 {
+	waitingRequest.clear();
 	hotSeat = false;
 	connectionHandler = nullptr;
 	pathInfo = nullptr;

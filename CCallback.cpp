@@ -188,7 +188,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 	{
 		logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
 		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(CGameState::mutex, unlockGsWhenWaiting);
-		cl->waitingRequest.waitWhileContains(requestID);
+		CClient::waitingRequest.waitWhileContains(requestID);
 	}
 
 	boost::this_thread::interruption_point();

@@ -775,7 +775,7 @@ void EndAction::applyCl(CClient *cl)
 void PackageApplied::applyCl(CClient *cl)
 {
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
-	if(!cl->waitingRequest.tryRemovingElement(requestID))
+	if(!CClient::waitingRequest.tryRemovingElement(requestID))
 		logNetwork->warnStream() << "Surprising server message!";
 }
 
