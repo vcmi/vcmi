@@ -51,20 +51,20 @@ struct ServerReady
 
 struct SharedMemory
 {
-	const char * name;
+	std::string name;
 	boost::interprocess::shared_memory_object smo;
 	boost::interprocess::mapped_region * mr;
 	ServerReady * sr;
-	
-	SharedMemory(std::string Name, bool initialize = false)
-		: name(Name.c_str())
+
+	SharedMemory(const std::string & Name, bool initialize = false)
+		: name(Name)
 	{
 		if(initialize)
 		{
 			//if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
-			boost::interprocess::shared_memory_object::remove(name);
+			boost::interprocess::shared_memory_object::remove(name.c_str());
 		}
-		smo = boost::interprocess::shared_memory_object(boost::interprocess::open_or_create, name, boost::interprocess::read_write);
+		smo = boost::interprocess::shared_memory_object(boost::interprocess::open_or_create, name.c_str(), boost::interprocess::read_write);
 		smo.truncate(sizeof(ServerReady));
 		mr = new boost::interprocess::mapped_region(smo,boost::interprocess::read_write);
 		if(initialize)
@@ -76,6 +76,6 @@ struct SharedMemory
 	~SharedMemory()
 	{
 		delete mr;
-		boost::interprocess::shared_memory_object::remove(name);
+		boost::interprocess::shared_memory_object::remove(name.c_str());
 	}
 };
