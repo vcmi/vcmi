@@ -252,13 +252,6 @@
     <ClCompile Include="filesystem\MinizipExtensions.cpp">
       <Filter>filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="serializer\BinaryDeserializer.cpp" />
-    <ClCompile Include="serializer\BinarySerializer.cpp" />
-    <ClCompile Include="serializer\CLoadIntegrityValidator.cpp" />
-    <ClCompile Include="serializer\CMemorySerializer.cpp" />
-    <ClCompile Include="serializer\CSerializer.cpp" />
-    <ClCompile Include="serializer\CTypeList.cpp" />
-    <ClCompile Include="serializer\Connection.cpp" />
     <ClCompile Include="CStack.cpp" />
     <ClCompile Include="battle\AccessibilityInfo.cpp">
       <Filter>battle</Filter>
@@ -298,6 +291,27 @@
     </ClCompile>
     <ClCompile Include="battle\SiegeInfo.cpp">
       <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\CSerializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\BinarySerializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\BinaryDeserializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\CLoadIntegrityValidator.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\CMemorySerializer.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\Connection.cpp">
+      <Filter>serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\CTypeList.cpp">
+      <Filter>serializer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -508,9 +522,6 @@
     <ClInclude Include="LogicalExpression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="registerTypes\RegisterTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rmg\float3.h">
       <Filter>rmg</Filter>
     </ClInclude>
@@ -658,27 +669,6 @@
     <ClInclude Include="..\Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="serializer\BinaryDeserializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\BinarySerializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\CLoadIntegrityValidator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\CMemorySerializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\CSerializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\CTypeList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="serializer\Connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -720,6 +710,30 @@
     </ClInclude>
     <ClInclude Include="battle\SiegeInfo.h">
       <Filter>battle</Filter>
+    </ClInclude>
+    <ClInclude Include="registerTypes\RegisterTypes.h">
+      <Filter>registerTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CSerializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\BinaryDeserializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\BinarySerializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CLoadIntegrityValidator.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CMemorySerializer.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\Connection.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\CTypeList.h">
+      <Filter>serializer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

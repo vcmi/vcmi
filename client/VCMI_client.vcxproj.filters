@@ -145,7 +145,6 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SDLMain.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="windows\CAdvmapInterface.h">
       <Filter>windows</Filter>
