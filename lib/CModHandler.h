@@ -1,10 +1,3 @@
-#pragma once
-
-#include "filesystem/Filesystem.h"
-
-#include "VCMI_Lib.h"
-#include "JsonNode.h"
-
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "filesystem/Filesystem.h"
+
+#include "VCMI_Lib.h"
+#include "JsonNode.h"
 
 class CModHandler;
 class CModIndentifier;

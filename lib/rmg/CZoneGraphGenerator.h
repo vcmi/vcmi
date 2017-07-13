@@ -1,4 +1,3 @@
-
 /*
  * CZoneGraphGenerator.h, part of VCMI engine
  *

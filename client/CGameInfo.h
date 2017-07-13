@@ -1,8 +1,3 @@
-#pragma once
-
-
-#include "../lib/ConstTransitivePtr.h"
-
 /*
  * CGameInfo.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+
+#include "../lib/ConstTransitivePtr.h"
 
 class CModHandler;
 class CMapHandler;

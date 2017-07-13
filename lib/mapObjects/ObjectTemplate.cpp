@@ -1,3 +1,12 @@
+/*
+ * ObjectTemplate.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CObjectClassesHandler.h"
 
@@ -12,16 +21,6 @@
 #include "../JsonNode.h"
 
 #include "CRewardableConstructor.h"
-
-/*
- * ObjectTemplate.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 static bool isOnVisitableFromTopList(int identifier, int type)
 {

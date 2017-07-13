@@ -1,4 +1,3 @@
-
 /*
  * MapFormatH3M.h, part of VCMI engine
  *

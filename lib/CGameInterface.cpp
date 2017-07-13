@@ -1,3 +1,12 @@
+/*
+ * CGameInterface.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CGameInterface.h"
 
@@ -19,16 +28,6 @@
 #include "AI/BattleAI/BattleAI.h"
 
 #endif
-
-/*
- * CGameInterface.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)

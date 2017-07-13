@@ -1,12 +1,3 @@
-#pragma once
-
-#include "../../lib/ConstTransitivePtr.h" //may be reundant
-#include "../../lib/GameConstants.h"
-
-#include "CBattleAnimations.h"
-
-#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
-
 /*
  * CBattleInterface.h, part of VCMI engine
  *
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/ConstTransitivePtr.h" //may be reundant
+#include "../../lib/GameConstants.h"
+
+#include "CBattleAnimations.h"
+
+#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 
 class CLabel;
 class CCreatureSet;

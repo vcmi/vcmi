@@ -1,5 +1,5 @@
 /*
- * CBattleCallback.h, part of VCMI engine
+ * CBattleInfoCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

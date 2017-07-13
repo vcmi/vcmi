@@ -1,4 +1,3 @@
-
 /*
  * CRmgTemplateZone.h, part of VCMI engine
  *

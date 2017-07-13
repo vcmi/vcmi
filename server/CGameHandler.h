@@ -1,12 +1,3 @@
-#pragma once
-
-
-#include "../lib/FunctionList.h"
-#include "../lib/IGameCallback.h"
-#include "../lib/battle/BattleAction.h"
-#include "CQuery.h"
-
-
 /*
  * CGameHandler.h, part of VCMI engine
  *
@@ -16,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/FunctionList.h"
+#include "../lib/IGameCallback.h"
+#include "../lib/battle/BattleAction.h"
+#include "CQuery.h"
 
 class CGameHandler;
 class CVCMIServer;

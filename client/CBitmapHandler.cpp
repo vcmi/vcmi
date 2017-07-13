@@ -1,12 +1,3 @@
-#include "StdInc.h"
-
-#include "../lib/filesystem/Filesystem.h"
-#include "SDL.h"
-#include "SDL_image.h"
-#include "CBitmapHandler.h"
-#include "gui/SDL_Extensions.h"
-#include "../lib/vcmi_endian.h"
-
 /*
  * CBitmapHandler.cpp, part of VCMI engine
  *
@@ -16,7 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 
+#include "../lib/filesystem/Filesystem.h"
+#include "SDL.h"
+#include "SDL_image.h"
+#include "CBitmapHandler.h"
+#include "gui/SDL_Extensions.h"
+#include "../lib/vcmi_endian.h"
 
 namespace BitmapHandler
 {

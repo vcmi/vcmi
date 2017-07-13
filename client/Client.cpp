@@ -1,3 +1,12 @@
+/*
+ * Client.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "Client.h"
 
@@ -44,16 +53,6 @@ extern std::string NAME;
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
 #endif
-
-/*
- * Client.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 #ifdef VCMI_ANDROID
 std::atomic_bool androidTestServerReadyFlag;

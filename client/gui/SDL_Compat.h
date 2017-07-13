@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * SDL_Compat.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
  
 #include <SDL_version.h>
 

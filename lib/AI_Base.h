@@ -1,7 +1,3 @@
-#pragma once
-
-#include "CGameInterface.h"
-
 /*
  * AI_Base.h, part of VCMI engine
  *
@@ -11,5 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CGameInterface.h"
 
 #define AI_INTERFACE_VER 1

@@ -1,4 +1,13 @@
-﻿#include "StdInc.h"
+﻿/*
+ * CObjectClassesHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
@@ -13,16 +22,6 @@
 #include "CRewardableConstructor.h"
 #include "CommonConstructors.h"
 #include "MapObjects.h"
-
-/*
- * CObjectClassesHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CObjectClassesHandler::CObjectClassesHandler()
 {

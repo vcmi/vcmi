@@ -1,4 +1,3 @@
-
 /*
  * CMap.h, part of VCMI engine
  *

@@ -1,10 +1,3 @@
-#include "StdInc.h"
-#include "Goals.h"
-#include "VCAI.h"
-#include "Fuzzy.h"
-#include "../../lib/mapping/CMap.h" //for victory conditions
-#include "../../lib/CPathfinder.h"
-
 /*
  * Goals.cpp, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "Goals.h"
+#include "VCAI.h"
+#include "Fuzzy.h"
+#include "../../lib/mapping/CMap.h" //for victory conditions
+#include "../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;

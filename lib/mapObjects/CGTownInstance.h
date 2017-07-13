@@ -1,11 +1,3 @@
-#pragma once
-
-#include "CObjectHandler.h"
-#include "CGMarket.h" // For IMarket interface
-#include "CArmedInstance.h"
-
-#include "../CTownHandler.h" // For CTown
-
 /*
  * CGTownInstance.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CObjectHandler.h"
+#include "CGMarket.h" // For IMarket interface
+#include "CArmedInstance.h"
+
+#include "../CTownHandler.h" // For CTown
 
 class CCastleEvent;
 class CGTownInstance;

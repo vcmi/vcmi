@@ -1,10 +1,5 @@
-#pragma once
-
-class CAnimImage;
-struct SDL_Surface;
-
 /*
- * CCursorhandler.h, part of VCMI engine
+ * CCursorHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,6 +7,10 @@ struct SDL_Surface;
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+class CAnimImage;
+struct SDL_Surface;
 
 namespace ECursor
 {

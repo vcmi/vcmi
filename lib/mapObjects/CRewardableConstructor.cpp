@@ -1,12 +1,3 @@
-#include "StdInc.h"
-#include "CRewardableConstructor.h"
-
-#include "../CRandomGenerator.h"
-#include "../StringConstants.h"
-#include "../CCreatureHandler.h"
-#include "JsonRandom.h"
-#include "../IGameCallback.h"
-
 /*
  * CRewardableConstructor.cpp, part of VCMI engine
  *
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CRewardableConstructor.h"
+
+#include "../CRandomGenerator.h"
+#include "../StringConstants.h"
+#include "../CCreatureHandler.h"
+#include "JsonRandom.h"
+#include "../IGameCallback.h"
 
 namespace {
 	MetaString loadMessage(const JsonNode & value)

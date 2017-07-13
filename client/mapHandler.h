@@ -1,11 +1,3 @@
-#pragma once
-
-
-#include "../lib/int3.h"
-#include "../lib/spells/ViewSpellInt.h"
-#include "gui/Geometries.h"
-#include "SDL.h"
-
 /*
  * mapHandler.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+
+#include "../lib/int3.h"
+#include "../lib/spells/ViewSpellInt.h"
+#include "gui/Geometries.h"
+#include "SDL.h"
 
 class CGObjectInstance;
 class CGHeroInstance;

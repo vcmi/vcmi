@@ -1,13 +1,4 @@
-﻿#pragma once
-
-#include "ObjectTemplate.h"
-
-#include "../GameConstants.h"
-#include "../ConstTransitivePtr.h"
-#include "../IHandlerBase.h"
-#include "../JsonNode.h"
-
-/*
+﻿/*
  * CObjectClassesHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "ObjectTemplate.h"
+
+#include "../GameConstants.h"
+#include "../ConstTransitivePtr.h"
+#include "../IHandlerBase.h"
+#include "../JsonNode.h"
 
 class JsonNode;
 class CRandomGenerator;

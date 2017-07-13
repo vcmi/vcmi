@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * int3.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 /// Class which consists of three integer values. Represents position on adventure map.
 class int3

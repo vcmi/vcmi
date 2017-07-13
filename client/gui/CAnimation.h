@@ -1,9 +1,3 @@
-#pragma once
-
-#include "../../lib/vcmi_endian.h"
-#include "Geometries.h"
-#include "../../lib/GameConstants.h"
-
 /*
  * CAnimation.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/vcmi_endian.h"
+#include "Geometries.h"
+#include "../../lib/GameConstants.h"
 
 struct SDL_Surface;
 class JsonNode;

@@ -1,4 +1,3 @@
-
 /*
  * CVcmiTestConfig.cpp, part of VCMI engine
  *

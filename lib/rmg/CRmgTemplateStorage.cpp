@@ -1,4 +1,3 @@
-
 /*
  * CRmgTemplateStorage.cpp, part of VCMI engine
  *

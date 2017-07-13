@@ -1,3 +1,12 @@
+/*
+ * CVCMIServer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 
 #include <boost/asio.hpp>
@@ -44,16 +53,6 @@ std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX 
 std::atomic<bool> serverShuttingDown(false);
 
 boost::program_options::variables_map cmdLineOptions;
-
-/*
- * CVCMIServer.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 static void vaccept(boost::asio::ip::tcp::acceptor *ac, boost::asio::ip::tcp::socket *s, boost::system::error_code *error)
 {

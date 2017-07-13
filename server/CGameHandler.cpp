@@ -1,3 +1,12 @@
+/*
+ * CGameHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
@@ -33,17 +42,6 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
-
-/*
- * CGameHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
 
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>

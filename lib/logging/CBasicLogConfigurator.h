@@ -1,4 +1,3 @@
-
 /*
  * CBasicLogConfigurator.h, part of VCMI engine
  *

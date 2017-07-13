@@ -1,8 +1,3 @@
-#pragma once
-
-#include "../lib/CConfigHandler.h"
-#include "../lib/CSoundBase.h"
-
 /*
  * CMusicHandler.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/CConfigHandler.h"
+#include "../lib/CSoundBase.h"
 
 class CSpell;
 struct _Mix_Music;

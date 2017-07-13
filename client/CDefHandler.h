@@ -1,10 +1,3 @@
-#pragma once
-
-#include "../lib/vcmi_endian.h"
-
-struct SDL_Surface;
-struct SDL_Color;
-
 /*
  * CDefHandler.h, part of VCMI engine
  *
@@ -14,6 +7,12 @@ struct SDL_Color;
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/vcmi_endian.h"
+
+struct SDL_Surface;
+struct SDL_Color;
 
 struct Cimage
 {

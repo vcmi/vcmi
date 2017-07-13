@@ -1,4 +1,3 @@
-
 /*
  * CRmgTemplateStorage.h, part of VCMI engine
  *

@@ -1,3 +1,12 @@
+/*
+ * CMT.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "StdInc.h"
@@ -62,16 +71,6 @@
 namespace po = boost::program_options;
 namespace po_style = boost::program_options::command_line_style;
 namespace bfs = boost::filesystem;
-
-/*
- * CMT.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name

@@ -1,3 +1,12 @@
+/*
+ * CModHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "mapObjects/CObjectClassesHandler.h"
@@ -14,16 +23,6 @@
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
-
-/*
- * CModHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)

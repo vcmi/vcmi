@@ -1,7 +1,3 @@
-#include "StdInc.h"
-#include "CBuildingHandler.h"
-
-
 /*
  * CBuildingHandler.cpp, part of VCMI engine
  *
@@ -11,6 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CBuildingHandler.h"
 
 BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
 {

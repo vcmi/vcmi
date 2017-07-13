@@ -1,9 +1,3 @@
-#pragma once
-
-#include "Graphics.h"
-#include "gui/Geometries.h"
-
-
 /*
  * CMessage.h, part of VCMI engine
  *
@@ -13,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "Graphics.h"
+#include "gui/Geometries.h"
 
 struct SDL_Surface;
 class CInfoWindow;

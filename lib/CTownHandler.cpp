@@ -1,3 +1,12 @@
+/*
+ * CTownHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CTownHandler.h"
 
@@ -13,16 +22,6 @@
 #include "filesystem/Filesystem.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "mapObjects/CObjectHandler.h"
-
-/*
- * CTownHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 

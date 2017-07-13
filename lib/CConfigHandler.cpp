@@ -1,13 +1,3 @@
-#include "StdInc.h"
-#include "CConfigHandler.h"
-
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/FileStream.h"
-#include "../lib/GameConstants.h"
-#include "../lib/VCMIDirs.h"
-
-using namespace config;
-
 /*
  * CConfigHandler.cpp, part of VCMI engine
  *
@@ -17,6 +7,15 @@ using namespace config;
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CConfigHandler.h"
+
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/FileStream.h"
+#include "../lib/GameConstants.h"
+#include "../lib/VCMIDirs.h"
+
+using namespace config;
 
 SettingsStorage settings;
 CConfigHandler conf;

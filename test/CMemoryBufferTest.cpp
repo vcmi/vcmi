@@ -1,4 +1,3 @@
-
 /*
  * CMemoryBufferTest.cpp, part of VCMI engine
  *

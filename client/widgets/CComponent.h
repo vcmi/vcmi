@@ -1,7 +1,3 @@
-#pragma once
-
-#include "../gui/CIntObject.h"
-
 /*
  * CComponent.h, part of VCMI engine
  *
@@ -11,6 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../gui/CIntObject.h"
 
 struct Component;
 class CAnimImage;

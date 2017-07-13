@@ -1,3 +1,12 @@
+/*
+ * CBattleInterfaceClasses.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CBattleInterfaceClasses.h"
 
@@ -30,16 +39,6 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-
-/*
- * CBattleInterfaceClasses.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 void CBattleConsole::showAll(SDL_Surface * to)
 {

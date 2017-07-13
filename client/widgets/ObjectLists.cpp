@@ -1,9 +1,3 @@
-#include "StdInc.h"
-#include "ObjectLists.h"
-
-#include "../gui/CGuiHandler.h"
-#include "Buttons.h"
-
 /*
  * ObjectLists.cpp, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "ObjectLists.h"
+
+#include "../gui/CGuiHandler.h"
+#include "Buttons.h"
 
 
 static void intDeleter(CIntObject* object)

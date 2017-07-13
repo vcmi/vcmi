@@ -1,7 +1,3 @@
-#pragma once
-
-class CGameHandler;
-
 /*
  * ConstTransitivePtr.h, part of VCMI engine
  *
@@ -11,6 +7,9 @@ class CGameHandler;
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+class CGameHandler;
 
 template <typename T>
 class ConstTransitivePtr

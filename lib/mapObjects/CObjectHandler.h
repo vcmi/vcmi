@@ -1,11 +1,3 @@
-#pragma once
-
-#include "ObjectTemplate.h"
-
-//#include "../IGameCallback.h"
-#include "../int3.h"
-#include "../HeroBonus.h"
-
 /*
  * CObjectHandler.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "ObjectTemplate.h"
+
+//#include "../IGameCallback.h"
+#include "../int3.h"
+#include "../HeroBonus.h"
 
 class CGHeroInstance;
 class IGameCallback;

@@ -1,7 +1,3 @@
-#pragma once
-
-#include "CStream.h"
-
 /*
  * COutputStream.h, part of VCMI engine
  *
@@ -11,6 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CStream.h"
 
 /**
  * Abstract class which provides method definitions for writing into a stream.

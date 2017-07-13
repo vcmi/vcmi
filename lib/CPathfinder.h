@@ -1,12 +1,3 @@
-#pragma once
-
-#include "VCMI_Lib.h"
-#include "IGameCallback.h"
-#include "HeroBonus.h"
-#include "int3.h"
-
-#include <boost/heap/priority_queue.hpp>
-
 /*
  * CPathfinder.h, part of VCMI engine
  *
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "VCMI_Lib.h"
+#include "IGameCallback.h"
+#include "HeroBonus.h"
+#include "int3.h"
+
+#include <boost/heap/priority_queue.hpp>
 
 class CGHeroInstance;
 class CGObjectInstance;

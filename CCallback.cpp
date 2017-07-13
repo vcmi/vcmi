@@ -1,3 +1,12 @@
+/*
+ * CCallback.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CCallback.h"
 
@@ -19,16 +28,6 @@
 #include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
 #include "lib/battle/BattleInfo.h"
-
-/*
- * CCallback.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {

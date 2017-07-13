@@ -1,8 +1,3 @@
-#pragma once
-
-#include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "CRandomGenerator.h"
-
 /*
  * IGameCallback.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CGameInfoCallback.h" // for CGameInfoCallback
+#include "CRandomGenerator.h"
 
 struct SetMovePoints;
 struct GiveBonus;

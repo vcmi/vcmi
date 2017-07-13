@@ -1,8 +1,3 @@
-#include "StdInc.h"
-#include "CMemorySerializer.h"
-
-#include "../registerTypes/RegisterTypes.h"
-
 /*
  * CMemorySerializer.cpp, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CMemorySerializer.h"
+
+#include "../registerTypes/RegisterTypes.h"
 
 int CMemorySerializer::read(void * data, unsigned size)
 {

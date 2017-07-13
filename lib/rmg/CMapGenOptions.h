@@ -1,4 +1,3 @@
-
 /*
  * CMapGenOptions.h, part of VCMI engine
  *

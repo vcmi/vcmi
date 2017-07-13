@@ -1,8 +1,3 @@
-#pragma once
-
-//#include "CComponent.h"
-#include "MiscWidgets.h"
-
 /*
  * CArtifactHolder.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+//#include "CComponent.h"
+#include "MiscWidgets.h"
 
 class CArtifactsOfHero;
 class CAnimImage;

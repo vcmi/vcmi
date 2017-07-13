@@ -1,14 +1,3 @@
-#pragma once
-
-
-#include "HeroBonus.h"
-#include "ConstTransitivePtr.h"
-#include "ResourceSet.h"
-#include "GameConstants.h"
-#include "JsonNode.h"
-#include "IHandlerBase.h"
-#include "CRandomGenerator.h"
-
 /*
  * CCreatureHandler.h, part of VCMI engine
  *
@@ -18,6 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "HeroBonus.h"
+#include "ConstTransitivePtr.h"
+#include "ResourceSet.h"
+#include "GameConstants.h"
+#include "JsonNode.h"
+#include "IHandlerBase.h"
+#include "CRandomGenerator.h"
 
 class CLegacyConfigParser;
 class CCreatureHandler;

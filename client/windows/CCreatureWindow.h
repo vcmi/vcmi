@@ -1,9 +1,3 @@
-#pragma once
-
-#include "../../lib/HeroBonus.h"
-#include "../widgets/MiscWidgets.h"
-#include "CWindowObject.h"
-
 /*
  * CCreatureWindow.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/HeroBonus.h"
+#include "../widgets/MiscWidgets.h"
+#include "CWindowObject.h"
 
 struct StackWindowInfo;
 class CCommanderInstance;

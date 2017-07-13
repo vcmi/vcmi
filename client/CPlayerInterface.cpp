@@ -1,3 +1,12 @@
+/*
+ * CPlayerInterface.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
@@ -46,16 +55,6 @@
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include <SDL.h>
-
-/*
- * CPlayerInterface.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 
 // The macro below is used to mark functions that are called by client when game state changes.

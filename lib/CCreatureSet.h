@@ -1,10 +1,3 @@
-#pragma once
-
-
-#include "HeroBonus.h"
-#include "GameConstants.h"
-#include "CArtHandler.h"
-
 /*
  * CCreatureSet.h, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "HeroBonus.h"
+#include "GameConstants.h"
+#include "CArtHandler.h"
+
 class JsonNode;
 class CCreature;
 class CGHeroInstance;

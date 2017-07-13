@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * VCMI_Lib.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 class CArtHandler;
 class CHeroHandler;

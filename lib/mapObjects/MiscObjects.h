@@ -1,9 +1,3 @@
-#pragma once
-
-#include "CObjectHandler.h"
-#include "CArmedInstance.h"
-#include "../ResourceSet.h"
-
 /*
  * MiscObjects.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CObjectHandler.h"
+#include "CArmedInstance.h"
+#include "../ResourceSet.h"
 
 class CMap;
 

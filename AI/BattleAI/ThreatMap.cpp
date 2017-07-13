@@ -1,5 +1,3 @@
-#include "StdInc.h"
-
 /*
  * ThreatMap.cpp, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 /*
 #include "ThreatMap.h"
 #include "StdInc.h"
