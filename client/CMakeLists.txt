@@ -163,6 +163,7 @@ if(APPLE)
 		# Copy all needed binaries
 		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
 		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
+		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiclient.app/Contents/MacOS/vcmiclient ${BUNDLE_PATH}/MacOS/vcmiclient &&
 		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
 		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
 		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
