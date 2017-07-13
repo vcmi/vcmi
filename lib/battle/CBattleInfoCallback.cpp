@@ -855,6 +855,17 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 		ret[BattleHex(0, y)] = EAccessibility::SIDE_COLUMN;
 	}
 
+	//special battlefields with logically unavailable tiles
+	std::vector<BattleHex> impassableHexes;
+	switch(battleGetBattlefieldType().num)
+	{
+	case BFieldType::SHIP_TO_SHIP:
+		impassableHexes = { 6, 7, 8, 9, 24, 25, 26, 58, 59, 60, 75, 76, 77, 92, 93, 94, 109, 110, 111, 126, 127, 128, 159, 160, 161, 162, 163, 176, 177, 178, 179, 180 };
+		break;
+	}
+	for(auto hex : impassableHexes)
+		ret[hex] = EAccessibility::UNAVAILABLE;
+
 	//gate -> should be before stacks
 	if(battleGetSiegeLevel() > 0)
 	{
