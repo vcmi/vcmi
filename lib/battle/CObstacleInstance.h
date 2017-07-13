@@ -1,4 +1,5 @@
 #pragma once
+#include "../GameConstants.h"
 #include "BattleHex.h"
 
 /*
@@ -23,7 +24,7 @@ struct DLL_LINKAGE CObstacleInstance
 	enum EObstacleType
 	{
 		//ABSOLUTE needs an underscore because it's a Win
-		USUAL, ABSOLUTE_OBSTACLE, QUICKSAND, LAND_MINE, FORCE_FIELD, FIRE_WALL, MOAT
+		USUAL, ABSOLUTE_OBSTACLE, QUICKSAND, LAND_MINE, FORCE_FIELD, FIRE_WALL, MOAT, BATTLEFIELD_LIMITER
 	};
 
 
@@ -51,6 +52,18 @@ struct DLL_LINKAGE CObstacleInstance
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & pos & obstacleType & uniqueID;
+	}
+};
+
+struct DLL_LINKAGE BattlefieldLimiterObstacle : CObstacleInstance
+{
+	BFieldType battlefieldType;
+	virtual std::vector<BattleHex> getAffectedTiles() const override; //for special effects (not blocking)
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CObstacleInstance&>(*this);
+		h & battlefieldType;
 	}
 };
 
