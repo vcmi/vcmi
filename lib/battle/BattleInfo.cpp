@@ -352,6 +352,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
 				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
+				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place absolute obstacle");
 			}
 		}
 
@@ -359,7 +360,8 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		try
 		{
 			while(tilesToBlock > 0)
-			{
+			{				
+				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
 
@@ -376,6 +378,8 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 
 					for(BattleHex blocked : obi.getBlocked(pos))
 					{
+						if(tileAccessibility[blocked] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
+							return false;
 						if(vstd::contains(blockedTiles, blocked))
 							return false;
 						int x = blocked.getX();
@@ -401,6 +405,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		}
 		catch(RangeGenerator::ExhaustedPossibilities &)
 		{
+			logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place usual obstacle");
 		}
 	}
 
