@@ -268,6 +268,7 @@ public:
 		int MAX_HEROES_AVAILABLE_PER_PLAYER;
 		int MAX_HEROES_ON_MAP_PER_PLAYER;
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
+		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -281,6 +282,15 @@ public:
 			else if(!h.saving)
 			{
 				WINNING_HERO_WITH_NO_TROOPS_RETREATS = true;
+			}
+
+			if(version >= 775)
+			{
+				h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
+			}
+			else if(!h.saving)
+			{
+				BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = true;
 			}
 		}
 	} settings;

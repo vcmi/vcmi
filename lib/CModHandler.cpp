@@ -641,6 +641,8 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logGlobal->debugStream() << "\tALL_CREATURES_GET_DOUBLE_MONTHS\t" << settings.ALL_CREATURES_GET_DOUBLE_MONTHS;
 	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
 	logGlobal->debugStream() << "\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t" << settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS;
+	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
+	logGlobal->debugStream() << "\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t" << settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
   logGlobal->debugStream() << "\tSTACK_EXP\t" << modules.STACK_EXP;
