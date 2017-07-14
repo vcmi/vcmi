@@ -317,7 +317,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		return;
 	}
 
-	ui32 speed;
+	ui32 speed = 0;
 	if(settings["session"]["spectate"].Bool())
 	{
 		if(!settings["session"]["spectate-hero-speed"].isNull())
@@ -699,33 +699,46 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 		}
 	}
 
-	if (lifeDrain)
+	if(lifeDrain)
 	{
-		const CStack *attacker = cb->battleGetStackByID(healedStacks[0].first, false);
-		const CStack *defender = cb->battleGetStackByID(lifeDrainFrom, false);
-		int textOff = 0;
+		const CStack * attacker = cb->battleGetStackByID(healedStacks[0].first, false);
+		const CStack * defender = cb->battleGetStackByID(lifeDrainFrom, false);
 
-		if (attacker)
+		if(attacker && defender)
 		{
 			battleInt->displayEffect(52, attacker->position); //TODO: transparency
-			if (attacker->count > 1)
-			{
-				textOff += 1;
-			}
 			CCS->soundh->playSound(soundBase::DRAINLIF);
 
-			//print info about life drain
-			auto txt =  boost::format (CGI->generaltexth->allTexts[361 + textOff]) %  attacker->getCreature()->nameSing % healedStacks[0].second % defender->getCreature()->namePl;
-			battleInt->console->addText(boost::to_string(txt));
+			MetaString text;
+			attacker->addText(text, MetaString::GENERAL_TXT, 361);
+			attacker->addNameReplacement(text, false);
+			text.addReplacement(healedStacks[0].second);
+			defender->addNameReplacement(text, true);
+			battleInt->console->addText(text.toString());
+		}
+		else
+		{
+			logGlobal->error("Unable to display life drain info");
 		}
 	}
-	if (tentHeal)
+	if(tentHeal)
 	{
-		std::string text = CGI->generaltexth->allTexts[414];
-		boost::algorithm::replace_first(text, "%s", cb->battleGetStackByID(lifeDrainFrom, false)->getCreature()->nameSing);
-		boost::algorithm::replace_first(text, "%s",	cb->battleGetStackByID(healedStacks[0].first, false)->getCreature()->nameSing);
-		boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(healedStacks[0].second));
-		battleInt->console->addText(text);
+		const CStack * healer = cb->battleGetStackByID(lifeDrainFrom, false);
+		const CStack * target = cb->battleGetStackByID(healedStacks[0].first, false);
+
+		if(healer && target)
+		{
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 414);
+			healer->addNameReplacement(text, false);
+			target->addNameReplacement(text, false);
+			text.addReplacement(healedStacks[0].second);
+			battleInt->console->addText(text.toString());
+		}
+		else
+		{
+			logGlobal->error("Unable to display tent heal info");
+		}
 	}
 }
 
@@ -939,53 +952,50 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 
 	battleInt->stacksAreAttacked(arg);
 }
-void CPlayerInterface::battleAttack(const BattleAttack *ba)
+void CPlayerInterface::battleAttack(const BattleAttack * ba)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	assert(curAction);
-	if (ba->lucky()) //lucky hit
+
+	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+
+	if(!attacker)
 	{
-		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
-		std::string hlp = CGI->generaltexth->allTexts[45];
-		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
-		battleInt->console->addText(hlp);
-		battleInt->displayEffect(18, stack->position);
+		logGlobal->error("Attacking stack not found");
+		return;
+	}
+
+	if(ba->lucky()) //lucky hit
+	{
+		battleInt->console->addText(attacker->formatGeneralMessage(-45));
+		battleInt->displayEffect(18, attacker->position);
 		CCS->soundh->playSound(soundBase::GOODLUCK);
 	}
-	if (ba->unlucky()) //unlucky hit
+	if(ba->unlucky()) //unlucky hit
 	{
-		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
-		std::string hlp = CGI->generaltexth->allTexts[44];
-		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
-		battleInt->console->addText(hlp);
-		battleInt->displayEffect(48, stack->position);
+		battleInt->console->addText(attacker->formatGeneralMessage(-44));
+		battleInt->displayEffect(48, attacker->position);
 		CCS->soundh->playSound(soundBase::BADLUCK);
 	}
-	if (ba->deathBlow())
+	if(ba->deathBlow())
 	{
-		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
-		std::string hlp = CGI->generaltexth->allTexts[(stack->count != 1) ? 366 : 365];
-		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
-		battleInt->console->addText(hlp);
-		for (auto & elem : ba->bsa)
+		battleInt->console->addText(attacker->formatGeneralMessage(365));
+		for(auto & elem : ba->bsa)
 		{
 			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
 			battleInt->displayEffect(73, attacked->position);
 		}
 		CCS->soundh->playSound(soundBase::deathBlow);
-
 	}
 	battleInt->waitForAnims();
 
-	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
-
-	if (ba->shot())
+	if(ba->shot())
 	{
-		for (auto & elem : ba->bsa)
+		for(auto & elem : ba->bsa)
 		{
-			if (!elem.isSecondary()) //display projectile only for primary target
+			if(!elem.isSecondary()) //display projectile only for primary target
 			{
 				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
 				battleInt->stackAttacking(attacker, attacked->position, attacked, true);
@@ -995,27 +1005,27 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	else
 	{
 		int shift = 0;
-		if (ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
 			int distp = BattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
 			int distm = BattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
 
-			if ( distp < distm )
+			if(distp < distm)
 				shift = 1;
 			else
 				shift = -1;
 		}
 		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
+		battleInt->stackAttacking(attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
 
 	//battleInt->waitForAnims(); //FIXME: freeze
 
-	if (ba->spellLike())
+	if(ba->spellLike())
 	{
 		//display hit animation
 		SpellID spellID = ba->spellID;
-		battleInt->displaySpellHit(spellID,curAction->destinationTile);
+		battleInt->displaySpellHit(spellID, curAction->destinationTile);
 	}
 }
 void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)

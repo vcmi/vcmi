@@ -567,7 +567,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					{
 						return s->owner == player
 							&& vstd::contains(s->state, EBattleStackState::SUMMONED)
-							&& !vstd::contains(s->state, EBattleStackState::CLONED);
+							&& !s->isClone();
 					});
 					for(const CStack * s : stacks)
 					{

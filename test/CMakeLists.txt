@@ -13,6 +13,7 @@ set(test_SRCS
 		CMemoryBufferTest.cpp
 		CVcmiTestConfig.cpp
 		MapComparer.cpp
+                battle/CHealthTest.cpp
 )
 
 set(test_HEADERS

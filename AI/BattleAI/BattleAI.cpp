@@ -55,7 +55,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 			std::map<int, const CStack*> woundHpToStack;
 			for(auto stack : healingTargets)
-				if(auto woundHp = stack->MaxHealth() - stack->firstHPleft)
+				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
 					woundHpToStack[woundHp] = stack;
 			if(woundHpToStack.empty())
 				return BattleAction::makeDefend(stack);

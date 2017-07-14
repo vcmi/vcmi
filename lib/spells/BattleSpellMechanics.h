@@ -18,18 +18,12 @@ class SpellCreatedObstacle;
 class DLL_LINKAGE HealingSpellMechanics : public DefaultSpellMechanics
 {
 public:
-	enum class EHealLevel
-	{
-		HEAL,
-		RESURRECT,
-		TRUE_RESURRECT
-	};
-
 	HealingSpellMechanics(const CSpell * s);
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
 	virtual int calculateHealedHP(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 	virtual EHealLevel getHealLevel(int effectLevel) const = 0;
+	virtual EHealPower getHealPower(int effectLevel) const = 0;
 };
 
 class DLL_LINKAGE AntimagicMechanics : public DefaultSpellMechanics
@@ -63,6 +57,7 @@ public:
 	void applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const override final;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
 	EHealLevel getHealLevel(int effectLevel) const override final;
+	EHealPower getHealPower(int effectLevel) const override final;
 private:
     static bool dispellSelector(const Bonus * b);
 };
@@ -177,7 +172,8 @@ class DLL_LINKAGE RisingSpellMechanics : public HealingSpellMechanics
 {
 public:
 	RisingSpellMechanics(const CSpell * s);
-	EHealLevel getHealLevel(int effectLevel) const override;
+	EHealLevel getHealLevel(int effectLevel) const override final;
+	EHealPower getHealPower(int effectLevel) const override final;
 };
 
 class DLL_LINKAGE SacrificeMechanics : public RisingSpellMechanics

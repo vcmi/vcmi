@@ -360,8 +360,17 @@ bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CSta
 		return true;
 	else if(attacker == defender)
 		return positivness;
+	else
+		return battleMatchOwner(battleGetOwner(attacker), defender, positivness);
+}
+
+bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const CStack * defender, const boost::logic::tribool positivness /* = false*/) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+	if(boost::logic::indeterminate(positivness))
+		return true;
 	else if(defender->owner != battleGetOwner(defender))
 		return true; //mind controlled unit is attackable for both sides
 	else
-		return (battleGetOwner(attacker) == battleGetOwner(defender)) == positivness;
+		return (attacker == battleGetOwner(defender)) == positivness;
 }

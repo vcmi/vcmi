@@ -72,7 +72,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	void localInit();
 
-	void localInitStack(CStack * s);
 	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 	//bool hasNativeStack(ui8 side) const;
 

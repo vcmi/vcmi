@@ -9,8 +9,8 @@
  */
 #pragma once
 #include "BattleHex.h"
+#include "../CStack.h"
 
-class CStack;
 class IBonusBearer;
 
 struct DLL_LINKAGE BattleAttackInfo
@@ -19,7 +19,8 @@ struct DLL_LINKAGE BattleAttackInfo
 	const CStack *attacker, *defender;
 	BattleHex attackerPosition, defenderPosition;
 
-	int attackerCount, defenderCount;
+	CHealth attackerHealth, defenderHealth;
+
 	bool shooting;
 	int chargedFields;
 

@@ -346,24 +346,11 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 
 	auto attackedStack = attacked.at(0);
 
-	auto getPluralFormat = [attackedStack](const int baseTextID) -> si32
-	{
-		return attackedStack->count > 1 ? baseTextID + 1 : baseTextID;
-	};
-
-	auto logSimple = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
+	auto addLogLine = [attackedStack, &logLines](const int baseTextID, const boost::logic::tribool & plural)
 	{
 		MetaString line;
-		line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(baseTextID));
-		line.addReplacement(*attackedStack);
-		logLines.push_back(line);
-	};
-
-	auto logPlural = [attackedStack, &logLines, getPluralFormat](const int baseTextID)
-	{
-		MetaString line;
-		line.addTxt(MetaString::GENERAL_TXT, baseTextID);
-		line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+		attackedStack->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
+		attackedStack->addNameReplacement(line, plural);
 		logLines.push_back(line);
 	};
 
@@ -372,26 +359,26 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 	switch(owner->id)
 	{
 	case SpellID::STONE_GAZE:
-		logSimple(558);
+		addLogLine(558, boost::logic::indeterminate);
 		break;
 	case SpellID::POISON:
-		logSimple(561);
+		addLogLine(561, boost::logic::indeterminate);
 		break;
 	case SpellID::BIND:
-		logPlural(560);//Roots and vines bind the %s to the ground!
+		addLogLine(-560, true);//"Roots and vines bind the %s to the ground!"
 		break;
 	case SpellID::DISEASE:
-		logSimple(553);
+		addLogLine(553, boost::logic::indeterminate);
 		break;
 	case SpellID::PARALYZE:
-		logSimple(563);
+		addLogLine(563, boost::logic::indeterminate);
 		break;
 	case SpellID::AGE:
 		{
-			//The %s shrivel with age, and lose %d hit points."
+			//"The %s shrivel with age, and lose %d hit points."
 			MetaString line;
-			line.addTxt(MetaString::GENERAL_TXT, getPluralFormat(551));
-			line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+			attackedStack->addText(line, MetaString::GENERAL_TXT, 551);
+			attackedStack->addNameReplacement(line);
 
 			//todo: display effect from only this cast
 			TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
@@ -403,7 +390,7 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 		break;
 	case SpellID::THUNDERBOLT:
 		{
-			logPlural(367);
+			addLogLine(-367, true);
 			MetaString line;
 			//todo: handle newlines in metastring
 			std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
@@ -413,22 +400,22 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 		}
 		break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
-		logPlural(555);
+		addLogLine(-555, true);
 		break;
 	case SpellID::DEATH_STARE:
-		if (damageToDisplay > 0)
+		if(damageToDisplay > 0)
 		{
 			MetaString line;
-			if (damageToDisplay > 1)
+			if(damageToDisplay > 1)
 			{
 				line.addTxt(MetaString::GENERAL_TXT, 119); //%d %s die under the terrible gaze of the %s.
 				line.addReplacement(damageToDisplay);
-				line.addReplacement(MetaString::CRE_PL_NAMES, attackedStack->getCreature()->idNumber.num);
+				attackedStack->addNameReplacement(line, true);
 			}
 			else
 			{
 				line.addTxt(MetaString::GENERAL_TXT, 118); //One %s dies under the terrible gaze of the %s.
-				line.addReplacement(MetaString::CRE_SING_NAMES, attackedStack->getCreature()->idNumber.num);
+				attackedStack->addNameReplacement(line, false);
 			}
 			parameters.caster->getCasterName(line);
 			logLines.push_back(line);
@@ -650,9 +637,9 @@ std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBatt
 	return attackedCres;
 }
 
-std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback* cb, const SpellTargetingContext& ctx) const
+std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
 {
-	std::set<const CStack* > attackedCres;//std::set to exclude multiple occurrences of two hex creatures
+	std::set<const CStack *> attackedCres;//std::set to exclude multiple occurrences of two hex creatures
 
 	const auto side = cb->playerToSide(ctx.caster->getOwner());
 	if(!side)
@@ -665,10 +652,9 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 
 	auto mainFilter = [=](const CStack * s)
 	{
-		const bool positiveToAlly = owner->isPositive() && s->owner == ctx.caster->getOwner();
-		const bool negativeToEnemy = owner->isNegative() && s->owner != ctx.caster->getOwner();
+		const bool ownerMatches = cb->battleMatchOwner(ctx.caster->getOwner(), s, owner->getPositiveness());
 		const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
-		const bool positivenessFlag = !ctx.ti.smart || owner->isNeutral() || positiveToAlly || negativeToEnemy;
+		const bool positivenessFlag = !ctx.ti.smart || ownerMatches;
 
 		return positivenessFlag && validTarget;
 	};
@@ -701,7 +687,7 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 	else if(ctx.ti.massive)
 	{
 		TStacks stacks = cb->battleGetStacksIf(mainFilter);
-		for (auto stack : stacks)
+		for(auto stack : stacks)
 			attackedCres.insert(stack);
 	}
 	else //custom range from attackedHexes
@@ -732,28 +718,12 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	{
 		std::vector<const CStack *> affected = getAffectedStacks(cb, ctx);
 
-		//allow to cast spell if affects is at least one smart target
+		//allow to cast spell if it affects at least one smart target
 		bool targetExists = false;
 
 		for(const CStack * stack : affected)
 		{
-			bool casterStack = stack->owner == ctx.caster->getOwner();
-
-			switch (owner->positiveness)
-			{
-			case CSpell::POSITIVE:
-				if(casterStack)
-					targetExists = true;
-				break;
-			case CSpell::NEUTRAL:
-				targetExists = true;
-				break;
-			case CSpell::NEGATIVE:
-				if(!casterStack)
-					targetExists = true;
-				break;
-			}
-
+			targetExists = cb->battleMatchOwner(ctx.caster->getOwner(), stack, owner->getPositiveness());
 			if(targetExists)
 				break;
 		}

@@ -1941,7 +1941,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
-				xp += drown * i->second->type->valOfBonuses(Bonus::STACK_HEALTH);
+				xp += drown * i->second->type->MaxHealth();
 			}
 		}
 

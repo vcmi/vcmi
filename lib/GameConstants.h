@@ -1089,6 +1089,19 @@ enum class EMetaclass: ui8
 	RESOURCE
 };
 
+enum class EHealLevel: ui8
+{
+	HEAL,
+	RESURRECT,
+	OVERHEAL
+};
+
+enum class EHealPower : ui8
+{
+	ONE_BATTLE,
+	PERMANENT
+};
+
 // Typedef declarations
 typedef ui8 TFaction;
 typedef si64 TExpType;
