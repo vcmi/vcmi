@@ -1813,7 +1813,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
 			if(absolute)
 				logNetwork->error("Can not change casts in absolute mode");
 			else
-				stack->casts.use(val);
+				stack->casts.use(-val);
 			break;
 		}
 		case ENCHANTER_COUNTER:
