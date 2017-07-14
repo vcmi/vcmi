@@ -866,6 +866,11 @@ void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 		setStackCount(SlotID(0), val);
 }
 
+TFaction CGHeroInstance::getFaction() const
+{
+	return type->heroClass->faction;
+}
+
 double CGHeroInstance::getFightingStrength() const
 {
 	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)));

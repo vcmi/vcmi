@@ -338,6 +338,7 @@ FuzzyHelper::EvalVisitTile::~EvalVisitTile()
 	delete heroStrength;
 	delete turnDistance;
 	delete missionImportance;
+	delete estimatedReward;
 }
 
 void FuzzyHelper::initVisitTile()
@@ -348,11 +349,12 @@ void FuzzyHelper::initVisitTile()
 		vt.heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
 		vt.turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
 		vt.missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
+		vt.estimatedReward = new fl::InputVariable("estimatedReward"); //indicate AI that content of the file is important or it is probably bad
 		vt.value = new fl::OutputVariable("Value");
 		vt.value->setMinimum(0);
 		vt.value->setMaximum(5);
 
-		std::vector<fl::InputVariable*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance};
+		std::vector<fl::InputVariable*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance, vt.estimatedReward};
 		for (auto val : helper)
 		{
 			vt.engine.addInputVariable(val);
@@ -378,6 +380,10 @@ void FuzzyHelper::initVisitTile()
 		vt.missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
 		vt.missionImportance->addTerm(new fl::Ramp("HIGH", 2.5, 5));
 		vt.missionImportance->setRange(0.0, 5.0);
+
+		vt.estimatedReward->addTerm(new fl::Ramp("LOW", 2.5, 0));
+		vt.estimatedReward->addTerm(new fl::Ramp("HIGH", 2.5, 5));
+		vt.estimatedReward->setRange(0.0, 5.0);
 
 		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
 		 //should be same as "mission Importance" to keep consistency
@@ -405,6 +411,9 @@ void FuzzyHelper::initVisitTile()
 		vt.addRule("if turnDistance is SMALL then Value is HIGH");
 		vt.addRule("if turnDistance is MEDIUM then Value is MEDIUM");
 		vt.addRule("if turnDistance is LONG then Value is LOW");
+		//some goals are more rewarding by definition f.e. capturing town is more important than collecting resource - experimental
+		vt.addRule("if estimatedReward is HIGH then Value is very HIGH");
+		vt.addRule("if estimatedReward is LOW then Value is somewhat LOW");
 	}
 	catch (fl::Exception & fe)
 	{
@@ -440,12 +449,22 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 	if (danger)
 		strengthRatio = (fl::scalar)g.hero.h->getTotalStrength() / danger;
 
+	float tilePriority = 0;
+	if(g.objid == -1)
+		vt.estimatedReward->setEnabled(false);
+	else if(g.objid == Obj::TOWN) //TODO: move to getObj eventually and add appropiate logic there
+	{
+		vt.estimatedReward->setEnabled(true);
+		tilePriority = 5;
+	}
+		
 	try
 	{
 		vt.strengthRatio->setInputValue(strengthRatio);
 		vt.heroStrength->setInputValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
 		vt.turnDistance->setInputValue(turns);
 		vt.missionImportance->setInputValue(missionImportance);
+		vt.estimatedReward->setInputValue(tilePriority);
 
 		vt.engine.process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
