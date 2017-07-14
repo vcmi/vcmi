@@ -17,6 +17,7 @@
 #include "../CCreatureHandler.h"
 #include "../CGameState.h"
 #include "CGTownInstance.h"
+#include "../CModHandler.h"
 
 ///helpers
 static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
@@ -283,6 +284,9 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode)
 
 void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 {
+	if(!VLC->modh->settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE) //check if feature changing OH3 behavior is enabled
+		return;
+
 	if(cb->getDate(Date::DAY_OF_MONTH) != 1) //new month
 		return;
 
