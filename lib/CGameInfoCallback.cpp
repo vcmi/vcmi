@@ -168,7 +168,7 @@ void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPo
 	//return gs->getUpgradeInfo(obj->getStack(stackPos));
 }
 
-const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization /*= false*/) const
+const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(beforeRandomization)
@@ -231,7 +231,7 @@ int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 	return gs->players[Player].towns.size();
 }
 
-bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
+bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
 {
 	ERROR_RET_VAL_IF(!isVisible(town, player), "Town is not visible!", false);  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
@@ -271,7 +271,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 	return ret;
 }
 
-bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject/* = nullptr*/) const
+bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject) const
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
 
@@ -438,7 +438,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	return ret;
 }
 
-std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose /*= true*/) const
+std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);

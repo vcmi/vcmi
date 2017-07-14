@@ -131,7 +131,7 @@ void CMapHandler::prepareFOWDefs()
 		FoWpartialHide[frame] = graphics->fogOfWarPartialHide->getImage(frame);
 }
 
-EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim /* = false */)
+EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim)
 {
 	assert(info);
 	bool hasActiveFade = updateObjectsFade();
@@ -1193,7 +1193,7 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 	return false;
 }
 
-bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = false */)
+bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 {
 	auto animation = graphics->getAnimation(obj);
 
@@ -1248,7 +1248,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj, bool fadein /* = fals
 	return true;
 }
 
-bool CMapHandler::hideObject(const CGObjectInstance *obj, bool fadeout /* = false */)
+bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 {
 	//optimized version which reveals weird bugs with missing def name
 	//auto pos = obj->pos;

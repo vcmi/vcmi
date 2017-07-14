@@ -79,14 +79,14 @@ CVideoPlayer::CVideoPlayer()
 	av_register_all();
 }
 
-bool CVideoPlayer::open(std::string fname, bool scale/* = false*/)
+bool CVideoPlayer::open(std::string fname, bool scale)
 {
 	return open(fname, true, false);
 }
 
 // loop = to loop through the video
 // useOverlay = directly write to the screen.
-bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale /*= false*/)
+bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale)
 {
 	close();
 
@@ -423,7 +423,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey, bool scale/* = false*/)
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey, bool scale)
 {
 	open(name, false, true, scale);
 	bool ret = playVideo(x, y, dst, stopOnKey);

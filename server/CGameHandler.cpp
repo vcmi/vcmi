@@ -515,7 +515,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 	}
 }
 
-void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs/*=false*/)
+void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs)
 {
 	if(!hero)
 	{
@@ -2025,7 +2025,7 @@ void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit, PlayerColor asker /*= 255*/)
+bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit, PlayerColor asker)
 {
 	const CGHeroInstance *h = getHero(hid);
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
@@ -2211,7 +2211,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	}
 }
 
-bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker/* = 255*/)
+bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker)
 {
 	const CGHeroInstance *h = getHero(hid);
 	const CGTownInstance *t = getTown(dstid);
@@ -2870,7 +2870,7 @@ bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 	return true;
 }
 
-bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force /*=false*/)
+bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)
 {
 	const CGTownInstance * t = getTown(tid);
 	if (!t)
@@ -5493,7 +5493,7 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 	return true;
 }
 
-bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval/* = false*/)
+bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval)
 {
 	if (!sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Cannot find a stack to erase");
@@ -5511,7 +5511,7 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval/* = fal
 	return true;
 }
 
-bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue /*= false*/)
+bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue)
 {
 	TQuantity currentCount = sl.army->getStackCount(sl.slot);
 	if ((absoluteValue && count < 0)

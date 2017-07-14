@@ -19,7 +19,7 @@ bool CPlayerBattleCallback::battleCanFlee() const
 			return CBattleInfoEssentials::battleCanFlee(*player);
 }
 
-TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/) const
+TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyAlive) const
 {
 	if(whose != MINE_AND_ENEMY)
 	{

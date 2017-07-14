@@ -1974,7 +1974,7 @@ static bool immobile(const CStack *s)
 	return !s->Speed(0, true); //should bound stacks be immobile?
 }
 
-void CBattleInterface::bTacticNextStack(const CStack *current /*= nullptr*/)
+void CBattleInterface::bTacticNextStack(const CStack * current)
 {
 	if (!current)
 		current = activeStack;

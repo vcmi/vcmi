@@ -275,7 +275,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	status.heroVisit(visitedObj, start);
 }
 
-void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= nullptr*/)
+void VCAI::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -1784,7 +1784,7 @@ void VCAI::validateVisitableObjs()
 	vstd::erase_if(alreadyVisited, shouldBeErased);
 }
 
-void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
+void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned) const
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
@@ -1875,7 +1875,7 @@ const CGObjectInstance * VCAI::getUnvisitedObj(const std::function<bool(const CG
 	return nullptr;
 }
 
-bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /*= false*/) const
+bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies) const
 {
 	if (!includeAllies)
 	{ //don't visit tile occupied by allied hero

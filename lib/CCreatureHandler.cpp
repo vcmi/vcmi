@@ -113,7 +113,7 @@ CCreature::CCreature()
 	iconIndex = -1;
 }
 
-void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
+void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 {
 	auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);

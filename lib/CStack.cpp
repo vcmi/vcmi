@@ -395,14 +395,14 @@ si32 CStack::magicResistance() const
 	return magicResistance;
 }
 
-bool CStack::willMove(int turn /*= 0*/) const
+bool CStack::willMove(int turn) const
 {
 	return (turn ? true : !vstd::contains(state, EBattleStackState::DEFENDING))
 		   && !moved(turn)
 		   && canMove(turn);
 }
 
-bool CStack::canMove(int turn /*= 0*/) const
+bool CStack::canMove(int turn) const
 {
 	return alive()
 		   && !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
@@ -428,7 +428,7 @@ bool CStack::isShooter() const
 	return shots.total() > 0 && hasBonusOfType(Bonus::SHOOTER);
 }
 
-bool CStack::moved(int turn /*= 0*/) const
+bool CStack::moved(int turn) const
 {
 	if(!turn)
 		return vstd::contains(state, EBattleStackState::MOVED);
@@ -436,7 +436,7 @@ bool CStack::moved(int turn /*= 0*/) const
 		return false;
 }
 
-bool CStack::waited(int turn /*= 0*/) const
+bool CStack::waited(int turn) const
 {
 	if(!turn)
 		return vstd::contains(state, EBattleStackState::WAITING);
@@ -702,7 +702,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, CRandomGenerator & rand,
 	}
 }
 
-bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos /*= BattleHex::INVALID*/, BattleHex defenderPos /*= BattleHex::INVALID*/)
+bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
 	if(!attackerPos.isValid())
 		attackerPos = attacker->position;
@@ -734,7 +734,7 @@ std::string CStack::getName() const
 	return (health.getCount() == 1) ? type->nameSing : type->namePl; //War machines can't use base
 }
 
-bool CStack::isValidTarget(bool allowDead/* = false*/) const
+bool CStack::isValidTarget(bool allowDead) const
 {
 	return (alive() || (allowDead && isDead())) && position.isValid() && !isTurret();
 }

@@ -1255,7 +1255,7 @@ void CAdvMapPanel::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 }
 
-void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions /* = 0 */)
+void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions)
 {
 	obj->recActions |= actions | SHOWALL;
 	addChild(obj, false);

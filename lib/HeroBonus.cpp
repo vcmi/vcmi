@@ -108,7 +108,7 @@ const BonusList * CBonusProxy::operator->() const
 int CBonusSystemNode::treeChanged = 1;
 const bool CBonusSystemNode::cachingEnabled = true;
 
-BonusList::BonusList(bool BelongsToTree /* =false */) : belongsToTree(BelongsToTree)
+BonusList::BonusList(bool BelongsToTree) : belongsToTree(BelongsToTree)
 {
 
 }
@@ -325,7 +325,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 	return valOfBonuses(Selector::type(type).And(selector));
 }
 
-int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) const
+int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << type << "s_" << subtype;
@@ -343,17 +343,17 @@ int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cac
 	TBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
 	return hlp->totalValue();
 }
-bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
+bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
 {
 	return getBonuses(selector, cachingStr)->size() > 0;
 }
 
-bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
+bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
 	return getBonuses(selector, limit, cachingStr)->size() > 0;
 }
 
-bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) const
+bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << type << "s_" << subtype;
@@ -365,12 +365,12 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype /*= -1*/) c
 	return hasBonus(s, cachingStr.str());
 }
 
-const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	return getAllBonuses(selector, nullptr, nullptr, cachingStr);
 }
 
-const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
 	return getAllBonuses(selector, limit, nullptr, cachingStr);
 }
@@ -422,7 +422,7 @@ si32 IBonusBearer::Attack() const
 	return ret;
 }
 
-si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
+si32 IBonusBearer::Defense(bool withFrenzy) const
 {
 	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
@@ -479,7 +479,7 @@ si32 IBonusBearer::magicResistance() const
 	return valOfBonuses(Bonus::MAGIC_RESISTANCE);
 }
 
-ui32 IBonusBearer::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
+ui32 IBonusBearer::Speed(int turn, bool useBind ) const
 {
 	//war machines cannot move
 	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
@@ -569,7 +569,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	bonuses.getAllBonuses(out);
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
 {
 	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
 	if (CBonusSystemNode::cachingEnabled && limitOnUs)
@@ -622,7 +622,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 	}
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/) const
+const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root) const
 {
 	auto ret = std::make_shared<BonusList>();
 
@@ -1050,14 +1050,14 @@ void CBonusSystemNode::treeHasChanged()
 	treeChanged++;
 }
 
-int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
+int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype)
 {
 	if(obj)
 		return obj->valOfBonuses(type, subtype);
 	return 0;
 }
 
-bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
+bool NBonus::hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype)
 {
 	if(obj)
 		return obj->hasBonusOfType(type, subtype);
@@ -1097,7 +1097,7 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
-Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/)
+Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	additionalInfo = -1;
@@ -1107,7 +1107,7 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::
 	boost::algorithm::trim(description);
 }
 
-Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/)
+Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	additionalInfo = -1;
@@ -1298,7 +1298,7 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
-CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades /*= true*/)
+CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades)
 	:creature(&Creature), includeUpgrades(IncludeUpgrades)
 {
 }

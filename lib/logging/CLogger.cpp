@@ -388,7 +388,7 @@ void CLogConsoleTarget::setFormatter(const CLogFormatter & formatter) { this->fo
 const CColorMapping & CLogConsoleTarget::getColorMapping() const { return colorMapping; }
 void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { this->colorMapping = colorMapping; }
 
-CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append /*= true*/)
+CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append)
 	: file(std::move(filePath), append ? std::ios_base::app : std::ios_base::out)
 {
 	formatter.setPattern("%d %l %n [%t] - %m");

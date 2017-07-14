@@ -365,7 +365,7 @@ si32 CSpell::getProbability(const TFaction factionId) const
 	return probabilities.at(factionId);
 }
 
-void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration/* = boost::none*/) const
+void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{

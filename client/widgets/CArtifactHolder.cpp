@@ -371,7 +371,7 @@ bool CHeroArtPlace::fitsHere(const CArtifactInstance * art) const
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
 }
 
-void CHeroArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
+void CHeroArtPlace::setMeAsDest(bool backpackAsVoid)
 {
 	ourOwner->commonInfo->dst.setTo(this, backpackAsVoid);
 }
@@ -528,7 +528,7 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 /**
  * Unamarks all slots.
  */
-void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
+void CArtifactsOfHero::unmarkSlots(bool withRedraw)
 {
 	if(commonInfo)
 		for(CArtifactsOfHero *aoh : commonInfo->participants)
@@ -540,7 +540,7 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 		safeRedraw();
 }
 
-void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
+void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw)
 {
 	for(auto p : artWorn)
 		p.second->selectSlot(false);
@@ -616,7 +616,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> A
 	rightArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack,this,+1));
 }
 
-CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart /*= false*/)
+CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
  : curHero(nullptr), backpackPos(0), commonInfo(nullptr), updateState(false), allowedAssembling(true), highlightModeCallback(nullptr)
 {
 	if(createCommonPart)
@@ -848,7 +848,7 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 		updateWornSlots();
 }
 
-void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
+void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 {
 	for(auto p : artWorn)
 		updateSlot(p.first);

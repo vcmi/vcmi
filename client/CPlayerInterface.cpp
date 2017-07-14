@@ -1588,7 +1588,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 	GH.pushInt(cr);
 }
 
-void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
+void CPlayerInterface::waitWhileDialog(bool unlockPim)
 {
 	if (GH.amIGuiThread())
 	{
@@ -2281,7 +2281,7 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 		CCS->soundh->playSound(castSoundPath);
 }
 
-void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )
+void CPlayerInterface::eraseCurrentPathOf(const CGHeroInstance * ho, bool checkForExistanceOfPath)
 {
 	if (checkForExistanceOfPath)
 	{
@@ -2495,7 +2495,7 @@ void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const 
 	GH.pushInt(chfw);
 }
 
-void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= nullptr*/)
+void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))
@@ -2693,7 +2693,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	}
 }
 
-void CPlayerInterface::waitForAllDialogs(bool unlockPim /*= true*/)
+void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 {
 	while(!dialogs.empty())
 	{

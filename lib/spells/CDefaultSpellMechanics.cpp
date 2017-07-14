@@ -773,7 +773,7 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 	}
 }
 
-bool DefaultSpellMechanics::canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string & cachingStr/* = "" */) const
+bool DefaultSpellMechanics::canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string & cachingStr) const
 {
 	return obj->hasBonus(selector.And(dispellSelector), Selector::all, cachingStr);
 }

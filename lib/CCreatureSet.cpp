@@ -62,12 +62,12 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	return true;
 }
 
-SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount/*=7*/) const /*returns -1 if no slot available */
+SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount) const /*returns -1 if no slot available */
 {
 	return getSlotFor(VLC->creh->creatures[creature], slotsAmount);
 }
 
-SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount/*=ARMY_SIZE*/) const
+SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
 {
 	assert(c->valid());
 	for(auto & elem : stacks)
@@ -81,7 +81,7 @@ SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount/*=ARMY_SIZE
 	return getFreeSlot(slotsAmount);
 }
 
-SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount/*=ARMY_SIZE*/) const
+SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
 {
 	for(ui32 i=0; i<slotsAmount; i++)
 	{
@@ -112,7 +112,7 @@ TExpType CCreatureSet::getStackExperience(SlotID slot) const
 }
 
 
-bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable /*= -1*/) const /*looks for two same stacks, returns slot positions */
+bool CCreatureSet::mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
 	if(preferable.validSlot() &&  vstd::contains(stacks, preferable))
@@ -157,7 +157,7 @@ void CCreatureSet::sweep()
 	}
 }
 
-void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging/* = true*/)
+void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging)
 {
 	const CCreature *c = VLC->creh->creatures[cre];
 
@@ -175,7 +175,7 @@ void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool 
 	}
 }
 
-void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging/* = true*/)
+void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging)
 {
 	assert(stack->valid(true));
 
@@ -193,7 +193,7 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 	}
 }
 
-bool CCreatureSet::validTypes(bool allowUnrandomized /*= false*/) const
+bool CCreatureSet::validTypes(bool allowUnrandomized) const
 {
 	for(auto & elem : stacks)
 	{
@@ -674,7 +674,7 @@ void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 	}
 }
 
-std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
+std::string CStackInstance::getQuantityTXT(bool capitalized) const
 {
 	int quantity = getQuantityID();
 

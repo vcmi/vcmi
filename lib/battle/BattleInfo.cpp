@@ -710,7 +710,7 @@ BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldTy
 	return BattlefieldBI::NONE;
 }
 
-CStack * BattleInfo::getStack(int stackID, bool onlyAlive /*= true*/)
+CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
@@ -766,7 +766,7 @@ bool CMP_stack::operator()(const CStack* a, const CStack* b)
 
 }
 
-CMP_stack::CMP_stack(int Phase /*= 1*/, int Turn)
+CMP_stack::CMP_stack(int Phase, int Turn)
 {
 	phase = Phase;
 	turn = Turn;

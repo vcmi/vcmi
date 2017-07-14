@@ -51,7 +51,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 	}
 }
 
-void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/, bool patrolDistance/*=false*/) const
+void CPrivilagedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player, int mode, bool patrolDistance) const
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -87,7 +87,7 @@ void CPrivilagedInfoCallback::getTilesInRange( std::unordered_set<int3, ShashInt
 	}
 }
 
-void CPrivilagedInfoCallback::getAllTiles (std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player/*=uninit*/, int level, int surface ) const
+void CPrivilagedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player, int level, int surface ) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{

@@ -160,17 +160,17 @@ void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState
 	}
 }
 
-void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
-void CIntObject::printAtRightLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtRightLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextRight(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
-void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
 	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
 }
@@ -251,7 +251,7 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 		moveTo(newPos, propagate);
 }
 
-void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
+void CIntObject::moveBy(const Point & p, bool propagate)
 {
 	pos.x += p.x;
 	pos.y += p.y;
@@ -260,12 +260,12 @@ void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
 			elem->moveBy(p, propagate);
 }
 
-void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )
+void CIntObject::moveTo(const Point & p, bool propagate)
 {
 	moveBy(Point(p.x - pos.x, p.y - pos.y), propagate);
 }
 
-void CIntObject::addChild(CIntObject *child, bool adjustPosition /*= false*/)
+void CIntObject::addChild(CIntObject * child, bool adjustPosition)
 {
 	if (vstd::contains(children, child))
 	{
@@ -286,7 +286,7 @@ void CIntObject::addChild(CIntObject *child, bool adjustPosition /*= false*/)
 		child->activate();
 }
 
-void CIntObject::removeChild(CIntObject *child, bool adjustPosition /*= false*/)
+void CIntObject::removeChild(CIntObject * child, bool adjustPosition)
 {
 	if (!child)
 		return;
@@ -335,7 +335,7 @@ const Rect & CIntObject::center( bool propagate )
 	return center(pos, propagate);
 }
 
-const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
+const Rect & CIntObject::center(const Point & p, bool propagate)
 {
 	moveBy(Point(p.x - pos.w/2 - pos.x,
 		p.y - pos.h/2 - pos.y),

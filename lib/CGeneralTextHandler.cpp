@@ -125,7 +125,7 @@ std::string Unicode::fromUnicode(const std::string &text, const std::string &enc
 	return boost::locale::conv::from_utf<char>(text, encoding);
 }
 
-void Unicode::trimRight(std::string & text, const size_t amount/* =1 */)
+void Unicode::trimRight(std::string & text, const size_t amount)
 {
 	if(text.empty())
 		return;

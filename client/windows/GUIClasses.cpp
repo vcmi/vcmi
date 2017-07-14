@@ -675,7 +675,7 @@ void CSystemOptionsWindow::brestartf()
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this]{ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
 }
 
-void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code /*= 0*/)
+void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
 {
 	GH.popIntTotally(this);
 	GH.pushSDLEvent(eventType, code);

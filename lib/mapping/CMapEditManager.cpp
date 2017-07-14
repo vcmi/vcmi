@@ -238,12 +238,12 @@ CMap * CMapEditManager::getMap()
 	return map;
 }
 
-void CMapEditManager::clearTerrain(CRandomGenerator * gen/* = nullptr*/)
+void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 {
 	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen/* = nullptr*/)
+void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen)
 {
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
@@ -782,7 +782,7 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 	}
 }
 
-CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth /*= 0*/) const
+CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth) const
 {
 	for(int flip = 0; flip < 4; ++flip)
 	{
@@ -796,7 +796,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 	return ValidationResult(false);
 }
 
-CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth) const
 {
 	auto centerTerType = map->getTile(pos).terType;
 	auto centerTerGroup = getTerrainGroup(centerTerType);
@@ -1025,7 +1025,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 	return tiles;
 }
 
-CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
+CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement)
 	: result(result), transitionReplacement(transitionReplacement), flip(0)
 {
 

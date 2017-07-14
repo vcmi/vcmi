@@ -210,7 +210,7 @@ void CClient::save(const std::string & fname)
 	sendRequest((CPackForClient*)&save_game, PlayerColor::NEUTRAL);
 }
 
-void CClient::endGame(bool closeConnection /*= true*/)
+void CClient::endGame(bool closeConnection)
 {
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
 	for (auto& i : playerint)
@@ -927,7 +927,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	installNewBattleInterface(gameInterface, color, battlecb);
 }
 
-void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback /*= true*/)
+void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
@@ -1047,7 +1047,7 @@ std::string CServerHandler::getDefaultPortStr()
 	return boost::lexical_cast<std::string>(getDefaultPort());
 }
 
-CServerHandler::CServerHandler(bool runServer /*= false*/)
+CServerHandler::CServerHandler(bool runServer)
 {
 	serverThread = nullptr;
 	shared = nullptr;

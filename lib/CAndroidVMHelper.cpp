@@ -65,7 +65,7 @@ jclass CAndroidVMHelper::findClassloadedClass(const std::string & name)
 }
 
 void CAndroidVMHelper::callStaticVoidMethod(const std::string & cls, const std::string & method,
-											bool classloaded /*=false*/)
+											bool classloaded)
 {
 	auto env = get();
 	auto javaHelper = findClass(cls, classloaded);
@@ -74,7 +74,7 @@ void CAndroidVMHelper::callStaticVoidMethod(const std::string & cls, const std::
 }
 
 std::string CAndroidVMHelper::callStaticStringMethod(const std::string & cls, const std::string & method,
-													 bool classloaded /*=false*/)
+													 bool classloaded)
 {
 	auto env = get();
 	auto javaHelper = findClass(cls, classloaded);

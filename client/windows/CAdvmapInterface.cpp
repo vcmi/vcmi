@@ -1122,7 +1122,7 @@ void CAdvMapInt::selectionChanged()
 		select(to);
 }
 
-void CAdvMapInt::centerOn(int3 on, bool fade /* = false */)
+void CAdvMapInt::centerOn(int3 on, bool fade)
 {
 	bool switchedLevels = on.z != position.z;
 
@@ -1161,7 +1161,7 @@ void CAdvMapInt::centerOn(int3 on, bool fade /* = false */)
 		terrain.redraw();
 }
 
-void CAdvMapInt::centerOn(const CGObjectInstance *obj, bool fade /* = false */)
+void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
 {
 	centerOn(obj->getSightCenter(), fade);
 }
@@ -1380,7 +1380,7 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 	return ver;
 }
 
-void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
+void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 {
 	assert(sel);
 	LOCPLINT->setSelection(sel);
@@ -1793,7 +1793,7 @@ void CAdvMapInt::enterCastingMode(const CSpell * sp)
 	GH.fakeMouseMove();
 }
 
-void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, -1, -1)*/)
+void CAdvMapInt::leaveCastingMode(bool cast, int3 dest)
 {
 	assert(spellBeingCasted);
 	SpellID id = spellBeingCasted->id;
@@ -1868,7 +1868,7 @@ void CAdvMapInt::quickCombatUnlock()
 		activate();
 }
 
-void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale /* = 0.4f */)
+void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 {
 	if (mode != newMode)
 	{

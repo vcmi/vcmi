@@ -1314,7 +1314,7 @@ static void mainLoop()
 	}
 }
 
-void startGame(StartInfo * options, CConnection *serv/* = nullptr*/)
+void startGame(StartInfo * options, CConnection *serv)
 {
 	if(!settings["session"]["donotstartserver"].Bool())
 	{
@@ -1366,7 +1366,7 @@ void endGame()
 	vstd::clear_pointer(client);
 }
 
-void handleQuit(bool ask/* = true*/)
+void handleQuit(bool ask)
 {
 	auto quitApplication = []()
 	{

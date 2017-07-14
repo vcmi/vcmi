@@ -312,7 +312,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 }
 
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor player, const CTown *town,
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, CRandomGenerator & rand, const CHeroClass * bannedClass /*= nullptr*/) const
+	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, CRandomGenerator & rand, const CHeroClass * bannedClass) const
 {
 	CGHeroInstance *ret = nullptr;
 
@@ -2694,7 +2694,7 @@ void CGameState::giveHeroArtifact(CGHeroInstance *h, ArtifactID aid)
 	 ai->putAt(ArtifactLocation(h, ai->firstAvailableSlot(h)));
 }
 
-std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllowed /*= false*/) const
+std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllowed) const
 {
 	std::set<HeroTypeID> ret;
 	for(int i = 0; i < map->allowedHeroes.size(); i++)

@@ -61,7 +61,7 @@ static void vaccept(boost::asio::ip::tcp::acceptor *ac, boost::asio::ip::tcp::so
 
 
 
-CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= nullptr*/)
+CPregameServer::CPregameServer(CConnection * Host, TAcceptor * Acceptor)
 	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(nullptr),
 	  curmap(nullptr), curStartInfo(nullptr), state(RUNNING)
 {
@@ -241,7 +241,7 @@ void CPregameServer::start_async_accept()
 	acceptor->async_accept(*upcomingConnection, std::bind(&CPregameServer::connectionAccepted, this, _1));
 }
 
-void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
+void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt);
 	ChatMessage cm;

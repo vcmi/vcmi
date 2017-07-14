@@ -13,7 +13,7 @@
 
 
 const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector &selector, const CSelector &limit,
-						    const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
+							const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	TBonusListPtr ret = std::make_shared<BonusList>();
 	const TBonusListPtr originalList = stack->getAllBonuses(selector, limit, root, cachingStr);
