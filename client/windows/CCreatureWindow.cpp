@@ -226,6 +226,9 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 
 	const CStack * battleStack = parent->info->stack;
 
+	auto morale = new MoraleLuckBox(true, genRect(42, 42, 321, 110));
+	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
+
 	if(battleStack != nullptr) // in battle
 	{
 		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->Attack(), battleStack->Attack());
@@ -239,6 +242,9 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		if(battleStack->isCaster())
 			printStatBase(EStat::MANA, CGI->generaltexth->allTexts[399], battleStack->casts.total(), battleStack->casts.available());
 		printStat(EStat::HEALTH_LEFT, CGI->generaltexth->allTexts[200], battleStack->getFirstHPleft());
+
+		morale->set(battleStack);
+		luck->set(battleStack);
 	}
 	else
 	{
@@ -255,12 +261,10 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 			printStat(EStat::SHOTS, CGI->generaltexth->allTexts[198], parent->info->stackNode->valOfBonuses(Bonus::SHOTS));
 		if(caster)
 			printStat(EStat::MANA, CGI->generaltexth->allTexts[399], parent->info->stackNode->valOfBonuses(Bonus::CASTS));
-	}
 
-	auto morale = new MoraleLuckBox(true, genRect(42, 42, 321, 110));
-	morale->set(parent->info->stackNode);
-	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
-	luck->set(parent->info->stackNode);
+		morale->set(parent->info->stackNode);
+		luck->set(parent->info->stackNode);
+	}
 
 	if (showExp)
 	{
