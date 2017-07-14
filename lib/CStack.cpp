@@ -264,12 +264,15 @@ void CHealth::toInfo(CHealthInfo & info) const
 
 void CHealth::takeResurrected()
 {
-	int64_t totalHealth = total();
+	if(resurrected != 0)
+	{
+		int64_t totalHealth = available();
 
-	totalHealth -= resurrected * owner->unitMaxHealth();
-	vstd::amax(totalHealth, 0);
-	setFromTotal(totalHealth);
-	resurrected = 0;
+		totalHealth -= resurrected * owner->unitMaxHealth();
+		vstd::amax(totalHealth, 0);
+		setFromTotal(totalHealth);
+		resurrected = 0;
+	}
 }
 
 ///CStack

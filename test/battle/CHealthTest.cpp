@@ -166,6 +166,18 @@ BOOST_FIXTURE_TEST_CASE(resurrectOneBattle, CUnitHealthInfoMock)
 
 	health.init();
 
+	checkNormalDamage(health, UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	health.takeResurrected();
+	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
+	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+
+	health.init();
+
 	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
 	checkEmptyHealth(health, *this);
 

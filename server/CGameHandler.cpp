@@ -6429,6 +6429,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 		}
 		else if(st->base && !army->slotEmpty(st->slot))
 		{
+			logGlobal->debug("Count: %d; base count: %d", st->getCount(), army->getStackCount(st->slot));
 			if(st->getCount() == 0 || !st->alive())
 			{
 				logGlobal->debug("Stack has been destroyed.");
