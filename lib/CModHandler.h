@@ -284,7 +284,7 @@ public:
 				WINNING_HERO_WITH_NO_TROOPS_RETREATS = true;
 			}
 
-			if(version >= 775)
+			if(version >= 776)
 			{
 				h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 			}
