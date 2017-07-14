@@ -1044,6 +1044,9 @@ TeleportChannelID CGMonolith::findMeChannel(std::vector<Obj> IDs, int SubID) con
 {
 	for(auto obj : cb->gameState()->map->objects)
 	{
+		if(!obj)
+			continue;
+
 		auto teleportObj = dynamic_cast<const CGTeleport *>(cb->getObj(obj->id));
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
