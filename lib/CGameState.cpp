@@ -1040,6 +1040,7 @@ void CGameState::placeCampaignHeroes()
 				{
 					auto heroPlaceholder = dynamic_cast<CGHeroPlaceholder *>(obj.get());
 					map->removeBlockVisTiles(heroPlaceholder, true);
+					map->instanceNames.erase(obj->instanceName);
 					map->objects[heroPlaceholder->id.getNum()] = nullptr;
 					delete heroPlaceholder;
 				}
