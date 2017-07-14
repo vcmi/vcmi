@@ -1,13 +1,3 @@
-#pragma once
-
-#include "../lib/GameConstants.h"
-#include "../lib/ResourceSet.h"
-#include "../lib/CConfigHandler.h"
-#include "../widgets/CArtifactHolder.h"
-#include "../widgets/CGarrisonInt.h"
-#include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
-
 /*
  * GUIClasses.h, part of VCMI engine
  *
@@ -17,6 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/GameConstants.h"
+#include "../lib/ResourceSet.h"
+#include "../lib/CConfigHandler.h"
+#include "../widgets/CArtifactHolder.h"
+#include "../widgets/CGarrisonInt.h"
+#include "../widgets/Images.h"
+#include "../windows/CWindowObject.h"
 
 class CGDwelling;
 class IMarket;

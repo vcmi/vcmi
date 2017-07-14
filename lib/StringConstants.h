@@ -1,7 +1,3 @@
-#pragma once
-
-#include "GameConstants.h"
-
 /*
  * StringConstants.h, part of VCMI engine
  *
@@ -11,7 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
+#include "GameConstants.h"
 
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded

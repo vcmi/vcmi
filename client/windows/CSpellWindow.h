@@ -1,7 +1,3 @@
-#pragma once
-
-#include "CWindowObject.h"
-
 /*
  * CSpellWindow.h, part of VCMI engine
  *
@@ -11,6 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CWindowObject.h"
 
 struct SDL_Surface;
 struct SDL_Rect;

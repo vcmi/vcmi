@@ -1,12 +1,3 @@
-#include "StdInc.h"
-#include "Connection.h"
-
-#include "../registerTypes/RegisterTypes.h"
-#include "../mapping/CMap.h"
-#include "../CGameState.h"
-
-#include <boost/asio.hpp>
-
 /*
  * Connection.cpp, part of VCMI engine
  *
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "Connection.h"
+
+#include "../registerTypes/RegisterTypes.h"
+#include "../mapping/CMap.h"
+#include "../CGameState.h"
+
+#include <boost/asio.hpp>
 
 using namespace boost;
 using namespace boost::asio::ip;

@@ -1,3 +1,12 @@
+/*
+ * CCreatureWindow.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CCreatureWindow.h"
 
@@ -24,16 +33,6 @@ using namespace CSDL_Ext;
 
 class CCreatureArtifactInstance;
 class CSelectableSkill;
-
-/*
- * CCreatureWindow.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 struct StackWindowInfo
 {
@@ -225,41 +224,46 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 	new CPicture("stackWindow/icons", 117, 32);
 
 	const CStack * battleStack = parent->info->stack;
-	bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
-	bool caster  = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
 
-	if (battleStack != nullptr) // in battle
+	auto morale = new MoraleLuckBox(true, genRect(42, 42, 321, 110));
+	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
+
+	if(battleStack != nullptr) // in battle
 	{
 		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->Attack(), battleStack->Attack());
 		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->Defense(false), battleStack->Defense());
 		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage() * dmgMultiply, battleStack->getMaxDamage() * dmgMultiply);
-		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->valOfBonuses(Bonus::STACK_HEALTH), battleStack->valOfBonuses(Bonus::STACK_HEALTH));
+		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->MaxHealth(), battleStack->MaxHealth());
 		printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), battleStack->Speed());
 
-		if (shooter)
-			printStatBase(EStat::SHOTS, CGI->generaltexth->allTexts[198], battleStack->valOfBonuses(Bonus::SHOTS), battleStack->shots);
-		if (caster)
-			printStatBase(EStat::MANA, CGI->generaltexth->allTexts[399], battleStack->valOfBonuses(Bonus::CASTS), battleStack->casts);
-		printStat(EStat::HEALTH_LEFT, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
+		if(battleStack->isShooter())
+			printStatBase(EStat::SHOTS, CGI->generaltexth->allTexts[198], battleStack->shots.total(), battleStack->shots.available());
+		if(battleStack->isCaster())
+			printStatBase(EStat::MANA, CGI->generaltexth->allTexts[399], battleStack->casts.total(), battleStack->casts.available());
+		printStat(EStat::HEALTH_LEFT, CGI->generaltexth->allTexts[200], battleStack->getFirstHPleft());
+
+		morale->set(battleStack);
+		luck->set(battleStack);
 	}
 	else
 	{
+		const bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
+		const bool caster  = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
+
 		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->Attack(), parent->info->stackNode->Attack());
 		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->Defense(false), parent->info->stackNode->Defense());
 		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage() * dmgMultiply, parent->info->stackNode->getMaxDamage() * dmgMultiply);
-		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->valOfBonuses(Bonus::STACK_HEALTH), parent->info->stackNode->valOfBonuses(Bonus::STACK_HEALTH));
+		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->MaxHealth(), parent->info->stackNode->MaxHealth());
 		printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), parent->info->stackNode->Speed());
 
-		if (shooter)
+		if(shooter)
 			printStat(EStat::SHOTS, CGI->generaltexth->allTexts[198], parent->info->stackNode->valOfBonuses(Bonus::SHOTS));
-		if (caster)
+		if(caster)
 			printStat(EStat::MANA, CGI->generaltexth->allTexts[399], parent->info->stackNode->valOfBonuses(Bonus::CASTS));
-	}
 
-	auto morale = new MoraleLuckBox(true, genRect(42, 42, 321, 110));
-	morale->set(parent->info->stackNode);
-	auto luck = new MoraleLuckBox(false, genRect(42, 42, 375, 110));
-	luck->set(parent->info->stackNode);
+		morale->set(parent->info->stackNode);
+		luck->set(parent->info->stackNode);
+	}
 
 	if (showExp)
 	{
@@ -882,7 +886,7 @@ CStackWindow::CStackWindow(const CStack * stack, bool popup):
 	info->stack = stack;
 	info->stackNode = stack->base;
 	info->creature = stack->type;
-	info->creatureCount = stack->count;
+	info->creatureCount = stack->getCount();
 	info->popupWindow = popup;
 	init();
 }

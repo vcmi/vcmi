@@ -1,4 +1,3 @@
-
 /*
  * CRandomGenerator.cpp, part of VCMI engine
  *

@@ -1,3 +1,12 @@
+/*
+ * CMusicHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include <SDL_mixer.h>
 
@@ -11,16 +20,6 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
-
-/*
- * CMusicHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,

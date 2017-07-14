@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * float3.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 // FIXME: Class doesn't contain three float values. Update name and description.
 /// Class which consists of three float values. Represents position virtual RMG (0;1) area.

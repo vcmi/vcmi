@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * FileStream.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>

@@ -1,11 +1,3 @@
-#pragma once
-
-#include "../widgets/AdventureMapClasses.h"
-#include "../widgets/TextControls.h"
-#include "../widgets/MiscWidgets.h"
-#include "../widgets/Images.h"
-#include "CWindowObject.h"
-
 /*
  * CQuestLog.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../widgets/AdventureMapClasses.h"
+#include "../widgets/TextControls.h"
+#include "../widgets/MiscWidgets.h"
+#include "../widgets/Images.h"
+#include "CWindowObject.h"
 
 class CCreature;
 class CStackInstance;

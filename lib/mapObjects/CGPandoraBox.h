@@ -1,10 +1,4 @@
-﻿#pragma once
-
-#include "CObjectHandler.h"
-#include "CArmedInstance.h"
-#include "../ResourceSet.h"
-
-/*
+﻿/*
  * CGPandoraBox.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CObjectHandler.h"
+#include "CArmedInstance.h"
+#include "../ResourceSet.h"
 
 struct InfoWindow;
 

@@ -1,10 +1,3 @@
-#include "StdInc.h"
-#include "CObstacleInstance.h"
-#include "../CHeroHandler.h"
-#include "../CTownHandler.h"
-#include "../VCMI_Lib.h"
-#include "../spells/CSpellHandler.h"
-
 /*
  * CObstacleInstance.cpp, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CObstacleInstance.h"
+#include "../CHeroHandler.h"
+#include "../CTownHandler.h"
+#include "../VCMI_Lib.h"
+#include "../spells/CSpellHandler.h"
 
 CObstacleInstance::CObstacleInstance()
 {

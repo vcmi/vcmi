@@ -1,11 +1,3 @@
-#pragma once
-
-
-#include "../lib/IGameCallback.h"
-#include "../lib/battle/BattleAction.h"
-#include "../lib/CStopWatch.h"
-#include "../lib/int3.h"
-
 /*
  * Client.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+
+#include "../lib/IGameCallback.h"
+#include "../lib/battle/BattleAction.h"
+#include "../lib/CStopWatch.h"
+#include "../lib/int3.h"
 
 struct CPack;
 class CCampaignState;

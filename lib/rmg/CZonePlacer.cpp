@@ -1,4 +1,3 @@
-
 /*
  * CZonePlacer.cpp, part of VCMI engine
  *

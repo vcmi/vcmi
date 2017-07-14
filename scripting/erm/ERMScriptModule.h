@@ -1,9 +1,5 @@
-#pragma once
-
-#include "../../lib/CScriptingModule.h"
-
 /*
- * ERMScriptingModule.h, part of VCMI engine
+ * ERMScriptModule.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,7 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
+#include "../../lib/CScriptingModule.h"
 
 extern IGameEventRealizer *acb;
 extern CPrivilagedInfoCallback *icb;

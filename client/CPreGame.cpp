@@ -1,3 +1,12 @@
+/*
+ * CPreGame.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CPreGame.h"
 
@@ -47,15 +56,6 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CondSh.h"
 
-/*
- * CPreGame.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 namespace fs = boost::filesystem;
 
 void startGame(StartInfo * options, CConnection *serv = nullptr);

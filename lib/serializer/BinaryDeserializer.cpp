@@ -1,8 +1,3 @@
-#include "StdInc.h"
-#include "BinaryDeserializer.h"
-
-#include "../registerTypes/RegisterTypes.h"
-
 /*
  * BinaryDeserializer.cpp, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "BinaryDeserializer.h"
+
+#include "../registerTypes/RegisterTypes.h"
 
 extern template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 

@@ -1,9 +1,3 @@
-#pragma once
-
-#include <SDL_endian.h>
-
-#include "SDL_Extensions.h"
-
 /*
  * SDL_Pixels.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include <SDL_endian.h>
+
+#include "SDL_Extensions.h"
 
 // for accessing channels from pixel in format-independent way
 //should be as fast as accessing via pointer at least for 3-4 bytes per pixel

@@ -1,7 +1,3 @@
-#pragma once
-
-#include "../lib/JsonNode.h"
-
 /*
  * CConfigHandler.h, part of VCMI engine
  *
@@ -11,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/JsonNode.h"
+
 class Settings;
 class SettingsListener;
 

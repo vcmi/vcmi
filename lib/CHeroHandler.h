@@ -1,10 +1,3 @@
-#pragma once
-
-#include "../lib/ConstTransitivePtr.h"
-#include "GameConstants.h"
-#include "HeroBonus.h"
-#include "IHandlerBase.h"
-
 /*
  * CHeroHandler.h, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/ConstTransitivePtr.h"
+#include "GameConstants.h"
+#include "HeroBonus.h"
+#include "IHandlerBase.h"
 
 class CHeroClass;
 class CGameInfo;

@@ -1,6 +1,3 @@
-#pragma once
-
-
 /*
  * FunctionList.h, part of VCMI engine
  *
@@ -10,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 /// List of functions that share the same signature - can be used to call all of them easily
 template<typename Signature>

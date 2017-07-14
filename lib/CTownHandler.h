@@ -1,13 +1,3 @@
-#pragma once
-
-#include "ConstTransitivePtr.h"
-#include "ResourceSet.h"
-#include "int3.h"
-#include "GameConstants.h"
-#include "IHandlerBase.h"
-#include "LogicalExpression.h"
-#include "battle/BattleHex.h"
-
 /*
  * CTownHandler.h, part of VCMI engine
  *
@@ -17,6 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "ConstTransitivePtr.h"
+#include "ResourceSet.h"
+#include "int3.h"
+#include "GameConstants.h"
+#include "IHandlerBase.h"
+#include "LogicalExpression.h"
+#include "battle/BattleHex.h"
 
 class CLegacyConfigParser;
 class JsonNode;

@@ -1,4 +1,3 @@
-
 /*
  * CMemorySerializer.h, part of VCMI engine
  *
@@ -8,7 +7,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
 #pragma once
 
 #include "BinarySerializer.h"

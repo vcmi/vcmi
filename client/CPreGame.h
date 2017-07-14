@@ -1,11 +1,3 @@
-#pragma once
-
-#include "../lib/StartInfo.h"
-#include "../lib/FunctionList.h"
-#include "../lib/mapping/CMapInfo.h"
-#include "../lib/rmg/CMapGenerator.h"
-#include "windows/CWindowObject.h"
-
 /*
  * CPreGame.h, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/StartInfo.h"
+#include "../lib/FunctionList.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/rmg/CMapGenerator.h"
+#include "windows/CWindowObject.h"
 
 class CMapInfo;
 class CMusicHandler;

@@ -1,3 +1,12 @@
+/*
+ * AdventureMapClasses.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #include "ObjectLists.h"
@@ -16,16 +25,6 @@ struct Component;
 struct InfoAboutArmy;
 struct InfoAboutHero;
 struct InfoAboutTown;
-
-/*
- * CAdventureMapClasses.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject

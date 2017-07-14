@@ -1,8 +1,3 @@
-#pragma once
-
-#include <SDL_video.h>
-#include "../../lib/int3.h"
-
 /*
  * Geometries.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include <SDL_video.h>
+#include "../../lib/int3.h"
 
 struct SDL_MouseMotionEvent;
 

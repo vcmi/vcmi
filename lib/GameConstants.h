@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * GameConstants.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 #include "ConstTransitivePtr.h"
 
@@ -1088,6 +1087,19 @@ enum class EMetaclass: ui8
 	SECONDARY_SKILL,
 	SPELL,
 	RESOURCE
+};
+
+enum class EHealLevel: ui8
+{
+	HEAL,
+	RESURRECT,
+	OVERHEAL
+};
+
+enum class EHealPower : ui8
+{
+	ONE_BATTLE,
+	PERMANENT
 };
 
 // Typedef declarations

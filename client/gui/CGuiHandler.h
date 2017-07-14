@@ -1,3 +1,12 @@
+/*
+ * CGuiHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 //#include "../../lib/CStopWatch.h"
@@ -12,16 +21,6 @@ class IShowActivatable;
 class IShowable;
 enum class EIntObjMouseBtnType;
 template <typename T> struct CondSh;
-
-/*
- * CGuiHandler.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 // A fps manager which holds game updates at a constant rate
 class CFramerateManager

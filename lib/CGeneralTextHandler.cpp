@@ -1,3 +1,12 @@
+/*
+ * CGeneralTextHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
@@ -8,16 +17,6 @@
 #include "CModHandler.h"
 #include "GameConstants.h"
 #include "VCMI_Lib.h"
-
-/*
- * CGeneralTextHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 size_t Unicode::getCharacterSize(char firstByte)
 {
@@ -507,4 +506,16 @@ CGeneralTextHandler::CGeneralTextHandler()
 			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
 		}
 	}
+}
+
+int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
+{
+	if(textIndex == 0)
+		return 0;
+	else if(textIndex < 0)
+		return -textIndex;
+	else if(count == 1)
+		return textIndex;
+	else
+		return textIndex + 1;
 }

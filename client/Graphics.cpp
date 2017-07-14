@@ -1,3 +1,12 @@
+/*
+ * Graphics.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "Graphics.h"
 
@@ -30,16 +39,6 @@ using namespace CSDL_Ext;
 #ifdef max
 #undef max
 #endif
-
-/*
- * Graphics.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 Graphics * graphics = nullptr;
 

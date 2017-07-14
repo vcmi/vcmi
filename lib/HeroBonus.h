@@ -1,7 +1,3 @@
-#pragma once
-
-#include "GameConstants.h"
-
 /*
  * HeroBonus.h, part of VCMI engine
  *
@@ -11,9 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "GameConstants.h"
 
 class CCreature;
 struct Bonus;
+class IBonusBearer;
 class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
@@ -64,7 +64,20 @@ public:
 	}
 };
 
+class DLL_LINKAGE CBonusProxy : public boost::noncopyable
+{
+public:
+	CBonusProxy(const IBonusBearer * Target, CSelector Selector);
 
+	TBonusListPtr get() const;
+
+	const BonusList * operator->() const;
+private:
+	mutable int cachedLast;
+	const IBonusBearer * target;
+	CSelector selector;
+	mutable TBonusListPtr data;
+};
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
@@ -685,6 +698,8 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 		//h & parents & children;
 	}
+
+	friend class CBonusProxy;
 };
 
 namespace NBonus

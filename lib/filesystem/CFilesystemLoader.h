@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * CFilesystemLoader.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"

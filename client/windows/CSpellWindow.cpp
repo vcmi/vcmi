@@ -1,3 +1,12 @@
+/*
+ * CSpellWindow.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CSpellWindow.h"
 
@@ -33,16 +42,6 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-
-/*
- * CSpellWindow.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
@@ -568,7 +567,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					{
 						return s->owner == player
 							&& vstd::contains(s->state, EBattleStackState::SUMMONED)
-							&& !vstd::contains(s->state, EBattleStackState::CLONED);
+							&& !s->isClone();
 					});
 					for(const CStack * s : stacks)
 					{

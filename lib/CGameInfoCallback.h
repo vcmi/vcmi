@@ -1,8 +1,3 @@
-#pragma once
-
-#include "ResourceSet.h" // for Res::ERes
-#include "battle/CPlayerBattleCallback.h"
-
 /*
  * CGameInfoCallback.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "ResourceSet.h" // for Res::ERes
+#include "battle/CPlayerBattleCallback.h"
 
 class CGObjectInstance;
 struct InfoWindow;

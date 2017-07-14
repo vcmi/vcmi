@@ -1,8 +1,3 @@
-#include "StdInc.h"
-#include "CLoadIntegrityValidator.h"
-
-#include "../registerTypes/RegisterTypes.h"
-
 /*
  * CLoadIntegrityValidator.cpp, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CLoadIntegrityValidator.h"
+
+#include "../registerTypes/RegisterTypes.h"
 
 CLoadIntegrityValidator::CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion /*= version*/)
 	: serializer(this), foundDesync(false)

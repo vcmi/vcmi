@@ -1,8 +1,3 @@
-#pragma once
-
-//FIXME:library file depends on SDL - make cause troubles
-#include <SDL_endian.h>
-
 /*
  * vcmi_endian.h, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+//FIXME:library file depends on SDL - make cause troubles
+#include <SDL_endian.h>
 
 /* Reading values from memory.  
  *

@@ -1,12 +1,3 @@
-#pragma once
-
-#include "../../lib/ConstTransitivePtr.h" //may be reundant
-#include "../../lib/GameConstants.h"
-
-#include "CBattleAnimations.h"
-
-#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
-
 /*
  * CBattleInterface.h, part of VCMI engine
  *
@@ -16,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/ConstTransitivePtr.h" //may be reundant
+#include "../../lib/GameConstants.h"
+
+#include "CBattleAnimations.h"
+
+#include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 
 class CLabel;
 class CCreatureSet;
@@ -54,7 +53,7 @@ class CBattleGameInterface;
 struct StackAttackedInfo
 {
 	const CStack *defender; //attacked stack
-	unsigned int dmg; //damage dealt
+	int32_t dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack *attacker; //attacking stack
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack

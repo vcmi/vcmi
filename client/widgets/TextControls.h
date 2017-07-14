@@ -1,9 +1,3 @@
-#pragma once
-
-#include "../gui/CIntObject.h"
-#include "../gui/SDL_Extensions.h"
-#include "../../lib/FunctionList.h"
-
 /*
  * TextControls.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../gui/CIntObject.h"
+#include "../gui/SDL_Extensions.h"
+#include "../../lib/FunctionList.h"
 
 class CSlider;
 

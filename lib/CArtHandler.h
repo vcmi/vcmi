@@ -1,12 +1,3 @@
-#pragma once
-
-
-#include "../lib/HeroBonus.h"
-//#include "../lib/ConstTransitivePtr.h"
-//#include "JsonNode.h"
-#include "GameConstants.h"
-#include "IHandlerBase.h"
-
 /*
  * CArtHandler.h, part of VCMI engine
  *
@@ -16,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../lib/HeroBonus.h"
+//#include "../lib/ConstTransitivePtr.h"
+//#include "JsonNode.h"
+#include "GameConstants.h"
+#include "IHandlerBase.h"
 
 class CArtHandler;
 class CArtifact;

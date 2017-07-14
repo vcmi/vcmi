@@ -1,11 +1,3 @@
-#include "StdInc.h"
-#include "SDL.h"
-#include "CDefHandler.h"
-
-#include "../lib/filesystem/Filesystem.h"
-#include "../lib/VCMI_Lib.h"
-#include "CBitmapHandler.h"
-#include "gui/SDL_Extensions.h"
 /*
  * CDefHandler.cpp, part of VCMI engine
  *
@@ -15,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "SDL.h"
+#include "CDefHandler.h"
+
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/VCMI_Lib.h"
+#include "CBitmapHandler.h"
+#include "gui/SDL_Extensions.h"
 
 #ifdef unused
 static long long pow(long long a, int b)

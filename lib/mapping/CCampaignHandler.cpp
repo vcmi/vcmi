@@ -1,3 +1,12 @@
+/*
+ * CCampaignHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CCampaignHandler.h"
 
@@ -16,16 +25,6 @@
 #include "CMap.h"
 
 namespace fs = boost::filesystem;
-
-/*
- * CCampaignHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CCampaignHeader::CCampaignHeader()
 	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)

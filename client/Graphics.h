@@ -1,9 +1,3 @@
-#pragma once
-
-#include "gui/Fonts.h"
-#include "../lib/GameConstants.h"
-#include "gui/Geometries.h"
-
 /*
  * Graphics.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "gui/Fonts.h"
+#include "../lib/GameConstants.h"
+#include "gui/Geometries.h"
 
 struct SDL_Surface;
 class CGHeroInstance;

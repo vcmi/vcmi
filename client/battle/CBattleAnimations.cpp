@@ -1,3 +1,12 @@
+/*
+ * CBattleAnimations.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CBattleAnimations.h"
 
@@ -21,16 +30,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
-
-/*
- * CBattleAnimations.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
     : owner(_owner), ID(_owner->animIDhelper++)

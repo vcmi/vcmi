@@ -1,3 +1,12 @@
+/*
+ * CStopWatch.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #ifdef __FreeBSD__
@@ -9,16 +18,6 @@
 	#include <ctime>
 	#define TO_MS_DIVISOR (CLOCKS_PER_SEC / 1000)
 #endif
-
-/*
- * CStopWatch.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 class CStopWatch
 {

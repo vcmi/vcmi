@@ -1,14 +1,3 @@
-#pragma once
-
-
-#include "battle/BattleAction.h"
-#include "IGameEventsReceiver.h"
-#include "CGameStateFwd.h"
-
-#include "spells/ViewSpellInt.h"
-
-#include "mapObjects/CObjectHandler.h"
-
 /*
  * CGameInterface.h, part of VCMI engine
  *
@@ -18,6 +7,15 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "battle/BattleAction.h"
+#include "IGameEventsReceiver.h"
+#include "CGameStateFwd.h"
+
+#include "spells/ViewSpellInt.h"
+
+#include "mapObjects/CObjectHandler.h"
 
 using boost::logic::tribool;
 class CCallback;

@@ -1,10 +1,3 @@
-#pragma once
-
-#include "CRewardableObject.h"
-#include "CObjectClassesHandler.h"
-
-#include "../JsonNode.h"
-
 /*
  * CRewardableConstructor.h, part of VCMI engine
  *
@@ -14,6 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CRewardableObject.h"
+#include "CObjectClassesHandler.h"
+
+#include "../JsonNode.h"
 
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {

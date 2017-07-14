@@ -1,3 +1,12 @@
+/*
+ * NetPacksClient.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "../lib/NetPacks.h"
 
@@ -101,15 +110,6 @@
 		CALL_ONLY_THAT_BATTLE_INTERFACE(PlayerColor::SPECTATOR, function, __VA_ARGS__)	\
 	}																					\
 	BATTLE_INTERFACE_CALL_RECEIVERS(function, __VA_ARGS__)
-/*
- * NetPacksClient.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 void SetResources::applyCl(CClient *cl)
 {
@@ -728,12 +728,12 @@ void BattleResultsApplied::applyCl(CClient *cl)
 	INTERFACE_CALL_IF_PRESENT(PlayerColor::SPECTATOR, battleResultsApplied);
 }
 
-void StacksHealedOrResurrected::applyCl(CClient *cl)
+void StacksHealedOrResurrected::applyCl(CClient * cl)
 {
 	std::vector<std::pair<ui32, ui32> > shiftedHealed;
 	for(auto & elem : healedStacks)
 	{
-		shiftedHealed.push_back(std::make_pair(elem.stackID, elem.healedHP));
+		shiftedHealed.push_back(std::make_pair(elem.stackId, (ui32)elem.delta));
 	}
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStacksHealedRes, shiftedHealed, lifeDrain, tentHealing, drainedFrom);
 }

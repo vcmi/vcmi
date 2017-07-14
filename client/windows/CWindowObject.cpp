@@ -1,3 +1,12 @@
+/*
+ * CWindowObject.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CWindowObject.h"
 
@@ -23,16 +32,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
-
-/*
- * CWindowObject.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
     CIntObject(getUsedEvents(options_), Point()),

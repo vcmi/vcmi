@@ -1,3 +1,12 @@
+/*
+ * Images.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "Images.h"
 
@@ -24,16 +33,6 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 #include "../../lib/CRandomGenerator.h"
-
-/*
- * Images.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {

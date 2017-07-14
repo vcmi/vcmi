@@ -1,4 +1,3 @@
-
 /*
  * CMapFormatTest.cpp, part of VCMI engine
  *

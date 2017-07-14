@@ -1,9 +1,3 @@
-#pragma once
-
-#include "../../lib/FunctionList.h"
-#include "../gui/SDL_Extensions.h"
-#include "../widgets/Images.h"
-
 /*
  * CCreatureAnimation.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/FunctionList.h"
+#include "../gui/SDL_Extensions.h"
+#include "../widgets/Images.h"
 
 class CIntObject;
 class CCreatureAnimation;

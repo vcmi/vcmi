@@ -1,11 +1,3 @@
-#pragma once
-
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "AIUtility.h"
-
 /*
  * Goals.h, part of VCMI engine
  *
@@ -15,6 +7,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../../lib/VCMI_Lib.h"
+#include "../../lib/CBuildingHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/CTownHandler.h"
+#include "AIUtility.h"
+
 struct HeroPtr;
 class VCAI;
 class FuzzyHelper;

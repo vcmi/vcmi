@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * MapObjects.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 // Helper header that includes all map objects, similar to old CObjectHandler.h
 // Possible TODO - remove this header after CObjectHandler.cpp will be fully split into smaller files

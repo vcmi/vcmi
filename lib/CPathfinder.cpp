@@ -1,3 +1,12 @@
+/*
+ * CPathfinder.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "CPathfinder.h"
 
@@ -9,16 +18,6 @@
 #include "CStopWatch.h"
 #include "CConfigHandler.h"
 #include "../lib/CPlayerState.h"
-
-/*
- * CPathfinder.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 CPathfinder::PathfinderOptions::PathfinderOptions()
 {

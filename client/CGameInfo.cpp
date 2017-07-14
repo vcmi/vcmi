@@ -1,8 +1,3 @@
-#include "StdInc.h"
-#include "CGameInfo.h"
-
-#include "../lib/VCMI_Lib.h"
-
 /*
  * CGameInfo.cpp, part of VCMI engine
  *
@@ -12,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CGameInfo.h"
+
+#include "../lib/VCMI_Lib.h"
 
 const CGameInfo * CGI; //game info for general use
 CClientState * CCS = nullptr;

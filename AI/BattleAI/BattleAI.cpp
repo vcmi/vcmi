@@ -1,12 +1,12 @@
 /*
-	 * BattleAI.cpp, part of VCMI engine
-	 *
-	 * Authors: listed in file AUTHORS in main folder
-	 *
-	 * License: GNU General Public License v2.0 or later
-	 * Full text of license available in license.txt file, in main folder
-	 *
-	 */
+ * BattleAI.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "BattleAI.h"
 #include "StackWithBonuses.h"
@@ -55,7 +55,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
 			std::map<int, const CStack*> woundHpToStack;
 			for(auto stack : healingTargets)
-				if(auto woundHp = stack->MaxHealth() - stack->firstHPleft)
+				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
 					woundHpToStack[woundHp] = stack;
 			if(woundHpToStack.empty())
 				return BattleAction::makeDefend(stack);

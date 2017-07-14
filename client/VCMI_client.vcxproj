@@ -256,7 +256,6 @@
     <ClInclude Include="gui\SDL_Pixels.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SDLMain.h" />
     <ClInclude Include="SDLRWwrapper.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="widgets\AdventureMapClasses.h" />

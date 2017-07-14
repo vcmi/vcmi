@@ -1,9 +1,3 @@
-#pragma once
-
-#include "CObjectClassesHandler.h"
-#include "../CTownHandler.h" // for building ID-based filters
-#include "MapObjects.h"
-
 /*
  * CommonConstructors.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "CObjectClassesHandler.h"
+#include "../CTownHandler.h" // for building ID-based filters
+#include "MapObjects.h"
 
 class CGObjectInstance;
 class CGTownInstance;

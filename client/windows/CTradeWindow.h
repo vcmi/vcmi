@@ -1,9 +1,3 @@
-#pragma once
-
-#include "../widgets/CArtifactHolder.h"
-#include "CWindowObject.h"
-#include "../../lib/FunctionList.h"
-
 /*
  * CTradeWindow.h, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "../widgets/CArtifactHolder.h"
+#include "CWindowObject.h"
+#include "../../lib/FunctionList.h"
 
 class IMarket;
 class CSlider;

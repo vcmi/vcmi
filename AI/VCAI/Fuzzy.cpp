@@ -1,3 +1,12 @@
+/*
+ * Fuzzy.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+*/
 #include "StdInc.h"
 #include "Fuzzy.h"
 #include <limits>
@@ -10,16 +19,6 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"
-
-/*
- * Fuzzy.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
-*/
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us

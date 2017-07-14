@@ -1,5 +1,5 @@
 /*
- * CBattleCallback.h, part of VCMI engine
+ * CBattleInfoCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -41,6 +41,7 @@ public:
 	boost::optional<int> battleIsFinished() const; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const; //blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
+	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const CStack * stack) const;
 
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true) const; //returns stack info by given pos
 	void battleGetStackQueue(std::vector<const CStack *> &out, const int howMany, const int turn = 0, int lastMoved = -1) const;
@@ -58,8 +59,6 @@ public:
 	std::set<const CStack*> batteAdjacentCreatures (const CStack * stack) const;
 
 	TDmgRange calculateDmgRange(const BattleAttackInfo & info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
-	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
-	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
 	//hextowallpart //int battleGetWallUnderHex(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	std::pair<ui32, ui32> battleEstimateDamage(CRandomGenerator & rand, const BattleAttackInfo & bai, std::pair<ui32, ui32> * retaliationDmg = nullptr) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>

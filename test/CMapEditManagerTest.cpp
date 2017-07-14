@@ -1,4 +1,3 @@
-
 /*
  * CMapEditManagerTest.cpp, part of VCMI engine
  *

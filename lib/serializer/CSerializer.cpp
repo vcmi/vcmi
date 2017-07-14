@@ -1,11 +1,3 @@
-#include "StdInc.h"
-#include "CSerializer.h"
-
-#include "../CGameState.h"
-#include "../mapping/CMap.h"
-#include "../CHeroHandler.h"
-#include "../mapObjects/CGHeroInstance.h"
-
 /*
  * CSerializer.cpp, part of VCMI engine
  *
@@ -15,6 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CSerializer.h"
+
+#include "../CGameState.h"
+#include "../mapping/CMap.h"
+#include "../CHeroHandler.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 CSerializer::~CSerializer()
 {

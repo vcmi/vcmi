@@ -1,9 +1,3 @@
-#pragma once
-
-
-#include "lib/CGameInfoCallback.h"
-#include "lib/int3.h" // for int3
-
 /*
  * CCallback.h, part of VCMI engine
  *
@@ -13,6 +7,10 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
+
+#include "lib/CGameInfoCallback.h"
+#include "lib/int3.h" // for int3
 
 class CGHeroInstance;
 class CGameState;

@@ -1,3 +1,12 @@
+/*
+ * NetPacks.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #include "NetPacksBase.h"
@@ -13,16 +22,6 @@
 #include "battle/CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"
-
-/*
- * NetPacks.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 class CClient;
 class CGameState;
@@ -1316,34 +1315,22 @@ struct BattleStackMoved : public CPackForClient
 struct StacksHealedOrResurrected : public CPackForClient
 {
 	StacksHealedOrResurrected()
-		:lifeDrain(false), tentHealing(false), drainedFrom(0), cure(false), canOverheal(false)
+		:lifeDrain(false), tentHealing(false), drainedFrom(0), cure(false)
 	{}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	struct HealInfo
-	{
-		ui32 stackID;
-		ui32 healedHP;
-		bool lowLevelResurrection; //in case this stack is resurrected by this heal, it will be marked as SUMMONED //TODO: replace with separate counter
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & stackID & healedHP & lowLevelResurrection;
-		}
-	};
-
-	std::vector<HealInfo> healedStacks;
+	std::vector<CHealthInfo> healedStacks;
 	bool lifeDrain; //if true, this heal is an effect of life drain or soul steal
 	bool tentHealing; //if true, than it's healing via First Aid Tent
 	si32 drainedFrom; //if life drain or soul steal - then stack life was drain from, if tentHealing - stack that is a healer
 	bool cure; //archangel cast also remove negative effects
-	bool canOverheal; //to allow healing over initial stack amount
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & healedStacks & lifeDrain & tentHealing & drainedFrom;
-		h & cure & canOverheal;
+		h & cure;
 	}
 };
 
@@ -1351,7 +1338,8 @@ struct BattleStackAttacked : public CPackForClient
 {
 	BattleStackAttacked():
 		stackAttacked(0), attackerID(0),
-		newAmount(0), newHP(0), killedAmount(0), damageAmount(0),
+		killedAmount(0), damageAmount(0),
+		newHealth(),
 		flags(0), effect(0), spellID(SpellID::NONE)
 	{};
 	void applyFirstCl(CClient * cl);
@@ -1359,7 +1347,9 @@ struct BattleStackAttacked : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui32 stackAttacked, attackerID;
-	ui32 newAmount, newHP, killedAmount, damageAmount;
+	ui32 killedAmount;
+	si32 damageAmount;
+	CHealthInfo newHealth;
 	enum EFlags {KILLED = 1, EFFECT = 2/*deprecated */, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16, SPELL_EFFECT = 32 /*, BONUS_EFFECT = 64 */};
 	ui32 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
@@ -1397,7 +1387,7 @@ struct BattleStackAttacked : public CPackForClient
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackAttacked & attackerID & newAmount & newHP & flags & killedAmount & damageAmount & effect
+		h & stackAttacked & attackerID & newHealth & flags & killedAmount & damageAmount & effect
 			& healedStacks;
 		h & spellID;
 	}
@@ -1541,10 +1531,12 @@ struct SetStackEffect : public CPackForClient
 	std::vector<Bonus> cumulativeEffects; //bonuses to apply
 	std::vector<std::pair<ui32, Bonus> > cumulativeUniqueBonuses; //bonuses per single stack
 
+	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect & uniqueBonuses;
 		h & cumulativeEffects & cumulativeUniqueBonuses;
+		h & battleLog;
 	}
 };
 

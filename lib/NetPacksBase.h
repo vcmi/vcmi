@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * NetPacksBase.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 class CGameState;
 class CStackBasicDescriptor;
@@ -187,5 +186,24 @@ struct ArtifactLocation
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artHolder & slot;
+	}
+};
+
+class CHealthInfo
+{
+public:
+	CHealthInfo():
+		stackId(0), delta(0), firstHPleft(0), fullUnits(0), resurrected(0)
+	{
+	}
+	uint32_t stackId;
+	int32_t delta;
+	int32_t firstHPleft;
+	int32_t fullUnits;
+	int32_t resurrected;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & stackId & delta & firstHPleft & fullUnits & resurrected;
 	}
 };

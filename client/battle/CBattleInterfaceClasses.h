@@ -1,3 +1,12 @@
+/*
+ * CBattleInterfaceClasses.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #include "../gui/CIntObject.h"
@@ -17,16 +26,6 @@ struct BattleResult;
 class CStack;
 class CAnimImage;
 class CPlayerInterface;
-
-/*
- * CBattleInterfaceClasses.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class CBattleConsole : public CIntObject

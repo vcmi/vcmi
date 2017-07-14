@@ -1,9 +1,3 @@
-#include "StdInc.h"
-#include "CZipLoader.h"
-#include "FileStream.h"
-
-#include "../ScopeGuard.h"
-
 /*
  * CZipLoader.cpp, part of VCMI engine
  *
@@ -13,6 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
+#include "CZipLoader.h"
+#include "FileStream.h"
+
+#include "../ScopeGuard.h"
 
 CZipStream::CZipStream(std::shared_ptr<CIOApi> api, const boost::filesystem::path & archive, unz64_file_pos filepos)
 {

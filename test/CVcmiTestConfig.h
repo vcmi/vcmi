@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * CVcmiTestConfig.h, part of VCMI engine
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
 
 /// Global setup/tear down class for unit tests.
 class CVcmiTestConfig

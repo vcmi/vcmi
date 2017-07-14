@@ -1,3 +1,12 @@
+/*
+ * NetPacksServer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "../lib/NetPacks.h"
 
@@ -31,16 +40,6 @@
 #define ERROR_IF_NOT_OWNS(id)	do{if(!PLAYER_OWNS(id)){WRONG_PLAYER_MSG(gh->getOwner(id)); ERROR_AND_RETURN; }}while(0)
 #define ERROR_IF_NOT(player)	do{if(player != gh->getPlayerAt(c)){WRONG_PLAYER_MSG(player); ERROR_AND_RETURN; }}while(0)
 #define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN; }
-
-/*
- * NetPacksServer.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 
 CGameState* CPackForServer::GS(CGameHandler *gh)

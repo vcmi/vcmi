@@ -1,3 +1,12 @@
+/*
+ * GUIClasses.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "GUIClasses.h"
 
@@ -48,16 +57,6 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/NetPacksBase.h"
 #include "../lib/StartInfo.h"
-
-/*
- * GUIClasses.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 using namespace CSDL_Ext;
 

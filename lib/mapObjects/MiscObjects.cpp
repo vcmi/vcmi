@@ -1044,6 +1044,9 @@ TeleportChannelID CGMonolith::findMeChannel(std::vector<Obj> IDs, int SubID) con
 {
 	for(auto obj : cb->gameState()->map->objects)
 	{
+		if(!obj)
+			continue;
+
 		auto teleportObj = dynamic_cast<const CGTeleport *>(cb->getObj(obj->id));
 		if(teleportObj && vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
@@ -1154,6 +1157,9 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
+		if(!obj) // FIXME: Find out why there are nullptr objects right after initialization
+			continue;
+
 		auto hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
 			gatesSplit[hlp->pos.z].push_back(hlp);
@@ -1935,7 +1941,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
-				xp += drown * i->second->type->valOfBonuses(Bonus::STACK_HEALTH);
+				xp += drown * i->second->type->MaxHealth();
 			}
 		}
 

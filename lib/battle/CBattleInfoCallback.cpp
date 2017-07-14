@@ -1,5 +1,5 @@
 /*
- * CBattleCallback.cpp, part of VCMI engine
+ * CBattleInfoCallback.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -529,20 +529,12 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 	if(stack->getCreature()->idNumber == CreatureID::CATAPULT && dst) //catapult cannot attack creatures
 		return false;
 
-	if(stack->hasBonusOfType(Bonus::SHOOTER)//it's shooter
-	&& battleMatchOwner(stack, dst)
-	&& dst->alive()
-	&& (!battleIsStackBlocked(stack) || stack->hasBonusOfType(Bonus::FREE_SHOOTING))
-	&& stack->shots
-	)
+	if(stack->canShoot()
+		&& battleMatchOwner(stack, dst)
+		&& dst->alive()
+		&& (!battleIsStackBlocked(stack) || stack->hasBonusOfType(Bonus::FREE_SHOOTING)))
 		return true;
 	return false;
-}
-
-TDmgRange CBattleInfoCallback::calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting,
-												 ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const
-{
-	return calculateDmgRange(attacker, defender, attacker->count, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
@@ -559,8 +551,8 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	};
 
 	double additiveBonus = 1.0, multBonus = 1.0,
-			minDmg = info.attackerBonuses->getMinDamage() * info.attackerCount,//TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT
-			maxDmg = info.attackerBonuses->getMaxDamage() * info.attackerCount;
+			minDmg = info.attackerBonuses->getMinDamage() * info.attackerHealth.getCount(),//TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT
+			maxDmg = info.attackerBonuses->getMaxDamage() * info.attackerHealth.getCount();
 
 	const CCreature *attackerType = info.attacker->getCreature(),
 			*defenderType = info.defender->getCreature();
@@ -774,19 +766,6 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	return returnedVal;
 }
 
-TDmgRange CBattleInfoCallback::calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount,
-												bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const
-{
-	BattleAttackInfo bai(attacker, defender, shooting);
-	bai.attackerCount = attackerCount;
-	bai.chargedFields = charge;
-	bai.luckyHit = lucky;
-	bai.unluckyHit = unlucky;
-	bai.deathBlow = deathBlow;
-	bai.ballistaDoubleDamage = ballistaDoubleDmg;
-	return calculateDmgRange(bai);
-}
-
 TDmgRange CBattleInfoCallback::battleEstimateDamage(CRandomGenerator & rand, const CStack * attacker, const CStack * defender, TDmgRange * retaliationDmg) const
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
@@ -816,10 +795,10 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(CRandomGenerator
 			{
 				BattleStackAttacked bsa;
 				bsa.damageAmount = ret.*pairElems[i];
-				bai.defender->prepareAttacked(bsa, rand, bai.defenderCount);
+				bai.defender->prepareAttacked(bsa, rand, bai.defenderHealth);
 
 				auto retaliationAttack = bai.reverse();
-				retaliationAttack.attackerCount = bsa.newAmount;
+				retaliationAttack.attackerHealth = retaliationAttack.attacker->healthAfterAttacked(bsa.damageAmount);
 				retaliationDmg->*pairElems[!i] = calculateDmgRange(retaliationAttack).*pairElems[!i];
 			}
 		}
@@ -843,6 +822,24 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	return obstacles;
 }
 
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const CStack * stack) const
+{
+	std::vector<std::shared_ptr<const CObstacleInstance>> affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
+	RETURN_IF_NOT_BATTLE(affectedObstacles);
+	if(stack->alive())
+	{
+		affectedObstacles = battleGetAllObstaclesOnPos(stack->position, false);
+		if(stack->doubleWide())
+		{
+			BattleHex otherHex = stack->occupiedHex(stack->position);
+			if(otherHex.isValid())
+				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
+					affectedObstacles.push_back(i);
+		}
+	}
+	return affectedObstacles;
+}
+
 AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 {
 	AccessibilityInfo ret;
@@ -854,6 +851,26 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 		ret[BattleHex(GameConstants::BFIELD_WIDTH - 1, y)] = EAccessibility::SIDE_COLUMN;
 		ret[BattleHex(0, y)] = EAccessibility::SIDE_COLUMN;
 	}
+
+	//special battlefields with logically unavailable tiles
+	std::vector<BattleHex> impassableHexes;
+	if(battleGetBattlefieldType().num == BFieldType::SHIP_TO_SHIP)
+	{	
+		impassableHexes = 
+		{ 
+			6, 7, 8, 9,
+			24, 25, 26, 
+			58, 59, 60,
+			75, 76, 77,
+			92, 93, 94,
+			109, 110, 111,
+			126, 127, 128,
+			159, 160, 161, 162, 163,
+			176, 177, 178, 179, 180
+		};
+	}	
+	for(auto hex : impassableHexes)
+		ret[hex] = EAccessibility::UNAVAILABLE;
 
 	//gate -> should be before stacks
 	if(battleGetSiegeLevel() > 0)
@@ -1456,7 +1473,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		{
 			auto walker = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 			{
-				return !stack->shots;
+				return !stack->canShoot();
 			});
 
 			if (!walker)
@@ -1467,7 +1484,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		{
 			auto shooter = getAliveEnemy([&](const CStack * stack) //look for enemy, non-shooting stack
 			{
-				return stack->hasBonusOfType(Bonus::SHOOTER) && stack->shots;
+				return stack->canShoot();
 			});
 			if (!shooter)
 				continue;
@@ -1489,19 +1506,19 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 		case SpellID::CURE: //only damaged units
 		{
 			//do not cast on affected by debuffs
-			if (subject->firstHPleft >= subject->MaxHealth())
+			if(!subject->canBeHealed())
 				continue;
 		}
 			break;
 		case SpellID::BLOODLUST:
 		{
-			if (subject->shots) //if can shoot - only if enemy uits are adjacent
+			if(subject->canShoot()) //TODO: if can shoot - only if enemy units are adjacent
 				continue;
 		}
 			break;
 		case SpellID::PRECISION:
 		{
-			if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
+			if(!subject->canShoot())
 				continue;
 		}
 			break;
@@ -1573,7 +1590,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	double discount = 0;
 	for(const CStack * s : battleAliveStacks(side.get()))
 		if(s->base) //we pay for our stack that comes from our army slots - condition eliminates summoned cres and war machines
-			ret += s->getCreature()->cost[Res::GOLD] * s->count;
+			ret += s->getCreature()->cost[Res::GOLD] * s->getCount(); //todo: extract CStack method
 
 	if(const CGHeroInstance * h = battleGetFightingHero(side.get()))
 		discount += h->valOfBonuses(Bonus::SURRENDER_DISCOUNT);
