@@ -1154,6 +1154,9 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
 	for(auto & obj : cb->gameState()->map->objects)
 	{
+		if(!obj) // FIXME: Find out why there are nullptr objects right after initialization
+			continue;
+
 		auto hlp = dynamic_cast<CGSubterraneanGate *>(cb->gameState()->getObjInstance(obj->id));
 		if(hlp)
 			gatesSplit[hlp->pos.z].push_back(hlp);
