@@ -1230,7 +1230,6 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 	else //for non-flying creatures
 	{
-		std::vector<std::shared_ptr<const CObstacleInstance>> obstacle, obstacle2; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
@@ -1329,16 +1328,14 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 					}
 
 					//if we walked onto something, finalize this portion of stack movement check into obstacle
-					obstacle = battleGetAllObstaclesOnPos(hex, false);
-					if(!obstacle.empty())
+					if(!battleGetAllObstaclesOnPos(hex, false).empty())
 						obstacleHit = true;
 
 					if (curStack->doubleWide())
 					{
 						BattleHex otherHex = curStack->occupiedHex(hex);
-
 						//two hex creature hit obstacle by backside
-						obstacle2 = battleGetAllObstaclesOnPos(otherHex, false);
+						auto obstacle2 = battleGetAllObstaclesOnPos(otherHex, false);
 						if(otherHex.isValid() && !obstacle2.empty())
 							obstacleHit = true;
 					}
@@ -1360,25 +1357,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if (curStack->position != dest)
 			{
-				auto processObstacle = [&](std::vector<std::shared_ptr<const CObstacleInstance>> & obs)
-				{
-					if(!obs.empty())
-					{
-						for(auto & i : obs)
-						{
-							handleDamageFromObstacle(*i, curStack);
-							//if stack die in explosion or interrupted by obstacle, abort movement
-							if(i->stopsMovement() || !curStack->alive())
-								stackIsMoving = false;
-							i.reset();
-						}
-					}
-				};
-
-				processObstacle(obstacle);
-				if (curStack->alive())
-					processObstacle(obstacle2);
-
+				if(stackIsMoving && start != curStack->position)
+					stackIsMoving = handleDamageFromObstacle(curStack, stackIsMoving);
 				if (gateStateChanging)
 				{
 					if (curStack->position == openGateAtHex)
@@ -1406,26 +1386,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	if (curStack->alive())
-	{
-		auto theLastObstacle = battleGetAllObstaclesOnPos(curStack->position, false);
-		for(auto & i : theLastObstacle)
-			if(curStack->alive())
-				handleDamageFromObstacle(*i, curStack);
-	}
+	handleDamageFromObstacle(curStack);
 
-	if (curStack->alive() && curStack->doubleWide())
-	{
-		BattleHex otherHex = curStack->occupiedHex(curStack->position);
-		if (otherHex.isValid())
-		{
-			//two hex creature hit obstacle by backside
-			auto theLastObstacle = battleGetAllObstaclesOnPos(otherHex, false);
-			for(auto & i : theLastObstacle)
-				if(curStack->alive())
-					handleDamageFromObstacle(*i, curStack);
-		}
-	}
 	return ret;
 }
 
@@ -4029,10 +3991,10 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 
-			if (destinationStack->alive()
-			    && (stack->getCreature()->idNumber == CreatureID::BALLISTA)
-			    && (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
-			   )
+			if(destinationStack->alive()
+				&& (stack->getCreature()->idNumber == CreatureID::BALLISTA)
+				&& (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
+			)
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;
@@ -4130,8 +4092,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 						std::vector<EWallPart::EWallPart> allowedTargets;
 						for (size_t i=0; i< currentHP.size(); i++)
 						{
-							if (currentHP.at(i) != EWallState::DESTROYED &&
-							    currentHP.at(i) != EWallState::NONE)
+							if(currentHP.at(i) != EWallState::DESTROYED &&
+								currentHP.at(i) != EWallState::NONE)
 								allowedTargets.push_back(EWallPart::EWallPart(i));
 						}
 						if (allowedTargets.empty())
@@ -4325,7 +4287,10 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			break;
 		}
 	}
-	if (ba.stackNumber == gs->curB->activeStack  ||  battleResult.get()) //active stack has moved or battle has finished
+	if(ba.actionType == Battle::DAEMON_SUMMONING || ba.actionType == Battle::WAIT || ba.actionType == Battle::DEFEND
+			|| ba.actionType == Battle::SHOOT || ba.actionType == Battle::MONSTER_SPELL)
+		handleDamageFromObstacle(stack);
+	if(ba.stackNumber == gs->curB->activeStack || battleResult.get()) //active stack has moved or battle has finished
 		battleMadeAction.setn(true);
 	return ok;
 }
@@ -4617,77 +4582,88 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 	}
 }
 
-void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack)
+bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving)
 {
-	//we want to determine following vars depending on obstacle type
-	int damage = -1;
-	int effect = -1;
-	bool oneTimeObstacle = false;
-
-	//helper info
-	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
-
-	const ui8 side = curStack->side; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
-	const CGHeroInstance *hero = gs->curB->battleGetFightingHero(side);//FIXME: there may be no hero - landmines in Tower
-
-	if (obstacle.obstacleType == CObstacleInstance::MOAT)
+	if(!curStack->alive())
+		return false;
+	bool containDamageFromMoat = false;
+	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack))
 	{
-		damage = battleGetMoatDmg();
+		if(!curStack->alive() || obstacle->stopsMovement() && stackIsMoving == true)
+			return false;
+		//we want to determine following vars depending on obstacle type
+		int damage = -1;
+		int effect = -1;
+		bool oneTimeObstacle = false;
+
+		//helper info
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle.get()); //not nice but we may need spell params
+
+		const ui8 side = curStack->side; //if enemy is defending (false = 0), side of enemy hero is 1 (true)
+		const CGHeroInstance * hero = gs->curB->battleGetFightingHero(side);//FIXME: there may be no hero - landmines in Tower
+
+		if(obstacle->obstacleType == CObstacleInstance::MOAT)
+		{
+			damage = battleGetMoatDmg();
+			if(!containDamageFromMoat)
+				containDamageFromMoat = true;
+			else
+				continue;
+		}
+		else if(obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+		{
+			if(!spellObstacle)
+				COMPLAIN_RET("Invalid obstacle instance");
+			//You don't get hit by a Mine you can see.
+			if(gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side))
+				continue;
+			oneTimeObstacle = true;
+			effect = 82;
+			const CSpell * sp = SpellID(SpellID::LAND_MINE).toSpell();
+
+			if(sp->isImmuneByStack(hero, curStack))
+				continue;
+
+			damage = sp->calculateDamage(hero, curStack, spellObstacle->spellLevel, spellObstacle->casterSpellPower);
+			//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if cast by hero,
+			//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
+		}
+		else if(obstacle->obstacleType == CObstacleInstance::FIRE_WALL)
+		{
+			if(!spellObstacle)
+				COMPLAIN_RET("Invalid obstacle instance");
+			const CSpell * sp = SpellID(SpellID::FIRE_WALL).toSpell();
+
+			if(sp->isImmuneByStack(hero, curStack))
+				continue;
+
+			damage = sp->calculateDamage(hero, curStack,
+										 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
+		}
+		else
+			continue;
+
+		BattleStackAttacked bsa;
+		if(effect >= 0)
+		{
+			bsa.flags |= BattleStackAttacked::EFFECT;
+			bsa.effect = effect; //makes POOF
+		}
+		bsa.damageAmount = damage;
+		bsa.stackAttacked = curStack->ID;
+		bsa.attackerID = -1;
+		curStack->prepareAttacked(bsa, getRandomGenerator());
+
+		StacksInjured si;
+		si.stacks.push_back(bsa);
+		sendAndApply(&si);
+
+		if(oneTimeObstacle)
+			removeObstacle(*obstacle);
 	}
-	else if (obstacle.obstacleType == CObstacleInstance::LAND_MINE)
-	{
-		COMPLAIN_RET_IF((!spellObstacle), "Invalid obstacle instance");
-		//You don't get hit by a Mine you can see.
-		if (gs->curB->battleIsObstacleVisibleForSide(obstacle, (BattlePerspective::BattlePerspective)side))
-			return;
-
-		oneTimeObstacle = true;
-		effect = 82; //makes
-
-		const CSpell * sp = SpellID(SpellID::LAND_MINE).toSpell();
-
-		if (sp->isImmuneByStack(hero, curStack))
-			return;
-
-		damage = sp->calculateDamage(hero, curStack,
-											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
-		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if cast by hero,
-		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
-	}
-	else if (obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
-	{
-		COMPLAIN_RET_IF((!spellObstacle), "Invalid obstacle instance");
-		const CSpell * sp = SpellID(SpellID::FIRE_WALL).toSpell();
-
-		if (sp->isImmuneByStack(hero, curStack))
-			return;
-
-		damage = sp->calculateDamage(hero, curStack,
-											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
-	}
-	else
-	{
-		//no other obstacle does damage to stack
-		return;
-	}
-
-	BattleStackAttacked bsa;
-	if (effect >= 0)
-	{
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = effect; //makes POOF
-	}
-	bsa.damageAmount = damage;
-	bsa.stackAttacked = curStack->ID;
-	bsa.attackerID = -1;
-	curStack->prepareAttacked(bsa, getRandomGenerator());
-
-	StacksInjured si;
-	si.stacks.push_back(bsa);
-	sendAndApply(&si);
-
-	if (oneTimeObstacle)
-		removeObstacle(obstacle);
+	if(!curStack->alive())
+		return false;
+	return true;
 }
 
 void CGameHandler::handleTimeEvents()
