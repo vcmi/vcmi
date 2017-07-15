@@ -66,7 +66,7 @@ LRClickableAreaWText::LRClickableAreaWText()
 	init();
 }
 
-LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
+LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText, const std::string &ClickText)
 {
 	init();
 	pos = Pos + pos;

@@ -14,7 +14,7 @@
 
 extern template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 
-CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion /*= version*/)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion)
 	: serializer(this)
 {
 	registerTypes(serializer);

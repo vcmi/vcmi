@@ -163,7 +163,7 @@ std::vector<int> IMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 	return ret;
 }
 
-const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= true*/)
+const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 {
 	switch(obj->ID)
 	{

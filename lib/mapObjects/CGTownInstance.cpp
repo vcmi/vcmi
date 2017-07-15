@@ -1122,13 +1122,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype)
 {
 	static auto emptyPropagator = TPropagatorPtr();
 	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
 {
 	if(hasBuilt(building))
 	{

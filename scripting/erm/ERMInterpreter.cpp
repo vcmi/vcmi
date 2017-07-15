@@ -398,7 +398,7 @@ void ERMInterpreter::scanForScripts()
 	}
 }
 
-void ERMInterpreter::printScripts( EPrintMode mode /*= EPrintMode::ALL*/ )
+void ERMInterpreter::printScripts(EPrintMode mode)
 {
 	std::map< LinePointer, ERM::TLine >::const_iterator prevIt;
 	for(std::map< LinePointer, ERM::TLine >::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
@@ -473,7 +473,7 @@ ERMInterpreter::ERMInterpreter()
 	topDyn = globalEnv;
 }
 
-void ERMInterpreter::executeTrigger( VERMInterpreter::Trigger & trig, int funNum /*= -1*/, std::vector<int> funParams/*=std::vector<int>()*/ )
+void ERMInterpreter::executeTrigger(VERMInterpreter::Trigger & trig, int funNum, std::vector<int> funParams)
 {
 	//function-related logic
 	if(funNum != -1)
@@ -1774,7 +1774,7 @@ IexpValStr ERMInterpreter::getIexp( const ERM::TBodyOptionItem & opit ) const
 	return ret;
 }
 
-void ERMInterpreter::executeTriggerType( VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams/*=std::vector<int>()*/ )
+void ERMInterpreter::executeTriggerType(VERMInterpreter::TriggerType tt, bool pre, const TIDPattern & identifier, const std::vector<int> &funParams)
 {
 	struct HLP
 	{
@@ -2716,7 +2716,7 @@ struct VEvaluator : boost::static_visitor<VOption>
 	}
 };
 
-VOption ERMInterpreter::eval( VOption line, Environment * env /*= nullptr*/ )
+VOption ERMInterpreter::eval(VOption line, Environment * env)
 {
 // 	if(line.children.isNil())
 // 		return;
@@ -2727,7 +2727,7 @@ VOption ERMInterpreter::eval( VOption line, Environment * env /*= nullptr*/ )
 	return boost::apply_visitor(VEvaluator(env ? *env : *topDyn), line);
 }
 
-VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /*= nullptr*/ )
+VOptionList ERMInterpreter::evalEach(VermTreeIterator list, Environment * env)
 {
 	VOptionList ret;
 	for(int g=0; g<list.size(); ++g)

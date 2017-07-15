@@ -26,7 +26,7 @@ BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
 	return getBattle()->battlefieldType;
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective /*= boost::none*/) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective) const
 {
 	std::vector<std::shared_ptr<const CObstacleInstance> > ret;
 	RETURN_IF_NOT_BATTLE(ret);
@@ -74,7 +74,7 @@ bool CBattleInfoEssentials::battleHasNativeStack(ui8 side) const
 	return false;
 }
 
-TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets /*= false*/) const
+TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 {
 	return battleGetStacksIf([=](const CStack * s)
 	{
@@ -353,7 +353,7 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetOwnerHero(const CStack * 
 	return getBattle()->sides.at(side.get()).hero;
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness /* = false*/) const
+bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness ) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	if(boost::logic::indeterminate(positivness))
@@ -364,7 +364,7 @@ bool CBattleInfoEssentials::battleMatchOwner(const CStack * attacker, const CSta
 		return battleMatchOwner(battleGetOwner(attacker), defender, positivness);
 }
 
-bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const CStack * defender, const boost::logic::tribool positivness /* = false*/) const
+bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const CStack * defender, const boost::logic::tribool positivness ) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	if(boost::logic::indeterminate(positivness))

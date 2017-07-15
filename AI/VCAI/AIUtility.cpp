@@ -85,7 +85,7 @@ bool HeroPtr::operator<(const HeroPtr &rhs) const
 	return hid < rhs.hid;
 }
 
-const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
+const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//

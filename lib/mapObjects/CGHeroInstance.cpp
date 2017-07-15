@@ -328,7 +328,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		mana = manaLimit();
 }
 
-void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor *dst /*= nullptr*/)
+void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 {
 	if(!dst)
 		dst = this;
@@ -1275,7 +1275,7 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 
-int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/, const TurnInfo * ti) const
+int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const
 {
 	int ret = 0; //take all MPs by default
 	bool localTi = false;

@@ -44,7 +44,7 @@ BattleAction BattleAction::makeDefend(const CStack * stack)
 }
 
 
-BattleAction BattleAction::makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom /*= BattleHex::INVALID*/)
+BattleAction BattleAction::makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom)
 {
 	BattleAction ba;
 	ba.side = stack->side;

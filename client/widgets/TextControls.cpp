@@ -32,7 +32,7 @@ void CLabel::showAll(SDL_Surface * to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
+CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text)
 :CTextContainer(Align, Font, Color), text(Text)
 {
 	type |= REDRAW_PARENT;
@@ -243,7 +243,7 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 	new CLabel(x, y, font, align, color, text);
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/):
+CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color &Color):
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
@@ -317,7 +317,7 @@ void CGStatusBar::clear()
 	setText("");
 }
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= Colors::WHITE*/)
+CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font, EAlignment Align, const SDL_Color &Color)
 : CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();
@@ -328,7 +328,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	textLock = false;
 }
 
-CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
+CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 : CLabel(x, y, FONT_SMALL, CENTER)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

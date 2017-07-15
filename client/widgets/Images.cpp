@@ -63,19 +63,19 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 	}
 }
 
-CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat /*= false*/)
+CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat)
 {
 	init();
 	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
 }
 
-CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
+CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat)
 {
 	init();
 	createSimpleRect(r, screenFormat, color);
 }
 
-CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
+CPicture::CPicture(SDL_Surface * BG, const Rect &SrcRect, int x, int y, bool free)
 {
 	visible = true;
 	needRefresh = false;

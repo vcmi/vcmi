@@ -218,7 +218,7 @@ void CInfoWindow::showOkDialog(const std::string & text, const std::vector<CComp
 	GH.pushInt(temp);
 }
 
-CInfoWindow * CInfoWindow::create(const std::string &text, PlayerColor playerID /*= 1*/, const std::vector<CComponent*> *components /*= nullptr*/, bool DelComps)
+CInfoWindow * CInfoWindow::create(const std::string &text, PlayerColor playerID, const std::vector<CComponent*> *components, bool DelComps)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
@@ -250,7 +250,7 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 
 
-CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free/*=false*/)
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free)
  : free(Free),bitmap(Bitmap)
 {
 	switch(alignment)
@@ -352,7 +352,7 @@ void CRClickPopup::createAndPush(const std::string &txt, CComponent * component)
 	createAndPush(txt, intComps);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
+void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment)
 {
 	CIntObject *iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)

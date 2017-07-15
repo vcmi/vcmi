@@ -274,7 +274,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 	}
 }
 
-std::string CTradeWindow::CTradeableItem::getName(int number /*= -1*/) const
+std::string CTradeWindow::CTradeableItem::getName(int number) const
 {
 	switch(type)
 	{
@@ -1110,7 +1110,7 @@ void CMarketplaceWindow::updateTraderText()
 	traderText->setText(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
-CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= nullptr*/, EMarketMode::EMarketMode Mode)
+CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode)
 	:CTradeWindow((Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "PotentialTargets.h"
 
-PotentialTargets::PotentialTargets(const CStack *attacker, const HypotheticChangesToBattleState &state /*= HypotheticChangesToBattleState()*/)
+PotentialTargets::PotentialTargets(const CStack * attacker, const HypotheticChangesToBattleState & state)
 {
 	auto dists = getCbc()->battleGetDistances(attacker);
 	auto avHexes = getCbc()->battleGetAvailableHexes(attacker, false);

@@ -1567,7 +1567,7 @@ CFadeAnimation::~CFadeAnimation()
 		SDL_FreeSurface(fadingSurface);
 }
 
-void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd /* = false */, float animDelta /* = DEFAULT_DELTA */)
+void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurfaceAtEnd, float animDelta)
 {
 	if (fading)
 	{

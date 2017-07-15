@@ -2059,7 +2059,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	return nt;
 }
 
-std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary /*= true*/)
+std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary)
 {
 	std::map<int, BuildingID> mapa;
 	std::set<BuildingID> ret;

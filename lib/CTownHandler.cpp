@@ -834,7 +834,7 @@ std::vector<bool> CTownHandler::getDefaultAllowed() const
 	return allowedFactions;
 }
 
-std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown /*=true*/) const
+std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 {
 	std::set<TFaction> allowedFactions;
 	std::vector<bool> allowed;

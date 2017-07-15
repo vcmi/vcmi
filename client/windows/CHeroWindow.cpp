@@ -38,7 +38,7 @@
 #include "../mapHandler.h"
 
 
-const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= nullptr*/, const std::string &cachingStr /*= ""*/) const
+const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string & cachingStr) const
 {
 	TBonusListPtr out(new BonusList);
 	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero);
@@ -177,7 +177,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	update(hero);
 }
 
-void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= false*/)
+void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
 

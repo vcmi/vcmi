@@ -484,7 +484,7 @@ CGPreGame::~CGPreGame()
 		GH.curInt = nullptr;
 }
 
-void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EGameMode gameMode /*= CMenuScreen::SINGLE_PLAYER*/)
+void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EGameMode gameMode)
 {
 	GH.pushInt(new CSelectionScreen(screenType, gameMode));
 }
@@ -558,7 +558,7 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameMode GameMode /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> * Names /*= nullptr*/, const std::string & Address /*=""*/, const ui16 Port)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameMode GameMode, const std::map<ui8, std::string> * Names, const std::string & Address, const ui16 Port)
 	: ISelectionScreenInfo(Names), serverHandlingThread(nullptr), mx(new boost::recursive_mutex),
 	  serv(nullptr), ongoingClosing(false), myNameID(255)
 {
@@ -1201,7 +1201,7 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourceID> &files )
 	}
 }
 
-SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EGameMode GameMode /*= CMenuScreen::SINGLE_PLAYER*/)
+SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EGameMode GameMode)
 	:bg(nullptr), onSelect(OnSelect)
 {
 	OBJ_CONSTRUCTION;
@@ -3809,7 +3809,7 @@ void CBonusSelection::decreaseDifficulty()
 	startInfo.difficulty = std::max(startInfo.difficulty - 1, 0);
 }
 
-void CBonusSelection::updateStartButtonState(int selected /*= -1*/)
+void CBonusSelection::updateStartButtonState(int selected)
 {
 	if(selected == -1)
 	{
@@ -3920,7 +3920,7 @@ CSavingScreen::~CSavingScreen()
 
 }
 
-ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> *Names /*= nullptr*/)
+ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> * Names)
 {
 	gameMode = CMenuScreen::SINGLE_PLAYER;
 	screenType = CMenuScreen::mainMenu;

@@ -572,7 +572,7 @@ void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, 
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator /*= nullptr*/, int additionalInfo)
+void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
@@ -587,7 +587,7 @@ void CArtHandler::giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus)
 
 	artifacts[aid]->addNewBonus(bonus);
 }
-void CArtHandler::makeItCreatureArt (CArtifact * a, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt(CArtifact * a, bool onlyCreature)
 {
 	if (onlyCreature)
 	{
@@ -597,13 +597,13 @@ void CArtHandler::makeItCreatureArt (CArtifact * a, bool onlyCreature /*=true*/)
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
 }
 
-void CArtHandler::makeItCreatureArt (ArtifactID aid, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt(ArtifactID aid, bool onlyCreature)
 {
 	CArtifact *a = artifacts[aid];
 	makeItCreatureArt (a, onlyCreature);
 }
 
-void CArtHandler::makeItCommanderArt (CArtifact * a, bool onlyCommander /*= true*/ )
+void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 {
 	if (onlyCommander)
 	{
@@ -614,7 +614,7 @@ void CArtHandler::makeItCommanderArt (CArtifact * a, bool onlyCommander /*= true
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(i));
 }
 
-void CArtHandler::makeItCommanderArt( ArtifactID aid, bool onlyCommander /*= true*/ )
+void CArtHandler::makeItCommanderArt(ArtifactID aid, bool onlyCommander)
 {
 	CArtifact *a = artifacts[aid];
 	makeItCommanderArt (a, onlyCommander);
@@ -850,12 +850,12 @@ ArtifactPosition CArtifactInstance::firstBackpackSlot(const CArtifactSet *h) con
 	return ArtifactPosition::PRE_FIRST;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved /*= false*/) const
+bool CArtifactInstance::canBePutAt(const ArtifactLocation & al, bool assumeDestRemoved) const
 {
 	return canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
 
-bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved /*= false*/) const
+bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
 	if(slot >= GameConstants::BACKPACK_START)
 	{
@@ -1019,7 +1019,7 @@ bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 	return supposedPart == this;
 }
 
-bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved /*= false*/) const
+bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved) const
 {
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
@@ -1191,7 +1191,7 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) co
 	return false;
 }
 
-CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art /*= nullptr*/, ArtifactPosition Slot /*= -1*/)
+CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *Art, ArtifactPosition Slot)
 {
 	art = Art;
 	slot = Slot;
@@ -1204,7 +1204,7 @@ bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInf
 
 CArtifactSet::~CArtifactSet() = default;
 
-const CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked /*= true*/) const
+const CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked) const
 {
 	if(const ArtSlotInfo *si = getSlot(pos))
 	{
@@ -1215,12 +1215,12 @@ const CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool exclude
 	return nullptr;
 }
 
-CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked /*= true*/)
+CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked)
 {
 	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
-ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) const
+ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn) const
 {
 	for(auto i = artifactsWorn.cbegin(); i != artifactsWorn.cend(); i++)
 		if(i->second.artifact->artType->id == aid)
@@ -1262,8 +1262,8 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 	return nullptr;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn /*= false*/,
-                          bool searchBackpackAssemblies /*= false*/) const
+bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn,
+                          bool searchBackpackAssemblies) const
 {
 	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST ||
 	       (searchBackpackAssemblies && getHiddenArt(aid));
@@ -1316,7 +1316,7 @@ const ArtSlotInfo * CArtifactSet::getSlot(ArtifactPosition pos) const
 	return nullptr;
 }
 
-bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck /*= false*/) const
+bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck) const
 {
 	if(const ArtSlotInfo *s = getSlot(pos))
 		return (onlyLockCheck || !s->artifact) && !s->locked;
