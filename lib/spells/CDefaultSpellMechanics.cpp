@@ -154,6 +154,14 @@ void SpellCastContext::setDamageToDisplay(const si32 value)
 	damageToDisplay = value;
 }
 
+void SpellCastContext::addCustomEffect(const CStack * target, ui32 effect)
+{
+	BattleSpellCast::CustomEffect customEffect;
+	customEffect.effect = effect;
+	customEffect.stack = target->ID;
+	sc.customEffects.push_back(customEffect);
+}
+
 void SpellCastContext::prepareBattleLog()
 {
 	bool displayDamage = true;
@@ -806,12 +814,7 @@ void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, 
 		});
 
 		for(auto s : reflected)
-		{
-			BattleSpellCast::CustomEffect effect;
-			effect.effect = 3;
-			effect.stack = s->ID;
-			ctx.sc.customEffects.push_back(effect);
-		}
+			ctx.addCustomEffect(s, 3);
 	}
 }
 
@@ -839,12 +842,7 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, S
 		});
 
 		for(auto s : resisted)
-		{
-			BattleSpellCast::CustomEffect effect;
-			effect.effect = 78;
-			effect.stack = s->ID;
-			ctx.sc.customEffects.push_back(effect);
-		}
+			ctx.addCustomEffect(s, 78);
 	}
 }
 

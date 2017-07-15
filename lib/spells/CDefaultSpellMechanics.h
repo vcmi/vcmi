@@ -21,7 +21,6 @@ public:
 	const DefaultSpellMechanics * mechanics;
 	const SpellCastEnvironment * env;
 	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
-	BattleSpellCast sc;//todo: make private
 	StacksInjured si;
 	const BattleSpellCastParameters & parameters;
 
@@ -31,9 +30,12 @@ public:
 	void addDamageToDisplay(const si32 value);
 	void setDamageToDisplay(const si32 value);
 
+	void addCustomEffect(const CStack * target, ui32 effect);
+
 	void beforeCast();
 	void afterCast();
 private:
+	BattleSpellCast sc;
 	const CGHeroInstance * otherHero;
 	int spellCost;
 	si32 damageToDisplay;
