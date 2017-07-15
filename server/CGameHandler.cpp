@@ -5260,7 +5260,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if(spell->canBeCastAt(gs->curB, attacker, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
+			if(spell->canBeCastAt(gs->curB, ECastingMode::AFTER_ATTACK_CASTING, attacker, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 
 			//check if spell should be cast (probability handling)

@@ -855,11 +855,11 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	//special battlefields with logically unavailable tiles
 	std::vector<BattleHex> impassableHexes;
 	if(battleGetBattlefieldType().num == BFieldType::SHIP_TO_SHIP)
-	{	
-		impassableHexes = 
-		{ 
+	{
+		impassableHexes =
+		{
 			6, 7, 8, 9,
-			24, 25, 26, 
+			24, 25, 26,
 			58, 59, 60,
 			75, 76, 77,
 			92, 93, 94,
@@ -868,7 +868,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 			159, 160, 161, 162, 163,
 			176, 177, 178, 179, 180
 		};
-	}	
+	}
 	for(auto hex : impassableHexes)
 		ret[hex] = EAccessibility::UNAVAILABLE;
 
@@ -1463,7 +1463,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 
 		if(subject->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellID), Selector::all, cachingStr.str())
 		 //TODO: this ability has special limitations
-		|| spellID.toSpell()->canBeCastAt(this, subject, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
+		|| spellID.toSpell()->canBeCast(this, ECastingMode::CREATURE_ACTIVE_CASTING, subject) != ESpellCastProblem::OK)
 			continue;
 
 		switch (spellID)

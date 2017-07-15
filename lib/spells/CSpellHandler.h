@@ -297,8 +297,8 @@ public:
 	///Checks general but spell-specific problems. Use only during battle.
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const;
 
-	///checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into account general problems such as not having spellbook or mana points etc.
-	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const;
+	///checks for creature immunity / anything that prevent casting *at given hex*
+	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb,  ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const;
 
 	///checks for creature immunity / anything that prevent casting *at given target* - doesn't take into account general problems such as not having spellbook or mana points etc.
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const;

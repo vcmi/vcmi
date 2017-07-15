@@ -399,7 +399,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 	}
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb, const ISpellCaster * caster, ECastingMode::ECastingMode mode, BattleHex destination) const
+ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb,  ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
 	ESpellCastProblem::ESpellCastProblem problem = canBeCast(cb, mode, caster);
 	if(problem != ESpellCastProblem::OK)
