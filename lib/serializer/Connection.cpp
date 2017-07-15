@@ -50,8 +50,8 @@ void CConnection::init()
 	oser & std::string("Aiya!\n") & name & myEndianess; //identify ourselves
 	iser & pom & pom & contactEndianess;
 	logNetwork->infoStream() << "Established connection with "<<pom;
-	wmx = new boost::mutex;
-	rmx = new boost::mutex;
+	wmx = new boost::mutex();
+	rmx = new boost::mutex();
 
 	handler = nullptr;
 	receivedStop = sendStop = false;

@@ -327,7 +327,7 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 
 void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
-	auto ret = new CBuilding;
+	auto ret = new CBuilding();
 
 	static const std::string modes [] = {"normal", "auto", "special", "grail"};
 
@@ -406,7 +406,7 @@ void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
 
 void CTownHandler::loadStructure(CTown &town, const std::string & stringID, const JsonNode & source)
 {
-	auto ret = new CStructure;
+	auto ret = new CStructure();
 
 	ret->building = nullptr;
 	ret->buildable = nullptr;
@@ -706,7 +706,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string 
 
 	if (!source["town"].isNull())
 	{
-		faction->town = new CTown;
+		faction->town = new CTown();
 		faction->town->faction = faction;
 		loadTown(*faction->town, source["town"]);
 	}

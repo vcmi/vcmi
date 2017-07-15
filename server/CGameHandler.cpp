@@ -86,7 +86,7 @@ public:
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
-		return new CApplyOnGH<U>;
+		return new CApplyOnGH<U>();
 	}
 };
 
@@ -1397,7 +1397,7 @@ CGameHandler::CGameHandler(void)
 	QID = 1;
 	//gs = nullptr;
 	IObjectInterface::cb = this;
-	applier = new CApplier<CBaseForGHApply>;
+	applier = new CApplier<CBaseForGHApply>();
 	registerTypesServerPacks(*applier);
 	visitObjectAfterVictory = false;
 
@@ -6057,7 +6057,7 @@ void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victori
 		          % battleResult.data->result % resultType).str());
 		return;
 	}
-	auto br = new BattleResult;
+	auto br = new BattleResult();
 	br->result = resultType;
 	br->winner = victoriusSide; //surrendering side loses
 	gs->curB->calculateCasualties(br->casualties);

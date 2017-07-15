@@ -352,7 +352,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 
 CDefEssential * CDefHandler::essentialize()
 {
-	auto   ret = new CDefEssential;
+	auto ret = new CDefEssential();
 	ret->ourImages = ourImages;
 	notFreeImgs = true;
 	return ret;

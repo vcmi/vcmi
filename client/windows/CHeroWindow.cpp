@@ -40,7 +40,7 @@
 
 const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string & cachingStr) const
 {
-	TBonusListPtr out(new BonusList);
+	TBonusListPtr out(new BonusList());
 	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero);
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
@@ -50,7 +50,7 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
 	}
 	else
-		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList);
+		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
 	for(auto b : *bonusesFromPickedUpArtifact)
 		*heroBonuses -= b;

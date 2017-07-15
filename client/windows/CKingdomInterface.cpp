@@ -73,7 +73,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	if (value)
 		pos = pos | value->pos;
 
-	hover = new CHoverableArea;
+	hover = new CHoverableArea();
 	hover->hoverText = data->getHoverText();
 	hover->pos = pos;
 }
@@ -599,7 +599,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}
-	incomeArea = new CHoverableArea;
+	incomeArea = new CHoverableArea();
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
 	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, Colors::WHITE, boost::lexical_cast<std::string>(totalIncome));
@@ -866,9 +866,9 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero):
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	artTabs.resize(3);
-	auto   arts1 = new ArtSlotsTab;
-	auto   arts2 = new ArtSlotsTab;
-	auto   backpack = new BackpackTab;
+	auto arts1 = new ArtSlotsTab();
+	auto arts2 = new ArtSlotsTab();
+	auto backpack = new BackpackTab();
 	artTabs[0] = arts1;
 	artTabs[1] = arts2;
 	artTabs[2] = backpack;
