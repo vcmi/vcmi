@@ -93,19 +93,6 @@ private:
 	int effectValue;
 };
 
-struct DLL_LINKAGE SpellTargetingContext
-{
-	CSpell::TargetInfo ti;
-	ECastingMode::ECastingMode mode;
-	BattleHex destination;
-	const ISpellCaster * caster;
-	int schoolLvl;
-
-	SpellTargetingContext(const CSpell * s, ECastingMode::ECastingMode mode_, const ISpellCaster * caster_, int schoolLvl_, BattleHex destination_)
-		: ti(s,schoolLvl_, mode_), mode(mode_), destination(destination_), caster(caster_), schoolLvl(schoolLvl_)
-	{};
-};
-
 class DLL_LINKAGE ISpellMechanics
 {
 public:
@@ -113,11 +100,11 @@ public:
 	virtual ~ISpellMechanics(){};
 
 	virtual std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes = nullptr) const = 0;
-	virtual std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const = 0;
+	virtual std::vector<const CStack *> getAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const = 0;
 
 	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const = 0;
 
-	virtual ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const = 0;
+	virtual ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const = 0;
 
 	virtual ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const = 0;
 

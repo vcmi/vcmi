@@ -93,34 +93,27 @@ ChainLightningMechanics::ChainLightningMechanics(const CSpell * s):
 {
 }
 
-std::vector<const CStack *> ChainLightningMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+std::vector<const CStack *> ChainLightningMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	std::vector<const CStack *> res;
-
 	std::set<BattleHex> possibleHexes;
 	for(auto stack : cb->battleGetAllStacks())
 	{
 		if(stack->isValidTarget())
-		{
 			for(auto hex : stack->getHexes())
-			{
-				possibleHexes.insert (hex);
-			}
-		}
+				possibleHexes.insert(hex);
 	}
-	int targetsOnLevel[4] = {4, 4, 5, 5};
+	static const std::array<int, 4> targetsOnLevel = {4, 4, 5, 5};
 
-	BattleHex lightningHex = ctx.destination;
-	for(int i = 0; i < targetsOnLevel[ctx.schoolLvl]; ++i)
+	BattleHex lightningHex = destination;
+	for(int i = 0; i < targetsOnLevel.at(spellLvl); ++i)
 	{
 		auto stack = cb->battleGetStackByPos(lightningHex, true);
 		if(!stack)
 			break;
 		res.push_back(stack);
 		for(auto hex : stack->getHexes())
-		{
 			possibleHexes.erase(hex); //can't hit same stack twice
-		}
 		if(possibleHexes.empty()) //not enough targets
 			break;
 		lightningHex = BattleHex::getClosestTile(stack->side, lightningHex, possibleHexes);
@@ -137,12 +130,10 @@ CloneMechanics::CloneMechanics(const CSpell * s):
 
 void CloneMechanics::applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const
 {
-	const CStack * clonedStack = nullptr;
-	if(ctx.attackedCres.size())
-		clonedStack = *ctx.attackedCres.begin();
+	const CStack * clonedStack = vstd::frontOrNull(ctx.attackedCres);
 	if(!clonedStack)
 	{
-		env->complain ("No target stack to clone!");
+		env->complain("No target stack to clone!");
 		return;
 	}
 
@@ -457,18 +448,19 @@ ObstacleMechanics::ObstacleMechanics(const CSpell * s):
 {
 }
 
-ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem ObstacleMechanics::canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
-	const auto side = cb->playerToSide(ctx.caster->getOwner());
+	const auto side = cb->playerToSide(caster->getOwner());
+	const auto level = caster->getSpellSchoolLevel(owner);
 	if(!side)
 		return ESpellCastProblem::INVALID;
 
 	bool hexesOutsideBattlefield = false;
 
-	auto tilesThatMustBeClear = owner->rangeInHexes(ctx.destination, ctx.schoolLvl, side.get(), &hexesOutsideBattlefield);
-
+	auto tilesThatMustBeClear = owner->rangeInHexes(destination, level, side.get(), &hexesOutsideBattlefield);
+	const CSpell::TargetInfo ti(owner, level, mode);
 	for(const BattleHex & hex : tilesThatMustBeClear)
-		if(!isHexAviable(cb, hex, ctx.ti.clearAffected))
+		if(!isHexAviable(cb, hex, ti.clearAffected))
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 
 	if(hexesOutsideBattlefield)
@@ -757,14 +749,16 @@ ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CB
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
-ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem RemoveObstacleMechanics::canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
-	auto obstacles = cb->battleGetAllObstaclesOnPos(ctx.destination, false);
+	const auto level = caster->getSpellSchoolLevel(owner);
+	auto obstacles = cb->battleGetAllObstaclesOnPos(destination, false);
 	if(!obstacles.empty())
+	{
 		for(auto & i : obstacles)
-			if(canRemove(i.get(), ctx.schoolLvl))
+			if(canRemove(i.get(), level))
 				return ESpellCastProblem::OK;
-
+	}
 	return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 }
 
@@ -914,12 +908,14 @@ SpecialRisingSpellMechanics::SpecialRisingSpellMechanics(const CSpell * s):
 {
 }
 
-ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem SpecialRisingSpellMechanics::canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
-	auto mainFilter = [cb, ctx, this](const CStack * s) -> bool
+	const auto level = caster->getSpellSchoolLevel(owner);
+	const CSpell::TargetInfo ti(owner, level, mode);
+	auto mainFilter = [cb, ti, caster, destination, this](const CStack * s) -> bool
 	{
-		const bool ownerMatches = !ctx.ti.smart || cb->battleMatchOwner(ctx.caster->getOwner(), s, owner->getPositiveness());
-		return ownerMatches && s->coversPos(ctx.destination) && ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s);
+		const bool ownerMatches = !ti.smart || cb->battleMatchOwner(caster->getOwner(), s, owner->getPositiveness());
+		return ownerMatches && s->coversPos(destination) && ESpellCastProblem::OK == owner->isImmuneByStack(caster, s);
 	};
 	//find alive possible target
 	const CStack * stackToHeal = cb->getStackIf([mainFilter](const CStack * s)

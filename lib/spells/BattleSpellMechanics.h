@@ -38,7 +38,7 @@ class DLL_LINKAGE ChainLightningMechanics : public DefaultSpellMechanics
 public:
 	ChainLightningMechanics(const CSpell * s);
 protected:
-	std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
+	std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const override;
 };
 
 class DLL_LINKAGE CloneMechanics : public DefaultSpellMechanics
@@ -93,7 +93,7 @@ class DLL_LINKAGE ObstacleMechanics : public SpecialSpellMechanics
 {
 public:
 	ObstacleMechanics(const CSpell * s);
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const override;
 protected:
 	static bool isHexAviable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear);
 	void placeObstacle(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, const BattleHex & pos) const;
@@ -159,7 +159,7 @@ class DLL_LINKAGE RemoveObstacleMechanics : public SpecialSpellMechanics
 public:
 	RemoveObstacleMechanics(const CSpell * s);
 	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster) const override;
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const override;
 	bool requiresCreatureTarget() const	override;
 protected:
 	void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const override;
@@ -192,8 +192,8 @@ class DLL_LINKAGE SpecialRisingSpellMechanics : public RisingSpellMechanics
 {
 public:
 	SpecialRisingSpellMechanics(const CSpell * s);
-	ESpellCastProblem::ESpellCastProblem canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const override;
 	ESpellCastProblem::ESpellCastProblem isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const override;
+	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const override;
 };
 
 class DLL_LINKAGE SummonMechanics : public SpecialSpellMechanics

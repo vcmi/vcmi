@@ -243,8 +243,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 
 std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
-	SpellTargetingContext ctx(this, mode, caster, spellLvl, destination);
-	return mechanics->getAffectedStacks(cb, ctx);
+	return mechanics->getAffectedStacks(cb, mode, caster, spellLvl, destination);
 }
 
 CSpell::ETargetType CSpell::getTargetType() const
@@ -405,9 +404,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallba
 	if(problem != ESpellCastProblem::OK)
 		return problem;
 
-	SpellTargetingContext ctx(this, mode, caster, caster->getSpellSchoolLevel(this), destination);
-
-	return mechanics->canBeCast(cb, ctx);
+	return mechanics->canBeCastAt(cb, mode, caster, destination);
 }
 
 int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const

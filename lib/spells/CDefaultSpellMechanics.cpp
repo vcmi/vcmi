@@ -630,36 +630,45 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 	return ret;
 }
 
-std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
-	std::vector<const CStack *> attackedCres = calculateAffectedStacks(cb, ctx);
-	handleImmunities(cb, ctx, attackedCres);
-	return attackedCres;
+	std::vector<const CStack *> result = calculateAffectedStacks(cb, mode, caster, spellLvl, destination);
+	CSpell::TargetInfo ti(owner, spellLvl, mode);
+
+	auto predicate = [&, this](const CStack * s)->bool
+	{
+		const bool hitDirectly = ti.alwaysHitDirectly && s->coversPos(destination);
+		const bool immune = (ESpellCastProblem::OK != owner->isImmuneByStack(caster, s));
+		return !hitDirectly && immune;
+	};
+	vstd::erase_if(result, predicate);
+	return result;
 }
 
-std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	std::set<const CStack *> attackedCres;//std::set to exclude multiple occurrences of two hex creatures
+	CSpell::TargetInfo ti(owner, spellLvl, mode);
 
-	const auto side = cb->playerToSide(ctx.caster->getOwner());
+	const auto side = cb->playerToSide(caster->getOwner());
 	if(!side)
 		return std::vector<const CStack *>();
-	auto attackedHexes = rangeInHexes(ctx.destination, ctx.schoolLvl, side.get());
+	auto attackedHexes = rangeInHexes(destination, spellLvl, side.get());
 
 	//hackfix for banned creature massive spells
-	if(!ctx.ti.massive && owner->getLevelInfo(ctx.schoolLvl).range == "X")
-		attackedHexes.push_back(ctx.destination);
+	if(!ti.massive && owner->getLevelInfo(spellLvl).range == "X")
+		attackedHexes.push_back(destination);
 
-	auto mainFilter = [=](const CStack * s)
+	auto mainFilter = [&](const CStack * s)
 	{
-		const bool ownerMatches = cb->battleMatchOwner(ctx.caster->getOwner(), s, owner->getPositiveness());
-		const bool validTarget = s->isValidTarget(!ctx.ti.onlyAlive); //todo: this should be handled by spell class
-		const bool positivenessFlag = !ctx.ti.smart || ownerMatches;
+		const bool ownerMatches = cb->battleMatchOwner(caster->getOwner(), s, owner->getPositiveness());
+		const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+		const bool positivenessFlag = !ti.smart || ownerMatches;
 
 		return positivenessFlag && validTarget;
 	};
 
-	if(ctx.ti.type == CSpell::CREATURE && attackedHexes.size() == 1)
+	if(ti.type == CSpell::CREATURE && attackedHexes.size() == 1)
 	{
 		//for single target spells we must select one target. Alive stack is preferred (issue #1763)
 
@@ -680,11 +689,9 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 		}
 
 		if(attackedCres.empty() && !stacks.empty())
-		{
 			attackedCres.insert(stacks.front());
-		}
 	}
-	else if(ctx.ti.massive)
+	else if(ti.massive)
 	{
 		TStacks stacks = cb->battleGetStacksIf(mainFilter);
 		for(auto stack : stacks)
@@ -694,7 +701,7 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 	{
 		for(BattleHex hex : attackedHexes)
 		{
-			if(const CStack * st = cb->battleGetStackByPos(hex, ctx.ti.onlyAlive))
+			if(const CStack * st = cb->battleGetStackByPos(hex, ti.onlyAlive))
 				if(mainFilter(st))
 					attackedCres.insert(st);
 		}
@@ -712,18 +719,19 @@ ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBat
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem DefaultSpellMechanics::canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
-	if(ctx.mode == ECastingMode::CREATURE_ACTIVE_CASTING || ctx.mode == ECastingMode::HERO_CASTING)
+	if(mode == ECastingMode::CREATURE_ACTIVE_CASTING || mode == ECastingMode::HERO_CASTING)
 	{
-		std::vector<const CStack *> affected = getAffectedStacks(cb, ctx);
+		const auto level = caster->getSpellSchoolLevel(owner);
+		std::vector<const CStack *> affected = getAffectedStacks(cb, mode, caster, level, destination);
 
 		//allow to cast spell if it affects at least one smart target
 		bool targetExists = false;
 
 		for(const CStack * stack : affected)
 		{
-			targetExists = cb->battleMatchOwner(ctx.caster->getOwner(), stack, owner->getPositiveness());
+			targetExists = cb->battleMatchOwner(caster->getOwner(), stack, owner->getPositiveness());
 			if(targetExists)
 				break;
 		}
@@ -776,18 +784,6 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 bool DefaultSpellMechanics::canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string & cachingStr) const
 {
 	return obj->hasBonus(selector.And(dispellSelector), Selector::all, cachingStr);
-}
-
-void DefaultSpellMechanics::handleImmunities(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx, std::vector<const CStack*> & stacks) const
-{
-	auto predicate = [&, this](const CStack * s)->bool
-	{
-		bool hitDirectly = ctx.ti.alwaysHitDirectly && s->coversPos(ctx.destination);
-		bool notImmune = (ESpellCastProblem::OK == owner->isImmuneByStack(ctx.caster, s));
-
-		return !(hitDirectly || notImmune);
-	};
-	vstd::erase_if(stacks, predicate);
 }
 
 void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const
@@ -865,14 +861,14 @@ SpecialSpellMechanics::SpecialSpellMechanics(const CSpell * s):
 {
 }
 
-ESpellCastProblem::ESpellCastProblem SpecialSpellMechanics::canBeCast(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+ESpellCastProblem::ESpellCastProblem SpecialSpellMechanics::canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
 {
 	//no problems by default
 	//common problems handled by CSpell
 	return ESpellCastProblem::OK;
 }
 
-std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const SpellTargetingContext & ctx) const
+std::vector<const CStack *> SpecialSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
 	return std::vector<const CStack *>();
 }
