@@ -85,12 +85,14 @@ public:
 		cond.notify_all();
 	}
 
-// 	//to access list, caller must present a lock used to lock mx
-// 	TVector &getList(TLock &lockedLock)
-// 	{
-// 		assert(lockedLock.owns_lock() && lockedLock.mutex() == &mx);
-// 		return items;
-// 	}
+	//to access list, caller must present a lock used to lock mx
+/*
+	TVector &getList(TLock &lockedLock)
+	{
+		assert(lockedLock.owns_lock() && lockedLock.mutex() == &mx);
+		return items;
+	}
+*/
 
 	TLock getLock()
 	{

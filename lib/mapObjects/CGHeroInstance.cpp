@@ -528,20 +528,21 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 					hs->growsWithLevel = true;
 
 					const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
+/*
+					int creLevel = specCreature.level;
+					if(!creLevel)
+					{
+						if(spec.additionalinfo == 146)
+							creLevel = 5; //treat ballista as 5-level
+						else
+						{
+							logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
+							continue;
+						}
+					}
 
-					//int creLevel = specCreature.level;
-					//if(!creLevel)
-					//{
-					//	if(spec.additionalinfo == 146)
-					//		creLevel = 5; //treat ballista as 5-level
-					//	else
-					//	{
-					//        logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
-					//		continue;
-					//	}
-					//}
-
-					//bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
+					bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
+*/
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
 					bonus->type = Bonus::PRIMARY_SKILL;
 					bonus->valType = Bonus::ADDITIVE_VALUE;

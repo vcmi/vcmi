@@ -399,15 +399,16 @@ std::set<int3> CRmgTemplateZone::getPossibleTiles() const
 void CRmgTemplateZone::discardDistantTiles (CMapGenerator* gen, float distance)
 {
 	//TODO: mark tiles beyond zone as unavailable, but allow to connect with adjacent zones
-
-	//for (auto tile : tileinfo)
-	//{
-	//	if (tile.dist2d(this->pos) > distance)
-	//	{
-	//		gen->setOccupied(tile, ETileType::USED);
-	//		//gen->setOccupied(tile, ETileType::BLOCKED); //fixme: crash at rendering?
-	//	}
-	//}
+/*
+	for (auto tile : tileinfo)
+	{
+		if (tile.dist2d(this->pos) > distance)
+		{
+			gen->setOccupied(tile, ETileType::USED);
+			//gen->setOccupied(tile, ETileType::BLOCKED); //fixme: crash at rendering?
+		}
+	}
+*/
 	vstd::erase_if (tileinfo, [distance, this](const int3 &tile) -> bool
 	{
 		return tile.dist2d(this->pos) > distance;

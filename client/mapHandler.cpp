@@ -1251,38 +1251,39 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 {
 	//optimized version which reveals weird bugs with missing def name
-	//auto pos = obj->pos;
+/*
+	auto pos = obj->pos;
 
-	//for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
-	//{
-	//	for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
-	//	{
-	//		int3 t(i, j, pos.z);
-	//		if (!map->isInTheMap(t))
-	//			continue;
+	for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
+	{
+		for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
+		{
+			int3 t(i, j, pos.z);
+			if (!map->isInTheMap(t))
+				continue;
 
-	//		auto &objs = ttiles[i][j][pos.z].objects;
-	//		for (size_t x = 0; x < objs.size(); x++)
-	//		{
-	//			auto ourObj = objs[x].obj;
-	//			if (ourObj && ourObj->id == obj->id)
-	//			{
-	//				if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
-	//				{
-	//					if (startObjectFade(objs[x], false, t))
-	//						objs[x].obj = nullptr; //set original pointer to null
-	//					else
-	//						objs.erase(objs.begin() + x);
-	//				}
-	//				else
-	//					objs.erase(objs.begin() + x);
-	//				break;
-	//			}
-	//		}
-	//	}
+			auto &objs = ttiles[i][j][pos.z].objects;
+			for (size_t x = 0; x < objs.size(); x++)
+			{
+				auto ourObj = objs[x].obj;
+				if (ourObj && ourObj->id == obj->id)
+				{
+					if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
+					{
+						if (startObjectFade(objs[x], false, t))
+							objs[x].obj = nullptr; //set original pointer to null
+						else
+							objs.erase(objs.begin() + x);
+					}
+					else
+						objs.erase(objs.begin() + x);
+					break;
+				}
+			}
+		}
 
-	//}
-
+	}
+*/
 	for (size_t i = 0; i<map->width; i++)
 	{
 		for (size_t j = 0; j<map->height; j++)

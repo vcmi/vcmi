@@ -1143,12 +1143,6 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, CMenu
 		{
 			CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
-// 			ui8 sign[8];
-// 			lf >> sign;
-// 			if(std::memcmp(sign,"VCMISVG",7))
-// 			{
-// 				throw std::runtime_error("not a correct savefile!");
-// 			}
 
 			// Create the map info object
 			CMapInfo mapInfo;

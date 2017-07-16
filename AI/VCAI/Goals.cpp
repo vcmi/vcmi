@@ -179,11 +179,13 @@ namespace Goals
 	}
 }
 
-//TSubgoal AbstractGoal::whatToDoToAchieve()
-//{
-//	logAi->debug("Decomposing goal of type %s",name());
-//	return sptr (Goals::Explore());
-//}
+/*
+TSubgoal AbstractGoal::whatToDoToAchieve()
+{
+	logAi->debug("Decomposing goal of type %s",name());
+	return sptr (Goals::Explore());
+}
+*/
 
 TSubgoal Win::whatToDoToAchieve()
 {
@@ -489,9 +491,11 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 	for (auto h : heroes)
 	{
 		//TODO: handle clearing way to allied heroes that are blocked
-		//if ((hero && hero->visitablePos() == tile && hero == *h) || //we can't free the way ourselves
-		//	h->visitablePos() == tile) //we are already on that tile! what does it mean?
-		//	continue;
+		/*
+		if ((hero && hero->visitablePos() == tile && hero == *h) || //we can't free the way ourselves
+			h->visitablePos() == tile) //we are already on that tile! what does it mean?
+			continue;
+		*/
 
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
@@ -1156,11 +1160,13 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	return ret;
 }
 
-//TSubgoal AbstractGoal::whatToDoToAchieve()
-//{
-//	logAi->debug("Decomposing goal of type %s",name());
-//	return sptr (Goals::Explore());
-//}
+/*
+TSubgoal AbstractGoal::whatToDoToAchieve()
+{
+	logAi->debug("Decomposing goal of type %s",name());
+	return sptr (Goals::Explore());
+}
+*/
 
 TSubgoal AbstractGoal::goVisitOrLookFor(const CGObjectInstance *obj)
 {
