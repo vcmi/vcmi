@@ -55,7 +55,7 @@ public:
 	virtual ~CBaseForGSApply(){};
 	template<typename U> static CBaseForGSApply *getApplier(const U * t=nullptr)
 	{
-		return new CApplyOnGS<U>;
+		return new CApplyOnGS<U>();
 	}
 };
 
@@ -295,10 +295,10 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 			break;
 		}
 	case Obj::TOWN:
-		nobj = new CGTownInstance;
+		nobj = new CGTownInstance();
 		break;
 	default: //rest of objects
-		nobj = new CGObjectInstance;
+		nobj = new CGObjectInstance();
 		break;
 	}
 	nobj->ID = id;
@@ -679,10 +679,10 @@ int CGameState::getDate(Date::EDateType mode) const
 CGameState::CGameState()
 {
 	gs = this;
-	applierGs = new CApplier<CBaseForGSApply>;
+	applierGs = new CApplier<CBaseForGSApply>();
 	registerTypesClientPacks1(*applierGs);
 	registerTypesClientPacks2(*applierGs);
-	//objCaller = new CObjectCallersHandler;
+	//objCaller = new CObjectCallersHandler();
 	globalEffects.setDescription("Global effects");
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 	day = 0;
@@ -2968,7 +2968,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	if(detailed)
 	{
 		//include details about hero
-		details = new Details;
+		details = new Details();
 		details->luck = h->LuckVal();
 		details->morale = h->MoraleVal();
 		details->mana = h->mana;
@@ -3022,7 +3022,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	if(detailed)
 	{
 		//include details about hero
-		details = new Details;
+		details = new Details();
 		TResources income = t->dailyIncome();
 		details->goldIncome = income[Res::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);

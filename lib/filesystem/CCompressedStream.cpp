@@ -93,7 +93,7 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool 
 	assert(gzipStream);
 
 	// Allocate inflate state
-	inflateState = new z_stream;
+	inflateState = new z_stream();
 	inflateState->zalloc = Z_NULL;
 	inflateState->zfree = Z_NULL;
 	inflateState->opaque = Z_NULL;

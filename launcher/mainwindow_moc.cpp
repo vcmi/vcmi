@@ -21,7 +21,7 @@
 
 void MainWindow::load()
 {
-	console = new CConsoleHandler;
+	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 

@@ -715,7 +715,7 @@ CAdvMapInt::~CAdvMapInt()
 
 void CAdvMapInt::fshowOverview()
 {
-	GH.pushInt(new CKingdomInterface);
+	GH.pushInt(new CKingdomInterface());
 }
 
 void CAdvMapInt::fworldViewBack()
@@ -808,7 +808,7 @@ void CAdvMapInt::fshowSpellbok()
 
 void CAdvMapInt::fadventureOPtions()
 {
-	GH.pushInt(new CAdventureOptions);
+	GH.pushInt(new CAdventureOptions());
 }
 
 void CAdvMapInt::fsystemOptions()

@@ -35,7 +35,7 @@ LibClasses * VLC = nullptr;
 DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 {
 	console = Console;
-	VLC = new LibClasses;
+	VLC = new LibClasses();
 	try
 	{
 		VLC->loadFilesystem();
@@ -169,8 +169,8 @@ LibClasses::LibClasses()
 
 void LibClasses::callWhenDeserializing()
 {
-	// FIXME: check if any of these are needed
-	//generaltexth = new CGeneralTextHandler;
+	//FIXME: check if any of these are needed
+	//generaltexth = new CGeneralTextHandler();
 	//generaltexth->load();
 	//arth->load(true);
 	//modh->recreateHandlers();

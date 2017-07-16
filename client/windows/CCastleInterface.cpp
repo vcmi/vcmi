@@ -1323,7 +1323,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	resdatabar = new CMinorResDataBar;
+	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 	Rect barRect(5, 556, 740, 18);
@@ -1498,7 +1498,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		recAreas.push_back(new RecruitArea(positions[i].x, positions[i].y, town, i));
 	}
 
-	resdatabar = new CMinorResDataBar;
+	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
@@ -1671,7 +1671,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem) 
 
 	window = new CPicture(owner->town->town->clientInfo.guildWindow , 332, 76);
 
-	resdatabar = new CMinorResDataBar;
+	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 	Rect barRect(7, 556, 737, 18);

@@ -1383,7 +1383,7 @@ CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell
 
 void CBattleInterface::castThisSpell(SpellID spellID)
 {
-	auto  ba = new BattleAction;
+	auto ba = new BattleAction();
 	ba->actionType = Battle::HERO_SPELL;
 	ba->additionalInfo = spellID; //spell number
 	ba->destinationTile = -1;

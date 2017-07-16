@@ -382,7 +382,7 @@ void ERMInterpreter::scanForScripts()
 			if (ext == ".ERM" || ext == ".VERM")
 			{
 				ERMParser ep(dir->path().string());
-				FileInfo * finfo = new FileInfo;
+				FileInfo * finfo = new FileInfo();
 				finfo->filename = dir->path().string();
 
 				std::vector<LineInfo> buf = ep.parseFile();

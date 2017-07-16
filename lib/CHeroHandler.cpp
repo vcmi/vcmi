@@ -294,7 +294,7 @@ CHeroHandler::CHeroHandler()
 
 CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
-	auto  hero = new CHero;
+	auto hero = new CHero();
 	hero->identifier = identifier;
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();

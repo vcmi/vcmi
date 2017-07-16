@@ -126,7 +126,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 {
 	//temporary filesystem that will be used to initialize main one.
 	//used to solve several case-sensivity issues like Mp3 vs MP3
-	auto initialLoader = new CFilesystemList;
+	auto initialLoader = new CFilesystemList();
 
 	//recurse only into specific directories
 	auto recurseInDir = [&](std::string URI, int depth)

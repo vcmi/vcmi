@@ -13,7 +13,7 @@
 int AttackPossibility::damageDiff() const
 {
 	if (!priorities)
-		priorities = new Priorities;
+		priorities = new Priorities();
 	const auto dealtDmgValue = priorities->stackEvaluator(enemy) * damageDealt;
 	const auto receivedDmgValue = priorities->stackEvaluator(attack.attacker) * damageReceived;
 	return dealtDmgValue - receivedDmgValue;

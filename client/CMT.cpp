@@ -175,7 +175,7 @@ void init()
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
-		CCS->curh = new CCursorHandler;
+		CCS->curh = new CCursorHandler();
 		graphics = new Graphics(); // should be before curh->init()
 
 		CCS->curh->initCursor();
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 	// Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
-	console = new CConsoleHandler;
+	console = new CConsoleHandler();
 	*console->cb = processCommand;
 	console->start();
 
@@ -456,25 +456,25 @@ int main(int argc, char** argv)
 		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 	}
 
-	CCS = new CClientState;
-	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
+	CCS = new CClientState();
+	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	// Initialize video
 #ifdef DISABLE_VIDEO
-	CCS->videoh = new CEmptyVideoPlayer;
+	CCS->videoh = new CEmptyVideoPlayer();
 #else
 	if (!settings["session"]["headless"].Bool() && !vm.count("disable-video"))
-		CCS->videoh = new CVideoPlayer;
+		CCS->videoh = new CVideoPlayer();
 	else
-		CCS->videoh = new CEmptyVideoPlayer;
+		CCS->videoh = new CEmptyVideoPlayer();
 #endif
 
 	logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
 	//initializing audio
-	CCS->soundh = new CSoundHandler;
+	CCS->soundh = new CSoundHandler();
 	CCS->soundh->init();
 	CCS->soundh->setVolume(settings["general"]["sound"].Float());
-	CCS->musich = new CMusicHandler;
+	CCS->musich = new CMusicHandler();
 	CCS->musich->init();
 	CCS->musich->setVolume(settings["general"]["music"].Float());
 	logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();

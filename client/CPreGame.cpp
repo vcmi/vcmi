@@ -190,7 +190,7 @@ public:
 	virtual ~CBaseForPGApply(){};
 	template<typename U> static CBaseForPGApply *getApplier(const U * t=nullptr)
 	{
-		return new CApplyOnPG<U>;
+		return new CApplyOnPG<U>();
 	}
 };
 
@@ -573,7 +573,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameM
 	CServerHandler *sh = nullptr;
 	if(isHost())
 	{
-		sh = new CServerHandler;
+		sh = new CServerHandler();
 		sh->startServer();
 	}
 
@@ -722,7 +722,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameM
 			*serv << &uso;
 		}
 
-		applier = new CApplier<CBaseForPGApply>;
+		applier = new CApplier<CBaseForPGApply>();
 		registerTypesPregamePacks(*applier);
 		serverHandlingThread = new boost::thread(&CSelectionScreen::handleConnection, this);
 	}

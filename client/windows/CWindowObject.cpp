@@ -215,7 +215,7 @@ void CWindowObject::setShadow(bool on)
 		blitAlphaRow(shadowRight, 0);
 
 		//generate "shadow" object with these 3 pieces in it
-		shadow = new CIntObject;
+		shadow = new CIntObject();
 		shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
 		shadow->addChild(new CPicture(shadowRight,  shadowPos.x, shadowStart.y));
 		shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));

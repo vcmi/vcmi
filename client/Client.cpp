@@ -71,7 +71,7 @@ public:
 
 	template<typename U> static CBaseForCLApply *getApplier(const U * t=nullptr)
 	{
-		return new CApplyOnCL<U>;
+		return new CApplyOnCL<U>();
 	}
 };
 
@@ -117,7 +117,7 @@ void CClient::init()
 		connectionHandler.reset();
 	}
 	pathInfo = nullptr;
-	applier = new CApplier<CBaseForCLApply>;
+	applier = new CApplier<CBaseForCLApply>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);
 	IObjectInterface::cb = this;

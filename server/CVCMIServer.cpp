@@ -615,7 +615,7 @@ int main(int argc, char** argv)
 	signal(SIGSEGV, handleLinuxSignal);
     #endif
 
-	console = new CConsoleHandler;
+	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 	logGlobal->info(NAME);
