@@ -219,7 +219,7 @@ void CHealth::setFromTotal(const int64_t totalHealth)
 	firstHPleft = totalHealth % unitHealth;
 	fullUnits = totalHealth / unitHealth;
 
-	if(firstHPleft == 0 && fullUnits > 1)
+	if(firstHPleft == 0 && fullUnits >= 1)
 	{
 		firstHPleft = unitHealth;
 		fullUnits -= 1;

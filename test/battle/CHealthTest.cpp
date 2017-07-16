@@ -219,5 +219,22 @@ BOOST_FIXTURE_TEST_CASE(resurrectPermanent, CUnitHealthInfoMock)
 	checkFullHealth(health, *this);
 }
 
+BOOST_FIXTURE_TEST_CASE(singleUnitStack, CUnitHealthInfoMock)
+{
+	//related to issue 2612
+
+	//one Titan
+	baseAmount = 1;
+	maxHealth = 300;
+
+	health.init();
+
+	checkDamage(health, 1000, 300);
+	checkEmptyHealth(health, *this);
+
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, 300, 300);
+	checkFullHealth(health, *this);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
