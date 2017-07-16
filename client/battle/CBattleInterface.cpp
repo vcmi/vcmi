@@ -3055,6 +3055,31 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface *to)
 
 void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 {
+	bool delayedBlit = false; //workaround for blitting enemy stack hex without mouse shadow with stack range on
+	if(activeStack && settings["battle"]["stackRange"].Bool())
+	{
+		std::set<BattleHex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
+		for(BattleHex hex : set)
+			if(hex != currentlyHoveredHex)
+				showHighlightedHex(to, hex);
+
+		// display the movement shadow of the stack at b (i.e. stack under mouse)
+		const CStack * const shere = curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
+		if(shere && shere != activeStack && shere->alive())
+		{
+			std::vector<BattleHex> v = curInt->cb->battleGetAvailableHexes(shere, true);
+			for(BattleHex hex : v)
+			{
+				if(hex != currentlyHoveredHex)
+					showHighlightedHex(to, hex);
+				else if(!settings["battle"]["mouseShadow"].Bool())
+					delayedBlit = true; //blit at the end of method to avoid graphic artifacts
+				else
+					showHighlightedHex(to, hex, true); //blit now and blit 2nd time later for darker shadow - avoids graphic artifacts
+			}
+		}
+	}
+
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
 		if(bfield[b]->strictHovered && bfield[b]->hovered)
@@ -3069,7 +3094,7 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 				previouslyHoveredHex = currentlyHoveredHex;
 				currentlyHoveredHex = b;
 			}
-			if(settings["battle"]["mouseShadow"].Bool())
+			if(settings["battle"]["mouseShadow"].Bool() || delayedBlit)
 			{
 				const ISpellCaster *caster = nullptr;
 				const CSpell *spell = nullptr;
@@ -3095,42 +3120,28 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 					for(BattleHex shadedHex : shaded)
 					{
 						if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
-							showHighlightedHex(to, shadedHex);
+							showHighlightedHex(to, shadedHex, true);
 					}
 				}
-				else if(active)//always highlight pointed hex
+				else if(active || delayedBlit) //always highlight pointed hex, keep this condition last in this method for correct behavior
 				{
 					if(currentlyHoveredHex.getX() != 0
 					 && currentlyHoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
-						showHighlightedHex(to, currentlyHoveredHex);
+						showHighlightedHex(to, currentlyHoveredHex, true); //keep true for OH3 behavior: hovered hex frame "thinner"
 				}
 			}
 		}
 	}
-
-	if(activeStack && settings["battle"]["stackRange"].Bool())
-	{
-		std::set<BattleHex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
-		for(BattleHex hex : set)
-			showHighlightedHex(to, hex);
-
-		// display the movement shadow of the stack at b (i.e. stack under mouse)
-		const CStack * const shere = curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
-		if(shere && shere != activeStack && shere->alive())
-		{
-			std::vector<BattleHex> v = curInt->cb->battleGetAvailableHexes(shere, true );
-			for(BattleHex hex : v)
-				showHighlightedHex(to, hex);
-		}
-	}
 }
 
-void CBattleInterface::showHighlightedHex(SDL_Surface *to, BattleHex hex)
+void CBattleInterface::showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder)
 {
 	int x = 14 + (hex.getY() % 2 == 0 ? 22 : 0) + 44 *(hex.getX()) + pos.x;
 	int y = 86 + 42 *hex.getY() + pos.y;
 	SDL_Rect temp_rect = genRect (cellShade->h, cellShade->w, x, y);
 	CSDL_Ext::blit8bppAlphaTo24bpp (cellShade, nullptr, to, &temp_rect);
+	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
+		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, nullptr, to, &temp_rect); //redraw border to make it light green instead of shaded
 }
 
 void CBattleInterface::showProjectiles(SDL_Surface *to)
@@ -3629,9 +3640,6 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
                    oi->getInfo().height, backgroundWithHexes);
 	}
 
-	if (settings["battle"]["cellBorders"].Bool())
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, backgroundWithHexes, nullptr);
-
 	if (settings["battle"]["stackRange"].Bool())
 	{
 		std::vector<BattleHex> hexesToShade = occupyableHexes;
@@ -3646,6 +3654,9 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, nullptr, backgroundWithHexes, &temp_rect);
 		}
 	}
+
+	if(settings["battle"]["cellBorders"].Bool())
+		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, backgroundWithHexes, nullptr);
 }
 
 void CBattleInterface::showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces)
