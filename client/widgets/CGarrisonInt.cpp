@@ -148,7 +148,7 @@ bool CGarrisonSlot::viewInfo()
 	std::function<void(CreatureID)> upgr = nullptr;
 	std::function<void()> dism = nullptr;
 	if(canUpgrade) upgr = [=] (CreatureID newID) { LOCPLINT->cb->upgradeCreature(getObj(), ID, newID); };
-	if(canDismiss) dism = [=] { LOCPLINT->cb->dismissCreature(getObj(), ID); };
+	if(canDismiss) dism = [=](){ LOCPLINT->cb->dismissCreature(getObj(), ID); };
 
 	owner->selectSlot(nullptr);
 	owner->setSplittingMode(false);
@@ -532,11 +532,11 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 
 	garr = new CGarrisonInt(92, 127, 4, Point(0,96), background->bg, Point(93,127), up, down, removableUnits);
 	{
-		CButton *split = new CButton(Point(88, 314), "IDV6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&]{ garr->splitClick(); } );
+		CButton *split = new CButton(Point(88, 314), "IDV6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3], ""), [&](){ garr->splitClick(); } );
 		removeChild(split);
 		garr->addSplitBtn(split);
 	}
-	quit = new CButton(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&]{ close(); }, SDLK_RETURN);
+	quit = new CButton(Point(399, 314), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->tcommands[8], ""), [&](){ close(); }, SDLK_RETURN);
 
 	std::string titleText;
 	if (down->tempOwner == up->tempOwner)

@@ -658,8 +658,8 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
 		backpack.push_back(add);
 	}
 
-	leftArtRoll =  new CButton(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [&]{ scrollBackpack(-1);}, SDLK_LEFT);
-	rightArtRoll = new CButton(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [&]{ scrollBackpack(+1);}, SDLK_RIGHT);
+	leftArtRoll =  new CButton(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [&](){ scrollBackpack(-1);}, SDLK_LEFT);
+	rightArtRoll = new CButton(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [&](){ scrollBackpack(+1);}, SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()
@@ -972,7 +972,7 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
 {
 	if (ourArt && text.size() && down)
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this] { returnArtToHeroCallback(); }, [] {});
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this](){ returnArtToHeroCallback(); }, [](){});
 }
 
 void CCommanderArtPlace::clickRight(tribool down, bool previousState)

@@ -322,7 +322,7 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 				parent->stackArtifactButton.reset(new CButton(
 						Point(pos.x - 2 , pos.y + 46), "stackWindow/cancelButton",
 						CButton::tooltip(text),
-						[=]{ parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT); }));
+						[=](){ parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT); }));
 				parent->stackArtifactButton->recActions &= ~DISPOSE;
 			}
 		}
@@ -457,7 +457,7 @@ void CStackWindow::CWindowSection::createCommander()
 		Point skillPos = getSkillPos(index);
 
 		auto icon = new CCommanderSkillIcon(new CPicture(getSkillImage(index), skillPos.x, skillPos.y),
-			[=] { LOCPLINT->showInfoDialog(getSkillDescription(index)); });
+			[=](){ LOCPLINT->showInfoDialog(getSkillDescription(index)); });
 
 		icon->text = getSkillDescription(index); //used to handle right click description via LRClickableAreaWText::ClickRight()
 
@@ -495,7 +495,7 @@ CIntObject * CStackWindow::createSkillEntry(int index)
 		{
 			const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 			const CStackInstance *stack = info->commander;
-			CCommanderSkillIcon * icon = new CCommanderSkillIcon(new CPicture(stack->bonusToGraphics(bonus)), []{});
+			CCommanderSkillIcon * icon = new CCommanderSkillIcon(new CPicture(stack->bonusToGraphics(bonus)), [](){});
 			icon->callback = [=]
 			{
 				setSelection(skillID, icon);
@@ -531,8 +531,8 @@ void CStackWindow::CWindowSection::createCommanderAbilities()
 	},
 	Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
 
-	auto leftBtn   = new CButton(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=]{ list->moveToPrev(); }, SDLK_LEFT);
-	auto rightBtn =  new CButton(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=]{ list->moveToNext(); }, SDLK_RIGHT);
+	auto leftBtn   = new CButton(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=](){ list->moveToPrev(); }, SDLK_LEFT);
+	auto rightBtn =  new CButton(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=](){ list->moveToNext(); }, SDLK_RIGHT);
 
 	if (abilitiesCount <= 6)
 	{
@@ -677,7 +677,7 @@ void CStackWindow::CWindowSection::createButtonPanel()
 		parent->switchButtons[parent->activeTab]->disable();
 	}
 
-	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[447], [=]{ parent->close(); }, SDLK_RETURN);
+	auto exitBtn = new CButton(Point(382, 5), "hsbtns.def", CGI->generaltexth->zelp[447], [=](){ parent->close(); }, SDLK_RETURN);
 	exitBtn->assignedKeys.insert(SDLK_ESCAPE);
 }
 

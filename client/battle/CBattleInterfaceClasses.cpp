@@ -300,9 +300,9 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->addToggle(100, new CToggleButton(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]));
 	animSpeeds->setSelected(owner->getAnimSpeed());
 
-	setToDefault = new CButton (Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&]{ bDefaultf(); });
+	setToDefault = new CButton (Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&](){ bDefaultf(); });
 	setToDefault->setImageOrder(1, 0, 2, 3);
-	exit = new CButton (Point(357, 359), "soretrn.def", CGI->generaltexth->zelp[392], [&]{ bExitf();}, SDLK_RETURN);
+	exit = new CButton (Point(357, 359), "soretrn.def", CGI->generaltexth->zelp[392], [&](){ bExitf();}, SDLK_RETURN);
 	exit->setImageOrder(1, 0, 2, 3);
 
 	//creating labels
@@ -349,7 +349,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	CPicture * bg = new CPicture("CPRESULT");
 	bg->colorize(owner.playerID);
 
-	exit = new CButton (Point(384, 505), "iok6432.def", std::make_pair("", ""), [&]{ bExitf();}, SDLK_RETURN);
+	exit = new CButton (Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->borderColor = Colors::METALLIC_GOLD;
 
 	if(br.winner==0) //attacker won

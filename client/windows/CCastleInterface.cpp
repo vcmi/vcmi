@@ -1435,7 +1435,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		buy->borderColor = Colors::METALLIC_GOLD;
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
-		CButton * cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&] { close();}, SDLK_ESCAPE);
+		CButton * cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, SDLK_ESCAPE);
 		cancel->borderColor = Colors::METALLIC_GOLD;
 	}
 }

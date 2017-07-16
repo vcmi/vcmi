@@ -623,15 +623,15 @@ void CKingdomInterface::generateButtons()
 	btnExit->setImageOrder(3, 4, 5, 6);
 
 	//Object list control buttons
-	dwellTop = new CButton (Point(733, 4), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(0);});
+	dwellTop = new CButton (Point(733, 4), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPos(0);});
 
-	dwellBottom = new CButton (Point(733, footerPos+2), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPos(-1); });
+	dwellBottom = new CButton (Point(733, footerPos+2), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPos(-1); });
 	dwellBottom->setImageOrder(2, 3, 4, 5);
 
-	dwellUp = new CButton (Point(733, 24), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToPrev(); });
+	dwellUp = new CButton (Point(733, 24), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToPrev(); });
 	dwellUp->setImageOrder(4, 5, 6, 7);
 
-	dwellDown = new CButton (Point(733, footerPos-18), "OVBUTN4.DEF", CButton::tooltip(), [&]{ dwellingsList->moveToNext(); });
+	dwellDown = new CButton (Point(733, footerPos-18), "OVBUTN4.DEF", CButton::tooltip(), [&](){ dwellingsList->moveToNext(); });
 	dwellDown->setImageOrder(6, 7, 8, 9);
 }
 
