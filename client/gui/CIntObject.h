@@ -27,14 +27,14 @@ class IActivatable
 public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
-	virtual ~IActivatable(){}; //d-tor
+	virtual ~IActivatable(){};
 };
 
 class IUpdateable
 {
 public:
 	virtual void update()=0;
-	virtual ~IUpdateable(){}; //d-tor
+	virtual ~IUpdateable(){};
 };
 
 // Defines a show method
@@ -47,7 +47,7 @@ public:
 	{
 		show(to);
 	}
-	virtual ~IShowable(){}; //d-tor
+	virtual ~IShowable(){};
 };
 
 class IShowActivatable : public IShowable, public IActivatable
@@ -57,7 +57,7 @@ public:
 	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivatable();
-	virtual ~IShowActivatable(){}; //d-tor
+	virtual ~IShowActivatable(){};
 };
 
 enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
@@ -104,7 +104,7 @@ public:
 	/*const*/ Rect pos;
 
 	CIntObject(int used=0, Point offset=Point());
-	virtual ~CIntObject(); //d-tor
+	virtual ~CIntObject();
 
 	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
 	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }

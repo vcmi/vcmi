@@ -109,8 +109,8 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side) override; //true == left
-	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
-	~CMarketplaceWindow(); //d-tor
+	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE);
+	~CMarketplaceWindow();
 
 	Point selectionOffset(bool Left) const override;
 	std::string selectionSubtitle(bool Left) const override;
@@ -128,10 +128,10 @@ class CAltarWindow : public CTradeWindow
 {
 	CAnimImage * artIcon;
 public:
-	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c-tor
+	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode);
 
 	void getExpValues();
-	~CAltarWindow(); //d-tor
+	~CAltarWindow();
 
 	std::vector<int> sacrificedUnits, //[slot_nr] -> how many creatures from that slot will be sacrificed
 		expPerUnit;

@@ -44,9 +44,9 @@ public:
 	//blit component with image centered at this position
 	void showAll(SDL_Surface * to) override;
 
-	//ComponentResolved(); //c-tor
-	ComponentResolved(CComponent *Comp); //c-tor
-	~ComponentResolved(); //d-tor
+	//ComponentResolved();
+	ComponentResolved(CComponent *Comp);
+	~ComponentResolved();
 };
 // Full set of components for blitting on dialog box
 struct ComponentsToBlit
@@ -55,8 +55,8 @@ struct ComponentsToBlit
 	int w, h;
 
 	void blitCompsOnSur(bool blitOr, int inter, int &curh, SDL_Surface *ret);
-	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr); //c-tor
-	~ComponentsToBlit(); //d-tor
+	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr);
+	~ComponentsToBlit();
 };
 
 namespace

@@ -169,8 +169,8 @@ namespace config
 		typedef std::map<std::pair<int,int>, GUIOptions > GuiOptionsMap;
 		GuiOptionsMap guiOptions;
 		void init();
-		CConfigHandler(void); //c-tor
-		~CConfigHandler(void); //d-tor
+		CConfigHandler(void);
+		~CConfigHandler(void);
 
 		GUIOptions *go() { return current; };
 		void SetResolution(int x, int y)

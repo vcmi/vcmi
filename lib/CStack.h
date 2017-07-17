@@ -152,9 +152,9 @@ public:
 	si32 cloneID;
 	std::set<EBattleStackState::EBattleStackState> state;
 
-	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S); //c-tor
-	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255)); //c-tor
-	CStack(); //c-tor
+	CStack(const CStackInstance * base, PlayerColor O, int I, ui8 Side, SlotID S);
+	CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S = SlotID(255));
+	CStack();
 	~CStack();
 
 	int32_t getKilled() const;

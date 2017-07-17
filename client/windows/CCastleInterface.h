@@ -46,8 +46,8 @@ public:
 
 	ui32 stateCounter;//For building construction - current stage in animation
 
-	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str); //c-tor
-	~CBuildingRect(); //d-tor
+	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str);
+	~CBuildingRect();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
@@ -90,8 +90,8 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	void deactivate() override;
-	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner); //c-tor
-	~CHeroGSlot(); //d-tor
+	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner);
+	~CHeroGSlot();
 };
 
 /// Two hero slots that can interact with each other
@@ -216,7 +216,7 @@ public:
 	CCastleBuildings *builds;
 
 	//from - previously selected castle (if any)
-	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr); //c-tor
+	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
 	void castleTeleport(int where);
@@ -253,7 +253,7 @@ class CHallInterface : public CWindowObject
 	CButton *exit;
 
 public:
-	CHallInterface(const CGTownInstance * Town); //c-tor
+	CHallInterface(const CGTownInstance * Town);
 };
 
 ///  Window where you can decide to buy a building or not
@@ -265,7 +265,7 @@ class CBuildWindow: public CWindowObject
 	std::string getTextForState(int state);
 	void buyFunc();
 public:
-	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick); //c-tor
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick);
 };
 
 //Small class to display
@@ -315,7 +315,7 @@ class CFortScreen : public CWindowObject
 	std::string getBgName(const CGTownInstance *town);
 
 public:
-	CFortScreen(const CGTownInstance * town); //c-tor
+	CFortScreen(const CGTownInstance * town);
 
 	void creaturesChanged();
 };

@@ -134,8 +134,8 @@ class CLevelWindow : public CWindowObject
 	void selectionChanged(unsigned to);
 public:
 
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback); //c-tor
-	~CLevelWindow(); //d-tor
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	~CLevelWindow();
 
 };
 
@@ -222,7 +222,7 @@ private:
 	void closeAndPushEvent(int eventType, int code = 0);
 
 public:
-	CSystemOptionsWindow(); //c-tor
+	CSystemOptionsWindow();
 };
 
 class CTavernWindow : public CWindowObject
@@ -252,8 +252,8 @@ public:
 	CButton *thiefGuild, *cancel, *recruit;
 	const CGObjectInstance *tavernObj;
 
-	CTavernWindow(const CGObjectInstance *TavernObj); //c-tor
-	~CTavernWindow(); //d-tor
+	CTavernWindow(const CGObjectInstance *TavernObj);
+	~CTavernWindow();
 
 	void recruitb();
 	void thievesguildb();
@@ -284,8 +284,8 @@ public:
 
 	void prepareBackground(); //prepares or redraws bg
 
-	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID); //c-tor
-	~CExchangeWindow(); //d-tor
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
+	~CExchangeWindow();
 };
 
 /// Here you can buy ships
@@ -356,7 +356,7 @@ public:
 	void makeDeal();
 	void addAll();
 	void updateGarrisons() override;
-	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
+	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town);
 };
 
 class CUniversityWindow : public CWindowObject
@@ -385,7 +385,7 @@ public:
 	CButton *cancel;
 	CGStatusBar *bar;
 
-	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
+	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market);
 };
 
 /// Confirmation window for University
@@ -396,7 +396,7 @@ public:
 	CGStatusBar *bar;
 	CButton *confirm, *cancel;
 
-	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available); //c-tor
+	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available);
 	void makeDeal(int skill);
 };
 
@@ -431,7 +431,7 @@ private:
 	void makeDeal(SlotID slot);//-1 for upgrading all creatures
 	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
 public:
-	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object); //c-tor
+	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
 	void updateGarrisons() override;//update buttons after garrison changes
 };
 

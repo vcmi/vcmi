@@ -48,7 +48,7 @@ protected:
 public:
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
 
-	CArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
+	CArtPlace(Point position, const CArtifactInstance * Art = nullptr);
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 
@@ -64,7 +64,7 @@ protected:
 	void createImage() override;
 	void returnArtToHeroCallback();
 public:
-	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr); //c-tor
+	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 
@@ -89,7 +89,7 @@ public:
 
 	CArtifactsOfHero * ourOwner;
 
-	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr); //c-tor
+	CHeroArtPlace(Point position, const CArtifactInstance * Art = nullptr);
 
 	void lockSlot(bool on);
 	void pickSlot(bool on);
@@ -173,7 +173,7 @@ public:
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
 	CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> ArtWorn, std::vector<CHeroArtPlace *> Backpack,
 		CButton *leftScroll, CButton *rightScroll, bool createCommonPart = false);
-	~CArtifactsOfHero(); //d-tor
+	~CArtifactsOfHero();
 	void updateParentWindow();
 	friend class CHeroArtPlace;
 };

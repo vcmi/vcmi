@@ -135,5 +135,5 @@ class CGarrisonWindow : public CWindowObject, public CWindowWithGarrison
 public:
 	CButton * quit;
 
-	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
+	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits);
 };

@@ -113,7 +113,7 @@ public:
 	/// name - path to .def file, relative to SPRITES/ directory
 	/// controller - function that will return for how long *each* frame
 	/// in specified group of animation should be played, measured in seconds
-	CCreatureAnimation(std::string name, TSpeedController speedController); //c-tor
+	CCreatureAnimation(std::string name, TSpeedController speedController);
 
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation

@@ -370,8 +370,8 @@ public:
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 
-	CMapHandler(); //c-tor
-	~CMapHandler(); //d-tor
+	CMapHandler();
+	~CMapHandler();
 
 	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
 	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to tiles, so obj will be visible on map

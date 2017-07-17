@@ -50,8 +50,8 @@ class CVCMIServer
 
 	CConnection *firstConnection;
 public:
-	CVCMIServer(); //c-tor
-	~CVCMIServer(); //d-tor
+	CVCMIServer();
+	~CVCMIServer();
 
 	void start();
 	CGameHandler *initGhFromHostingConnection(CConnection &c);

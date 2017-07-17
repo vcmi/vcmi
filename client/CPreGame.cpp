@@ -1325,7 +1325,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const std::function<void(CM
 		select(0);
 		break;
 	case CMenuScreen::loadGame:
-	case CMenuScreen::saveGame:;
+	case CMenuScreen::saveGame:
 		if(saveGameName.empty())
 		{
 			if(tabType == CMenuScreen::saveGame)

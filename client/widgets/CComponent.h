@@ -53,8 +53,8 @@ public:
 	std::string getDescription();
 	std::string getSubtitle();
 
-	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);//c-tor
-	CComponent(const Component &c, ESize imageSize=large); //c-tor
+	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);
+	CComponent(const Component &c, ESize imageSize=large);
 
 	void clickRight(tribool down, bool previousState) override; //call-in
 };
@@ -71,8 +71,8 @@ public:
 	void select(bool on);
 
 	void clickLeft(tribool down, bool previousState) override; //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr); //c-tor
-	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr); //c-tor
+	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
+	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr);
 };
 
 /// box with multiple components (up to 8?)

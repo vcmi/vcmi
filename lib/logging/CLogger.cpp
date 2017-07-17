@@ -24,7 +24,8 @@ namespace ELogLevel
 			case INFO:  return ANDROID_LOG_INFO;
 			case WARN:  return ANDROID_LOG_WARN;
 			case ERROR: return ANDROID_LOG_ERROR;
-			default:;
+		default:
+			break;
 		}
 		return ANDROID_LOG_UNKNOWN;
 	}

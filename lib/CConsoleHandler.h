@@ -30,8 +30,8 @@ enum EConsoleTextColor
 class DLL_LINKAGE CConsoleHandler
 {
 public:
-    CConsoleHandler(); //c-tor
-    ~CConsoleHandler(); //d-tor
+    CConsoleHandler();
+    ~CConsoleHandler();
     void start(); //starts listening thread
 
     template<typename T> void print(const T &data, bool addNewLine = false, EConsoleTextColor::EConsoleTextColor color = EConsoleTextColor::DEFAULT, bool printToStdErr = false)

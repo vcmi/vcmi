@@ -65,8 +65,8 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
-	~CBattleHero(); //d-tor
+	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner);
+	~CBattleHero();
 };
 
 class CHeroInfoWindow : public CWindowObject
@@ -86,7 +86,7 @@ private:
 
 	std::vector<CLabel*> labels;
 public:
-	CBattleOptionsWindow(const SDL_Rect &position, CBattleInterface *owner); //c-tor
+	CBattleOptionsWindow(const SDL_Rect &position, CBattleInterface *owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -99,8 +99,8 @@ private:
 	CButton *exit;
 	CPlayerInterface &owner;
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner); //c-tor
-	~CBattleResultWindow(); //d-tor
+	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner);
+	~CBattleResultWindow();
 
 	void bExitf(); //exit button callback
 

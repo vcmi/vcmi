@@ -89,7 +89,7 @@ private:
 
 	void show(SDL_Surface *to) override;
 public:
-	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
+	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true);
 
 	void setAmount(int newAmount);
 };
@@ -101,8 +101,8 @@ public:
 	SDL_Surface *bg; //background bitmap
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
-	CMinorResDataBar(); //c-tor
-	~CMinorResDataBar(); //d-tor
+	CMinorResDataBar();
+	~CMinorResDataBar();
 };
 
 /// Opens hero window by left-clicking on it

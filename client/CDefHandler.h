@@ -70,7 +70,7 @@ class CDefEssential //DefHandler with images only
 {
 public:
 	std::vector<Cimage> ourImages;
-	~CDefEssential(); //d-tor
+	~CDefEssential();
 };
 
 class CDefHandler
@@ -93,8 +93,8 @@ public:
 	std::vector<Cimage> ourImages;
 	bool notFreeImgs;
 
-	CDefHandler(); //c-tor
-	~CDefHandler(); //d-tor
+	CDefHandler();
+	~CDefHandler();
 	
 	CDefEssential * essentialize();
 

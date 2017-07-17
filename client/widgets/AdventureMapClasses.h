@@ -378,5 +378,5 @@ public:
 	void endEnteringText(bool printEnteredText);
 	void refreshEnteredText();
 
-	CInGameConsole(); //c-tor
+	CInGameConsole();
 };

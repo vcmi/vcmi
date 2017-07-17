@@ -59,7 +59,7 @@ class CSpellWindow : public CWindowObject
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
 
-		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);//c-tor
+		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
 	CPicture * leftCorner, * rightCorner;
@@ -92,8 +92,8 @@ class CSpellWindow : public CWindowObject
 	void turnPageRight();
 
 public:
-	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
-	~CSpellWindow(); //d-tor
+	CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true);
+	~CSpellWindow();
 
 	void fexitb();
 	void fadvSpellsb();

@@ -98,21 +98,21 @@ struct Rect : public SDL_Rect
 	{
 		x = y = w = h = -1;
 	}
-	Rect(int X, int Y, int W, int H) //c-tor
+	Rect(int X, int Y, int W, int H)
 	{
 		x = X;
 		y = Y;
 		w = W;
 		h = H;
 	}
-	Rect(const Point & position, const Point & size) //c-tor
+	Rect(const Point & position, const Point & size)
 	{
 		x = position.x;
 		y = position.y;
 		w = size.x;
 		h = size.y;
 	}
-	Rect(const SDL_Rect & r) //c-tor
+	Rect(const SDL_Rect & r)
 	{
 		x = r.x;
 		y = r.y;

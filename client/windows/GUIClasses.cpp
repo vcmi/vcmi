@@ -999,7 +999,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	garr->addSplitBtn(new CButton( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
 }
 
-CExchangeWindow::~CExchangeWindow() //d-tor
+CExchangeWindow::~CExchangeWindow()
 {
 	artifs[0]->commonInfo = nullptr;
 	artifs[1]->commonInfo = nullptr;

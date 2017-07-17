@@ -80,7 +80,7 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 public:
 	const CGHeroInstance * curHero;
 
-	CHeroWindow(const CGHeroInstance *hero); //c-tor
+	CHeroWindow(const CGHeroInstance *hero);
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
 	void showAll(SDL_Surface * to) override;

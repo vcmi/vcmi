@@ -263,8 +263,8 @@ public:
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
 
-	CPlayerInterface(PlayerColor Player);//c-tor
-	~CPlayerInterface();//d-tor
+	CPlayerInterface(PlayerColor Player);
+	~CPlayerInterface();
 
 private:
 

@@ -197,8 +197,8 @@ private:
 	public:
 		const CGTownInstance *town; //besieged town
 
-		SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface *_owner); //c-tor
-		~SiegeHelper(); //d-tor
+		SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface *_owner);
+		~SiegeHelper();
 
 		std::string getSiegeName(ui16 what) const;
 		std::string getSiegeName(ui16 what, int state) const; // state uses EWallState enum
@@ -271,8 +271,8 @@ public:
 	ui32 animIDhelper; //for giving IDs for animations
 
 
-	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr); //c-tor
-	virtual ~CBattleInterface(); //d-tor
+	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	virtual ~CBattleInterface();
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
