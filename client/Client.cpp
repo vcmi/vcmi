@@ -361,16 +361,17 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
     //*serv << clientPlayers;
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
-
-// 	logGlobal->traceStream() << "Objects:";
-// 	for(int i = 0; i < gs->map->objects.size(); i++)
-// 	{
-// 		auto o = gs->map->objects[i];
-// 		if(o)
-// 			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
-// 		else
-// 			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
-// 	}
+/*
+	logGlobal->traceStream() << "Objects:";
+	for(int i = 0; i < gs->map->objects.size(); i++)
+	{
+		auto o = gs->map->objects[i];
+		if(o)
+			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
+		else
+			logGlobal->traceStream() << boost::format("\tindex=%5d --- nullptr") % i;
+	}
+*/
 }
 #endif
 
@@ -476,20 +477,21 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	serv->addStdVecItems(gs);
 	hotSeat = (humanPlayers > 1);
+/*
+	std::vector<FileInfo> scriptModules;
+	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/scripting", "." LIB_EXT);
+	for(FileInfo &m : scriptModules)
+	{
+		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
+		privilagedGameEventReceivers.push_back(nm);
+		privilagedBattleEventReceivers.push_back(nm);
+		nm->giveActionCB(this);
+		nm->giveInfoCB(this);
+		nm->init();
 
-// 	std::vector<FileInfo> scriptModules;
-// 	CFileUtility::getFilesWithExt(scriptModules, LIB_DIR "/scripting", "." LIB_EXT);
-// 	for(FileInfo &m : scriptModules)
-// 	{
-// 		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
-// 		privilagedGameEventReceivers.push_back(nm);
-// 		privilagedBattleEventReceivers.push_back(nm);
-// 		nm->giveActionCB(this);
-// 		nm->giveInfoCB(this);
-// 		nm->init();
-//
-// 		erm = nm; //something tells me that there'll at most one module and it'll be ERM
-// 	}
+		erm = nm; //something tells me that there'll at most one module and it'll be ERM
+	}
+*/
 }
 
 void CClient::serialize(BinarySerializer & h, const int version)
@@ -743,9 +745,6 @@ void CClient::battleStarted(const BattleInfo * info)
 			battleCb.second->setBattle(info);
 		}
 	}
-// 	for(ui8 side : info->sides)
-// 		if(battleCallbacks.count(side))
-// 			battleCallbacks[side]->setBattle(info);
 
 	std::shared_ptr<CPlayerInterface> att, def;
 	auto &leftSide = info->sides[0], &rightSide = info->sides[1];

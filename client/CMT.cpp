@@ -619,10 +619,6 @@ void processCommand(const std::string &message)
 	std::string cn; //command name
 	readed >> cn;
 
-// Check mantis issue 2292 for details
-//	if(LOCPLINT && LOCPLINT->cingconsole)
-//		LOCPLINT->cingconsole->print(message);
-
 	if(ermInteractiveMode)
 	{
 		if(cn == "exit")
@@ -692,13 +688,6 @@ void processCommand(const std::string &message)
 		readed >> fname;
 		client->save(fname);
 	}
-//	else if(cn=="load")
-//	{
-//		// TODO: this code should end the running game and manage to call startGame instead
-//		std::string fname;
-//		readed >> fname;
-//		client->loadGame(fname);
-//	}
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";

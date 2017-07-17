@@ -1146,10 +1146,11 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
-//		const CCreature *c = VLC->creh->creatures[creID];
-// 		if(containsSavedRes(c->cost))
-// 			continue;
-
+/*
+		const CCreature *c = VLC->creh->creatures[creID];
+		if(containsSavedRes(c->cost))
+			continue;
+*/
 		vstd::amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
@@ -1236,83 +1237,85 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 	return false;
 }
 
-//bool VCAI::canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7)
-//{
-//		if (maxDays == 0)
-//	{
-//		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
-//		return false;
-//	}
-//
-//	if (!vstd::contains(t->town->buildings, building))
-//		return false; // no such building in town
-//
-//	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
-//		return true;
-//
-//	const CBuilding * buildPtr = t->town->buildings.at(building);
-//
-//	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
-//	{
-//		return t->hasBuilt(buildID);
-//	});
-//	toBuild.push_back(building);
-//
-//	for(BuildingID buildID : toBuild)
-//	{
-//		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
-//		if (canBuild == EBuildingState::HAVE_CAPITAL
-//		 || canBuild == EBuildingState::FORBIDDEN
-//		 || canBuild == EBuildingState::NO_WATER)
-//			return false; //we won't be able to build this
-//	}
-//
-//	if (maxDays && toBuild.size() > maxDays)
-//		return false;
-//
-//	TResources currentRes = cb->getResourceAmount();
-//	TResources income = estimateIncome();
-//	//TODO: calculate if we have enough resources to build it in maxDays
-//
-//	for(const auto & buildID : toBuild)
-//	{
-//		const CBuilding *b = t->town->buildings.at(buildID);
-//
-//		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
-//		if(canBuild == EBuildingState::ALLOWED)
-//		{
-//			if(!containsSavedRes(b->resources))
-//			{
-//				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
-//				return true;
-//			}
-//			continue;
-//		}
-//		else if(canBuild == EBuildingState::NO_RESOURCES)
-//		{
-//			TResources cost = t->town->buildings.at(buildID)->resources;
-//			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-//			{
-//				int diff = currentRes[i] - cost[i] + income[i];
-//				if(diff < 0)
-//					saving[i] = 1;
-//			}
-//			continue;
-//		}
-//		else if (canBuild == EBuildingState::PREREQUIRES)
-//		{
-//			// can happen when dependencies have their own missing dependencies
-//			if (canBuildStructure(t, buildID, maxDays - 1))
-//				return true;
-//		}
-//		else if (canBuild == EBuildingState::MISSING_BASE)
-//		{
-//			if (canBuildStructure(t, b->upgrade, maxDays - 1))
-//				 return true;
-//		}
-//	}
-//	return false;
-//}
+/*
+bool VCAI::canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7)
+{
+	if (maxDays == 0)
+	{
+		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
+		return false;
+	}
+
+	if (!vstd::contains(t->town->buildings, building))
+		return false; // no such building in town
+
+	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
+		return true;
+
+	const CBuilding * buildPtr = t->town->buildings.at(building);
+
+	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
+	{
+		return t->hasBuilt(buildID);
+	});
+	toBuild.push_back(building);
+
+	for(BuildingID buildID : toBuild)
+	{
+		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		if (canBuild == EBuildingState::HAVE_CAPITAL
+		 || canBuild == EBuildingState::FORBIDDEN
+		 || canBuild == EBuildingState::NO_WATER)
+			return false; //we won't be able to build this
+	}
+
+	if (maxDays && toBuild.size() > maxDays)
+		return false;
+
+	TResources currentRes = cb->getResourceAmount();
+	TResources income = estimateIncome();
+	//TODO: calculate if we have enough resources to build it in maxDays
+
+	for(const auto & buildID : toBuild)
+	{
+		const CBuilding *b = t->town->buildings.at(buildID);
+
+		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
+		if(canBuild == EBuildingState::ALLOWED)
+		{
+			if(!containsSavedRes(b->resources))
+			{
+				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
+				return true;
+			}
+			continue;
+		}
+		else if(canBuild == EBuildingState::NO_RESOURCES)
+		{
+			TResources cost = t->town->buildings.at(buildID)->resources;
+			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+			{
+				int diff = currentRes[i] - cost[i] + income[i];
+				if(diff < 0)
+					saving[i] = 1;
+			}
+			continue;
+		}
+		else if (canBuild == EBuildingState::PREREQUIRES)
+		{
+			// can happen when dependencies have their own missing dependencies
+			if (canBuildStructure(t, buildID, maxDays - 1))
+				return true;
+		}
+		else if (canBuild == EBuildingState::MISSING_BASE)
+		{
+			if (canBuildStructure(t, b->upgrade, maxDays - 1))
+				 return true;
+		}
+	}
+	return false;
+}
+*/
 
 bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
@@ -3114,10 +3117,12 @@ void SectorMap::clear()
 	//TODO: rotate to [z][x][y]
 	auto fow = cb->getVisibilityMap();
 	//TODO: any magic to automate this? will need array->array conversion
-	//std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
-	//{
-	//	return f; //type conversion
-	//});
+/*
+	std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
+	{
+		return f; //type conversion
+	});
+*/
 	auto width = fow.size();
 	auto height = fow.front().size();
 	auto depth = fow.front().front().size();

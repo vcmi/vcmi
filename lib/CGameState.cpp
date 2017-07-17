@@ -3080,10 +3080,12 @@ TeamState::TeamState(TeamState && other):
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {
-	//if(scenarioOps && scenarioOps->seedPostInit)
-	//{
-	//	logGlobal->trace("CGameState::getRandomGenerator used after initialization!");
-	//}
-	//logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
+/*
+	if(scenarioOps && scenarioOps->seedPostInit)
+	{
+		logGlobal->trace("CGameState::getRandomGenerator used after initialization!");
+	}
+	logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
+*/
 	return rand;
 }
