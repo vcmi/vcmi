@@ -530,22 +530,22 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
 
 	//setting up buttons
-	load = new CButton (Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&] { bloadf(); }, SDLK_l);
+	load = new CButton (Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
 	load->setImageOrder(1, 0, 2, 3);
 
-	save = new CButton (Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&] { bsavef(); }, SDLK_s);
+	save = new CButton (Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
 	save->setImageOrder(1, 0, 2, 3);
 
-	restart = new CButton (Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&] { brestartf(); }, SDLK_r);
+	restart = new CButton (Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
 	restart->setImageOrder(1, 0, 2, 3);
 
-	mainMenu = new CButton (Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&] { bmainmenuf(); }, SDLK_m);
+	mainMenu = new CButton (Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
 	mainMenu->setImageOrder(1, 0, 2, 3);
 
-	quitGame = new CButton (Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&] { bquitf(); }, SDLK_q);
+	quitGame = new CButton (Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
 	quitGame->setImageOrder(1, 0, 2, 3);
 
-	backToMap = new CButton ( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&] { breturnf(); }, SDLK_RETURN);
+	backToMap = new CButton ( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
 	backToMap->setImageOrder(1, 0, 2, 3);
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1195,9 +1195,9 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 		if ( army->getCreature(SlotID(i)) )
 			items.push_back(new CItem(this, army->getStackCount(SlotID(i)), i));
 
-	all     = new CButton(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&] { addAll(); }, SDLK_a);
-	convert = new CButton(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&] { makeDeal(); }, SDLK_RETURN);
-	cancel  = new CButton(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&] { close(); },SDLK_ESCAPE);
+	all     = new CButton(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
+	convert = new CButton(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, SDLK_RETURN);
+	cancel  = new CButton(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); },SDLK_ESCAPE);
 	bar     = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	new CLabel(153, 29,FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area

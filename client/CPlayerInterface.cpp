@@ -1165,7 +1165,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for (auto & component : components)
 			intComps.push_back(new CComponent(component)); //will be deleted by close in window
 
-		showYesNoDialog(text, [=]{ cb->selectionMade(1, askID); }, [=]{ cb->selectionMade(0, askID); }, true, intComps);
+		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, true, intComps);
 	}
 	else if (selection)
 	{
@@ -1434,7 +1434,7 @@ bool CPlayerInterface::altPressed() const
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto onEnd = [=]{ cb->selectionMade(0, queryID); };
+	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
 
 	if (stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain.currentPath && adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
 	{
@@ -1608,7 +1608,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->shipyardStatus();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
-	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), [=]{ cb->buildBoat(obj); });
+	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
 	GH.pushInt(csw);
 }
 
@@ -2705,7 +2705,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this] { sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

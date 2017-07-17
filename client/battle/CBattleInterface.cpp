@@ -242,8 +242,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	console->pos.h = 38;
 	if (tacticsMode)
 	{
-		btactNext = new CButton(Point(213, 560), "icm011.def", std::make_pair("", ""), [&]{ bTacticNextStack(nullptr);}, SDLK_SPACE);
-		btactEnd =  new CButton(Point(419, 560), "icm012.def", std::make_pair("", ""), [&]{ bEndTacticPhase();}, SDLK_RETURN);
+		btactNext = new CButton(Point(213, 560), "icm011.def", std::make_pair("", ""), [&](){ bTacticNextStack(nullptr);}, SDLK_SPACE);
+		btactEnd =  new CButton(Point(419, 560), "icm012.def", std::make_pair("", ""), [&](){ bEndTacticPhase();}, SDLK_RETURN);
 		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
 	}
 	else
@@ -790,7 +790,7 @@ void CBattleInterface::bSurrenderf()
 			enemyHeroName = "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
 
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		curInt->showYesNoDialog(surrenderMessage, [this]{ reallySurrender(); }, 0, false);
+		curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, 0, false);
 	}
 }
 
@@ -2218,7 +2218,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		{
 			case CHOOSE_TACTICS_STACK:
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
-				realizeAction = [=]{ stackActivated(shere); };
+				realizeAction = [=](){ stackActivated(shere); };
 				break;
 			case MOVE_TACTICS:
 			case MOVE_STACK:
@@ -2276,7 +2276,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				else
 					cursorFrame = ECursor::COMBAT_SHOOT;
 
-				realizeAction = [=] {giveCommand(Battle::SHOOT, myNumber, activeStack->ID);};
+				realizeAction = [=](){giveCommand(Battle::SHOOT, myNumber, activeStack->ID);};
 				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(CRandomGenerator::getDefault(), sactive, shere)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots.available() % estDmgText).str();
@@ -2329,7 +2329,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case HEAL:
 				cursorFrame = ECursor::COMBAT_HEAL;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
-				realizeAction = [=]{ giveCommand(Battle::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
+				realizeAction = [=](){ giveCommand(Battle::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
 				break;
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
@@ -2340,13 +2340,13 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case CATAPULT:
 				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
-				realizeAction = [=]{ giveCommand(Battle::CATAPULT, myNumber, activeStack->ID); };
+				realizeAction = [=](){ giveCommand(Battle::CATAPULT, myNumber, activeStack->ID); };
 				break;
 			case CREATURE_INFO:
 			{
 				cursorFrame = ECursor::COMBAT_QUERY;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
-				realizeAction = [=]{ GH.pushInt(new CStackWindow(shere, false)); };
+				realizeAction = [=](){ GH.pushInt(new CStackWindow(shere, false)); };
 				break;
 			}
 		}

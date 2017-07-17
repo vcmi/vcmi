@@ -189,7 +189,7 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 		else if (cache)
 			callbacks[channel];
 		else
-			callbacks[channel] = [chunk]{ Mix_FreeChunk(chunk);};
+			callbacks[channel] = [chunk](){ Mix_FreeChunk(chunk);};
 	}
 	else
 		channel = -1;

@@ -103,10 +103,10 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new CButton(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [&]{ close(); }, SDLK_RETURN);
+	quitButton = new CButton(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [&](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
-	dismissButton = new CButton(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [&]{ dismissCurrent(); }, SDLK_d);
-	questlogButton = new CButton(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [&]{ questlog(); }, SDLK_q);
+	dismissButton = new CButton(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [&](){ dismissCurrent(); }, SDLK_d);
+	questlogButton = new CButton(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [&](){ questlog(); }, SDLK_q);
 
 	formations = new CToggleGroup(0);
 	formations->addToggle(0, new CToggleButton(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, SDLK_t));
@@ -115,7 +115,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	if (hero->commander)
 	{
 		auto texts = CGI->generaltexth->localizedTexts["heroWindow"]["openCommander"];
-		commanderButton = new CButton (Point(317, 18), "buttons/commander", CButton::tooltip(texts), [&]{ commanderWindow(); }, SDLK_c);
+		commanderButton = new CButton (Point(317, 18), "buttons/commander", CButton::tooltip(texts), [&](){ commanderWindow(); }, SDLK_c);
 	}
 
 	//right list of heroes
@@ -209,7 +209,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			boost::algorithm::replace_first(helpBox, "%s", CGI->generaltexth->allTexts[43]);
 
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
-			auto split = new CButton(Point(539, 519), "hsbtns9.def", CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&]{ garr->splitClick(); });
+			auto split = new CButton(Point(539, 519), "hsbtns9.def", CButton::tooltip(CGI->generaltexth->allTexts[256], helpBox), [&](){ garr->splitClick(); });
 
 			garr->addSplitBtn(split);
 		}
@@ -300,8 +300,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = [=] { close(); };
-	ony += [=] { LOCPLINT->cb->dismissHero(curHero); };
+	CFunctionList<void()> ony = [=](){ close(); };
+	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }
 

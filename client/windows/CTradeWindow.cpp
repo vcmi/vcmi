@@ -715,13 +715,13 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	ok = new CButton(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[600], [&]{ close(); }, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
-	deal = new CButton(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&] { makeDeal(); } );
+	deal = new CButton(Point(307, 520), "TPMRKB.DEF", CGI->generaltexth->zelp[595], [&](){ makeDeal(); } );
 	deal->block(true);
 
 	if(sliderNeeded)
 	{
 		slider = new CSlider(Point(231, 490),137, std::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
-		max = new CButton(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&] { setMax(); });
+		max = new CButton(Point(229, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[596], [&](){ setMax(); });
 		max->block(true);
 	}
 	else
@@ -774,15 +774,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
 	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
-		new CButton(Point(18, 520),"TPMRKBU1.DEF", CGI->generaltexth->zelp[612], [&] { setMode(EMarketMode::RESOURCE_PLAYER);});
+		new CButton(Point(18, 520),"TPMRKBU1.DEF", CGI->generaltexth->zelp[612], [&](){ setMode(EMarketMode::RESOURCE_PLAYER);});
 	if(printButtonFor(EMarketMode::RESOURCE_RESOURCE))
-		new CButton(Point(516, 450 + specialOffset),"TPMRKBU5.DEF", CGI->generaltexth->zelp[605], [&] { setMode(EMarketMode::RESOURCE_RESOURCE);});
+		new CButton(Point(516, 450 + specialOffset),"TPMRKBU5.DEF", CGI->generaltexth->zelp[605], [&](){ setMode(EMarketMode::RESOURCE_RESOURCE);});
 	if(printButtonFor(EMarketMode::CREATURE_RESOURCE))
-		new CButton(Point(516, 485),"TPMRKBU4.DEF", CGI->generaltexth->zelp[599], [&] { setMode(EMarketMode::CREATURE_RESOURCE);});
+		new CButton(Point(516, 485),"TPMRKBU4.DEF", CGI->generaltexth->zelp[599], [&](){ setMode(EMarketMode::CREATURE_RESOURCE);});
 	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
-		new CButton(Point(18, 450 + specialOffset),"TPMRKBU2.DEF", CGI->generaltexth->zelp[598], [&] { setMode(EMarketMode::RESOURCE_ARTIFACT);});
+		new CButton(Point(18, 450 + specialOffset),"TPMRKBU2.DEF", CGI->generaltexth->zelp[598], [&](){ setMode(EMarketMode::RESOURCE_ARTIFACT);});
 	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))
-		new CButton(Point(18, 485),"TPMRKBU3.DEF", CGI->generaltexth->zelp[613], [&] { setMode(EMarketMode::ARTIFACT_RESOURCE);});
+		new CButton(Point(18, 485),"TPMRKBU3.DEF", CGI->generaltexth->zelp[613], [&](){ setMode(EMarketMode::ARTIFACT_RESOURCE);});
 
 	updateTraderText();
 }

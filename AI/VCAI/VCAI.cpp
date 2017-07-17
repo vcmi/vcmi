@@ -606,7 +606,7 @@ void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill p
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
-	requestActionASAP([=]{ answerQuery(queryID, 0); });
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
@@ -614,7 +614,7 @@ void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
-	requestActionASAP([=]{ answerQuery(queryID, 0); });
+	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel)
@@ -703,7 +703,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
 	status.addQuery(askID, "Map object select query");
-	requestActionASAP([=]{ answerQuery(askID, 0); });
+	requestActionASAP([=](){ answerQuery(askID, 0); });
 
 	//TODO: Town portal destination selection goes here
 }
