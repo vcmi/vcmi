@@ -1315,7 +1315,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	for (int i=0; i<list.size(); i++)//prepare clickable items
 		items.push_back(new CItem(this, list[i], 54+i*104, 234));
 
-	cancel = new CButton(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&]{ close(); }, SDLK_RETURN);
+	cancel = new CButton(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, SDLK_RETURN);
 
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
@@ -1351,7 +1351,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=]{makeDeal(SKILL);}, SDLK_RETURN);
 	confirm->block(!available);
 
-	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&]{ close(); }, SDLK_ESCAPE);
+	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
@@ -1391,7 +1391,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 		}
 	}
 
-	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&]{ makeDeal(SlotID(slotsCount));}, SDLK_0);
+	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, SDLK_0);
 	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
 
@@ -1576,7 +1576,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
-	exitb = new CButton (Point(748, 556), "TPMAGE1", CButton::tooltip(CGI->generaltexth->allTexts[600]), [&]{ close();}, SDLK_RETURN);
+	exitb = new CButton (Point(748, 556), "TPMAGE1", CButton::tooltip(CGI->generaltexth->allTexts[600]), [&](){ close();}, SDLK_RETURN);
 	exitb->assignedKeys.insert(SDLK_ESCAPE);
 	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 

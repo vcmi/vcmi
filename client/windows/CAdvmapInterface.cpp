@@ -1916,19 +1916,19 @@ CAdventureOptions::CAdventureOptions():
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_v);
+	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_v);
 	viewWorld->addCallback(std::bind(&CPlayerInterface::viewWorldMap, LOCPLINT));
 
 	exit = new CButton(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	scenInfo = new CButton(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_i);
+	scenInfo = new CButton(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_i);
 	scenInfo->addCallback(CAdventureOptions::showScenarioInfo);
 
-	puzzle = new CButton(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_p);
+	puzzle = new CButton(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_p);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
 
-	dig = new CButton(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&]{ close(); }, SDLK_d);
+	dig = new CButton(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_d);
 	if(const CGHeroInstance *h = adventureInt->curHero())
 		dig->addCallback(std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h));
 	else

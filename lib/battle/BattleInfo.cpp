@@ -305,7 +305,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
 
 		RandGen r;
-		auto ourRand = [&]{ return r.rand(); };
+		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
