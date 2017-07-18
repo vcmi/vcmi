@@ -828,9 +828,9 @@ void CCastleBuildings::enterMagesGuild()
 		}
 		else
 		{
-			CFunctionList<void()> onYes = [this]{ openMagesGuild(); };
+			CFunctionList<void()> onYes = [this](){ openMagesGuild(); };
 			CFunctionList<void()> onNo = onYes;
-			onYes += [hero]{ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
+			onYes += [hero](){ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
 			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,ArtifactID::SPELLBOOK,0));
 
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
@@ -1760,7 +1760,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	cancel = new CButton(Point(224, 312), "ICANCEL.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_ESCAPE);
 
 	if(possible)
-		buy->addCallback([=]{ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });
+		buy->addCallback([=](){ LOCPLINT->cb->buyArtifact(LOCPLINT->cb->getHero(hid),aid); });
 	else
 		buy->block(true);
 

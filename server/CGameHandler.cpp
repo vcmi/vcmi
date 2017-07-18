@@ -3806,7 +3806,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		StartAction startAction(ba);
 		sendAndApply(&startAction);
 
-		return vstd::makeScopeGuard([&]
+		return vstd::makeScopeGuard([&]()
 		{
 			sendAndApply(&end_action);
 		});

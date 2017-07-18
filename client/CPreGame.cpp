@@ -3740,7 +3740,7 @@ void CBonusSelection::startMap()
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game
 	{
 		GH.popInt(this);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 		{
 			updateCampaignState();
 			endGame();
@@ -3758,7 +3758,7 @@ void CBonusSelection::startMap()
 void CBonusSelection::restartMap()
 {
 	GH.popInt(this);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 	{
 		updateCampaignState();
 		auto si = new StartInfo(startInfo);

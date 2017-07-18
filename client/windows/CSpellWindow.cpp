@@ -633,7 +633,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			const CGHeroInstance *h = owner->myHero;
 			GH.popInt(owner);
 
-			auto guard = vstd::makeScopeGuard([this]
+			auto guard = vstd::makeScopeGuard([this]()
 			{
 				owner->myInt->spellbookSettings.spellbookLastTabAdvmap = owner->selectedTab;
 				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;

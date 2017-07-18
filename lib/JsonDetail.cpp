@@ -771,7 +771,7 @@ namespace
 		{
 			validator.currentPath.push_back(JsonNode());
 			validator.currentPath.back().Float() = index;
-			auto onExit = vstd::makeScopeGuard([&]
+			auto onExit = vstd::makeScopeGuard([&]()
 			{
 				validator.currentPath.pop_back();
 			});
@@ -920,7 +920,7 @@ namespace
 		{
 			validator.currentPath.push_back(JsonNode());
 			validator.currentPath.back().String() = nodeName;
-			auto onExit = vstd::makeScopeGuard([&]
+			auto onExit = vstd::makeScopeGuard([&]()
 			{
 				validator.currentPath.pop_back();
 			});

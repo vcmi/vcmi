@@ -469,7 +469,7 @@ void CStackWindow::CWindowSection::createCommander()
 			if(parent->selectedSkill == index)
 				parent->setSelection(index, icon);
 
-			icon->callback = [=]
+			icon->callback = [=]()
 			{
 				parent->setSelection(index, icon);
 			};
@@ -496,7 +496,7 @@ CIntObject * CStackWindow::createSkillEntry(int index)
 			const auto bonus = CGI->creh->skillRequirements[skillID-100].first;
 			const CStackInstance *stack = info->commander;
 			CCommanderSkillIcon * icon = new CCommanderSkillIcon(new CPicture(stack->bonusToGraphics(bonus)), [](){});
-			icon->callback = [=]
+			icon->callback = [=]()
 			{
 				setSelection(skillID, icon);
 			};

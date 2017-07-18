@@ -2233,7 +2233,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					consoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % activeStack->getName()).str(); //Move %s here
 				}
 
-				realizeAction = [=]
+				realizeAction = [=]()
 				{
 					if(activeStack->doubleWide())
 					{
@@ -2256,7 +2256,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				setBattleCursor(myNumber); //handle direction of cursor and attackable tile
 				setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
-				realizeAction = [=]
+				realizeAction = [=]()
 				{
 					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
 					if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
@@ -2333,7 +2333,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
-				realizeAction = [=]
+				realizeAction = [=]()
 				{
 					giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID);
 				};
@@ -2395,7 +2395,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 		}
 
-		realizeAction = [=]
+		realizeAction = [=]()
 		{
 			if (secondaryTarget) //select that target now
 			{
@@ -2794,7 +2794,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 {
 	assert(curInt->isAutoFightOn);
 
-	boost::thread aiThread([&]
+	boost::thread aiThread([&]()
 	{
 		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 

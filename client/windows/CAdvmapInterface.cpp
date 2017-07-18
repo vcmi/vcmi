@@ -1226,8 +1226,8 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
 			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
-				[]{ LOCPLINT->sendCustomEvent(RESTART_GAME); },
-				[]{}, true);
+				[](){ LOCPLINT->sendCustomEvent(RESTART_GAME); },
+				[](){}, true);
 		}
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero

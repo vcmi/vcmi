@@ -645,7 +645,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -655,7 +655,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -672,7 +672,7 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this]{ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
 }
 
 void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
@@ -985,7 +985,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	//buttons
 	quit = new CButton(Point(732, 567), "IOKAY.DEF", CGI->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), SDLK_RETURN);
 	if(queryID.getNum() > 0)
-		quit->addCallback([=]{ LOCPLINT->cb->selectionMade(0, queryID); });
+		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
 	questlogButton[0] = new CButton(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 0));
 	questlogButton[1] = new CButton(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 1));
@@ -1348,7 +1348,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=]{makeDeal(SKILL);}, SDLK_RETURN);
+	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);
 	confirm->block(!available);
 
 	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
@@ -1380,7 +1380,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 
 	for (int i = 0; i < slotsCount; i++)
 	{
-		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=]{ makeDeal(SlotID(i)); }, SDLK_1 + i);
+		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, SDLK_1 + i);
 		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
 
