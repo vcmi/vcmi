@@ -36,9 +36,12 @@ set(test_HEADERS
  		map/MapComparer.h
 )
 
+set(mock_HEADERS
+    mock/mock_UnitHealthInfo.h
+)
 add_subdirectory(googletest)
 
-add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${GTestSrc}/src/gtest-all.cc ${GMockSrc}/src/gmock-all.cc)
+add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS} ${GTestSrc}/src/gtest-all.cc ${GMockSrc}/src/gmock-all.cc)
 target_link_libraries(vcmitest vcmi ${RT_LIB} ${DL_LIB})
 add_test(vcmitest vcmitest)
 
