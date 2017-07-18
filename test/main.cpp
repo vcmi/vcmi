@@ -12,7 +12,8 @@
 #include "CVcmiTestConfig.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 
-int main(int argc, char ** argv){
+int main(int argc, char ** argv)
+{
 	::testing::InitGoogleTest(&argc, argv);
 	CVcmiTestConfig test;
 	return RUN_ALL_TESTS();

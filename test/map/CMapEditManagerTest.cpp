@@ -22,7 +22,6 @@
 
 TEST(MapManager, DrawTerrain_Type)
 {
-	logGlobal->info("CMapEditManager_DrawTerrain_Type start");
 	try
 	{
 		auto map = make_unique<CMap>();
@@ -102,23 +101,19 @@ TEST(MapManager, DrawTerrain_Type)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->error("CMapEditManager_DrawTerrain_Type crash");
-		logGlobal->error(e.what());
+		FAIL()<<e.what();
 		throw;
 	}
-	logGlobal->info("CMapEditManager_DrawTerrain_Type finish");
 }
 
 TEST(MapManager, DrawTerrain_View)
 {
-	logGlobal->info("CMapEditManager_DrawTerrain_View start");
 	try
 	{
 		const ResourceID testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		const auto originalMap = CMapService::loadMap(testMap);
 		auto map = CMapService::loadMap(testMap);
-		logGlobal->info("Loaded test map successfully.");
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();
@@ -146,10 +141,6 @@ TEST(MapManager, DrawTerrain_View)
 				const auto & posVector = posNode.Vector();
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
-#if 0
-				logGlobal->trace("Test pattern '%s' on position x '%d', y '%d', z '%d'.", patternStr, pos.x, pos.y, pos.z);
-				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
-#endif // 0
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
 				editManager->drawTerrain(originalTile.terType, &gen);
@@ -165,15 +156,13 @@ TEST(MapManager, DrawTerrain_View)
 				}
 				EXPECT_TRUE(isInRange);
 				if(!isInRange)
-					logGlobal->error("No or invalid pattern found for current position.");
+					FAIL()<<("No or invalid pattern found for current position.");
 			}
 		}
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->info("CMapEditManager_DrawTerrain_View crash");
-		logGlobal->info(e.what());
+		FAIL()<<e.what();
 		throw;
 	}
-	logGlobal->info("CMapEditManager_DrawTerrain_View finish");
 }

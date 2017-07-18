@@ -26,7 +26,6 @@ static const int TEST_RANDOM_SEED = 1337;
 
 TEST(MapFormat, Random)
 {
-	logGlobal->info("MapFormat_Random start");
 	SCOPED_TRACE("MapFormat_Random start");
 	std::unique_ptr<CMap> initialMap;
 
@@ -63,9 +62,6 @@ TEST(MapFormat, Random)
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
-
-		logGlobal->info("Test map has been saved to:");
-		logGlobal->info(path.string());
 	}
 	SCOPED_TRACE("MapFormat_Random saved");
 	#endif // 1
@@ -79,7 +75,6 @@ TEST(MapFormat, Random)
 		c(serialized, initialMap);
 	}
 	SCOPED_TRACE("MapFormat_Random finish");
-	logGlobal->info("MapFormat_Random finish");
 }
 
 static JsonNode getFromArchive(CZipLoader & archive, const std::string & archiveFilename)
@@ -114,8 +109,6 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 
 TEST(MapFormat, Objects)
 {
-	logGlobal->info("MapFormat_Objects start");
-
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
 	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+"header.json"));
@@ -173,8 +166,6 @@ TEST(MapFormat, Objects)
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
-
-		logGlobal->infoStream() << "Test map has been saved to " << path;
 	}
 
 	{
@@ -196,6 +187,4 @@ TEST(MapFormat, Objects)
 		JsonMapComparer c;
 		c.compareTerrain("underground", actualUnderground, expectedUnderground);
 	}
-
-	logGlobal->info("MapFormat_Objects finish");
 }

@@ -21,9 +21,8 @@ class HealthTest : public ::testing::Test
 {
 public:
 	UnitHealthInfoMock mock;
-	HealthTest() : health(&mock){
-
-	}
+	HealthTest() : health(&mock)
+	{}
 
 	void setDefaultExpectations()
 	{
@@ -229,8 +228,8 @@ TEST_F(HealthTest, singleUnitStack)
 
 	//one Titan
 
-	EXPECT_CALL(mock, unitMaxHealth()).WillRepeatedly(Return(1));
-	EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(300));
+	EXPECT_CALL(mock, unitMaxHealth()).WillRepeatedly(Return(300));
+	EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(1));
 
 	health.init();
 

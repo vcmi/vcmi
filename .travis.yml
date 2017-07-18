@@ -26,7 +26,7 @@ matrix:
     compiler: gcc
     env: VCMI_PLATFORM='linux' REAL_CC=gcc-4.8   REAL_CXX=g++-4.8     PACKAGE=g++-4.8   SUPPORT=
   - os: linux
-    env: VCMI_PLATFORM='mxe' MXE_TARGET=i686-w64-mingw32.shared
+    env: VCMI_PLATFORM='mxe' MXE_TARGET=i686-w64-mingw32.shared VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     sudo: required
   - os: osx
     env: VCMI_PLATFORM='mac'
