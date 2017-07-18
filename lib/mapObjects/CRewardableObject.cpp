@@ -1089,7 +1089,7 @@ void CGVisitableOPW::setPropertyDer(ui8 what, ui32 val)
 		if (ID == Obj::WATER_WHEEL)
 		{
 			auto& reward = info[0].reward.resources[Res::GOLD];
-			if(info[0].numOfGrants == 0)
+			if(cb->getDate() > 7)
 			{
 				reward = 1000;
 			}
