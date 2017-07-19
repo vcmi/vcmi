@@ -21,17 +21,17 @@ extern SDL_Window * mainWindow;
 extern SDL_Renderer * mainRenderer;
 extern SDL_Texture * screenTexture;
 
-inline void SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
+inline void SDL_SetColors(SDL_Surface * surface, SDL_Color * colors, int firstcolor, int ncolors)
 {
-	SDL_SetPaletteColors(surface->format->palette,colors,firstcolor,ncolors);
+	SDL_SetPaletteColors(surface->format->palette, colors, firstcolor, ncolors);
 }
 
 inline void SDL_WarpMouse(int x, int y)
 {
-	SDL_WarpMouseInWindow(mainWindow,x,y);
+	SDL_WarpMouseInWindow(mainWindow, x, y);
 }
 
-void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h);
+void SDL_UpdateRect(SDL_Surface * surface, int x, int y, int w, int h);
 
 inline bool isCtrlKeyDown()
 {
@@ -49,25 +49,25 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
-	//todo: should this better be assignment operator?
-	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
-	{
-		dest.r = source.r;
-		dest.g = source.g;
-		dest.b = source.b;
-		dest.a = source.a;
-	}
+//todo: should this better be assignment operator?
+STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
+{
+	dest.r = source.r;
+	dest.g = source.g;
+	dest.b = source.b;
+	dest.a = source.a;
+}
 
-	inline void setAlpha(SDL_Surface * bg, int value)
-	{
-		SDL_SetSurfaceAlphaMod(bg, value);
-	}
+inline void setAlpha(SDL_Surface * bg, int value)
+{
+	SDL_SetSurfaceAlphaMod(bg, value);
+}
 }
 struct Rect;
 
-extern SDL_Surface * screen, *screen2, *screenBuf;
-void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
-void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
+extern SDL_Surface * screen, * screen2, * screenBuf;
+void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst = screen);
+void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 bool isItInOrLowerBounds(const SDL_Rect * rect, int x, int y);
 
@@ -104,122 +104,123 @@ template<typename IntType>
 std::string makeNumberShort(IntType number, IntType maxLength = 3) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
 	IntType max = pow(10, maxLength);
-	if (std::abs(number) < max)
+	if(std::abs(number) < max)
 		return boost::lexical_cast<std::string>(number);
 
 	std::string symbols = " kMGTPE";
 	auto iter = symbols.begin();
 
-	while (number >= max)
+	while(number >= max)
 	{
 		number /= 1000;
 		iter++;
 
-		assert(iter != symbols.end());//should be enough even for int64
+		assert(iter != symbols.end()); //should be enough even for int64
 	}
 	return boost::lexical_cast<std::string>(number) + *iter;
 }
 
-typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
-typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+typedef void (* TColorPutter)(Uint8 * & ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+typedef void (* TColorPutterAlpha)(Uint8 * & ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 
 inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
 	SDL_Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
+	ret.h = hh;
+	ret.w = ww;
+	ret.x = xx;
+	ret.y = yy;
 	return ret;
 }
 
 template<int bpp, int incrementPtr>
 struct ColorPutter
 {
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
-	static STRONG_INLINE void PutColor(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorAlpha(Uint8 *&ptr, const SDL_Color & Color);
-	static STRONG_INLINE void PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count);
+	static STRONG_INLINE void PutColor(Uint8 * & ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
+	static STRONG_INLINE void PutColor(Uint8 * & ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColorAlphaSwitch(Uint8 * & ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
+	static STRONG_INLINE void PutColor(Uint8 * & ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorAlpha(Uint8 * & ptr, const SDL_Color & Color);
+	static STRONG_INLINE void PutColorRow(Uint8 * & ptr, const SDL_Color & Color, size_t count);
 };
 
-typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
+typedef void (* BlitterWithRotationVal)(SDL_Surface * src, SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
 namespace CSDL_Ext
 {
-	/// helper that will safely set and un-set ClipRect for SDL_Surface
-	class CClipRectGuard
+/// helper that will safely set and un-set ClipRect for SDL_Surface
+class CClipRectGuard
+{
+	SDL_Surface * surf;
+	SDL_Rect oldRect;
+
+public:
+	CClipRectGuard(SDL_Surface * surface, const SDL_Rect & rect)
+		: surf(surface)
 	{
-		SDL_Surface * surf;
-		SDL_Rect oldRect;
-	public:
-		CClipRectGuard(SDL_Surface * surface, const SDL_Rect & rect):
-			surf(surface)
-		{
-			SDL_GetClipRect(surf, &oldRect);
-			SDL_SetClipRect(surf, &rect);
-		}
+		SDL_GetClipRect(surf, &oldRect);
+		SDL_SetClipRect(surf, &rect);
+	}
 
-		~CClipRectGuard()
-		{
-			SDL_SetClipRect(surf, &oldRect);
-		}
-	};
+	~CClipRectGuard()
+	{
+		SDL_SetClipRect(surf, &oldRect);
+	}
+};
 
-	void blitSurface(SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
-	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
-	void fillRectBlack(SDL_Surface * dst, SDL_Rect * dstrect);
-	//fill dest image with source texture.
-	void fillTexture(SDL_Surface *dst, SDL_Surface * sourceTexture);
+void blitSurface(SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
+void fillRect(SDL_Surface * dst, SDL_Rect * dstrect, Uint32 color);
+void fillRectBlack(SDL_Surface * dst, SDL_Rect * dstrect);
+//fill dest image with source texture.
+void fillTexture(SDL_Surface * dst, SDL_Surface * sourceTexture);
 
-	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
-	void SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
+void SDL_PutPixelWithoutRefresh(SDL_Surface * ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
+void SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface * ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
 
-	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
-	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
-	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
-	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
-	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
+SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
+SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
+Uint32 SDL_GetPixel(SDL_Surface * surface, const int & x, const int & y, bool colorByte = false);
+void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
+bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
-	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
-	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
-	TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
+Uint8 * getPxPtr(const SDL_Surface * const & srf, const int x, const int y);
+TColorPutter getPutterFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
+TColorPutterAlpha getPutterAlphaFor(SDL_Surface * const & dest, int incrementing); //incrementing: -1, 0, 1
 
-	template<int bpp>
-	int blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	Uint32 colorToUint32(const SDL_Color * color); //little endian only
-	SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
+template<int bpp>
+int blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
+int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
+Uint32 colorToUint32(const SDL_Color * color); //little endian only
+SDL_Color makeColor(ui8 r, ui8 g, ui8 b, ui8 a);
 
-	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
-	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
-	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
-	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
-	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
-	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
-	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
-	template<int bpp>
-	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
-	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
+void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
+void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 & color);
+void drawBorder(SDL_Surface * sur, const SDL_Rect & r, const int3 & color);
+void drawDashedBorder(SDL_Surface * sur, const Rect & r, const int3 & color);
+void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
+std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
+SDL_Surface * newSurface(int w, int h, SDL_Surface * mod = screen); //creates new surface, with flags/format same as in surface given
+SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
+template<int bpp>
+SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
+void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 
-	//scale surface to required size.
-	//nearest neighbour algorithm
-	SDL_Surface * scaleSurfaceFast(SDL_Surface *surf, int width, int height);
-	// bilinear filtering. Uses fallback to scaleSurfaceFast in case of indexed surfaces
-	SDL_Surface * scaleSurface(SDL_Surface *surf, int width, int height);
+//scale surface to required size.
+//nearest neighbour algorithm
+SDL_Surface * scaleSurfaceFast(SDL_Surface * surf, int width, int height);
+// bilinear filtering. Uses fallback to scaleSurfaceFast in case of indexed surfaces
+SDL_Surface * scaleSurface(SDL_Surface * surf, int width, int height);
 
-	template<int bpp>
-	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
-	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
+template<int bpp>
+void applyEffectBpp(SDL_Surface * surf, const SDL_Rect * rect, int mode);
+void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
 
-	void startTextInput(SDL_Rect * where);
-	void stopTextInput();
+void startTextInput(SDL_Rect * where);
+void stopTextInput();
 
-	void setColorKey(SDL_Surface * surface, SDL_Color color);
-	///set key-color to 0,255,255
-	void setDefaultColorKey(SDL_Surface * surface);
-	///set key-color to 0,255,255 only if it exactly mapped
-	void setDefaultColorKeyPresize(SDL_Surface * surface);
+void setColorKey(SDL_Surface * surface, SDL_Color color);
+///set key-color to 0,255,255
+void setDefaultColorKey(SDL_Surface * surface);
+///set key-color to 0,255,255 only if it exactly mapped
+void setDefaultColorKeyPresize(SDL_Surface * surface);
 }

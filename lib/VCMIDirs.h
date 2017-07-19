@@ -38,8 +38,7 @@ public:
 
 	// absolute path to passed library (needed due to android libs being placed in single dir, not respecting original lib dirs;
 	// by default just concats libraryPath, given folder and libraryName
-	virtual boost::filesystem::path fullLibraryPath(const std::string & desiredFolder,
-													const std::string & baseLibName) const;
+	virtual boost::filesystem::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const;
 
 	// Path where vcmi binaries can be found
 	virtual boost::filesystem::path binaryPath() const = 0;
@@ -59,5 +58,5 @@ public:
 
 namespace VCMIDirs
 {
-	extern DLL_LINKAGE const IVCMIDirs & get();
+extern DLL_LINKAGE const IVCMIDirs & get();
 }

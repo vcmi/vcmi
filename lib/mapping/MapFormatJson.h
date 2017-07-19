@@ -40,6 +40,7 @@ public:
 
 	int fileVersionMajor;
 	int fileVersionMinor;
+
 protected:
 	friend class MapObjectResolver;
 	std::unique_ptr<IInstanceResolver> mapObjectResolver;
@@ -173,7 +174,7 @@ private:
 		CMapLoaderJson * owner;
 		CGObjectInstance * instance;
 		ObjectInstanceID id;
-		std::string jsonKey;//full id defined by map creator
+		std::string jsonKey; //full id defined by map creator
 		JsonNode & configuration;
 
 		///constructs object (without configuration)
@@ -209,7 +210,7 @@ private:
 	CInputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;
 
-	CZipLoader loader;///< object to handle zip archive operations
+	CZipLoader loader; ///< object to handle zip archive operations
 };
 
 class DLL_LINKAGE CMapSaverJson : public CMapFormatJson, public IMapSaver
@@ -228,6 +229,7 @@ public:
 	 * Actually saves the VCMI/Json map into stream.
 	 */
 	void saveMap(const std::unique_ptr<CMap> & map) override;
+
 private:
 
 	/**
@@ -264,5 +266,5 @@ private:
 
 	CInputOutputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;
-	CZipSaver saver;///< object to handle zip archive operations
+	CZipSaver saver; ///< object to handle zip archive operations
 };

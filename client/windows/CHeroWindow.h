@@ -31,7 +31,8 @@ class CGStatusBar;
 class CHeroSwitcher : public CIntObject
 {
 	const CGHeroInstance * hero;
-	CAnimImage *image;
+	CAnimImage * image;
+
 public:
 	virtual void clickLeft(tribool down, bool previousState) override;
 
@@ -42,14 +43,14 @@ public:
 class CHeroWithMaybePickedArtifact : public IBonusBearer
 {
 public:
-	const CGHeroInstance *hero;
-	CWindowWithArtifacts *cww;
+	const CGHeroInstance * hero;
+	CWindowWithArtifacts * cww;
 
-	CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero);
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
+	const TBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
 };
 
-class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
+class CHeroWindow : public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
 {
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
@@ -65,8 +66,8 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
 	LRClickableAreaWText * spellPointsArea;
-	LRClickableAreaWText * specArea;//specialty
-	CAnimImage *specImage;
+	LRClickableAreaWText * specArea; //specialty
+	CAnimImage * specImage;
 	MoraleLuckBox * morale, * luck;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 	std::vector<CAnimImage *> secSkillImages;
@@ -74,13 +75,13 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 
 	CButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
 
-	CToggleButton *tacticsButton; //garrison / formation handling;
-	CToggleGroup *formations;
+	CToggleButton * tacticsButton; //garrison / formation handling;
+	CToggleGroup * formations;
 
 public:
 	const CGHeroInstance * curHero;
 
-	CHeroWindow(const CGHeroInstance *hero);
+	CHeroWindow(const CGHeroInstance * hero);
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
 	void showAll(SDL_Surface * to) override;
@@ -89,7 +90,7 @@ public:
 	void questlog(); //show quest log in hero window
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
-	virtual void updateGarrisons() override;  //updates the morale widget and calls the parent
+	virtual void updateGarrisons() override; //updates the morale widget and calls the parent
 
 	//friends
 	friend void CHeroArtPlace::clickLeft(tribool down, bool previousState);

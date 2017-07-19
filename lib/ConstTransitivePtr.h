@@ -11,55 +11,56 @@
 
 class CGameHandler;
 
-template <typename T>
+template<typename T>
 class ConstTransitivePtr
 {
-	T *ptr;
-	ConstTransitivePtr(const T *Ptr)
-		: ptr(const_cast<T*>(Ptr)) 
+	T * ptr;
+	ConstTransitivePtr(const T * Ptr)
+		: ptr(const_cast<T *>(Ptr))
 	{}
+
 public:
-	ConstTransitivePtr(T *Ptr = nullptr)
-		: ptr(Ptr) 
+	ConstTransitivePtr(T * Ptr = nullptr)
+		: ptr(Ptr)
 	{}
 	ConstTransitivePtr(std::nullptr_t)
-		: ptr(nullptr) 
+		: ptr(nullptr)
 	{}
 
 
-	const T& operator*() const
+	const T & operator*() const
 	{
 		return *ptr;
 	}
-	T& operator*()
+	T & operator*()
 	{
 		return *ptr;
 	}
-	operator const T*() const
+	operator const T *() const
 	{
 		return ptr;
 	}
-	T* get()
+	T * get()
 	{
 		return ptr;
 	}
-	const T* get() const
+	const T * get() const
 	{
 		return ptr;
 	}
-	operator T*() 
+	operator T *()
 	{
 		return ptr;
 	}
-	T *operator->() 
+	T * operator->()
 	{
 		return ptr;
 	}
-	const T *operator->() const 
+	const T * operator->() const
 	{
 		return ptr;
 	}
-	const T*operator=(T *t)
+	const T * operator=(T * t)
 	{
 		return ptr = t;
 	}
@@ -70,7 +71,7 @@ public:
 		ptr = nullptr;
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & ptr;
 	}

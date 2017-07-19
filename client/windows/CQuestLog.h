@@ -38,8 +38,8 @@ class CQuestLabel : public LRClickableAreaWText, public CMultiLineLabel
 public:
 	std::function<void()> callback;
 
-	CQuestLabel (Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
-		: CMultiLineLabel (position, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
+	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "")
+		: CMultiLineLabel(position, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
 	void clickLeft(tribool down, bool previousState) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -49,7 +49,7 @@ class CQuestIcon : public CAnimImage
 public:
 	std::function<void()> callback; //TODO: merge with other similar classes?
 
-	CQuestIcon (const std::string &defname, int index, int x=0, int y=0);
+	CQuestIcon(const std::string & defname, int index, int x = 0, int y = 0);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void showAll(SDL_Surface * to) override;
@@ -57,20 +57,20 @@ public:
 
 class CQuestMinimap : public CMinimap
 {
-	std::vector <std::shared_ptr<CQuestIcon>> icons;
+	std::vector<std::shared_ptr<CQuestIcon>> icons;
 
-	void clickLeft(tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
+	void clickLeft(tribool down, bool previousState) override {}; //minimap ignores clicking on its surface
 	void iconClicked();
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override{};
+	void mouseMoved(const SDL_MouseMotionEvent & sEvent) override {};
 
 public:
 
 	const QuestInfo * currentQuest;
 
-	CQuestMinimap (const Rect & position);
+	CQuestMinimap(const Rect & position);
 	//should be called to invalidate whole map - different player or level
 	void update();
-	void addQuestMarks (const QuestInfo * q);
+	void addQuestMarks(const QuestInfo * q);
 
 	void showAll(SDL_Surface * to) override;
 };
@@ -85,25 +85,26 @@ class CQuestLog : public CWindowObject
 	CLabel * hideCompleteLabel;
 
 	const std::vector<QuestInfo> quests;
-	std::vector <std::shared_ptr<CQuestLabel>> labels;
+	std::vector<std::shared_ptr<CQuestLabel>> labels;
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests
-	CButton *ok;
+	CButton * ok;
 
-	void init ();
+	void init();
+
 public:
 
-	CQuestLog (const std::vector<QuestInfo> & Quests);
+	CQuestLog(const std::vector<QuestInfo> & Quests);
 
 	~CQuestLog(){};
 
-	void selectQuest (int which, int labelId);
-	void updateMinimap (int which){};
-	void printDescription (int which){};
-	void sliderMoved (int newpos);
+	void selectQuest(int which, int labelId);
+	void updateMinimap(int which){};
+	void printDescription(int which){};
+	void sliderMoved(int newpos);
 	void recreateLabelList();
-	void recreateQuestList (int pos);
+	void recreateQuestList(int pos);
 	void toggleComplete(bool on);
-	void showAll (SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 };

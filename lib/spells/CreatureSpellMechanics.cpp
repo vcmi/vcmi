@@ -17,8 +17,8 @@
 #include "../battle/BattleInfo.h"
 
 ///AcidBreathDamageMechanics
-AcidBreathDamageMechanics::AcidBreathDamageMechanics(const CSpell * s):
-	DefaultSpellMechanics(s)
+AcidBreathDamageMechanics::AcidBreathDamageMechanics(const CSpell * s)
+	: DefaultSpellMechanics(s)
 {
 }
 
@@ -61,8 +61,8 @@ ESpellCastProblem::ESpellCastProblem AcidBreathDamageMechanics::isImmuneByStack(
 }
 
 ///DeathStareMechanics
-DeathStareMechanics::DeathStareMechanics(const CSpell * s):
-	DefaultSpellMechanics(s)
+DeathStareMechanics::DeathStareMechanics(const CSpell * s)
+	: DefaultSpellMechanics(s)
 {
 }
 
@@ -81,7 +81,7 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 		BattleStackAttacked bsa;
 		bsa.flags |= BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = owner->id;
-		bsa.damageAmount = parameters.effectPower * (attackedCre)->MaxHealth();//todo: move here all DeathStare calculation
+		bsa.damageAmount = parameters.effectPower * (attackedCre)->MaxHealth(); //todo: move here all DeathStare calculation
 		bsa.stackAttacked = (attackedCre)->ID;
 		bsa.attackerID = -1;
 		(attackedCre)->prepareAttacked(bsa, env->getRandomGenerator());
@@ -90,8 +90,8 @@ void DeathStareMechanics::applyBattleEffects(const SpellCastEnvironment * env, c
 }
 
 ///DispellHelpfulMechanics
-DispellHelpfulMechanics::DispellHelpfulMechanics(const CSpell * s):
-	DefaultSpellMechanics(s)
+DispellHelpfulMechanics::DispellHelpfulMechanics(const CSpell * s)
+	: DefaultSpellMechanics(s)
 {
 }
 
@@ -102,16 +102,16 @@ void DispellHelpfulMechanics::applyBattle(BattleInfo * battle, const BattleSpell
 	doDispell(battle, packet, positiveSpellEffects);
 }
 
-ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster,  const CStack * obj) const
+ESpellCastProblem::ESpellCastProblem DispellHelpfulMechanics::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
 {
 	if(!canDispell(obj, positiveSpellEffects, "DispellHelpfulMechanics::positiveSpellEffects"))
 		return ESpellCastProblem::NO_SPELLS_TO_DISPEL;
 
 	//use default algorithm only if there is no mechanics-related problem
-	return DefaultSpellMechanics::isImmuneByStack(caster,obj);
+	return DefaultSpellMechanics::isImmuneByStack(caster, obj);
 }
 
-bool DispellHelpfulMechanics::positiveSpellEffects(const Bonus *b)
+bool DispellHelpfulMechanics::positiveSpellEffects(const Bonus * b)
 {
 	if(b->source == Bonus::SPELL_EFFECT)
 	{

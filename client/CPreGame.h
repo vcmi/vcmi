@@ -41,41 +41,69 @@ class CButton;
 class CLabel;
 class CSlider;
 
-namespace boost{ class thread; class recursive_mutex;}
+namespace boost
+{
+class thread;
+class recursive_mutex;
+}
 
-enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName}; //_numOfMaps is for campaigns
+enum ESortBy
+{
+	_playerAm,
+	_size,
+	_format,
+	_name,
+	_viccon,
+	_loscon,
+	_numOfMaps,
+	_fileName
+}; //_numOfMaps is for campaigns
 
 /// Class which handles map sorting by different criteria
 class mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(const CMapInfo *aaa, const CMapInfo *bbb);
-	mapSorter(ESortBy es):sortBy(es){};
+	bool operator()(const CMapInfo * aaa, const CMapInfo * bbb);
+	mapSorter(ESortBy es)
+		: sortBy(es){};
 };
 
 /// The main menu screens listed in the EState enum
 class CMenuScreen : public CIntObject
 {
-	const JsonNode& config;
+	const JsonNode & config;
 
-	CTabbedInt *tabs;
+	CTabbedInt * tabs;
 
 	CPicture * background;
-	std::vector<CPicture*> images;
+	std::vector<CPicture *> images;
 
-	CIntObject *createTab(size_t index);
+	CIntObject * createTab(size_t index);
+
 public:
 	std::vector<std::string> menuNameToEntry;
 
-	enum EState { //where are we?
-		mainMenu, newGame, loadGame, campaignMain, saveGame, scenarioInfo, campaignList
+	enum EState //where are we?
+	{
+		mainMenu,
+		newGame,
+		loadGame,
+		campaignMain,
+		saveGame,
+		scenarioInfo,
+		campaignList
 	};
 
-	enum EGameMode {
-		SINGLE_PLAYER = 0, MULTI_HOT_SEAT, MULTI_NETWORK_HOST, MULTI_NETWORK_GUEST, SINGLE_CAMPAIGN
+	enum EGameMode
+	{
+		SINGLE_PLAYER = 0,
+		MULTI_HOT_SEAT,
+		MULTI_NETWORK_HOST,
+		MULTI_NETWORK_GUEST,
+		SINGLE_CAMPAIGN
 	};
-	CMenuScreen(const JsonNode& configNode);
+	CMenuScreen(const JsonNode & configNode);
 
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
@@ -87,18 +115,20 @@ public:
 
 class CMenuEntry : public CIntObject
 {
-	std::vector<CPicture*> images;
-	std::vector<CButton*> buttons;
+	std::vector<CPicture *> images;
+	std::vector<CButton *> buttons;
 
-	CButton* createButton(CMenuScreen* parent, const JsonNode& button);
+	CButton * createButton(CMenuScreen * parent, const JsonNode & button);
+
 public:
-	CMenuEntry(CMenuScreen* parent, const JsonNode &config);
+	CMenuEntry(CMenuScreen * parent, const JsonNode & config);
 };
 
 class CreditsScreen : public CIntObject
 {
 	int positionCounter;
-	CMultiLineLabel* credits;
+	CMultiLineLabel * credits;
+
 public:
 	CreditsScreen();
 
@@ -112,32 +142,33 @@ public:
 class CChatBox : public CIntObject
 {
 public:
-	CTextBox *chatHistory;
-	CTextInput *inputBox;
+	CTextBox * chatHistory;
+	CTextInput * inputBox;
 
-	CChatBox(const Rect &rect);
+	CChatBox(const Rect & rect);
 
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 
-	void addNewMessage(const std::string &text);
+	void addNewMessage(const std::string & text);
 };
 
 class InfoCard : public CIntObject
 {
-	CAnimImage * victory, * loss, *sizes;
+	CAnimImage * victory, * loss, * sizes;
 	std::shared_ptr<CAnimation> sFlags;
+
 public:
-	CPicture *bg;
+	CPicture * bg;
 
 	bool network;
-	bool chatOn;  //if chat is shown, then description is hidden
-	CTextBox *mapDescription;
-	CChatBox *chat;
-	CPicture *playerListBg;
+	bool chatOn; //if chat is shown, then description is hidden
+	CTextBox * mapDescription;
+	CChatBox * chat;
+	CPicture * playerListBg;
 
-	CToggleGroup *difficulty;
+	CToggleGroup * difficulty;
 
-	void changeSelection(const CMapInfo *to);
+	void changeSelection(const CMapInfo * to);
 	void showAll(SDL_Surface * to) override;
 	void clickRight(tribool down, bool previousState) override;
 	void showTeamsPopup();
@@ -153,17 +184,18 @@ class SelectionTab : public CIntObject
 private:
 	std::shared_ptr<CAnimation> formatIcons;
 
-	void parseMaps(const std::unordered_set<ResourceID> &files);
-	void parseGames(const std::unordered_set<ResourceID> &files, CMenuScreen::EGameMode gameMode);
+	void parseMaps(const std::unordered_set<ResourceID> & files);
+	void parseGames(const std::unordered_set<ResourceID> & files, CMenuScreen::EGameMode gameMode);
 	std::unordered_set<ResourceID> getFiles(std::string dirURI, int resType);
-	void parseCampaigns(const std::unordered_set<ResourceID> & files );
+	void parseCampaigns(const std::unordered_set<ResourceID> & files);
 	CMenuScreen::EState tabType;
+
 public:
 	int positions; //how many entries (games/maps) can be shown
-	CPicture *bg; //general bg image
-	CSlider *slider;
+	CPicture * bg; //general bg image
+	CSlider * slider;
 	std::vector<CMapInfo> allItems;
-	std::vector<CMapInfo*> curItems;
+	std::vector<CMapInfo *> curItems;
 	size_t selectionPos;
 	std::function<void(CMapInfo *)> onSelect;
 
@@ -171,7 +203,7 @@ public:
 	ESortBy generalSortingBy;
 	bool ascending;
 
-	CTextInput *txt;
+	CTextInput * txt;
 
 
 	void filter(int size, bool selectFirst = false); //0 - all
@@ -181,7 +213,7 @@ public:
 	void sliderMove(int slidPos);
 	void sortBy(int criteria);
 	void sort();
-	void printMaps(SDL_Surface *to);
+	void printMaps(SDL_Surface * to);
 	int getLine();
 	void selectFName(std::string fname);
 	const CMapInfo * getSelectedMapInfo() const;
@@ -190,35 +222,40 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	void onDoubleClick() override;
-	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EGameMode GameMode = CMenuScreen::SINGLE_PLAYER);
-    ~SelectionTab();
+	SelectionTab(CMenuScreen::EState Type, const std::function<void(CMapInfo *)> & OnSelect, CMenuScreen::EGameMode GameMode = CMenuScreen::SINGLE_PLAYER);
+	~SelectionTab();
 };
 
 /// The options tab which is shown at the map selection phase.
 class OptionsTab : public CIntObject
 {
-	CPicture *bg;
+	CPicture * bg;
+
 public:
-	enum SelType {TOWN, HERO, BONUS};
+	enum SelType
+	{
+		TOWN,
+		HERO,
+		BONUS
+	};
 
 	struct CPlayerSettingsHelper
 	{
 		const PlayerSettings & settings;
 		const SelType type;
 
-		CPlayerSettingsHelper(const PlayerSettings & settings, SelType type):
-		    settings(settings),
-		    type(type)
+		CPlayerSettingsHelper(const PlayerSettings & settings, SelType type)
+			: settings(settings), type(type)
 		{}
 
 		/// visible image settings
 		size_t getImageIndex();
 		std::string getImageName();
 
-		std::string getName();       /// name visible in options dialog
-		std::string getTitle();      /// title in popup box
-		std::string getSubtitle();   /// popup box subtitle
-		std::string getDescription();/// popup box description, not always present
+		std::string getName(); /// name visible in options dialog
+		std::string getTitle(); /// title in popup box
+		std::string getSubtitle(); /// popup box subtitle
+		std::string getDescription(); /// popup box description, not always present
 	};
 
 	class CPregameTooltipBox : public CWindowObject, public CPlayerSettingsHelper
@@ -227,14 +264,15 @@ public:
 		void genTownWindow();
 		void genHeroWindow();
 		void genBonusWindow();
-	public:
+
+public:
 		CPregameTooltipBox(CPlayerSettingsHelper & helper);
 	};
 
 	struct SelectedBox : public CIntObject, public CPlayerSettingsHelper //img with current town/hero/bonus
 	{
 		CAnimImage * image;
-		CLabel *subtitle;
+		CLabel * subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void clickRight(tribool down, bool previousState) override;
@@ -244,23 +282,28 @@ public:
 
 	struct PlayerOptionsEntry : public CIntObject
 	{
-		PlayerInfo &pi;
-		PlayerSettings &s;
-		CPicture *bg;
-		CButton *btns[6]; //left and right for town, hero, bonus
-		CButton *flag;
-		SelectedBox *town;
-		SelectedBox *hero;
-		SelectedBox *bonus;
-		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
+		PlayerInfo & pi;
+		PlayerSettings & s;
+		CPicture * bg;
+		CButton * btns[6]; //left and right for town, hero, bonus
+		CButton * flag;
+		SelectedBox * town;
+		SelectedBox * hero;
+		SelectedBox * bonus;
+		enum
+		{
+			HUMAN_OR_CPU,
+			HUMAN,
+			CPU
+		} whoCanPlay;
 
-		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
+		PlayerOptionsEntry(OptionsTab * owner, PlayerSettings & S);
 		void selectButtons(); //hides unavailable buttons
 		void showAll(SDL_Surface * to) override;
 		void update();
 	};
 
-	CSlider *turnDuration;
+	CSlider * turnDuration;
 
 	std::set<int> usedHeroes;
 
@@ -286,9 +329,9 @@ public:
 	~OptionsTab();
 	void showAll(SDL_Surface * to) override;
 
-	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir );
+	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir);
 
-	bool canUseThisHero(PlayerColor player, int ID );
+	bool canUseThisHero(PlayerColor player, int ID);
 };
 
 /// The random map tab shows options for generating a random map.
@@ -297,26 +340,26 @@ class CRandomMapTab : public CIntObject
 public:
 	CRandomMapTab();
 
-    void showAll(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
 	void updateMapInfo();
-	CFunctionList<void (const CMapInfo *)> & getMapInfoChanged();
+	CFunctionList<void(const CMapInfo *)> & getMapInfoChanged();
 	const CMapInfo * getMapInfo() const;
 	const CMapGenOptions & getMapGenOptions() const;
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
 
 private:
-    void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
-    void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
-    void deactivateButtonsFrom(CToggleGroup * group, int startId);
-    void validatePlayersCnt(int playersCnt);
-    void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
+	void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
+	void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
+	void deactivateButtonsFrom(CToggleGroup * group, int startId);
+	void validatePlayersCnt(int playersCnt);
+	void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
 	std::vector<int> getPossibleMapSizes();
 
-    CPicture * bg;
+	CPicture * bg;
 	CToggleButton * twoLevelsBtn;
 	CToggleGroup * mapSizeBtnGroup, * playersCntGroup, * teamsCntGroup, * compOnlyPlayersCntGroup,
-		* compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
-    CButton * showRandMaps;
+		     * compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
+	CButton * showRandMaps;
 	CMapGenOptions mapGenOptions;
 	std::unique_ptr<CMapInfo> mapInfo;
 	CFunctionList<void(const CMapInfo *)> mapInfoChanged;
@@ -328,18 +371,18 @@ class ISelectionScreenInfo
 public:
 	CMenuScreen::EGameMode gameMode;
 	CMenuScreen::EState screenType; //new/save/load#Game
-	const CMapInfo *current;
+	const CMapInfo * current;
 	StartInfo sInfo;
 	std::map<ui8, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 
-	ISelectionScreenInfo(const std::map<ui8, std::string> *Names = nullptr);
+	ISelectionScreenInfo(const std::map<ui8, std::string> * Names = nullptr);
 	virtual ~ISelectionScreenInfo();
 	virtual void update(){};
 	virtual void propagateOptions() {};
 	virtual void postRequest(ui8 what, ui8 dir) {};
-	virtual void postChatMessage(const std::string &txt){};
+	virtual void postChatMessage(const std::string & txt){};
 
-	void setPlayer(PlayerSettings &pset, ui8 player);
+	void setPlayer(PlayerSettings & pset, ui8 player);
 	void updateStartInfo(std::string filename, StartInfo & sInfo, const std::unique_ptr<CMapHeader> & mapHeader);
 
 	ui8 getIdOfFirstUnallocatedPlayer(); //returns 0 if none
@@ -352,28 +395,29 @@ public:
 class CSelectionScreen : public CIntObject, public ISelectionScreenInfo
 {
 	bool bordered;
+
 public:
-	CPicture *bg; //general bg image
-	InfoCard *card;
-	OptionsTab *opt;
+	CPicture * bg; //general bg image
+	InfoCard * card;
+	OptionsTab * opt;
 	CRandomMapTab * randMapTab;
-	CButton *start, *back;
+	CButton * start, * back;
 
-	SelectionTab *sel;
-	CIntObject *curTab;
+	SelectionTab * sel;
+	CIntObject * curTab;
 
-	boost::thread *serverHandlingThread;
-	boost::recursive_mutex *mx;
+	boost::thread * serverHandlingThread;
+	boost::recursive_mutex * mx;
 	std::list<CPackForSelectionScreen *> upcomingPacks; //protected by mx
 
-	CConnection *serv; //connection to server, used in MP mode
+	CConnection * serv; //connection to server, used in MP mode
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
 	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameMode GameMode = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = nullptr, const std::string & Address = "", const ui16 Port = 0);
 	~CSelectionScreen();
-	void toggleTab(CIntObject *tab);
-	void changeSelection(const CMapInfo *to);
+	void toggleTab(CIntObject * tab);
+	void changeSelection(const CMapInfo * to);
 	void startCampaign();
 	void startScenario();
 	void difficultyChange(int to);
@@ -381,20 +425,20 @@ public:
 	void handleConnection();
 
 	void processPacks();
-	void setSInfo(const StartInfo &si);
+	void setSInfo(const StartInfo & si);
 	void update() override;
 	void propagateOptions() override;
 	void postRequest(ui8 what, ui8 dir) override;
-	void postChatMessage(const std::string &txt) override;
+	void postChatMessage(const std::string & txt) override;
 	void propagateNames();
-	void showAll(SDL_Surface *to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Save game screen
 class CSavingScreen : public CSelectionScreen
 {
 public:
-	const CMapInfo *ourGame;
+	const CMapInfo * ourGame;
 
 
 	CSavingScreen(bool hotseat = false);
@@ -405,11 +449,11 @@ public:
 class CScenarioInfo : public CIntObject, public ISelectionScreenInfo
 {
 public:
-	CButton *back;
-	InfoCard *card;
-	OptionsTab *opt;
+	CButton * back;
+	InfoCard * card;
+	OptionsTab * opt;
 
-	CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo);
+	CScenarioInfo(const CMapHeader * mapHeader, const StartInfo * startInfo);
 	~CScenarioInfo();
 };
 
@@ -417,10 +461,10 @@ public:
 class CMultiMode : public CIntObject
 {
 public:
-	CPicture *bg;
-	CTextInput *txt;
-	CButton *btns[7]; //0 - hotseat, 6 - cancel
-	CGStatusBar *bar;
+	CPicture * bg;
+	CTextInput * txt;
+	CButton * btns[7]; //0 - hotseat, 6 - cancel
+	CGStatusBar * bar;
 
 	CMultiMode();
 	void openHotseat();
@@ -431,17 +475,17 @@ public:
 /// Hot seat player window
 class CHotSeatPlayers : public CIntObject
 {
-	CPicture *bg;
-	CTextBox *title;
-	CTextInput* txt[8];
-	CButton *ok, *cancel;
-	CGStatusBar *bar;
+	CPicture * bg;
+	CTextBox * title;
+	CTextInput * txt[8];
+	CButton * ok, * cancel;
+	CGStatusBar * bar;
 
 	void onChange(std::string newText);
 	void enterSelectionScreen();
 
 public:
-	CHotSeatPlayers(const std::string &firstPlayer);
+	CHotSeatPlayers(const std::string & firstPlayer);
 };
 
 
@@ -453,6 +497,7 @@ class CPrologEpilogVideo : public CWindowObject
 	std::function<void()> exitCb;
 
 	CMultiLineLabel * text;
+
 public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 
@@ -490,12 +535,12 @@ private:
 	class CRegion : public CIntObject
 	{
 		CBonusSelection * owner;
-		SDL_Surface* graphics[3]; //[0] - not selected, [1] - selected, [2] - striped
+		SDL_Surface * graphics[3]; //[0] - not selected, [1] - selected, [2] - striped
 		bool accessible; //false if region should be striped
 		bool selectable; //true if region should be selectable
 		int myNumber; //number of region
 
-	public:
+public:
 		std::string rclickText;
 		CRegion(CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber);
 		~CRegion();
@@ -530,7 +575,7 @@ private:
 	CToggleGroup * bonuses;
 	std::array<CAnimImage *, 5> diffPics; //pictures of difficulties, user-selectable (or not if campaign locks this)
 	CButton * diffLb, * diffRb; //buttons for changing difficulty
-	CAnimImage * sizes;//icons of map sizes
+	CAnimImage * sizes; //icons of map sizes
 	std::shared_ptr<CAnimation> sFlags;
 
 	// Data
@@ -545,14 +590,20 @@ private:
 class CCampaignScreen : public CIntObject
 {
 public:
-	enum CampaignStatus {DEFAULT = 0, ENABLED, DISABLED, COMPLETED}; // the status of the campaign
+	enum CampaignStatus
+	{
+		DEFAULT = 0,
+		ENABLED,
+		DISABLED,
+		COMPLETED
+	}; // the status of the campaign
 
 private:
 	/// A button which plays a video when you move the mouse cursor over it
 	class CCampaignButton : public CIntObject
 	{
-	private:
-		CLabel *hoverLabel;
+private:
+		CLabel * hoverLabel;
 		CampaignStatus status;
 
 		std::string campFile; // the filename/resourcename of the campaign
@@ -562,21 +613,27 @@ private:
 		void clickLeft(tribool down, bool previousState) override;
 		void hover(bool on) override;
 
-	public:
-		CCampaignButton(const JsonNode &config );
+public:
+		CCampaignButton(const JsonNode & config);
 		void show(SDL_Surface * to) override;
 	};
 
-	std::vector<CCampaignButton*> campButtons;
-	std::vector<CPicture*> images;
+	std::vector<CCampaignButton *> campButtons;
+	std::vector<CPicture *> images;
 
-	CButton* createExitButton(const JsonNode& button);
+	CButton * createExitButton(const JsonNode & button);
 
 public:
-	enum CampaignSet {ROE, AB, SOD, WOG};
+	enum CampaignSet
+	{
+		ROE,
+		AB,
+		SOD,
+		WOG
+	};
 
-	CCampaignScreen(const JsonNode &config);
-	void showAll(SDL_Surface *to) override;
+	CCampaignScreen(const JsonNode & config);
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
@@ -623,11 +680,12 @@ class CLoadingScreen : public CWindowObject
 	boost::thread loadingThread;
 
 	std::string getBackground();
+
 public:
 	CLoadingScreen(std::function<void()> loader);
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface *to) override;
+	void showAll(SDL_Surface * to) override;
 };
 
 /// Simple window to enter the server's address.
@@ -642,9 +700,10 @@ class CSimpleJoinScreen : public CIntObject
 
 	void enterSelectionScreen(CMenuScreen::EGameMode mode);
 	void onChange(const std::string & newText);
+
 public:
 	CSimpleJoinScreen(CMenuScreen::EGameMode mode);
 };
 
-extern ISelectionScreenInfo *SEL;
-extern CGPreGame *CGP;
+extern ISelectionScreenInfo * SEL;
+extern CGPreGame * CGP;

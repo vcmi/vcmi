@@ -21,10 +21,10 @@ class CMessage
 {
 public:
 	//Function usd only in CMessage.cpp
-	static std::pair<int,int> getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight);
+	static std::pair<int, int> getMaxSizes(std::vector<std::vector<SDL_Surface *>> * txtg, int fontHeight);
 
 	/// Draw border on exiting surface
-	static void drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
+	static void drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x = 0, int y = 0);
 
 	/// Draw simple dialog box (borders and background only)
 	static SDL_Surface * drawDialogBox(int w, int h, PlayerColor playerColor = PlayerColor(1));

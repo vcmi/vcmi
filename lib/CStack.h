@@ -18,12 +18,12 @@ struct BattleInfo;
 class CStack;
 class CHealthInfo;
 
-template <typename Quantity>
+template<typename Quantity>
 class DLL_LINKAGE CStackResource
 {
 public:
-	CStackResource(const CStack * Owner):
-		owner(Owner)
+	CStackResource(const CStack * Owner)
+		: owner(Owner)
 	{
 		reset();
 	}
@@ -49,12 +49,13 @@ public:
 	virtual int32_t total() const;
 	virtual void use(int32_t amount = 1);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		if(!h.saving)
 			reset();
 		h & used;
 	}
+
 protected:
 	CBonusProxy totalProxy;
 };
@@ -78,6 +79,7 @@ public:
 	CRetaliations(const CStack * Owner);
 	int32_t total() const override;
 	void reset() override;
+
 private:
 	mutable int32_t totalCache;
 };
@@ -113,12 +115,13 @@ public:
 
 	void takeResurrected();
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		if(!h.saving)
 			reset();
 		h & firstHPleft & fullUnits & resurrected;
 	}
+
 private:
 	void addResurrected(int32_t amount);
 	void setFromTotal(const int64_t totalHealth);
@@ -139,7 +142,7 @@ public:
 	const CCreature * type;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
-	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
+	SlotID slot; //slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 side;
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 
@@ -248,7 +251,7 @@ public:
 	void setHealth(const CHealthInfo & value);
 	void setHealth(const CHealth & value);
 
-	template <typename Handler> void serialize(Handler & h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		assert(isIndependentNode());
 		h & static_cast<CBonusSystemNode &>(*this);
@@ -298,6 +301,7 @@ public:
 	bool isTurret() const;
 
 	friend class CShots; //for BattleInfo access
+
 private:
 	const BattleInfo * battle; //do not serialize
 };

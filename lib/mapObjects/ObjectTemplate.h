@@ -76,7 +76,7 @@ public:
 	//custom copy constructor is required
 	ObjectTemplate(const ObjectTemplate & other);
 
-	ObjectTemplate& operator=(const ObjectTemplate & rhs);
+	ObjectTemplate & operator=(const ObjectTemplate & rhs);
 
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
@@ -84,9 +84,9 @@ public:
 	void readJson(const JsonNode & node, const bool withTerrain = true);
 	void writeJson(JsonNode & node, const bool withTerrain = true) const;
 
-	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
+	bool operator==(const ObjectTemplate & ot) const { return (id == ot.id && subid == ot.subid); }
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & usedTiles & allowedTerrains & animationFile & stringID;
 		h & id & subid & printPriority & visitDir;
@@ -96,4 +96,3 @@ public:
 		}
 	}
 };
-

@@ -29,16 +29,16 @@
 #include "lib/UnlockGuard.h"
 #include "lib/battle/BattleInfo.h"
 
-bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
+bool CCallback::teleportHero(const CGHeroInstance * who, const CGTownInstance * where)
 {
 	CastleTeleportHero pack(who->id, where->id, 1);
 	sendRequest(&pack);
 	return true;
 }
 
-bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
+bool CCallback::moveHero(const CGHeroInstance * h, int3 dst, bool transit)
 {
-	MoveHero pack(dst,h->id,transit);
+	MoveHero pack(dst, h->id, transit);
 	sendRequest(&pack);
 	return true;
 }
@@ -74,52 +74,53 @@ void CCallback::recruitCreatures(const CGDwelling * obj, const CArmedInstance * 
 	sendRequest(&pack);
 }
 
-bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
+bool CCallback::dismissCreature(const CArmedInstance * obj, SlotID stackPos)
 {
-	if((player && obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
+	if((player && obj->tempOwner != player) || (obj->stacksCount() < 2 && obj->needsLastStack()))
 		return false;
 
-	DisbandCreature pack(stackPos,obj->id);
+	DisbandCreature pack(stackPos, obj->id);
 	sendRequest(&pack);
 	return true;
 }
 
-bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID)
+bool CCallback::upgradeCreature(const CArmedInstance * obj, SlotID stackPos, CreatureID newID)
 {
-	UpgradeCreature pack(stackPos,obj->id,newID);
+	UpgradeCreature pack(stackPos, obj->id, newID);
 	sendRequest(&pack);
 	return false;
 }
 
 void CCallback::endTurn()
 {
-	logGlobal->traceStream() << "Player " << *player << " ended his turn.";
+	logGlobal->traceStream() << "Player " << * player << " ended his turn.";
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
-int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+int CCallback::swapCreatures(const CArmedInstance * s1, const CArmedInstance * s2, SlotID p1, SlotID p2)
 {
-	ArrangeStacks pack(1,p1,p2,s1->id,s2->id,0);
+	ArrangeStacks pack(1, p1, p2, s1->id, s2->id, 0);
 	sendRequest(&pack);
 	return 0;
 }
 
-int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+int CCallback::mergeStacks(const CArmedInstance * s1, const CArmedInstance * s2, SlotID p1, SlotID p2)
 {
-	ArrangeStacks pack(2,p1,p2,s1->id,s2->id,0);
+	ArrangeStacks pack(2, p1, p2, s1->id, s2->id, 0);
 	sendRequest(&pack);
 	return 0;
 }
-int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)
+int CCallback::splitStack(const CArmedInstance * s1, const CArmedInstance * s2, SlotID p1, SlotID p2, int val)
 {
-	ArrangeStacks pack(3,p1,p2,s1->id,s2->id,val);
+	ArrangeStacks pack(3, p1, p2, s1->id, s2->id, val);
 	sendRequest(&pack);
 	return 0;
 }
 
-bool CCallback::dismissHero(const CGHeroInstance *hero)
+bool CCallback::dismissHero(const CGHeroInstance * hero)
 {
-	if(player!=hero->tempOwner) return false;
+	if(player != hero->tempOwner)
+		return false;
 
 	DismissHero pack(hero->id);
 	sendRequest(&pack);
@@ -128,11 +129,11 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 
 // int CCallback::getMySerial() const
 // {
-// 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-// 	return gs->players[player].serial;
+//      boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+//      return gs->players[player].serial;
 // }
 
-bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)
+bool CCallback::swapArtifacts(const ArtifactLocation & l1, const ArtifactLocation & l2)
 {
 	ExchangeArtifacts ea;
 	ea.src = l1;
@@ -149,9 +150,9 @@ bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
+bool CCallback::assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
-	if (player != hero->tempOwner)
+	if(player != hero->tempOwner)
 		return false;
 
 	AssembleArtifacts aa(hero->id, artifactSlot, assemble, assembleTo);
@@ -159,20 +160,20 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 	return true;
 }
 
-bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
+bool CCallback::buildBuilding(const CGTownInstance * town, BuildingID buildingID)
 {
-	if(town->tempOwner!=player)
+	if(town->tempOwner != player)
 		return false;
 
 	if(!canBuildStructure(town, buildingID))
 		return false;
 
-	BuildStructure pack(town->id,buildingID);
+	BuildStructure pack(town->id, buildingID);
 	sendRequest(&pack);
 	return true;
 }
 
-int CBattleCallback::battleMakeAction(BattleAction* action)
+int CBattleCallback::battleMakeAction(BattleAction * action)
 {
 	assert(action->actionType == Battle::HERO_SPELL);
 	MakeCustomAction mca(*action);
@@ -180,7 +181,7 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-int CBattleCallback::sendRequest(const CPack *request)
+int CBattleCallback::sendRequest(const CPack * request)
 {
 	int requestID = cl->sendRequest(request, *player);
 	if(waitTillRealize)
@@ -194,25 +195,26 @@ int CBattleCallback::sendRequest(const CPack *request)
 	return requestID;
 }
 
-void CCallback::swapGarrisonHero( const CGTownInstance *town )
+void CCallback::swapGarrisonHero(const CGTownInstance * town)
 {
 	if(town->tempOwner == *player
-	   || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
+	   || (town->garrisonHero && town->garrisonHero->tempOwner == *player))
 	{
 		GarrisonHeroSwap pack(town->id);
 		sendRequest(&pack);
 	}
 }
 
-void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
+void CCallback::buyArtifact(const CGHeroInstance * hero, ArtifactID aid)
 {
-	if(hero->tempOwner != player) return;
+	if(hero->tempOwner != player)
+		return;
 
-	BuyArtifact pack(hero->id,aid);
+	BuyArtifact pack(hero->id, aid);
 	sendRequest(&pack);
 }
 
-void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero)
+void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance * hero)
 {
 	TradeOnMarketplace pack;
 	pack.market = market;
@@ -226,16 +228,16 @@ void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode m
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
-	SetFormation pack(hero->id,tight);
+	SetFormation pack(hero->id, tight);
 	sendRequest(&pack);
 }
 
-void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
+void CCallback::recruitHero(const CGObjectInstance * townOrTavern, const CGHeroInstance * hero)
 {
 	assert(townOrTavern);
 	assert(hero);
-	ui8 i=0;
-	for(; i<gs->players[*player].availableHeroes.size(); i++)
+	ui8 i = 0;
+	for(; i < gs->players[*player].availableHeroes.size(); i++)
 	{
 		if(gs->players[*player].availableHeroes[i] == hero)
 		{
@@ -247,28 +249,28 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	}
 }
 
-void CCallback::save( const std::string &fname )
+void CCallback::save(const std::string & fname)
 {
 	cl->save(fname);
 }
 
 
-void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * currentObject)
+void CCallback::sendMessage(const std::string & mess, const CGObjectInstance * currentObject)
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
-	PlayerMessage pm(*player, mess, currentObject? currentObject->id : ObjectInstanceID(-1));
-	sendRequest(&(CPackForClient&)pm);
+	PlayerMessage pm(*player, mess, currentObject ? currentObject->id : ObjectInstanceID(-1));
+	sendRequest(&(CPackForClient &)pm);
 }
 
-void CCallback::buildBoat( const IShipyard *obj )
+void CCallback::buildBoat(const IShipyard * obj)
 {
 	BuildBoat bb;
 	bb.objid = obj->o->id;
 	sendRequest(&bb);
 }
 
-CCallback::CCallback( CGameState * GS, boost::optional<PlayerColor> Player, CClient *C )
-	:CBattleCallback(GS, Player, C)
+CCallback::CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient * C)
+	: CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
 	unlockGsWhenWaiting = false;
@@ -279,38 +281,38 @@ CCallback::~CCallback()
 //trivial, but required. Don`t remove.
 }
 
-bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
+bool CCallback::canMoveBetween(const int3 & a, const int3 & b)
 {
 	//bidirectional
 	return gs->map->canMoveBetween(a, b);
 }
 
-const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
+const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance * h)
 {
 	return cl->getPathsInfo(h);
 }
 
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
 {
-	if (!gs->map->isInTheMap(tile))
-		return int3(-1,-1,-1);
+	if(!gs->map->isInTheMap(tile))
+		return int3(-1, -1, -1);
 
 	return gs->map->guardingCreaturePositions[tile.x][tile.y][tile.z];
 }
 
-void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
+void CCallback::calculatePaths(const CGHeroInstance * hero, CPathsInfo & out)
 {
 	gs->calculatePaths(hero, out);
 }
 
-void CCallback::dig( const CGObjectInstance *hero )
+void CCallback::dig(const CGObjectInstance * hero)
 {
 	DigWithHero dwh;
 	dwh.id = hero->id;
 	sendRequest(&dwh);
 }
 
-void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos)
+void CCallback::castSpell(const CGHeroInstance * hero, SpellID spellID, const int3 & pos)
 {
 	CastAdvSpell cas;
 	cas.hid = hero->id;
@@ -321,13 +323,13 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 
 void CCallback::unregisterAllInterfaces()
 {
-	for (auto& pi : cl->playerint)
+	for(auto & pi : cl->playerint)
 		pi.second->finish();
 	cl->playerint.clear();
 	cl->battleints.clear();
 }
 
-int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
+int CCallback::mergeOrSwapStacks(const CArmedInstance * s1, const CArmedInstance * s2, SlotID p1, SlotID p2)
 {
 	if(s1->getCreature(p1) == s2->getCreature(p2))
 		return mergeStacks(s1, s2, p1, p2);
@@ -355,14 +357,14 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
-CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient * C)
 {
 	gs = GS;
 	player = Player;
 	cl = C;
 }
 
-bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
+bool CBattleCallback::battleMakeTacticAction(BattleAction * action)
 {
 	assert(cl->gs->curB->tacticDistance);
 	MakeAction ma;

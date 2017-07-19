@@ -15,10 +15,10 @@
 struct BattleInfo;
 class CGameState;
 
-class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
+class DLL_LINKAGE CArmedInstance : public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
 {
 public:
-	BattleInfo *battle; //set to the current battle, if engaged
+	BattleInfo * battle; //set to the current battle, if engaged
 
 	void randomizeArmy(int type);
 	virtual void updateMoraleBonusFromArmy();
@@ -27,16 +27,16 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 //	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
-	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs);
-	virtual CBonusSystemNode *whatShouldBeAttached();
+	virtual CBonusSystemNode * whereShouldBeAttached(CGameState * gs);
+	virtual CBonusSystemNode * whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CCreatureSet&>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
+		h & static_cast<CCreatureSet &>(*this);
 	}
 };

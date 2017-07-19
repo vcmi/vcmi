@@ -12,22 +12,22 @@
 
 #include "ERMInterpreter.h"
 
-IGameEventRealizer *acb;
-CPrivilagedInfoCallback *icb;
+IGameEventRealizer * acb;
+CPrivilagedInfoCallback * icb;
 
 
 #ifdef __GNUC__
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-const char *g_cszAiName = "(V)ERM interpreter";
+const char * g_cszAiName = "(V)ERM interpreter";
 
-extern "C" DLL_EXPORT void GetAiName(char* name)
+extern "C" DLL_EXPORT void GetAiName(char * name)
 {
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_EXPORT void GetNewModule(std::shared_ptr<CScriptingModule> &out)
+extern "C" DLL_EXPORT void GetNewModule(std::shared_ptr<CScriptingModule> & out)
 {
 	out = std::make_shared<ERMInterpreter>();
 }

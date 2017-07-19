@@ -72,6 +72,7 @@ protected:
 
 	/// resets all internal state
 	void reset();
+
 private:
 	/// ensures that buffer contains at lest size of bytes. Calls readMore() to fill remaining part
 	void ensureSize(si64 size);
@@ -99,7 +100,7 @@ public:
 	 * @param gzip - this is gzipp'ed file e.g. campaign or maps, false for files in lod
 	 * @param decompressedSize - optional parameter to hint size of decompressed data
 	 */
-	CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize=0);
+	CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize = 0);
 
 	~CCompressedStream();
 

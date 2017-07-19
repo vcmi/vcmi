@@ -39,26 +39,28 @@ class CRecruitmentWindow : public CWindowObject
 	class CCreatureCard : public CIntObject
 	{
 		CRecruitmentWindow * parent;
-		CCreaturePic *pic; //creature's animation
+		CCreaturePic * pic; //creature's animation
 		bool selected;
 
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
-		void showAll(SDL_Surface *to) override;
-	public:
+		void showAll(SDL_Surface * to) override;
+
+public:
 		const CCreature * creature;
 		si32 amount;
 
 		void select(bool on);
 
-		CCreatureCard(CRecruitmentWindow * window, const CCreature *crea, int totalAmount);
+		CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount);
 	};
 
 	/// small class to display creature costs
 	class CCostBox : public CIntObject
 	{
-		std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
-	public:
+		std::map<int, std::pair<CLabel *, CAnimImage *>> resources;
+
+public:
 		//res - resources to show
 		void set(TResources res);
 		//res - visible resources
@@ -66,16 +68,16 @@ class CRecruitmentWindow : public CWindowObject
 		void createItems(TResources res);
 	};
 
-	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+	std::function<void(CreatureID, int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
 
 	int level;
-	const CArmedInstance *dst;
+	const CArmedInstance * dst;
 
 	CCreatureCard * selected;
 	std::vector<CCreatureCard *> cards;
 
-	CSlider *slider; //for selecting amount
-	CButton *maxButton, *buyButton, *cancelButton;
+	CSlider * slider; //for selecting amount
+	CButton * maxButton, * buyButton, * cancelButton;
 	//labels for visible values
 	CLabel * title;
 	CLabel * availableValue;
@@ -87,10 +89,11 @@ class CRecruitmentWindow : public CWindowObject
 	void buy();
 	void sliderMoved(int to);
 
-	void showAll(SDL_Surface *to) override;
+	void showAll(SDL_Surface * to) override;
+
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
+	CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID, int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
 	void availableCreaturesChanged();
 };
 
@@ -104,11 +107,11 @@ class CSplitWindow : public CWindowObject
 	int leftMin;
 	int rightMin;
 
-	CSlider *slider;
-	CCreaturePic *animLeft, *animRight; //creature's animation
-	CButton *ok, *cancel;
+	CSlider * slider;
+	CCreaturePic * animLeft, * animRight; //creature's animation
+	CButton * ok, * cancel;
 
-	CTextInput *leftInput, *rightInput;
+	CTextInput * leftInput, * rightInput;
 	void setAmountText(std::string text, bool left);
 	void setAmount(int value, bool left);
 	void sliderMoved(int value);
@@ -121,8 +124,7 @@ public:
 	 * leftMin, rightMin - minimal amount of creatures in each stack
 	 * leftAmount, rightAmount - amount of creatures in each stack
 	 */
-	CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback,
-	             int leftMin, int rightMin, int leftAmount, int rightAmount);
+	CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback, int leftMin, int rightMin, int leftAmount, int rightAmount);
 };
 
 /// Raised up level windowe where you can select one out of two skills
@@ -132,9 +134,10 @@ class CLevelWindow : public CWindowObject
 	std::function<void(ui32)> cb;
 
 	void selectionChanged(unsigned to);
+
 public:
 
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
+	CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback);
 	~CLevelWindow();
 
 };
@@ -144,55 +147,55 @@ class CObjectListWindow : public CWindowObject
 {
 	class CItem : public CIntObject
 	{
-		CObjectListWindow *parent;
-		CLabel *text;
-		CPicture *border;
-	public:
+		CObjectListWindow * parent;
+		CLabel * text;
+		CPicture * border;
+
+public:
 		const size_t index;
-		CItem(CObjectListWindow *parent, size_t id, std::string text);
+		CItem(CObjectListWindow * parent, size_t id, std::string text);
 
 		void select(bool on);
 		void clickLeft(tribool down, bool previousState) override;
 	};
 
-	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
+	std::function<void(int)> onSelect; //called when OK button is pressed, returns id of selected item.
 	CLabel * title;
 	CLabel * descr;
 
 	CListBox * list;
-	CButton *ok, *exit;
+	CButton * ok, * exit;
 
-	std::vector< std::pair<int, std::string> > items;//all items present in list
+	std::vector<std::pair<int, std::string>> items; //all items present in list
 
 	void init(CIntObject * titlePic, std::string _title, std::string _descr);
 	void exitPressed();
-public:
-	size_t selected;//index of currently selected item
 
-	std::function<void()> onExit;//optional exit callback
+public:
+	size_t selected; //index of currently selected item
+
+	std::function<void()> onExit; //optional exit callback
 
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-                      std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<int> & _items, CIntObject * titlePic, std::string _title, std::string _descr, std::function<void(int)> Callback);
 
-	CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-                      std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<std::string> & _items, CIntObject * titlePic, std::string _title, std::string _descr, std::function<void(int)> Callback);
 
-	CIntObject *genItem(size_t index);
-	void elementSelected();//call callback and close this window
+	CIntObject * genItem(size_t index);
+	void elementSelected(); //call callback and close this window
 	void changeSelection(size_t which);
-	void keyPressed (const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
 };
 
 class CSystemOptionsWindow : public CWindowObject
 {
 private:
-	CLabel *title;
-	CLabelGroup *leftGroup;
-	CLabelGroup *rightGroup;
-	CButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
+	CLabel * title;
+	CLabelGroup * leftGroup;
+	CLabelGroup * rightGroup;
+	CButton * load, * save, * restart, * mainMenu, * quitGame, * backToMap; //load and restart are not used yet
 	CToggleGroup * heroMoveSpeed;
 	CToggleGroup * enemyMoveSpeed;
 	CToggleGroup * mapScrollSpeed;
@@ -204,8 +207,8 @@ private:
 	CToggleButton * spellbookAnim;
 	CToggleButton * fullscreen;
 
-	CButton *gameResButton;
-	CLabel *gameResLabel;
+	CButton * gameResButton;
+	CLabel * gameResLabel;
 
 	SettingsListener onFullscreenChanged;
 
@@ -230,29 +233,29 @@ class CTavernWindow : public CWindowObject
 public:
 	class HeroPortrait : public CIntObject
 	{
-	public:
+public:
 		std::string hoverName;
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
-		const CGHeroInstance *h;
+		const CGHeroInstance * h;
 
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
-		void hover (bool on) override;
-		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
+		void hover(bool on) override;
+		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
 
-	private:
-		int *_sel;
+private:
+		int * _sel;
 		const int _id;
 
 	} *h1, *h2; //recruitable heroes
 
-	int selected;//0 (left) or 1 (right)
-	int oldSelected;//0 (left) or 1 (right)
+	int selected; //0 (left) or 1 (right)
+	int oldSelected; //0 (left) or 1 (right)
 
-	CButton *thiefGuild, *cancel, *recruit;
-	const CGObjectInstance *tavernObj;
+	CButton * thiefGuild, * cancel, * recruit;
+	const CGObjectInstance * tavernObj;
 
-	CTavernWindow(const CGObjectInstance *TavernObj);
+	CTavernWindow(const CGObjectInstance * TavernObj);
 	~CTavernWindow();
 
 	void recruitb();
@@ -268,16 +271,16 @@ class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
-	MoraleLuckBox *morale[2], *luck[2];
+	MoraleLuckBox * morale[2], * luck[2];
 
-	LRClickableAreaWText *specialty[2];
-	LRClickableAreaWText *experience[2];
-	LRClickableAreaWText *spellPoints[2];
-	CHeroArea *portrait[2];
+	LRClickableAreaWText * specialty[2];
+	LRClickableAreaWText * experience[2];
+	LRClickableAreaWText * spellPoints[2];
+	CHeroArea * portrait[2];
 
 public:
 
-	const CGHeroInstance* heroInst[2];
+	const CGHeroInstance * heroInst[2];
 	CArtifactsOfHero * artifs[2];
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
@@ -292,21 +295,21 @@ public:
 class CShipyardWindow : public CWindowObject
 {
 public:
-	CGStatusBar *bar;
-	CPicture *bgWater;
+	CGStatusBar * bar;
+	CPicture * bgWater;
 
-	CLabel *title;
-	CLabel *costLabel;
+	CLabel * title;
+	CLabel * costLabel;
 
-	CAnimImage *woodPic, *goldPic;
-	CLabel *woodCost, *goldCost;
+	CAnimImage * woodPic, * goldPic;
+	CLabel * woodCost, * goldCost;
 
-	CAnimImage *bgShip;
-	CButton *build, *quit;
+	CAnimImage * bgShip;
+	CButton * build, * quit;
 
 	CGStatusBar * statusBar;
 
-	CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const std::function<void()> &onBuy);
+	CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy);
 };
 
 /// Puzzle screen which gets uncovered when you visit obilisks
@@ -317,14 +320,14 @@ private:
 
 	CButton * quitb;
 
-	std::vector<CPicture * > piecesToRemove;
+	std::vector<CPicture *> piecesToRemove;
 	ui8 currentAlpha;
 
 public:
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
 
-	CPuzzleWindow(const int3 &grailPos, double discoveredRatio);
+	CPuzzleWindow(const int3 & grailPos, double discoveredRatio);
 };
 
 /// Creature transformer window
@@ -333,12 +336,12 @@ class CTransformerWindow : public CWindowObject, public CGarrisonHolder
 public:
 	class CItem : public CIntObject
 	{
-	public:
-		int id;//position of creature in hero army
-		bool left;//position of the item
+public:
+		int id; //position of creature in hero army
+		bool left; //position of the item
 		int size; //size of creature stack
 		CTransformerWindow * parent;
-		CAnimImage *icon;
+		CAnimImage * icon;
 
 		void move();
 		void clickLeft(tribool down, bool previousState) override;
@@ -346,13 +349,13 @@ public:
 		CItem(CTransformerWindow * parent, int size, int id);
 	};
 
-	const CArmedInstance *army;//object with army for transforming (hero or town)
-	const CGHeroInstance *hero;//only if we have hero in town
-	const CGTownInstance *town;//market, town garrison is used if hero == nullptr
-	std::vector<CItem*> items;
+	const CArmedInstance * army; //object with army for transforming (hero or town)
+	const CGHeroInstance * hero; //only if we have hero in town
+	const CGTownInstance * town; //market, town garrison is used if hero == nullptr
+	std::vector<CItem *> items;
 
-	CButton *all, *convert, *cancel;
-	CGStatusBar *bar;
+	CButton * all, * convert, * cancel;
+	CGStatusBar * bar;
 	void makeDeal();
 	void addAll();
 	void updateGarrisons() override;
@@ -363,27 +366,27 @@ class CUniversityWindow : public CWindowObject
 {
 	class CItem : public CAnimImage
 	{
-	public:
-		int ID;//id of selected skill
+public:
+		int ID; //id of selected skill
 		CUniversityWindow * parent;
 
 		void showAll(SDL_Surface * to) override;
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
-		int state();//0=can't learn, 1=learned, 2=can learn
+		int state(); //0=can't learn, 1=learned, 2=can learn
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);
 	};
 
 public:
-	const CGHeroInstance *hero;
+	const CGHeroInstance * hero;
 	const IMarket * market;
 
-	CPicture * green, * yellow, * red;//colored bars near skills
-	std::vector<CItem*> items;
+	CPicture * green, * yellow, * red; //colored bars near skills
+	std::vector<CItem *> items;
 
-	CButton *cancel;
-	CGStatusBar *bar;
+	CButton * cancel;
+	CGStatusBar * bar;
 
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market);
 };
@@ -393,8 +396,8 @@ class CUnivConfirmWindow : public CWindowObject
 {
 public:
 	CUniversityWindow * parent;
-	CGStatusBar *bar;
-	CButton *confirm, *cancel;
+	CGStatusBar * bar;
+	CButton * confirm, * cancel;
 
 	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available);
 	void makeDeal(int skill);
@@ -412,27 +415,28 @@ private:
 	const CGHeroInstance * hero;
 
 	CGStatusBar * bar;
-	CHeroArea * heroPic;//clickable hero image
-	CButton * quit;//closes window
-	CButton * upgradeAll;//upgrade all creatures
+	CHeroArea * heroPic; //clickable hero image
+	CButton * quit; //closes window
+	CButton * upgradeAll; //upgrade all creatures
 
-	std::array<CButton *, slotsCount> upgrade;//upgrade single creature
-	std::array<int, slotsCount + 1> currState;//current state of slot - to avoid calls to getState or updating buttons
+	std::array<CButton *, slotsCount> upgrade; //upgrade single creature
+	std::array<int, slotsCount + 1> currState; //current state of slot - to avoid calls to getState or updating buttons
 
 	//there is a place for only 2 resources per slot
-	std::array< std::array<CAnimImage *, 2>, slotsCount> slotIcons;
-	std::array< std::array<CLabel *, 2>, slotsCount> slotLabels;
+	std::array<std::array<CAnimImage *, 2>, slotsCount> slotIcons;
+	std::array<std::array<CLabel *, 2>, slotsCount> slotLabels;
 
 	std::array<CAnimImage *, resCount> totalIcons;
 	std::array<CLabel *, resCount> totalLabels;
 
-	std::string getDefForSlot(SlotID slot);//return def name for this slot
-	std::string getTextForSlot(SlotID slot);//return hover text for this slot
-	void makeDeal(SlotID slot);//-1 for upgrading all creatures
+	std::string getDefForSlot(SlotID slot); //return def name for this slot
+	std::string getTextForSlot(SlotID slot); //return hover text for this slot
+	void makeDeal(SlotID slot); //-1 for upgrading all creatures
 	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+
 public:
 	CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object);
-	void updateGarrisons() override;//update buttons after garrison changes
+	void updateGarrisons() override; //update buttons after garrison changes
 };
 
 class CThievesGuildWindow : public CWindowObject

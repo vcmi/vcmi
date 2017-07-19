@@ -33,17 +33,14 @@ class CIdentifierStorage
 
 	struct ObjectCallback // entry created on ID request
 	{
-		std::string localScope;  /// scope from which this ID was requested
+		std::string localScope; /// scope from which this ID was requested
 		std::string remoteScope; /// scope in which this object must be found
-		std::string type;        /// type, e.g. creature, faction, hero, etc
-		std::string name;        /// string ID
+		std::string type; /// type, e.g. creature, faction, hero, etc
+		std::string name; /// string ID
 		std::function<void(si32)> callback;
 		bool optional;
 
-		ObjectCallback(std::string localScope, std::string remoteScope,
-		               std::string type, std::string name,
-		               const std::function<void(si32)> & callback,
-		               bool optional);
+		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const std::function<void(si32)> & callback, bool optional);
 	};
 
 	struct ObjectData // entry created on ID registration
@@ -52,13 +49,13 @@ class CIdentifierStorage
 		std::string scope; /// scope in which this ID located
 
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & id & scope;
 		}
 	};
 
-	std::multimap<std::string, ObjectData > registeredObjects;
+	std::multimap<std::string, ObjectData> registeredObjects;
 	std::vector<ObjectCallback> scheduledRequests;
 
 	ELoadingState state;
@@ -69,6 +66,7 @@ class CIdentifierStorage
 	void requestIdentifier(ObjectCallback callback);
 	bool resolveIdentifier(const ObjectCallback & callback);
 	std::vector<ObjectData> getPossibleIdentifiers(const ObjectCallback & callback);
+
 public:
 	CIdentifierStorage();
 	virtual ~CIdentifierStorage();
@@ -96,7 +94,7 @@ public:
 	/// called at the very end of loading to check for any missing ID's
 	void finalize();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & registeredObjects & state;
 	}
@@ -125,7 +123,7 @@ class CContentHandler
 		std::vector<JsonNode> originalData;
 		std::map<std::string, ModInfo> modData;
 
-	public:
+public:
 		ContentTypeHandler(IHandlerBase * handler, std::string objectName);
 
 		/// local version of methods in ContentHandler
@@ -143,6 +141,7 @@ class CContentHandler
 	bool loadMod(std::string modName, bool validate);
 
 	std::map<std::string, ContentTypeHandler> handlers;
+
 public:
 	/// fully initialize object. Will cause reading of H3 config files
 	CContentHandler();
@@ -179,10 +178,10 @@ public:
 	std::string description;
 
 	/// list of mods that should be loaded before this one
-	std::set <TModID> dependencies;
+	std::set<TModID> dependencies;
 
 	/// list of mods that can't be used in the same time as this one
-	std::set <TModID> conflicts;
+	std::set<TModID> conflicts;
 
 	/// CRC-32 checksum of the mod
 	ui32 checksum;
@@ -203,38 +202,40 @@ public:
 	static std::string getModDir(std::string name);
 	static std::string getModFile(std::string name);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & identifier & description & name;
 		h & dependencies & conflicts & config;
 		h & checksum & validation & enabled;
 	}
+
 private:
 	void loadLocalData(const JsonNode & data);
 };
 
 class DLL_LINKAGE CModHandler
 {
-	std::map <TModID, CModInfo> allMods;
-	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
+	std::map<TModID, CModInfo> allMods;
+	std::vector<TModID> activeMods; //active mods, in order in which they were loaded
 	CModInfo coreMod;
 
 	void loadConfigFromFile(std::string name);
 
-	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
+	bool hasCircularDependency(TModID mod, std::set<TModID> currentList = std::set<TModID>()) const;
 
 	//returns false if mod list is incorrect and prints error to console. Possible errors are:
 	// - missing dependency mod
 	// - conflicting mod in load order
 	// - circular dependencies
-	bool checkDependencies(const std::vector <TModID> & input) const;
+	bool checkDependencies(const std::vector<TModID> & input) const;
 
 	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
 	// function assumes that input list is valid (checkDependencies returned true)
-	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
+	std::vector<TModID> resolveDependencies(std::vector<TModID> input) const;
 
 	std::vector<std::string> getModList(std::string path);
 	void loadMods(std::string path, std::string namePrefix, const JsonNode & modSettings, bool enableMods);
+
 public:
 
 	CIdentifierStorage identifiers;
@@ -269,11 +270,10 @@ public:
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS &
-			MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
+			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS & MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
 			if(version >= 756)
 			{
 				h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
@@ -301,7 +301,7 @@ public:
 		bool COMMANDERS;
 		bool MITHRIL;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & STACK_EXP & STACK_ARTIFACT & COMMANDERS & MITHRIL;
 		}
@@ -316,7 +316,7 @@ public:
 
 	static std::string makeFullIdentifier(const std::string & scope, const std::string & type, const std::string & identifier);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & allMods & activeMods & settings & modules & identifiers;
 	}

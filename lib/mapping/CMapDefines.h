@@ -29,16 +29,16 @@ public:
 	ui32 firstOccurence;
 	ui32 nextOccurence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & name & message & resources
-				& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+		& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
 	}
 };
 
 /// The castle event builds/adds buildings/creatures for a specific town.
-class DLL_LINKAGE CCastleEvent: public CMapEvent
+class DLL_LINKAGE CCastleEvent : public CMapEvent
 {
 public:
 	CCastleEvent();
@@ -47,7 +47,7 @@ public:
 	std::vector<si32> creatures;
 	CGTownInstance * town;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CMapEvent &>(*this);
@@ -88,10 +88,10 @@ struct DLL_LINKAGE TerrainTile
 	std::vector<CGObjectInstance *> visitableObjects;
 	std::vector<CGObjectInstance *> blockingObjects;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & terType & terView & riverType & riverDir & roadType &roadDir & extTileFlags;
+		h & terType & terView & riverType & riverDir & roadType & roadDir & extTileFlags;
 		h & visitable & blocked;
 		h & visitableObjects & blockingObjects;
 	}

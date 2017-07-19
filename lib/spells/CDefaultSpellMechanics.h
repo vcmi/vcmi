@@ -20,7 +20,7 @@ class DLL_LINKAGE SpellCastContext
 public:
 	const DefaultSpellMechanics * mechanics;
 	const SpellCastEnvironment * env;
-	std::vector<const CStack *> attackedCres;//must be vector, as in Chain Lightning order matters
+	std::vector<const CStack *> attackedCres; //must be vector, as in Chain Lightning order matters
 	StacksInjured si;
 	const BattleSpellCastParameters & parameters;
 
@@ -34,6 +34,7 @@ public:
 
 	void beforeCast();
 	void afterCast();
+
 private:
 	BattleSpellCast sc;
 	const CGHeroInstance * otherHero;
@@ -61,13 +62,11 @@ public:
 
 	void battleCast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters) const override final;
 
-	void battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
-		const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const;
+	void battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const;
 
-	void battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
-		const std::vector<const CStack *> & attacked) const;
+	void battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack *> & attacked) const;
 
-	bool requiresCreatureTarget() const	override;
+	bool requiresCreatureTarget() const override;
 
 protected:
 	virtual void applyBattleEffects(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
@@ -76,14 +75,15 @@ protected:
 
 protected:
 	void doDispell(BattleInfo * battle, const BattleSpellCast * packet, const CSelector & selector) const;
-	bool canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string &cachingStr = "") const;
+	bool canDispell(const IBonusBearer * obj, const CSelector & selector, const std::string & cachingStr = "") const;
 
 	void defaultDamageEffect(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
 	void defaultTimedEffect(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, SpellCastContext & ctx) const;
-private:
-	void cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const;
 
-	void handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const;
+private:
+	void cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector<const CStack *> & reflected) const;
+
+	void handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector<const CStack *> & reflected) const;
 	void handleResistance(const SpellCastEnvironment * env, SpellCastContext & ctx) const;
 
 	static bool dispellSelector(const Bonus * bonus);
@@ -98,6 +98,7 @@ public:
 	SpecialSpellMechanics(const CSpell * s);
 
 	ESpellCastProblem::ESpellCastProblem canBeCastAt(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const override;
+
 protected:
 	std::vector<const CStack *> calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const override;
 };

@@ -21,10 +21,10 @@ CTypeList::CTypeList()
 	registerTypes(*this);
 }
 
-CTypeList::TypeInfoPtr CTypeList::registerType(const std::type_info *type)
+CTypeList::TypeInfoPtr CTypeList::registerType(const std::type_info * type)
 {
 	if(auto typeDescr = getTypeDescriptor(type, false))
-		return typeDescr;  //type found, return ptr to structure
+		return typeDescr; //type found, return ptr to structure
 
 	//type not found - add it to the list and return given ID
 	auto newType = std::make_shared<TypeDescriptor>();
@@ -35,10 +35,10 @@ CTypeList::TypeInfoPtr CTypeList::registerType(const std::type_info *type)
 	return newType;
 }
 
-ui16 CTypeList::getTypeID(const std::type_info *type, bool throws) const
+ui16 CTypeList::getTypeID(const std::type_info * type, bool throws) const
 {
 	auto descriptor = getTypeDescriptor(type, throws);
-	if (descriptor == nullptr)
+	if(descriptor == nullptr)
 	{
 		return 0;
 	}
@@ -53,40 +53,41 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 	// Perform a simple BFS in the class hierarchy.
 
 	auto BFS = [&](bool upcast)
-	{
-		std::map<TypeInfoPtr, TypeInfoPtr> previous;
-		std::queue<TypeInfoPtr> q;
-		q.push(to);
-		while(q.size())
 		{
-			auto typeNode = q.front();
-			q.pop();
-			for(auto & weakNode : (upcast ? typeNode->parents : typeNode->children) )
+			std::map<TypeInfoPtr, TypeInfoPtr> previous;
+			std::queue<TypeInfoPtr> q;
+			q.push(to);
+			while(q.size())
 			{
-				auto nodeBase = weakNode.lock();
-				if(!previous.count(nodeBase))
+				auto typeNode = q.front();
+				q.pop();
+				for(auto & weakNode : (upcast ? typeNode->parents : typeNode->children))
 				{
-					previous[nodeBase] = typeNode;
-					q.push(nodeBase);
+					auto nodeBase = weakNode.lock();
+					if(!previous.count(nodeBase))
+					{
+						previous[nodeBase] = typeNode;
+						q.push(nodeBase);
+					}
 				}
 			}
-		}
 
-		std::vector<TypeInfoPtr> ret;
+			std::vector<TypeInfoPtr> ret;
 
-		if(!previous.count(from))
+			if(!previous.count(from))
+				return ret;
+
+			ret.push_back(from);
+			TypeInfoPtr ptr = from;
+			do
+			{
+				ptr = previous.at(ptr);
+				ret.push_back(ptr);
+			}
+			while(ptr != to);
+
 			return ret;
-
-		ret.push_back(from);
-		TypeInfoPtr ptr = from;
-		do
-		{
-			ptr = previous.at(ptr);
-			ret.push_back(ptr);
-		} while(ptr != to);
-
-		return ret;
-	};
+		};
 
 	// Try looking both up and down.
 	auto ret = BFS(true);
@@ -99,7 +100,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, Ty
 	return ret;
 }
 
-std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info *from, const std::type_info *to) const
+std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info * from, const std::type_info * to) const
 {
 	//This additional if is needed because getTypeDescriptor might fail if type is not registered
 	// (and if casting is not needed, then registereing should no  be required)
@@ -109,7 +110,7 @@ std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(const std::type_info
 	return castSequence(getTypeDescriptor(from), getTypeDescriptor(to));
 }
 
-CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, bool throws) const
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info * type, bool throws) const
 {
 	auto i = typeInfos.find(type);
 	if(i != typeInfos.end())

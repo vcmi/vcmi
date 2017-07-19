@@ -20,48 +20,49 @@ struct SharedMemory;
 
 namespace boost
 {
-	namespace asio
-	{
-		namespace ip
-		{
-			class tcp;
-		}
-		class io_service;
+namespace asio
+{
+namespace ip
+{
+class tcp;
+}
+class io_service;
 
-		template <typename Protocol> class stream_socket_service;
-		template <typename Protocol,typename StreamSocketService>
-		class basic_stream_socket;
+template<typename Protocol> class stream_socket_service;
+template<typename Protocol, typename StreamSocketService>
+class basic_stream_socket;
 
-		template <typename Protocol> class socket_acceptor_service;
-		template <typename Protocol,typename SocketAcceptorService>
-		class basic_socket_acceptor;
-	}
+template<typename Protocol> class socket_acceptor_service;
+template<typename Protocol, typename SocketAcceptorService>
+class basic_socket_acceptor;
+}
 };
 
-typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
-typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
+typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp>> TAcceptor;
+typedef boost::asio::basic_stream_socket<boost::asio::ip::tcp, boost::asio::stream_socket_service<boost::asio::ip::tcp>> TSocket;
 
 class CVCMIServer
 {
 	ui16 port;
-	boost::asio::io_service *io;
+	boost::asio::io_service * io;
 	TAcceptor * acceptor;
 	SharedMemory * shared;
 
-	CConnection *firstConnection;
+	CConnection * firstConnection;
+
 public:
 	CVCMIServer();
 	~CVCMIServer();
 
 	void start();
-	CGameHandler *initGhFromHostingConnection(CConnection &c);
+	CGameHandler * initGhFromHostingConnection(CConnection & c);
 
 	void newGame();
 	void loadGame();
 	void newPregame();
 
 #ifdef VCMI_ANDROID
-    static void create();
+	static void create();
 #endif
 };
 
@@ -69,35 +70,40 @@ struct StartInfo;
 class CPregameServer
 {
 public:
-	CConnection *host;
+	CConnection * host;
 	int listeningThreads;
 	std::set<CConnection *> connections;
-	std::list<CPackForSelectionScreen*> toAnnounce;
+	std::list<CPackForSelectionScreen *> toAnnounce;
 	boost::recursive_mutex mx;
 
-	TAcceptor *acceptor;
-	TSocket *upcomingConnection;
+	TAcceptor * acceptor;
+	TSocket * upcomingConnection;
 
-	const CMapInfo *curmap;
-	StartInfo *curStartInfo;
+	const CMapInfo * curmap;
+	StartInfo * curStartInfo;
 
-	CPregameServer(CConnection *Host, TAcceptor *Acceptor = nullptr);
+	CPregameServer(CConnection * Host, TAcceptor * Acceptor = nullptr);
 	~CPregameServer();
 
 	void run();
 
 	void processPack(CPackForSelectionScreen * pack);
-	void handleConnection(CConnection *cpc);
-	void connectionAccepted(const boost::system::error_code& ec);
-	void initConnection(CConnection *c);
+	void handleConnection(CConnection * cpc);
+	void connectionAccepted(const boost::system::error_code & ec);
+	void initConnection(CConnection * c);
 
 	void start_async_accept();
 
-	enum { INVALID, RUNNING, ENDING_WITHOUT_START, ENDING_AND_STARTING_GAME
+	enum
+	{
+		INVALID,
+		RUNNING,
+		ENDING_WITHOUT_START,
+		ENDING_AND_STARTING_GAME
 	} state;
 
-	void announceTxt(const std::string &txt, const std::string &playerName = "system");
-	void announcePack(const CPackForSelectionScreen &pack);
+	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announcePack(const CPackForSelectionScreen & pack);
 
 	void sendPack(CConnection * pc, const CPackForSelectionScreen & pack);
 	void startListeningThread(CConnection * pc);

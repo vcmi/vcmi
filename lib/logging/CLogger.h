@@ -20,7 +20,7 @@ class ILogTarget;
 namespace ELogLevel
 {
 	#ifdef VCMI_ANDROID
-		int toAndroid(ELogLevel logLevel);
+int toAndroid(ELogLevel logLevel);
 	#endif
 }
 
@@ -32,7 +32,7 @@ public:
 	/// Sub-domains can be specified by separating domains by a dot, e.g. "ai.battle". The global domain is named "global".
 	explicit CLoggerDomain(std::string name);
 
-	const std::string& getName() const;
+	const std::string & getName() const;
 	CLoggerDomain getParent() const;
 	bool isGlobalDomain() const;
 
@@ -68,7 +68,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class DLL_LINKAGE CLogger: public vstd::CLoggerBase
+class DLL_LINKAGE CLogger : public vstd::CLoggerBase
 {
 public:
 	ELogLevel::ELogLevel getLevel() const;
@@ -105,7 +105,7 @@ private:
 	CLoggerDomain domain;
 	CLogger * parent;
 	ELogLevel::ELogLevel level;
-	std::vector<std::unique_ptr<ILogTarget> > targets;
+	std::vector<std::unique_ptr<ILogTarget>> targets;
 	mutable boost::mutex mx;
 	static boost::recursive_mutex smx;
 };
@@ -132,19 +132,19 @@ private:
 /// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
 ///
-#define RAII_TRACE(logger, onEntry, onLeave)			\
-	std::unique_ptr<CTraceLogger> ctl00;						\
-	if(logger->isTraceEnabled())						\
+#define RAII_TRACE(logger, onEntry, onLeave)                    \
+	std::unique_ptr<CTraceLogger> ctl00;                                            \
+	if(logger->isTraceEnabled())                                            \
 		ctl00 = make_unique<CTraceLogger>(logger, onEntry, onLeave);
 
-#define LOG_TRACE(logger) RAII_TRACE(logger,								\
-		boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),	\
-		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
+#define LOG_TRACE(logger) RAII_TRACE(logger,                                                            \
+				     boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),     \
+				     boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
 
 
-#define LOG_TRACE_PARAMS(logger, formatStr, params) RAII_TRACE(logger,		\
-		boost::str(boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), \
-		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
+#define LOG_TRACE_PARAMS(logger, formatStr, params) RAII_TRACE(logger,          \
+							       boost::str(boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), \
+							       boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */
@@ -173,11 +173,7 @@ private:
 struct DLL_LINKAGE LogRecord
 {
 	LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
-		: domain(domain),
-		level(level),
-		message(message),
-		timeStamp(boost::posix_time::microsec_clock::local_time()),
-		threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) { }
+		: domain(domain), level(level), message(message), timeStamp(boost::posix_time::microsec_clock::local_time()), threadId(boost::lexical_cast<std::string>(boost::this_thread::get_id())) {}
 
 	CLoggerDomain domain;
 	ELogLevel::ELogLevel level;
@@ -223,7 +219,7 @@ private:
 class DLL_LINKAGE ILogTarget : public boost::noncopyable
 {
 public:
-	virtual ~ILogTarget() { };
+	virtual ~ILogTarget() {};
 	virtual void write(const LogRecord & record) = 0;
 };
 
@@ -237,7 +233,7 @@ public:
 	EConsoleTextColor::EConsoleTextColor getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const;
 
 private:
-	std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor> > map;
+	std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor>> map;
 };
 
 /// This target is a logging target which writes message to the console.

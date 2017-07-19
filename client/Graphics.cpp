@@ -45,13 +45,13 @@ Graphics * graphics = nullptr;
 void Graphics::loadPaletteAndColors()
 {
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/PLAYERS.PAL"))->readAll();
-	std::string pals((char*)textFile.first.get(), textFile.second);
+	std::string pals((char *)textFile.first.get(), textFile.second);
 
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
 	playerColors = new SDL_Color[PlayerColor::PLAYER_LIMIT_I];
 	int startPoint = 24; //beginning byte; used to read
-	for(int i=0; i<256; ++i)
+	for(int i = 0; i < 256; ++i)
 	{
 		SDL_Color col;
 		col.r = pals[startPoint++];
@@ -67,7 +67,7 @@ void Graphics::loadPaletteAndColors()
 	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 
-	for(int i=0; i<32; ++i)
+	for(int i = 0; i < 32; ++i)
 	{
 		neutralColorPalette[i].r = reader.readUInt8();
 		neutralColorPalette[i].g = reader.readUInt8();
@@ -76,18 +76,20 @@ void Graphics::loadPaletteAndColors()
 		neutralColorPalette[i].a = SDL_ALPHA_OPAQUE;
 	}
 	//colors initialization
-	SDL_Color colors[]  = {
-		{0xff,0,  0,    SDL_ALPHA_OPAQUE},
-		{0x31,0x52,0xff,SDL_ALPHA_OPAQUE},
-		{0x9c,0x73,0x52,SDL_ALPHA_OPAQUE},
-		{0x42,0x94,0x29,SDL_ALPHA_OPAQUE},
+	SDL_Color colors[] =
+	{
+		{0xff, 0, 0, SDL_ALPHA_OPAQUE},
+		{0x31, 0x52, 0xff, SDL_ALPHA_OPAQUE},
+		{0x9c, 0x73, 0x52, SDL_ALPHA_OPAQUE},
+		{0x42, 0x94, 0x29, SDL_ALPHA_OPAQUE},
 
-		{0xff,0x84,0,   SDL_ALPHA_OPAQUE},
-		{0x8c,0x29,0xa5,SDL_ALPHA_OPAQUE},
-		{0x09,0x9c,0xa5,SDL_ALPHA_OPAQUE},
-		{0xc6,0x7b,0x8c,SDL_ALPHA_OPAQUE}};
+		{0xff, 0x84, 0, SDL_ALPHA_OPAQUE},
+		{0x8c, 0x29, 0xa5, SDL_ALPHA_OPAQUE},
+		{0x09, 0x9c, 0xa5, SDL_ALPHA_OPAQUE},
+		{0xc6, 0x7b, 0x8c, SDL_ALPHA_OPAQUE}
+	};
 
-	for(int i=0;i<8;i++)
+	for(int i = 0; i < 8; i++)
 	{
 		playerColors[i] = colors[i];
 	}
@@ -104,20 +106,23 @@ void Graphics::initializeBattleGraphics()
 
 	// Reserve enough space for the terrains
 	int idx = config["backgrounds"].Vector().size();
-	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
+	battleBacks.resize(idx + 1); // 1 to idx, 0 is unused
 
 	idx = 1;
-	for(const JsonNode &t : config["backgrounds"].Vector()) {
+	for(const JsonNode & t : config["backgrounds"].Vector())
+	{
 		battleBacks[idx].push_back(t.String());
 		idx++;
 	}
 
 	//initialization of AC->def name mapping
-	for(const JsonNode &ac : config["ac_mapping"].Vector()) {
+	for(const JsonNode & ac : config["ac_mapping"].Vector())
+	{
 		int ACid = ac["id"].Float();
-		std::vector< std::string > toAdd;
+		std::vector<std::string> toAdd;
 
-		for(const JsonNode &defname : ac["defnames"].Vector()) {
+		for(const JsonNode & defname : ac["defnames"].Vector())
+		{
 			toAdd.push_back(defname.String());
 		}
 
@@ -129,13 +134,13 @@ Graphics::Graphics()
 	#if 0
 
 	std::vector<Task> tasks; //preparing list of graphics to load
-	tasks += std::bind(&Graphics::loadFonts,this);
-	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
-	tasks += std::bind(&Graphics::initializeBattleGraphics,this);
-	tasks += std::bind(&Graphics::loadErmuToPicture,this);
-	tasks += std::bind(&Graphics::initializeImageLists,this);
+	tasks += std::bind(&Graphics::loadFonts, this);
+	tasks += std::bind(&Graphics::loadPaletteAndColors, this);
+	tasks += std::bind(&Graphics::initializeBattleGraphics, this);
+	tasks += std::bind(&Graphics::loadErmuToPicture, this);
+	tasks += std::bind(&Graphics::initializeImageLists, this);
 
-	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
+	CThreadHelper th(&tasks, std::max((ui32)1, boost::thread::hardware_concurrency()));
 	th.run();
 	#else
 	loadFonts();
@@ -170,9 +175,9 @@ void Graphics::loadHeroAnimations()
 {
 	for(auto & elem : CGI->heroh->classes.heroClasses)
 	{
-		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
+		for(auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
 		{
-			if (!heroAnimations.count(templ.animationFile))
+			if(!heroAnimations.count(templ.animationFile))
 				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
 		}
 	}
@@ -190,11 +195,11 @@ void Graphics::loadHeroFlagAnimations()
 {
 	static const std::vector<std::string> HERO_FLAG_ANIMATIONS =
 	{
-		"AF00", "AF01","AF02","AF03",
-		"AF04", "AF05","AF06","AF07"
+		"AF00", "AF01", "AF02", "AF03",
+		"AF04", "AF05", "AF06", "AF07"
 	};
 
-	static const std::vector< std::vector<std::string> > BOAT_FLAG_ANIMATIONS =
+	static const std::vector<std::vector<std::string>> BOAT_FLAG_ANIMATIONS =
 	{
 		{
 			"ABF01L", "ABF01G", "ABF01R", "ABF01D",
@@ -221,10 +226,10 @@ void Graphics::loadHeroFlagAnimations()
 std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & name)
 {
 	//first - group number to be rotated, second - group number after rotation
-	static const std::vector<std::pair<int,int> > rotations =
+	static const std::vector<std::pair<int, int>> rotations =
 	{
-		{6,10}, {7,11}, {8,12}, {1,13},
-		{2,14}, {3,15}
+		{6, 10}, {7, 11}, {8, 12}, {1, 13},
+		{2, 14}, {3, 15}
 	};
 
 	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
@@ -232,10 +237,10 @@ std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & 
 
 	for(const auto & rotation : rotations)
 	{
-        const int sourceGroup = rotation.first;
-        const int targetGroup = rotation.second;
+		const int sourceGroup = rotation.first;
+		const int targetGroup = rotation.second;
 
-        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
+		for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
 		{
 			anim->duplicateImage(sourceGroup, frame, targetGroup);
 
@@ -247,13 +252,13 @@ std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & 
 	return anim;
 }
 
-std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
+std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string & name)
 {
 	//first - group number to be rotated, second - group number after rotation
-	static const std::vector<std::pair<int,int> > rotations =
+	static const std::vector<std::pair<int, int>> rotations =
 	{
-		{6,10}, {7,11}, {8,12}, {1,13},
-		{2,14}, {3,15}
+		{6, 10}, {7, 11}, {8, 12}, {1, 13},
+		{2, 14}, {3, 15}
 	};
 
 	std::shared_ptr<CAnimation> anim = std::make_shared<CAnimation>(name);
@@ -262,10 +267,10 @@ std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
 
 	for(const auto & rotation : rotations)
 	{
-        const int sourceGroup = rotation.first;
-        const int targetGroup = rotation.second;
+		const int sourceGroup = rotation.first;
+		const int targetGroup = rotation.second;
 
-        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
+		for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
 		{
 			anim->duplicateImage(sourceGroup, frame, targetGroup);
 			IImage * image = anim->getImage(frame, targetGroup);
@@ -280,10 +285,10 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 	if(sur->format->palette)
 	{
-		SDL_Color *palette = nullptr;
+		SDL_Color * palette = nullptr;
 		if(player < PlayerColor::PLAYER_LIMIT)
 		{
-			palette = playerColorPalette + 32*player.getNum();
+			palette = playerColorPalette + 32 * player.getNum();
 		}
 		else if(player == PlayerColor::NEUTRAL)
 		{
@@ -313,9 +318,9 @@ void Graphics::loadFogOfWar()
 	fogOfWarPartialHide = std::make_shared<CAnimation>("TSHRE");
 	fogOfWarPartialHide->preload();
 
-	static const int rotations [] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
+	static const int rotations[] = {22, 15, 2, 13, 12, 16, 28, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27};
 
-	size_t size = fogOfWarPartialHide->size(0);//group size after next rotation
+	size_t size = fogOfWarPartialHide->size(0); //group size after next rotation
 
 	for(const int rotation : rotations)
 	{
@@ -331,25 +336,25 @@ void Graphics::loadFonts()
 	const JsonNode config(ResourceID("config/fonts.json"));
 
 	const JsonVector & bmpConf = config["bitmap"].Vector();
-	const JsonNode   & ttfConf = config["trueType"];
-	const JsonNode   & hanConf = config["bitmapHan"];
+	const JsonNode & ttfConf = config["trueType"];
+	const JsonNode & hanConf = config["bitmapHan"];
 
 	assert(bmpConf.size() == FONTS_NUMBER);
 
-	for (size_t i=0; i<FONTS_NUMBER; i++)
+	for(size_t i = 0; i < FONTS_NUMBER; i++)
 	{
 		std::string filename = bmpConf[i].String();
 
-		if (!hanConf[filename].isNull())
+		if(!hanConf[filename].isNull())
 			fonts[i] = std::make_shared<CBitmapHanFont>(hanConf[filename]);
-		else if (!ttfConf[filename].isNull()) // no ttf override
+		else if(!ttfConf[filename].isNull()) // no ttf override
 			fonts[i] = std::make_shared<CTrueTypeFont>(ttfConf[filename]);
 		else
 			fonts[i] = std::make_shared<CBitmapFont>(filename);
 	}
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
+std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance * obj)
 {
 	return getAnimation(obj->appearance);
 }
@@ -389,22 +394,24 @@ void Graphics::loadErmuToPicture()
 	//loading ERMU to picture
 	const JsonNode config(ResourceID("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
-	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
+	for(const JsonNode & etp : config["ERMU_to_picture"].Vector())
+	{
 		int idx = 0;
-		for(const JsonNode &n : etp.Vector()) {
+		for(const JsonNode & n : etp.Vector())
+		{
 			ERMUtoPicture[idx][etp_idx] = n.String();
-			idx ++;
+			idx++;
 		}
-		assert (idx == ARRAY_COUNT(ERMUtoPicture));
+		assert(idx == ARRAY_COUNT(ERMUtoPicture));
 
-		etp_idx ++;
+		etp_idx++;
 	}
-	assert (etp_idx == 44);
+	assert(etp_idx == 44);
 }
 
 void Graphics::addImageListEntry(size_t index, std::string listName, std::string imageName)
 {
-	if (!imageName.empty())
+	if(!imageName.empty())
 	{
 		JsonNode entry;
 		entry["frame"].Float() = index;
@@ -438,7 +445,7 @@ void Graphics::initializeImageLists()
 
 	for(const CFaction * faction : CGI->townh->factions)
 	{
-		if (faction->town)
+		if(faction->town)
 		{
 			auto & info = faction->town->clientInfo;
 			addImageListEntry(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
@@ -456,7 +463,7 @@ void Graphics::initializeImageLists()
 	for(const CSpell * spell : CGI->spellh->objects)
 	{
 		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
-		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
+		addImageListEntry(spell->id + 1, "SPELLINT", spell->iconEffect);
 		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
 		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
 	}

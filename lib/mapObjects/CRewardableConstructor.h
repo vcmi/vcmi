@@ -17,6 +17,7 @@
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
+
 public:
 	bool givesResources() const override;
 
@@ -46,6 +47,7 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 	CRandomRewardObjectInfo objectInfo;
 
 	void initTypeData(const JsonNode & config) override;
+
 public:
 	CRewardableConstructor();
 

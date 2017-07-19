@@ -18,10 +18,8 @@ static const int32_t UNIT_AMOUNT = 300;
 class CUnitHealthInfoMock : public IUnitHealthInfo
 {
 public:
-	CUnitHealthInfoMock():
-		maxHealth(UNIT_HEALTH),
-		baseAmount(UNIT_AMOUNT),
-		health(this)
+	CUnitHealthInfoMock()
+		: maxHealth(UNIT_HEALTH), baseAmount(UNIT_AMOUNT), health(this)
 	{
 		health.init();
 	}
@@ -130,17 +128,17 @@ BOOST_FIXTURE_TEST_CASE(heal, CUnitHealthInfoMock)
 {
 	checkNormalDamage(health, 99);
 	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-99);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH - 99);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::HEAL, EHealPower::PERMANENT, 9, 9);
 	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-90);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH - 90);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, 40, 40);
 	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-50);
+	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH - 50);
 	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::OVERHEAL, EHealPower::PERMANENT, 50, 50);
@@ -237,4 +235,3 @@ BOOST_FIXTURE_TEST_CASE(singleUnitStack, CUnitHealthInfoMock)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

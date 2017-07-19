@@ -13,11 +13,11 @@
 
 namespace BattleSide
 {
-	enum
-	{
-		ATTACKER = 0,
-		DEFENDER = 1
-	};
+enum
+{
+	ATTACKER = 0,
+	DEFENDER = 1
+};
 }
 
 typedef boost::optional<ui8> BattleSideOpt;
@@ -52,8 +52,8 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	si16 getX() const;
 	si16 getY() const;
 	std::pair<si16, si16> getXY() const;
-	BattleHex& moveInDirection(EDir dir, bool hasToBeValid = true);
-	BattleHex& operator+=(EDir dir);
+	BattleHex & moveInDirection(EDir dir, bool hasToBeValid = true);
+	BattleHex & operator+=(EDir dir);
 	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
 	BattleHex operator+(EDir dir) const;
 	std::vector<BattleHex> neighbouringTiles() const;
@@ -62,8 +62,8 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
 	static BattleHex getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 
-	template <typename Handler>
-	void serialize(Handler &h, const int version)
+	template<typename Handler>
+	void serialize(Handler & h, const int version)
 	{
 		h & hex;
 	}

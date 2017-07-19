@@ -16,7 +16,7 @@ bool CPlayerBattleCallback::battleCanFlee() const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ASSERT_IF_CALLED_WITH_PLAYER
-			return CBattleInfoEssentials::battleCanFlee(*player);
+	return CBattleInfoEssentials::battleCanFlee(*player);
 }
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyAlive) const
@@ -26,10 +26,11 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 		ASSERT_IF_CALLED_WITH_PLAYER
 	}
 
-	return battleGetStacksIf([=](const CStack * s){
+	return battleGetStacksIf([=](const CStack * s)
+	{
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
-								|| (whose == ONLY_MINE && s->owner == player)
-								|| (whose == ONLY_ENEMY && s->owner != player);
+			|| (whose == ONLY_MINE && s->owner == player)
+			|| (whose == ONLY_ENEMY && s->owner != player);
 
 		return ownerMatches && s->isValidTarget(!onlyAlive);
 	});
@@ -38,8 +39,8 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 int CPlayerBattleCallback::battleGetSurrenderCost() const
 {
 	RETURN_IF_NOT_BATTLE(-3)
-			ASSERT_IF_CALLED_WITH_PLAYER
-			return CBattleInfoCallback::battleGetSurrenderCost(*player);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return CBattleInfoCallback::battleGetSurrenderCost(*player);
 }
 
 const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
@@ -51,4 +52,3 @@ InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
 {
 	return battleGetHeroInfo(!battleGetMySide());
 }
-

@@ -40,7 +40,7 @@ struct DLL_LINKAGE SHeroName
 	int heroId;
 	std::string heroName;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & heroId & heroName;
@@ -90,12 +90,10 @@ struct DLL_LINKAGE PlayerInfo
 	/// WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning ???
 	ui8 powerPlaceholders;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & p7 & hasRandomHero & mainCustomHeroId & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
-				mainCustomHeroPortrait & mainCustomHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
-				posOfMainTown & team & generateHero;
+		h & p7 & hasRandomHero & mainCustomHeroId & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom & mainCustomHeroPortrait & mainCustomHeroName & heroesNames & hasMainTown & generateHeroAtMainTown & posOfMainTown & team & generateHero;
 
 		if(version >= 770)
 		{
@@ -107,22 +105,35 @@ struct DLL_LINKAGE PlayerInfo
 /// The loss condition describes the condition to lose the game. (e.g. lose all own heroes/castles)
 struct DLL_LINKAGE EventCondition
 {
-	enum EWinLoseType {
+	enum EWinLoseType
+	{
 		//internal use, deprecated
-		HAVE_ARTIFACT,     // type - required artifact
-		HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
-		HAVE_RESOURCES,    // type - resource ID, value - amount to collect
-		HAVE_BUILDING,     // position - town, optional, type - building to build
-		CONTROL,           // position - position of object, optional, type - type of object
-		DESTROY,           // position - position of object, optional, type - type of object
-		TRANSPORT,         // position - where artifact should be transported, type - type of artifact
+		HAVE_ARTIFACT,
+		// type - required artifact
+		HAVE_CREATURES,
+		// type - creatures to collect, value - amount to collect
+		HAVE_RESOURCES,
+		// type - resource ID, value - amount to collect
+		HAVE_BUILDING,
+		// position - town, optional, type - building to build
+		CONTROL,
+		// position - position of object, optional, type - type of object
+		DESTROY,
+		// position - position of object, optional, type - type of object
+		TRANSPORT,
+		// position - where artifact should be transported, type - type of artifact
 
 		//map format version pre 1.0
-		DAYS_PASSED,       // value - number of days from start of the game
-		IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
-		DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
-		STANDARD_WIN,      // normal defeat all enemies condition
-		CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true)
+		DAYS_PASSED,
+		// value - number of days from start of the game
+		IS_HUMAN,
+		// value - 0 = player is AI, 1 = player is human
+		DAYS_WITHOUT_TOWN,
+		// value - how long player can live without town, 0=instakill
+		STANDARD_WIN,
+		// normal defeat all enemies condition
+		CONST_VALUE,
+		// condition that always evaluates to "value" (0 = false, 1 = true)
 
 		//map format version 1.0+
 		HAVE_0,
@@ -142,7 +153,7 @@ struct DLL_LINKAGE EventCondition
 	int3 position;
 	EWinLoseType condition;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & object;
@@ -176,7 +187,7 @@ struct DLL_LINKAGE EventEffect
 	/// message that will be sent to other players
 	std::string toOtherMessage;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & type & toOtherMessage;
@@ -200,7 +211,7 @@ struct DLL_LINKAGE TriggeredEvent
 	/// Effect of this event. TODO: refactor into something more flexible
 	EventEffect effect;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & identifier;
@@ -219,7 +230,7 @@ struct DLL_LINKAGE Rumor
 	Rumor() = default;
 	~Rumor() = default;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & name & text;
@@ -238,7 +249,7 @@ struct DLL_LINKAGE DisposedHero
 	std::string name;
 	ui8 players; /// Who can hire this hero (bitfield).
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & heroId & portrait & name & players;
@@ -247,15 +258,19 @@ struct DLL_LINKAGE DisposedHero
 
 namespace EMapFormat
 {
-enum EMapFormat: ui8
+enum EMapFormat : ui8
 {
 	INVALID = 0,
 	//    HEX     DEC
-	ROE = 0x0e, // 14
-	AB  = 0x15, // 21
-	SOD = 0x1c, // 28
+	ROE = 0x0e,
+	// 14
+	AB  = 0x15,
+	// 21
+	SOD = 0x1c,
+	// 28
 // HOTA = 0x1e ... 0x20 // 28 ... 30
-	WOG = 0x33,  // 51
+	WOG = 0x33,
+	// 51
 	VCMI = 0xF0
 };
 }
@@ -264,6 +279,7 @@ enum EMapFormat: ui8
 class DLL_LINKAGE CMapHeader
 {
 	void setupEvents();
+
 public:
 	static const int MAP_SIZE_SMALL;
 	static const int MAP_SIZE_MIDDLE;
@@ -298,7 +314,7 @@ public:
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
 		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPlayers;
@@ -322,9 +338,9 @@ public:
 	bool isInTheMap(const int3 & pos) const;
 	bool isWaterTile(const int3 & pos) const;
 
-	bool canMoveBetween(const int3 &src, const int3 &dst) const;
-	bool checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const;
-	int3 guardingCreaturePosition (int3 pos) const;
+	bool canMoveBetween(const int3 & src, const int3 & dst) const;
+	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
+	int3 guardingCreaturePosition(int3 pos) const;
 
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
@@ -348,7 +364,7 @@ public:
 	ui32 checksum;
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
-	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
+	std::vector<ConstTransitivePtr<CGHeroInstance>> predefinedHeroes;
 	std::vector<bool> allowedSpell;
 	std::vector<bool> allowedArtifact;
 	std::vector<bool> allowedAbilities;
@@ -357,34 +373,34 @@ public:
 	int grailRadius;
 
 	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
-	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
-	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
-	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
-	std::vector< ConstTransitivePtr<CQuest> > quests;
-	std::vector< ConstTransitivePtr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
+	std::vector<ConstTransitivePtr<CGObjectInstance>> objects;
+	std::vector<ConstTransitivePtr<CGTownInstance>> towns;
+	std::vector<ConstTransitivePtr<CArtifactInstance>> artInstances;
+	std::vector<ConstTransitivePtr<CQuest>> quests;
+	std::vector<ConstTransitivePtr<CGHeroInstance>> allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
 
 	//Helper lists
-	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
-	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
+	std::vector<ConstTransitivePtr<CGHeroInstance>> heroesOnMap;
+	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel>> teleportChannels;
 
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
 	std::unique_ptr<CMapEditManager> editManager;
 
-	int3 ***guardingCreaturePositions;
+	int3 * * * guardingCreaturePositions;
 
-	std::map<std::string, ConstTransitivePtr<CGObjectInstance> > instanceNames;
+	std::map<std::string, ConstTransitivePtr<CGObjectInstance>> instanceNames;
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	TerrainTile*** terrain;
+	TerrainTile * * * terrain;
 
 public:
-	template <typename Handler>
-	void serialize(Handler &h, const int formatVersion)
+	template<typename Handler>
+	void serialize(Handler & h, const int formatVersion)
 	{
-		h & static_cast<CMapHeader&>(*this);
+		h & static_cast<CMapHeader &>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & events & grailPos;
 		h & artInstances & quests & allHeroes;
 		h & questIdentifierToId;
@@ -394,9 +410,9 @@ public:
 		if(h.saving)
 		{
 			// Save terrain
-			for(int i = 0; i < width ; ++i)
+			for(int i = 0; i < width; ++i)
 			{
-				for(int j = 0; j < height ; ++j)
+				for(int j = 0; j < height; ++j)
 				{
 					for(int k = 0; k < level; ++k)
 					{
@@ -409,21 +425,21 @@ public:
 		else
 		{
 			// Load terrain
-			terrain = new TerrainTile**[width];
-			guardingCreaturePositions = new int3**[width];
+			terrain = new TerrainTile * *[width];
+			guardingCreaturePositions = new int3 * *[width];
 			for(int i = 0; i < width; ++i)
 			{
-				terrain[i] = new TerrainTile*[height];
-				guardingCreaturePositions[i] = new int3*[height];
+				terrain[i] = new TerrainTile *[height];
+				guardingCreaturePositions[i] = new int3 *[height];
 				for(int j = 0; j < height; ++j)
 				{
 					terrain[i][j] = new TerrainTile[level];
 					guardingCreaturePositions[i][j] = new int3[level];
 				}
 			}
-			for(int i = 0; i < width ; ++i)
+			for(int i = 0; i < width; ++i)
 			{
-				for(int j = 0; j < height ; ++j)
+				for(int j = 0; j < height; ++j)
 				{
 					for(int k = 0; k < level; ++k)
 					{

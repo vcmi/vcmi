@@ -23,7 +23,7 @@ struct DLL_LINKAGE BattleAction
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
 	si32 selectedStack; //spell subject for teleport / sacrifice
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & side & stackNumber & actionType & destinationTile & additionalInfo & selectedStack;
 	}

@@ -58,25 +58,25 @@ class CScenarioTravel;
 
 namespace boost
 {
-	class shared_mutex;
+class shared_mutex;
 }
 
 struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<PlayerColor> playerColors; //colors of players that are in-game
 
-	std::vector< std::vector< PlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
+	std::vector<std::vector<PlayerColor>> numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
 	std::map<PlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
 
-    std::map<PlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
+	std::map<PlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
 	std::map<PlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
 
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
-// 		h & colorToBestHero & personality & bestCreature;
-// 	}
+//      template <typename Handler> void serialize(Handler &h, const int version)
+//      {
+//              h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
+//              h & colorToBestHero & personality & bestCreature;
+//      }
 
 };
 
@@ -84,7 +84,10 @@ struct DLL_LINKAGE RumorState
 {
 	enum ERumorType : ui8
 	{
-		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
+		TYPE_NONE = 0,
+		TYPE_RAND,
+		TYPE_SPECIAL,
+		TYPE_MAP
 	};
 
 	enum ERumorTypeSpecial : ui8
@@ -102,7 +105,7 @@ struct DLL_LINKAGE RumorState
 	RumorState(){type = TYPE_NONE;};
 	bool update(int id, int extra);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & type & last;
 	}
@@ -125,13 +128,12 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 public:
 	struct DLL_LINKAGE HeroesPool
 	{
-		std::map<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; nullptr if not available
-		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
+		std::map<ui32, ConstTransitivePtr<CGHeroInstance>> heroesPool; //[subID] - heroes available to buy; nullptr if not available
+		std::map<ui32, ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town,
-			std::map<ui32, ConstTransitivePtr<CGHeroInstance> > &available, CRandomGenerator & rand, const CHeroClass *bannedClass = nullptr) const;
+		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown * town, std::map<ui32, ConstTransitivePtr<CGHeroInstance>> & available, CRandomGenerator & rand, const CHeroClass * bannedClass = nullptr) const;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & heroesPool & pavailable;
 		}
@@ -154,16 +156,16 @@ public:
 
 	static boost::shared_mutex mutex;
 
-	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
+	void giveHeroArtifact(CGHeroInstance * h, ArtifactID aid);
 
-	void apply(CPack *pack);
+	void apply(CPack * pack);
 	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
-	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
+	UpgradeInfo getUpgradeInfo(const CStackInstance & stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
-	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
-	int3 guardingCreaturePosition (int3 pos) const;
-	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	void calculatePaths(const CGHeroInstance * hero, CPathsInfo & out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
+	int3 guardingCreaturePosition(int3 pos) const;
+	std::vector<CGObjectInstance *> guardingCreatures(int3 pos) const;
 	void updateRumor();
 
 	// ----- victory, loss condition checks -----
@@ -174,12 +176,12 @@ public:
 	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
+	std::map<ui32, ConstTransitivePtr<CGHeroInstance>> unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
 	bool isVisible(int3 pos, PlayerColor player);
-	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
+	bool isVisible(const CGObjectInstance * obj, boost::optional<PlayerColor> player);
 
-	int getDate(Date::EDateType mode=Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	int getDate(Date::EDateType mode = Date::DAY) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	// ----- getters, setters -----
 
@@ -192,7 +194,7 @@ public:
 	/// Any server-side code outside of GH must use CRandomGenerator::getDefault
 	CRandomGenerator & getRandomGenerator();
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
 		if(version >= 755) //save format backward compatibility
@@ -228,7 +230,7 @@ private:
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
 	void randomizeMapObjects();
-	void randomizeObject(CGObjectInstance *cur);
+	void randomizeObject(CGObjectInstance * cur);
 	void initPlayerStates();
 	void placeCampaignHeroes();
 	CrossoverHeroesList getCrossoverHeroesFromPreviousScenarios() const;
@@ -263,7 +265,7 @@ private:
 	CGHeroInstance * getUsedHero(HeroTypeID hid) const;
 	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
-	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
+	std::pair<Obj, int> pickObject(CGObjectInstance * obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickUnusedHeroTypeRandomly(PlayerColor owner); // picks a unused hero type randomly
 	int pickNextHeroType(PlayerColor owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 

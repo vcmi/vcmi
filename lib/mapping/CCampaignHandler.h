@@ -17,13 +17,13 @@ class CBinaryReader;
 
 namespace CampaignVersion
 {
-	enum Version
-	{
-		RoE = 4,
-		AB = 5,
-		SoD = 6,
-		WoG = 6
-	};
+enum Version
+{
+	RoE = 4,
+	AB = 5,
+	SoD = 6,
+	WoG = 6
+};
 }
 
 class DLL_LINKAGE CCampaignHeader
@@ -40,7 +40,7 @@ public:
 
 	CCampaignHeader();
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template<typename Handler> void serialize(Handler & h, const int formatVersion)
 	{
 		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music & filename & loadFromLod;
 	}
@@ -59,8 +59,19 @@ public:
 
 	struct DLL_LINKAGE STravelBonus
 	{
-		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
-			HEROES_FROM_PREVIOUS_SCENARIO, HERO};
+		enum EBonusType
+		{
+			SPELL,
+			MONSTER,
+			BUILDING,
+			ARTIFACT,
+			SPELL_SCROLL,
+			PRIMARY_SKILL,
+			SECONDARY_SKILL,
+			RESOURCE,
+			HEROES_FROM_PREVIOUS_SCENARIO,
+			HERO
+		};
 		EBonusType type; //uses EBonusType
 		si32 info1, info2, info3; //purpose depends on type
 
@@ -68,7 +79,7 @@ public:
 
 		STravelBonus();
 
-		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		template<typename Handler> void serialize(Handler & h, const int formatVersion)
 		{
 			h & type & info1 & info2 & info3;
 		}
@@ -78,7 +89,7 @@ public:
 
 	CScenarioTravel();
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template<typename Handler> void serialize(Handler & h, const int formatVersion)
 	{
 		h & whatHeroKeeps & monstersKeptByHero & artifsKeptByHero & startOptions & playerColor & bonusesToChoose;
 	}
@@ -97,7 +108,7 @@ public:
 
 		SScenarioPrologEpilog();
 
-		template <typename Handler> void serialize(Handler &h, const int formatVersion)
+		template<typename Handler> void serialize(Handler & h, const int formatVersion)
 		{
 			h & hasPrologEpilog & prologVideo & prologMusic & prologText;
 		}
@@ -126,10 +137,9 @@ public:
 
 	CCampaignScenario();
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template<typename Handler> void serialize(Handler & h, const int formatVersion)
 	{
-		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText &
-			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes & keepHeroes;
+		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText & prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes & keepHeroes;
 	}
 };
 
@@ -138,9 +148,9 @@ class DLL_LINKAGE CCampaign
 public:
 	CCampaignHeader header;
 	std::vector<CCampaignScenario> scenarios;
-	std::map<int, std::string > mapPieces; //binary h3ms, scenario number -> map data
+	std::map<int, std::string> mapPieces; //binary h3ms, scenario number -> map data
 
-	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	template<typename Handler> void serialize(Handler & h, const int formatVersion)
 	{
 		h & header & scenarios & mapPieces;
 	}
@@ -161,7 +171,7 @@ public:
 	std::map<ui8, ui8> chosenCampaignBonuses;
 
 	//void initNewCampaign(const StartInfo &si);
-	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
+	void setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes);
 	boost::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
 	const CCampaignScenario & getCurrentScenario() const;
 	CCampaignScenario & getCurrentScenario();
@@ -171,7 +181,7 @@ public:
 	CCampaignState(std::unique_ptr<CCampaign> _camp);
 	~CCampaignState(){};
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
 		h & chosenCampaignBonuses;
@@ -181,17 +191,18 @@ public:
 class DLL_LINKAGE CCampaignHandler
 {
 	static CCampaignHeader readHeaderFromMemory(CBinaryReader & reader);
-	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion );
+	static CCampaignScenario readScenarioFromMemory(CBinaryReader & reader, int version, int mapVersion);
 	static CScenarioTravel readScenarioTravelFromMemory(CBinaryReader & reader, int version);
 	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
-	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);
+	static std::vector<std::vector<ui8>> getFile(const std::string & name, bool headerOnly);
+
 public:
 	static std::string prologVideoName(ui8 index);
 	static std::string prologMusicName(ui8 index);
 	static std::string prologVoiceName(ui8 index);
 
-	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
+	static CCampaignHeader getHeader(const std::string & name); //name - name of appropriate file
 
 	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
 };

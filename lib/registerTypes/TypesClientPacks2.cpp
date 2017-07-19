@@ -35,5 +35,3 @@
 template void registerTypesClientPacks2<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypesClientPacks2<BinarySerializer>(BinarySerializer & s);
 template void registerTypesClientPacks2<CTypeList>(CTypeList & s);
-
-

@@ -44,7 +44,7 @@
 
 #include "../lib/UnlockGuard.h"
 
-#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
 #include <execinfo.h>
 #endif
 
@@ -54,35 +54,34 @@ std::atomic<bool> serverShuttingDown(false);
 
 boost::program_options::variables_map cmdLineOptions;
 
-static void vaccept(boost::asio::ip::tcp::acceptor *ac, boost::asio::ip::tcp::socket *s, boost::system::error_code *error)
+static void vaccept(boost::asio::ip::tcp::acceptor * ac, boost::asio::ip::tcp::socket * s, boost::system::error_code * error)
 {
-	ac->accept(*s,*error);
+	ac->accept(*s, *error);
 }
 
 
 
 CPregameServer::CPregameServer(CConnection * Host, TAcceptor * Acceptor)
-	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(nullptr),
-	  curmap(nullptr), curStartInfo(nullptr), state(RUNNING)
+	: host(Host), listeningThreads(0), acceptor(Acceptor), upcomingConnection(nullptr), curmap(nullptr), curStartInfo(nullptr), state(RUNNING)
 {
 	initConnection(host);
 }
 
-void CPregameServer::handleConnection(CConnection *cpc)
+void CPregameServer::handleConnection(CConnection * cpc)
 {
 	setThreadName("CPregameServer::handleConnection");
 	try
 	{
 		while(!cpc->receivedStop)
 		{
-			CPackForSelectionScreen *cpfs = nullptr;
+			CPackForSelectionScreen * cpfs = nullptr;
 			*cpc >> cpfs;
 
 			logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
 
 			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 			bool quitting = dynamic_ptr_cast<QuitMenuWithoutStarting>(cpfs),
-				startingGame = dynamic_ptr_cast<StartWithCurrentSettings>(cpfs);
+			     startingGame = dynamic_ptr_cast<StartWithCurrentSettings>(cpfs);
 			if(quitting || startingGame) //host leaves main menu or wants to start game -> we end
 			{
 				cpc->receivedStop = true;
@@ -99,7 +98,8 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			{
 				//wait for sending thread to announce start
 				auto unlock = vstd::makeUnlockGuard(mx);
-				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+				while(state == RUNNING)
+					boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 			}
 			else if(quitting) // Server must be stopped if host is leaving from lobby to avoid crash
 			{
@@ -107,10 +107,10 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			}
 		}
 	}
-	catch (const std::exception& e)
+	catch(const std::exception & e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		logNetwork->errorStream() << *cpc << " dies... \nWhat happened: " << e.what();
+		logNetwork->errorStream() << * cpc << " dies... \nWhat happened: " << e.what();
 	}
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
@@ -132,7 +132,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 		}
 	}
 
-	logNetwork->infoStream() << "Thread listening for " << *cpc << " ended";
+	logNetwork->infoStream() << "Thread listening for " << * cpc << " ended";
 	listeningThreads--;
 	vstd::clear_pointer(cpc->handler);
 }
@@ -152,11 +152,11 @@ void CPregameServer::run()
 				toAnnounce.pop_front();
 			}
 
-// 			//we end sending thread if we ordered all our connections to stop
-// 			ending = true;
-// 			for(CPregameConnection *pc : connections)
-// 				if(!pc->sendStop)
-// 					ending = false;
+//                      //we end sending thread if we ordered all our connections to stop
+//                      ending = true;
+//                      for(CPregameConnection *pc : connections)
+//                              if(!pc->sendStop)
+//                                      ending = false;
 
 			if(state != RUNNING)
 			{
@@ -179,7 +179,8 @@ void CPregameServer::run()
 	if(state == ENDING_AND_STARTING_GAME)
 	{
 		logNetwork->info("Waiting for listening thread to finish...");
-		while(listeningThreads) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		while(listeningThreads)
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 		logNetwork->info("Preparing new game");
 	}
 }
@@ -189,7 +190,7 @@ CPregameServer::~CPregameServer()
 	delete acceptor;
 	delete upcomingConnection;
 
-	for(CPackForSelectionScreen *pack : toAnnounce)
+	for(CPackForSelectionScreen * pack : toAnnounce)
 		delete pack;
 
 	toAnnounce.clear();
@@ -197,7 +198,7 @@ CPregameServer::~CPregameServer()
 	//TODO pregameconnections
 }
 
-void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
+void CPregameServer::connectionAccepted(const boost::system::error_code & ec)
 {
 	if(ec)
 	{
@@ -209,7 +210,7 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 	{
 		logNetwork->info("We got a new connection! :)");
 		std::string name = NAME;
-		CConnection *pc = new CConnection(upcomingConnection, name.append(" STATE_PREGAME"));
+		CConnection * pc = new CConnection(upcomingConnection, name.append(" STATE_PREGAME"));
 		initConnection(pc);
 		upcomingConnection = nullptr;
 
@@ -223,7 +224,7 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 		pj->connectionID = pc->connectionID;
 		toAnnounce.push_back(pj);
 	}
-	catch(std::exception& e)
+	catch(std::exception & e)
 	{
 		upcomingConnection = nullptr;
 		logNetwork->info("I guess it was just my imagination!");
@@ -241,7 +242,7 @@ void CPregameServer::start_async_accept()
 	acceptor->async_accept(*upcomingConnection, std::bind(&CPregameServer::connectionAccepted, this, _1));
 }
 
-void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName)
+void CPregameServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt);
 	ChatMessage cm;
@@ -252,9 +253,9 @@ void CPregameServer::announceTxt(const std::string &txt, const std::string &play
 	toAnnounce.push_front(new ChatMessage(cm));
 }
 
-void CPregameServer::announcePack(const CPackForSelectionScreen &pack)
+void CPregameServer::announcePack(const CPackForSelectionScreen & pack)
 {
-	for(CConnection *pc : connections)
+	for(CConnection * pc : connections)
 		sendPack(pc, pack);
 }
 
@@ -282,14 +283,14 @@ void CPregameServer::processPack(CPackForSelectionScreen * pack)
 	{
 		sendPack(host, *pack);
 	}
-	else if(SelectMap *sm = dynamic_ptr_cast<SelectMap>(pack))
+	else if(SelectMap * sm = dynamic_ptr_cast<SelectMap>(pack))
 	{
 		vstd::clear_pointer(curmap);
 		curmap = sm->mapInfo;
 		sm->free = false;
 		announcePack(*pack);
 	}
-	else if(UpdateStartOptions *uso = dynamic_ptr_cast<UpdateStartOptions>(pack))
+	else if(UpdateStartOptions * uso = dynamic_ptr_cast<UpdateStartOptions>(pack))
 	{
 		vstd::clear_pointer(curStartInfo);
 		curStartInfo = uso->options;
@@ -307,7 +308,7 @@ void CPregameServer::processPack(CPackForSelectionScreen * pack)
 	delete pack;
 }
 
-void CPregameServer::initConnection(CConnection *c)
+void CPregameServer::initConnection(CConnection * c)
 {
 	*c >> c->name;
 	connections.insert(c);
@@ -352,7 +353,7 @@ CVCMIServer::~CVCMIServer()
 	//delete firstConnection;
 }
 
-CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
+CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection & c)
 {
 	auto gh = new CGameHandler();
 	StartInfo si;
@@ -380,12 +381,12 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 
 void CVCMIServer::newGame()
 {
-	CConnection &c = *firstConnection;
+	CConnection & c = *firstConnection;
 	ui8 clients;
 	c >> clients; //how many clients should be connected
 	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
 
-	CGameHandler *gh = initGhFromHostingConnection(c);
+	CGameHandler * gh = initGhFromHostingConnection(c);
 
 	auto onExit = vstd::makeScopeGuard([&]()
 	{
@@ -411,7 +412,7 @@ void CVCMIServer::newPregame()
 		gh.conns = cps->connections;
 		gh.init(cps->curStartInfo);
 
-		for(CConnection *c : gh.conns)
+		for(CConnection * c : gh.conns)
 			c->addStdVecItems(gh.gs);
 
 		gh.run(false);
@@ -433,12 +434,12 @@ void CVCMIServer::start()
 #endif
 
 	boost::system::error_code error;
-	for (;;)
+	for(;; )
 	{
 		try
 		{
 			auto s = new boost::asio::ip::tcp::socket(acceptor->get_io_service());
-			boost::thread acc(std::bind(vaccept,acceptor,s,&error));
+			boost::thread acc(std::bind(vaccept, acceptor, s, &error));
 #ifdef VCMI_ANDROID
 			{ // in block to clean-up vm helper after use, because we don't need to keep this thread attached to vm
 				CAndroidVMHelper envHelper;
@@ -453,9 +454,9 @@ void CVCMIServer::start()
 #endif
 
 			acc.join();
-			if (error)
+			if(error)
 			{
-				logNetwork->warnStream()<<"Got connection but there is an error " << error;
+				logNetwork->warnStream() << "Got connection but there is an error " << error;
 				return;
 			}
 			logNetwork->info("We've accepted someone... ");
@@ -466,7 +467,7 @@ void CVCMIServer::start()
 			{
 				ui8 mode;
 				*firstConnection >> mode;
-				switch (mode)
+				switch(mode)
 				{
 				case 0:
 					firstConnection->close();
@@ -487,7 +488,7 @@ void CVCMIServer::start()
 			}
 			break;
 		}
-		catch(std::exception& e)
+		catch(std::exception & e)
 		{
 			vstd::clear_pointer(firstConnection);
 			logNetwork->info("I guess it was just my imagination!");
@@ -497,7 +498,7 @@ void CVCMIServer::start()
 
 void CVCMIServer::loadGame()
 {
-	CConnection &c = *firstConnection;
+	CConnection & c = *firstConnection;
 	std::string fname;
 	CGameHandler gh;
 	boost::system::error_code error;
@@ -515,10 +516,10 @@ void CVCMIServer::loadGame()
 
 	gh.conns.insert(firstConnection);
 
-	for(int i=1; i<clients; i++)
+	for(int i = 1; i < clients; i++)
 	{
 		auto s = make_unique<boost::asio::ip::tcp::socket>(acceptor->get_io_service());
-		acceptor->accept(*s,error);
+		acceptor->accept(*s, error);
 		if(error) //retry
 		{
 			logNetwork->warn("Cannot establish connection - retrying...");
@@ -526,7 +527,7 @@ void CVCMIServer::loadGame()
 			continue;
 		}
 
-		gh.conns.insert(new CConnection(s.release(),NAME));
+		gh.conns.insert(new CConnection(s.release(), NAME));
 	}
 
 	gh.run(true);
@@ -534,7 +535,7 @@ void CVCMIServer::loadGame()
 
 
 
-static void handleCommandOptions(int argc, char *argv[])
+static void handleCommandOptions(int argc, char * argv[])
 {
 	namespace po = boost::program_options;
 	po::options_description opts("Allowed options");
@@ -553,14 +554,14 @@ static void handleCommandOptions(int argc, char *argv[])
 		{
 			po::store(po::parse_command_line(argc, argv, opts), cmdLineOptions);
 		}
-		catch(std::exception &e)
+		catch(std::exception & e)
 		{
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
 
 	po::notify(cmdLineOptions);
-	if (cmdLineOptions.count("help"))
+	if(cmdLineOptions.count("help"))
 	{
 		auto time = std::time(0);
 		printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
@@ -572,7 +573,7 @@ static void handleCommandOptions(int argc, char *argv[])
 		exit(0);
 	}
 
-	if (cmdLineOptions.count("version"))
+	if(cmdLineOptions.count("version"))
 	{
 		printf("%s\n", GameConstants::VCMI_VERSION.c_str());
 		std::cout << VCMIDirs::get().genHelpString();
@@ -580,13 +581,13 @@ static void handleCommandOptions(int argc, char *argv[])
 	}
 }
 
-#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
 	void * buffer[STACKTRACE_SIZE];
 	int ptrCount = backtrace(buffer, STACKTRACE_SIZE);
-	char ** strings;
+	char * * strings;
 
 	logGlobal->error("Error: signal %d :", sig);
 	strings = backtrace_symbols(buffer, ptrCount);
@@ -607,11 +608,11 @@ void handleLinuxSignal(int sig)
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char * * argv)
 {
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-	#if defined(__GNUC__) && !defined (__MINGW32__) && !defined(VCMI_ANDROID)
+	#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
 	signal(SIGSEGV, handleLinuxSignal);
     #endif
 
@@ -626,7 +627,7 @@ int main(int argc, char** argv)
 	logConfig.configure();
 
 	loadDLLClasses();
-	srand ( (ui32)time(nullptr) );
+	srand((ui32)time(nullptr));
 	try
 	{
 		boost::asio::io_service io_service;
@@ -640,17 +641,17 @@ int main(int argc, char** argv)
 			}
 			io_service.run();
 		}
-		catch (boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+		catch(boost::system::system_error & e) //for boost errors just log, not crash - probably client shut down connection
 		{
 			logNetwork->error(e.what());
 			serverShuttingDown = true;
 		}
-		catch (...)
+		catch(...)
 		{
 			handleException();
 		}
 	}
-	catch(boost::system::system_error &e)
+	catch(boost::system::system_error & e)
 	{
 		logNetwork->error(e.what());
 		//catch any startup errors (e.g. can't access port) errors
@@ -671,7 +672,7 @@ int main(int argc, char** argv)
 void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
-	main(1, const_cast<char **>(foo));
+	main(1, const_cast<char * *>(foo));
 }
 
 #endif

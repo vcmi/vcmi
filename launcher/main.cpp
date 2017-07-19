@@ -12,7 +12,7 @@
 #include "mainwindow_moc.h"
 #include "sdldisplayquery.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
 	QApplication vcmilauncher(argc, argv);
 	auto displayList = getDisplays();

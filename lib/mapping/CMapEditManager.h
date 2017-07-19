@@ -58,8 +58,9 @@ template<typename T>
 class DLL_LINKAGE CMapSelection
 {
 public:
-	explicit CMapSelection(CMap * map) : map(map) { }
-	virtual ~CMapSelection() { };
+	explicit CMapSelection(CMap * map)
+		: map(map) {}
+	virtual ~CMapSelection() {};
 	void select(const T & item)
 	{
 		selectedItems.insert(item);
@@ -73,10 +74,10 @@ public:
 		return selectedItems;
 	}
 	CMap * getMap() { return map; }
-	virtual void selectRange(const MapRect & rect) { }
-	virtual void deselectRange(const MapRect & rect) { }
-	virtual void selectAll() { }
-	virtual void clearSelection() { }
+	virtual void selectRange(const MapRect & rect) {}
+	virtual void deselectRange(const MapRect & rect) {}
+	virtual void selectAll() {}
+	virtual void clearSelection() {}
 
 private:
 	std::set<T> selectedItems;
@@ -96,7 +97,7 @@ public:
 };
 
 /// Selection class to select objects.
-class DLL_LINKAGE CObjectSelection: public CMapSelection<CGObjectInstance *>
+class DLL_LINKAGE CObjectSelection : public CMapSelection<CGObjectInstance *>
 {
 public:
 	explicit CObjectSelection(CMap * map);
@@ -107,7 +108,7 @@ class DLL_LINKAGE CMapOperation : public boost::noncopyable
 {
 public:
 	explicit CMapOperation(CMap * map);
-	virtual ~CMapOperation() { };
+	virtual ~CMapOperation() {};
 
 	virtual void execute() = 0;
 	virtual void undo() = 0;
@@ -146,7 +147,7 @@ public:
 	void addOperation(std::unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
 
 private:
-	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
+	typedef std::list<std::unique_ptr<CMapOperation>> TStack;
 
 	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
 	const CMapOperation * peek(const TStack & stack) const;
@@ -207,19 +208,19 @@ public:
 	void addOperation(std::unique_ptr<CMapOperation> && operation);
 
 private:
-	std::list<std::unique_ptr<CMapOperation> > operations;
+	std::list<std::unique_ptr<CMapOperation>> operations;
 };
 
 namespace ETerrainGroup
 {
-	enum ETerrainGroup
-	{
-		NORMAL,
-		DIRT,
-		SAND,
-		WATER,
-		ROCK
-	};
+enum ETerrainGroup
+{
+	NORMAL,
+	DIRT,
+	SAND,
+	WATER,
+	ROCK
+};
 }
 
 /// The terrain view pattern describes a specific composition of terrain tiles
@@ -228,7 +229,7 @@ struct DLL_LINKAGE TerrainViewPattern
 {
 	struct WeightedRule
 	{
-		WeightedRule(std::string &Name);
+		WeightedRule(std::string & Name);
 		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
 		inline bool isStandardRule() const
 		{
@@ -266,7 +267,7 @@ struct DLL_LINKAGE TerrainViewPattern
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
 
-	private:
+private:
 		bool standardRule;
 		bool anyRule;
 		bool dirtRule;
@@ -316,7 +317,7 @@ struct DLL_LINKAGE TerrainViewPattern
 	///
 	/// std::vector -> size=1: typical, size=2: if this pattern should map to two different types of borders
 	/// std::pair   -> 1st value: lower range, 2nd value: upper range
-	std::vector<std::pair<int, int> > mapping;
+	std::vector<std::pair<int, int>> mapping;
 	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
 	/// the same frame will be used and rotated.
 	bool diffImages;
@@ -345,7 +346,7 @@ public:
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector> > terrainViewPatterns;
+	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector>> terrainViewPatterns;
 	std::map<std::string, TVPVector> terrainTypePatterns;
 };
 
@@ -376,7 +377,8 @@ private:
 		std::set<int3> foreignTiles, nativeTiles;
 		bool centerPosValid;
 
-		InvalidTiles() : centerPosValid(false) { }
+		InvalidTiles()
+			: centerPosValid(false) {}
 	};
 
 	void updateTerrainTypes();

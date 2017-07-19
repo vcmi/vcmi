@@ -20,9 +20,26 @@ class CGCreature;
 class DLL_LINKAGE CQuest
 {
 public:
-	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
-		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9, MISSION_KEYMASTER = 10};
-	enum Eprogress {NOT_ACTIVE, IN_PROGRESS, COMPLETE};
+	enum Emission
+	{
+		MISSION_NONE = 0,
+		MISSION_LEVEL = 1,
+		MISSION_PRIMARY_STAT = 2,
+		MISSION_KILL_HERO = 3,
+		MISSION_KILL_CREATURE = 4,
+		MISSION_ART = 5,
+		MISSION_ARMY = 6,
+		MISSION_RESOURCES = 7,
+		MISSION_HERO = 8,
+		MISSION_PLAYER = 9,
+		MISSION_KEYMASTER = 10
+	};
+	enum Eprogress
+	{
+		NOT_ACTIVE,
+		IN_PROGRESS,
+		COMPLETE
+	};
 
 	si32 qid; //unique quest id for serialization / identification
 
@@ -52,24 +69,24 @@ public:
 	CQuest();
 	virtual ~CQuest(){};
 
-	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual void getCompletionText (MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
-	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
-	virtual void completeQuest (const CGHeroInstance * h) const {};
-	virtual void addReplacements(MetaString &out, const std::string &base) const;
+	virtual bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual void getVisitText(MetaString & text, std::vector<Component> & components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual void getCompletionText(MetaString & text, std::vector<Component> & components, bool isCustom, const CGHeroInstance * h = nullptr) const;
+	virtual void getRolloverText(MetaString & text, bool onHover) const; //hover or quest log entry
+	virtual void completeQuest(const CGHeroInstance * h) const {};
+	virtual void addReplacements(MetaString & out, const std::string & base) const;
 
-	bool operator== (const CQuest & quest) const
+	bool operator==(const CQuest & quest) const
 	{
 		return (quest.qid == qid);
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & qid & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
-			& textOption & stackToKill & stackDirection & heroName & heroPortrait
-			& firstVisitText & nextVisitText & completedText & isCustomFirst
-			& isCustomNext & isCustomComplete;
+		& textOption & stackToKill & stackDirection & heroName & heroPortrait
+		& firstVisitText & nextVisitText & completedText & isCustomFirst
+		& isCustomNext & isCustomComplete;
 		if(version >= 757)
 		{
 			h & completedOption;
@@ -90,13 +107,14 @@ public:
 
 	IQuestObject();
 	virtual ~IQuestObject();
-	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	virtual bool checkQuest (const CGHeroInstance * h) const;
+	virtual void getVisitText(MetaString & text, std::vector<Component> & components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	virtual bool checkQuest(const CGHeroInstance * h) const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & quest;
 	}
+
 protected:
 	void afterAddToMapCommon(CMap * map);
 };
@@ -104,7 +122,20 @@ protected:
 class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
 {
 public:
-	enum ERewardType {NOTHING, EXPERIENCE, MANA_POINTS, MORALE_BONUS, LUCK_BONUS, RESOURCES, PRIMARY_SKILL, SECONDARY_SKILL, ARTIFACT, SPELL, CREATURE};
+	enum ERewardType
+	{
+		NOTHING,
+		EXPERIENCE,
+		MANA_POINTS,
+		MORALE_BONUS,
+		LUCK_BONUS,
+		RESOURCES,
+		PRIMARY_SKILL,
+		SECONDARY_SKILL,
+		ARTIFACT,
+		SPELL,
+		CREATURE
+	};
 	ERewardType rewardType;
 	si32 rID; //reward ID
 	si32 rVal; //reward value
@@ -115,25 +146,26 @@ public:
 	std::string getHoverText(PlayerColor player) const override;
 	void newTurn(CRandomGenerator & rand) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance * hero, ui32 answer) const override;
 
 	virtual void init(CRandomGenerator & rand);
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
-	const CGCreature *getCreatureToKill(bool allowNull = false) const;
-	void getRolloverText (MetaString &text, bool onHover) const;
-	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;
-	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
-	virtual void completeQuest (const CGHeroInstance * h) const;
+	const CGHeroInstance * getHeroToKill(bool allowNull = false) const;
+	const CGCreature * getCreatureToKill(bool allowNull = false) const;
+	void getRolloverText(MetaString & text, bool onHover) const;
+	void getCompletionText(MetaString & text, std::vector<Component> & components, bool isCustom, const CGHeroInstance * h = nullptr) const;
+	void finishQuest(const CGHeroInstance * h, ui32 accept) const; //common for both objects
+	virtual void completeQuest(const CGHeroInstance * h) const;
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this) & static_cast<IQuestObject&>(*this);
+		h & static_cast<CArmedInstance &>(*this) & static_cast<IQuestObject &>(*this);
 		h & rewardType & rID & rVal & seerName;
 	}
+
 protected:
 	static const int OBJPROP_VISITED = 10;
 
@@ -145,14 +177,16 @@ protected:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
-	CGQuestGuard() : CGSeerHut(){};
+	CGQuestGuard()
+		: CGSeerHut(){};
 	void init(CRandomGenerator & rand) override;
-	void completeQuest (const CGHeroInstance * h) const override;
+	void completeQuest(const CGHeroInstance * h) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGSeerHut&>(*this);
+		h & static_cast<CGSeerHut &>(*this);
 	}
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
@@ -160,20 +194,21 @@ protected:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
-	static std::map <PlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
+	static std::map<PlayerColor, std::set<ui8>> playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
 	static void reset();
 
-	bool wasMyColorVisited (PlayerColor player) const;
+	bool wasMyColorVisited(PlayerColor player) const;
 
 	std::string getObjectName() const override; //depending on color
 	std::string getHoverText(PlayerColor player) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
 	}
+
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 };
@@ -181,33 +216,34 @@ protected:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
-	bool wasVisited (PlayerColor player) const override;
+	bool wasVisited(PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
 	}
 };
 
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
-	CGBorderGuard() : IQuestObject(){};
+	CGBorderGuard()
+		: IQuestObject(){};
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void blockingDialogAnswered(const CGHeroInstance * hero, ui32 answer) const override;
 
-	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
-	void getRolloverText (MetaString &text, bool onHover) const;
-	bool checkQuest (const CGHeroInstance * h) const override;
+	void getVisitText(MetaString & text, std::vector<Component> & components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
+	void getRolloverText(MetaString & text, bool onHover) const;
+	bool checkQuest(const CGHeroInstance * h) const override;
 
 	void afterAddToMap(CMap * map) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<IQuestObject&>(*this);
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<IQuestObject &>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
 		h & blockVisit;
 	}
 };
@@ -215,13 +251,14 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
-	CGBorderGate() : CGBorderGuard(){};
+	CGBorderGate()
+		: CGBorderGuard(){};
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGBorderGuard&>(*this); //need to serialize or object will be empty
+		h & static_cast<CGBorderGuard &>(*this); //need to serialize or object will be empty
 	}
 };

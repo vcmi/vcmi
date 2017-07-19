@@ -33,6 +33,7 @@ protected:
 		obj->appearance = tmpl;
 		return obj;
 	}
+
 public:
 	CDefaultObjectTypeHandler(){}
 
@@ -61,6 +62,7 @@ public:
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
 {
 	JsonNode filtersJson;
+
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const override;
 	void initTypeData(const JsonNode & input) override;
@@ -74,16 +76,17 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & filtersJson & faction & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance>&>(*this);
+		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance> &>(*this);
 	}
 };
 
 class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance>
 {
 	JsonNode filtersJson;
+
 protected:
 	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const override;
 	void initTypeData(const JsonNode & input) override;
@@ -97,10 +100,10 @@ public:
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & filtersJson & heroClass & filters;
-		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
+		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance> &>(*this);
 	}
 };
 
@@ -123,10 +126,10 @@ public:
 	bool producesCreature(const CCreature * crea) const;
 	std::vector<const CCreature *> getProducedCreatures() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & availableCreatures & guards;
-		h & static_cast<CDefaultObjectTypeHandler<CGDwelling>&>(*this);
+		h & static_cast<CDefaultObjectTypeHandler<CGDwelling> &>(*this);
 	}
 };
 
@@ -143,7 +146,7 @@ struct BankConfig
 	std::vector<ArtifactID> artifacts; //artifacts given in case of victory
 	std::vector<SpellID> spells; // granted spell(s), for Pyramid
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts & value & spells;
 	}
@@ -154,6 +157,7 @@ typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards
 class DLL_LINKAGE CBankInfo : public IObjectInfo
 {
 	const JsonVector & config;
+
 public:
 	CBankInfo(const JsonVector & Config);
 
@@ -174,6 +178,7 @@ class CBankInstanceConstructor : public CDefaultObjectTypeHandler<CBank>
 	BankConfig generateConfig(const JsonNode & conf, CRandomGenerator & rng) const;
 
 	JsonVector levels;
+
 protected:
 	void initTypeData(const JsonNode & input) override;
 
@@ -188,9 +193,9 @@ public:
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & levels & bankResetDuration;
-		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
+		h & static_cast<CDefaultObjectTypeHandler<CBank> &>(*this);
 	}
 };

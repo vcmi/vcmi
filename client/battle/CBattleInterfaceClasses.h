@@ -31,18 +31,19 @@ class CPlayerInterface;
 class CBattleConsole : public CIntObject
 {
 private:
-	std::vector< std::string > texts; //a place where texts are stored
+	std::vector<std::string> texts; //a place where texts are stored
 	int lastShown; //last shown line of text
+
 public:
 	std::string alterTxt; //if it's not empty, this text is displayed
 	std::string ingcAlter; //alternative text set by in-game console - very important!
 	int whoSetAlter; //who set alter text; 0 - battle interface or none, 1 - button
 	CBattleConsole();
 	void showAll(SDL_Surface * to = 0) override;
-	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
-	void alterText(const std::string &text); //place string at alterTxt
+	bool addText(const std::string & text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
+	void alterText(const std::string & text); //place string at alterTxt
 	void eraseText(ui32 pos); //erases added text at position pos
-	void changeTextAt(const std::string &text, ui32 pos); //if we have more than pos texts, pos-th is changed to given one
+	void changeTextAt(const std::string & text, ui32 pos); //if we have more than pos texts, pos-th is changed to given one
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
 	void scrollDown(ui32 by = 1); //scrolls console up by 'by' positions
 };
@@ -51,9 +52,10 @@ public:
 class CBattleHero : public CIntObject
 {
 	void switchToNextPhase();
+
 public:
 	bool flip; //false if it's attacking hero, true otherwise
-	CDefHandler *dh, *flag; //animation and flag
+	CDefHandler * dh, * flag; //animation and flag
 	const CGHeroInstance * myHero; //this animation's hero instance
 	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
@@ -65,14 +67,14 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner);
+	CBattleHero(const std::string & defName, bool filpG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner);
 	~CBattleHero();
 };
 
 class CHeroInfoWindow : public CWindowObject
 {
 public:
-	CHeroInfoWindow(const InfoAboutHero &hero, Point *position);
+	CHeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };
 
 /// Class which manages the battle options window
@@ -84,9 +86,10 @@ private:
 	CToggleButton * viewGrid, * movementShadow, * mouseShadow;
 	CToggleGroup * animSpeeds;
 
-	std::vector<CLabel*> labels;
+	std::vector<CLabel *> labels;
+
 public:
-	CBattleOptionsWindow(const SDL_Rect &position, CBattleInterface *owner);
+	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -96,10 +99,11 @@ public:
 class CBattleResultWindow : public CIntObject
 {
 private:
-	CButton *exit;
-	CPlayerInterface &owner;
+	CButton * exit;
+	CPlayerInterface & owner;
+
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner);
+	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface & _owner);
 	~CBattleResultWindow();
 
 	void bExitf(); //exit button callback
@@ -113,6 +117,7 @@ class CClickableHex : public CIntObject
 {
 private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
+
 public:
 	ui32 myNumber; //number of hex in commonly used format
 	bool accessible; //if true, this hex is accessible for units
@@ -122,8 +127,8 @@ public:
 	static Point getXYUnitAnim(BattleHex hexNum, const CStack * creature, CBattleInterface * cbi); //returns (x, y) of left top corner of animation
 
 	//for user interactions
-	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent &sEvent) override;
+	void hover(bool on) override;
+	void mouseMoved(const SDL_MouseMotionEvent & sEvent) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 	CClickableHex();
@@ -134,14 +139,14 @@ class CStackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
 	{
-	public:
+public:
 		CPicture * bg;
 		CAnimImage * icon;
-		const CStack *stack;
+		const CStack * stack;
 		bool small;
 
 		void showAll(SDL_Surface * to) override;
-		void setStack(const CStack *nStack);
+		void setStack(const CStack * nStack);
 		StackBox(bool small);
 	};
 
@@ -158,6 +163,6 @@ public:
 	CStackQueue(bool Embedded, CBattleInterface * _owner);
 	~CStackQueue();
 	void update();
-	void showAll(SDL_Surface *to) override;
+	void showAll(SDL_Surface * to) override;
 	void blitBg(SDL_Surface * to);
 };

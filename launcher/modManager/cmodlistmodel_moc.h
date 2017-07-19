@@ -16,26 +16,26 @@
 
 namespace ModFields
 {
-	enum EModFields
-	{
-		NAME,
-		STATUS_ENABLED,
-		STATUS_UPDATE,
-		TYPE,
-		VERSION,
-		SIZE,
-		AUTHOR,
-		COUNT
-	};
+enum EModFields
+{
+	NAME,
+	STATUS_ENABLED,
+	STATUS_UPDATE,
+	TYPE,
+	VERSION,
+	SIZE,
+	AUTHOR,
+	COUNT
+};
 }
 
 namespace ModRoles
 {
-	enum EModRoles
-	{
-		ValueRole = Qt::UserRole,
-		ModNameRole
-	};
+enum EModRoles
+{
+	ValueRole = Qt::UserRole,
+	ModNameRole
+};
 }
 
 class CModListModel : public QAbstractItemModel, public CModList
@@ -55,28 +55,30 @@ class CModListModel : public QAbstractItemModel, public CModList
 	QVariant getValue(const CModEntry & mod, int field) const;
 	QVariant getText(const CModEntry & mod, int field) const;
 	QVariant getIcon(const CModEntry & mod, int field) const;
+
 public:
-	explicit CModListModel(QObject *parent = 0);
+	explicit CModListModel(QObject * parent = 0);
 
 	/// CModListContainer overrides
 	void resetRepositories() override;
 	void addRepository(QVariantMap data) override;
 	void modChanged(QString modID) override;
 
-	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant data(const QModelIndex & index, int role) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-	int rowCount(const QModelIndex &parent) const override;
-	int columnCount(const QModelIndex &parent) const override;
+	int rowCount(const QModelIndex & parent) const override;
+	int columnCount(const QModelIndex & parent) const override;
 
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-	QModelIndex parent(const QModelIndex &child) const override;
+	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex & child) const override;
 
-	Qt::ItemFlags flags(const QModelIndex &index) const override;
+	Qt::ItemFlags flags(const QModelIndex & index) const override;
+
 signals:
-	
+
 public slots:
-	
+
 };
 
 class CModFilterModel : public QSortFilterProxyModel
@@ -87,9 +89,10 @@ class CModFilterModel : public QSortFilterProxyModel
 
 	bool filterMatchesThis(const QModelIndex & source) const;
 
-	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
+
 public:
 	void setTypeFilter(int filteredType, int filterMask);
 
-	CModFilterModel(CModListModel * model, QObject *parent = 0);
+	CModFilterModel(CModListModel * model, QObject * parent = 0);
 };

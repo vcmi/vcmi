@@ -32,8 +32,10 @@ typedef std::vector<JsonNode> JsonVector;
 class rmgException : std::exception
 {
 	std::string msg;
+
 public:
-	explicit rmgException(const std::string& _Message) : msg(_Message)
+	explicit rmgException(const std::string & _Message)
+		: msg(_Message)
 	{
 	}
 
@@ -41,7 +43,7 @@ public:
 	{
 	};
 
-	const char *what() const throw () override
+	const char * what() const throw ()override
 	{
 		return msg.c_str();
 	}
@@ -62,29 +64,29 @@ public:
 	int randomSeed;
 	CMapEditManager * editManager;
 
-	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
+	std::map<TRmgTemplateZoneId, CRmgTemplateZone *> getZones() const;
 	void createDirectConnections();
 	void createConnections2();
 	void findZonesForQuestArts();
-	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
-	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
-	void foreachDiagonaltNeighbour(const int3& pos, std::function<void(int3& pos)> foo);
+	void foreach_neighbour(const int3 & pos, std::function<void(int3 & pos)> foo);
+	void foreachDirectNeighbour(const int3 & pos, std::function<void(int3 & pos)> foo);
+	void foreachDiagonaltNeighbour(const int3 & pos, std::function<void(int3 & pos)> foo);
 
-	bool isBlocked(const int3 &tile) const;
-	bool shouldBeBlocked(const int3 &tile) const;
-	bool isPossible(const int3 &tile) const;
-	bool isFree(const int3 &tile) const;
-	bool isUsed(const int3 &tile) const;
-	bool isRoad(const int3 &tile) const;
+	bool isBlocked(const int3 & tile) const;
+	bool shouldBeBlocked(const int3 & tile) const;
+	bool isPossible(const int3 & tile) const;
+	bool isFree(const int3 & tile) const;
+	bool isUsed(const int3 & tile) const;
+	bool isRoad(const int3 & tile) const;
 
-	void setOccupied(const int3 &tile, ETileType::ETileType state);
-	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
+	void setOccupied(const int3 & tile, ETileType::ETileType state);
+	void setRoad(const int3 & tile, ERoadType::ERoadType roadType);
 
 	CTileInfo getTile(const int3 & tile) const;
 	bool isAllowedSpell(SpellID sid) const;
 
-	float getNearestObjectDistance(const int3 &tile) const;
-	void setNearestObjectDistance(int3 &tile, float value);
+	float getNearestObjectDistance(const int3 & tile) const;
+	void setNearestObjectDistance(int3 & tile, float value);
 
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
@@ -92,27 +94,27 @@ public:
 	std::vector<ArtifactID> getQuestArtsRemaning() const;
 	void banQuestArt(ArtifactID id);
 
-	void registerZone (TFaction faction);
+	void registerZone(TFaction faction);
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
 
-	TRmgTemplateZoneId getZoneID(const int3& tile) const;
-	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
+	TRmgTemplateZoneId getZoneID(const int3 & tile) const;
+	void setZoneID(const int3 & tile, TRmgTemplateZoneId zid);
 
 private:
 	std::list<CRmgTemplateZoneConnection> connectionsLeft;
-	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
+	std::map<TRmgTemplateZoneId, CRmgTemplateZone *> zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 
-	CTileInfo*** tiles;
+	CTileInfo * * * tiles;
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
 
 	int prisonsRemaining;
 	//int questArtsRemaining;
 	int monolithIndex;
 	std::vector<ArtifactID> questArtifacts;
-	void checkIsOnMap(const int3 &tile) const; //throws
+	void checkIsOnMap(const int3 & tile) const; //throws
 
 	/// Generation methods
 	std::string getMapDescription() const;

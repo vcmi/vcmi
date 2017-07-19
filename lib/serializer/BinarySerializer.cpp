@@ -14,7 +14,7 @@
 
 extern template void registerTypes<BinarySerializer>(BinarySerializer & s);
 
-CSaveFile::CSaveFile(const boost::filesystem::path &fname)
+CSaveFile::CSaveFile(const boost::filesystem::path & fname)
 	: serializer(this)
 {
 	registerTypes(serializer);
@@ -27,11 +27,11 @@ CSaveFile::~CSaveFile()
 
 int CSaveFile::write(const void * data, unsigned size)
 {
-	sfile->write((char *)data,size);
+	sfile->write((char *)data, size);
 	return size;
 }
 
-void CSaveFile::openNextFile(const boost::filesystem::path &fname)
+void CSaveFile::openNextFile(const boost::filesystem::path & fname)
 {
 	fName = fname;
 	try
@@ -42,7 +42,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 		if(!(*sfile))
 			THROW_FORMAT("Error: cannot open to write %s!", fname);
 
-		sfile->write("VCMI",4); //write magic identifier
+		sfile->write("VCMI", 4); //write magic identifier
 		serializer & SERIALIZATION_VERSION; //write format version
 	}
 	catch(...)
@@ -68,7 +68,7 @@ void CSaveFile::clear()
 	sfile = nullptr;
 }
 
-void CSaveFile::putMagicBytes(const std::string &text)
+void CSaveFile::putMagicBytes(const std::string & text)
 {
 	write(text.c_str(), text.length());
 }

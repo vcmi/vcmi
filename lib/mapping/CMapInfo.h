@@ -43,13 +43,13 @@ public:
 	CMapInfo(CMapInfo && tmp);
 	virtual ~CMapInfo();
 
-	CMapInfo &operator=(CMapInfo &&other);
+	CMapInfo & operator=(CMapInfo && other);
 
 	void mapInit(const std::string & fname);
 	void campaignInit();
 	void countPlayers();
 
-	template <typename Handler> void serialize(Handler &h, const int Version)
+	template<typename Handler> void serialize(Handler & h, const int Version)
 	{
 		h & mapHeader & campaignHeader & scenarioOpts & fileURI & date & playerAmnt & humanPlayers;
 		h & actualHumanPlayers & isRandomMap;

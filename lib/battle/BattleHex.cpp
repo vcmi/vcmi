@@ -11,9 +11,11 @@
 #include "BattleHex.h"
 #include "../GameConstants.h"
 
-BattleHex::BattleHex() : hex(INVALID) {}
+BattleHex::BattleHex()
+	: hex(INVALID) {}
 
-BattleHex::BattleHex(si16 _hex) : hex(_hex) {}
+BattleHex::BattleHex(si16 _hex)
+	: hex(_hex) {}
 
 BattleHex::BattleHex(si16 x, si16 y)
 {
@@ -37,7 +39,7 @@ bool BattleHex::isValid() const
 
 bool BattleHex::isAvailable() const
 {
-	return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH-1;
+	return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH - 1;
 }
 
 void BattleHex::setX(si16 x)
@@ -77,28 +79,28 @@ std::pair<si16, si16> BattleHex::getXY() const
 	return std::make_pair(getX(), getY());
 }
 
-BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
+BattleHex & BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 {
 	si16 x(getX()), y(getY());
 	switch(dir)
 	{
 	case TOP_LEFT:
-		setXY((y%2) ? x-1 : x, y-1, hasToBeValid);
+		setXY((y % 2) ? x - 1 : x, y - 1, hasToBeValid);
 		break;
 	case TOP_RIGHT:
-		setXY((y%2) ? x : x+1, y-1, hasToBeValid);
+		setXY((y % 2) ? x : x + 1, y - 1, hasToBeValid);
 		break;
 	case RIGHT:
-		setXY(x+1, y, hasToBeValid);
+		setXY(x + 1, y, hasToBeValid);
 		break;
 	case BOTTOM_RIGHT:
-		setXY((y%2) ? x : x+1, y+1, hasToBeValid);
+		setXY((y % 2) ? x : x + 1, y + 1, hasToBeValid);
 		break;
 	case BOTTOM_LEFT:
-		setXY((y%2) ? x-1 : x, y+1, hasToBeValid);
+		setXY((y % 2) ? x - 1 : x, y + 1, hasToBeValid);
 		break;
 	case LEFT:
-		setXY(x-1, y, hasToBeValid);
+		setXY(x - 1, y, hasToBeValid);
 		break;
 	case NONE:
 		break;
@@ -109,7 +111,7 @@ BattleHex& BattleHex::moveInDirection(EDir dir, bool hasToBeValid)
 	return *this;
 }
 
-BattleHex &BattleHex::operator+=(BattleHex::EDir dir)
+BattleHex & BattleHex::operator+=(BattleHex::EDir dir)
 {
 	return moveInDirection(dir);
 }
@@ -129,15 +131,15 @@ BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
-	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir + 1))
 		checkAndPush(cloneInDirection(dir, false), ret);
 	return ret;
 }
 
 signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 {
-	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
-		if(hex2 == hex1.cloneInDirection(dir,false))
+	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir + 1))
+		if(hex2 == hex1.cloneInDirection(dir, false))
 			return dir;
 	return INVALID;
 }
@@ -151,7 +153,7 @@ char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 
 	int xDst = x2 - x1, yDst = y2 - y1;
 
-	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0))
+	if((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0))
 		return std::max(std::abs(xDst), std::abs(yDst));
 
 	return std::abs(xDst) + std::abs(yDst);
@@ -165,35 +167,35 @@ void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)
 
 BattleHex BattleHex::getClosestTile(ui8 side, BattleHex initialPos, std::set<BattleHex> & possibilities)
 {
-	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
+	std::vector<BattleHex> sortedTiles(possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
 	BattleHex initialHex = BattleHex(initialPos);
 	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
-	{
-		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
-	};
-	boost::sort (sortedTiles, compareDistance); //closest tiles at front
+		{
+			return initialHex.getDistance(initialHex, left) < initialHex.getDistance(initialHex, right);
+		};
+	boost::sort(sortedTiles, compareDistance); //closest tiles at front
 	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
-	{
-		return closestDistance < here.getDistance (initialPos, here);
-	};
+		{
+			return closestDistance < here.getDistance(initialPos, here);
+		};
 	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
 	auto compareHorizontal = [side, initialPos](const BattleHex left, const BattleHex right) -> bool
-	{
-		if(left.getX() != right.getX())
 		{
-			if(side == BattleSide::ATTACKER)
-				return left.getX() > right.getX(); //find furthest right
+			if(left.getX() != right.getX())
+			{
+				if(side == BattleSide::ATTACKER)
+					return left.getX() > right.getX(); //find furthest right
+				else
+					return left.getX() < right.getX(); //find furthest left
+			}
 			else
-				return left.getX() < right.getX(); //find furthest left
-		}
-		else
-		{
-			//Prefer tiles in the same row.
-			return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
-		}
-	};
-	boost::sort (sortedTiles, compareHorizontal);
+			{
+				//Prefer tiles in the same row.
+				return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
+			}
+		};
+	boost::sort(sortedTiles, compareHorizontal);
 	return sortedTiles.front();
 }
 

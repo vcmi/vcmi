@@ -12,8 +12,9 @@
 #include "../StdInc.h"
 #include "../../lib/CConfigHandler.h"
 
-namespace Ui {
-	class CModListView;
+namespace Ui
+{
+class CModListView;
 }
 
 class CModManager;
@@ -61,8 +62,9 @@ class CModListView : public QWidget
 
 	QString genChangelogText(CModEntry & mod);
 	QString genModInfoText(CModEntry & mod);
+
 public:
-	explicit CModListView(QWidget *parent = 0);
+	explicit CModListView(QWidget * parent = 0);
 	~CModListView();
 
 	void showModInfo();
@@ -79,12 +81,12 @@ private slots:
 	void modSelected(const QModelIndex & current, const QModelIndex & previous);
 	void downloadProgress(qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
-	void modelReset ();
+	void modelReset();
 	void hideProgressBar();
 
 	void on_hideModInfoButton_clicked();
 
-	void on_lineEdit_textChanged(const QString &arg1);
+	void on_lineEdit_textChanged(const QString & arg1);
 
 	void on_comboBox_currentIndexChanged(int index);
 
@@ -102,14 +104,14 @@ private slots:
 
 	void on_refreshButton_clicked();
 
-	void on_allModsView_activated(const QModelIndex &index);
+	void on_allModsView_activated(const QModelIndex & index);
 
 	void on_tabWidget_currentChanged(int index);
 
-	void on_screenshotsList_clicked(const QModelIndex &index);
+	void on_screenshotsList_clicked(const QModelIndex & index);
 
 	void on_showInfoButton_clicked();
 
 private:
-	Ui::CModListView *ui;
+	Ui::CModListView * ui;
 };

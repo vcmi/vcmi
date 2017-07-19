@@ -34,4 +34,3 @@
 template void registerTypesPregamePacks<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypesPregamePacks<BinarySerializer>(BinarySerializer & s);
 template void registerTypesPregamePacks<CTypeList>(CTypeList & s);
-

@@ -27,8 +27,8 @@ public:
 	std::string identifier;
 
 	std::string nameRef; // reference name, stringID
-	std::string nameSing;// singular name, e.g. Centaur
-	std::string namePl;  // plural name, e.g. Centaurs
+	std::string nameSing; // singular name, e.g. Centaur
+	std::string namePl; // plural name, e.g. Centaurs
 
 	std::string abilityText; //description of abilities
 
@@ -57,7 +57,7 @@ public:
 	struct CreatureAnimation
 	{
 		double timeBetweenFidgets, idleAnimationTime,
-			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+		       walkAnimationTime, attackAnimationTime, flightAnimationDistance;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
@@ -67,7 +67,7 @@ public:
 		std::string projectileImageName;
 		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & timeBetweenFidgets & idleAnimationTime;
 			h & walkAnimationTime & attackAnimationTime & flightAnimationDistance;
@@ -90,7 +90,7 @@ public:
 		std::string startMoving;
 		std::string endMoving;
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & attack & defend & killed & move & shoot & wince & startMoving & endMoving;
 		}
@@ -103,12 +103,12 @@ public:
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot
 	bool isUndead() const; //returns true if unit is undead
-	bool isGood () const;
-	bool isEvil () const;
-	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
+	bool isGood() const;
+	bool isEvil() const;
+	si32 maxAmount(const std::vector<si32> & res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
-	bool isMyUpgrade(const CCreature *anotherCre) const;
+	bool isMyUpgrade(const CCreature * anotherCre) const;
 
 	bool valid() const;
 
@@ -125,20 +125,20 @@ public:
 			return ammMin + (ranGen() % (ammMax - ammMin));
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
 		h & namePl & nameSing & nameRef
-			& cost & upgrades
-			& fightValue & AIValue & growth & hordeGrowth
-			& ammMin & ammMax & level
-			& abilityText & animDefName & advMapDef;
+		& cost & upgrades
+		& fightValue & AIValue & growth & hordeGrowth
+		& ammMin & ammMax & level
+		& abilityText & animDefName & advMapDef;
 		h & iconIndex & smallIconName & largeIconName;
 
 		h & idNumber & faction & sounds & animation;
 
 		h & doubleWide & special;
-		if(version>=759)
+		if(version >= 759)
 		{
 			h & identifier;
 		}
@@ -162,13 +162,13 @@ class DLL_LINKAGE CCreatureHandler : public IHandlerBase
 {
 private:
 	CBonusSystemNode allCreatures;
-	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
+	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1]; //index 0 is used for creatures of unknown tier or outside <1-7> range
 
 	/// load one creature from json config
 	CCreature * loadFromJson(const JsonNode & node, const std::string & identifier);
 
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
-	void loadStackExperience(CCreature * creature, const JsonNode &input);
+	void loadStackExperience(CCreature * creature, const JsonNode & input);
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
 
 	/// loading functions
@@ -183,25 +183,25 @@ private:
 	/// read cranim.txt file from H3
 	void loadAnimationInfo(std::vector<JsonNode> & h3Data);
 	/// read one line from cranim.txt
-	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser &parser);
+	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser & parser);
 	/// parse crexpbon.txt file from H3
-	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
+	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser);
 	/// help function for parsing CREXPBON.txt
 	int stringToNumber(std::string & s);
 
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
-	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info.
+	std::vector<ConstTransitivePtr<CCreature>> creatures; //creature ID -> creature info.
 
 	//stack exp
-	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
+	std::vector<std::vector<ui32>> expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
-	si8 expAfterUpgrade;//multiplier in %
+	si8 expAfterUpgrade; //multiplier in %
 
 	//Commanders
 	BonusList commanderLevelPremy; //bonus values added with each level-up
-	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
-	std::vector <std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
+	std::vector<std::vector<ui8>> skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
+	std::vector<std::pair<std::shared_ptr<Bonus>, std::pair<ui8, ui8>>> skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 	const CCreature * getCreature(const std::string & scope, const std::string & identifier) const;
 
@@ -233,7 +233,7 @@ public:
 	///json serialization helper
 	static std::string encodeCreature(const si32 index);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & doubledCreatures & creatures;

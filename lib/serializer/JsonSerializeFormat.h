@@ -23,7 +23,7 @@ public:
 	virtual std::string encode(si32 identifier) const = 0;
 };
 
-class JsonSerializeHelper: public boost::noncopyable
+class JsonSerializeHelper : public boost::noncopyable
 {
 public:
 	JsonSerializeHelper(JsonSerializeHelper && other);
@@ -51,12 +51,13 @@ private:
 	bool restoreState;
 };
 
-class JsonStructSerializer: public JsonSerializeHelper
+class JsonStructSerializer : public JsonSerializeHelper
 {
 public:
 	bool optional;
 	JsonStructSerializer(JsonStructSerializer && other);
 	~JsonStructSerializer();
+
 protected:
 	JsonStructSerializer(JsonSerializeFormat & owner_, JsonNode * thisNode_);
 	JsonStructSerializer(JsonSerializeFormat & owner_, const std::string & fieldName);
@@ -67,18 +68,18 @@ protected:
 	friend class JsonArraySerializer;
 };
 
-class JsonArraySerializer: public JsonSerializeHelper
+class JsonArraySerializer : public JsonSerializeHelper
 {
 public:
 	JsonArraySerializer(JsonStructSerializer && other);
 
 	JsonStructSerializer enterStruct(const size_t index);
 
-	template <typename Container>
+	template<typename Container>
 	void syncSize(Container & c, JsonNode::JsonType type = JsonNode::DATA_NULL);
 
 	///vector of serializable <-> Json vector of structs
-	template <typename Element>
+	template<typename Element>
 	void serializeStruct(std::vector<Element> & value)
 	{
 		syncSize(value, JsonNode::DATA_STRUCT);
@@ -93,6 +94,7 @@ public:
 	void resize(const size_t newSize);
 	void resize(const size_t newSize, JsonNode::JsonType type);
 	size_t size() const;
+
 protected:
 	JsonArraySerializer(JsonSerializeFormat & owner_, const std::string & fieldName);
 	JsonArraySerializer(JsonSerializeHelper & parent, const std::string & fieldName);
@@ -101,7 +103,7 @@ protected:
 	friend class JsonSerializeHelper;
 };
 
-class JsonSerializeFormat: public boost::noncopyable
+class JsonSerializeFormat : public boost::noncopyable
 {
 public:
 	///user-provided callback to resolve string identifier
@@ -112,7 +114,7 @@ public:
 	///may assume that object index is valid
 	typedef std::function<std::string(si32)> TEncoder;
 
-	typedef std::function<void(JsonSerializeFormat &)> TSerialize;
+	typedef std::function<void (JsonSerializeFormat &)> TSerialize;
 
 	struct LIC
 	{
@@ -141,25 +143,25 @@ public:
 
 	JsonNode & getRoot()
 	{
-		return * root;
+		return *root;
 	};
 
 	JsonNode & getCurrent()
 	{
-		return * current;
+		return *current;
 	};
 
 	JsonStructSerializer enterStruct(const std::string & fieldName);
 	JsonArraySerializer enterArray(const std::string & fieldName);
 
 	///Anything comparable <-> Json bool
-	template <typename T>
+	template<typename T>
 	void serializeBool(const std::string & fieldName, T & value, const T trueValue, const T falseValue, const T defaultValue)
 	{
 		boost::logic::tribool temp(boost::logic::indeterminate);
 
 		if(value == defaultValue)
-			;//leave as indeterminate
+			; //leave as indeterminate
 		else if(value == trueValue)
 			temp = true;
 		else if(value == falseValue)
@@ -207,20 +209,20 @@ public:
 	virtual void serializeString(const std::string & fieldName, std::string & value) = 0;
 
 	///si32-convertible enum <-> Json string enum
-	template <typename T>
+	template<typename T>
 	void serializeEnum(const std::string & fieldName, T & value, const std::vector<std::string> & enumMap)
 	{
 		doSerializeInternal<T, T, si32>(fieldName, value, boost::none, enumMap);
 	};
 
 	///si32-convertible enum <-> Json string enum
-	template <typename T, typename U>
+	template<typename T, typename U>
 	void serializeEnum(const std::string & fieldName, T & value, const U & defaultValue, const std::vector<std::string> & enumMap)
 	{
 		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, enumMap);
 	};
 
-	template <typename T, typename U, typename C>
+	template<typename T, typename U, typename C>
 	void serializeEnum(const std::string & fieldName, T & value, const U & defaultValue, const C & enumMap)
 	{
 		std::vector<std::string> enumMapCopy;
@@ -231,42 +233,42 @@ public:
 	};
 
 	///Anything double-convertible <-> Json double
-	template <typename T>
+	template<typename T>
 	void serializeFloat(const std::string & fieldName, T & value)
 	{
 		doSerializeInternal<T, T, double>(fieldName, value, boost::none);
 	};
 
 	///Anything double-convertible <-> Json double
-	template <typename T, typename U>
+	template<typename T, typename U>
 	void serializeFloat(const std::string & fieldName, T & value, const U & defaultValue)
 	{
 		doSerializeInternal<T, U, double>(fieldName, value, defaultValue);
 	};
 
 	///Anything int64-convertible <-> Json integer
-	template <typename T>
+	template<typename T>
 	void serializeInt(const std::string & fieldName, T & value)
 	{
 		doSerializeInternal<T, T, si64>(fieldName, value, boost::none);
 	};
 
 	///Anything int64-convertible <-> Json integer
-	template <typename T, typename U>
+	template<typename T, typename U>
 	void serializeInt(const std::string & fieldName, T & value, const U & defaultValue)
 	{
 		doSerializeInternal<T, U, si64>(fieldName, value, defaultValue);
 	};
 
 	///si32-convertible identifier <-> Json string
-	template <typename T, typename U>
+	template<typename T, typename U>
 	void serializeId(const std::string & fieldName, T & value, const U & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
 	{
 		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, decoder, encoder);
 	}
 
 	///si32-convertible identifier vector <-> Json array of string
-	template <typename T>
+	template<typename T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value, const TDecoder & decoder, const TEncoder & encoder)
 	{
 		std::vector<si32> temp;
@@ -297,7 +299,7 @@ public:
 	}
 
 	///si32-convertible identifier set <-> Json array of string
-	template <typename T>
+	template<typename T>
 	void serializeIdArray(const std::string & fieldName, std::set<T> & value, const TDecoder & decoder, const TEncoder & encoder)
 	{
 		std::vector<si32> temp;
@@ -327,7 +329,7 @@ public:
 	}
 
 	///bitmask <-> Json array of string
-	template <typename T, int Size>
+	template<typename T, int Size>
 	void serializeIdArray(const std::string & fieldName, T & value, const T & defaultValue, const TDecoder & decoder, const TEncoder & encoder)
 	{
 		static_assert(8 * sizeof(T) >= Size, "Mask size too small");
@@ -359,7 +361,7 @@ public:
 	}
 
 	///si32-convertible instance identifier <-> Json string
-	template <typename T>
+	template<typename T>
 	void serializeInstance(const std::string & fieldName, T & value, const T & defaultValue)
 	{
 		const TDecoder decoder = std::bind(&IInstanceResolver::decode, instanceResolver, _1);
@@ -395,24 +397,24 @@ protected:
 private:
 	const IInstanceResolver * instanceResolver;
 
-    template <typename VType, typename DVType, typename IType, typename... Args>
-    void doSerializeInternal(const std::string & fieldName, VType & value, const boost::optional<DVType> & defaultValue, Args ... args)
-    {
+	template<typename VType, typename DVType, typename IType, typename ... Args>
+	void doSerializeInternal(const std::string & fieldName, VType & value, const boost::optional<DVType> & defaultValue, Args ... args)
+	{
 		const boost::optional<IType> tempDefault = defaultValue ? boost::optional<IType>(static_cast<IType>(defaultValue.get())) : boost::none;
 		IType temp = static_cast<IType>(value);
 
-		serializeInternal(fieldName, temp, tempDefault, args...);
+		serializeInternal(fieldName, temp, tempDefault, args ...);
 
 		if(!saving)
 			value = static_cast<VType>(temp);
-    }
+	}
 
 	friend class JsonSerializeHelper;
 	friend class JsonStructSerializer;
 	friend class JsonArraySerializer;
 };
 
-template <typename Container>
+template<typename Container>
 void JsonArraySerializer::syncSize(Container & c, JsonNode::JsonType type)
 {
 	if(owner.saving)

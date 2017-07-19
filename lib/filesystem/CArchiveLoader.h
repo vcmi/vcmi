@@ -69,21 +69,21 @@ private:
 	 *
 	 * @param fileStream File stream to the .lod archive
 	 */
-	void initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream);
+	void initLODArchive(const std::string & mountPoint, CFileInputStream & fileStream);
 
 	/**
 	 * Initializes a VID archive.
 	 *
 	 * @param fileStream File stream to the .vid archive
 	 */
-	void initVIDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
+	void initVIDArchive(const std::string & mountPoint, CFileInputStream & fileStream);
 
 	/**
 	 * Initializes a SND archive.
 	 *
 	 * @param fileStream File stream to the .snd archive
 	 */
-	void initSNDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
+	void initSNDArchive(const std::string & mountPoint, CFileInputStream & fileStream);
 
 	/** The file path to the archive which is scanned and indexed. */
 	boost::filesystem::path archive;

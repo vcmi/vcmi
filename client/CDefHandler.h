@@ -41,7 +41,8 @@ struct SDefEntry
 	ui32 height;
 	ui32 totalBlocks;
 
-	struct {
+	struct
+	{
 		ui8 R;
 		ui8 G;
 		ui8 B;
@@ -82,11 +83,12 @@ private:
 		std::string name;
 		int offset;
 		int group;
-	} ;
-	std::vector<SEntry> SEntries ;
-	
-	void openFromMemory(ui8 * table, const std::string & name);	
-	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const;
+	};
+	std::vector<SEntry> SEntries;
+
+	void openFromMemory(ui8 * table, const std::string & name);
+	SDL_Surface * getSprite(int SIndex, const ui8 * FDef, const SDL_Color * palette) const;
+
 public:
 	int width, height; //width and height
 	std::string defName;
@@ -95,7 +97,7 @@ public:
 
 	CDefHandler();
 	~CDefHandler();
-	
+
 	CDefEssential * essentialize();
 
 	static CDefHandler * giveDef(const std::string & defName);

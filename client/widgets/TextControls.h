@@ -40,30 +40,31 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	CPicture *bg;
+	CPicture * bg;
+
 public:
 
 	std::string text;
-	bool autoRedraw;  //whether control will redraw itself on setTxt
+	bool autoRedraw; //whether control will redraw itself on setTxt
 
 	std::string getText();
-	virtual void setText(const std::string &Txt);
+	virtual void setText(const std::string & Txt);
 
-	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
-	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
 };
 
 /// Small helper class to manage group of similar labels
 class CLabelGroup : public CIntObject
 {
-	std::list<CLabel*> labels;
+	std::list<CLabel *> labels;
 	EFonts font;
 	EAlignment align;
 	SDL_Color color;
+
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-	void add(int x=0, int y=0, const std::string &text =  "");
+	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	void add(int x = 0, int y = 0, const std::string & text = "");
 };
 
 /// Multi-line label that can display multiple lines of text
@@ -76,15 +77,16 @@ class CMultiLineLabel : public CLabel
 	// area of text that actually will be printed, default is widget size
 	Rect visibleSize;
 
-	void splitText(const std::string &Txt);
+	void splitText(const std::string & Txt);
 	Rect getTextLocation();
+
 public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 
-	void setText(const std::string &Txt) override;
+	void setText(const std::string & Txt) override;
 	void showAll(SDL_Surface * to) override;
 
 	void setVisibleSize(Rect visibleSize);
@@ -98,14 +100,15 @@ public:
 class CTextBox : public CIntObject
 {
 	int sliderStyle;
+
 public:
 	CMultiLineLabel * label;
-	CSlider *slider;
+	CSlider * slider;
 
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
 
 	void resize(Point newSize);
-	void setText(const std::string &Txt);
+	void setText(const std::string & Txt);
 	void sliderMoved(int to);
 };
 
@@ -115,19 +118,20 @@ class CGStatusBar : public CLabel
 	bool textLock; //Used for blocking changes to the text
 	void init();
 
-	CGStatusBar *oldStatusBar;
+	CGStatusBar * oldStatusBar;
+
 protected:
 	Point getBorderSize() override;
 
 public:
 
-	void clear();//clears statusbar and refreshes
+	void clear(); //clears statusbar and refreshes
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
-	CGStatusBar(int x, int y, std::string name, int maxw=-1);
+	CGStatusBar(CPicture * BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 	~CGStatusBar();
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
@@ -139,14 +143,15 @@ class CFocusable : public virtual CIntObject
 protected:
 	virtual void focusGot(){};
 	virtual void focusLost(){};
+
 public:
 	bool focus; //only one focusable control can have focus at one moment
 
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
 
-	static std::list<CFocusable*> focusables; //all existing objs
-	static CFocusable *inputWithFocus; //who has focus now
+	static std::list<CFocusable *> focusables; //all existing objs
+	static CFocusable * inputWithFocus; //who has focus now
 	CFocusable();
 	~CFocusable();
 };
@@ -155,30 +160,32 @@ public:
 class CTextInput : public CLabel, public CFocusable
 {
 	std::string newText;
+
 protected:
 	std::string visibleText() override;
 
 	void focusGot() override;
 	void focusLost() override;
+
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setText(const std::string &nText, bool callCb = false);
+	void setText(const std::string & nText, bool callCb = false);
 
-	CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf = nullptr);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, SDL_Surface * srf = nullptr);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
-	
+
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;
 
 	//Filter that will block all characters not allowed in filenames
-	static void filenameFilter(std::string &text, const std::string & oldText);
+	static void filenameFilter(std::string & text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
 	//min-max should be set via something like std::bind
-	static void numberFilter(std::string &text, const std::string & oldText, int minValue, int maxValue);
+	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
 };

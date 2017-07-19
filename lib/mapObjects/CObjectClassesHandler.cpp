@@ -105,7 +105,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
-	for (size_t i=0; i<totalNumber; i++)
+	for(size_t i = 0; i < totalNumber; i++)
 	{
 		ObjectTemplate templ;
 		templ.readTxt(parser);
@@ -114,11 +114,11 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 		legacyTemplates.insert(std::make_pair(key, templ));
 	}
 
-	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
+	std::vector<JsonNode> ret(dataSize); // create storage for 256 objects
 	assert(dataSize == 256);
 
 	CLegacyConfigParser namesParser("Data/ObjNames.txt");
-	for (size_t i=0; i<256; i++)
+	for(size_t i = 0; i < 256; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
 		namesParser.endLine();
@@ -141,12 +141,12 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 template<typename Map>
 si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 {
-	if (!fixedID.isNull() && fixedID.Float() < defaultID)
+	if(!fixedID.isNull() && fixedID.Float() < defaultID)
 		return fixedID.Float(); // H3M object with fixed ID
 
-	if (map.empty())
+	if(map.empty())
 		return defaultID; // no objects loaded, keep gap for H3M objects
-	if (map.rbegin()->first >= defaultID)
+	if(map.rbegin()->first >= defaultID)
 		return map.rbegin()->first + 1; // some modded objects loaded, return next available
 
 	return defaultID; // some H3M objects loaded, first modded found
@@ -154,7 +154,7 @@ si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 
 void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj)
 {
-	if (!handlerConstructors.count(obj->handlerName))
+	if(!handlerConstructors.count(obj->handlerName))
 	{
 		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
 		return;
@@ -168,22 +168,22 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	handler->setType(obj->id, id);
 	handler->setTypeName(obj->identifier, convertedId);
 
-	if (customNames.count(obj->id) && customNames.at(obj->id).size() > id)
+	if(customNames.count(obj->id) && customNames.at(obj->id).size() > id)
 		handler->init(entry, customNames.at(obj->id).at(id));
 	else
 		handler->init(entry);
 
-	if (handler->getTemplates().empty())
+	if(handler->getTemplates().empty())
 	{
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
-		for (auto & templ : boost::make_iterator_range(range.first, range.second))
+		for(auto & templ : boost::make_iterator_range(range.first, range.second))
 		{
 			handler->addTemplate(templ.second);
 		}
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << convertedId << "(" << id << ")" ;
+	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << convertedId << "(" << id << ")";
 	assert(!obj->subObjects.count(id)); // DO NOT override
 	obj->subObjects[id] = handler;
 	obj->subIds[convertedId] = id;
@@ -197,7 +197,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
 	obj->id = selectNextID(json["index"], objects, 256);
-	for (auto entry : json["types"].Struct())
+	for(auto entry : json["types"].Struct())
 	{
 		loadObjectEntry(entry.first, entry.second, obj);
 	}
@@ -223,7 +223,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 {
 	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
-	if (subID)
+	if(subID)
 	{
 		assert(objects.at(ID)->subObjects.count(subID.get()) == 0);
 		assert(config["index"].isNull());
@@ -251,9 +251,9 @@ std::vector<bool> CObjectClassesHandler::getDefaultAllowed() const
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype) const
 {
-	if (objects.count(type))
+	if(objects.count(type))
 	{
-		if (objects.at(type)->subObjects.count(subtype))
+		if(objects.at(type)->subObjects.count(subtype))
 			return objects.at(type)->subObjects.at(subtype);
 	}
 	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
@@ -276,7 +276,7 @@ std::set<si32> CObjectClassesHandler::knownObjects() const
 {
 	std::set<si32> ret;
 
-	for (auto entry : objects)
+	for(auto entry : objects)
 		ret.insert(entry.first);
 
 	return ret;
@@ -286,9 +286,9 @@ std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
 {
 	std::set<si32> ret;
 
-	if (objects.count(primaryID))
+	if(objects.count(primaryID))
 	{
-		for (auto entry : objects.at(primaryID)->subObjects)
+		for(auto entry : objects.at(primaryID)->subObjects)
 			ret.insert(entry.first);
 	}
 	return ret;
@@ -296,10 +296,10 @@ std::set<si32> CObjectClassesHandler::knownSubObjects(si32 primaryID) const
 
 void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
-	for (auto & entry : object["types"].Struct())
+	for(auto & entry : object["types"].Struct())
 	{
 		JsonUtils::inherit(entry.second, object["base"]);
-		for (auto & templ : entry.second["templates"].Struct())
+		for(auto & templ : entry.second["templates"].Struct())
 		{
 			JsonUtils::inherit(templ.second, entry.second["base"]);
 		}
@@ -308,21 +308,21 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	for (auto entry : objects)
+	for(auto entry : objects)
 	{
-		for (auto obj : entry.second->subObjects)
+		for(auto obj : entry.second->subObjects)
 		{
 			obj.second->afterLoadFinalization();
-			if (obj.second->getTemplates().empty())
+			if(obj.second->getTemplates().empty())
 				logGlobal->warnStream() << "No templates found for " << entry.first << ":" << obj.first;
 		}
 	}
 
 	//duplicate existing two-way portals to make reserve for RMG
-	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->subObjects;
+	auto & portalVec = objects[Obj::MONOLITH_TWO_WAY]->subObjects;
 	size_t portalCount = portalVec.size();
 	size_t currentIndex = portalCount;
-	while (portalVec.size() < 100)
+	while(portalVec.size() < 100)
 	{
 		portalVec[currentIndex] = portalVec[currentIndex % portalCount];
 		currentIndex++;
@@ -331,18 +331,18 @@ void CObjectClassesHandler::afterLoadFinalization()
 
 std::string CObjectClassesHandler::getObjectName(si32 type) const
 {
-	if (objects.count(type))
+	if(objects.count(type))
 		return objects.at(type)->name;
-	logGlobal->errorStream() << "Access to non existing object of type "  << type;
+	logGlobal->errorStream() << "Access to non existing object of type " << type;
 	return "";
 }
 
 std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 {
-	if (knownSubObjects(type).count(subtype))
+	if(knownSubObjects(type).count(subtype))
 	{
 		auto name = getHandlerFor(type, subtype)->getCustomName();
-		if (name)
+		if(name)
 			return name.get();
 	}
 	return getObjectName(type);
@@ -353,8 +353,8 @@ std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 	return objects.at(type)->handlerName;
 }
 
-AObjectTypeHandler::AObjectTypeHandler():
-	type(-1), subtype(-1)
+AObjectTypeHandler::AObjectTypeHandler()
+	: type(-1), subtype(-1)
 {
 
 }
@@ -378,7 +378,7 @@ void AObjectTypeHandler::setTypeName(std::string type, std::string subtype)
 
 static ui32 loadJsonOrMax(const JsonNode & input)
 {
-	if (input.isNull())
+	if(input.isNull())
 		return std::numeric_limits<ui32>::max();
 	else
 		return input.Float();
@@ -388,15 +388,15 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 {
 	base = input["base"];
 
-	if (!input["rmg"].isNull())
+	if(!input["rmg"].isNull())
 	{
-		rmgInfo.value =     input["rmg"]["value"].Float();
-		rmgInfo.mapLimit =  loadJsonOrMax(input["rmg"]["mapLimit"]);
+		rmgInfo.value = input["rmg"]["value"].Float();
+		rmgInfo.mapLimit = loadJsonOrMax(input["rmg"]["mapLimit"]);
 		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
-		rmgInfo.rarity =    input["rmg"]["rarity"].Float();
+		rmgInfo.rarity = input["rmg"]["rarity"].Float();
 	} // else block is not needed - set in constructor
 
-	for (auto entry : input["templates"].Struct())
+	for(auto entry : input["templates"].Struct())
 	{
 		entry.second.setType(JsonNode::DATA_STRUCT);
 		JsonUtils::inherit(entry.second, base);
@@ -409,7 +409,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 		templates.push_back(tmpl);
 	}
 
-	if (input["name"].isNull())
+	if(input["name"].isNull())
 		objectName = name;
 	else
 		objectName.reset(input["name"].String());
@@ -464,7 +464,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 	return templates;
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const // FIXME: replace with ETerrainType
 {
 	std::vector<ObjectTemplate> templates = getTemplates();
 	std::vector<ObjectTemplate> filtered;
@@ -475,7 +475,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) c
 	});
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
-	if (type == Obj::ARTIFACT || type == Obj::MONSTER)
+	if(type == Obj::ARTIFACT || type == Obj::MONSTER)
 		return templates;
 	else
 		return filtered;
@@ -484,9 +484,9 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) c
 boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
 {
 	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
-	for (auto & tmpl : ret)
+	for(auto & tmpl : ret)
 	{
-		if (objectFilter(object, tmpl))
+		if(objectFilter(object, tmpl))
 			return tmpl;
 	}
 	return boost::optional<ObjectTemplate>();

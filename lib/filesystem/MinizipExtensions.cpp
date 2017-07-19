@@ -13,7 +13,7 @@
 #include "CMemoryBuffer.h"
 #include "FileStream.h"
 
-template <class _Stream> inline uLong streamRead(voidpf opaque, voidpf stream, void * buf, uLong size)
+template<class _Stream> inline uLong streamRead(voidpf opaque, voidpf stream, void * buf, uLong size)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -23,48 +23,49 @@ template <class _Stream> inline uLong streamRead(voidpf opaque, voidpf stream, v
 	return actualStream->read((ui8 *)buf, size);
 }
 
-template <class _Stream> inline ZPOS64_T streamTell(voidpf opaque, voidpf stream)
+template<class _Stream> inline ZPOS64_T streamTell(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
 
 	_Stream * actualStream = static_cast<_Stream *>(stream);
-    return actualStream->tell();
+	return actualStream->tell();
 }
 
-template <class _Stream> inline long streamSeek(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
+template<class _Stream> inline long streamSeek(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
 
 	_Stream * actualStream = static_cast<_Stream *>(stream);
 
-    long ret = 0;
-    switch (origin)
-    {
-    case ZLIB_FILEFUNC_SEEK_CUR :
-        if(actualStream->skip(offset) != offset)
+	long ret = 0;
+	switch(origin)
+	{
+	case ZLIB_FILEFUNC_SEEK_CUR:
+		if(actualStream->skip(offset) != offset)
 			ret = -1;
-        break;
-    case ZLIB_FILEFUNC_SEEK_END:
-    	{
-    		const si64 pos = actualStream->getSize() - offset;
-    		if(actualStream->seek(pos) != pos)
-				ret = -1;
-    	}
-        break;
-    case ZLIB_FILEFUNC_SEEK_SET :
+		break;
+	case ZLIB_FILEFUNC_SEEK_END:
+	{
+		const si64 pos = actualStream->getSize() - offset;
+		if(actualStream->seek(pos) != pos)
+			ret = -1;
+	}
+	break;
+	case ZLIB_FILEFUNC_SEEK_SET:
 		if(actualStream->seek(offset) != offset)
 			ret = -1;
-        break;
-    default: ret = -1;
-    }
-    if(ret == -1)
+		break;
+	default:
+		ret = -1;
+	}
+	if(ret == -1)
 		logGlobal->error("Stream seek failed");
-    return ret;
+	return ret;
 }
 
-template <class _Stream> inline int streamProxyClose(voidpf opaque, voidpf stream)
+template<class _Stream> inline int streamProxyClose(voidpf opaque, voidpf stream)
 {
 	assert(opaque != nullptr);
 	assert(stream != nullptr);
@@ -75,7 +76,7 @@ template <class _Stream> inline int streamProxyClose(voidpf opaque, voidpf strea
 
 	actualStream->seek(0);
 
-    return 0;
+	return 0;
 }
 
 ///CDefaultIOApi
@@ -91,12 +92,12 @@ CDefaultIOApi::~CDefaultIOApi()
 
 zlib_filefunc64_def CDefaultIOApi::getApiStructure()
 {
-	return * FileStream::GetMinizipFilefunc();
+	return *FileStream::GetMinizipFilefunc();
 }
 
 ///CProxyIOApi
-CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer):
-	data(buffer)
+CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer)
+	: data(buffer)
 {
 
 }
@@ -128,7 +129,7 @@ voidpf ZCALLBACK CProxyIOApi::openFileProxy(voidpf opaque, const void * filename
 	boost::filesystem::path path;
 
 	if(filename != nullptr)
-		path =  static_cast<const boost::filesystem::path::value_type *>(filename);
+		path = static_cast<const boost::filesystem::path::value_type *>(filename);
 
 	return ((CProxyIOApi *)opaque)->openFile(path, mode);
 }
@@ -144,7 +145,7 @@ uLong ZCALLBACK CProxyIOApi::writeFileProxy(voidpf opaque, voidpf stream, const 
 	assert(stream != nullptr);
 
 	CInputOutputStream * actualStream = static_cast<CInputOutputStream *>(stream);
-    return (uLong)actualStream->write((const ui8 *)buf, size);
+	return (uLong)actualStream->write((const ui8 *)buf, size);
 }
 
 ZPOS64_T ZCALLBACK CProxyIOApi::tellFileProxy(voidpf opaque, voidpf stream)
@@ -152,7 +153,7 @@ ZPOS64_T ZCALLBACK CProxyIOApi::tellFileProxy(voidpf opaque, voidpf stream)
 	return streamTell<CInputOutputStream>(opaque, stream);
 }
 
-long ZCALLBACK CProxyIOApi::seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin)
+long ZCALLBACK CProxyIOApi::seekFileProxy(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 {
 	return streamSeek<CInputOutputStream>(opaque, stream, offset, origin);
 }
@@ -164,20 +165,20 @@ int ZCALLBACK CProxyIOApi::closeFileProxy(voidpf opaque, voidpf stream)
 
 int ZCALLBACK CProxyIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 {
-    return 0;
+	return 0;
 }
 
 CInputOutputStream * CProxyIOApi::openFile(const boost::filesystem::path & filename, int mode)
 {
-	logGlobal->traceStream() << "CProxyIOApi: stream opened for " <<filename.string() <<" with mode "<<mode;
+	logGlobal->traceStream() << "CProxyIOApi: stream opened for " << filename.string() << " with mode " << mode;
 
 	data->seek(0);
 	return data;
 }
 
 ///CProxyROIOApi
-CProxyROIOApi::CProxyROIOApi(CInputStream * buffer):
-	data(buffer)
+CProxyROIOApi::CProxyROIOApi(CInputStream * buffer)
+	: data(buffer)
 {
 
 }
@@ -202,22 +203,22 @@ zlib_filefunc64_def CProxyROIOApi::getApiStructure()
 	return api;
 }
 
-CInputStream * CProxyROIOApi::openFile(const boost::filesystem::path& filename, int mode)
+CInputStream * CProxyROIOApi::openFile(const boost::filesystem::path & filename, int mode)
 {
-	logGlobal->traceStream() << "CProxyROIOApi: stream opened for " <<filename.string() <<" with mode "<<mode;
+	logGlobal->traceStream() << "CProxyROIOApi: stream opened for " << filename.string() << " with mode " << mode;
 
 	data->seek(0);
 	return data;
 }
 
-voidpf ZCALLBACK CProxyROIOApi::openFileProxy(voidpf opaque, const void* filename, int mode)
+voidpf ZCALLBACK CProxyROIOApi::openFileProxy(voidpf opaque, const void * filename, int mode)
 {
 	assert(opaque != nullptr);
 
 	boost::filesystem::path path;
 
 	if(filename != nullptr)
-		path =  static_cast<const boost::filesystem::path::value_type *>(filename);
+		path = static_cast<const boost::filesystem::path::value_type *>(filename);
 
 	return ((CProxyROIOApi *)opaque)->openFile(path, mode);
 }
@@ -227,7 +228,7 @@ uLong ZCALLBACK CProxyROIOApi::readFileProxy(voidpf opaque, voidpf stream, void 
 	return streamRead<CInputStream>(opaque, stream, buf, size);
 }
 
-uLong ZCALLBACK CProxyROIOApi::writeFileProxy(voidpf opaque, voidpf stream, const void* buf, uLong size)
+uLong ZCALLBACK CProxyROIOApi::writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size)
 {
 	logGlobal->errorStream() << "Attempt to write to read-only stream";
 	return 0;

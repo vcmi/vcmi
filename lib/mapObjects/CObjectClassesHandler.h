@@ -34,14 +34,11 @@ struct DLL_LINKAGE RandomMapInfo
 	/// Rarity of object, 5 = extremely rare, 100 = common
 	ui32 rarity;
 
-	RandomMapInfo():
-		value(0),
-		mapLimit(0),
-		zoneLimit(0),
-		rarity(0)
+	RandomMapInfo()
+		: value(0), mapLimit(0), zoneLimit(0), rarity(0)
 	{}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & value & mapLimit & zoneLimit & rarity;
 	}
@@ -57,14 +54,11 @@ public:
 		ui32 flyersStrength;
 		ui32 walkersStrength;
 
-		CArmyStructure() :
-			totalStrength(0),
-			shootersStrength(0),
-			flyersStrength(0),
-			walkersStrength(0)
+		CArmyStructure()
+			: totalStrength(0), shootersStrength(0), flyersStrength(0), walkersStrength(0)
 		{}
 
-		bool operator <(const CArmyStructure & other) const
+		bool operator<(const CArmyStructure & other) const
 		{
 			return this->totalStrength < other.totalStrength;
 		}
@@ -105,12 +99,14 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	JsonNode base; /// describes base template
 
 	std::vector<ObjectTemplate> templates;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
+
 public:
 	std::string typeName;
 	std::string subTypeName;
@@ -157,7 +153,7 @@ public:
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const = 0;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & type & subtype & templates & rmgInfo & objectName;
 		if(version >= 759)
@@ -182,9 +178,9 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 		JsonNode base;
 		std::map<si32, TObjectTypeHandler> subObjects;
-		std::map<std::string, si32> subIds;//full id from core scope -> subtype
+		std::map<std::string, si32> subIds; //full id from core scope -> subtype
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & name & handlerName & base & subObjects;
 			if(version >= 759)
@@ -195,10 +191,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	};
 
 	/// list of object handlers, each of them handles only one type
-	std::map<si32, ObjectContainter * > objects;
+	std::map<si32, ObjectContainter *> objects;
 
 	/// map that is filled during contruction with all known handlers. Not serializeable due to usage of std::function
-	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
+	std::map<std::string, std::function<TObjectTypeHandler()>> handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
 	typedef std::multimap<std::pair<si32, si32>, ObjectTemplate> TTemplatesContainer;
@@ -210,6 +206,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 	void loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj);
 	ObjectContainter * loadFromJson(const JsonNode & json, const std::string & name);
+
 public:
 	CObjectClassesHandler();
 	~CObjectClassesHandler();
@@ -243,7 +240,7 @@ public:
 
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;
 	}

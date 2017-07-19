@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CZoneGraphGenerator.h"
 
-CZoneCell::CZoneCell(const CRmgTemplateZone * zone)// : zone(zone)
+CZoneCell::CZoneCell(const CRmgTemplateZone * zone) // : zone(zone)
 {
 
 }
@@ -22,7 +22,7 @@ CZoneGraph::CZoneGraph()
 
 }
 
-CZoneGraphGenerator::CZoneGraphGenerator()// : gen(nullptr)
+CZoneGraphGenerator::CZoneGraphGenerator() // : gen(nullptr)
 {
 
 }

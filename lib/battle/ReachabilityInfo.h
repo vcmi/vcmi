@@ -21,7 +21,10 @@ struct DLL_LINKAGE ReachabilityInfo
 	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
 	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
 
-	enum { INFINITE_DIST = 1000000 };
+	enum
+	{
+		INFINITE_DIST = 1000000
+	};
 
 	struct DLL_LINKAGE Parameters
 	{
@@ -48,5 +51,3 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	bool isReachable(BattleHex hex) const;
 };
-
-

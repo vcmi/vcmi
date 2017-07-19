@@ -24,13 +24,13 @@ static QString detectModArchive(QString path, QString modName)
 
 	QString modDirName;
 
-	for (auto file : files)
+	for(auto file : files)
 	{
 		QString filename = QString::fromUtf8(file.c_str());
-		if (filename.toLower().startsWith(modName))
+		if(filename.toLower().startsWith(modName))
 		{
 			// archive must contain mod.json file
-			if (filename.toLower() == modName + "/mod.json")
+			if(filename.toLower() == modName + "/mod.json")
 				modDirName = filename.section('/', 0, 0);
 		}
 		else // all files must be in <modname> directory
@@ -39,8 +39,8 @@ static QString detectModArchive(QString path, QString modName)
 	return modDirName;
 }
 
-CModManager::CModManager(CModList * modList):
-    modList(modList)
+CModManager::CModManager(CModList * modList)
+	: modList(modList)
 {
 	loadMods();
 	loadModSettings();
@@ -73,10 +73,10 @@ void CModManager::loadMods()
 	handler.loadMods();
 	auto installedMods = handler.getAllMods();
 
-	for (auto modname : installedMods)
+	for(auto modname : installedMods)
 	{
 		ResourceID resID(CModInfo::getModFile(modname));
-		if (CResourceHandler::get()->existsResource(resID))
+		if(CResourceHandler::get()->existsResource(resID))
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
 			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
@@ -123,13 +123,13 @@ bool CModManager::canInstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if (mod.getName().contains('.'))
+	if(mod.getName().contains('.'))
 		return addError(modname, "Can not install submod");
 
-	if (mod.isInstalled())
+	if(mod.isInstalled())
 		return addError(modname, "Mod is already installed");
 
-	if (!mod.isAvailable())
+	if(!mod.isAvailable())
 		return addError(modname, "Mod is not available");
 	return true;
 }
@@ -138,13 +138,13 @@ bool CModManager::canUninstallMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if (mod.getName().contains('.'))
+	if(mod.getName().contains('.'))
 		return addError(modname, "Can not uninstall submod");
 
-	if (!mod.isInstalled())
+	if(!mod.isInstalled())
 		return addError(modname, "Mod is not installed");
 
-	if (mod.isEnabled())
+	if(mod.isEnabled())
 		return addError(modname, "Mod must be disabled first");
 	return true;
 }
@@ -153,33 +153,33 @@ bool CModManager::canEnableMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if (mod.isEnabled())
+	if(mod.isEnabled())
 		return addError(modname, "Mod is already enabled");
 
-	if (!mod.isInstalled())
+	if(!mod.isInstalled())
 		return addError(modname, "Mod must be installed first");
 
-	for (auto modEntry : mod.getValue("depends").toStringList())
+	for(auto modEntry : mod.getValue("depends").toStringList())
 	{
-		if (!modList->hasMod(modEntry)) // required mod is not available
+		if(!modList->hasMod(modEntry)) // required mod is not available
 			return addError(modname, QString("Required mod %1 is missing").arg(modEntry));
-		if (!modList->getMod(modEntry).isEnabled())
+		if(!modList->getMod(modEntry).isEnabled())
 			return addError(modname, QString("Required mod %1 is not enabled").arg(modEntry));
 	}
 
-	for (QString modEntry : modList->getModList())
+	for(QString modEntry : modList->getModList())
 	{
 		auto mod = modList->getMod(modEntry);
 
 		// "reverse conflict" - enabled mod has this one as conflict
-		if (mod.isEnabled() && mod.getValue("conflicts").toStringList().contains(modname))
+		if(mod.isEnabled() && mod.getValue("conflicts").toStringList().contains(modname))
 			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
 	}
 
-	for (auto modEntry : mod.getValue("conflicts").toStringList())
+	for(auto modEntry : mod.getValue("conflicts").toStringList())
 	{
-		if (modList->hasMod(modEntry) &&
-		    modList->getMod(modEntry).isEnabled()) // conflicting mod installed and enabled
+		if(modList->hasMod(modEntry) &&
+		   modList->getMod(modEntry).isEnabled()) // conflicting mod installed and enabled
 			return addError(modname, QString("This mod conflicts with %1").arg(modEntry));
 	}
 	return true;
@@ -189,18 +189,18 @@ bool CModManager::canDisableMod(QString modname)
 {
 	auto mod = modList->getMod(modname);
 
-	if (mod.isDisabled())
+	if(mod.isDisabled())
 		return addError(modname, "Mod is already disabled");
 
-	if (!mod.isInstalled())
+	if(!mod.isInstalled())
 		return addError(modname, "Mod must be installed first");
 
-	for (QString modEntry : modList->getModList())
+	for(QString modEntry : modList->getModList())
 	{
 		auto current = modList->getMod(modEntry);
 
-		if (current.getValue("depends").toStringList().contains(modname) &&
-		    current.isEnabled())
+		if(current.getValue("depends").toStringList().contains(modname) &&
+		   current.isEnabled())
 			return addError(modname, QString("This mod is needed to run %1").arg(modEntry));
 	}
 	return true;
@@ -208,7 +208,7 @@ bool CModManager::canDisableMod(QString modname)
 
 static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 {
-	if (path.size() > 1)
+	if(path.size() > 1)
 	{
 
 		QString entryName = path.section('/', 0, 1);
@@ -242,17 +242,17 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 {
 	QString destDir = CLauncherDirs::get().modsPath() + "/";
 
-	if (!QFile(archivePath).exists())
+	if(!QFile(archivePath).exists())
 		return addError(modname, "Mod archive is missing");
 
-	if (localMods.contains(modname))
+	if(localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
 
 	QString modDirName = detectModArchive(archivePath, modname);
-	if (!modDirName.size())
+	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 
-	if (!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
+	if(!ZipArchive::extract(qstringToPath(archivePath), qstringToPath(destDir)))
 	{
 		removeModDir(destDir + modDirName);
 		return addError(modname, "Failed to extract mod data");
@@ -273,13 +273,13 @@ bool CModManager::doUninstallMod(QString modname)
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
-	if (!QDir(modDir).exists())
+	if(!QDir(modDir).exists())
 		return addError(modname, "Data with this mod was not found");
 
-	if (!localMods.contains(modname))
+	if(!localMods.contains(modname))
 		return addError(modname, "Data with this mod was not found");
 
-	if (!removeModDir(modDir))
+	if(!removeModDir(modDir))
 		return addError(modname, "Failed to delete mod data");
 
 	localMods.remove(modname);

@@ -34,7 +34,8 @@ protected:
 	{
 		CList * parent;
 		CIntObject * selection;
-	public:
+
+public:
 		CListItem(CList * parent);
 		~CListItem();
 
@@ -44,16 +45,16 @@ protected:
 		void onSelect(bool on);
 
 		/// create object with selection rectangle
-		virtual CIntObject * genSelection()=0;
+		virtual CIntObject * genSelection() = 0;
 		/// reaction on item selection (e.g. enable selection border)
 		/// NOTE: item may be deleted in selected state
-		virtual void select(bool on)=0;
+		virtual void select(bool on) = 0;
 		/// open item (town or hero screen)
-		virtual void open()=0;
+		virtual void open() = 0;
 		/// show right-click tooltip
-		virtual void showTooltip()=0;
+		virtual void showTooltip() = 0;
 		/// get hover text for status bar
-		virtual std::string getHoverText()=0;
+		virtual std::string getHoverText() = 0;
 	};
 
 	CListBox * list;
@@ -71,11 +72,10 @@ protected:
 	 * @param create - function for creating items in listbox
 	 * @param destroy - function for deleting items in listbox
 	 */
-	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown,
-		  CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
+	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
 
 	//for selection\deselection
-	CListItem *selected;
+	CListItem * selected;
 	void select(CListItem * which);
 	friend class CListItem;
 
@@ -100,12 +100,12 @@ public:
 };
 
 /// List of heroes which is shown at the right of the adventure map screen
-class CHeroList	: public CList
+class CHeroList : public CList
 {
 	/// Empty hero item used as placeholder for unused entries in list
 	class CEmptyHeroItem : public CIntObject
 	{
-	public:
+public:
 		CEmptyHeroItem();
 	};
 
@@ -114,10 +114,11 @@ class CHeroList	: public CList
 		CAnimImage * movement;
 		CAnimImage * mana;
 		CAnimImage * portrait;
-	public:
+
+public:
 		const CGHeroInstance * const hero;
 
-		CHeroItem(CHeroList *parent, const CGHeroInstance * hero);
+		CHeroItem(CHeroList * parent, const CGHeroInstance * hero);
 
 		CIntObject * genSelection() override;
 		void update();
@@ -128,6 +129,7 @@ class CHeroList	: public CList
 	};
 
 	CIntObject * createHeroItem(size_t index);
+
 public:
 	/**
 	 * @brief CHeroList
@@ -143,15 +145,16 @@ public:
 };
 
 /// List of towns which is shown at the right of the adventure map screen or in the town screen
-class CTownList	: public CList
+class CTownList : public CList
 {
 	class CTownItem : public CListItem
 	{
 		CAnimImage * picture;
-	public:
+
+public:
 		const CGTownInstance * const town;
 
-		CTownItem(CTownList *parent, const CGTownInstance * town);
+		CTownItem(CTownList * parent, const CGTownInstance * town);
 
 		CIntObject * genSelection() override;
 		void update();
@@ -162,6 +165,7 @@ class CTownList	: public CList
 	};
 
 	CIntObject * createTownItem(size_t index);
+
 public:
 	/**
 	 * @brief CTownList
@@ -180,26 +184,27 @@ class CMinimap;
 
 class CMinimapInstance : public CIntObject
 {
-	CMinimap *parent;
+	CMinimap * parent;
 	SDL_Surface * minimap;
 	int level;
 
 	//get color of selected tile on minimap
 	const SDL_Color & getTileColor(const int3 & pos);
 
-	void blitTileWithColor(const SDL_Color & color, const int3 & pos, SDL_Surface *to, int x, int y);
+	void blitTileWithColor(const SDL_Color & color, const int3 & pos, SDL_Surface * to, int x, int y);
 
 	//draw minimap already scaled.
 	//result is not antialiased. Will result in "missing" pixels on huge maps (>144)
 	void drawScaled(int level);
+
 public:
 	CMinimapInstance(CMinimap * parent, int level);
 	~CMinimapInstance();
 
-	void showAll(SDL_Surface *to) override;
-	void tileToPixels (const int3 &tile, int &x, int &y,int toX = 0, int toY = 0);
+	void showAll(SDL_Surface * to) override;
+	void tileToPixels(const int3 & tile, int & x, int & y, int toX = 0, int toY = 0);
 
-	void refreshTile(const int3 &pos);
+	void refreshTile(const int3 & pos);
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map
@@ -207,23 +212,23 @@ class CMinimap : public CIntObject
 {
 protected:
 
-	CPicture *aiShield; //the graphic displayed during AI turn
+	CPicture * aiShield; //the graphic displayed during AI turn
 	CMinimapInstance * minimap;
 	int level;
 
 	//to initialize colors
-	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
+	std::map<int, std::pair<SDL_Color, SDL_Color>> loadColors(std::string from);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void hover(bool on) override;
+	void mouseMoved(const SDL_MouseMotionEvent & sEvent) override;
 
 	void moveAdvMapSelection();
 
 public:
 	// terrainID -> (normal color, blocked color)
-	const std::map<int, std::pair<SDL_Color, SDL_Color> > colors;
+	const std::map<int, std::pair<SDL_Color, SDL_Color>> colors;
 
 	CMinimap(const Rect & position);
 
@@ -235,8 +240,8 @@ public:
 
 	void showAll(SDL_Surface * to) override;
 
-	void hideTile(const int3 &pos); //puts FoW
-	void showTile(const int3 &pos); //removes FoW
+	void hideTile(const int3 & pos); //puts FoW
+	void showTile(const int3 & pos); //removes FoW
 };
 
 /// Info box which shows next week/day information, hold the current date
@@ -249,15 +254,15 @@ class CInfoBar : public CIntObject
 		std::list<CIntObject *> forceRefresh;
 
 		//the only part of gui we need to know about for updating - AI progress
-		CAnimImage *aiProgress;
+		CAnimImage * aiProgress;
 
 		std::string getNewDayName();
 		void playNewDaySound();
 
-	public:
+public:
 		CVisibleInfo(Point position);
 
-		void show(SDL_Surface *to) override;
+		void show(SDL_Surface * to) override;
 
 		//functions that must be called only once
 		void loadHero(const CGHeroInstance * hero);
@@ -265,7 +270,7 @@ class CInfoBar : public CIntObject
 		void loadDay();
 		void loadEnemyTurn(PlayerColor player);
 		void loadGameStatus();
-		void loadComponent(const Component &comp, std::string message);
+		void loadComponent(const Component & comp, std::string message);
 
 		//can be called multiple times
 		void updateEnemyTurn(double progress);
@@ -273,7 +278,13 @@ class CInfoBar : public CIntObject
 
 	enum EState
 	{
-		EMPTY, HERO, TOWN, DATE, GAME, AITURN, COMPONENT
+		EMPTY,
+		HERO,
+		TOWN,
+		DATE,
+		GAME,
+		AITURN,
+		COMPONENT
 	};
 
 	CVisibleInfo * visibleInfo;
@@ -323,6 +334,7 @@ class CAdvMapPanel : public CIntObject
 	std::vector<CButton *> buttons;
 	/// the surface passed to this obj will be freed in dtor
 	SDL_Surface * background;
+
 public:
 	CAdvMapPanel(SDL_Surface * bg, Point position);
 	virtual ~CAdvMapPanel();
@@ -346,30 +358,32 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	SDL_Surface * tmpBackgroundFiller;
 	int fillerHeight;
 	std::shared_ptr<CAnimation> icons;
+
 public:
-	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color);
+	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor & color);
 	virtual ~CAdvMapWorldViewPanel();
 
 	void addChildIcon(std::pair<int, Point> data, int indexOffset);
 	/// recreates all pictures from given def to recolor them according to current player color
-	void recolorIcons(const PlayerColor &color, int indexOffset);
+	void recolorIcons(const PlayerColor & color, int indexOffset);
 	void showAll(SDL_Surface * to) override;
 };
 
 class CInGameConsole : public CIntObject
 {
 private:
-	std::list< std::pair< std::string, int > > texts; //list<text to show, time of add>
-	boost::mutex texts_mx;		// protects texts
-	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
+	std::list<std::pair<std::string, int>> texts; //list<text to show, time of add>
+	boost::mutex texts_mx; // protects texts
+	std::vector<std::string> previouslyEntered; //previously entered texts, for up/down arrows to work
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
 	int defaultTimeout; //timeout for new texts (in ms)
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+
 public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
-	void print(const std::string &txt);
-	void keyPressed (const SDL_KeyboardEvent & key) override; //call-in
+	void print(const std::string & txt);
+	void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
 
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;

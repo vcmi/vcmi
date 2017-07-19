@@ -19,10 +19,11 @@ public:
 	const CStack * s;
 	int adi, adr;
 	std::vector<BattleHex> attackFrom; //for melee fight
-	EnemyInfo(const CStack * _s) : s(_s)
+	EnemyInfo(const CStack * _s)
+		: s(_s)
 	{}
 	void calcDmg(const CStack * ourStack);
-	bool operator==(const EnemyInfo& ei) const
+	bool operator==(const EnemyInfo & ei) const
 	{
 		return s == ei.s;
 	}

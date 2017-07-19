@@ -20,8 +20,10 @@ enum class EAccessibility
 	ALIVE_STACK,
 	OBSTACLE,
 	DESTRUCTIBLE_WALL,
-	GATE, //sieges -> gate opens only for defender stacks
-	UNAVAILABLE, //indestructible wall parts, special battlefields (like boat-to-boat)
+	GATE,
+	//sieges -> gate opens only for defender stacks
+	UNAVAILABLE,
+	//indestructible wall parts, special battlefields (like boat-to-boat)
 	SIDE_COLUMN //used for first and last columns of hexes that are unavailable but wat machines can stand there
 };
 

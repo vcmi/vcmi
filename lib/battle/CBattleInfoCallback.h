@@ -24,7 +24,7 @@ struct DLL_LINKAGE AttackableTiles
 {
 	std::set<BattleHex> hostileCreaturePositions;
 	std::set<BattleHex> friendlyCreaturePositions; //for Dragon Breath
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & hostileCreaturePositions & friendlyCreaturePositions;
 	}
@@ -35,7 +35,8 @@ class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 public:
 	enum ERandomSpell
 	{
-		RANDOM_GENIE, RANDOM_AIMED
+		RANDOM_GENIE,
+		RANDOM_AIMED
 	};
 	//battle
 	boost::optional<int> battleIsFinished() const; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
@@ -44,19 +45,19 @@ public:
 	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const CStack * stack) const;
 
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true) const; //returns stack info by given pos
-	void battleGetStackQueue(std::vector<const CStack *> &out, const int howMany, const int turn = 0, int lastMoved = -1) const;
-	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
+	void battleGetStackQueue(std::vector<const CStack *> & out, const int howMany, const int turn = 0, int lastMoved = -1) const;
+	void battleGetStackCountOutsideHexes(bool * ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
 
 	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = nullptr) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
 
 	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = nullptr) const; //returns vector of distances to [dest hex number]
-	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
+	std::set<BattleHex> battleGetAttackedHexes(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 
 	bool battleCanAttack(const CStack * stack, const CStack * target, BattleHex dest) const; //determines if stack with given ID can attack target at the selected destination
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
-	std::set<const CStack*> batteAdjacentCreatures (const CStack * stack) const;
+	std::set<const CStack *> batteAdjacentCreatures(const CStack * stack) const;
 
 	TDmgRange calculateDmgRange(const BattleAttackInfo & info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
@@ -82,7 +83,7 @@ public:
 	SpellID getRandomBeneficialSpell(CRandomGenerator & rand, const CStack * subject) const;
 	SpellID getRandomCastedSpell(CRandomGenerator & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	const CStack * getStackIf(std::function<bool(const CStack*)> pred) const;
+	const CStack * getStackIf(std::function<bool(const CStack *)> pred) const;
 
 	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex);
 	si8 battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel) const; //checks if teleportation of given stack to given position can take place
@@ -91,17 +92,18 @@ public:
 	bool isInTacticRange(BattleHex dest) const;
 	si8 battleGetTacticDist() const; //returns tactic distance for calling player or 0 if this player is not in tactic phase (for ALL_KNOWING actual distance for tactic side)
 
-	AttackableTiles getPotentiallyAttackableHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const; //TODO: apply rotation to two-hex attacker
-	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	AttackableTiles getPotentiallyAttackableHexes(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos) const; //TODO: apply rotation to two-hex attacker
+	std::set<const CStack *> getAttackedCreatures(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	bool isToReverse(BattleHex hexFrom, BattleHex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir) const; //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 	bool isToReverseHlp(BattleHex hexFrom, BattleHex hexTo, bool curDir) const; //helper for isToReverse
 
-	ReachabilityInfo getReachability(const CStack *stack) const;
+	ReachabilityInfo getReachability(const CStack * stack) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters & params) const;
 	AccessibilityInfo getAccesibility() const;
-	AccessibilityInfo getAccesibility(const CStack *stack) const; //Hexes ocupied by stack will be marked as accessible.
+	AccessibilityInfo getAccesibility(const CStack * stack) const; //Hexes ocupied by stack will be marked as accessible.
 	AccessibilityInfo getAccesibility(const std::vector<BattleHex> & accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, BattleSideOpt side) const;
+
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;

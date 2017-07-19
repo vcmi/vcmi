@@ -28,7 +28,7 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) co
 		// If we're no defender which step on gate and the hex isn't accessible, then the tile
 		// isn't accessible
 		else if(at(hex) != EAccessibility::ACCESSIBLE &&
-				!(at(hex) == EAccessibility::GATE && side == BattleSide::DEFENDER))
+			!(at(hex) == EAccessibility::GATE && side == BattleSide::DEFENDER))
 		{
 			return false;
 		}

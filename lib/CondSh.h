@@ -10,13 +10,14 @@
 #pragma once
 
 /// Used for multithreading, wraps boost functions
-template <typename T> struct CondSh
+template<typename T> struct CondSh
 {
 	T data;
 	boost::condition_variable cond;
 	boost::mutex mx;
 
-	CondSh(T t) : data(t) {}
+	CondSh(T t)
+		: data(t) {}
 
 	// set data
 	void set(T t)

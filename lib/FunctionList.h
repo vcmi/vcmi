@@ -13,27 +13,28 @@
 template<typename Signature>
 class CFunctionList
 {
-	std::vector<std::function<Signature> > funcs;
-public:
-	CFunctionList( std::nullptr_t ) { }
-	CFunctionList( int ) { }
-	CFunctionList( ){ }
+	std::vector<std::function<Signature>> funcs;
 
-	template <typename Functor> 
-	CFunctionList(const Functor &f)
+public:
+	CFunctionList(std::nullptr_t) {}
+	CFunctionList(int) {}
+	CFunctionList(){}
+
+	template<typename Functor>
+	CFunctionList(const Functor & f)
 	{
 		funcs.push_back(std::function<Signature>(f));
 	}
 
-	CFunctionList(const std::function<Signature> &first)
+	CFunctionList(const std::function<Signature> & first)
 	{
-		if (first)
+		if(first)
 			funcs.push_back(first);
 	}
 
-	CFunctionList & operator+=(const CFunctionList<Signature> &first)
+	CFunctionList & operator+=(const CFunctionList<Signature> & first)
 	{
-		for( auto & fun : first.funcs)
+		for(auto & fun : first.funcs)
 		{
 			funcs.push_back(fun);
 		}
@@ -50,14 +51,14 @@ public:
 		return !funcs.empty();
 	}
 
-	template <typename... Args>
+	template<typename ... Args>
 	void operator()(Args ... args) const
 	{
-		std::vector<std::function<Signature> > funcs_copy = funcs;
-		for( auto & fun : funcs_copy)
+		std::vector<std::function<Signature>> funcs_copy = funcs;
+		for(auto & fun : funcs_copy)
 		{
-			if (fun)
-				fun(args...);
+			if(fun)
+				fun(args ...);
 		}
 	}
 };

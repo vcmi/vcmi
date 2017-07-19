@@ -38,7 +38,7 @@ class DLL_LINKAGE CRmgTemplate
 public:
 	class CSize
 	{
-	public:
+public:
 		CSize();
 		CSize(int width, int height, bool under);
 
@@ -51,21 +51,21 @@ public:
 		bool operator<=(const CSize & value) const;
 		bool operator>=(const CSize & value) const;
 
-	private:
+private:
 		int width, height;
 		bool under;
 	};
 
 	class CPlayerCountRange
 	{
-	public:
+public:
 		void addRange(int lower, int upper);
 		void addNumber(int value);
 		bool isInRange(int count) const;
 		std::set<int> getNumbers() const;
 
-	private:
-		std::list<std::pair<int, int> > range;
+private:
+		std::list<std::pair<int, int>> range;
 	};
 
 	CRmgTemplate();

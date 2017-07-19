@@ -26,14 +26,14 @@ size_t Unicode::getCharacterSize(char firstByte)
 	// 11110xxx -> 4 - last allowed in current standard
 	// 1111110x -> 6 - last allowed in original standard
 
-	if ((ui8)firstByte < 0x80)
+	if((ui8)firstByte < 0x80)
 		return 1; // ASCII
 
 	size_t ret = 0;
 
-	for (size_t i=0; i<8; i++)
+	for(size_t i = 0; i < 8; i++)
 	{
-		if (((ui8)firstByte & (0x80 >> i)) != 0)
+		if(((ui8)firstByte & (0x80 >> i)) != 0)
 			ret++;
 		else
 			break;
@@ -44,21 +44,21 @@ size_t Unicode::getCharacterSize(char firstByte)
 bool Unicode::isValidCharacter(const char * character, size_t maxSize)
 {
 	// can't be first byte in UTF8
-	if ((ui8)character[0] >= 0x80 && (ui8)character[0] < 0xC0)
+	if((ui8)character[0] >= 0x80 && (ui8)character[0] < 0xC0)
 		return false;
 	// first character must follow rules checked in getCharacterSize
 	size_t size = getCharacterSize((ui8)character[0]);
 
-	if ((ui8)character[0] > 0xF4)
+	if((ui8)character[0] > 0xF4)
 		return false; // above maximum allowed in standard (UTF codepoints are capped at 0x0010FFFF)
 
-	if (size > maxSize)
+	if(size > maxSize)
 		return false;
 
 	// remaining characters must have highest bit set to 1
-	for (size_t i = 1; i < size; i++)
+	for(size_t i = 1; i < size; i++)
 	{
-		if (((ui8)character[i] & 0x80) == 0)
+		if(((ui8)character[i] & 0x80) == 0)
 			return false;
 	}
 	return true;
@@ -66,25 +66,25 @@ bool Unicode::isValidCharacter(const char * character, size_t maxSize)
 
 bool Unicode::isValidASCII(const std::string & text)
 {
-	for (const char & ch : text)
-		if (ui8(ch) >= 0x80 )
+	for(const char & ch : text)
+		if(ui8(ch) >= 0x80)
 			return false;
 	return true;
 }
 
 bool Unicode::isValidASCII(const char * data, size_t size)
 {
-	for (size_t i=0; i<size; i++)
-		if (ui8(data[i]) >= 0x80 )
+	for(size_t i = 0; i < size; i++)
+		if(ui8(data[i]) >= 0x80)
 			return false;
 	return true;
 }
 
 bool Unicode::isValidString(const std::string & text)
 {
-	for (size_t i=0; i<text.size(); i += getCharacterSize(text[i]))
+	for(size_t i = 0; i < text.size(); i += getCharacterSize(text[i]))
 	{
-		if (!isValidCharacter(text.data() + i, text.size() - i))
+		if(!isValidCharacter(text.data() + i, text.size() - i))
 			return false;
 	}
 	return true;
@@ -92,9 +92,9 @@ bool Unicode::isValidString(const std::string & text)
 
 bool Unicode::isValidString(const char * data, size_t size)
 {
-	for (size_t i=0; i<size; i += getCharacterSize(data[i]))
+	for(size_t i = 0; i < size; i += getCharacterSize(data[i]))
 	{
-		if (!isValidCharacter(data + i, size - i))
+		if(!isValidCharacter(data + i, size - i))
 			return false;
 	}
 	return true;
@@ -105,12 +105,12 @@ static std::string getSelectedEncoding()
 	return settings["general"]["encoding"].String();
 }
 
-std::string Unicode::toUnicode(const std::string &text)
+std::string Unicode::toUnicode(const std::string & text)
 {
 	return toUnicode(text, getSelectedEncoding());
 }
 
-std::string Unicode::toUnicode(const std::string &text, const std::string &encoding)
+std::string Unicode::toUnicode(const std::string & text, const std::string & encoding)
 {
 	return boost::locale::conv::to_utf<char>(text, encoding);
 }
@@ -120,7 +120,7 @@ std::string Unicode::fromUnicode(const std::string & text)
 	return fromUnicode(text, getSelectedEncoding());
 }
 
-std::string Unicode::fromUnicode(const std::string &text, const std::string &encoding)
+std::string Unicode::fromUnicode(const std::string & text, const std::string & encoding)
 {
 	return boost::locale::conv::from_utf<char>(text, encoding);
 }
@@ -130,19 +130,21 @@ void Unicode::trimRight(std::string & text, const size_t amount)
 	if(text.empty())
 		return;
 	//todo: more efficient algorithm
-	for(int i = 0; i< amount; i++){
+	for(int i = 0; i < amount; i++)
+	{
 		auto b = text.begin();
 		auto e = text.end();
 		size_t lastLen = 0;
 		size_t len = 0;
-		while (b != e) {
+		while(b != e)
+		{
 			lastLen = len;
 			size_t n = getCharacterSize(*b);
 
-			if(!isValidCharacter(&(*b),e-b))
+			if(!isValidCharacter(&(*b), e - b))
 			{
 				logGlobal->error("Invalid UTF8 sequence");
-				break;//invalid sequence will be trimmed
+				break; //invalid sequence will be trimmed
 			}
 
 			len += n;
@@ -155,7 +157,7 @@ void Unicode::trimRight(std::string & text, const size_t amount)
 
 
 //Helper for string -> float conversion
-class LocaleWithComma: public std::numpunct<char>
+class LocaleWithComma : public std::numpunct<char>
 {
 protected:
 	char do_decimal_point() const override
@@ -177,7 +179,7 @@ CLegacyConfigParser::CLegacyConfigParser(const std::unique_ptr<CInputStream> & i
 void CLegacyConfigParser::init(const std::unique_ptr<CInputStream> & input)
 {
 	data.reset(new char[input->getSize()]);
-	input->read((ui8*)data.get(), input->getSize());
+	input->read((ui8 *)data.get(), input->getSize());
 
 	curr = data.get();
 	end = curr + input->getSize();
@@ -190,7 +192,7 @@ std::string CLegacyConfigParser::extractQuotedPart()
 	curr++; // skip quote
 	char * begin = curr;
 
-	while (curr != end && *curr != '\"' && *curr != '\t')
+	while(curr != end && *curr != '\"' && *curr != '\t')
 		curr++;
 
 	return std::string(begin, curr++); //increment curr to close quote
@@ -201,12 +203,12 @@ std::string CLegacyConfigParser::extractQuotedString()
 	assert(*curr == '\"');
 
 	std::string ret;
-	while (true)
+	while(true)
 	{
 		ret += extractQuotedPart();
 
 		// double quote - add it to string and continue quoted part
-		if (curr < end && *curr == '\"')
+		if(curr < end && *curr == '\"')
 		{
 			ret += '\"';
 		}
@@ -215,12 +217,12 @@ std::string CLegacyConfigParser::extractQuotedString()
 		{
 			char * begin = curr;
 
-			while (curr < end && *curr != '\t' && *curr != '\r' && *curr != '\"')//find end of string or next quoted part start
+			while(curr < end && *curr != '\t' && *curr != '\r' && *curr != '\"') //find end of string or next quoted part start
 				curr++;
 
 			ret += std::string(begin, curr);
 
-			if(curr>=end || *curr != '\"')
+			if(curr >= end || *curr != '\"')
 				return ret;
 		}
 		else // end of string
@@ -232,7 +234,7 @@ std::string CLegacyConfigParser::extractNormalString()
 {
 	char * begin = curr;
 
-	while (curr < end && *curr != '\t' && *curr != '\r')//find end of string
+	while(curr < end && *curr != '\t' && *curr != '\r') //find end of string
 		curr++;
 
 	return std::string(begin, curr);
@@ -240,17 +242,17 @@ std::string CLegacyConfigParser::extractNormalString()
 
 std::string CLegacyConfigParser::readRawString()
 {
-	if (curr >= end || *curr == '\n')
+	if(curr >= end || *curr == '\n')
 		return "";
 
 	std::string ret;
 
-	if (*curr == '\"')
-		ret = extractQuotedString();// quoted text - find closing quote
+	if(*curr == '\"')
+		ret = extractQuotedString(); // quoted text - find closing quote
 	else
-		ret = extractNormalString();//string without quotes - copy till \t or \r
+		ret = extractNormalString(); //string without quotes - copy till \t or \r
 
-		curr++;
+	curr++;
 	return ret;
 }
 
@@ -258,7 +260,7 @@ std::string CLegacyConfigParser::readString()
 {
 	// do not convert strings that are already in ASCII - this will only slow down loading process
 	std::string str = readRawString();
-	if (Unicode::isValidASCII(str))
+	if(Unicode::isValidASCII(str))
 		return str;
 	return Unicode::toUnicode(str);
 }
@@ -273,7 +275,7 @@ float CLegacyConfigParser::readNumber()
 		stream.imbue(std::locale(std::locale(), new LocaleWithComma()));
 
 	float result;
-	if ( !(stream >> result) )
+	if(!(stream >> result))
 		return 0;
 	return result;
 }
@@ -281,7 +283,7 @@ float CLegacyConfigParser::readNumber()
 bool CLegacyConfigParser::isNextEntryEmpty() const
 {
 	char * nextSymbol = curr;
-	while (nextSymbol < end && *nextSymbol == ' ')
+	while(nextSymbol < end && *nextSymbol == ' ')
 		nextSymbol++; //find next meaningfull symbol
 
 	return nextSymbol >= end || *nextSymbol == '\n' || *nextSymbol == '\r' || *nextSymbol == '\t';
@@ -289,28 +291,28 @@ bool CLegacyConfigParser::isNextEntryEmpty() const
 
 bool CLegacyConfigParser::endLine()
 {
-	while (curr < end && *curr !=  '\n')
+	while(curr < end && *curr != '\n')
 		readString();
 
-		curr++;
+	curr++;
 
 	return curr < end;
 }
 
-void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> &dest)
+void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::string> & dest)
 {
 	CLegacyConfigParser parser(sourceName);
 	do
 	{
 		dest.push_back(parser.readString());
 	}
-	while (parser.endLine());
+	while(parser.endLine());
 }
 
 CGeneralTextHandler::CGeneralTextHandler()
 {
-	readToVector("DATA/VCDESC.TXT",   victoryConditions);
-	readToVector("DATA/LCDESC.TXT",   lossCondtions);
+	readToVector("DATA/VCDESC.TXT", victoryConditions);
+	readToVector("DATA/LCDESC.TXT", lossCondtions);
 	readToVector("DATA/TCOMMAND.TXT", tcommands);
 	readToVector("DATA/HALLINFO.TXT", hcommands);
 	readToVector("DATA/CASTINFO.TXT", fcommands);
@@ -319,15 +321,15 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/RESTYPES.TXT", restypes);
 	readToVector("DATA/TERRNAME.TXT", terrainNames);
 	readToVector("DATA/RANDSIGN.TXT", randsign);
-	readToVector("DATA/CRGEN1.TXT",   creGens);
-	readToVector("DATA/CRGEN4.TXT",   creGens4);
+	readToVector("DATA/CRGEN1.TXT", creGens);
+	readToVector("DATA/CRGEN4.TXT", creGens4);
 	readToVector("DATA/OVERVIEW.TXT", overview);
 	readToVector("DATA/ARRAYTXT.TXT", arraytxt);
 	readToVector("DATA/PRISKILL.TXT", primarySkillNames);
-	readToVector("DATA/JKTEXT.TXT",   jktexts);
+	readToVector("DATA/JKTEXT.TXT", jktexts);
 	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
 	readToVector("DATA/RANDTVRN.TXT", tavernRumors);
-	readToVector("DATA/TURNDUR.TXT",  turnDurations);
+	readToVector("DATA/TURNDUR.TXT", turnDurations);
 	readToVector("DATA/HEROSCRN.TXT", heroscrn);
 	readToVector("DATA/TENTCOLR.TXT", tentColors);
 	readToVector("DATA/SKILLLEV.TXT", levels);
@@ -341,7 +343,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 		{
 			allTexts.push_back(parser.readString());
 		}
-		while (parser.endLine());
+		while(parser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/HELP.TXT");
@@ -351,19 +353,18 @@ CGeneralTextHandler::CGeneralTextHandler()
 			std::string second = parser.readString();
 			zelp.push_back(std::make_pair(first, second));
 		}
-		while (parser.endLine());
+		while(parser.endLine());
 	}
 	{
 		CLegacyConfigParser nameParser("DATA/MINENAME.TXT");
 		CLegacyConfigParser eventParser("DATA/MINEEVNT.TXT");
-
 		do
 		{
-			std::string name  = nameParser.readString();
+			std::string name = nameParser.readString();
 			std::string event = eventParser.readString();
 			mines.push_back(std::make_pair(name, event));
 		}
-		while (nameParser.endLine() && eventParser.endLine());
+		while(nameParser.endLine() && eventParser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
@@ -375,7 +376,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 			color[0] = toupper(color[0]);
 			capColors.push_back(color);
 		}
-		while (parser.endLine());
+		while(parser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
@@ -383,7 +384,6 @@ CGeneralTextHandler::CGeneralTextHandler()
 		//skip header
 		parser.endLine();
 		parser.endLine();
-
 		do
 		{
 			skillName.push_back(parser.readString());
@@ -392,7 +392,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 			for(int j = 0; j < 3; j++)
 				skillInfoTexts.back().push_back(parser.readString());
 		}
-		while (parser.endLine());
+		while(parser.endLine());
 	}
 	{
 		CLegacyConfigParser parser("DATA/SEERHUT.TXT");
@@ -400,18 +400,18 @@ CGeneralTextHandler::CGeneralTextHandler()
 		//skip header
 		parser.endLine();
 
-		for (int i = 0; i < 6; ++i)
+		for(int i = 0; i < 6; ++i)
 			seerEmpty.push_back(parser.readString());
 		parser.endLine();
 
 		quests.resize(10);
-		for (int i = 0; i < 9; ++i) //9 types of quests
+		for(int i = 0; i < 9; ++i) //9 types of quests
 		{
 			quests[i].resize(5);
-			for (int j = 0; j < 5; ++j)
+			for(int j = 0; j < 5; ++j)
 			{
 				parser.readString(); //front description
-				for (int k = 0; k < 6; ++k)
+				for(int k = 0; k < 6; ++k)
 					quests[i][j].push_back(parser.readString());
 
 				parser.endLine();
@@ -419,7 +419,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 		}
 		quests[9].resize(1);
 
-		for (int k = 0; k < 6; ++k) //Time limit
+		for(int k = 0; k < 6; ++k) //Time limit
 		{
 			quests[9][0].push_back(parser.readString());
 		}
@@ -428,7 +428,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 		parser.endLine(); // empty line
 		parser.endLine(); // header
 
-		for (int i = 0; i < 48; ++i)
+		for(int i = 0; i < 48; ++i)
 		{
 			seerNames.push_back(parser.readString());
 			parser.endLine();
@@ -444,34 +444,34 @@ CGeneralTextHandler::CGeneralTextHandler()
 		do
 		{
 			text = parser.readString();
-			if (!text.empty())
+			if(!text.empty())
 				campaignMapNames.push_back(text);
 		}
-		while (parser.endLine() && !text.empty());
+		while(parser.endLine() && !text.empty());
 
-		for (size_t i=0; i<campaignMapNames.size(); i++)
+		for(size_t i = 0; i < campaignMapNames.size(); i++)
 		{
 			do // skip empty space and header
 			{
 				text = parser.readString();
 			}
-			while (parser.endLine() && text.empty());
+			while(parser.endLine() && text.empty());
 
 			campaignRegionNames.push_back(std::vector<std::string>());
 			do
 			{
 				text = parser.readString();
-				if (!text.empty())
+				if(!text.empty())
 					campaignRegionNames.back().push_back(text);
 			}
-			while (parser.endLine() && !text.empty());
+			while(parser.endLine() && !text.empty());
 		}
 	}
-	if (VLC->modh->modules.STACK_EXP)
+	if(VLC->modh->modules.STACK_EXP)
 	{
 		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
-		parser.endLine();//header
-		for (size_t iter=0; iter<325; iter++)
+		parser.endLine(); //header
+		for(size_t iter = 0; iter < 325; iter++)
 		{
 			parser.readString(); //ignore 1st column with description
 			zcrexp.push_back(parser.readString());
@@ -481,27 +481,26 @@ CGeneralTextHandler::CGeneralTextHandler()
 		zcrexp.push_back(parser.readString());
 		parser.readString();
 		parser.endLine();
-
 		do // rest of file can be read normally
 		{
 			parser.readString(); //ignore 1st column with description
 			zcrexp.push_back(parser.readString());
 		}
-		while (parser.endLine());
+		while(parser.endLine());
 	}
-	if (VLC->modh->modules.COMMANDERS)
+	if(VLC->modh->modules.COMMANDERS)
 	{
 		try
 		{
 			CLegacyConfigParser parser("DATA/ZNPC00.TXT");
-			parser.endLine();//header
-
+			parser.endLine(); //header
 			do
 			{
 				znpc00.push_back(parser.readString());
-			} while (parser.endLine());
+			}
+			while(parser.endLine());
 		}
-		catch (std::runtime_error)
+		catch(std::runtime_error)
 		{
 			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
 		}

@@ -16,10 +16,10 @@
 class ThreatMap
 {
 public:
-	std::array<std::vector<BattleAttackInfo>, GameConstants::BFIELD_SIZE> threatMap; // [hexNr] -> enemies able to strike
+        std::array<std::vector<BattleAttackInfo>, GameConstants::BFIELD_SIZE> threatMap; // [hexNr] -> enemies able to strike
 
-	const CStack *endangered;
-	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage;
+        const CStack *endangered;
+        std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage;
 
-	ThreatMap(const CStack *Endangered);
-};*/ // These lines may be usefull but they are't used in the code.
+        ThreatMap(const CStack *Endangered);
+};*/// These lines may be usefull but they are't used in the code.

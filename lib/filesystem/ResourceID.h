@@ -31,33 +31,33 @@
  */
 namespace EResType
 {
-	enum Type
-	{
-		TEXT,
-		ANIMATION,
-		MASK,
-		CAMPAIGN,
-		MAP,
-		BMP_FONT,
-		TTF_FONT,
-		IMAGE,
-		VIDEO,
-		SOUND,
-		MUSIC,
-		ARCHIVE_VID,
-		ARCHIVE_ZIP,
-		ARCHIVE_SND,
-		ARCHIVE_LOD,
-		PALETTE,
-		CLIENT_SAVEGAME,
-		SERVER_SAVEGAME,
-		DIRECTORY,
-		ERM,
-		ERT,
-		ERS,
-		OTHER,
-		UNDEFINED
-	};
+enum Type
+{
+	TEXT,
+	ANIMATION,
+	MASK,
+	CAMPAIGN,
+	MAP,
+	BMP_FONT,
+	TTF_FONT,
+	IMAGE,
+	VIDEO,
+	SOUND,
+	MUSIC,
+	ARCHIVE_VID,
+	ARCHIVE_ZIP,
+	ARCHIVE_SND,
+	ARCHIVE_LOD,
+	PALETTE,
+	CLIENT_SAVEGAME,
+	SERVER_SAVEGAME,
+	DIRECTORY,
+	ERM,
+	ERT,
+	ERS,
+	OTHER,
+	UNDEFINED
+};
 }
 
 /**
@@ -97,8 +97,8 @@ public:
 		return name == other.name && type == other.type;
 	}
 
-	std::string		getName() const {return name;}
-	EResType::Type	getType() const {return type;}
+	std::string getName() const {return name;}
+	EResType::Type getType() const {return type;}
 	//void setName(std::string name);
 	//void setType(EResType::Type type);
 
@@ -115,15 +115,15 @@ private:
 
 namespace std
 {
-	template <> struct hash<ResourceID>
+template<> struct hash<ResourceID>
+{
+	size_t operator()(const ResourceID & resourceIdent) const
 	{
-		size_t operator()(const ResourceID & resourceIdent) const
-		{
-			std::hash<int> intHasher;
-			std::hash<std::string> stringHasher;
-			return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
-		}
-	};
+		std::hash<int> intHasher;
+		std::hash<std::string> stringHasher;
+		return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+	}
+};
 }
 
 /**

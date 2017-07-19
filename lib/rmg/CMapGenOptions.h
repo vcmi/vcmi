@@ -17,37 +17,37 @@ class CRmgTemplate;
 
 namespace EWaterContent
 {
-	enum EWaterContent
-	{
-		RANDOM = -1,
-		NONE,
-		NORMAL,
-		ISLANDS
-	};
+enum EWaterContent
+{
+	RANDOM = -1,
+	NONE,
+	NORMAL,
+	ISLANDS
+};
 }
 
 namespace EMonsterStrength
 {
-	enum EMonsterStrength
-	{
-		RANDOM = -2,
-		ZONE_WEAK = -1,
-		ZONE_NORMAL = 0,
-		ZONE_STRONG = 1,
-		GLOBAL_WEAK = 2,
-		GLOBAL_NORMAL = 3,
-		GLOBAL_STRONG = 4
-	};
+enum EMonsterStrength
+{
+	RANDOM = -2,
+	ZONE_WEAK = -1,
+	ZONE_NORMAL = 0,
+	ZONE_STRONG = 1,
+	GLOBAL_WEAK = 2,
+	GLOBAL_NORMAL = 3,
+	GLOBAL_STRONG = 4
+};
 }
 
 namespace EPlayerType
 {
-	enum EPlayerType
-	{
-		HUMAN,
-		AI,
-		COMP_ONLY
-	};
+enum EPlayerType
+{
+	HUMAN,
+	AI,
+	COMP_ONLY
+};
 }
 
 /// The map gen options class holds values about general map generation settings
@@ -58,7 +58,7 @@ public:
 	/// The player settings class maps the player color, starting town and human player flag.
 	class DLL_LINKAGE CPlayerSettings
 	{
-	public:
+public:
 		CPlayerSettings();
 
 		/// The color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1.
@@ -78,13 +78,13 @@ public:
 		/// Constant for a random town selection.
 		static const si32 RANDOM_TOWN = -1;
 
-	private:
+private:
 		PlayerColor color;
 		si32 startingTown;
 		EPlayerType::EPlayerType playerType;
 
-	public:
-		template <typename Handler>
+public:
+		template<typename Handler>
 		void serialize(Handler & h, const int version)
 		{
 			h & color & startingTown & playerType;
@@ -171,7 +171,7 @@ private:
 	const CRmgTemplate * mapTemplate;
 
 public:
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		h & width & height & hasTwoLevels & playerCount & teamCount & compOnlyPlayerCount;

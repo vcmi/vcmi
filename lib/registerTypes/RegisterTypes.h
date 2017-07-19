@@ -27,7 +27,7 @@ class BinaryDeserializer;
 class CTypeList;
 
 template<typename Serializer>
-void registerTypesMapObjects1(Serializer &s)
+void registerTypesMapObjects1(Serializer & s)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// Adventure map objects
@@ -36,48 +36,58 @@ void registerTypesMapObjects1(Serializer &s)
 
 	// Non-armed objects
 	s.template registerType<CGObjectInstance, CGTeleport>();
-		s.template registerType<CGTeleport, CGMonolith>();
-			s.template registerType<CGMonolith, CGSubterraneanGate>();
-			s.template registerType<CGMonolith, CGWhirlpool>();
+	s.template registerType<CGTeleport, CGMonolith>();
+	s.template registerType<CGMonolith, CGSubterraneanGate>();
+	s.template registerType<CGMonolith, CGWhirlpool>();
 	s.template registerType<CGObjectInstance, CGSignBottle>();
 	s.template registerType<CGObjectInstance, CGScholar>();
 	s.template registerType<CGObjectInstance, CGMagicWell>();
 	s.template registerType<CGObjectInstance, CGObservatory>();
 	s.template registerType<CGObjectInstance, CGKeys>();
-		s.template registerType<CGKeys, CGKeymasterTent>();
-		s.template registerType<CGKeys, CGBorderGuard>(); s.template registerType<IQuestObject, CGBorderGuard>();
-			s.template registerType<CGBorderGuard, CGBorderGate>();
+	s.template registerType<CGKeys, CGKeymasterTent>();
+	s.template registerType<CGKeys, CGBorderGuard>();
+	s.template registerType<IQuestObject, CGBorderGuard>();
+	s.template registerType<CGBorderGuard, CGBorderGate>();
 	s.template registerType<CGObjectInstance, CGBoat>();
 	s.template registerType<CGObjectInstance, CGMagi>();
 	s.template registerType<CGObjectInstance, CGSirens>();
-	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
+	s.template registerType<CGObjectInstance, CGShipyard>();
+	s.template registerType<IShipyard, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
-	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
-		s.template registerType<CGMarket, CGBlackMarket>();
-		s.template registerType<CGMarket, CGUniversity>();
+	s.template registerType<CGObjectInstance, CGMarket>();
+	s.template registerType<IMarket, CGMarket>();
+	s.template registerType<CGMarket, CGBlackMarket>();
+	s.template registerType<CGMarket, CGUniversity>();
 	s.template registerType<CGObjectInstance, CGHeroPlaceholder>();
 
-	s.template registerType<CGObjectInstance, CArmedInstance>(); s.template registerType<CBonusSystemNode, CArmedInstance>(); s.template registerType<CCreatureSet, CArmedInstance>();
+	s.template registerType<CGObjectInstance, CArmedInstance>();
+	s.template registerType<CBonusSystemNode, CArmedInstance>();
+	s.template registerType<CCreatureSet, CArmedInstance>();
 
 	// Armed objects
-	s.template registerType<CArmedInstance, CGHeroInstance>(); s.template registerType<IBoatGenerator, CGHeroInstance>(); s.template registerType<CArtifactSet, CGHeroInstance>();
+	s.template registerType<CArmedInstance, CGHeroInstance>();
+	s.template registerType<IBoatGenerator, CGHeroInstance>();
+	s.template registerType<CArtifactSet, CGHeroInstance>();
 	s.template registerType<CArmedInstance, CGDwelling>();
-		s.template registerType<CGDwelling, CGTownInstance>(); s.template registerType<IShipyard, CGTownInstance>(); s.template registerType<IMarket, CGTownInstance>();
+	s.template registerType<CGDwelling, CGTownInstance>();
+	s.template registerType<IShipyard, CGTownInstance>();
+	s.template registerType<IMarket, CGTownInstance>();
 	s.template registerType<CArmedInstance, CGPandoraBox>();
-		s.template registerType<CGPandoraBox, CGEvent>();
+	s.template registerType<CGPandoraBox, CGEvent>();
 	s.template registerType<CArmedInstance, CGCreature>();
 	s.template registerType<CArmedInstance, CGGarrison>();
 	s.template registerType<CArmedInstance, CGArtifact>();
 	s.template registerType<CArmedInstance, CGResource>();
 	s.template registerType<CArmedInstance, CGMine>();
 	s.template registerType<CArmedInstance, CBank>();
-	s.template registerType<CArmedInstance, CGSeerHut>(); s.template registerType<IQuestObject, CGSeerHut>();
+	s.template registerType<CArmedInstance, CGSeerHut>();
+	s.template registerType<IQuestObject, CGSeerHut>();
 	s.template registerType<CGSeerHut, CGQuestGuard>();
 }
 
 template<typename Serializer>
-void registerTypesMapObjectTypes(Serializer &s)
+void registerTypesMapObjectTypes(Serializer & s)
 {
 	s.template registerType<AObjectTypeHandler, CRewardableConstructor>();
 	s.template registerType<AObjectTypeHandler, CHeroInstanceConstructor>();
@@ -86,7 +96,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<AObjectTypeHandler, CBankInstanceConstructor>();
 	s.template registerType<AObjectTypeHandler, CObstacleConstructor>();
 
-#define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME> >()
+#define REGISTER_GENERIC_HANDLER(TYPENAME) s.template registerType<AObjectTypeHandler, CDefaultObjectTypeHandler<TYPENAME>>()
 
 	REGISTER_GENERIC_HANDLER(CGObjectInstance);
 	REGISTER_GENERIC_HANDLER(CGMarket);
@@ -137,26 +147,26 @@ void registerTypesMapObjectTypes(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypesMapObjects2(Serializer &s)
+void registerTypesMapObjects2(Serializer & s)
 {
 	//Other object-related
 	s.template registerType<IObjectInterface, CGTownBuilding>();
-		s.template registerType<CGTownBuilding, CTownBonus>();
-			s.template registerType<CGTownBuilding, COPWBonus>();
+	s.template registerType<CGTownBuilding, CTownBonus>();
+	s.template registerType<CGTownBuilding, COPWBonus>();
 
 	s.template registerType<CGObjectInstance, CRewardableObject>();
-		s.template registerType<CRewardableObject, CGPickable>();
-		s.template registerType<CRewardableObject, CGBonusingObject>();
-		s.template registerType<CRewardableObject, CGVisitableOPH>();
-		s.template registerType<CRewardableObject, CGVisitableOPW>();
-		s.template registerType<CRewardableObject, CGOnceVisitable>();
-			s.template registerType<CGVisitableOPW, CGMagicSpring>();
+	s.template registerType<CRewardableObject, CGPickable>();
+	s.template registerType<CRewardableObject, CGBonusingObject>();
+	s.template registerType<CRewardableObject, CGVisitableOPH>();
+	s.template registerType<CRewardableObject, CGVisitableOPW>();
+	s.template registerType<CRewardableObject, CGOnceVisitable>();
+	s.template registerType<CGVisitableOPW, CGMagicSpring>();
 
 	s.template registerType<CGObjectInstance, CTeamVisited>();
-		s.template registerType<CTeamVisited, CGWitchHut>();
-		s.template registerType<CTeamVisited, CGShrine>();
-		s.template registerType<CTeamVisited, CCartographer>();
-		s.template registerType<CTeamVisited, CGObelisk>();
+	s.template registerType<CTeamVisited, CGWitchHut>();
+	s.template registerType<CTeamVisited, CGShrine>();
+	s.template registerType<CTeamVisited, CCartographer>();
+	s.template registerType<CTeamVisited, CGObelisk>();
 
 	//s.template registerType<CQuest>();
 	//s.template registerType<IQuestObject>();
@@ -198,11 +208,11 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<CArtifactInstance, CCombinedArtifactInstance>();
 
 	//s.template registerType<CObstacleInstance>();
-		s.template registerType<CObstacleInstance, MoatObstacle>();
-		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
+	s.template registerType<CObstacleInstance, MoatObstacle>();
+	s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
 }
 template<typename Serializer>
-void registerTypesClientPacks1(Serializer &s)
+void registerTypesClientPacks1(Serializer & s)
 {
 	s.template registerType<CPack, CPackForClient>();
 
@@ -257,7 +267,7 @@ void registerTypesClientPacks1(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypesClientPacks2(Serializer &s)
+void registerTypesClientPacks2(Serializer & s)
 {
 	s.template registerType<CPackForClient, BattleStart>();
 	s.template registerType<CPackForClient, BattleNextRound>();
@@ -311,7 +321,7 @@ void registerTypesClientPacks2(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypesServerPacks(Serializer &s)
+void registerTypesServerPacks(Serializer & s)
 {
 	s.template registerType<CPack, CPackForServer>();
 	s.template registerType<CPackForServer, CloseServer>();
@@ -345,7 +355,7 @@ void registerTypesServerPacks(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypesPregamePacks(Serializer &s)
+void registerTypesPregamePacks(Serializer & s)
 {
 	s.template registerType<CPack, CPackForSelectionScreen>();
 	s.template registerType<CPackForSelectionScreen, CPregamePackToPropagate>();
@@ -365,7 +375,7 @@ void registerTypesPregamePacks(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypes(Serializer &s)
+void registerTypes(Serializer & s)
 {
 	registerTypesMapObjects1(s);
 	registerTypesMapObjects2(s);
@@ -383,4 +393,3 @@ extern template DLL_LINKAGE void registerTypes<BinarySerializer>(BinarySerialize
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
-

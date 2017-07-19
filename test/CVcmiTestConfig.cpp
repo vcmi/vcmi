@@ -36,10 +36,11 @@ CVcmiTestConfig::CVcmiTestConfig()
 	find your test data folder in your build and change TEST_DATA_DIR for it*/
 	const std::string TEST_DATA_DIR = "test/testdata/";
 	auto path = boost::filesystem::current_path();
-	path+= "/" + TEST_DATA_DIR;
-	if(boost::filesystem::exists(path)){
+	path += "/" + TEST_DATA_DIR;
+	if(boost::filesystem::exists(path))
+	{
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+		dynamic_cast<CFilesystemList *>(CResourceHandler::get())->addLoader(loader, false);
 	}
 }
 

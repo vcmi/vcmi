@@ -11,14 +11,12 @@
 #include "CFileInputStream.h"
 
 CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 start, si64 size)
-  : dataStart{start},
-	dataSize{size},
-	fileStream{file, std::ios::in | std::ios::binary}
+	: dataStart{start}, dataSize{size}, fileStream{file, std::ios::in | std::ios::binary}
 {
-	if (fileStream.fail())
+	if(fileStream.fail())
 		throw std::runtime_error("File " + file.string() + " isn't available.");
 
-	if (dataSize == 0)
+	if(dataSize == 0)
 	{
 		fileStream.seekg(0, std::ios::end);
 		dataSize = tell();

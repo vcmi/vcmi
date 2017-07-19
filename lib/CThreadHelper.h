@@ -10,25 +10,26 @@
 #pragma once
 
 
-typedef std::function<void()> Task;
+typedef std::function<void ()> Task;
 
 /// Can assign CPU work to other threads/cores
 class DLL_LINKAGE CThreadHelper
 {
 	boost::mutex rtinm;
 	int currentTask, amount, threads;
-	std::vector<Task> *tasks;
+	std::vector<Task> * tasks;
 
 
 	void processTasks();
+
 public:
-	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
+	CThreadHelper(std::vector<std::function<void()>> * Tasks, int Threads);
 	void run();
 };
 
-template <typename T> inline void setData(T * data, std::function<T()> func)
+template<typename T> inline void setData(T * data, std::function<T()> func)
 {
 	*data = func();
 }
 
-void DLL_LINKAGE setThreadName(const std::string &name);
+void DLL_LINKAGE setThreadName(const std::string & name);
