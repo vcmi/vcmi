@@ -61,5 +61,5 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unordered_map<ResourceID, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
+	std::unordered_map<ResourceID, boost::filesystem::path> listFiles(const std::string & mountPoint, size_t depth, bool initial) const;
 };

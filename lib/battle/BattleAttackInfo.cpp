@@ -11,8 +11,8 @@
 #include "BattleAttackInfo.h"
 
 
-BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting):
-	attackerHealth(Attacker->health), defenderHealth(Defender->health)
+BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting)
+	: attackerHealth(Attacker->health), defenderHealth(Defender->health)
 {
 	attacker = Attacker;
 	defender = Defender;

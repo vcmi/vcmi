@@ -19,108 +19,108 @@
 
 namespace SRSLPraserHelpers
 {
-	static int XYToHex(int x, int y)
+static int XYToHex(int x, int y)
+{
+	return x + GameConstants::BFIELD_WIDTH * y;
+}
+
+static int XYToHex(std::pair<int, int> xy)
+{
+	return XYToHex(xy.first, xy.second);
+}
+
+static int hexToY(int battleFieldPosition)
+{
+	return battleFieldPosition / GameConstants::BFIELD_WIDTH;
+}
+
+static int hexToX(int battleFieldPosition)
+{
+	int pos = battleFieldPosition - hexToY(battleFieldPosition) * GameConstants::BFIELD_WIDTH;
+	return pos;
+}
+
+static std::pair<int, int> hexToPair(int battleFieldPosition)
+{
+	return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
+}
+
+//moves hex by one hex in given direction
+//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
+static std::pair<int, int> gotoDir(int x, int y, int direction)
+{
+	switch(direction)
 	{
-		return x + GameConstants::BFIELD_WIDTH * y;
-	}
-
-	static int XYToHex(std::pair<int, int> xy)
-	{
-		return XYToHex(xy.first, xy.second);
-	}
-
-	static int hexToY(int battleFieldPosition)
-	{
-		return battleFieldPosition/GameConstants::BFIELD_WIDTH;
-	}
-
-	static int hexToX(int battleFieldPosition)
-	{
-		int pos = battleFieldPosition - hexToY(battleFieldPosition) * GameConstants::BFIELD_WIDTH;
-		return pos;
-	}
-
-	static std::pair<int, int> hexToPair(int battleFieldPosition)
-	{
-		return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
-	}
-
-	//moves hex by one hex in given direction
-	//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
-	static std::pair<int, int> gotoDir(int x, int y, int direction)
-	{
-		switch(direction)
-		{
-		case 0: //top left
-			return std::make_pair((y%2) ? x-1 : x, y-1);
-		case 1: //top right
-			return std::make_pair((y%2) ? x : x+1, y-1);
-		case 2:  //right
-			return std::make_pair(x+1, y);
-		case 3: //right bottom
-			return std::make_pair((y%2) ? x : x+1, y+1);
-		case 4: //left bottom
-			return std::make_pair((y%2) ? x-1 : x, y+1);
-		case 5: //left
-			return std::make_pair(x-1, y);
-		default:
-			throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
-		}
-	}
-
-	static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
-	{
-		return gotoDir(xy.first, xy.second, direction);
-	}
-
-	static bool isGoodHex(std::pair<int, int> xy)
-	{
-		return xy.first >=0 && xy.first < GameConstants::BFIELD_WIDTH && xy.second >= 0 && xy.second < GameConstants::BFIELD_HEIGHT;
-	}
-
-	//helper function for rangeInHexes
-	static std::set<ui16> getInRange(unsigned int center, int low, int high)
-	{
-		std::set<ui16> ret;
-		if(low == 0)
-		{
-			ret.insert(center);
-		}
-
-		std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
-		for(auto & elem : mainPointForLayer)
-			elem = hexToPair(center);
-
-		for(int it=1; it<=high; ++it) //it - distance to the center
-		{
-			for(int b=0; b<6; ++b)
-				mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
-
-			if(it>=low)
-			{
-				std::pair<int, int> curHex;
-
-				//adding lines (A-b, B-c, C-d, etc)
-				for(int v=0; v<6; ++v)
-				{
-					curHex = mainPointForLayer[v];
-					for(int h=0; h<it; ++h)
-					{
-						if(isGoodHex(curHex))
-							ret.insert(XYToHex(curHex));
-						curHex = gotoDir(curHex, (v+2)%6);
-					}
-				}
-
-			} //if(it>=low)
-		}
-
-		return ret;
+	case 0: //top left
+		return std::make_pair((y % 2) ? x - 1 : x, y - 1);
+	case 1: //top right
+		return std::make_pair((y % 2) ? x : x + 1, y - 1);
+	case 2: //right
+		return std::make_pair(x + 1, y);
+	case 3: //right bottom
+		return std::make_pair((y % 2) ? x : x + 1, y + 1);
+	case 4: //left bottom
+		return std::make_pair((y % 2) ? x - 1 : x, y + 1);
+	case 5: //left
+		return std::make_pair(x - 1, y);
+	default:
+		throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
 	}
 }
 
-SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_):
-	mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0), damageToDisplay(0)
+static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
+{
+	return gotoDir(xy.first, xy.second, direction);
+}
+
+static bool isGoodHex(std::pair<int, int> xy)
+{
+	return xy.first >= 0 && xy.first < GameConstants::BFIELD_WIDTH && xy.second >= 0 && xy.second < GameConstants::BFIELD_HEIGHT;
+}
+
+//helper function for rangeInHexes
+static std::set<ui16> getInRange(unsigned int center, int low, int high)
+{
+	std::set<ui16> ret;
+	if(low == 0)
+	{
+		ret.insert(center);
+	}
+
+	std::pair<int, int> mainPointForLayer[6]; //A, B, C, D, E, F points
+	for(auto & elem : mainPointForLayer)
+		elem = hexToPair(center);
+
+	for(int it = 1; it <= high; ++it) //it - distance to the center
+	{
+		for(int b = 0; b < 6; ++b)
+			mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
+
+		if(it >= low)
+		{
+			std::pair<int, int> curHex;
+
+			//adding lines (A-b, B-c, C-d, etc)
+			for(int v = 0; v < 6; ++v)
+			{
+				curHex = mainPointForLayer[v];
+				for(int h = 0; h < it; ++h)
+				{
+					if(isGoodHex(curHex))
+						ret.insert(XYToHex(curHex));
+					curHex = gotoDir(curHex, (v + 2) % 6);
+				}
+			}
+
+		} //if(it>=low)
+	}
+
+	return ret;
+}
+}
+
+SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, const SpellCastEnvironment * env_, const BattleSpellCastParameters & parameters_)
+	: mechanics(mechanics_), env(env_), attackedCres(), sc(), si(), parameters(parameters_), otherHero(nullptr), spellCost(0), damageToDisplay(0)
 {
 	sc.side = parameters.casterSide;
 	sc.id = mechanics->owner->id;
@@ -131,7 +131,7 @@ SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, con
 	sc.manaGained = 0;
 
 	//check it there is opponent hero
-	const ui8 otherSide = 1-parameters.casterSide;
+	const ui8 otherSide = 1 - parameters.casterSide;
 
 	if(parameters.cb->battleHasHero(otherSide))
 		otherHero = parameters.cb->battleGetFightingHero(otherSide);
@@ -172,13 +172,13 @@ void SpellCastContext::prepareBattleLog()
 
 	if(displayDamage)
 	{
-        MetaString line;
+		MetaString line;
 
-        line.addTxt(MetaString::GENERAL_TXT, 376);
-        line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
-        line.addReplacement(damageToDisplay);
+		line.addTxt(MetaString::GENERAL_TXT, 376);
+		line.addReplacement(MetaString::SPELL_NAME, mechanics->owner->id.toEnum());
+		line.addReplacement(damageToDisplay);
 
-        sc.battleLog.push_back(line);
+		sc.battleLog.push_back(line);
 	}
 }
 
@@ -237,7 +237,7 @@ void SpellCastContext::afterCast()
 			env->sendAndApply(&sm);
 		}
 	}
-	else if (parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
+	else if(parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING || parameters.mode == ECastingMode::ENCHANTER_CASTING)
 	{
 		//reduce number of casts remaining
 		assert(parameters.casterStack);
@@ -254,16 +254,16 @@ void SpellCastContext::afterCast()
 }
 
 ///DefaultSpellMechanics
-DefaultSpellMechanics::DefaultSpellMechanics(const CSpell * s):
-	ISpellMechanics(s)
+DefaultSpellMechanics::DefaultSpellMechanics(const CSpell * s)
+	: ISpellMechanics(s)
 {
 };
 
 void DefaultSpellMechanics::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
 {
-	if (packet->castByHero)
+	if(packet->castByHero)
 	{
-		if (packet->side < 2)
+		if(packet->side < 2)
 		{
 			battle->sides[packet->side].castSpellsCount++;
 		}
@@ -292,7 +292,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 		return;
 	}
 
-	std::vector <const CStack*> reflected;//for magic mirror
+	std::vector<const CStack *> reflected; //for magic mirror
 
 	cast(env, parameters, reflected);
 
@@ -322,7 +322,7 @@ void DefaultSpellMechanics::battleCast(const SpellCastEnvironment * env, const B
 	}
 }
 
-void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector <const CStack*> & reflected) const
+void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleSpellCastParameters & parameters, std::vector<const CStack *> & reflected) const
 {
 	SpellCastContext ctx(this, env, parameters);
 
@@ -342,8 +342,7 @@ void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleS
 	ctx.afterCast();
 }
 
-void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters,
-	const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const
+void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack *> & attacked, const si32 damageToDisplay, bool & displayDamage) const
 {
 	if(attacked.size() != 1)
 	{
@@ -355,12 +354,12 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 	auto attackedStack = attacked.at(0);
 
 	auto addLogLine = [attackedStack, &logLines](const int baseTextID, const boost::logic::tribool & plural)
-	{
-		MetaString line;
-		attackedStack->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
-		attackedStack->addNameReplacement(line, plural);
-		logLines.push_back(line);
-	};
+		{
+			MetaString line;
+			attackedStack->addText(line, MetaString::GENERAL_TXT, baseTextID, plural);
+			attackedStack->addNameReplacement(line, plural);
+			logLines.push_back(line);
+		};
 
 	displayDamage = false; //in most following cases damage info text is custom
 
@@ -373,7 +372,7 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 		addLogLine(561, boost::logic::indeterminate);
 		break;
 	case SpellID::BIND:
-		addLogLine(-560, true);//"Roots and vines bind the %s to the ground!"
+		addLogLine(-560, true); //"Roots and vines bind the %s to the ground!"
 		break;
 	case SpellID::DISEASE:
 		addLogLine(553, boost::logic::indeterminate);
@@ -382,31 +381,31 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 		addLogLine(563, boost::logic::indeterminate);
 		break;
 	case SpellID::AGE:
-		{
-			//"The %s shrivel with age, and lose %d hit points."
-			MetaString line;
-			attackedStack->addText(line, MetaString::GENERAL_TXT, 551);
-			attackedStack->addNameReplacement(line);
+	{
+		//"The %s shrivel with age, and lose %d hit points."
+		MetaString line;
+		attackedStack->addText(line, MetaString::GENERAL_TXT, 551);
+		attackedStack->addNameReplacement(line);
 
-			//todo: display effect from only this cast
-			TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
-			const int fullHP = bl->totalValue();
-			bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
-			line.addReplacement(fullHP - bl->totalValue());
-			logLines.push_back(line);
-		}
-		break;
+		//todo: display effect from only this cast
+		TBonusListPtr bl = attackedStack->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+		const int fullHP = bl->totalValue();
+		bl->remove_if(Selector::source(Bonus::SPELL_EFFECT, SpellID::AGE));
+		line.addReplacement(fullHP - bl->totalValue());
+		logLines.push_back(line);
+	}
+	break;
 	case SpellID::THUNDERBOLT:
-		{
-			addLogLine(-367, true);
-			MetaString line;
-			//todo: handle newlines in metastring
-			std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
-			line << text;
-			line.addReplacement(damageToDisplay); //no more text afterwards
-			logLines.push_back(line);
-		}
-		break;
+	{
+		addLogLine(-367, true);
+		MetaString line;
+		//todo: handle newlines in metastring
+		std::string text = VLC->generaltexth->allTexts[343].substr(1, VLC->generaltexth->allTexts[343].size() - 1); //Does %d points of damage.
+		line << text;
+		line.addReplacement(damageToDisplay); //no more text afterwards
+		logLines.push_back(line);
+	}
+	break;
 	case SpellID::DISPEL_HELPFUL_SPELLS:
 		addLogLine(-555, true);
 		break;
@@ -436,7 +435,7 @@ void DefaultSpellMechanics::battleLog(std::vector<MetaString> & logLines, const 
 	}
 }
 
-void DefaultSpellMechanics::battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack*> & attacked) const
+void DefaultSpellMechanics::battleLogDefault(std::vector<MetaString> & logLines, const BattleSpellCastParameters & parameters, const std::vector<const CStack *> & attacked) const
 {
 	MetaString line;
 	parameters.caster->getCastDescription(owner, attacked, line);
@@ -517,46 +516,46 @@ void DefaultSpellMechanics::defaultTimedEffect(const SpellCastEnvironment * env,
 			switch(bonus->additionalInfo)
 			{
 			case 0: //normal
+			{
+				switch(tier)
 				{
-					switch(tier)
-					{
-					case 1:
-					case 2:
-						power = 3;
-						break;
-					case 3:
-					case 4:
-						power = 2;
-						break;
-					case 5:
-					case 6:
-						power = 1;
-						break;
-					}
-					for(const Bonus & b : sse.effect)
-					{
-						Bonus specialBonus(b);
-						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
-						specialBonus.turnsRemain = duration;
-						sse.uniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
-					}
-					for(const Bonus & b : sse.cumulativeEffects)
-					{
-						Bonus specialBonus(b);
-						specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
-						specialBonus.turnsRemain = duration;
-						sse.cumulativeUniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
-					}
+				case 1:
+				case 2:
+					power = 3;
+					break;
+				case 3:
+				case 4:
+					power = 2;
+					break;
+				case 5:
+				case 6:
+					power = 1;
+					break;
 				}
-				break;
-			case 1: //only Coronius as yet
+				for(const Bonus & b : sse.effect)
 				{
-					power = std::max(5 - tier, 0);
-					Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, owner->id, PrimarySkill::ATTACK);
+					Bonus specialBonus(b);
+					specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
 					specialBonus.turnsRemain = duration;
-					sse.uniqueBonuses.push_back(std::pair<ui32,Bonus>(affected->ID, specialBonus)); //additional attack to Slayer effect
+					sse.uniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
 				}
-				break;
+				for(const Bonus & b : sse.cumulativeEffects)
+				{
+					Bonus specialBonus(b);
+					specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+					specialBonus.turnsRemain = duration;
+					sse.cumulativeUniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional premy to given effect
+				}
+			}
+			break;
+			case 1: //only Coronius as yet
+			{
+				power = std::max(5 - tier, 0);
+				Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, owner->id, PrimarySkill::ATTACK);
+				specialBonus.turnsRemain = duration;
+				sse.uniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus)); //additional attack to Slayer effect
+			}
+			break;
 			}
 		}
 		if(parameters.casterHero && parameters.casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, owner->id)) //TODO: better handling of bonus percentages
@@ -564,7 +563,7 @@ void DefaultSpellMechanics::defaultTimedEffect(const SpellCastEnvironment * env,
 			int damagePercent = parameters.casterHero->level * parameters.casterHero->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, owner->id.toEnum()) / tier;
 			Bonus specialBonus(Bonus::N_TURNS, Bonus::CREATURE_DAMAGE, Bonus::SPELL_EFFECT, damagePercent, owner->id, 0, Bonus::PERCENT_TO_ALL);
 			specialBonus.turnsRemain = duration;
-			sse.uniqueBonuses.push_back(std::pair<ui32,Bonus>(affected->ID, specialBonus));
+			sse.uniqueBonuses.push_back(std::pair<ui32, Bonus>(affected->ID, specialBonus));
 		}
 	}
 
@@ -572,7 +571,7 @@ void DefaultSpellMechanics::defaultTimedEffect(const SpellCastEnvironment * env,
 		env->sendAndApply(&sse);
 }
 
-std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
+std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool * outDroppedHexes) const
 {
 	using namespace SRSLPraserHelpers;
 
@@ -586,7 +585,7 @@ std::vector<BattleHex> DefaultSpellMechanics::rangeInHexes(BattleHex centralHex,
 		bool readingFirst = true;
 		for(auto & elem : rng)
 		{
-			if(std::isdigit(elem) ) //reading number
+			if(std::isdigit(elem)) //reading number
 			{
 				if(readingFirst)
 					number1 += elem;
@@ -643,19 +642,19 @@ std::vector<const CStack *> DefaultSpellMechanics::getAffectedStacks(const CBatt
 	std::vector<const CStack *> result = calculateAffectedStacks(cb, mode, caster, spellLvl, destination);
 	CSpell::TargetInfo ti(owner, spellLvl, mode);
 
-	auto predicate = [&, this](const CStack * s)->bool
-	{
-		const bool hitDirectly = ti.alwaysHitDirectly && s->coversPos(destination);
-		const bool immune = (ESpellCastProblem::OK != owner->isImmuneByStack(caster, s));
-		return !hitDirectly && immune;
-	};
+	auto predicate = [&, this](const CStack * s) -> bool
+		{
+			const bool hitDirectly = ti.alwaysHitDirectly && s->coversPos(destination);
+			const bool immune = (ESpellCastProblem::OK != owner->isImmuneByStack(caster, s));
+			return !hitDirectly && immune;
+		};
 	vstd::erase_if(result, predicate);
 	return result;
 }
 
 std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const CBattleInfoCallback * cb, const ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
 {
-	std::set<const CStack *> attackedCres;//std::set to exclude multiple occurrences of two hex creatures
+	std::set<const CStack *> attackedCres; //std::set to exclude multiple occurrences of two hex creatures
 	CSpell::TargetInfo ti(owner, spellLvl, mode);
 
 	const auto side = cb->playerToSide(caster->getOwner());
@@ -668,22 +667,22 @@ std::vector<const CStack *> DefaultSpellMechanics::calculateAffectedStacks(const
 		attackedHexes.push_back(destination);
 
 	auto mainFilter = [&](const CStack * s)
-	{
-		const bool ownerMatches = cb->battleMatchOwner(caster->getOwner(), s, owner->getPositiveness());
-		const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
-		const bool positivenessFlag = !ti.smart || ownerMatches;
+		{
+			const bool ownerMatches = cb->battleMatchOwner(caster->getOwner(), s, owner->getPositiveness());
+			const bool validTarget = s->isValidTarget(!ti.onlyAlive); //todo: this should be handled by spell class
+			const bool positivenessFlag = !ti.smart || ownerMatches;
 
-		return positivenessFlag && validTarget;
-	};
+			return positivenessFlag && validTarget;
+		};
 
 	if(ti.type == CSpell::CREATURE && attackedHexes.size() == 1)
 	{
 		//for single target spells we must select one target. Alive stack is preferred (issue #1763)
 
 		auto predicate = [&](const CStack * s)
-		{
-			return s->coversPos(attackedHexes.at(0)) && mainFilter(s);
-		};
+			{
+				return s->coversPos(attackedHexes.at(0)) && mainFilter(s);
+			};
 
 		TStacks stacks = cb->battleGetStacksIf(predicate);
 
@@ -763,7 +762,7 @@ bool DefaultSpellMechanics::dispellSelector(const Bonus * bonus)
 	{
 		const CSpell * sourceSpell = SpellID(bonus->sid).toSpell();
 		if(!sourceSpell)
-			return false;//error
+			return false; //error
 		//Special case: DISRUPTING_RAY is "immune" to dispell
 		//Other even PERMANENT effects can be removed (f.e. BIND)
 		if(sourceSpell->id == SpellID::DISRUPTING_RAY)
@@ -784,7 +783,7 @@ void DefaultSpellMechanics::doDispell(BattleInfo * battle, const BattleSpellCast
 {
 	for(auto stackID : packet->affectedCres)
 	{
-		CStack *s = battle->getStack(stackID);
+		CStack * s = battle->getStack(stackID);
 		s->popBonuses(selector.And(dispellSelector));
 	}
 }
@@ -794,7 +793,7 @@ bool DefaultSpellMechanics::canDispell(const IBonusBearer * obj, const CSelector
 	return obj->hasBonus(selector.And(dispellSelector), Selector::all, cachingStr);
 }
 
-void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector <const CStack*> & reflected) const
+void DefaultSpellMechanics::handleMagicMirror(const SpellCastEnvironment * env, SpellCastContext & ctx, std::vector<const CStack *> & reflected) const
 {
 	//reflection is applied only to negative spells
 	//if it is actual spell and can be reflected to single target, no recurrence
@@ -824,7 +823,7 @@ void DefaultSpellMechanics::handleResistance(const SpellCastEnvironment * env, S
 	//resistance is applied only to negative spells
 	if(owner->isNegative())
 	{
-		std::vector <const CStack*> resisted;
+		std::vector<const CStack *> resisted;
 		for(auto s : ctx.attackedCres)
 		{
 			//magic resistance
@@ -854,8 +853,8 @@ bool DefaultSpellMechanics::requiresCreatureTarget() const
 }
 
 ///SpecialSpellMechanics
-SpecialSpellMechanics::SpecialSpellMechanics(const CSpell * s):
-	DefaultSpellMechanics(s)
+SpecialSpellMechanics::SpecialSpellMechanics(const CSpell * s)
+	: DefaultSpellMechanics(s)
 {
 }
 

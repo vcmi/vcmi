@@ -19,7 +19,7 @@ class JsonNode;
 /// Helper class that allows generation of a ISimpleResourceLoader entry out of Json config(s)
 class DLL_LINKAGE CFilesystemGenerator
 {
-	typedef std::function<void(const std::string &, const JsonNode &)> TLoadFunctor;
+	typedef std::function<void (const std::string &, const JsonNode &)> TLoadFunctor;
 	typedef std::map<std::string, TLoadFunctor> TLoadFunctorMap;
 
 	CFilesystemList * filesystem;
@@ -32,6 +32,7 @@ class DLL_LINKAGE CFilesystemGenerator
 	void loadJsonMap(const std::string & mountPoint, const JsonNode & config);
 
 	TLoadFunctorMap genFunctorMap();
+
 public:
 	/// prefix = prefix that will be given to file entries in all nodes of this filesystem
 	CFilesystemGenerator(std::string prefix);
@@ -101,9 +102,9 @@ public:
 	 * @param fsConfig - configuration to load
 	 * @return generated filesystem that contains all config entries
 	 */
-	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static ISimpleResourceLoader * createFileSystem(const std::string & prefix, const JsonNode & fsConfig);
 
 private:
 	/** Instance of resource loader */
-	static std::map<std::string, ISimpleResourceLoader*> knownLoaders;
+	static std::map<std::string, ISimpleResourceLoader *> knownLoaders;
 };

@@ -28,9 +28,9 @@ public:
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
 
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const = 0;	//TODO: remove
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const = 0; //TODO: remove
 
-	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const = 0;//TODO: type safety on query, use generic query packet when implemented
+	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const = 0; //TODO: type safety on query, use generic query packet when implemented
 };
 
 ///all parameters of particular cast event
@@ -115,6 +115,7 @@ public:
 	virtual bool requiresCreatureTarget() const = 0;
 
 	static std::unique_ptr<ISpellMechanics> createMechanics(const CSpell * s);
+
 protected:
 	const CSpell * owner;
 };
@@ -134,6 +135,7 @@ public:
 	virtual bool adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
+
 protected:
 	const CSpell * owner;
 };

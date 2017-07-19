@@ -35,4 +35,3 @@
 template void registerTypesMapObjects2<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypesMapObjects2<BinarySerializer>(BinarySerializer & s);
 template void registerTypesMapObjects2<CTypeList>(CTypeList & s);
-

@@ -13,25 +13,25 @@
 
 struct IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
-	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
-	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
+	virtual boost::any castRawPtr(const boost::any & ptr) const = 0; // takes From*, returns To*
+	virtual boost::any castSharedPtr(const boost::any & ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
+	virtual boost::any castWeakPtr(const boost::any & ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
 	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
 };
 
-template <typename From, typename To>
+template<typename From, typename To>
 struct PointerCaster : IPointerCaster
 {
-	virtual boost::any castRawPtr(const boost::any &ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
+	virtual boost::any castRawPtr(const boost::any & ptr) const override // takes void* pointing to From object, performs dynamic cast, returns void* pointing to To object
 	{
-		From * from = (From*)boost::any_cast<void*>(ptr);
-		To * ret = static_cast<To*>(from);
-		return (void*)ret;
+		From * from = (From *)boost::any_cast<void *>(ptr);
+		To * ret = static_cast<To *>(from);
+		return (void *)ret;
 	}
 
 	// Helper function performing casts between smart pointers
 	template<typename SmartPt>
-	boost::any castSmartPtr(const boost::any &ptr) const
+	boost::any castSmartPtr(const boost::any & ptr) const
 	{
 		try
 		{
@@ -39,17 +39,17 @@ struct PointerCaster : IPointerCaster
 			auto ret = std::static_pointer_cast<To>(from);
 			return ret;
 		}
-		catch(std::exception &e)
+		catch(std::exception & e)
 		{
 			THROW_FORMAT("Failed cast %s -> %s. Given argument was %s. Error message: %s", typeid(From).name() % typeid(To).name() % ptr.type().name() % e.what());
 		}
 	}
 
-	virtual boost::any castSharedPtr(const boost::any &ptr) const override
+	virtual boost::any castSharedPtr(const boost::any & ptr) const override
 	{
 		return castSmartPtr<std::shared_ptr<From>>(ptr);
 	}
-	virtual boost::any castWeakPtr(const boost::any &ptr) const override
+	virtual boost::any castWeakPtr(const boost::any & ptr) const override
 	{
 		auto from = boost::any_cast<std::weak_ptr<From>>(ptr);
 		return castSmartPtr<std::shared_ptr<From>>(from.lock());
@@ -59,7 +59,7 @@ struct PointerCaster : IPointerCaster
 /// Class that implements basic reflection-like mechanisms
 /// For every type registered via registerType() generates inheritance tree
 /// Rarely used directly - usually used as part of CApplier
-class DLL_LINKAGE CTypeList: public boost::noncopyable
+class DLL_LINKAGE CTypeList : public boost::noncopyable
 {
 //public:
 	struct TypeDescriptor;
@@ -68,12 +68,13 @@ class DLL_LINKAGE CTypeList: public boost::noncopyable
 	struct TypeDescriptor
 	{
 		ui16 typeID;
-		const char *name;
+		const char * name;
 		std::vector<WeakTypeInfoPtr> children, parents;
 	};
 	typedef boost::shared_mutex TMutex;
 	typedef boost::unique_lock<TMutex> TUniqueLock;
 	typedef boost::shared_lock<TMutex> TSharedLock;
+
 private:
 	mutable TMutex mx;
 
@@ -83,10 +84,10 @@ private:
 	/// Returns sequence of types starting from "from" and ending on "to". Every next type is derived from the previous.
 	/// Throws if there is no link registered.
 	std::vector<TypeInfoPtr> castSequence(TypeInfoPtr from, TypeInfoPtr to) const;
-	std::vector<TypeInfoPtr> castSequence(const std::type_info *from, const std::type_info *to) const;
+	std::vector<TypeInfoPtr> castSequence(const std::type_info * from, const std::type_info * to) const;
 
-	template<boost::any(IPointerCaster::*CastingFunction)(const boost::any &) const>
-	boost::any castHelper(boost::any inputPtr, const std::type_info *fromArg, const std::type_info *toArg) const
+	template<boost::any (IPointerCaster::* CastingFunction)(const boost::any &) const>
+	boost::any castHelper(boost::any inputPtr, const std::type_info * fromArg, const std::type_info * toArg) const
 	{
 		TSharedLock lock(mx);
 		auto typesSequence = castSequence(fromArg, toArg);
@@ -94,33 +95,33 @@ private:
 		boost::any ptr = inputPtr;
 		for(int i = 0; i < static_cast<int>(typesSequence.size()) - 1; i++)
 		{
-			auto &from = typesSequence[i];
-			auto &to = typesSequence[i + 1];
+			auto & from = typesSequence[i];
+			auto & to = typesSequence[i + 1];
 			auto castingPair = std::make_pair(from, to);
 			if(!casters.count(castingPair))
 				THROW_FORMAT("Cannot find caster for conversion %s -> %s which is needed to cast %s -> %s", from->name % to->name % fromArg->name() % toArg->name());
 
-			auto &caster = casters.at(castingPair);
+			auto & caster = casters.at(castingPair);
 			ptr = (*caster.*CastingFunction)(ptr); //Why does unique_ptr not have operator->* ..?
 		}
 
 		return ptr;
 	}
-	CTypeList &operator=(CTypeList &)
+	CTypeList & operator=(CTypeList &)
 	{
 		// As above.
 		assert(0);
 		return *this;
 	}
 
-	TypeInfoPtr getTypeDescriptor(const std::type_info *type, bool throws = true) const; //if not throws, failure returns nullptr
-	TypeInfoPtr registerType(const std::type_info *type);
+	TypeInfoPtr getTypeDescriptor(const std::type_info * type, bool throws = true) const; //if not throws, failure returns nullptr
+	TypeInfoPtr registerType(const std::type_info * type);
 
 public:
 
 	CTypeList();
 
-	template <typename Base, typename Derived>
+	template<typename Base, typename Derived>
 	void registerType(const Base * b = nullptr, const Derived * d = nullptr)
 	{
 		TUniqueLock lock(mx);
@@ -139,9 +140,9 @@ public:
 		casters[std::make_pair(dti, bti)] = make_unique<const PointerCaster<Derived, Base>>();
 	}
 
-	ui16 getTypeID(const std::type_info *type, bool throws = false) const;
+	ui16 getTypeID(const std::type_info * type, bool throws = false) const;
 
-	template <typename T>
+	template<typename T>
 	ui16 getTypeID(const T * t = nullptr, bool throws = false) const
 	{
 		return getTypeID(getTypeInfo(t), throws);
@@ -150,41 +151,41 @@ public:
 	template<typename TInput>
 	void * castToMostDerived(const TInput * inputPtr) const
 	{
-		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		auto & baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr);
 
-		if (strcmp(baseType.name(), derivedType->name()) == 0)
+		if(strcmp(baseType.name(), derivedType->name()) == 0)
 		{
-			return const_cast<void*>(reinterpret_cast<const void*>(inputPtr));
+			return const_cast<void *>(reinterpret_cast<const void *>(inputPtr));
 		}
 
-		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(
-			const_cast<void*>(reinterpret_cast<const void*>(inputPtr)), &baseType,
-			derivedType));
+		return boost::any_cast<void *>(castHelper<&IPointerCaster::castRawPtr>(
+						       const_cast<void *>(reinterpret_cast<const void *>(inputPtr)), &baseType,
+						       derivedType));
 	}
 
 	template<typename TInput>
 	boost::any castSharedToMostDerived(const std::shared_ptr<TInput> inputPtr) const
 	{
-		auto &baseType = typeid(typename std::remove_cv<TInput>::type);
+		auto & baseType = typeid(typename std::remove_cv<TInput>::type);
 		auto derivedType = getTypeInfo(inputPtr.get());
 
-		if (!strcmp(baseType.name(), derivedType->name()))
+		if(!strcmp(baseType.name(), derivedType->name()))
 			return inputPtr;
 
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, &baseType, derivedType);
 	}
 
-	void * castRaw(void *inputPtr, const std::type_info *from, const std::type_info *to) const
+	void * castRaw(void * inputPtr, const std::type_info * from, const std::type_info * to) const
 	{
-		return boost::any_cast<void*>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
+		return boost::any_cast<void *>(castHelper<&IPointerCaster::castRawPtr>(inputPtr, from, to));
 	}
-	boost::any castShared(boost::any inputPtr, const std::type_info *from, const std::type_info *to) const
+	boost::any castShared(boost::any inputPtr, const std::type_info * from, const std::type_info * to) const
 	{
 		return castHelper<&IPointerCaster::castSharedPtr>(inputPtr, from, to);
 	}
 
-	template <typename T> const std::type_info * getTypeInfo(const T * t = nullptr) const
+	template<typename T> const std::type_info * getTypeInfo(const T * t = nullptr) const
 	{
 		if(t)
 			return &typeid(*t);

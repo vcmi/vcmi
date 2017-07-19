@@ -12,8 +12,8 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console) :
-	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
+CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console)
+	: filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
 
 void CBasicLogConfigurator::configureDefault()
 {
@@ -54,9 +54,11 @@ void CBasicLogConfigurator::configure()
 		if(!consoleNode.isNull())
 		{
 			const JsonNode & consoleFormatNode = consoleNode["format"];
-			if(!consoleFormatNode.isNull()) consoleTarget->setFormatter(CLogFormatter(consoleFormatNode.String()));
+			if(!consoleFormatNode.isNull())
+				consoleTarget->setFormatter(CLogFormatter(consoleFormatNode.String()));
 			const JsonNode & consoleThresholdNode = consoleNode["threshold"];
-			if(!consoleThresholdNode.isNull()) consoleTarget->setThreshold(getLogLevel(consoleThresholdNode.String()));
+			if(!consoleThresholdNode.isNull())
+				consoleTarget->setThreshold(getLogLevel(consoleThresholdNode.String()));
 			const JsonNode & coloredConsoleEnabledNode = consoleNode["coloredOutputEnabled"];
 			consoleTarget->setColoredOutputEnabled(coloredConsoleEnabledNode.Bool());
 
@@ -82,7 +84,8 @@ void CBasicLogConfigurator::configure()
 		if(!fileNode.isNull())
 		{
 			const JsonNode & fileFormatNode = fileNode["format"];
-			if(!fileFormatNode.isNull()) fileTarget->setFormatter(CLogFormatter(fileFormatNode.String()));
+			if(!fileFormatNode.isNull())
+				fileTarget->setFormatter(CLogFormatter(fileFormatNode.String()));
 		}
 		CLogger::getGlobalLogger()->addTarget(std::move(fileTarget));
 		appendToLogFile = true;
@@ -90,14 +93,14 @@ void CBasicLogConfigurator::configure()
 	catch(const std::exception & e)
 	{
 		logGlobal->error("Could not initialize the logging system due to configuration error/s."
-								     "The logging system can be in a corrupted state. %s", e.what());
+				 "The logging system can be in a corrupted state. %s", e.what());
 	}
 
 	logGlobal->info("Initialized logging system based on settings successfully.");
-	for (auto& domain : CLogManager::get().getRegisteredDomains())
+	for(auto & domain : CLogManager::get().getRegisteredDomains())
 	{
 		logGlobal->info("[log level] %s => %s", domain,
-                    ELogLevel::to_string(CLogger::getLogger(CLoggerDomain(domain))->getLevel()));
+				ELogLevel::to_string(CLogger::getLogger(CLoggerDomain(domain))->getLevel()));
 	}
 }
 
@@ -111,7 +114,7 @@ ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & leve
 		{"warn", ELogLevel::WARN},
 		{"error", ELogLevel::ERROR},
 	};
-	
+
 	const auto & levelPair = levelMap.find(level);
 	if(levelPair != levelMap.end())
 		return levelPair->second;

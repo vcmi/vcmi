@@ -13,12 +13,12 @@
 #include "BinaryDeserializer.h"
 
 /// Serializer that stores objects in the dynamic buffer. Allows performing deep object copies.
-class DLL_LINKAGE CMemorySerializer
-	: public IBinaryReader, public IBinaryWriter
+class DLL_LINKAGE CMemorySerializer : public IBinaryReader, public IBinaryWriter
 {
 	std::vector<ui8> buffer;
 
 	size_t readPos; //index of the next byte to be read
+
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
@@ -28,11 +28,11 @@ public:
 
 	CMemorySerializer();
 
-	template <typename T>
-	static std::unique_ptr<T> deepCopy(const T &data)
+	template<typename T>
+	static std::unique_ptr<T> deepCopy(const T & data)
 	{
 		CMemorySerializer mem;
-		mem.oser & &data;
+		mem.oser & & data;
 
 		std::unique_ptr<T> ret;
 		mem.iser & ret;

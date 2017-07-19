@@ -32,7 +32,7 @@ public:
 
 ///redirects back to minizip ioapi
 //todo: replace with Virtual FileSystem interface
-class DLL_LINKAGE CDefaultIOApi: public CIOApi
+class DLL_LINKAGE CDefaultIOApi : public CIOApi
 {
 public:
 	CDefaultIOApi();
@@ -42,13 +42,14 @@ public:
 };
 
 ///redirects all file IO to single stream
-class DLL_LINKAGE CProxyIOApi: public CIOApi
+class DLL_LINKAGE CProxyIOApi : public CIOApi
 {
 public:
 	CProxyIOApi(CInputOutputStream * buffer);
 	~CProxyIOApi();
 
 	zlib_filefunc64_def getApiStructure() override;
+
 private:
 	CInputOutputStream * openFile(const boost::filesystem::path & filename, int mode);
 
@@ -58,19 +59,20 @@ private:
 	static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size);
 	static uLong ZCALLBACK writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size);
 	static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream);
-	static long ZCALLBACK seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin);
+	static long ZCALLBACK seekFileProxy(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin);
 	static int ZCALLBACK closeFileProxy(voidpf opaque, voidpf stream);
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
 };
 
 ///redirects all file IO to single stream read-only
-class DLL_LINKAGE CProxyROIOApi: public CIOApi
+class DLL_LINKAGE CProxyROIOApi : public CIOApi
 {
 public:
 	CProxyROIOApi(CInputStream * buffer);
 	~CProxyROIOApi();
 
 	zlib_filefunc64_def getApiStructure() override;
+
 private:
 	CInputStream * openFile(const boost::filesystem::path & filename, int mode);
 
@@ -80,8 +82,7 @@ private:
 	static uLong ZCALLBACK readFileProxy(voidpf opaque, voidpf stream, void * buf, uLong size);
 	static uLong ZCALLBACK writeFileProxy(voidpf opaque, voidpf stream, const void * buf, uLong size);
 	static ZPOS64_T ZCALLBACK tellFileProxy(voidpf opaque, voidpf stream);
-	static long ZCALLBACK seekFileProxy(voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin);
+	static long ZCALLBACK seekFileProxy(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin);
 	static int ZCALLBACK closeFileProxy(voidpf opaque, voidpf stream);
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
 };
-

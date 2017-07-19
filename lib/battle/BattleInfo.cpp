@@ -32,15 +32,15 @@ int BattleInfo::getAvaliableHex(CreatureID creID, ui8 side, int initialPos) cons
 	//bool flying = VLC->creh->creatures[creID]->isFlying();
 
 	int pos;
-	if (initialPos > -1)
+	if(initialPos > -1)
 		pos = initialPos;
 	else //summon elementals depending on player side
 	{
- 		if(side == BattleSide::ATTACKER)
-	 		pos = 0; //top left
- 		else
- 			pos = GameConstants::BFIELD_WIDTH - 1; //top right
- 	}
+		if(side == BattleSide::ATTACKER)
+			pos = 0; //top left
+		else
+			pos = GameConstants::BFIELD_WIDTH - 1; //top right
+	}
 
 	auto accessibility = getAccesibility();
 
@@ -49,7 +49,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, ui8 side, int initialPos) cons
 		if(accessibility.accessible(i, twoHex, side))
 			occupyable.insert(i);
 
-	if (occupyable.empty())
+	if(occupyable.empty())
 	{
 		return BattleHex::INVALID; //all tiles are covered
 	}
@@ -57,7 +57,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, ui8 side, int initialPos) cons
 	return BattleHex::getClosestTile(side, pos, occupyable);
 }
 
-std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
+std::pair<std::vector<BattleHex>, int> BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
 {
 	auto reachability = getReachability(stack);
 
@@ -78,8 +78,7 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 	return std::make_pair(path, reachability.distances[dest]);
 }
 
-ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender,
-	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand)
+ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand)
 {
 	BattleAttackInfo bai(attacker, defender, shooting);
 	bai.chargedFields = charge;
@@ -94,7 +93,7 @@ ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender,
 	{
 		ui32 sum = 0;
 		ui32 howManyToAv = std::min<ui32>(10, attacker->getCount());
-		for(int g=0; g<howManyToAv; ++g)
+		for(int g = 0; g < howManyToAv; ++g)
 			sum += (ui32)rand.nextInt(range.first, range.second);
 
 		return sum / howManyToAv;
@@ -103,9 +102,9 @@ ui32 BattleInfo::calculateDmg(const CStack * attacker, const CStack * defender,
 		return range.first;
 }
 
-void BattleInfo::calculateCasualties(std::map<ui32,si32> * casualties) const
+void BattleInfo::calculateCasualties(std::map<ui32, si32> * casualties) const
 {
-	for(auto & elem : stacks)//setting casualties
+	for(auto & elem : stacks) //setting casualties
 	{
 		const CStack * const st = elem;
 		si32 killed = st->getKilled();
@@ -119,7 +118,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance & base, ui8 side, Slo
 	int stackID = getIdForNewStack();
 	PlayerColor owner = sides[side].color;
 	assert((owner >= PlayerColor::PLAYER_LIMIT) ||
-		(base.armyObj && base.armyObj->tempOwner == owner));
+	       (base.armyObj && base.armyObj->tempOwner == owner));
 
 	auto ret = new CStack(&base, owner, stackID, side, slot);
 	ret->position = getAvaliableHex(base.getCreatureID(), side, position); //TODO: what if no free tile on battlefield was found?
@@ -154,19 +153,19 @@ void BattleInfo::localInit()
 
 namespace CGH
 {
-	static void readBattlePositions(const JsonNode &node, std::vector< std::vector<int> > & dest)
+static void readBattlePositions(const JsonNode & node, std::vector<std::vector<int>> & dest)
+{
+	for(const JsonNode & level : node.Vector())
 	{
-		for(const JsonNode &level : node.Vector())
+		std::vector<int> pom;
+		for(const JsonNode & value : level.Vector())
 		{
-			std::vector<int> pom;
-			for(const JsonNode &value : level.Vector())
-			{
-				pom.push_back(value.Float());
-			}
-
-			dest.push_back(pom);
+			pom.push_back(value.Float());
 		}
+
+		dest.push_back(pom);
 	}
+}
 }
 
 //RNG that works like H3 one
@@ -203,11 +202,8 @@ struct RangeGenerator
 	{
 	};
 
-	RangeGenerator(int _min, int _max, std::function<int()> _myRand):
-		min(_min),
-		remainingCount(_max - _min + 1),
-		remaining(remainingCount, true),
-		myRand(_myRand)
+	RangeGenerator(int _min, int _max, std::function<int()> _myRand)
+		: min(_min), remainingCount(_max - _min + 1), remaining(remainingCount, true), myRand(_myRand)
 	{
 	}
 
@@ -228,7 +224,7 @@ struct RangeGenerator
 		{
 			int n = generateNumber();
 			int i = 0;
-			for(;;i++)
+			for(;; i++)
 			{
 				assert(i < (int)remaining.size());
 				if(!remaining[i])
@@ -241,7 +237,8 @@ struct RangeGenerator
 			remainingCount--;
 			remaining[i] = false;
 			ret = i + min;
-		} while(goodNumberPred && !goodNumberPred(ret));
+		}
+		while(goodNumberPred && !goodNumberPred(ret));
 		return ret;
 	}
 
@@ -259,7 +256,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		curB->sides[i].init(heroes[i], armies[i]);
 
 
-	std::vector<CStack*> & stacks = (curB->stacks);
+	std::vector<CStack *> & stacks = (curB->stacks);
 
 	curB->tile = tile;
 	curB->battlefieldType = battlefieldType;
@@ -278,21 +275,21 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	}
 
 	//setting up siege obstacles
-	if (town && town->hasFort())
+	if(town && town->hasFort())
 	{
 		curB->si.gateState = EGateState::CLOSED;
 
-		for (int b = 0; b < curB->si.wallState.size(); ++b)
+		for(int b = 0; b < curB->si.wallState.size(); ++b)
 		{
 			curB->si.wallState[b] = EWallState::INTACT;
 		}
 
-		if (!town->hasBuilt(BuildingID::CITADEL))
+		if(!town->hasBuilt(BuildingID::CITADEL))
 		{
 			curB->si.wallState[EWallPart::KEEP] = EWallState::NONE;
 		}
 
-		if (!town->hasBuilt(BuildingID::CASTLE))
+		if(!town->hasBuilt(BuildingID::CASTLE))
 		{
 			curB->si.wallState[EWallPart::UPPER_TOWER] = EWallState::NONE;
 			curB->si.wallState[EWallPart::BOTTOM_TOWER] = EWallState::NONE;
@@ -300,31 +297,31 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	}
 
 	//randomize obstacles
- 	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
- 	{
+	if(town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
+	{
 		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
 
 		RandGen r;
 		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
-		r.rand(1,8); //battle sound ID to play... can't do anything with it here
-		int tilesToBlock = r.rand(5,12);
+		r.rand(1, 8); //battle sound ID to play... can't do anything with it here
+		int tilesToBlock = r.rand(5, 12);
 		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
 
 		std::vector<BattleHex> blockedTiles;
 
 		auto appropriateAbsoluteObstacle = [&](int id)
-		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
-		};
+			{
+				return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			};
 		auto appropriateUsualObstacle = [&](int id) -> bool
-		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
-		};
+			{
+				return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			};
 
-		if(r.rand(1,100) <= 40) //put cliff-like obstacle
+		if(r.rand(1, 100) <= 40) //put cliff-like obstacle
 		{
-			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
+			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT - 1, ourRand);
 
 			try
 			{
@@ -345,39 +342,39 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 			}
 		}
 
-		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
+		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT - 1, ourRand);
 		try
 		{
 			while(tilesToBlock > 0)
-			{				
+			{
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
-				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
+				const CObstacleInfo & obi = VLC->heroh->obstacles[obid];
 
 				auto validPosition = [&](BattleHex pos) -> bool
-				{
-					if(obi.height >= pos.getY())
-						return false;
-					if(pos.getX() == 0)
-						return false;
-					if(pos.getX() + obi.width > 15)
-						return false;
-					if(vstd::contains(blockedTiles, pos))
-						return false;
-
-					for(BattleHex blocked : obi.getBlocked(pos))
 					{
-						if(tileAccessibility[blocked] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
+						if(obi.height >= pos.getY())
 							return false;
-						if(vstd::contains(blockedTiles, blocked))
+						if(pos.getX() == 0)
 							return false;
-						int x = blocked.getX();
-						if(x <= 2 || x >= 14)
+						if(pos.getX() + obi.width > 15)
 							return false;
-					}
+						if(vstd::contains(blockedTiles, pos))
+							return false;
 
-					return true;
-				};
+						for(BattleHex blocked : obi.getBlocked(pos))
+						{
+							if(tileAccessibility[blocked] == EAccessibility::UNAVAILABLE) //for ship-to-ship battlefield - exclude hardcoded unavailable tiles
+								return false;
+							if(vstd::contains(blockedTiles, blocked))
+								return false;
+							int x = blocked.getX();
+							if(x <= 2 || x >= 14)
+								return false;
+						}
+
+						return true;
+					};
 
 				RangeGenerator posgenerator(18, 168, ourRand);
 
@@ -400,10 +397,10 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 
 	//reading battleStartpos - add creatures AFTER random obstacles are generated
 	//TODO: parse once to some structure
-	std::vector< std::vector<int> > looseFormations[2], tightFormations[2], creBankFormations[2];
-	std::vector <int> commanderField, commanderBank;
+	std::vector<std::vector<int>> looseFormations[2], tightFormations[2], creBankFormations[2];
+	std::vector<int> commanderField, commanderBank;
 	const JsonNode config(ResourceID("config/battleStartpos.json"));
-	const JsonVector &positions = config["battle_positions"].Vector();
+	const JsonVector & positions = config["battle_positions"].Vector();
 
 	CGH::readBattlePositions(positions[0]["levels"], looseFormations[0]);
 	CGH::readBattlePositions(positions[1]["levels"], looseFormations[1]);
@@ -412,13 +409,13 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	CGH::readBattlePositions(positions[4]["levels"], creBankFormations[0]);
 	CGH::readBattlePositions(positions[5]["levels"], creBankFormations[1]);
 
-	for (auto position : config["commanderPositions"]["field"].Vector())
+	for(auto position : config["commanderPositions"]["field"].Vector())
 	{
-		commanderField.push_back (position.Float());
+		commanderField.push_back(position.Float());
 	}
-	for (auto position : config["commanderPositions"]["creBank"].Vector())
+	for(auto position : config["commanderPositions"]["creBank"].Vector())
 	{
-		commanderBank.push_back (position.Float());
+		commanderBank.push_back(position.Float());
 	}
 
 
@@ -426,18 +423,18 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, ArtifactPosition artslot, BattleHex hex)
-		{
-			const CArtifactInstance * warMachineArt = heroes[side]->getArt(artslot);
-
-			if(nullptr != warMachineArt)
+		auto handleWarMachine = [&](int side, ArtifactPosition artslot, BattleHex hex)
 			{
-				CreatureID cre = warMachineArt->artType->warMachine;
+				const CArtifactInstance * warMachineArt = heroes[side]->getArt(artslot);
 
-				if(cre != CreatureID::NONE)
-					stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex));
-			}
-		};
+				if(nullptr != warMachineArt)
+				{
+					CreatureID cre = warMachineArt->artType->warMachine;
+
+					if(cre != CreatureID::NONE)
+						stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cre, 1), side, SlotID::WAR_MACHINES_SLOT, hex));
+				}
+			};
 
 		if(heroes[0])
 		{
@@ -468,7 +465,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		int k = 0; //stack serial
 		for(auto i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
 		{
-			std::vector<int> *formationVector = nullptr;
+			std::vector<int> * formationVector = nullptr;
 			if(creatureBank)
 				formationVector = &creBankFormations[side][formationNo];
 			else if(armies[side]->formation)
@@ -486,24 +483,24 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	}
 
 	//adding commanders
-	for (int i = 0; i < 2; ++i)
+	for(int i = 0; i < 2; ++i)
 	{
-		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
+		if(heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
 		{
-			CStack * stack = curB->generateNewStack (*heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
-				creatureBank ? commanderBank[i] : commanderField[i]);
+			CStack * stack = curB->generateNewStack(*heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
+								creatureBank ? commanderBank[i] : commanderField[i]);
 			stacks.push_back(stack);
 		}
 
 	}
 
-	if (curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
+	if(curB->town && curB->town->fortLevel() >= CGTownInstance::CITADEL)
 	{
 		// keep tower
 		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, -2);
 		stacks.push_back(stack);
 
-		if (curB->town->fortLevel() >= CGTownInstance::CASTLE)
+		if(curB->town->fortLevel() >= CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
 			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), 1, SlotID::ARROW_TOWERS_SLOT, -4);
@@ -520,11 +517,11 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		curB->obstacles.push_back(moat);
 	}
 
-	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+	std::stable_sort(stacks.begin(), stacks.end(), cmpst);
 
 	//spell level limiting bonus
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,
-		0, -1, -1, Bonus::INDEPENDENT_MAX));
+						  0, -1, -1, Bonus::INDEPENDENT_MAX));
 
 	auto neutral = std::make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL);
 	auto good = std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD);
@@ -535,54 +532,58 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	switch(battlefieldType)
 	{
 	case BFieldType::MAGIC_PLAINS:
-		{
-			bonusSubtype = 0;
-		}
+	{
+		bonusSubtype = 0;
+	}
 	case BFieldType::FIERY_FIELDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 1;
-		}
+	{
+		if(bonusSubtype == -1)
+			bonusSubtype = 1;
+	}
 	case BFieldType::ROCKLANDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 8;
-		}
+	{
+		if(bonusSubtype == -1)
+			bonusSubtype = 8;
+	}
 	case BFieldType::MAGIC_CLOUDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 2;
-		}
+	{
+		if(bonusSubtype == -1)
+			bonusSubtype = 2;
+	}
 	case BFieldType::LUCID_POOLS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 4;
-		}
+	{
+		if(bonusSubtype == -1)
+			bonusSubtype = 4;
+	}
 
 		{ //common part for cases 9, 14, 15, 16, 17
 			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
 			break;
 		}
 	case BFieldType::HOLY_GROUND:
-		{
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(evil));
-			break;
-		}
+	{
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(evil));
+		break;
+	}
 	case BFieldType::CLOVER_FIELD:
-		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, 0)->addLimiter(neutral));
-			break;
-		}
+	{ //+2 luck bonus for neutral creatures
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, 0)->addLimiter(neutral));
+		break;
+	}
 	case BFieldType::EVIL_FOG:
-		{
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(evil));
-			break;
-		}
+	{
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, 0)->addLimiter(evil));
+		break;
+	}
 	case BFieldType::CURSED_GROUND:
-		{
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
-			break;
-		}
+	{
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
+		break;
+	}
 	}
 	//overlay premies given
 
@@ -608,7 +609,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	if(tacticsSkillDiff && isTacticsAllowed)
 	{
 		curB->tacticsSide = tacticsSkillDiff < 0;
-		curB->tacticDistance = std::abs(tacticsSkillDiff)*2 + 1;
+		curB->tacticDistance = std::abs(tacticsSkillDiff) * 2 + 1;
 	}
 	else
 		curB->tacticDistance = 0;
@@ -619,11 +620,11 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	{
 		TNodes nodes;
 		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
-		for(CBonusSystemNode *n : nodes)
+		for(CBonusSystemNode * n : nodes)
 		{
 			for(auto b : n->getExportedBonusList())
 			{
-				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
+				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY /* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
 				{
 					auto bCopy = std::make_shared<Bonus>(*b);
 					bCopy->effectRange = Bonus::NO_LIMIT;
@@ -669,7 +670,7 @@ int BattleInfo::getIdForNewStack() const
 	{
 		//stacks vector may be sorted not by ID and they may be not contiguous -> find stack with max ID
 		auto highestIDStack = *std::max_element(stacks.begin(), stacks.end(),
-								[](const CStack *a, const CStack *b) { return a->ID < b->ID; });
+							[](const CStack * a, const CStack * b) { return a->ID < b->ID; });
 
 		return highestIDStack->ID + 1;
 	}
@@ -679,7 +680,7 @@ int BattleInfo::getIdForNewStack() const
 
 std::shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
-	for(auto &obs : obstacles)
+	for(auto & obs : obstacles)
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
@@ -716,9 +717,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 }
 
 BattleInfo::BattleInfo()
-	: round(-1), activeStack(-1), selectedStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG),
-	tacticsSide(0), tacticDistance(0)
+	: round(-1), activeStack(-1), selectedStack(-1), town(nullptr), tile(-1, -1, -1), battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG), tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);
 	setNodeType(BATTLE);
@@ -726,39 +725,39 @@ BattleInfo::BattleInfo()
 
 CArmedInstance * BattleInfo::battleGetArmyObject(ui8 side) const
 {
-	return const_cast<CArmedInstance*>(CBattleInfoEssentials::battleGetArmyObject(side));
+	return const_cast<CArmedInstance *>(CBattleInfoEssentials::battleGetArmyObject(side));
 }
 
 CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 {
-	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
+	return const_cast<CGHeroInstance *>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
 
-bool CMP_stack::operator()(const CStack* a, const CStack* b)
+bool CMP_stack::operator()(const CStack * a, const CStack * b)
 {
 	switch(phase)
 	{
 	case 0: //catapult moves after turrets
 		return a->getCreature()->idNumber > b->getCreature()->idNumber; //catapult is 145 and turrets are 149
 	case 1: //fastest first, upper slot first
-		{
-			int as = a->Speed(turn), bs = b->Speed(turn);
-			if(as != bs)
-				return as > bs;
-			else
-				return a->slot < b->slot;
-		}
+	{
+		int as = a->Speed(turn), bs = b->Speed(turn);
+		if(as != bs)
+			return as > bs;
+		else
+			return a->slot < b->slot;
+	}
 	case 2: //fastest last, upper slot first
-		//TODO: should be replaced with order of receiving morale!
+	//TODO: should be replaced with order of receiving morale!
 	case 3: //fastest last, upper slot first
-		{
-			int as = a->Speed(turn), bs = b->Speed(turn);
-			if(as != bs)
-				return as < bs;
-			else
-				return a->slot < b->slot;
-		}
+	{
+		int as = a->Speed(turn), bs = b->Speed(turn);
+		if(as != bs)
+			return as < bs;
+		else
+			return a->slot < b->slot;
+	}
 	default:
 		assert(0);
 		return false;

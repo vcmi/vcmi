@@ -34,6 +34,7 @@ class CMap;
 
 
 //a class for non-mechanical client GUI classes
+
 class CClientState
 {
 public:
@@ -43,10 +44,12 @@ public:
 	CCursorHandler * curh;
 	IMainVideoPlayer * videoh;
 };
+
 extern CClientState * CCS;
 
 /// CGameInfo class
 /// for allowing different functions for accessing game informations
+
 class CGameInfo
 {
 public:
@@ -67,4 +70,5 @@ public:
 
 	CGameInfo();
 };
-extern const CGameInfo* CGI;
+
+extern const CGameInfo * CGI;

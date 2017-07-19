@@ -45,4 +45,3 @@ private:
 protected:
 	std::map<std::string, CRmgTemplate *> templates;
 };
-

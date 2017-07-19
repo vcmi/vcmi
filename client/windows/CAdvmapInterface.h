@@ -42,15 +42,14 @@ enum class EAdvMapMode
 class CAdventureOptions : public CWindowObject
 {
 public:
-	CButton *exit, *viewWorld, *puzzle, *dig, *scenInfo/*, *replay*/;
+	CButton * exit, * viewWorld, * puzzle, * dig, * scenInfo /*, *replay*/;
 
 	CAdventureOptions();
 	static void showScenarioInfo();
 };
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
-class CTerrainRect
-	:  public CIntObject
+class CTerrainRect : public CIntObject
 {
 	SDL_Surface * fadeSurface;
 	EMapAnimRedrawStatus lastRedrawStatus;
@@ -65,6 +64,7 @@ class CTerrainRect
 	void handleSwipeMove(const SDL_MouseMotionEvent & sEvent);
 	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
 	bool handleSwipeStateChange(bool btnPressed);
+
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
@@ -78,7 +78,7 @@ public:
 	void clickRight(tribool down, bool previousState) override;
 	void clickMiddle(tribool down, bool previousState) override;
 	void hover(bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved(const SDL_MouseMotionEvent & sEvent) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void showAnim(SDL_Surface * to);
@@ -99,12 +99,12 @@ class CResDataBar : public CIntObject
 {
 public:
 	SDL_Surface * bg;
-	std::vector<std::pair<int,int> > txtpos;
+	std::vector<std::pair<int, int>> txtpos;
 	std::string datetext;
 
 	void clickRight(tribool down, bool previousState) override;
 	CResDataBar();
-	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
+	CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
 
 	void draw(SDL_Surface * to);
@@ -118,7 +118,7 @@ public:
 class CAdvMapInt : public CIntObject
 {
 	//Return object that must be active at this tile (=clickable)
-	const CGObjectInstance *getActiveObject(const int3 &tile);
+	const CGObjectInstance * getActiveObject(const int3 & tile);
 
 public:
 	CAdvMapInt();
@@ -129,14 +129,25 @@ public:
 
 	bool duringAITurn;
 
-	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
+	enum
+	{
+		LEFT=1,
+		RIGHT=2,
+		UP=4,
+		DOWN=8
+	};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
 	bool scrollingState;
 	bool swipeEnabled;
 	bool swipeMovementRequested;
 	int3 swipeTargetPosition;
 
-	enum{NA, INGAME, WAITING} state;
+	enum
+	{
+		NA,
+		INGAME,
+		WAITING
+	} state;
 
 	bool updateScreen;
 	ui8 anim, animValHitCount; //animation frame
@@ -185,15 +196,15 @@ public:
 	CTownList townList;
 	CInfoBar infoBar;
 
-	CAdvMapPanel *panelMain; // panel that holds all right-side buttons in normal view
-	CAdvMapWorldViewPanel *panelWorldView; // panel that holds all buttons and other ui in world view
-	CAdvMapPanel *activeMapPanel; // currently active panel (either main or world view, depending on current mode)
+	CAdvMapPanel * panelMain; // panel that holds all right-side buttons in normal view
+	CAdvMapWorldViewPanel * panelWorldView; // panel that holds all buttons and other ui in world view
+	CAdvMapPanel * activeMapPanel; // currently active panel (either main or world view, depending on current mode)
 
-	std::shared_ptr<CAnimation> worldViewIcons;// images for world view overlay
+	std::shared_ptr<CAnimation> worldViewIcons; // images for world view overlay
 
-	const CSpell *spellBeingCasted; //nullptr if none
+	const CSpell * spellBeingCasted; //nullptr if none
 
-	const CArmedInstance *selection; //currently selected town/hero
+	const CArmedInstance * selection; //currently selected town/hero
 
 	//functions bound to buttons
 	void fshowOverview();
@@ -217,18 +228,18 @@ public:
 	void show(SDL_Surface * to) override; //redraws terrain
 	void showAll(SDL_Surface * to) override; //shows and activates adv. map interface
 
-	void select(const CArmedInstance *sel, bool centerView = true);
+	void select(const CArmedInstance * sel, bool centerView = true);
 	void selectionChanged();
 	void centerOn(int3 on, bool fade = false);
-	void centerOn(const CGObjectInstance *obj, bool fade = false);
+	void centerOn(const CGObjectInstance * obj, bool fade = false);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down);
 	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved(const SDL_MouseMotionEvent & sEvent) override;
 	bool isActive();
 
-	bool isHeroSleeping(const CGHeroInstance *hero);
-	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
+	bool isHeroSleeping(const CGHeroInstance * hero);
+	void setHeroSleeping(const CGHeroInstance * hero, bool sleep);
 	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
 
 	void setPlayer(PlayerColor Player);
@@ -240,19 +251,19 @@ public:
 	void adjustActiveness(bool aiTurnStart); //should be called every time at AI/human turn transition; blocks GUI during AI turn
 	void quickCombatLock(); //should be called when quick battle started
 	void quickCombatUnlock();
-	void tileLClicked(const int3 &mapPos);
-	void tileHovered(const int3 &mapPos);
-	void tileRClicked(const int3 &mapPos);
+	void tileLClicked(const int3 & mapPos);
+	void tileHovered(const int3 & mapPos);
+	void tileRClicked(const int3 & mapPos);
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
 	const CGHeroInstance * curHero() const;
 	const CGTownInstance * curTown() const;
-	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
+	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance * obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or nullptr else
 	//button updates
-	void updateSleepWake(const CGHeroInstance *h);
-	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
-	void updateSpellbook(const CGHeroInstance *h);
-	void updateNextHero(const CGHeroInstance *h);
+	void updateSleepWake(const CGHeroInstance * h);
+	void updateMoveHero(const CGHeroInstance * h, tribool hasPath = boost::logic::indeterminate);
+	void updateSpellbook(const CGHeroInstance * h);
+	void updateNextHero(const CGHeroInstance * h);
 
 	/// changes current adventure map mode; used to switch between default view and world view; scale is ignored if EAdvMapMode == NORMAL
 	void changeMode(EAdvMapMode newMode, float newScale = 0.36f);
@@ -262,4 +273,4 @@ public:
 
 };
 
-extern CAdvMapInt *adventureInt;
+extern CAdvMapInt * adventureInt;

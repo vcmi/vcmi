@@ -12,7 +12,7 @@
 
 int AttackPossibility::damageDiff() const
 {
-	if (!priorities)
+	if(!priorities)
 		priorities = new Priorities();
 	const auto dealtDmgValue = priorities->stackEvaluator(enemy) * damageDealt;
 	const auto receivedDmgValue = priorities->stackEvaluator(attack.attacker) * damageReceived;
@@ -24,21 +24,21 @@ int AttackPossibility::attackValue() const
 	return damageDiff() + tacticImpact;
 }
 
-AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo, const HypotheticChangesToBattleState &state, BattleHex hex)
+AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & AttackInfo, const HypotheticChangesToBattleState & state, BattleHex hex)
 {
 	auto attacker = AttackInfo.attacker;
 	auto enemy = AttackInfo.defender;
 
 	const int remainingCounterAttacks = getValOr(state.counterAttacksLeft, enemy, enemy->counterAttacks.available());
 	const bool counterAttacksBlocked = attacker->hasBonusOfType(Bonus::BLOCKS_RETALIATION) || enemy->hasBonusOfType(Bonus::NO_RETALIATION);
-	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange (Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
+	const int totalAttacks = 1 + AttackInfo.attackerBonuses->getBonuses(Selector::type(Bonus::ADDITIONAL_ATTACK), (Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))))->totalValue();
 
 	AttackPossibility ap = {enemy, hex, AttackInfo, 0, 0, 0};
 
 	auto curBai = AttackInfo; //we'll modify here the stack counts
-	for(int i  = 0; i < totalAttacks; i++)
+	for(int i = 0; i < totalAttacks; i++)
 	{
-		std::pair<ui32, ui32> retaliation(0,0);
+		std::pair<ui32, ui32> retaliation(0, 0);
 		auto attackDmg = getCbc()->battleEstimateDamage(CRandomGenerator::getDefault(), curBai, &retaliation);
 		ap.damageDealt = (attackDmg.first + attackDmg.second) / 2;
 		ap.damageReceived = (retaliation.first + retaliation.second) / 2;
@@ -59,4 +59,4 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo &AttackInfo
 }
 
 
-Priorities* AttackPossibility::priorities = nullptr;
+Priorities * AttackPossibility::priorities = nullptr;

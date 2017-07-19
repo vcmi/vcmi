@@ -15,9 +15,8 @@ class CStack;
 class StackWithBonuses : public IBonusBearer
 {
 public:
-	const CStack *stack;
+	const CStack * stack;
 	mutable std::vector<Bonus> bonusesToAdd;
 
-	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit,
-						  const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+	virtual const TBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
 };

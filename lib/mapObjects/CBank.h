@@ -33,14 +33,14 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 	std::string getHoverText(PlayerColor player) const override;
 	void newTurn(CRandomGenerator & rand) const override;
-	bool wasVisited (PlayerColor player) const override;
+	bool wasVisited(PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
+	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
+	void blockingDialogAnswered(const CGHeroInstance * hero, ui32 answer) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CArmedInstance &>(*this);
 		h & daycounter & bc & resetDuration;
 	}
 

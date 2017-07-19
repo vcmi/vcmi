@@ -22,7 +22,13 @@ class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base fo
 public:
 	enum EType
 	{
-		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
+		RESOURCE,
+		PLAYER,
+		ARTIFACT_TYPE,
+		CREATURE,
+		CREATURE_PLACEHOLDER,
+		ARTIFACT_PLACEHOLDER,
+		ARTIFACT_INSTANCE
 	};
 	class CTradeableItem : public CIntObject
 	{
@@ -30,8 +36,9 @@ public:
 
 		std::string getFilename();
 		int getIndex();
-	public:
-		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact
+
+public:
+		const CArtifactInstance * hlp; //holds ptr to artifact instance id type artifact
 		EType type;
 		int id;
 		const int serial;
@@ -41,53 +48,53 @@ public:
 		void setType(EType newType);
 		void setID(int newID);
 
-		const CArtifactInstance *getArtInstance() const;
-		void setArtInstance(const CArtifactInstance *art);
+		const CArtifactInstance * getArtInstance() const;
+		void setArtInstance(const CArtifactInstance * art);
 
 		CFunctionList<void()> callback;
 		bool downSelection;
 
-		void showAllAt(const Point &dstPos, const std::string &customSub, SDL_Surface * to);
+		void showAllAt(const Point & dstPos, const std::string & customSub, SDL_Surface * to);
 
 		void clickRight(tribool down, bool previousState) override;
-		void hover (bool on) override;
+		void hover(bool on) override;
 		void showAll(SDL_Surface * to) override;
 		void clickLeft(tribool down, bool previousState) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};
 
-	const IMarket *market;
-	const CGHeroInstance *hero;
+	const IMarket * market;
+	const CGHeroInstance * hero;
 
-	CArtifactsOfHero *arts;
+	CArtifactsOfHero * arts;
 	//all indexes: 1 = left, 0 = right
-	std::vector<CTradeableItem*> items[2];
-	CTradeableItem *hLeft, *hRight; //highlighted items (nullptr if no highlight)
+	std::vector<CTradeableItem *> items[2];
+	CTradeableItem * hLeft, * hRight; //highlighted items (nullptr if no highlight)
 	EType itemsType[2];
 
-	EMarketMode::EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-	CButton *ok, *max, *deal;
-	CSlider *slider; //for choosing amount to be exchanged
+	EMarketMode::EMarketMode mode; //0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
+	CButton * ok, * max, * deal;
+	CSlider * slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
+	CTradeWindow(std::string bgName, const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode); //c
 
 	void showAll(SDL_Surface * to) override;
 
 	void initSubs(bool Left);
 	void initTypes();
 	void initItems(bool Left);
-	std::vector<int> *getItemsIds(bool Left); //nullptr if default
-	void getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const;
-	void removeItems(const std::set<CTradeableItem *> &toRemove);
+	std::vector<int> * getItemsIds(bool Left); //nullptr if default
+	void getPositionsFor(std::vector<Rect> & poss, bool Left, EType type) const;
+	void removeItems(const std::set<CTradeableItem *> & toRemove);
 	void removeItem(CTradeableItem * t);
-	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
+	void getEmptySlots(std::set<CTradeableItem *> & toRemove);
 	void setMode(EMarketMode::EMarketMode Mode); //mode setter
 
-	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
+	void artifactSelected(CHeroArtPlace * slot); //used when selling artifacts -> called when user clicked on artifact slot
 
-	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
+	virtual void getBaseForPositions(EType type, int & dx, int & dy, int & x, int & y, int & h, int & w, bool Right, int & leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;
 	virtual std::string selectionSubtitle(bool Left) const = 0;
@@ -100,16 +107,17 @@ class CMarketplaceWindow : public CTradeWindow
 	bool printButtonFor(EMarketMode::EMarketMode M) const;
 
 	std::string getBackgroundForMode(EMarketMode::EMarketMode mode);
+
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
-	CTextBox *traderText;
+	CTextBox * traderText;
 
 	void setMax();
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side) override; //true == left
-	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE);
+	CMarketplaceWindow(const IMarket * Market, const CGHeroInstance * Hero = nullptr, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE);
 	~CMarketplaceWindow();
 
 	Point selectionOffset(bool Left) const override;
@@ -120,24 +128,25 @@ public:
 	void artifactsChanged(bool left) override;
 	void resourceChanged();
 
-	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
+	void getBaseForPositions(EType type, int & dx, int & dy, int & x, int & y, int & h, int & w, bool Right, int & leftToRightOffset) const override;
 	void updateTraderText();
 };
 
 class CAltarWindow : public CTradeWindow
 {
 	CAnimImage * artIcon;
+
 public:
-	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode);
+	CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, EMarketMode::EMarketMode Mode);
 
 	void getExpValues();
 	~CAltarWindow();
 
 	std::vector<int> sacrificedUnits, //[slot_nr] -> how many creatures from that slot will be sacrificed
-		expPerUnit;
+			 expPerUnit;
 
-	CButton *sacrificeAll, *sacrificeBackpack;
-	CLabel *expToLevel, *expOnAltar;
+	CButton * sacrificeAll, * sacrificeBackpack;
+	CLabel * expToLevel, * expOnAltar;
 
 
 	void selectionChanged(bool side) override; //true == left
@@ -145,13 +154,13 @@ public:
 	void SacrificeBackpack();
 
 	void putOnAltar(int backpackIndex);
-	bool putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance *art);
+	bool putOnAltar(CTradeableItem * altarSlot, const CArtifactInstance * art);
 	void makeDeal();
 	void showAll(SDL_Surface * to) override;
 
 	void blockTrade();
 	void sliderMoved(int to);
-	void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const override;
+	void getBaseForPositions(EType type, int & dx, int & dy, int & x, int & y, int & h, int & w, bool Right, int & leftToRightOffset) const override;
 	void mimicCres();
 
 	Point selectionOffset(bool Left) const override;
@@ -160,9 +169,9 @@ public:
 	void artifactsChanged(bool left) override;
 	void calcTotalExp();
 	void setExpToLevel();
-	void updateRight(CTradeableItem *toUpdate);
+	void updateRight(CTradeableItem * toUpdate);
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
+	void moveFromSlotToAltar(ArtifactPosition slotID, CTradeableItem * altarSlot, const CArtifactInstance * art);
 };

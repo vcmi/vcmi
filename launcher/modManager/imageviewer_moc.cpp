@@ -14,9 +14,8 @@
 #include "imageviewer_moc.h"
 #include "ui_imageviewer_moc.h"
 
-ImageViewer::ImageViewer(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ImageViewer)
+ImageViewer::ImageViewer(QWidget * parent)
+	: QDialog(parent), ui(new Ui::ImageViewer)
 {
 	ui->setupUi(this);
 }
@@ -32,7 +31,7 @@ QSize ImageViewer::calculateWindowSize()
 	return desktop.availableGeometry(desktop.primaryScreen()).size() * 0.8;
 }
 
-void ImageViewer::showPixmap(QPixmap & pixmap, QWidget *parent)
+void ImageViewer::showPixmap(QPixmap & pixmap, QWidget * parent)
 {
 	assert(!pixmap.isNull());
 

@@ -17,115 +17,115 @@ const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::pattern
 	//single tile. fall-back pattern
 	{
 		{
-          "-","-","-",
-          "-","+","-",
-          "-","-","-"
-        },
-        {14,14},
-        {9,9},
-        false,
-        false
+			"-", "-", "-",
+			"-", "+", "-",
+			"-", "-", "-"
+		},
+		{14, 14},
+		{9, 9},
+		false,
+		false
 	},
 	//Road straight with angle
 	{
 		{
-          "?","-","+",
-          "-","+","+",
-          "+","+","?"
-        },
-        {2,5},
-        {-1,-1},
-        true,
-        true
+			"?", "-", "+",
+			"-", "+", "+",
+			"+", "+", "?"
+		},
+		{2, 5},
+		{-1, -1},
+		true,
+		true
 	},
 	//Turn
 	{
 		{
-          "?","-","?",
-          "-","+","+",
-          "?","+","?"
-        },
-        {0,1},
-        {0,3},
-        true,
-        true
+			"?", "-", "?",
+			"-", "+", "+",
+			"?", "+", "?"
+		},
+		{0, 1},
+		{0, 3},
+		true,
+		true
 	},
 	//Dead end horizontal
 	{
 		{
-          "?","-","?",
-          "-","+","+",
-          "?","-","?"
-        },
-        {15,15},{11,12},
-        true,
-        false
+			"?", "-", "?",
+			"-", "+", "+",
+			"?", "-", "?"
+		},
+		{15, 15}, {11, 12},
+		true,
+		false
 	},
 	//Dead end vertical
 	{
 		{
-          "?","-","?",
-          "-","+","-",
-          "?","+","?"
-        },
-        {14,14},{9,10},
-        false,
-        true
+			"?", "-", "?",
+			"-", "+", "-",
+			"?", "+", "?"
+		},
+		{14, 14}, {9, 10},
+		false,
+		true
 	},
 	//T-cross horizontal
 	{
 		{
-          "?","+","?",
-          "-","+","+",
-          "?","+","?"
-        },
-        {6,7},{7,8},
-        true,
-        false
+			"?", "+", "?",
+			"-", "+", "+",
+			"?", "+", "?"
+		},
+		{6, 7}, {7, 8},
+		true,
+		false
 	},
 	//T-cross vertical
 	{
 		{
-          "?","-","?",
-          "+","+","+",
-          "?","+","?"
-        },
-        {8,9},{5,6},
-        false,
-        true
+			"?", "-", "?",
+			"+", "+", "+",
+			"?", "+", "?"
+		},
+		{8, 9}, {5, 6},
+		false,
+		true
 	},
 	//Straight Horizontal
 	{
 		{
-          "?","-","?",
-          "+","+","+",
-          "?","-","?"
-        },
-        {12,13},{11,12},
-        false,
-        false
+			"?", "-", "?",
+			"+", "+", "+",
+			"?", "-", "?"
+		},
+		{12, 13}, {11, 12},
+		false,
+		false
 	},
 	//Straight Vertical
 	{
 		{
-          "?","+","?",
-          "-","+","-",
-          "?","+","?"
-        },
-        {10,11},{9,10},
-        false,
-        false
+			"?", "+", "?",
+			"-", "+", "-",
+			"?", "+", "?"
+		},
+		{10, 11}, {9, 10},
+		false,
+		false
 	},
 	//X-cross
 	{
 		{
-          "?","+","?",
-          "+","+","+",
-          "?","+","?"
-        },
-        {16,16},{4,4},
-        false,
-        false
+			"?", "+", "?",
+			"+", "+", "+",
+			"?", "+", "?"
+		},
+		{16, 16}, {4, 4},
+		false,
+		false
 	}
 
 };
@@ -148,8 +148,8 @@ static bool ruleIsAny(const std::string & rule)
 #endif
 
 ///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, ERoadType::ERoadType roadType, CRandomGenerator * gen):
-	CMapOperation(map),terrainSel(terrainSel), roadType(roadType), gen(gen)
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, ERoadType::ERoadType roadType, CRandomGenerator * gen)
+	: CMapOperation(map), terrainSel(terrainSel), roadType(roadType), gen(gen)
 {
 
 }
@@ -175,12 +175,12 @@ void CDrawRoadsOperation::execute()
 
 void CDrawRoadsOperation::undo()
 {
-  //TODO
+	//TODO
 }
 
 void CDrawRoadsOperation::redo()
 {
-  //TODO
+	//TODO
 }
 
 std::string CDrawRoadsOperation::getLabel() const
@@ -194,7 +194,7 @@ bool CDrawRoadsOperation::canApplyPattern(const RoadPattern & pattern) const
 	return pattern.roadMapping.first >= 0;
 }
 
-void CDrawRoadsOperation::flipPattern(RoadPattern& pattern, int flip) const
+void CDrawRoadsOperation::flipPattern(RoadPattern & pattern, int flip) const
 {
 	//todo: use cashing here and also in terrain patterns
 
@@ -259,19 +259,19 @@ void CDrawRoadsOperation::updateTiles(std::set<int3> & invalidated)
 	}
 }
 
-bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
+bool CDrawRoadsOperation::tileHasSomething(const int3 & pos) const
 {
 //TODO: this method should be virtual for river support
 
-   return map->getTile(pos).roadType != ERoadType::NO_ROAD;
+	return map->getTile(pos).roadType != ERoadType::NO_ROAD;
 }
 
 
 void CDrawRoadsOperation::updateTile(TerrainTile & tile, const RoadPattern & pattern, const int flip)
 {
-  //TODO: this method should be virtual for river support
+	//TODO: this method should be virtual for river support
 
-	const std::pair<int, int> & mapping  = pattern.roadMapping;
+	const std::pair<int, int> & mapping = pattern.roadMapping;
 
 	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
 	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);

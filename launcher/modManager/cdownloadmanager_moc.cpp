@@ -14,11 +14,11 @@
 
 CDownloadManager::CDownloadManager()
 {
-	connect(&manager, SIGNAL(finished(QNetworkReply*)),
-			SLOT(downloadFinished(QNetworkReply*)));
+	connect(&manager, SIGNAL(finished(QNetworkReply *)),
+		SLOT(downloadFinished(QNetworkReply *)));
 }
 
-void CDownloadManager::downloadFile(const QUrl &url, const QString &file)
+void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
 {
 	QNetworkRequest request(url);
 	FileEntry entry;
@@ -26,18 +26,18 @@ void CDownloadManager::downloadFile(const QUrl &url, const QString &file)
 	entry.bytesReceived = 0;
 	entry.totalSize = 0;
 
-	if (entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
+	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
 	{
 		entry.status = FileEntry::IN_PROGRESS;
 		entry.reply = manager.get(request);
 
-		connect(entry.reply, SIGNAL(downloadProgress(qint64, qint64)),
-				SLOT(downloadProgressChanged(qint64, qint64)));
+		connect(entry.reply, SIGNAL(downloadProgress(qint64,qint64)),
+			SLOT(downloadProgressChanged(qint64,qint64)));
 	}
 	else
 	{
 		entry.status = FileEntry::FAILED;
-		entry.reply  = nullptr;
+		entry.reply = nullptr;
 		encounteredErrors += entry.file->errorString();
 	}
 
@@ -48,9 +48,9 @@ void CDownloadManager::downloadFile(const QUrl &url, const QString &file)
 CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 {
 	assert(reply);
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 	{
-		if (entry.reply == reply)
+		if(entry.reply == reply)
 			return entry;
 	}
 	assert(0);
@@ -58,11 +58,11 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 	return errorValue;
 }
 
-void CDownloadManager::downloadFinished(QNetworkReply *reply)
+void CDownloadManager::downloadFinished(QNetworkReply * reply)
 {
 	FileEntry & file = getEntry(reply);
 
-	if (file.reply->error())
+	if(file.reply->error())
 	{
 		encounteredErrors += file.reply->errorString();
 		file.file->remove();
@@ -76,9 +76,9 @@ void CDownloadManager::downloadFinished(QNetworkReply *reply)
 	}
 
 	bool downloadComplete = true;
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 	{
-		if (entry.status == FileEntry::IN_PROGRESS)
+		if(entry.status == FileEntry::IN_PROGRESS)
 		{
 			downloadComplete = false;
 			break;
@@ -88,15 +88,15 @@ void CDownloadManager::downloadFinished(QNetworkReply *reply)
 	QStringList successful;
 	QStringList failed;
 
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 	{
-		if (entry.status == FileEntry::FINISHED)
+		if(entry.status == FileEntry::FINISHED)
 			successful += entry.file->fileName();
 		else
 			failed += entry.file->fileName();
 	}
 
-	if (downloadComplete)
+	if(downloadComplete)
 		emit finished(successful, failed, encounteredErrors);
 
 	file.reply->deleteLater();
@@ -113,21 +113,21 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 	entry.totalSize = bytesTotal;
 
 	quint64 total = 0;
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 		total += entry.totalSize > 0 ? entry.totalSize : 0;
 
 	quint64 received = 0;
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 		received += entry.bytesReceived > 0 ? entry.bytesReceived : 0;
 
 	emit downloadProgress(received, total);
 }
 
-bool CDownloadManager::downloadInProgress(const QUrl &url)
+bool CDownloadManager::downloadInProgress(const QUrl & url)
 {
-	for (auto & entry : currentDownloads)
+	for(auto & entry : currentDownloads)
 	{
-		if (entry.reply->url() == url)
+		if(entry.reply->url() == url)
 			return true;
 	}
 	return false;

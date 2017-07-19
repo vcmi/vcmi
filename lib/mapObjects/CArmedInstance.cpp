@@ -19,7 +19,7 @@
 
 void CArmedInstance::randomizeArmy(int type)
 {
-	for (auto & elem : stacks)
+	for(auto & elem : stacks)
 	{
 		int & randID = elem.second->idRand;
 		if(randID >= 0)
@@ -47,7 +47,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		return;
 
 	auto b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
- 	if(!b)
+	if(!b)
 	{
 		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
 		addNewBonus(b);
@@ -60,7 +60,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(auto slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const CCreature * creature  = VLC->creh->creatures[inst->getCreatureID()];
+		const CCreature * creature = VLC->creh->creatures[inst->getCreatureID()];
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -70,16 +70,16 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
 	// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-	if (hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX))
+	if(hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX))
 	{
 		size_t mixableFactions = 0;
 
 		for(TFaction f : factions)
 		{
-			if (VLC->townh->factions[f]->alignment != EAlignment::EVIL)
+			if(VLC->townh->factions[f]->alignment != EAlignment::EVIL)
 				mixableFactions++;
 		}
-		if (mixableFactions > 0)
+		if(mixableFactions > 0)
 			factionsInArmy -= mixableFactions - 1;
 	}
 
@@ -87,13 +87,13 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	{
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
-		b->description = b->description.substr(0, b->description.size()-3);//trim "+1"
+		b->description = b->description.substr(0, b->description.size() - 3); //trim "+1"
 	}
-	else if (!factions.empty()) // no bonus from empty garrison
+	else if(!factions.empty()) // no bonus from empty garrison
 	{
-	 	b->val = 2 - factionsInArmy;
+		b->val = 2 - factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		b->description = b->description.substr(0, b->description.size()-2);//trim value
+		b->description = b->description.substr(0, b->description.size() - 2); //trim value
 	}
 	boost::algorithm::trim(b->description);
 	CBonusSystemNode::treeHasChanged();
@@ -101,12 +101,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
 	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
- 	if(hasUndead)
+	if(hasUndead)
 	{
 		if(!undeadModifier)
 		{
 			undeadModifier = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]);
-			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size()-2);//trim value
+			undeadModifier->description = undeadModifier->description.substr(0, undeadModifier->description.size() - 2); //trim value
 			addNewBonus(undeadModifier);
 		}
 	}
@@ -120,7 +120,7 @@ void CArmedInstance::armyChanged()
 	updateMoraleBonusFromArmy();
 }
 
-CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
+CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState * gs)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
 		return gs->getPlayer(tempOwner);

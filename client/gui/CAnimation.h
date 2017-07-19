@@ -23,10 +23,11 @@ class CDefFile;
 class IImage
 {
 	int refCount;
+
 public:
 
 	//draws image on surface "where" at position
-	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
+	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const = 0;
 	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
 
 	virtual std::unique_ptr<IImage> scaleFast(float scale) const = 0;
@@ -38,13 +39,13 @@ public:
 	void increaseRef();
 
 	//Change palette to specific player
-	virtual void playerColored(PlayerColor player)=0;
+	virtual void playerColored(PlayerColor player) = 0;
 
 	//set special color for flag
-	virtual void setFlagColor(PlayerColor player)=0;
+	virtual void setFlagColor(PlayerColor player) = 0;
 
-	virtual int width() const=0;
-	virtual int height() const=0;
+	virtual int width() const = 0;
+	virtual int height() const = 0;
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
@@ -61,10 +62,10 @@ class CAnimation
 {
 private:
 	//source[group][position] - file with this frame, if string is empty - image located in def file
-	std::map<size_t, std::vector <JsonNode> > source;
+	std::map<size_t, std::vector<JsonNode>> source;
 
 	//bitmap[group][position], store objects with loaded bitmaps
-	std::map<size_t, std::map<size_t, IImage* > > images;
+	std::map<size_t, std::map<size_t, IImage *>> images;
 
 	//animation file name
 	std::string name;
@@ -105,28 +106,28 @@ public:
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
 
 	//add custom surface to the selected position.
-	void setCustom(std::string filename, size_t frame, size_t group=0);
+	void setCustom(std::string filename, size_t frame, size_t group = 0);
 
 	//get pointer to image from specific group, nullptr if not found
-	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
+	IImage * getImage(size_t frame, size_t group = 0, bool verbose = true) const;
 
 	void exportBitmaps(const boost::filesystem::path & path) const;
 
 	//all available frames
-	void load  ();
+	void load();
 	void unload();
 	void preload();
 
 	//all frames from group
-	void loadGroup  (size_t group);
+	void loadGroup(size_t group);
 	void unloadGroup(size_t group);
 
 	//single image
-	void load  (size_t frame, size_t group=0);
-	void unload(size_t frame, size_t group=0);
+	void load(size_t frame, size_t group = 0);
+	void unload(size_t frame, size_t group = 0);
 
 	//total count of frames in group (including not loaded)
-	size_t size(size_t group=0) const;
+	size_t size(size_t group = 0) const;
 };
 
 const float DEFAULT_DELTA = 0.05f;
@@ -136,8 +137,11 @@ class CFadeAnimation
 public:
 	enum class EMode
 	{
-		NONE, IN, OUT
+		NONE,
+		IN,
+		OUT
 	};
+
 private:
 	float delta;
 	SDL_Surface * fadingSurface;
@@ -147,6 +151,7 @@ private:
 
 	float initialCounter() const;
 	bool isFinished() const;
+
 public:
 	EMode fadingMode;
 

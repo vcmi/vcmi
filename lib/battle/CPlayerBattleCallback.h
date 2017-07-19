@@ -23,4 +23,3 @@ public:
 	const CGHeroInstance * battleGetMyHero() const;
 	InfoAboutHero battleGetEnemyHero() const;
 };
-

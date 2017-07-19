@@ -15,26 +15,28 @@
 #include "../CGeneralTextHandler.h"
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-template <typename CData>
+template<typename CData>
 CData readLE(CData data)
 {
-	auto dataPtr = (char*)&data;
+	auto dataPtr = (char *)&data;
 	std::reverse(dataPtr, dataPtr + sizeof(data));
 	return data;
 }
 #else
-template <typename CData>
+template<typename CData>
 CData readLE(CData data)
 {
 	return data;
 }
 #endif
 
-CBinaryReader::CBinaryReader() : stream(nullptr)
+CBinaryReader::CBinaryReader()
+	: stream(nullptr)
 {
 }
 
-CBinaryReader::CBinaryReader(CInputStream * stream) : stream(stream)
+CBinaryReader::CBinaryReader(CInputStream * stream)
+	: stream(stream)
 {
 }
 
@@ -58,7 +60,7 @@ si64 CBinaryReader::read(ui8 * data, si64 size)
 	return bytesRead;
 }
 
-template <typename CData>
+template<typename CData>
 CData CBinaryReader::readInteger()
 {
 	CData val;
@@ -68,8 +70,8 @@ CData CBinaryReader::readInteger()
 
 //FIXME: any way to do this without macro?
 #define INSTANTIATE(datatype, methodname) \
-datatype CBinaryReader::methodname() \
-{ return readInteger<datatype>(); }
+	datatype CBinaryReader::methodname() \
+	{ return readInteger<datatype>(); }
 
 // While it is certanly possible to leave only template method
 // but typing template parameter every time can be annoying
@@ -89,13 +91,13 @@ std::string CBinaryReader::readString()
 {
 	unsigned int len = readUInt32();
 	assert(len <= 500000); //not too long
-	if (len > 0)
+	if(len > 0)
 	{
 		std::string ret;
 		ret.resize(len);
-		read(reinterpret_cast<ui8*>(&ret[0]), len);
+		read(reinterpret_cast<ui8 *>(&ret[0]), len);
 		//FIXME: any need to move this into separate "read localized string" method?
-		if (Unicode::isValidASCII(ret))
+		if(Unicode::isValidASCII(ret))
 			return ret;
 		return Unicode::toUnicode(ret);
 	}
@@ -112,7 +114,7 @@ std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 {
 	std::stringstream ss;
 	ss << "The end of the stream was reached unexpectedly. The stream has a length of " << stream->getSize() << " and the current reading position is "
-				<< stream->tell() << ". The client wanted to read " << bytesToRead << " bytes.";
+	<< stream->tell() << ". The client wanted to read " << bytesToRead << " bytes.";
 
 	return ss.str();
 }

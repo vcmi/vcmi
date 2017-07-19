@@ -15,28 +15,34 @@
 
 namespace ELogLevel
 {
-	int toAndroid(ELogLevel logLevel)
+int toAndroid(ELogLevel logLevel)
+{
+	switch(logLevel)
 	{
-		switch (logLevel)
-		{
-			case TRACE: return ANDROID_LOG_VERBOSE;
-			case DEBUG: return ANDROID_LOG_DEBUG;
-			case INFO:  return ANDROID_LOG_INFO;
-			case WARN:  return ANDROID_LOG_WARN;
-			case ERROR: return ANDROID_LOG_ERROR;
-		default:
-			break;
-		}
-		return ANDROID_LOG_UNKNOWN;
+	case TRACE:
+		return ANDROID_LOG_VERBOSE;
+	case DEBUG:
+		return ANDROID_LOG_DEBUG;
+	case INFO:
+		return ANDROID_LOG_INFO;
+	case WARN:
+		return ANDROID_LOG_WARN;
+	case ERROR:
+		return ANDROID_LOG_ERROR;
+	default:
+		break;
 	}
+	return ANDROID_LOG_UNKNOWN;
+}
 }
 #endif
 
 const std::string CLoggerDomain::DOMAIN_GLOBAL = "global";
 
-CLoggerDomain::CLoggerDomain(std::string name) : name(std::move(name))
+CLoggerDomain::CLoggerDomain(std::string name)
+	: name(std::move(name))
 {
-	if (this->name.empty())
+	if(this->name.empty())
 		throw std::runtime_error("Logger domain cannot be empty.");
 }
 
@@ -53,9 +59,10 @@ CLoggerDomain CLoggerDomain::getParent() const
 
 bool CLoggerDomain::isGlobalDomain() const { return name == DOMAIN_GLOBAL; }
 
-const std::string& CLoggerDomain::getName() const { return name; }
+const std::string & CLoggerDomain::getName() const { return name; }
 
-CLoggerStream::CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr) {}
+CLoggerStream::CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level)
+	: logger(logger), level(level), sbuffer(nullptr) {}
 
 CLoggerStream::~CLoggerStream()
 {
@@ -90,7 +97,7 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 			logger->setLevel(ELogLevel::TRACE);
 		}
 		CLogManager::get().addLogger(logger);
-		if (logGlobal != nullptr)
+		if(logGlobal != nullptr)
 		{
 			logGlobal->debug("Created logger %s", domain.getName());
 		}
@@ -103,7 +110,8 @@ CLogger * CLogger::getGlobalLogger()
 	return getLogger(CLoggerDomain(CLoggerDomain::DOMAIN_GLOBAL));
 }
 
-CLogger::CLogger(const CLoggerDomain & domain) : domain(domain)
+CLogger::CLogger(const CLoggerDomain & domain)
+	: domain(domain)
 {
 	if(domain.isGlobalDomain())
 	{
@@ -137,7 +145,7 @@ void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 	}
 	catch(...)
 	{
-        log(ELogLevel::ERROR, "Invalid log format!");
+		log(ELogLevel::ERROR, "Invalid log format!");
 	}
 }
 
@@ -150,7 +158,7 @@ ELogLevel::ELogLevel CLogger::getLevel() const
 void CLogger::setLevel(ELogLevel::ELogLevel level)
 {
 	TLockGuard _(mx);
-	if (!domain.isGlobalDomain() || level != ELogLevel::NOT_SET)
+	if(!domain.isGlobalDomain() || level != ELogLevel::NOT_SET)
 		this->level = level;
 }
 
@@ -203,7 +211,7 @@ CLogManager & CLogManager::get()
 	return instance;
 }
 
-CLogManager::CLogManager() { }
+CLogManager::CLogManager() {}
 CLogManager::~CLogManager()
 {
 	for(auto & i : loggers)
@@ -229,23 +237,27 @@ CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 std::vector<std::string> CLogManager::getRegisteredDomains() const
 {
 	std::vector<std::string> domains;
-	for (auto& pair : loggers)
+	for(auto & pair : loggers)
 	{
 		domains.push_back(pair.second->getDomain().getName());
 	}
 	return std::move(domains);
 }
 
-CLogFormatter::CLogFormatter() : CLogFormatter("%m") { }
+CLogFormatter::CLogFormatter()
+	: CLogFormatter("%m") {}
 
-CLogFormatter::CLogFormatter(const std::string & pattern) : pattern(pattern)
+CLogFormatter::CLogFormatter(const std::string & pattern)
+	: pattern(pattern)
 {
 	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S.%f");
 	dateStream.imbue(std::locale(dateStream.getloc(), facet));
 }
 
-CLogFormatter::CLogFormatter(const CLogFormatter & c) : pattern(c.pattern) { }
-CLogFormatter::CLogFormatter(CLogFormatter && m) : pattern(std::move(m.pattern)) { }
+CLogFormatter::CLogFormatter(const CLogFormatter & c)
+	: pattern(c.pattern) {}
+CLogFormatter::CLogFormatter(CLogFormatter && m)
+	: pattern(std::move(m.pattern)) {}
 
 CLogFormatter & CLogFormatter::operator=(const CLogFormatter & c)
 {
@@ -263,7 +275,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	std::string message = pattern;
 
 	//Format date
-	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
+	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string(record.timeStamp));
 
 	//Format log level
 	std::string level;
@@ -333,7 +345,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 				return levelPair->second;
 		}
 
-		if (currentDomain.isGlobalDomain())
+		if(currentDomain.isGlobalDomain())
 			break;
 
 		currentDomain = currentDomain.getParent();
@@ -342,7 +354,8 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 	throw std::runtime_error("failed to find color for requested domain/level pair");
 }
 
-CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
+CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console)
+	: console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
 	formatter.setPattern("%m");
 }
@@ -355,7 +368,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	std::string message = formatter.format(record);
 
 #ifdef VCMI_ANDROID
-    __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+	__android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
 #else
 
 	const bool printToStdErr = record.level >= ELogLevel::WARN;

@@ -17,7 +17,7 @@ bool CCallbackBase::duringBattle() const
 	return getBattle() != nullptr;
 }
 
-const BattleInfo *CCallbackBase::getBattle() const
+const BattleInfo * CCallbackBase::getBattle() const
 {
 	return battle;
 }
@@ -39,4 +39,3 @@ boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
 }
-

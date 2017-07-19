@@ -32,8 +32,8 @@ void CLabel::showAll(SDL_Surface * to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text)
-:CTextContainer(Align, Font, Color), text(Text)
+CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text)
+	: CTextContainer(Align, Font, Color), text(Text)
 {
 	type |= REDRAW_PARENT;
 	autoRedraw = true;
@@ -42,7 +42,7 @@ CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color &Col
 	pos.w = pos.h = 0;
 	bg = nullptr;
 
-	if (alignment == TOPLEFT) // causes issues for MIDDLE
+	if(alignment == TOPLEFT) // causes issues for MIDDLE
 	{
 		pos.w = graphics->fonts[font]->getStringWidth(visibleText().c_str());
 		pos.h = graphics->fonts[font]->getLineHeight();
@@ -59,7 +59,7 @@ std::string CLabel::getText()
 	return text;
 }
 
-void CLabel::setText(const std::string &Txt)
+void CLabel::setText(const std::string & Txt)
 {
 	text = Txt;
 	if(autoRedraw)
@@ -71,9 +71,8 @@ void CLabel::setText(const std::string &Txt)
 	}
 }
 
-CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
-	CLabel(position.x, position.y, Font, Align, Color, Text),
-	visibleSize(0, 0, position.w, position.h)
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text)
+	: CLabel(position.x, position.y, Font, Align, Color, Text), visibleSize(0, 0, position.w, position.h)
 {
 	pos.w = position.w;
 	pos.h = position.h;
@@ -98,32 +97,32 @@ void CMultiLineLabel::scrollTextTo(int distance)
 	setVisibleSize(size);
 }
 
-void CMultiLineLabel::setText(const std::string &Txt)
+void CMultiLineLabel::setText(const std::string & Txt)
 {
 	splitText(Txt);
 	CLabel::setText(Txt);
 }
 
-void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
+void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if (alignment == TOPLEFT)
+	if(alignment == TOPLEFT)
 	{
 		where.x += getBorderSize().x;
 		where.y += getBorderSize().y;
 	}
 
-	if (alignment == CENTER)
+	if(alignment == CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
 		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
-	if (alignment == BOTTOMRIGHT)
+	if(alignment == BOTTOMRIGHT)
 	{
 		where.x += getBorderSize().x + destRect.w - f->getStringWidth(what);
 		where.y += getBorderSize().y + destRect.h - f->getLineHeight();
@@ -132,15 +131,14 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 	size_t begin = 0;
 	std::string delimeters = "{}";
 	size_t currDelimeter = 0;
-
 	do
 	{
 		size_t end = what.find_first_of(delimeters[currDelimeter % 2], begin);
-		if (begin != end)
+		if(begin != end)
 		{
 			std::string toPrint = what.substr(begin, end - begin);
 
-			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
+			if(currDelimeter % 2) // Enclosed in {} text - set to yellow
 				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
 			else // Non-enclosed text, use default color
 				f->renderTextLeft(to, toPrint, color, where);
@@ -150,13 +148,11 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 		}
 		currDelimeter++;
 	}
-	while (begin++ != std::string::npos);
+	while(begin++ != std::string::npos);
 }
 
-CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color):
-	alignment(alignment),
-	font(font),
-	color(color)
+CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color)
+	: alignment(alignment), font(font), color(color)
 {}
 
 void CMultiLineLabel::showAll(SDL_Surface * to)
@@ -167,15 +163,15 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 
 	// calculate which lines should be visible
 	int totalLines = lines.size();
-	int beginLine  = visibleSize.y;
-	int endLine    = getTextLocation().h + visibleSize.y;
+	int beginLine = visibleSize.y;
+	int endLine = getTextLocation().h + visibleSize.y;
 
-	if (beginLine < 0)
+	if(beginLine < 0)
 		beginLine = 0;
 	else
 		beginLine /= f->getLineHeight();
 
-	if (endLine < 0)
+	if(endLine < 0)
 		endLine = 0;
 	else
 		endLine /= f->getLineHeight();
@@ -183,32 +179,32 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 
 	// and where they should be displayed
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * f->getLineHeight());
-	Point lineSize  = Point(getTextLocation().w, f->getLineHeight());
+	Point lineSize = Point(getTextLocation().w, f->getLineHeight());
 
 	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
 
-	for (int i = beginLine; i < std::min(totalLines, endLine); i++)
+	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
-		if (!lines[i].empty()) //non-empty line
+		if(!lines[i].empty()) //non-empty line
 			blitLine(to, Rect(lineStart, lineSize), lines[i]);
 
 		lineStart.y += f->getLineHeight();
 	}
 }
 
-void CMultiLineLabel::splitText(const std::string &Txt)
+void CMultiLineLabel::splitText(const std::string & Txt)
 {
 	lines.clear();
 
 	const auto f = graphics->fonts[font];
-	int lineHeight =  f->getLineHeight();
+	int lineHeight = f->getLineHeight();
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
-	 textSize.y = lineHeight * lines.size();
-	 textSize.x = 0;
-	for(const std::string &line : lines)
-		vstd::amax( textSize.x, f->getStringWidth(line.c_str()));
+	textSize.y = lineHeight * lines.size();
+	textSize.x = 0;
+	for(const std::string & line : lines)
+		vstd::amax(textSize.x, f->getStringWidth(line.c_str()));
 	redraw();
 }
 
@@ -217,7 +213,7 @@ Rect CMultiLineLabel::getTextLocation()
 	// this method is needed for vertical alignment alignment of text
 	// when height of available text is smaller than height of widget
 	// in this case - we should add proper offset to display text at required position
-	if (pos.h <= textSize.y)
+	if(pos.h <= textSize.y)
 		return pos;
 
 	Point textSize(pos.w, graphics->fonts[font]->getLineHeight() * lines.size());
@@ -225,27 +221,29 @@ Rect CMultiLineLabel::getTextLocation()
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Rect(pos.topLeft(), textSize);
-	case CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
-	case BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	case TOPLEFT:
+		return Rect(pos.topLeft(), textSize);
+	case CENTER:
+		return Rect(pos.topLeft() + textOffset / 2, textSize);
+	case BOTTOMRIGHT:
+		return Rect(pos.topLeft() + textOffset, textSize);
 	}
 	assert(0);
 	return Rect();
 }
 
-CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
-	font(Font), align(Align), color(Color)
+CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: font(Font), align(Align), color(Color)
 {}
 
-void CLabelGroup::add(int x, int y, const std::string &text)
+void CLabelGroup::add(int x, int y, const std::string & text)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CLabel(x, y, font, align, color, text);
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color &Color):
-	sliderStyle(SliderStyle),
-	slider(nullptr)
+CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: sliderStyle(SliderStyle), slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	label = new CMultiLineLabel(rect, Font, Align, Color);
@@ -271,13 +269,13 @@ void CTextBox::resize(Point newSize)
 	pos.h = newSize.y;
 	label->pos.w = pos.w;
 	label->pos.h = pos.h;
-	if (slider)
+	if(slider)
 		vstd::clear_pointer(slider); // will be recreated if needed later
 
 	setText(label->getText()); // force refresh
 }
 
-void CTextBox::setText(const std::string &text)
+void CTextBox::setText(const std::string & text)
 {
 	label->pos.w = pos.w; // reset to default before textSize.y check
 	label->setText(text);
@@ -301,7 +299,7 @@ void CTextBox::setText(const std::string &text)
 
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		slider = new CSlider(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
-		                     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
+				     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep(graphics->fonts[label->font]->getLineHeight());
 	}
 }
@@ -317,8 +315,8 @@ void CGStatusBar::clear()
 	setText("");
 }
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font, EAlignment Align, const SDL_Color &Color)
-: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
+CGStatusBar::CGStatusBar(CPicture * BG, EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();
 	bg = BG;
@@ -329,7 +327,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font, EAlignment Align, const SDL_
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
-: CLabel(x, y, FONT_SMALL, CENTER)
+	: CLabel(x, y, FONT_SMALL, CENTER)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	init();
@@ -362,13 +360,16 @@ void CGStatusBar::init()
 Point CGStatusBar::getBorderSize()
 {
 	//Width of borders where text should not be printed
-	static const Point borderSize(5,1);
+	static const Point borderSize(5, 1);
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Point(borderSize.x, borderSize.y);
-	case CENTER:      return Point(pos.w/2, pos.h/2);
-	case BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
+	case TOPLEFT:
+		return Point(borderSize.x, borderSize.y);
+	case CENTER:
+		return Point(pos.w / 2, pos.h / 2);
+	case BOTTOMRIGHT:
+		return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}
 	assert(0);
 	return Point();
@@ -379,9 +380,8 @@ void CGStatusBar::lock(bool shouldLock)
 	textLock = shouldLock;
 }
 
-CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB):
-	CLabel(Pos.x, Pos.y, font, CENTER),
-	cb(CB)
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
+	: CLabel(Pos.x, Pos.y, font, CENTER), cb(CB)
 {
 	type |= REDRAW_PARENT;
 	focus = false;
@@ -393,8 +393,8 @@ CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(co
 	giveFocus();
 }
 
-CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
-:cb(CB)
+CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
+	: cb(CB)
 {
 	focus = false;
 	pos += Pos;
@@ -405,7 +405,7 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 	giveFocus();
 }
 
-CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
+CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 {
 	focus = false;
 	pos += Pos;
@@ -440,13 +440,13 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft( tribool down, bool previousState )
+void CTextInput::clickLeft(tribool down, bool previousState)
 {
 	if(down && !focus)
 		giveFocus();
 }
 
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 {
 
 	if(!focus || key.state != SDL_PRESSED)
@@ -481,14 +481,14 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		break;
 	}
 
-	if (redrawNeeded)
+	if(redrawNeeded)
 	{
 		redraw();
 		cb(text);
 	}
 }
 
-void CTextInput::setText( const std::string &nText, bool callCb )
+void CTextInput::setText(const std::string & nText, bool callCb)
 {
 	CLabel::setText(nText);
 	if(callCb)
@@ -511,8 +511,8 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 
 	text += event.text;
 
-	filters(text,oldText);
-	if (text != oldText)
+	filters(text, oldText);
+	if(text != oldText)
 	{
 		redraw();
 		cb(text);
@@ -527,14 +527,14 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 
 	newText = event.text;
 	redraw();
-	cb(text+newText);
+	cb(text + newText);
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
 	static const std::string forbiddenChars = "<>:\"/\\|?*\r\n"; //if we are entering a filename, some special characters won't be allowed
 	size_t pos;
-	while ((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
+	while((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
 		text.erase(pos, 1);
 }
 
@@ -542,16 +542,16 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 {
 	assert(minValue < maxValue);
 
-	if (text.empty())
+	if(text.empty())
 		text = "0";
 
 	size_t pos = 0;
-	if (text[0] == '-') //allow '-' sign as first symbol only
+	if(text[0] == '-') //allow '-' sign as first symbol only
 		pos++;
 
-	while (pos < text.size())
+	while(pos < text.size())
 	{
-		if (text[pos] < '0' || text[pos] > '9')
+		if(text[pos] < '0' || text[pos] > '9')
 		{
 			text = oldText;
 			return; //new text is not number.
@@ -561,15 +561,15 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	try
 	{
 		int value = boost::lexical_cast<int>(text);
-		if (value < minValue)
+		if(value < minValue)
 			text = boost::lexical_cast<std::string>(minValue);
-		else if (value > maxValue)
+		else if(value > maxValue)
 			text = boost::lexical_cast<std::string>(maxValue);
 	}
 	catch(boost::bad_lexical_cast &)
 	{
 		//Should never happen. Unless I missed some cases
-		logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
+		logGlobal->warnStream() << "Warning: failed to convert " << text << " to number!";
 		text = oldText;
 	}
 }
@@ -608,7 +608,7 @@ void CFocusable::giveFocus()
 void CFocusable::moveFocus()
 {
 	auto i = vstd::find(focusables, this),
-		ourIt = i;
+	     ourIt = i;
 	for(i++; i != ourIt; i++)
 	{
 		if(i == focusables.end())

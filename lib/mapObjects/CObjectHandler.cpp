@@ -43,20 +43,20 @@ static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const u
 	InfoWindow iw;
 	iw.soundID = soundID;
 	iw.player = playerID;
-	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
+	iw.text.addTxt(MetaString::ADVOB_TXT, txtID);
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
 /*static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
 {
-	const PlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
-	showInfoDialog(playerID,txtID,soundID);
+        const PlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
+        showInfoDialog(playerID,txtID,soundID);
 }*/
 
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const CGHeroInstance * h, const ui32 txtID, const ui16 soundID)
 {
 	const PlayerColor playerID = h->getOwner();
-	showInfoDialog(playerID,txtID,soundID);
+	showInfoDialog(playerID, txtID, soundID);
 }
 
 ///IObjectInterface
@@ -78,14 +78,14 @@ IObjectInterface::IObjectInterface()
 void IObjectInterface::initObj(CRandomGenerator & rand)
 {}
 
-void IObjectInterface::setProperty( ui8 what, ui32 val )
+void IObjectInterface::setProperty(ui8 what, ui32 val)
 {}
 
-bool IObjectInterface::wasVisited (PlayerColor player) const
+bool IObjectInterface::wasVisited(PlayerColor player) const
 {
 	return false;
 }
-bool IObjectInterface::wasVisited (const CGHeroInstance * h) const
+bool IObjectInterface::wasVisited(const CGHeroInstance * h) const
 {
 	return false;
 }
@@ -96,23 +96,23 @@ void IObjectInterface::postInit()
 void IObjectInterface::preInit()
 {}
 
-void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void IObjectInterface::battleFinished(const CGHeroInstance * hero, const BattleResult & result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+void IObjectInterface::blockingDialogAnswered(const CGHeroInstance * hero, ui32 answer) const
 {}
 
-void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
+void IObjectInterface::garrisonDialogClosed(const CGHeroInstance * hero) const
 {}
 
-void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
+void IObjectInterface::heroLevelUpDone(const CGHeroInstance * hero) const
 {}
 
 CObjectHandler::CObjectHandler()
 {
 	logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
-	for(const JsonNode &price : config2["resources_prices"].Vector())
+	for(const JsonNode & price : config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
@@ -124,15 +124,11 @@ PlayerColor CGObjectInstance::getOwner() const
 	//if (state)
 	//	return state->owner;
 	//else
-		return tempOwner; //won't have owner
+	return tempOwner; //won't have owner
 }
 
-CGObjectInstance::CGObjectInstance():
-	pos(-1,-1,-1),
-	ID(Obj::NO_OBJ),
-	subID(-1),
-	tempOwner(PlayerColor::UNFLAGGABLE),
-	blockVisit(false)
+CGObjectInstance::CGObjectInstance()
+	: pos(-1, -1, -1), ID(Obj::NO_OBJ), subID(-1), tempOwner(PlayerColor::UNFLAGGABLE), blockVisit(false)
 {
 }
 CGObjectInstance::~CGObjectInstance()
@@ -143,7 +139,7 @@ void CGObjectInstance::setOwner(PlayerColor ow)
 {
 	tempOwner = ow;
 }
-int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
+int CGObjectInstance::getWidth() const //returns width of object graphic in tiles
 {
 	return appearance.getWidth();
 }
@@ -168,9 +164,9 @@ bool CGObjectInstance::coveringAt(int x, int y) const
 std::set<int3> CGObjectInstance::getBlockedPos() const
 {
 	std::set<int3> ret;
-	for(int w=0; w<getWidth(); ++w)
+	for(int w = 0; w < getWidth(); ++w)
 	{
-		for(int h=0; h<getHeight(); ++h)
+		for(int h = 0; h < getHeight(); ++h)
 		{
 			if(appearance.isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
@@ -186,7 +182,7 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
 {
-	const TerrainTile &tile = cb->gameState()->map->getTile(visitablePos());
+	const TerrainTile & tile = cb->gameState()->map->getTile(visitablePos());
 
 	this->ID = Obj(ID);
 	this->subID = subID;
@@ -197,7 +193,7 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	if(!handler)
 	{
 		logGlobal->errorStream() << boost::format(
-			  "Unknown object type %d:%d at %s") % ID % subID % visitablePos();
+			"Unknown object type %d:%d at %s") % ID % subID % visitablePos();
 		return;
 	}
 	if(!handler->getTemplates(tile.terType).empty())
@@ -217,7 +213,7 @@ void CGObjectInstance::initObj(CRandomGenerator & rand)
 	}
 }
 
-void CGObjectInstance::setProperty( ui8 what, ui32 val )
+void CGObjectInstance::setProperty(ui8 what, ui32 val)
 {
 	setPropertyDer(what, val); // call this before any actual changes (needed at least for dwellings)
 
@@ -238,7 +234,7 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 	}
 }
 
-void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
+void CGObjectInstance::setPropertyDer(ui8 what, ui32 val)
 {}
 
 int3 CGObjectInstance::getSightCenter() const
@@ -282,26 +278,26 @@ std::string CGObjectInstance::getHoverText(const CGHeroInstance * hero) const
 	return getHoverText(hero->tempOwner);
 }
 
-void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
+void CGObjectInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	switch(ID)
 	{
 	case Obj::HILL_FORT:
-		{
-			openWindow(OpenWindow::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
-		}
-		break;
+	{
+		openWindow(OpenWindow::HILL_FORT_WINDOW, id.getNum(), h->id.getNum());
+	}
+	break;
 	case Obj::SANCTUARY:
-		{
-			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			showInfoDialog(h,114,soundBase::GETPROTECTION);
-		}
-		break;
+	{
+		//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
+		showInfoDialog(h, 114, soundBase::GETPROTECTION);
+	}
+	break;
 	case Obj::TAVERN:
-		{
-			openWindow(OpenWindow::TAVERN_WINDOW,h->id.getNum(),id.getNum());
-		}
-		break;
+	{
+		openWindow(OpenWindow::TAVERN_WINDOW, h->id.getNum(), id.getNum());
+	}
+	break;
 	}
 }
 
@@ -365,7 +361,8 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 		tempOwner = PlayerColor(temp);
 }
 
-CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
+CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj)
+	: obj(obj)
 {
 
 }
@@ -380,21 +377,21 @@ int3 IBoatGenerator::bestLocation() const
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
 
-	for (auto & offset : offsets)
+	for(auto & offset : offsets)
 	{
-		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
+		if(const TerrainTile * tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if(tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType == ETerrainType::WATER && (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}
-	return int3 (-1,-1,-1);
+	return int3(-1, -1, -1);
 }
 
 IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 {
 	int3 tile = bestLocation();
-	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
+	const TerrainTile * t = IObjectInterface::cb->getTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
 	else if(!t->blockingObjects.size())
@@ -412,12 +409,12 @@ int IBoatGenerator::getBoatType() const
 }
 
 
-IBoatGenerator::IBoatGenerator(const CGObjectInstance *O)
-: o(O)
+IBoatGenerator::IBoatGenerator(const CGObjectInstance * O)
+	: o(O)
 {
 }
 
-void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visitor) const
+void IBoatGenerator::getProblemText(MetaString & out, const CGHeroInstance * visitor) const
 {
 	switch(shipyardStatus())
 	{
@@ -439,30 +436,30 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 	}
 }
 
-void IShipyard::getBoatCost( std::vector<si32> &cost ) const
+void IShipyard::getBoatCost(std::vector<si32> & cost) const
 {
 	cost.resize(GameConstants::RESOURCE_QUANTITY);
 	cost[Res::WOOD] = 10;
 	cost[Res::GOLD] = 1000;
 }
 
-IShipyard::IShipyard(const CGObjectInstance *O)
+IShipyard::IShipyard(const CGObjectInstance * O)
 	: IBoatGenerator(O)
 {
 }
 
-IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
+IShipyard * IShipyard::castFrom(CGObjectInstance * obj)
 {
 	if(!obj)
 		return nullptr;
 
 	if(obj->ID == Obj::TOWN)
 	{
-		return static_cast<CGTownInstance*>(obj);
+		return static_cast<CGTownInstance *>(obj);
 	}
 	else if(obj->ID == Obj::SHIPYARD)
 	{
-		return static_cast<CGShipyard*>(obj);
+		return static_cast<CGShipyard *>(obj);
 	}
 	else
 	{
@@ -470,7 +467,7 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	}
 }
 
-const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
+const IShipyard * IShipyard::castFrom(const CGObjectInstance * obj)
 {
-	return castFrom(const_cast<CGObjectInstance*>(obj));
+	return castFrom(const_cast<CGObjectInstance *>(obj));
 }

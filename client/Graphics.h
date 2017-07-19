@@ -26,7 +26,15 @@ class CAnimation;
 
 enum EFonts
 {
-	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
+	FONT_BIG,
+	FONT_CALLI,
+	FONT_CREDITS,
+	FONT_HIGH_SCORE,
+	FONT_MEDIUM,
+	FONT_SMALL,
+	FONT_TIMES,
+	FONT_TINY,
+	FONT_VERD
 };
 
 /// Handles fonts, hero images, town images, various graphics
@@ -39,12 +47,12 @@ class Graphics
 
 	void loadHeroAnimations();
 	//loads animation and adds required rotated frames
-	std::shared_ptr<CAnimation> loadHeroAnimation(const std::string &name);
+	std::shared_ptr<CAnimation> loadHeroAnimation(const std::string & name);
 
 	void loadHeroFlagAnimations();
 
 	//loads animation and adds required rotated frames
-	std::shared_ptr<CAnimation> loadHeroFlagAnimation(const std::string &name);
+	std::shared_ptr<CAnimation> loadHeroFlagAnimation(const std::string & name);
 
 	void loadErmuToPicture();
 	void loadFogOfWar();
@@ -54,7 +62,7 @@ class Graphics
 public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
-	std::array< std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
+	std::array<std::shared_ptr<IFont>, FONTS_NUMBER> fonts;
 
 	//various graphics
 	SDL_Color * playerColors; //array [8]
@@ -65,16 +73,16 @@ public:
 	std::shared_ptr<CAnimation> heroMoveArrows;
 
 	// [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	std::map< std::string, std::shared_ptr<CAnimation> > heroAnimations;
-	std::vector< std::shared_ptr<CAnimation> > heroFlagAnimations;
+	std::map<std::string, std::shared_ptr<CAnimation>> heroAnimations;
+	std::vector<std::shared_ptr<CAnimation>> heroFlagAnimations;
 
 	// [boat type: 0 .. 2]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	std::array< std::shared_ptr<CAnimation>, 3> boatAnimations;
+	std::array<std::shared_ptr<CAnimation>, 3> boatAnimations;
 
-	std::array< std::vector<std::shared_ptr<CAnimation> >, 3> boatFlagAnimations;
+	std::array<std::vector<std::shared_ptr<CAnimation>>, 3> boatFlagAnimations;
 
 	//all other objects (not hero or boat)
-	std::map< std::string, std::shared_ptr<CAnimation> > mapObjectAnimations;
+	std::map<std::string, std::shared_ptr<CAnimation>> mapObjectAnimations;
 
 	std::shared_ptr<CAnimation> fogOfWarFullHide;
 	std::shared_ptr<CAnimation> fogOfWarPartialHide;
@@ -84,8 +92,8 @@ public:
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
-	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
-	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
+	std::vector<std::vector<std::string>> battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
+	std::map<int, std::vector<std::string>> battleACToDef; //maps AC format to vector of appropriate def names
 
 	//functions
 	Graphics();

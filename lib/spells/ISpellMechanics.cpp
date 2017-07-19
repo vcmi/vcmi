@@ -22,25 +22,20 @@
 #include "BattleSpellMechanics.h"
 #include "CreatureSpellMechanics.h"
 
-BattleSpellCastParameters::Destination::Destination(const CStack * destination):
-	stackValue(destination),
-	hexValue(destination->position)
+BattleSpellCastParameters::Destination::Destination(const CStack * destination)
+	: stackValue(destination), hexValue(destination->position)
 {
 
 }
 
-BattleSpellCastParameters::Destination::Destination(const BattleHex & destination):
-	stackValue(nullptr),
-	hexValue(destination)
+BattleSpellCastParameters::Destination::Destination(const BattleHex & destination)
+	: stackValue(nullptr), hexValue(destination)
 {
 
 }
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, const ISpellCaster * caster, const CSpell * spell_)
-	: spell(spell_), cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
-	casterHero(nullptr),
-	mode(ECastingMode::HERO_CASTING), casterStack(nullptr),
-	spellLvl(0),  effectLevel(0), effectPower(0), enchantPower(0), effectValue(0)
+	: spell(spell_), cb(cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)), casterHero(nullptr), mode(ECastingMode::HERO_CASTING), casterStack(nullptr), spellLvl(0), effectLevel(0), effectPower(0), enchantPower(0), effectValue(0)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
 	casterHero = dynamic_cast<const CGHeroInstance *>(caster);
@@ -59,15 +54,13 @@ BattleSpellCastParameters::BattleSpellCastParameters(const BattleInfo * cb, cons
 }
 
 BattleSpellCastParameters::BattleSpellCastParameters(const BattleSpellCastParameters & orig, const ISpellCaster * caster)
-	:spell(orig.spell), cb(orig.cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)),
-	casterHero(nullptr), mode(ECastingMode::MAGIC_MIRROR), casterStack(nullptr),
-	spellLvl(orig.spellLvl),  effectLevel(orig.effectLevel), effectPower(orig.effectPower), enchantPower(orig.enchantPower), effectValue(orig.effectValue)
+	: spell(orig.spell), cb(orig.cb), caster(caster), casterColor(caster->getOwner()), casterSide(cb->whatSide(casterColor)), casterHero(nullptr), mode(ECastingMode::MAGIC_MIRROR), casterStack(nullptr), spellLvl(orig.spellLvl), effectLevel(orig.effectLevel), effectPower(orig.effectPower), enchantPower(orig.enchantPower), effectValue(orig.effectValue)
 {
 	casterStack = dynamic_cast<const CStack *>(caster);
 	casterHero = dynamic_cast<const CGHeroInstance *>(caster);
 }
 
-void BattleSpellCastParameters::aimToHex(const BattleHex& destination)
+void BattleSpellCastParameters::aimToHex(const BattleHex & destination)
 {
 	destinations.push_back(Destination(destination));
 }
@@ -102,7 +95,7 @@ BattleHex BattleSpellCastParameters::getFirstDestinationHex() const
 	if(destinations.empty())
 	{
 		logGlobal->error("Spell have no destinations.");
-        return BattleHex::INVALID;
+		return BattleHex::INVALID;
 	}
 	return destinations.at(0).hexValue;
 }
@@ -113,14 +106,14 @@ int BattleSpellCastParameters::getEffectValue() const
 }
 
 ///ISpellMechanics
-ISpellMechanics::ISpellMechanics(const CSpell * s):
-	owner(s)
+ISpellMechanics::ISpellMechanics(const CSpell * s)
+	: owner(s)
 {
 }
 
 std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch(s->id)
 	{
 	case SpellID::ANTI_MAGIC:
 		return make_unique<AntimagicMechanics>(s);
@@ -173,14 +166,14 @@ std::unique_ptr<ISpellMechanics> ISpellMechanics::createMechanics(const CSpell *
 }
 
 //IAdventureSpellMechanics
-IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s):
-	owner(s)
+IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
+	: owner(s)
 {
 }
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch (s->id)
+	switch(s->id)
 	{
 	case SpellID::SUMMON_BOAT:
 		return make_unique<SummonBoatMechanics>(s);

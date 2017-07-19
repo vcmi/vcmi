@@ -22,25 +22,25 @@ class IBonusBearer;
 class CAnimImage;
 
 /// Shows a text by moving the mouse cursor over the object
-class CHoverableArea: public virtual CIntObject
+class CHoverableArea : public virtual CIntObject
 {
 public:
 	std::string hoverText;
 
-	virtual void hover (bool on) override;
+	virtual void hover(bool on) override;
 
 	CHoverableArea();
 	virtual ~CHoverableArea();
 };
 
 /// Can interact on left and right mouse clicks, plus it shows a text when by hovering over it
-class LRClickableAreaWText: public CHoverableArea
+class LRClickableAreaWText : public CHoverableArea
 {
 public:
 	std::string text;
 
 	LRClickableAreaWText();
-	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
+	LRClickableAreaWText(const Rect & Pos, const std::string & HoverText = "", const std::string & ClickText = "");
 	virtual ~LRClickableAreaWText();
 	void init();
 
@@ -51,9 +51,10 @@ public:
 /// base class for hero/town/garrison tooltips
 class CArmyTooltip : public CIntObject
 {
-	void init(const InfoAboutArmy &army);
+	void init(const InfoAboutArmy & army);
+
 public:
-	CArmyTooltip(Point pos, const InfoAboutArmy &army);
+	CArmyTooltip(Point pos, const InfoAboutArmy & army);
 	CArmyTooltip(Point pos, const CArmedInstance * army);
 };
 
@@ -62,9 +63,10 @@ public:
 /// background for tooltip: HEROQVBK
 class CHeroTooltip : public CArmyTooltip
 {
-	void init(const InfoAboutHero &hero);
+	void init(const InfoAboutHero & hero);
+
 public:
-	CHeroTooltip(Point pos, const InfoAboutHero &hero);
+	CHeroTooltip(Point pos, const InfoAboutHero & hero);
 	CHeroTooltip(Point pos, const CGHeroInstance * hero);
 };
 
@@ -73,9 +75,10 @@ public:
 /// background for tooltip: TOWNQVBK
 class CTownTooltip : public CArmyTooltip
 {
-	void init(const InfoAboutTown &town);
+	void init(const InfoAboutTown & town);
+
 public:
-	CTownTooltip(Point pos, const InfoAboutTown &town);
+	CTownTooltip(Point pos, const InfoAboutTown & town);
 	CTownTooltip(Point pos, const CGTownInstance * town);
 };
 
@@ -83,13 +86,14 @@ public:
 class CCreaturePic : public CIntObject
 {
 private:
-	CPicture *bg;
-	CCreatureAnim *anim; //displayed animation
+	CPicture * bg;
+	CCreatureAnim * anim; //displayed animation
 	CLabel * amount;
 
-	void show(SDL_Surface *to) override;
+	void show(SDL_Surface * to) override;
+
 public:
-	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true);
+	CCreaturePic(int x, int y, const CCreature * cre, bool Big = true, bool Animated = true);
 
 	void setAmount(int newAmount);
 };
@@ -98,7 +102,7 @@ public:
 class CMinorResDataBar : public CIntObject
 {
 public:
-	SDL_Surface *bg; //background bitmap
+	SDL_Surface * bg; //background bitmap
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	CMinorResDataBar();
@@ -106,9 +110,10 @@ public:
 };
 
 /// Opens hero window by left-clicking on it
-class CHeroArea: public CIntObject
+class CHeroArea : public CIntObject
 {
 	const CGHeroInstance * hero;
+
 public:
 
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
@@ -119,7 +124,7 @@ public:
 };
 
 /// Can interact on left and right mouse clicks
-class LRClickableAreaWTextComp: public LRClickableAreaWText
+class LRClickableAreaWTextComp : public LRClickableAreaWText
 {
 public:
 	int baseType;
@@ -127,12 +132,12 @@ public:
 	virtual void clickLeft(tribool down, bool previousState) override;
 	virtual void clickRight(tribool down, bool previousState) override;
 
-	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
+	LRClickableAreaWTextComp(const Rect & Pos = Rect(0, 0, 0, 0), int BaseType = -1);
 	CComponent * createComponent() const;
 };
 
 /// Opens town screen by left-clicking on it
-class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
+class LRClickableAreaOpenTown : public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
@@ -143,12 +148,13 @@ public:
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
-	CAnimImage *image;
+	CAnimImage * image;
+
 public:
 	bool morale; //true if morale, false if luck
 	bool small;
 
-	void set(const IBonusBearer *node);
+	void set(const IBonusBearer * node);
 
-	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
+	MoraleLuckBox(bool Morale, const Rect & r, bool Small = false);
 };

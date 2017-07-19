@@ -18,7 +18,7 @@ class ResourceID;
 class DLL_LINKAGE ISimpleResourceLoader
 {
 public:
-	virtual ~ISimpleResourceLoader() { };
+	virtual ~ISimpleResourceLoader() {};
 
 	/**
 	 * Loads a resource with the given resource name.
@@ -100,7 +100,7 @@ public:
 	 */
 	virtual std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourceID & resourceName) const
 	{
-		if (existsResource(resourceName))
+		if(existsResource(resourceName))
 			return std::vector<const ISimpleResourceLoader *>(1, this);
 		return std::vector<const ISimpleResourceLoader *>();
 	}

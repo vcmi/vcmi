@@ -13,35 +13,34 @@
 
 namespace vstd
 {
-	template<typename Func>
-	class ScopeGuard
+template<typename Func>
+class ScopeGuard
+{
+	bool fire;
+	Func f;
+
+	explicit ScopeGuard(ScopeGuard &);
+	ScopeGuard & operator=(ScopeGuard &);
+
+public:
+	ScopeGuard(ScopeGuard && other)
+		: fire(false), f(other.f)
 	{
-		bool fire;
-		Func f;
-
-		explicit ScopeGuard(ScopeGuard&);
-		ScopeGuard& operator=(ScopeGuard&);
-	public:
-		ScopeGuard(ScopeGuard &&other):
-		    fire(false),
-			f(other.f)
-		{
-			std::swap(fire, other.fire);
-		}
-
-		explicit ScopeGuard(Func && f):
-			fire(true),
-			f(std::forward<Func>(f))
-		{}
-		~ScopeGuard()
-		{
-			f();
-		}
-	};
-
-	template <typename Func>
-	ScopeGuard<Func> makeScopeGuard(Func&& exitScope)
-	{
-		return ScopeGuard<Func>(std::forward<Func>(exitScope));
+		std::swap(fire, other.fire);
 	}
+
+	explicit ScopeGuard(Func && f)
+		: fire(true), f(std::forward<Func>(f))
+	{}
+	~ScopeGuard()
+	{
+		f();
+	}
+};
+
+template<typename Func>
+ScopeGuard<Func> makeScopeGuard(Func && exitScope)
+{
+	return ScopeGuard<Func>(std::forward<Func>(exitScope));
+}
 }

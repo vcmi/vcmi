@@ -60,21 +60,17 @@
 
 using namespace CSDL_Ext;
 
-std::list<CFocusable*> CFocusable::focusables;
+std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
 #undef min
 #undef max
 
-CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow *window, const CCreature *crea, int totalAmount):
-	CIntObject(LCLICK | RCLICK),
-	parent(window),
-	selected(false),
-	creature(crea),
-	amount(totalAmount)
+CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
+	: CIntObject(LCLICK | RCLICK), parent(window), selected(false), creature(crea), amount(totalAmount)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	pic = new CCreaturePic(1,1, creature, true, true);
+	pic = new CCreaturePic(1, 1, creature, true, true);
 	// 1 + 1 px for borders
 	pos.w = pic->pos.w + 2;
 	pos.h = pic->pos.h + 2;
@@ -88,20 +84,20 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 
 void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 		parent->select(this);
 }
 
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 		GH.pushInt(new CStackWindow(creature, true));
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	if (selected)
+	if(selected)
 		drawBorder(to, pos, int3(248, 0, 0));
 	else
 		drawBorder(to, pos, int3(232, 212, 120));
@@ -112,7 +108,7 @@ CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
 	type |= REDRAW_PARENT;
 	pos = position + pos;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
+	new CLabel(pos.w / 2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
 }
 
 void CRecruitmentWindow::CCostBox::set(TResources res)
@@ -136,7 +132,7 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 	resources.clear();
 
 	TResources::nziterator iter(res);
-	while (iter.valid())
+	while(iter.valid())
 	{
 		CAnimImage * image = new CAnimImage("RESOURCE", iter->resType);
 		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
@@ -145,11 +141,11 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 		iter++;
 	}
 
-	if (!resources.empty())
+	if(!resources.empty())
 	{
 		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
 		//reverse to display gold as first resource
-		for (auto & res : boost::adaptors::reverse(resources))
+		for(auto & res : boost::adaptors::reverse(resources))
 		{
 			res.second.first->moveBy(Point(curx, 22));
 			res.second.second->moveBy(Point(curx, 22));
@@ -159,20 +155,20 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 	redraw();
 }
 
-void CRecruitmentWindow::select(CCreatureCard *card)
+void CRecruitmentWindow::select(CCreatureCard * card)
 {
-	if (card == selected)
+	if(card == selected)
 		return;
 
-	if (selected)
+	if(selected)
 		selected->select(false);
 
 	selected = card;
 
-	if (selected)
+	if(selected)
 		selected->select(true);
 
-	if (card)
+	if(card)
 	{
 		si32 maxAmount = card->creature->maxAmount(LOCPLINT->cb->getResourceAmount());
 
@@ -201,8 +197,8 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 
 void CRecruitmentWindow::buy()
 {
-	CreatureID crid =  selected->creature->idNumber;
-	SlotID dstslot = dst-> getSlotFor(crid);
+	CreatureID crid = selected->creature->idNumber;
+	SlotID dstslot = dst->getSlotFor(crid);
 
 	if(!dstslot.validSlot() && (selected->creature->warMachine == ArtifactID::NONE)) //no available slot
 	{
@@ -231,43 +227,38 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	CWindowObject::showAll(to);
 
 	// recruit\total values
-	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239,215,123));
-	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239,215,123));
+	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239, 215, 123));
+	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239, 215, 123));
 
 	//cost boxes
-	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, int3(239,215,123));
-	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239,215,123));
+	drawBorder(to, pos.x + 64, pos.y + 222, 99, 76, int3(239, 215, 123));
+	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239, 215, 123));
 
 	//buttons borders
-	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173,142,66));
-	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
+	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173, 142, 66));
+	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173, 142, 66));
+	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173, 142, 66));
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const std::function<void(CreatureID,int)> &Recruit, int y_offset):
-	CWindowObject(PLAYER_COLORED, "TPRCRT"),
-	onRecruit(Recruit),
-	level(Level),
-	dst(Dst),
-	selected(nullptr),
-	dwelling(Dwelling)
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID, int)> & Recruit, int y_offset)
+	: CWindowObject(PLAYER_COLORED, "TPRCRT"), onRecruit(Recruit), level(Level), dst(Dst), selected(nullptr), dwelling(Dwelling)
 {
 	moveBy(Point(0, y_offset));
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	slider = new CSlider(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
+	slider = new CSlider(Point(176, 279), 135, std::bind(&CRecruitmentWindow::sliderMoved, this, _1), 0, 0, 0, true);
 
-	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax,slider), SDLK_m);
-	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy,this), SDLK_RETURN);
-	cancelButton = new CButton(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close,this), SDLK_ESCAPE);
+	maxButton = new CButton(Point(134, 313), "IRCBTNS.DEF", CGI->generaltexth->zelp[553], std::bind(&CSlider::moveToMax, slider), SDLK_m);
+	buyButton = new CButton(Point(212, 313), "IBY6432.DEF", CGI->generaltexth->zelp[554], std::bind(&CRecruitmentWindow::buy, this), SDLK_RETURN);
+	cancelButton = new CButton(Point(290, 313), "ICN6432.DEF", CGI->generaltexth->zelp[555], std::bind(&CRecruitmentWindow::close, this), SDLK_ESCAPE);
 
 	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
 	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
 	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
 
-	costPerTroopValue =  new CCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
+	costPerTroopValue = new CCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
 	totalCostValue = new CCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
 
 	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]); //available t
@@ -282,7 +273,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 	size_t selectedIndex = 0;
 
-	if (!cards.empty() && selected) // find position of selected item
+	if(!cards.empty() && selected) // find position of selected item
 		selectedIndex = std::find(cards.begin(), cards.end(), selected) - cards.begin();
 
 	//deselect card
@@ -293,7 +284,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 		delete card;
 	cards.clear();
 
-	for(int i=0; i<dwelling->creatures.size(); i++)
+	for(int i = 0; i < dwelling->creatures.size(); i++)
 	{
 		//find appropriate level
 		if(level >= 0 && i != level)
@@ -315,7 +306,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	//maximum distance we can use without reaching window borders
 	int availableSpace = pos.w - 50 - creatureWidth * cards.size();
 
-	if (cards.size() > 1) // avoid division by zero
+	if(cards.size() > 1) // avoid division by zero
 		availableSpace /= cards.size() - 1;
 	else
 		availableSpace = 0;
@@ -326,7 +317,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	const int totalCreatureWidth = spaceBetween + creatureWidth;
 
 	//now we know total amount of cards and can move them to correct position
-	int curx = pos.w / 2 - (creatureWidth*cards.size()/2) - (spaceBetween*(cards.size()-1)/2);
+	int curx = pos.w / 2 - (creatureWidth * cards.size() / 2) - (spaceBetween * (cards.size() - 1) / 2);
 	for(auto & card : cards)
 	{
 		card->moveBy(Point(curx, 64));
@@ -344,7 +335,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 void CRecruitmentWindow::sliderMoved(int to)
 {
-	if (!selected)
+	if(!selected)
 		return;
 
 	buyButton->block(!to);
@@ -354,15 +345,8 @@ void CRecruitmentWindow::sliderMoved(int to)
 	totalCostValue->set(selected->creature->cost * to);
 }
 
-CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback_,
-						   int leftMin_, int rightMin_, int leftAmount_, int rightAmount_):
-	CWindowObject(PLAYER_COLORED, "GPUCRDIV"),
-	callback(callback_),
-	leftAmount(leftAmount_),
-	rightAmount(rightAmount_),
-	leftMin(leftMin_),
-	rightMin(rightMin_),
-	slider(nullptr)
+CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, int)> callback_, int leftMin_, int rightMin_, int leftAmount_, int rightAmount_)
+	: CWindowObject(PLAYER_COLORED, "GPUCRDIV"), callback(callback_), leftAmount(leftAmount_), rightAmount(rightAmount_), leftMin(leftMin_), rightMin(rightMin_), slider(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -386,19 +370,19 @@ CSplitWindow::CSplitWindow(const CCreature * creature, std::function<void(int, i
 	rightInput->setText(boost::lexical_cast<std::string>(rightAmount), false);
 
 	animLeft = new CCreaturePic(20, 54, creature, true, false);
-	animRight = new CCreaturePic(177, 54,creature, true, false);
+	animRight = new CCreaturePic(177, 54, creature, true, false);
 
 	slider = new CSlider(Point(21, 194), 257, std::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
 
 	std::string title = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(title,"%s", creature->namePl);
+	boost::algorithm::replace_first(title, "%s", creature->namePl);
 	new CLabel(150, 34, FONT_BIG, CENTER, Colors::YELLOW, title);
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
 {
 	int amount = 0;
-	if (text.length())
+	if(text.length())
 	{
 		try
 		{
@@ -410,7 +394,7 @@ void CSplitWindow::setAmountText(std::string text, bool left)
 		}
 
 		int total = leftAmount + rightAmount;
-		if (amount > total)
+		if(amount > total)
 			amount = total;
 	}
 
@@ -421,7 +405,7 @@ void CSplitWindow::setAmountText(std::string text, bool left)
 void CSplitWindow::setAmount(int value, bool left)
 {
 	int total = leftAmount + rightAmount;
-	leftAmount  = left ? value : total - value;
+	leftAmount = left ? value : total - value;
 	rightAmount = left ? total - value : value;
 
 	leftInput->setText(boost::lexical_cast<std::string>(leftAmount));
@@ -439,41 +423,40 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback):
-	CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
-	cb(callback)
+CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
+	: CWindowObject(PLAYER_COLORED, "LVLUPBKG"), cb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	LOCPLINT->showingDialog->setn(true);
 
 	new CAnimImage("PortraitsLarge", hero->portrait, 0, 170, 66);
-	new CButton(Point(297, 413), "IOKAY",  CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
+	new CButton(Point(297, 413), "IOKAY", CButton::tooltip(), std::bind(&CLevelWindow::close, this), SDLK_RETURN);
 
 	//%s has gained a level.
 	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+		   boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
 
 	//%s is now a level %d %s.
 	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
+		   boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
 
 	new CAnimImage("PSKIL42", pskill, 0, 174, 190);
 
 	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::WHITE,
-			   CGI->generaltexth->primarySkillNames[pskill] + " +1");
+		   CGI->generaltexth->primarySkillNames[pskill] + " +1");
 
-	if (!skills.empty())
+	if(!skills.empty())
 	{
 		std::vector<CSelectableComponent *> comps;
 
 		for(auto & skill : skills)
 		{
 			comps.push_back(new CSelectableComponent(
-								CComponent::secskill,
-								skill,
-								hero->getSecSkillLevel( SecondarySkill(skill) )+1,
-								CComponent::medium));
+						CComponent::secskill,
+						skill,
+						hero->getSecSkillLevel(SecondarySkill(skill)) + 1,
+						CComponent::medium));
 		}
 		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
 	}
@@ -484,7 +467,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkil
 CLevelWindow::~CLevelWindow()
 {
 	//FIXME: call callback if there was nothing to select?
-	if (box && box->selectedIndex() != -1)
+	if(box && box->selectedIndex() != -1)
 		cb(box->selectedIndex());
 
 	LOCPLINT->showingDialog->setn(false);
@@ -502,9 +485,8 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
-CSystemOptionsWindow::CSystemOptionsWindow():
-	CWindowObject(PLAYER_COLORED, "SysOpBck"),
-	onFullscreenChanged(settings.listen["video"]["fullscreen"])
+CSystemOptionsWindow::CSystemOptionsWindow()
+	: CWindowObject(PLAYER_COLORED, "SysOpBck"), onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
@@ -512,8 +494,8 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"];
 
 	//left window section
-	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::YELLOW);
-	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
+	leftGroup = new CLabelGroup(FONT_MEDIUM, CENTER, Colors::YELLOW);
+	leftGroup->add(122, 64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
 	leftGroup->add(122, 262, texts["resolutionButton"]["label"].String());
@@ -522,52 +504,52 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 
 	//right section
 	rightGroup = new CLabelGroup(FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
-	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
+	rightGroup->add(282, 57, CGI->generaltexth->allTexts[572]);
+	rightGroup->add(282, 89, CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
 	rightGroup->add(282, 153, CGI->generaltexth->allTexts[577]);
 	rightGroup->add(282, 185, texts["creatureWindowButton"]["label"].String());
 	rightGroup->add(282, 217, texts["fullscreenButton"]["label"].String());
 
 	//setting up buttons
-	load = new CButton (Point(246,  298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
+	load = new CButton(Point(246, 298), "SOLOAD.DEF", CGI->generaltexth->zelp[321], [&](){ bloadf(); }, SDLK_l);
 	load->setImageOrder(1, 0, 2, 3);
 
-	save = new CButton (Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
+	save = new CButton(Point(357, 298), "SOSAVE.DEF", CGI->generaltexth->zelp[322], [&](){ bsavef(); }, SDLK_s);
 	save->setImageOrder(1, 0, 2, 3);
 
-	restart = new CButton (Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
+	restart = new CButton(Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
 	restart->setImageOrder(1, 0, 2, 3);
 
-	mainMenu = new CButton (Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
+	mainMenu = new CButton(Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
 	mainMenu->setImageOrder(1, 0, 2, 3);
 
-	quitGame = new CButton (Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
+	quitGame = new CButton(Point(246, 415), "soquit.def", CGI->generaltexth->zelp[324], [&](){ bquitf(); }, SDLK_q);
 	quitGame->setImageOrder(1, 0, 2, 3);
 
-	backToMap = new CButton ( Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
+	backToMap = new CButton(Point(357, 415), "soretrn.def", CGI->generaltexth->zelp[325], [&](){ breturnf(); }, SDLK_RETURN);
 	backToMap->setImageOrder(1, 0, 2, 3);
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
 	heroMoveSpeed = new CToggleGroup(0);
-	heroMoveSpeed->addToggle(1, new CToggleButton(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
-	heroMoveSpeed->addToggle(2, new CToggleButton(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
+	heroMoveSpeed->addToggle(1, new CToggleButton(Point(28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
+	heroMoveSpeed->addToggle(2, new CToggleButton(Point(76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
 	heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
 	heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
 	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
 	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 
 	enemyMoveSpeed = new CToggleGroup(0);
-	enemyMoveSpeed->addToggle(2, new CToggleButton(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
-	enemyMoveSpeed->addToggle(4, new CToggleButton(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
+	enemyMoveSpeed->addToggle(2, new CToggleButton(Point(28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
+	enemyMoveSpeed->addToggle(4, new CToggleButton(Point(76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
 	enemyMoveSpeed->addToggle(8, new CToggleButton(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
 	enemyMoveSpeed->addToggle(0, new CToggleButton(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
 	enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
 	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 
 	mapScrollSpeed = new CToggleGroup(0);
-	mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
-	mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
+	mapScrollSpeed->addToggle(1, new CToggleButton(Point(28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
+	mapScrollSpeed->addToggle(2, new CToggleButton(Point(92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
 	mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
 	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
@@ -579,26 +561,26 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	effectsVolume->addCallback(std::bind(&setIntSetting, "general", "sound", _1));
 
 	showReminder = new CToggleButton(Point(246, 87), "sysopchk.def", CGI->generaltexth->zelp[361],
-			[&] (bool value) { setBoolSetting("adventure", "heroReminder", value); });
+					 [&](bool value) { setBoolSetting("adventure", "heroReminder", value); });
 
-	quickCombat = new CToggleButton(Point(246, 87+32), "sysopchk.def", CGI->generaltexth->zelp[362],
-			[&] (bool value) { setBoolSetting("adventure", "quickCombat", value); });
+	quickCombat = new CToggleButton(Point(246, 87 + 32), "sysopchk.def", CGI->generaltexth->zelp[362],
+					[&](bool value) { setBoolSetting("adventure", "quickCombat", value); });
 
-	spellbookAnim = new CToggleButton(Point(246, 87+64), "sysopchk.def", CGI->generaltexth->zelp[364],
-			[&] (bool value) { setBoolSetting("video", "spellbookAnimation", value); });
+	spellbookAnim = new CToggleButton(Point(246, 87 + 64), "sysopchk.def", CGI->generaltexth->zelp[364],
+					  [&](bool value) { setBoolSetting("video", "spellbookAnimation", value); });
 
 	fullscreen = new CToggleButton(Point(246, 215), "sysopchk.def", CButton::tooltip(texts["fullscreenButton"]),
-			[&] (bool value) { setBoolSetting("video", "fullscreen", value); });
+				       [&](bool value) { setBoolSetting("video", "fullscreen", value); });
 
 	showReminder->setSelected(settings["adventure"]["heroReminder"].Bool());
 	quickCombat->setSelected(settings["adventure"]["quickCombat"].Bool());
 	spellbookAnim->setSelected(settings["video"]["spellbookAnimation"].Bool());
 	fullscreen->setSelected(settings["video"]["fullscreen"].Bool());
 
-	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->setSelected(newState.Bool());});
+	onFullscreenChanged([&](const JsonNode & newState){ fullscreen->setSelected(newState.Bool());});
 
-	gameResButton = new CButton(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]),
-											std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
+	gameResButton = new CButton(Point(28, 275), "buttons/resolution", CButton::tooltip(texts["resolutionButton"]),
+				    std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
 	std::string resText;
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
@@ -613,7 +595,7 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
-	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
+	for(config::CConfigHandler::GuiOptionsMap::value_type & value : conf.guiOptions)
 	{
 		std::string resX = boost::lexical_cast<std::string>(value.first.first);
 		std::string resY = boost::lexical_cast<std::string>(value.first.second);
@@ -621,7 +603,7 @@ void CSystemOptionsWindow::selectGameRes()
 	}
 
 	GH.pushInt(new CObjectListWindow(items, nullptr, texts["label"].String(), texts["help"].String(),
-			   std::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
+					 std::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -630,7 +612,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 	std::advance(iter, index);
 
 	//do not set resolution to illegal one (0x0)
-	assert(iter!=conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
+	assert(iter != conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
 
 	Settings gameRes = settings.write["video"]["screenRes"];
 	gameRes["width"].Float() = iter->first.first;
@@ -681,22 +663,21 @@ void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
 	GH.pushSDLEvent(eventType, code);
 }
 
-CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
-	CWindowObject(PLAYER_COLORED, "TPTAVERN"),
-	tavernObj(TavernObj)
+CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
+	: CWindowObject(PLAYER_COLORED, "TPTAVERN"), tavernObj(TavernObj)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
+	std::vector<const CGHeroInstance *> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
 	if(h.size() < 2)
 		h.resize(2, nullptr);
 
-	h1 = new HeroPortrait(selected,0,72,299,h[0]);
-	h2 = new HeroPortrait(selected,1,162,299,h[1]);
+	h1 = new HeroPortrait(selected, 0, 72, 299, h[0]);
+	h2 = new HeroPortrait(selected, 1, 162, 299, h[1]);
 
 	selected = 0;
-	if (!h[0])
+	if(!h[0])
 		selected = 1;
-	if (!h[0] && !h[1])
+	if(!h[0] && !h[1])
 		selected = -1;
 	oldSelected = -1;
 
@@ -738,7 +719,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		if(selected == -1)
 			recruit->block(true);
 	}
-	if (LOCPLINT->castleInt)
+	if(LOCPLINT->castleInt)
 		CCS->videoh->open(LOCPLINT->castleInt->town->town->clientInfo.tavernVideo);
 	else
 		CCS->videoh->open("TAVERN.BIK");
@@ -746,15 +727,15 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 
 void CTavernWindow::recruitb()
 {
-	const CGHeroInstance *toBuy = (selected ? h2 : h1)->h;
-	const CGObjectInstance *obj = tavernObj;
+	const CGHeroInstance * toBuy = (selected ? h2 : h1)->h;
+	const CGObjectInstance * obj = tavernObj;
 	close();
 	LOCPLINT->cb->recruitHero(obj, toBuy);
 }
 
 void CTavernWindow::thievesguildb()
 {
-	GH.pushInt( new CThievesGuildWindow(tavernObj) );
+	GH.pushInt(new CThievesGuildWindow(tavernObj));
 }
 
 CTavernWindow::~CTavernWindow()
@@ -766,12 +747,12 @@ void CTavernWindow::show(SDL_Surface * to)
 {
 	CWindowObject::show(to);
 
-	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
+	CCS->videoh->update(pos.x + 70, pos.y + 56, to, true, false);
 	if(selected >= 0)
 	{
-		HeroPortrait *sel = selected ? h2 : h1;
+		HeroPortrait * sel = selected ? h2 : h1;
 
-		if (selected != oldSelected  &&  !recruit->isBlocked())
+		if(selected != oldSelected && !recruit->isBlocked())
 		{
 			// Selected hero just changed. Update RECRUIT button hover text if recruitment is allowed.
 			oldSelected = selected;
@@ -781,7 +762,7 @@ void CTavernWindow::show(SDL_Surface * to)
 		}
 
 		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
-		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+		CSDL_Ext::drawBorder(to, sel->pos.x - 2, sel->pos.y - 2, sel->pos.w + 4, sel->pos.h + 4, int3(247, 223, 123));
 	}
 }
 
@@ -799,8 +780,8 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 	}
 }
 
-CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
-: h(H), _sel(&sel), _id(id)
+CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
+	: h(H), _sel(&sel), _id(id)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -813,10 +794,10 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	if(H)
 	{
 		hoverName = CGI->generaltexth->tavernInfo[4];
-		boost::algorithm::replace_first(hoverName,"%s",H->name);
+		boost::algorithm::replace_first(hoverName, "%s", H->name);
 
 		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
-		for(int i=13; i<=17; i++) //war machines and spellbook don't count
+		for(int i = 13; i <= 17; i++) //war machines and spellbook don't count
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
 
@@ -830,7 +811,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	}
 }
 
-void CTavernWindow::HeroPortrait::hover( bool on )
+void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
@@ -848,46 +829,46 @@ void CExchangeWindow::questlog(int whichHero)
 void CExchangeWindow::prepareBackground()
 {
 	//printing heroes' names and levels
-	auto genTitle = [](const CGHeroInstance *h)
-	{
-		return boost::str(boost::format(CGI->generaltexth->allTexts[138])
-						  % h->name % h->level % h->type->heroClass->name);
-	};
+	auto genTitle = [](const CGHeroInstance * h)
+		{
+			return boost::str(boost::format(CGI->generaltexth->allTexts[138])
+					  % h->name % h->level % h->type->heroClass->name);
+		};
 
 	new CLabel(147, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[0]));
 	new CLabel(653, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
 	//printing primary skills
-	for(int g=0; g<4; ++g)
-		new CAnimImage("PSKIL32", g, 0, 385, 19 + 36*g);
+	for(int g = 0; g < 4; ++g)
+		new CAnimImage("PSKIL32", g, 0, 385, 19 + 36 * g);
 
 	//heroes related thing
-	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
+	for(int b = 0; b < ARRAY_COUNT(heroInst); b++)
 	{
 		CHeroWithMaybePickedArtifact heroWArt = CHeroWithMaybePickedArtifact(this, heroInst[b]);
 		//printing primary skills' amounts
-		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
+		for(int m = 0; m < GameConstants::PRIMARY_SKILLS; ++m)
 			new CLabel(352 + 93 * b, 35 + 36 * m, FONT_SMALL, CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m))));
+				   boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m))));
 
 		//printing secondary skills
-		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)
+		for(int m = 0; m < heroInst[b]->secSkills.size(); ++m)
 		{
 			int id = heroInst[b]->secSkills[m].first;
 			int level = heroInst[b]->secSkills[m].second;
-			new CAnimImage("SECSK32", id*3 + level + 2 , 0, 32 + 36 * m + 454 * b, 88);
+			new CAnimImage("SECSK32", id * 3 + level + 2, 0, 32 + 36 * m + 454 * b, 88);
 		}
 
 		//hero's specialty
-		new CAnimImage("UN32", heroInst[b]->type->imageIndex, 0, 67 + 490*b, 45);
+		new CAnimImage("UN32", heroInst[b]->type->imageIndex, 0, 67 + 490 * b, 45);
 
 		//experience
-		new CAnimImage("PSKIL32", 4, 0, 103 + 490*b, 45);
-		new CLabel(119 + 490*b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->exp));
+		new CAnimImage("PSKIL32", 4, 0, 103 + 490 * b, 45);
+		new CLabel(119 + 490 * b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->exp));
 
 		//mana points
-		new CAnimImage("PSKIL32", 5, 0, 139 + 490*b, 45);
-		new CLabel(155 + 490*b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->mana));
+		new CAnimImage("PSKIL32", 5, 0, 139 + 490 * b, 45);
+		new CLabel(155 + 490 * b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->mana));
 	}
 
 	//printing portraits
@@ -895,8 +876,8 @@ void CExchangeWindow::prepareBackground()
 	new CAnimImage("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID):
-	CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
+	: CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
@@ -917,12 +898,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	artSets.push_back(artifs[1]);
 
 	//primary skills
-	for(int g=0; g<4; ++g)
+	for(int g = 0; g < 4; ++g)
 	{
 		//primary skill's clickable areas
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
 		primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
-		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
+		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2 + g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
 		primSkillAreas[g]->baseType = 0;
@@ -931,43 +912,43 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	//heroes related thing
-	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
+	for(int b = 0; b < ARRAY_COUNT(heroInst); b++)
 	{
 		//secondary skill's clickable areas
-		for(int g=0; g<heroInst[b]->secSkills.size(); ++g)
+		for(int g = 0; g < heroInst[b]->secSkills.size(); ++g)
 		{
 			int skill = heroInst[b]->secSkills[g].first,
-				level = heroInst[b]->secSkills[g].second; // <1, 3>
+			    level = heroInst[b]->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(new LRClickableAreaWTextComp());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g * 36 + b * 454, pos.y + 88);
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
 			secSkillAreas[b][g]->bonusValue = level;
-			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
+			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level - 1];
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->skillName[skill]);
 		}
 
-		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
+		portrait[b] = new CHeroArea(257 + 228 * b, 13, heroInst[b]);
 
 		specialty[b] = new LRClickableAreaWText();
-		specialty[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		specialty[b]->pos = genRect(32, 32, pos.x + 69 + 490 * b, pos.y + 45);
 		specialty[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialty[b]->text = heroInst[b]->type->specDescr;
 
 		experience[b] = new LRClickableAreaWText();
-		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
+		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490 * b, pos.y + 45);
 		experience[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experience[b]->text = CGI->generaltexth->allTexts[2].c_str();
 		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
-		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(heroInst[b]->level+1)));
+		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(heroInst[b]->level + 1)));
 		boost::algorithm::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
 
 		spellPoints[b] = new LRClickableAreaWText();
-		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
+		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490 * b, pos.y + 45);
 		spellPoints[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPoints[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPoints[b]->text, "%s", heroInst[b]->name);
@@ -975,10 +956,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(spellPoints[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->manaLimit()));
 
 		//setting morale
-		morale[b] = new MoraleLuckBox(true, genRect(32, 32, 176 + 490*b, 39), true);
+		morale[b] = new MoraleLuckBox(true, genRect(32, 32, 176 + 490 * b, 39), true);
 		morale[b]->set(heroInst[b]);
 		//setting luck
-		luck[b] = new MoraleLuckBox(false, genRect(32, 32, 212 + 490*b, 39), true);
+		luck[b] = new MoraleLuckBox(false, genRect(32, 32, 212 + 490 * b, 39), true);
 		luck[b]->set(heroInst[b]);
 	}
 
@@ -987,16 +968,16 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = new CButton(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 0));
-	questlogButton[1] = new CButton(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog,this, 1));
+	questlogButton[0] = new CButton(Point(10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
+	questlogButton[1] = new CButton(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
 	ourBar = new CGStatusBar(new CPicture(*background, barRect, 5, 578, false));
 
 	//garrison interface
-	garr = new CGarrisonInt(69, 131, 4, Point(418,0), *background, Point(69,131), heroInst[0],heroInst[1], true, true);
-	garr->addSplitBtn(new CButton( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
-	garr->addSplitBtn(new CButton( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
+	garr = new CGarrisonInt(69, 131, 4, Point(418, 0), *background, Point(69, 131), heroInst[0], heroInst[1], true, true);
+	garr->addSplitBtn(new CButton(Point(10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
+	garr->addSplitBtn(new CButton(Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
 }
 
 CExchangeWindow::~CExchangeWindow()
@@ -1005,8 +986,8 @@ CExchangeWindow::~CExchangeWindow()
 	artifs[1]->commonInfo = nullptr;
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const std::function<void()> &onBuy):
-	CWindowObject(PLAYER_COLORED, "TPSHIP")
+CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy)
+	: CWindowObject(PLAYER_COLORED, "TPSHIP")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -1014,7 +995,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 
 	std::string boatFilenames[3] = {"AB01_", "AB02_", "AB03_"};
 
-	Point waterCenter = Point(bgWater->pos.x+bgWater->pos.w/2, bgWater->pos.y+bgWater->pos.h/2);
+	Point waterCenter = Point(bgWater->pos.x + bgWater->pos.w / 2, bgWater->pos.y + bgWater->pos.h / 2);
 	bgShip = new CAnimImage(boatFilenames[boatType], 0, 7, 120, 96, CShowableAnim::USE_RLE);
 	bgShip->center(waterCenter);
 
@@ -1028,8 +1009,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit  = new CButton( Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
-	build = new CButton( Point( 42, 312), "IBUY30",  CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this),SDLK_RETURN);
+	quit = new CButton(Point(224, 312), "ICANCEL", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
+	build = new CButton(Point(42, 312), "IBUY30", CButton::tooltip(CGI->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), SDLK_RETURN);
 	build->addCallback(onBuy);
 
 	for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
@@ -1043,14 +1024,12 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 
 	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
-	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::WHITE,   CGI->generaltexth->jktexts[14]);
+	title = new CLabel(164, 27, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
+	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[14]);
 }
 
-CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
-	CWindowObject(PLAYER_COLORED | BORDERED, "PUZZLE"),
-	grailPos(GrailPos),
-	currentAlpha(SDL_ALPHA_OPAQUE)
+CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
+	: CWindowObject(PLAYER_COLORED | BORDERED, "PUZZLE"), grailPos(GrailPos), currentAlpha(SDL_ALPHA_OPAQUE)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CCS->soundh->playSound(soundBase::OBELISK);
@@ -1071,7 +1050,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 	{
 		const SPuzzleInfo & info = elem;
 
-		auto   piece = new CPicture(info.filename, info.x, info.y);
+		auto piece = new CPicture(info.filename, info.x, info.y);
 
 		//piece that will slowly disappear
 		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
@@ -1079,7 +1058,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
-			SDL_SetSurfaceBlendMode(piece->bg,SDL_BLENDMODE_BLEND);
+			SDL_SetSurfaceBlendMode(piece->bg, SDL_BLENDMODE_BLEND);
 		}
 	}
 }
@@ -1102,7 +1081,7 @@ void CPuzzleWindow::show(SDL_Surface * to)
 {
 	static int animSpeed = 2;
 
-	if (currentAlpha < animSpeed)
+	if(currentAlpha < animSpeed)
 	{
 		//animation done
 		for(auto & piece : piecesToRemove)
@@ -1121,7 +1100,7 @@ void CPuzzleWindow::show(SDL_Surface * to)
 
 void CTransformerWindow::CItem::move()
 {
-	if (left)
+	if(left)
 		moveBy(Point(289, 0));
 	else
 		moveBy(Point(-289, 0));
@@ -1142,8 +1121,8 @@ void CTransformerWindow::CItem::update()
 	icon->setFrame(parent->army->getCreature(SlotID(id))->idNumber + 2);
 }
 
-CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
-	id(id), size(size), parent(parent)
+CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id)
+	: id(id), size(size), parent(parent)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);
@@ -1151,23 +1130,23 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
 	pos.w = 58;
 	pos.h = 64;
 
-	pos.x += 45  + (id%3)*83 + id/6*83;
-	pos.y += 109 + (id/3)*98;
+	pos.x += 45 + (id % 3) * 83 + id / 6 * 83;
+	pos.y += 109 + (id / 3) * 98;
 	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(SlotID(id))->idNumber + 2);
-	new CLabel(28, 76,FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));//stack size
+	new CLabel(28, 76, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size)); //stack size
 }
 
 void CTransformerWindow::makeDeal()
 {
-	for (auto & elem : items)
-		if (!elem->left)
+	for(auto & elem : items)
+		if(!elem->left)
 			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, elem->id, 0, 0, hero);
 }
 
 void CTransformerWindow::addAll()
 {
-	for (auto & elem : items)
-		if (elem->left)
+	for(auto & elem : items)
+		if(elem->left)
 			elem->move();
 	showAll(screen2);
 }
@@ -1180,30 +1159,28 @@ void CTransformerWindow::updateGarrisons()
 	}
 }
 
-CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):
-	CWindowObject(PLAYER_COLORED, "SKTRNBK"),
-	hero(_hero),
-	town(_town)
+CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town)
+	: CWindowObject(PLAYER_COLORED, "SKTRNBK"), hero(_hero), town(_town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	if (hero)
+	if(hero)
 		army = hero;
 	else
 		army = town;
 
-	for (int i=0; i<GameConstants::ARMY_SIZE; i++ )
-		if ( army->getCreature(SlotID(i)) )
+	for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+		if(army->getCreature(SlotID(i)))
 			items.push_back(new CItem(this, army->getStackCount(SlotID(i)), i));
 
-	all     = new CButton(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
+	all = new CButton(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
 	convert = new CButton(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, SDLK_RETURN);
-	cancel  = new CButton(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); },SDLK_ESCAPE);
-	bar     = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	cancel = new CButton(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); }, SDLK_ESCAPE);
+	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	new CLabel(153, 29,FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area
-	new CLabel(153+295, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
-	new CTextBox(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//move creatures to create skeletons
-	new CTextBox(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//creatures here will become skeletons
+	new CLabel(153, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]); //holding area
+	new CLabel(153 + 295, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]); //transformer
+	new CTextBox(CGI->generaltexth->allTexts[487], Rect(26, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW); //move creatures to create skeletons
+	new CTextBox(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW); //creatures here will become skeletons
 
 }
 
@@ -1211,9 +1188,9 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && (!down))
 	{
-		if ( state() != 2 )
+		if(state() != 2)
 			return;
-		auto  win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
+		auto win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
 		GH.pushInt(win);
 	}
 }
@@ -1223,13 +1200,13 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		CRClickPopup::createAndPush(CGI->generaltexth->skillInfoTexts[ID][0],
-				new CComponent(CComponent::secskill, ID, 1));
+					    new CComponent(CComponent::secskill, ID, 1));
 	}
 }
 
 void CUniversityWindow::CItem::hover(bool on)
 {
-	if (on)
+	if(on)
 		GH.statusbar->setText(CGI->generaltexth->skillName[ID]);
 	else
 		GH.statusbar->clear();
@@ -1237,11 +1214,11 @@ void CUniversityWindow::CItem::hover(bool on)
 
 int CUniversityWindow::CItem::state()
 {
-	if (parent->hero->getSecSkillLevel(SecondarySkill(ID)))//hero know this skill
+	if(parent->hero->getSecSkillLevel(SecondarySkill(ID))) //hero know this skill
 		return 1;
-	if (!parent->hero->canLearnSkill())//can't learn more skills
+	if(!parent->hero->canLearnSkill()) //can't learn more skills
 		return 0;
-	if (parent->hero->type->heroClass->secSkillProbability[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
+	if(parent->hero->type->heroClass->secSkillProbability[ID] == 0) //can't learn this skill (like necromancy for most of non-necros)
 		return 0;
 	return 2;
 }
@@ -1249,53 +1226,53 @@ int CUniversityWindow::CItem::state()
 void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 {
 	CPicture * bar;
-	switch (state())
+	switch(state())
 	{
-		case 0: bar = parent->red;
-				break;
-		case 1: bar = parent->yellow;
-				break;
-		case 2: bar = parent->green;
-				break;
-		default:bar = nullptr;
-				break;
+	case 0:
+		bar = parent->red;
+		break;
+	case 1:
+		bar = parent->yellow;
+		break;
+	case 2:
+		bar = parent->green;
+		break;
+	default:
+		bar = nullptr;
+		break;
 	}
 	assert(bar);
 
 	blitAtLoc(bar->bg, -28, -22, to);
-	blitAtLoc(bar->bg, -28,  48, to);
-	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::WHITE,to);//Name
-	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::WHITE,to);//Level(always basic)
+	blitAtLoc(bar->bg, -28, 48, to);
+	printAtMiddleLoc(CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::WHITE, to); //Name
+	printAtMiddleLoc(CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::WHITE, to); //Level(always basic)
 
 	CAnimImage::showAll(to);
 }
 
-CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):
-	CAnimImage ("SECSKILL", _ID*3+3, 0, X, Y),
-	ID(_ID),
-	parent(_parent)
+CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
+	: CAnimImage("SECSKILL", _ID * 3 + 3, 0, X, Y), ID(_ID), parent(_parent)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
-CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market):
-	CWindowObject(PLAYER_COLORED, "UNIVERS1"),
-	hero(_hero),
-	market(_market)
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market)
+	: CWindowObject(PLAYER_COLORED, "UNIVERS1"), hero(_hero), market(_market)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	green  = new CPicture("UNIVGREN.PCX");
-	yellow = new CPicture("UNIVGOLD.PCX");//bars
-	red    = new CPicture("UNIVRED.PCX");
+	green = new CPicture("UNIVGREN.PCX");
+	yellow = new CPicture("UNIVGOLD.PCX"); //bars
+	red = new CPicture("UNIVRED.PCX");
 
-	green->recActions  =
-	yellow->recActions =
-	red->recActions    = DISPOSE;
+	green->recActions =
+		yellow->recActions =
+			red->recActions = DISPOSE;
 
 	CIntObject * titlePic = nullptr;
 
-	if (market->o->ID == Obj::TOWN)
+	if(market->o->ID == Obj::TOWN)
 		titlePic = new CAnimImage(CGI->townh->factions[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
 	else
 		titlePic = new CPicture("UNIVBLDG");
@@ -1312,17 +1289,16 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 	assert(list.size() == 4);
 
-	for (int i=0; i<list.size(); i++)//prepare clickable items
-		items.push_back(new CItem(this, list[i], 54+i*104, 234));
+	for(int i = 0; i < list.size(); i++) //prepare clickable items
+		items.push_back(new CItem(this, list[i], 54 + i * 104, 234));
 
 	cancel = new CButton(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, SDLK_RETURN);
 
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
-CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):
-	CWindowObject(PLAYER_COLORED, "UNIVERS2.PCX"),
-	parent(PARENT)
+CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available)
+	: CWindowObject(PLAYER_COLORED, "UNIVERS2.PCX"), parent(PARENT)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -1331,27 +1307,27 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);//Clerk speech
+	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE); //Clerk speech
 
-	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth-> skillName[SKILL]);//Skill name
-	new CAnimImage("SECSKILL", SKILL*3+3, 0, 211, 51);//skill
-	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);//Skill level
+	new CLabel(230, 37, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->skillName[SKILL]); //Skill name
+	new CAnimImage("SECSKILL", SKILL * 3 + 3, 0, 211, 51); //skill
+	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[1]); //Skill level
 
-	new CAnimImage("RESOURCE", Res::GOLD, 0, 210, 210);//gold
-	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::WHITE, "2000");//Cost
+	new CAnimImage("RESOURCE", Res::GOLD, 0, 210, 210); //gold
+	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::WHITE, "2000"); //Cost
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0] + " " + CGI->generaltexth->skillName[SKILL]);
 
 	text = CGI->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);
+	confirm = new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);
 	confirm->block(!available);
 
-	cancel = new CButton(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
+	cancel = new CButton(Point(252, 299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
@@ -1361,30 +1337,28 @@ void CUnivConfirmWindow::makeDeal(int skill)
 	close();
 }
 
-CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object):
-	CWindowObject(PLAYER_COLORED, "APHLFTBK"),
-	fort(object),
-	hero(visitor)
+CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object)
+	: CWindowObject(PLAYER_COLORED, "APHLFTBK"), fort(object), hero(visitor)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName());//Hill Fort
+	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->getObjectName()); //Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
-	for (int i=0; i<resCount; i++)
+	for(int i = 0; i < resCount; i++)
 	{
 		totalIcons[i] = new CAnimImage("SMALRES", i, 0, 104 + 76 * i, 237);
 		totalLabels[i] = new CLabel(166 + 76 * i, 253, FONT_SMALL, BOTTOMRIGHT);
 	}
 
-	for (int i = 0; i < slotsCount; i++)
+	for(int i = 0; i < slotsCount; i++)
 	{
 		upgrade[i] = new CButton(Point(107 + i * 76, 171), "", CButton::tooltip(getTextForSlot(SlotID(i))), [=](){ makeDeal(SlotID(i)); }, SDLK_1 + i);
-		for (auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
+		for(auto image : { "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF" })
 			upgrade[i]->addImage(image);
 
-		for(int j : {0,1})
+		for(int j : {0, 1})
 		{
 			slotIcons[i][j] = new CAnimImage("SMALRES", 0, 0, 104 + 76 * i, 128 + 20 * j);
 			slotLabels[i][j] = new CLabel(168 + 76 * i, 144 + 20 * j, FONT_SMALL, BOTTOMRIGHT);
@@ -1392,35 +1366,35 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	}
 
 	upgradeAll = new CButton(Point(30, 231), "", CButton::tooltip(CGI->generaltexth->allTexts[432]), [&](){ makeDeal(SlotID(slotsCount));}, SDLK_0);
-	for (auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
+	for(auto image : { "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF" })
 		upgradeAll->addImage(image);
 
 	quit = new CButton(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), SDLK_RETURN);
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	garr = new CGarrisonInt(108, 60, 18, Point(),background->bg,Point(108,60),hero,nullptr);
+	garr = new CGarrisonInt(108, 60, 18, Point(), background->bg, Point(108, 60), hero, nullptr);
 	updateGarrisons();
 }
 
 void CHillFortWindow::updateGarrisons()
 {
-	std::array<TResources, slotsCount> costs;// costs [slot ID] [resource ID] = resource count for upgrade
+	std::array<TResources, slotsCount> costs; // costs [slot ID] [resource ID] = resource count for upgrade
 
 	TResources totalSumm; // totalSum[resource ID] = value
 	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
 
-	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
-		totalSumm[i]=0;
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+		totalSumm[i] = 0;
 
-	for (int i=0; i<slotsCount; i++)
+	for(int i = 0; i < slotsCount; i++)
 	{
 		costs[i].clear();
 		int newState = getState(SlotID(i));
-		if (newState != -1)
+		if(newState != -1)
 		{
 			UpgradeInfo info;
 			LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
-			if (info.newID.size())//we have upgrades here - update costs
+			if(info.newID.size()) //we have upgrades here - update costs
 			{
 				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
 				totalSumm += costs[i];
@@ -1438,11 +1412,11 @@ void CHillFortWindow::updateGarrisons()
 	{
 		TResources myRes = LOCPLINT->cb->getResourceAmount();
 
-		bool allUpgraded = true;//All creatures are upgraded?
-		for (int i=0; i<slotsCount; i++)
-			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
+		bool allUpgraded = true; //All creatures are upgraded?
+		for(int i = 0; i < slotsCount; i++)
+			allUpgraded &= currState[i] == 1 || currState[i] == -1;
 
-		if (allUpgraded)
+		if(allUpgraded)
 			newState = 1;
 
 		if(!totalSumm.canBeAfforded(myRes))
@@ -1454,22 +1428,22 @@ void CHillFortWindow::updateGarrisons()
 
 	CWindowWithGarrison::updateGarrisons();
 
-	for (int i = 0; i < slotsCount; i++)
+	for(int i = 0; i < slotsCount; i++)
 	{
 		//hide all first
-		for(int j : {0,1})
+		for(int j : {0, 1})
 		{
 			slotIcons[i][j]->visible = false;
 			slotLabels[i][j]->setText("");
 		}
 		//if can upgrade or can not afford, draw cost
-		if (currState[i] == 0 || currState[i] == 2)
+		if(currState[i] == 0 || currState[i] == 2)
 		{
-			if (costs[i].nonZero())
+			if(costs[i].nonZero())
 			{
 				//reverse iterator is used to display gold as first element
 				int j = 0;
-				for(int res = costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				for(int res = costs[i].size() - 1; (res >= 0) && (j < 2); res--)
 				{
 					int val = costs[i][res];
 					if(!val)
@@ -1482,7 +1456,7 @@ void CHillFortWindow::updateGarrisons()
 					j++;
 				}
 			}
-			else//free upgrade - print gold image and "Free" text
+			else //free upgrade - print gold image and "Free" text
 			{
 				slotIcons[i][0]->visible = true;
 				slotIcons[i][0]->setFrame(Res::GOLD);
@@ -1491,7 +1465,7 @@ void CHillFortWindow::updateGarrisons()
 		}
 	}
 
-	for (int i = 0; i < resCount; i++)
+	for(int i = 0; i < resCount; i++)
 	{
 		if(totalSumm[i] == 0)
 		{
@@ -1508,42 +1482,42 @@ void CHillFortWindow::updateGarrisons()
 
 void CHillFortWindow::makeDeal(SlotID slot)
 {
-	assert(slot.getNum()>=0);
-	int offset = (slot.getNum() == slotsCount)?2:0;
-	switch (currState[slot.getNum()])
+	assert(slot.getNum() >= 0);
+	int offset = (slot.getNum() == slotsCount) ? 2 : 0;
+	switch(currState[slot.getNum()])
 	{
-		case 0:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset],
-					  std::vector<CComponent*>(), soundBase::sound_todo);
-			break;
-		case 1:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset],
-					  std::vector<CComponent*>(), soundBase::sound_todo);
-			break;
-		case 2:
-			for (int i=0; i<slotsCount; i++)
-				if ( slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ) )//this is activated slot or "upgrade all"
-				{
-					UpgradeInfo info;
-					LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
-					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
-				}
-			break;
+	case 0:
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset],
+					 std::vector<CComponent *>(), soundBase::sound_todo);
+		break;
+	case 1:
+		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset],
+					 std::vector<CComponent *>(), soundBase::sound_todo);
+		break;
+	case 2:
+		for(int i = 0; i < slotsCount; i++)
+			if(slot.getNum() == i || (slot.getNum() == slotsCount && currState[i] == 2)) //this is activated slot or "upgrade all"
+			{
+				UpgradeInfo info;
+				LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+				LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
+			}
+		break;
 
 	}
 }
 
 std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
-	if ( !hero->getCreature(slot) )//we don`t have creature here
+	if(!hero->getCreature(slot)) //we don`t have creature here
 		return "";
 
 	std::string str = CGI->generaltexth->allTexts[318];
 	int amount = hero->getStackCount(slot);
-	if ( amount == 1 )
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
+	if(amount == 1)
+		boost::algorithm::replace_first(str, "%s", hero->getCreature(slot)->nameSing);
 	else
-		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->namePl);
+		boost::algorithm::replace_first(str, "%s", hero->getCreature(slot)->namePl);
 
 	return str;
 }
@@ -1552,23 +1526,22 @@ int CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
 
-	if (hero->slotEmpty(slot))//no creature here
+	if(hero->slotEmpty(slot)) //no creature here
 		return -1;
 
 	UpgradeInfo info;
 	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
-	if (!info.newID.size())//already upgraded
+	if(!info.newID.size()) //already upgraded
 		return 1;
 
 	if(!(info.cost[0] * hero->getStackCount(slot)).canBeAfforded(myRes))
-			return 0;
+		return 0;
 
-	return 2;//can upgrade
+	return 2; //can upgrade
 }
 
-CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
-	CWindowObject(PLAYER_COLORED | BORDERED, "TpRank"),
-	owner(_owner)
+CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
+	: CWindowObject(PLAYER_COLORED | BORDERED, "TpRank"), owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	type |= BLOCK_ADV_HOTKEYS;
@@ -1576,7 +1549,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
-	exitb = new CButton (Point(748, 556), "TPMAGE1", CButton::tooltip(CGI->generaltexth->allTexts[600]), [&](){ close();}, SDLK_RETURN);
+	exitb = new CButton(Point(748, 556), "TPMAGE1", CButton::tooltip(CGI->generaltexth->allTexts[600]), [&](){ close();}, SDLK_RETURN);
 	exitb->assignedKeys.insert(SDLK_ESCAPE);
 	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
@@ -1586,58 +1559,60 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//data for information table:
 	// fields[row][column] = list of id's of players for this box
-	static std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
-		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
-		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
-		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };
+	static std::vector<std::vector<PlayerColor>> SThievesGuildInfo::* fields[] =
+	{
+		&SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
+		&SThievesGuildInfo::woodOre, &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
+		&SThievesGuildInfo::artifacts, &SThievesGuildInfo::army, &SThievesGuildInfo::income
+	};
 
 	//printing texts & descriptions to background
 
-	for(int g=0; g<12; ++g)
+	for(int g = 0; g < 12; ++g)
 	{
 		int posY[] = {400, 460, 510};
 		int y;
 		if(g < 9)
-			y = 52 + 32*g;
+			y = 52 + 32 * g;
 		else
-			y = posY[g-9];
+			y = posY[g - 9];
 
-		std::string text = CGI->generaltexth->jktexts[24+g];
-		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
+		std::string text = CGI->generaltexth->jktexts[24 + g];
+		boost::algorithm::trim_if(text, boost::algorithm::is_any_of("\""));
 		new CLabel(135, y, FONT_MEDIUM, CENTER, Colors::YELLOW, text);
 	}
 
-	for(int g=1; g<tgi.playerColors.size(); ++g)
-		new CAnimImage("PRSTRIPS", g-1, 0, 250 + 66*g, 7);
+	for(int g = 1; g < tgi.playerColors.size(); ++g)
+		new CAnimImage("PRSTRIPS", g - 1, 0, 250 + 66 * g, 7);
 
-	for(int g=0; g<tgi.playerColors.size(); ++g)
-		new CLabel(283 + 66*g, 24, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]);
+	for(int g = 0; g < tgi.playerColors.size(); ++g)
+		new CLabel(283 + 66 * g, 24, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16 + g]);
 
 	//printing flags
 	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
 	{
-		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
+		for(int b = 0; b < (tgi.*fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
-			std::vector<PlayerColor> &players = (tgi .* fields[g])[b]; //get players with this place in this line
+			std::vector<PlayerColor> & players = (tgi.*fields[g])[b]; //get players with this place in this line
 
 			//position of box
 			int xpos = 259 + 66 * b;
-			int ypos = 41 +  32 * g;
+			int ypos = 41 + 32 * g;
 
 			size_t rowLength[2]; //size of each row
 			rowLength[0] = std::min<size_t>(players.size(), 4);
 			rowLength[1] = players.size() - rowLength[0];
 
-			for (size_t j=0; j< 2; j++)
+			for(size_t j = 0; j < 2; j++)
 			{
 				// origin of this row | offset for 2nd row| shift right for short rows
 				//if we have 2 rows, start either from mid or beginning (depending on count), otherwise center the flags
-				int rowStartX = xpos   +   (j ? 6 + (rowLength[j] < 3 ? 12 : 0) : 24 - 6 * rowLength[j]);
-				int rowStartY = ypos   +   (j ? 4 : 0);
+				int rowStartX = xpos + (j ? 6 + (rowLength[j] < 3 ? 12 : 0) : 24 - 6 * rowLength[j]);
+				int rowStartY = ypos + (j ? 4 : 0);
 
-				for (size_t i=0; i< rowLength[j]; i++)
+				for(size_t i = 0; i < rowLength[j]; i++)
 				{
-					new CAnimImage("itgflags", players[i + j*4].getNum(), 0, rowStartX + i*12, rowStartY);
+					new CAnimImage("itgflags", players[i + j * 4].getNum(), 0, rowStartX + i * 12, rowStartY);
 				}
 			}
 		}
@@ -1658,12 +1633,12 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			// - r-click on primary skill label
 			if(iter.second.details)
 			{
-				new CTextBox(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
-							 0, FONT_TINY, TOPLEFT, Colors::WHITE);
-				for (int i=0; i<iter.second.details->primskills.size(); ++i)
+				new CTextBox(CGI->generaltexth->allTexts[184], Rect(260 + 66 * counter, 396, 52, 64),
+					     0, FONT_TINY, TOPLEFT, Colors::WHITE);
+				for(int i = 0; i < iter.second.details->primskills.size(); ++i)
 				{
-					new CLabel(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::WHITE,
-							   boost::lexical_cast<std::string>(iter.second.details->primskills[i]));
+					new CLabel(310 + 66 * counter, 407 + 11 * i, FONT_TINY, BOTTOMRIGHT, Colors::WHITE,
+						   boost::lexical_cast<std::string>(iter.second.details->primskills[i]));
 				}
 			}
 		}
@@ -1675,7 +1650,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	for(auto & it : tgi.bestCreature)
 	{
 		if(it.second >= 0)
-			new CAnimImage("TWCRPORT", it.second+2, 0, 255 + 66 * counter, 479);
+			new CAnimImage("TWCRPORT", it.second + 2, 0, 255 + 66 * counter, 479);
 		counter++;
 	}
 
@@ -1693,15 +1668,14 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			text = CGI->generaltexth->arraytxt[168 + it.second];
 		}
 
-		new CLabel(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::WHITE, text);
+		new CLabel(283 + 66 * counter, 459, FONT_SMALL, CENTER, Colors::WHITE, text);
 
 		counter++;
 	}
 }
 
-CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::string _text):
-	parent(_parent),
-	index(_id)
+CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
+	: parent(_parent), index(_id)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	border = new CPicture("TPGATES");
@@ -1709,13 +1683,13 @@ CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::str
 	addUsedEvents(LCLICK);
 	type |= REDRAW_PARENT;
 
-	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::WHITE, _text);
+	text = new CLabel(pos.w / 2, pos.h / 2, FONT_SMALL, CENTER, Colors::WHITE, _text);
 	select(index == parent->selected);
 }
 
 void CObjectListWindow::CItem::select(bool on)
 {
-	if (on)
+	if(on)
 		border->recActions = 255;
 	else
 		border->recActions = ~(UPDATE | SHOWALL);
@@ -1724,15 +1698,12 @@ void CObjectListWindow::CItem::select(bool on)
 
 void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && !down)
+	if(previousState && !down)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-				std::function<void(int)> Callback):
-	CWindowObject(PLAYER_COLORED, "TPGATE"),
-	onSelect(Callback),
-	selected(0)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, CIntObject * titlePic, std::string _title, std::string _descr, std::function<void(int)> Callback)
+	: CWindowObject(PLAYER_COLORED, "TPGATE"), onSelect(Callback), selected(0)
 {
 	items.reserve(_items.size());
 	for(int id : _items)
@@ -1743,15 +1714,12 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CIntObject 
 	init(titlePic, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CIntObject * titlePic, std::string _title, std::string _descr,
-				std::function<void(int)> Callback):
-	CWindowObject(PLAYER_COLORED, "TPGATE"),
-	onSelect(Callback),
-	selected(0)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, CIntObject * titlePic, std::string _title, std::string _descr, std::function<void(int)> Callback)
+	: CWindowObject(PLAYER_COLORED, "TPGATE"), onSelect(Callback), selected(0)
 {
 	items.reserve(_items.size());
 
-	for (size_t i=0; i<_items.size(); i++)
+	for(size_t i = 0; i < _items.size(); i++)
 		items.push_back(std::make_pair(int(i), _items[i]));
 
 	init(titlePic, _title, _descr);
@@ -1766,39 +1734,39 @@ void CObjectListWindow::init(CIntObject * titlePic, std::string _title, std::str
 
 	ok = new CButton(Point(15, 402), "IOKAY.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), SDLK_RETURN);
 	ok->block(true);
-	exit = new CButton( Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
+	exit = new CButton(Point(228, 402), "ICANCEL.DEF", CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), SDLK_ESCAPE);
 
-	if (titlePic)
+	if(titlePic)
 	{
 		addChild(titlePic);
 		titlePic->recActions = defActions;
-		titlePic->pos.x = pos.w/2 + pos.x - titlePic->pos.w/2;
-		titlePic->pos.y =75 + pos.y - titlePic->pos.h/2;
+		titlePic->pos.x = pos.w / 2 + pos.x - titlePic->pos.w / 2;
+		titlePic->pos.y = 75 + pos.y - titlePic->pos.h / 2;
 	}
 	list = new CListBox(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
-		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
+			    Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256));
 	list->type |= REDRAW_PARENT;
 }
 
 CIntObject * CObjectListWindow::genItem(size_t index)
 {
-	if (index < items.size())
+	if(index < items.size())
 		return new CItem(this, index, items[index].second);
 	return nullptr;
 }
 
 void CObjectListWindow::elementSelected()
 {
-	std::function<void(int)> toCall = onSelect;//save
-	int where = items[selected].first;      //required variables
-	GH.popIntTotally(this);//then destroy window
-	toCall(where);//and send selected object
+	std::function<void(int)> toCall = onSelect; //save
+	int where = items[selected].first; //required variables
+	GH.popIntTotally(this); //then destroy window
+	toCall(where); //and send selected object
 }
 
 void CObjectListWindow::exitPressed()
 {
-	std::function<void()> toCall = onExit;//save
-	GH.popIntTotally(this);//then destroy window
+	std::function<void()> toCall = onExit; //save
+	GH.popIntTotally(this); //then destroy window
 	if(toCall)
 		toCall();
 }
@@ -1806,25 +1774,25 @@ void CObjectListWindow::exitPressed()
 void CObjectListWindow::changeSelection(size_t which)
 {
 	ok->block(false);
-	if (selected == which)
+	if(selected == which)
 		return;
 
-	std::list< CIntObject * > elements = list->getItems();
+	std::list<CIntObject *> elements = list->getItems();
 	for(CIntObject * element : elements)
 	{
-		CItem *item;
-		if ( (item = dynamic_cast<CItem*>(element)) )
+		CItem * item;
+		if((item = dynamic_cast<CItem *>(element)))
 		{
-			if (item->index == selected)
+			if(item->index == selected)
 				item->select(false);
-			if (item->index == which)
+			if(item->index == which)
 				item->select(true);
 		}
 	}
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+void CObjectListWindow::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
 		return;
@@ -1833,29 +1801,36 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 
 	switch(key.keysym.sym)
 	{
-	break; case SDLK_UP:
-		sel -=1;
+		break;
+	case SDLK_UP:
+		sel -= 1;
 
-	break; case SDLK_DOWN:
-		sel +=1;
+		break;
+	case SDLK_DOWN:
+		sel += 1;
 
-	break; case SDLK_PAGEUP:
-		sel -=9;
+		break;
+	case SDLK_PAGEUP:
+		sel -= 9;
 
-	break; case SDLK_PAGEDOWN:
-		sel +=9;
+		break;
+	case SDLK_PAGEDOWN:
+		sel += 9;
 
-	break; case SDLK_HOME:
+		break;
+	case SDLK_HOME:
 		sel = 0;
 
-	break; case SDLK_END:
+		break;
+	case SDLK_END:
 		sel = items.size();
 
-	break; default:
+		break;
+	default:
 		return;
 	}
 
-	vstd::abetween(sel, 0, items.size()-1);
+	vstd::abetween(sel, 0, items.size() - 1);
 	list->scrollTo(sel);
 	changeSelection(sel);
 }

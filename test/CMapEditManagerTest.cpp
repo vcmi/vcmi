@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		// 1x1 Blow up
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
 		editManager->drawTerrain(ETerrainType::GRASS);
-		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
+		static const int3 squareCheck[] = { int3(5, 5, 0), int3(5, 4, 0), int3(4, 4, 0), int3(4, 5, 0) };
 		for(int i = 0; i < ARRAY_COUNT(squareCheck); ++i)
 		{
 			BOOST_CHECK(map->getTile(squareCheck[i]).terType == ETerrainType::GRASS);
@@ -62,9 +62,12 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		BOOST_CHECK(map->getTile(int3(20, 15, 0)).terType == ETerrainType::GRASS);
 
 		// Special case non water,rock
-		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
-											  int3(34,44,0), int3(34,45,0), int3(35,45,0), int3(35,46,0), int3(36,46,0),
-											  int3(36,47,0), int3(37,47,0)};
+		static const int3 diagonalCheck[] =
+		{
+			int3(31, 42, 0), int3(32, 42, 0), int3(32, 43, 0), int3(33, 43, 0), int3(33, 44, 0),
+			int3(34, 44, 0), int3(34, 45, 0), int3(35, 45, 0), int3(35, 46, 0), int3(36, 46, 0),
+			int3(36, 47, 0), int3(37, 47, 0)
+		};
 		for(int i = 0; i < ARRAY_COUNT(diagonalCheck); ++i)
 		{
 			editManager->getTerrainSelection().select(diagonalCheck[i]);
@@ -76,7 +79,7 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
 		editManager->drawTerrain(ETerrainType::SUBTERRANEAN);
 		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
-								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
+					int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
 		editManager->drawTerrain(ETerrainType::ROCK);
 		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
@@ -95,8 +98,8 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		editManager2->drawTerrain(ETerrainType::SUBTERRANEAN);
 
 		std::vector<int3> selection({ int3(95, 43, 1), int3(95, 44, 1), int3(94, 45, 1), int3(95, 45, 1), int3(96, 45, 1),
-									int3(93, 46, 1), int3(94, 46, 1), int3(95, 46, 1), int3(96, 46, 1), int3(97, 46, 1),
-									int3(98, 46, 1), int3(99, 46, 1)});
+					      int3(93, 46, 1), int3(94, 46, 1), int3(95, 46, 1), int3(96, 46, 1), int3(97, 46, 1),
+					      int3(98, 46, 1), int3(99, 46, 1)});
 		editManager2->getTerrainSelection().setSelection(selection);
 		editManager2->drawTerrain(ETerrainType::ROCK);
 		#endif // 0
@@ -127,13 +130,14 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_View)
 		CRandomGenerator gen;
 		const JsonNode viewNode(ResourceID("test/terrainViewMappings", EResType::TEXT));
 		const auto & mappingsNode = viewNode["mappings"].Vector();
-		for (const auto & node : mappingsNode)
+		for(const auto & node : mappingsNode)
 		{
 			// Get terrain group and id
 			const auto & patternStr = node["pattern"].String();
 			std::vector<std::string> patternParts;
 			boost::split(patternParts, patternStr, boost::is_any_of("."));
-			if(patternParts.size() != 2) throw std::runtime_error("A pattern should consist of two parts, the group and the id. Continue with next pattern.");
+			if(patternParts.size() != 2)
+				throw std::runtime_error("A pattern should consist of two parts, the group and the id. Continue with next pattern.");
 			const auto & groupStr = patternParts[0];
 			const auto & id = patternParts[1];
 			auto terGroup = VLC->terviewh->getTerrainGroup(groupStr);
@@ -143,10 +147,11 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_View)
 			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();
-			for (const auto & posNode : positionsNode)
+			for(const auto & posNode : positionsNode)
 			{
 				const auto & posVector = posNode.Vector();
-				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
+				if(posVector.size() != 3)
+					throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
 #if 0
 				logGlobal->trace("Test pattern '%s' on position x '%d', y '%d', z '%d'.", patternStr, pos.x, pos.y, pos.z);

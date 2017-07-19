@@ -39,4 +39,3 @@ public:
 
 	friend class CBattleInfoEssentials;
 };
-

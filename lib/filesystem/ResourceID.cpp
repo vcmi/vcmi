@@ -22,13 +22,13 @@
 static inline void toUpper(char & symbol)
 {
 	static const int diff = 'a' - 'A';
-	if (symbol >= 'a' && symbol <= 'z')
+	if(symbol >= 'a' && symbol <= 'z')
 		symbol -= diff;
 }
 
 static inline void toUpper(std::string & string)
 {
-	for (char & symbol : string)
+	for(char & symbol : string)
 		toUpper(symbol);
 }
 #else
@@ -38,7 +38,7 @@ static inline void toUpper(std::string & string)
 }
 #endif
 
-static inline EResType::Type readType(const std::string& name)
+static inline EResType::Type readType(const std::string & name)
 {
 	return EResTypeHelper::getTypeFromExtension(FileInfo::GetExtension(name).to_string());
 }
@@ -66,19 +66,17 @@ static inline std::string readName(std::string name)
 
 #if 0
 ResourceID::ResourceID()
-	:type(EResType::OTHER)
+	: type(EResType::OTHER)
 {
 }
 #endif
 
-ResourceID::ResourceID(std::string name_):
-	type{readType(name_)},
-	name{readName(std::move(name_))}
+ResourceID::ResourceID(std::string name_)
+	: type{readType(name_)}, name{readName(std::move(name_))}
 {}
 
-ResourceID::ResourceID(std::string name_, EResType::Type type_):
-	type{type_},
-	name{readName(std::move(name_))}
+ResourceID::ResourceID(std::string name_, EResType::Type type_)
+	: type{type_}, name{readName(std::move(name_))}
 {}
 #if 0
 std::string ResourceID::getName() const
@@ -101,7 +99,7 @@ void ResourceID::setName(std::string name)
 	size_t dotPos = this->name.find_last_of("/.");
 
 	if(dotPos != std::string::npos && this->name[dotPos] == '.'
-		&& this->type == EResTypeHelper::getTypeFromExtension(this->name.substr(dotPos)))
+	   && this->type == EResTypeHelper::getTypeFromExtension(this->name.substr(dotPos)))
 	{
 		this->name.erase(dotPos);
 	}
@@ -120,46 +118,46 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 
 	static const std::map<std::string, EResType::Type> stringToRes =
 	{
-		{".TXT",   EResType::TEXT},
-		{".JSON",  EResType::TEXT},
-		{".DEF",   EResType::ANIMATION},
-		{".MSK",   EResType::MASK},
-		{".MSG",   EResType::MASK},
-		{".H3C",   EResType::CAMPAIGN},
-		{".H3M",   EResType::MAP},
-		{".FNT",   EResType::BMP_FONT},
-		{".TTF",   EResType::TTF_FONT},
-		{".BMP",   EResType::IMAGE},
-		{".JPG",   EResType::IMAGE},
-		{".PCX",   EResType::IMAGE},
-		{".PNG",   EResType::IMAGE},
-		{".TGA",   EResType::IMAGE},
-		{".WAV",   EResType::SOUND},
-		{".82M",   EResType::SOUND},
-		{".SMK",   EResType::VIDEO},
-		{".BIK",   EResType::VIDEO},
-		{".MJPG",  EResType::VIDEO},
-		{".MPG",   EResType::VIDEO},
-		{".AVI",   EResType::VIDEO},
-		{".MP3",   EResType::MUSIC},
-		{".OGG",   EResType::MUSIC},
-		{".FLAC",  EResType::MUSIC},
-		{".ZIP",   EResType::ARCHIVE_ZIP},
-		{".LOD",   EResType::ARCHIVE_LOD},
-		{".PAC",   EResType::ARCHIVE_LOD},
-		{".VID",   EResType::ARCHIVE_VID},
-		{".SND",   EResType::ARCHIVE_SND},
-		{".PAL",   EResType::PALETTE},
+		{".TXT", EResType::TEXT},
+		{".JSON", EResType::TEXT},
+		{".DEF", EResType::ANIMATION},
+		{".MSK", EResType::MASK},
+		{".MSG", EResType::MASK},
+		{".H3C", EResType::CAMPAIGN},
+		{".H3M", EResType::MAP},
+		{".FNT", EResType::BMP_FONT},
+		{".TTF", EResType::TTF_FONT},
+		{".BMP", EResType::IMAGE},
+		{".JPG", EResType::IMAGE},
+		{".PCX", EResType::IMAGE},
+		{".PNG", EResType::IMAGE},
+		{".TGA", EResType::IMAGE},
+		{".WAV", EResType::SOUND},
+		{".82M", EResType::SOUND},
+		{".SMK", EResType::VIDEO},
+		{".BIK", EResType::VIDEO},
+		{".MJPG", EResType::VIDEO},
+		{".MPG", EResType::VIDEO},
+		{".AVI", EResType::VIDEO},
+		{".MP3", EResType::MUSIC},
+		{".OGG", EResType::MUSIC},
+		{".FLAC", EResType::MUSIC},
+		{".ZIP", EResType::ARCHIVE_ZIP},
+		{".LOD", EResType::ARCHIVE_LOD},
+		{".PAC", EResType::ARCHIVE_LOD},
+		{".VID", EResType::ARCHIVE_VID},
+		{".SND", EResType::ARCHIVE_SND},
+		{".PAL", EResType::PALETTE},
 		{".VCGM1", EResType::CLIENT_SAVEGAME},
 		{".VSGM1", EResType::SERVER_SAVEGAME},
-		{".ERM",   EResType::ERM},
-		{".ERT",   EResType::ERT},
-		{".ERS",   EResType::ERS},
-		{".VMAP",  EResType::MAP}
+		{".ERM", EResType::ERM},
+		{".ERT", EResType::ERT},
+		{".ERS", EResType::ERS},
+		{".VMAP", EResType::MAP}
 	};
 
 	auto iter = stringToRes.find(extension);
-	if (iter == stringToRes.end())
+	if(iter == stringToRes.end())
 		return EResType::OTHER;
 	return iter->second;
 }

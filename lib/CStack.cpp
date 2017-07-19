@@ -17,8 +17,8 @@
 
 
 ///CAmmo
-CAmmo::CAmmo(const CStack * Owner, CSelector totalSelector):
-	CStackResource(Owner), totalProxy(Owner, totalSelector)
+CAmmo::CAmmo(const CStack * Owner, CSelector totalSelector)
+	: CStackResource(Owner), totalProxy(Owner, totalSelector)
 {
 
 }
@@ -55,8 +55,8 @@ void CAmmo::use(int32_t amount)
 }
 
 ///CShots
-CShots::CShots(const CStack * Owner):
-	CAmmo(Owner, Selector::type(Bonus::SHOTS))
+CShots::CShots(const CStack * Owner)
+	: CAmmo(Owner, Selector::type(Bonus::SHOTS))
 {
 
 }
@@ -80,15 +80,15 @@ void CShots::use(int32_t amount)
 }
 
 ///CCasts
-CCasts::CCasts(const CStack * Owner):
-	CAmmo(Owner, Selector::type(Bonus::CASTS))
+CCasts::CCasts(const CStack * Owner)
+	: CAmmo(Owner, Selector::type(Bonus::CASTS))
 {
 
 }
 
 ///CRetaliations
-CRetaliations::CRetaliations(const CStack * Owner):
-	CAmmo(Owner, Selector::type(Bonus::ADDITIONAL_RETALIATION)), totalCache(0)
+CRetaliations::CRetaliations(const CStack * Owner)
+	: CAmmo(Owner, Selector::type(Bonus::ADDITIONAL_RETALIATION)), totalCache(0)
 {
 
 }
@@ -108,17 +108,14 @@ void CRetaliations::reset()
 }
 
 ///CHealth
-CHealth::CHealth(const IUnitHealthInfo * Owner):
-	owner(Owner)
+CHealth::CHealth(const IUnitHealthInfo * Owner)
+	: owner(Owner)
 {
 	reset();
 }
 
-CHealth::CHealth(const CHealth & other):
-	owner(other.owner),
-	firstHPleft(other.firstHPleft),
-	fullUnits(other.fullUnits),
-	resurrected(other.resurrected)
+CHealth::CHealth(const CHealth & other)
+	: owner(other.owner), firstHPleft(other.firstHPleft), fullUnits(other.fullUnits), resurrected(other.resurrected)
 {
 
 }
@@ -204,7 +201,7 @@ void CHealth::heal(int32_t & amount, EHealLevel level, EHealPower power)
 
 	int64_t availableHealth = available();
 
-	availableHealth	+= amount;
+	availableHealth += amount;
 	setFromTotal(availableHealth);
 
 	if(power == EHealPower::ONE_BATTLE)
@@ -276,10 +273,8 @@ void CHealth::takeResurrected()
 }
 
 ///CStack
-CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S):
-	base(Base), ID(I), owner(O), slot(S), side(Side),
-	counterAttacks(this), shots(this), casts(this), health(this), cloneID(-1),
-	position()
+CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S)
+	: base(Base), ID(I), owner(O), slot(S), side(Side), counterAttacks(this), shots(this), casts(this), health(this), cloneID(-1), position()
 {
 	assert(base);
 	type = base->type;
@@ -288,17 +283,15 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 	setNodeType(STACK_BATTLE);
 }
 
-CStack::CStack():
-	counterAttacks(this), shots(this), casts(this), health(this)
+CStack::CStack()
+	: counterAttacks(this), shots(this), casts(this), health(this)
 {
 	init();
 	setNodeType(STACK_BATTLE);
 }
 
-CStack::CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S):
-	base(nullptr), ID(I), owner(O), slot(S), side(Side),
-	counterAttacks(this), shots(this), casts(this), health(this), cloneID(-1),
-	position()
+CStack::CStack(const CStackBasicDescriptor * stack, PlayerColor O, int I, ui8 Side, SlotID S)
+	: base(nullptr), ID(I), owner(O), slot(S), side(Side), counterAttacks(this), shots(this), casts(this), health(this), cloneID(-1), position()
 {
 	type = stack->type;
 	baseAmount = stack->count;
@@ -376,11 +369,11 @@ ui32 CStack::level() const
 si32 CStack::magicResistance() const
 {
 	si32 magicResistance;
-	if(base)  //TODO: make war machines receive aura of magic resistance
+	if(base) //TODO: make war machines receive aura of magic resistance
 	{
 		magicResistance = base->magicResistance();
 		int auraBonus = 0;
-		for(const CStack * stack : base->armyObj->battle-> batteAdjacentCreatures(this))
+		for(const CStack * stack : base->armyObj->battle->batteAdjacentCreatures(this))
 		{
 			if(stack->owner == owner)
 			{
@@ -398,24 +391,24 @@ si32 CStack::magicResistance() const
 bool CStack::willMove(int turn) const
 {
 	return (turn ? true : !vstd::contains(state, EBattleStackState::DEFENDING))
-		   && !moved(turn)
-		   && canMove(turn);
+	       && !moved(turn)
+	       && canMove(turn);
 }
 
 bool CStack::canMove(int turn) const
 {
 	return alive()
-		   && !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
+	       && !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
 }
 
 bool CStack::canCast() const
 {
-	return casts.canUse(1);//do not check specific cast abilities here
+	return casts.canUse(1); //do not check specific cast abilities here
 }
 
 bool CStack::isCaster() const
 {
-	return casts.total() > 0;//do not check specific cast abilities here
+	return casts.total() > 0; //do not check specific cast abilities here
 }
 
 bool CStack::canShoot() const
@@ -560,7 +553,7 @@ std::vector<si32> CStack::activeSpells() const
 	std::stringstream cachingStr;
 	cachingStr << "!type_" << Bonus::NONE << "source_" << Bonus::SPELL_EFFECT;
 	CSelector selector = Selector::sourceType(Bonus::SPELL_EFFECT)
-						 .And(CSelector([](const Bonus * b)->bool
+		.And(CSelector([](const Bonus * b) -> bool
 	{
 		return b->type != Bonus::NONE;
 	}));
@@ -568,7 +561,7 @@ std::vector<si32> CStack::activeSpells() const
 	TBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
 	for(const std::shared_ptr<Bonus> it : *spellEffects)
 	{
-		if(!vstd::contains(ret, it->sid))  //do not duplicate spells with multiple effects
+		if(!vstd::contains(ret, it->sid)) //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);
 	}
 
@@ -621,7 +614,7 @@ CHealth CStack::healthAfterAttacked(int32_t & damage, const CHealth & customHeal
 		// block ability should not kill clone (0 damage)
 		if(damage > 0)
 		{
-			damage = 1;//??? what should be actual damage against clone?
+			damage = 1; //??? what should be actual damage against clone?
 			res.reset();
 		}
 	}
@@ -710,23 +703,23 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 		defenderPos = defender->position;
 
 	return
-		(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0)//front <=> front
-		|| (attacker->doubleWide()//back <=> front
-			&& BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos) >= 0)
-		|| (defender->doubleWide()//front <=> back
-			&& BattleHex::mutualPosition(attackerPos, defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0)
-		|| (defender->doubleWide() && attacker->doubleWide()//back <=> back
-			&& BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0);
+		(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
+		|| (attacker->doubleWide() //back <=> front
+		    && BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos) >= 0)
+		|| (defender->doubleWide() //front <=> back
+		    && BattleHex::mutualPosition(attackerPos, defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0)
+		|| (defender->doubleWide() && attacker->doubleWide() //back <=> back
+		    && BattleHex::mutualPosition(attackerPos + (attacker->side == BattleSide::ATTACKER ? -1 : 1), defenderPos + (defender->side == BattleSide::ATTACKER ? -1 : 1)) >= 0);
 
 }
 
 bool CStack::ableToRetaliate() const
 {
 	return alive()
-		   && (counterAttacks.canUse() || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
-		   && !hasBonusOfType(Bonus::SIEGE_WEAPON)
-		   && !hasBonusOfType(Bonus::HYPNOTIZED)
-		   && !hasBonusOfType(Bonus::NO_RETALIATION);
+	       && (counterAttacks.canUse() || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
+	       && !hasBonusOfType(Bonus::SIEGE_WEAPON)
+	       && !hasBonusOfType(Bonus::HYPNOTIZED)
+	       && !hasBonusOfType(Bonus::NO_RETALIATION);
 }
 
 std::string CStack::getName() const
@@ -762,8 +755,8 @@ bool CStack::isTurret() const
 bool CStack::canBeHealed() const
 {
 	return getFirstHPleft() < MaxHealth()
-		   && isValidTarget()
-		   && !hasBonusOfType(Bonus::SIEGE_WEAPON);
+	       && isValidTarget()
+	       && !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
 void CStack::makeGhost()
@@ -804,7 +797,7 @@ int CStack::getEnchantPower(const CSpell * spell) const
 {
 	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
 	if(res <= 0)
-		res = 3;//default for creatures
+		res = 3; //default for creatures
 	return res;
 }
 
@@ -826,7 +819,7 @@ void CStack::getCasterName(MetaString & text) const
 
 void CStack::getCastDescription(const CSpell * spell, const std::vector<const CStack *> & attacked, MetaString & text) const
 {
-	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
+	text.addTxt(MetaString::GENERAL_TXT, 565); //The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
 	text.addReplacement(MetaString::SPELL_NAME, spell->id.toEnum());

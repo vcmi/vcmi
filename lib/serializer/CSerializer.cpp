@@ -27,22 +27,22 @@ CSerializer::CSerializer()
 }
 
 
-void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
+void CSerializer::addStdVecItems(CGameState * gs, LibClasses * lib)
 {
 	registerVectoredType<CGObjectInstance, ObjectInstanceID>(&gs->map->objects,
-		[](const CGObjectInstance &obj){ return obj.id; });
+								 [](const CGObjectInstance & obj){ return obj.id; });
 	registerVectoredType<CHero, HeroTypeID>(&lib->heroh->heroes,
-		[](const CHero &h){ return h.ID; });
+						[](const CHero & h){ return h.ID; });
 	registerVectoredType<CGHeroInstance, HeroTypeID>(&gs->map->allHeroes,
-		[](const CGHeroInstance &h){ return h.type->ID; });
+							 [](const CGHeroInstance & h){ return h.type->ID; });
 	registerVectoredType<CCreature, CreatureID>(&lib->creh->creatures,
-		[](const CCreature &cre){ return cre.idNumber; });
+						    [](const CCreature & cre){ return cre.idNumber; });
 	registerVectoredType<CArtifact, ArtifactID>(&lib->arth->artifacts,
-		[](const CArtifact &art){ return art.id; });
+						    [](const CArtifact & art){ return art.id; });
 	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->map->artInstances,
-		[](const CArtifactInstance &artInst){ return artInst.id; });
+								    [](const CArtifactInstance & artInst){ return artInst.id; });
 	registerVectoredType<CQuest, si32>(&gs->map->quests,
-		[](const CQuest &q){ return q.qid; });
+					   [](const CQuest & q){ return q.qid; });
 
 	smartVectorMembersSerialization = true;
 }

@@ -204,14 +204,14 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(std::string& message, CCreatureSet * guards);
+	void readMessageAndGuards(std::string & message, CCreatureSet * guards);
 
 	void readSpells(std::set<SpellID> & dest);
 
-	void readResourses(TResources& resources);
+	void readResourses(TResources & resources);
 
-	template <class Indenifier>
-	void readBitmask(std::set<Indenifier> &dest, const int byteCount, const int limit, bool negate = true);
+	template<class Indenifier>
+	void readBitmask(std::set<Indenifier> & dest, const int byteCount, const int limit, bool negate = true);
 
 	/** Reads bitmask to boolean vector
 	* @param dest destination vector, shall be filed with "true" values

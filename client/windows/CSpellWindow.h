@@ -36,7 +36,8 @@ class CSpellWindow : public CWindowObject
 		CAnimImage * image;
 		IImage * schoolBorder;
 		CLabel * name, * level, * cost;
-	public:
+
+public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 		~SpellArea();
 		void setSpell(const CSpell * spell);
@@ -54,7 +55,8 @@ class CSpellWindow : public CWindowObject
 
 		std::string hoverText;
 		std::string helpText;
-	public:
+
+public:
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
@@ -68,7 +70,7 @@ class CSpellWindow : public CWindowObject
 
 	CAnimImage * spellTab; //school select
 	CAnimImage * schools; //schools' pictures
-	std::array< std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+	std::array<std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
 	SpellArea * spellAreas[12];
 	CLabel * mana;

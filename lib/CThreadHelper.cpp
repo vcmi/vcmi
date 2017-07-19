@@ -16,9 +16,10 @@
 	#include <sys/prctl.h>
 #endif
 
-CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
+CThreadHelper::CThreadHelper(std::vector<std::function<void()>> * Tasks, int Threads)
 {
-	currentTask = 0; amount = Tasks->size();
+	currentTask = 0;
+	amount = Tasks->size();
 	tasks = Tasks;
 	threads = Threads;
 }
@@ -26,8 +27,8 @@ void CThreadHelper::run()
 {
 	boost::thread_group grupa;
 	std::vector<boost::thread *> thr;
-	for(int i=0;i<threads;i++)
-		thr.push_back(grupa.create_thread(std::bind(&CThreadHelper::processTasks,this)));
+	for(int i = 0; i < threads; i++)
+		thr.push_back(grupa.create_thread(std::bind(&CThreadHelper::processTasks, this)));
 	grupa.join_all();
 
 	for(auto thread : thr)
@@ -51,12 +52,12 @@ void CThreadHelper::processTasks()
 
 // set name for this thread.
 // NOTE: on *nix string will be trimmed to 16 symbols
-void setThreadName(const std::string &name)
+void setThreadName(const std::string & name)
 {
 #ifdef VCMI_WINDOWS
 #ifndef __GNUC__
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
-	const DWORD MS_VC_EXCEPTION=0x406D1388;
+	const DWORD MS_VC_EXCEPTION = 0x406D1388;
 #pragma pack(push,8)
 	typedef struct tagTHREADNAME_INFO
 	{
@@ -75,7 +76,7 @@ void setThreadName(const std::string &name)
 
 	__try
 	{
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR *)&info);
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{

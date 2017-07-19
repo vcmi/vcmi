@@ -30,7 +30,7 @@ public:
 	 *
 	 * @param stream The base stream object which serves as the reading input.
 	 */
-    CBinaryReader(CInputStream * stream);
+	CBinaryReader(CInputStream * stream);
 
 	/**
 	 * Gets the underlying stream.
@@ -44,7 +44,7 @@ public:
 	 *
 	 * @param stream The base stream to set
 	 */
-    void setStream(CInputStream * stream);
+	void setStream(CInputStream * stream);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -79,16 +79,17 @@ public:
 	}
 
 	void skip(int count);
+
 private:
-    /**
-     * Reads any integer. Advances the read pointer by its size.
-     *
-     * @return read integer.
-     *
-     * @throws std::runtime_error if the end of the stream was reached unexpectedly
-     */
-    template <typename CData>
-    CData readInteger();
+	/**
+	 * Reads any integer. Advances the read pointer by its size.
+	 *
+	 * @return read integer.
+	 *
+	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
+	 */
+	template<typename CData>
+	CData readInteger();
 
 	/**
 	 * Gets a end of stream exception message.

@@ -31,6 +31,7 @@ class DLL_LINKAGE LibClasses
 
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
+
 public:
 	bool IS_AI_ENABLED; //unused?
 
@@ -54,10 +55,10 @@ public:
 	void clear(); //deletes all handlers and its data
 
 
-	void loadFilesystem();// basic initialization. should be called before init()
+	void loadFilesystem(); // basic initialization. should be called before init()
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & heroh & arth & creh & townh & objh & objtypeh & spellh & modh & IS_AI_ENABLED;
 		h & bth;
@@ -70,6 +71,5 @@ public:
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler *Console);
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console);
 DLL_LINKAGE void loadDLLClasses();
-

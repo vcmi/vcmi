@@ -26,8 +26,8 @@ public:
 	si32 manaDiff; //amount of gained / lost mana
 	si32 moraleDiff; //morale modifier
 	si32 luckDiff; //luck modifier
-	TResources resources;//gained / lost resources
-	std::vector<si32> primskills;//gained / lost prim skills
+	TResources resources; //gained / lost resources
+	std::vector<si32> primskills; //gained / lost prim skills
 	std::vector<SecondarySkill> abilities; //gained abilities
 	std::vector<si32> abilityLevels; //levels of gained abilities
 	std::vector<ArtifactID> artifacts; //gained artifacts
@@ -37,27 +37,29 @@ public:
 	CGPandoraBox();
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
-	void heroLevelUpDone(const CGHeroInstance *hero) const override;
+	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
+	void blockingDialogAnswered(const CGHeroInstance * hero, ui32 answer) const override;
+	void heroLevelUpDone(const CGHeroInstance * hero) const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CArmedInstance &>(*this);
 		h & message & hasGuardians & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
-			& abilities & abilityLevels & artifacts & spells & creatures;
+		& abilities & abilityLevels & artifacts & spells & creatures;
 	}
+
 protected:
-	void giveContentsUpToExp(const CGHeroInstance *h) const;
-	void giveContentsAfterExp(const CGHeroInstance *h) const;
+	void giveContentsUpToExp(const CGHeroInstance * h) const;
+	void giveContentsAfterExp(const CGHeroInstance * h) const;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+
 private:
-	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
-	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
+	void getText(InfoWindow & iw, bool & afterBattle, int val, int negative, int positive, const CGHeroInstance * h) const;
+	void getText(InfoWindow & iw, bool & afterBattle, int text, const CGHeroInstance * h) const;
 	virtual void afterSuccessfulVisit() const;
 };
 
-class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
+class DLL_LINKAGE CGEvent : public CGPandoraBox //event objects
 {
 public:
 	bool removeAfterVisit; //true if event is removed after occurring
@@ -65,7 +67,7 @@ public:
 	bool computerActivate; //true if computer player can activate this event
 	bool humanActivate; //true if human player can activate this event
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CGPandoraBox &>(*this);
 		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
@@ -73,8 +75,10 @@ public:
 
 	CGEvent();
 	void onHeroVisit(const CGHeroInstance * h) const override;
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+
 private:
 	void activated(const CGHeroInstance * h) const;
 	void afterSuccessfulVisit() const override;

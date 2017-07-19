@@ -18,7 +18,7 @@
 void CMapInfo::countPlayers()
 {
 	actualHumanPlayers = playerAmnt = humanPlayers = 0;
-	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)
 		{
@@ -32,22 +32,21 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOpts)
-		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
+		for(auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
 			if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				actualHumanPlayers++;
 }
 
-CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
+CMapInfo::CMapInfo()
+	: scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0), actualHumanPlayers(0), isRandomMap(false)
 {
 
 }
 
 #define STEAL(x) x = std::move(tmp.x)
 
-CMapInfo::CMapInfo(CMapInfo && tmp):
-	scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
+CMapInfo::CMapInfo(CMapInfo && tmp)
+	: scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0), actualHumanPlayers(0), isRandomMap(false)
 {
 	std::swap(scenarioOpts, tmp.scenarioOpts);
 	STEAL(mapHeader);
@@ -77,7 +76,7 @@ void CMapInfo::campaignInit()
 	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
 }
 
-CMapInfo & CMapInfo::operator=(CMapInfo &&tmp)
+CMapInfo & CMapInfo::operator=(CMapInfo && tmp)
 {
 	STEAL(mapHeader);
 	STEAL(campaignHeader);

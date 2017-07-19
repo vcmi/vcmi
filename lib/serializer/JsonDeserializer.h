@@ -13,7 +13,7 @@
 
 class JsonNode;
 
-class JsonDeserializer: public JsonSerializeFormat
+class JsonDeserializer : public JsonSerializeFormat
 {
 public:
 	JsonDeserializer(const IInstanceResolver * instanceResolver_, JsonNode & root_);
@@ -25,7 +25,7 @@ public:
 
 protected:
 	void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) override;
-	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)	override;
+	void serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const TDecoder & decoder, const TEncoder & encoder)     override;
 	void serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder) override;
 	void serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue) override;
 	void serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue) override;

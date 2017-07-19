@@ -35,7 +35,7 @@ void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::s
 	auto s = handler.enterStruct(fieldName);
 
 	//TODO: add proper support for mithril to map format
-	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx ++)
+	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx++)
 		handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], this->operator[](idx), 0);
 }
 
@@ -48,13 +48,13 @@ bool Res::ResourceSet::nonZero() const
 	return false;
 }
 
-void Res::ResourceSet::amax(const TResourceCap &val)
+void Res::ResourceSet::amax(const TResourceCap & val)
 {
 	for(auto & elem : *this)
 		::vstd::amax(elem, val);
 }
 
-void Res::ResourceSet::amin(const TResourceCap &val)
+void Res::ResourceSet::amin(const TResourceCap & val)
 {
 	for(auto & elem : *this)
 		::vstd::amin(elem, val);
@@ -66,17 +66,17 @@ void Res::ResourceSet::positive()
 		::vstd::amax(elem, 0);
 }
 
-bool Res::ResourceSet::canBeAfforded(const ResourceSet &res) const
+bool Res::ResourceSet::canBeAfforded(const ResourceSet & res) const
 {
 	return Res::canAfford(res, *this);
 }
 
-bool Res::ResourceSet::canAfford(const ResourceSet &price) const
+bool Res::ResourceSet::canAfford(const ResourceSet & price) const
 {
 	return Res::canAfford(*this, price);
 }
 
-bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
+bool Res::canAfford(const ResourceSet & res, const ResourceSet & price)
 {
 	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
@@ -104,7 +104,7 @@ Res::ResourceSet::nziterator Res::ResourceSet::nziterator::operator++(int)
 	return ret;
 }
 
-const Res::ResourceSet::nziterator::ResEntry& Res::ResourceSet::nziterator::operator*() const
+const Res::ResourceSet::nziterator::ResEntry & Res::ResourceSet::nziterator::operator*() const
 {
 	return cur;
 }
@@ -119,13 +119,14 @@ void Res::ResourceSet::nziterator::advance()
 	do
 	{
 		vstd::advance(cur.resType, +1);
-	} while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
+	}
+	while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal = rs[cur.resType]));
 
 	if(cur.resType >= GameConstants::RESOURCE_QUANTITY)
 		cur.resVal = -1;
 }
 
-Res::ResourceSet::nziterator::nziterator(const ResourceSet &RS)
+Res::ResourceSet::nziterator::nziterator(const ResourceSet & RS)
 	: rs(RS)
 {
 	cur.resType = WOOD;

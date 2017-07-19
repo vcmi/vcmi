@@ -17,37 +17,37 @@ class EnemyInfo;
 /*
 struct CurrentOffensivePotential
 {
-	std::map<const CStack *, PotentialTargets> ourAttacks;
-	std::map<const CStack *, PotentialTargets> enemyAttacks;
+        std::map<const CStack *, PotentialTargets> ourAttacks;
+        std::map<const CStack *, PotentialTargets> enemyAttacks;
 
-	CurrentOffensivePotential(ui8 side)
-	{
-		for(auto stack : cbc->battleGetStacks())
-		{
-			if(stack->side == side)
-				ourAttacks[stack] = PotentialTargets(stack);
-			else
-				enemyAttacks[stack] = PotentialTargets(stack);
-		}
-	}
+        CurrentOffensivePotential(ui8 side)
+        {
+                for(auto stack : cbc->battleGetStacks())
+                {
+                        if(stack->side == side)
+                                ourAttacks[stack] = PotentialTargets(stack);
+                        else
+                                enemyAttacks[stack] = PotentialTargets(stack);
+                }
+        }
 
-	int potentialValue()
-	{
-		int ourPotential = 0, enemyPotential = 0;
-		for(auto &p : ourAttacks)
-			ourPotential += p.second.bestAction().attackValue();
+        int potentialValue()
+        {
+                int ourPotential = 0, enemyPotential = 0;
+                for(auto &p : ourAttacks)
+                        ourPotential += p.second.bestAction().attackValue();
 
-		for(auto &p : enemyAttacks)
-			enemyPotential += p.second.bestAction().attackValue();
+                for(auto &p : enemyAttacks)
+                        enemyPotential += p.second.bestAction().attackValue();
 
-		return ourPotential - enemyPotential;
-	}
+                return ourPotential - enemyPotential;
+        }
 };
-*/ // These lines may be usefull but they are't used in the code.
+*/// These lines may be usefull but they are't used in the code.
 
 struct PossibleSpellcast
 {
-	const CSpell *spell;
+	const CSpell * spell;
 	BattleHex dest;
 	si32 value;
 };
@@ -68,16 +68,16 @@ public:
 	void attemptCastingSpell();
 
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
-	BattleAction goTowards(const CStack * stack, BattleHex hex );
+	BattleAction goTowards(const CStack * stack, BattleHex hex);
 
 	boost::optional<BattleAction> considerFleeingOrSurrendering();
 
-	std::vector<BattleHex> getTargetsToConsider(const CSpell *spell, const ISpellCaster * caster) const;
-	static int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr);
+	std::vector<BattleHex> getTargetsToConsider(const CSpell * spell, const ISpellCaster * caster) const;
+	static int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances & dists, BattleHex * chosenHex = nullptr);
 	static bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists);
 
-	void print(const std::string &text) const;
-	BattleAction useCatapult(const CStack *stack);
+	void print(const std::string & text) const;
+	BattleAction useCatapult(const CStack * stack);
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side) override;
 	//void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
 	//void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero

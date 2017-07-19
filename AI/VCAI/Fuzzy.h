@@ -24,7 +24,7 @@ public:
 
 	engineBase();
 	void configure();
-	void addRule(const std::string &txt);
+	void addRule(const std::string & txt);
 };
 
 class FuzzyHelper
@@ -33,7 +33,7 @@ class FuzzyHelper
 
 	class TacticalAdvantage : public engineBase
 	{
-	public:
+public:
 		fl::InputVariable * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
 		fl::InputVariable * ourSpeed, * enemySpeed;
 		fl::InputVariable * bankPresent;
@@ -44,7 +44,7 @@ class FuzzyHelper
 
 	class EvalVisitTile : public engineBase
 	{
-	public:
+public:
 		fl::InputVariable * strengthRatio;
 		fl::InputVariable * heroStrength;
 		fl::InputVariable * turnDistance;
@@ -55,33 +55,36 @@ class FuzzyHelper
 		~EvalVisitTile();
 	} vt;
 
-	
-
 public:
-	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
+	enum RuleBlocks
+	{
+		BANK_DANGER,
+		TACTICAL_ADVANTAGE,
+		VISIT_TILE
+	};
 	//blocks should be initialized in this order, which may be confusing :/
 
 	FuzzyHelper();
 	void initTacticalAdvantage();
 	void initVisitTile();
 
-	float evaluate (Goals::Explore & g);
-	float evaluate (Goals::RecruitHero & g);
-	float evaluate (Goals::VisitTile & g);
-	float evaluate (Goals::VisitHero & g);
-	float evaluate (Goals::BuildThis & g);
-	float evaluate (Goals::DigAtTile & g);
-	float evaluate (Goals::CollectRes & g);
-	float evaluate (Goals::Build & g);
-	float evaluate (Goals::GatherArmy & g);
-	float evaluate (Goals::ClearWayTo & g);
-	float evaluate (Goals::Invalid & g);
-	float evaluate (Goals::AbstractGoal & g);
-	void setPriority (Goals::TSubgoal & g);
+	float evaluate(Goals::Explore & g);
+	float evaluate(Goals::RecruitHero & g);
+	float evaluate(Goals::VisitTile & g);
+	float evaluate(Goals::VisitHero & g);
+	float evaluate(Goals::BuildThis & g);
+	float evaluate(Goals::DigAtTile & g);
+	float evaluate(Goals::CollectRes & g);
+	float evaluate(Goals::Build & g);
+	float evaluate(Goals::GatherArmy & g);
+	float evaluate(Goals::ClearWayTo & g);
+	float evaluate(Goals::Invalid & g);
+	float evaluate(Goals::AbstractGoal & g);
+	void setPriority(Goals::TSubgoal & g);
 
-	ui64 estimateBankDanger (const CBank * bank);
-	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us
+	ui64 estimateBankDanger(const CBank * bank);
+	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
 
-	Goals::TSubgoal chooseSolution (Goals::TGoalVec vec);
+	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
 	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);
 };

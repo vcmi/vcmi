@@ -21,9 +21,8 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive) :
-    archive(std::move(_archive)),
-    mountPoint(std::move(_mountPoint))
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path _archive)
+	: archive(std::move(_archive)), mountPoint(std::move(_mountPoint))
 {
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
@@ -45,10 +44,10 @@ CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path 
 	else
 		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive.string());
 
-	logGlobal->traceStream() << ext << "Archive \""<<archive.filename()<<"\" loaded (" << entries.size() << " files found).";
+	logGlobal->traceStream() << ext << "Archive \"" << archive.filename() << "\" loaded (" << entries.size() << " files found).";
 }
 
-void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream)
+void CArchiveLoader::initLODArchive(const std::string & mountPoint, CFileInputStream & fileStream)
 {
 	// Read count of total files
 	CBinaryReader reader(&fileStream);
@@ -63,22 +62,22 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[16];
-		reader.read(reinterpret_cast<ui8*>(filename), 16);
+		reader.read(reinterpret_cast<ui8 *>(filename), 16);
 
 		// Create archive entry
 		ArchiveEntry entry;
-		entry.name     = filename;
-		entry.offset   = reader.readUInt32();
+		entry.name = filename;
+		entry.offset = reader.readUInt32();
 		entry.fullSize = reader.readUInt32();
 		fileStream.skip(4); // unused, unknown
-		entry.compressedSize     = reader.readUInt32();
+		entry.compressedSize = reader.readUInt32();
 
 		// Add lod entry to local entries map
 		entries[ResourceID(mountPoint + entry.name)] = entry;
 	}
 }
 
-void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStream & fileStream)
+void CArchiveLoader::initVIDArchive(const std::string & mountPoint, CFileInputStream & fileStream)
 {
 
 	// Read count of total files
@@ -92,7 +91,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[40];
-		reader.read(reinterpret_cast<ui8*>(filename), 40);
+		reader.read(reinterpret_cast<ui8 *>(filename), 40);
 
 		ArchiveEntry entry;
 		entry.name = filename;
@@ -105,7 +104,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 	offsets.insert(fileStream.getSize());
 
 	// now when we know position of all files their sizes can be set correctly
-	for (auto & entry : entries)
+	for(auto & entry : entries)
 	{
 		auto it = offsets.find(entry.second.offset);
 		it++;
@@ -113,7 +112,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 	}
 }
 
-void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStream & fileStream)
+void CArchiveLoader::initSNDArchive(const std::string & mountPoint, CFileInputStream & fileStream)
 {
 	// Read count of total files
 	CBinaryReader reader(&fileStream);
@@ -124,12 +123,12 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 	for(ui32 i = 0; i < totalFiles; ++i)
 	{
 		char filename[40];
-		reader.read(reinterpret_cast<ui8*>(filename), 40);
+		reader.read(reinterpret_cast<ui8 *>(filename), 40);
 
 		//for some reason entries in snd have format NAME\0WAVRUBBISH....
 		//we need to replace first \0 with dot and take the 3 chars with extension (and drop the rest)
 		ArchiveEntry entry;
-		entry.name  = filename; // till 1st \0
+		entry.name = filename; // till 1st \0
 		entry.name += '.';
 		entry.name += std::string(filename + entry.name.size(), 3);
 
@@ -146,7 +145,7 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 
 	const ArchiveEntry & entry = entries.at(resourceName);
 
-	if (entry.compressedSize != 0) //compressed data
+	if(entry.compressedSize != 0) //compressed data
 	{
 		auto fileStream = make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
 
@@ -172,9 +171,9 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 {
 	std::unordered_set<ResourceID> foundID;
 
-	for (auto & file : entries)
+	for(auto & file : entries)
 	{
-		if (filter(file.first))
+		if(filter(file.first))
 			foundID.insert(file.first);
 	}
 	return foundID;

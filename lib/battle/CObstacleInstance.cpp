@@ -68,10 +68,10 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 
 // bool CObstacleInstance::spellGenerated() const
 // {
-// 	if(obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE)
-// 		return false;
+//      if(obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE)
+//              return false;
 //
-// 	return true;
+//      return true;
 // }
 
 bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const

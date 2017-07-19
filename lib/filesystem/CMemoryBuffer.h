@@ -14,7 +14,7 @@
 /**
  * A class which provides IO memory buffer.
  */
- 
+
 class DLL_LINKAGE CMemoryBuffer : public CInputOutputStream
 {
 public:
@@ -25,7 +25,7 @@ public:
 	 *
 	 */
 	CMemoryBuffer();
-	
+
 	/**
 	 * Write n bytes from the stream into the data buffer.
 	 *
@@ -33,7 +33,7 @@ public:
 	 * @param size The number of bytes to write.
 	 * @return the number of bytes written actually.
 	 */
-	si64 write(const ui8 * data, si64 size) override;	
+	si64 write(const ui8 * data, si64 size) override;
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -73,14 +73,13 @@ public:
 	 * @return the length in bytes of the stream.
 	 */
 	si64 getSize() override;
-	
+
 	const TBuffer & getBuffer(){return buffer;}
 
 private:
 	/** Actual data. */
 	TBuffer buffer;
-	
+
 	/** Current reading position of the stream. */
 	si64 position;
 };
-

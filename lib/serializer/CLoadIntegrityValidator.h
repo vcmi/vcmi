@@ -12,18 +12,17 @@
 #include "BinaryDeserializer.h"
 
 /// Simple byte-to-byte saves comparator
-class DLL_LINKAGE CLoadIntegrityValidator
-	: public IBinaryReader
+class DLL_LINKAGE CLoadIntegrityValidator : public IBinaryReader
 {
 public:
 	BinaryDeserializer serializer;
 	std::unique_ptr<CLoadFile> primaryFile, controlFile;
 	bool foundDesync;
 
-	CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion = SERIALIZATION_VERSION); //throws!
+	CLoadIntegrityValidator(const boost::filesystem::path & primaryFileName, const boost::filesystem::path & controlFileName, int minimalVersion = SERIALIZATION_VERSION); //throws!
 
-	int read( void * data, unsigned size) override; //throws!
-	void checkMagicBytes(const std::string &text);
+	int read(void * data, unsigned size) override; //throws!
+	void checkMagicBytes(const std::string & text);
 
 	std::unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };

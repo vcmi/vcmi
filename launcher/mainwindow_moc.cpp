@@ -28,31 +28,30 @@ void MainWindow::load()
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
-	for (auto & string : VCMIDirs::get().dataPaths())
+	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 
 	settings.init();
 }
 
-MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(const QStringList & displayList, QWidget * parent)
+	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
 
 	ui->setupUi(this);
 	auto width = ui->startGameTitle->fontMetrics().boundingRect(ui->startGameTitle->text()).width();
-	if (ui->startGameButton->iconSize().width() < width)
+	if(ui->startGameButton->iconSize().width() < width)
 	{
 		ui->startGameButton->setIconSize(QSize(width, width));
 	}
 	auto tab_icon_size = ui->tabSelectList->iconSize();
-	if (tab_icon_size.width() < width)
+	if(tab_icon_size.width() < width)
 	{
 		ui->tabSelectList->setIconSize(QSize(
-			width,
-			width + tab_icon_size.height() - tab_icon_size.width()));
+						       width,
+						       width + tab_icon_size.height() - tab_icon_size.width()));
 		ui->tabSelectList->setGridSize(QSize(width, width));
 		// 4 is a dirty hack to make it look right
 		ui->tabSelectList->setMaximumWidth(width + 4);
@@ -61,7 +60,7 @@ MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
 	ui->settingsView->setDisplayList(displayList);
 
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-	        ui->tabListWidget, SLOT(setCurrentIndex(int)));
+		ui->tabListWidget, SLOT(setCurrentIndex(int)));
 }
 
 MainWindow::~MainWindow()
@@ -79,18 +78,18 @@ void MainWindow::startExecutable(QString name)
 	QProcess process;
 
 	// Start the executable
-	if (process.startDetached(name))
+	if(process.startDetached(name))
 	{
 		close(); // exit launcher
 	}
 	else
 	{
 		QMessageBox::critical(this,
-		                      "Error starting executable",
-		                      "Failed to start " + name + "\n"
-		                      "Reason: " + process.errorString(),
-		                      QMessageBox::Ok,
-		                      QMessageBox::Ok);
+				      "Error starting executable",
+				      "Failed to start " + name + "\n"
+				      "Reason: " + process.errorString(),
+				      QMessageBox::Ok,
+				      QMessageBox::Ok);
 		return;
 	}
 }

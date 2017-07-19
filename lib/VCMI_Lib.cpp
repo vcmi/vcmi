@@ -32,7 +32,7 @@
 
 LibClasses * VLC = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console)
 {
 	console = Console;
 	VLC = new LibClasses();
@@ -63,27 +63,27 @@ void LibClasses::loadFilesystem()
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
-	logGlobal->infoStream()<<"\tInitialization: "<<loadTime.getDiff();
+	logGlobal->infoStream() << "\tInitialization: " << loadTime.getDiff();
 
 	CResourceHandler::load("config/filesystem.json");
-	logGlobal->infoStream()<<"\tData loading: "<<loadTime.getDiff();
+	logGlobal->infoStream() << "\tData loading: " << loadTime.getDiff();
 
 	modh = new CModHandler();
-	logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
+	logGlobal->infoStream() << "\tMod handler: " << loadTime.getDiff();
 
 	modh->loadMods();
 	modh->loadModFilesystems();
-	logGlobal->infoStream()<<"\tMod filesystems: "<<loadTime.getDiff();
+	logGlobal->infoStream() << "\tMod filesystems: " << loadTime.getDiff();
 
-	logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
+	logGlobal->infoStream() << "Basic initialization: " << totalTime.getDiff();
 }
 
-static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
+static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
 {
-   logGlobal->infoStream()<<"\t\t" << name << " handler: "<<timer.getDiff();
+	logGlobal->infoStream() << "\t\t" << name << " handler: " << timer.getDiff();
 }
 
-template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
+template<class Handler> void createHandler(Handler * & handler, const std::string & name, CStopWatch & timer)
 {
 	handler = new Handler();
 	logHandlerLoaded(name, timer);
@@ -117,7 +117,7 @@ void LibClasses::init()
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
-	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
+	logGlobal->infoStream() << "\tInitializing handlers: " << totalTime.getDiff();
 
 	modh->load();
 

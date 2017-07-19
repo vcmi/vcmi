@@ -39,7 +39,7 @@ static bool keyDown()
 #endif // _MSC_VER
 
 // Define a set of functions to read data
-static int lodRead(void* opaque, uint8_t* buf, int size)
+static int lodRead(void * opaque, uint8_t * buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
@@ -50,7 +50,7 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
-	if (whence & AVSEEK_SIZE)
+	if(whence & AVSEEK_SIZE)
 		return video->data->getSize();
 
 	return video->data->seek(pos);
@@ -67,8 +67,8 @@ CVideoPlayer::CVideoPlayer()
 	context = nullptr;
 	texture = nullptr;
 	dest = nullptr;
-	destRect = genRect(0,0,0,0);
-	pos = genRect(0,0,0,0);
+	destRect = genRect(0, 0, 0, 0);
+	pos = genRect(0, 0, 0, 0);
 	refreshWait = 0;
 	refreshCount = 0;
 	doLoop = false;
@@ -97,7 +97,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
 
-	if (!CResourceHandler::get()->existsResource(resource))
+	if(!CResourceHandler::get()->existsResource(resource))
 	{
 		logGlobal->errorStream() << "Error: video " << resource.getName() << " was not found";
 		return false;
@@ -107,34 +107,34 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	static const int BUFFER_SIZE = 4096;
 
-	unsigned char * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
-	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, nullptr, lodSeek);
+	unsigned char * buffer = (unsigned char *)av_malloc(BUFFER_SIZE); // will be freed by ffmpeg
+	context = avio_alloc_context(buffer, BUFFER_SIZE, 0, (void *)this, lodRead, nullptr, lodSeek);
 
 	format = avformat_alloc_context();
 	format->pb = context;
 	// filename is not needed - file was already open and stored in this->data;
 	int avfopen = avformat_open_input(&format, "dummyFilename", nullptr, nullptr);
 
-	if (avfopen != 0)
+	if(avfopen != 0)
 	{
 		return false;
 	}
 	// Retrieve stream information
-	if (avformat_find_stream_info(format, nullptr) < 0)
+	if(avformat_find_stream_info(format, nullptr) < 0)
 		return false;
 
 	// Find the first video stream
 	stream = -1;
-	for(ui32 i=0; i<format->nb_streams; i++)
+	for(ui32 i = 0; i < format->nb_streams; i++)
 	{
-		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
+		if(format->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO)
 		{
 			stream = i;
 			break;
 		}
 	}
 
-	if (stream < 0)
+	if(stream < 0)
 		// No video stream in that file
 		return false;
 
@@ -144,14 +144,14 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	// Find the decoder for the video stream
 	codec = avcodec_find_decoder(codecContext->codec_id);
 
-	if (codec == nullptr)
+	if(codec == nullptr)
 	{
 		// Unsupported codec
 		return false;
 	}
 
 	// Open codec
-	if ( avcodec_open2(codecContext, codec, nullptr) < 0 )
+	if(avcodec_open2(codecContext, codec, nullptr) < 0)
 	{
 		// Could not open codec
 		codec = nullptr;
@@ -168,14 +168,14 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 	else
 	{
-		pos.w  = codecContext->width;
+		pos.w = codecContext->width;
 		pos.h = codecContext->height;
 	}
 
 	// Allocate a place to put our YUV image on that screen
-	if (useOverlay)
+	if(useOverlay)
 	{
-		texture = SDL_CreateTexture( mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
+		texture = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_IYUV, SDL_TEXTUREACCESS_STATIC, pos.w, pos.h);
 	}
 	else
 	{
@@ -185,48 +185,62 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 		destRect.h = pos.h;
 	}
 
-	if (texture == nullptr && dest == nullptr)
+	if(texture == nullptr && dest == nullptr)
 		return false;
 
-	if (texture)
+	if(texture)
 	{ // Convert the image into YUV format that SDL uses
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
-							 pos.w, pos.h,
-							 AV_PIX_FMT_YUV420P,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
+				     pos.w, pos.h,
+				     AV_PIX_FMT_YUV420P,
+				     SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 	else
 	{
 		AVPixelFormat screenFormat = AV_PIX_FMT_NONE;
-		if (screen->format->Bshift > screen->format->Rshift)
+		if(screen->format->Bshift > screen->format->Rshift)
 		{
 			// this a BGR surface
-			switch (screen->format->BytesPerPixel)
+			switch(screen->format->BytesPerPixel)
 			{
-				case 2: screenFormat = AV_PIX_FMT_BGR565; break;
-				case 3: screenFormat = AV_PIX_FMT_BGR24; break;
-				case 4: screenFormat = AV_PIX_FMT_BGR32; break;
-				default: return false;
+			case 2:
+				screenFormat = AV_PIX_FMT_BGR565;
+				break;
+			case 3:
+				screenFormat = AV_PIX_FMT_BGR24;
+				break;
+			case 4:
+				screenFormat = AV_PIX_FMT_BGR32;
+				break;
+			default:
+				return false;
 			}
 		}
 		else
 		{
 			// this a RGB surface
-			switch (screen->format->BytesPerPixel)
+			switch(screen->format->BytesPerPixel)
 			{
-				case 2: screenFormat = AV_PIX_FMT_RGB565; break;
-				case 3: screenFormat = AV_PIX_FMT_RGB24; break;
-				case 4: screenFormat = AV_PIX_FMT_RGB32; break;
-				default: return false;
+			case 2:
+				screenFormat = AV_PIX_FMT_RGB565;
+				break;
+			case 3:
+				screenFormat = AV_PIX_FMT_RGB24;
+				break;
+			case 4:
+				screenFormat = AV_PIX_FMT_RGB32;
+				break;
+			default:
+				return false;
 			}
 		}
 
 		sws = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
-							 pos.w, pos.h, screenFormat,
-							 SWS_BICUBIC, nullptr, nullptr, nullptr);
+				     pos.w, pos.h, screenFormat,
+				     SWS_BICUBIC, nullptr, nullptr, nullptr);
 	}
 
-	if (sws == nullptr)
+	if(sws == nullptr)
 		return false;
 
 	return true;
@@ -239,19 +253,19 @@ bool CVideoPlayer::nextFrame()
 	int frameFinished = 0;
 	bool gotError = false;
 
-	if (sws == nullptr)
+	if(sws == nullptr)
 		return false;
 
 	while(!frameFinished)
 	{
 		int ret = av_read_frame(format, &packet);
-		if (ret < 0)
+		if(ret < 0)
 		{
 			// Error. It's probably an end of file.
-			if (doLoop && !gotError)
+			if(doLoop && !gotError)
 			{
 				// Rewind
-				if (av_seek_frame(format, stream, 0, AVSEEK_FLAG_BYTE) < 0)
+				if(av_seek_frame(format, stream, 0, AVSEEK_FLAG_BYTE) < 0)
 					break;
 				gotError = true;
 			}
@@ -263,26 +277,27 @@ bool CVideoPlayer::nextFrame()
 		else
 		{
 			// Is this a packet from the video stream?
-			if (packet.stream_index == stream)
+			if(packet.stream_index == stream)
 			{
 				// Decode video frame
 
 				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
 
 				// Did we get a video frame?
-				if (frameFinished)
+				if(frameFinished)
 				{
 					AVPicture pict;
 
-					if (texture) {
+					if(texture)
+					{
 						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, pos.w, pos.h);
 
 						sws_scale(sws, frame->data, frame->linesize,
-								  0, codecContext->height, pict.data, pict.linesize);
+							  0, codecContext->height, pict.data, pict.linesize);
 
 						SDL_UpdateYUVTexture(texture, NULL, pict.data[0], pict.linesize[0],
-								pict.data[1], pict.linesize[1],
-								pict.data[2], pict.linesize[2]);
+								     pict.data[1], pict.linesize[1],
+								     pict.data[2], pict.linesize[2]);
 						avpicture_free(&pict);
 					}
 					else
@@ -291,7 +306,7 @@ bool CVideoPlayer::nextFrame()
 						pict.linesize[0] = dest->pitch;
 
 						sws_scale(sws, frame->data, frame->linesize,
-								  0, codecContext->height, pict.data, pict.linesize);
+							  0, codecContext->height, pict.data, pict.linesize);
 					}
 				}
 			}
@@ -303,34 +318,34 @@ bool CVideoPlayer::nextFrame()
 	return frameFinished != 0;
 }
 
-void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
+void CVideoPlayer::show(int x, int y, SDL_Surface * dst, bool update)
 {
-	if (sws == nullptr)
+	if(sws == nullptr)
 		return;
 
 	pos.x = x;
 	pos.y = y;
 	CSDL_Ext::blitSurface(dest, &destRect, dst, &pos);
 
-	if (update)
+	if(update)
 		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
 }
 
-void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+void CVideoPlayer::redraw(int x, int y, SDL_Surface * dst, bool update)
 {
 	show(x, y, dst, update);
 }
 
-void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
+void CVideoPlayer::update(int x, int y, SDL_Surface * dst, bool forceRedraw, bool update)
 {
-	if (sws == nullptr)
+	if(sws == nullptr)
 		return;
 
-	if (refreshCount <= 0)
+	if(refreshCount <= 0)
 	{
 		refreshCount = refreshWait;
-		if (nextFrame())
-			show(x,y,dst,update);
+		if(nextFrame())
+			show(x, y, dst, update);
 		else
 		{
 			open(fname);
@@ -347,48 +362,48 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 		redraw(x, y, dst, update);
 	}
 
-	refreshCount --;
+	refreshCount--;
 }
 
 void CVideoPlayer::close()
 {
 	fname = "";
-	if (sws)
+	if(sws)
 	{
 		sws_freeContext(sws);
 		sws = nullptr;
 	}
 
-	if (texture)
+	if(texture)
 	{
 		SDL_DestroyTexture(texture);
 		texture = nullptr;
 	}
 
-	if (dest)
+	if(dest)
 	{
 		SDL_FreeSurface(dest);
 		dest = nullptr;
 	}
 
-	if (frame)
+	if(frame)
 	{
-		av_frame_free(&frame);//will be set to null
+		av_frame_free(&frame); //will be set to null
 	}
 
-	if (codec)
+	if(codec)
 	{
 		avcodec_close(codecContext);
 		codec = nullptr;
 		codecContext = nullptr;
 	}
 
-	if (format)
+	if(format)
 	{
 		avformat_close_input(&format);
 	}
 
-	if (context)
+	if(context)
 	{
 		av_free(context);
 		context = nullptr;
@@ -396,7 +411,7 @@ void CVideoPlayer::close()
 }
 
 // Plays a video. Only works for overlays.
-bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
+bool CVideoPlayer::playVideo(int x, int y, SDL_Surface * dst, bool stopOnKey)
 {
 	// Note: either the windows player or the linux player is
 	// broken. Compensate here until the bug is found.
@@ -423,7 +438,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey, bool scale)
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface * dst, bool stopOnKey, bool scale)
 {
 	open(name, false, true, scale);
 	bool ret = playVideo(x, y, dst, stopOnKey);
@@ -437,4 +452,3 @@ CVideoPlayer::~CVideoPlayer()
 }
 
 #endif
-

@@ -42,9 +42,9 @@ void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
 	CB->unlockGsWhenWaiting = false;
 }
 
-BattleAction CBattleAI::activeStack( const CStack * stack )
+BattleAction CBattleAI::activeStack(const CStack * stack)
 {
-	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName())	;
+	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 	try
 	{
@@ -53,7 +53,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->hasBonusOfType(Bonus::HEALER))
 		{
 			auto healingTargets = cb->battleGetStacks(CBattleInfoEssentials::ONLY_MINE);
-			std::map<int, const CStack*> woundHpToStack;
+			std::map<int, const CStack *> woundHpToStack;
 			for(auto stack : healingTargets)
 				if(auto woundHp = stack->MaxHealth() - stack->getFirstHPleft())
 					woundHpToStack[woundHp] = stack;
@@ -91,7 +91,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			{
 				//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
 				auto dists = getCbc()->battleGetDistances(stack);
-				const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
+				const EnemyInfo & ei = *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
 				if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
 				{
 					return goTowards(stack, ei.s->position);
@@ -103,9 +103,9 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			}
 		}
 	}
-	catch(std::exception &e)
+	catch(std::exception & e)
 	{
-		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
+		logAi->error("Exception occurred in %s %s", __FUNCTION__, e.what());
 	}
 	return BattleAction::makeDefend(stack);
 }
@@ -134,11 +134,11 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
 		auto distToDestNeighbour = [&](BattleHex hex) -> int
-		{
-			auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
-			{return BattleHex::getDistance(a, hex);});
-			return BattleHex::getDistance(*nearestNeighbourToHex, hex);
-		};
+			{
+				auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
+										   {return BattleHex::getDistance(a, hex);});
+				return BattleHex::getDistance(*nearestNeighbourToHex, hex);
+			};
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, distToDestNeighbour);
 		return BattleAction::makeMove(stack, *nearestAvailableHex);
 	}
@@ -168,14 +168,16 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 
 enum SpellTypes
 {
-	OFFENSIVE_SPELL, TIMED_EFFECT, OTHER
+	OFFENSIVE_SPELL,
+	TIMED_EFFECT,
+	OTHER
 };
 
-SpellTypes spellType(const CSpell *spell)
+SpellTypes spellType(const CSpell * spell)
 {
-	if (spell->isOffensiveSpell())
+	if(spell->isOffensiveSpell())
 		return OFFENSIVE_SPELL;
-	if (spell->hasEffects())
+	if(spell->hasEffects())
 		return TIMED_EFFECT;
 	return OTHER;
 }
@@ -191,15 +193,15 @@ void CBattleAI::attemptCastingSpell()
 
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
-	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this, hero] (const CSpell *s) -> bool
+	std::vector<const CSpell *> possibleSpells;
+	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this, hero](const CSpell * s) -> bool
 	{
 		return s->canBeCast(getCbc().get(), ECastingMode::HERO_CASTING, hero) == ESpellCastProblem::OK;
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
-	vstd::erase_if(possibleSpells, [](const CSpell *s)
-	{return spellType(s) == OTHER; });
+	vstd::erase_if(possibleSpells, [](const CSpell * s)
+		       {return spellType(s) == OTHER; });
 	LOGFL("I know about workings of %d of them.", possibleSpells.size());
 
 	//Get possible spell-target pairs
@@ -216,80 +218,80 @@ void CBattleAI::attemptCastingSpell()
 	if(possibleCasts.empty())
 		return;
 
-	std::map<const CStack*, int> valueOfStack;
+	std::map<const CStack *, int> valueOfStack;
 	for(auto stack : cb->battleGetStacks())
 	{
 		PotentialTargets pt(stack);
 		valueOfStack[stack] = pt.bestActionValue();
 	}
 
-	auto evaluateSpellcast = [&] (const PossibleSpellcast &ps) -> int
-	{
-		const int skillLevel = hero->getSpellSchoolLevel(ps.spell);
-		const int spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-		switch(spellType(ps.spell))
+	auto evaluateSpellcast = [&](const PossibleSpellcast & ps) -> int
 		{
-		case OFFENSIVE_SPELL:
-		{
-			int damageDealt = 0, damageReceived = 0;
-			auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
-			if(stacksSuffering.empty())
-				return -1;
-			for(auto stack : stacksSuffering)
+			const int skillLevel = hero->getSpellSchoolLevel(ps.spell);
+			const int spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
+			switch(spellType(ps.spell))
 			{
-				const int dmg = ps.spell->calculateDamage(hero, stack, skillLevel, spellPower);
-				if(stack->owner == playerID)
-					damageReceived += dmg;
-				else
-					damageDealt += dmg;
-			}
-			const int damageDiff = damageDealt - damageReceived * 10;
-			LOGFL("Casting %s on hex %d would deal { %d %d } damage points among %d stacks.",
-				  ps.spell->name % ps.dest % damageDealt % damageReceived % stacksSuffering.size());
-			//TODO tactic effect too
-			return damageDiff;
-		}
-		case TIMED_EFFECT:
-		{
-			auto stacksAffected = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
-			if(stacksAffected.empty())
-				return -1;
-			int totalGain = 0;
-			for(const CStack * sta : stacksAffected)
+			case OFFENSIVE_SPELL:
 			{
-				StackWithBonuses swb;
-				swb.stack = sta;
-				//todo: handle effect actualization in HypotheticChangesToBattleState
-				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, false, hero->getEnchantPower(ps.spell));
-				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, true, hero->getEnchantPower(ps.spell));
-				HypotheticChangesToBattleState state;
-				state.bonusesOfStacks[swb.stack] = &swb;
-				PotentialTargets pt(swb.stack, state);
-				auto newValue = pt.bestActionValue();
-				auto oldValue = valueOfStack[swb.stack];
-				auto gain = newValue - oldValue;
-				if(swb.stack->owner != playerID) //enemy
-					gain = -gain;
-				LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
-					  ps.spell->name % sta->nodeName() % (gain) % (oldValue) % (newValue));
-				totalGain += gain;
+				int damageDealt = 0, damageReceived = 0;
+				auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
+				if(stacksSuffering.empty())
+					return -1;
+				for(auto stack : stacksSuffering)
+				{
+					const int dmg = ps.spell->calculateDamage(hero, stack, skillLevel, spellPower);
+					if(stack->owner == playerID)
+						damageReceived += dmg;
+					else
+						damageDealt += dmg;
+				}
+				const int damageDiff = damageDealt - damageReceived * 10;
+				LOGFL("Casting %s on hex %d would deal { %d %d } damage points among %d stacks.",
+				      ps.spell->name % ps.dest % damageDealt % damageReceived % stacksSuffering.size());
+				//TODO tactic effect too
+				return damageDiff;
 			}
+			case TIMED_EFFECT:
+			{
+				auto stacksAffected = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
+				if(stacksAffected.empty())
+					return -1;
+				int totalGain = 0;
+				for(const CStack * sta : stacksAffected)
+				{
+					StackWithBonuses swb;
+					swb.stack = sta;
+					//todo: handle effect actualization in HypotheticChangesToBattleState
+					ps.spell->getEffects(swb.bonusesToAdd, skillLevel, false, hero->getEnchantPower(ps.spell));
+					ps.spell->getEffects(swb.bonusesToAdd, skillLevel, true, hero->getEnchantPower(ps.spell));
+					HypotheticChangesToBattleState state;
+					state.bonusesOfStacks[swb.stack] = &swb;
+					PotentialTargets pt(swb.stack, state);
+					auto newValue = pt.bestActionValue();
+					auto oldValue = valueOfStack[swb.stack];
+					auto gain = newValue - oldValue;
+					if(swb.stack->owner != playerID) //enemy
+						gain = -gain;
+					LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
+					      ps.spell->name % sta->nodeName() % (gain) % (oldValue) % (newValue));
+					totalGain += gain;
+				}
 
-			LOGFL("Total gain of cast %s at hex %d is %d", ps.spell->name % (ps.dest.hex) % (totalGain));
-			return totalGain;
-		}
-		default:
-			assert(0);
-			return 0;
-		}
-	};
+				LOGFL("Total gain of cast %s at hex %d is %d", ps.spell->name % (ps.dest.hex) % (totalGain));
+				return totalGain;
+			}
+			default:
+				assert(0);
+				return 0;
+			}
+		};
 
 	for(PossibleSpellcast & psc : possibleCasts)
 		psc.value = evaluateSpellcast(psc);
-	auto pscValue = [] (const PossibleSpellcast &ps) -> int
-	{
-		return ps.value;
-	};
+	auto pscValue = [](const PossibleSpellcast & ps) -> int
+		{
+			return ps.value;
+		};
 	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
 	LOGFL("Best spell is %s. Will cast.", castToPerform.spell->name);
 	BattleAction spellcast;
@@ -321,7 +323,7 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, con
 				bool casterStack = stack->owner == caster->getOwner();
 
 				if(!immune)
-					switch (spell->positiveness)
+					switch(spell->positiveness)
 					{
 					case CSpell::POSITIVE:
 						if(casterStack || targetInfo.smart)
@@ -337,14 +339,14 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, con
 					}
 			}
 		}
-			break;
+		break;
 		case CSpell::LOCATION:
 		{
 			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 				if(BattleHex(i).isAvailable())
 					ret.push_back(i);
 		}
-			break;
+		break;
 
 		default:
 			break;
@@ -353,7 +355,7 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, con
 	return ret;
 }
 
-int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances &dists, BattleHex *chosenHex)
+int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances & dists, BattleHex * chosenHex)
 {
 	int ret = 1000000;
 	for(BattleHex n : hex.neighbouringTiles())
@@ -368,18 +370,18 @@ int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDi
 	return ret;
 }
 
-void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
+void CBattleAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side)
 {
 	print("battleStart called");
 	side = Side;
 }
 
-bool CBattleAI::isCloser(const EnemyInfo &ei1, const EnemyInfo &ei2, const ReachabilityInfo::TDistances &dists)
+bool CBattleAI::isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
 {
 	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
 }
 
-void CBattleAI::print(const std::string &text) const
+void CBattleAI::print(const std::string & text) const
 {
 	logAi->trace("CBattleAI [%p]: %s", this, text);
 }
@@ -394,6 +396,3 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	}
 	return boost::none;
 }
-
-
-

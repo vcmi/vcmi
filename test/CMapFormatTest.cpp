@@ -59,11 +59,11 @@ BOOST_AUTO_TEST_CASE(Random)
 	BOOST_TEST_CHECKPOINT("MapFormat_Random serialized");
 	#if 1
 	{
-		auto path = VCMIDirs::get().userDataPath()/"test_random.vmap";
+		auto path = VCMIDirs::get().userDataPath() / "test_random.vmap";
 		boost::filesystem::remove(path);
 		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
 
-		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
+		tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
 
@@ -91,11 +91,11 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 	ResourceID resource(archiveFilename, EResType::TEXT);
 
 	if(!archive.existsResource(resource))
-		throw new std::runtime_error(archiveFilename+" not found");
+		throw new std::runtime_error(archiveFilename + " not found");
 
 	auto data = archive.load(resource)->readAll();
 
-	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
+	JsonNode res(reinterpret_cast<char *>(data.first.get()), data.second);
 
 	return std::move(res);
 }
@@ -111,7 +111,7 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 		auto s = out.str();
 		std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
-		if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
+		if(stream->write((const ui8 *)s.c_str(), s.size()) != s.size())
 			throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 	}
 }
@@ -122,14 +122,14 @@ BOOST_AUTO_TEST_CASE(Objects)
 
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
-	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+"header.json"));
-	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH+"header.json"));//same as initial for now
+	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH + "header.json"));
+	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH + "header.json")); //same as initial for now
 
-	const JsonNode initialObjects(ResourceID(MAP_DATA_PATH+"objects.json"));
-	const JsonNode expectedObjects(ResourceID(MAP_DATA_PATH+"objects.ex.json"));
+	const JsonNode initialObjects(ResourceID(MAP_DATA_PATH + "objects.json"));
+	const JsonNode expectedObjects(ResourceID(MAP_DATA_PATH + "objects.ex.json"));
 
-	const JsonNode expectedSurface(ResourceID(MAP_DATA_PATH+"surface_terrain.json"));
-	const JsonNode expectedUnderground(ResourceID(MAP_DATA_PATH+"underground_terrain.json"));
+	const JsonNode expectedSurface(ResourceID(MAP_DATA_PATH + "surface_terrain.json"));
+	const JsonNode expectedUnderground(ResourceID(MAP_DATA_PATH + "underground_terrain.json"));
 
 	std::unique_ptr<CMap> originalMap;
 	{
@@ -170,11 +170,11 @@ BOOST_AUTO_TEST_CASE(Objects)
 	const JsonNode actualUnderground = getFromArchive(actualDataLoader, "underground_terrain.json");
 
 	{
-		auto path = VCMIDirs::get().userDataPath()/"test_object_property.vmap";
+		auto path = VCMIDirs::get().userDataPath() / "test_object_property.vmap";
 		boost::filesystem::remove(path);
 		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
 
-		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
+		tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
 

@@ -24,8 +24,8 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	si32 round, activeStack, selectedStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
-	std::vector<CStack*> stacks;
-	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
+	std::vector<CStack *> stacks;
+	std::vector<std::shared_ptr<CObstacleInstance>> obstacles;
 	SiegeInfo si;
 
 	BFieldType battlefieldType; //like !!BA:B
@@ -34,13 +34,13 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & sides;
 		h & round & activeStack & selectedStack & town & tile & stacks & obstacles
-			& si & battlefieldType & terrainType;
+		& si & battlefieldType & terrainType;
 		h & tacticsSide & tacticDistance;
-		h & static_cast<CBonusSystemNode&>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -57,15 +57,15 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	const CStack * getNextStack() const; //which stack will have turn after current one
 
 	int getAvaliableHex(CreatureID creID, ui8 side, int initialPos = -1) const; //find place for summon / clone effects
-	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const CStack * stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
+	std::pair<std::vector<BattleHex>, int> getPath(BattleHex start, BattleHex dest, const CStack * stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::shared_ptr<CObstacleInstance> getObstacleOnTile(BattleHex tile) const;
 	std::set<BattleHex> getStoppers(bool whichSidePerspective) const;
 
 	ui32 calculateDmg(const CStack * attacker, const CStack * defender, bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg, CRandomGenerator & rand); //charge - number of hexes travelled before attack (for champion's jousting)
-	void calculateCasualties(std::map<ui32,si32> * casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
+	void calculateCasualties(std::map<ui32, si32> * casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
 
-	CStack * generateNewStack(const CStackInstance &base, ui8 side, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
-	CStack * generateNewStack(const CStackBasicDescriptor &base, ui8 side, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackInstance & base, ui8 side, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackBasicDescriptor & base, ui8 side, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
@@ -87,8 +87,9 @@ class DLL_LINKAGE CMP_stack
 {
 	int phase; //rules of which phase will be used
 	int turn;
+
 public:
 
-	bool operator ()(const CStack* a, const CStack* b);
+	bool operator()(const CStack * a, const CStack * b);
 	CMP_stack(int Phase = 1, int Turn = 0);
 };

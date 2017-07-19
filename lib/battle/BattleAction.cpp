@@ -14,13 +14,8 @@
 
 using namespace Battle;
 
-BattleAction::BattleAction():
-	side(-1),
-	stackNumber(-1),
-	actionType(INVALID),
-	destinationTile(-1),
-	additionalInfo(-1),
-	selectedStack(-1)
+BattleAction::BattleAction()
+	: side(-1), stackNumber(-1), actionType(INVALID), destinationTile(-1), additionalInfo(-1), selectedStack(-1)
 {
 }
 
@@ -98,5 +93,5 @@ std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
 	actionTypeStream << ba.actionType;
 
 	return os << boost::str(boost::format("{BattleAction: side '%d', stackNumber '%d', actionType '%s', destinationTile '%s', additionalInfo '%d', selectedStack '%d'}")
-			% static_cast<int>(ba.side) % ba.stackNumber % actionTypeStream.str() % ba.destinationTile % ba.additionalInfo % ba.selectedStack);
+				% static_cast<int>(ba.side) % ba.stackNumber % actionTypeStream.str() % ba.destinationTile % ba.additionalInfo % ba.selectedStack);
 }

@@ -19,29 +19,29 @@ class CCreatureAnimation;
 /// Namespace for some common controls of animations
 namespace AnimationControls
 {
-	/// get SDL_Color for creature selection borders
-	SDL_Color getBlueBorder();
-	SDL_Color getGoldBorder();
-	SDL_Color getNoBorder();
+/// get SDL_Color for creature selection borders
+SDL_Color getBlueBorder();
+SDL_Color getGoldBorder();
+SDL_Color getNoBorder();
 
-	/// creates animation object with preset speed control
-	CCreatureAnimation * getAnimation(const CCreature * creature);
+/// creates animation object with preset speed control
+CCreatureAnimation * getAnimation(const CCreature * creature);
 
-	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
-	float getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t groupID);
+/// returns animation speed of specific group, taking in mind game setting (in frames per second)
+float getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t groupID);
 
-	/// returns how far projectile should move each frame
-	/// TODO: make it time-based
-	float getProjectileSpeed();
+/// returns how far projectile should move each frame
+/// TODO: make it time-based
+float getProjectileSpeed();
 
-	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
-	float getSpellEffectSpeed();
+/// returns speed of any spell effects, including any special effects like morale (in frames per second)
+float getSpellEffectSpeed();
 
-	/// returns duration of full movement animation, in seconds. Needed to move animation on screen
-	float getMovementDuration(const CCreature * creature);
+/// returns duration of full movement animation, in seconds. Needed to move animation on screen
+float getMovementDuration(const CCreature * creature);
 
-	/// Returns distance on which flying creatures should during one animation loop
-	float getFlightDistance(const CCreature * creature);
+/// Returns distance on which flying creatures should during one animation loop
+float getFlightDistance(const CCreature * creature);
 }
 
 /// Class which manages animations of creatures/units inside battles
@@ -49,7 +49,7 @@ namespace AnimationControls
 class CCreatureAnimation : public CIntObject
 {
 public:
-	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;
+	typedef std::function<float (CCreatureAnimation *, size_t)> TSpeedController;
 
 private:
 	std::string defName;
@@ -91,7 +91,7 @@ private:
 	void putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special) const;
 
 	template<int bpp>
-	void putPixel( ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const;
+	void putPixel(ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const;
 
 	template<int bpp>
 	void nextFrameT(SDL_Surface * dest, bool rotate);
@@ -100,6 +100,7 @@ private:
 
 	/// creates 8 special colors for current frame
 	std::array<SDL_Color, 8> genSpecialPalette();
+
 public:
 
 	// function(s) that will be called when animation ends, after reset to 1st frame

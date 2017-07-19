@@ -71,6 +71,7 @@ public:
 	static std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name);
 
 	static void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath);
+
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.
@@ -152,7 +153,7 @@ public:
 	 * Saves the VCMI/H3 map file.
 	 *
 	 */
-	 virtual void saveMap(const std::unique_ptr<CMap> & map) = 0;
+	virtual void saveMap(const std::unique_ptr<CMap> & map) = 0;
 
-	 virtual ~IMapSaver(){}
+	virtual ~IMapSaver(){}
 };

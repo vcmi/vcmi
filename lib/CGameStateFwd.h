@@ -20,7 +20,7 @@ class CTown;
 struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 {
 	bool isDetailed;
-	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	DLL_LINKAGE ArmyDescriptor(const CArmedInstance * army, bool detailed); //not detailed -> quantity ids as count
 	DLL_LINKAGE ArmyDescriptor();
 
 	DLL_LINKAGE int getStrength() const;
@@ -34,9 +34,9 @@ struct DLL_LINKAGE InfoAboutArmy
 	ArmyDescriptor army;
 
 	InfoAboutArmy();
-	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
+	InfoAboutArmy(const CArmedInstance * Army, bool detailed);
 
-	void initFromArmy(const CArmedInstance *Army, bool detailed);
+	void initFromArmy(const CArmedInstance * Army, bool detailed);
 };
 
 struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
@@ -51,7 +51,7 @@ public:
 		si32 mana, manaLimit, luck, morale;
 	} *details;
 
-	const CHeroClass *hclass;
+	const CHeroClass * hclass;
 	int portrait;
 
 	enum EInfoLevel
@@ -63,12 +63,12 @@ public:
 
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
-	InfoAboutHero(const CGHeroInstance *h, EInfoLevel infoLevel);
+	InfoAboutHero(const CGHeroInstance * h, EInfoLevel infoLevel);
 	~InfoAboutHero();
 
 	InfoAboutHero & operator=(const InfoAboutHero & iah);
 
-	void initFromHero(const CGHeroInstance *h, EInfoLevel infoLevel);
+	void initFromHero(const CGHeroInstance * h, EInfoLevel infoLevel);
 };
 
 /// Struct which holds a int information about a town
@@ -82,15 +82,15 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 
 	} *details;
 
-	const CTown *tType;
+	const CTown * tType;
 
 	si32 built;
 	si32 fortLevel; //0 - none
 
 	InfoAboutTown();
-	InfoAboutTown(const CGTownInstance *t, bool detailed);
+	InfoAboutTown(const CGTownInstance * t, bool detailed);
 	~InfoAboutTown();
-	void initFromTown(const CGTownInstance *t, bool detailed);
+	void initFromTown(const CGTownInstance * t, bool detailed);
 };
 
 class DLL_LINKAGE EVictoryLossCheckResult
@@ -106,8 +106,8 @@ public:
 		return EVictoryLossCheckResult(DEFEAT, toSelf, toOthers);
 	}
 
-	EVictoryLossCheckResult():
-	intValue(0)
+	EVictoryLossCheckResult()
+		: intValue(0)
 	{
 	}
 
@@ -138,10 +138,11 @@ public:
 	std::string messageToSelf;
 	std::string messageToOthers;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & intValue & messageToSelf & messageToOthers;
 	}
+
 private:
 	enum EResult
 	{
@@ -150,10 +151,8 @@ private:
 		VICTORY= +1
 	};
 
-	EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers):
-		messageToSelf(toSelf),
-		messageToOthers(toOthers),
-		intValue(intValue)
+	EVictoryLossCheckResult(si32 intValue, std::string toSelf, std::string toOthers)
+		: messageToSelf(toSelf), messageToOthers(toOthers), intValue(intValue)
 	{
 	}
 
@@ -162,8 +161,8 @@ private:
 
 /*static std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
-	os << victoryLossCheckResult.messageToSelf;
-	return os;
+        os << victoryLossCheckResult.messageToSelf;
+        return os;
 }*/
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
@@ -173,13 +172,13 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	int3 tile;
 
 	QuestInfo()
-		: quest(nullptr), obj(nullptr), tile(-1,-1,-1)
+		: quest(nullptr), obj(nullptr), tile(-1, -1, -1)
 	{};
-	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (Quest), obj (Obj), tile (Tile){};
+	QuestInfo(const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile)
+		: quest(Quest), obj(Obj), tile(Tile){};
 
 	//FIXME: assignment operator should return QuestInfo &
-	bool operator= (const QuestInfo &qi)
+	bool operator=(const QuestInfo & qi)
 	{
 		quest = qi.quest;
 		obj = qi.obj;
@@ -187,14 +186,14 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		return true;
 	}
 
-	bool operator== (const QuestInfo & qi) const
+	bool operator==(const QuestInfo & qi) const
 	{
 		return (quest == qi.quest && obj == qi.obj);
 	}
 
 	//std::vector<std::string> > texts //allow additional info for quest log?
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & quest & obj & tile;
 	}

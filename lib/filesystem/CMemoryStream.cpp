@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "CMemoryStream.h"
 
-CMemoryStream::CMemoryStream(const ui8 * data, si64 size) :
-	data(data), size(size), position(0)
+CMemoryStream::CMemoryStream(const ui8 * data, si64 size)
+	: data(data), size(size), position(0)
 {
 
 }

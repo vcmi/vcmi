@@ -25,15 +25,15 @@ using boost::logic::tribool;
 class IActivatable
 {
 public:
-	virtual void activate()=0;
-	virtual void deactivate()=0;
+	virtual void activate() = 0;
+	virtual void deactivate() = 0;
 	virtual ~IActivatable(){};
 };
 
 class IUpdateable
 {
 public:
-	virtual void update()=0;
+	virtual void update() = 0;
 	virtual ~IUpdateable(){};
 };
 
@@ -41,7 +41,7 @@ public:
 class IShowable
 {
 public:
-	virtual void redraw()=0;
+	virtual void redraw() = 0;
 	virtual void show(SDL_Surface * to) = 0;
 	virtual void showAll(SDL_Surface * to)
 	{
@@ -54,20 +54,29 @@ class IShowActivatable : public IShowable, public IActivatable
 {
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
+	enum
+	{
+		BLOCK_ADV_HOTKEYS = 2,
+		REDRAW_PARENT=8
+	};
 	int type; //bin flags using etype
 	IShowActivatable();
 	virtual ~IShowActivatable(){};
 };
 
-enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
+enum class EIntObjMouseBtnType
+{
+	LEFT,
+	MIDDLE,
+	RIGHT
+};
 //typedef ui16 ActivityFlag;
 
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
 
-	ui16 used;//change via addUsed() or delUsed
+	ui16 used; //change via addUsed() or delUsed
 
 	//time handling
 	int toNextTick;
@@ -78,8 +87,9 @@ class CIntObject : public IShowActivatable //interface object
 	void onTimer(int timePassed);
 
 	//non-const versions of fields to allow changing them in CIntObject
-	CIntObject *parent_m; //parent object
+	CIntObject * parent_m; //parent object
 	ui16 active_m;
+
 protected:
 	//activate or deactivate specific action (LCLICK, RCLICK...)
 	void activate(ui16 what);
@@ -103,7 +113,7 @@ public:
 	/// position of object on the screen. Please do not modify this anywhere but in constructor - use moveBy\moveTo instead
 	/*const*/ Rect pos;
 
-	CIntObject(int used=0, Point offset=Point());
+	CIntObject(int used = 0, Point offset = Point());
 	virtual ~CIntObject();
 
 	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
@@ -115,8 +125,8 @@ public:
 	virtual void clickMiddle(tribool down, bool previousState) {}
 
 	//hover handling
-	/*const*/ bool hovered;  //for determining if object is hovered
-	virtual void hover (bool on){}
+	/*const*/ bool hovered; //for determining if object is hovered
+	virtual void hover(bool on){}
 
 	//keyboard handling
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
@@ -128,10 +138,10 @@ public:
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+	virtual void mouseMoved(const SDL_MouseMotionEvent & sEvent){}
 
 	//time handling
-	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
+	void setTimer(int msToTrigger); //set timer delay and activate timer if needed.
 	virtual void tick(){}
 
 	//mouse wheel
@@ -140,12 +150,34 @@ public:
 	//double click
 	virtual void onDoubleClick(){}
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
+	enum
+	{
+		LCLICK=1,
+		RCLICK=2,
+		HOVER=4,
+		MOVE=8,
+		KEYBOARD=16,
+		TIME=32,
+		GENERAL=64,
+		WHEEL=128,
+		DOUBLECLICK=256,
+		TEXTINPUT=512,
+		MCLICK=1024,
+		ALL=0xffff
+	};
 	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
+	enum
+	{
+		ACTIVATE=1,
+		DEACTIVATE=2,
+		UPDATE=4,
+		SHOWALL=8,
+		DISPOSE=16,
+		SHARE_POS=32
+	};
 	ui8 defActions; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow to receive from parent
 
@@ -164,19 +196,24 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
+	enum EAlignment
+	{
+		TOPLEFT,
+		CENTER,
+		BOTTOMRIGHT
+	};
 
-	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const Point &p);
-	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
-	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
+	bool isItInLoc(const SDL_Rect & rect, int x, int y);
+	bool isItInLoc(const SDL_Rect & rect, const Point & p);
+	const Rect & center(const Rect & r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
+	const Rect & center(const Point & p, bool propagate = true); //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
-	void moveBy(const Point &p, bool propagate = true);
-	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
+	void moveBy(const Point & p, bool propagate = true);
+	void moveTo(const Point & p, bool propagate = true); //move this to new position, coordinates are absolute (0,0 is topleft screen corner)
 
-	void addChild(CIntObject *child, bool adjustPosition = false);
-	void removeChild(CIntObject *child, bool adjustPosition = false);
+	void addChild(CIntObject * child, bool adjustPosition = false);
+	void removeChild(CIntObject * child, bool adjustPosition = false);
 	//delChild - not needed, use normal "delete child" instead
 	//delChildNull - not needed, use "vstd::clear_pointer(child)" instead
 
@@ -184,18 +221,18 @@ public:
  * Functions that should be used only by specific GUI elements. Don't use them unless you really know why they are here
  */
 	//wrappers for CSDL_Ext methods. This versions use coordinates relative to pos
-	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
+	void drawBorderLoc(SDL_Surface * sur, const Rect & r, const int3 & color);
 	//functions for printing text. Use CLabel where possible instead
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtRightLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, const Point & p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
 
 	//image blitting. If possible use CPicture or CAnimImage instead
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
-	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
+	void blitAtLoc(SDL_Surface * src, const Point & p, SDL_Surface * dst);
 
 	friend class CGuiHandler;
 };

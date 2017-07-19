@@ -14,9 +14,9 @@
 
 namespace JsonUtils
 {
-	QVariant toVariant(const JsonNode & node);
-	QVariant JsonFromFile(QString filename);
+QVariant toVariant(const JsonNode & node);
+QVariant JsonFromFile(QString filename);
 
-	JsonNode toJson(QVariant object);
-	void JsonToFile(QString filename, QVariant object);
+JsonNode toJson(QVariant object);
+void JsonToFile(QString filename, QVariant object);
 }

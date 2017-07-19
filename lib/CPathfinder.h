@@ -44,10 +44,14 @@ struct DLL_LINKAGE CGPathNode
 	enum EAccessibility : ui8
 	{
 		NOT_SET = 0,
-		ACCESSIBLE = 1, //tile can be entered and passed
-		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighbouring tile but not passable
-		FLYABLE, //can only be accessed in air layer
+		ACCESSIBLE = 1,
+		//tile can be entered and passed
+		VISITABLE,
+		//tile can be entered as the last tile in path
+		BLOCKVIS,
+		//visitable from neighbouring tile but not passable
+		FLYABLE,
+		//can only be accessed in air layer
 		BLOCKED //tile can't be entered nor visited
 	};
 
@@ -160,10 +164,11 @@ private:
 
 	CPathsInfo & out;
 	const CGHeroInstance * hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
+	const std::vector<std::vector<std::vector<ui8>>> & FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
 
-	enum EPatrolState {
+	enum EPatrolState
+	{
 		PATROL_NONE = 0,
 		PATROL_LOCKED = 1,
 		PATROL_RADIUS
@@ -182,7 +187,7 @@ private:
 			return true;
 		}
 	};
-	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
+	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer>> pq;
 
 	std::vector<int3> neighbourTiles;
 	std::vector<int3> neighbours;
@@ -233,7 +238,8 @@ struct DLL_LINKAGE TurnInfo
 {
 	/// This is certainly not the best design ever and certainly can be improved
 	/// Unfortunately for pathfinder that do hundreds of thousands calls onus system add too big overhead
-	struct BonusCache {
+	struct BonusCache
+	{
 		std::vector<bool> noTerrainPenalty;
 		bool freeShipBoarding;
 		bool flyingMovement;
@@ -271,7 +277,7 @@ public:
 
 	static void getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
 
-	static int getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const TerrainTile * ct, const TerrainTile * dt, const int remainingMovePoints =- 1, const TurnInfo * ti = nullptr, const bool checkLast = true);
+	static int getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const TerrainTile * ct, const TerrainTile * dt, const int remainingMovePoints = -1, const TurnInfo * ti = nullptr, const bool checkLast = true);
 	static int getMovementCost(const CGHeroInstance * h, const int3 & dst);
 
 private:

@@ -39,9 +39,9 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 #ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = std::string("VCMI 0.99");
+const std::string VCMI_VERSION = std::string("VCMI 0.99");
 #else
-	const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
+const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
 #endif
 }
 
@@ -127,15 +127,18 @@ std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType
 	};
 
 	auto it = actionTypeToString.find(actionType);
-	if (it == actionTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
+	if(it == actionTypeToString.end())
+		return os << "<Unknown type>";
+	else
+		return os << it->second;
 }
 
 std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
 {
 	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
 	{
-	#define DEFINE_ELEMENT(element) {ETerrainType::element, #element}
+	#define DEFINE_ELEMENT(element) {ETerrainType::element, #element \
+}
 		DEFINE_ELEMENT(WRONG),
 		DEFINE_ELEMENT(BORDER),
 		DEFINE_ELEMENT(DIRT),
@@ -152,8 +155,10 @@ std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
 	};
 
 	auto it = terrainTypeToString.find(terrainType.num);
-	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
+	if(it == terrainTypeToString.end())
+		return os << "<Unknown type>";
+	else
+		return os << it->second;
 }
 
 std::string ETerrainType::toString() const
@@ -167,7 +172,8 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 {
 	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
 	{
-	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element}
+	#define DEFINE_ELEMENT(element) {EPathfindingLayer::element, #element \
+}
 		DEFINE_ELEMENT(WRONG),
 		DEFINE_ELEMENT(AUTO),
 		DEFINE_ELEMENT(LAND),
@@ -179,6 +185,8 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 	};
 
 	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
-	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
+	if(it == pathfinderLayerToString.end())
+		return os << "<Unknown type>";
+	else
+		return os << it->second;
 }

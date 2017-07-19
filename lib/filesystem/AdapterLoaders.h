@@ -32,7 +32,7 @@ public:
 	 *
 	 * @param config Specifies filesystem configuration
 	 */
-	explicit CMappedFileLoader(const std::string &mountPoint, const JsonNode & config);
+	explicit CMappedFileLoader(const std::string & mountPoint, const JsonNode & config);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -53,13 +53,13 @@ private:
 
 class DLL_LINKAGE CFilesystemList : public ISimpleResourceLoader
 {
-	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
+	std::vector<std::unique_ptr<ISimpleResourceLoader>> loaders;
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
 	//FIXME: this is only compile fix, should be removed in the end
 	CFilesystemList(CFilesystemList &) = delete;
-	CFilesystemList &operator=(CFilesystemList &) = delete;
+	CFilesystemList & operator=(CFilesystemList &) = delete;
 
 public:
 	CFilesystemList();

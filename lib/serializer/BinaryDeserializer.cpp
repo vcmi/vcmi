@@ -27,7 +27,7 @@ CLoadFile::~CLoadFile()
 
 int CLoadFile::read(void * data, unsigned size)
 {
-	sfile->read((char*)data,size);
+	sfile->read((char *)data, size);
 	return size;
 }
 
@@ -48,7 +48,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		//we can read
 		char buffer[4];
 		sfile->read(buffer, 4);
-		if(std::memcmp(buffer,"VCMI",4))
+		if(std::memcmp(buffer, "VCMI", 4))
 			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
 
 		serializer & serializer.fileVersion;
@@ -59,7 +59,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 		{
 			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % SERIALIZATION_VERSION % fName;
 
-			auto versionptr = (char*)&serializer.fileVersion;
+			auto versionptr = (char *)&serializer.fileVersion;
 			std::reverse(versionptr, versionptr + 4);
 			logGlobal->warnStream() << "Version number reversed is " << serializer.fileVersion << ", checking...";
 
@@ -95,10 +95,10 @@ void CLoadFile::clear()
 	serializer.fileVersion = 0;
 }
 
-void CLoadFile::checkMagicBytes(const std::string &text)
+void CLoadFile::checkMagicBytes(const std::string & text)
 {
 	std::string loaded = text;
-	read((void*)loaded.data(), text.length());
+	read((void *)loaded.data(), text.length());
 	if(loaded != text)
 		throw std::runtime_error("Magic bytes doesn't match!");
 }

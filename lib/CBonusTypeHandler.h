@@ -25,20 +25,23 @@ class MacroString
 	{
 		enum ItemType
 		{
-			STRING, MACRO
+			STRING,
+			MACRO
 		};
-		Item(ItemType _type, std::string _value): type(_type), value(_value){};
+		Item(ItemType _type, std::string _value)
+			: type(_type), value(_value){};
 		ItemType type;
 		std::string value; //constant string or macro name
 	};
 	std::vector<Item> items;
+
 public:
-	typedef std::function <std::string(const std::string&)> GetValue;
+	typedef std::function<std::string(const std::string &)> GetValue;
 
 	MacroString(){};
-	MacroString(const std::string &format);
+	MacroString(const std::string & format);
 
-	std::string build(const GetValue& getValue) const;
+	std::string build(const GetValue & getValue) const;
 };
 
 class DLL_LINKAGE CBonusType
@@ -48,13 +51,14 @@ public:
 	~CBonusType();
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & icon & nameTemplate & descriptionTemplate & hidden;
 
-		if (!h.saving)
+		if(!h.saving)
 			buildMacros();
 	}
+
 protected:
 
 private:
@@ -75,19 +79,20 @@ public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
 
-	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, const IBonusBearer *bearer, bool description) const override;
-	std::string bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const override;
+	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
+	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
 	void load();
-	void load(const JsonNode& config);
+	void load(const JsonNode & config);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & bonusTypes;
 	}
+
 private:
 
-	void loadItem(const JsonNode &source, CBonusType &dest);
+	void loadItem(const JsonNode & source, CBonusType & dest);
 
 	std::vector<CBonusType> bonusTypes; //index = BonusTypeID
 

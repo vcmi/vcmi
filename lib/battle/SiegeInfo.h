@@ -21,7 +21,7 @@ struct DLL_LINKAGE SiegeInfo
 	// return EWallState decreased by value of damage points
 	static EWallState::EWallState applyDamage(EWallState::EWallState state, unsigned int value);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & wallState & gateState;
 	}

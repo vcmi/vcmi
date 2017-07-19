@@ -29,9 +29,9 @@ public:
 	//subID stores id of hero type. If it's 0xff then following field is used
 	ui8 power;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
 		h & power;
 	}
 };
@@ -43,8 +43,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
-					//		8 4
-					//		765
+	//		8 4
+	//		765
 	mutable ui8 isStanding, tacticFormationEnabled;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -56,13 +56,13 @@ public:
 	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
-	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
+	std::vector<std::pair<SecondarySkill, ui8>> secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
 	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
-	const CGBoat *boat; //set to CGBoat when sailing
+	const CGBoat * boat; //set to CGBoat when sailing
 
 	static const si32 UNINITIALIZED_PORTRAIT = -1;
 	static const si32 UNINITIALIZED_MANA = -1;
@@ -75,11 +75,11 @@ public:
 
 	struct DLL_LINKAGE Patrol
 	{
-		Patrol(){patrolling=false;initialPos=int3();patrolRadius=-1;};
+		Patrol(){patrolling = false; initialPos = int3(); patrolRadius = -1;};
 		bool patrolling;
 		int3 initialPos;
 		ui32 patrolRadius;
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & patrolling;
 			if(version >= 755) //save format backward compatibility
@@ -101,14 +101,14 @@ public:
 
 		HeroSpecial(){growsWithLevel = false;};
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & static_cast<CBonusSystemNode&>(*this);
+			h & static_cast<CBonusSystemNode &>(*this);
 			h & growsWithLevel;
 		}
 	};
 
-	std::vector<HeroSpecial*> specialty;
+	std::vector<HeroSpecial *> specialty;
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
@@ -123,7 +123,7 @@ public:
 		void resetMagicSchoolCounter();
 		void resetWisdomCounter();
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & magicSchoolCounter & wisdomCounter & rand;
 		}
@@ -139,23 +139,23 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	int getBoatType() const override; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
-	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
+	void getOutOffsets(std::vector<int3> & offsets) const override; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
-	const std::string &getBiography() const;
-	bool needsLastStack()const override;
+	const std::string & getBiography() const;
+	bool needsLastStack() const override;
 	TFaction getFaction() const;
-	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	ui32 getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	int getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
-	int getCurrentLuck(int stack=-1, bool town=false) const;
-	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
+	int getCurrentLuck(int stack = -1, bool town = false) const;
+	int getSpellCost(const CSpell * sp) const; //do not use during battles -> bonuses from army would be ignored
 
 	bool canLearnSpell(const CSpell * spell) const;
 
@@ -179,7 +179,7 @@ public:
 	bool canLearnSkill() const;
 
 	void setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs);
-	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+	void setSecSkillLevel(SecondarySkill which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(std::vector<SecondarySkill> skills);
 
 	int maxMovePoints(bool onLand, const TurnInfo * ti = nullptr) const;
@@ -193,8 +193,8 @@ public:
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
-	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
+	CStackBasicDescriptor calculateNecromancy(const BattleResult & battleResult) const;
+	void showNecromancyDialog(const CStackBasicDescriptor & raisedStack, CRandomGenerator & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -205,9 +205,9 @@ public:
 	void initHero(CRandomGenerator & rand, HeroTypeID SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
-	void putInBackpack(CArtifactInstance *art);
+	void putInBackpack(CArtifactInstance * art);
 	void initExp(CRandomGenerator & rand);
-	void initArmy(CRandomGenerator & rand, IArmyDescriptor *dst = nullptr);
+	void initArmy(CRandomGenerator & rand, IArmyDescriptor * dst = nullptr);
 	//void giveArtifact (ui32 aid);
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
@@ -227,11 +227,11 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
+	CBonusSystemNode * whereShouldBeAttached(CGameState * gs) override;
 	std::string nodeName() const override;
 
 	///ISpellCaster
-	ui8 getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool = nullptr) const override;
+	ui8 getSpellSchoolLevel(const CSpell * spell, int * outSelectedSchool = nullptr) const override;
 	ui32 getSpellBonus(const CSpell * spell, ui32 base, const CStack * affectedStack) const override;
 
 	///default spell school level for effect calculation
@@ -258,8 +258,9 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+
 protected:
-	void setPropertyDer(ui8 what, ui32 val) override;//synchr
+	void setPropertyDer(ui8 what, ui32 val) override; //synchr
 	///common part of hero instance and hero definition
 	void serializeCommonOptions(JsonSerializeFormat & handler);
 
@@ -274,12 +275,12 @@ public:
 
 	void serializeJsonDefinition(JsonSerializeFormat & handler);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
-		h & static_cast<CArtifactSet&>(*this);
+		h & static_cast<CArmedInstance &>(*this);
+		h & static_cast<CArtifactSet &>(*this);
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & spells & patrol & moveDir & skillsInfo;
+		& sex & inTownGarrison & spells & patrol & moveDir & skillsInfo;
 		h & visitedTown & boat;
 		h & type & specialty & commander & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
