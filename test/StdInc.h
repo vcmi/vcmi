@@ -10,4 +10,4 @@
 #pragma once
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "Global.h"
+#include "../Global.h"

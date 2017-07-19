@@ -51,24 +51,21 @@
 			<Add option="-D_WIN32" />
 			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
+			<Add directory="googletest/googlemock/include" />
+			<Add directory="googletest/googletest/include" />
 			<Add directory="../include" />
+			<Add directory="googletest/googletest" />
+			<Add directory="googletest/googlemock" />
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />
 			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lboost_test_exec_monitor$(#boost.libsuffix)" />
-			<Add option="-lboost_unit_test_framework$(#boost.libsuffix)" />
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
 			<Add directory="../" />
 		</Linker>
-		<Unit filename="Battlefield.cpp" />
-		<Unit filename="CMapEditManagerTest.cpp" />
-		<Unit filename="CMapFormatTest.cpp" />
 		<Unit filename="CMemoryBufferTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
-		<Unit filename="MapComparer.cpp" />
-		<Unit filename="MapComparer.h" />
 		<Unit filename="StdInc.cpp">
 			<Option weight="0" />
 		</Unit>
@@ -76,7 +73,16 @@
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
+		<Unit filename="battle/BattleHexTest.cpp" />
 		<Unit filename="battle/CHealthTest.cpp" />
+		<Unit filename="googletest/googlemock/src/gmock-all.cc" />
+		<Unit filename="googletest/googletest/src/gtest-all.cc" />
+		<Unit filename="main.cpp" />
+		<Unit filename="map/CMapEditManagerTest.cpp" />
+		<Unit filename="map/CMapFormatTest.cpp" />
+		<Unit filename="map/MapComparer.cpp" />
+		<Unit filename="map/MapComparer.h" />
+		<Unit filename="mock/mock_UnitHealthInfo.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
