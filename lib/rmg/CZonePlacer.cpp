@@ -129,8 +129,10 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 				improvement = true;
 		}
 		else
+		{
 			if (totalDistance + totalOverlap < bestTotalDistance + bestTotalOverlap)
 				improvement = true;
+		}
 
 		logGlobal->traceStream() << boost::format("Total distance between zones after this iteration: %2.4f, Total overlap: %2.4f, Improved: %s") % totalDistance % totalOverlap % improvement;
 

@@ -1006,13 +1006,17 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 						else
 						{
 							if(obj->ID.num == Obj::HERO) //enemy hero may move to other position
+							{
 								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
+							}
 							else //just visit that tile
+							{
 								if(obj->ID.num == Obj::TOWN)
 									//if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
 									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setobjid(obj->ID.num).setisAbstract(true))); //TODO: change to getObj eventually and and move appropiate logic there
 								else
 									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+							}
 						}
 					}
 					else //we need to get army in order to conquer that place
