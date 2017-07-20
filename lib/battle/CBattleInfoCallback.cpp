@@ -836,6 +836,12 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAl
 				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
 					affectedObstacles.push_back(i);
 		}
+		for(auto hex : stack->getHexes())
+			if(hex == ESiegeHex::GATE_BRIDGE)
+				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
+					for(int i=0; i<affectedObstacles.size(); i++)
+						if(affectedObstacles.at(i)->obstacleType == CObstacleInstance::MOAT)
+							affectedObstacles.erase(affectedObstacles.begin()+i);
 	}
 	return affectedObstacles;
 }
