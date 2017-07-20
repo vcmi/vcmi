@@ -58,6 +58,7 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
+			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
@@ -65,6 +66,7 @@
 			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
+			<Add option="-lboost_thread$(#boost.libsuffix)" />
 			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
 			<Add directory="../.." />
@@ -73,8 +75,11 @@
 		<Unit filename="AttackPossibility.h" />
 		<Unit filename="BattleAI.cpp" />
 		<Unit filename="BattleAI.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="EnemyInfo.cpp" />
 		<Unit filename="EnemyInfo.h" />
+		<Unit filename="PossibleSpellcast.cpp" />
+		<Unit filename="PossibleSpellcast.h" />
 		<Unit filename="PotentialTargets.cpp" />
 		<Unit filename="PotentialTargets.h" />
 		<Unit filename="StackWithBonuses.cpp" />

@@ -17,8 +17,10 @@
 				<Option run_host_application_in_terminal="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-g" />
 					<Add option="-Og" />
+					<Add option="-g" />
+					<Add directory="$(#zlib.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -33,6 +35,8 @@
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
 					<Add directory="$(#boost.lib32)" />
+					<Add directory="$(#sdl2.lib)" />
+					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
 			<Target title="Release-win32">
@@ -45,6 +49,8 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
+					<Add directory="$(#zlib.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -59,6 +65,8 @@
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
 					<Add directory="$(#boost.lib32)" />
+					<Add directory="$(#sdl2.lib)" />
+					<Add directory="$(#zlib.lib)" />
 				</Linker>
 			</Target>
 			<Target title="Debug-win64">
@@ -74,6 +82,7 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib64.include)" />
+					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -87,8 +96,8 @@
 					<Add option="-lboost_date_time$(#boost.libsuffix)" />
 					<Add option="-liconv" />
 					<Add option="-ldbghelp" />
-					<Add directory="$(#sdl2.lib64)" />
 					<Add directory="$(#boost.lib64)" />
+					<Add directory="$(#sdl2.lib64)" />
 					<Add directory="$(#zlib64.lib)" />
 				</Linker>
 			</Target>
@@ -113,17 +122,15 @@
 			<Add option="-DVCMI_NO_EXTRA_VERSION" />
 			<Add directory="." />
 			<Add directory="$(#sdl2.include)" />
-			<Add directory="$(#zlib.include)" />
 			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add directory="../" />
-			<Add directory="$(#sdl2.lib)" />
-			<Add directory="$(#zlib.lib)" />
 		</Linker>
 		<Unit filename="../Global.h" />
 		<Unit filename="../Version.h" />
 		<Unit filename="../include/vstd/CLoggerBase.h" />
+		<Unit filename="../include/vstd/RNG.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
@@ -216,6 +223,8 @@
 		<Unit filename="battle/BattleHex.h" />
 		<Unit filename="battle/BattleInfo.cpp" />
 		<Unit filename="battle/BattleInfo.h" />
+		<Unit filename="battle/BattleProxy.cpp" />
+		<Unit filename="battle/BattleProxy.h" />
 		<Unit filename="battle/CBattleInfoCallback.cpp" />
 		<Unit filename="battle/CBattleInfoCallback.h" />
 		<Unit filename="battle/CBattleInfoEssentials.cpp" />
@@ -226,12 +235,21 @@
 		<Unit filename="battle/CObstacleInstance.h" />
 		<Unit filename="battle/CPlayerBattleCallback.cpp" />
 		<Unit filename="battle/CPlayerBattleCallback.h" />
+		<Unit filename="battle/CUnitState.cpp" />
+		<Unit filename="battle/CUnitState.h" />
+		<Unit filename="battle/Destination.cpp" />
+		<Unit filename="battle/Destination.h" />
+		<Unit filename="battle/IBattleState.cpp" />
+		<Unit filename="battle/IBattleState.h" />
+		<Unit filename="battle/IUnitInfo.h" />
 		<Unit filename="battle/ReachabilityInfo.cpp" />
 		<Unit filename="battle/ReachabilityInfo.h" />
 		<Unit filename="battle/SideInBattle.cpp" />
 		<Unit filename="battle/SideInBattle.h" />
 		<Unit filename="battle/SiegeInfo.cpp" />
 		<Unit filename="battle/SiegeInfo.h" />
+		<Unit filename="battle/Unit.cpp" />
+		<Unit filename="battle/Unit.h" />
 		<Unit filename="filesystem/AdapterLoaders.cpp" />
 		<Unit filename="filesystem/AdapterLoaders.h" />
 		<Unit filename="filesystem/CArchiveLoader.cpp" />
@@ -362,21 +380,55 @@
 		<Unit filename="serializer/JsonSerializeFormat.h" />
 		<Unit filename="serializer/JsonSerializer.cpp" />
 		<Unit filename="serializer/JsonSerializer.h" />
+		<Unit filename="serializer/JsonTreeSerializer.h" />
 		<Unit filename="spells/AdventureSpellMechanics.cpp" />
 		<Unit filename="spells/AdventureSpellMechanics.h" />
 		<Unit filename="spells/BattleSpellMechanics.cpp" />
 		<Unit filename="spells/BattleSpellMechanics.h" />
-		<Unit filename="spells/CDefaultSpellMechanics.cpp" />
-		<Unit filename="spells/CDefaultSpellMechanics.h" />
 		<Unit filename="spells/CSpellHandler.cpp" />
 		<Unit filename="spells/CSpellHandler.h" />
-		<Unit filename="spells/CreatureSpellMechanics.cpp" />
-		<Unit filename="spells/CreatureSpellMechanics.h" />
 		<Unit filename="spells/ISpellMechanics.cpp" />
 		<Unit filename="spells/ISpellMechanics.h" />
 		<Unit filename="spells/Magic.h" />
+		<Unit filename="spells/Problem.cpp" />
+		<Unit filename="spells/Problem.h" />
+		<Unit filename="spells/TargetCondition.cpp" />
+		<Unit filename="spells/TargetCondition.h" />
 		<Unit filename="spells/ViewSpellInt.cpp" />
 		<Unit filename="spells/ViewSpellInt.h" />
+		<Unit filename="spells/effects/Catapult.cpp" />
+		<Unit filename="spells/effects/Catapult.h" />
+		<Unit filename="spells/effects/Clone.cpp" />
+		<Unit filename="spells/effects/Clone.h" />
+		<Unit filename="spells/effects/Damage.cpp" />
+		<Unit filename="spells/effects/Damage.h" />
+		<Unit filename="spells/effects/Dispel.cpp" />
+		<Unit filename="spells/effects/Dispel.h" />
+		<Unit filename="spells/effects/Effect.cpp" />
+		<Unit filename="spells/effects/Effect.h" />
+		<Unit filename="spells/effects/Effects.cpp" />
+		<Unit filename="spells/effects/Effects.h" />
+		<Unit filename="spells/effects/EffectsFwd.h" />
+		<Unit filename="spells/effects/Heal.cpp" />
+		<Unit filename="spells/effects/Heal.h" />
+		<Unit filename="spells/effects/LocationEffect.cpp" />
+		<Unit filename="spells/effects/LocationEffect.h" />
+		<Unit filename="spells/effects/Obstacle.cpp" />
+		<Unit filename="spells/effects/Obstacle.h" />
+		<Unit filename="spells/effects/Registry.cpp" />
+		<Unit filename="spells/effects/Registry.h" />
+		<Unit filename="spells/effects/RemoveObstacle.cpp" />
+		<Unit filename="spells/effects/RemoveObstacle.h" />
+		<Unit filename="spells/effects/Sacrifice.cpp" />
+		<Unit filename="spells/effects/Sacrifice.h" />
+		<Unit filename="spells/effects/Summon.cpp" />
+		<Unit filename="spells/effects/Summon.h" />
+		<Unit filename="spells/effects/Teleport.cpp" />
+		<Unit filename="spells/effects/Teleport.h" />
+		<Unit filename="spells/effects/Timed.cpp" />
+		<Unit filename="spells/effects/Timed.h" />
+		<Unit filename="spells/effects/UnitEffect.cpp" />
+		<Unit filename="spells/effects/UnitEffect.h" />
 		<Unit filename="vcmi_endian.h" />
 		<Extensions>
 			<code_completion />

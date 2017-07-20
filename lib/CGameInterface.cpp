@@ -134,7 +134,7 @@ std::shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::str
 BattleAction CGlobalAI::activeStack(const CStack * stack)
 {
 	BattleAction ba;
-	ba.actionType = Battle::DEFEND;
+	ba.actionType = EActionType::DEFEND;
 	ba.stackNumber = stack->ID;
 	return ba;
 }
@@ -164,9 +164,9 @@ void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * 
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog)
 {
-	battleAI->battleStacksAttacked(bsa);
+	battleAI->battleStacksAttacked(bsa, battleLog);
 }
 
 void CAdventureAI::actionStarted(const BattleAction & action)
@@ -189,19 +189,9 @@ void CAdventureAI::battleStacksEffectsSet(const SetStackEffect & sse)
 	battleAI->battleStacksEffectsSet(sse);
 }
 
-void CAdventureAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
+void CAdventureAI::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
 {
-	battleAI->battleStacksRemoved(bsr);
-}
-
-void CAdventureAI::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
-{
-	battleAI->battleObstaclesRemoved(removedObstacles);
-}
-
-void CAdventureAI::battleNewStackAppeared(const CStack * stack)
-{
-	battleAI->battleNewStackAppeared(stack);
+	battleAI->battleObstaclesChanged(obstacles);
 }
 
 void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
@@ -225,10 +215,9 @@ void CAdventureAI::battleEnd(const BattleResult * br)
 	battleAI.reset();
 }
 
-void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain,
-										 bool tentHeal, si32 lifeDrainFrom)
+void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog)
 {
-	battleAI->battleStacksHealedRes(healedStacks, lifeDrain, tentHeal, lifeDrainFrom);
+	battleAI->battleUnitsChanged(units, customEffects, battleLog);
 }
 
 BattleAction CAdventureAI::activeStack(const CStack * stack)

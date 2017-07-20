@@ -53,11 +53,11 @@ public:
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();
-	void init(); //uses standard config file
+	void init(bool onlyEssential); //uses standard config file
 	void clear(); //deletes all handlers and its data
 
 
-	void loadFilesystem();// basic initialization. should be called before init()
+	void loadFilesystem(bool onlyEssential);// basic initialization. should be called before init()
 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -85,6 +85,6 @@ public:
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler *Console);
-DLL_LINKAGE void loadDLLClasses();
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential = false);
+DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
 

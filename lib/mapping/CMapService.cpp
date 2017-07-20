@@ -22,19 +22,19 @@
 #include "MapFormatJson.h"
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name)
+std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
 {
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream)->loadMap();
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name)
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourceID & name) const
 {
 	auto stream = getStreamFromFS(name);
 	return getMapLoader(stream)->loadMapHeader();
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name)
+std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const std::string & name) const
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMap> map(getMapLoader(stream)->loadMap());
@@ -47,7 +47,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 	return map;
 }
 
-std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name)
+std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int size, const std::string & name) const
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMapHeader> header = getMapLoader(stream)->loadMapHeader();
@@ -57,7 +57,7 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ui8 * buffer, int s
 	return header;
 }
 
-void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath)
+void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const
 {
 	CMemoryBuffer serializeBuffer;
 	{

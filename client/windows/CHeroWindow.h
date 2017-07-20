@@ -39,7 +39,7 @@ public:
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
-class CHeroWithMaybePickedArtifact : public IBonusBearer
+class CHeroWithMaybePickedArtifact : public virtual IBonusBearer
 {
 public:
 	const CGHeroInstance *hero;
@@ -47,6 +47,8 @@ public:
 
 	CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero);
 	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+
+	int64_t getTreeVersion() const override;
 };
 
 class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts

@@ -11,7 +11,6 @@
 
  #include "../lib/ConstTransitivePtr.h"
  #include "VCMI_Lib.h"
- //#include "CModHandler.h"
 
 class JsonNode;
 
@@ -69,8 +68,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
 		auto type_name = getTypeName();
-		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-		object->id = _ObjectID(objects.size());
+		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name), objects.size());
 
 		objects.push_back(object);
 
@@ -79,8 +77,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
 		auto type_name = getTypeName();
-		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-		object->id = _ObjectID(index);
+		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name), index);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
@@ -101,7 +98,7 @@ public:
 		return objects[raw_id];
 	}
 protected:
-	virtual _Object * loadFromJson(const JsonNode & json, const std::string & identifier) = 0;
+	virtual _Object * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::string getTypeName() const = 0;
 public: //todo: make private
 	std::vector<ConstTransitivePtr<_Object>> objects;

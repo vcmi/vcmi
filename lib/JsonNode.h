@@ -305,7 +305,7 @@ namespace JsonDetail
 			return node.Bool();
 		}
 	};
-} // namespace JsonDetail
+}
 
 template<typename Type>
 Type JsonNode::convertTo() const

@@ -9,40 +9,29 @@
  */
 #include "StdInc.h"
 #include "BattleAttackInfo.h"
+#include "CUnitState.h"
 
-
-BattleAttackInfo::BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting):
-	attackerHealth(Attacker->health), defenderHealth(Defender->health)
+BattleAttackInfo::BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, bool Shooting)
+	: attacker(Attacker),
+	defender(Defender)
 {
-	attacker = Attacker;
-	defender = Defender;
-
-	attackerBonuses = Attacker;
-	defenderBonuses = Defender;
-
-	attackerPosition = Attacker->position;
-	defenderPosition = Defender->position;
-
 	shooting = Shooting;
 	chargedFields = 0;
-
-	luckyHit = false;
-	unluckyHit = false;
-	deathBlow = false;
-	ballistaDoubleDamage = false;
+	additiveBonus = 0.0;
+	multBonus = 1.0;
 }
 
 BattleAttackInfo BattleAttackInfo::reverse() const
 {
 	BattleAttackInfo ret = *this;
+
 	std::swap(ret.attacker, ret.defender);
-	std::swap(ret.attackerBonuses, ret.defenderBonuses);
-	std::swap(ret.attackerPosition, ret.defenderPosition);
-	std::swap(ret.attackerHealth, ret.defenderHealth);
 
 	ret.shooting = false;
 	ret.chargedFields = 0;
-	ret.luckyHit = ret.ballistaDoubleDamage = ret.deathBlow = false;
+
+	ret.additiveBonus = 0.0;
+	ret.multBonus = 1.0;
 
 	return ret;
 }

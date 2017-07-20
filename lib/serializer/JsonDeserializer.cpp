@@ -12,15 +12,15 @@
 
 #include "../JsonNode.h"
 
-JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
-	JsonSerializeFormat(instanceResolver_, root_, false)
+JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
+	JsonTreeSerializer(instanceResolver_, &root_, false)
 {
 
 }
 
 void JsonDeserializer::serializeInternal(const std::string & fieldName, boost::logic::tribool & value)
 {
-	const JsonNode & data = current->operator[](fieldName);
+	const JsonNode & data = currentObject->operator[](fieldName);
 	if(data.getType() != JsonNode::JsonType::DATA_BOOL)
 		value = boost::logic::indeterminate;
 	else
@@ -44,7 +44,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 
 void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vector<si32> & value, const TDecoder & decoder, const TEncoder & encoder)
 {
-	const JsonVector & data = current->operator[](fieldName).Vector();
+	const JsonVector & data = currentObject->operator[](fieldName).Vector();
 
 	value.clear();
 	value.reserve(data.size());
@@ -60,7 +60,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vec
 
 void JsonDeserializer::serializeInternal(const std::string & fieldName, double & value, const boost::optional<double> & defaultValue)
 {
-	const JsonNode & data = current->operator[](fieldName);
+	const JsonNode & data = currentObject->operator[](fieldName);
 
 	if(!data.isNumber())
 		value = defaultValue ? defaultValue.get() : 0;//todo: report error on not null?
@@ -70,7 +70,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, double &
 
 void JsonDeserializer::serializeInternal(const std::string & fieldName, si64 & value, const boost::optional<si64> & defaultValue)
 {
-	const JsonNode & data = current->operator[](fieldName);
+	const JsonNode & data = currentObject->operator[](fieldName);
 
 	if(!data.isNumber())
 		value = defaultValue ? defaultValue.get() : 0;//todo: report error on not null?
@@ -80,7 +80,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si64 & v
 
 void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & value, const boost::optional<si32> & defaultValue, const std::vector<std::string> & enumMap)
 {
-	const std::string & valueName = current->operator[](fieldName).String();
+	const std::string & valueName = currentObject->operator[](fieldName).String();
 
 	const si32 actualOptional = defaultValue ? defaultValue.get() : 0;
 
@@ -91,9 +91,19 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 		value = rawValue;
 }
 
+void JsonDeserializer::serializeInternal(std::string & value)
+{
+	value = currentObject->String();
+}
+
+void JsonDeserializer::serializeInternal(int64_t & value)
+{
+	value = currentObject->Integer();
+}
+
 void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)
 {
-	const JsonNode & field = current->operator[](fieldName);
+	const JsonNode & field = currentObject->operator[](fieldName);
 
 	const JsonNode & anyOf = field["anyOf"];
 	const JsonNode & allOf = field["allOf"];
@@ -119,7 +129,7 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, const TDecode
 
 void JsonDeserializer::serializeLIC(const std::string & fieldName, LIC & value)
 {
-	const JsonNode & field = current->operator[](fieldName);
+	const JsonNode & field = currentObject->operator[](fieldName);
 
 	const JsonNode & anyOf = field["anyOf"];
 	const JsonNode & allOf = field["allOf"];
@@ -164,7 +174,7 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, LIC & value)
 
 void JsonDeserializer::serializeLIC(const std::string & fieldName, LICSet & value)
 {
-	const JsonNode & field = current->operator[](fieldName);
+	const JsonNode & field = currentObject->operator[](fieldName);
 
 	const JsonNode & anyOf = field["anyOf"];
 	const JsonNode & allOf = field["allOf"];
@@ -209,7 +219,23 @@ void JsonDeserializer::serializeLIC(const std::string & fieldName, LICSet & valu
 
 void JsonDeserializer::serializeString(const std::string & fieldName, std::string & value)
 {
-	value = current->operator[](fieldName).String();
+	value = currentObject->operator[](fieldName).String();
+}
+
+void JsonDeserializer::serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue)
+{
+	const JsonNode & data = currentObject->operator[](fieldName);
+	if(data.getType() == JsonNode::JsonType::DATA_NULL)
+	{
+		if(defaultValue)
+			value = defaultValue.get();
+		else
+			value.clear();
+	}
+	else
+	{
+		value = data;
+	}
 }
 
 void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value)

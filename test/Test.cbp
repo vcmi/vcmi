@@ -17,6 +17,7 @@
 					<Add option="-Og" />
 					<Add option="-Wextra" />
 					<Add option="-g" />
+					<Add directory="mock" />
 				</Compiler>
 				<Linker>
 					<Add directory="$(#boost.lib32)" />
@@ -32,6 +33,7 @@
 					<Add option="-Og" />
 					<Add option="-Wextra" />
 					<Add option="-g" />
+					<Add directory="mock" />
 				</Compiler>
 				<Linker>
 					<Add directory="$(#boost.lib64)" />
@@ -49,6 +51,9 @@
 			<Add option="-Wno-unused-local-typedefs" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
+			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
+			<Add option="-DVCMI_NO_EXTRA_VERSION" />
 			<Add directory="$(#zlib.include)" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="googletest/googlemock/include" />
@@ -59,14 +64,17 @@
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add directory="../" />
 		</Linker>
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="CMemoryBufferTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
 		<Unit filename="StdInc.cpp">
+			<Option compile="0" />
+			<Option link="0" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="StdInc.h">
@@ -74,7 +82,12 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="battle/BattleHexTest.cpp" />
+		<Unit filename="battle/CBattleInfoCallbackTest.cpp" />
 		<Unit filename="battle/CHealthTest.cpp" />
+		<Unit filename="battle/CUnitStateMagicTest.cpp" />
+		<Unit filename="battle/CUnitStateTest.cpp" />
+		<Unit filename="battle/battle_UnitTest.cpp" />
+		<Unit filename="game/CGameStateTest.cpp" />
 		<Unit filename="googletest/googlemock/src/gmock-all.cc" />
 		<Unit filename="googletest/googletest/src/gtest-all.cc" />
 		<Unit filename="main.cpp" />
@@ -82,7 +95,45 @@
 		<Unit filename="map/CMapFormatTest.cpp" />
 		<Unit filename="map/MapComparer.cpp" />
 		<Unit filename="map/MapComparer.h" />
-		<Unit filename="mock/mock_UnitHealthInfo.h" />
+		<Unit filename="mock/mock_BonusBearer.cpp" />
+		<Unit filename="mock/mock_BonusBearer.h" />
+		<Unit filename="mock/mock_IGameCallback.cpp" />
+		<Unit filename="mock/mock_IGameCallback.h" />
+		<Unit filename="mock/mock_MapService.cpp" />
+		<Unit filename="mock/mock_MapService.h" />
+		<Unit filename="mock/mock_UnitEnvironment.h" />
+		<Unit filename="mock/mock_UnitInfo.h" />
+		<Unit filename="mock/mock_battle_IBattleState.h" />
+		<Unit filename="mock/mock_battle_Unit.h" />
+		<Unit filename="mock/mock_spells_Mechanics.h" />
+		<Unit filename="mock/mock_spells_Problem.h" />
+		<Unit filename="mock/mock_spells_Spell.h" />
+		<Unit filename="mock/mock_vstd_RNG.h" />
+		<Unit filename="spells/TargetConditionTest.cpp" />
+		<Unit filename="spells/effects/CatapultTest.cpp" />
+		<Unit filename="spells/effects/CloneTest.cpp" />
+		<Unit filename="spells/effects/DamageTest.cpp" />
+		<Unit filename="spells/effects/DispelTest.cpp" />
+		<Unit filename="spells/effects/EffectFixture.cpp" />
+		<Unit filename="spells/effects/EffectFixture.h" />
+		<Unit filename="spells/effects/HealTest.cpp" />
+		<Unit filename="spells/effects/SacrificeTest.cpp" />
+		<Unit filename="spells/effects/SummonTest.cpp" />
+		<Unit filename="spells/effects/TeleportTest.cpp" />
+		<Unit filename="spells/effects/TimedTest.cpp" />
+		<Unit filename="spells/targetConditions/AbsoluteLevelConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/AbsoluteSpellConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/BonusConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/CreatureConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/ElementalConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/HealthValueConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/ImmunityNegationConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/NormalLevelConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/NormalSpellConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/ReceptiveFeatureConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/SpellEffectConditionTest.cpp" />
+		<Unit filename="spells/targetConditions/TargetConditionItemFixture.cpp" />
+		<Unit filename="spells/targetConditions/TargetConditionItemFixture.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

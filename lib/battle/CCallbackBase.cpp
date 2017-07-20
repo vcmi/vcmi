@@ -9,28 +9,27 @@
  */
 #include "StdInc.h"
 #include "CCallbackBase.h"
-#include "BattleInfo.h"
-#include "../CGameState.h"
+#include "IBattleState.h"
 
 bool CCallbackBase::duringBattle() const
 {
 	return getBattle() != nullptr;
 }
 
-const BattleInfo *CCallbackBase::getBattle() const
+const IBattleInfo * CCallbackBase::getBattle() const
 {
 	return battle;
 }
 
-CCallbackBase::CCallbackBase(CGameState * GS, boost::optional<PlayerColor> Player)
-	: battle(nullptr), gs(GS), player(Player)
+CCallbackBase::CCallbackBase(boost::optional<PlayerColor> Player)
+	: battle(nullptr), player(Player)
 {}
 
 CCallbackBase::CCallbackBase()
-	: battle(nullptr), gs(nullptr)
+	: battle(nullptr)
 {}
 
-void CCallbackBase::setBattle(const BattleInfo * B)
+void CCallbackBase::setBattle(const IBattleInfo * B)
 {
 	battle = B;
 }

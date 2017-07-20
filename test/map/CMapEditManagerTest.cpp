@@ -112,8 +112,9 @@ TEST(MapManager, DrawTerrain_View)
 	{
 		const ResourceID testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
-		const auto originalMap = CMapService::loadMap(testMap);
-		auto map = CMapService::loadMap(testMap);
+		CMapService mapService;
+		const auto originalMap = mapService.loadMap(testMap);
+		auto map = mapService.loadMap(testMap);
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();

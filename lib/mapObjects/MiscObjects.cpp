@@ -625,7 +625,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	resources.serializeJson(handler, "rewardResources");
 
-	handler.serializeId("rewardArtifact", gainedArtifact, ArtifactID(ArtifactID::NONE), &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+	handler.serializeId("rewardArtifact", gainedArtifact, ArtifactID(ArtifactID::NONE));
 
 	handler.serializeBool("noGrowing", notGrowingTeam);
 	handler.serializeBool("neverFlees", neverFlees);
@@ -780,25 +780,27 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	if(isAbandoned())
 	{
-		auto possibleResources = handler.enterStruct("possibleResources");
-
-		JsonNode & node = handler.getCurrent();
-
 		if(handler.saving)
 		{
+			JsonNode node(JsonNode::JsonType::DATA_VECTOR);
 			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+			{
 				if(tempOwner.getNum() & 1<<i)
 				{
 					JsonNode one(JsonNode::JsonType::DATA_STRING);
 					one.String() = GameConstants::RESOURCE_NAMES[i];
 					node.Vector().push_back(one);
 				}
+			}
+			handler.serializeRaw("possibleResources", node, boost::none);
 		}
 		else
 		{
+			auto guard = handler.enterArray("possibleResources");
+			const JsonNode & node = handler.getCurrent();
 			std::set<int> possibleResources;
 
-			if(node.Vector().size() == 0)
+			if(node.getType() != JsonNode::JsonType::DATA_VECTOR || node.Vector().size() == 0)
 			{
 				//assume all allowed
 				for(int i = (int)Res::WOOD; i < (int) Res::GOLD; i++)
@@ -1429,7 +1431,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type(Bonus::SPELL));
 		SpellID spellId(b->subtype);
 
-		handler.serializeId("spell", spellId, SpellID::NONE, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
+		handler.serializeId("spell", spellId, SpellID::NONE);
 	}
 }
 
@@ -1653,9 +1655,9 @@ std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 	return hoverName;
 }
 
-void CGShrine::serializeJsonOptions(JsonSerializeFormat& handler)
+void CGShrine::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeId("spell", spell, SpellID::NONE, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
+	handler.serializeId("spell", spell, SpellID::NONE);
 }
 
 void CGSignBottle::initObj(CRandomGenerator & rand)
@@ -1758,19 +1760,22 @@ void CGScholar::initObj(CRandomGenerator & rand)
 
 void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	JsonNode& json = handler.getCurrent();
 	if(handler.saving)
 	{
+		std::string value;
 		switch(bonusType)
 		{
 		case PRIM_SKILL:
-			json["rewardPrimSkill"].String() = PrimarySkill::names[bonusID];
+			value = PrimarySkill::names[bonusID];
+			handler.serializeString("rewardPrimSkill", value);
 			break;
 		case SECONDARY_SKILL:
-			json["rewardSkill"].String() = NSecondarySkill::names[bonusID];
+			value = NSecondarySkill::names[bonusID];
+			handler.serializeString("rewardSkill", value);
 			break;
 		case SPELL:
-			json["rewardSpell"].String() = VLC->spellh->objects.at(bonusID)->identifier;
+			value = VLC->spellh->objects.at(bonusID)->identifier;
+			handler.serializeString("rewardSpell", value);
 			break;
 		case RANDOM:
 			break;
@@ -1778,6 +1783,8 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 	else
 	{
+		//TODO: unify
+		const JsonNode & json = handler.getCurrent();
 		bonusType = RANDOM;
 		if(json["rewardPrimSkill"].String() != "")
 		{

@@ -68,7 +68,8 @@ CMapInfo::~CMapInfo()
 void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;
-	mapHeader = CMapService::loadMapHeader(ResourceID(fname, EResType::MAP));
+	CMapService mapService;
+	mapHeader = mapService.loadMapHeader(ResourceID(fname, EResType::MAP));
 	countPlayers();
 }
 

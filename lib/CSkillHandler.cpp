@@ -22,10 +22,6 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
-#include "CStack.h"
-#include "battle/BattleInfo.h"
-#include "battle/CBattleInfoCallback.h"
-
 ///CSkill
 CSkill::LevelInfo::LevelInfo()
 {
@@ -158,7 +154,7 @@ const std::string & CSkillHandler::skillName(int skill) const
 	return objects[skill]->name;
 }
 
-CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
+CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
 {
 	CSkill * skill = nullptr;
 

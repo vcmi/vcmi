@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "int3.h"
 #include "ResourceSet.h" // for Res::ERes
 #include "battle/CPlayerBattleCallback.h"
 
@@ -28,13 +29,15 @@ class CGTeleport;
 class CMapHeader;
 struct TeamState;
 struct QuestInfo;
-class int3;
 struct ShashInt3;
+class CGameState;
 
 
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {
 protected:
+	CGameState * gs;
+
 	CGameInfoCallback();
 	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);
 	bool hasAccess(boost::optional<PlayerColor> playerId) const;
@@ -72,7 +75,7 @@ public:
 	int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
-	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
+	int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
 

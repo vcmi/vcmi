@@ -259,12 +259,6 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
-	///json serialization helper
-	static si32 decodeCreature(const std::string & identifier);
-
-	///json serialization helper
-	static std::string encodeCreature(const si32 index);
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)

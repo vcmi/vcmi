@@ -49,4 +49,4 @@ boost::string_ref DLL_LINKAGE GetParentPath(boost::string_ref path);
  */
 boost::string_ref DLL_LINKAGE GetPathStem(boost::string_ref path);
 
-} // namespace FileInfo
+}

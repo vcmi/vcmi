@@ -12,6 +12,8 @@
 
 #include "AdventureSpellMechanics.h"
 
+#include "CSpellHandler.h"
+
 #include "../CRandomGenerator.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../NetPacks.h"

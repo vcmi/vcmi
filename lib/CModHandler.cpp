@@ -316,7 +316,7 @@ void CIdentifierStorage::finalize()
 	state = FINISHED;
 }
 
-CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
+ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
 	handler(handler),
 	objectName(objectName),
 	originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
@@ -327,7 +327,7 @@ CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, 
 	}
 }
 
-bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList, bool validate)
+bool ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList, bool validate)
 {
 	bool result;
 	JsonNode data = JsonUtils::assembleFromFiles(fileList, result);
@@ -362,7 +362,7 @@ bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 	return result;
 }
 
-bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool validate)
+bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
@@ -387,42 +387,47 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			// try to add H3 object data
 			size_t index = data["index"].Float();
 
-			if (originalData.size() > index)
+			if(originalData.size() > index)
 			{
 				logMod->trace("found original data in loadMod(%s) at index %d", name, index);
 				JsonUtils::merge(originalData[index], data);
-				performValidate(originalData[index],name);
-				handler->loadObject(modName, name, originalData[index], index);
+				std::swap(originalData[index], data);
 				originalData[index].clear(); // do not use same data twice (same ID)
 			}
 			else
 			{
-				logMod->debug("no original data in loadMod(%s) at index %d", name, index);
-				performValidate(data, name);
-				handler->loadObject(modName, name, data, index);
+				logMod->warn("no original data in loadMod(%s) at index %d", name, index);
 			}
-			continue;
+			performValidate(data, name);
+			handler->loadObject(modName, name, data, index);
 		}
-		// normal new object
-		logMod->trace("no index in loadMod(%s)", name);
-		performValidate(data,name);
-		handler->loadObject(modName, name, data);
+		else
+		{
+			// normal new object
+			logMod->trace("no index in loadMod(%s)", name);
+			performValidate(data,name);
+			handler->loadObject(modName, name, data);
+		}
 	}
 	return result;
 }
 
 
-void CContentHandler::ContentTypeHandler::loadCustom()
+void ContentTypeHandler::loadCustom()
 {
 	handler->loadCustom();
 }
 
-void CContentHandler::ContentTypeHandler::afterLoadFinalization()
+void ContentTypeHandler::afterLoadFinalization()
 {
 	handler->afterLoadFinalization();
 }
 
 CContentHandler::CContentHandler()
+{
+}
+
+void CContentHandler::init()
 {
  	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
@@ -505,6 +510,11 @@ void CContentHandler::load(CModInfo & mod)
 	}
 	else
 		logMod->info("\t\t[SKIP] %s", mod.name);
+}
+
+const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
+{
+	return handlers.at(name);
 }
 
 static JsonNode loadModSettings(std::string path)
@@ -810,31 +820,42 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 
 void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods)
 {
-	for (std::string modName : getModList(path))
+	for(std::string modName : getModList(path))
+		loadOneMod(modName, parent, modSettings, enableMods);
+}
+
+void CModHandler::loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods)
+{
+	boost::to_lower(modName);
+	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
+
+	if(CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
 	{
-		boost::to_lower(modName);
-		std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
+		CModInfo mod(modFullName, modSettings[modName], JsonNode(ResourceID(CModInfo::getModFile(modFullName))));
+		if (!parent.empty()) // this is submod, add parent to dependencies
+			mod.dependencies.insert(parent);
 
-		if (CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
-		{
-			CModInfo mod(modFullName, modSettings[modName], JsonNode(ResourceID(CModInfo::getModFile(modFullName))));
-			if (!parent.empty()) // this is submod, add parent to dependecies
-				mod.dependencies.insert(parent);
+		allMods[modFullName] = mod;
+		if (mod.enabled && enableMods)
+			activeMods.push_back(modFullName);
 
-			allMods[modFullName] = mod;
-			if (mod.enabled && enableMods)
-				activeMods.push_back(modFullName);
-
-			loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.enabled);
-		}
+		loadMods(CModInfo::getModDir(modFullName) + '/', modFullName, modSettings[modName]["mods"], enableMods && mod.enabled);
 	}
 }
 
-void CModHandler::loadMods()
+void CModHandler::loadMods(bool onlyEssential)
 {
-	const JsonNode modConfig = loadModSettings("config/modSettings.json");
+	JsonNode modConfig;
 
-	loadMods("", "", modConfig["activeMods"], true);
+	if(onlyEssential)
+	{
+		loadOneMod("vcmi", "", modConfig, true);//only vcmi and submods
+	}
+	else
+	{
+		modConfig = loadModSettings("config/modSettings.json");
+		loadMods("", "", modConfig["activeMods"], true);
+	}
 
 	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
 	coreMod.name = "Original game files";
@@ -941,8 +962,9 @@ void CModHandler::load()
 {
 	CStopWatch totalTime, timer;
 
-	CContentHandler content;
 	logMod->info("\tInitializing content handler: %d ms", timer.getDiff());
+
+	content.init();
 
 	for(const TModID & modName : activeMods)
 	{
@@ -976,7 +998,7 @@ void CModHandler::load()
 	logMod->info("\tAll game content loaded in %d ms", totalTime.getDiff());
 }
 
-void CModHandler::afterLoad()
+void CModHandler::afterLoad(bool onlyEssential)
 {
 	JsonNode modSettings;
 	for (auto & modEntry : allMods)
@@ -987,8 +1009,12 @@ void CModHandler::afterLoad()
 	}
 	modSettings["core"] = coreMod.saveLocalData();
 
-	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
-	file << modSettings.toJson();
+	if(!onlyEssential)
+	{
+		FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
+		file << modSettings.toJson();
+	}
+
 }
 
 std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier)
@@ -1026,10 +1052,27 @@ void CModHandler::parseIdentifier(const std::string & fullIdentifier, std::strin
 
 std::string CModHandler::makeFullIdentifier(const std::string & scope, const std::string & type, const std::string & identifier)
 {
-	auto p = splitString(identifier, ':');
+	if(type == "")
+		logGlobal->error("Full identifier (%s %s) requires type name", scope, identifier);
 
-	if(p.first != "")
-		return p.first + ":" + type + "." + p.second;//ignore type if identifier is scoped
+	std::string actualScope = scope;
+	std::string actualName = identifier;
+
+	//ignore scope if identifier is scoped
+	auto scopeAndName = splitString(identifier, ':');
+
+	if(scopeAndName.first != "")
+	{
+		actualScope = scopeAndName.first;
+		actualName = scopeAndName.second;
+	}
+
+	if(actualScope == "")
+	{
+		return actualName == "" ? type : type + "." + actualName;
+	}
 	else
-		return scope == "" ? (identifier == "" ? type : type + "." + identifier) : scope + ":" + type + "." + identifier;
+	{
+		return actualName == "" ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
+	}
 }

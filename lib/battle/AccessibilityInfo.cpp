@@ -9,29 +9,31 @@
  */
 #include "StdInc.h"
 #include "AccessibilityInfo.h"
-#include "../CStack.h"
+#include "Unit.h"
 #include "../GameConstants.h"
 
-bool AccessibilityInfo::accessible(BattleHex tile, const CStack * stack) const
+bool AccessibilityInfo::accessible(BattleHex tile, const battle::Unit * stack) const
 {
-	return accessible(tile, stack->doubleWide(), stack->side);
+	return accessible(tile, stack->doubleWide(), stack->unitSide());
 }
 
 bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) const
 {
 	// All hexes that stack would cover if standing on tile have to be accessible.
-	for(auto hex : CStack::getHexes(tile, doubleWide, side))
+	//do not use getHexes for speed reasons
+	if(!tile.isValid())
+		return false;
+	if(at(tile) != EAccessibility::ACCESSIBLE && !(at(tile) == EAccessibility::GATE && side == BattleSide::DEFENDER))
+		return false;
+
+	if(doubleWide)
 	{
-		// If the hex is out of range then the tile isn't accessible
-		if(!hex.isValid())
+		auto otherHex = battle::Unit::occupiedHex(tile, doubleWide, side);
+		if(!otherHex.isValid())
 			return false;
-		// If we're no defender which step on gate and the hex isn't accessible, then the tile
-		// isn't accessible
-		else if(at(hex) != EAccessibility::ACCESSIBLE &&
-				!(at(hex) == EAccessibility::GATE && side == BattleSide::DEFENDER))
-		{
+		if(at(otherHex) != EAccessibility::ACCESSIBLE && !(at(otherHex) == EAccessibility::GATE && side == BattleSide::DEFENDER))
 			return false;
-		}
 	}
+
 	return true;
 }

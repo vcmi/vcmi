@@ -32,11 +32,6 @@
 #undef max
 
 
-std::ostream & operator<<(std::ostream & out, const CPack * pack)
-{
-	return out << (pack? pack->toString() : "<nullptr>");
-}
-
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
@@ -1232,50 +1227,12 @@ DLL_LINKAGE void BattleStart::applyGs(CGameState *gs)
 
 DLL_LINKAGE void BattleNextRound::applyGs(CGameState *gs)
 {
-	for (int i = 0; i < 2; ++i)
-	{
-		gs->curB->sides[i].castSpellsCount = 0;
-		vstd::amax(--gs->curB->sides[i].enchanterCounter, 0);
-	}
-
-	gs->curB->round = round;
-
-	for(CStack *s : gs->curB->stacks)
-	{
-		s->state -= EBattleStackState::DEFENDING;
-		s->state -= EBattleStackState::WAITING;
-		s->state -= EBattleStackState::MOVED;
-		s->state -= EBattleStackState::HAD_MORALE;
-		s->state -= EBattleStackState::FEAR;
-		s->state -= EBattleStackState::DRAINED_MANA;
-		s->counterAttacks.reset();
-		// new turn effects
-		s->updateBonuses(Bonus::NTurns);
-
-		if(s->alive() && s->isClone())
-		{
-			//cloned stack has special lifetime marker
-			//check it after bonuses updated in battleTurnPassed()
-
-			if(!s->hasBonus(Selector::type(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))))
-				s->makeGhost();
-		}
-	}
-
-	for(auto &obst : gs->curB->obstacles)
-		obst->battleTurnPassed();
+	gs->curB->nextRound(round);
 }
 
 DLL_LINKAGE void BattleSetActiveStack::applyGs(CGameState *gs)
 {
-	gs->curB->activeStack = stack;
-	CStack *st = gs->curB->getStack(stack);
-
-	//remove bonuses that last until when stack gets new turn
-	st->popBonuses(Bonus::UntilGetsTurn);
-
-	if(vstd::contains(st->state,EBattleStackState::MOVED)) //if stack is moving second time this turn it must had a high morale bonus
-		st->state.insert(EBattleStackState::HAD_MORALE);
+	gs->curB->nextTurn(stack);
 }
 
 DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
@@ -1286,15 +1243,14 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 	{
 	case Bonus::HP_REGENERATION:
 	{
-		int32_t toHeal = val;
-		CHealth health = st->healthAfterHealed(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
-		st->setHealth(health);
+		int64_t toHeal = val;
+		st->heal(toHeal, EHealLevel::HEAL, EHealPower::PERMANENT);
 		break;
 	}
 	case Bonus::MANA_DRAIN:
 	{
 		CGHeroInstance * h = gs->getHero(ObjectInstanceID(additionalInfo));
-		st->state.insert (EBattleStackState::DRAINED_MANA);
+		st->drainedMana = true;
 		h->mana -= val;
 		vstd::amax(h->mana, 0);
 		break;
@@ -1310,16 +1266,11 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 	case Bonus::ENCHANTER:
 		break;
 	case Bonus::FEAR:
-		st->state.insert(EBattleStackState::FEAR);
+		st->fear = true;
 		break;
 	default:
 		logNetwork->error("Unrecognized trigger effect type %d", effect);
 	}
-}
-
-DLL_LINKAGE void BattleObstaclePlaced::applyGs(CGameState *gs)
-{
-	gs->curB->obstacles.push_back(obstacle);
 }
 
 DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState *gs)
@@ -1330,15 +1281,6 @@ DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState *gs)
 
 void BattleResult::applyGs(CGameState *gs)
 {
-	for (CStack *s : gs->curB->stacks)
-	{
-		if (s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
-		{
-			//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
-			assert(&s->base->armyObj->getStack(s->slot) == s->base);
-			const_cast<CArmedInstance*>(s->base->armyObj)->eraseStack(s->slot);
-		}
-	}
 	for (auto & elem : gs->curB->stacks)
 		delete elem;
 
@@ -1373,90 +1315,24 @@ void BattleResult::applyGs(CGameState *gs)
 	gs->curB.dellNull();
 }
 
-void BattleStackMoved::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleStackMoved::applyGs(CGameState *gs)
 {
-	CStack *s = gs->curB->getStack(stack);
-	assert(s);
-	BattleHex dest = tilesToMove.back();
-
-	//if unit ended movement on quicksands that were created by enemy, that quicksand patch becomes visible for owner
-	for(auto &oi : gs->curB->obstacles)
-	{
-		if(oi->obstacleType == CObstacleInstance::QUICKSAND
-		&& vstd::contains(oi->getAffectedTiles(), tilesToMove.back()))
-		{
-			SpellCreatedObstacle *sands = dynamic_cast<SpellCreatedObstacle*>(oi.get());
-			assert(sands);
-			if(sands->casterSide != s->side)
-				sands->visibleForAnotherSide = true;
-		}
-	}
-	s->position = dest;
+	applyBattle(gs->curB);
 }
 
-DLL_LINKAGE void BattleStackAttacked::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleStackMoved::applyBattle(IBattleState * battleState)
 {
-	CStack * at = gs->curB->getStack(stackAttacked);
-	assert(at);
-	at->popBonuses(Bonus::UntilBeingAttacked);
+	battleState->moveUnit(stack, tilesToMove.back());
+}
 
-	if(willRebirth())
-		at->health.reset();//kill stack first
-	else
-		at->setHealth(newHealth);
+DLL_LINKAGE void BattleStackAttacked::applyGs(CGameState * gs)
+{
+	applyBattle(gs->curB);
+}
 
-	if(killed())
-	{
-		at->state -= EBattleStackState::ALIVE;
-
-		if(at->cloneID >= 0)
-		{
-			//remove clone as well
-			CStack * clone = gs->curB->getStack(at->cloneID);
-			if(clone)
-				clone->makeGhost();
-
-			at->cloneID = -1;
-		}
-	}
-	//life drain handling
-	for(auto & elem : healedStacks)
-		elem.applyGs(gs);
-
-	if(willRebirth())
-	{
-		//TODO: handle rebirth with StacksHealedOrResurrected
-		at->casts.use();
-		at->state.insert(EBattleStackState::ALIVE);
-		at->setHealth(newHealth);
-
-		//removing all spells effects
-		auto selector = [](const Bonus * b)
-		{
-			//Special case: DISRUPTING_RAY is "immune" to dispell
-			//Other even PERMANENT effects can be removed
-			if(b->source == Bonus::SPELL_EFFECT)
-				return b->sid != SpellID::DISRUPTING_RAY;
-			else
-				return false;
-		};
-		at->popBonuses(selector);
-	}
-	if(cloneKilled())
-	{
-		//"hide" killed creatures instead so we keep info about it
-		at->makeGhost();
-
-		for(CStack * s : gs->curB->stacks)
-		{
-			if(s->cloneID == at->ID)
-				s->cloneID = -1;
-		}
-	}
-
-	//killed summoned creature should be removed like clone
-	if(killed() && vstd::contains(at->state, EBattleStackState::SUMMONED))
-		at->makeGhost();
+DLL_LINKAGE void BattleStackAttacked::applyBattle(IBattleState * battleState)
+{
+	battleState->setUnitState(newState.id, newState.data, newState.healthDelta);
 }
 
 DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
@@ -1464,11 +1340,7 @@ DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
 	CStack * attacker = gs->curB->getStack(stackAttacking);
 	assert(attacker);
 
-	if(counter())
-		attacker->counterAttacks.use();
-
-	if(shot())
-		attacker->shots.use();
+	attackerChanges.applyGs(gs);
 
 	for(BattleStackAttacked & stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
@@ -1480,7 +1352,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
-	if(ba.actionType == Battle::END_TACTIC_PHASE)
+	if(ba.actionType == EActionType::END_TACTIC_PHASE)
 	{
 		gs->curB->tacticDistance = 0;
 		return;
@@ -1493,215 +1365,129 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 		return;
 	}
 
-	if(ba.actionType != Battle::HERO_SPELL) //don't check for stack if it's custom action by hero
+	if(ba.actionType != EActionType::HERO_SPELL) //don't check for stack if it's custom action by hero
 	{
 		assert(st);
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.additionalInfo).toSpell());
+		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype).toSpell());
 	}
 
 	switch(ba.actionType)
 	{
-	case Battle::DEFEND:
-		st->state -= EBattleStackState::DEFENDING_ANIM;
-		st->state.insert(EBattleStackState::DEFENDING);
-		st->state.insert(EBattleStackState::DEFENDING_ANIM);
+	case EActionType::DEFEND:
+		st->waiting = false;
+		st->defending = true;
+		st->defendingAnim = true;
 		break;
-	case Battle::WAIT:
-		st->state -= EBattleStackState::DEFENDING_ANIM;
-		st->state.insert(EBattleStackState::WAITING);
-		return;
-	case Battle::HERO_SPELL: //no change in current stack state
-		return;
+	case EActionType::WAIT:
+		st->defendingAnim = false;
+		st->waiting = true;
+		break;
+	case EActionType::HERO_SPELL: //no change in current stack state
+		break;
 	default: //any active stack action - attack, catapult, heal, spell...
-		st->state -= EBattleStackState::DEFENDING_ANIM;
-		st->state.insert(EBattleStackState::MOVED);
+		st->waiting = false;
+		st->defendingAnim = false;
+		st->movedThisRound = true;
 		break;
 	}
-
-	if(st)
-		st->state -= EBattleStackState::WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
 }
 
 DLL_LINKAGE void BattleSpellCast::applyGs(CGameState *gs)
 {
 	assert(gs->curB);
 
-	const CSpell * spell = SpellID(id).toSpell();
-
-	spell->applyBattle(gs->curB, this);
-}
-
-void actualizeEffect(CStack * s, const Bonus & ef)
-{
-	for(auto stackBonus : s->getBonusList()) //TODO: optimize
+	if(castByHero)
 	{
-		if(stackBonus->source == Bonus::SPELL_EFFECT && stackBonus->type == ef.type && stackBonus->subtype == ef.subtype)
+		if(side < 2)
 		{
-			stackBonus->turnsRemain = std::max(stackBonus->turnsRemain, ef.turnsRemain);
+			gs->curB->sides[side].castSpellsCount++;
 		}
-	}
-	CBonusSystemNode::treeHasChanged();
-}
-
-void actualizeEffect(CStack * s, const std::vector<Bonus> & ef)
-{
-	//actualizing features vector
-
-	for(const Bonus &fromEffect : ef)
-	{
-		actualizeEffect(s, fromEffect);
 	}
 }
 
 DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 {
-	if(effect.empty() && cumulativeEffects.empty())
-	{
-		logGlobal->error("Trying to apply SetStackEffect with no effects");
-		return;
-	}
-
-	si32 spellid = effect.empty() ? cumulativeEffects.begin()->sid : effect.begin()->sid; //effects' source ID
-
-	auto processEffect = [spellid, this](CStack * sta, const Bonus & effect, bool cumulative)
-	{
-		if(cumulative || !sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(effect.type, effect.subtype))))
-		{
-			//no such effect or cumulative - add new
-			logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), effect.Description());
-			sta->addNewBonus(std::make_shared<Bonus>(effect));
-		}
-		else
-		{
-			logBonus->trace("%s updated bonus: %s", sta->nodeName(), effect.Description());
-			actualizeEffect(sta, effect);
-		}
-	};
-
-	for(ui32 id : stacks)
-	{
-		CStack *s = gs->curB->getStack(id);
-		if(s)
-		{
-			for(const Bonus & fromEffect : effect)
-				processEffect(s, fromEffect, false);
-			for(const Bonus & fromEffect : cumulativeEffects)
-				processEffect(s, fromEffect, true);
-		}
-		else
-			logNetwork->error("Cannot find stack %d", id);
-	}
-
-	for(auto & para : uniqueBonuses)
-	{
-		CStack *s = gs->curB->getStack(para.first);
-		if(s)
-			processEffect(s, para.second, false);
-		else
-			logNetwork->error("Cannot find stack %d", para.first);
-	}
-
-	for(auto & para : cumulativeUniqueBonuses)
-	{
-		CStack *s = gs->curB->getStack(para.first);
-		if(s)
-			processEffect(s, para.second, true);
-		else
-			logNetwork->error("Cannot find stack %d", para.first);
-	}
+	applyBattle(gs->curB);
 }
+
+DLL_LINKAGE void SetStackEffect::applyBattle(IBattleState * battleState)
+{
+	for(const auto & stackData : toRemove)
+		battleState->removeUnitBonus(stackData.first, stackData.second);
+
+	for(const auto & stackData : toUpdate)
+		battleState->updateUnitBonus(stackData.first, stackData.second);
+
+	for(const auto & stackData : toAdd)
+		battleState->addUnitBonus(stackData.first, stackData.second);
+}
+
 
 DLL_LINKAGE void StacksInjured::applyGs(CGameState *gs)
 {
+	applyBattle(gs->curB);
+}
+
+DLL_LINKAGE void StacksInjured::applyBattle(IBattleState * battleState)
+{
 	for(BattleStackAttacked stackAttacked : stacks)
-		stackAttacked.applyGs(gs);
+		stackAttacked.applyBattle(battleState);
 }
 
-DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleUnitsChanged::applyGs(CGameState *gs)
 {
-	for(auto & elem : healedStacks)
+	applyBattle(gs->curB);
+}
+
+DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
+{
+	for(auto & elem : changedStacks)
 	{
-		CStack * changedStack = gs->curB->getStack(elem.stackId, false);
-		assert(changedStack);
-
-		//checking if we resurrect a stack that is under a living stack
-		auto accessibility = gs->curB->getAccesibility();
-
-		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
+		switch(elem.operation)
 		{
-			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->position.hex);
-			return; //position is already occupied
-		}
-
-		//applying changes
-		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
-		if(resurrected)
-		{
-			if(auto totalHealth = changedStack->health.available())
-				logGlobal->warn("Dead stack %s with positive total HP %d", changedStack->nodeName(), totalHealth);
-
-			changedStack->state.insert(EBattleStackState::ALIVE);
-		}
-
-		changedStack->setHealth(elem);
-
-		if(resurrected)
-		{
-			//removing all spells effects
-			auto selector = [](const Bonus * b)
-			{
-				//Special case: DISRUPTING_RAY is "immune" to dispell
-				//Other even PERMANENT effects can be removed
-				if(b->source == Bonus::SPELL_EFFECT)
-					return b->sid != SpellID::DISRUPTING_RAY;
-				else
-					return false;
-			};
-			changedStack->popBonuses(selector);
-		}
-		else if(cure)
-		{
-			//removing all effects from negative spells
-			auto selector = [](const Bonus * b)
-			{
-				//Special case: DISRUPTING_RAY is "immune" to dispell
-				//Other even PERMANENT effects can be removed
-				if(b->source == Bonus::SPELL_EFFECT)
-				{
-					const CSpell * sourceSpell = SpellID(b->sid).toSpell();
-					if(!sourceSpell)
-						return false;
-					return sourceSpell->id != SpellID::DISRUPTING_RAY && sourceSpell->isNegative();
-				}
-				else
-					return false;
-			};
-			changedStack->popBonuses(selector);
+		case BattleChanges::EOperation::RESET_STATE:
+			battleState->setUnitState(elem.id, elem.data, elem.healthDelta);
+			break;
+		case BattleChanges::EOperation::REMOVE:
+			battleState->removeUnit(elem.id);
+			break;
+		case BattleChanges::EOperation::ADD:
+			battleState->addUnit(elem.id, elem.data);
+			break;
+		default:
+			logNetwork->error("Unknown unit operation %d", (int)elem.operation);
+			break;
 		}
 	}
 }
 
-DLL_LINKAGE void ObstaclesRemoved::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleObstaclesChanged::applyGs(CGameState * gs)
 {
-	if(gs->curB) //if there is a battle
+	if(gs->curB)
+		applyBattle(gs->curB);
+}
+
+DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
+{
+	for(const auto & change : changes)
 	{
-		for(const si32 rem_obst :obstacles)
+		switch(change.operation)
 		{
-			for(int i=0; i<gs->curB->obstacles.size(); ++i)
-			{
-				if(gs->curB->obstacles[i]->uniqueID == rem_obst) //remove this obstacle
-				{
-					gs->curB->obstacles.erase(gs->curB->obstacles.begin() + i);
-					break;
-				}
-			}
+		case BattleChanges::EOperation::REMOVE:
+			battleState->removeObstacle(change.id);
+			break;
+		case BattleChanges::EOperation::ADD:
+			battleState->addObstacle(change);
+			break;
+		default:
+			logNetwork->error("Unknown obstacle operation %d", (int)change.operation);
+			break;
 		}
 	}
 }
-
 
 DLL_LINKAGE CatapultAttack::CatapultAttack()
 {
@@ -1712,99 +1498,26 @@ DLL_LINKAGE CatapultAttack::~CatapultAttack()
 {
 }
 
-DLL_LINKAGE void CatapultAttack::applyGs(CGameState *gs)
+DLL_LINKAGE void CatapultAttack::applyGs(CGameState * gs)
 {
-	if(gs->curB && gs->curB->town && gs->curB->town->fortLevel() != CGTownInstance::NONE) //if there is a battle and it's a siege
-	{
-		for(const auto &it :attackedParts)
-		{
-			gs->curB->si.wallState[it.attackedPart] =
-			        SiegeInfo::applyDamage(EWallState::EWallState(gs->curB->si.wallState[it.attackedPart]), it.damageDealt);
-		}
-	}
+	if(gs->curB)
+		applyBattle(gs->curB);
 }
 
-DLL_LINKAGE std::string CatapultAttack::AttackInfo::toString() const
+DLL_LINKAGE void CatapultAttack::applyBattle(IBattleState * battleState)
 {
-	return boost::str(boost::format("{AttackInfo: destinationTile '%d', attackedPart '%d', damageDealt '%d'}")
-					  % destinationTile % static_cast<int>(attackedPart) % static_cast<int>(damageDealt));
-}
-
-DLL_LINKAGE std::string CatapultAttack::toString() const
-{
-	std::ostringstream out;
-	out << "[";
-	for(auto it = attackedParts.begin(); it != attackedParts.end(); ++it)
-	{
-		out << it->toString();
-		if(std::prev(attackedParts.end()) != it) out << ", ";
-	}
-	out << "]";
-
-	return boost::str(boost::format("{CatapultAttack: attackedParts '%s', attacker '%d'}") % out.str() % attacker);
-}
-
-DLL_LINKAGE void BattleStacksRemoved::applyGs(CGameState *gs)
-{
-	if(!gs->curB)
+	auto town = battleState->getDefendedTown();
+	if(!town)
 		return;
 
-	while(!stackIDs.empty())
-	{
-		ui32 rem_stack = *stackIDs.begin();
-
-		for(int b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
-		{
-			if(gs->curB->stacks[b]->ID == rem_stack) //if found
-			{
-				CStack * toRemove = gs->curB->stacks[b];
-
-				toRemove->state.erase(EBattleStackState::ALIVE);
-				toRemove->state.erase(EBattleStackState::GHOST_PENDING);
-				toRemove->state.insert(EBattleStackState::GHOST);
-				toRemove->detachFromAll();//TODO: may be some bonuses should remain
-
-				//stack may be removed instantly (not being killed first)
-				//handle clone remove also here
-				if(toRemove->cloneID >= 0)
-				{
-					stackIDs.insert(toRemove->cloneID);
-					toRemove->cloneID = -1;
-				}
-
-				//cleanup remaining clone links if any
-				for(CStack * s : gs->curB->stacks)
-				{
-					if(s->cloneID == toRemove->ID)
-						s->cloneID = -1;
-				}
-
-				break;
-			}
-		}
-
-		stackIDs.erase(rem_stack);
-	}
-}
-
-DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
-{
-	newStackID = 0;
-	if(!BattleHex(pos).isValid())
-	{
-		logNetwork->warn("No place found for new stack!");
+	if(town->fortLevel() == CGTownInstance::NONE)
 		return;
+
+	for(const auto & part : attackedParts)
+	{
+		auto newWallState = SiegeInfo::applyDamage(EWallState::EWallState(battleState->getWallState(part.attackedPart)), part.damageDealt);
+		battleState->setWallState(part.attackedPart, newWallState);
 	}
-
-	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, side, SlotID::SUMMONED_SLOT_PLACEHOLDER, pos); //TODO: netpacks?
-	if(summoned)
-		addedStack->state.insert(EBattleStackState::SUMMONED);
-
-	addedStack->localInit(gs->curB.get());
-	gs->curB->stacks.push_back(addedStack);
-
-	newStackID = addedStack->ID;
 }
 
 DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
@@ -1837,7 +1550,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
 		}
 		case CLONED:
 		{
-			stack->state.insert(EBattleStackState::CLONED);
+			stack->cloned = true;
 			break;
 		}
 		case HAS_CLONE:

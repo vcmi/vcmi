@@ -24,6 +24,7 @@
 #include "CSkillHandler.h"
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
+#include "CModHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -51,9 +52,37 @@ const CArtifact * ArtifactID::toArtifact() const
 	return VLC->arth->artifacts.at(*this);
 }
 
+si32 ArtifactID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string ArtifactID::encode(const si32 index)
+{
+	return VLC->arth->artifacts.at(index)->identifier;
+}
+
 const CCreature * CreatureID::toCreature() const
 {
 	return VLC->creh->creatures.at(*this);
+}
+
+si32 CreatureID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CreatureID::encode(const si32 index)
+{
+	return VLC->creh->creatures.at(index)->identifier;
 }
 
 const CSpell * SpellID::toSpell() const
@@ -64,6 +93,20 @@ const CSpell * SpellID::toSpell() const
 		return nullptr;
 	}
 	return VLC->spellh->objects[*this];
+}
+
+si32 SpellID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string SpellID::encode(const si32 index)
+{
+	return VLC->spellh->objects.at(index)->identifier;
 }
 
 const CSkill * SecondarySkill::toSkill() const
@@ -110,26 +153,26 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	return ret;
 }
 
-std::ostream & operator<<(std::ostream & os, const Battle::ActionType actionType)
+std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 {
-	static const std::map<Battle::ActionType, std::string> actionTypeToString =
+	static const std::map<EActionType, std::string> actionTypeToString =
 	{
-		{Battle::END_TACTIC_PHASE, "End tactic phase"},
-		{Battle::INVALID, "Invalid"},
-		{Battle::NO_ACTION, "No action"},
-		{Battle::HERO_SPELL, "Hero spell"},
-		{Battle::WALK, "Walk"},
-		{Battle::DEFEND, "Defend"},
-		{Battle::RETREAT, "Retreat"},
-		{Battle::SURRENDER, "Surrender"},
-		{Battle::WALK_AND_ATTACK, "Walk and attack"},
-		{Battle::SHOOT, "Shoot"},
-		{Battle::WAIT, "Wait"},
-		{Battle::CATAPULT, "Catapult"},
-		{Battle::MONSTER_SPELL, "Monster spell"},
-		{Battle::BAD_MORALE, "Bad morale"},
-		{Battle::STACK_HEAL, "Stack heal"},
-		{Battle::DAEMON_SUMMONING, "Daemon summoning"}
+		{EActionType::END_TACTIC_PHASE, "End tactic phase"},
+		{EActionType::INVALID, "Invalid"},
+		{EActionType::NO_ACTION, "No action"},
+		{EActionType::HERO_SPELL, "Hero spell"},
+		{EActionType::WALK, "Walk"},
+		{EActionType::DEFEND, "Defend"},
+		{EActionType::RETREAT, "Retreat"},
+		{EActionType::SURRENDER, "Surrender"},
+		{EActionType::WALK_AND_ATTACK, "Walk and attack"},
+		{EActionType::SHOOT, "Shoot"},
+		{EActionType::WAIT, "Wait"},
+		{EActionType::CATAPULT, "Catapult"},
+		{EActionType::MONSTER_SPELL, "Monster spell"},
+		{EActionType::BAD_MORALE, "Bad morale"},
+		{EActionType::STACK_HEAL, "Stack heal"},
+		{EActionType::DAEMON_SUMMONING, "Daemon summoning"}
 	};
 
 	auto it = actionTypeToString.find(actionType);

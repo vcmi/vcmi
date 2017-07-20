@@ -96,7 +96,8 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
-		ret->scenarios[scenarioID].scenarioName = CMapService::loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size(), scenarioName)->name;
+		CMapService mapService;
+		ret->scenarios[scenarioID].scenarioName = mapService.loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size(), scenarioName)->name;
 		scenarioID++;
 	}
 

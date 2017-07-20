@@ -196,7 +196,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue" ],
+			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue", "queueSize" ],
 			"properties" : {
 				"animationSpeed" : {
 					"type" : "number",
@@ -217,6 +217,11 @@
 				"showQueue" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"queueSize" : {
+					"type" : "string",
+					"default" : "auto",
+					"enum" : [ "auto", "small", "big" ]
 				}
 			}
 		},

@@ -11,7 +11,10 @@
 #include "BattleHex.h"
 #include "../GameConstants.h"
 
-class CStack;
+namespace battle
+{
+	class Unit;
+}
 
 //Accessibility is property of hex in battle. It doesn't depend on stack, side's perspective and so on.
 enum class EAccessibility
@@ -30,6 +33,6 @@ typedef std::array<EAccessibility, GameConstants::BFIELD_SIZE> TAccessibilityArr
 
 struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 {
-	bool accessible(BattleHex tile, const CStack * stack) const; //checks for both tiles if stack is double wide
+	bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
 	bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
 };

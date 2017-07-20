@@ -8,6 +8,7 @@ set(battleAI_SRCS
 		common.cpp
 		EnemyInfo.cpp
 		main.cpp
+		PossibleSpellcast.cpp
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
 		ThreatMap.cpp
@@ -21,6 +22,7 @@ set(battleAI_HEADERS
 		common.h
 		EnemyInfo.h
 		PotentialTargets.h
+		PossibleSpellcast.h
 		StackWithBonuses.h
 		ThreatMap.h
 )

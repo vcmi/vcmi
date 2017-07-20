@@ -13,73 +13,72 @@
 #include <cctype>
 
 #include "CSpellHandler.h"
+#include "Problem.h"
 
 #include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
-#include "../JsonNode.h"
-
 #include "../CModHandler.h"
 #include "../StringConstants.h"
 
-#include "../CStack.h"
 #include "../battle/BattleInfo.h"
 #include "../battle/CBattleInfoCallback.h"
-#include "../CGameState.h" //todo: remove
+#include "../battle/Unit.h"
 
-#include "../NetPacks.h" //todo: remove
+#include "../mapObjects/CGHeroInstance.h" //todo: remove
+#include "../serializer/CSerializer.h"
 
 #include "ISpellMechanics.h"
 
 namespace SpellConfig
 {
-	static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
+static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
 
-	static const SpellSchoolInfo SCHOOL[4] =
+static const spells::SchoolInfo SCHOOL[4] =
+{
 	{
-		{
-			ESpellSchool::AIR,
-			Bonus::AIR_SPELL_DMG_PREMY,
-			Bonus::AIR_IMMUNITY,
-			"air",
-			SecondarySkill::AIR_MAGIC,
-			Bonus::AIR_SPELLS
-		},
-		{
-			ESpellSchool::FIRE,
-			Bonus::FIRE_SPELL_DMG_PREMY,
-			Bonus::FIRE_IMMUNITY,
-			"fire",
-			SecondarySkill::FIRE_MAGIC,
-			Bonus::FIRE_SPELLS
-		},
-		{
-			ESpellSchool::WATER,
-			Bonus::WATER_SPELL_DMG_PREMY,
-			Bonus::WATER_IMMUNITY,
-			"water",
-			SecondarySkill::WATER_MAGIC,
-			Bonus::WATER_SPELLS
-		},
-		{
-			ESpellSchool::EARTH,
-			Bonus::EARTH_SPELL_DMG_PREMY,
-			Bonus::EARTH_IMMUNITY,
-			"earth",
-			SecondarySkill::EARTH_MAGIC,
-			Bonus::EARTH_SPELLS
-		}
-	};
+		ESpellSchool::AIR,
+		Bonus::AIR_SPELL_DMG_PREMY,
+		Bonus::AIR_IMMUNITY,
+		"air",
+		SecondarySkill::AIR_MAGIC,
+		Bonus::AIR_SPELLS
+	},
+	{
+		ESpellSchool::FIRE,
+		Bonus::FIRE_SPELL_DMG_PREMY,
+		Bonus::FIRE_IMMUNITY,
+		"fire",
+		SecondarySkill::FIRE_MAGIC,
+		Bonus::FIRE_SPELLS
+	},
+	{
+		ESpellSchool::WATER,
+		Bonus::WATER_SPELL_DMG_PREMY,
+		Bonus::WATER_IMMUNITY,
+		"water",
+		SecondarySkill::WATER_MAGIC,
+		Bonus::WATER_SPELLS
+	},
+	{
+		ESpellSchool::EARTH,
+		Bonus::EARTH_SPELL_DMG_PREMY,
+		Bonus::EARTH_IMMUNITY,
+		"earth",
+		SecondarySkill::EARTH_MAGIC,
+		Bonus::EARTH_SPELLS
+	}
+};
 
-	//order as described in http://bugs.vcmi.eu/view.php?id=91
-	static const ESpellSchool SCHOOL_ORDER[4] =
-	{
-		ESpellSchool::AIR,  //=0
-		ESpellSchool::FIRE, //=1
-		ESpellSchool::EARTH,//=3(!)
-		ESpellSchool::WATER //=2(!)
-	};
-}
+//order as described in http://bugs.vcmi.eu/view.php?id=91
+static const ESpellSchool SCHOOL_ORDER[4] =
+{
+	ESpellSchool::AIR,  //=0
+	ESpellSchool::FIRE, //=1
+	ESpellSchool::EARTH,//=3(!)
+	ESpellSchool::WATER //=2(!)
+};
+} //namespace SpellConfig
 
 ///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
@@ -101,7 +100,7 @@ CSpell::CSpell():
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
 	isRising(false), isDamage(false), isOffensive(false), isSpecial(true),
-	targetType(ETargetType::NO_TARGET),
+	targetType(spells::AimType::NO_TARGET),
 	mechanics(),
 	adventureMechanics()
 {
@@ -111,11 +110,6 @@ CSpell::CSpell():
 CSpell::~CSpell()
 {
 
-}
-
-void CSpell::applyBattle(BattleInfo * battle, const BattleSpellCast * packet) const
-{
-	mechanics->applyBattle(battle, packet);
 }
 
 bool CSpell::adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
@@ -130,11 +124,6 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, const AdventureSpel
 	return adventureMechanics->adventureCast(env, parameters);
 }
 
-void CSpell::battleCast(const SpellCastEnvironment * env,  const BattleSpellCastParameters & parameters) const
-{
-	assert(env);
-	mechanics->battleCast(env, parameters);
-}
 
 const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 {
@@ -147,116 +136,98 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 	return levels.at(level);
 }
 
-ui32 CSpell::calculateDamage(const ISpellCaster * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const
+int64_t CSpell::calculateDamage(const spells::Caster * caster) const
 {
 	//check if spell really does damage - if not, return 0
 	if(!isDamageSpell())
 		return 0;
-	return adjustRawDamage(caster, affectedCreature, calculateRawEffectValue(spellSchoolLevel, usedSpellPower));
+	auto rawDamage = calculateRawEffectValue(caster->getEffectLevel(this), caster->getEffectPower(this), 1);
+
+	return caster->getSpellBonus(this, rawDamage, nullptr);
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster) const
+bool CSpell::canBeCast(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster) const
 {
+	//if caller do not interested in description just discard it and do not pollute even debug log
+	spells::detail::ProblemImpl problem;
+	return canBeCast(problem, cb, mode, caster);
+}
+
+bool CSpell::canBeCast(spells::Problem & problem, const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster) const
+{
+	spells::BattleCast event(cb, caster, mode, this);
+	auto mechanics = battleMechanics(&event);
+
 	ESpellCastProblem::ESpellCastProblem genProblem = cb->battleCanCastSpell(caster, mode);
 	if(genProblem != ESpellCastProblem::OK)
-		return genProblem;
+		return mechanics->adaptProblem(genProblem, problem);
 
 	switch(mode)
 	{
-	case ECastingMode::HERO_CASTING:
+	case spells::Mode::HERO:
 		{
 			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
 			if(!castingHero)
 			{
 				logGlobal->debug("CSpell::canBeCast: invalid caster");
-				return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 			}
-
-			if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
-				return ESpellCastProblem::NO_SPELLBOOK;
-			if(!castingHero->canCastThisSpell(this))
-				return ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			if(castingHero->mana < cb->battleGetSpellCost(this, castingHero)) //not enough mana
-				return ESpellCastProblem::NOT_ENOUGH_MANA;
+			else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+				genProblem = ESpellCastProblem::NO_SPELLBOOK;
+			else if(!castingHero->canCastThisSpell(this))
+				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
+			else if(castingHero->mana < cb->battleGetSpellCost(this, castingHero)) //not enough mana
+				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
 		}
 		break;
 	}
 
+	if(genProblem != ESpellCastProblem::OK)
+		return mechanics->adaptProblem(genProblem, problem);
+
 	if(!isCombatSpell())
-		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
+		return mechanics->adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
 
 	const PlayerColor player = caster->getOwner();
 	const auto side = cb->playerToSide(player);
 
 	if(!side)
-		return ESpellCastProblem::INVALID;
+		return mechanics->adaptProblem(ESpellCastProblem::INVALID, problem);
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
 	if(cb->battleMaxSpellLevel(side.get()) < level || cb->battleMinSpellLevel(side.get()) > level)
-		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
+		return mechanics->adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
-	const ESpellCastProblem::ESpellCastProblem specificProblem = mechanics->canBeCast(cb, mode, caster);
-
-	if(specificProblem != ESpellCastProblem::OK)
-		return specificProblem;
-
-	//check for creature target existence
-	//allow to cast spell if there is at least one smart target
-	if(mechanics->requiresCreatureTarget())
-	{
-		switch(mode)
-		{
-		case ECastingMode::HERO_CASTING:
-		case ECastingMode::CREATURE_ACTIVE_CASTING:
-		case ECastingMode::ENCHANTER_CASTING:
-		case ECastingMode::PASSIVE_CASTING:
-			{
-				TargetInfo tinfo(this, caster->getSpellSchoolLevel(this), mode);
-
-				bool targetExists = false;
-
-				for(const CStack * stack : cb->battleGetAllStacks())
-				{
-					const bool immune = !(stack->isValidTarget(!tinfo.onlyAlive) && ESpellCastProblem::OK == isImmuneByStack(caster, stack));
-					const bool ownerMatches = cb->battleMatchOwner(caster->getOwner(), stack, getPositiveness());
-					targetExists = !immune && ownerMatches;
-					if(targetExists)
-						break;
-				}
-				if(!targetExists)
-				{
-					return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-				}
-			}
-			break;
-		}
-	}
-	return ESpellCastProblem::OK;
+	return mechanics->canBeCast(problem);
 }
 
-std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
+std::vector<BattleHex> CSpell::rangeInHexes(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster, BattleHex centralHex) const
 {
-	return mechanics->rangeInHexes(centralHex,schoolLvl,side,outDroppedHexes);
+	spells::BattleCast event(cb, caster, mode, this);
+	return battleMechanics(&event)->rangeInHexes(centralHex);
 }
 
-std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, ECastingMode::ECastingMode mode, const ISpellCaster * caster, int spellLvl, BattleHex destination) const
+std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster, int spellLvl, const spells::Target & target) const
 {
-	return mechanics->getAffectedStacks(cb, mode, caster, spellLvl, destination);
+	//TODO: remove and add new method to BattleCast
+	spells::BattleCast event(cb, caster, mode, this);
+	event.setSpellLevel(spellLvl);
+	return battleMechanics(&event)->getAffectedStacks(target);
 }
 
-CSpell::ETargetType CSpell::getTargetType() const
+spells::AimType CSpell::getTargetType() const
 {
 	return targetType;
 }
 
-void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, bool &)>& cb) const
+void CSpell::forEachSchool(const std::function<void(const spells::SchoolInfo &, bool &)>& cb) const
 {
 	bool stop = false;
 	for(ESpellSchool iter : SpellConfig::SCHOOL_ORDER)
 	{
-		const SpellSchoolInfo & cnf = SpellConfig::SCHOOL[(ui8)iter];
+		const spells::SchoolInfo & cnf = SpellConfig::SCHOOL[(ui8)iter];
 		if(school.at(cnf.id))
 		{
 			cb(cnf, stop);
@@ -265,6 +236,11 @@ void CSpell::forEachSchool(const std::function<void(const SpellSchoolInfo &, boo
 				break;
 		}
 	}
+}
+
+int32_t CSpell::getIndex() const
+{
+	return id.toEnum();
 }
 
 bool CSpell::isCombatSpell() const
@@ -335,6 +311,11 @@ bool CSpell::hasEffects() const
 	return !levels[0].effects.empty() || !levels[0].cumulativeEffects.empty();
 }
 
+bool CSpell::hasBattleEffects() const
+{
+	return levels[0].battleEffects.getType() == JsonNode::JsonType::DATA_STRUCT && !levels[0].battleEffects.Struct().empty();
+}
+
 const std::string & CSpell::getIconImmune() const
 {
 	return iconImmune;
@@ -398,27 +379,47 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 	}
 }
 
-ESpellCastProblem::ESpellCastProblem CSpell::canBeCastAt(const CBattleInfoCallback * cb,  ECastingMode::ECastingMode mode, const ISpellCaster * caster, BattleHex destination) const
+bool CSpell::canBeCastAt(const CBattleInfoCallback * cb,  spells::Mode mode, const spells::Caster * caster, BattleHex destination) const
 {
-	ESpellCastProblem::ESpellCastProblem problem = canBeCast(cb, mode, caster);
-	if(problem != ESpellCastProblem::OK)
-		return problem;
-
-	return mechanics->canBeCastAt(cb, mode, caster, destination);
+	if(canBeCast(cb, mode, caster))
+	{
+		spells::BattleCast event(cb, caster, mode, this);
+		spells::Target tmp;
+		tmp.emplace_back(destination);
+		return battleMechanics(&event)->canBeCastAt(tmp);
+	}
+	else
+	{
+		return false;
+	}
 }
 
-int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affectedCreature, int rawDamage) const
+bool CSpell::canBeCastAt(const CBattleInfoCallback * cb,  spells::Mode mode, const spells::Caster * caster, const spells::Target & target) const
 {
-	int ret = rawDamage;
+	if(canBeCast(cb, mode, caster))
+	{
+		spells::BattleCast event(cb, caster, mode, this);
+		return battleMechanics(&event)->canBeCastAt(target);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int64_t rawDamage) const
+{
+	auto ret = rawDamage;
 	//affected creature-specific part
 	if(nullptr != affectedCreature)
 	{
+		auto bearer = affectedCreature;
 		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
+		forEachSchool([&](const spells::SchoolInfo & cnf, bool & stop)
 		{
-			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
+			if(bearer->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
 			{
-				ret *= 100 - affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret *= 100 - bearer->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
 				ret /= 100;
 				stop = true;//only bonus from one school is used
 			}
@@ -427,146 +428,26 @@ int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affected
 		CSelector selector = Selector::type(Bonus::SPELL_DAMAGE_REDUCTION).And(Selector::subtype(-1));
 
 		//general spell dmg reduction
-		if(affectedCreature->hasBonus(selector))
+		if(bearer->hasBonus(selector))
 		{
-			ret *= 100 - affectedCreature->valOfBonuses(selector);
+			ret *= 100 - bearer->valOfBonuses(selector);
 			ret /= 100;
 		}
 
 		//dmg increasing
-		if(affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
+		if(bearer->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, id))
 		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
+			ret *= 100 + bearer->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, id.toEnum());
 			ret /= 100;
 		}
 	}
-	if(caster != nullptr)
-		ret = caster->getSpellBonus(this, ret, affectedCreature);
+	ret = caster->getSpellBonus(this, ret, affectedCreature);
 	return ret;
 }
 
-int CSpell::calculateRawEffectValue(int effectLevel, int effectPower) const
+int64_t CSpell::calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
-	return effectPower * power + getPower(effectLevel);
-}
-
-ESpellCastProblem::ESpellCastProblem CSpell::internalIsImmune(const ISpellCaster * caster, const CStack *obj) const
-{
-	//todo: use new bonus API
-	//1. Check absolute limiters
-	for(auto b : absoluteLimiters)
-	{
-		if (!obj->hasBonusOfType(b))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-	//2. Check absolute immunities
-	for(auto b : absoluteImmunities)
-	{
-		if (obj->hasBonusOfType(b))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-	{
-		//spell-based spell immunity (only ANTIMAGIC in OH3) is treated as absolute
-		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "source_" << Bonus::SPELL_EFFECT;
-
-		TBonusListPtr levelImmunitiesFromSpell = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::sourceType(Bonus::SPELL_EFFECT)), cachingStr.str());
-
-		if(levelImmunitiesFromSpell->size() > 0  &&  levelImmunitiesFromSpell->totalValue() >= level  &&  level)
-		{
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-	}
-	{
-		//SPELL_IMMUNITY absolute case
-		std::stringstream cachingStr;
-		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << id.toEnum() << "addInfo_1";
-		if(obj->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, id.toEnum(), 1), cachingStr.str()))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-	//check receptivity
-	if (isPositive() && obj->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
-		return ESpellCastProblem::OK;
-
-	//3. Check negation
-	//Orb of vulnerability
-	//FIXME: Orb of vulnerability mechanics is not such trivial (issue 1791)
-	const bool battleWideNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 0);
-	const bool heroNegation = obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES, 1);
-	//anyone can cast on artifact holder`s stacks
-	if(heroNegation)
-		return ESpellCastProblem::NOT_DECIDED;
-	//this stack is from other player
-	//todo: check that caster is always present (not trivial is this case)
-	//todo: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispell, chain lightning
-	else if(battleWideNegation && caster)
-	{
-		if(obj->owner != caster->getOwner())
-			return ESpellCastProblem::NOT_DECIDED;
-	}
-
-	//4. Check negatable limit
-	for(auto b : limiters)
-	{
-		if (!obj->hasBonusOfType(b))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-
-	//5. Check negatable immunities
-	for(auto b : immunities)
-	{
-		if (obj->hasBonusOfType(b))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-	//6. Check elemental immunities
-
-	ESpellCastProblem::ESpellCastProblem tmp = ESpellCastProblem::NOT_DECIDED;
-
-	forEachSchool([&](const SpellSchoolInfo & cnf, bool & stop)
-	{
-		auto element = cnf.immunityBonus;
-
-		if(obj->hasBonusOfType(element, 0)) //always resist if immune to all spells altogether
-		{
-			tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			stop = true;
-		}
-		else if(!isPositive()) //negative or indifferent
-		{
-			if((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-			{
-				tmp = ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-				stop = true;
-			}
-		}
-	});
-
-	if(tmp != ESpellCastProblem::NOT_DECIDED)
-		return tmp;
-
-	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
-
-	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
-		|| ( levelImmunities->size() > 0  &&  levelImmunities->totalValue() >= level  &&  level))
-	{
-		return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-	}
-
-	return ESpellCastProblem::NOT_DECIDED;
-}
-
-ESpellCastProblem::ESpellCastProblem CSpell::isImmuneByStack(const ISpellCaster * caster, const CStack * obj) const
-{
-	const auto immuneResult = mechanics->isImmuneByStack(caster,obj);
-
-	if (ESpellCastProblem::NOT_DECIDED != immuneResult)
-		return immuneResult;
-	return ESpellCastProblem::OK;
+	return basePowerMultiplier * power + levelPowerMultiplier * getPower(effectLevel);
 }
 
 void CSpell::setIsOffensive(const bool val)
@@ -590,15 +471,55 @@ void CSpell::setIsRising(const bool val)
 	}
 }
 
-void CSpell::setup()
+JsonNode CSpell::convertTargetCondition(const BTVector & immunity, const BTVector & absImmunity, const BTVector & limit, const BTVector & absLimit) const
 {
-	setupMechanics();
+	static const std::string CONDITION_NORMAL = "normal";
+	static const std::string CONDITION_ABSOLUTE = "absolute";
+
+#define BONUS_NAME(x) { Bonus::x, #x },
+	static const std::map<Bonus::BonusType, std::string> bonusNameRMap = { BONUS_LIST };
+#undef BONUS_NAME
+
+	JsonNode res;
+
+	auto convertVector = [&](const std::string & targetName, const BTVector & source, const std::string & value)
+	{
+		for(auto bonusType : source)
+		{
+			auto iter = bonusNameRMap.find(bonusType);
+			if(iter != bonusNameRMap.end())
+			{
+				auto fullId = CModHandler::makeFullIdentifier("", "bonus", iter->second);
+				res[targetName][fullId].String() = value;
+			}
+			else
+			{
+				logGlobal->error("Invalid bonus type %d", static_cast<int32_t>(bonusType));
+			}
+		}
+	};
+
+	auto convertSection = [&](const std::string & targetName, const BTVector & normal, const BTVector & absolute)
+	{
+		convertVector(targetName, normal, CONDITION_NORMAL);
+		convertVector(targetName, absolute, CONDITION_ABSOLUTE);
+	};
+
+	convertSection("allOf", limit, absLimit);
+	convertSection("noneOf", immunity, absImmunity);
+
+	return res;
 }
 
 void CSpell::setupMechanics()
 {
-	mechanics = ISpellMechanics::createMechanics(this);
+	mechanics = spells::ISpellMechanicsFactory::get(this);
 	adventureMechanics = IAdventureSpellMechanics::createMechanics(this);
+}
+
+std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattleCast * event) const
+{
+	return mechanics->create(event);
 }
 
 ///CSpell::AnimationInfo
@@ -638,40 +559,35 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 }
 
 ///CSpell::TargetInfo
-CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level)
+CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mode mode)
+	: type(spell->getTargetType()),
+	smart(false),
+	massive(false),
+	onlyAlive(!spell->isRisingSpell()),
+	alwaysHitDirectly(false),
+	clearAffected(false),
+	clearTarget(false)
 {
-	init(spell, level);
-}
+	auto & levelInfo = spell->getLevelInfo(level);
 
-CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, ECastingMode::ECastingMode mode)
-{
-	init(spell, level);
-	if(mode == ECastingMode::ENCHANTER_CASTING)
+	smart = levelInfo.smartTarget;
+	massive = levelInfo.range == "X";
+	clearAffected = levelInfo.clearAffected;
+	clearTarget = levelInfo.clearTarget;
+
+	if(mode == spells::Mode::ENCHANTER)
 	{
 		smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
 		massive = true;
 	}
-	else if(mode == ECastingMode::SPELL_LIKE_ATTACK)
+	else if(mode == spells::Mode::SPELL_LIKE_ATTACK)
 	{
 		alwaysHitDirectly = true;
 	}
-	else if(mode == ECastingMode::CREATURE_ACTIVE_CASTING)
+	else if(mode == spells::Mode::CREATURE_ACTIVE)
 	{
 		massive = false;//FIXME: find better solution for Commander spells
 	}
-}
-
-void CSpell::TargetInfo::init(const CSpell * spell, const int level)
-{
-	auto & levelInfo = spell->getLevelInfo(level);
-
-	type = spell->getTargetType();
-	smart = levelInfo.smartTarget;
-	massive = levelInfo.range == "X";
-	onlyAlive = !spell->isRisingSpell();
-	alwaysHitDirectly = false;
-	clearAffected = levelInfo.clearAffected;
-	clearTarget = levelInfo.clearTarget;
 }
 
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
@@ -684,10 +600,9 @@ bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
 }
 
 ///CSpellHandler
-CSpellHandler::CSpellHandler()
-{
+CSpellHandler::CSpellHandler() = default;
 
-}
+CSpellHandler::~CSpellHandler() = default;
 
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 {
@@ -710,15 +625,15 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 		{
 			JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
 
-			const si32 id = legacyData.size();
+			const auto id = legacyData.size();
 
-			lineNode["index"].Float() = id;
+			lineNode["index"].Integer() = id;
 			lineNode["type"].String() = ability ? "ability" : (combat ? "combat" : "adventure");
 
 			lineNode["name"].String() = parser.readString();
 
 			parser.readString(); //ignored unused abbreviated name
-			lineNode["level"].Float()      = parser.readNumber();
+			lineNode["level"].Integer() = parser.readNumber();
 
 			auto& schools = lineNode["school"].Struct();
 
@@ -736,14 +651,13 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			};
 
 			auto costs = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
-			lineNode["power"].Float() = parser.readNumber();
+			lineNode["power"].Integer() = parser.readNumber();
 			auto powers = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
-			auto& chances = lineNode["gainChance"].Struct();
+			auto & chances = lineNode["gainChance"].Struct();
 
-			for(size_t i = 0; i < GameConstants::F_NUMBER; i++){
-				chances[ETownType::names[i]].Float() = parser.readNumber();
-			}
+			for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
+				chances[ETownType::names[i]].Integer() = parser.readNumber();
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
@@ -758,9 +672,9 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			{
 				auto& level = getLevel(i);
 				level["description"].String() = descriptions[i];
-				level["cost"].Float() = costs[i];
-				level["power"].Float() = powers[i];
-				level["aiValue"].Float() = AIVals[i];
+				level["cost"].Integer() = costs[i];
+				level["power"].Integer() = powers[i];
+				level["aiValue"].Integer() = AIVals[i];
 			}
 
 			legacyData.push_back(lineNode);
@@ -784,7 +698,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
     //TODO: maybe move to config
 	//clone Acid Breath attributes for Acid Breath damage effect
 	JsonNode temp = legacyData[SpellID::ACID_BREATH_DEFENSE];
-	temp["index"].Float() = SpellID::ACID_BREATH_DAMAGE;
+	temp["index"].Integer() = SpellID::ACID_BREATH_DAMAGE;
 	legacyData.push_back(temp);
 
 	objects.resize(legacyData.size());
@@ -797,11 +711,14 @@ const std::string CSpellHandler::getTypeName() const
 	return "spell";
 }
 
-CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
+CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
 {
 	using namespace SpellConfig;
 
+	SpellID id(static_cast<si32>(index));
+
 	CSpell * spell = new CSpell();
+	spell->id = id;
 	spell->identifier = identifier;
 
 	const auto type = json["type"].String();
@@ -823,19 +740,19 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 	const auto schoolNames = json["school"];
 
-	for(const SpellSchoolInfo & info : SpellConfig::SCHOOL)
+	for(const spells::SchoolInfo & info : SpellConfig::SCHOOL)
 	{
 		spell->school[info.id] = schoolNames[info.jsonName].Bool();
 	}
 
-	spell->level = json["level"].Float();
-	spell->power = json["power"].Float();
+	spell->level = json["level"].Integer();
+	spell->power = json["power"].Integer();
 
-	spell->defaultProbability = json["defaultGainChance"].Float();
+	spell->defaultProbability = json["defaultGainChance"].Integer();
 
 	for(const auto & node : json["gainChance"].Struct())
 	{
-		const int chance = node.second.Float();
+		const int chance = node.second.Integer();
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction",node.first, [=](si32 factionID)
 		{
@@ -846,24 +763,26 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	auto targetType = json["targetType"].String();
 
 	if(targetType == "NO_TARGET")
-		spell->targetType = CSpell::NO_TARGET;
+		spell->targetType = spells::AimType::NO_TARGET;
 	else if(targetType == "CREATURE")
-		spell->targetType = CSpell::CREATURE;
+		spell->targetType = spells::AimType::CREATURE;
 	else if(targetType == "OBSTACLE")
-		spell->targetType = CSpell::OBSTACLE;
+		spell->targetType = spells::AimType::OBSTACLE;
 	else if(targetType == "LOCATION")
-		spell->targetType = CSpell::LOCATION;
+		spell->targetType = spells::AimType::LOCATION;
 	else
 		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->name, (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
-		if (counteredSpell.second.Bool())
+	{
+		if(counteredSpell.second.Bool())
 		{
 			VLC->modh->identifiers.requestIdentifier(json.meta, counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.push_back(SpellID(id));
 			});
 		}
+	}
 
 	//TODO: more error checking - f.e. conflicting flags
 	const auto flags = json["flags"];
@@ -929,10 +848,39 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		}
 	};
 
-	readBonusStruct("immunity", spell->immunities);
-	readBonusStruct("absoluteImmunity", spell->absoluteImmunities);
-	readBonusStruct("limit", spell->limiters);
-	readBonusStruct("absoluteLimit", spell->absoluteLimiters);
+	if(json["targetCondition"].isNull())
+	{
+		CSpell::BTVector immunities;
+		CSpell::BTVector absoluteImmunities;
+		CSpell::BTVector limiters;
+		CSpell::BTVector absoluteLimiters;
+
+		readBonusStruct("immunity", immunities);
+		readBonusStruct("absoluteImmunity", absoluteImmunities);
+		readBonusStruct("limit", limiters);
+		readBonusStruct("absoluteLimit", absoluteLimiters);
+
+		if(!(immunities.empty() && absoluteImmunities.empty() && limiters.empty() && absoluteLimiters.empty()))
+		{
+			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->name);
+			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
+			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toJson());
+		}
+	}
+	else
+	{
+		spell->targetCondition = json["targetCondition"];
+
+		//TODO: could this be safely merged instead of discarding?
+		if(!json["immunity"].isNull())
+			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->name);
+		if(!json["absoluteImmunity"].isNull())
+			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->name);
+		if(!json["limit"].isNull())
+			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->name);
+		if(!json["absoluteLimit"].isNull())
+			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->name);
+	}
 
 	const JsonNode & graphicsNode = json["graphics"];
 
@@ -997,11 +945,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
-		const si32 levelPower     = levelObject.power = levelNode["power"].Float();
+		const si32 levelPower     = levelObject.power = levelNode["power"].Integer();
 
 		levelObject.description   = levelNode["description"].String();
-		levelObject.cost          = levelNode["cost"].Float();
-		levelObject.AIValue       = levelNode["aiValue"].Float();
+		levelObject.cost          = levelNode["cost"].Integer();
+		levelObject.AIValue       = levelNode["aiValue"].Integer();
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
 		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
 		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();
@@ -1013,9 +961,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			//TODO: make this work. see CSpellHandler::afterLoadFinalization()
-			//b->sid = spell->id; //for all
-
+			b->sid = spell->id; //for all
 			b->source = Bonus::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
@@ -1030,9 +976,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 			auto b = JsonUtils::parseBonus(bonusNode);
 			const bool usePowerAsValue = bonusNode["val"].isNull();
 
-			//TODO: make this work. see CSpellHandler::afterLoadFinalization()
-			//b->sid = spell->id; //for all
-
+			b->sid = spell->id; //for all
 			b->source = Bonus::SPELL_EFFECT;//for all
 
 			if(usePowerAsValue)
@@ -1040,24 +984,23 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 			levelObject.cumulativeEffects.push_back(b);
 		}
-	}
 
+		if(levelNode["battleEffects"].getType() == JsonNode::JsonType::DATA_STRUCT && !levelNode["battleEffects"].Struct().empty())
+		{
+			levelObject.battleEffects = levelNode["battleEffects"];
+
+			if(!levelObject.cumulativeEffects.empty() || !levelObject.effects.empty() || spell->isOffensiveSpell())
+				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->name);
+		}
+	}
 	return spell;
 }
 
 void CSpellHandler::afterLoadFinalization()
 {
-	//FIXME: it is a bad place for this code, should refactor loadFromJson to know object id during loading
-	for(auto spell: objects)
+	for(auto spell : objects)
 	{
-		for(auto & level: spell->levels)
-		{
-			for(auto & bonus: level.effects)
-				bonus->sid = spell->id;
-			for(auto & bonus: level.cumulativeEffects)
-				bonus->sid = spell->id;
-		}
-		spell->setup();
+		spell->setupMechanics();
 	}
 }
 
@@ -1068,7 +1011,8 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	JsonNode & levels = object["levels"];
 	JsonNode & base = levels["base"];
 
-	auto inheritNode = [&](const std::string & name){
+	auto inheritNode = [&](const std::string & name)
+	{
 		JsonUtils::inherit(levels[name],base);
 	};
 
@@ -1076,12 +1020,6 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
-}
-
-
-CSpellHandler::~CSpellHandler()
-{
-
 }
 
 std::vector<bool> CSpellHandler::getDefaultAllowed() const
@@ -1097,17 +1035,53 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 	return allowedSpells;
 }
 
-si32 CSpellHandler::decodeSpell(const std::string& identifier)
+void CSpellHandler::update780()
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
+    static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
 
-std::string CSpellHandler::encodeSpell(const si32 index)
-{
-	return VLC->spellh->objects[index]->identifier;
-}
+	auto spellsContent = VLC->modh->content["spells"];
 
+	const ContentTypeHandler::ModInfo & coreData = spellsContent.modData.at("core");
+
+	const JsonNode & coreSpells = coreData.modData;
+
+	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
+
+	for(CSpell * spell : objects)
+	{
+		auto identifier = spell->identifier;
+		size_t colonPos = identifier.find(':');
+		if(colonPos != std::string::npos)
+			continue;
+
+		const JsonNode & actualConfig = coreSpells[spell->identifier];
+
+		if(actualConfig.getType() != JsonNode::JsonType::DATA_STRUCT)
+		{
+			logGlobal->error("Spell not found %s", spell->identifier);
+			continue;
+		}
+
+		if(actualConfig["targetCondition"].getType() == JsonNode::JsonType::DATA_STRUCT && !actualConfig["targetCondition"].Struct().empty())
+		{
+			spell->targetCondition = actualConfig["targetCondition"];
+		}
+
+		for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
+		{
+			const JsonNode & levelNode = actualConfig["levels"][SpellConfig::LEVEL_NAMES[levelIndex]];
+
+			logGlobal->debug(levelNode.toJson());
+
+			CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
+
+			if(levelNode["battleEffects"].getType() == JsonNode::JsonType::DATA_STRUCT && !levelNode["battleEffects"].Struct().empty())
+			{
+				levelObject.battleEffects = levelNode["battleEffects"];
+
+				logGlobal->trace("Updated special effects for level %d of spell %s", levelIndex, spell->identifier);
+			}
+		}
+
+	}
+}

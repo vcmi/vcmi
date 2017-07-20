@@ -9,12 +9,56 @@
  */
 #include "StdInc.h"
 #include "BattleAI.h"
+
+#include <vstd/RNG.h>
+
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
+#include "PossibleSpellcast.h"
+#include "../../lib/CStopWatch.h"
+#include "../../lib/CThreadHelper.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/CStack.h"//todo: remove
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
+
+class RNGStub : public vstd::RNG
+{
+public:
+	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
+	{
+		return [=]()->int64_t
+		{
+			return (lower + upper)/2;
+		};
+	}
+
+	vstd::TRand getDoubleRange(double lower, double upper) override
+	{
+		return [=]()->double
+		{
+			return (lower + upper)/2;
+		};
+	}
+};
+
+enum class SpellTypes
+{
+	ADVENTURE, BATTLE, OTHER
+};
+
+SpellTypes spellType(const CSpell * spell)
+{
+	if(!spell->isCombatSpell() || spell->isCreatureAbility())
+		return SpellTypes::OTHER;
+
+	if(spell->isOffensiveSpell() || spell->hasEffects() || spell->hasBattleEffects())
+		return SpellTypes::BATTLE;
+
+	return SpellTypes::OTHER;
+}
 
 CBattleAI::CBattleAI()
 	: side(-1), wasWaitingForRealize(false), wasUnlockingGs(false)
@@ -70,31 +114,38 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			//spellcast may finish battle
 			//send special preudo-action
 			BattleAction cancel;
-			cancel.actionType = Battle::CANCEL;
+			cancel.actionType = EActionType::CANCEL;
 			return cancel;
 		}
 
 		if(auto action = considerFleeingOrSurrendering())
 			return *action;
-		PotentialTargets targets(stack);
+		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
+
+		HypotheticBattle hb(getCbc());
+
+		PotentialTargets targets(stack, &hb);
 		if(targets.possibleAttacks.size())
 		{
 			auto hlp = targets.bestAction();
 			if(hlp.attack.shooting)
-				return BattleAction::makeShotAttack(stack, hlp.enemy);
+				return BattleAction::makeShotAttack(stack, hlp.attack.defender);
 			else
-				return BattleAction::makeMeleeAttack(stack, hlp.enemy, hlp.tile);
+				return BattleAction::makeMeleeAttack(stack, hlp.attack.defender->getPosition(), hlp.tile);
 		}
 		else
 		{
 			if(stack->waited())
 			{
 				//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-				auto dists = getCbc()->battleGetDistances(stack);
-				const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
-				if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
+				auto dists = getCbc()->battleGetDistances(stack, stack->getPosition());
+				if(!targets.unreachableEnemies.empty())
 				{
-					return goTowards(stack, ei.s->position);
+					const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
+					if(distToNearestNeighbour(ei.s->getPosition(), dists) < GameConstants::BFIELD_SIZE)
+					{
+						return goTowards(stack, ei.s->getPosition());
+					}
 				}
 			}
 			else
@@ -116,9 +167,15 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 {
-	assert(destination.isValid());
-	auto avHexes = cb->battleGetAvailableHexes(stack, false);
+	if(!destination.isValid())
+	{
+		logAi->error("CBattleAI::goTowards: invalid destination");
+		return BattleAction::makeDefend(stack);
+	}
+
 	auto reachability = cb->getReachability(stack);
+	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+
 	if(vstd::contains(avHexes, destination))
 		return BattleAction::makeMove(stack, destination);
 	auto destNeighbours = destination.neighbouringTiles();
@@ -156,7 +213,12 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 		BattleHex currentDest = bestNeighbor;
 		while(1)
 		{
-			assert(currentDest.isValid());
+			if(!currentDest.isValid())
+			{
+				logAi->error("CBattleAI::goTowards: internal error");
+				return BattleAction::makeDefend(stack);
+			}
+
 			if(vstd::contains(avHexes, currentDest))
 				return BattleAction::makeMove(stack, currentDest);
 			currentDest = reachability.predecessors[currentDest];
@@ -166,22 +228,7 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 
 BattleAction CBattleAI::useCatapult(const CStack * stack)
 {
-	throw std::runtime_error("The method or operation is not implemented.");
-}
-
-
-enum SpellTypes
-{
-	OFFENSIVE_SPELL, TIMED_EFFECT, OTHER
-};
-
-SpellTypes spellType(const CSpell *spell)
-{
-	if (spell->isOffensiveSpell())
-		return OFFENSIVE_SPELL;
-	if (spell->hasEffects())
-		return TIMED_EFFECT;
-	return OTHER;
+	throw std::runtime_error("CBattleAI::useCatapult is not implemented.");
 }
 
 void CBattleAI::attemptCastingSpell()
@@ -190,7 +237,7 @@ void CBattleAI::attemptCastingSpell()
 	if(!hero)
 		return;
 
-	if(cb->battleCanCastSpell(hero, ECastingMode::HERO_CASTING) != ESpellCastProblem::OK)
+	if(cb->battleCanCastSpell(hero, spells::Mode::HERO) != ESpellCastProblem::OK)
 		return;
 
 	LOGL("Casting spells sounds like fun. Let's see...");
@@ -198,21 +245,28 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<const CSpell*> possibleSpells;
 	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [this, hero] (const CSpell *s) -> bool
 	{
-		return s->canBeCast(getCbc().get(), ECastingMode::HERO_CASTING, hero) == ESpellCastProblem::OK;
+		return s->canBeCast(getCbc().get(), spells::Mode::HERO, hero);
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
 	vstd::erase_if(possibleSpells, [](const CSpell *s)
-	{return spellType(s) == OTHER; });
-	LOGFL("I know about workings of %d of them.", possibleSpells.size());
+	{
+		return spellType(s) != SpellTypes::BATTLE;
+	});
+
+	LOGFL("I know how %d of them works.", possibleSpells.size());
 
 	//Get possible spell-target pairs
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		for(auto hex : getTargetsToConsider(spell, hero))
+		spells::BattleCast temp(getCbc().get(), hero, spells::Mode::HERO, spell);
+
+		for(auto & target : temp.findPotentialTargets())
 		{
-			PossibleSpellcast ps = {spell, hex, 0};
+			PossibleSpellcast ps;
+			ps.dest = target;
+			ps.spell = spell;
 			possibleCasts.push_back(ps);
 		}
 	}
@@ -220,141 +274,229 @@ void CBattleAI::attemptCastingSpell()
 	if(possibleCasts.empty())
 		return;
 
-	std::map<const CStack*, int> valueOfStack;
-	for(auto stack : cb->battleGetStacks())
+	using ValueMap = PossibleSpellcast::ValueMap;
+
+	auto evaluateQueue = [&](ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state, size_t minTurnSpan, bool * enemyHadTurnOut) -> bool
 	{
-		PotentialTargets pt(stack);
-		valueOfStack[stack] = pt.bestActionValue();
+		bool firstRound = true;
+		bool enemyHadTurn = false;
+		size_t ourTurnSpan = 0;
+
+		bool stop = false;
+
+		for(auto & round : queue)
+		{
+			if(!firstRound)
+				state->nextRound(0);//todo: set actual value?
+			for(auto unit : round)
+			{
+				if(!vstd::contains(values, unit->unitId()))
+					values[unit->unitId()] = 0;
+
+				if(!unit->alive())
+					continue;
+
+				if(state->battleGetOwner(unit) != playerID)
+				{
+					enemyHadTurn = true;
+
+					if(!firstRound || state->battleCastSpells(unit->unitSide()) == 0)
+					{
+						//enemy could counter our spell at this point
+						//anyway, we do not know what enemy will do
+						//just stop evaluation
+						stop = true;
+						break;
+					}
+				}
+				else if(!enemyHadTurn)
+				{
+					ourTurnSpan++;
+				}
+
+				state->nextTurn(unit->unitId());
+
+				PotentialTargets pt(unit, state);
+
+				if(!pt.possibleAttacks.empty())
+				{
+					AttackPossibility ap = pt.bestAction();
+
+					auto swb = state->getForUpdate(unit->unitId());
+					*swb = *ap.attackerState;
+
+					if(ap.damageDealt > 0)
+						swb->removeUnitBonus(Bonus::UntilAttack);
+					if(ap.damageReceived > 0)
+						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+
+					for(auto affected : ap.affectedUnits)
+					{
+						swb = state->getForUpdate(affected->unitId());
+						*swb = *affected;
+
+						if(ap.damageDealt > 0)
+							swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+						if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
+							swb->removeUnitBonus(Bonus::UntilAttack);
+					}
+				}
+
+				auto bav = pt.bestActionValue();
+
+				//best action is from effective owner`s point if view, we need to convert to our point if view
+				if(state->battleGetOwner(unit) != playerID)
+					bav = -bav;
+				values[unit->unitId()] += bav;
+			}
+
+			firstRound = false;
+
+			if(stop)
+				break;
+		}
+
+		if(enemyHadTurnOut)
+			*enemyHadTurnOut = enemyHadTurn;
+
+		return ourTurnSpan > minTurnSpan;
+	};
+
+	RNGStub rngStub;
+
+	ValueMap valueOfStack;
+	ValueMap healthOfStack;
+
+	TStacks all = cb->battleGetAllStacks(false);
+
+	for(auto unit : all)
+	{
+		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
+		valueOfStack[unit->unitId()] = 0;
 	}
 
-	auto evaluateSpellcast = [&] (const PossibleSpellcast &ps) -> int
+	auto amount = all.size();
+
+	std::vector<battle::Units> turnOrder;
+
+	cb->battleGetTurnOrder(turnOrder, amount, 2); //no more than 1 turn after current, each unit at least once
+
 	{
-		const int skillLevel = hero->getSpellSchoolLevel(ps.spell);
-		const int spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-		switch(spellType(ps.spell))
+		bool enemyHadTurn = false;
+
+		HypotheticBattle state(cb);
+		evaluateQueue(valueOfStack, turnOrder, &state, 0, &enemyHadTurn);
+
+		if(!enemyHadTurn)
 		{
-		case OFFENSIVE_SPELL:
-		{
-			int damageDealt = 0, damageReceived = 0;
-			auto stacksSuffering = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
-			if(stacksSuffering.empty())
-				return -1;
-			for(auto stack : stacksSuffering)
+			auto battleIsFinishedOpt = state.battleIsFinished();
+
+			if(battleIsFinishedOpt)
 			{
-				const int dmg = ps.spell->calculateDamage(hero, stack, skillLevel, spellPower);
-				if(stack->owner == playerID)
-					damageReceived += dmg;
-				else
-					damageDealt += dmg;
+				print("No need to cast a spell. Battle will finish soon.");
+				return;
 			}
-			const int damageDiff = damageDealt - damageReceived * 10;
-			LOGFL("Casting %s on hex %d would deal { %d %d } damage points among %d stacks.",
-				  ps.spell->name % ps.dest % damageDealt % damageReceived % stacksSuffering.size());
-			//TODO tactic effect too
-			return damageDiff;
 		}
-		case TIMED_EFFECT:
+	}
+
+	auto evaluateSpellcast = [&] (PossibleSpellcast * ps)
+	{
+		int64_t totalGain = 0;
+
+		HypotheticBattle state(cb);
+
+		spells::BattleCast cast(&state, hero, spells::Mode::HERO, ps->spell);
+		cast.target = ps->dest;
+		cast.cast(&state, rngStub);
+		ValueMap newHealthOfStack;
+		ValueMap newValueOfStack;
+
+		size_t ourUnits = 0;
+
+		for(auto unit : all)
 		{
-			auto stacksAffected = ps.spell->getAffectedStacks(cb.get(), ECastingMode::HERO_CASTING, hero, skillLevel, ps.dest);
-			if(stacksAffected.empty())
-				return -1;
-			int totalGain = 0;
-			for(const CStack * sta : stacksAffected)
+			newHealthOfStack[unit->unitId()] = unit->getAvailableHealth();
+			newValueOfStack[unit->unitId()] = 0;
+
+			if(state.battleGetOwner(unit) == playerID && unit->alive() && unit->willMove())
+				ourUnits++;
+		}
+
+		size_t minTurnSpan = ourUnits/3; //todo: tweak this
+
+		std::vector<battle::Units> newTurnOrder;
+		state.battleGetTurnOrder(newTurnOrder, amount, 2);
+
+		if(evaluateQueue(newValueOfStack, newTurnOrder, &state, minTurnSpan, nullptr))
+		{
+			for(auto unit : all)
 			{
-				StackWithBonuses swb;
-				swb.stack = sta;
-				//todo: handle effect actualization in HypotheticChangesToBattleState
-				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, false, hero->getEnchantPower(ps.spell));
-				ps.spell->getEffects(swb.bonusesToAdd, skillLevel, true, hero->getEnchantPower(ps.spell));
-				HypotheticChangesToBattleState state;
-				state.bonusesOfStacks[swb.stack] = &swb;
-				PotentialTargets pt(swb.stack, state);
-				auto newValue = pt.bestActionValue();
-				auto oldValue = valueOfStack[swb.stack];
-				auto gain = newValue - oldValue;
-				if(swb.stack->owner != playerID) //enemy
-					gain = -gain;
-				LOGFL("Casting %s on %s would improve the stack by %d points (from %d to %d)",
-					  ps.spell->name % sta->nodeName() % (gain) % (oldValue) % (newValue));
-				totalGain += gain;
+				auto newValue = getValOr(newValueOfStack, unit->unitId(), 0);
+				auto oldValue = getValOr(valueOfStack, unit->unitId(), 0);
+
+				auto healthDiff = newHealthOfStack[unit->unitId()] - healthOfStack[unit->unitId()];
+
+				if(unit->unitOwner() != playerID)
+					healthDiff = -healthDiff;
+
+				auto gain = newValue - oldValue + healthDiff;
+
+				if(gain != 0)
+					totalGain += gain;
 			}
 
-			LOGFL("Total gain of cast %s at hex %d is %d", ps.spell->name % (ps.dest.hex) % (totalGain));
-			return totalGain;
+			ps->value = totalGain;
 		}
-		default:
-			assert(0);
-			return 0;
+		else
+		{
+			ps->value = -1;
 		}
 	};
 
+	std::vector<std::function<void()>> tasks;
+
 	for(PossibleSpellcast & psc : possibleCasts)
-		psc.value = evaluateSpellcast(psc);
-	auto pscValue = [] (const PossibleSpellcast &ps) -> int
+	{
+		tasks.push_back(std::bind(evaluateSpellcast, &psc));
+
+	}
+
+	uint32_t threadCount = boost::thread::hardware_concurrency();
+
+	if(threadCount == 0)
+	{
+		logGlobal->warn("No information of CPU cores available");
+		threadCount = 1;
+	}
+
+	CStopWatch timer;
+
+	CThreadHelper threadHelper(&tasks, threadCount);
+	threadHelper.run();
+
+	LOGFL("Evaluation took %d ms", timer.getDiff());
+
+	auto pscValue = [] (const PossibleSpellcast &ps) -> int64_t
 	{
 		return ps.value;
 	};
 	auto castToPerform = *vstd::maxElementByFun(possibleCasts, pscValue);
-	LOGFL("Best spell is %s. Will cast.", castToPerform.spell->name);
-	BattleAction spellcast;
-	spellcast.actionType = Battle::HERO_SPELL;
-	spellcast.additionalInfo = castToPerform.spell->id;
-	spellcast.destinationTile = castToPerform.dest;
-	spellcast.side = side;
-	spellcast.stackNumber = (!side) ? -1 : -2;
-	cb->battleMakeAction(&spellcast);
-}
 
-std::vector<BattleHex> CBattleAI::getTargetsToConsider(const CSpell * spell, const ISpellCaster * caster) const
-{
-	const CSpell::TargetInfo targetInfo(spell, caster->getSpellSchoolLevel(spell));
-	std::vector<BattleHex> ret;
-	if(targetInfo.massive || targetInfo.type == CSpell::NO_TARGET)
+	if(castToPerform.value > 0)
 	{
-		ret.push_back(BattleHex());
+		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->name % castToPerform.value);
+		BattleAction spellcast;
+		spellcast.actionType = EActionType::HERO_SPELL;
+		spellcast.actionSubtype = castToPerform.spell->id;
+		spellcast.setTarget(castToPerform.dest);
+		spellcast.side = side;
+		spellcast.stackNumber = (!side) ? -1 : -2;
+		cb->battleMakeAction(&spellcast);
 	}
 	else
 	{
-		switch(targetInfo.type)
-		{
-		case CSpell::CREATURE:
-		{
-			for(const CStack * stack : getCbc()->battleAliveStacks())
-			{
-				bool immune = ESpellCastProblem::OK != spell->isImmuneByStack(caster, stack);
-				bool casterStack = stack->owner == caster->getOwner();
-
-				if(!immune)
-					switch (spell->positiveness)
-					{
-					case CSpell::POSITIVE:
-						if(casterStack || targetInfo.smart)
-							ret.push_back(stack->position);
-						break;
-					case CSpell::NEUTRAL:
-						ret.push_back(stack->position);
-						break;
-					case CSpell::NEGATIVE:
-						if(!casterStack || targetInfo.smart)
-							ret.push_back(stack->position);
-						break;
-					}
-			}
-		}
-			break;
-		case CSpell::LOCATION:
-		{
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
-				if(BattleHex(i).isAvailable())
-					ret.push_back(i);
-		}
-			break;
-
-		default:
-			break;
-		}
+		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->name % castToPerform.value);
 	}
-	return ret;
 }
 
 int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances &dists, BattleHex *chosenHex)
@@ -374,18 +516,18 @@ int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDi
 
 void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
 {
-	print("battleStart called");
+	LOG_TRACE(logAi);
 	side = Side;
 }
 
 bool CBattleAI::isCloser(const EnemyInfo &ei1, const EnemyInfo &ei2, const ReachabilityInfo::TDistances &dists)
 {
-	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
+	return distToNearestNeighbour(ei1.s->getPosition(), dists) < distToNearestNeighbour(ei2.s->getPosition(), dists);
 }
 
 void CBattleAI::print(const std::string &text) const
 {
-	logAi->trace("CBattleAI [%p]: %s", this, text);
+	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()

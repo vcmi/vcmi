@@ -389,18 +389,26 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	resources.serializeJson(handler, "resources");
 
 	{
-		if(!handler.saving)
+		bool haveSkills = false;
+
+		if(handler.saving)
+		{
+			for(int idx = 0; idx < primskills.size(); idx ++)
+				if(primskills[idx] != 0)
+					haveSkills = true;
+		}
+		else
+		{
 			primskills.resize(GameConstants::PRIMARY_SKILLS,0);
+			haveSkills = true;
+		}
 
-		auto s = handler.enterStruct("primarySkills");
-		for(int idx = 0; idx < primskills.size(); idx ++)
-			handler.serializeInt(PrimarySkill::names[idx], primskills[idx], 0);
-
-	}
-	if(handler.saving)
-	{
-		if(handler.getCurrent()["primarySkills"].Struct().empty())
-			handler.getCurrent().Struct().erase("primarySkills");
+		if(haveSkills)
+		{
+			auto s = handler.enterStruct("primarySkills");
+			for(int idx = 0; idx < primskills.size(); idx ++)
+				handler.serializeInt(PrimarySkill::names[idx], primskills[idx], 0);
+		}
 	}
 
 	if(handler.saving)
@@ -449,8 +457,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 
 
-	handler.serializeIdArray("artifacts", artifacts, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
-	handler.serializeIdArray("spells", spells, &CSpellHandler::decodeSpell, &CSpellHandler::encodeSpell);
+	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("spells", spells);
 
 	creatures.serializeJson(handler, "creatures");
 }

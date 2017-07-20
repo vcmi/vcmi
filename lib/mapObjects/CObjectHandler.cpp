@@ -357,17 +357,14 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);
 		handler.serializeInt("l", pos.z);
-		appearance.writeJson(handler.getCurrent()["template"], false);
+		JsonNode app;
+		appearance.writeJson(app, false);
+		handler.serializeRaw("template",app, boost::none);
 	}
 
 	{
 		auto options = handler.enterStruct("options");
 		serializeJsonOptions(handler);
-	}
-
-	if(handler.saving && handler.getCurrent()["options"].Struct().empty())
-	{
-		handler.getCurrent().Struct().erase("options");
 	}
 }
 

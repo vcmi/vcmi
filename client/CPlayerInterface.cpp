@@ -42,7 +42,8 @@
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
 #include "../lib/CondSh.h"
-#include "../lib/NetPacks.h"
+#include "../lib/NetPacksBase.h"
+#include "../lib/NetPacks.h"//todo: remove
 #include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
 #include "mapHandler.h"
@@ -695,80 +696,91 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-
-void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
+void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	for (auto & healedStack : healedStacks)
+	for(auto & info : units)
 	{
-		const CStack * healed = cb->battleGetStackByID(healedStack.first);
-		if (battleInt->creAnims[healed->ID]->isDead())
+		switch(info.operation)
 		{
-			//stack has been resurrected
-			battleInt->creAnims[healed->ID]->setType(CCreatureAnim::HOLDING);
+		case UnitChanges::EOperation::RESET_STATE:
+			{
+				const battle::Unit * unit = cb->battleGetUnitByID(info.id);
+
+				if(!unit)
+				{
+					logGlobal->error("Invalid unit ID %d", info.id);
+					continue;
+				}
+
+				auto iter = battleInt->creAnims.find(info.id);
+
+				if(iter == battleInt->creAnims.end())
+				{
+					logGlobal->error("Unit %d have no animation", info.id);
+					continue;
+				}
+
+				CCreatureAnimation * animation = iter->second;
+
+				if(unit->alive() && animation->isDead())
+					animation->setType(CCreatureAnim::HOLDING);
+
+				//TODO: handle more cases
+			}
+			break;
+		case UnitChanges::EOperation::REMOVE:
+			battleInt->stackRemoved(info.id);
+			break;
+		case UnitChanges::EOperation::ADD:
+			{
+				const CStack * unit = cb->battleGetStackByID(info.id);
+				if(!unit)
+				{
+					logGlobal->error("Invalid unit ID %d", info.id);
+					continue;
+				}
+				battleInt->unitAdded(unit);
+			}
+			break;
+		default:
+			logGlobal->error("Unknown unit operation %d", (int)info.operation);
+			break;
 		}
 	}
 
-	if(lifeDrain)
+	battleInt->displayCustomEffects(customEffects);
+	battleInt->displayBattleLog(battleLog);
+}
+
+void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	bool needUpdate = false;
+
+	for(auto & change : obstacles)
 	{
-		const CStack * attacker = cb->battleGetStackByID(healedStacks[0].first, false);
-		const CStack * defender = cb->battleGetStackByID(lifeDrainFrom, false);
-
-		if(attacker && defender)
+		if(change.operation == BattleChanges::EOperation::ADD)
 		{
-			battleInt->displayEffect(52, attacker->position); //TODO: transparency
-			CCS->soundh->playSound(soundBase::DRAINLIF);
-
-			MetaString text;
-			attacker->addText(text, MetaString::GENERAL_TXT, 361);
-			attacker->addNameReplacement(text, false);
-			text.addReplacement(healedStacks[0].second);
-			defender->addNameReplacement(text, true);
-			battleInt->console->addText(text.toString());
+			auto instance = cb->battleGetObstacleByID(change.id);
+			if(instance)
+				battleInt->obstaclePlaced(*instance);
+			else
+				logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
 		else
 		{
-			logGlobal->error("Unable to display life drain info");
+			needUpdate = true;
 		}
 	}
-	if(tentHeal)
-	{
-		const CStack * healer = cb->battleGetStackByID(lifeDrainFrom, false);
-		const CStack * target = cb->battleGetStackByID(healedStacks[0].first, false);
 
-		if(healer && target)
-		{
-			MetaString text;
-			text.addTxt(MetaString::GENERAL_TXT, 414);
-			healer->addNameReplacement(text, false);
-			target->addNameReplacement(text, false);
-			text.addReplacement(healedStacks[0].second);
-			battleInt->console->addText(text.toString());
-		}
-		else
-		{
-			logGlobal->error("Unable to display tent heal info");
-		}
-	}
-}
-
-void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	battleInt->newStack(stack);
-}
-
-void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	//update accessible hexes
-	battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
+	if(needUpdate)
+		//update accessible hexes
+		battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
 }
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
@@ -777,17 +789,6 @@ void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->stackIsCatapulting(ca);
-}
-
-void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	for (auto & elem : bsr.stackIDs) //for each removed stack
-	{
-		battleInt->stackRemoved(elem);
-	}
 }
 
 void CPlayerInterface::battleNewRound(int round) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
@@ -864,9 +865,9 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	BattleAction ret = *(CBattleInterface::givenCommand.data);
 	vstd::clear_pointer(CBattleInterface::givenCommand.data);
 
-	if (ret.actionType == Battle::CANCEL)
+	if(ret.actionType == EActionType::CANCEL)
 	{
-		if (stackId != ret.stackNumber)
+		if(stackId != ret.stackNumber)
 			logGlobal->error("Not current active stack action canceled");
 		logGlobal->trace("Canceled command for %s", stackName);
 	}
@@ -932,37 +933,36 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->battleTriggerEffect(bte);
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	std::vector<StackAttackedInfo> arg;
-	for (auto & elem : bsa)
+	for(auto & elem : bsa)
 	{
-		const CStack *defender = cb->battleGetStackByID(elem.stackAttacked, false);
-		const CStack *attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if (elem.isEffect())
+		const CStack * defender = cb->battleGetStackByID(elem.stackAttacked, false);
+		const CStack * attacker = cb->battleGetStackByID(elem.attackerID, false);
+		if(elem.isEffect())
 		{
-			if (defender && !elem.isSecondary())
-				battleInt->displayEffect(elem.effect, defender->position);
+			if(defender && !elem.isSecondary())
+				battleInt->displayEffect(elem.effect, defender->getPosition());
 		}
-		if (elem.isSpell())
+		if(elem.isSpell())
 		{
-			if (defender)
-				battleInt->displaySpellEffect(elem.spellID, defender->position);
+			if(defender)
+				battleInt->displaySpellEffect(elem.spellID, defender->getPosition());
 		}
 		//FIXME: why action is deleted during enchanter cast?
 		bool remoteAttack = false;
 
-		if (LOCPLINT->curAction)
-			remoteAttack |= LOCPLINT->curAction->actionType != Battle::WALK_AND_ATTACK;
+		if(LOCPLINT->curAction)
+			remoteAttack |= LOCPLINT->curAction->actionType != EActionType::WALK_AND_ATTACK;
 
 		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
 	}
-
-	battleInt->stacksAreAttacked(arg);
+	battleInt->stacksAreAttacked(arg, battleLog);
 }
 void CPlayerInterface::battleAttack(const BattleAttack * ba)
 {
@@ -982,13 +982,13 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 	if(ba->lucky()) //lucky hit
 	{
 		battleInt->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->displayEffect(18, attacker->position);
+		battleInt->displayEffect(18, attacker->getPosition());
 		CCS->soundh->playSound(soundBase::GOODLUCK);
 	}
 	if(ba->unlucky()) //unlucky hit
 	{
 		battleInt->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->displayEffect(48, attacker->position);
+		battleInt->displayEffect(48, attacker->getPosition());
 		CCS->soundh->playSound(soundBase::BADLUCK);
 	}
 	if(ba->deathBlow())
@@ -997,11 +997,22 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 		for(auto & elem : ba->bsa)
 		{
 			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->displayEffect(73, attacked->position);
+			battleInt->displayEffect(73, attacked->getPosition());
 		}
 		CCS->soundh->playSound(soundBase::deathBlow);
 	}
+
+	battleInt->displayCustomEffects(ba->customEffects);
+
 	battleInt->waitForAnims();
+
+	auto actionTarget = curAction->getTarget(cb.get());
+
+	if(actionTarget.empty() || (actionTarget.size() < 2 && !ba->shot()))
+	{
+		logNetwork->error("Invalid current action: no destination.");
+		return;
+	}
 
 	if(ba->shot())
 	{
@@ -1010,17 +1021,22 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 			if(!elem.isSecondary()) //display projectile only for primary target
 			{
 				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-				battleInt->stackAttacking(attacker, attacked->position, attacked, true);
+				battleInt->stackAttacking(attacker, attacked->getPosition(), attacked, true);
 			}
 		}
 	}
 	else
 	{
+		auto attackFrom = actionTarget.at(0).hexValue;
+		auto attackTarget = actionTarget.at(1).hexValue;
+
+		//TODO: use information from BattleAttack but not curAction
+
 		int shift = 0;
-		if(ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && BattleHex::mutualPosition(attackTarget, attacker->getPosition()) < 0)
 		{
-			int distp = BattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = BattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = BattleHex::getDistance(attackTarget + 1, attacker->getPosition());
+			int distm = BattleHex::getDistance(attackTarget - 1, attacker->getPosition());
 
 			if(distp < distm)
 				shift = 1;
@@ -1028,24 +1044,20 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 				shift = -1;
 		}
 		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-		battleInt->stackAttacking(attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
+		battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
 	}
 
 	//battleInt->waitForAnims(); //FIXME: freeze
 
 	if(ba->spellLike())
 	{
+		//TODO: use information from BattleAttack but not curAction
+
+		auto destination = actionTarget.at(0).hexValue;
 		//display hit animation
 		SpellID spellID = ba->spellID;
-		battleInt->displaySpellHit(spellID, curAction->destinationTile);
+		battleInt->displaySpellHit(spellID, destination);
 	}
-}
-void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	BATTLE_EVENT_POSSIBLE_RETURN;
-
-	battleInt->obstaclePlaced(obstacle);
 }
 
 void CPlayerInterface::battleGateStateChanged(const EGateState state)

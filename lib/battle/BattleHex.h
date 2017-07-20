@@ -20,6 +20,13 @@ namespace BattleSide
 	};
 }
 
+namespace GameConstants
+{
+	const int BFIELD_WIDTH = 17;
+	const int BFIELD_HEIGHT = 11;
+	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
+}
+
 typedef boost::optional<ui8> BattleSideOpt;
 
 // for battle stacks' positions
@@ -67,6 +74,11 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	{
 		h & hex;
 	}
+
+    using NeighbouringTiles = std::array<BattleHex, 6>;
+    using NeighbouringTilesCache = std::vector<NeighbouringTiles>;
+
+    static const NeighbouringTilesCache neighbouringTilesCache;
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);

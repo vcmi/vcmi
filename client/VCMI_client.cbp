@@ -104,8 +104,6 @@
 		<Unit filename="../CCallback.h" />
 		<Unit filename="CBitmapHandler.cpp" />
 		<Unit filename="CBitmapHandler.h" />
-		<Unit filename="CDefHandler.cpp" />
-		<Unit filename="CDefHandler.h" />
 		<Unit filename="CGameInfo.cpp" />
 		<Unit filename="CGameInfo.h" />
 		<Unit filename="CMT.cpp" />

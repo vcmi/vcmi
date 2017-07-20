@@ -15,7 +15,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../../CCallback.h"
 #include "../CreatureCostBox.h"
-#include "../lib/ResourceSet.h"
+#include "../../lib/ResourceSet.h"
+#include "../../lib/CCreatureHandler.h"
 #include "CreaturePurchaseCard.h"
 
 

@@ -219,7 +219,7 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 
 	int dmgMultiply = 1;
 	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += parent->info->owner->Attack();
+		dmgMultiply += parent->info->owner->getPrimSkillLevel(PrimarySkill::ATTACK);
 
 	new CPicture("stackWindow/icons", 117, 32);
 
@@ -230,9 +230,9 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 
 	if(battleStack != nullptr) // in battle
 	{
-		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->Attack(), battleStack->Attack());
-		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->Defense(false), battleStack->Defense());
-		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage() * dmgMultiply, battleStack->getMaxDamage() * dmgMultiply);
+		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->getAttack(battleStack->isShooter()), battleStack->getAttack(battleStack->isShooter()));
+		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->getDefence(battleStack->isShooter()), battleStack->getDefence(battleStack->isShooter()));
+		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage(battleStack->isShooter()) * dmgMultiply, battleStack->getMaxDamage(battleStack->isShooter()) * dmgMultiply);
 		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->MaxHealth(), battleStack->MaxHealth());
 		printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), battleStack->Speed());
 
@@ -250,9 +250,9 @@ void CStackWindow::CWindowSection::createStackInfo(bool showExp, bool showArt)
 		const bool shooter = parent->info->stackNode->hasBonusOfType(Bonus::SHOOTER) && parent->info->stackNode->valOfBonuses(Bonus::SHOTS);
 		const bool caster  = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
 
-		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->Attack(), parent->info->stackNode->Attack());
-		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->Defense(false), parent->info->stackNode->Defense());
-		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage() * dmgMultiply, parent->info->stackNode->getMaxDamage() * dmgMultiply);
+		printStatBase(EStat::ATTACK, CGI->generaltexth->primarySkillNames[0], parent->info->creature->getAttack(shooter), parent->info->stackNode->getAttack(shooter));
+		printStatBase(EStat::DEFENCE, CGI->generaltexth->primarySkillNames[1], parent->info->creature->getDefence(shooter), parent->info->stackNode->getDefence(shooter));
+		printStatRange(EStat::DAMAGE, CGI->generaltexth->allTexts[199], parent->info->stackNode->getMinDamage(shooter) * dmgMultiply, parent->info->stackNode->getMaxDamage(shooter) * dmgMultiply);
 		printStatBase(EStat::HEALTH, CGI->generaltexth->allTexts[388], parent->info->creature->MaxHealth(), parent->info->stackNode->MaxHealth());
 		printStatBase(EStat::SPEED, CGI->generaltexth->zelp[441].first, parent->info->creature->Speed(), parent->info->stackNode->Speed());
 

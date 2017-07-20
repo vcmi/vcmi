@@ -14,9 +14,9 @@
 #include "../lib/IGameCallback.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CGameState.h"
-#include "../lib/CStack.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/BattleAction.h"
+#include "../lib/battle/Unit.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
@@ -304,14 +304,19 @@ bool MakeAction::applyGh(CGameHandler * gh)
 
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != Battle::WALK && ba.actionType != Battle::END_TACTIC_PHASE
-			&& ba.actionType != Battle::RETREAT && ba.actionType != Battle::SURRENDER)
+		if(ba.actionType != EActionType::WALK && ba.actionType != EActionType::END_TACTIC_PHASE
+			&& ba.actionType != EActionType::RETREAT && ba.actionType != EActionType::SURRENDER)
 			throwNotAllowedAction();
 		if(gh->connections[b->sides[b->tacticsSide].color] != c)
 			throwNotAllowedAction();
 	}
-	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c)
-		throwNotAllowedAction();
+	else
+	{
+		auto active = b->battleActiveUnit();
+		if(!active) throwNotAllowedAction();
+		auto unitOwner = b->battleGetOwner(active);
+		if(gh->connections[unitOwner] != c) throwNotAllowedAction();
+	}
 
 	return gh->makeBattleAction(ba);
 }
@@ -323,12 +328,13 @@ bool MakeCustomAction::applyGh(CGameHandler * gh)
 		throwNotAllowedAction();
 	if(b->tacticDistance)
 		throwNotAllowedAction();
-	const CStack * active = GS(gh)->curB->battleGetStackByID(GS(gh)->curB->activeStack);
+	auto active = b->battleActiveUnit();
 	if(!active)
 		throwNotAllowedAction();
-	if(gh->connections[active->owner] != c)
+	auto unitOwner = b->battleGetOwner(active);
+	if(gh->connections[unitOwner] != c)
 		throwNotAllowedAction();
-	if(ba.actionType != Battle::HERO_SPELL)
+	if(ba.actionType != EActionType::HERO_SPELL)
 		throwNotAllowedAction();
 	return gh->makeCustomAction(ba);
 }

@@ -23,16 +23,18 @@ class IMapPatcher;
  * The map service provides loading of VCMI/H3 map files. It can
  * be extended to save maps later as well.
  */
-class DLL_LINKAGE CMapService
+class DLL_LINKAGE IMapService
 {
 public:
+	IMapService() = default;
+	virtual ~IMapService() = default;
 	/**
 	 * Loads the VCMI/H3 map file specified by the name.
 	 *
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMap> loadMap(const ResourceID & name);
+	virtual std::unique_ptr<CMap> loadMap(const ResourceID & name) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header specified by the name.
@@ -40,7 +42,7 @@ public:
 	 * @param name the name of the map
 	 * @return a unique ptr to the loaded map header class
 	 */
-	static std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name);
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map file from a buffer. This method is temporarily
@@ -54,7 +56,7 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name);
+	virtual std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name) const = 0;
 
 	/**
 	 * Loads the VCMI/H3 map header from a buffer. This method is temporarily
@@ -68,9 +70,22 @@ public:
 	 * @param name indicates name of file that will be used during map header patching
 	 * @return a unique ptr to the loaded map class
 	 */
-	static std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name);
+	virtual std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name) const = 0;
 
-	static void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath);
+	virtual void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const = 0;
+};
+
+class DLL_LINKAGE CMapService : public IMapService
+{
+public:
+	CMapService() = default;
+	virtual ~CMapService() = default;
+
+	std::unique_ptr<CMap> loadMap(const ResourceID & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ResourceID & name) const override;
+	std::unique_ptr<CMap> loadMap(const ui8 * buffer, int size, const std::string & name) const override;
+	std::unique_ptr<CMapHeader> loadMapHeader(const ui8 * buffer, int size, const std::string & name) const override;
+	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.

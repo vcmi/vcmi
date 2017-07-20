@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "BattleHex.h"
-#include "../GameConstants.h"
 
 BattleHex::BattleHex() : hex(INVALID) {}
 
@@ -53,7 +52,11 @@ void BattleHex::setY(si16 y)
 void BattleHex::setXY(si16 x, si16 y, bool hasToBeValid)
 {
 	if(hasToBeValid)
-		assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT);
+	{
+		if(!(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT))
+			throw std::runtime_error("Valid hex required");
+	}
+
 	hex = x + y * GameConstants::BFIELD_WIDTH;
 }
 
@@ -129,6 +132,7 @@ BattleHex BattleHex::operator+(BattleHex::EDir dir) const
 std::vector<BattleHex> BattleHex::neighbouringTiles() const
 {
 	std::vector<BattleHex> ret;
+	ret.reserve(6);
 	for(EDir dir = EDir(0); dir <= EDir(5); dir = EDir(dir+1))
 		checkAndPush(cloneInDirection(dir, false), ret);
 	return ret;
@@ -201,3 +205,22 @@ std::ostream & operator<<(std::ostream & os, const BattleHex & hex)
 {
 	return os << boost::str(boost::format("{BattleHex: x '%d', y '%d', hex '%d'}") % hex.getX() % hex.getY() % hex.hex);
 }
+
+static BattleHex::NeighbouringTilesCache calculateNeighbouringTiles()
+{
+	BattleHex::NeighbouringTilesCache ret;
+	ret.resize(GameConstants::BFIELD_SIZE);
+
+	for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
+	{
+		auto hexes = BattleHex(hex).neighbouringTiles();
+
+		size_t index = 0;
+		for(auto neighbour : hexes)
+			ret[hex].at(index++) = neighbour;
+	}
+
+	return ret;
+}
+
+const BattleHex::NeighbouringTilesCache BattleHex::neighbouringTilesCache = calculateNeighbouringTiles();

@@ -17,7 +17,7 @@ class CGameState;
 struct CPath;
 class CGObjectInstance;
 class CArmedInstance;
-struct BattleAction;
+class BattleAction;
 class CGTownInstance;
 struct lua_State;
 class CClient;
@@ -85,10 +85,9 @@ class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
 protected:
 	int sendRequest(const CPack *request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
-	//virtual bool hasAccess(int playerId) const;
 
 public:
-	CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C);
+	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
 	int battleMakeAction(BattleAction* action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
 

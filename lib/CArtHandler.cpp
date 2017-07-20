@@ -728,20 +728,6 @@ void CArtHandler::afterLoadFinalization()
 	CBonusSystemNode::treeHasChanged();
 }
 
-si32 CArtHandler::decodeArfifact(const std::string& identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CArtHandler::encodeArtifact(const si32 index)
-{
-	return VLC->arth->artifacts[index]->identifier;
-}
-
 CArtifactInstance::CArtifactInstance()
 {
 	init();
@@ -1407,7 +1393,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 		for(const ArtSlotInfo & info : artifactsInBackpack)
 			backpackTemp.push_back(info.artifact->artType->id);
 	}
-	handler.serializeIdArray(NArtifactPosition::backpack, backpackTemp, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+	handler.serializeIdArray(NArtifactPosition::backpack, backpackTemp);
 	if(!handler.saving)
 	{
         for(const ArtifactID & artifactID : backpackTemp)
@@ -1441,12 +1427,12 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		if(info != nullptr && !info->locked)
 		{
 			artifactID = info->artifact->artType->id;
-			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
 		}
 	}
 	else
 	{
-		handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE, &CArtHandler::decodeArfifact, &CArtHandler::encodeArtifact);
+		handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
 
 		if(artifactID != ArtifactID::NONE)
 		{

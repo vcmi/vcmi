@@ -12,7 +12,10 @@
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
 #include "../VCMI_Lib.h"
-#include "../spells/CSpellHandler.h"
+#include "../NetPacksBase.h"
+
+#include "../serializer/JsonDeserializer.h"
+#include "../serializer/JsonSerializer.h"
 
 CObstacleInstance::CObstacleInstance()
 {
@@ -66,79 +69,150 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 	}
 }
 
-// bool CObstacleInstance::spellGenerated() const
-// {
-// 	if(obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE)
-// 		return false;
-//
-// 	return true;
-// }
-
 bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
 {
 	//by default obstacle is visible for everyone
 	return true;
 }
 
+int CObstacleInstance::getAnimationYOffset(int imageHeight) const
+{
+	int offset = imageHeight % 42;
+	if(obstacleType == CObstacleInstance::USUAL)
+	{
+		if(getInfo().blockedTiles.front() < 0 || offset > 37) //second or part is for holy ground ID=62,65,63
+			offset -= 42;
+	}
+	return offset;
+}
+
 bool CObstacleInstance::stopsMovement() const
 {
-	return obstacleType == QUICKSAND || obstacleType == MOAT;
+	return obstacleType == MOAT;
 }
 
 bool CObstacleInstance::blocksTiles() const
 {
-	return obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE || obstacleType == FORCE_FIELD;
+	return obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE ;
+}
+
+bool CObstacleInstance::triggersEffects() const
+{
+	return false;
 }
 
 SpellCreatedObstacle::SpellCreatedObstacle()
+	: turnsRemaining(-1),
+	casterSpellPower(0),
+	spellLevel(0),
+	casterSide(0),
+	hidden(false),
+	passable(false),
+	trigger(false),
+	trap(false),
+	removeOnTrigger(false),
+	revealed(false),
+	animationYOffset(0)
 {
-	casterSide = -1;
-	spellLevel = -1;
-	casterSpellPower = -1;
-	turnsRemaining = -1;
-	visibleForAnotherSide = -1;
+	obstacleType = SPELL_CREATED;
 }
 
 bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 {
-	switch(obstacleType)
+	//we hide mines and not discovered quicksands
+	//quicksands are visible to the caster or if owned unit stepped into that particular patch
+	//additionally if side has a native unit, mines/quicksands will be visible
+
+	return casterSide == side || !hidden || revealed || hasNativeStack;
+}
+
+bool SpellCreatedObstacle::blocksTiles() const
+{
+	return !passable;
+}
+
+bool SpellCreatedObstacle::stopsMovement() const
+{
+	return trap;
+}
+
+bool SpellCreatedObstacle::triggersEffects() const
+{
+	return trigger;
+}
+
+void SpellCreatedObstacle::toInfo(ObstacleChanges & info)
+{
+	info.id = uniqueID;
+	info.operation = ObstacleChanges::EOperation::ADD;
+
+	info.data.clear();
+	JsonSerializer ser(nullptr, info.data);
+	ser.serializeStruct("obstacle", *this);
+}
+
+void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
+{
+	uniqueID = info.id;
+
+	if(info.operation != ObstacleChanges::EOperation::ADD)
+		logGlobal->error("ADD operation expected");
+
+    JsonDeserializer deser(nullptr, info.data);
+    deser.serializeStruct("obstacle", *this);
+}
+
+void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("spell", ID);
+	handler.serializeInt("position", pos);
+
+	handler.serializeInt("turnsRemaining", turnsRemaining);
+	handler.serializeInt("casterSpellPower", casterSpellPower);
+	handler.serializeInt("spellLevel", spellLevel);
+	handler.serializeInt("casterSide", casterSide);
+
+	handler.serializeBool("hidden", hidden);
+	handler.serializeBool("passable", passable);
+	handler.serializeBool("trigger", trigger);
+	handler.serializeBool("trap", trap);
+	handler.serializeBool("removeOnTrigger", removeOnTrigger);
+
+	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("animation", animation);
+
+	handler.serializeInt("animationYOffset", animationYOffset);
+
 	{
-	case FIRE_WALL:
-	case FORCE_FIELD:
-		//these are always visible
-		return true;
-	case QUICKSAND:
-	case LAND_MINE:
-		//we hide mines and not discovered quicksands
-		//quicksands are visible to the caster or if owned unit stepped into that particular patch
-		//additionally if side has a native unit, mines/quicksands will be visible
-		return casterSide == side || visibleForAnotherSide || hasNativeStack;
-	default:
-		assert(0);
-		return false;
+		JsonArraySerializer customSizeJson = handler.enterArray("customSize");
+		customSizeJson.syncSize(customSize, JsonNode::JsonType::DATA_INTEGER);
+
+		for(size_t index = 0; index < customSizeJson.size(); index++)
+			customSizeJson.serializeInt(index, customSize.at(index));
 	}
 }
 
 std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
 {
-	switch(obstacleType)
-	{
-	case QUICKSAND:
-	case LAND_MINE:
-	case FIRE_WALL:
-		return std::vector<BattleHex>(1, pos);
-	case FORCE_FIELD:
-		return SpellID(SpellID::FORCE_FIELD).toSpell()->rangeInHexes(pos, spellLevel, casterSide);
-	default:
-		assert(0);
-		return std::vector<BattleHex>();
-	}
+	return customSize;
 }
 
 void SpellCreatedObstacle::battleTurnPassed()
 {
 	if(turnsRemaining > 0)
 		turnsRemaining--;
+}
+
+int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
+{
+	int offset = imageHeight % 42;
+
+	if(obstacleType == CObstacleInstance::SPELL_CREATED)
+	{
+		offset += animationYOffset;
+	}
+
+	return offset;
 }
 
 std::vector<BattleHex> MoatObstacle::getAffectedTiles() const

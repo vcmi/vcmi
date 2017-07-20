@@ -21,6 +21,7 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h"
 #include "../battle/CObstacleInstance.h"
+#include "../CStack.h"
 
 class BinarySerializer;
 class BinaryDeserializer;
@@ -264,23 +265,19 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CPackForClient, BattleSetActiveStack>();
 	s.template registerType<CPackForClient, BattleResult>();
 	s.template registerType<CPackForClient, BattleStackMoved>();
-	s.template registerType<CPackForClient, BattleStackAttacked>();
 	s.template registerType<CPackForClient, BattleAttack>();
 	s.template registerType<CPackForClient, StartAction>();
 	s.template registerType<CPackForClient, EndAction>();
 	s.template registerType<CPackForClient, BattleSpellCast>();
 	s.template registerType<CPackForClient, SetStackEffect>();
 	s.template registerType<CPackForClient, BattleTriggerEffect>();
-	s.template registerType<CPackForClient, BattleObstaclePlaced>();
 	s.template registerType<CPackForClient, BattleUpdateGateState>();
 	s.template registerType<CPackForClient, BattleSetStackProperty>();
 	s.template registerType<CPackForClient, StacksInjured>();
 	s.template registerType<CPackForClient, BattleResultsApplied>();
-	s.template registerType<CPackForClient, StacksHealedOrResurrected>();
-	s.template registerType<CPackForClient, ObstaclesRemoved>();
+	s.template registerType<CPackForClient, BattleUnitsChanged>();
+	s.template registerType<CPackForClient, BattleObstaclesChanged>();
 	s.template registerType<CPackForClient, CatapultAttack>();
-	s.template registerType<CPackForClient, BattleStacksRemoved>();
-	s.template registerType<CPackForClient, BattleStackAdded>();
 
 	s.template registerType<CPackForClient, Query>();
 	s.template registerType<Query, HeroLevelUp>();

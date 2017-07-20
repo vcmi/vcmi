@@ -11,7 +11,8 @@
 #include "StdInc.h"
 #include "../lib/battle/BattleHex.h"
 
-TEST(BattleHexTest, getNeighbouringTiles){
+TEST(BattleHexTest, getNeighbouringTiles)
+{
 	BattleHex mainHex;
 	std::vector<BattleHex> neighbouringTiles;
 	mainHex.setXY(16,0);
@@ -42,7 +43,8 @@ TEST(BattleHexTest, getNeighbouringTiles){
 	EXPECT_EQ(neighbouringTiles.at(5), 92);
 }
 
-TEST(BattleHexTest, getDistance){
+TEST(BattleHexTest, getDistance)
+{
 	BattleHex firstHex(0,0), secondHex(16,0);
 	EXPECT_EQ((int)firstHex.getDistance(firstHex,secondHex), 16);
 	firstHex=0, secondHex=170;

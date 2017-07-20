@@ -645,11 +645,6 @@ void BattleTriggerEffect::applyCl(CClient * cl)
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleTriggerEffect, *this);
 }
 
-void BattleObstaclePlaced::applyCl(CClient * cl)
-{
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleObstaclePlaced, *obstacle);
-}
-
 void BattleUpdateGateState::applyFirstCl(CClient * cl)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleGateStateChanged, state);
@@ -667,30 +662,14 @@ void BattleStackMoved::applyFirstCl(CClient *cl)
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, tilesToMove, distance);
 }
 
-//void BattleStackAttacked::(CClient *cl)
-void BattleStackAttacked::applyFirstCl(CClient *cl)
-{
-	std::vector<BattleStackAttacked> bsa;
-	bsa.push_back(*this);
-
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa);
-}
-
 void BattleAttack::applyFirstCl(CClient *cl)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleAttack, this);
-	for (auto & elem : bsa)
-	{
-		for (int z=0; z<elem.healedStacks.size(); ++z)
-		{
-			elem.healedStacks[z].applyCl(cl);
-		}
-	}
 }
 
 void BattleAttack::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa, battleLog);
 }
 
 void StartAction::applyFirstCl(CClient *cl)
@@ -712,7 +691,7 @@ void SetStackEffect::applyCl(CClient *cl)
 
 void StacksInjured::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks, battleLog);
 }
 
 void BattleResultsApplied::applyCl(CClient *cl)
@@ -722,37 +701,21 @@ void BattleResultsApplied::applyCl(CClient *cl)
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
 }
 
-void StacksHealedOrResurrected::applyCl(CClient * cl)
+void BattleUnitsChanged::applyCl(CClient * cl)
 {
-	std::vector<std::pair<ui32, ui32> > shiftedHealed;
-	for(auto & elem : healedStacks)
-	{
-		shiftedHealed.push_back(std::make_pair(elem.stackId, (ui32)elem.delta));
-	}
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksHealedRes, shiftedHealed, lifeDrain, tentHealing, drainedFrom);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks, customEffects, battleLog);
 }
 
-void ObstaclesRemoved::applyCl(CClient *cl)
+void BattleObstaclesChanged::applyCl(CClient *cl)
 {
 	//inform interfaces about removed obstacles
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleObstaclesRemoved, obstacles);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleObstaclesChanged, changes);
 }
 
 void CatapultAttack::applyCl(CClient *cl)
 {
 	//inform interfaces about catapult attack
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleCatapultAttacked, *this);
-}
-
-void BattleStacksRemoved::applyFirstCl(CClient * cl)
-{
-	//inform interfaces about removed stacks
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksRemoved, *this);
-}
-
-void BattleStackAdded::applyCl(CClient *cl)
-{
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleNewStackAppeared, GS(cl)->curB->stacks.back());
 }
 
 CGameState* CPackForClient::GS(CClient *cl)

@@ -26,7 +26,7 @@ class CGameState;
 class CGameInterface;
 class CConnection;
 class CCallback;
-struct BattleAction;
+class BattleAction;
 struct SharedMemory;
 class CClient;
 class CScriptingModule;

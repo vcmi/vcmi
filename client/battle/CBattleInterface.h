@@ -19,7 +19,6 @@
 class CLabel;
 class CCreatureSet;
 class CGHeroInstance;
-class CDefHandler;
 class CStack;
 class CCallback;
 class CButton;
@@ -30,7 +29,7 @@ struct BattleSpellCast;
 struct CObstacleInstance;
 template <typename T> struct CondSh;
 struct SetStackEffect;
-struct BattleAction;
+class BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
 struct CatapultProjectileInfo;
@@ -46,15 +45,16 @@ struct ProjectileInfo;
 class CClickableHex;
 struct BattleHex;
 struct InfoAboutHero;
-struct BattleAction;
 class CBattleGameInterface;
+struct CustomEffectInfo;
 class CAnimation;
+class IImage;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
 {
 	const CStack *defender; //attacked stack
-	int32_t dmg; //damage dealt
+	int64_t dmg; //damage dealt
 	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack *attacker; //attacking stack
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack
@@ -132,15 +132,8 @@ private:
 
 	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
 
-	std::map<int, CDefHandler *> idToObstacle; //obstacles located on the battlefield
-	std::map<int, SDL_Surface *> idToAbsoluteObstacle; //obstacles located on the battlefield
-
-	//TODO these should be loaded only when needed (and freed then) but I believe it's rather work for resource manager,
-	//so I didn't implement that (having ongoing RM development)
-	CDefHandler *landMine;
-	CDefHandler *quicksand;
-	CDefHandler *fireWall;
-	CDefHandler *smallForceField[2], *bigForceField[2]; // [side]
+	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
+	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
 	std::map<int, bool> creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
@@ -185,7 +178,9 @@ private:
 	void printConsoleAttacked(const CStack *defender, int dmg, int killed, const CStack *attacker, bool Multiple);
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
-	void giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional=-1, si32 selectedStack = -1);
+	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
+	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
+
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 
@@ -259,12 +254,14 @@ private:
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
 
-	SDL_Surface *getObstacleImage(const CObstacleInstance &oi);
-	Point getObstaclePosition(SDL_Surface *image, const CObstacleInstance &obstacle);
+	IImage * getObstacleImage(const CObstacleInstance & oi);
+
+	Point getObstaclePosition(IImage * image, const CObstacleInstance & obstacle);
+
 	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
 
-	PossibleActions getCasterAction(const CSpell *spell, const ISpellCaster *caster, ECastingMode::ECastingMode mode) const;
+	PossibleActions getCasterAction(const CSpell *spell, const spells::Caster *caster, spells::Mode mode) const;
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
@@ -329,12 +326,12 @@ public:
 
 	//call-ins
 	void startAction(const BattleAction* action);
-	void newStack(const CStack *stack); //new stack appeared on battlefield
-	void stackRemoved(int stackID); //stack disappeared from batlefiled
+	void unitAdded(const CStack * stack); //new stack appeared on battlefield
+	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void waitForAnims();
-	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
+	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos, const std::vector<MetaString> & battleLog); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
@@ -345,6 +342,10 @@ public:
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
+
+	void displayBattleLog(const std::vector<MetaString> & battleLog);
+	void displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects);
+
 	void displayEffect(ui32 effect, BattleHex destTile); //displays custom effect on the battlefield
 
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
@@ -370,7 +371,7 @@ public:
 
 	void gateStateChanged(const EGateState state);
 
-	void initStackProjectile(const CStack *stack);
+	void initStackProjectile(const CStack * stack);
 
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;

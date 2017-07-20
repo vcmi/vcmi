@@ -138,7 +138,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 		dest(_dest), attackedStack(defender), attackingStack(attacker)
 {
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
-	attackingStackPosBeforeReturn = attackingStack->position;
+	attackingStackPosBeforeReturn = attackingStack->getPosition();
 }
 
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
@@ -184,9 +184,9 @@ bool CDefenceAnimation::init()
 
 
 	//reverse unit if necessary
-	if (attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
+	if(attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
 	{
-		owner->addNewAnim(new CReverseAnimation(owner, stack, stack->position, true));
+		owner->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
 		return false;
 	}
 	//unit reversed
@@ -226,11 +226,10 @@ std::string CDefenceAnimation::getMySound()
 {
 	if(killed)
 		return battle_sound(stack->getCreature(), killed);
-
-	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
+	else if(stack->defendingAnim)
 		return battle_sound(stack->getCreature(), defend);
-
-	return battle_sound(stack->getCreature(), wince);
+	else
+		return battle_sound(stack->getCreature(), wince);
 }
 
 CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
@@ -243,10 +242,10 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 			return CCreatureAnim::DEATH;
 	}
 
-	if(vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
+	if(stack->defendingAnim)
 		return CCreatureAnim::DEFENCE;
-
-	return CCreatureAnim::HITTED;
+	else
+		return CCreatureAnim::HITTED;
 }
 
 void CDefenceAnimation::startAnimation()
@@ -324,7 +323,7 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->position, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
+	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->getPosition(), owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
 
 	if(toReverse)
 	{
@@ -366,7 +365,7 @@ bool CMeleeAttackAnimation::init()
 	int mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn, dest);
 	if(mutPos == -1 && attackingStack->doubleWide())
 	{
-		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->position);
+		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, attackedStack->getPosition());
 	}
 	if (mutPos == -1 && attackedStack->doubleWide())
 	{
@@ -558,7 +557,7 @@ CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_
     : CBattleStackAnimation(_owner, _stack),
       destTiles(_destTiles),
       curentMoveIndex(0),
-      oldPos(stack->position),
+      oldPos(stack->getPosition()),
       begX(0), begY(0),
       distanceX(0), distanceY(0),
       timeToMove(0.0),
@@ -731,16 +730,18 @@ bool CShootingAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
 	{
-		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
+		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 		return false;
 	}
 
 	// opponent must face attacker ( = different directions) before he can be attacked
-	if (attackingStack && attackedStack &&
-	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
-		return false;
+	//FIXME: this cause freeze
+
+//	if (attackingStack && attackedStack &&
+//	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+//		return false;
 
 	// Create the projectile animation
 
@@ -780,7 +781,7 @@ bool CShootingAnimation::init()
 	int multiplier = spi.reverse ? -1 : 1;
 
 	double projectileAngle = atan2(fabs((double)destPos.y - fromPos.y), fabs((double)destPos.x - fromPos.x));
-	if(shooter->position < dest)
+	if(shooter->getPosition() < dest)
 		projectileAngle = -projectileAngle;
 
 	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
@@ -920,7 +921,7 @@ CCastAnimation::CCastAnimation(CBattleInterface * owner_, const CStack * attacke
 	: CRangedAttackAnimation(owner_, attacker, dest_, defender)
 {
 	if(!dest_.isValid() && defender)
-		dest = defender->position;
+		dest = defender->getPosition();
 }
 
 bool CCastAnimation::init()
@@ -937,17 +938,17 @@ bool CCastAnimation::init()
 	//reverse unit if necessary
 	if(attackedStack)
 	{
-        if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+        if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
 		{
-			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
+			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;
 		}
 	}
 	else
 	{
-        if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->position, dest, owner->creDir[attackingStack->ID], false, false))
+        if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), dest, owner->creDir[attackingStack->ID], false, false))
 		{
-			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
+			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;
 		}
 	}
@@ -962,13 +963,13 @@ bool CCastAnimation::init()
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
 	fromPos = owner->creAnims[attackingStack->ID]->pos.topLeft();
-	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+	//xycoord = CClickableHex::getXYUnitAnim(shooter->getPosition(), true, shooter, owner);
 
 	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner);
 
 
 	double projectileAngle = atan2(fabs((double)destPos.y - fromPos.y), fabs((double)destPos.x - fromPos.x));
-	if(attackingStack->position < dest)
+	if(attackingStack->getPosition() < dest)
 		projectileAngle = -projectileAngle;
 
 
@@ -1045,7 +1046,6 @@ void CCastAnimation::endAnim()
 CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
 	: CBattleAnimation(_owner),
 	destTile(BattleHex::INVALID),
-	customAnim(_customAnim),
 	x(_x),
 	y(_y),
 	dx(_dx),
@@ -1053,13 +1053,29 @@ CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _custo
 	Vflip(_Vflip),
 	alignToBottom(_alignToBottom)
 {
-	logAnim->debug("Created effect animation %s", customAnim);
+	logAnim->debug("Created effect animation %s", _customAnim);
+
+	customAnim = std::make_shared<CAnimation>(_customAnim);
 }
+
+CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::shared_ptr<CAnimation> _customAnim, int _x, int _y, int _dx, int _dy)
+	: CBattleAnimation(_owner),
+	destTile(BattleHex::INVALID),
+	customAnim(_customAnim),
+	x(_x),
+	y(_y),
+	dx(_dx),
+	dy(_dy),
+	Vflip(false),
+	alignToBottom(false)
+{
+	logAnim->debug("Created custom effect animation");
+}
+
 
 CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
 	: CBattleAnimation(_owner),
 	destTile(_destTile),
-	customAnim(_customAnim),
 	x(-1),
 	y(-1),
 	dx(0),
@@ -1067,24 +1083,18 @@ CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _custo
 	Vflip(_Vflip),
 	alignToBottom(_alignToBottom)
 {
-	logAnim->debug("Created effect animation %s", customAnim);
+	logAnim->debug("Created effect animation %s", _customAnim);
+	customAnim = std::make_shared<CAnimation>(_customAnim);
 }
-
 
 bool CEffectAnimation::init()
 {
 	if(!isEarliest(true))
 		return false;
 
-	if(customAnim.empty())
-	{
-		endAnim();
-		return false;
-	}
-
 	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
 
-	std::shared_ptr<CAnimation> animation = std::make_shared<CAnimation>(customAnim);
+	std::shared_ptr<CAnimation> animation = customAnim;
 
 	animation->preload();
 	if(Vflip)
