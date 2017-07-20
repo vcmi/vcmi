@@ -1,16 +1,13 @@
+/*
+ * StdInc.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
-
-#include "../Global.h"
-
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
-	#define BOOST_TEST_DYN_LINK
-#endif
-
-#ifdef _MSC_VER
-	#define BOOST_TEST_MODULE VcmiTest
-	#include <boost/test/unit_test.hpp>
-	#include "CVcmiTestConfig.h"
-	BOOST_GLOBAL_FIXTURE(CVcmiTestConfig);
-#endif
-
-
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "Global.h"

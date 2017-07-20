@@ -9,67 +9,57 @@
  */
 
 #include "StdInc.h"
-#include <boost/test/unit_test.hpp>
+#include "mock/mock_UnitHealthInfo.h"
 #include "../../lib/CStack.h"
+
+using namespace testing;
 
 static const int32_t UNIT_HEALTH = 123;
 static const int32_t UNIT_AMOUNT = 300;
 
-class CUnitHealthInfoMock : public IUnitHealthInfo
+class HealthTest : public ::testing::Test
 {
 public:
-	CUnitHealthInfoMock():
-		maxHealth(UNIT_HEALTH),
-		baseAmount(UNIT_AMOUNT),
-		health(this)
+	UnitHealthInfoMock mock;
+	HealthTest() : health(&mock)
+	{}
+
+	void setDefaultExpectations()
 	{
-		health.init();
+		EXPECT_CALL(mock, unitMaxHealth()).WillRepeatedly(Return(UNIT_HEALTH));
+		EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(UNIT_AMOUNT));
 	}
-
-	int32_t maxHealth;
-	int32_t baseAmount;
-
 	CHealth health;
-
-	int32_t unitMaxHealth() const override
-	{
-		return maxHealth;
-	};
-
-	int32_t unitBaseAmount() const override
-	{
-		return baseAmount;
-	};
 };
 
-static void checkTotal(const CHealth & health, const CUnitHealthInfoMock & mock)
+static void checkTotal(const CHealth & health, const UnitHealthInfoMock & mock)
 {
-	BOOST_CHECK_EQUAL(health.total(), mock.maxHealth * mock.baseAmount);
+	EXPECT_EQ(health.total(), mock.unitMaxHealth() * mock.unitBaseAmount());
 }
 
-static void checkEmptyHealth(const CHealth & health, const CUnitHealthInfoMock & mock)
+static void checkEmptyHealth(const CHealth & health, const UnitHealthInfoMock & mock)
 {
 	checkTotal(health, mock);
-	BOOST_CHECK_EQUAL(health.getCount(), 0);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), 0);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
-	BOOST_CHECK_EQUAL(health.available(), 0);
+	EXPECT_EQ(health.getCount(), 0);
+	EXPECT_EQ(health.getFirstHPleft(), 0);
+	EXPECT_EQ(health.getResurrected(), 0);
+	EXPECT_EQ(health.available(), 0);
 }
 
-static void checkFullHealth(const CHealth & health, const CUnitHealthInfoMock & mock)
+static void checkFullHealth(const CHealth & health, const UnitHealthInfoMock & mock)
 {
 	checkTotal(health, mock);
-	BOOST_CHECK_EQUAL(health.getCount(), mock.baseAmount);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), mock.maxHealth);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
-	BOOST_CHECK_EQUAL(health.available(), mock.maxHealth * mock.baseAmount);
+	EXPECT_EQ(health.getCount(), mock.unitBaseAmount());
+	EXPECT_EQ(health.getFirstHPleft(), mock.unitMaxHealth());
+	EXPECT_EQ(health.getResurrected(), 0);
+	EXPECT_EQ(health.available(), mock.unitMaxHealth() * mock.unitBaseAmount());
 }
 
 static void checkDamage(CHealth & health, const int32_t initialDamage, const int32_t expectedDamage)
 {
 	int32_t damage = initialDamage;
 	health.damage(damage);
-	BOOST_CHECK_EQUAL(damage, expectedDamage);
+	EXPECT_EQ(damage, expectedDamage);
 }
 
 static void checkNormalDamage(CHealth & health, const int32_t initialDamage)
@@ -86,155 +76,167 @@ static void checkHeal(CHealth & health, EHealLevel level, EHealPower power, cons
 {
 	int32_t heal = initialHeal;
 	health.heal(heal, level, power);
-	BOOST_CHECK_EQUAL(heal, expectedHeal);
+	EXPECT_EQ(heal, expectedHeal);
 }
 
-BOOST_AUTO_TEST_SUITE(CHealthTest_Suite)
-
-BOOST_AUTO_TEST_CASE(empty)
+TEST_F(HealthTest, empty)
 {
-	CUnitHealthInfoMock uhi;
-	CHealth health(&uhi);
-	checkEmptyHealth(health, uhi);
+	setDefaultExpectations();
+
+	checkEmptyHealth(health, mock);
 
 	health.init();
-	checkFullHealth(health, uhi);
+	checkFullHealth(health, mock);
 
 	health.reset();
-	checkEmptyHealth(health, uhi);
+	checkEmptyHealth(health, mock);
 }
 
-BOOST_FIXTURE_TEST_CASE(damage, CUnitHealthInfoMock)
-{
-	checkNormalDamage(health, 0);
-	checkFullHealth(health, *this);
 
-	checkNormalDamage(health, maxHealth - 1);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), 1);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+TEST_F(HealthTest, damage)
+{
+	setDefaultExpectations();
+
+	health.init();
+
+	checkNormalDamage(health, 0);
+	checkFullHealth(health, mock);
+
+	checkNormalDamage(health, mock.unitMaxHealth() - 1);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), 1);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkNormalDamage(health, 1);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkNormalDamage(health, UNIT_HEALTH * (UNIT_AMOUNT - 1));
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 
 	checkNoDamage(health, 1337);
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 }
 
-BOOST_FIXTURE_TEST_CASE(heal, CUnitHealthInfoMock)
+TEST_F(HealthTest, heal)
 {
+	setDefaultExpectations();
+
+	health.init();
+
 	checkNormalDamage(health, 99);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-99);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH-99);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::HEAL, EHealPower::PERMANENT, 9, 9);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-90);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH-90);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, 40, 40);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH-50);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH-50);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::OVERHEAL, EHealPower::PERMANENT, 50, 50);
-	checkFullHealth(health, *this);
+	checkFullHealth(health, mock);
 }
 
-BOOST_FIXTURE_TEST_CASE(resurrectOneBattle, CUnitHealthInfoMock)
+TEST_F(HealthTest, resurrectOneBattle)
 {
+	setDefaultExpectations();
+	health.init();
+
 	checkNormalDamage(health, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, UNIT_HEALTH, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 1);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 1);
 
 	checkNormalDamage(health, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	health.init();
 
 	checkNormalDamage(health, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	health.takeResurrected();
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	health.init();
 
 	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, UNIT_HEALTH * UNIT_AMOUNT, UNIT_HEALTH * UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), UNIT_AMOUNT);
 
 	health.takeResurrected();
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 }
 
-BOOST_FIXTURE_TEST_CASE(resurrectPermanent, CUnitHealthInfoMock)
+TEST_F(HealthTest, resurrectPermanent)
 {
+	setDefaultExpectations();
+	health.init();
+
 	checkNormalDamage(health, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, UNIT_HEALTH, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	checkNormalDamage(health, UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getCount(), UNIT_AMOUNT - 1);
-	BOOST_CHECK_EQUAL(health.getFirstHPleft(), UNIT_HEALTH);
-	BOOST_CHECK_EQUAL(health.getResurrected(), 0);
+	EXPECT_EQ(health.getCount(), UNIT_AMOUNT - 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
 
 	health.init();
 
 	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, UNIT_HEALTH * UNIT_AMOUNT, UNIT_HEALTH * UNIT_AMOUNT);
-	checkFullHealth(health, *this);
+	checkFullHealth(health, mock);
 
 	health.takeResurrected();
-	checkFullHealth(health, *this);
+	checkFullHealth(health, mock);
 }
 
-BOOST_FIXTURE_TEST_CASE(singleUnitStack, CUnitHealthInfoMock)
+TEST_F(HealthTest, singleUnitStack)
 {
 	//related to issue 2612
 
 	//one Titan
-	baseAmount = 1;
-	maxHealth = 300;
+
+	EXPECT_CALL(mock, unitMaxHealth()).WillRepeatedly(Return(300));
+	EXPECT_CALL(mock, unitBaseAmount()).WillRepeatedly(Return(1));
 
 	health.init();
 
 	checkDamage(health, 1000, 300);
-	checkEmptyHealth(health, *this);
+	checkEmptyHealth(health, mock);
 
 	checkHeal(health, EHealLevel::RESURRECT, EHealPower::PERMANENT, 300, 300);
-	checkFullHealth(health, *this);
+	checkFullHealth(health, mock);
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 

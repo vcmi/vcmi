@@ -9,7 +9,6 @@
  */
 
 #include "StdInc.h"
-#include <boost/test/unit_test.hpp>
 
 #include "../lib/filesystem/ResourceID.h"
 #include "../lib/mapping/CMapService.h"
@@ -20,11 +19,9 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMI_Lib.h"
 
-BOOST_AUTO_TEST_SUITE(CMapEditManager_Suite)
 
-BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
+TEST(MapManager, DrawTerrain_Type)
 {
-	logGlobal->info("CMapEditManager_DrawTerrain_Type start");
 	try
 	{
 		auto map = make_unique<CMap>();
@@ -40,17 +37,17 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
 		for(int i = 0; i < ARRAY_COUNT(squareCheck); ++i)
 		{
-			BOOST_CHECK(map->getTile(squareCheck[i]).terType == ETerrainType::GRASS);
+			EXPECT_EQ(map->getTile(squareCheck[i]).terType, ETerrainType::GRASS);
 		}
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
 		editManager->drawTerrain(ETerrainType::GRASS);
-		BOOST_CHECK(map->getTile(int3(6, 4, 0)).terType == ETerrainType::GRASS);
+		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType, ETerrainType::GRASS);
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
 		editManager->drawTerrain(ETerrainType::LAVA);
-		BOOST_CHECK(map->getTile(int3(4, 4, 0)).terType == ETerrainType::GRASS);
-		BOOST_CHECK(map->getTile(int3(7, 4, 0)).terType == ETerrainType::LAVA);
+		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType, ETerrainType::GRASS);
+		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType, ETerrainType::LAVA);
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
@@ -59,18 +56,18 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 		editManager->drawTerrain(ETerrainType::GRASS);
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
 		editManager->drawTerrain(ETerrainType::GRASS);
-		BOOST_CHECK(map->getTile(int3(20, 15, 0)).terType == ETerrainType::GRASS);
+		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType, ETerrainType::GRASS);
 
 		// Special case non water,rock
 		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
-											  int3(34,44,0), int3(34,45,0), int3(35,45,0), int3(35,46,0), int3(36,46,0),
-											  int3(36,47,0), int3(37,47,0)};
+											int3(34,44,0), int3(34,45,0), int3(35,45,0), int3(35,46,0), int3(36,46,0),
+											int3(36,47,0), int3(37,47,0)};
 		for(int i = 0; i < ARRAY_COUNT(diagonalCheck); ++i)
 		{
 			editManager->getTerrainSelection().select(diagonalCheck[i]);
 		}
 		editManager->drawTerrain(ETerrainType::GRASS);
-		BOOST_CHECK(map->getTile(int3(35, 44, 0)).terType == ETerrainType::WATER);
+		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType, ETerrainType::WATER);
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
@@ -79,7 +76,7 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
 		editManager->drawTerrain(ETerrainType::ROCK);
-		BOOST_CHECK(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
+		EXPECT_TRUE(map->getTile(int3(5, 6, 1)).terType == ETerrainType::ROCK || map->getTile(int3(7, 8, 1)).terType == ETerrainType::ROCK);
 
 		//todo: add checks here and enable, also use smaller size
 		#if 0
@@ -104,23 +101,19 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_Type)
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->error("CMapEditManager_DrawTerrain_Type crash");
-		logGlobal->error(e.what());
+		FAIL()<<e.what();
 		throw;
 	}
-	logGlobal->info("CMapEditManager_DrawTerrain_Type finish");
 }
 
-BOOST_AUTO_TEST_CASE(DrawTerrain_View)
+TEST(MapManager, DrawTerrain_View)
 {
-	logGlobal->info("CMapEditManager_DrawTerrain_View start");
 	try
 	{
 		const ResourceID testMap("test/TerrainViewTest", EResType::MAP);
 		// Load maps and json config
 		const auto originalMap = CMapService::loadMap(testMap);
 		auto map = CMapService::loadMap(testMap);
-		logGlobal->info("Loaded test map successfully.");
 
 		// Validate edit manager
 		auto editManager = map->getEditManager();
@@ -148,10 +141,6 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_View)
 				const auto & posVector = posNode.Vector();
 				if(posVector.size() != 3) throw std::runtime_error("A position should consist of three values x,y,z. Continue with next position.");
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
-#if 0
-				logGlobal->trace("Test pattern '%s' on position x '%d', y '%d', z '%d'.", patternStr, pos.x, pos.y, pos.z);
-				CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map.get(), pos);
-#endif // 0
 				const auto & originalTile = originalMap->getTile(pos);
 				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
 				editManager->drawTerrain(originalTile.terType, &gen);
@@ -165,19 +154,15 @@ BOOST_AUTO_TEST_CASE(DrawTerrain_View)
 						break;
 					}
 				}
-				BOOST_CHECK(isInRange);
+				EXPECT_TRUE(isInRange);
 				if(!isInRange)
-					logGlobal->error("No or invalid pattern found for current position.");
+					FAIL()<<("No or invalid pattern found for current position.");
 			}
 		}
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->info("CMapEditManager_DrawTerrain_View crash");
-		logGlobal->info(e.what());
+		FAIL()<<e.what();
 		throw;
 	}
-	logGlobal->info("CMapEditManager_DrawTerrain_View finish");
 }
-
-BOOST_AUTO_TEST_SUITE_END()

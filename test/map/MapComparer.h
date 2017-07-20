@@ -52,7 +52,6 @@ struct JsonMapComparer
 	std::string buildMessage(const std::string & message);
 
 	void addError(const std::string & message);
-	void addWarning(const std::string & message);
 
 	bool isEmpty(const JsonNode & value);
 
@@ -69,7 +68,7 @@ struct JsonMapComparer
 	void checkEqualJson(const JsonMap & actual, const JsonMap & expected);
 	void checkEqualJson(const JsonVector & actual, const JsonVector & expected);
 
-    void compareHeader(const JsonNode & actual, const JsonNode & expected);
+	void compareHeader(const JsonNode & actual, const JsonNode & expected);
 	void compareObjects(const JsonNode & actual, const JsonNode & expected);
 	void compareTerrain(const std::string & levelName, const JsonNode & actual, const JsonNode & expected);
 };

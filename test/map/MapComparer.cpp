@@ -9,29 +9,27 @@
  */
 #include "StdInc.h"
 
-#include <boost/test/unit_test.hpp>
-
 #include "MapComparer.h"
 
 #include "../lib/ScopeGuard.h"
 #include "../lib/mapping/CMap.h"
 
-#define VCMI_CHECK_FIELD_EQUAL_P(field) BOOST_CHECK_EQUAL(actual->field, expected->field)
+#define VCMI_CHECK_FIELD_EQUAL_P(field) EXPECT_EQ(actual->field, expected->field)
 
-#define VCMI_CHECK_FIELD_EQUAL(field) BOOST_CHECK_EQUAL(actual.field, expected.field)
+#define VCMI_CHECK_FIELD_EQUAL(field) EXPECT_EQ(actual.field, expected.field)
 
-#define VCMI_REQUIRE_FIELD_EQUAL_P(field) BOOST_REQUIRE_EQUAL(actual->field, expected->field)
-#define VCMI_REQUIRE_FIELD_EQUAL(field) BOOST_REQUIRE_EQUAL(actual.field, expected.field)
+#define VCMI_REQUIRE_FIELD_EQUAL_P(field) ASSERT_EQ(actual->field, expected->field)
+#define VCMI_REQUIRE_FIELD_EQUAL(field) ASSERT_EQ(actual.field, expected.field)
 
 template <class T>
 void checkEqual(const T & actual, const T & expected)
 {
-	BOOST_CHECK_EQUAL(actual, expected)	;
+	EXPECT_EQ(actual, expected)	;
 }
 
 void checkEqual(const std::vector<bool> & actual, const std::vector<bool> & expected)
 {
-	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+	EXPECT_EQ(actual.size(), expected.size());
 
 	for(auto actualIt = actual.begin(), expectedIt = expected.begin(); actualIt != actual.end() && expectedIt != expected.end(); actualIt++, expectedIt++)
 	{
@@ -42,7 +40,7 @@ void checkEqual(const std::vector<bool> & actual, const std::vector<bool> & expe
 template <class Element>
 void checkEqual(const std::vector<Element> & actual, const std::vector<Element> & expected)
 {
-	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+	EXPECT_EQ(actual.size(), expected.size());
 
 	for(auto actualIt = actual.begin(), expectedIt = expected.begin(); actualIt != actual.end() && expectedIt != expected.end(); actualIt++, expectedIt++)
 	{
@@ -53,12 +51,12 @@ void checkEqual(const std::vector<Element> & actual, const std::vector<Element> 
 template <class Element>
 void checkEqual(const std::set<Element> & actual, const std::set<Element> & expected)
 {
-	BOOST_CHECK_EQUAL(actual.size(), expected.size());
+	EXPECT_EQ(actual.size(), expected.size());
 
 	for(auto elem : expected)
 	{
 		if(!vstd::contains(actual, elem))
-			BOOST_ERROR("Required element not found "+boost::to_string(elem));
+			FAIL() << "Required element not found "+boost::to_string(elem);
 	}
 }
 
@@ -91,12 +89,12 @@ void checkEqual(const PlayerInfo & actual, const PlayerInfo & expected)
 	VCMI_CHECK_FIELD_EQUAL(hasRandomHero);
 }
 
-void checkEqual(const EventExpression & actual,  const EventExpression & expected)
+void checkEqual(const EventExpression & actual, const EventExpression & expected)
 {
 	//todo: checkEventExpression
 }
 
-void checkEqual(const TriggeredEvent & actual,  const TriggeredEvent & expected)
+void checkEqual(const TriggeredEvent & actual, const TriggeredEvent & expected)
 {
 	VCMI_CHECK_FIELD_EQUAL(identifier);
 	VCMI_CHECK_FIELD_EQUAL(description);
@@ -142,8 +140,8 @@ void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 	VCMI_REQUIRE_FIELD_EQUAL(roadDir);
 	VCMI_REQUIRE_FIELD_EQUAL(extTileFlags);
 
-	BOOST_REQUIRE_EQUAL(actual.blockingObjects.size(), expected.blockingObjects.size());
-	BOOST_REQUIRE_EQUAL(actual.visitableObjects.size(), expected.visitableObjects.size());
+	ASSERT_EQ(actual.blockingObjects.size(), expected.blockingObjects.size());
+	ASSERT_EQ(actual.visitableObjects.size(), expected.visitableObjects.size());
 
 	VCMI_REQUIRE_FIELD_EQUAL(visitable);
 	VCMI_REQUIRE_FIELD_EQUAL(blocked);
@@ -179,7 +177,7 @@ void MapComparer::compareHeader()
 
 	auto sortByIdentifier = [](const TriggeredEvent & lhs, const TriggeredEvent & rhs) -> bool
 	{
-		return lhs.identifier  < rhs.identifier;
+		return lhs.identifier < rhs.identifier;
 	};
 	boost::sort (actualEvents, sortByIdentifier);
 	boost::sort (expectedEvents, sortByIdentifier);
@@ -197,18 +195,18 @@ void MapComparer::compareOptions()
 	checkEqual(actual->allowedArtifact, expected->allowedArtifact);
 	checkEqual(actual->allowedSpell, expected->allowedSpell);
 
-	//todo: compareOptions  events
+	//todo: compareOptions events
 }
 
 void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectInstance * expected)
 {
-	BOOST_CHECK_EQUAL(actual->instanceName, expected->instanceName);
-	BOOST_CHECK_EQUAL(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
+	EXPECT_EQ(actual->instanceName, expected->instanceName);
+	EXPECT_EQ(typeid(actual).name(), typeid(expected).name());//todo: remove and use just comparison
 
 	std::string actualFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % actual->typeName % actual->ID % actual->subTypeName % actual->subID % actual->tempOwner);
 	std::string expectedFullID = boost::to_string(boost::format("%s(%d)|%s(%d) %d") % expected->typeName % expected->ID % expected->subTypeName % expected->subID % expected->tempOwner);
 
-	BOOST_CHECK_EQUAL(actualFullID, expectedFullID);
+	EXPECT_EQ(actualFullID, expectedFullID);
 
 	VCMI_CHECK_FIELD_EQUAL_P(pos);
 	checkEqual(actual->appearance, expected->appearance);
@@ -216,24 +214,24 @@ void MapComparer::compareObject(const CGObjectInstance * actual, const CGObjectI
 
 void MapComparer::compareObjects()
 {
-	BOOST_CHECK_EQUAL(actual->objects.size(), expected->objects.size());
+	EXPECT_EQ(actual->objects.size(), expected->objects.size());
 
 	for(size_t idx = 0; idx < expected->objects.size(); idx++)
 	{
 		auto expectedObject = expected->objects[idx];
 
-		BOOST_REQUIRE_EQUAL(idx, expectedObject->id.getNum());
+		ASSERT_EQ(idx, expectedObject->id.getNum());
 
 		{
 			auto it = expected->instanceNames.find(expectedObject->instanceName);
 
-			BOOST_REQUIRE(it != expected->instanceNames.end());
+			ASSERT_NE(it, expected->instanceNames.end());
 		}
 
 		{
 			auto it = actual->instanceNames.find(expectedObject->instanceName);
 
-			BOOST_REQUIRE(it != actual->instanceNames.end());
+			ASSERT_NE(it, actual->instanceNames.end());
 
 			auto actualObject = it->second;
 
@@ -251,17 +249,16 @@ void MapComparer::compareTerrain()
 		for(int y = 0; y < expected->height; y++)
 		{
 			int3 coord(x,y,0);
-			BOOST_TEST_CHECKPOINT(coord);
-
+			SCOPED_TRACE(coord);
 			checkEqual(actual->getTile(coord), expected->getTile(coord));
 		}
 }
 
 void MapComparer::compare()
 {
-	BOOST_REQUIRE_NE((void *) actual, (void *) expected); //should not point to the same object
-	BOOST_REQUIRE_MESSAGE(actual != nullptr, "Actual map is not defined");
-	BOOST_REQUIRE_MESSAGE(expected != nullptr, "Expected map is not defined");
+	ASSERT_NE((void *) actual, (void *) expected); //should not point to the same object
+	ASSERT_TRUE(actual != nullptr) << "Actual map is not defined";
+	ASSERT_TRUE(expected != nullptr) << "Expected map is not defined";
 
 	compareHeader();
 	compareOptions();
@@ -269,7 +266,7 @@ void MapComparer::compare()
 	compareTerrain();
 }
 
-void MapComparer::operator() (const std::unique_ptr<CMap>& actual, const std::unique_ptr<CMap>&  expected)
+void MapComparer::operator() (const std::unique_ptr<CMap>& actual, const std::unique_ptr<CMap>& expected)
 {
 	this->actual = actual.get();
 	this->expected = expected.get();
@@ -301,12 +298,7 @@ std::string JsonMapComparer::buildMessage(const std::string & message)
 
 void JsonMapComparer::addError(const std::string & message)
 {
-	BOOST_ERROR(buildMessage(message));
-}
-
-void JsonMapComparer::addWarning(const std::string & message)
-{
-	BOOST_WARN_MESSAGE(false, buildMessage(message));
+	FAIL()<<buildMessage(message);
 }
 
 bool JsonMapComparer::isEmpty(const JsonNode & value)
@@ -327,7 +319,7 @@ bool JsonMapComparer::isEmpty(const JsonNode & value)
 		return value.Struct().empty();
 		break;
 	default:
-		BOOST_FAIL("Unknown Json type");
+		EXPECT_TRUE(false) << "Unknown Json type";
 		return false;
 	}
 }
@@ -335,9 +327,9 @@ bool JsonMapComparer::isEmpty(const JsonNode & value)
 void JsonMapComparer::check(const bool condition, const std::string & message)
 {
 	if(strict)
-		BOOST_REQUIRE_MESSAGE(condition, buildMessage(message));
+		ASSERT_TRUE(condition) << buildMessage(message);
 	else
-		BOOST_CHECK_MESSAGE(condition, buildMessage(message));
+		EXPECT_TRUE(condition) << buildMessage(message);
 }
 
 void JsonMapComparer::checkEqualInteger(const si64 actual, const si64 expected)
@@ -366,7 +358,7 @@ void JsonMapComparer::checkEqualString(const std::string & actual, const std::st
 
 void JsonMapComparer::checkEqualJson(const JsonMap & actual, const JsonMap & expected)
 {
-    for(const auto & p : expected)
+	for(const auto & p : expected)
 		checkStructField(actual, p.first, p.second);
 	for(const auto & p : actual)
 		checkExcessStructField(p.second, p.first, expected);
@@ -421,7 +413,7 @@ void JsonMapComparer::checkEqualJson(const JsonNode & actual, const JsonNode & e
 			checkEqualInteger(actual.Integer(), expected.Integer());
 			break;
 		default:
-			BOOST_FAIL("Unknown Json type");
+			FAIL() << "Unknown Json type";
 			break;
 		}
 	}
@@ -433,9 +425,7 @@ void JsonMapComparer::checkExcessStructField(const JsonNode & actualValue, const
 
 	if(!vstd::contains(expected, name))
 	{
-		if(isEmpty(actualValue))
-			addWarning("excess");
-		else
+		if(!isEmpty(actualValue))
 			addError("excess");
 	}
 }
@@ -443,12 +433,9 @@ void JsonMapComparer::checkExcessStructField(const JsonNode & actualValue, const
 void JsonMapComparer::checkStructField(const JsonMap & actual, const std::string & name, const JsonNode & expectedValue)
 {
 	auto guard = pushName(name);
-
 	if(!vstd::contains(actual, name))
 	{
-		if(isEmpty(expectedValue))
-			addWarning("missing");
-		else
+		if(!isEmpty(expectedValue))
 			addError("missing");
 	}
 	else

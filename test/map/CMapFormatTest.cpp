@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 
-#include <boost/test/unit_test.hpp>
-
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/filesystem/Filesystem.h"
 
@@ -25,12 +23,10 @@
 
 static const int TEST_RANDOM_SEED = 1337;
 
-BOOST_AUTO_TEST_SUITE(MapFormat_Suite)
 
-BOOST_AUTO_TEST_CASE(Random)
+TEST(MapFormat, Random)
 {
-	logGlobal->info("MapFormat_Random start");
-	BOOST_TEST_CHECKPOINT("MapFormat_Random start");
+	SCOPED_TRACE("MapFormat_Random start");
 	std::unique_ptr<CMap> initialMap;
 
 	CMapGenOptions opt;
@@ -49,14 +45,14 @@ BOOST_AUTO_TEST_CASE(Random)
 
 	initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
 	initialMap->name = "Test";
-	BOOST_TEST_CHECKPOINT("MapFormat_Random generated");
+	SCOPED_TRACE("MapFormat_Random generated");
 
 	CMemoryBuffer serializeBuffer;
 	{
 		CMapSaverJson saver(&serializeBuffer);
 		saver.saveMap(initialMap);
 	}
-	BOOST_TEST_CHECKPOINT("MapFormat_Random serialized");
+	SCOPED_TRACE("MapFormat_Random serialized");
 	#if 1
 	{
 		auto path = VCMIDirs::get().userDataPath()/"test_random.vmap";
@@ -66,12 +62,8 @@ BOOST_AUTO_TEST_CASE(Random)
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
-
-		logGlobal->info("Test map has been saved to:");
-		logGlobal->info(path.string());
 	}
-	BOOST_TEST_CHECKPOINT("MapFormat_Random saved");
-
+	SCOPED_TRACE("MapFormat_Random saved");
 	#endif // 1
 
 	serializeBuffer.seek(0);
@@ -82,8 +74,7 @@ BOOST_AUTO_TEST_CASE(Random)
 		MapComparer c;
 		c(serialized, initialMap);
 	}
-
-	logGlobal->info("MapFormat_Random finish");
+	SCOPED_TRACE("MapFormat_Random finish");
 }
 
 static JsonNode getFromArchive(CZipLoader & archive, const std::string & archiveFilename)
@@ -116,10 +107,8 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 	}
 }
 
-BOOST_AUTO_TEST_CASE(Objects)
+TEST(MapFormat, Objects)
 {
-	logGlobal->info("MapFormat_Objects start");
-
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
 	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+"header.json"));
@@ -177,8 +166,6 @@ BOOST_AUTO_TEST_CASE(Objects)
 		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
 		tmp.flush();
 		tmp.close();
-
-		logGlobal->infoStream() << "Test map has been saved to " << path;
 	}
 
 	{
@@ -200,8 +187,4 @@ BOOST_AUTO_TEST_CASE(Objects)
 		JsonMapComparer c;
 		c.compareTerrain("underground", actualUnderground, expectedUnderground);
 	}
-
-	logGlobal->info("MapFormat_Objects finish");
 }
-
-BOOST_AUTO_TEST_SUITE_END()
