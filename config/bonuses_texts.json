@@ -14,38 +14,26 @@
 
 	"ADDITIONAL_RETALIATION":
 	{
-		"name": "Additional retaliations",
+		"name": "Additional Retaliations",
 		"description": "May Retaliate ${val} extra times"
-	},
-	
-	"CATAPULT_EXTRA_SHOTS":
-	{
-		"name": "Additional siege attacks",
-		"description": "Can hit siege walls ${val} extra times per attack"
 	},
 
 	"AIR_IMMUNITY":
 	{
-		"name": "Air immunity",
+		"name": "Air Immunity",
 		"description": "Immune to all Air school spells"
 	},
 
 	"ATTACKS_ALL_ADJACENT":
 	{
-		"name": "Attack all around",
+		"name": "Attack All Around",
 		"description": "Attacks all adjacent enemies"
 	},
 
 	"BLOCKS_RETALIATION":
 	{
-		"name": "No retaliation",
-		"description": "Enemy cannot Retaliate"
-	},
-	
-	"BLOCKS_RANGED_RETALIATION":
-	{
-		"name": "No ranged retaliation",
-		"description": "Enemy cannot Retaliate by shooting"
+		"name": "No Retaliation",
+		"description": "Enemy cannot retaliate"
 	},
 
 	"CATAPULT":
@@ -57,13 +45,13 @@
 	"CHANGES_SPELL_COST_FOR_ALLY":
 	{
 		"name": "Reduce Casting Cost (${val})",
-		"description": "Reduce Casting Cost for hero"
+		"description": "Reduces spell cost for hero"
 	},
 
 	"CHANGES_SPELL_COST_FOR_ENEMY":
 	{
 		"name": "Magic Damper (${val})",
-		"description": "Increase Cost of enemy spells"
+		"description": "Increases cost of enemy spells"
 	},
 
 	"CHARGE_IMMUNITY":
@@ -80,7 +68,7 @@
 
 	"DARKNESS":
 	{
-		"name": "Darness cover",
+		"name": "Darkness Cover",
 		"description": "Adds ${val} darkness radius"
 	},
 
@@ -116,7 +104,7 @@
 
 	"EARTH_IMMUNITY":
 	{
-		"name": "Earth immunity",
+		"name": "Earth Immunity",
 		"description": "Immune to all Earth school spells"
 	},
 
@@ -134,26 +122,26 @@
 
 	"ENEMY_DEFENCE_REDUCTION":
 	{
-		"name": "Reduce Enemy Defense (${val}%)",
-		"description": "Reduces Defense for one attack"
+		"name": "Ignore Defense (${val}%)",
+		"description": "Ignores part of Defence for the attack"
 	},
 
 	"GENERAL_DAMAGE_REDUCTION":
 	{
 		"name": "Reduce Damage (${val}%)",
-		"description": "Reduces physical damage"
+		"description": "Reduces physical damage from ranged or melee"
 	},
 
 	"FIRE_IMMUNITY":
 	{
-		"name": "Fire immunity",
+		"name": "Fire Immunity",
 		"description": "Immune to all Fire school spells"
 	},
 
 	"FIRE_SHIELD":
 	{
 		"name": "Fire Shield (${val}%)",
-		"description": "Reflects melee damage"
+		"description": "Reflects part of melee damage"
 	},
 
 	"FEAR":
@@ -177,13 +165,13 @@
 	"FREE_SHOOTING":
 	{
 		"name": "Shoot Close",
-		"description": "Can shoot in Close Combat"
+		"description": "Can shoot in close combat"
 	},
 
 	"FULL_HP_REGENERATION":
 	{
 		"name": "Regeneration",
-		"description": "May Regenerate full Health"
+		"description": "May regenerate to full health"
 	},
 
 	"HATE":
@@ -212,38 +200,38 @@
 
 	"KING1":
 	{
-		"name": "King1",
-		"description": "Vulnerable to basic SLAYER"
+		"name": "King 1",
+		"description": "Vulnerable to Basic Slayer"
 	},
 
 	"KING2":
 	{
-		"name": "King2",
-		"description": "Vulnerable to adv. SLAYER"
+		"name": "King 2",
+		"description": "Vulnerable to Advanced Slayer"
 	},
 
 	"KING3":
 	{
-		"name": "King3",
-		"description":"Vulnerable to expert SLAYER"
+		"name": "King 3",
+		"description":"Vulnerable to Expert Slayer"
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
 	{
-		"name": "Spell immunity 1-${val}",
-		"description": "Immune to spells levels 1-${val}"
+		"name": "Spell Immunity 1-${val}",
+		"description": "Immune to spells of levels 1-${val}"
 	},
 
 	"LIFE_DRAIN":
 	{
-		"name": "Drain life (${val}%)",
+		"name": "Drain Life (${val}%)",
 		"description": "Drains ${val}% of damage dealt"
 	},
 
 	"MANA_CHANNELING":
 	{
 		"name": "Magic Channel ${val}%",
-		"description": "Gives mana spent by enemy"
+		"description": "Gives your hero mana spent by enemy"
 	},
 
 	"MANA_DRAIN":
@@ -255,7 +243,7 @@
 	"MAGIC_MIRROR":
 	{
 		"name": "Magic Mirror (${val}%)",
-		"description": "${val}% chance to redirects offensive spell to enemy"
+		"description": "${val}% chance to redirect an offensive spell to enemy"
 	},
 
 	"MAGIC_RESISTANCE":
@@ -266,57 +254,52 @@
 
 	"MIND_IMMUNITY":
 	{
-		"name": "Immune to mind spells",
-		"description": ""
+		"name": "Mind Spell Immunity",
+		"description": "Immune to Mind-type spells"
 	},
 
 	"NO_DISTANCE_PENALTY":
 	{
-		"name": "No distance penalty",
+		"name": "No Distance Penalty",
 		"description": "Full damage from any distance"
 	},
 
 	"NO_MELEE_PENALTY":
 	{
-		"name": "No melee penalty",
-		"description": "Creature has no Melee Penalty"
+		"name": "No Melee Penalty",
+		"description": "Creature has no melee penalty"
 	},
 
 	"NO_MORALE":
 	{
-
-
+		"name": "Neutral Morale",
+		"description": "Creature is immune to morale effects"
 	},
 
 	"NO_WALL_PENALTY":
 	{
-		"name": "No wall penalty",
+		"name": "No Wall Penalty",
 		"description": "Full damage during siege"
 	},
 
 	"NON_LIVING":
 	{
-		"name": "Non living",
+		"name": "Non-living",
 		"description": "Immunity to many effects"
 	},
 
 	"RANDOM_SPELLCASTER":
 	{
-		"name": "Random spellcaster",
+		"name": "Random Spellcaster",
 		"description": "Can cast random spell"
-	},
-	
-	"RANGED_RETALIATION":
-	{
-		"name": "Ranged retaliation",
-		"description": "Can perform ranged counterattack"
 	},
 
 	"RECEPTIVE":
 	{
 		"name": "Receptive",
-		"description": "No Immunity to Friendly Spells"
+		"description": "No Immunity to friendly spells"
 	},
+	
 	"REBIRTH":
 	{
 		"name": "Rebirth (${val}%)",
@@ -331,26 +314,20 @@
 
 	"SELF_LUCK":
 	{
-		"name": "Positive luck",
-		"description": "Always has Positive Luck"
+		"name": "Positive Luck",
+		"description": "Always has positive luck"
 	},
 
 	"SELF_MORALE":
 	{
-		"name": "Positive morale",
-		"description": "Always has Positive Morale"
+		"name": "Positive Morale",
+		"description": "Always has positive morale"
 	},
 
 	"SHOOTER":
 	{
 		"name": "Ranged",
 		"description": "Creature can shoot"
-	},
-	
-	"SOUL_STEAL":
-	{
-		"name": "Soul Steal",
-		"description": "Gains ${val} new creatures for each enemy killed"
 	},
 
 	"SPELLCASTER":
@@ -361,13 +338,13 @@
 
 	"SPELL_AFTER_ATTACK":
 	{
-		"name": "After attack cast",
+		"name": "Cast After Attack",
 		"description": "${val}% to cast ${subtype.spell} after attack"
 	},
 
 	"SPELL_BEFORE_ATTACK":
 	{
-		"name": "Before attack cast",
+		"name": "Cast Before Attack",
 		"description": "${val}% to cast ${subtype.spell} before attack"
 	},
 
@@ -379,13 +356,13 @@
 
 	"SPELL_IMMUNITY":
 	{
-		"name": "Spell immunity",
+		"name": "Spell Immunity",
 		"description": "Immune to ${subtype.spell}"
 	},
 
 	"SPELL_LIKE_ATTACK":
 	{
-		"name": "Spell-like attack",
+		"name": "Spell-like Attack",
 		"description": "Attacks with ${subtype.spell}"
 	},
 
@@ -394,29 +371,17 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
-	
-	"SUMMON_GUARDIANS":
-	{
-		"name": "Summon guardians",
-		"description": "At battle start summons ${subtype.creature} (${val}%)"
-	},
 
 	"TWO_HEX_ATTACK_BREATH":
 	{
 		"name": "Breath",
-		"description": "Breath Attack (2-hex range)"
+		"description": "Breath attack (2-hex range)"
 	},
 
 	"THREE_HEADED_ATTACK":
 	{
-		"name": "Three-headed attack",
+		"name": "Three-headed Attack",
 		"description": "Attacks three adjacent units"
-	},
-	
-	"TRANSMUTATION":
-	{
-		"name": "Transmutation",
-		"description": "${val}% chance to transform attacked unit to other type"
 	},
 
 	"UNDEAD":
@@ -427,13 +392,13 @@
 
 	"UNLIMITED_RETALIATIONS":
 	{
-		"name": "Unlimited retaliations",
-		"description": "Retaliate any number of attacks"
+		"name": "Unlimited Retaliations",
+		"description": "Retaliates any number of attacks"
 	},
 
 	"WATER_IMMUNITY":
 	{
-		"name": "Water immunity",
+		"name": "Water Immunity",
 		"description": "Immune to all Water school spells"
 	}
 }
