@@ -136,6 +136,16 @@ SummonBoatMechanics::SummonBoatMechanics(const CSpell * s):
 
 ESpellCastResult SummonBoatMechanics::applyAdventureEffects(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
+	if(parameters.caster->boat)
+	{
+		InfoWindow iw;
+		iw.player = parameters.caster->tempOwner;
+		iw.text.addTxt(MetaString::GENERAL_TXT, 333);//%s is already in boat
+		iw.text.addReplacement(parameters.caster->name);
+		env->sendAndApply(&iw);
+		return ESpellCastResult::CANCEL;
+	}
+
 	int3 summonPos = parameters.caster->bestLocation();
 	if(summonPos.x < 0)
 	{
