@@ -163,7 +163,7 @@ endif()
 
 if(ENABLE_TEST)
 	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
-	find_package(Boost 1.48.0 COMPONENTS date_time program_options filesystem system thread locale unit_test_framework REQUIRED)
+	find_package(Boost 1.48.0 COMPONENTS date_time program_options filesystem system thread locale REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
