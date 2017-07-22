@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "Global.h"
+
 #ifdef VCMI_ANDROID
 #include <jni.h>
 #include <string>
