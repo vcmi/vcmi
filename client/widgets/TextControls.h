@@ -160,6 +160,10 @@ protected:
 
 	void focusGot() override;
 	void focusLost() override;
+
+#ifdef VCMI_ANDROID
+	void notifyAndroidTextInputChanged(std::string & text);
+#endif
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
