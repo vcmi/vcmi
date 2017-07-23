@@ -18,6 +18,10 @@
 
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
+#ifdef VCMI_ANDROID
+#include "lib/CAndroidVMHelper.h"
+#endif
+
 std::string CLabel::visibleText()
 {
 	return text;
@@ -427,6 +431,9 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 void CTextInput::focusGot()
 {
 	CSDL_Ext::startTextInput(&pos);
+#ifdef VCMI_ANDROID
+	notifyAndroidTextInputChanged(text);
+#endif
 }
 
 void CTextInput::focusLost()
@@ -485,6 +492,9 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	{
 		redraw();
 		cb(text);
+#ifdef VCMI_ANDROID
+		notifyAndroidTextInputChanged(text);
+#endif
 	}
 }
 
@@ -493,6 +503,10 @@ void CTextInput::setText( const std::string &nText, bool callCb )
 	CLabel::setText(nText);
 	if(callCb)
 		cb(text);
+
+#ifdef VCMI_ANDROID
+	notifyAndroidTextInputChanged(text);
+#endif
 }
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
@@ -518,6 +532,10 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 		cb(text);
 	}
 	newText = "";
+
+#ifdef VCMI_ANDROID
+	notifyAndroidTextInputChanged(text);
+#endif
 }
 
 void CTextInput::textEdited(const SDL_TextEditingEvent & event)
@@ -528,6 +546,11 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 	newText = event.text;
 	redraw();
 	cb(text+newText);
+
+#ifdef VCMI_ANDROID
+	auto editedText = text + newText;
+	notifyAndroidTextInputChanged(editedText);
+#endif
 }
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
@@ -573,6 +596,24 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 		text = oldText;
 	}
 }
+
+#ifdef VCMI_ANDROID
+void CTextInput::notifyAndroidTextInputChanged(std::string & text)
+{
+	if (!focus)
+		return;
+
+	auto fun = [&text](JNIEnv * env, jclass cls, jmethodID method)
+	{
+		auto jtext = env->NewStringUTF(text.c_str());
+		env->CallStaticObjectMethod(cls, method, jtext);
+		env->DeleteLocalRef(jtext);
+	};
+	CAndroidVMHelper vmHelper;
+	vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "notifyTextInputChanged",
+		"(Ljava/lang/String;)V", fun);
+}
+#endif //VCMI_ANDROID
 
 CFocusable::CFocusable()
 {

@@ -12,6 +12,7 @@
 #include "Global.h"
 
 #ifdef VCMI_ANDROID
+
 #include <jni.h>
 #include <string>
 
@@ -35,6 +36,9 @@ public:
 	void callStaticVoidMethod(const std::string & cls, const std::string & method, bool classloaded = false);
 
 	std::string callStaticStringMethod(const std::string & cls, const std::string & method, bool classloaded = false);
+
+	void callCustomMethod(const std::string & cls, const std::string & method, const std::string & signature,
+						  std::function<void(JNIEnv *, jclass, jmethodID)> fun, bool classloaded = false);
 
 	static void cacheVM(JNIEnv * env);
 
