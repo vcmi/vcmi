@@ -106,7 +106,7 @@ public:
 	bool isGood () const;
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
-	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	static int getQuantityID(const int & quantity); //1 - a few, 2 - several, 3 - pack, 4 - lots, 5 - horde, 6 - throng, 7 - swarm, 8 - zounds, 9 - legion
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
