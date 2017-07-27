@@ -25,7 +25,10 @@
 					"noRetaliation" : {
 						"val" : 0,
 						"type" : "NO_RETALIATION",
-						"duration" : "UNTIL_BEING_ATTACKED"
+						"duration" : [
+							"UNTIL_BEING_ATTACKED",
+							"N_TURNS"
+						]
 					},
 					"defenceBoost" : {
 						"type" : "PRIMARY_SKILL",
@@ -184,7 +187,10 @@
 					"noRetaliation" : {
 						"val" : 0,
 						"type" : "NO_RETALIATION",
-						"duration" : "UNTIL_BEING_ATTACKED"
+						"duration" : [
+							"UNTIL_BEING_ATTACKED",
+							"N_TURNS"
+						]
 					}
 				}
 			}
