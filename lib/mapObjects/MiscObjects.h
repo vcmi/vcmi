@@ -74,15 +74,24 @@ public:
 		ui8 upgrade; //random seed used to determine number of stacks and is there's upgraded stack
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & basicType & upgrade;
+			h & basicType;
+			h & upgrade;
 		}
 	} formation;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower;
-		h & refusedJoining & formation;
+		h & identifier;
+		h & character;
+		h & message;
+		h & resources;
+		h & gainedArtifact;
+		h & neverFlees;
+		h & notGrowingTeam;
+		h & temppower;
+		h & refusedJoining;
+		h & formation;
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
@@ -129,7 +138,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CTeamVisited&>(*this);
-		h & allowedAbilities & ability;
+		h & allowedAbilities;
+		h & ability;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -148,7 +158,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & bonusType & bonusID;
+		h & bonusType;
+		h & bonusID;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -194,7 +205,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & message & storedArtifact;
+		h & message;
+		h & storedArtifact;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -218,7 +230,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & amount & message;
+		h & amount;
+		h & message;
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -265,7 +278,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & producedResource & producedQuantity;
+		h & producedResource;
+		h & producedQuantity;
 	}
 	ui32 defaultResProduction();
 protected:
@@ -284,7 +298,9 @@ struct DLL_LINKAGE TeleportChannel
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & entrances & exits & passability;
+		h & entrances;
+		h & exits;
+		h & passability;
 	}
 };
 
@@ -320,7 +336,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & channel & static_cast<CGObjectInstance&>(*this);
+		h & type;
+		h & channel;
+		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
 
@@ -418,7 +436,9 @@ public:
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this) & direction & hero;
+		h & static_cast<CGObjectInstance&>(*this);
+		h & direction;
+		h & hero;
 	}
 };
 

@@ -1350,7 +1350,9 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 		h & observerInDuelMode;
 	}
 
-	h & wanderingHeroes & towns & sleepingHeroes;
+	h & wanderingHeroes;
+	h & towns;
+	h & sleepingHeroes;
 
 	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
 	if (h.saving)

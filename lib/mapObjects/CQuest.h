@@ -66,10 +66,26 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & qid & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
-			& textOption & stackToKill & stackDirection & heroName & heroPortrait
-			& firstVisitText & nextVisitText & completedText & isCustomFirst
-			& isCustomNext & isCustomComplete;
+		h & qid;
+		h & missionType;
+		h & progress;
+		h & lastDay;
+		h & m13489val;
+		h & m2stats;
+		h & m5arts;
+		h & m6creatures;
+		h & m7resources;
+		h & textOption;
+		h & stackToKill;
+		h & stackDirection;
+		h & heroName;
+		h & heroPortrait;
+		h & firstVisitText;
+		h & nextVisitText;
+		h & completedText;
+		h & isCustomFirst;
+		h & isCustomNext;
+		h & isCustomComplete;
 		if(version >= 757)
 		{
 			h & completedOption;
@@ -131,8 +147,12 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this) & static_cast<IQuestObject&>(*this);
-		h & rewardType & rID & rVal & seerName;
+		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<IQuestObject&>(*this);
+		h & rewardType;
+		h & rID;
+		h & rVal;
+		h & seerName;
 	}
 protected:
 	static const int OBJPROP_VISITED = 10;

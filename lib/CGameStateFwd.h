@@ -140,7 +140,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & intValue & messageToSelf & messageToOthers;
+		h & intValue;
+		h & messageToSelf;
+		h & messageToOthers;
 	}
 private:
 	enum EResult
@@ -196,6 +198,8 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & quest & obj & tile;
+		h & quest;
+		h & obj;
+		h & tile;
 	}
 };

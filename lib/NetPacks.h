@@ -92,7 +92,8 @@ struct StackLocation
 	DLL_LINKAGE const CStackInstance *getStack();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & army & slot;
+		h & army;
+		h & slot;
 	}
 };
 
@@ -116,7 +117,10 @@ struct PackageApplied : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result & packType & requestID & player;
+		h & result;
+		h & packType;
+		h & requestID;
+		h & player;
 	}
 };
 
@@ -148,7 +152,9 @@ struct PlayerBlocked : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & reason & startOrEnd & player;
+		h & reason;
+		h & startOrEnd;
+		h & player;
 	}
 };
 
@@ -163,7 +169,9 @@ struct PlayerCheated : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & losingCheatCode & winningCheatCode;
+		h & player;
+		h & losingCheatCode;
+		h & winningCheatCode;
 	}
 };
 
@@ -178,7 +186,8 @@ struct YourTurn : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & daysWithoutCastle;
+		h & player;
+		h & daysWithoutCastle;
 	}
 };
 
@@ -194,7 +203,9 @@ struct SetResources : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & abs & player & res;
+		h & abs;
+		h & player;
+		h & res;
 	}
 };
 
@@ -213,7 +224,10 @@ struct SetPrimSkill : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & abs & id & which & val;
+		h & abs;
+		h & id;
+		h & which;
+		h & val;
 	}
 };
 
@@ -232,7 +246,10 @@ struct SetSecSkill : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & abs & id & which & val;
+		h & abs;
+		h & id;
+		h & which;
+		h & val;
 	}
 };
 
@@ -252,7 +269,9 @@ struct HeroVisitCastle : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & flags & tid & hid;
+		h & flags;
+		h & tid;
+		h & hid;
 	}
 };
 
@@ -268,7 +287,9 @@ struct ChangeSpells : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & learn & hid & spells;
+		h & learn;
+		h & hid;
+		h & spells;
 	}
 };
 
@@ -285,7 +306,9 @@ struct SetMana : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & val & hid & absolute;
+		h & val;
+		h & hid;
+		h & absolute;
 	}
 };
 
@@ -301,7 +324,9 @@ struct SetMovePoints : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & val & hid & absolute;
+		h & val;
+		h & hid;
+		h & absolute;
 	}
 };
 
@@ -317,7 +342,10 @@ struct FoWChange : public CPackForClient
 	bool waitForDialogs;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tiles & player & mode & waitForDialogs;
+		h & tiles;
+		h & player;
+		h & mode;
+		h & waitForDialogs;
 	}
 };
 
@@ -336,7 +364,9 @@ struct SetAvailableHeroes : public CPackForClient
 	CSimpleArmy army[GameConstants::AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & hid & army;
+		h & player;
+		h & hid;
+		h & army;
 	}
 };
 
@@ -359,7 +389,10 @@ struct GiveBonus :  public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bonus & id & bdescr & who;
+		h & bonus;
+		h & id;
+		h & bdescr;
+		h & who;
 		assert( id != -1);
 	}
 };
@@ -380,7 +413,9 @@ struct ChangeObjPos : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & objid & nPos & flags;
+		h & objid;
+		h & nPos;
+		h & flags;
 	}
 };
 
@@ -398,7 +433,8 @@ struct PlayerEndsGame : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & victoryLossCheckResult;
+		h & player;
+		h & victoryLossCheckResult;
 	}
 };
 
@@ -428,7 +464,10 @@ struct RemoveBonus :  public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & source & id & who & whoID;
+		h & source;
+		h & id;
+		h & who;
+		h & whoID;
 	}
 };
 
@@ -464,7 +503,12 @@ struct SetCommanderProperty : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroid & sl & which & amount & additionalInfo & accumulatedBonus;
+		h & heroid;
+		h & sl;
+		h & which;
+		h & amount;
+		h & additionalInfo;
+		h & accumulatedBonus;
 	}
 };
 
@@ -479,7 +523,8 @@ struct AddQuest : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & quest;
+		h & player;
+		h & quest;
 	}
 };
 
@@ -501,7 +546,10 @@ struct UpdateArtHandlerLists : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & treasures & minors & majors & relics;
+		h & treasures;
+		h & minors;
+		h & majors;
+		h & relics;
 	}
 };
 
@@ -527,7 +575,8 @@ struct UpdateCastleEvents : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & town & events;
+		h & town;
+		h & events;
 	}
 };
 
@@ -541,7 +590,8 @@ struct ChangeFormation : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & formation;
+		h & hid;
+		h & formation;
 	}
 };
 
@@ -586,7 +636,13 @@ struct TryMoveHero : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & result & start & end & movePoints & fowRevealed & attackedFrom;
+		h & id;
+		h & result;
+		h & start;
+		h & end;
+		h & movePoints;
+		h & fowRevealed;
+		h & attackedFrom;
 	}
 };
 
@@ -602,7 +658,9 @@ struct NewStructures : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & builded;
+		h & tid;
+		h & bid;
+		h & builded;
 	}
 };
 
@@ -618,7 +676,9 @@ struct RazeStructures : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & destroyed;
+		h & tid;
+		h & bid;
+		h & destroyed;
 	}
 };
 
@@ -633,7 +693,8 @@ struct SetAvailableCreatures : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & creatures;
+		h & tid;
+		h & creatures;
 	}
 };
 
@@ -647,7 +708,9 @@ struct SetHeroesInTown : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & visiting & garrison;
+		h & tid;
+		h & visiting;
+		h & garrison;
 	}
 };
 
@@ -664,7 +727,10 @@ struct HeroRecruited : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & tid & tile & player;
+		h & hid;
+		h & tid;
+		h & tile;
+		h & player;
 	}
 };
 
@@ -680,7 +746,8 @@ struct GiveHero : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & player;
+		h & id;
+		h & player;
 	}
 };
 
@@ -696,7 +763,9 @@ struct OpenWindow : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & window & id1 & id2;
+		h & window;
+		h & id1;
+		h & id2;
 	}
 };
 
@@ -714,7 +783,9 @@ struct NewObject  : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & subID & pos;
+		h & ID;
+		h & subID;
+		h & pos;
 	}
 };
 
@@ -729,7 +800,8 @@ struct SetAvailableArtifacts  : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & arts;
+		h & id;
+		h & arts;
 	}
 };
 
@@ -766,7 +838,9 @@ struct ChangeStackCount : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl & count & absoluteValue;
+		h & sl;
+		h & count;
+		h & absoluteValue;
 	}
 };
 
@@ -780,7 +854,8 @@ struct SetStackType : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl & type;
+		h & sl;
+		h & type;
 	}
 };
 
@@ -806,7 +881,8 @@ struct SwapStacks : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl1 & sl2;
+		h & sl1;
+		h & sl2;
 	}
 };
 
@@ -820,7 +896,8 @@ struct InsertNewStack : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl & stack;
+		h & sl;
+		h & stack;
 	}
 };
 
@@ -835,7 +912,9 @@ struct RebalanceStacks : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & src & dst & count;
+		h & src;
+		h & dst;
+		h & count;
 	}
 };
 
@@ -863,7 +942,8 @@ struct PutArtifact : CArtifactOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & al & art;
+		h & al;
+		h & art;
 	}
 };
 
@@ -889,7 +969,8 @@ struct MoveArtifact : CArtifactOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & src & dst;
+		h & src;
+		h & dst;
 	}
 };
 
@@ -903,7 +984,8 @@ struct AssembledArtifact : CArtifactOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & al & builtArt/* & constituents*/;
+		h & al;
+		h & builtArt;
 	}
 };
 
@@ -932,7 +1014,10 @@ struct HeroVisit : CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hero & obj & player & starting;
+		h & hero;
+		h & obj;
+		h & player;
+		h & starting;
 	}
 };
 
@@ -949,7 +1034,9 @@ struct NewTurn : public CPackForClient
 		ui32 move, mana; //id is a general serial id
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & id & move & mana;
+			h & id;
+			h & move;
+			h & mana;
 		}
 		bool operator<(const Hero&h)const{return id < h.id;}
 	};
@@ -965,7 +1052,12 @@ struct NewTurn : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroes & cres & res & day & specialWeek & creatureid;
+		h & heroes;
+		h & cres;
+		h & res;
+		h & day;
+		h & specialWeek;
+		h & creatureid;
 	}
 };
 
@@ -980,7 +1072,10 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & text & components & player & soundID;
+		h & text;
+		h & components;
+		h & player;
+		h & soundID;
 	}
 	InfoWindow()
 	{
@@ -1018,7 +1113,9 @@ struct SetObjectProperty : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & what & val;
+		h & id;
+		h & what;
+		h & val;
 	}
 };
 
@@ -1049,7 +1146,9 @@ struct ChangeObjectVisitors : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & object & hero & mode;
+		h & object;
+		h & hero;
+		h & mode;
 	}
 };
 
@@ -1083,7 +1182,10 @@ struct HeroLevelUp : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & hero & primskill & skills;
+		h & queryID;
+		h & hero;
+		h & primskill;
+		h & skills;
 	}
 };
 
@@ -1100,7 +1202,9 @@ struct CommanderLevelUp : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & hero & skills;
+		h & queryID;
+		h & hero;
+		h & skills;
 	}
 };
 
@@ -1143,7 +1247,12 @@ struct BlockingDialog : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & text & components & player & flags & soundID;
+		h & queryID;
+		h & text;
+		h & components;
+		h & player;
+		h & flags;
+		h & soundID;
 	}
 };
 
@@ -1156,7 +1265,10 @@ struct GarrisonDialog : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & objid & hid & removableUnits;
+		h & queryID;
+		h & objid;
+		h & hid;
+		h & removableUnits;
 	}
 };
 
@@ -1172,7 +1284,8 @@ struct ExchangeDialog : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & heroes;
+		h & queryID;
+		h & heroes;
 	}
 };
 
@@ -1195,7 +1308,11 @@ struct TeleportDialog : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & hero & channel & exits & impassable;
+		h & queryID;
+		h & hero;
+		h & channel;
+		h & exits;
+		h & impassable;
 	}
 };
 
@@ -1213,7 +1330,12 @@ struct MapObjectSelectDialog : public Query
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & queryID & player & icon & title & description & objects;
+		h & queryID;
+		h & player;
+		h & icon;
+		h & title;
+		h & description;
+		h & objects;
 	}
 };
 
@@ -1267,7 +1389,8 @@ struct BattleSetActiveStack : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & askPlayerInterface;
+		h & stack;
+		h & askPlayerInterface;
 	}
 };
 
@@ -1292,7 +1415,12 @@ struct BattleResult : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result & winner & casualties[0] & casualties[1] & exp & artifacts;
+		h & result;
+		h & winner;
+		h & casualties[0];
+		h & casualties[1];
+		h & exp;
+		h & artifacts;
 	}
 };
 
@@ -1308,7 +1436,9 @@ struct BattleStackMoved : public CPackForClient
 	void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & tilesToMove & distance;
+		h & stack;
+		h & tilesToMove;
+		h & distance;
 	}
 };
 
@@ -1329,7 +1459,10 @@ struct StacksHealedOrResurrected : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & healedStacks & lifeDrain & tentHealing & drainedFrom;
+		h & healedStacks;
+		h & lifeDrain;
+		h & tentHealing;
+		h & drainedFrom;
 		h & cure;
 	}
 };
@@ -1387,8 +1520,14 @@ struct BattleStackAttacked : public CPackForClient
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackAttacked & attackerID & newHealth & flags & killedAmount & damageAmount & effect
-			& healedStacks;
+		h & stackAttacked;
+		h & attackerID;
+		h & newHealth;
+		h & flags;
+		h & killedAmount;
+		h & damageAmount;
+		h & effect;
+		h & healedStacks;
 		h & spellID;
 	}
 	bool operator<(const BattleStackAttacked &b) const
@@ -1443,7 +1582,10 @@ struct BattleAttack : public CPackForClient
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bsa & stackAttacking & flags & spellID;
+		h & bsa;
+		h & stackAttacking;
+		h & flags;
+		h & spellID;
 	}
 };
 
@@ -1481,7 +1623,8 @@ struct BattleSpellCast : public CPackForClient
 		ui32 stack;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & effect & stack;
+			h & effect;
+			h & stack;
 		}
 	};
 
@@ -1510,7 +1653,15 @@ struct BattleSpellCast : public CPackForClient
 	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & id & skill & manaGained & tile & customEffects & affectedCres & casterStack & castByHero;
+		h & side;
+		h & id;
+		h & skill;
+		h & manaGained;
+		h & tile;
+		h & customEffects;
+		h & affectedCres;
+		h & casterStack;
+		h & castByHero;
 		h & battleLog;
 	}
 };
@@ -1534,8 +1685,11 @@ struct SetStackEffect : public CPackForClient
 	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stacks & effect & uniqueBonuses;
-		h & cumulativeEffects & cumulativeUniqueBonuses;
+		h & stacks;
+		h & effect;
+		h & uniqueBonuses;
+		h & cumulativeEffects;
+		h & cumulativeUniqueBonuses;
 		h & battleLog;
 	}
 };
@@ -1562,7 +1716,8 @@ struct BattleResultsApplied : public CPackForClient
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player1 & player2;
+		h & player1;
+		h & player2;
 	}
 };
 
@@ -1593,7 +1748,9 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & destinationTile & attackedPart & damageDealt;
+			h & destinationTile;
+			h & attackedPart;
+			h & damageDealt;
 		}
 	};
 
@@ -1609,7 +1766,8 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & attackedParts & attacker;
+		h & attackedParts;
+		h & attacker;
 	}
 };
 
@@ -1650,7 +1808,11 @@ struct BattleStackAdded : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & creID & amount & pos & summoned;
+		h & side;
+		h & creID;
+		h & amount;
+		h & pos;
+		h & summoned;
 	}
 };
 
@@ -1671,7 +1833,10 @@ struct BattleSetStackProperty : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackID & which & val & absolute;
+		h & stackID;
+		h & which;
+		h & val;
+		h & absolute;
 	}
 };
 
@@ -1692,7 +1857,10 @@ struct BattleTriggerEffect : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackID & effect & val & additionalInfo;
+		h & stackID;
+		h & effect;
+		h & val;
+		h & additionalInfo;
 	}
 };
 
@@ -1736,7 +1904,9 @@ struct ShowInInfobox : public CPackForClient
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & c & text;
+		h & player;
+		h & c;
+		h & text;
 	}
 };
 
@@ -1749,7 +1919,8 @@ struct AdvmapSpellCast : public CPackForClient
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & caster & spellID;
+		h & caster;
+		h & spellID;
 	}
 };
 
@@ -1765,7 +1936,8 @@ struct ShowWorldViewEx : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player & objectPositions;
+		h & player;
+		h & objectPositions;
 	}
 };
 
@@ -1840,7 +2012,9 @@ struct MoveHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dest & hid & transit;
+		h & dest;
+		h & hid;
+		h & transit;
 	}
 };
 
@@ -1855,7 +2029,8 @@ struct CastleTeleportHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & dest & hid;
+		h & dest;
+		h & hid;
 	}
 };
 
@@ -1872,7 +2047,12 @@ struct ArrangeStacks : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & what & p1 & p2 & id1 & id2 & val;
+		h & what;
+		h & p1;
+		h & p2;
+		h & id1;
+		h & id2;
+		h & val;
 	}
 };
 
@@ -1886,7 +2066,8 @@ struct DisbandCreature : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & id;
+		h & pos;
+		h & id;
 	}
 };
 
@@ -1900,7 +2081,8 @@ struct BuildStructure : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid;
+		h & tid;
+		h & bid;
 	}
 };
 
@@ -1924,7 +2106,11 @@ struct RecruitCreatures : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & dst & crid & amount & level;
+		h & tid;
+		h & dst;
+		h & crid;
+		h & amount;
+		h & level;
 	}
 };
 
@@ -1939,7 +2125,9 @@ struct UpgradeCreature : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & id & cid;
+		h & pos;
+		h & id;
+		h & cid;
 	}
 };
 
@@ -1965,7 +2153,8 @@ struct ExchangeArtifacts : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & src & dst;
+		h & src;
+		h & dst;
 	}
 };
 
@@ -1982,7 +2171,10 @@ struct AssembleArtifacts : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroID & artifactSlot & assemble & assembleTo;
+		h & heroID;
+		h & artifactSlot;
+		h & assemble;
+		h & assembleTo;
 	}
 };
 
@@ -1996,7 +2188,8 @@ struct BuyArtifact : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & aid;
+		h & hid;
+		h & aid;
 	}
 };
 
@@ -2015,7 +2208,12 @@ struct TradeOnMarketplace : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & market & hero & mode & r1 & r2 & val;
+		h & market;
+		h & hero;
+		h & mode;
+		h & r1;
+		h & r2;
+		h & val;
 	}
 };
 
@@ -2029,7 +2227,8 @@ struct SetFormation : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & formation;
+		h & hid;
+		h & formation;
 	}
 };
 
@@ -2044,7 +2243,9 @@ struct HireHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & tid & player;
+		h & hid;
+		h & tid;
+		h & player;
 	}
 };
 
@@ -2072,7 +2273,9 @@ struct QueryReply : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & qid & player & reply;
+		h & qid;
+		h & player;
+		h & reply;
 	}
 };
 
@@ -2124,7 +2327,9 @@ struct CastAdvSpell : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid & sid & pos;
+		h & hid;
+		h & sid;
+		h & pos;
 	}
 };
 
@@ -2161,7 +2366,9 @@ struct PlayerMessage : public CPackForClient, public CPackForServer
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & text & player & currObj;
+		h & text;
+		h & player;
+		h & currObj;
 	}
 };
 
@@ -2176,7 +2383,9 @@ struct CenterView : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & player & focusTime;
+		h & pos;
+		h & player;
+		h & focusTime;
 	}
 };
 
@@ -2200,7 +2409,8 @@ struct ChatMessage : public CPregamePackToPropagate
 	void apply(CSelectionScreen *selScreen);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & playerName & message;
+		h & playerName;
+		h & message;
 	}
 };
 
@@ -2221,7 +2431,8 @@ struct PlayerJoined : public CPregamePackToHost
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & playerName & connectionID;
+		h & playerName;
+		h & connectionID;
 	}
 };
 
@@ -2292,7 +2503,9 @@ struct RequestOptionsChange : public CPregamePackToHost
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & what & direction & playerID;
+		h & what;
+		h & direction;
+		h & playerID;
 	}
 };
 

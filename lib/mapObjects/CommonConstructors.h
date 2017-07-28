@@ -76,7 +76,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & filtersJson & faction & filters;
+		h & filtersJson;
+		h & faction;
+		h & filters;
 		h & static_cast<CDefaultObjectTypeHandler<CGTownInstance>&>(*this);
 	}
 };
@@ -99,7 +101,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & filtersJson & heroClass & filters;
+		h & filtersJson;
+		h & heroClass;
+		h & filters;
 		h & static_cast<CDefaultObjectTypeHandler<CGHeroInstance>&>(*this);
 	}
 };
@@ -125,7 +129,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & availableCreatures & guards;
+		h & availableCreatures;
+		h & guards;
 		h & static_cast<CDefaultObjectTypeHandler<CGDwelling>&>(*this);
 	}
 };
@@ -145,7 +150,15 @@ struct BankConfig
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts & value & spells;
+		h & chance;
+		h & upgradeChance;
+		h & guards;
+		h & combatValue;
+		h & resources;
+		h & creatures;
+		h & artifacts;
+		h & value;
+		h & spells;
 	}
 };
 
@@ -190,7 +203,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & levels & bankResetDuration;
+		h & levels;
+		h & bankResetDuration;
 		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
 	}
 };

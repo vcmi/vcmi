@@ -25,7 +25,12 @@ struct DLL_LINKAGE BattleAction
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & stackNumber & actionType & destinationTile & additionalInfo & selectedStack;
+		h & side;
+		h & stackNumber;
+		h & actionType;
+		h & destinationTile;
+		h & additionalInfo;
+		h & selectedStack;
 	}
 
 	BattleAction();

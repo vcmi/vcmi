@@ -23,6 +23,7 @@ struct DLL_LINKAGE SiegeInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & wallState & gateState;
+		h & wallState;
+		h & gateState;
 	}
 };

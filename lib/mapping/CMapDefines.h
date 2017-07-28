@@ -32,8 +32,14 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & name & message & resources
-				& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+		h & name;
+		h & message;
+		h & resources;
+		h & players;
+		h & humanAffected;
+		h & computerAffected;
+		h & firstOccurence;
+		h & nextOccurence;
 	}
 };
 
@@ -51,7 +57,8 @@ public:
 	void serialize(Handler & h, const int version)
 	{
 		h & static_cast<CMapEvent &>(*this);
-		h & buildings & creatures;
+		h & buildings;
+		h & creatures;
 	}
 };
 
@@ -91,8 +98,16 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & terType & terView & riverType & riverDir & roadType &roadDir & extTileFlags;
-		h & visitable & blocked;
-		h & visitableObjects & blockingObjects;
+		h & terType;
+		h & terView;
+		h & riverType;
+		h & riverDir;
+		h & roadType;
+		h & roadDir;
+		h & extTileFlags;
+		h & visitable;
+		h & blocked;
+		h & visitableObjects;
+		h & blockingObjects;
 	}
 };

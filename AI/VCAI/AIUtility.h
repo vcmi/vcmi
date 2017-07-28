@@ -62,7 +62,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & this->h & hid & name;
+		h & this->h;
+		h & hid;
+		h & name;
 	}
 };
 

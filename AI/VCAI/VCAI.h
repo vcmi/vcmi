@@ -63,7 +63,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & battle & remainingQueries & requestToQueryID & havingTurn;
+		h & battle;
+		h & remainingQueries;
+		h & requestToQueryID;
+		h & havingTurn;
 	}
 };
 
@@ -350,10 +353,18 @@ public:
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
-		h & knownTeleportChannels & knownSubterraneanGates & destinationTeleport;
-		h & townVisitsThisWeek & lockedHeroes & reservedHeroesMap; //FIXME: cannot instantiate abstract class
-		h & visitableObjs & alreadyVisited & reservedObjs;
-		h & saving & status & battlename;
+		h & knownTeleportChannels;
+		h & knownSubterraneanGates;
+		h & destinationTeleport;
+		h & townVisitsThisWeek;
+		h & lockedHeroes;
+		h & reservedHeroesMap; //FIXME: cannot instantiate abstract class
+		h & visitableObjs;
+		h & alreadyVisited;
+		h & reservedObjs;
+		h & saving;
+		h & status;
+		h & battlename;
 		h & heroesUnableToExplore;
 
 		//myCB is restored after load by init call

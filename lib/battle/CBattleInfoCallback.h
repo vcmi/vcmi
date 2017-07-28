@@ -26,7 +26,8 @@ struct DLL_LINKAGE AttackableTiles
 	std::set<BattleHex> friendlyCreaturePositions; //for Dragon Breath
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hostileCreaturePositions & friendlyCreaturePositions;
+		h & hostileCreaturePositions;
+		h & friendlyCreaturePositions;
 	}
 };
 

@@ -26,7 +26,10 @@
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & pos & id & subId & owner;
+		h & pos;
+		h & id;
+		h & subId;
+		h & owner;
 	}
  };
 

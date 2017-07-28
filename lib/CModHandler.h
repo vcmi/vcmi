@@ -54,7 +54,8 @@ class CIdentifierStorage
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & id & scope;
+			h & id;
+			h & scope;
 		}
 	};
 
@@ -98,7 +99,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & registeredObjects & state;
+		h & registeredObjects;
+		h & state;
 	}
 };
 
@@ -205,9 +207,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & description & name;
-		h & dependencies & conflicts & config;
-		h & checksum & validation & enabled;
+		h & identifier;
+		h & description;
+		h & name;
+		h & dependencies;
+		h & conflicts;
+		h & config;
+		h & checksum;
+		h & validation;
+		h & enabled;
 	}
 private:
 	void loadLocalData(const JsonNode & data);
@@ -271,9 +279,15 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP & MAX_BUILDING_PER_TURN;
-			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS &
-			MAX_HEROES_AVAILABLE_PER_PLAYER & MAX_HEROES_ON_MAP_PER_PLAYER;
+			h & data;
+			h & CREEP_SIZE;
+			h & WEEKLY_GROWTH;
+			h & NEUTRAL_STACK_EXP;
+			h & MAX_BUILDING_PER_TURN;
+			h & DWELLINGS_ACCUMULATE_CREATURES;
+			h & ALL_CREATURES_GET_DOUBLE_MONTHS;
+			h & MAX_HEROES_AVAILABLE_PER_PLAYER;
+			h & MAX_HEROES_ON_MAP_PER_PLAYER;
 			if(version >= 756)
 			{
 				h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
@@ -303,7 +317,10 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & STACK_EXP & STACK_ARTIFACT & COMMANDERS & MITHRIL;
+			h & STACK_EXP;
+			h & STACK_ARTIFACT;
+			h & COMMANDERS;
+			h & MITHRIL;
 		}
 	} modules;
 
@@ -318,6 +335,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & allMods & activeMods & settings & modules & identifiers;
+		h & allMods;
+		h & activeMods;
+		h & settings;
+		h & modules;
+		h & identifiers;
 	}
 };

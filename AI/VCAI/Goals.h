@@ -121,8 +121,18 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & goalType & isElementar & isAbstract & priority;
-		h & value & resID & objid & aid & tile & hero & town & bid;
+		h & goalType;
+		h & isElementar;
+		h & isAbstract;
+		h & priority;
+		h & value;
+		h & resID;
+		h & objid;
+		h & aid;
+		h & tile;
+		h & hero;
+		h & town;
+		h & bid;
 	}
 };
 

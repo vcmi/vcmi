@@ -88,7 +88,8 @@ private:
 public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this) & creatures;
+		h & static_cast<CArmedInstance&>(*this);
+		h & creatures;
 	}
 };
 
@@ -102,7 +103,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & id;
+		h & ID;
+		h & id;
 	}
 };
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
@@ -189,15 +191,27 @@ public:
 		h & static_cast<CGDwelling&>(*this);
 		h & static_cast<IShipyard&>(*this);
 		h & static_cast<IMarket&>(*this);
-		h & name & builded & destroyed & identifier;
-		h & garrisonHero & visitingHero;
-		h & alignment & forbiddenBuildings & builtBuildings & bonusValue
-			& possibleSpells & obligatorySpells & spells & /*strInfo & */events & bonusingBuildings;
+		h & name;
+		h & builded;
+		h & destroyed;
+		h & identifier;
+		h & garrisonHero;
+		h & visitingHero;
+		h & alignment;
+		h & forbiddenBuildings;
+		h & builtBuildings;
+		h & bonusValue;
+		h & possibleSpells;
+		h & obligatorySpells;
+		h & spells;
+		h & events;
+		h & bonusingBuildings;
 
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 			(*i)->town = this;
 
-		h & town & townAndVis;
+		h & town;
+		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
 
 		vstd::erase_if(builtBuildings, [this](BuildingID building) -> bool

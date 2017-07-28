@@ -335,7 +335,19 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
+		h & duration;
+		h & type;
+		h & subtype;
+		h & source;
+		h & val;
+		h & sid;
+		h & description;
+		h & additionalInfo;
+		h & turnsRemain;
+		h & valType;
+		h & effectRange;
+		h & limiter;
+		h & propagator;
 	}
 
 	template <typename Ptr>
@@ -692,7 +704,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & /*bonuses & */nodeType;
+//		h & bonuses;
+		h & nodeType;
 		h & exportedBonuses;
 		h & description;
 		BONUS_TREE_DESERIALIZATION_FIX
@@ -816,7 +829,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & creature & includeUpgrades;
+		h & creature;
+		h & includeUpgrades;
 	}
 };
 
@@ -835,7 +849,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & type & subtype & isSubtypeRelevant;
+		h & type;
+		h & subtype;
+		h & isSubtypeRelevant;
 	}
 };
 
@@ -915,7 +931,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & minRank & maxRank;
+		h & minRank;
+		h & maxRank;
 	}
 };
 

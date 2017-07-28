@@ -125,7 +125,9 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & magicSchoolCounter & wisdomCounter & rand;
+			h & magicSchoolCounter;
+			h & wisdomCounter;
+			h & rand;
 		}
 	} skillsInfo;
 
@@ -278,10 +280,26 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
-		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & spells & patrol & moveDir & skillsInfo;
-		h & visitedTown & boat;
-		h & type & specialty & commander & visitedObjects;
+		h & exp;
+		h & level;
+		h & name;
+		h & biography;
+		h & portrait;
+		h & mana;
+		h & secSkills;
+		h & movement;
+		h & sex;
+		h & inTownGarrison;
+		h & spells;
+		h & patrol;
+		h & moveDir;
+		h & skillsInfo;
+		h & visitedTown;
+		h & boat;
+		h & type;
+		h & specialty;
+		h & commander;
+		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
 	}

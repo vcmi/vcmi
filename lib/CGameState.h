@@ -72,11 +72,22 @@ struct DLL_LINKAGE SThievesGuildInfo
     std::map<PlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
 	std::map<PlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
 
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & playerColors & numOfTowns & numOfHeroes & gold & woodOre & mercSulfCrystGems & obelisks & artifacts & army & income;
-// 		h & colorToBestHero & personality & bestCreature;
-// 	}
+//	template <typename Handler> void serialize(Handler &h, const int version)
+//	{
+//		h & playerColors;
+//		h & numOfTowns;
+//		h & numOfHeroes;
+//		h & gold;
+//		h & woodOre;
+//		h & mercSulfCrystGems;
+//		h & obelisks;
+//		h & artifacts;
+//		h & army;
+//		h & income;
+//		h & colorToBestHero;
+//		h & personality;
+//		h & bestCreature;
+//	}
 
 };
 
@@ -104,7 +115,8 @@ struct DLL_LINKAGE RumorState
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & last;
+		h & type;
+		h & last;
 	}
 };
 
@@ -133,7 +145,8 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & heroesPool & pavailable;
+			h & heroesPool;
+			h & pavailable;
 		}
 	} hpool; //we have here all heroes available on this map that are not hired
 
@@ -194,13 +207,24 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & rand;
+		h & scenarioOps;
+		h & initialOpts;
+		h & currentPlayer;
+		h & day;
+		h & map;
+		h & players;
+		h & teams;
+		h & hpool;
+		h & globalEffects;
+		h & rand;
 		if(version >= 755) //save format backward compatibility
 		{
 			h & rumor;
 		}
 		else if(!h.saving)
+		{
 			rumor = RumorState();
+		}
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

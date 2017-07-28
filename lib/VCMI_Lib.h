@@ -59,7 +59,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & objtypeh & spellh & modh & IS_AI_ENABLED;
+		h & heroh;
+		h & arth;
+		h & creh;
+		h & townh;
+		h & objh;
+		h & objtypeh;
+		h & spellh;
+		h & modh;
+		h & IS_AI_ENABLED;
 		h & bth;
 		if(!h.saving)
 		{

@@ -179,10 +179,18 @@ public:
 	{
 		if(version >= 759)
 		{
-			h & instanceName & typeName & subTypeName;
+			h & instanceName;
+			h & typeName;
+			h & subTypeName;
 		}
 
-		h & pos & ID & subID & id & tempOwner & blockVisit & appearance;
+		h & pos;
+		h & ID;
+		h & subID;
+		h & id;
+		h & tempOwner;
+		h & blockVisit;
+		h & appearance;
 		//definfo is handled by map serializer
 	}
 

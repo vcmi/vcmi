@@ -49,7 +49,10 @@ struct DLL_LINKAGE CObstacleInstance
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & pos & obstacleType & uniqueID;
+		h & ID;
+		h & pos;
+		h & obstacleType;
+		h & uniqueID;
 	}
 };
 
@@ -76,6 +79,10 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CObstacleInstance&>(*this);
-		h & turnsRemaining & casterSpellPower & spellLevel & casterSide & visibleForAnotherSide;
+		h & turnsRemaining;
+		h & casterSpellPower;
+		h & spellLevel;
+		h & casterSide;
+		h & visibleForAnotherSide;
 	}
 };

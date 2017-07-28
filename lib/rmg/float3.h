@@ -145,7 +145,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const float version)
 	{
-		h & x & y & z;
+		h & x;
+		h & y;
+		h & z;
 	}
 };
 
