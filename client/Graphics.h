@@ -84,7 +84,7 @@ public:
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
-	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
+	std::vector<std::string> battleBackgrounds; //vector of possible names for certain terrain type
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 
 	//functions

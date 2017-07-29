@@ -1812,17 +1812,17 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattlefieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(!tile.valid() && curB)
 		tile = curB->tile;
 	else if(!tile.valid() && !curB)
-		return BFieldType::NONE;
+		return BattlefieldType::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
 	//fight in mine -> subterranean
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BFieldType::SUBTERRANEAN;
+		return BattlefieldType::SUBTERRANEAN;
 
 	for(auto &obj : map->objects)
 	{
@@ -1833,55 +1833,55 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		switch(obj->ID)
 		{
 		case Obj::CLOVER_FIELD:
-			return BFieldType::CLOVER_FIELD;
+			return BattlefieldType::CLOVER_FIELD;
 		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return BFieldType::CURSED_GROUND;
+			return BattlefieldType::CURSED_GROUND;
 		case Obj::EVIL_FOG:
-			return BFieldType::EVIL_FOG;
+			return BattlefieldType::EVIL_FOG;
 		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVORABLE_WINDS;
+			return BattlefieldType::FAVORABLE_WINDS;
 		case Obj::FIERY_FIELDS:
-			return BFieldType::FIERY_FIELDS;
+			return BattlefieldType::FIERY_FIELDS;
 		case Obj::HOLY_GROUNDS:
-			return BFieldType::HOLY_GROUND;
+			return BattlefieldType::HOLY_GROUND;
 		case Obj::LUCID_POOLS:
-			return BFieldType::LUCID_POOLS;
+			return BattlefieldType::LUCID_POOLS;
 		case Obj::MAGIC_CLOUDS:
-			return BFieldType::MAGIC_CLOUDS;
+			return BattlefieldType::MAGIC_CLOUDS;
 		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return BFieldType::MAGIC_PLAINS;
+			return BattlefieldType::MAGIC_PLAINS;
 		case Obj::ROCKLANDS:
-			return BFieldType::ROCKLANDS;
+			return BattlefieldType::ROCKLANDS;
 		}
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BFieldType::SAND_SHORE;
+		return BattlefieldType::SAND_SHORE;
 
 	switch(t.terType)
 	{
 	case ETerrainType::DIRT:
-		return BFieldType(rand.nextInt(3, 5));
+		return BattlefieldType(rand.nextInt(3, 5));
 	case ETerrainType::SAND:
-		return BFieldType::SAND_MESAS; //TODO: coast support
+		return BattlefieldType::SAND_MESAS; //TODO: coast support
 	case ETerrainType::GRASS:
-		return BFieldType(rand.nextInt(6, 7));
+		return BattlefieldType(rand.nextInt(6, 7));
 	case ETerrainType::SNOW:
-		return BFieldType(rand.nextInt(10, 11));
+		return BattlefieldType(rand.nextInt(10, 11));
 	case ETerrainType::SWAMP:
-		return BFieldType::SWAMP_TREES;
+		return BattlefieldType::SWAMP_TREES;
 	case ETerrainType::ROUGH:
-		return BFieldType::ROUGH;
+		return BattlefieldType::ROUGH;
 	case ETerrainType::SUBTERRANEAN:
-		return BFieldType::SUBTERRANEAN;
+		return BattlefieldType::SUBTERRANEAN;
 	case ETerrainType::LAVA:
-		return BFieldType::LAVA;
+		return BattlefieldType::LAVA;
 	case ETerrainType::WATER:
-		return BFieldType::SHIP;
+		return BattlefieldType::SHIP;
 	case ETerrainType::ROCK:
-		return BFieldType::ROCKLANDS;
+		return BattlefieldType::ROCKLANDS;
 	default:
-		return BFieldType::NONE;
+		return BattlefieldType::NONE;
 	}
 }
 

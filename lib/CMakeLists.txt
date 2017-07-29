@@ -11,7 +11,6 @@ set(lib_SRCS
 		battle/CBattleInfoCallback.cpp
 		battle/CBattleInfoEssentials.cpp
 		battle/CCallbackBase.cpp
-		battle/CObstacleInstance.cpp
 		battle/CPlayerBattleCallback.cpp
 		battle/CUnitState.cpp
 		battle/Destination.cpp
@@ -19,7 +18,23 @@ set(lib_SRCS
 		battle/ReachabilityInfo.cpp
 		battle/SideInBattle.cpp
 		battle/SiegeInfo.cpp
+
 		battle/Unit.cpp
+
+		battle/RandGen.cpp
+		battle/RangeGenerator.cpp
+		battle/handler/BattlefieldHandler.cpp
+
+		battle/obstacle/Obstacle.cpp
+		battle/obstacle/ObstacleArea.cpp
+		battle/obstacle/ObstacleGraphicsInfo.cpp
+		battle/obstacle/ObstacleJson.cpp
+		battle/obstacle/ObstacleRandomGenerator.cpp
+		battle/obstacle/ObstacleSurface.cpp
+		battle/obstacle/SpellCreatedObstacle.cpp
+		battle/obstacle/SpellCreatedObstacle.cpp
+		battle/obstacle/StaticObstacle.cpp
+		battle/obstacle/MoatObstacle.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CArchiveLoader.cpp
@@ -153,6 +168,7 @@ set(lib_SRCS
 		NetPacksLib.cpp
 		StartInfo.cpp
 		ResourceSet.cpp
+		UUID.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
 
@@ -181,7 +197,6 @@ set(lib_HEADERS
 		battle/CBattleInfoCallback.h
 		battle/CBattleInfoEssentials.h
 		battle/CCallbackBase.h
-		battle/CObstacleInstance.h
 		battle/CPlayerBattleCallback.h
 		battle/CUnitState.h
 		battle/Destination.h
@@ -190,7 +205,23 @@ set(lib_HEADERS
 		battle/ReachabilityInfo.h
 		battle/SideInBattle.h
 		battle/SiegeInfo.h
+
 		battle/Unit.h
+
+		battle/RandGen.h
+		battle/RangeGenerator.h
+		battle/handler/BattlefieldHandler.h
+
+		battle/obstacle/Obstacle.h
+		battle/obstacle/ObstacleArea.h
+		battle/obstacle/ObstacleGraphicsInfo.h
+		battle/obstacle/ObstacleJson.h
+		battle/obstacle/ObstacleRandomGenerator.h
+		battle/obstacle/ObstacleSurface.h
+		battle/obstacle/ObstacleType.h
+		battle/obstacle/SpellCreatedObstacle.h
+		battle/obstacle/StaticObstacle.h
+		battle/obstacle/MoatObstacle.h
 
 		filesystem/AdapterLoaders.h
 		filesystem/CArchiveLoader.h
@@ -344,6 +375,7 @@ set(lib_HEADERS
 		StartInfo.h
 		StringConstants.h
 		UnlockGuard.h
+		UUID.h
 		VCMIDirs.h
 		vcmi_endian.h
 		VCMI_Lib.h

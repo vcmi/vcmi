@@ -13,6 +13,11 @@
 		"config/factions/neutral.json"
 	],
 
+	"battlefields" :
+	[
+		"config/obstacles.json"
+	],
+
 	"creatures" :
 	[
 		"config/creatures/castle.json",
@@ -58,7 +63,7 @@
 	[
 		"config/artifacts.json"
 	],
-	
+
 	"heroClasses" :
 	[
 		"config/heroClasses.json"

@@ -24,6 +24,7 @@ struct ArtSlotInfo;
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "UUID.h"
 
 struct DLL_LINKAGE CPack
 {
@@ -325,15 +326,15 @@ public:
 class ObstacleChanges : public BattleChanges
 {
 public:
-	uint32_t id;
+	UUID id;
+	SpellID spellID;
 
 	ObstacleChanges()
-		: BattleChanges(EOperation::RESET_STATE),
-		id(0)
+		: BattleChanges(EOperation::RESET_STATE)
 	{
 	}
 
-	ObstacleChanges(uint32_t id_, EOperation operation_)
+	ObstacleChanges(UUID id_, EOperation operation_)
 		: BattleChanges(operation_),
 		id(id_)
 	{
@@ -344,5 +345,6 @@ public:
 		h & id;
 		h & data;
 		h & operation;
+		h & spellID;
 	}
 };

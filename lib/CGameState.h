@@ -173,7 +173,7 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
-	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
+	BattlefieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile

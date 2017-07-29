@@ -384,7 +384,6 @@ void BattleSpellMechanics::cast(IBattleState * battleState, vstd::RNG & rng, con
 		if(!buffer.empty())
 			battleState->removeUnitBonus(one->unitId(), buffer);
 	}
-
 	{
 		BattleStateProxy proxy(battleState);
 		for(auto & p : effectsToApply)
@@ -449,7 +448,6 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 		if(bonus->sid == id.toEnum())
 			return true;
 	}
-
 	return false;
 }
 
@@ -503,7 +501,6 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 				{
 					ret.insert(curLayer_it);
 				}
-
 			}
 			else if(elem == '-') //dash
 			{
@@ -513,7 +510,6 @@ std::set<BattleHex> BattleSpellMechanics::spellRangeInHexes(BattleHex centralHex
 			}
 		}
 	}
-
 	return ret;
 }
 
@@ -525,6 +521,7 @@ Target BattleSpellMechanics::transformSpellTarget(const Target & aimPoint) const
 	{
 		logGlobal->error("Aimed spell cast with no destination.");
 	}
+
 	else
 	{
 		const Destination & primary = aimPoint.at(0);

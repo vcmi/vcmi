@@ -17,7 +17,7 @@
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
-#include "../../battle/CObstacleInstance.h"
+#include "../../battle/obstacle/Obstacle.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 static const std::string EFFECT_NAME = "core:removeObstacle";
@@ -54,7 +54,7 @@ void RemoveObstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mech
 	BattleObstaclesChanged pack;
 
 	for(const auto & obstacle : getTargets(m, target, false))
-		pack.changes.emplace_back(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
+		pack.changes.emplace_back(obstacle->ID, BattleChanges::EOperation::REMOVE);
 
 	if(!pack.changes.empty())
 		battleState->apply(&pack);
@@ -68,11 +68,11 @@ void RemoveObstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeIdArray("removeSpells", removeSpells);
 }
 
-bool RemoveObstacle::canRemove(const CObstacleInstance * obstacle) const
+bool RemoveObstacle::canRemove(const Obstacle * obstacle) const
 {
-	if(removeAbsolute && obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+	if(removeAbsolute && obstacle->getType() == ObstacleType::STATIC)
 		return true;
-	if(removeUsual && obstacle->obstacleType == CObstacleInstance::USUAL)
+	if(removeUsual && obstacle->getType() == ObstacleType::STATIC)
 		return true;
 	auto spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(obstacle);
 
@@ -81,16 +81,16 @@ bool RemoveObstacle::canRemove(const CObstacleInstance * obstacle) const
 
 	if(spellObstacle && !removeSpells.empty())
 	{
-		if(vstd::contains(removeSpells, SpellID(spellObstacle->ID)))
+		if(vstd::contains(removeSpells, spellObstacle->spellID))
 			return true;
 	}
 
 	return false;
 }
 
-std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const
+std::set<const Obstacle *> RemoveObstacle::getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const
 {
-	std::set<const CObstacleInstance *> possibleTargets;
+	std::set<const Obstacle *> possibleTargets;
 	if(m->isMassive() || alwaysMassive)
 	{
 		for(const auto & obstacle : m->cb->battleGetAllObstacles())

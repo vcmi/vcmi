@@ -296,6 +296,12 @@ public:
 		save(ui32(data.length()));
 		this->write(data.c_str(),data.size());
 	}
+
+	void save(const boost::uuids::uuid &data)
+	{
+		save(boost::lexical_cast<std::string>(data));
+	}
+
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)
 	{

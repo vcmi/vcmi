@@ -780,8 +780,8 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 			auto instance = cb->battleGetObstacleByID(change.id);
 			if(instance)
 				battleInt->obstaclePlaced(*instance);
-			else
-				logNetwork->error("Invalid obstacle instance %d", change.id);
+	// for now		else
+	//			logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
 		else
 		{

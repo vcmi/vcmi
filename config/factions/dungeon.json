@@ -147,9 +147,6 @@
 			"mageGuild" : 5,
 			"primaryResource" : "sulfur",
 			"warMachine" : "ballista",
-			"moatDamage" : 90,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
-
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },
@@ -208,10 +205,10 @@
 					"arch" : { "x" : 471, "y" : 165 },
 					"gate" : { "x" : 395, "y" : 260 }
 				},
-				"moat" :
+				"mlip" :
 				{
-					"bank" : { "x" : 284, "y" : 94 },
-					"moat" : { "x" : 284, "y" : 94 }
+					"mlip" : { "x" : 284, "y" : 94 },
+
 				},
 				"static" :
 				{

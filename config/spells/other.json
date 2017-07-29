@@ -16,17 +16,20 @@
 						"passable" : true,
 						"trap" : true,
 						"trigger" : false,
+						"consistent" : false,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
-							"animation" : "C17SPE1",
-							"appearAnimation" : "C17SPE0",
-							"offsetY" : -42
+							"blockedTiles" :  [0],
+							"graphics" : "C17SPE1.def",
+							"appearAnimation" : "C17SPE0.def",
+							"offsetGraphicsInY" : -42
 						},
 						"defender" :{
-							"animation" : "C17SPE1",
-							"appearAnimation" : "C17SPE0",
-							"offsetY" : -42
+							"blockedTiles" :  [0],
+							"graphics" : "C17SPE1.def",
+							"appearAnimation" : "C17SPE0.def",
+							"offsetGraphicsInY" : -42
 						}
 					}
 				}
@@ -68,15 +71,18 @@
 						"trap" : false,
 						"trigger" : true,
 						"removeOnTrigger" : true,
+						"consistent" : false,
 						"patchCount" : 4,
 						"turnsRemaining" : -1,
 						"attacker" :{
-							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"blockedTiles" :  [0],
+							"graphics" : "C09SPF1.def",
+							"appearAnimation" : "C09SPF0.def"
 						},
 						"defender" :{
-							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"blockedTiles" :  [0],
+							"graphics" : "C09SPF1.def",
+							"appearAnimation" : "C09SPF0.def"
 						}
 					},
 					"damage":{
@@ -132,19 +138,22 @@
 						"passable" : false,
 						"trap" : false,
 						"trigger" : false,
+						"consistent" : true,
 						"patchCount" : 1,
 						"turnsRemaining" : 2,
 						"attacker" :{
-							"range" : [[""]],
-							"shape" : [[""], ["TR"]],
-							"animation" : "C15SPE1",
-							"appearAnimation" : "C15SPE0"
+							"blockedTiles" :  [0, 17],
+							"graphics" : "C15SPE1.def",
+							"appearAnimation" : "C15SPE0.def",
+							"offsetGraphicsInY" : 42 ,
+							"offsetGraphicsInX" : -21
 						},
 						"defender" :{
-							"range" : [[""]],
-							"shape" : [[""], ["TL"]],
-							"animation" : "C15SPE4",
-							"appearAnimation" : "C15SPE0"
+							"blockedTiles" :  [0, 18],
+							"graphics" : "C15SPE4.def",
+							"appearAnimation" : "C15SPE0.def",
+							"offsetGraphicsInY" : 42 ,
+							"offsetGraphicsInX" : -21
 						}
 					}
 				}
@@ -153,14 +162,18 @@
 				"battleEffects":{
 					"obstacle":{
 						"attacker" :{
-							"shape" : [[""], ["TR"], ["TR", "TL"]],
-							"animation" : "C15SPE10",
-							"appearAnimation" : "C15SPE9"
+							"blockedTiles" :  [0, 18, 34],
+							"graphics" : "C15SPE10.def",
+							"appearAnimation" : "C15SPE9.def",
+							"offsetGraphicsInY" : 84 ,
+							"offsetGraphicsInX" : 4
 						},
 						"defender" :{
-							"shape" : [[""], ["TL"], ["TL", "TR"]],
-							"animation" : "C15SPE7",
-							"appearAnimation" : "C15SPE6"
+							"blockedTiles" :  [0, 17, 34],
+							"graphics" : "C15SPE7.def",
+							"appearAnimation" : "C15SPE6.def",
+							"offsetGraphicsInY" : 84 ,
+							"offsetGraphicsInX" : 4
 						}
 					}
 				}
@@ -169,14 +182,18 @@
 				"battleEffects":{
 					"obstacle":{
 						"attacker" :{
-							"shape" : [[""], ["TR"], ["TR", "TL"]],
-							"animation" : "C15SPE10",
-							"appearAnimation" : "C15SPE9"
+							"blockedTiles" :  [0, 18, 34],
+							"graphics" : "C15SPE10.def",
+							"appearAnimation" : "C15SPE9.def",
+							"offsetGraphicsInY" : 84 ,
+							"offsetGraphicsInX" : 4 ,
 						},
 						"defender" :{
-							"shape" : [[""], ["TL"], ["TL", "TR"]],
-							"animation" : "C15SPE7",
-							"appearAnimation" : "C15SPE6"
+							"blockedTiles" :  [0, 17, 34],
+							"graphics" : "C15SPE7.def",
+							"appearAnimation" : "C15SPE6.def",
+							"offsetGraphicsInY" : 84 ,
+							"offsetGraphicsInX" : 4 ,
 						}
 					}
 				}
@@ -206,19 +223,18 @@
 						"passable" : true,
 						"trap" : false,
 						"trigger" : true,
+						"consistent" : false,
 						"patchCount" : 1,
 						"turnsRemaining" : 2,
 						"attacker" :{
-							"shape" : [[""]],
-							"range" : [[""], ["TR"]],
-							"animation" : "C07SPF61",
-							"appearAnimation" : "C07SPF60"
+							"blockedTiles" :  [0, 18],
+							"graphics" : "C07SPF61.def",
+							"appearAnimation" : "C07SPF60.def"
 						},
 						"defender" :{
-							"shape" : [[""]],
-							"range" : [[""], ["TL"]],
-							"animation" : "C07SPF61",
-							"appearAnimation" : "C07SPF60"
+							"blockedTiles" :  [0, 17],
+							"graphics" : "C07SPF61.def",
+							"appearAnimation" : "C07SPF60.def"
 						}
 					},
 					"damage":{
@@ -232,10 +248,10 @@
 				"battleEffects":{
 					"obstacle":{
 						"attacker" :{
-							"range" : [[""], ["TR"], ["TR", "TL"]]
+							"blockedTiles" :  [0, 18, 34]
 						},
 						"defender" :{
-							"range" : [[""], ["TL"], ["TL", "TR"]]
+							"blockedTiles" :  [0, 17, 34]
 						}
 					}
 				}
@@ -244,10 +260,10 @@
 				"battleEffects":{
 					"obstacle":{
 						"attacker" :{
-							"range" : [[""], ["TR"], ["TR", "TL"]]
+							"blockedTiles" :  [0, 18, 34]
 						},
 						"defender" :{
-							"range" : [[""], ["TL"], ["TL", "TR"]]
+							"blockedTiles" :  [0, 17, 34]
 						}
 					}
 				}

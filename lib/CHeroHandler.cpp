@@ -63,39 +63,6 @@ CHeroClass::CHeroClass()
 {
 }
 
-std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
-{
-	std::vector<BattleHex> ret;
-	if(isAbsoluteObstacle)
-	{
-		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
-	}
-
-	for(int offset : blockedTiles)
-	{
-		BattleHex toBlock = hex + offset;
-		if((hex.getY() & 1) && !(toBlock.getY() & 1))
-			toBlock += BattleHex::LEFT;
-
-		if(!toBlock.isValid())
-			logGlobal->error("Misplaced obstacle!");
-		else
-			ret.push_back(toBlock);
-	}
-
-	return ret;
-}
-
-bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefield) const
-{
-	if(specialBattlefield != -1)
-		return vstd::contains(allowedSpecialBfields, specialBattlefield);
-
-	return vstd::contains(allowedTerrains, terrainType);
-}
-
 CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	std::string affinityStr[2] = { "might", "magic" };
@@ -295,7 +262,13 @@ CHeroHandler::CHeroHandler()
 {
 	VLC->heroh = this;
 
-	loadObstacles();
+
+	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+	{
+		VLC->modh->identifiers.registerObject("core", "skill", NSecondarySkill::names[i], i);
+		VLC->modh->identifiers.registerObject("core", "secondarySkill", NSecondarySkill::names[i], i);
+	}
+
 	loadTerrains();
 	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
 	{
@@ -726,31 +699,6 @@ void CHeroHandler::loadExperience()
 		expPerLevel.push_back (expPerLevel[i] + diff);
 	}
 	expPerLevel.pop_back();//last value is broken
-}
-
-void CHeroHandler::loadObstacles()
-{
-	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
-	{
-		for(const JsonNode &obs : node.Vector())
-		{
-			int ID = obs["id"].Float();
-			CObstacleInfo & obi = out[ID];
-			obi.ID = ID;
-			obi.defName = obs["defname"].String();
-			obi.width = obs["width"].Float();
-			obi.height = obs["height"].Float();
-			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType> >();
-			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
-			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
-			obi.isAbsoluteObstacle = absolute;
-		}
-	};
-
-	const JsonNode config(ResourceID("config/obstacles.json"));
-	loadObstacles(config["obstacles"], false, obstacles);
-	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	//loadObstacles(config["moats"], true, moats);
 }
 
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)

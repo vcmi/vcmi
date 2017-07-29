@@ -18,6 +18,7 @@
 class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
+class ObstacleJson;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
@@ -27,10 +28,10 @@ public:
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
 	int3 tile; //for background and bonuses
 	std::vector<CStack*> stacks;
-	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
+	std::vector<std::shared_ptr<Obstacle> > obstacles;
 	SiegeInfo si;
 
-	BFieldType battlefieldType; //like !!BA:B
+	BattlefieldType battlefieldType; //like !!BA:B
 	ETerrainType terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
@@ -66,7 +67,7 @@ public:
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
-	BFieldType getBattlefieldType() const override;
+	BattlefieldType getBattlefieldType() const override;
 	ETerrainType getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;
@@ -109,7 +110,7 @@ public:
 	void setWallState(int partOfWall, si8 state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
-	void removeObstacle(uint32_t id) override;
+	void removeObstacle(UUID id) override;
 
 	void addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd);
 
@@ -131,12 +132,13 @@ public:
 
 	void localInit();
 
-	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BattlefieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], std::string creatureBankName, const CGTownInstance * town);
+	void setupObstacles(std::string creatureBankName);
+	void setupInherentObstacles(const std::vector<std::shared_ptr<ObstacleJson>> obstaclesConfigs, std::string creatureBankName);
+	void setupRandomObstacles(const std::vector<std::shared_ptr<ObstacleJson>> obstaclesConfigs, std::string creatureBankName);
+	std::shared_ptr<Obstacle> initObstacleFromJson(std::shared_ptr<ObstacleJson> json, int16_t position = 0);
 
 	ui8 whatSide(PlayerColor player) const;
-
-	static BattlefieldBI::BattlefieldBI battlefieldTypeToBI(BFieldType bfieldType); //converts above to ERM BI format
-	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
 };
 
 

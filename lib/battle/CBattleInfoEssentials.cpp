@@ -20,9 +20,9 @@ ETerrainType CBattleInfoEssentials::battleTerrainType() const
 	return getBattle()->getTerrainType();
 }
 
-BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
+BattlefieldType CBattleInfoEssentials::battleGetBattlefieldType() const
 {
-	RETURN_IF_NOT_BATTLE(BFieldType::NONE);
+	RETURN_IF_NOT_BATTLE(BattlefieldType::NONE);
 	return getBattle()->getBattlefieldType();
 }
 
@@ -32,9 +32,9 @@ int32_t CBattleInfoEssentials::battleGetEnchanterCounter(ui8 side) const
 	return getBattle()->getEnchanterCounter(side);
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective) const
+std::vector<std::shared_ptr<const Obstacle>> CBattleInfoEssentials::battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective) const
 {
-	std::vector<std::shared_ptr<const CObstacleInstance> > ret;
+	std::vector<std::shared_ptr<const Obstacle> > ret;
 	RETURN_IF_NOT_BATTLE(ret);
 
 	if(!perspective)
@@ -60,23 +60,23 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	return ret;
 }
 
-std::shared_ptr<const CObstacleInstance> CBattleInfoEssentials::battleGetObstacleByID(uint32_t ID) const
+std::shared_ptr<const Obstacle> CBattleInfoEssentials::battleGetObstacleByID(UUID ID) const
 {
-	std::shared_ptr<const CObstacleInstance> ret;
+	std::shared_ptr<const Obstacle> ret;
 
-	RETURN_IF_NOT_BATTLE(std::shared_ptr<const CObstacleInstance>());
+	RETURN_IF_NOT_BATTLE(std::shared_ptr<const Obstacle>());
 
 	for(auto obstacle : getBattle()->getAllObstacles())
 	{
-		if(obstacle->uniqueID == ID)
+		if(obstacle->ID.getID() == ID.getID())
 			return obstacle;
 	}
 
-	logGlobal->error("Invalid obstacle ID %d", ID);
-	return std::shared_ptr<const CObstacleInstance>();
+	logGlobal->error("Invalid obstacle ID %d", ID.getID());
+	return std::shared_ptr<const Obstacle>();
 }
 
-bool CBattleInfoEssentials::battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const
+bool CBattleInfoEssentials::battleIsObstacleVisibleForSide(const Obstacle & coi, BattlePerspective::BattlePerspective side) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	return side == BattlePerspective::ALL_KNOWING || coi.visibleForSide(side, battleHasNativeStack(side));

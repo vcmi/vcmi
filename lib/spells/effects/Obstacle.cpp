@@ -28,74 +28,6 @@ namespace effects
 
 VCMI_REGISTER_SPELL_EFFECT(Obstacle, EFFECT_NAME);
 
-ObstacleSideOptions::ObstacleSideOptions()
-	: shape(),
-	range()
-{
-}
-
-void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
-{
-	serializeRelativeShape(handler, "shape", shape);
-	serializeRelativeShape(handler, "range", range);
-
-	handler.serializeString("appearAnimation", appearAnimation);
-	handler.serializeString("animation", animation);
-
-	handler.serializeInt("offsetY", offsetY);
-}
-
-void ObstacleSideOptions::serializeRelativeShape(JsonSerializeFormat & handler, const std::string & fieldName, RelativeShape & value)
-{
-	static const std::vector<std::string> EDirMap =
-	{
-		"TL",
-		"TR",
-		"R",
-		"BR",
-		"BL",
-		"L",
-		""
-	};
-
-	{
-		JsonArraySerializer outer = handler.enterArray(fieldName);
-		outer.syncSize(value, JsonNode::JsonType::DATA_VECTOR);
-
-		for(size_t outerIndex = 0; outerIndex < outer.size(); outerIndex++)
-		{
-			JsonArraySerializer inner = outer.enterArray(outerIndex);
-			inner.syncSize(value.at(outerIndex), JsonNode::JsonType::DATA_STRING);
-
-			for(size_t innerIndex = 0; innerIndex < inner.size(); innerIndex++)
-			{
-				std::string temp;
-
-				if(handler.saving)
-				{
-					temp = EDirMap.at(value.at(outerIndex).at(innerIndex));
-				}
-
-				inner.serializeString(innerIndex, temp);
-
-				if(!handler.saving)
-				{
-					value.at(outerIndex).at(innerIndex) = (BattleHex::EDir) vstd::find_pos(EDirMap, temp);
-				}
-			}
-		}
-	}
-
-	if(!handler.saving)
-	{
-		if(value.empty())
-			value.emplace_back();
-
-		if(value.back().empty())
-			value.back().emplace_back(BattleHex::EDir::NONE);
-	}
-}
-
 Obstacle::Obstacle()
 	: LocationEffect(),
 	hidden(false),
@@ -114,17 +46,14 @@ void Obstacle::adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics 
 {
 	EffectTarget effectTarget = transformTarget(m, spellTarget, spellTarget);
 
-	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
+	auto options = area.at(m->casterSide);
 
 	for(auto & destination : effectTarget)
 	{
-		for(auto & trasformation : options.shape)
+		options.moveAreaToField(destination.hexValue);
+		
+		for(auto & hex : options.getFields())
 		{
-			BattleHex hex = destination.hexValue;
-
-			for(auto direction : trasformation)
-				hex.moveInDirection(direction, false);
-
 			if(hex.isValid())
 				hexes.insert(hex);
 		}
@@ -141,19 +70,17 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	if(!m->isMassive())
 	{
 		const bool requiresClearTiles = m->requiresClearTiles();
-		const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
+		auto options = area.at(m->casterSide);
 
 		if(target.empty())
 			return noRoomToPlace(problem, m);
 
 		for(const auto & destination : target)
 		{
-			for(auto & trasformation : options.shape)
+			options.moveAreaToField(destination.hexValue);
+			
+			for(auto & hex : options.getFields())
 			{
-				BattleHex hex = destination.hexValue;
-				for(auto direction : trasformation)
-					hex.moveInDirection(direction, false);
-
 				if(!isHexAvailable(m->cb, hex, requiresClearTiles))
 					return noRoomToPlace(problem, m);
 			}
@@ -165,27 +92,7 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 
 EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
-	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
-
-	EffectTarget ret;
-
-	if(!m->isMassive())
-	{
-		for(auto & spellDestination : spellTarget)
-		{
-			for(auto & rangeShape : options.range)
-			{
-				BattleHex hex = spellDestination.hexValue;
-
-				for(auto direction : rangeShape)
-					hex.moveInDirection(direction, false);
-
-				ret.emplace_back(hex);
-			}
-		}
-	}
-
-	return ret;
+	return EffectTarget(spellTarget);
 }
 
 void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
@@ -208,27 +115,46 @@ void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 		for(int i = 0; i < patchesToPut; i++)
 			randomTarget.emplace_back(availableTiles.at(i));
 
-		placeObstacles(battleState, m, randomTarget);
+		placeObstacles(battleState, m, randomTarget, area.at(m->casterSide));
+	}
+	else if(!consistent)
+	{
+		auto options = area.at(m->casterSide);
+		options.moveAreaToField(target[0].hexValue);
+		
+		EffectTarget randomTarget;
+		randomTarget.reserve(options.getFields().size());
+		for(auto i : options.getFields())
+			randomTarget.emplace_back(i);
+		
+		ObstacleArea area{{0}, 0};
+		placeObstacles(battleState, m, randomTarget, area);
 	}
 	else
 	{
-		placeObstacles(battleState, m, target);
+		placeObstacles(battleState, m, target, area.at(m->casterSide));
 	}
 }
 
 void Obstacle::serializeJsonEffect(JsonSerializeFormat & handler)
 {
+	ObstacleJson att(handler.getCurrent()["attacker"]);
+	ObstacleJson def(handler.getCurrent()["defender"]);
+	
 	handler.serializeBool("hidden", hidden);
 	handler.serializeBool("passable", passable);
 	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);
     handler.serializeBool("removeOnTrigger", removeOnTrigger);
+	handler.serializeBool("consistent", consistent);
 
 	handler.serializeInt("patchCount", patchCount);
 	handler.serializeInt("turnsRemaining", turnsRemaining, -1);
-
-	handler.serializeStruct("attacker", sideOptions.at(BattleSide::ATTACKER));
-	handler.serializeStruct("defender", sideOptions.at(BattleSide::DEFENDER));
+	
+	area.at(BattleSide::ATTACKER) = att.getArea();
+	area.at(BattleSide::DEFENDER) = def.getArea();
+	info.at(BattleSide::ATTACKER) = att.getGraphicsInfo();
+	info.at(BattleSide::DEFENDER) = def.getGraphicsInfo();
 }
 
 bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & hex, const bool mustBeClear)
@@ -245,7 +171,7 @@ bool Obstacle::isHexAvailable(const CBattleInfoCallback * cb, const BattleHex & 
 	auto obst = cb->battleGetAllObstaclesOnPos(hex, false);
 
 	for(auto & i : obst)
-		if(i->obstacleType != CObstacleInstance::MOAT)
+		if(i->getType() != ObstacleType::MOAT)
 			return false;
 
 	if(cb->battleGetSiegeLevel() != 0)
@@ -274,9 +200,10 @@ bool Obstacle::noRoomToPlace(Problem & problem, const Mechanics * m)
 	return false;
 }
 
-void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * m, const EffectTarget & target) const
+void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * m, const EffectTarget & target, const ObstacleArea & area) const
 {
-	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
+	auto options = area;
+	auto graphicsinfo = info.at(m->casterSide);
 
 	BattleObstaclesChanged pack;
 
@@ -287,19 +214,15 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 
 	auto all = m->cb->battleGetAllObstacles(perspective);
 
-	int obstacleIdToGive = 1;
-	for(auto & one : all)
-		if(one->uniqueID >= obstacleIdToGive)
-			obstacleIdToGive = one->uniqueID + 1;
-
 	for(const Destination & destination : target)
 	{
 		SpellCreatedObstacle obstacle;
-		obstacle.uniqueID = obstacleIdToGive++;
-		obstacle.pos = destination.hexValue;
-		obstacle.obstacleType = CObstacleInstance::USUAL;
-		obstacle.ID = m->getSpellIndex();
-
+		
+		options.moveAreaToField(destination.hexValue);
+		obstacle.setArea(options);
+		
+		obstacle.spellID = SpellID(m->getSpellIndex());
+		
 		obstacle.turnsRemaining = turnsRemaining;
 		obstacle.casterSpellPower = m->getEffectPower();
 		obstacle.spellLevel = m->getEffectLevel();//todo: level of indirect effect should be also configurable
@@ -310,25 +233,9 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 		obstacle.trigger = trigger;
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
-
-		obstacle.appearAnimation = options.appearAnimation;
-		obstacle.animation = options.animation;
-
-		obstacle.animationYOffset = options.offsetY;
-
-		obstacle.customSize.clear();
-		obstacle.customSize.reserve(options.shape.size());
-
-		for(auto & shape : options.shape)
-		{
-			BattleHex hex = destination.hexValue;
-
-			for(auto direction : shape)
-				hex.moveInDirection(direction, false);
-
-			obstacle.customSize.emplace_back(hex);
-		}
-
+		
+		obstacle.setGraphicsInfo(graphicsinfo);
+		
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());
 	}

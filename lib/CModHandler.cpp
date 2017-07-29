@@ -17,6 +17,7 @@
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"
 #include "CTownHandler.h"
+#include "battle/handler/BattlefieldHandler.h"
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "StringConstants.h"
@@ -433,11 +434,13 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldHandler, "battlefield")));
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
+
 
 	//TODO: any other types of moddables?
 }
@@ -977,6 +980,7 @@ void CModHandler::load()
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
 	content.preloadData(coreMod);
+
 	for(const TModID & modName : activeMods)
 		content.preloadData(allMods[modName]);
 	logMod->info("\tParsing mod data: %d ms", timer.getDiff());

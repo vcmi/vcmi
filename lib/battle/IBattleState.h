@@ -31,7 +31,7 @@ namespace battle
 class DLL_LINKAGE IBattleInfo
 {
 public:
-	using ObstacleCList = std::vector<std::shared_ptr<const CObstacleInstance>>;
+	using ObstacleCList = std::vector<std::shared_ptr<const Obstacle>>;
 
 	virtual ~IBattleInfo() = default;
 
@@ -41,7 +41,7 @@ public:
 
 	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
 
-	virtual BFieldType getBattlefieldType() const = 0;
+	virtual BattlefieldType getBattlefieldType() const = 0;
 	virtual ETerrainType getTerrainType() const = 0;
 
 	virtual ObstacleCList getAllObstacles() const = 0;
@@ -87,5 +87,5 @@ public:
 	virtual void setWallState(int partOfWall, si8 state) = 0;
 
 	virtual void addObstacle(const ObstacleChanges & changes) = 0;
-	virtual void removeObstacle(uint32_t id) = 0;
+	virtual void removeObstacle(UUID id) = 0;
 };
