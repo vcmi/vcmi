@@ -575,8 +575,10 @@ void CTradeWindow::showAll(SDL_Surface * to)
 
 	if(readyToTrade)
 	{
-		hLeft->showAllAt(pos.topLeft() + selectionOffset(true), selectionSubtitle(true), to);
-		hRight->showAllAt(pos.topLeft() + selectionOffset(false), selectionSubtitle(false), to);
+		if(hLeft)
+			hLeft->showAllAt(pos.topLeft() + selectionOffset(true), selectionSubtitle(true), to);
+		if(hRight)
+			hRight->showAllAt(pos.topLeft() + selectionOffset(false), selectionSubtitle(false), to);
 	}
 }
 
