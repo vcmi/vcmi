@@ -235,7 +235,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & QID & states & finishingBattle;
+		h & QID;
+		h & states;
+		h & finishingBattle;
 		if(version >= 761)
 		{
 			h & getRandomGenerator();
@@ -263,7 +265,10 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & winnerHero & loserHero & victor & loser;
+			h & winnerHero;
+			h & loserHero;
+			h & victor;
+			h & loser;
 			if(version < 774 && !h.saving)
 			{
 				bool duel;

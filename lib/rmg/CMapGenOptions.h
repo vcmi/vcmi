@@ -87,7 +87,9 @@ public:
 		template <typename Handler>
 		void serialize(Handler & h, const int version)
 		{
-			h & color & startingTown & playerType;
+			h & color;
+			h & startingTown;
+			h & playerType;
 		}
 	};
 
@@ -174,8 +176,17 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & width & height & hasTwoLevels & playerCount & teamCount & compOnlyPlayerCount;
-		h & compOnlyTeamCount & waterContent & monsterStrength & players & humanPlayersCount;
+		h & width;
+		h & height;
+		h & hasTwoLevels;
+		h & playerCount;
+		h & teamCount;
+		h & compOnlyPlayerCount;
+		h & compOnlyTeamCount;
+		h & waterContent;
+		h & monsterStrength;
+		h & players;
+		h & humanPlayersCount;
 		//TODO add name of template to class, enables selection of a template by a user
 	}
 };

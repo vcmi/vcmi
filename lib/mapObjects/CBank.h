@@ -41,7 +41,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & daycounter & bc & resetDuration;
+		h & daycounter;
+		h & bc;
+		h & resetDuration;
 	}
 
 	friend class CBankInstanceConstructor;

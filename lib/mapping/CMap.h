@@ -43,7 +43,8 @@ struct DLL_LINKAGE SHeroName
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & heroId & heroName;
+		h & heroId;
+		h & heroName;
 	}
 };
 
@@ -93,9 +94,22 @@ struct DLL_LINKAGE PlayerInfo
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & p7 & hasRandomHero & mainCustomHeroId & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
-				mainCustomHeroPortrait & mainCustomHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
-				posOfMainTown & team & generateHero;
+		h & p7;
+		h & hasRandomHero;
+		h & mainCustomHeroId;
+		h & canHumanPlay;
+		h & canComputerPlay;
+		h & aiTactic;
+		h & allowedFactions;
+		h & isFactionRandom;
+		h & mainCustomHeroPortrait;
+		h & mainCustomHeroName;
+		h & heroesNames;
+		h & hasMainTown;
+		h & generateHeroAtMainTown;
+		h & posOfMainTown;
+		h & team;
+		h & generateHero;
 
 		if(version >= 770)
 		{
@@ -156,7 +170,9 @@ struct DLL_LINKAGE EventCondition
 			h & objectInstanceName;
 		}
 		if(version >= 770)
+		{
 			h & metaType;
+		}
 	}
 };
 
@@ -179,7 +195,8 @@ struct DLL_LINKAGE EventEffect
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & type & toOtherMessage;
+		h & type;
+		h & toOtherMessage;
 	}
 };
 
@@ -206,7 +223,8 @@ struct DLL_LINKAGE TriggeredEvent
 		h & identifier;
 		h & trigger;
 		h & description;
-		h & onFulfill & effect;
+		h & onFulfill;
+		h & effect;
 	}
 };
 
@@ -222,7 +240,8 @@ struct DLL_LINKAGE Rumor
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & name & text;
+		h & name;
+		h & text;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);
@@ -241,7 +260,10 @@ struct DLL_LINKAGE DisposedHero
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & heroId & portrait & name & players;
+		h & heroId;
+		h & portrait;
+		h & name;
+		h & players;
 	}
 };
 
@@ -301,9 +323,23 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h, const int Version)
 	{
-		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPlayers;
-		h & players & howManyTeams & allowedHeroes & triggeredEvents;
-		h & victoryMessage & victoryIconIndex & defeatMessage & defeatIconIndex;
+		h & version;
+		h & name;
+		h & description;
+		h & width;
+		h & height;
+		h & twoLevel;
+		h & difficulty;
+		h & levelLimit;
+		h & areAnyPlayers;
+		h & players;
+		h & howManyTeams;
+		h & allowedHeroes;
+		h & triggeredEvents;
+		h & victoryMessage;
+		h & victoryIconIndex;
+		h & defeatMessage;
+		h & defeatIconIndex;
 	}
 };
 
@@ -385,8 +421,15 @@ public:
 	void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);
-		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & events & grailPos;
-		h & artInstances & quests & allHeroes;
+		h & rumors;
+		h & allowedSpell;
+		h & allowedAbilities;
+		h & allowedArtifact;
+		h & events;
+		h & grailPos;
+		h & artInstances;
+		h & quests;
+		h & allHeroes;
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
@@ -435,12 +478,16 @@ public:
 		}
 
 		h & objects;
-		h & heroesOnMap & teleportChannels & towns & artInstances;
+		h & heroesOnMap;
+		h & teleportChannels;
+		h & towns;
+		h & artInstances;
 
 		// static members
 		h & CGKeys::playerKeyMap;
 		h & CGMagi::eyelist;
-		h & CGObelisk::obeliskCount & CGObelisk::visited;
+		h & CGObelisk::obeliskCount;
+		h & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 		h & CGTownInstance::universitySkills;
 

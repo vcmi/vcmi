@@ -69,11 +69,20 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & timeBetweenFidgets & idleAnimationTime;
-			h & walkAnimationTime & attackAnimationTime & flightAnimationDistance;
-			h & upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX;
-			h & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY;
-			h & missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
+			h & timeBetweenFidgets;
+			h & idleAnimationTime;
+			h & walkAnimationTime;
+			h & attackAnimationTime;
+			h & flightAnimationDistance;
+			h & upperRightMissleOffsetX;
+			h & rightMissleOffsetX;
+			h & lowerRightMissleOffsetX;
+			h & upperRightMissleOffsetY;
+			h & rightMissleOffsetY;
+			h & lowerRightMissleOffsetY;
+			h & missleFrameAngles;
+			h & troopCountLocationOffset;
+			h & attackClimaxFrame;
 			h & projectileImageName;
 		}
 	} animation;
@@ -92,7 +101,14 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & attack & defend & killed & move & shoot & wince & startMoving & endMoving;
+			h & attack;
+			h & defend;
+			h & killed;
+			h & move;
+			h & shoot;
+			h & wince;
+			h & startMoving;
+			h & endMoving;
 		}
 	} sounds;
 
@@ -128,16 +144,32 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & namePl & nameSing & nameRef
-			& cost & upgrades
-			& fightValue & AIValue & growth & hordeGrowth
-			& ammMin & ammMax & level
-			& abilityText & animDefName & advMapDef;
-		h & iconIndex & smallIconName & largeIconName;
+		h & namePl;
+		h & nameSing;
+		h & nameRef;
+		h & cost;
+		h & upgrades;
+		h & fightValue;
+		h & AIValue;
+		h & growth;
+		h & hordeGrowth;
+		h & ammMin;
+		h & ammMax;
+		h & level;
+		h & abilityText;
+		h & animDefName;
+		h & advMapDef;
+		h & iconIndex;
+		h & smallIconName;
+		h & largeIconName;
 
-		h & idNumber & faction & sounds & animation;
+		h & idNumber;
+		h & faction;
+		h & sounds;
+		h & animation;
 
-		h & doubleWide & special;
+		h & doubleWide;
+		h & special;
 		if(version>=759)
 		{
 			h & identifier;
@@ -236,9 +268,14 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & doubledCreatures & creatures;
-		h & expRanks & maxExpPerBattle & expAfterUpgrade;
-		h & skillLevels & skillRequirements & commanderLevelPremy;
+		h & doubledCreatures;
+		h & creatures;
+		h & expRanks;
+		h & maxExpPerBattle;
+		h & expAfterUpgrade;
+		h & skillLevels;
+		h & skillRequirements;
+		h & commanderLevelPremy;
 		h & allCreatures;
 		h & creaturesOfLevel;
 		BONUS_TREE_DESERIALIZATION_FIX

@@ -44,8 +44,19 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & message & hasGuardians & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
-			& abilities & abilityLevels & artifacts & spells & creatures;
+		h & message;
+		h & hasGuardians;
+		h & gainedExp;
+		h & manaDiff;
+		h & moraleDiff;
+		h & luckDiff;
+		h & resources;
+		h & primskills;
+		h & abilities;
+		h & abilityLevels;
+		h & artifacts;
+		h & spells;
+		h & creatures;
 	}
 protected:
 	void giveContentsUpToExp(const CGHeroInstance *h) const;
@@ -68,7 +79,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGPandoraBox &>(*this);
-		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
+		h & removeAfterVisit;
+		h & availableFor;
+		h & computerActivate;
+		h & humanActivate;
 	}
 
 	CGEvent();

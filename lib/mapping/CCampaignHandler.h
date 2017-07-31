@@ -42,7 +42,14 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & version & mapVersion & name & description & difficultyChoosenByPlayer & music & filename & loadFromLod;
+		h & version;
+		h & mapVersion;
+		h & name;
+		h & description;
+		h & difficultyChoosenByPlayer;
+		h & music;
+		h & filename;
+		h & loadFromLod;
 	}
 };
 
@@ -70,7 +77,10 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
-			h & type & info1 & info2 & info3;
+			h & type;
+			h & info1;
+			h & info2;
+			h & info3;
 		}
 	};
 
@@ -80,7 +90,12 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & whatHeroKeeps & monstersKeptByHero & artifsKeptByHero & startOptions & playerColor & bonusesToChoose;
+		h & whatHeroKeeps;
+		h & monstersKeptByHero;
+		h & artifsKeptByHero;
+		h & startOptions;
+		h & playerColor;
+		h & bonusesToChoose;
 	}
 
 };
@@ -99,7 +114,10 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int formatVersion)
 		{
-			h & hasPrologEpilog & prologVideo & prologMusic & prologText;
+			h & hasPrologEpilog;
+			h & prologVideo;
+			h & prologMusic;
+			h & prologText;
 		}
 	};
 
@@ -128,8 +146,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & mapName & scenarioName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText &
-			prolog & epilog & travelOptions & crossoverHeroes & placedCrossoverHeroes & keepHeroes;
+		h & mapName;
+		h & scenarioName;
+		h & packedMapSize;
+		h & preconditionRegions;
+		h & regionColor;
+		h & difficulty;
+		h & conquered;
+		h & regionText;
+		h & prolog;
+		h & epilog;
+		h & travelOptions;
+		h & crossoverHeroes;
+		h & placedCrossoverHeroes;
+		h & keepHeroes;
 	}
 };
 
@@ -142,7 +172,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & header & scenarios & mapPieces;
+		h & header;
+		h & scenarios;
+		h & mapPieces;
 	}
 
 	bool conquerable(int whichScenario) const;
@@ -173,7 +205,11 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
+		h & camp;
+		h & campaignName;
+		h & mapsRemaining;
+		h & mapsConquered;
+		h & currentMap;
 		h & chosenCampaignBonuses;
 	}
 };

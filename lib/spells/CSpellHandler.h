@@ -61,7 +61,8 @@ public:
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & minimumAngle & resourceName;
+			h & minimumAngle;
+			h & resourceName;
 		}
 	};
 
@@ -75,7 +76,8 @@ public:
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & resourceName & verticalPosition;
+			h & resourceName;
+			h & verticalPosition;
 			if(version >= 754) //save format backward compatibility
 			{
 				h & pause;
@@ -110,9 +112,13 @@ public:
 
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & projectile & hit & cast;
+			h & projectile;
+			h & hit;
+			h & cast;
 			if(version >= 762)
+			{
 				h & affect;
+			}
 		}
 
 		std::string selectProjectile(const double angle) const;
@@ -138,11 +144,17 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & description & cost & power & AIValue & smartTarget & range;
+			h & description;
+			h & cost;
+			h & power;
+			h & AIValue;
+			h & smartTarget;
+			h & range;
 
 			if(version >= 773)
 			{
-				h & effects & cumulativeEffects;
+				h & effects;
+				h & cumulativeEffects;
 			}
 			else
 			{
@@ -159,7 +171,8 @@ public:
 				}
 			}
 
-			h & clearTarget & clearAffected;
+			h & clearTarget;
+			h & clearAffected;
 		}
 	};
 
@@ -267,27 +280,49 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & id & name & level & power
-		  & probabilities  & attributes & combatSpell & creatureAbility & positiveness & counteredSpells;
-		h & isRising & isDamage & isOffensive;
+		h & identifier;
+		h & id;
+		h & name;
+		h & level;
+		h & power;
+		h & probabilities;
+		h & attributes;
+		h & combatSpell;
+		h & creatureAbility;
+		h & positiveness;
+		h & counteredSpells;
+		h & isRising;
+		h & isDamage;
+		h & isOffensive;
 		h & targetType;
-		h & immunities & limiters & absoluteImmunities & absoluteLimiters;
+		h & immunities;
+		h & limiters;
+		h & absoluteImmunities;
+		h & absoluteLimiters;
 		h & iconImmune;
 		h & defaultProbability;
 		h & isSpecial;
-		h & castSound & iconBook & iconEffect & iconScenarioBonus & iconScroll;
+		h & castSound;
+		h & iconBook;
+		h & iconEffect;
+		h & iconScenarioBonus;
+		h & iconScroll;
 		h & levels;
 		h & school;
 		h & animationInfo;
 
 		if(!h.saving)
+		{
 			setup();
+		}
 		//backward compatibility
 		//can not be added to level structure as level structure does not know spell id
 		if(!h.saving && version < 773)
+		{
 			if(id == SpellID::DISRUPTING_RAY || id == SpellID::ACID_BREATH_DEFENSE)
 				for(auto & level : levels)
 					std::swap(level.effects, level.cumulativeEffects);
+		}
 	}
 	friend class CSpellHandler;
 	friend class Graphics;

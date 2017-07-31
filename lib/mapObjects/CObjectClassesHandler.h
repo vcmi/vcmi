@@ -43,7 +43,10 @@ struct DLL_LINKAGE RandomMapInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & value & mapLimit & zoneLimit & rarity;
+		h & value;
+		h & mapLimit;
+		h & zoneLimit;
+		h & rarity;
 	}
 };
 
@@ -159,10 +162,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & subtype & templates & rmgInfo & objectName;
+		h & type;
+		h & subtype;
+		h & templates;
+		h & rmgInfo;
+		h & objectName;
 		if(version >= 759)
 		{
-			h & typeName & subTypeName;
+			h & typeName;
+			h & subTypeName;
 		}
 	}
 };
@@ -186,10 +194,14 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & name & handlerName & base & subObjects;
+			h & name;
+			h & handlerName;
+			h & base;
+			h & subObjects;
 			if(version >= 759)
 			{
-				h & identifier & subIds;
+				h & identifier;
+				h & subIds;
 			}
 		}
 	};

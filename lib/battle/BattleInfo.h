@@ -37,9 +37,18 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & sides;
-		h & round & activeStack & selectedStack & town & tile & stacks & obstacles
-			& si & battlefieldType & terrainType;
-		h & tacticsSide & tacticDistance;
+		h & round;
+		h & activeStack;
+		h & selectedStack;
+		h & town;
+		h & tile;
+		h & stacks;
+		h & obstacles;
+		h & si;
+		h & battlefieldType;
+		h & terrainType;
+		h & tacticsSide;
+		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 

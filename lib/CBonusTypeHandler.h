@@ -50,7 +50,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & icon & nameTemplate & descriptionTemplate & hidden;
+		h & icon;
+		h & nameTemplate;
+		h & descriptionTemplate;
+		h & hidden;
 
 		if (!h.saving)
 			buildMacros();

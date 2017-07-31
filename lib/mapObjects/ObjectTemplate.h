@@ -88,8 +88,14 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & usedTiles & allowedTerrains & animationFile & stringID;
-		h & id & subid & printPriority & visitDir;
+		h & usedTiles;
+		h & allowedTerrains;
+		h & animationFile;
+		h & stringID;
+		h & id;
+		h & subid;
+		h & printPriority;
+		h & visitDir;
 		if(version >= 770)
 		{
 			h & editorAnimationFile;

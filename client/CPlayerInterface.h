@@ -125,7 +125,10 @@ public:
 		SpellbookLastSetting();
 		template <typename Handler> void serialize( Handler &h, const int version )
 		{
-			h & spellbookLastPageBattle & spellbokLastPageAdvmap & spellbookLastTabBattle & spellbookLastTabAdvmap;
+			h & spellbookLastPageBattle;
+			h & spellbokLastPageAdvmap;
+			h & spellbookLastTabBattle;
+			h & spellbookLastTabAdvmap;
 		}
 	} spellbookSettings;
 

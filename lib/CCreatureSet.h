@@ -35,7 +35,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & count;
+		h & type;
+		h & count;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);
@@ -60,7 +61,8 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
-		h & _armyObj & experience;
+		h & _armyObj;
+		h & experience;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
@@ -124,7 +126,11 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CStackInstance&>(*this);
-		h & alive & level & name & secondarySkills & specialSKills;
+		h & alive;
+		h & level;
+		h & name;
+		h & secondarySkills;
+		h & specialSKills;
 	}
 };
 
@@ -217,7 +223,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stacks & formation;
+		h & stacks;
+		h & formation;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName, const boost::optional<int> fixedSize = boost::none);

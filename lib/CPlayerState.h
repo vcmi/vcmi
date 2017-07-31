@@ -40,8 +40,17 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & human & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & quests & visitedObjects;
+		h & color;
+		h & human;
+		h & team;
+		h & resources;
+		h & status;
+		h & heroes;
+		h & towns;
+		h & availableHeroes;
+		h & dwellings;
+		h & quests;
+		h & visitedObjects;
 
 		if(version < 760)
 		{
@@ -50,8 +59,10 @@ public:
 			h & junk;
 		}
 
-		h & status & daysWithoutCastle;
-		h & enteredLosingCheatCode & enteredWinningCheatCode;
+		h & status;
+		h & daysWithoutCastle;
+		h & enteredLosingCheatCode;
+		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 };
@@ -69,7 +80,9 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & players & fogOfWarMap;
+		h & id;
+		h & players;
+		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
 	}
 

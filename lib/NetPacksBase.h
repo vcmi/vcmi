@@ -53,7 +53,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & exactStrings & localStrings & message & numbers;
+		h & exactStrings;
+		h & localStrings;
+		h & message;
+		h & numbers;
 	}
 	void addTxt(ui8 type, ui32 serial)
 	{
@@ -124,7 +127,10 @@ struct Component
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & subtype & val & when;
+		h & id;
+		h & subtype;
+		h & val;
+		h & when;
 	}
 	Component()
 		:id(0), subtype(0), val(0), when(0)
@@ -185,7 +191,8 @@ struct ArtifactLocation
 	DLL_LINKAGE const ArtSlotInfo *getSlot() const;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artHolder & slot;
+		h & artHolder;
+		h & slot;
 	}
 };
 
@@ -204,6 +211,10 @@ public:
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & stackId & delta & firstHPleft & fullUnits & resurrected;
+		h & stackId;
+		h & delta;
+		h & firstHPleft;
+		h & fullUnits;
+		h & resurrected;
 	}
 };

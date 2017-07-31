@@ -77,9 +77,20 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name & description & eventText & image & large & advMapDef & iconIndex &
-			price & possibleSlots & constituents & constituentOf & aClass & id;
-		if(version>=759)
+		h & name;
+		h & description;
+		h & eventText;
+		h & image;
+		h & large;
+		h & advMapDef;
+		h & iconIndex;
+		h & price;
+		h & possibleSlots;
+		h & constituents;
+		h & constituentOf;
+		h & aClass;
+		h & id;
+		if(version >= 759)
 		{
 			h & identifier;
 		}
@@ -113,7 +124,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifact&>(*this);
-		h & bonusesPerLevel & thresholdBonuses;
+		h & bonusesPerLevel;
+		h & thresholdBonuses;
 	}
 };
 
@@ -154,7 +166,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & artType & id;
+		h & artType;
+		h & id;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
@@ -183,7 +196,8 @@ public:
 		ArtifactPosition slot;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & art & slot;
+			h & art;
+			h & slot;
 		}
 
 		bool operator==(const ConstituentInfo &rhs) const;
@@ -265,8 +279,13 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artifacts & allowedArtifacts & treasures & minors & majors & relics
-			& growingArtifacts;
+		h & artifacts;
+		h & allowedArtifacts;
+		h & treasures;
+		h & minors;
+		h & majors;
+		h & relics;
+		h & growingArtifacts;
 	}
 
 private:
@@ -295,7 +314,8 @@ struct DLL_LINKAGE ArtSlotInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artifact & locked;
+		h & artifact;
+		h & locked;
 	}
 };
 
@@ -330,7 +350,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artifactsInBackpack & artifactsWorn;
+		h & artifactsInBackpack;
+		h & artifactsWorn;
 	}
 
 	void artDeserializationFix(CBonusSystemNode *node);

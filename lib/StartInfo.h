@@ -112,7 +112,8 @@ struct StartInfo
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
-		h & seedToBeUsed & seedPostInit;
+		h & seedToBeUsed;
+		h & seedPostInit;
 		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;

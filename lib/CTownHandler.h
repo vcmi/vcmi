@@ -68,7 +68,16 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & town & bid & resources & produce & name & description & requirements & upgrade & mode;
+		h & identifier;
+		h & town;
+		h & bid;
+		h & resources;
+		h & produce;
+		h & name;
+		h & description;
+		h & requirements;
+		h & upgrade;
+		h & mode;
 	}
 
 	friend class CTownHandler;
@@ -88,7 +97,14 @@ struct DLL_LINKAGE CStructure
 	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & defName & borderName & areaName & identifier & building & buildable & hiddenUpgrade;
+		h & pos;
+		h & defName;
+		h & borderName;
+		h & areaName;
+		h & identifier;
+		h & building;
+		h & buildable;
+		h & hiddenUpgrade;
 	}
 };
 
@@ -101,7 +117,11 @@ struct DLL_LINKAGE SPuzzleInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & number & x & y & whenUncovered & filename;
+		h & number;
+		h & x;
+		h & y;
+		h & whenUncovered;
+		h & filename;
 	}
 };
 
@@ -130,7 +150,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & identifier & index & nativeTerrain & alignment & town & creatureBg120 & creatureBg130 & puzzleMap;
+		h & name;
+		h & identifier;
+		h & index;
+		h & nativeTerrain;
+		h & alignment;
+		h & town;
+		h & creatureBg120;
+		h & creatureBg130;
+		h & puzzleMap;
 	}
 };
 
@@ -179,7 +207,10 @@ public:
 			si32 y;
 
 			template <typename Handler> void serialize(Handler &h, const int version)
-			{ h & x & y; }
+			{
+				h & x;
+				h & y;
+			}
 		};
 
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
@@ -206,16 +237,38 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & icons & iconSmall & iconLarge & tavernVideo & musicTheme & townBackground & guildBackground & guildWindow & buildingsIcons & hallBackground;
-			h & hallSlots & structures;
-			h & siegePrefix & siegePositions & siegeShooter;
+			h & icons;
+			h & iconSmall;
+			h & iconLarge;
+			h & tavernVideo;
+			h & musicTheme;
+			h & townBackground;
+			h & guildBackground;
+			h & guildWindow;
+			h & buildingsIcons;
+			h & hallBackground;
+			h & hallSlots;
+			h & structures;
+			h & siegePrefix;
+			h & siegePositions;
+			h & siegeShooter;
 		}
 	} clientInfo;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo & moatDamage;
+		h & names;
+		h & faction;
+		h & creatures;
+		h & dwellings;
+		h & dwellingNames;
+		h & buildings;
+		h & hordeLvl;
+		h & mageLevel;
+		h & primaryRes;
+		h & warMachine;
+		h & clientInfo;
+		h & moatDamage;
 		if(version >= 758)
 		{
 			h & moatHexes;

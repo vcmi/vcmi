@@ -504,7 +504,9 @@ void CClient::serialize(BinarySerializer & h, const int version)
 		{
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
-			h & i->first & i->second->dllName & i->second->human;
+			h & i->first;
+			h & i->second->dllName;
+			h & i->second->human;
 			i->second->saveGame(h, version);
 		}
 	}
@@ -524,7 +526,9 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 			PlayerColor pid;
 			bool isHuman = false;
 
-			h & pid & dllname & isHuman;
+			h & pid;
+			h & dllname;
+			h & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
 			std::shared_ptr<CGameInterface> nInt;
@@ -573,7 +577,9 @@ void CClient::serialize(BinarySerializer & h, const int version, const std::set<
 		{
 			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
 			assert(i->first == i->second->playerID);
-			h & i->first & i->second->dllName & i->second->human;
+			h & i->first;
+			h & i->second->dllName;
+			h & i->second->human;
 			i->second->saveGame(h, version);
 		}
 	}
@@ -593,7 +599,9 @@ void CClient::serialize(BinaryDeserializer & h, const int version, const std::se
 			PlayerColor pid;
 			bool isHuman = false;
 
-			h & pid & dllname & isHuman;
+			h & pid;
+			h & dllname;
+			h & isHuman;
 			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
 			std::shared_ptr<CGameInterface> nInt;

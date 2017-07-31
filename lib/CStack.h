@@ -117,7 +117,9 @@ public:
 	{
 		if(!h.saving)
 			reset();
-		h & firstHPleft & fullUnits & resurrected;
+		h & firstHPleft;
+		h & fullUnits;
+		h & resurrected;
 	}
 private:
 	void addResurrected(int32_t amount);
@@ -251,21 +253,32 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		assert(isIndependentNode());
-		h & static_cast<CBonusSystemNode &>(*this);
+		h & static_cast<CBonusSystemNode&>(*this);
 		h & type;
-		h & ID & baseAmount & owner & slot & side & position & state;
-		h & shots & casts & counterAttacks & health;
+		h & ID;
+		h & baseAmount;
+		h & owner;
+		h & slot;
+		h & side;
+		h & position;
+		h & state;
+		h & shots;
+		h & casts;
+		h & counterAttacks;
+		h & health;
 
 		const CArmedInstance * army = (base ? base->armyObj : nullptr);
 		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
 
 		if(h.saving)
 		{
-			h & army & extSlot;
+			h & army;
+			h & extSlot;
 		}
 		else
 		{
-			h & army & extSlot;
+			h & army;
+			h & extSlot;
 			if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 			{
 				auto hero = dynamic_cast<const CGHeroInstance *>(army);

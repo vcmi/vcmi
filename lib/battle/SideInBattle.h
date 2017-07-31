@@ -29,7 +29,11 @@ struct DLL_LINKAGE SideInBattle
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & hero & armyObject;
-		h & castSpellsCount & usedSpellsHistory & enchanterCounter;
+		h & color;
+		h & hero;
+		h & armyObject;
+		h & castSpellsCount;
+		h & usedSpellsHistory;
+		h & enchanterCounter;
 	}
 };
