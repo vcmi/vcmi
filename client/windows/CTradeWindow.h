@@ -141,6 +141,7 @@ public:
 
 
 	void selectionChanged(bool side) override; //true == left
+	void selectOppositeItem(bool side);
 	void SacrificeAll();
 	void SacrificeBackpack();
 
