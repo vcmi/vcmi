@@ -418,16 +418,18 @@ int CSpell::adjustRawDamage(const ISpellCaster * caster, const CStack * affected
 		{
 			if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id))
 			{
-				ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
+				ret *= 100 - affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, (ui8)cnf.id);
 				ret /= 100;
 				stop = true;//only bonus from one school is used
 			}
 		});
 
+		CSelector selector = Selector::type(Bonus::SPELL_DAMAGE_REDUCTION).And(Selector::subtype(-1));
+
 		//general spell dmg reduction
-		if(affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		if(affectedCreature->hasBonus(selector))
 		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
+			ret *= 100 - affectedCreature->valOfBonuses(selector);
 			ret /= 100;
 		}
 
