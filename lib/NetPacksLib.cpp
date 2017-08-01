@@ -1146,7 +1146,8 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 			{
 				if (playerState.daysWithoutCastle)
 					++(*playerState.daysWithoutCastle);
-				else playerState.daysWithoutCastle = 0;
+				else
+					playerState.daysWithoutCastle = boost::make_optional(0);
 			}
 			else
 			{

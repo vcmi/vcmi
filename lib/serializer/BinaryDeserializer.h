@@ -496,9 +496,10 @@ public:
 		load( present );
 		if(present)
 		{
+			//TODO: replace with emplace once we start request Boost 1.56+, see PR360
 			T t;
 			load(t);
-			data = std::move(t);
+			data = boost::make_optional(std::move(t));
 		}
 		else
 		{

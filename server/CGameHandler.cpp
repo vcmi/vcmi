@@ -579,7 +579,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if (battleQuery != queries.topQuery(gs->curB->sides[0].color))
 		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " although in battle has no battle query at the top!");
 
-	battleQuery->result = *battleResult.data;
+	battleQuery->result = boost::make_optional(*battleResult.data);
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0;
@@ -2120,7 +2120,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		}
 		else if (lookForGuards == CHECK_FOR_GUARDS && this->isInTheMap(guardPos))
 		{
-			tmh.attackedFrom = guardPos;
+			tmh.attackedFrom = boost::make_optional(guardPos);
 
 			const TerrainTile &guardTile = *gs->getTile(guardPos);
 			objectVisited(guardTile.visitableObjects.back(), h);

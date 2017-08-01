@@ -34,7 +34,7 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	if(!perspective)
 	{
 		//if no particular perspective request, use default one
-		perspective = battleGetMySide();
+		perspective = boost::make_optional(battleGetMySide());
 	}
 	else
 	{
