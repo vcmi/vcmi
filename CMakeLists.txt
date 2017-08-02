@@ -103,7 +103,7 @@ if (WIN32)
 	if(MSVC)
 		#MSVC: Fix problems with linking
 		add_definitions(-DBOOST_ALL_NO_LIB)
-		set(Boost_USE_STATIC_LIBS ON)
+		set(Boost_USE_STATIC_LIBS OFF)
 
 		#MSVC: Don't link with SDLMain
 		set(SDL2_BUILDING_LIBRARY ON)
