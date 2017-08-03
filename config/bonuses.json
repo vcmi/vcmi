@@ -24,7 +24,7 @@
 	{
 		"graphics":
 		{
-			"icon":  ""
+			"icon":  "zvs/Lib1.res/E_SPAIR1"
 		}
 	},
 
@@ -45,6 +45,14 @@
 	},
 
 	"CATAPULT":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/Catapult"
+		}
+	},
+	
+	"CATAPULT_EXTRA_SHOTS":
 	{
 		"graphics":
 		{
@@ -137,7 +145,7 @@
 	{
 		"graphics":
 		{
-			"icon":  ""
+			"icon":  "zvs/Lib1.res/E_SPEATH1"
 		}
 	},
 
@@ -157,8 +165,6 @@
 		}
 	},
 
-
-
 	"ENEMY_DEFENCE_REDUCTION":
 	{
 		"graphics":
@@ -171,7 +177,7 @@
 	{
 		"graphics":
 		{
-			"icon":  ""
+			"icon":  "zvs/Lib1.res/E_SPFIRE1"
 		}
 	},
 
@@ -179,9 +185,10 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/FireShield"
+			"icon":  "zvs/Lib1.res/E_FIRE"
 		}
 	},
+	
 	"FEAR":
 	{
 		"graphics":
@@ -223,6 +230,14 @@
 			"icon":  "zvs/Lib1.res/E_TROLL"
 		}
 	},
+	
+	"GENERAL_DAMAGE_REDUCTION":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/DamageReductionMelee"
+		}
+	},
 
 	"HATE":
 	{
@@ -247,6 +262,7 @@
 			"icon":  "zvs/Lib1.res/E_TROLL"
 		}
 	},
+	
 	"JOUSTING":
 	{
 		"graphics":
@@ -302,6 +318,7 @@
 			"icon":  "zvs/Lib1.res/ManaChannel"
 		}
 	},
+	
 	"MANA_DRAIN":
 	{
 		"graphics":
@@ -346,6 +363,7 @@
 			"icon":  "zvs/Lib1.res/E_DIST"
 		}
 	},
+	
 	"NO_MELEE_PENALTY":
 	{
 		"graphics":
@@ -361,6 +379,7 @@
 			"icon":  "zvs/Lib1.res/E_MORAL"
 		}
 	},
+	
 	"NO_WALL_PENALTY":
 	{
 		"graphics":
@@ -378,7 +397,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/NonLiving"
+			"icon":  "zvs/Lib1.res/E_MORAL"
 		}
 	},
 
@@ -397,6 +416,7 @@
 			"icon":  "zvs/Lib1.res/E_NOFRIM"
 		}
 	},
+	
 	"REBIRTH":
 	{
 		"graphics":
@@ -423,7 +443,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/SelfLuck"
+			"icon":  "zvs/Lib1.res/E_SPAIR"
 		}
 	},
 
@@ -487,16 +507,15 @@
 	{
 		"graphics":
 		{
-			"icon":  "" //todo: configurable use from spell handler
+			"icon":  "zvs/Lib1.res/E_SPDISB" //todo: configurable use from spell handler
 		}
 	},
-
 
 	"SPELL_LIKE_ATTACK":
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/SpellLikeAttack"
+			"icon":  "zvs/Lib1.res/E_SPDFIRE"
 		}
 	},
 
@@ -515,7 +534,6 @@
 			"icon":  "zvs/Lib1.res/E_BREATH"
 		}
 	},
-
 
 	"THREE_HEADED_ATTACK":
 	{
@@ -540,6 +558,7 @@
 			"icon":  "zvs/Lib1.res/E_UNDEAD"
 		}
 	},
+	
 	"UNLIMITED_RETALIATIONS":
 	{
 		"graphics":
@@ -552,11 +571,12 @@
 	{
 		"hidden": true
 	},
+	
 	"WATER_IMMUNITY":
 	{
 		"graphics":
 		{
-			"icon":  ""
+			"icon":  "zvs/Lib1.res/E_SPWATER1"
 		}
 	}
 }
