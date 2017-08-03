@@ -1,14 +1,33 @@
 #!/bin/sh
-VCMI_PACKAGE_FILE_NAME="${TRAVIS_JOB_ID}-vcmi"
-VCMI_PACKAGE_NAME_SUFFIX=""
-if [ "$TRAVIS_PULL_REQUEST" = "false" ];
+if [ ! -z "$TRAVIS_JOB_ID" ];
 then
-	branch_name=$(echo "$TRAVIS_BRANCH" | sed 's/[^[:alnum:]]\+/_/g')
-	VCMI_PACKAGE_FILE_NAME="${VCMI_PACKAGE_FILE_NAME}-branch-${branch_name}-${TRAVIS_COMMIT}"
+	echo "Using Travis environment variables!"
+	TMP_JOBID="$TRAVIS_JOB_ID"
+	TMP_BRANCH="$TRAVIS_BRANCH"
+	TMP_PRID="$TRAVIS_PULL_REQUEST"
+	TMP_COMMIT="$TRAVIS_COMMIT"
+elif [ ! -z "${APPVEYOR_JOB_ID}" ];
+then
+	echo "Using AppVeyor environment variables!"
+	TMP_JOBID=$(echo "$APPVEYOR_JOB_ID" | sed 's/[^[:digit:]]\+//g')
+	TMP_BRANCH="$APPVEYOR_REPO_BRANCH"
+	TMP_PRID="$APPVEYOR_PULL_REQUEST_NUMBER"
+	TMP_COMMIT="$APPVEYOR_REPO_COMMIT"
+else
+	echo "No Travir or AppVeyor environment variables found!"
+	exit
+fi
+
+VCMI_PACKAGE_FILE_NAME="${TMP_JOBID}-vcmi"
+VCMI_PACKAGE_NAME_SUFFIX=""
+if [ -z "$TMP_PRID" ];
+then
+	branch_name=$(echo "$TMP_BRANCH" | sed 's/[^[:alnum:]]\+/_/g')
+	VCMI_PACKAGE_FILE_NAME="${VCMI_PACKAGE_FILE_NAME}-branch-${branch_name}-${TMP_COMMIT}"
 	VCMI_PACKAGE_NAME_SUFFIX="branch ${branch_name}"
 else
-	VCMI_PACKAGE_FILE_NAME="${VCMI_PACKAGE_FILE_NAME}-PR-${TRAVIS_PULL_REQUEST}-${TRAVIS_COMMIT}"
-	VCMI_PACKAGE_NAME_SUFFIX="PR ${TRAVIS_PULL_REQUEST}"
+	VCMI_PACKAGE_FILE_NAME="${VCMI_PACKAGE_FILE_NAME}-PR-${TMP_PRID}-${TMP_COMMIT}"
+	VCMI_PACKAGE_NAME_SUFFIX="PR ${TMP_PRID}"
 fi
 VCMI_PACKAGE_NAME_SUFFIX="(${VCMI_PACKAGE_NAME_SUFFIX})"
 

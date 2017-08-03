@@ -1,72 +1,82 @@
+# Common configuration for all branches
 version: 1.0.{build}
 max_jobs: 2
 clone_depth: 10
 clone_folder: c:\projects\vcmi\source
-init:
-- cmd: set QTDIR=C:\Qt\5.7\msvc2015
-environment:
-  BUILD_PLATFORM: x86
-  BUILD_CONFIGURATION: Release
 install:
-- cmd: >-
-    cd c:\projects\vcmi\
-
-    curl -fsS -o vcmi_depends_%BUILD_PLATFORM%.zip https://dependencies.vcmi.download/msvc/vcmi_depends_%BUILD_PLATFORM%.zip
-
-    7z x vcmi_depends_%BUILD_PLATFORM%.zip -odepends
-
-    cd source
-
-    git submodule update --init --recursive
-
-    cd ..
-
-    mkdir build_%BUILD_PLATFORM%
-
-    cd build_%BUILD_PLATFORM%
-
-    cmake -DCMAKE_TOOLCHAIN_FILE=../source/CI/msvc/appveyor_toolchain.txt ../source
+- bash c:\projects\vcmi\source\CI\msvc\install.sh
 build_script:
-- cmd: >-
-    cd c:\projects\vcmi\build_%BUILD_PLATFORM%
-
-    msbuild vcmi.sln /p:configuration=%BUILD_CONFIGURATION% /maxcpucount:2
-
-    IF "%APPVEYOR_REPO_TAG%"=="true" cpack
-
-
-    mkdir dist_%BUILD_PLATFORM%
-
-    copy %BUILD_CONFIGURATION%\*.exe dist_%BUILD_PLATFORM%
-
-    copy %BUILD_CONFIGURATION%\*.dll dist_%BUILD_PLATFORM%
-
-    copy %BUILD_CONFIGURATION%\lib\*.dll dist_%BUILD_PLATFORM%
-
-    mkdir dist_%BUILD_PLATFORM%\AI
-
-    copy %BUILD_CONFIGURATION%\AI\*.dll dist_%BUILD_PLATFORM%\AI
-
-    cd dist_%BUILD_PLATFORM%
-
-    mkdir platforms
-
-    copy %QTDIR%\bin\Qt5Core.dll .
-
-    copy %QTDIR%\bin\Qt5Gui.dll .
-
-    copy %QTDIR%\bin\Qt5Widgets.dll .
-
-    copy %QTDIR%\bin\Qt5Network.dll .
-
-    copy %QTDIR%\plugins\platforms\qwindows.dll platforms
-
-    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip * -mx=7 -r -x!*.exp -x!*.lib
-
-    7z a c:\projects\vcmi\source\vcmi-%BUILD_PLATFORM%-%BUILD_CONFIGURATION%.zip c:\projects\vcmi\depends\bin\*.dll -mx=7
+- cmd: c:\projects\vcmi\source\CI\msvc\build_script.bat
 artifacts:
-- path: vcmi-x86-Release.zip
+- path: build_$(VCMI_BUILD_PLATFORM)\*.exe
 notifications:
   - provider: Slack
     incoming_webhook:
       secure: zxT3HTnxL744HiSv7ig7sjGL4LmJ8n3MsY8PEA/kinbVMkmcxrSgVBVkHV79RfSWSyq4oLMSRvMMpG8SuDWnf6oK/qvgaiAWfwwlCIiA7uQ=
+
+# Branch-specific configuration
+for:
+# Extended configuration for toolchain_test branch
+-
+  branches:
+    only:
+      - toolchain_test
+  environment:
+    matrix:
+      - NAME: MSVS 2015 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Release
+      - NAME: MSVS 2015 x86 - Debug
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Debug
+
+      - NAME: MSVS 2015 x64 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015 Win64
+        VCMI_BUILD_PLATFORM: x64
+        VCMI_BUILD_CONFIGURATION: Release
+      - NAME: MSVS 2015 x64 - Debug
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015 Win64
+        VCMI_BUILD_PLATFORM: x64
+        VCMI_BUILD_CONFIGURATION: Debug
+
+      - NAME: MSVS 2017 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Release
+      - NAME: MSVS 2017 x86 - Debug
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Debug
+
+      - NAME: MSVS 2017 x64 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017 Win64
+        VCMI_BUILD_PLATFORM: x64
+        VCMI_BUILD_CONFIGURATION: Release
+      - NAME: MSVS 2017 x64 - Debug
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017 Win64
+        VCMI_BUILD_PLATFORM: x64
+        VCMI_BUILD_CONFIGURATION: Debug
+# Default configuration for all other branches
+-
+  environment:
+    matrix:
+      - NAME: MSVS 2015 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Release
+      - NAME: MSVS 2017 x64 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017 Win64
+        VCMI_BUILD_PLATFORM: x64
+        VCMI_BUILD_CONFIGURATION: Release
