@@ -23,11 +23,20 @@
 
 static const int TEST_RANDOM_SEED = 1337;
 
+static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & filename)
+{
+	auto path = VCMIDirs::get().userDataPath() / filename;
+	boost::filesystem::remove(path);
+	boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
+
+	tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
+	tmp.flush();
+	tmp.close();
+}
 
 TEST(MapFormat, Random)
 {
 	SCOPED_TRACE("MapFormat_Random start");
-	std::unique_ptr<CMap> initialMap;
 
 	CMapGenOptions opt;
 
@@ -43,7 +52,7 @@ TEST(MapFormat, Random)
 
 	CMapGenerator gen;
 
-	initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
+	std::unique_ptr<CMap> initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
 	initialMap->name = "Test";
 	SCOPED_TRACE("MapFormat_Random generated");
 
@@ -53,18 +62,8 @@ TEST(MapFormat, Random)
 		saver.saveMap(initialMap);
 	}
 	SCOPED_TRACE("MapFormat_Random serialized");
-	#if 1
-	{
-		auto path = VCMIDirs::get().userDataPath()/"test_random.vmap";
-		boost::filesystem::remove(path);
-		boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
-
-		tmp.write((const char *)serializeBuffer.getBuffer().data(),serializeBuffer.getSize());
-		tmp.flush();
-		tmp.close();
-	}
+	saveTestMap(serializeBuffer, "test_random.vmap");
 	SCOPED_TRACE("MapFormat_Random saved");
-	#endif // 1
 
 	serializeBuffer.seek(0);
 	{
@@ -91,7 +90,6 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 	return std::move(res);
 }
 
-
 static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)
 {
 	std::ostringstream out;
@@ -107,17 +105,6 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 	}
 }
 
-static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & filename)
-{
-	auto path = VCMIDirs::get().userDataPath() / filename;
-	boost::filesystem::remove(path);
-	boost::filesystem::ofstream tmp(path, boost::filesystem::ofstream::binary);
-
-	tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
-	tmp.flush();
-	tmp.close();
-}
-
 static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNode & objects, const JsonNode & surface, const JsonNode & underground)
 {
 	std::unique_ptr<CMap> map;
@@ -129,8 +116,8 @@ static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNod
 	{
 		CZipSaver initialSaver(originalDataIO, "_");
 
-		addToArchive(initialSaver, header, "header.json");
-		addToArchive(initialSaver, objects, "objects.json");
+		addToArchive(initialSaver, header, CMapFormatJson::HEADER_FILE_NAME);
+		addToArchive(initialSaver, objects, CMapFormatJson::OBJECTS_FILE_NAME);
 		addToArchive(initialSaver, surface, "surface_terrain.json");
 		addToArchive(initialSaver, underground, "underground_terrain.json");
 	}
@@ -152,8 +139,8 @@ static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CM
 	std::shared_ptr<CIOApi> actualDataIO(new CProxyROIOApi(serializeBuffer));
 	CZipLoader actualDataLoader("", "_", actualDataIO);
 
-	header = getFromArchive(actualDataLoader, "header.json");
-	objects = getFromArchive(actualDataLoader, "objects.json");
+	header = getFromArchive(actualDataLoader, CMapFormatJson::HEADER_FILE_NAME);
+	objects = getFromArchive(actualDataLoader, CMapFormatJson::OBJECTS_FILE_NAME);
 	surface = getFromArchive(actualDataLoader, "surface_terrain.json");
 	underground = getFromArchive(actualDataLoader, "underground_terrain.json");
 }
@@ -162,10 +149,10 @@ TEST(MapFormat, Objects)
 {
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
-	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+"header.json"));
-	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH+"header.json"));//same as initial for now
+	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH+CMapFormatJson::HEADER_FILE_NAME));//same as initial for now
 
-	const JsonNode initialObjects(ResourceID(MAP_DATA_PATH+"objects.json"));
+	const JsonNode initialObjects(ResourceID(MAP_DATA_PATH+CMapFormatJson::OBJECTS_FILE_NAME));
 	const JsonNode expectedObjects(ResourceID(MAP_DATA_PATH+"objects.ex.json"));
 
 	const JsonNode expectedSurface(ResourceID(MAP_DATA_PATH+"surface_terrain.json"));
@@ -201,16 +188,13 @@ TEST(MapFormat, Terrain)
 {
 	static const std::string MAP_DATA_PATH = "test/TerrainTest/";
 
-	const JsonNode initialHeader(ResourceID(MAP_DATA_PATH+"header.json"));
-	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH+"header.json"));
-
-	const JsonNode initialObjects(ResourceID(MAP_DATA_PATH+"objects.json"));
-	const JsonNode expectedObjects(ResourceID(MAP_DATA_PATH+"objects.json"));
+	const JsonNode expectedHeader(ResourceID(MAP_DATA_PATH+CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedObjects(ResourceID(MAP_DATA_PATH+CMapFormatJson::OBJECTS_FILE_NAME));
 
 	const JsonNode expectedSurface(ResourceID(MAP_DATA_PATH+"surface_terrain.json"));
 	const JsonNode expectedUnderground(ResourceID(MAP_DATA_PATH+"underground_terrain.json"));
 
-	std::unique_ptr<CMap> originalMap = loadOriginal(initialHeader, initialObjects, expectedSurface, expectedUnderground);
+	std::unique_ptr<CMap> originalMap = loadOriginal(expectedHeader, expectedObjects, expectedSurface, expectedUnderground);
 
 	CMemoryBuffer serializeBuffer;
 

@@ -13,6 +13,7 @@
 				<Option object_output="../obj/Client/Debug/x86" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="--donotstartserver" />
 				<Compiler>
 					<Add option="-Og" />
 					<Add option="-g" />
