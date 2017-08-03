@@ -45,7 +45,7 @@ struct JsonMapComparer
 	bool strict;
 	std::list<std::string> namePath;
 
-	JsonMapComparer();
+	JsonMapComparer(bool strict_);
 
 	vstd::ScopeGuard<TScopeGuard> pushName(const std::string & name);
 
@@ -68,9 +68,10 @@ struct JsonMapComparer
 	void checkEqualJson(const JsonMap & actual, const JsonMap & expected);
 	void checkEqualJson(const JsonVector & actual, const JsonVector & expected);
 
+	void compare(const std::string & name, const JsonNode & actual, const JsonNode & expected);
+
 	void compareHeader(const JsonNode & actual, const JsonNode & expected);
 	void compareObjects(const JsonNode & actual, const JsonNode & expected);
-	void compareTerrain(const std::string & levelName, const JsonNode & actual, const JsonNode & expected);
 };
 
 

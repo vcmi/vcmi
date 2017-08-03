@@ -1,0 +1,27 @@
+{
+	"allowedAbilities" : {},
+	"allowedArtifacts" : {},
+	"allowedHeroes" : {},
+	"allowedSpells" : {},
+	"defeatIconIndex" : 0,
+	"difficulty" : "NORMAL",
+	"mapLevels" : {
+		"surface" : {
+			"height" : 32,
+			"index" : 0,
+			"width" : 32
+		},
+		"underground" : {
+			"height" : 32,
+			"index" : 1,
+			"width" : 32
+		}
+	},
+	"mods" : {},
+	"name" : "Untitled",
+	"players" : {},
+	"triggeredEvents" : {},
+	"victoryIconIndex" : 0,
+	"versionMajor" : 1,
+	"versionMinor" : 0
+}

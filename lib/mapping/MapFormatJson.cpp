@@ -1244,7 +1244,7 @@ void CMapSaverJson::writeHeader()
 	addToArchive(header, HEADER_FILE_NAME);
 }
 
-const std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
+std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 {
 	using namespace TerrainDetail;
 

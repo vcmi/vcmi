@@ -165,8 +165,6 @@ public:
 	 */
 	std::unique_ptr<CMapHeader> loadMapHeader() override;
 
-private:
-
 	struct MapObjectLoader
 	{
 		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
@@ -193,7 +191,7 @@ private:
 	 */
 	void readMap();
 
-	void readTerrainTile(const std::string & src, TerrainTile & tile);
+	static void readTerrainTile(const std::string & src, TerrainTile & tile);
 
 	void readTerrainLevel(const JsonNode & src, const int index);
 
@@ -206,6 +204,7 @@ private:
 
 	JsonNode getFromArchive(const std::string & archiveFilename);
 
+private:
 	CInputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;
 
@@ -228,7 +227,6 @@ public:
 	 * Actually saves the VCMI/Json map into stream.
 	 */
 	void saveMap(const std::unique_ptr<CMap> & map) override;
-private:
 
 	/**
 	 * Saves @data as json file with specified @filename
@@ -244,7 +242,7 @@ private:
 	 * Encodes one tile into string
 	 * @param tile tile to serialize
 	 */
-	const std::string writeTerrainTile(const TerrainTile & tile);
+	static std::string writeTerrainTile(const TerrainTile & tile);
 
 	/**
 	 * Saves map level into json
@@ -262,6 +260,7 @@ private:
 	 */
 	void writeObjects();
 
+private:
 	CInputOutputStream * buffer;
 	std::shared_ptr<CIOApi> ioApi;
 	CZipSaver saver;///< object to handle zip archive operations

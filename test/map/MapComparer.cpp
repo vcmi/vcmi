@@ -274,8 +274,8 @@ void MapComparer::operator() (const std::unique_ptr<CMap>& actual, const std::un
 }
 
 //JsonMapComparer
-JsonMapComparer::JsonMapComparer():
-	strict(false)
+JsonMapComparer::JsonMapComparer(bool strict_)
+	: strict(strict_)
 {
 
 }
@@ -442,23 +442,18 @@ void JsonMapComparer::checkStructField(const JsonMap & actual, const std::string
 		checkEqualJson(actual.at(name), expectedValue);
 }
 
+void JsonMapComparer::compare(const std::string & name, const JsonNode & actual, const JsonNode & expected)
+{
+	auto guard = pushName(name);
+	checkEqualJson(actual, expected);
+}
+
 void JsonMapComparer::compareHeader(const JsonNode & actual, const JsonNode & expected)
 {
-	strict = false;
-	auto guard = pushName("hdr");
-	checkEqualJson(actual, expected);
+	compare("hdr", actual, expected);
 }
 
 void JsonMapComparer::compareObjects(const JsonNode & actual, const JsonNode & expected)
 {
-	strict = false;
-	auto guard = pushName("obj");
-	checkEqualJson(actual, expected);
-}
-
-void JsonMapComparer::compareTerrain(const std::string & levelName, const JsonNode & actual, const JsonNode & expected)
-{
-	strict = true;
-	auto guard = pushName(levelName);
-	checkEqualJson(actual, expected);
+	compare("obj", actual, expected);
 }
