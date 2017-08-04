@@ -575,8 +575,10 @@ void CTradeWindow::showAll(SDL_Surface * to)
 
 	if(readyToTrade)
 	{
-		hLeft->showAllAt(pos.topLeft() + selectionOffset(true), selectionSubtitle(true), to);
-		hRight->showAllAt(pos.topLeft() + selectionOffset(false), selectionSubtitle(false), to);
+		if(hLeft)
+			hLeft->showAllAt(pos.topLeft() + selectionOffset(true), selectionSubtitle(true), to);
+		if(hRight)
+			hRight->showAllAt(pos.topLeft() + selectionOffset(false), selectionSubtitle(false), to);
 	}
 }
 
@@ -1314,8 +1316,26 @@ void CAltarWindow::selectionChanged(bool side)
 	slider->block(!slider->getAmount());
 	slider->moveTo(sacrificedUnits[hLeft->serial]);
 	max->block(!slider->getAmount());
+	selectOppositeItem(side);
 	readyToTrade = true;
 	redraw();
+}
+
+void CAltarWindow::selectOppositeItem(bool side)
+{
+	bool oppositeSide = !side;
+	int pos = vstd::find_pos(items[side], side ? hLeft : hRight);
+	int oppositePos = vstd::find_pos(items[oppositeSide], oppositeSide ? hLeft : hRight);
+
+	if(pos >= 0 && pos != oppositePos)
+	{
+		if(oppositeSide)
+			hLeft = items[oppositeSide][pos];
+		else
+			hRight = items[oppositeSide][pos];
+
+		selectionChanged(oppositeSide);
+	}
 }
 
 void CAltarWindow::mimicCres()
