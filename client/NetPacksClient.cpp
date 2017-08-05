@@ -701,7 +701,7 @@ void BattleAttack::applyCl(CClient *cl)
 
 void StartAction::applyFirstCl(CClient *cl)
 {
-	cl->curbaction = ba;
+	cl->curbaction = boost::make_optional(ba);
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionStarted, ba);
 }
 

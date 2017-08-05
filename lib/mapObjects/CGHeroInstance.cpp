@@ -1441,12 +1441,12 @@ boost::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(CRandomGenera
 		if(learnedSecondarySkills.empty())
 		{
 			// there are only new skills to learn, so choose anyone of them
-			chosenSecondarySkill = *RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand);
+			chosenSecondarySkill = boost::make_optional(*RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand));
 		}
 		else
 		{
 			// preferably upgrade a already learned secondary skill
-			chosenSecondarySkill = *RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand);
+			chosenSecondarySkill = boost::make_optional(*RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand));
 		}
 	}
 	return chosenSecondarySkill;

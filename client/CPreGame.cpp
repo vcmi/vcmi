@@ -3697,7 +3697,7 @@ void CBonusSelection::updateBonusSelection()
 		anim->setCustom(picName, 0);
 		bonusButton->setImage(anim);
 		const SDL_Color brightYellow = { 242, 226, 110, 0 };
-		bonusButton->borderColor = brightYellow;
+		bonusButton->borderColor = boost::make_optional(brightYellow);
 		bonuses->addToggle(i, bonusButton);
 	}
 
@@ -3710,7 +3710,7 @@ void CBonusSelection::updateBonusSelection()
 
 void CBonusSelection::updateCampaignState()
 {
-	ourCampaign->currentMap = selectedMap;
+	ourCampaign->currentMap = boost::make_optional(selectedMap);
 	if (selectedBonus)
 		ourCampaign->chosenCampaignBonuses[selectedMap] = *selectedBonus;
 }
@@ -3777,7 +3777,7 @@ void CBonusSelection::selectBonus(int id)
 	// have to be undrawn/drawn.
 	if (!selectedBonus || *selectedBonus != id)
 	{
-		selectedBonus = id;
+		selectedBonus = boost::make_optional(id);
 		GH.totalRedraw();
 
 		updateStartButtonState(id);

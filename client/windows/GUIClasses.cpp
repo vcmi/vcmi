@@ -1057,7 +1057,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	quitb = new CButton(Point(670, 538), "IOK6432.DEF", CButton::tooltip(CGI->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
-	quitb->borderColor = Colors::METALLIC_GOLD;
+	quitb->borderColor = boost::make_optional(Colors::METALLIC_GOLD);
 
 	new CPicture("PUZZLOGO", 607, 3);
 	new CLabel(700, 95, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
