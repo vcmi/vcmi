@@ -46,9 +46,9 @@ if (APPLE)
 	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
 	set(BOOST_ROOT "../")
 
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/build")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/build")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/build")
 
 	set(CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)")
 	set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
@@ -264,7 +264,7 @@ endif()
 if(WIN32)
 	file(GLOB dep_files
 		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+		"${CMAKE_FIND_ROOT_PATH}/build/*.dll")
 
 	#Copy debug versions of libraries if build type is debug. Doesn't work in MSVC!
 	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -359,9 +359,23 @@ if(WIN32)
 	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
 	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
 elseif(APPLE)
-	set(CPACK_GENERATOR DragNDrop)
+	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
 	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+
+	get_property(QT_COCOA_PLUGIN_PATH TARGET Qt5::QCocoaIntegrationPlugin PROPERTY LOCATION_RELEASE)
+	get_filename_component(QT_COCOA_PLUGIN_DIR "${QT_COCOA_PLUGIN_PATH}" DIRECTORY)
+	get_filename_component(QT_COCOA_PLUGIN_GROUP "${QT_COCOA_PLUGIN_DIR}" NAME)
+	get_filename_component(QT_COCOA_PLUGIN_NAME "${QT_COCOA_PLUGIN_PATH}" NAME)
+	configure_file("${QT_COCOA_PLUGIN_PATH}" "${CMAKE_BINARY_DIR}/build/vcmiclient.app/Contents/MacOS/${QT_COCOA_PLUGIN_GROUP}/${QT_COCOA_PLUGIN_NAME}" COPYONLY)
+
+	SET(LIBS ${SDL2_IMAGE_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARY} ${FFMPEG_LIBRARIES} ${Boost_LIBRARIES})
+	INSTALL(CODE "
+	set(BU_CHMOD_BUNDLE_ITEMS ON)
+	include(BundleUtilities)
+	fixup_bundle(\"${CMAKE_BINARY_DIR}/build/vcmiclient.app\"   \"\"   \"${DIRS}\")
+	" COMPONENT Runtime)
+
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()

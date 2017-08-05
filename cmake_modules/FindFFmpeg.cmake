@@ -156,7 +156,7 @@ endforeach ()
 
 # On OS X we ffmpeg libraries depend on VideoDecodeAcceleration and CoreVideo frameworks
 IF (APPLE)
-    SET(FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} "-framework VideoDecodeAcceleration -framework CoreVideo -lbz2")
+	SET(FFMPEG_EXTRA_LINKING_OPTIONS "-framework VideoDecodeAcceleration -framework CoreVideo -lbz2")
 ENDIF()
 
 # Give a nice error message if some of the required vars are missing.

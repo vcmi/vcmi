@@ -145,7 +145,7 @@ if(APPLE)
 	add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
 
 	# Custom Info.plist
-	set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
+	set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/client/Info.plist)
 
 	# Copy icon file and public key for Sparkle
 	set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
@@ -154,21 +154,21 @@ if(APPLE)
 	set_target_properties(vcmiclient PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
 
 	# Copy server executable, libs and game data to bundle
-	set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
+	set(BUNDLE_PATH ${CMAKE_BINARY_DIR}/build/vcmiclient.app/Contents)
 
 	set(CopyVendoredMinizip
-		mkdir -p ${BUNDLE_PATH}/MacOS && cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/lib/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
+		mkdir -p ${BUNDLE_PATH}/MacOS &&cp ${CMAKE_BINARY_DIR}/build/lib/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
 
 	set(MakeVCMIBundle
 		# Copy all needed binaries
 		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiclient.app/Contents/MacOS/vcmiclient ${BUNDLE_PATH}/MacOS/vcmiclient &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/vcmilauncher ${BUNDLE_PATH}/MacOS/vcmilauncher &&
+		cp ${CMAKE_BINARY_DIR}/build/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
+		cp ${CMAKE_BINARY_DIR}/build/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/AI/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/AI/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/AI/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
+		cp ${CMAKE_BINARY_DIR}/build/AI/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
 		cp -r ${CMAKE_HOME_DIRECTORY}/osx/vcmibuilder.app ${BUNDLE_PATH}/MacOS/vcmibuilder.app &&
 
 		# Copy frameworks
@@ -178,11 +178,9 @@ if(APPLE)
 		mkdir -p ${BUNDLE_PATH}/Data &&
 		mkdir -p ${BUNDLE_PATH}/Data/Mods &&
 		mkdir -p ${BUNDLE_PATH}/Data/launcher &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/config/ ${BUNDLE_PATH}/Data/config/ &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi/ ${BUNDLE_PATH}/Data/Mods/vcmi/ &&
-		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/WoG/ ${BUNDLE_PATH}/Data/Mods/WoG/ || echo "Download WoG mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
-		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/hota/ ${BUNDLE_PATH}/Data/Mods/hota/ || echo "Download HOTA mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
+		cp -r ${CMAKE_SOURCE_DIR}/config/ ${BUNDLE_PATH}/Data/config/ &&
+		cp -r ${CMAKE_SOURCE_DIR}/Mods/vcmi/ ${BUNDLE_PATH}/Data/Mods/vcmi/ &&
+		cp -r ${CMAKE_SOURCE_DIR}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
 
 	if(NOT MINIZIP_FOUND)
 		add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${CopyVendoredMinizip})
@@ -199,7 +197,7 @@ if(WIN32)
 	set_target_properties(vcmiclient PROPERTIES OUTPUT_NAME VCMI_client)
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${SYSTEM_LIBS})
 
 vcmi_set_output_dir(vcmiclient "")
 
