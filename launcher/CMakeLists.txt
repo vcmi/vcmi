@@ -67,10 +67,6 @@ set(CMAKE_AUTOMOC ON)
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#### We need add -DQT_WIDGETS_LIB when using QtWidgets in Qt 5.
-###add_definitions(${Qt5Widgets_DEFINITIONS})
-###add_definitions(${Qt5Network_DEFINITIONS})
-
 if("${CMAKE_VERSION}" VERSION_LESS 2.8.12)
 	# Executables fail to build with Qt 5 in the default configuration
 	# without -fPIE. We add that here.
@@ -114,4 +110,3 @@ if(NOT APPLE) # Already inside bundle
 	# copy whole directory
 	install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
 endif()
-

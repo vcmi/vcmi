@@ -18,8 +18,6 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
-# TODO: default to ON when we start distributing macOS binaries
-option(ENABLE_SPARKLE "Enable auto-updating with Sparkle on macOS" OFF)
 
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
@@ -83,40 +81,6 @@ if(WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
 	endif()
 endif(WIN32)
-
-if(APPLE)
-	# Default location for thirdparty libs
-	set(CMAKE_INCLUDE_PATH "../include" "${CMAKE_OSX_SYSROOT}/usr/include")
-	set(CMAKE_LIBRARY_PATH "../lib")
-	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
-	set(BOOST_ROOT "../")
-
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-
-	set(CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)")
-	set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
-
-	# Build with clang ang libc++
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-
-	if(ENABLE_SPARKLE)
-		# so that OSX_checkForUpdates knows whether to be a noop
-		add_definitions(-DSPARKLE)
-
-		# On OS X we use Sparkle framework for updates
-		find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
-		find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
-	endif()
-
-	# Xcode 5.0 fix
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
-
-	# Link with iconv
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
-endif(APPLE)
 
 if(NOT WIN32)
 	INCLUDE(CheckLibraryExists)
@@ -227,7 +191,7 @@ if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
 endif()
 if(NOT MINIZIP_FOUND)
-	add_subdirectory(lib/minizip)
+	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	set(MINIZIP_LIBRARIES minizip)
 endif()
 add_subdirectory(lib)
@@ -317,9 +281,43 @@ if(WIN32)
 	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
 	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
 elseif(APPLE)
-	set(CPACK_GENERATOR DragNDrop)
+	set(CPACK_MONOLITHIC_INSTALL 1)
+	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
 	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+
+	if(ENABLE_LAUNCHER)
+		set(MACOSX_BUNDLE_EXECUTABLE_NAME "vcmilauncher")
+	else()
+		set(MACOSX_BUNDLE_EXECUTABLE_NAME "vcmiclient")
+	endif()
+	set(MACOSX_BUNDLE_ICON_FILE "vcmi.icns")
+
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/config/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/config/)
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/Mods/vcmi/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/Mods/vcmi/)
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/launcher/icons/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/launcher/icons/)
+
+	install(FILES ${CMAKE_SOURCE_DIR}/osx/vcmi.icns DESTINATION ${APP_BUNDLE_RESOURCES_DIR})
+
+	configure_file(${CMAKE_SOURCE_DIR}/osx/Info.plist.in
+		"${APP_BUNDLE_CONTENTS_DIR}/Info.plist")
+
+	if(ENABLE_LAUNCHER)
+		find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
+		if(NOT TOOL_MACDEPLOYQT)
+			message(FATAL_ERROR "Could not find macdeployqt")
+		endif()
+		string(REPLACE " " "\\ " ESCAPED_BUNDLE_DIR ${APP_BUNDLE_DIR})
+		install(CODE "execute_process(COMMAND ${TOOL_MACDEPLOYQT} ${ESCAPED_BUNDLE_DIR} -verbose=2)")
+	endif()
+
+	INSTALL(CODE "
+	set(BU_CHMOD_BUNDLE_ITEMS ON)
+	include(BundleUtilities)
+	fixup_bundle(\"${APP_BUNDLE_DIR}\" \"\" \"\")
+	" COMPONENT Runtime)
+
+	install(DIRECTORY ${APP_BUNDLE_DIR} DESTINATION "." USE_SOURCE_PERMISSIONS)
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()

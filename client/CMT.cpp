@@ -219,10 +219,6 @@ static void SDLLogCallback(void*           userdata,
 	logGlobal->debug("SDL(category %d; priority %d) %s", category, priority, message);
 }
 
-#ifdef VCMI_APPLE
-void OSX_checkForUpdates();
-#endif
-
 #if defined(VCMI_WINDOWS) && !defined (__GNUC__)
 int wmain(int argc, wchar_t* argv[])
 #elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
@@ -240,17 +236,6 @@ int main(int argc, char * argv[])
     std::string executablePath = argv[0];
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
-
-    // Check for updates
-    OSX_checkForUpdates();
-
-    // Check that game data is prepared. Otherwise run vcmibuilder helper application
-    FILE* check = fopen((VCMIDirs::get().userDataPath() / "game_data_prepared").string().c_str(), "r");
-    if (check == nullptr) {
-        system("open ./vcmibuilder.app");
-        return 0;
-    }
-    fclose(check);
 #endif
     std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
