@@ -21,6 +21,10 @@
 
 void MainWindow::load()
 {
+	// Set current working dir to executable folder.
+	// This is important on Mac for relative paths to work inside DMG.
+	QDir::setCurrent(QApplication::applicationDirPath());
+
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();

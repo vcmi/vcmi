@@ -229,7 +229,7 @@ int wmain(int argc, wchar_t* argv[])
 #elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
-int main(int argc, char** argv)
+int main(int argc, char * argv[])
 #endif
 {
 #ifdef VCMI_ANDROID
