@@ -33,12 +33,13 @@ class MacroString
 	};
 	std::vector<Item> items;
 public:
-	typedef std::function <std::string(const std::string&)> GetValue;
+	typedef std::function<std::string(const std::string &)> GetValue;
 
-	MacroString(){};
-	MacroString(const std::string &format);
+	MacroString() = default;
+	~MacroString() = default;
+	explicit MacroString(const std::string & format);
 
-	std::string build(const GetValue& getValue) const;
+	std::string build(const GetValue & getValue) const;
 };
 
 class DLL_LINKAGE CBonusType
@@ -47,8 +48,7 @@ public:
 	CBonusType();
 	~CBonusType();
 
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & icon;
 		h & nameTemplate;
@@ -58,7 +58,6 @@ public:
 		if (!h.saving)
 			buildMacros();
 	}
-protected:
 
 private:
 	void buildMacros();
@@ -71,27 +70,30 @@ private:
 	bool hidden;
 };
 
-
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
 public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
 
-	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, const IBonusBearer *bearer, bool description) const override;
-	std::string bonusToGraphics(const std::shared_ptr<Bonus>& bonus) const override;
+	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
+	std::string bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
-	void load();
-	void load(const JsonNode& config);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & bonusTypes;
+		//for now always use up to date configuration
+		//once modded bonus type will be implemented, serialize only them
+		std::vector<CBonusType> ignore;
+		h & ignore;
 	}
 private:
-
-	void loadItem(const JsonNode &source, CBonusType &dest);
+	void load();
+	void load(const JsonNode & config);
+	void loadItem(const JsonNode & source, CBonusType & dest);
 
 	std::vector<CBonusType> bonusTypes; //index = BonusTypeID
-
 };
+
+#ifndef INSTANTIATE_CBonusTypeHandler_HERE
+extern template class std::vector<CBonusType>;
+#endif
