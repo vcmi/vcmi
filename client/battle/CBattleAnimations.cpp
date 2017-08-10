@@ -371,7 +371,7 @@ bool CMeleeAttackAnimation::init()
 CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
 : CAttackAnimation(_owner, attacker, _dest, _attacked)
 {
-	logAnim->debugStream() << "Created melee attack anim for " << attacker->getName();
+	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
 
 void CMeleeAttackAnimation::endAnim()
@@ -529,13 +529,13 @@ CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_
       progress(0.0),
       nextHex(destTiles.front())
 {
-	logAnim->debugStream() << "Created movement anim for " << stack->getName();
+	logAnim->debug("Created movement anim for %s", stack->getName());
 }
 
 CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile)
 : CBattleStackAnimation(_owner, _stack), destinationTile(destTile)
 {
-	logAnim->debugStream() << "Created movement end anim for " << stack->getName();
+	logAnim->debug("Created movement end anim for %s", stack->getName());
 }
 
 bool CMovementEndAnimation::init()
@@ -574,7 +574,7 @@ void CMovementEndAnimation::endAnim()
 CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
 : CBattleStackAnimation(_owner, _stack)
 {
-	logAnim->debugStream() << "Created movement start anim for " << stack->getName();
+	logAnim->debug("Created movement start anim for %s", stack->getName());
 }
 
 bool CMovementStartAnimation::init()
@@ -606,7 +606,7 @@ void CMovementStartAnimation::endAnim()
 CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
 : CBattleStackAnimation(_owner, stack), hex(dest), priority(_priority)
 {
-	logAnim->debugStream() << "Created reverse anim for " << stack->getName();
+	logAnim->debug("Created reverse anim for %s", stack->getName());
 }
 
 bool CReverseAnimation::init()
@@ -670,7 +670,7 @@ void CReverseAnimation::setupSecondPart()
 CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
 : CAttackAnimation(_owner, attacker, _dest, _attacked), catapultDamage(_catapultDmg)
 {
-	logAnim->debugStream() << "Created shooting anim for " << stack->getName();
+	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
 
 bool CShootingAnimation::init()

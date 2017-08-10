@@ -63,24 +63,24 @@ void LibClasses::loadFilesystem()
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
-	logGlobal->infoStream()<<"\tInitialization: "<<loadTime.getDiff();
+	logGlobal->info("\tInitialization: %d ms", loadTime.getDiff());
 
 	CResourceHandler::load("config/filesystem.json");
-	logGlobal->infoStream()<<"\tData loading: "<<loadTime.getDiff();
+	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 
 	modh = new CModHandler();
-	logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
+	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadMods();
 	modh->loadModFilesystems();
-	logGlobal->infoStream()<<"\tMod filesystems: "<<loadTime.getDiff();
+	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
 
-	logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
+	logGlobal->info("Basic initialization: %d ms", totalTime.getDiff());
 }
 
-static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
+static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
 {
-   logGlobal->infoStream()<<"\t\t" << name << " handler: "<<timer.getDiff();
+   logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
 }
 
 template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
@@ -117,7 +117,7 @@ void LibClasses::init()
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
-	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
+	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
 	modh->load();
 

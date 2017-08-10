@@ -2929,7 +2929,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 {
 	if(ID == QueryID(-1))
 	{
-		logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
+		logAi->debug("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s", ID, description);
 		return;
 	}
 
@@ -2941,7 +2941,7 @@ void AIStatus::addQuery(QueryID ID, std::string description)
 	remainingQueries[ID] = description;
 
 	cv.notify_all();
-	logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debug("Adding query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
 }
 
 void AIStatus::removeQuery(QueryID ID)
@@ -2953,7 +2953,7 @@ void AIStatus::removeQuery(QueryID ID)
 	remainingQueries.erase(ID);
 
 	cv.notify_all();
-	logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
+	logAi->debug("Removing query %d - %s. Total queries count: %d", ID,description , remainingQueries.size());
 }
 
 int AIStatus::getQueriesCount()
@@ -2994,7 +2994,7 @@ void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
 	std::string description = remainingQueries[queryID];
-	logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
+	logAi->debug("Attempted answering query %d - %s. Request id=%d. Waiting for results...", queryID, description, answerRequestID);
 	requestToQueryID[answerRequestID] = queryID;
 }
 
@@ -3011,7 +3011,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 	}
 	else
 	{
-		logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
+		logAi->error("Something went really wrong, failed to answer query %d : %s", query.getNum(), remainingQueries[query]);
 		//TODO safely retry
 	}
 }
@@ -3490,7 +3490,7 @@ int3 SectorMap::findFirstVisitableTile (HeroPtr h, crint3 dst)
 		if(topObj && topObj->ID == Obj::HERO && topObj != h.h &&
 			cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		{
-			logAi->warnStream() << ("Another allied hero stands in our way");
+			logAi->warn("Another allied hero stands in our way");
 			return ret;
 		}
 		if(ai->myCb->getPathsInfo(h.get())->getPathInfo(curtile)->reachable())

@@ -95,7 +95,7 @@ void CPathfinder::calculatePaths()
 		return false;
 	};
 
-	//logGlobal->infoStream() << boost::format("Calculating paths for hero %s (adress  %d) of player %d") % hero->name % hero % hero->tempOwner;
+	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
 
 	//initial tile - set cost on 0 and add to the queue
 	CGPathNode * initialNode = out.getNode(out.hpos, hero->boat ? ELayer::SAIL : ELayer::LAND);

@@ -1376,8 +1376,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 				CGPath path;
 				cb->getPathsInfo(p.first)->getPath(path, p.second);
 				paths[p.first] = path;
-				logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
-					% p.first->nodeName() % p.second % path.nodes.size();
+				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second , path.nodes.size());
 			}
 	}
 

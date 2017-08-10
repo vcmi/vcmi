@@ -93,7 +93,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	logGlobal->traceStream() << "Player " << *player << " ended his turn.";
+	logGlobal->trace("Player %d ended his turn.", player.get().getNum());
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }

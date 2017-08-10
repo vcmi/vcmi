@@ -169,7 +169,7 @@ void init()
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 
-	logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
+	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
 
 	if(!settings["session"]["headless"].Bool())
@@ -180,15 +180,15 @@ void init()
 
 		CCS->curh->initCursor();
 		CCS->curh->show();
-		logGlobal->infoStream()<<"Screen handler: "<<pomtime.getDiff();
+		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
 		graphics->load();
-		logGlobal->infoStream()<<"\tMain graphics: "<<pomtime.getDiff();
-		logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
+		logGlobal->info("\tMain graphics: %d ms", pomtime.getDiff());
+		logGlobal->info("Initializing game graphics: %d ms", tmh.getDiff());
 
 		CMessage::init();
-		logGlobal->infoStream()<<"Message handler: "<<tmh.getDiff();
+		logGlobal->info("Message handler: %d ms", tmh.getDiff());
 	}
 }
 
@@ -321,7 +321,7 @@ int main(int argc, char * argv[])
 	CBasicLogConfigurator logConfig(logPath, console);
 	logConfig.configureDefault();
 	logGlobal->infoStream() << NAME;
-	logGlobal->infoStream() << "Creating console and configuring logger: " << pomtime.getDiff();
+	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->infoStream() << "The log file will be saved to " << logPath;
 
 	// Init filesystem and settings
@@ -370,7 +370,7 @@ int main(int argc, char * argv[])
 	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
 
 	conf.init();
-	logGlobal->infoStream() << "Loading settings: " << pomtime.getDiff();
+	logGlobal->info("Loading settings: %d ms", pomtime.getDiff());
 
 	srand ( time(nullptr) );
 
@@ -453,7 +453,7 @@ int main(int argc, char * argv[])
 		}
 
 		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), video["displayIndex"].Float());
-		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
+		logGlobal->info("\tInitializing screen: %d ms", pomtime.getDiff());
 	}
 
 	CCS = new CClientState();
@@ -468,7 +468,7 @@ int main(int argc, char * argv[])
 		CCS->videoh = new CEmptyVideoPlayer();
 #endif
 
-	logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
+	logGlobal->info("\tInitializing video: %d ms", pomtime.getDiff());
 
 	//initializing audio
 	CCS->soundh = new CSoundHandler();
@@ -477,7 +477,7 @@ int main(int argc, char * argv[])
 	CCS->musich = new CMusicHandler();
 	CCS->musich->init();
 	CCS->musich->setVolume(settings["general"]["music"].Float());
-	logGlobal->infoStream()<<"Initializing screen and sound handling: "<<pomtime.getDiff();
+	logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 
 #ifdef __APPLE__
 	// Ctrl+click should be treated as a right click on Mac OS X
@@ -511,7 +511,7 @@ int main(int argc, char * argv[])
 	}
 	#endif // ANDROID
 #endif // THREADED
-	logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
+	logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
 
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");

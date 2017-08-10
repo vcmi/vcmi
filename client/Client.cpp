@@ -189,7 +189,7 @@ void CClient::run()
 	catch (const boost::system::system_error& e)
 	{
 		logNetwork->error("Lost connection to server, ending listening thread!");
-		logNetwork->errorStream() << e.what();
+		logNetwork->error(e.what());
 		if(!terminate) //rethrow (-> boom!) only if closing connection was unexpected
 		{
 			logNetwork->error("Something wrong, lost connection while game is still ongoing...");
@@ -292,12 +292,12 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 			loadCommonState(checkingLoader);
 			loader = checkingLoader.decay();
 		}
-		logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
+		logNetwork->info("Loaded common part of save %d ms", tmh.getDiff());
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		CGI->mh->init();
-		logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
+		logNetwork->info("Initing maphandler: %d ms", tmh.getDiff());
 	}
 	catch(std::exception &e)
 	{
@@ -354,9 +354,9 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 	serv->addStdVecItems(gs); /*why is this here?*/
 
     //*loader >> *this;
-	logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
+	logNetwork->info("Loaded client part of save %d ms", tmh.getDiff());
 
-	logNetwork->infoStream() <<"Sent info to server: "<<tmh.getDiff();
+	logNetwork->info("Sent info to server: %d ms", tmh.getDiff());
 
     //*serv << clientPlayers;
 	serv->enableStackSendingByID();
@@ -405,7 +405,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	c >> si;
-	logNetwork->infoStream() <<"\tSending/Getting info to/from the server: "<<tmh.getDiff();
+	logNetwork->info("\tSending/Getting info to/from the server: %d ms", tmh.getDiff());
 	c.enableStackSendingByID();
 	c.disableSmartPointerSerialization();
 
@@ -414,7 +414,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	logNetwork->info("\tCreating gamestate: %i",tmh.getDiff());
 
 	gs->init(si, settings["general"]["saveRandomMaps"].Bool());
-	logNetwork->infoStream() <<"Initializing GameState (together): "<<tmh.getDiff();
+	logNetwork->info("Initializing GameState (together): %d ms", tmh.getDiff());
 
 	// Now after possible random map gen, we know exact player count.
 	// Inform server about how many players client handles
@@ -439,11 +439,11 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		{
 			const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 			CGI->mh->map = gs->map;
-			logNetwork->infoStream() << "Creating mapHandler: " << tmh.getDiff();
+			logNetwork->info("Creating mapHandler: %d ms", tmh.getDiff());
 			CGI->mh->init();
 		}
 		pathInfo = make_unique<CPathsInfo>(getMapSize());
-		logNetwork->infoStream() << "Initializing mapHandler (together): " << tmh.getDiff();
+		logNetwork->info("Initializing mapHandler (together): %d ms", tmh.getDiff());
 	}
 
 	int humanPlayers = 0;
@@ -994,7 +994,7 @@ void CServerHandler::startServer()
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 #endif
 	if(verbose)
-		logNetwork->infoStream() << "Setting up thread calling server: " << th.getDiff();
+		logNetwork->info("Setting up thread calling server: %d ms", th.getDiff());
 }
 
 void CServerHandler::waitForServer()
@@ -1021,7 +1021,7 @@ void CServerHandler::waitForServer()
 	androidTestServerReadyFlag = false;
 #endif
 	if(verbose)
-		logNetwork->infoStream() << "Waiting for server: " << th.getDiff();
+		logNetwork->info("Waiting for server: %d ms", th.getDiff());
 }
 
 CConnection * CServerHandler::connectToServer()
@@ -1037,7 +1037,7 @@ CConnection * CServerHandler::connectToServer()
 #endif
 
 	if(verbose)
-		logNetwork->infoStream()<<"\tConnecting to the server: "<<th.getDiff();
+		logNetwork->info("\tConnecting to the server: %d ms", th.getDiff());
 
 	return ret;
 }

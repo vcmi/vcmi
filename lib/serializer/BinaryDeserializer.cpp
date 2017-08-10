@@ -57,7 +57,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 
 		if(serializer.fileVersion > SERIALIZATION_VERSION)
 		{
-			logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % serializer.fileVersion % SERIALIZATION_VERSION % fName;
+			logGlobal->warn("Warning format version mismatch: found %d when current is %d! (file %s)\n", serializer.fileVersion, SERIALIZATION_VERSION , fName);
 
 			auto versionptr = (char*)&serializer.fileVersion;
 			std::reverse(versionptr, versionptr + 4);

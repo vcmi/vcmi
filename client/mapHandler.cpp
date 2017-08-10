@@ -382,9 +382,9 @@ void CMapHandler::init()
 	prepareFOWDefs();
 	initTerrainGraphics();
 	initBorderGraphics();
-	logGlobal->infoStream()<<"\tPreparing FoW, terrain, roads, rivers, borders: "<<th.getDiff();
+	logGlobal->info("\tPreparing FoW, terrain, roads, rivers, borders: %d ms", th.getDiff());
 	initObjectRects();
-	logGlobal->infoStream()<<"\tMaking object rects: "<<th.getDiff();
+	logGlobal->info("\tMaking object rects: %d ms", th.getDiff());
 }
 
 CMapHandler::CMapBlitter *CMapHandler::resolveBlitter(const MapDrawingInfo * info) const
