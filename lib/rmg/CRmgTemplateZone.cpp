@@ -839,7 +839,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		}
 
 	}
-	logGlobal->warnStream() << boost::format("Failed to create road from %s to %s") % src %dst;
+	logGlobal->warn("Failed to create road from %s to %s", src, dst);
 	return false;
 
 }
@@ -1927,7 +1927,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(CMapGenerator* gen, float min_di
 
 	bool needsGuard = value > minGuardedValue;
 
-	//logGlobal->infoStream() << boost::format("Min dist for density %f is %d") % density % min_dist;
+	//logGlobal->info("Min dist for density %f is %d", density, min_dist);
 	for(auto tile : possibleTiles)
 	{
 		auto dist = gen->getNearestObjectDistance(tile);
@@ -2099,7 +2099,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance)
 {
-	//logGlobal->traceStream() << boost::format("Inserting object at %d %d") % pos.x % pos.y;
+	//logGlobal->trace("Inserting object at %d %d", pos.x, pos.y);
 
 	checkAndPlaceObject (gen, object, pos);
 

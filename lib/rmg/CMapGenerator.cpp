@@ -461,7 +461,7 @@ void CMapGenerator::createObstaclesCommon2()
 				}
 			}
 		}
-		logGlobal->traceStream() << boost::format("Set %d tiles to BLOCKED and %d tiles to FREE") % blockedTiles % freeTiles;
+		logGlobal->trace("Set %d tiles to BLOCKED and %d tiles to FREE", blockedTiles, freeTiles);
 	}
 }
 

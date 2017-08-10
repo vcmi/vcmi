@@ -2348,7 +2348,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			}
 			catch(std::exception &e)
 			{
-				logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal->name() % e.what();
+				logAi->debug("Goal %s decomposition failed: %s", goal->name(), e.what());
 				return sptr(Goals::Invalid());
 			}
 		}
@@ -2380,7 +2380,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			}
 			else
 			{
-				logAi->debugStream() << boost::format("Trying to realize %s (value %2.3f)") % goal->name() % goal->priority;
+				logAi->debug("Trying to realize %s (value %2.3f)", goal->name(), goal->priority);
 				goal->accept(this);
 			}
 
@@ -2401,7 +2401,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(std::exception &e)
 		{
-			logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
+			logAi->debug("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal->name(), ultimateGoal->name());
 			logAi->debug("The error message was: %s", e.what());
 			break;
 		}
@@ -2553,7 +2553,7 @@ void VCAI::performTypicalActions()
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
 			continue;
 
-		logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
+		logAi->debug("Looking into %s, MP=%d", h->name.c_str(), h->movement);
 		makePossibleUpgrades(*h);
 		pickBestArtifacts(*h);
 		try
@@ -2771,7 +2771,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-	logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
+	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos());
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())
@@ -2824,7 +2824,7 @@ void VCAI::lostHero(HeroPtr h)
 
 void VCAI::answerQuery(QueryID queryID, int selection)
 {
-	logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
+	logAi->debug("I'll answer the query %d giving the choice %d", queryID, selection);
 	if(queryID != QueryID(-1))
 	{
 		cb->selectionMade(selection, queryID);

@@ -810,7 +810,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	{
 		if(hero->artifactsWorn.size() ||  hero->artifactsInBackpack.size())
 		{
-			logGlobal->warnStream() << boost::format("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...") % hero->name % hero->pos;
+			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->name, hero->pos);
 			hero->artifactsInBackpack.clear();
 			while(hero->artifactsWorn.size())
 				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
@@ -1622,7 +1622,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 		if(nhi->secSkills.size())
 		{
 			nhi->secSkills.clear();
-			//logGlobal->warnStream() << boost::format("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+			//logGlobal->warn("Hero %s subID=%d has set secondary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
 		}
 
 		int howMany = reader.readUInt32();
@@ -1680,7 +1680,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 		if(nhi->spells.size())
 		{
 			nhi->clear();
-			logGlobal->warnStream() << boost::format("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+			logGlobal->warn("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
 		}
 
 		if(hasCustomSpells)
@@ -1713,7 +1713,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 								.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)), nullptr);
 			if(ps->size())
 			{
-				logGlobal->warnStream() << boost::format("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...") % nhi->name % nhi->subID;
+				logGlobal->warn("Hero %s subID=%d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", nhi->name, nhi->subID);
 				for(auto b : *ps)
 					nhi->removeBonus(b);
 			}

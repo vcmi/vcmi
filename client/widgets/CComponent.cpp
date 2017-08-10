@@ -217,8 +217,7 @@ std::string CComponent::getSubtitleInternal()
 			auto building = CGI->townh->factions[subtype]->town->buildings[BuildingID(val)];
 			if(!building)
 			{
-				logGlobal->errorStream() << boost::format("Town of faction %s has no building #%d")
-					% CGI->townh->factions[subtype]->town->faction->name % val;
+				logGlobal->error("Town of faction %s has no building #%d", CGI->townh->factions[subtype]->town->faction->name, val);
 				return (boost::format("Missing building #%d") % val).str();
 			}
 			return building->Name();

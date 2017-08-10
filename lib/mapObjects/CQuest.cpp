@@ -1049,7 +1049,7 @@ void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for play
 		playerKeyMap[player].insert((ui8)val);
 	}
 	else
-		logGlobal->errorStream() << boost::format("Unexpected properties requested to set: what=%d, val=%d") % (int)what % val;
+		logGlobal->error("Unexpected properties requested to set: what=%d, val=%d", (int)what, val);
 }
 
 bool CGKeys::wasMyColorVisited (PlayerColor player) const

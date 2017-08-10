@@ -292,10 +292,10 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 			default:
 				assert(false);
 		}
-		logGlobal->traceStream() << boost::format("Player %d: %s") % player.second.getColor() % playerType;
+		logGlobal->trace("Player %d: %s", player.second.getColor(), playerType);
 	}
 	setCompOnlyPlayerCount(cpuOnlyPlayers); //human players are set automaticlaly (?)
-	logGlobal->infoStream() << boost::format("Final player config: %d total, %d cpu-only") % players.size() % (int)getCompOnlyPlayerCount();
+	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), (int)getCompOnlyPlayerCount());
 }
 
 void CMapGenOptions::updatePlayers()
@@ -340,7 +340,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 
 	if (compOnlyPlayersToAdd < 0)
 	{
-		logGlobal->errorStream() << boost::format("Incorrect number of players to add. Requested players %d, current players %d") % playerCount % players.size();
+		logGlobal->error("Incorrect number of players to add. Requested players %d, current players %d", playerCount, players.size());
 		assert (compOnlyPlayersToAdd < 0);
 	}
 	for(int i = 0; i < compOnlyPlayersToAdd; ++i)

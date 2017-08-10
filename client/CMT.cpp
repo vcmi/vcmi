@@ -906,7 +906,7 @@ void processCommand(const std::string &message)
 				if(elem.second.human)
 				{
 					auto AiToGive = client->aiNameForPlayer(*client->getPlayerSettings(elem.first), false);
-					logNetwork->infoStream() << boost::format("Player %s will be lead by %s") % elem.first % AiToGive;
+					logNetwork->info("Player %s will be lead by %s", elem.first, AiToGive);
 					client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
 				}
 			}

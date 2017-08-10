@@ -228,7 +228,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->errorStream() << boost::format("Template %s has errors. Message: %s.") % tpl->getName() % std::string(e.what());
+		logGlobal->error("Template %s has errors. Message: %s.", tpl->getName(), std::string(e.what()));
 	}
 }
 

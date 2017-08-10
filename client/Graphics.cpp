@@ -364,7 +364,7 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
 
 	if(info.animationFile.empty())
 	{
-		logGlobal->warnStream() << boost::format("Def name for obj (%d,%d) is empty!") % info.id % info.subid;
+		logGlobal->warn("Def name for obj (%d,%d) is empty!", info.id, info.subid);
 		return std::shared_ptr<CAnimation>();
 	}
 
