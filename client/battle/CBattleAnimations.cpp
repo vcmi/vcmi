@@ -34,17 +34,17 @@
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
     : owner(_owner), ID(_owner->animIDhelper++)
 {
-	logAnim->traceStream() << "Animation #" << ID << " created";
+	logAnim->trace("Animation #%d created", ID);
 }
 
 CBattleAnimation::~CBattleAnimation()
 {
-	logAnim->traceStream() << "Animation #" << ID << " deleted";
+	logAnim->trace("Animation #%d deleted", ID);
 }
 
 void CBattleAnimation::endAnim()
 {
-	logAnim->traceStream() << "Animation #" << ID << " ended, type is " << typeid(this).name();
+	logAnim->trace("Animation #%d ended, type is %s", ID, typeid(this).name());
 	for(auto & elem : owner->pendingAnims)
 	{
 		if(elem.first == this)
@@ -151,7 +151,7 @@ CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInt
 attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.indirectAttack),
 killed(_attackedInfo.killed), timeToWait(0)
 {
-	logAnim->debugStream() << "Created defence anim for " << _attackedInfo.defender->getName();
+	logAnim->debug("Created defence anim for %s", _attackedInfo.defender->getName());
 }
 
 bool CDefenceAnimation::init()
