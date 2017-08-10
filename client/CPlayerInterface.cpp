@@ -830,7 +830,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	if(CBattleInterface::givenCommand.get())
 	{
-		logGlobal->errorStream() << "Command buffer must be clean! (we don't want to use old command)";
+		logGlobal->error("Command buffer must be clean! (we don't want to use old command)");
 		vstd::clear_pointer(CBattleInterface::givenCommand.data);
 	}
 
@@ -1594,7 +1594,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim)
 {
 	if (GH.amIGuiThread())
 	{
-		logGlobal->warnStream() << "Cannot wait for dialogs in gui thread (deadlock risk)!";
+		logGlobal->warn("Cannot wait for dialogs in gui thread (deadlock risk)!");
 		return;
 	}
 
@@ -2314,7 +2314,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		CGPath &path = paths[h];
 		if (!path.nodes.size())
 		{
-			logGlobal->warnStream() << "Warning: empty path found...";
+			logGlobal->warn("Warning: empty path found...");
 			paths.erase(h);
 		}
 		else

@@ -407,7 +407,7 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)
 		SDL_SetColors(sur, color, 5, 1);
 	}
 	else
-		logGlobal->warnStream() << "Warning, setPlayerColor called on not 8bpp surface!";
+		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
 }
 
 TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)

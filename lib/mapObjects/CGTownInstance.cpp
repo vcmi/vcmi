@@ -1155,7 +1155,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	//if (!(!!visitingHero == !h))
 	//{
 	//	logGlobal->warnStream() << boost::format("Hero visiting town %s is %s ") % name % (visitingHero.get() ? visitingHero->name : "NULL");
-	//	logGlobal->warnStream() << boost::format("New hero will be %s ") % (h ? h->name : "NULL");
+	//	logGlobal->warn("New hero will be %s ", (h ? h->name : "NULL"));
 	//
 	//}
 	assert(!!visitingHero == !h);

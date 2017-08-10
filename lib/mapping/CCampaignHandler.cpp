@@ -267,7 +267,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 						break;
 					}
 				default:
-					logGlobal->warnStream() << "Corrupted h3c file";
+					logGlobal->warn("Corrupted h3c file");
 					break;
 				}
 				ret.bonusesToChoose.push_back(bonus);
@@ -304,7 +304,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory(CBinaryReader & r
 		}
 	default:
 		{
-			logGlobal->warnStream() << "Corrupted h3c file";
+			logGlobal->warn("Corrupted h3c file");
 			break;
 		}
 	}

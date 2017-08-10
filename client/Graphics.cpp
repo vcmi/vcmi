@@ -302,7 +302,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		// Add some kind of player-colored overlay?
 		// Or keep palette approach here and replace only colors of specific value(s)
 		// Or just wait for OpenGL support?
-		logGlobal->warnStream() << "Image must have palette to be player-colored!";
+		logGlobal->warn("Image must have palette to be player-colored!");
 	}
 }
 

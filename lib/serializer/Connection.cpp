@@ -75,10 +75,10 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
-		logNetwork->infoStream()<<"Found endpoints:";
+		logNetwork->info("Found endpoints:");
 	else
 	{
-		logNetwork->errorStream() << "Critical problem: No endpoints found!";
+		logNetwork->error("Critical problem: No endpoints found!");
 		goto connerror1;
 	}
 	i=0;
@@ -106,11 +106,11 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 
 	//we shouldn't be here - error handling
 connerror1:
-	logNetwork->errorStream() << "Something went wrong... checking for error info";
+	logNetwork->error("Something went wrong... checking for error info");
 	if(error)
 		logNetwork->errorStream() << error;
 	else
-		logNetwork->errorStream() << "No error info. ";
+		logNetwork->error("No error info. ");
 	delete io_service;
 	//delete socket;
 	throw std::runtime_error("Can't establish connection :(");
@@ -206,10 +206,10 @@ bool CConnection::isHost() const
 
 void CConnection::reportState(CLogger * out)
 {
-	out->debugStream() << "CConnection";
+	out->debug("CConnection");
 	if(socket && socket->is_open())
 	{
-		out->debugStream() << "\tWe have an open and valid socket";
+		out->debug("\tWe have an open and valid socket");
 		out->debugStream() << "\t" << socket->available() <<" bytes awaiting";
 	}
 }
@@ -218,7 +218,7 @@ CPack * CConnection::retreivePack()
 {
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
-	logNetwork->traceStream() << "Listening... ";
+	logNetwork->trace("Listening... ");
 	iser & ret;
 	logNetwork->traceStream() << "\treceived server message of type " << (ret? typeid(*ret).name() : "nullptr") << ", data: " << ret;
 	return ret;

@@ -465,7 +465,7 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 			});
 			break;
 		default:
-			logGlobal->errorStream() << "Error! Wrong identifier used for identifier!";
+			logGlobal->error("Error! Wrong identifier used for identifier!");
 	}
 }
 
@@ -531,7 +531,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			}
 			break;
 		default:
-			logGlobal->errorStream() << "Error! Wrong bonus duration format.";
+			logGlobal->error("Error! Wrong bonus duration format.");
 		}
 	}
 

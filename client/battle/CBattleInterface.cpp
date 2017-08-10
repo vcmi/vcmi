@@ -852,7 +852,7 @@ void CBattleInterface::bAutofightf()
 	{
 		assert(curInt->autofightingAI);
 		curInt->isAutoFightOn = false;
-		logGlobal->traceStream() << "Stopping the autofight...";
+		logGlobal->trace("Stopping the autofight...");
 	}
 	else
 	{
@@ -1119,7 +1119,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 	}
 
 	if (stack && stack != activeStack)
-		logGlobal->warnStream() << "Warning: giving an order to a non-active stack?";
+		logGlobal->warn("Warning: giving an order to a non-active stack?");
 
 	auto  ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
@@ -1799,7 +1799,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	if (activeStack && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
 	{
-		logGlobal->warnStream() << "Something wrong... interface was deactivated but there is no animation. Reactivating...";
+		logGlobal->warn("Something wrong... interface was deactivated but there is no animation. Reactivating...");
 		blockUI(false);
 	}
 	else

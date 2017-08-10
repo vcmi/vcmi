@@ -56,7 +56,7 @@ void printWinError()
 	int error = GetLastError();
 	if(!error)
 	{
-		logGlobal->errorStream() << "No Win error information set.";
+		logGlobal->error("No Win error information set.");
 		return;
 	}
 	logGlobal->errorStream() << "Error " << error << " encountered:";
@@ -106,7 +106,7 @@ const char* exceptionName(DWORD exc)
 
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 {
-	logGlobal->errorStream() << "Disaster happened.";
+	logGlobal->error("Disaster happened.");
 
 	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
 	logGlobal->errorStream() << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode)
@@ -242,10 +242,10 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 }
 CConsoleHandler::~CConsoleHandler()
 {
-	logGlobal->infoStream() << "Killing console...";
+	logGlobal->info("Killing console...");
 	end();
 	delete cb;
-	logGlobal->infoStream() << "Killing console... done!";
+	logGlobal->info("Killing console... done!");
 }
 void CConsoleHandler::end()
 {

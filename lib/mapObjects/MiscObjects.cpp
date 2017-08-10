@@ -1579,7 +1579,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(spell == SpellID::NONE)
 	{
-		logGlobal->errorStream() << "Not initialized shrine visited!";
+		logGlobal->error("Not initialized shrine visited!");
 		return;
 	}
 
@@ -1627,7 +1627,7 @@ void CGShrine::initObj(CRandomGenerator & rand)
 
 		if(possibilities.empty())
 		{
-			logGlobal->errorStream() << "Error: cannot init shrine, no allowed spells!";
+			logGlobal->error("Error: cannot init shrine, no allowed spells!");
 			return;
 		}
 
@@ -2023,7 +2023,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 					text = 27;
 					break;
 				default:
-					logGlobal->warnStream() << "Unrecognized subtype of cartographer";
+					logGlobal->warn("Unrecognized subtype of cartographer");
 			}
 			assert(text);
 			BlockingDialog bd (true, false);

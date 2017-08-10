@@ -253,7 +253,7 @@ void CMapGenerator::addPlayerInfo()
 
 		if (teamNumbers[j].empty())
 		{
-			logGlobal->errorStream() << boost::format("Not enough places in team for %s player") % ((j == CPUONLY) ? "CPU" : "CPU or human");
+			logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 			assert (teamNumbers[j].size());
 		}
         auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
@@ -279,7 +279,7 @@ void CMapGenerator::genZones()
 	placer.placeZones(mapGenOptions, &rand);
 	placer.assignZones(mapGenOptions);
 
-	logGlobal->infoStream() << "Zones generated successfully";
+	logGlobal->info("Zones generated successfully");
 }
 
 void CMapGenerator::fillZones()
@@ -290,7 +290,7 @@ void CMapGenerator::fillZones()
 
 	findZonesForQuestArts();
 
-	logGlobal->infoStream() << "Started filling zones";
+	logGlobal->info("Started filling zones");
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
@@ -378,7 +378,7 @@ void CMapGenerator::fillZones()
 
 	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);
 
-	logGlobal->infoStream() << "Zones filled successfully";
+	logGlobal->info("Zones filled successfully");
 }
 
 void CMapGenerator::createObstaclesCommon1()

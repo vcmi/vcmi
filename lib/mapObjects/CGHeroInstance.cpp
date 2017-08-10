@@ -740,7 +740,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						}
 						else //no creature found, can't calculate value
 						{
-							logGlobal->warnStream() << "Primary skill specialty growth supported only with creature type limiters";
+							logGlobal->warn("Primary skill specialty growth supported only with creature type limiters");
 							break;
 						}
 

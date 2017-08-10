@@ -2326,11 +2326,11 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 	while(1)
 	{
 		Goals::TSubgoal goal = ultimateGoal;
-		logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal->name();
+		logAi->debug("Striving to goal of type %s", ultimateGoal->name());
 		int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
-			logAi->debugStream() << boost::format("Considering goal %s") % goal->name();
+			logAi->debug("Considering goal %s", goal->name());
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -2343,7 +2343,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				//it is impossible to continue some goals (like exploration, for example)
 				completeGoal (goal);
-				logAi->debugStream() << boost::format("Goal %s decomposition failed: goal was completed as much as possible") % goal->name();
+				logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", goal->name());
 				return sptr(Goals::Invalid());
 			}
 			catch(std::exception &e)
@@ -2375,7 +2375,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			if (goal->isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-				logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal->name();
+				logAi->debug("Choosing abstract goal %s", goal->name());
 				break;
 			}
 			else
@@ -2388,7 +2388,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(boost::thread_interrupted &e)
 		{
-			logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
+			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
 		}
 		catch(goalFulfilledException &e)
@@ -2402,7 +2402,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		catch(std::exception &e)
 		{
 			logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal->name() % ultimateGoal->name();
-			logAi->debugStream() << boost::format("The error message was: %s") % e.what();
+			logAi->debug("The error message was: %s", e.what());
 			break;
 		}
 	}
@@ -2415,7 +2415,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
-		logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
+		logAi->debug("Trying to realize quest: %s", ms.toString());
 		auto heroes = cb->getHeroesInfo();
 
 		switch (q.quest->missionType)
@@ -2513,7 +2513,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (int i = 0; i < q.quest->m2stats.size(); ++i)
 				{
-					logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
+					logAi->debug("Don't know how to increase primary stat %d", i);
 				}
 				break;
 			}
@@ -2528,13 +2528,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-				logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
+				logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);
 				break;
 			}
 			case CQuest::MISSION_PLAYER:
 			{
 				if (playerID.getNum() != q.quest->m13489val)
-					logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
+					logAi->debug("Can't be player of color %d", q.quest->m13489val);
 				break;
 			}
 			case CQuest::MISSION_KEYMASTER:
@@ -2562,7 +2562,7 @@ void VCAI::performTypicalActions()
 		}
 		catch(std::exception &e)
 		{
-			logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
+			logAi->debug("Cannot use this hero anymore, received exception: %s", e.what());
 			continue;
 		}
 	}
@@ -2811,7 +2811,7 @@ void VCAI::requestActionASAP(std::function<void()> whatToDo)
 
 void VCAI::lostHero(HeroPtr h)
 {
-	logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
+	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.name);
 
 	vstd::erase_if_present(lockedHeroes, h);
 	for(auto obj : reservedHeroesMap[h])
@@ -2831,7 +2831,7 @@ void VCAI::answerQuery(QueryID queryID, int selection)
 	}
 	else
 	{
-		logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
+		logAi->debug("Since the query ID is %d, the answer won't be sent. This is not a real query!", queryID);
 		//do nothing
 	}
 }
@@ -2876,9 +2876,9 @@ TResources VCAI::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
 	auto iterator = cb->getTownsInfo();
-	if(std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x)->bool 
-	{ 
-		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end(); 
+	if(std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x)->bool
+	{
+		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
 	})
 		/*|| std::all_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool { return x->forbiddenBuildings.find(BuildingID::CAPITOL) != x->forbiddenBuildings.end(); })*/ )
 		myRes[Res::GOLD] -= GOLD_RESERVE; //what if capitol is blocked from building in all possessed towns (set in map editor)? What about reserve for city hall or something similar in that case?

@@ -50,7 +50,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	}
 	if(!quantity)
 	{
-		logGlobal->warnStream() << "Using set creature to delete stack?";
+		logGlobal->warn("Using set creature to delete stack?");
 		eraseStack(slot);
 		return true;
 	}
@@ -171,7 +171,7 @@ void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool 
 	}
 	else
 	{
-		logGlobal->errorStream() << "Failed adding to slot!";
+		logGlobal->error("Failed adding to slot!");
 	}
 }
 

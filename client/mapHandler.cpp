@@ -762,7 +762,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 		const CGObjectInstance * obj = object.obj;
 		if (!obj)
 		{
-			logGlobal->errorStream() << "Stray map object that isn't fading";
+			logGlobal->error("Stray map object that isn't fading");
 			continue;
 		}
 
@@ -1164,7 +1164,7 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 	{
 		if (objData.isMoving) // ignore fading of moving objects (for now?)
 		{
-			logAnim->debugStream() << "Ignoring fade of moving object";
+			logAnim->debug("Ignoring fade of moving object");
 			return false;
 		}
 

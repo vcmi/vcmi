@@ -381,11 +381,11 @@ int main(int argc, char * argv[])
 	//something is really wrong...
 	if (res["width"].Float() < 100 || res["height"].Float() < 100)
 	{
-		logGlobal->errorStream() << "Fatal error: failed to load settings!";
-		logGlobal->errorStream() << "Possible reasons:";
+		logGlobal->error("Fatal error: failed to load settings!");
+		logGlobal->error("Possible reasons:");
 		logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().userConfigPath() << "/settings.json";
 		logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().userConfigPath() << "/schemas/settings.json";
-		logGlobal->errorStream() << "VCMI will now exit...";
+		logGlobal->error("VCMI will now exit...");
 		exit(EXIT_FAILURE);
 	}
 
@@ -438,7 +438,7 @@ int main(int argc, char * argv[])
 			logGlobal->errorStream() << "Selected resolution " << resPair.first << "x" << resPair.second << " was not found!";
 			if (conf.guiOptions.empty())
 			{
-				logGlobal->errorStream() << "Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this";
+				logGlobal->error("Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this");
 				exit(1);
 			}
 			else
@@ -607,7 +607,7 @@ void removeGUI()
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
 	GH.statusbar = nullptr;
-	logGlobal->infoStream() << "Removed GUI.";
+	logGlobal->info("Removed GUI.");
 
 	LOCPLINT = nullptr;
 }
@@ -672,11 +672,11 @@ void processCommand(const std::string &message)
 		std::cout << "Screenbuf points to ";
 
 		if(screenBuf == screen)
-			logGlobal->errorStream() << "screen";
+			logGlobal->error("screen");
 		else if(screenBuf == screen2)
-			logGlobal->errorStream() << "screen2";
+			logGlobal->error("screen2");
 		else
-			logGlobal->errorStream() << "?!?";
+			logGlobal->error("?!?");
 
 		SDL_SaveBMP(screen, "Screen_c.bmp");
 		SDL_SaveBMP(screen2, "Screen2_c.bmp");
@@ -844,7 +844,7 @@ void processCommand(const std::string &message)
 			outFile.write((char*)data.first.get(), data.second);
 		}
 		else
-			logGlobal->errorStream() << "File not found!";
+			logGlobal->error("File not found!");
 	}
 	else if(cn == "setBattleAI")
 	{
@@ -863,7 +863,7 @@ void processCommand(const std::string &message)
 		catch(std::exception &e)
 		{
 			logGlobal->warnStream() << "Failed opening " << fname << ": " << e.what();
-			logGlobal->warnStream() << "Setting not changes, AI not found or invalid!";
+			logGlobal->warn("Setting not changes, AI not found or invalid!");
 		}
 	}
 
@@ -1134,7 +1134,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
 	if(nullptr == screen)
 	{
-		logGlobal->errorStream() << "Unable to create surface";
+		logGlobal->error("Unable to create surface");
 		logGlobal->errorStream() << w << " "<<  h << " "<< bpp;
 
 		logGlobal->errorStream() << SDL_GetError();
@@ -1150,7 +1150,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(nullptr == screenTexture)
 	{
-		logGlobal->errorStream() << "Unable to create screen texture";
+		logGlobal->error("Unable to create screen texture");
 		logGlobal->errorStream() << SDL_GetError();
 		throw std::runtime_error("Unable to create screen texture");
 	}

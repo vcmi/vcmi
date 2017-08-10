@@ -550,7 +550,7 @@ CAdvMapInt::CAdvMapInt():
 	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
   spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
   updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
-	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false), 
+	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(int3(-1, -1, -1))
 {
@@ -1044,7 +1044,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		int3 betterPos = LOCPLINT->repairScreenPos(position);
 		if (betterPos != position)
 		{
-			logGlobal->warnStream() << "Incorrect position for adventure map!";
+			logGlobal->warn("Incorrect position for adventure map!");
 			position = betterPos;
 		}
 

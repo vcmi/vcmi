@@ -134,7 +134,7 @@ DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else
-		logNetwork->warnStream() << "Warning! Attempt to add duplicated quest";
+		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
 DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
@@ -804,7 +804,7 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 			return s->artifact;
 		else
 		{
-			logNetwork->warnStream() << "ArtifactLocation::getArt: This location is locked!";
+			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
 			return nullptr;
 		}
 	}
@@ -895,7 +895,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState *gs)
 					//else - artifact cna be lost :/
 					else
 					{
-						logNetwork->warnStream() << "Artifact is present at destination slot!";
+						logNetwork->warn("Artifact is present at destination slot!");
 					}
 					artHere->move (alHere, alDest);
 					//TODO: choose from dialog
@@ -1078,7 +1078,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs(CGameState *gs)
 		}
 		else
 		{
-			logNetwork->errorStream() << "Wrong black market id!";
+			logNetwork->error("Wrong black market id!");
 		}
 	}
 	else
@@ -1162,7 +1162,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
 	{
-		logNetwork->errorStream() << "Wrong object ID - property cannot be set!";
+		logNetwork->error("Wrong object ID - property cannot be set!");
 		return;
 	}
 
@@ -1560,7 +1560,7 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 {
 	if(effect.empty() && cumulativeEffects.empty())
 	{
-		logGlobal->errorStream() << "Trying to apply SetStackEffect with no effects";
+		logGlobal->error("Trying to apply SetStackEffect with no effects");
 		return;
 	}
 
@@ -1788,7 +1788,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	newStackID = 0;
 	if(!BattleHex(pos).isValid())
 	{
-		logNetwork->warnStream() << "No place found for new stack!";
+		logNetwork->warn("No place found for new stack!");
 		return;
 	}
 

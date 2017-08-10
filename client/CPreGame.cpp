@@ -209,7 +209,7 @@ template <> class CApplyOnPG<CPack> : public CBaseForPGApply
 public:
 	void applyOnPG(CSelectionScreen *selScr, void *pack) const override
 	{
-			logGlobal->errorStream() << "Cannot apply on PG plain CPack!";
+			logGlobal->error("Cannot apply on PG plain CPack!");
 			assert(0);
 	}
 };
@@ -3662,7 +3662,7 @@ void CBonusSelection::updateBonusSelection()
 		case CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO:
 			{
 				auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
-				if (!superhero) logGlobal->warnStream() << "No superhero! How could it be transferred?";
+				if (!superhero) logGlobal->warn("No superhero! How could it be transferred?");
 				picNumber = superhero ? superhero->portrait : 0;
 				desc = CGI->generaltexth->allTexts[719];
 

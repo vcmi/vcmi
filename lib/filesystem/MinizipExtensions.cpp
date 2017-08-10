@@ -71,7 +71,7 @@ template <class _Stream> inline int streamProxyClose(voidpf opaque, voidpf strea
 
 	_Stream * actualStream = static_cast<_Stream *>(stream);
 
-	logGlobal->traceStream() << "Proxy stream closed";
+	logGlobal->trace("Proxy stream closed");
 
 	actualStream->seek(0);
 
@@ -229,7 +229,7 @@ uLong ZCALLBACK CProxyROIOApi::readFileProxy(voidpf opaque, voidpf stream, void 
 
 uLong ZCALLBACK CProxyROIOApi::writeFileProxy(voidpf opaque, voidpf stream, const void* buf, uLong size)
 {
-	logGlobal->errorStream() << "Attempt to write to read-only stream";
+	logGlobal->error("Attempt to write to read-only stream");
 	return 0;
 }
 

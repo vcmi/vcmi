@@ -55,7 +55,7 @@ int CCallback::sendQueryReply(const JsonNode & reply, QueryID queryID)
 	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == QueryID(-1))
 	{
-		logGlobal->errorStream() << "Cannot answer the query -1!";
+		logGlobal->error("Cannot answer the query -1!");
 		return -1;
 	}
 
@@ -185,7 +185,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 	int requestID = cl->sendRequest(request, *player);
 	if(waitTillRealize)
 	{
-		logGlobal->traceStream() << boost::format("We'll wait till request %d is answered.\n") % requestID;
+		logGlobal->trace("We'll wait till request %d is answered.\n", requestID);
 		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(CGameState::mutex, unlockGsWhenWaiting);
 		CClient::waitingRequest.waitWhileContains(requestID);
 	}

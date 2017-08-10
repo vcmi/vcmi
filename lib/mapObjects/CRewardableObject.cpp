@@ -179,7 +179,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	}
 	else
 	{
-		logGlobal->debugStream() << "Revisiting already visited object";
+		logGlobal->debug("Revisiting already visited object");
 		InfoWindow iw;
 		iw.player = h->tempOwner;
 		iw.soundID = soundID;

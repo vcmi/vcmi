@@ -274,9 +274,9 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 
 	// error found. Try to generate some debug info
 	if (identifiers.size() == 0)
-		logGlobal->errorStream() << "Unknown identifier!";
+		logGlobal->error("Unknown identifier!");
 	else
-		logGlobal->errorStream() << "Ambiguous identifier request!";
+		logGlobal->error("Ambiguous identifier request!");
 
 	 logGlobal->errorStream() << "Request for " << request.type << "." << request.name << " from mod " << request.localScope;
 
@@ -304,7 +304,7 @@ void CIdentifierStorage::finalize()
 		{
 			logGlobal->traceStream() << object.second.scope << " : " << object.first << " -> " << object.second.id;
 		}
-		logGlobal->errorStream() << "All known identifiers were dumped into log file";
+		logGlobal->error("All known identifiers were dumped into log file");
 	}
 	assert(errorsFound == false);
 	state = FINISHED;
@@ -661,7 +661,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	// Mod already present? We found a loop
 	if (vstd::contains(currentList, modID))
 	{
-		logGlobal->errorStream() << "Error: Circular dependency detected! Printing dependency list:";
+		logGlobal->error("Error: Circular dependency detected! Printing dependency list:");
 		logGlobal->errorStream() << "\t" << mod.name << " -> ";
 		return true;
 	}

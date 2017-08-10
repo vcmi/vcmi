@@ -748,7 +748,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 			auto & advMap = data["town"]["adventureMap"];
 			if (!advMap.isNull())
 			{
-				logGlobal->warnStream() << "Outdated town mod. Will try to generate valid templates out of fort";
+				logGlobal->warn("Outdated town mod. Will try to generate valid templates out of fort");
 				JsonNode config;
 				config["animation"] = advMap["castle"];
 				VLC->objtypeh->getHandlerFor(index, object->index)->addTemplate(config);

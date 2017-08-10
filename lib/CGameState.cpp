@@ -833,7 +833,7 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 			}
 		}
 
-		logGlobal->infoStream() << boost::format("Generated random map in %i ms.") % sw.getDiff();
+		logGlobal->info("Generated random map in %i ms.", sw.getDiff());
 	}
 	else
 	{

@@ -85,7 +85,7 @@ void CIntObject::activate()
 			return;
 		else
 		{
-			logGlobal->warnStream() << "Warning: IntObject re-activated with mismatching used and active";
+			logGlobal->warn("Warning: IntObject re-activated with mismatching used and active");
 			deactivate(); //FIXME: better to avoid such possibility at all
 		}
 	}
@@ -366,9 +366,9 @@ void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 	if(vstd::contains(assignedKeys,key.keysym.sym)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
-		bool prev = mouseState(EIntObjMouseBtnType::LEFT);		
+		bool prev = mouseState(EIntObjMouseBtnType::LEFT);
 		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
 		clickLeft(key.state == SDL_PRESSED, prev);
-		
+
 	}
 }

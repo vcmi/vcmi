@@ -258,7 +258,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 
 	if(withTerrain && allowedTerrains.empty())
-		logGlobal->warnStream() << "Loaded template without allowed terrains!";
+		logGlobal->warn("Loaded template without allowed terrains!");
 
 
 	auto charToTile = [&](const char & ch) -> ui8
@@ -507,7 +507,7 @@ int3 ObjectTemplate::getVisitableOffset() const
 			if (isVisitableAt(x, y))
 				return int3(x,y,0);
 
-    //logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
+    //logGlobal->warn("Warning: getVisitableOffset called on non-visitable obj!");
 	return int3(0,0,0);
 }
 

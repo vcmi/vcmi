@@ -47,7 +47,7 @@ float CZonePlacer::getDistance (float distance) const
 
 void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
 {
-	logGlobal->infoStream() << "Starting zone placement";
+	logGlobal->info("Starting zone placement");
 
 	width = mapGenOptions->getWidth();
 	height = mapGenOptions->getHeight();
@@ -184,7 +184,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				if (vstd::contains(playerSettings, player))
 					faction = playerSettings[player].getStartingTown();
 				else
-					logGlobal->errorStream() << boost::format("Can't find info for player %d (starting zone)") % player.getNum();
+					logGlobal->error("Can't find info for player %d (starting zone)", player.getNum());
 
 				if (faction == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) //TODO: check this after a town has already been randomized
 					zonesToPlace.push_back(zone);
@@ -375,7 +375,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 			misplacedZone = zone.first;
 		}
 	}
-	logGlobal->traceStream() << boost::format("Worst misplacement/movement ratio: %3.2f") % maxRatio;
+	logGlobal->trace("Worst misplacement/movement ratio: %3.2f", maxRatio);
 
 	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
@@ -402,10 +402,10 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
 				logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
 					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
-				logGlobal->traceStream() << boost::format("direction is %s") % vec();
+				logGlobal->trace("direction is %s", vec());
 
 				misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
-				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
 			}
 		}
 		else
@@ -431,10 +431,10 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
 				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
 					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
-				logGlobal->traceStream() << boost::format("direction is %s") % vec();
+				logGlobal->trace("direction is %s", vec());
 
 				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
-				logGlobal->traceStream() << boost::format("New distance %f") % targetZone->getCenter().dist2d(misplacedZone->getCenter());
+				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
 			}
 		}
 	}
@@ -462,7 +462,7 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 
 void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 {
-	logGlobal->infoStream() << "Starting zone colouring";
+	logGlobal->info("Starting zone colouring");
 
 	auto width = mapGenOptions->getWidth();
 	auto height = mapGenOptions->getHeight();
@@ -571,5 +571,5 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 			zone.second->paintZoneTerrain (gen, ETerrainType::SUBTERRANEAN);
 		}
 	}
-	logGlobal->infoStream() << "Finished zone colouring";
+	logGlobal->info("Finished zone colouring");
 }

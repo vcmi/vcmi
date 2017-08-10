@@ -108,7 +108,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(con
 		return ESpellCastProblem::INVALID;
 	if(!battleDoWeKnowAbout(side.get()))
 	{
-		logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
+		logGlobal->warn("You can't check if enemy can cast given spell!");
 		return ESpellCastProblem::INVALID;
 	}
 

@@ -270,7 +270,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 	//setHeight(20);
 	//setWidth(50);
 
-	logGlobal->traceStream() << "Player config:";
+	logGlobal->trace("Player config:");
 	int humanPlayers = 0, cpuOnlyPlayers = 0, AIplayers = 0;
 	for (auto player : players)
 	{
@@ -378,7 +378,7 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 			return i;
 		}
 	}
-	logGlobal->errorStream() << "Failed to get next player color";
+	logGlobal->error("Failed to get next player color");
 	assert(false);
 	return PlayerColor(0);
 }

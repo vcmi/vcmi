@@ -876,13 +876,13 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 
 		if(nullptr == art)
 		{
-			logGlobal->warnStream() << "Invalid artifact in hero's backpack, ignoring...";
+			logGlobal->warn("Invalid artifact in hero's backpack, ignoring...");
 			return false;
 		}
 
 		if(art->isBig() && slot >= GameConstants::BACKPACK_START)
 		{
-			logGlobal->warnStream() << "A big artifact (war machine) in hero's backpack, ignoring...";
+			logGlobal->warn("A big artifact (war machine) in hero's backpack, ignoring...");
 			return false;
 		}
 		if(aid == 0 && slot == ArtifactPosition::MISC5)
@@ -902,7 +902,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 		}
 		else
 		{
-			logGlobal->debugStream() << "Artifact can't be put at the specified location."; //TODO add more debugging information
+			logGlobal->debug("Artifact can't be put at the specified location."); //TODO add more debugging information
 		}
 	}
 

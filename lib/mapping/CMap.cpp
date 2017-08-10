@@ -489,7 +489,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	// Try to workaround that and find closest object that we can use
 
 	logGlobal->errorStream() << "Failed to find object of type " << int(type) << " at " << pos;
-	logGlobal->errorStream() << "Will try to find closest matching object";
+	logGlobal->error("Will try to find closest matching object");
 
 	CGObjectInstance * bestMatch = nullptr;
 	for (CGObjectInstance * object : objects)

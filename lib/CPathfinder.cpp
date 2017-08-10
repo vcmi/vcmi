@@ -51,7 +51,7 @@ CPathfinder::CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstan
 	out.hpos = hero->getPosition(false);
 	if(!isInTheMap(out.hpos)/* || !gs->map->isInTheMap(dest)*/) //check input
 	{
-		logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
+		logGlobal->error("CGameState::calculatePaths: Hero outside the gs->map? How dare you...");
 		throw std::runtime_error("Wrong checksum");
 	}
 

@@ -308,7 +308,7 @@ void CGUniversity::initObj(CRandomGenerator & rand)
 	}
 	if(toChoose.size() < 4)
 	{
-		logGlobal->warnStream()<<"Warning: less then 4 available skills was found by University initializer!";
+		logGlobal->warn("Warning: less then 4 available skills was found by University initializer!");
 		return;
 	}
 

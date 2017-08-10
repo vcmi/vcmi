@@ -55,7 +55,7 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 
 void CSaveFile::reportState(CLogger * out)
 {
-	out->debugStream() << "CSaveFile";
+	out->debug("CSaveFile");
 	if(sfile.get() && *sfile)
 	{
 		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp();

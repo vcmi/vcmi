@@ -1493,7 +1493,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 {
 	if(!art->artType->isTradable()) //special art
 	{
-		logGlobal->warnStream() << "Cannot put special artifact on altar!";
+		logGlobal->warn("Cannot put special artifact on altar!");
 		return false;
 	}
 
@@ -1502,7 +1502,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 		int slotIndex = firstFreeSlot();
 		if(slotIndex < 0)
 		{
-			logGlobal->warnStream() << "No free slots on altar!";
+			logGlobal->warn("No free slots on altar!");
 			return false;
 		}
 		altarSlot = items[0][slotIndex];

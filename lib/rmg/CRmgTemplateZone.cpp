@@ -637,7 +637,7 @@ void CRmgTemplateZone::connectLater(CMapGenerator* gen)
 	for (const int3 node : tilesToConnectLater)
 	{
 		if (!connectWithCenter(gen, node, true))
-			logGlobal->errorStream() << boost::format("Failed to connect node %s with center of the zone") % node;
+			logGlobal->error("Failed to connect node %s with center of the zone", node);
 	}
 }
 
@@ -788,7 +788,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 				// add node to path
 				roads.insert (backTracking);
 				gen->setRoad (backTracking, ERoadType::COBBLESTONE_ROAD);
-				//logGlobal->traceStream() << boost::format("Setting road at tile %s") % backTracking;
+				//logGlobal->trace("Setting road at tile %s", backTracking);
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];
 			}
@@ -1386,7 +1386,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 	if ((type == ETemplateZoneType::CPU_START) || (type == ETemplateZoneType::PLAYER_START))
 	{
 		//set zone types to player faction, generate main town
-		logGlobal->infoStream() << "Preparing playing zone";
+		logGlobal->info("Preparing playing zone");
 		int player_id = *owner - 1;
 		auto & playerInfo = gen->map->players[player_id];
 		PlayerColor player(player_id);
@@ -1577,12 +1577,12 @@ EObjectPlacingResult::EObjectPlacingResult CRmgTemplateZone::tryToPlaceObjectAnd
 	int3 accessibleOffset = getAccessibleOffset(gen, obj->appearance, pos);
 	if (!accessibleOffset.valid())
 	{
-		logGlobal->warnStream() << boost::format("Cannot access required object at position %s, retrying") % pos;
+		logGlobal->warn("Cannot access required object at position %s, retrying", pos);
 		return EObjectPlacingResult::CANNOT_FIT;
 	}
 	if (!connectPath(gen, accessibleOffset, true))
 	{
-		logGlobal->traceStream() << boost::format("Failed to create path to required object at position %s, retrying") % pos;
+		logGlobal->trace("Failed to create path to required object at position %s, retrying", pos);
 		return EObjectPlacingResult::SEALED_OFF;
 	}
 	else
@@ -1591,7 +1591,7 @@ EObjectPlacingResult::EObjectPlacingResult CRmgTemplateZone::tryToPlaceObjectAnd
 
 bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 {
-	logGlobal->traceStream() << "Creating required objects";
+	logGlobal->trace("Creating required objects");
 
 	for(const auto &object : requiredObjects)
 	{
@@ -1601,7 +1601,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 		{
 			if (!findPlaceForObject(gen, obj, 3, pos))
 			{
-				logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") % id;
+				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
 			if (tryToPlaceObjectAndConnectToPath(gen, obj, pos) == EObjectPlacingResult::SUCCESS)
@@ -1646,7 +1646,7 @@ bool CRmgTemplateZone::createRequiredObjects(CMapGenerator* gen)
 
 			if (tiles.empty())
 			{
-				logGlobal->errorStream() << boost::format("Failed to fill zone %d due to lack of space") % id;
+				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
 			for (auto tile : tiles)
@@ -2195,11 +2195,11 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	{
 		//guardTile = tiles.front();
 		guardTile = getAccessibleOffset(gen, object->appearance, object->pos);
-		logGlobal->traceStream() << boost::format("Guard object at %s") % object->pos();
+		logGlobal->trace("Guard object at %s", object->pos());
 	}
 	else
 	{
-		logGlobal->errorStream() << boost::format("Failed to guard object at %s") % object->pos();
+		logGlobal->error("Failed to guard object at %s", object->pos());
 		return false;
 	}
 

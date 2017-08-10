@@ -1422,7 +1422,7 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 	case EAlignment::EVIL:
 		return !c->isEvil();
 	default:
-		logBonus->warnStream() << "Warning: illegal alignment in limiter!";
+		logBonus->warn("Warning: illegal alignment in limiter!");
 		return true;
 	}
 }

@@ -1459,7 +1459,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 			}
 			else
 			{
-				logGlobal->debugStream() << "Artifact can't be put at the specified location."; //TODO add more debugging information
+				logGlobal->debug("Artifact can't be put at the specified location."); //TODO add more debugging information
 			}
 		}
 	}

@@ -141,11 +141,11 @@ bool CFilesystemList::createResource(std::string filename, bool update)
 			// b) in update mode, call with filename that does not exists
 			assert(load(ResourceID(filename)));
 
-			logGlobal->traceStream()<< "Resource created successfully";
+			logGlobal->trace("Resource created successfully");
 			return true;
 		}
 	}
-	logGlobal->traceStream()<< "Failed to create resource";
+	logGlobal->trace("Failed to create resource");
 	return false;
 }
 

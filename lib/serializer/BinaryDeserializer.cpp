@@ -81,7 +81,7 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 
 void CLoadFile::reportState(CLogger * out)
 {
-	out->debugStream() << "CLoadFile";
+	out->debug("CLoadFile");
 	if(!!sfile && *sfile)
 	{
 		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();

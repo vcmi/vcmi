@@ -1573,7 +1573,7 @@ void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurf
 	{
 		// in that case, immediately finish the previous fade
 		// (alternatively, we could just return here to ignore the new fade request until this one finished (but we'd need to free the passed bitmap to avoid leaks))
-		logGlobal->warnStream() << "Tried to init fading animation that is already running.";
+		logGlobal->warn("Tried to init fading animation that is already running.");
 		if (fadingSurface && shouldFreeSurface)
 			SDL_FreeSurface(fadingSurface);
 	}

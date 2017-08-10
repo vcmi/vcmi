@@ -524,7 +524,7 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 	{
 		// No alliances
 		if(src.getType() != JsonNode::DATA_NULL)
-			logGlobal->errorStream() << "Invalid teams field type";
+			logGlobal->error("Invalid teams field type");
 
 		mapHeader->howManyTeams = 0;
 		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
@@ -1061,7 +1061,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	std::string typeName = configuration["type"].String(), subtypeName = configuration["subtype"].String();
 	if(typeName.empty())
 	{
-		logGlobal->errorStream() << "Object type missing";
+		logGlobal->error("Object type missing");
 		logGlobal->debugStream() << configuration;
 		return;
 	}
@@ -1081,7 +1081,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	}
 	else if(subtypeName.empty())
 	{
-		logGlobal->errorStream() << "Object subtype missing";
+		logGlobal->error("Object subtype missing");
 		logGlobal->debugStream() << configuration;
 		return;
 	}

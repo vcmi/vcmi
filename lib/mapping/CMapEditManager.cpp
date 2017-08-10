@@ -648,7 +648,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					{
 						//if(!suitableTiles.empty())
 						//{
-						//	logGlobal->debugStream() << "Clear suitables tiles.";
+						//	logGlobal->debug("Clear suitables tiles.");
 						//}
 
 						invalidNativeTilesCnt = nativeTilesCntNorm;
@@ -730,7 +730,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		if(bestPattern == -1)
 		{
 			// This shouldn't be the case
-			logGlobal->warnStream() << boost::format("No pattern detected at pos '%s'.") % pos;
+			logGlobal->warn("No pattern detected at pos '%s'.", pos);
 			CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map, pos);
 			continue;
 		}
