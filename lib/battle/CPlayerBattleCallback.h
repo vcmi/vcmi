@@ -10,6 +10,8 @@
 #pragma once
 #include "CBattleInfoCallback.h"
 
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
+
 class CGHeroInstance;
 
 class DLL_LINKAGE CPlayerBattleCallback : public CBattleInfoCallback
