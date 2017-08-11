@@ -66,6 +66,29 @@ for:
         VCMI_GENERATOR: Visual Studio 15 2017 Win64
         VCMI_BUILD_PLATFORM: x64
         VCMI_BUILD_CONFIGURATION: Debug
+
+# Special configuration for coverity_scan branch
+-
+  branches:
+    only:
+      - coverity_scan
+  environment:
+    matrix:
+      - NAME: Coverity - MSVS 2015 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        VCMI_GENERATOR: Visual Studio 14 2015
+        VCMI_BUILD_PLATFORM: x86
+        VCMI_BUILD_CONFIGURATION: Release
+        environment:
+    coverity_token:
+      secure: XNnpYevnZxGmXW1zLu+3js2S+pqfWPQmL26hVgOTBTI=
+    coverity_email:
+      secure: JDd5yXvYaq/yJEVjoadEhA==
+  build_script:
+    - cmd: c:\projects\vcmi\source\CI\msvc\coverity_build_script.bat
+  after_test:
+    - ps: c:\projects\vcmi\source\CI\msvc\coverity_upload_script.ps
+
 # Default configuration for all other branches
 -
   environment:
