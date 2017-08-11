@@ -15,22 +15,16 @@ macro(vcmi_set_output_dir name dir)
 	# Multi-config builds for Visual Studio, Xcode
 	foreach (OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 		 string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIGUPPERCASE)
-		 set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/${dir})
-		 set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/${dir})
-		 set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/${OUTPUTCONFIG}/${dir})
+		 set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/bin/${OUTPUTCONFIG}/${dir})
+		 set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/bin/${OUTPUTCONFIG}/${dir})
+		 set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/bin/${OUTPUTCONFIG}/${dir})
 	endforeach()
 
 	# Generic no-config case for Makefiles, Ninja.
 	# This is what Qt Creator is using
-	if(APPLE)
-		set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${APP_BUNDLE_BINARY_DIR}/${dir})
-		set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${APP_BUNDLE_BINARY_DIR}/${dir})
-		set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${APP_BUNDLE_BINARY_DIR}/${dir})
-	else()
-		set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${dir})
-		set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${dir})
-		set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${dir})
-	endif()
+	set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${dir})
+	set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${dir})
+	set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${dir})
 endmacro()
 
 #######################################
@@ -79,3 +73,21 @@ if(${CMAKE_GENERATOR} MATCHES "Xcode")
 	endmacro(set_xcode_property)
 
 endif(${CMAKE_GENERATOR} MATCHES "Xcode")
+
+#######################################
+#           CMake debugging           #
+#######################################
+
+# Can be called to see check cmake variables and environment variables
+# For "install" debugging just copy it here. There no easy way to include modules from source.
+function(vcmi_get_cmake_debug_info)
+
+		message(STATUS "Debug - Internal variables:")
+		get_cmake_property(_variableNames VARIABLES)
+		foreach(_variableName ${_variableNames})
+				message(STATUS "${_variableName}=${${_variableName}}")
+		endforeach()
+		message(STATUS "Debug - Environment variables:")
+		execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+
+endfunction()

@@ -133,6 +133,7 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_client"
 			PROJECT_LABEL "VCMI_client"
 	)
+	target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
 endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${SYSTEM_LIBS})

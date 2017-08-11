@@ -6,6 +6,7 @@ if(NOT CMAKE_BUILD_TYPE)
 		FORCE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
+set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 include(VCMIUtils)
@@ -57,14 +58,14 @@ if(WIN32)
 
 	if(MINGW)
 		#MinGW: check for iconv (may be needed for boost.locale)
-		include(CheckLibraryExists)
-		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
-		if(ICONV_FOUND)
-			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-		endif()
+		#include(CheckLibraryExists)
+		#check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+		#if(ICONV_FOUND)
+		#	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+		#endif()
 
 		#MinGW: use O1 to prevent compiler crash in some cases
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
 	endif()
 
 	if(MSVC)
@@ -73,7 +74,7 @@ if(WIN32)
 		set(Boost_USE_STATIC_LIBS OFF)
 
 		#MSVC: Don't link with SDLMain
-		set(SDL2_BUILDING_LIBRARY ON)
+		#set(SDL2_BUILDING_LIBRARY ON)
 
 		#MSVC: Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -123,11 +124,6 @@ if(ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(Qt5Widgets REQUIRED)
 	find_package(Qt5Network REQUIRED)
-endif()
-
-if(ENABLE_TEST)
-	# find_package overwrites BOOST_* variables which are already set, so all components have to be included again
-	find_package(Boost 1.48.0 COMPONENTS date_time program_options filesystem system thread locale REQUIRED)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
@@ -251,6 +247,12 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 #TODO: remove version from Global.h and use this one as define?
 
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
+
+INSTALL(CODE "
+set(BU_CHMOD_BUNDLE_ITEMS ON)
+include(BundleUtilities)
+fixup_bundle(\"${APP_BUNDLE_DIR}\" \"\" \"\")
+" COMPONENT Runtime)
 
 if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
 	set(CPACK_PACKAGE_NAME "VCMI")

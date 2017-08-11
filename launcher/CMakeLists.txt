@@ -97,6 +97,11 @@ if(WIN32)
 	target_link_libraries(vcmilauncher Qt5::WinMain)
 endif()
 
+if(APPLE)
+	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
+	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
+endif()
+
 target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network ${SDL_LIBRARY})
 
 vcmi_set_output_dir(vcmilauncher "")

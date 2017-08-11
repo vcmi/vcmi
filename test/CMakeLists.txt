@@ -50,7 +50,6 @@ set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmitest)
 
 # Files to copy to the build directory
-add_custom_target(vcmitestFiles ALL)
 set(vcmitest_FILES
 		testdata/TerrainViewTest.h3m
 		testdata/terrainViewMappings.json
@@ -61,7 +60,7 @@ set(vcmitest_FILES
 )
 
 foreach(file ${vcmitest_FILES})
-	add_custom_command(TARGET vcmitestFiles POST_BUILD
+	add_custom_command(TARGET vcmitest POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
 	)
 endforeach()
