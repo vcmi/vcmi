@@ -125,10 +125,9 @@ void JsonWriter::writeNode(const JsonNode &node)
 	}
 }
 
-JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
-	out(output)
+JsonWriter::JsonWriter(std::ostream & output)
+	: out(output)
 {
-	writeNode(node);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

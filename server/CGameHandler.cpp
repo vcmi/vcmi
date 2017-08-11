@@ -3701,7 +3701,7 @@ bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor 
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
-	logGlobal->traceStream() << answer;
+	logGlobal->trace(answer.toJson());
 
 	auto topQuery = queries.topQuery(player);
 	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");

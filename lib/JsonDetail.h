@@ -15,15 +15,15 @@ class JsonWriter
 {
 	//prefix for each line (tabulation)
 	std::string prefix;
-	std::ostream &out;
+	std::ostream & out;
 public:
 	template<typename Iterator>
 	void writeContainer(Iterator begin, Iterator end);
 	void writeEntry(JsonMap::const_iterator entry);
 	void writeEntry(JsonVector::const_iterator entry);
-	void writeString(const std::string &string);
-	void writeNode(const JsonNode &node);
-	JsonWriter(std::ostream &output, const JsonNode &node);
+	void writeString(const std::string & string);
+	void writeNode(const JsonNode & node);
+	JsonWriter(std::ostream & output);
 };
 
 //Tiny string class that uses const char* as data for speed, members are private

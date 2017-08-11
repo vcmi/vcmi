@@ -27,13 +27,6 @@ class CModHandler;
 
 static const JsonNode nullNode;
 
-
-std::ostream & operator<<(std::ostream &out, const JsonNode &node)
-{
-	JsonWriter writer(out, node);
-	return out << "\n";
-}
-
 JsonNode::JsonNode(JsonType Type):
 	type(DATA_NULL)
 {
@@ -372,6 +365,15 @@ const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
 JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 {
 	return ::resolvePointer(*this, jsonPointer);
+}
+
+std::string JsonNode::toJson() const
+{
+	std::ostringstream out;
+	JsonWriter writer(out);
+	writer.writeNode(*this);
+	out << "\n";
+	return out.str();
 }
 
 ///JsonUtils

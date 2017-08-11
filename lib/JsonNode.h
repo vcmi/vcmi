@@ -13,8 +13,6 @@ class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const JsonNode &node);
-
 struct Bonus;
 class ResourceID;
 
@@ -111,6 +109,8 @@ public:
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
+
+	std::string toJson() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -976,7 +976,7 @@ void CModHandler::afterLoad()
 	modSettings["core"] = coreMod.saveLocalData();
 
 	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::out | std::ofstream::trunc);
-	file << modSettings;
+	file << modSettings.toJson();
 }
 
 std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier)

@@ -815,8 +815,9 @@ void CTownHandler::initializeRequirements()
 		{
 			if (node.Vector().size() > 1)
 			{
-				logGlobal->warnStream() << "Unexpected length of town buildings requirements: " << node.Vector().size();
-				logGlobal->warnStream() << "Entry contains " << node;
+				logGlobal->warn("Unexpected length of town buildings requirements: %d", node.Vector().size());
+				logGlobal->warn("Entry contains: ");
+				logGlobal->warn(node.toJson());
 			}
 			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).get());
 		});

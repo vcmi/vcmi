@@ -13,6 +13,7 @@
 
 #include "../filesystem/CInputStream.h"
 #include "../filesystem/COutputStream.h"
+#include "../JsonDetail.h"
 #include "CMap.h"
 #include "../CModHandler.h"
 #include "../CCreatureHandler.h"
@@ -1054,15 +1055,13 @@ CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMa
 
 void CMapLoaderJson::MapObjectLoader::construct()
 {
-	//logGlobal->debugStream() <<"Loading: " <<jsonKey;
-
 	//TODO:consider move to ObjectTypeHandler
 	//find type handler
 	std::string typeName = configuration["type"].String(), subtypeName = configuration["subtype"].String();
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
-		logGlobal->debugStream() << configuration;
+		logGlobal->debug(configuration.toJson());
 		return;
 	}
 
@@ -1082,7 +1081,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	else if(subtypeName.empty())
 	{
 		logGlobal->error("Object subtype missing");
-		logGlobal->debugStream() << configuration;
+		logGlobal->debug(configuration.toJson());
 		return;
 	}
 
@@ -1189,7 +1188,8 @@ CMapSaverJson::~CMapSaverJson()
 void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & filename)
 {
 	std::ostringstream out;
-	out << data;
+	JsonWriter writer(out);
+	writer.writeNode(data);
 	out.flush();
 
 	{

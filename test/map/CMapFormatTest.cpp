@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 
+#include "../lib/JsonDetail.h"
+
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/filesystem/Filesystem.h"
 
@@ -92,17 +94,11 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 
 static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)
 {
-	std::ostringstream out;
-	out << data;
-	out.flush();
+	auto s = data.toJson();
+	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
-	{
-		auto s = out.str();
-		std::unique_ptr<COutputStream> stream = saver.addFile(filename);
-
-		if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
-			throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
-	}
+	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
+		throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 }
 
 static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNode & objects, const JsonNode & surface, const JsonNode & underground)

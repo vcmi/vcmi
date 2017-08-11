@@ -81,7 +81,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	JsonUtils::minimize(savedConf, "vcmi:settings");
 
 	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
-	file << savedConf;
+	file << savedConf.toJson();
 }
 
 JsonNode & SettingsStorage::getNode(std::vector<std::string> path)
