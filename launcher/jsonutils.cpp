@@ -107,7 +107,7 @@ JsonNode toJson(QVariant object)
 void JsonToFile(QString filename, QVariant object)
 {
 	FileStream file(qstringToPath(filename), std::ios::out | std::ios_base::binary);
-	file << toJson(object);
+	file << toJson(object).toJson();
 }
 
 }
