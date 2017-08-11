@@ -78,7 +78,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			CPackForSelectionScreen *cpfs = nullptr;
 			*cpc >> cpfs;
 
-			logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
+			logNetwork->info("Got package to announce %s from %s", typeid(*cpfs).name(), cpc->toString());
 
 			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 			bool quitting = dynamic_ptr_cast<QuitMenuWithoutStarting>(cpfs),
@@ -110,7 +110,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 	catch (const std::exception& e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		logNetwork->errorStream() << *cpc << " dies... \nWhat happened: " << e.what();
+		logNetwork->error("%s dies... \nWhat happened: %s", cpc->toString(), e.what());
 	}
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
@@ -132,7 +132,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 		}
 	}
 
-	logNetwork->infoStream() << "Thread listening for " << *cpc << " ended";
+	logNetwork->info("Thread listening for %s ended", cpc->toString());
 	listeningThreads--;
 	vstd::clear_pointer(cpc->handler);
 }
@@ -262,7 +262,7 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 {
 	if(!pc->sendStop)
 	{
-		logNetwork->infoStream() << "\tSending pack of type " << typeid(pack).name() << " to " << *pc;
+		logNetwork->info("\tSending pack of type %s to %s", typeid(pack).name(), pc->toString());
 		*pc << &pack;
 	}
 
@@ -455,7 +455,7 @@ void CVCMIServer::start()
 			acc.join();
 			if (error)
 			{
-				logNetwork->warnStream()<<"Got connection but there is an error " << error;
+				logNetwork->warn("Got connection but there is an error %s", error.message());
 				return;
 			}
 			logNetwork->info("We've accepted someone... ");

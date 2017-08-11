@@ -90,6 +90,8 @@ public:
 	void prepareForSendingHeroes(); //disables sending vectorized, enables smart pointer serialization, clears saved/loaded ptr cache
 	void enterPregameConnectionMode();
 
+	std::string toString() const;
+
 	template<class T>
 	CConnection & operator>>(T &t)
 	{
@@ -104,5 +106,3 @@ public:
 		return * this;
 	}
 };
-
-DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);

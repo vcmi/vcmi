@@ -278,7 +278,9 @@ void CConnection::enableSmartVectorMemberSerializatoin()
 	CSerializer::smartVectorMembersSerialization = true;
 }
 
-std::ostream & operator<<(std::ostream &str, const CConnection &cpc)
- {
-	return str << "Connection with " << cpc.name << " (ID: " << cpc.connectionID << /*", " << (cpc.host ? "host" : "guest") <<*/ ")";
- }
+std::string CConnection::toString() const
+{
+    boost::format fmt("Connection with %s (ID: %d)");
+    fmt % name % connectionID;
+    return fmt.str();
+}
