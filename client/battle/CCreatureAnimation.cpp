@@ -385,7 +385,7 @@ void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
 	case 3: return nextFrameT<3>(dest, !attacker);
 	case 4: return nextFrameT<4>(dest, !attacker);
 	default:
-		logGlobal->errorStream() << (int)dest->format->BitsPerPixel << " bpp is not supported!!!";
+		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
 	}
 }
 

@@ -99,7 +99,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 
 	if (!CResourceHandler::get()->existsResource(resource))
 	{
-		logGlobal->errorStream() << "Error: video " << resource.getName() << " was not found";
+		logGlobal->error("Error: video %s was not found", resource.getName());
 		return false;
 	}
 

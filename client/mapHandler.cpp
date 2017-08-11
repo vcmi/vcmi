@@ -755,7 +755,7 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 				fade->draw(targetSurf, nullptr, &r2);
 				continue;
 			}
-			logGlobal->errorStream() << "Fading map object with missing fade anim : " << object.fadeAnimKey;
+			logGlobal->error("Fading map object with missing fade anim : %d", object.fadeAnimKey);
 			continue;
 		}
 
@@ -967,7 +967,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 	{
 		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 		{
-			logGlobal->errorStream() << "A neutral hero (" << hero->name << ") at " << hero->pos << ". Should not happen!";
+			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->name, hero->pos());
 			return CMapHandler::AnimBitmapHolder();
 		}
 
@@ -1025,7 +1025,7 @@ IImage * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int a
 	int boatType = boat->subID;
 	if(boatType < 0 || boatType >= graphics->boatFlagAnimations.size())
 	{
-		logGlobal->errorStream() << "Not supported boat subtype: " << boat->subID;
+		logGlobal->error("Not supported boat subtype: %d", boat->subID);
 		return nullptr;
 	}
 
@@ -1035,7 +1035,7 @@ IImage * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int a
 
 	if(colorIndex < 0 || colorIndex >= subtypeFlags.size())
 	{
-		logGlobal->errorStream() << "Invalid player color " << colorIndex;
+		logGlobal->error("Invalid player color %d", colorIndex);
 		return nullptr;
 	}
 
@@ -1138,7 +1138,7 @@ bool CMapHandler::updateObjectsFade()
 			{
 				if ((*objIter).fadeAnimKey == (*iter).first)
 				{
-					logAnim->traceStream() << "Fade anim finished for obj at " << pos << "; remaining: " << (fadeAnims.size() - 1);
+					logAnim->trace("Fade anim finished for obj at %s; remaining: %d", pos(), fadeAnims.size() - 1);
 					if (anim->fadingMode == CFadeAnimation::EMode::OUT)
 						objs.erase(objIter); // if this was fadeout, remove the object from the map
 					else
@@ -1185,8 +1185,7 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 		fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(pos, anim);
 		obj.fadeAnimKey = fadeAnimCounter;
 
-		logAnim->traceStream() << "Fade anim started for obj " << obj.obj->ID
-							   << " at " << pos << "; anim count: " << fadeAnims.size();
+		logAnim->trace("Fade anim started for obj %d at %s; anim count: %d", obj.obj->ID, pos(), fadeAnims.size());
 		return true;
 	}
 

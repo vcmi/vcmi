@@ -151,8 +151,7 @@ void startGameFromFile(const bfs::path &fname)
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to start from the file: " << fname << ". Error: " << e.what()
-			<< " Falling back to main menu.";
+		logGlobal->error("Failed to start from the file: %s. Error: %s. Falling back to main menu.", fname, e.what());
 		GH.curInt = CGPreGame::create();
 		return;
 	}
@@ -217,7 +216,7 @@ static void SDLLogCallback(void*           userdata,
 	//todo: convert SDL log priority to vcmi log priority
 	//todo: make separate log domain for SDL
 
-	logGlobal->debugStream() << "SDL(category " << category << "; priority " <<priority <<") "<<message;
+	logGlobal->debug("SDL(category %d; priority %d) %s", category, priority, message);
 }
 
 #ifdef VCMI_APPLE
@@ -320,9 +319,9 @@ int main(int argc, char * argv[])
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
 	CBasicLogConfigurator logConfig(logPath, console);
 	logConfig.configureDefault();
-	logGlobal->infoStream() << NAME;
+	logGlobal->info(NAME);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
-	logGlobal->infoStream() << "The log file will be saved to " << logPath;
+	logGlobal->info("The log file will be saved to %s", logPath);
 
 	// Init filesystem and settings
 	preinitDLL(::console);
@@ -355,7 +354,7 @@ int main(int argc, char * argv[])
 		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 			return true;
 
-		logGlobal->errorStream() << "Error: " << message << " was not found!";
+		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
 
@@ -383,8 +382,8 @@ int main(int argc, char * argv[])
 	{
 		logGlobal->error("Fatal error: failed to load settings!");
 		logGlobal->error("Possible reasons:");
-		logGlobal->errorStream() << "\tCorrupted local configuration file at " << VCMIDirs::get().userConfigPath() << "/settings.json";
-		logGlobal->errorStream() << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().userConfigPath() << "/schemas/settings.json";
+		logGlobal->error("\tCorrupted local configuration file at %s/settings.json", VCMIDirs::get().userConfigPath());
+		logGlobal->error("\tMissing or corrupted global configuration file at %s/schemas/settings.json", VCMIDirs::get().userConfigPath());
 		logGlobal->error("VCMI will now exit...");
 		exit(EXIT_FAILURE);
 	}
@@ -393,7 +392,7 @@ int main(int argc, char * argv[])
 	{
 		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE))
 		{
-			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
+			logGlobal->error("Something was wrong: %s", SDL_GetError());
 			exit(-1);
 		}
 
@@ -413,7 +412,7 @@ int main(int argc, char * argv[])
 		int driversCount = SDL_GetNumRenderDrivers();
 		std::string preferredDriverName = video["driver"].String();
 
-		logGlobal->infoStream() << "Found " << driversCount << " render drivers";
+		logGlobal->info("Found %d render drivers", driversCount);
 
 		for(int it = 0; it < driversCount; it++)
 		{
@@ -425,17 +424,17 @@ int main(int argc, char * argv[])
 			if(!preferredDriverName.empty() && driverName == preferredDriverName)
 			{
 				preferredDriverIndex = it;
-				logGlobal->infoStream() << "\t" << driverName << " (active)";
+				logGlobal->info("\t%s (active)", driverName);
 			}
 			else
-				logGlobal->infoStream() << "\t" << driverName;
+				logGlobal->info("\t%s", driverName);
 		}
 
 		config::CConfigHandler::GuiOptionsMap::key_type resPair(res["width"].Float(), res["height"].Float());
 		if (conf.guiOptions.count(resPair) == 0)
 		{
 			// selected resolution was not found - complain & fallback to something that we do have.
-			logGlobal->errorStream() << "Selected resolution " << resPair.first << "x" << resPair.second << " was not found!";
+			logGlobal->error("Selected resolution %dx%d was not found!", resPair.first, resPair.second);
 			if (conf.guiOptions.empty())
 			{
 				logGlobal->error("Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this");
@@ -448,7 +447,7 @@ int main(int argc, char * argv[])
 				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
 				conf.SetResolution(newRes["width"].Float(), newRes["height"].Float());
 
-				logGlobal->errorStream() << "Falling back to " << newRes["width"].Float() << "x" << newRes["height"].Float();
+				logGlobal->error("Falling back to %dx%d", newRes["width"].Integer(), newRes["height"].Integer());
 			}
 		}
 
@@ -548,8 +547,7 @@ int main(int argc, char * argv[])
 		{
 			if(!fileToStartFrom.empty())
 			{
-				logGlobal->warnStream() << "Warning: cannot find given file to start from (" << fileToStartFrom
-					<< "). Falling back to main menu.";
+				logGlobal->warn("Warning: cannot find given file to start from (%s). Falling back to main menu.", fileToStartFrom.string());
 			}
 			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 		}
@@ -592,7 +590,7 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 		sbuffer << "inactive";
 	sbuffer << " at " << obj->pos.x <<"x"<< obj->pos.y;
 	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
-	logGlobal->infoStream() << sbuffer.str();
+	logGlobal->info(sbuffer.str());
 
 	for(const CIntObject *child : obj->children)
 		printInfoAboutIntObject(child, level+1);
@@ -862,7 +860,7 @@ void processCommand(const std::string &message)
 		}
 		catch(std::exception &e)
 		{
-			logGlobal->warnStream() << "Failed opening " << fname << ": " << e.what();
+			logGlobal->warn("Failed opening %s: %s", fname, e.what());
 			logGlobal->warn("Setting not changes, AI not found or invalid!");
 		}
 	}
@@ -1062,7 +1060,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 	if(!checkVideoMode(displayIndex, w, h))
 	{
-		logGlobal->errorStream() << "Error: SDL says that " << w << "x" << h << " resolution is not available!";
+		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
 		return false;
 	}
 
@@ -1105,8 +1103,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 
 	SDL_RendererInfo info;
-	SDL_GetRendererInfo(mainRenderer,&info);
-	logGlobal->infoStream() << "Created renderer " << info.name;
+	SDL_GetRendererInfo(mainRenderer, &info);
+	logGlobal->info("Created renderer %s", info.name);
 
 	if(!(fullscreen && realFullscreen))
 	{
@@ -1134,10 +1132,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
 	if(nullptr == screen)
 	{
-		logGlobal->error("Unable to create surface");
-		logGlobal->errorStream() << w << " "<<  h << " "<< bpp;
-
-		logGlobal->errorStream() << SDL_GetError();
+		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", w, h, bpp, SDL_GetError());
 		throw std::runtime_error("Unable to create surface");
 	}
 	//No blending for screen itself. Required for proper cursor rendering.
@@ -1151,7 +1146,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(nullptr == screenTexture)
 	{
 		logGlobal->error("Unable to create screen texture");
-		logGlobal->errorStream() << SDL_GetError();
+		logGlobal->error(SDL_GetError());
 		throw std::runtime_error("Unable to create screen texture");
 	}
 
@@ -1269,7 +1264,7 @@ static void handleEvent(SDL_Event & ev)
 			fullScreenChanged();
 			break;
 		default:
-			logGlobal->errorStream() << "Unknown user event. Code " << ev.user.code;
+			logGlobal->error("Unknown user event. Code %d", ev.user.code);
 			break;
 		}
 

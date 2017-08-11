@@ -130,7 +130,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 		else
 		{
-			logGlobal->errorStream()<<"Failed to open "<<fname<<" as H3 PCX!";
+			logGlobal->error("Failed to open %s as H3 PCX!", fname);
 			return nullptr;
 		}
 	}
@@ -151,8 +151,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 		else
 		{
-			logGlobal->errorStream() << "Failed to open " << fname << " via SDL_Image";
-			logGlobal->errorStream() << "Reason: " << IMG_GetError();
+			logGlobal->error("Failed to open %s via SDL_Image", fname);
+			logGlobal->error("Reason: %s", IMG_GetError());
 			return nullptr;
 		}
 	}
@@ -183,7 +183,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
 	{
-		logGlobal->errorStream() << "Error: Failed to find file " << fname;
+		logGlobal->error("Error: Failed to find file %s", fname);
 	}
 
 	return bitmap;

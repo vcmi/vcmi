@@ -503,7 +503,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 		auto index = boost::find(GameConstants::TERRAIN_NAMES, m.first);
 		if (index == std::end(GameConstants::TERRAIN_NAMES))
 		{
-			logGlobal->errorStream() << "Error: unknown terrain in terrains.json: " << m.first;
+			logGlobal->error("Error: unknown terrain in terrains.json: %s", m.first);
 			continue;
 		}
 		int terrainID = index - std::begin(GameConstants::TERRAIN_NAMES);

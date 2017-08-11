@@ -291,7 +291,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		}
 		else
 		{
-			logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
+			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.getStr(false));
 			return;
 		}
 		SDL_SetColors(sur, palette, 224, 32);

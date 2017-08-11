@@ -440,7 +440,7 @@ int3 CTerrainRect::tileCountOnScreen()
 	switch (adventureInt->mode)
 	{
 	default:
-		logGlobal->errorStream() << "Unhandled map mode " << (int)adventureInt->mode;
+		logGlobal->error("Unknown map mode %d", (int)adventureInt->mode);
 		return int3();
 	case EAdvMapMode::NORMAL:
 		return int3(tilesw, tilesh, 1);

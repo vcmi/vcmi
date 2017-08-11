@@ -63,7 +63,7 @@ void CGarrisonSlot::hover (bool on)
 				}
 				else
 				{
-					logGlobal->warnStream() << "Warning - shouldn't be - highlighted void slot "<<owner->getSelection();
+					logGlobal->warn("Warning - shouldn't be - highlighted void slot %d", owner->getSelection()->ID.getNum());
 					logGlobal->warn("Highlighted set to nullptr");
 					owner->selectSlot(nullptr);
 				}

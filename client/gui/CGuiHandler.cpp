@@ -461,7 +461,7 @@ void CGuiHandler::renderFrame()
 		CCS->curh->render();
 
 		if(0 != SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr))
-			logGlobal->errorStream() << __FUNCTION__ << " SDL_RenderCopy " << SDL_GetError();
+			logGlobal->error("%s SDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 
 		SDL_RenderPresent(mainRenderer);
 	}

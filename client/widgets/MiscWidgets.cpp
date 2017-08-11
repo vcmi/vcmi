@@ -234,7 +234,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
-			logGlobal->warnStream() << "Warning: " << army.name << " has stack in slot " << slot.first;
+			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
 			continue;
 		}
 

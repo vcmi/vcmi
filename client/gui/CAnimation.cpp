@@ -445,7 +445,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			break;
 		}
 	default:
-	logGlobal->errorStream()<<"Error: unsupported format of def file: "<<sprite.format;
+	logGlobal->error("Error: unsupported format of def file: %d", sprite.format);
 		break;
 	}
 }
@@ -741,7 +741,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 
 	if (surf == nullptr)
 	{
-		logGlobal->errorStream() << "Error: failed to load image "<<filename;
+		logGlobal->error("Error: failed to load image %s", filename);
 		return;
 	}
 	else
@@ -1373,8 +1373,7 @@ CDefFile * CAnimation::getFile() const
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
-	logGlobal->errorStream() << type << " error: Request for frame not present in CAnimation! "
-		<< "\tFile name: " << name << " Group: " << group << " Frame: " << frame;
+	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name, group, frame);
 }
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
@@ -1406,7 +1405,7 @@ CAnimation::~CAnimation()
 
 	if(!images.empty())
 	{
-		logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
+		logGlobal->warn("Warning: not all frames were unloaded from %s", name);
 		for (auto & elem : images)
 			for (auto & _image : elem.second)
 				delete _image.second;
@@ -1579,7 +1578,7 @@ void CFadeAnimation::init(EMode mode, SDL_Surface * sourceSurface, bool freeSurf
 	}
 	if (animDelta <= 0.0f)
 	{
-		logGlobal->warnStream() << "Fade anim: delta should be positive; " << animDelta << " given.";
+		logGlobal->warn("Fade anim: delta should be positive; %f given.", animDelta);
 		animDelta = DEFAULT_DELTA;
 	}
 

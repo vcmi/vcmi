@@ -358,7 +358,7 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 			}
 		}
 	}
-	logGlobal->errorStream()<<"Failed to parse command: "<<string;
+	logGlobal->error("Failed to parse command: %s", string);
 	return std::function<void()>();
 }
 
@@ -538,7 +538,7 @@ void CGPreGame::openCampaignScreen(std::string name)
 		GH.pushInt(new CCampaignScreen(CGPreGameConfig::get().getCampaigns()[name]));
 		return;
 	}
-	logGlobal->errorStream()<<"Unknown campaign set: "<<name;
+	logGlobal->error("Unknown campaign set: %s", name);
 }
 
 CGPreGame *CGPreGame::create()
@@ -942,7 +942,7 @@ void CSelectionScreen::handleConnection()
 		{
 			CPackForSelectionScreen *pack = nullptr;
 			*serv >> pack;
-			logNetwork->traceStream() << "Received a pack of type " << typeid(*pack).name();
+			logNetwork->trace("Received a pack of type %s", typeid(*pack).name());
 			assert(pack);
 			if(QuitMenuWithoutStarting *endingPack = dynamic_cast<QuitMenuWithoutStarting *>(pack))
 			{
@@ -1130,7 +1130,7 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourceID> &files)
 		}
 		catch(std::exception & e)
 		{
-			logGlobal->errorStream() << "Map " << file.getName() << " is invalid. Message: " << e.what();
+			logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
 		}
 	}
 }
@@ -1183,7 +1183,7 @@ void SelectionTab::parseGames(const std::unordered_set<ResourceID> &files, CMenu
 		}
 		catch(const std::exception & e)
 		{
-			logGlobal->errorStream() << "Error: Failed to process " << file.getName() <<": " << e.what();
+			logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 		}
 	}
 }
@@ -1494,7 +1494,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				break;
 			default:
 				// Unknown version. Be safe and ignore that map
-				logGlobal->warnStream() << "Warning: " << currentItem->fileURI << " has wrong version!";
+				logGlobal->warn("Warning: %s has wrong version!", currentItem->fileURI);
 				continue;
 			}
 			IImage * icon = formatIcons->getImage(frame,group);
@@ -1824,7 +1824,7 @@ void CRandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<st
 
 void CRandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
 {
-	logGlobal->infoStream() << "Blocking buttons from " << startId;
+	logGlobal->debug("Blocking buttons from %d", startId);
 	for(auto toggle : group->buttons)
 	{
 		if (auto button = dynamic_cast<CToggleButton*>(toggle.second))
@@ -3722,7 +3722,7 @@ void CBonusSelection::startMap()
 	{
 		auto exitCb = [=]()
 		{
-			logGlobal->infoStream() << "Starting scenario " << selectedMap;
+			logGlobal->info("Starting scenario %d", selectedMap);
             CGP->showLoadingScreen(std::bind(&startGame, si, (CConnection *)nullptr));
 		};
 

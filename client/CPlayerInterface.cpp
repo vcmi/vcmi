@@ -110,7 +110,7 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
-	logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
+	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr(false));
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	howManyPeople++;
@@ -136,7 +136,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	logGlobal->traceStream() << "\tHuman player interface for player " << playerID << " being destructed";
+	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr(false));
 	//howManyPeople--;
 	delete showingDialog;
 	delete cingconsole;
@@ -358,10 +358,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		{
 			//evil returns here ...
 			//todo: get rid of it
-			logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
+			logGlobal->trace("before [un]locks in %s", __FUNCTION__);
 			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
 			GH.mainFPSmng->framerateDelay(); //for animation purposes
-			logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;
+			logGlobal->trace("after [un]locks in %s", __FUNCTION__);
 		}
 		//CSDL_Ext::update(screen);
 
@@ -808,7 +808,7 @@ void CPlayerInterface::actionFinished(const BattleAction &action)
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
 	THREAD_CREATED_BY_CLIENT;
-	logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
+	logGlobal->trace("Awaiting command for %s", stack->nodeName());
 	auto stackId = stack->ID;
 	auto stackName = stack->nodeName();
 	if (autofightingAI)
@@ -856,10 +856,10 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	{
 		if (stackId != ret.stackNumber)
 			logGlobal->error("Not current active stack action canceled");
-		logGlobal->traceStream() << "Canceled command for " << stackName;
+		logGlobal->trace("Canceled command for %s", stackName);
 	}
 	else
-		logGlobal->traceStream() << "Giving command for " << stackName;
+		logGlobal->trace("Giving command for %s", stackName);
 
 	return ret;
 }
@@ -1362,7 +1362,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 			if (p.second.nodes.size())
 				pathsMap[p.first] = p.second.endPos();
 			else
-				logGlobal->errorStream() << p.first->name << " has assigned an empty path! Ignoring it...";
+				logGlobal->debug("%s has assigned an empty path! Ignoring it...", p.first->name);
 		}
 		h & pathsMap;
 	}
@@ -1398,7 +1398,7 @@ void CPlayerInterface::loadGame( BinaryDeserializer & h, const int version )
 
 void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
-	logGlobal->traceStream() << __FUNCTION__;
+	LOG_TRACE(logGlobal);
 	if (!LOCPLINT->makingTurn)
 		return;
 	if (!h)
@@ -2857,7 +2857,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			assert(h->pos.z == nextCoord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
 			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
-			logGlobal->traceStream() << "Requesting hero movement to " << endpos;
+			logGlobal->trace("Requesting hero movement to %s", endpos());
 
 			bool useTransit = false;
 			if ((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless
@@ -2871,7 +2871,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			doMovement(endpos, useTransit);
 
-			logGlobal->traceStream() << "Resuming " << __FUNCTION__;
+			logGlobal->trace("Resuming %s", __FUNCTION__);
 			bool guarded = cb->isInTheMap(cb->getGuardingCreaturePosition(endpos - int3(1, 0, 0)));
 			if ((!useTransit && guarded) || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 				break;

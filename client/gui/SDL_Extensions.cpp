@@ -26,11 +26,11 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 {
 	Rect rect(x,y,w,h);
 	if(0 !=SDL_UpdateTexture(screenTexture, &rect, surface->pixels, surface->pitch))
-		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();
+		logGlobal->error("%sSDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 
 	SDL_RenderClear(mainRenderer);
 	if(0 != SDL_RenderCopy(mainRenderer, screenTexture, NULL, NULL))
-		logGlobal->errorStream() << __FUNCTION__ << "SDL_RenderCopy " <<  SDL_GetError();
+		logGlobal->error("%sSDL_RenderCopy %s", __FUNCTION__, SDL_GetError());
 	SDL_RenderPresent(mainRenderer);
 
 }
@@ -326,7 +326,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstRect);
 	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstRect);
 	default:
-		logGlobal->errorStream() << (int)dst->format->BitsPerPixel << " bpp is not supported!!!";
+		logGlobal->error("%d bpp is not supported!", (int)dst->format->BitsPerPixel);
 		return -1;
 	}
 }
@@ -349,7 +349,7 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(!what)
 		return;
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
-		logGlobal->errorStream() << __FUNCTION__ << "SDL_UpdateTexture " << SDL_GetError();
+		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 }
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
@@ -428,7 +428,7 @@ case BytesPerPixel:									\
 		CASE_BPP(3)
 		CASE_BPP(4)
 	default:
-		logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
+		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
 		return nullptr;
 	}
 
@@ -442,7 +442,7 @@ TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int inc
 		CASE_BPP(3)
 		CASE_BPP(4)
 	default:
-		logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
+		logGlobal->error("%d bpp is not supported!", (int)dest->format->BitsPerPixel);
 		return nullptr;
 	}
 #undef CASE_BPP

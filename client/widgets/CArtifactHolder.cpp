@@ -229,11 +229,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 			0);
 
 		if(assemblyPossibilities.size() > 2)
-		{
-			logGlobal->warnStream() << boost::format(
-				"More than one possibility of assembling on %s... taking only first")
-				% art->artType->Name();
-		}
+			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->Name());
 		return true;
 	}
 	return false;
@@ -821,7 +817,7 @@ CHeroArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 	{
 		if(artWorn.find(ArtifactPosition(slot)) == artWorn.end())
 		{
-			logGlobal->errorStream() << "CArtifactsOfHero::getArtPlace: invalid slot " << slot;
+			logGlobal->error("CArtifactsOfHero::getArtPlace: invalid slot %d", slot);
 			return nullptr;
 		}
 

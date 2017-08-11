@@ -122,7 +122,7 @@ void SetPrimSkill::applyCl(CClient *cl)
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-		logNetwork->errorStream() << "Cannot find hero with ID " << id.getNum();
+		logNetwork->error("Cannot find hero with ID %d", id.getNum());
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroPrimarySkillChanged,h,which,val);
@@ -133,7 +133,7 @@ void SetSecSkill::applyCl(CClient *cl)
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-		logNetwork->errorStream() << "Cannot find hero with ID " << id;
+		logNetwork->error("Cannot find hero with ID %d", id.getNum());
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroSecondarySkillChanged,h,which,val);
@@ -784,7 +784,7 @@ void SystemMessage::applyCl(CClient *cl)
 	std::ostringstream str;
 	str << "System message: " << text;
 
-	logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
+	logNetwork->error(str.str()); // usually used to receive error messages from server
 	if(LOCPLINT && !settings["session"]["hideSystemMessages"].Bool())
 		LOCPLINT->cingconsole->print(str.str());
 }
@@ -813,13 +813,13 @@ void SaveGame::applyCl(CClient *cl)
 	}
 	catch(std::exception &e)
 	{
-		logNetwork->errorStream() << "Failed to save game:" << e.what();
+		logNetwork->error("Failed to save game:%s", e.what());
 	}
 }
 
 void PlayerMessage::applyCl(CClient *cl)
 {
-	logNetwork->debugStream() << "Player "<< player <<" sends a message: " << text;
+	logNetwork->debug("Player %s sends a message: %s", player.getStr(false), text);
 
 	std::ostringstream str;
 	if(player.isSpectator())

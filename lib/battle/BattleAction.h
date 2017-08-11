@@ -42,6 +42,8 @@ struct DLL_LINKAGE BattleAction
 	static BattleAction makeShotAttack(const CStack * shooter, const CStack * target);
 	static BattleAction makeMove(const CStack * stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
+
+	std::string toString() const;
 };
 
-DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba);
+DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove

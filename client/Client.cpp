@@ -152,7 +152,7 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 		if(ba.actionType != Battle::CANCEL)
 		{
-			logNetwork->traceStream() << "Send battle action to server: " << ba;
+			logNetwork->trace("Send battle action to server: %s", ba.toString());
 			MakeAction temp_action(ba);
 			sendRequest(&temp_action, color);
 		}
@@ -301,7 +301,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Cannot load game " << fname << ". Error: " << e.what();
+		logGlobal->error("Cannot load game %s. Error: %s", fname, e.what());
 		throw; //obviously we cannot continue here
 	}
 
@@ -367,7 +367,7 @@ void CClient::loadGame(const std::string & fname, const bool server, const std::
 // 	{
 // 		auto o = gs->map->objects[i];
 // 		if(o)
-// 			logGlobal->traceStream() << boost::format("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s") % i % o->id % (int)o.get() % o->pos % o->getHoverText();
+// 			logGlobal->trace("\tindex=%5d, id=%5d; address=%5d, pos=%s, name=%s", i, o->id, (int)o.get(), o->pos, o->getHoverText());
 // 		else
 // 			logGlobal->trace("\tindex=%5d --- nullptr", i);
 // 	}
@@ -454,7 +454,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-		logNetwork->traceStream() << "Preparing interface for player " << color;
+		logNetwork->trace("Preparing interface for player %s", color.getStr(false));
 		if(elem.second.playerID == PlayerSettings::PLAYER_AI)
 		{
 			auto AiToGive = aiNameForPlayer(elem.second, false);
@@ -882,8 +882,7 @@ int CClient::sendRequest(const CPack *request, PlayerColor player)
 	static ui32 requestCounter = 0;
 
 	ui32 requestID = requestCounter++;
-	logNetwork->traceStream() << boost::format("Sending a request \"%s\". It'll have an ID=%d.")
-				% typeid(*request).name() % requestID;
+	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(*request).name(), requestID);
 
 	waitingRequest.pushBack(requestID);
 	serv->sendPackToServer(*request, player, requestID);
@@ -1118,7 +1117,7 @@ void CServerHandler::callServer()
 	else
 	{
 		logNetwork->error("Error: server failed to close correctly or crashed!");
-		logNetwork->errorStream() << "Check " << logName << " for more info";
+		logNetwork->error("Check %s for more info", logName);
 		exit(1);// exit in case of error. Othervice without working server VCMI will hang
 	}
 #endif

@@ -592,7 +592,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	catch(boost::bad_lexical_cast &)
 	{
 		//Should never happen. Unless I missed some cases
-		logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
+		logGlobal->warn("Warning: failed to convert %s to number!", text);
 		text = oldText;
 	}
 }

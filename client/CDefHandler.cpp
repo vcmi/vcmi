@@ -67,7 +67,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].r = de.palette[it].R;
 		palette[it].g = de.palette[it].G;
 		palette[it].b = de.palette[it].B;
-		palette[it].a = SDL_ALPHA_OPAQUE;	
+		palette[it].a = SDL_ALPHA_OPAQUE;
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
@@ -163,22 +163,22 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 		add=0;
 
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
-	
+
 	if(nullptr == ret)
 	{
-		logGlobal->errorStream() << __FUNCTION__ <<": Unable to create surface";
-		logGlobal->errorStream() << FullWidth << "X" << FullHeight;
-		logGlobal->errorStream() << SDL_GetError();
-		throw std::runtime_error("Unable to create surface");		
+		logGlobal->error("%s: Unable to create surface", __FUNCTION__);
+		logGlobal->error("%dX%d", FullWidth, FullHeight);
+		logGlobal->error(SDL_GetError());
+		throw std::runtime_error("Unable to create surface");
 	}
 
 	BaseOffset += sizeof(SSpriteDef);
 	int BaseOffsetor = BaseOffset;
-	
-	SDL_Palette * p = SDL_AllocPalette(256);	
+
+	SDL_Palette * p = SDL_AllocPalette(256);
 	SDL_SetPaletteColors(p, palette, 0, 256);
 	SDL_SetSurfacePalette(ret, p);
-	SDL_FreePalette(p);	
+	SDL_FreePalette(p);
 
 	int ftcp=0;
 
@@ -344,8 +344,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	}
 
 	SDL_Color ttcol = ret->format->palette->colors[0];
-	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.a);	
-	SDL_SetColorKey(ret, SDL_TRUE, keycol);	
+	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.a);
+	SDL_SetColorKey(ret, SDL_TRUE, keycol);
 
 	return ret;
 }

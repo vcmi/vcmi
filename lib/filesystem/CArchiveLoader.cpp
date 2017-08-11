@@ -45,7 +45,7 @@ CArchiveLoader::CArchiveLoader(std::string _mountPoint, boost::filesystem::path 
 	else
 		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive.string());
 
-	logGlobal->traceStream() << ext << "Archive \""<<archive.filename()<<"\" loaded (" << entries.size() << " files found).";
+	logGlobal->trace("%sArchive \"%s\" loaded (%d files found).", ext, archive.filename(), entries.size());
 }
 
 void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStream & fileStream)

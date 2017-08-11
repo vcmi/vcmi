@@ -51,7 +51,7 @@ void CAudioBase::init()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
-		logGlobal->errorStream() << "Mix_OpenAudio error: " << Mix_GetError();
+		logGlobal->error("Mix_OpenAudio error: %s", Mix_GetError());
 		return;
 	}
 
@@ -154,7 +154,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->warnStream() << "Cannot get sound " << sound << " chunk: " << e.what();
+		logGlobal->warn("Cannot get sound %s chunk: %s", sound, e.what());
 		return nullptr;
 	}
 }
@@ -164,7 +164,7 @@ int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	assert(soundID < soundBase::sound_after_last);
 	auto sound = sounds[soundID];
-	logGlobal->traceStream() << "Attempt to play sound " << soundID << " with file name " << sound << " with cache";
+	logGlobal->trace("Attempt to play sound %d with file name %s with cache", soundID, sound);
 
 	return playSound(sound, repeats, true);
 }
@@ -182,7 +182,7 @@ int CSoundHandler::playSound(std::string sound, int repeats, bool cache)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 		{
-			logGlobal->errorStream() << "Unable to play sound file " << sound << " , error " << Mix_GetError();
+			logGlobal->error("Unable to play sound file %s , error %s", sound, Mix_GetError());
 			if (!cache)
 				Mix_FreeChunk(chunk);
 		}
@@ -314,7 +314,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->error("Error: playing music from non-existing set: %s", whichSet);
 		return;
 	}
 
@@ -331,14 +331,14 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
 	{
-		logGlobal->errorStream() << "Error: playing music from non-existing set: " << whichSet;
+		logGlobal->error("Error: playing music from non-existing set: %s", whichSet);
 		return;
 	}
 
 	auto selectedEntry = selectedSet->second.find(entryID);
 	if (selectedEntry == selectedSet->second.end())
 	{
-		logGlobal->errorStream() << "Error: playing non-existing entry " << entryID << " from set: " << whichSet;
+		logGlobal->error("Error: playing non-existing entry %d from set: %s", entryID, whichSet);
 		return;
 	}
 
@@ -373,8 +373,8 @@ void CMusicHandler::queueNext(CMusicHandler *owner, std::string setName, std::st
 	}
 	catch(std::exception &e)
 	{
-		logGlobal->errorStream() << "Failed to queue music. setName=" << setName << "\tmusicURI=" << musicURI;
-		logGlobal->errorStream() << "Exception: " << e.what();
+		logGlobal->error("Failed to queue music. setName=%s\tmusicURI=%s", setName, musicURI);
+		logGlobal->error("Exception: %s", e.what());
 	}
 }
 
@@ -429,7 +429,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 }
 MusicEntry::~MusicEntry()
 {
-	logGlobal->traceStream()<<"Del-ing music file "<<currentName;
+	logGlobal->trace("Del-ing music file %s", currentName);
 	if (music)
 		Mix_FreeMusic(music);
 }
@@ -438,14 +438,14 @@ void MusicEntry::load(std::string musicURI)
 {
 	if (music)
 	{
-		logGlobal->traceStream()<<"Del-ing music file "<<currentName;
+		logGlobal->trace("Del-ing music file %s", currentName);
 		Mix_FreeMusic(music);
 		music = nullptr;
 	}
 
 	currentName = musicURI;
 
-	logGlobal->traceStream()<<"Loading music file "<<musicURI;
+	logGlobal->trace("Loading music file %s", musicURI);
 
 	auto musicFile = MakeSDLRWops(CResourceHandler::get()->load(ResourceID(std::move(musicURI), EResType::MUSIC)));
 
@@ -453,7 +453,7 @@ void MusicEntry::load(std::string musicURI)
 
 	if(!music)
 	{
-		logGlobal->warnStream() << "Warning: Cannot open " << currentName << ": " << Mix_GetError();
+		logGlobal->warn("Warning: Cannot open %s: %s", currentName, Mix_GetError());
 		return;
 	}
 }
@@ -469,10 +469,10 @@ bool MusicEntry::play()
 		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 
-	logGlobal->traceStream()<<"Playing music file "<<currentName;
+	logGlobal->trace("Playing music file %s", currentName);
 	if(Mix_PlayMusic(music, 1) == -1)
 	{
-		logGlobal->errorStream() << "Unable to play music (" << Mix_GetError() << ")";
+		logGlobal->error("Unable to play music (%s)", Mix_GetError());
 		return false;
 	}
 	return true;
@@ -482,7 +482,7 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-		logGlobal->traceStream()<<"Stopping music file "<<currentName;
+		logGlobal->trace("Stopping music file %s", currentName);
 		loop = 0;
 		Mix_FadeOutMusic(fade_ms);
 		return true;

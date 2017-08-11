@@ -189,9 +189,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		auto bfieldType = (int)curInt->cb->battleGetBattlefieldType();
 		if (graphics->battleBacks.size() <= bfieldType || bfieldType < 0)
-			logGlobal->errorStream() << bfieldType << " is not valid battlefield type index!";
+			logGlobal->error("%d is not valid battlefield type index!", bfieldType);
 		else if (graphics->battleBacks[bfieldType].empty())
-			logGlobal->errorStream() << bfieldType << " battlefield type does not have any backgrounds!";
+			logGlobal->error("%d battlefield type does not have any backgrounds!", bfieldType);
 		else
 		{
 			const std::string bgName = *RandomGeneratorUtil::nextItem(graphics->battleBacks[bfieldType], CRandomGenerator::getDefault());
@@ -718,7 +718,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
 	if (!vstd::contains_if (sectorCursor, [](int sc) { return sc != -1; }))
 	{
-		logGlobal->errorStream() << "Error: for hex " << myNumber << " cannot find a hex to attack from!";
+		logGlobal->error("Error: for hex %d cannot find a hex to attack from!", myNumber);
 		attackingHex = -1;
 		return;
 	}
@@ -1143,7 +1143,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 
 	if (!tacticsMode)
 	{
-		logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
+		logGlobal->trace("Setting command for %s", (stack ? stack->nodeName() : "hero"));
 		myTurn = false;
 		setActiveStack(nullptr);
 		givenCommand.setn(ba);
@@ -1926,7 +1926,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 	if (!stack)
 	{
-		logGlobal->errorStream()<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber;
+		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action->stackNumber);
 		return;
 	}
 
@@ -2715,13 +2715,13 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 		sound = soundBase::fireWall;
 		break;
 	default:
-		logGlobal->errorStream() << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType;
+		logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi.obstacleType);
 		return;
 	}
 
 	if (effectID >= 0 && graphics->battleACToDef[effectID].empty())
 	{
-		logGlobal->errorStream() << "Cannot find def for effect type " << effectID;
+		logGlobal->error("Cannot find def for effect type %d", effectID);
 		return;
 	}
 

@@ -283,7 +283,7 @@ void CDefenceAnimation::endAnim()
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames)
 : CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
 {
-	logAnim->debugStream() << "Created dummy animation for " << howManyFrames <<" frames";
+	logAnim->debug("Created dummy animation for %d frames", howManyFrames);
 }
 
 bool CDummyAnimation::init()
@@ -360,7 +360,7 @@ bool CMeleeAttackAnimation::init()
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
-		logGlobal->errorStream()<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos;
+		logGlobal->error("Critical Error! Wrong dest in stackAttacking! dest: %d; attacking stack pos: %d; mutual pos: %d", dest.hex, attackingStackPosBeforeReturn, mutPos);
 		group = CCreatureAnim::ATTACK_FRONT;
 		break;
 	}
@@ -875,19 +875,19 @@ void CShootingAnimation::endAnim()
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
 	:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(-1), y(-1), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
-	logAnim->debugStream() << "Created spell anim for effect #" << effect;
+	logAnim->debug("Created spell anim for effect #%d", effect);
 }
 
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
 	:CBattleAnimation(_owner), effect(-1), destTile(BattleHex::INVALID), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
-	logAnim->debugStream() << "Created spell anim for " << customAnim;
+	logAnim->debug("Created spell anim for %s", customAnim);
 }
 
 CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
 	:CBattleAnimation(_owner), effect(-1), destTile(_destTile), customAnim(_customAnim), x(-1), y(-1), dx(0), dy(0), Vflip(_Vflip), alignToBottom(_alignToBottom)
 {
-	logAnim->debugStream() << "Created spell anim for " << customAnim;
+	logAnim->debug("Created spell anim for %s", customAnim);
 }
 
 

@@ -92,11 +92,18 @@ BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
 	return ba;
 }
 
-std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
+std::string BattleAction::toString() const
 {
 	std::stringstream actionTypeStream;
-	actionTypeStream << ba.actionType;
+	actionTypeStream << actionType;
 
-	return os << boost::str(boost::format("{BattleAction: side '%d', stackNumber '%d', actionType '%s', destinationTile '%s', additionalInfo '%d', selectedStack '%d'}")
-			% static_cast<int>(ba.side) % ba.stackNumber % actionTypeStream.str() % ba.destinationTile % ba.additionalInfo % ba.selectedStack);
+	boost::format fmt("{BattleAction: side '%d', stackNumber '%d', actionType '%s', destinationTile '%s', additionalInfo '%d', selectedStack '%d'}");
+	fmt % static_cast<int>(side) % stackNumber % actionTypeStream.str() % destinationTile % additionalInfo % selectedStack;
+	return fmt.str();
+}
+
+std::ostream & operator<<(std::ostream & os, const BattleAction & ba)
+{
+	os << ba.toString();
+	return os;
 }

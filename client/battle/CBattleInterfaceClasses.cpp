@@ -69,7 +69,7 @@ void CBattleConsole::showAll(SDL_Surface * to)
 
 bool CBattleConsole::addText(const std::string & text)
 {
-	logGlobal->traceStream() <<"CBattleConsole message: "<<text;
+	logGlobal->trace("CBattleConsole message: %s", text);
 	if(text.size()>70)
 		return false; //text too long!
 	int firstInToken = 0;
