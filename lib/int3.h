@@ -54,7 +54,7 @@ public:
 		z -= i.z;
 		return *this;
 	}
-	
+
 	//increases all coordinates by given number
 	int3 & operator+=(const si32 i)
 	{
@@ -116,7 +116,7 @@ public:
 	}
 
 	//returns "(x y z)" string
-	std::string operator ()() const //Change to int3::toString()?
+	std::string toString() const
 	{
 		std::string result("(");
 		result += boost::lexical_cast<std::string>(x); result += ' ';
@@ -144,15 +144,6 @@ public:
 			int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) } };
 	}
 };
-
-inline std::ostream & operator<<(std::ostream & str, const int3 & sth)
-{
-	return str << sth.x << ' ' << sth.y << ' ' << sth.z;
-}
-inline std::istream & operator>>(std::istream & str, int3 & dest)
-{
-	return str >> dest.x >> dest.y >> dest.z;
-}
 
 //Why not normal function?
 struct ShashInt3

@@ -86,8 +86,8 @@ std::string CGCreature::getHoverText(PlayerColor player) const
 	if(stacks.empty())
 	{
 		//should not happen...
-		logGlobal->errorStream() << "Invalid stack at tile " << pos << ": subID=" << subID << "; id=" << id;
-		return "!!!INVALID_STACK!!!";
+		logGlobal->error("Invalid stack at tile %s: subID=%d; id=%d", pos.toString(), subID, id.getNum());
+		return "INVALID_STACK";
 	}
 
 	std::string hoverName;
@@ -231,7 +231,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 
 		if(amount == 0) //armies with 0 creatures are illegal
 		{
-			logGlobal->warnStream() << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName();
+			logGlobal->warn("Stack %s cannot have 0 creatures. Check properties of %s", nodeName(), c.nodeName());
 			amount = 1;
 		}
 	}
@@ -809,7 +809,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 				{
 					int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
 					if(raw_res < 0)
-						logGlobal->errorStream() << "Invalid resource name: "+s;
+						logGlobal->error("Invalid resource name: %s", s);
 					else
 						possibleResources.insert(raw_res);
 				}
@@ -1070,11 +1070,11 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(cb->isTeleportChannelImpassable(channel))
 		{
-			logGlobal->debugStream() << "Cannot find corresponding exit monolith for "<< id << " (obj at " << pos << ") :(";
+			logGlobal->debug("Cannot find corresponding exit monolith for %d at %s", id.getNum(), pos.toString());
 			td.impassable = true;
 		}
 		else if(getRandomExit(h) == ObjectInstanceID())
-			logGlobal->debugStream() << "All exits blocked for monolith "<< id << " (obj at " << pos << ") :(";
+			logGlobal->debug("All exits blocked for monolith %d at %s", id.getNum(), pos.toString());
 	}
 	else
 		showInfoDialog(h, 70, 0);
@@ -1134,7 +1134,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	if(cb->isTeleportChannelImpassable(channel))
 	{
 		showInfoDialog(h,153,0);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
-		logGlobal->debugStream() << "Cannot find exit subterranean gate for "<< id << " (obj at " << pos << ") :(";
+		logGlobal->debug("Cannot find exit subterranean gate for  %d at %s", id.getNum(), pos.toString());
 		td.impassable = true;
 	}
 	else
@@ -1217,11 +1217,11 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 	TeleportDialog td(h, channel);
 	if(cb->isTeleportChannelImpassable(channel))
 	{
-		logGlobal->debugStream() << "Cannot find exit whirlpool for "<< id << " (obj at " << pos << ") :(";
+		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), pos.toString());
 		td.impassable = true;
 	}
 	else if(getRandomExit(h) == ObjectInstanceID())
-		logGlobal->debugStream() << "All exits are blocked for whirlpool "<< id << " (obj at " << pos << ") :(";
+		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), pos.toString());
 
 	if(!isProtected(h))
 	{
@@ -1727,7 +1727,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	default:
-		logGlobal->errorStream() << "Error: wrong bonus type (" << (int)type << ") for Scholar!\n";
+		logGlobal->error("Error: wrong bonus type (%d) for Scholar!\n", (int)type);
 		return;
 	}
 
@@ -2125,8 +2125,8 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 
 				if(progress > obeliskCount)
 				{
-					logGlobal->errorStream() << "Error: Visited " << progress << "\t\t" << obeliskCount;
-					assert(0);
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), obeliskCount);
+					throw std::runtime_error("internal error");
 				}
 
 				break;

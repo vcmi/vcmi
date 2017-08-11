@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CLoadIntegrityValidator.h"
+#include "../filesystem/FileStream.h"
 
 #include "../registerTypes/RegisterTypes.h"
 
@@ -39,7 +40,7 @@ int CLoadIntegrityValidator::read( void * data, unsigned size )
 		controlFile->read(controlData.data(), size);
 		if(std::memcmp(data, controlData.data(), size))
 		{
-			logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
+			logGlobal->error("Desync found! Position: %d", primaryFile->sfile->tellg());
 			foundDesync = true;
 			//throw std::runtime_error("Savegame dsynchronized!");
 		}

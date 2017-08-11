@@ -179,7 +179,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose)
 		return static_cast<const CGUniversity*>(obj);
 	default:
 		if(verbose)
-			logGlobal->errorStream() << "Cannot cast to IMarket object with ID " << obj->ID;
+			logGlobal->error("Cannot cast to IMarket object with ID %d", obj->ID);
 		return nullptr;
 	}
 }

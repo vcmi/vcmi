@@ -59,13 +59,13 @@ void printWinError()
 		logGlobal->error("No Win error information set.");
 		return;
 	}
-	logGlobal->errorStream() << "Error " << error << " encountered:";
+	logGlobal->error("Error %d encountered:", error);
 
 	//Get error description
 	char* pTemp = nullptr;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 		nullptr, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, nullptr);
-	logGlobal->errorStream() << pTemp;
+	logGlobal->error(pTemp);
 	LocalFree( pTemp );
 }
 
@@ -109,16 +109,14 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	logGlobal->error("Disaster happened.");
 
 	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
-	logGlobal->errorStream() << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode)
-		<< " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress;
+	logGlobal->error("Reason: 0x%x - %s at %04x:%x", einfo->ExceptionCode, exceptionName(einfo->ExceptionCode),  exception->ContextRecord->SegCs, (void*)einfo->ExceptionAddress);
 
 	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 	{
-		logGlobal->errorStream() << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
-			<< "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1];
+		logGlobal->error("Attempt to %s 0x%8x", (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from "), (void*)einfo->ExceptionInformation[1]);
 	}
 	const DWORD threadId = ::GetCurrentThreadId();
-	logGlobal->errorStream() << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]";
+	logGlobal->error("Thread ID: %d", threadId);
 
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
@@ -136,7 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 	strcat(mname, "_crashinfo.dmp");
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-	logGlobal->errorStream() << "Crash info will be put in " << mname;
+	logGlobal->error("Crash info will be put in %s", mname);
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;

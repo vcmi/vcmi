@@ -49,7 +49,7 @@ void CConnection::init()
 	//we got connection
 	oser & std::string("Aiya!\n") & name & myEndianess; //identify ourselves
 	iser & pom & pom & contactEndianess;
-	logNetwork->infoStream() << "Established connection with "<<pom;
+	logNetwork->info("Established connection with %s", pom);
 	wmx = new boost::mutex();
 	rmx = new boost::mutex();
 
@@ -70,7 +70,7 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
 	if(error)
 	{
-		logNetwork->errorStream() << "Problem with resolving: \n" << error;
+		logNetwork->error("Problem with resolving: \n%s", error.message());
 		goto connerror1;
 	}
 	pom = endpoint_iterator;
@@ -84,13 +84,13 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 	i=0;
 	while(pom != end)
 	{
-		logNetwork->infoStream() << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom;
+		logNetwork->info("\t%d:%s", i, (boost::asio::ip::tcp::endpoint&)*pom);
 		pom++;
 	}
 	i=0;
 	while(endpoint_iterator != end)
 	{
-		logNetwork->infoStream() << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")";
+		logNetwork->info("Trying connection to %s(%d)", (boost::asio::ip::tcp::endpoint&)*endpoint_iterator, i++);
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -99,7 +99,7 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 		}
 		else
 		{
-			logNetwork->errorStream() << "Problem with connecting: " <<  error;
+			logNetwork->error("Problem with connecting: %s", error.message());
 		}
 		endpoint_iterator++;
 	}
@@ -108,7 +108,7 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name)
 connerror1:
 	logNetwork->error("Something went wrong... checking for error info");
 	if(error)
-		logNetwork->errorStream() << error;
+		logNetwork->error(error.message());
 	else
 		logNetwork->error("No error info. ");
 	delete io_service;
@@ -128,7 +128,7 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 	acceptor->accept(*socket,error);
 	if (error)
 	{
-		logNetwork->errorStream() << "Error on accepting: " << error;
+		logNetwork->error("Error on accepting: %s", error.message());
 		delete socket;
 		throw std::runtime_error("Can't establish connection :(");
 	}
@@ -204,13 +204,13 @@ bool CConnection::isHost() const
 	return connectionID == 1;
 }
 
-void CConnection::reportState(CLogger * out)
+void CConnection::reportState(vstd::CLoggerBase * out)
 {
 	out->debug("CConnection");
 	if(socket && socket->is_open())
 	{
 		out->debug("\tWe have an open and valid socket");
-		out->debugStream() << "\t" << socket->available() <<" bytes awaiting";
+		out->debug("\t %d bytes awaiting", socket->available());
 	}
 }
 
@@ -220,14 +220,14 @@ CPack * CConnection::retreivePack()
 	boost::unique_lock<boost::mutex> lock(*rmx);
 	logNetwork->trace("Listening... ");
 	iser & ret;
-	logNetwork->traceStream() << "\treceived server message of type " << (ret? typeid(*ret).name() : "nullptr") << ", data: " << ret;
+	logNetwork->trace("\treceived server message of type %s", (ret? typeid(*ret).name() : "nullptr"));
 	return ret;
 }
 
 void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID)
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
-	logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
+	logNetwork->trace("Sending to server a pack of type %s", typeid(pack).name());
 	oser & player & requestID & &pack; //packs has to be sent as polymorphic pointers!
 }
 

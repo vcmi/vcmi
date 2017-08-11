@@ -86,6 +86,19 @@ bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 	return true;
 }
 
+std::string Res::ResourceSet::toString() const
+{
+	std::ostringstream out;
+	out << "[";
+	for(auto it = begin(); it != end(); ++it)
+	{
+		out << *it;
+		if(std::prev(end()) != it) out << ", ";
+	}
+	out << "]";
+	return out.str();
+}
+
 bool Res::ResourceSet::nziterator::valid()
 {
 	return cur.resType < GameConstants::RESOURCE_QUANTITY && cur.resVal;

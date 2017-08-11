@@ -306,7 +306,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
 	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
 	{
-		logNetwork->errorStream() << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!";
+		logNetwork->error("Wrong ChangeObjPos: object %d  doesn't exist!", objid.getNum());
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
@@ -384,7 +384,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 {
 
 	CGObjectInstance *obj = gs->getObjInstance(id);
-	logGlobal->debugStream() << "removing object id=" << id << "; address=" << (intptr_t)obj << "; name=" << obj->getObjectName();
+	logGlobal->debug("removing object id=%d; address=%x; name=%s", id, (intptr_t)obj, obj->getObjectName());
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
@@ -513,7 +513,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	CGHeroInstance *h = gs->getHero(id);
 	if (!h)
 	{
-		logGlobal->errorStream() << "Attempt ot move unavailable hero " << id;
+		logGlobal->error("Attempt ot move unavailable hero %d", id.getNum());
 		return;
 	}
 
@@ -721,7 +721,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	o->initObj(gs->getRandomGenerator());
 	gs->map->calculateGuardingGreaturePositions();
 
-	logGlobal->debugStream() << "added object id=" << id << "; address=" << (intptr_t)o << "; name=" << o->getObjectName();
+	logGlobal->debug("Added object id=%d; address=%x; name=%s", id, (intptr_t)o, o->getObjectName());
 }
 
 DLL_LINKAGE void NewArtifact::applyGs(CGameState *gs)
@@ -739,7 +739,7 @@ DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 {
 	if(!army->hasStackAtSlot(slot))
 	{
-		logNetwork->warnStream() << "Warning: " << army->nodeName() << " don't have a stack at slot " << slot;
+		logNetwork->warn("%s don't have a stack at slot %d", army->nodeName(), slot.getNum());
 		return nullptr;
 	}
 	return &army->getStack(slot);
@@ -967,7 +967,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	auto slot = al.getSlot();
 	if(slot->locked)
 	{
-		logGlobal->debugStream() << "Erasing locked artifact: " << slot->artifact->artType->Name();
+		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->Name());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		auto aset = al.getHolderArtSet();
@@ -987,12 +987,12 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 			}
 		}
 		assert(found && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debugStream() << "Found the corresponding assembly: " << dis.al.getSlot()->artifact->artType->Name();
+		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->Name());
 		dis.applyGs(gs);
 	}
 	else
 	{
-		logGlobal->debugStream() << "Erasing artifact " << slot->artifact->artType->Name();
+		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->Name());
 	}
 	al.removeArtifact();
 }
@@ -1114,7 +1114,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 		}
 		if(!hero)
 		{
-			logGlobal->errorStream() << "Hero " << h.id << " not found in NewTurn::applyGs";
+			logGlobal->error("Hero %d not found in NewTurn::applyGs", h.id.getNum());
 			continue;
 		}
 		hero->movement = h.move;
@@ -1313,7 +1313,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 		st->state.insert(EBattleStackState::FEAR);
 		break;
 	default:
-		logNetwork->warnStream() << "Unrecognized trigger effect type "<< effect;
+		logNetwork->error("Unrecognized trigger effect type %d", effect);
 	}
 }
 
@@ -1571,12 +1571,12 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 		if(cumulative || !sta->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid).And(Selector::typeSubtype(effect.type, effect.subtype))))
 		{
 			//no such effect or cumulative - add new
-			logBonus->traceStream() << sta->nodeName() << " receives a new bonus: " << effect.Description();
+			logBonus->trace("%s receives a new bonus: %s", sta->nodeName(), effect.Description());
 			sta->addNewBonus(std::make_shared<Bonus>(effect));
 		}
 		else
 		{
-			logBonus->traceStream() << sta->nodeName() << " updated bonus: " << effect.Description();
+			logBonus->trace("%s updated bonus: %s", sta->nodeName(), effect.Description());
 			actualizeEffect(sta, effect);
 		}
 	};
@@ -1592,7 +1592,7 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 				processEffect(s, fromEffect, true);
 		}
 		else
-			logNetwork->errorStream() << "Cannot find stack " << id;
+			logNetwork->error("Cannot find stack %d", id);
 	}
 
 	for(auto & para : uniqueBonuses)
@@ -1601,7 +1601,7 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 		if(s)
 			processEffect(s, para.second, false);
 		else
-			logNetwork->errorStream() << "Cannot find stack " << para.first;
+			logNetwork->error("Cannot find stack %d", para.first);
 	}
 
 	for(auto & para : cumulativeUniqueBonuses)
@@ -1610,7 +1610,7 @@ DLL_LINKAGE void SetStackEffect::applyGs(CGameState *gs)
 		if(s)
 			processEffect(s, para.second, true);
 		else
-			logNetwork->errorStream() << "Cannot find stack " << para.first;
+			logNetwork->error("Cannot find stack %d", para.first);
 	}
 }
 
@@ -1632,7 +1632,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs(CGameState *gs)
 
 		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
 		{
-			logNetwork->errorStream() << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!";
+			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->position.hex);
 			return; //position is already occupied
 		}
 
@@ -1730,14 +1730,18 @@ DLL_LINKAGE std::string CatapultAttack::AttackInfo::toString() const
 					  % destinationTile % static_cast<int>(attackedPart) % static_cast<int>(damageDealt));
 }
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CatapultAttack::AttackInfo & attackInfo)
-{
-	return out << attackInfo.toString();
-}
-
 DLL_LINKAGE std::string CatapultAttack::toString() const
 {
-	return boost::str(boost::format("{CatapultAttack: attackedParts '%s', attacker '%d'}") % attackedParts % attacker);
+	std::ostringstream out;
+	out << "[";
+	for(auto it = attackedParts.begin(); it != attackedParts.end(); ++it)
+	{
+		out << it->toString();
+		if(std::prev(attackedParts.end()) != it) out << ", ";
+	}
+	out << "]";
+
+	return boost::str(boost::format("{CatapultAttack: attackedParts '%s', attacker '%d'}") % out.str() % attacker);
 }
 
 DLL_LINKAGE void BattleStacksRemoved::applyGs(CGameState *gs)

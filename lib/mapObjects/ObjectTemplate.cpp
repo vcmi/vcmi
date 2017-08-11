@@ -273,7 +273,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 			case 'A' : return VISIBLE | BLOCKED | VISITABLE;
 			case 'T' : return BLOCKED | VISITABLE;
 			default:
-				logGlobal->errorStream() << "Unrecognized char " << ch << " in template mask";
+				logGlobal->error("Unrecognized char %s in template mask", ch);
 				return 0;
 		}
 	};

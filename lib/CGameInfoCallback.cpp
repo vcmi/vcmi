@@ -22,9 +22,9 @@
 #include "CPlayerState.h"
 
 //TODO make clean
-#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
-#define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
-#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
+#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
+#define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
+#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
 PlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
 {
@@ -120,7 +120,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(oid < 0  ||  oid >= gs->map->objects.size())
 	{
 		if(verbose)
-			logGlobal->errorStream() << "Cannot get object with id " << oid;
+			logGlobal->error("Cannot get object with id %d", oid);
 		return nullptr;
 	}
 
@@ -128,14 +128,14 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(!ret)
 	{
 		if(verbose)
-			logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object was removed.";
+			logGlobal->error("Cannot get object with id %d. Object was removed", oid);
 		return nullptr;
 	}
 
 	if(!isVisible(ret, player) && ret->tempOwner != player)
 	{
 		if(verbose)
-			logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
+			logGlobal->error("Cannot get object with id %d. Object is not visible.", oid);
 		return nullptr;
 	}
 
@@ -288,7 +288,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
 			ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
-	}	
+	}
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
 	{
@@ -324,7 +324,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			}
 
 			if(nullptr == mostStrong)//just in case
-				logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Unable to select most strong stack" << disguiseLevel;
+				logGlobal->error("CGameInfoCallback::getHeroInfo: Unable to select most strong stack");
 			else
 				for(auto & elem : info.army)
 				{
@@ -381,12 +381,10 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			break;
 		default:
 			//invalid value
-			logGlobal->errorStream() << "CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value " << disguiseLevel;
+			logGlobal->error("CGameInfoCallback::getHeroInfo: Invalid DISGUISED bonus value %d", disguiseLevel);
 			break;
 		}
-
 	}
-
 	return true;
 }
 
@@ -442,7 +440,7 @@ std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3
 {
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos, verbose);
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!t, verbose, pos << " is not visible!", ret);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!t, verbose, pos.toString() + " is not visible!", ret);
 
 	for(const CGObjectInstance * obj : t->visitableObjects)
 	{
@@ -486,7 +484,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 
 const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile << " is not visible!", nullptr);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile.toString() + " is not visible!", nullptr);
 
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return &gs->map->getTile(tile);

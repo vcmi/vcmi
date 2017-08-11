@@ -48,7 +48,7 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 		for(auto & entry : mountPoint.second.Vector())
 		{
 			CStopWatch timer;
-			logGlobal->debugStream() << "\t\tLoading resource at " << prefix + entry["path"].String();
+			logGlobal->trace("\t\tLoading resource at %s%s", prefix, entry["path"].String());
 
 			auto map = genFunctorMap();
 			auto typeName = entry["type"].String();
@@ -57,7 +57,7 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 			if (functor != map.end())
 			{
 				functor->second(mountPoint.first, entry);
-				logGlobal->debugStream() << "Resource loaded in " << timer.getDiff() << " ms.";
+				logGlobal->trace("Resource loaded in %d ms", timer.getDiff());
 			}
 			else
 			{

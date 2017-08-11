@@ -103,8 +103,6 @@ const BonusList * CBonusProxy::operator->() const
 	return get().get();
 }
 
-#define BONUS_LOG_LINE(x) logBonus->traceStream() << x
-
 int CBonusSystemNode::treeChanged = 1;
 const bool CBonusSystemNode::cachingEnabled = true;
 
@@ -808,7 +806,7 @@ void CBonusSystemNode::propagateBonus(std::shared_ptr<Bonus> b)
 	if(b->propagator->shouldBeAttached(this))
 	{
 		bonuses.push_back(b);
-		BONUS_LOG_LINE("#$# " << b->Description() << " #propagated to# " << nodeName());
+		logBonus->trace("#$# %s #propagated to# %s",  b->Description(), nodeName());
 	}
 
 	FOREACH_RED_CHILD(child)
@@ -822,10 +820,10 @@ void CBonusSystemNode::unpropagateBonus(std::shared_ptr<Bonus> b)
 		bonuses -= b;
 		while(vstd::contains(bonuses, b))
 		{
-			logBonus->errorStream() << "Bonus was duplicated (" << b->Description() << ") at " << nodeName();
+			logBonus->error("Bonus was duplicated (%s) at %s", b->Description(), nodeName());
 			bonuses -= b;
 		}
-		BONUS_LOG_LINE("#$#" << b->Description() << " #is no longer propagated to# " << nodeName());
+		logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
 	}
 
 	FOREACH_RED_CHILD(child)
@@ -836,7 +834,6 @@ void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
 {
 	assert(!vstd::contains(children, child));
 	children.push_back(child);
-	//BONUS_LOG_LINE(child->nodeName() << " #attached to# " << nodeName());
 }
 
 void CBonusSystemNode::childDetached(CBonusSystemNode *child)
@@ -845,8 +842,8 @@ void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 		children -= child;
 	else
 	{
-		logBonus->errorStream() << std::string("Error!" + child->nodeName() + " #cannot be detached from# " + nodeName());
-		assert(0);
+		logBonus->error("Error!%s #cannot be detached from# %s", child->nodeName(), nodeName());
+		throw std::runtime_error("internal error");
 	}
 
 }

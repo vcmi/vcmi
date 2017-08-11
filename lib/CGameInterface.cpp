@@ -59,18 +59,16 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 		getName = (TGetNameFun)dlsym(dll, "GetAiName");
 		getAI = (TGetAIFun)dlsym(dll, methodName.c_str());
 	}
-	else
-		logGlobal->errorStream() << "Error: " << dlerror();
 #endif // VCMI_WINDOWS
 
 	if (!dll)
 	{
-		logGlobal->errorStream() << "Cannot open dynamic library ("<<libpath<<"). Throwing...";
+		logGlobal->error("Cannot open dynamic library (%s). Throwing...", libpath.string());
 		throw std::runtime_error("Cannot open dynamic library");
 	}
 	else if(!getName || !getAI)
 	{
-		logGlobal->errorStream() << libpath << " does not export method " << methodName;
+		logGlobal->error("%s does not export method %s", libpath.string(), methodName);
 #ifdef VCMI_WINDOWS
 		FreeLibrary(dll);
 #else
@@ -80,7 +78,7 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 	}
 
 	getName(temp);
-	logGlobal->infoStream() << "Loaded " << temp;
+	logGlobal->info("Loaded %s", temp);
 
 	std::shared_ptr<rett> ret;
 	getAI(ret);
@@ -110,7 +108,7 @@ std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & 
 template<typename rett>
 std::shared_ptr<rett> createAnyAI(std::string dllname, const std::string & methodName)
 {
-	logGlobal->infoStream() << "Opening " << dllname;
+	logGlobal->info("Opening %s", dllname);
 
 	const boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("AI", dllname);
 	auto ret = createAny<rett>(filePath, methodName);

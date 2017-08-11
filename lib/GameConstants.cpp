@@ -59,7 +59,7 @@ const CSpell * SpellID::toSpell() const
 {
 	if(num < 0 || num >= VLC->spellh->objects.size())
 	{
-		logGlobal->errorStream() << "Unable to get spell of invalid ID " << int(num);
+		logGlobal->error("Unable to get spell of invalid ID %d", int(num));
 		return nullptr;
 	}
 	return VLC->spellh->objects[*this];

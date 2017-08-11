@@ -33,7 +33,7 @@ struct PlayerSettings
 		 heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
-	PlayerColor color; //from 0 - 
+	PlayerColor color; //from 0 -
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
 	TeamID team;
@@ -60,7 +60,7 @@ struct PlayerSettings
 	PlayerSettings() : bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM),
 		color(0), handicap(NO_HANDICAP), team(0), playerID(PLAYER_AI), compOnly(false)
 	{
-		
+
 	}
 };
 
@@ -89,7 +89,7 @@ struct StartInfo
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
-		logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
+		logGlobal->error("Cannot find info about player %s. Throwing...", no.getStr(false));
 		throw std::runtime_error("Cannot find info about player");
 	}
 	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const

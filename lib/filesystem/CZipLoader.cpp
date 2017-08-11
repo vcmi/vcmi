@@ -57,7 +57,7 @@ CZipLoader::CZipLoader(const std::string & mountPoint, const boost::filesystem::
     mountPoint(mountPoint),
     files(listFiles(mountPoint, archive))
 {
-	logGlobal->traceStream() << "Zip archive loaded, " << files.size() << " files found";
+	logGlobal->trace("Zip archive loaded, %d files found", files.size());
 }
 
 std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::string & mountPoint, const boost::filesystem::path & archive)
@@ -67,7 +67,7 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 	unzFile file = unzOpen2_64(archive.c_str(), &zlibApi);
 
 	if(file == nullptr)
-		logGlobal->errorStream() << archive << " failed to open";
+		logGlobal->error("%s failed to open", archive.string());
 
 	if (unzGoToFirstFile(file) == UNZ_OK)
 	{

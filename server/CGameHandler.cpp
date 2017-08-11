@@ -1443,7 +1443,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 	const PlayerState * p = getPlayer(town->tempOwner);
 	if (!p)
 	{
-		logGlobal->warn("There is no player owner of town %s at %s", town->name, town->pos());
+		logGlobal->warn("There is no player owner of town %s at %s", town->name, town->pos.toString());
 		return;
 	}
 
@@ -2035,7 +2035,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 		return false;
 	}
 
-	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos(), dst());
+	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
 	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
 
 	if (!gs->map->isInTheMap(hmpos))
@@ -2103,7 +2103,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards,
 								EVisitDest visitDest, ELEaveTile leavingTile) -> bool
 	{
-		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start % tmh.end);
+		LOG_TRACE_PARAMS(logGlobal, "Hero %s starts movement from %s to %s", h->name % tmh.start.toString() % tmh.end.toString());
 
 		auto moveQuery = std::make_shared<CHeroMovementQuery>(this, tmh, h);
 		queries.addQuery(moveQuery);
@@ -6082,7 +6082,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	for (int i = 0; i < amount; ++i)
 	{
 		tile = tiles.begin();
-		logGlobal->trace("\tSpawning monster at %s",(*tile)());
+		logGlobal->trace("\tSpawning monster at %s",tile->toString());
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}

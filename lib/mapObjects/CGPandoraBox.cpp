@@ -433,14 +433,14 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			const int rawId = vstd::find_pos(NSecondarySkill::names, id);
 			if(rawId < 0)
 			{
-				logGlobal->errorStream() << "Invalid secondary skill " << id;
+				logGlobal->error("Invalid secondary skill %s", id);
 				continue;
 			}
 
 			const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
 			if(level < 0)
 			{
-				logGlobal->errorStream() << "Invalid secondary skill level" << levelId;
+				logGlobal->error("Invalid secondary skill level%s", levelId);
 				continue;
 			}
 

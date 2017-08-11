@@ -156,7 +156,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 {
 	if (!handlerConstructors.count(obj->handlerName))
 	{
-		logGlobal->errorStream() << "Handler with name " << obj->handlerName << " was not found!";
+		logGlobal->error("Handler with name %s was not found!", obj->handlerName);
 		return;
 	}
 
@@ -183,7 +183,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debugStream() << "Loaded object " << obj->identifier << "(" << obj->id << ")" << ":" << convertedId << "(" << id << ")" ;
+	logGlobal->debug("Loaded object %s(%d):%s(%d)", obj->identifier, obj->id, convertedId, id);
 	assert(!obj->subObjects.count(id)); // DO NOT override
 	obj->subObjects[id] = handler;
 	obj->subIds[convertedId] = id;
@@ -256,7 +256,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 		if (objects.at(type)->subObjects.count(subtype))
 			return objects.at(type)->subObjects.at(subtype);
 	}
-	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
+	logGlobal->error("Failed to find object of type %d:%d", type, subtype);
 	throw std::runtime_error("Object type handler not found");
 }
 
@@ -268,7 +268,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::s
 		si32 subId = objects.at(id.get())->subIds.at(subtype);
 		return objects.at(id.get())->subObjects.at(subId);
 	}
-	logGlobal->errorStream() << "Failed to find object of type " << type << ":" << subtype;
+	logGlobal->error("Failed to find object of type %s:%s", type, subtype);
 	throw std::runtime_error("Object type handler not found");
 }
 
@@ -308,13 +308,13 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 
 void CObjectClassesHandler::afterLoadFinalization()
 {
-	for (auto entry : objects)
+	for(auto entry : objects)
 	{
-		for (auto obj : entry.second->subObjects)
+		for(auto obj : entry.second->subObjects)
 		{
 			obj.second->afterLoadFinalization();
-			if (obj.second->getTemplates().empty())
-				logGlobal->warnStream() << "No templates found for " << entry.first << ":" << obj.first;
+			if(obj.second->getTemplates().empty())
+				logGlobal->warn("No templates found for %d:%d", entry.first, obj.first);
 		}
 	}
 
@@ -322,7 +322,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 	auto& portalVec = objects[Obj::MONOLITH_TWO_WAY]->subObjects;
 	size_t portalCount = portalVec.size();
 	size_t currentIndex = portalCount;
-	while (portalVec.size() < 100)
+	while(portalVec.size() < 100)
 	{
 		portalVec[currentIndex] = portalVec[currentIndex % portalCount];
 		currentIndex++;
@@ -333,7 +333,7 @@ std::string CObjectClassesHandler::getObjectName(si32 type) const
 {
 	if (objects.count(type))
 		return objects.at(type)->name;
-	logGlobal->errorStream() << "Access to non existing object of type "  << type;
+	logGlobal->error("Access to non existing object of type %d", type);
 	return "";
 }
 

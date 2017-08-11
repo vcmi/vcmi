@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BinaryDeserializer.h"
+#include "../filesystem/FileStream.h"
 
 #include "../registerTypes/RegisterTypes.h"
 
@@ -61,11 +62,11 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 
 			auto versionptr = (char*)&serializer.fileVersion;
 			std::reverse(versionptr, versionptr + 4);
-			logGlobal->warnStream() << "Version number reversed is " << serializer.fileVersion << ", checking...";
+			logGlobal->warn("Version number reversed is %x, checking...", serializer.fileVersion);
 
 			if(serializer.fileVersion == SERIALIZATION_VERSION)
 			{
-				logGlobal->warnStream() << fname << " seems to have different endianness! Entering reversing mode.";
+				logGlobal->warn("%s seems to have different endianness! Entering reversing mode.", fname.string());
 				serializer.reverseEndianess = true;
 			}
 			else
@@ -79,13 +80,11 @@ void CLoadFile::openNextFile(const boost::filesystem::path & fname, int minimalV
 	}
 }
 
-void CLoadFile::reportState(CLogger * out)
+void CLoadFile::reportState(vstd::CLoggerBase * out)
 {
 	out->debug("CLoadFile");
 	if(!!sfile && *sfile)
-	{
-		out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
-	}
+		out->debug("\tOpened %s \tPosition: %d", fName, sfile->tellg());
 }
 
 void CLoadFile::clear()

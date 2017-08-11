@@ -184,9 +184,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/variant.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/multi_array.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -255,7 +252,6 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
 #include <vstd/CLoggerBase.h>
-#include "lib/logging/CLogger.h" //todo: remove
 
 void inline handleException()
 {
@@ -275,25 +271,6 @@ void inline handleException()
 	{
 		logGlobal->error("Sorry, caught unknown exception type. No more info available.");
 	}
-}
-
-template<typename T>
-std::ostream & operator<<(std::ostream & out, const boost::optional<T> & opt)
-{
-	if(opt) return out << *opt;
-	else return out << "empty";
-}
-
-template<typename T>
-std::ostream & operator<<(std::ostream & out, const std::vector<T> & container)
-{
-	out << "[";
-	for(auto it = container.begin(); it != container.end(); ++it)
-	{
-		out << *it;
-		if(std::prev(container.end()) != it) out << ", ";
-	}
-	return out << "]";
 }
 
 namespace vstd

@@ -169,7 +169,7 @@ int ZCALLBACK CProxyIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 
 CInputOutputStream * CProxyIOApi::openFile(const boost::filesystem::path & filename, int mode)
 {
-	logGlobal->traceStream() << "CProxyIOApi: stream opened for " <<filename.string() <<" with mode "<<mode;
+	logGlobal->trace("CProxyIOApi: stream opened for %s with mode %d", filename.string(), mode);
 
 	data->seek(0);
 	return data;
@@ -204,7 +204,7 @@ zlib_filefunc64_def CProxyROIOApi::getApiStructure()
 
 CInputStream * CProxyROIOApi::openFile(const boost::filesystem::path& filename, int mode)
 {
-	logGlobal->traceStream() << "CProxyROIOApi: stream opened for " <<filename.string() <<" with mode "<<mode;
+	logGlobal->trace("CProxyROIOApi: stream opened for %s with mode %d", filename.string(), mode);
 
 	data->seek(0);
 	return data;

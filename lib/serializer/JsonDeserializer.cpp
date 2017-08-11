@@ -224,7 +224,7 @@ void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decod
 			if(rawId < value.size())
 				value[rawId] = val;
 			else
-				logGlobal->errorStream() << "JsonDeserializer::serializeLIC: id out of bounds " << rawId;
+				logGlobal->error("JsonDeserializer::serializeLIC: id out of bounds %d", rawId);
 		}
 	}
 }

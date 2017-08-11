@@ -171,13 +171,6 @@ void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCal
 	}
 }
 
-std::string strFromInt3(int3 pos)
-{
-	std::ostringstream oss;
-	oss << pos;
-	return oss.str();
-}
-
 bool CDistanceSorter::operator ()(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 {
 	const CGPathNode *ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos()),
@@ -339,7 +332,7 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-			logAi->trace("It's safe for %s to visit tile %s", h->name, tile());
+			logAi->trace("It's safe for %s to visit tile %s", h->name, tile.toString());
 			return true;
 		}
 		else

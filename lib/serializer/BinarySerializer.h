@@ -12,6 +12,8 @@
 #include "CTypeList.h"
 #include "../mapObjects/CArmedInstance.h"
 
+class FileStream;
+
 class DLL_LINKAGE CSaverBase
 {
 protected:
@@ -358,7 +360,7 @@ public:
 
 	void openNextFile(const boost::filesystem::path &fname); //throws!
 	void clear();
-	void reportState(CLogger * out) override;
+	void reportState(vstd::CLoggerBase * out) override;
 
 	void putMagicBytes(const std::string &text);
 

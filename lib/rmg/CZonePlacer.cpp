@@ -151,7 +151,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	for (auto zone : zones) //finalize zone positions
 	{
 		zone.second->setPos (cords (bestSolution[zone.second]));
-		logGlobal->traceStream() << boost::format ("Placed zone %d at relative position %s and coordinates %s") % zone.first % zone.second->getCenter() % zone.second->getPos();
+		logGlobal->trace("Placed zone %d at relative position %s and coordinates %s", zone.first, zone.second->getCenter().toString(), zone.second->getPos().toString());
 	}
 }
 
@@ -400,9 +400,8 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 			{
 				float3 vec = targetZone->getCenter() - ourCenter;
 				float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
-				logGlobal->traceStream() << boost::format("Trying to move zone %d %s towards %d %s. Old distance %f") %
-					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxDistance;
-				logGlobal->trace("direction is %s", vec());
+				logGlobal->trace("Trying to move zone %d %s towards %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxDistance);
+				logGlobal->trace("direction is %s", vec.toString());
 
 				misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
 				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));
@@ -429,9 +428,8 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 			{
 				float3 vec = ourCenter - targetZone->getCenter();
 				float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
-				logGlobal->traceStream() << boost::format("Trying to move zone %d %s away from %d %s. Old distance %f") %
-					misplacedZone->getId() % ourCenter() % targetZone->getId() % targetZone->getCenter()() % maxOverlap;
-				logGlobal->trace("direction is %s", vec());
+				logGlobal->trace("Trying to move zone %d %s away from %d %s. Old distance %f", misplacedZone->getId(), ourCenter.toString(), targetZone->getId(), targetZone->getCenter().toString(), maxOverlap);
+				logGlobal->trace("direction is %s", vec.toString());
 
 				misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
 				logGlobal->trace("New distance %f", targetZone->getCenter().dist2d(misplacedZone->getCenter()));

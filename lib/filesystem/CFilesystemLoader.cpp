@@ -20,7 +20,7 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDire
     mountPoint(std::move(_mountPoint)),
     fileList(listFiles(mountPoint, depth, initial))
 {
-	logGlobal->traceStream() << "File system loaded, " << fileList.size() << " files found";
+	logGlobal->trace("File system loaded, %d files found", fileList.size());
 }
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
@@ -76,7 +76,7 @@ bool CFilesystemLoader::createResource(std::string filename, bool update)
 
 	if (!boost::iequals(mountPoint, filename.substr(0, mountPoint.size())))
 	{
-		logGlobal->traceStream() << "Can't create file: wrong mount point: " << mountPoint;
+		logGlobal->trace("Can't create file: wrong mount point: %s", mountPoint);
 		return false;
 	}
 

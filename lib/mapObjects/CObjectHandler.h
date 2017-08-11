@@ -58,7 +58,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		logGlobal->errorStream() << "IObjectInterface serialized, unexpected, should not happen!";
+		logGlobal->error("IObjectInterface serialized, unexpected, should not happen!");
 	}
 };
 

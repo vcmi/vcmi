@@ -628,8 +628,6 @@ void CRmgTemplateZone::fractalize(CMapGenerator* gen)
 		}
 		out << std::endl;
 	}
-
-	//logGlobal->infoStream() << boost::format ("Zone %d subdivided fractally") %id;
 }
 
 void CRmgTemplateZone::connectLater(CMapGenerator* gen)
@@ -637,7 +635,7 @@ void CRmgTemplateZone::connectLater(CMapGenerator* gen)
 	for (const int3 node : tilesToConnectLater)
 	{
 		if (!connectWithCenter(gen, node, true))
-			logGlobal->error("Failed to connect node %s with center of the zone", node);
+			logGlobal->error("Failed to connect node %s with center of the zone", node.toString());
 	}
 }
 
@@ -839,7 +837,7 @@ bool CRmgTemplateZone::createRoad(CMapGenerator* gen, const int3& src, const int
 		}
 
 	}
-	logGlobal->warn("Failed to create road from %s to %s", src, dst);
+	logGlobal->warn("Failed to create road from %s to %s", src.toString(), dst.toString());
 	return false;
 
 }
@@ -1067,9 +1065,6 @@ bool CRmgTemplateZone::addMonster(CMapGenerator* gen, int3 &pos, si32 strength, 
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);
-
-	//logGlobal->traceStream() << boost::format ("Adding stack of %d %s. Map monster strenght %d, zone monster strength %d, base monster value %d")
-	//	% amount % VLC->creh->creatures[creId]->namePl % mapMonsterStrength % zoneMonsterStrength % strength;
 
 	placeObject(gen, guard, pos);
 
@@ -1427,7 +1422,7 @@ void CRmgTemplateZone::initTownType (CMapGenerator* gen)
 
 		if (playerInfo.canAnyonePlay()) //configure info for owning player
 		{
-			logGlobal->traceStream() << "Fill player info " << player_id;
+			logGlobal->trace("Fill player info %d", player_id);
 
 			// Update player info
 			playerInfo.allowedFactions.clear();
@@ -1577,12 +1572,12 @@ EObjectPlacingResult::EObjectPlacingResult CRmgTemplateZone::tryToPlaceObjectAnd
 	int3 accessibleOffset = getAccessibleOffset(gen, obj->appearance, pos);
 	if (!accessibleOffset.valid())
 	{
-		logGlobal->warn("Cannot access required object at position %s, retrying", pos);
+		logGlobal->warn("Cannot access required object at position %s, retrying", pos.toString());
 		return EObjectPlacingResult::CANNOT_FIT;
 	}
 	if (!connectPath(gen, accessibleOffset, true))
 	{
-		logGlobal->trace("Failed to create path to required object at position %s, retrying", pos);
+		logGlobal->trace("Failed to create path to required object at position %s, retrying", pos.toString());
 		return EObjectPlacingResult::SEALED_OFF;
 	}
 	else
@@ -1866,7 +1861,7 @@ void CRmgTemplateZone::connectRoads(CMapGenerator* gen)
 		else //no other nodes left, for example single road node in this zone
 			break;
 
-		logGlobal->debugStream() << "Building road from " << node << " to " << cross;
+		logGlobal->debug("Building road from %s to %s", node.toString(), cross.toString());
 		if (createRoad(gen, node, cross))
 		{
 			processed.insert(cross); //don't draw road starting at end point which is already connected
@@ -1916,7 +1911,7 @@ bool CRmgTemplateZone::fill(CMapGenerator* gen)
 	createRequiredObjects(gen);
 	createTreasures(gen);
 
-	logGlobal->infoStream() << boost::format ("Zone %d filled successfully") %id;
+	logGlobal->info("Zone %d filled successfully", id);
 	return true;
 }
 
@@ -2013,7 +2008,7 @@ void CRmgTemplateZone::setTemplateForObject(CMapGenerator* gen, CGObjectInstance
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates(gen->map->getTile(getPos()).terType);
 		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % obj->ID %obj->subID %pos));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % obj->ID % obj->subID % pos.toString()));
 
 		obj->appearance = templates.front();
 	}
@@ -2072,15 +2067,15 @@ bool CRmgTemplateZone::findPlaceForObject(CMapGenerator* gen, CGObjectInstance* 
 void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos)
 {
 	if (!gen->map->isInTheMap(pos))
-		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % pos));
+		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % pos.toString()));
 	object->pos = pos;
 
 	if (object->isVisitable() && !gen->map->isInTheMap(object->visitablePos()))
-		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % object->visitablePos() % object->id % object->pos()));
+		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % object->visitablePos().toString() % object->id % object->pos.toString()));
 	for (auto tile : object->getBlockedPos())
 	{
 		if (!gen->map->isInTheMap(tile))
-			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile() % object->id % object->pos()));
+			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % object->id % object->pos.toString()));
 	}
 
 	if (object->appearance.id == Obj::NO_OBJ)
@@ -2088,19 +2083,16 @@ void CRmgTemplateZone::checkAndPlaceObject(CMapGenerator* gen, CGObjectInstance*
 		auto terrainType = gen->map->getTile(pos).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(terrainType);
 		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") %object->ID %object->subID %pos %terrainType));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % object->ID % object->subID % pos.toString() % terrainType));
 
 		object->appearance = templates.front();
 	}
 
 	gen->editManager->insertObject(object);
-	//logGlobal->traceStream() << boost::format ("Successfully inserted object (%d,%d) at pos %s") %object->ID %object->subID %pos();
 }
 
 void CRmgTemplateZone::placeObject(CMapGenerator* gen, CGObjectInstance* object, const int3 &pos, bool updateDistance)
 {
-	//logGlobal->trace("Inserting object at %d %d", pos.x, pos.y);
-
 	checkAndPlaceObject (gen, object, pos);
 
 	auto points = object->getBlockedPos();
@@ -2195,11 +2187,11 @@ bool CRmgTemplateZone::guardObject(CMapGenerator* gen, CGObjectInstance* object,
 	{
 		//guardTile = tiles.front();
 		guardTile = getAccessibleOffset(gen, object->appearance, object->pos);
-		logGlobal->trace("Guard object at %s", object->pos());
+		logGlobal->trace("Guard object at %s", object->pos.toString());
 	}
 	else
 	{
-		logGlobal->error("Failed to guard object at %s", object->pos());
+		logGlobal->error("Failed to guard object at %s", object->pos.toString());
 		return false;
 	}
 

@@ -126,7 +126,7 @@ void CMapLoaderH3M::init()
 	{
 		for(MapLoadingTime & mlt : times)
 		{
-			logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
+			logGlobal->debug("\tReading %s took %d ms", mlt.name, mlt.time);
 		}
 	}
 	map->calculateGuardingGreaturePositions();
@@ -340,7 +340,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 			if (playersOnMap == 1)
 			{
-				logGlobal->warnStream() << "Map " << mapHeader->name << " has only one player but allows normal victory?";
+				logGlobal->warn("Map %s has only one player but allows normal victory?", mapHeader->name);
 				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
 			}
 		}
@@ -810,7 +810,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 	{
 		if(hero->artifactsWorn.size() ||  hero->artifactsInBackpack.size())
 		{
-			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->name, hero->pos);
+			logGlobal->warn("Hero %s at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->name, hero->pos.toString());
 			hero->artifactsInBackpack.clear();
 			while(hero->artifactsWorn.size())
 				hero->eraseArtSlot(hero->artifactsWorn.begin()->first);
@@ -888,8 +888,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 		if(aid == 0 && slot == ArtifactPosition::MISC5)
 		{
 			//TODO: check how H3 handles it -> art 0 in slot 18 in AB map
-			logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
-				<< static_cast<int>(map->version) << ")";
+			logGlobal->warn("Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity? (format %d)", static_cast<int>(map->version));
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
@@ -1415,11 +1414,11 @@ void CMapLoaderH3M::readObjects()
 				if(htid == 0xff)
 				{
 					hp->power = reader.readUInt8();
-					logGlobal->infoStream() << "Hero placeholder: by power at " << objPos;
+					logGlobal->info("Hero placeholder: by power at %s", objPos.toString());
 				}
 				else
 				{
-					logGlobal->infoStream() << "Hero placeholder: " << VLC->heroh->heroes[htid]->name << " at " << objPos;
+					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->heroes[htid]->name, objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1463,8 +1462,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				else
 				{
-					logGlobal->warnStream() << "Unrecognized object: " << objTempl.id << ":" << objTempl.subid << " at " << objPos
-											<< " on map " << map->name;
+					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl.id.toEnum(), objTempl.subid, objPos.toString(), map->name);
 					nobj = new CGObjectInstance();
 				}
 				break;
@@ -1562,7 +1560,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	{
 		if(elem->subID == nhi->subID)
 		{
-			logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
+			logGlobal->debug("Hero %d will be taken from the predefined heroes list.", nhi->subID);
 			delete nhi;
 			nhi = elem;
 			break;
@@ -2093,8 +2091,7 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 		}
 		else
 		{
-			logGlobal->warnStream() << "Conversion warning: unknown building " << elem << " in castle "
-				<< castleID;
+			logGlobal->warn("Conversion warning: unknown building %d in castle %d", elem.num, castleID);
 		}
 	}
 

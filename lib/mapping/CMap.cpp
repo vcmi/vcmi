@@ -353,7 +353,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 
 	if(!isInTheMap(pos))
 	{
-		logGlobal->errorStream() << "Coastal check outside of map :"<<pos;
+		logGlobal->error("Coastal check outside of map :%s", pos.toString());
 		return false;
 	}
 
@@ -488,7 +488,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	// There is weird bug because of which sometimes heroes will not be found properly despite having correct position
 	// Try to workaround that and find closest object that we can use
 
-	logGlobal->errorStream() << "Failed to find object of type " << int(type) << " at " << pos;
+	logGlobal->error("Failed to find object of type %d at %s", int(type), pos.toString());
 	logGlobal->error("Will try to find closest matching object");
 
 	CGObjectInstance * bestMatch = nullptr;
@@ -507,7 +507,7 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	}
 	assert(bestMatch != nullptr); // if this happens - victory conditions or map itself is very, very broken
 
-	logGlobal->errorStream() << "Will use " << bestMatch->getObjectName() << " from " << bestMatch->pos;
+	logGlobal->error("Will use %s from %s", bestMatch->getObjectName(), bestMatch->pos.toString());
 	return bestMatch;
 }
 

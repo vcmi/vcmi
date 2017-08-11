@@ -47,7 +47,7 @@ MacroString::MacroString(const std::string & format)
 
 			if(end_pos == std::string::npos)
 			{
-				logBonus->warnStream() << "Format error in: " << format;
+				logBonus->warn("Format error in: %s", format);
 				end_pos = start_pos;
 				break;
 			}
@@ -154,7 +154,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 		}
 		else
 		{
-			 logBonus->warnStream() << "Unknown macro in bonus config: " << name;
+			 logBonus->warn("Unknown macro in bonus config: %s", name);
 			 return "[error]";
 		}
 	};
@@ -300,14 +300,14 @@ void CBonusTypeHandler::load(const JsonNode & config)
 //
 //			bonusTypes.push_back(bt);
 
-			logBonus->warnStream() << "Adding new bonuses not implemented (" << node.first << ")";
+			logBonus->warn("Adding new bonuses not implemented (%s)", node.first);
 		}
 		else
 		{
 			CBonusType & bt = bonusTypes[it->second];
 
 			loadItem(node.second, bt);
-			logBonus->traceStream() << "Loaded bonus type " << node.first;
+			logBonus->trace("Loaded bonus type %s", node.first);
 		}
 	}
 }

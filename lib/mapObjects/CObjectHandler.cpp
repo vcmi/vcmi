@@ -196,8 +196,7 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 	auto handler = VLC->objtypeh->getHandlerFor(ID, subID);
 	if(!handler)
 	{
-		logGlobal->errorStream() << boost::format(
-			  "Unknown object type %d:%d at %s") % ID % subID % visitablePos();
+		logGlobal->error("Unknown object type %d:%d at %s", ID, subID, visitablePos().toString());
 		return;
 	}
 	if(!handler->getTemplates(tile.terType).empty())
@@ -434,7 +433,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 			out.addTxt(MetaString::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
-		logGlobal->errorStream() << "Shipyard without water!!! " << o->pos << "\t" << o->id;
+		logGlobal->error("Shipyard without water! %s \t %d", o->pos.toString(), o->id.getNum());
 		return;
 	}
 }
