@@ -218,8 +218,7 @@ public:
 		{
 			if(!town->buildings.count(building) ||  !town->buildings.at(building))
 			{
-				logGlobal->errorStream() << boost::format("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s")
-					% name % pos % building;
+				logGlobal->error("#1444-like issue in CGTownInstance::serialize. From town %s at %s removing the bogus builtBuildings item %s", name, pos.toString(), building);
 				return true;
 			}
 			return false;

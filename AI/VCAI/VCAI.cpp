@@ -127,7 +127,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				{
 					knownSubterraneanGates[o1] = o2;
 					knownSubterraneanGates[o2] = o1;
-					logAi->debug("Found a pair of subterranean gates between %s and %s!", from(), to());
+					logAi->debug("Found a pair of subterranean gates between %s and %s!", from.toString(), to.toString());
 				}
 			}
 		}
@@ -889,7 +889,7 @@ bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
 	auto sm = getCachedSectorMap(h);
-	logAi->debug("%s will try to visit %s at (%s)",h->name, obj->getObjectName(), dst());
+	logAi->debug("%s will try to visit %s at (%s)",h->name, obj->getObjectName(), dst.toString());
 	int3 pos = sm->firstTileToGet(h, dst);
 	if (!pos.valid()) //rare case when we are already standing on one of potential objects
 		return false;
@@ -898,7 +898,7 @@ bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
-	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos);
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
@@ -1202,7 +1202,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		{
 			if(!containsSavedRes(b->resources))
 			{
-				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
+				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
 				cb->buildBuilding(t, buildID);
 				return true;
 			}
@@ -1283,7 +1283,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 //		{
 //			if(!containsSavedRes(b->resources))
 //			{
-//				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos());
+//				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
 //				return true;
 //			}
 //			continue;
@@ -1573,7 +1573,7 @@ void VCAI::wander(HeroPtr h)
 				boost::sort(townsNotReachable, compareReinforcements);
 				//TODO pick the truly best
 				const CGTownInstance *t = townsNotReachable.back();
-				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s",h->name,t->name, t->visitablePos()());
+				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s",h->name,t->name, t->visitablePos().toString());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h)));
 				//if out hero is stuck, we may need to request another hero to clear the way we see
@@ -1687,7 +1687,7 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance *presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile);
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1907,7 +1907,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", h->name, dst());
+	logAi->debug("Moving hero %s to tile %s", h->name, dst.toString());
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1925,7 +1925,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPathsInfo(h.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", h->name, dst());
+			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
 			throw goalFulfilledException (sptr(Goals::VisitTile(dst).sethero(h)));
 		}
 		int i = path.nodes.size()-1;
@@ -2068,7 +2068,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
 		}
 		evaluateGoal(h); //new hero position means new game situation
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos(), h->visitablePos()(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
 	}
 	return ret;
 }
@@ -2093,7 +2093,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 	if(g.tile == g.hero->visitablePos()  &&  cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
 		throw goalFulfilledException (sptr(g));
 	}
 	if (ai->moveHeroToTile(g.tile, g.hero.get()))
@@ -2290,7 +2290,7 @@ void VCAI::endTurn()
 	{
 		logAi->error("Not having turn at the end of turn???");
 	}
-	logAi->debugStream() << "Resources at the end of turn: " << cb->getResourceAmount();
+	logAi->debug("Resources at the end of turn: %s", cb->getResourceAmount().toString());
 
 	do
 	{
@@ -2771,7 +2771,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
 
 	auto heroes = cb->getAvailableHeroes(t);
 	if(heroes.size())

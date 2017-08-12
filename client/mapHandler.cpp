@@ -967,7 +967,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 	{
 		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 		{
-			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->name, hero->pos());
+			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->name, hero->pos.toString());
 			return CMapHandler::AnimBitmapHolder();
 		}
 
@@ -1138,7 +1138,7 @@ bool CMapHandler::updateObjectsFade()
 			{
 				if ((*objIter).fadeAnimKey == (*iter).first)
 				{
-					logAnim->trace("Fade anim finished for obj at %s; remaining: %d", pos(), fadeAnims.size() - 1);
+					logAnim->trace("Fade anim finished for obj at %s; remaining: %d", pos.toString(), fadeAnims.size() - 1);
 					if (anim->fadingMode == CFadeAnimation::EMode::OUT)
 						objs.erase(objIter); // if this was fadeout, remove the object from the map
 					else
@@ -1185,7 +1185,7 @@ bool CMapHandler::startObjectFade(TerrainTileObject & obj, bool in, int3 pos)
 		fadeAnims[++fadeAnimCounter] = std::pair<int3, CFadeAnimation*>(pos, anim);
 		obj.fadeAnimKey = fadeAnimCounter;
 
-		logAnim->trace("Fade anim started for obj %d at %s; anim count: %d", obj.obj->ID, pos(), fadeAnims.size());
+		logAnim->trace("Fade anim started for obj %d at %s; anim count: %d", obj.obj->ID, pos.toString(), fadeAnims.size());
 		return true;
 	}
 

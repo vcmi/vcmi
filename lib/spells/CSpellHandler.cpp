@@ -368,7 +368,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
+		logGlobal->error("invalid school level %d", level);
 		return;
 	}
 
@@ -376,7 +376,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 
 	if(levelObject.effects.empty() && levelObject.cumulativeEffects.empty())
 	{
-		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no effects for level " << level;
+		logGlobal->error("This spell (%s) has no effects for level %d", name, level);
 		return;
 	}
 
@@ -819,7 +819,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 	spell->name = json["name"].String();
 
-	logGlobal->traceStream() << __FUNCTION__ << ": loading spell " << spell->name;
+	logGlobal->trace("%s: loading spell %s", __FUNCTION__, spell->name);
 
 	const auto schoolNames = json["school"];
 
@@ -854,7 +854,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	else if(targetType == "LOCATION")
 		spell->targetType = CSpell::LOCATION;
 	else
-		logGlobal->warnStream() << "Spell " << spell->name << ": target type " << (targetType.empty() ? "empty" : "unknown ("+targetType+")") << ", assumed NO_TARGET.";
+		logGlobal->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->name, (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())
@@ -899,7 +899,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	else if(!implicitPositiveness)
 	{
 		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-		logGlobal->errorStream() << "Spell " << spell->name << ": no positiveness specified, assumed NEUTRAL.";
+		logGlobal->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->name);
 	}
 
 	spell->isSpecial = flags["special"].Bool();
@@ -909,7 +909,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
 		{
-			logGlobal->errorStream() << "Spell " << spell->name << ": invalid bonus name " << name;
+			logGlobal->error("Spell %s: invalid bonus name %s", spell->name, name);
 		}
 		else
 		{

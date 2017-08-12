@@ -135,13 +135,10 @@ SpellCastContext::SpellCastContext(const DefaultSpellMechanics * mechanics_, con
 
 	if(parameters.cb->battleHasHero(otherSide))
 		otherHero = parameters.cb->battleGetFightingHero(otherSide);
-
-	logGlobal->debugStream() << "Started spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
 }
 
 SpellCastContext::~SpellCastContext()
 {
-	logGlobal->debugStream() << "Finished spell cast. Spell: " << mechanics->owner->name << "; mode:" << parameters.mode;
 }
 
 void SpellCastContext::addDamageToDisplay(const si32 value)
@@ -201,8 +198,6 @@ void SpellCastContext::beforeCast()
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
-
-		logGlobal->debugStream() << "spellCost: " << spellCost;
 	}
 }
 
@@ -329,8 +324,6 @@ void DefaultSpellMechanics::cast(const SpellCastEnvironment * env, const BattleS
 	ctx.beforeCast();
 
 	ctx.attackedCres = owner->getAffectedStacks(parameters.cb, parameters.mode, parameters.caster, parameters.spellLvl, parameters.getFirstDestinationHex());
-
-	logGlobal->debugStream() << "will affect " << ctx.attackedCres.size() << " stacks";
 
 	handleResistance(env, ctx);
 

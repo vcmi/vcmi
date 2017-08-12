@@ -36,7 +36,7 @@ CIdentifierStorage::~CIdentifierStorage()
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-		logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
+		logGlobal->warn("BIG WARNING: identifier %s seems to be broken!", ID);
 	else
 	{
 		size_t pos = 0;
@@ -44,7 +44,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 		{
 			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
 			{
-				logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
+				logGlobal->warn("Warning: identifier %s is not in camelCase!", ID);
 				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
 			}
 			pos = ID.find('.', pos);
@@ -148,7 +148,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name << " of type " << type << " from mod " << scope;
+		logGlobal->error("Failed to resolve identifier %s of type %s from mod %s", name , type ,scope);
 
 	return boost::optional<si32>();
 }
@@ -161,7 +161,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const 
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << type << " from mod " << name.meta;
+		logGlobal->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), type, name.meta);
 
 	return boost::optional<si32>();
 }
@@ -175,7 +175,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << name.String() << " of type " << pair2.first << " from mod " << name.meta;
+		logGlobal->error("Failed to resolve identifier %s of type %s from mod %s", name.String(), pair2.first, name.meta);
 
 	return boost::optional<si32>();
 }
@@ -189,7 +189,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 	if (idList.size() == 1)
 		return idList.front().id;
 	if (!silent)
-		logGlobal->errorStream() << "Failed to resolve identifier " << fullName << " of type " << pair2.first << " from mod " << scope;
+		logGlobal->error("Failed to resolve identifier %s of type %s from mod %s", fullName, pair2.first, scope);
 
 	return boost::optional<si32>();
 }
@@ -278,11 +278,11 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	else
 		logGlobal->error("Ambiguous identifier request!");
 
-	 logGlobal->errorStream() << "Request for " << request.type << "." << request.name << " from mod " << request.localScope;
+	 logGlobal->error("Request for %s.%s from mod %s", request.type, request.name, request.localScope);
 
 	for (auto id : identifiers)
 	{
-		logGlobal->errorStream() << "\tID is available in mod " << id.scope;
+		logGlobal->error("\tID is available in mod %s", id.scope);
 	}
 	return false;
 }
@@ -302,7 +302,7 @@ void CIdentifierStorage::finalize()
 	{
 		for(auto object : registeredObjects)
 		{
-			logGlobal->traceStream() << object.second.scope << " : " << object.first << " -> " << object.second.id;
+			logGlobal->trace("%s : %s -> %d", object.second.scope, object.first, object.second.id);
 		}
 		logGlobal->error("All known identifiers were dumped into log file");
 	}
@@ -345,9 +345,9 @@ bool CContentHandler::ContentTypeHandler::preloadModData(std::string modName, st
 
 			// patching this mod? Send warning and continue - this situation can be handled normally
 			if (remoteName == modName)
-				logGlobal->warnStream() << "Redundant namespace definition for " << objectName;
+				logGlobal->warn("Redundant namespace definition for %s", objectName);
 
-			logGlobal->traceStream() << "Patching object " << objectName << " (" << remoteName << ") from " << modName;
+			logGlobal->trace("Patching object %s (%s) from %s", objectName, remoteName, modName);
 			JsonNode & remoteConf = modData[remoteName].patches[objectName];
 
 			JsonUtils::merge(remoteConf, entry.second);
@@ -466,8 +466,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 	bool validate = (mod.validation != CModInfo::PASSED);
 
 	// print message in format [<8-symbols checksum>] <modname>
-	logGlobal->infoStream() << "\t\t[" << std::noshowbase << std::hex << std::setw(8) << std::setfill('0')
-							<< mod.checksum << "] " << mod.name;
+	logGlobal->info("\t\t[%08x]%s", mod.checksum, mod.name);
 
 	if (validate && mod.identifier != "core")
 	{
@@ -488,12 +487,12 @@ void CContentHandler::load(CModInfo & mod)
 	if (validate)
 	{
 		if (mod.validation != CModInfo::FAILED)
-			logGlobal->infoStream()  << "\t\t[DONE] " << mod.name;
+			logGlobal->info("\t\t[DONE] %s", mod.name);
 		else
-			logGlobal->errorStream() << "\t\t[FAIL] " << mod.name;
+			logGlobal->error("\t\t[FAIL] %s", mod.name);
 	}
 	else
-		logGlobal->infoStream()  << "\t\t[SKIP] " << mod.name;
+		logGlobal->info("\t\t[SKIP] %s", mod.name);
 }
 
 static JsonNode loadModSettings(std::string path)
@@ -619,38 +618,39 @@ void CModHandler::loadConfigFromFile (std::string name)
 		paths += p.string() + ", ";
 	}
 	paths = paths.substr(0, paths.size() - 2);
-	logGlobal->debugStream() << "Loading hardcoded features settings from [" << paths << "], result:";
+	logGlobal->debug("Loading hardcoded features settings from [%s], result:", paths);
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Float();
-	logGlobal->debugStream() << "\tMAX_HEROES_AVAILABLE_PER_PLAYER\t" << settings.MAX_HEROES_AVAILABLE_PER_PLAYER;
-	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Float();
-	logGlobal->debugStream() << "\tMAX_HEROES_ON_MAP_PER_PLAYER\t" << settings.MAX_HEROES_ON_MAP_PER_PLAYER;
-	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
-	logGlobal->debugStream() << "\tCREEP_SIZE\t" << settings.CREEP_SIZE;
-	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
-	logGlobal->debugStream() << "\tWEEKLY_GROWTH\t" << settings.WEEKLY_GROWTH;
-	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
-	logGlobal->debugStream() << "\tNEUTRAL_STACK_EXP\t" << settings.NEUTRAL_STACK_EXP;
-	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
-	logGlobal->debugStream() << "\tMAX_BUILDING_PER_TURN\t" << settings.MAX_BUILDING_PER_TURN;
+	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Integer();
+	logGlobal->debug("\tMAX_HEROES_AVAILABLE_PER_PLAYER\t%d", settings.MAX_HEROES_AVAILABLE_PER_PLAYER);
+	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Integer();
+	logGlobal->debug("\tMAX_HEROES_ON_MAP_PER_PLAYER\t%d", settings.MAX_HEROES_ON_MAP_PER_PLAYER);
+	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Integer();
+	logGlobal->debug("\tCREEP_SIZE\t%d", settings.CREEP_SIZE);
+	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Integer();
+	logGlobal->debug("\tWEEKLY_GROWTH\t%d", settings.WEEKLY_GROWTH);
+	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Integer();
+	logGlobal->debug("\tNEUTRAL_STACK_EXP\t%d", settings.NEUTRAL_STACK_EXP);
+	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Integer();
+	logGlobal->debug("\tMAX_BUILDING_PER_TURN\t%d", settings.MAX_BUILDING_PER_TURN);
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
-	logGlobal->debugStream() << "\tDWELLINGS_ACCUMULATE_CREATURES\t" << settings.DWELLINGS_ACCUMULATE_CREATURES;
+	logGlobal->debug("\tDWELLINGS_ACCUMULATE_CREATURES\t%d", static_cast<int>(settings.DWELLINGS_ACCUMULATE_CREATURES));
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-	logGlobal->debugStream() << "\tALL_CREATURES_GET_DOUBLE_MONTHS\t" << settings.ALL_CREATURES_GET_DOUBLE_MONTHS;
+	logGlobal->debug("\tALL_CREATURES_GET_DOUBLE_MONTHS\t%d", static_cast<int>(settings.ALL_CREATURES_GET_DOUBLE_MONTHS));
 	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
-	logGlobal->debugStream() << "\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t" << settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS;
+	logGlobal->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", static_cast<int>(settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS));
 	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
-	logGlobal->debugStream() << "\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t" << settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
+	logGlobal->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
+
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
-  logGlobal->debugStream() << "\tSTACK_EXP\t" << modules.STACK_EXP;
+	logGlobal->debug("\tSTACK_EXP\t%d", static_cast<int>(modules.STACK_EXP));
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
-	logGlobal->debugStream() << "\tSTACK_ARTIFACT\t" << modules.STACK_ARTIFACT;
+	logGlobal->debug("\tSTACK_ARTIFACT\t%d", static_cast<int>(modules.STACK_ARTIFACT));
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
-	logGlobal->debugStream() << "\tCOMMANDERS\t" << modules.COMMANDERS;
+	logGlobal->debug("\tCOMMANDERS\t%d", static_cast<int>(modules.COMMANDERS));
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-	logGlobal->debugStream() << "\tMITHRIL\t" << modules.MITHRIL;
+	logGlobal->debug("\tMITHRIL\t%d", static_cast<int>(modules.MITHRIL));
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -662,7 +662,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	if (vstd::contains(currentList, modID))
 	{
 		logGlobal->error("Error: Circular dependency detected! Printing dependency list:");
-		logGlobal->errorStream() << "\t" << mod.name << " -> ";
+		logGlobal->error("\t%s -> ", mod.name);
 		return true;
 	}
 
@@ -673,7 +673,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	{
 		if (hasCircularDependency(dependency, currentList))
 		{
-			logGlobal->errorStream() << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
+			logGlobal->error("\t%s ->\n", mod.name); // conflict detected, print dependency list
 			return true;
 		}
 	}
@@ -690,7 +690,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (!vstd::contains(input, dep))
 			{
-				logGlobal->errorStream() << "Error: Mod " << mod.name << " requires missing " << dep << "!";
+				logGlobal->error("Error: Mod %s requires missing %s!", mod.name, dep);
 				return false;
 			}
 		}
@@ -699,7 +699,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (vstd::contains(input, conflicting))
 			{
-				logGlobal->errorStream() << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!";
+				logGlobal->error("Error: Mod %s conflicts with %s!", mod.name, allMods.at(conflicting).name);
 				return false;
 			}
 		}
@@ -930,11 +930,11 @@ void CModHandler::load()
 	CStopWatch totalTime, timer;
 
 	CContentHandler content;
-	logGlobal->infoStream() << "\tInitializing content handler: " << timer.getDiff() << " ms";
+	logGlobal->info("\tInitializing content handler: %d ms", timer.getDiff());
 
 	for(const TModID & modName : activeMods)
 	{
-		logGlobal->traceStream() << "Generating checksum for " << modName;
+		logGlobal->trace("Generating checksum for %s", modName);
 		allMods[modName].updateChecksum(calculateModChecksum(modName, CResourceHandler::get(modName)));
 	}
 
@@ -943,7 +943,7 @@ void CModHandler::load()
 	content.preloadData(coreMod);
 	for(const TModID & modName : activeMods)
 		content.preloadData(allMods[modName]);
-	logGlobal->infoStream() << "\tParsing mod data: " << timer.getDiff() << " ms";
+	logGlobal->info("\tParsing mod data: %d ms", timer.getDiff());
 
 	content.load(coreMod);
 	for(const TModID & modName : activeMods)
@@ -951,17 +951,17 @@ void CModHandler::load()
 
 	content.loadCustom();
 
-	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
+	logGlobal->info("\tLoading mod data: %d ms", timer.getDiff());
 
 	VLC->creh->loadCrExpBon();
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 
 	identifiers.finalize();
-	logGlobal->infoStream() << "\tResolving identifiers: " << timer.getDiff() << " ms";
+	logGlobal->info("\tResolving identifiers: %d ms", timer.getDiff());
 
 	content.afterLoadFinalization();
-	logGlobal->infoStream() << "\tHandlers post-load finalization: " << timer.getDiff() << " ms";
-	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
+	logGlobal->info("\tHandlers post-load finalization: %d ms ", timer.getDiff());
+	logGlobal->info("\tAll game content loaded in %d ms", totalTime.getDiff());
 }
 
 void CModHandler::afterLoad()

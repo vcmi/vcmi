@@ -966,7 +966,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(it == REWARD_RMAP.end())
 		{
-			logGlobal->errorStream() << instanceName << ": invalid metatype in reward item " << fullIdentifier;
+			logGlobal->error("%s: invalid metatype in reward item %s", instanceName, fullIdentifier);
 			return;
 		}
 		else

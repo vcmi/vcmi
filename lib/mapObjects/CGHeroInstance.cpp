@@ -48,16 +48,14 @@ static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->stacksCount())
 	{
-		logGlobal->errorStream() << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!";
+		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->name);
 		return 20;
 	}
 	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 	int ret = (i++)->second->valOfBonuses(Bonus::STACKS_SPEED);
-	for (;i!=chi->Slots().end();i++)
-	{
+	for(; i != chi->Slots().end(); i++)
 		ret = std::min(ret, i->second->valOfBonuses(Bonus::STACKS_SPEED));
-	}
 	return ret;
 }
 
@@ -81,7 +79,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			ret = 50;
 			break;
 		default:
-			logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
+			logGlobal->error("Unknown road type: %d", road);
 			break;
 		}
 	}
@@ -172,7 +170,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 
 				if(elem.second > 3) //workaround to avoid crashes when same sec skill is given more than once
 				{
-					logGlobal->warnStream() << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.";
+					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", static_cast<int>(which.toEnum()));
 					elem.second = 3;
 				}
 				updateSkill(which, elem.second); //when we know final value
@@ -377,7 +375,7 @@ void CGHeroInstance::initArmy(CRandomGenerator & rand, IArmyDescriptor * dst)
 				if(!getArt(slot))
 					putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
 				else
-					logGlobal->warnStream() << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid;
+					logGlobal->warn("Hero %s already has artifact at %d, omitting giving artifact %d", name, slot.toEnum(), aid.toEnum());
 			}
 			else
 			{
@@ -529,18 +527,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 					const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
 
-					//int creLevel = specCreature.level;
-					//if(!creLevel)
-					//{
-					//	if(spec.additionalinfo == 146)
-					//		creLevel = 5; //treat ballista as 5-level
-					//	else
-					//	{
-					//        logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
-					//		continue;
-					//	}
-					//}
-
 					//bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
 					bonus->type = Bonus::PRIMARY_SKILL;
@@ -683,7 +669,8 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 				hs->addNewBonus(bonus);
 				break;
 			default:
-				logGlobal->warnStream() << "Unexpected hero specialty " << type;
+				logGlobal->warn("Unexpected hero %s specialty %d", type->name, spec.type);
+				break;
 		}
 	}
 	specialty.push_back(hs); //will it work?
@@ -1417,7 +1404,7 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 		}
 	}
 
-	logGlobal->traceStream() << "The hero gets the primary skill " << primarySkill << " with a probability of " << randomValue << "%.";
+	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
 	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
 }
 
@@ -1683,7 +1670,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 				const si32 rawId = p.first.num;
 
 				if(rawId < 0 || rawId >= GameConstants::SKILL_QUANTITY)
-					logGlobal->errorStream() << "Invalid secondary skill " << rawId;
+					logGlobal->error("Invalid secondary skill %d", rawId);
 
 				handler.serializeEnum(NSecondarySkill::names[rawId], p.second, 0, NSecondarySkill::levels);
 			}
@@ -1703,20 +1690,20 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			for(const auto & p : skillMap.Struct())
 			{
-				const std::string id = p.first;
+				const std::string skillId = p.first;
 				const std::string levelId =  p.second.String();
 
-				const int rawId = vstd::find_pos(NSecondarySkill::names, id);
+				const int rawId = vstd::find_pos(NSecondarySkill::names, skillId);
 				if(rawId < 0)
 				{
-					logGlobal->errorStream() << "Invalid secondary skill " << id;
+					logGlobal->error("Invalid secondary skill %s", skillId);
 					continue;
 				}
 
 				const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
 				if(level < 0)
 				{
-					logGlobal->errorStream() << "Invalid secondary skill level" << levelId;
+					logGlobal->error("Invalid secondary skill level%s", levelId);
 					continue;
 				}
 

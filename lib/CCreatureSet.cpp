@@ -45,7 +45,7 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 {
 	if(!slot.validSlot())
 	{
-		logGlobal->errorStream() << "Cannot set slot " << slot;
+		logGlobal->error("Cannot set slot %d", slot.getNum());
 		return false;
 	}
 	if(!quantity)
@@ -189,7 +189,7 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 	}
 	else
 	{
-		logGlobal->errorStream() << "Cannot add to slot " << slot << " stack " << *stack;
+		logGlobal->error("Cannot add to slot %d stack %s", slot.getNum(), stack->nodeName());
 	}
 }
 
@@ -904,20 +904,6 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		if(typeName != "")
 			setType(VLC->creh->getCreature("core", typeName));
 	}
-}
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth)
-{
-	if(!sth.valid(true))
-		str << "an invalid stack!";
-
-	str << "stack with " << sth.count << " of ";
-	if(sth.type)
-		str << sth.type->namePl;
-	else
-		str << sth.idRand;
-
-	return str;
 }
 
 void CSimpleArmy::clear()

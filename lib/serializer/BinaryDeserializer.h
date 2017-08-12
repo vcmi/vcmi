@@ -15,6 +15,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 
 class CStackInstance;
+class FileStream;
 
 class DLL_LINKAGE CLoaderBase
 {
@@ -115,7 +116,7 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 	load(length);				\
 	if(length > 500000)				\
 	{								\
-		logGlobal->warnStream() << "Warning: very big length: " << length;\
+		logGlobal->warn("Warning: very big length: %d", length);\
 		reader->reportState(logGlobal);			\
 	};
 
@@ -368,11 +369,10 @@ public:
 				}
 				catch(std::exception &e)
 				{
-					logGlobal->errorStream() << e.what();
-					logGlobal->errorStream() << boost::format("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME")
-						% itr->second.type().name() % typeid(std::shared_ptr<T>).name();
+					logGlobal->error(e.what());
+					logGlobal->error("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME", itr->second.type().name(), typeid(std::shared_ptr<T>).name());
 					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
-					assert(0);
+					throw;
 				}
 			}
 			else
@@ -522,7 +522,7 @@ public:
 
 	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!
 	void clear();
-	void reportState(CLogger * out) override;
+	void reportState(vstd::CLoggerBase * out) override;
 
 	void checkMagicBytes(const std::string & text);
 

@@ -110,7 +110,7 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
-	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr(false));
+	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	howManyPeople++;
@@ -136,7 +136,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr(false));
+	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	//howManyPeople--;
 	delete showingDialog;
 	delete cingconsole;
@@ -1376,7 +1376,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 				CGPath path;
 				cb->getPathsInfo(p.first)->getPath(path, p.second);
 				paths[p.first] = path;
-				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second , path.nodes.size());
+				logGlobal->trace("Restored path for hero %s leading to %s with %d nodes", p.first->nodeName(), p.second.toString(), path.nodes.size());
 			}
 	}
 
@@ -2857,7 +2857,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 			assert(h->pos.z == nextCoord.z); // Z should change only if it's movement via teleporter and in this case this code shouldn't be executed at all
 			int3 endpos(nextCoord.x, nextCoord.y, h->pos.z);
-			logGlobal->trace("Requesting hero movement to %s", endpos());
+			logGlobal->trace("Requesting hero movement to %s", endpos.toString());
 
 			bool useTransit = false;
 			if ((i-2 >= 0) // Check there is node after next one; otherwise transit is pointless

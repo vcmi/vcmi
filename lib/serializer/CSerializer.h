@@ -84,7 +84,7 @@ public:
 	CSerializer();
 	~CSerializer();
 
-	virtual void reportState(CLogger * out){};
+	virtual void reportState(vstd::CLoggerBase * out){};
 
 	template <typename T, typename U>
 	const VectorizedObjectInfo<T, U> *getVectorizedTypeInfo()

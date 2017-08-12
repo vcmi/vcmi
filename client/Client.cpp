@@ -11,6 +11,9 @@
 #include "Client.h"
 
 #include <SDL.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 #include "CMusicHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -454,7 +457,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-		logNetwork->trace("Preparing interface for player %s", color.getStr(false));
+		logNetwork->trace("Preparing interface for player %s", color.getStr());
 		if(elem.second.playerID == PlayerSettings::PLAYER_AI)
 		{
 			auto AiToGive = aiNameForPlayer(elem.second, false);

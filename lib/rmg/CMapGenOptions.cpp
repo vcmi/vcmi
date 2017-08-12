@@ -218,8 +218,9 @@ const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTempla
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
-	logGlobal->infoStream() << boost::format ("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d")
-											% (int)getPlayerCount() % (int)getTeamCount() % (int)getCompOnlyPlayerCount() % (int)getCompOnlyTeamCount() % (int)getWaterContent() % (int)getMonsterStrength();
+	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
+		static_cast<int>(getPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
+		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
 
 	if(!mapTemplate)
 	{

@@ -660,9 +660,6 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					if (addToSuitableTiles)
 					{
 						suitableTiles.insert(posToTest);
-						//logGlobal->debugStream() << boost::format(std::string("Found suitable tile '%s' for main tile '%s': ") +
-						//		"Invalid native tiles '%i', invalid foreign tiles '%i', centerPosValid '%i'") % posToTest % centerPos % testTile.nativeTiles.size() %
-						//		testTile.foreignTiles.size() % testTile.centerPosValid;
 					}
 
 					terrainTile.terType = formerTerType;
@@ -720,8 +717,6 @@ void CDrawTerrainOperation::updateTerrainViews()
 			valRslt = validateTerrainView(pos, &pattern);
 			if(valRslt.result)
 			{
-				/*logGlobal->debugStream() << boost::format("Pattern detected at pos '%s': Pattern '%s', Flip '%i', Repl. '%s'.") %
-											pos % pattern.id % valRslt.flip % valRslt.transitionReplacement;*/
 				bestPattern = k;
 				break;
 			}
@@ -730,7 +725,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		if(bestPattern == -1)
 		{
 			// This shouldn't be the case
-			logGlobal->warn("No pattern detected at pos '%s'.", pos);
+			logGlobal->warn("No pattern detected at pos '%s'.", pos.toString());
 			CTerrainViewPatternUtils::printDebuggingInfoAboutTile(map, pos);
 			continue;
 		}
@@ -1033,7 +1028,7 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std
 
 void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int3 pos)
 {
-	logGlobal->debugStream() << "Printing detailed info about nearby map tiles of pos '" << pos << "'";
+	logGlobal->debug("Printing detailed info about nearby map tiles of pos '%s'", pos.toString());
 	for(int y = pos.y - 2; y <= pos.y + 2; ++y)
 	{
 		std::string line;
@@ -1056,7 +1051,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 			}
 		}
 
-		logGlobal->debugStream() << line;
+		logGlobal->debug(line);
 	}
 }
 

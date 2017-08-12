@@ -60,7 +60,7 @@ si32 MapObjectResolver::decode(const std::string & identifier) const
 	}
 	else
 	{
-		logGlobal->errorStream() << "Object not found: " << identifier;
+		logGlobal->error("Object not found: %s", identifier);
 		return -1;
 	}
 }
@@ -82,7 +82,7 @@ std::string MapObjectResolver::encode(si32 identifier) const
 	si32 oid = id.getNum();
 	if(oid < 0  ||  oid >= owner->map->objects.size())
 	{
-        logGlobal->errorStream() << "Cannot get object with id " << oid;
+        logGlobal->error("Cannot get object with id %d", oid);
 		return "";
 	}
 
@@ -867,7 +867,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	if(fileVersionMajor != VERSION_MAJOR)
 	{
-		logGlobal->errorStream() << "Unsupported map format version: " << fileVersionMajor;
+		logGlobal->error("Unsupported map format version: %d", fileVersionMajor);
 		throw std::runtime_error("Unsupported map format version");
 	}
 
@@ -875,7 +875,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	if(fileVersionMinor > VERSION_MINOR)
 	{
-		logGlobal->warnStream() << "Too new map format revision: " << fileVersionMinor << ". This map should work but some of map features may be ignored.";
+		logGlobal->warn("Too new map format revision: %d. This map should work but some of map features may be ignored.", fileVersionMinor);
 	}
 
 	JsonDeserializer handler(mapObjectResolver.get(), header);

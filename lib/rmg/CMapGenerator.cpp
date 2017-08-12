@@ -151,7 +151,7 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 	}
 	catch (rmgException &e)
 	{
-		logGlobal->errorStream() << "Random map generation received exception: " << e.what();
+		logGlobal->error("Random map generation received exception: %s", e.what());
 	}
 	return std::move(map);
 }
@@ -703,7 +703,7 @@ void CMapGenerator::addHeaderInfo()
 void CMapGenerator::checkIsOnMap(const int3& tile) const
 {
 	if (!map->isInTheMap(tile))
-		throw  rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile));
+		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile.toString()));
 }
 
 
@@ -814,13 +814,7 @@ float CMapGenerator::getNearestObjectDistance(const int3 &tile) const
 int CMapGenerator::getNextMonlithIndex()
 {
 	if (monolithIndex >= VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-	{
-		//logGlobal->errorStream() << boost::to_string(boost::format("RMG Error! There is no Monolith Two Way with index %d available!") % monolithIndex);
-		//monolithIndex++;
-		//return VLC->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size() - 1;
-		//TODO: interrupt map generation and report error
 		throw rmgException(boost::to_string(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
-	}
 	else
 		return monolithIndex++;
 }

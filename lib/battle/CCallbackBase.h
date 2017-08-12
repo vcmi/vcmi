@@ -10,7 +10,7 @@
 #pragma once
 #include "../GameConstants.h"
 
-#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->errorStream() << __FUNCTION__ << " called when no battle!"; return X; }
+#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return X; }
 
 class CGameState;
 struct BattleInfo;

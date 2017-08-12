@@ -218,7 +218,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(CRandomGenerator & rand, 
 		return getRandomCastedSpell(rand, stack); //caster
 		break;
 	default:
-		logGlobal->errorStream() << "Incorrect mode of battleGetRandomSpell (" << mode <<")";
+		logGlobal->error("Incorrect mode of battleGetRandomSpell (%d)", static_cast<int>(mode));
 		return SpellID::NONE;
 	}
 }

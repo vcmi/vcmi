@@ -133,7 +133,7 @@ BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() co
 	if(*player == getBattle()->sides[1].color)
 		return BattlePerspective::RIGHT_SIDE;
 
-	logGlobal->errorStream() << "Cannot find player " << *player << " in battle!";
+	logGlobal->error("Cannot find player %s in battle!", player->getStr());
 	return BattlePerspective::INVALID;
 }
 
@@ -182,13 +182,13 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(ui8 side) co
 	RETURN_IF_NOT_BATTLE(nullptr);
 	if(side > 1)
 	{
-		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
+		logGlobal->error("FIXME: %s wrong argument!", __FUNCTION__);
 		return nullptr;
 	}
 
 	if(!battleDoWeKnowAbout(side))
 	{
-		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
+		logGlobal->error("FIXME: %s access check ", __FUNCTION__);
 		return nullptr;
 	}
 
@@ -200,12 +200,12 @@ const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(ui8 side) cons
 	RETURN_IF_NOT_BATTLE(nullptr);
 	if(side > 1)
 	{
-		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
+		logGlobal->error("FIXME: %s wrong argument!", __FUNCTION__);
 		return nullptr;
 	}
 	if(!battleDoWeKnowAbout(side))
 	{
-		logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
+		logGlobal->error("FIXME: %s access check!", __FUNCTION__);
 		return nullptr;
 	}
 	return getBattle()->sides[side].armyObject;
@@ -216,7 +216,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 	auto hero = getBattle()->sides[side].hero;
 	if(!hero)
 	{
-		logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
+		logGlobal->warn("%s: side %d does not have hero!", __FUNCTION__, static_cast<int>(side));
 		return InfoAboutHero();
 	}
 	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
@@ -267,7 +267,7 @@ BattleSideOpt CBattleInfoEssentials::playerToSide(PlayerColor player) const
 	RETURN_IF_NOT_BATTLE(boost::none);
 	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
 	if(ret < 0)
-		logGlobal->warnStream() << "Cannot find side for player " << player;
+		logGlobal->warn("Cannot find side for player %s", player.getStr());
 
 	return BattleSideOpt(ret);
 }

@@ -46,7 +46,7 @@ class DLL_LINKAGE CConnection
 	CConnection(void);
 
 	void init();
-	void reportState(CLogger * out) override;
+	void reportState(vstd::CLoggerBase * out) override;
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;

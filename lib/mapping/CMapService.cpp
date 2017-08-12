@@ -135,6 +135,6 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 		node = loadPatches("config/mapOverrides.json");
 
 	boost::to_lower(scenarioName);
-	logGlobal->debugStream() << "Request to patch map " << scenarioName;
+	logGlobal->debug("Request to patch map %s", scenarioName);
 	return std::unique_ptr<IMapPatcher>(new CMapPatcher(node[scenarioName]));
 }

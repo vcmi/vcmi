@@ -360,7 +360,7 @@ ArtifactPosition CArtHandler::stringToSlot(std::string slotName)
 	if (it != artifactPositionMap.end())
 		return it->second;
 
-	logGlobal->warnStream() << "Warning! Artifact slot " << slotName << " not recognized!";
+	logGlobal->warn("Warning! Artifact slot %s not recognized!", slotName);
 	return ArtifactPosition::PRE_FIRST;
 }
 
@@ -421,7 +421,7 @@ CArtifact::EartClass CArtHandler::stringToClass(std::string className)
 	if (it != artifactClassMap.end())
 		return it->second;
 
-	logGlobal->warnStream() << "Warning! Artifact rarity " << className << " not recognized!";
+	logGlobal->warn("Warning! Artifact rarity %s not recognized!", className);
 	return CArtifact::ART_SPECIAL;
 }
 
@@ -455,7 +455,7 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
 			}
 		}
 		else
-			logGlobal->warnStream() << "Warning! Artifact type " << b.String() << " not recognized!";
+			logGlobal->warn("Warning! Artifact type %s not recognized!", b.String());
 	}
 }
 
@@ -679,11 +679,11 @@ void CArtHandler::erasePickedArt(ArtifactID id)
 			artifactList->erase(itr);
 		}
 		else
-			logGlobal->warnStream() << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present";
+			logGlobal->warn("Problem: cannot erase artifact %s from list, it was not present", art->Name());
 
 	}
 	else
-		logGlobal->warnStream() << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)";
+		logGlobal->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->Name());
 }
 
 boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
@@ -869,8 +869,7 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-		logGlobal->warnStream() << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
-			<< artSet->bearerType();
+		logGlobal->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->Name(), artSet->bearerType());
 		return false;
 	}
 
@@ -1008,7 +1007,7 @@ SpellID CArtifactInstance::getGivenSpellID() const
 	const auto b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
-		logGlobal->warnStream() << "Warning: " << nodeName() << " doesn't bear any spell!";
+		logGlobal->warn("Warning: %s doesn't bear any spell!", nodeName());
 		return SpellID::NONE;
 	}
 	return SpellID(b->subtype);

@@ -349,7 +349,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		try
 		{
 			while(tilesToBlock > 0)
-			{				
+			{
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
@@ -644,7 +644,7 @@ const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 		if(sides[i].color == player)
 			return sides[i].hero;
 
-	logGlobal->errorStream() << "Player " << player << " is not in battle!";
+	logGlobal->error("Player %s is not in battle!", player.getStr());
 	return nullptr;
 }
 
@@ -659,7 +659,7 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 		if(sides[i].color == player)
 			return i;
 
-	logGlobal->warnStream() << "BattleInfo::whatSide: Player " << player << " is not in battle!";
+	logGlobal->warn("BattleInfo::whatSide: Player %s is not in battle!", player.getStr());
 	return -1;
 }
 

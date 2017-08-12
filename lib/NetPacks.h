@@ -62,7 +62,7 @@ struct CPackForServer : public CPack
 
 	bool applyGh(CGameHandler *gh) //called after applying to gs
 	{
-		logGlobal->errorStream() << "Should not happen... applying plain CPackForServer";
+		logGlobal->error("Should not happen... applying plain CPackForServer");
 		return false;
 	}
 };
@@ -1770,8 +1770,6 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 		h & attacker;
 	}
 };
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CatapultAttack::AttackInfo & attackInfo);
 
 struct BattleStacksRemoved : public CPackForClient
 {

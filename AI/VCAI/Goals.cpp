@@ -83,13 +83,13 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 		case ISSUE_COMMAND:
 			return "ISSUE COMMAND (unsupported)";
 		case VISIT_TILE:
-			desc = "VISIT TILE " + tile();
+			desc = "VISIT TILE " + tile.toString();
 			break;
 		case CLEAR_WAY_TO:
-			desc = "CLEAR WAY TO " + tile();
+			desc = "CLEAR WAY TO " + tile.toString();
 			break;
 		case DIG_AT_TILE:
-			desc = "DIG AT TILE " + tile();
+			desc = "DIG AT TILE " + tile.toString();
 			break;
 		default:
 			return boost::lexical_cast<std::string>(goalType);
@@ -447,7 +447,7 @@ bool VisitHero::fulfillsMe (TSubgoal goal)
 	auto obj = cb->getObj(ObjectInstanceID(objid));
 	if (!obj)
 	{
-		logAi->error("Hero %s: VisitHero::fulfillsMe at %s: object %d not found", hero.name, goal->tile, objid);
+		logAi->error("Hero %s: VisitHero::fulfillsMe at %s: object %d not found", hero.name, goal->tile.toString(), objid);
 		return false;
 	}
 	return obj->visitablePos() == goal->tile;
@@ -529,7 +529,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				else
 				{
 					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
-					logAi->debug("Quest guard blocks the way to %s", tile());
+					logAi->debug("Quest guard blocks the way to %s", tile.toString());
 					continue; //do not access quets guard if we can't complete the quest
 				}
 			}
@@ -549,7 +549,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 	if (ret.empty())
 	{
-		logAi->warn("There is no known way to clear the way to tile %s",tile());
+		logAi->warn("There is no known way to clear the way to tile %s", tile.toString());
 		throw goalFulfilledException (sptr(Goals::ClearWayTo(tile))); //make sure asigned hero gets unlocked
 	}
 
@@ -712,7 +712,7 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 
 std::string VisitTile::completeMessage() const
 {
-	return "Hero " + hero.get()->name + " visited tile " + tile();
+	return "Hero " + hero.get()->name + " visited tile " + tile.toString();
 }
 
 TSubgoal VisitTile::whatToDoToAchieve()

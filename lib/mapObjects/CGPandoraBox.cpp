@@ -427,20 +427,20 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		for(const auto & p : skillMap.Struct())
 		{
-			const std::string id = p.first;
-			const std::string levelId =  p.second.String();
+			const std::string skillName = p.first;
+			const std::string levelId = p.second.String();
 
-			const int rawId = vstd::find_pos(NSecondarySkill::names, id);
+			const int rawId = vstd::find_pos(NSecondarySkill::names, skillName);
 			if(rawId < 0)
 			{
-				logGlobal->errorStream() << "Invalid secondary skill " << id;
+				logGlobal->error("Invalid secondary skill %s", skillName);
 				continue;
 			}
 
 			const int level = vstd::find_pos(NSecondarySkill::levels, levelId);
 			if(level < 0)
 			{
-				logGlobal->errorStream() << "Invalid secondary skill level" << levelId;
+				logGlobal->error("Invalid secondary skill level %s", levelId);
 				continue;
 			}
 

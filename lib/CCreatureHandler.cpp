@@ -189,7 +189,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		} else
-			logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
+			logGlobal->error("Error: invalid ability type %s in creatures config", type);
 
 		return;
 	}
@@ -937,7 +937,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
 				break;
 		}
@@ -1047,7 +1047,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
-				logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
 		}
 		break;
@@ -1088,7 +1088,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
-		logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
+		logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 		return;
 		break;
 	}
@@ -1186,7 +1186,7 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 
 		if(!allowed.size())
 		{
-			logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
+			logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
 			return CreatureID::NONE;
 		}
 

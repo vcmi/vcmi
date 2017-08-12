@@ -149,13 +149,13 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			vec = &VLC->generaltexth->jktexts;
 			break;
 		default:
-			logGlobal->errorStream() << "Failed string substitution because type is " << type;
+			logGlobal->error("Failed string substitution because type is %d", type);
 			dst = "#@#";
 			return;
 		}
 		if(vec->size() <= ser)
 		{
-			logGlobal->errorStream() << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!";
+			logGlobal->error("Failed string substitution with type %d because index %d is out of bounds!", type, ser);
 			dst = "#!#";
 		}
 		else
@@ -202,7 +202,7 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
-			logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(elem);
+			logGlobal->error("MetaString processing error! Received message of type %d", int(elem));
 			break;
 		}
 	}
@@ -259,7 +259,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 				break;
 			default:
-				logGlobal->errorStream() << "MetaString processing error! Received message of type " << int(message[i]);
+				logGlobal->error("MetaString processing error! Received message of type %d",int(message[i]));
 		}
 
 	}
@@ -318,7 +318,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-		logGlobal->errorStream() << "Cannot pick hero for " << town->faction->index << ". Wrong owner!";
+		logGlobal->error("Cannot pick hero for faction %d. Wrong owner!", town->faction->index);
 		return nullptr;
 	}
 
@@ -336,7 +336,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size())
 		{
-			logGlobal->errorStream() << "Cannot pick native hero for " << player << ". Picking any...";
+			logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr());
 			return pickHeroFor(false, player, town, available, rand);
 		}
 		else
@@ -359,7 +359,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size() || sum == 0)
 		{
-			logGlobal->errorStream() << "There are no heroes available for player " << player<<"!";
+			logGlobal->error("There are no heroes available for player %s!", player.getStr());
 			return nullptr;
 		}
 
@@ -429,7 +429,7 @@ int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner)
 		return RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator())->getNum();
 	}
 
-	logGlobal->warnStream() << "Cannot find free hero of appropriate faction for player " << owner << " - trying to get first available...";
+	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.getStr());
 	if(!otherHeroes.empty())
 	{
 		return RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator())->getNum();
@@ -520,7 +520,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 					auto iter = map->instanceNames.find(info->instanceId);
 
 					if(iter == map->instanceNames.end())
-						logGlobal->errorStream() << "Map object not found: " << info->instanceId;
+						logGlobal->error("Map object not found: %s", info->instanceId);
 					else
 					{
 						auto elem = iter->second;
@@ -532,7 +532,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 						else if(elem->ID==Obj::TOWN)
 							faction = elem->subID;
 						else
-							logGlobal->errorStream() << "Map object must be town: " << info->instanceId;
+							logGlobal->error("Map object must be town: %s", info->instanceId);
 					}
 				}
 				else if(info->asCastle)
@@ -613,7 +613,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			if (result.first == Obj::NO_OBJ)
 			{
-				logGlobal->errorStream() << "Error: failed to find dwelling for "<< VLC->townh->factions[faction]->name << " of level " << int(level);
+				logGlobal->error("Error: failed to find dwelling for %s of level %d", VLC->townh->factions[faction]->name, int(level));
 				result = std::make_pair(Obj::CREATURE_GENERATOR1, *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), getRandomGenerator()));
 			}
 
@@ -703,7 +703,7 @@ CGameState::~CGameState()
 
 void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 {
-	logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
+	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
 	getRandomGenerator().setSeed(si->seedToBeUsed);
 	scenarioOps = CMemorySerializer::deepCopy(*si).release();
 	initialOpts = CMemorySerializer::deepCopy(*si).release();
@@ -718,7 +718,7 @@ void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 		initCampaign();
 		break;
 	default:
-		logGlobal->errorStream() << "Wrong mode: " << (int)scenarioOps->mode;
+		logGlobal->error("Wrong mode: %d", static_cast<int>(scenarioOps->mode));
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
@@ -759,7 +759,7 @@ void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
 	auto seedAfterInit = getRandomGenerator().nextInt();
-	logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
+	logGlobal->info("Seed after init is %d (before was %d)", seedAfterInit, scenarioOps->seedToBeUsed);
 	if(scenarioOps->seedPostInit > 0)
 	{
 		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
@@ -837,7 +837,7 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 	}
 	else
 	{
-		logGlobal->infoStream() << "Open map file: " << scenarioOps->mapname;
+		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourceID mapURI(scenarioOps->mapname, EResType::MAP);
 		map = CMapService::loadMap(mapURI).release();
 	}
@@ -845,7 +845,7 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 
 void CGameState::initCampaign()
 {
-	logGlobal->infoStream() << "Open campaign map file: " << scenarioOps->campState->currentMap;
+	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.get());
 	auto campaign = scenarioOps->campState;
 	assert(vstd::contains(campaign->camp->mapPieces, *scenarioOps->campState->currentMap));
 
@@ -860,10 +860,10 @@ void CGameState::initCampaign()
 
 void CGameState::checkMapChecksum()
 {
-	logGlobal->infoStream() << "\tOur checksum for the map: "<< map->checksum;
+	logGlobal->info("\tOur checksum for the map: %d", map->checksum);
 	if(scenarioOps->mapfileChecksum)
 	{
-		logGlobal->infoStream() << "\tServer checksum for " << scenarioOps->mapname <<": "<< scenarioOps->mapfileChecksum;
+		logGlobal->info("\tServer checksum for %s: %d", scenarioOps->mapname, scenarioOps->mapfileChecksum);
 		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
 			logGlobal->error("Wrong map checksum!!!");
@@ -1747,7 +1747,7 @@ void CGameState::initMapObjects()
 	{
 		if(obj)
 		{
-			logGlobal->traceStream() << boost::format ("Calling Init for object %d, %s, %s") % obj->id.getNum() % obj->typeName % obj->subTypeName;
+			logGlobal->trace("Calling Init for object %d, %s, %s", obj->id.getNum(), obj->typeName, obj->subTypeName);
 			obj->initObj(getRandomGenerator());
 		}
 	}
@@ -3080,10 +3080,5 @@ TeamState::TeamState(TeamState && other):
 
 CRandomGenerator & CGameState::getRandomGenerator()
 {
-	//if(scenarioOps && scenarioOps->seedPostInit)
-	//{
-	//	logGlobal->trace("CGameState::getRandomGenerator used after initialization!");
-	//}
-	//logGlobal->traceStream() << "Fetching CGameState::rand with seed " << rand.nextInt();
 	return rand;
 }

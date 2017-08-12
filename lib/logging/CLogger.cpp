@@ -32,6 +32,25 @@ namespace ELogLevel
 }
 #endif
 
+namespace vstd
+{
+
+CLoggerBase::~CLoggerBase() = default;
+
+
+CTraceLogger::CTraceLogger(const CLoggerBase * logger, const std::string & beginMessage, const std::string & endMessage)
+	: logger(logger), endMessage(endMessage)
+{
+	logger->trace(beginMessage);
+}
+
+CTraceLogger::~CTraceLogger()
+{
+	logger->trace(endMessage);
+}
+
+}//namespace vstd
+
 const std::string CLoggerDomain::DOMAIN_GLOBAL = "global";
 
 CLoggerDomain::CLoggerDomain(std::string name) : name(std::move(name))
@@ -55,27 +74,15 @@ bool CLoggerDomain::isGlobalDomain() const { return name == DOMAIN_GLOBAL; }
 
 const std::string& CLoggerDomain::getName() const { return name; }
 
-CLoggerStream::CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr) {}
-
-CLoggerStream::~CLoggerStream()
-{
-	if(sbuffer)
-	{
-		logger.log(level, sbuffer->str());
-		delete sbuffer;
-		sbuffer = nullptr;
-	}
-}
-
 boost::recursive_mutex CLogger::smx;
 boost::recursive_mutex CLogManager::smx;
 
-DLL_LINKAGE CLogger * logGlobal = CLogger::getGlobalLogger();
+DLL_LINKAGE vstd::CLoggerBase * logGlobal = CLogger::getGlobalLogger();
 
-DLL_LINKAGE CLogger * logBonus = CLogger::getLogger(CLoggerDomain("bonus"));
-DLL_LINKAGE CLogger * logNetwork = CLogger::getLogger(CLoggerDomain("network"));
-DLL_LINKAGE CLogger * logAi = CLogger::getLogger(CLoggerDomain("ai"));
-DLL_LINKAGE CLogger * logAnim = CLogger::getLogger(CLoggerDomain("animation"));
+DLL_LINKAGE vstd::CLoggerBase * logBonus = CLogger::getLogger(CLoggerDomain("bonus"));
+DLL_LINKAGE vstd::CLoggerBase * logNetwork = CLogger::getLogger(CLoggerDomain("network"));
+DLL_LINKAGE vstd::CLoggerBase * logAi = CLogger::getLogger(CLoggerDomain("ai"));
+DLL_LINKAGE vstd::CLoggerBase * logAnim = CLogger::getLogger(CLoggerDomain("animation"));
 
 CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 {
@@ -116,12 +123,6 @@ CLogger::CLogger(const CLoggerDomain & domain) : domain(domain)
 		parent = getLogger(domain.getParent());
 	}
 }
-
-CLoggerStream CLogger::traceStream() const { return CLoggerStream(*this, ELogLevel::TRACE); }
-CLoggerStream CLogger::debugStream() const { return CLoggerStream(*this, ELogLevel::DEBUG); }
-CLoggerStream CLogger::infoStream() const { return CLoggerStream(*this, ELogLevel::INFO); }
-CLoggerStream CLogger::warnStream() const { return CLoggerStream(*this, ELogLevel::WARN); }
-CLoggerStream CLogger::errorStream() const { return CLoggerStream(*this, ELogLevel::ERROR); }
 
 void CLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
 {
@@ -189,13 +190,6 @@ void CLogger::clearTargets()
 bool CLogger::isDebugEnabled() const { return getEffectiveLevel() <= ELogLevel::DEBUG; }
 bool CLogger::isTraceEnabled() const { return getEffectiveLevel() <= ELogLevel::TRACE; }
 
-CTraceLogger::CTraceLogger(const CLogger * logger, const std::string & beginMessage, const std::string & endMessage)
-	: logger(logger), endMessage(endMessage)
-{
-	logger->trace(beginMessage);
-}
-CTraceLogger::~CTraceLogger() { logger->trace(std::move(endMessage)); }
-
 CLogManager & CLogManager::get()
 {
 	TLockGuardRec _(smx);
@@ -203,7 +197,7 @@ CLogManager & CLogManager::get()
 	return instance;
 }
 
-CLogManager::CLogManager() { }
+CLogManager::CLogManager() = default;
 CLogManager::~CLogManager()
 {
 	for(auto & i : loggers)

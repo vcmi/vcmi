@@ -79,7 +79,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 		if((visit.limiter.numOfGrants == 0 || visit.numOfGrants < visit.limiter.numOfGrants) // reward has unlimited uses or some are still available
 			&& visit.limiter.heroAllowed(hero))
 		{
-			logGlobal->debugStream() << "Reward " << i << " is allowed";
+			logGlobal->trace("Reward %d is allowed", i);
 			ret.push_back(i);
 		}
 	}
@@ -96,7 +96,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	auto grantRewardWithMessage = [&](int index) -> void
 	{
 		auto vi = getVisitInfo(index, h);
-		logGlobal->debugStream() << "Granting reward " << index << ". Message says: " << vi.message.toString();
+		logGlobal->debug("Granting reward %d. Message says: %s", index, vi.message.toString());
 		// show message only if it is not empty
 		if (!vi.message.toString().empty())
 		{
@@ -131,7 +131,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 				objectRemovalPossible = true;
 		}
 
-		logGlobal->debugStream() << "Visiting object with " << rewards.size() << " possible rewards";
+		logGlobal->debug("Visiting object with %d possible rewards", rewards.size());
 		switch (rewards.size())
 		{
 			case 0: // no available rewards, e.g. empty flotsam
@@ -1166,7 +1166,7 @@ int3 CGMagicSpring::getVisitableOffset() const
 
 	if (visitableTiles.size() != info.size())
 	{
-		logGlobal->warnStream() << "Unexpected number of visitable tiles of Magic Spring at " << pos << "!";
+		logGlobal->warn("Unexpected number of visitable tiles of Magic Spring at %s", pos.toString());
 		return int3(-1,-1,-1);
 	}
 

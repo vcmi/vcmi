@@ -9,6 +9,7 @@
  */
 #pragma once
 
+class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;

@@ -76,7 +76,7 @@ QVariant JsonFromFile(QString filename)
 
 	if (data.size() == 0)
 	{
-		logGlobal->errorStream() << "Failed to open file " << filename.toUtf8().data();
+		logGlobal->error("Failed to open file %s", filename.toUtf8().data());
 		return QVariant();
 	}
 	else

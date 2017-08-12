@@ -249,7 +249,7 @@ void MapComparer::compareTerrain()
 		for(int y = 0; y < expected->height; y++)
 		{
 			int3 coord(x,y,0);
-			SCOPED_TRACE(coord);
+			SCOPED_TRACE(coord.toString());
 			checkEqual(actual->getTile(coord), expected->getTile(coord));
 		}
 }

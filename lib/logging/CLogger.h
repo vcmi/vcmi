@@ -42,29 +42,6 @@ private:
 	std::string name;
 };
 
-/// The class CLoggerStream provides a stream-like way of logging messages.
-class DLL_LINKAGE CLoggerStream
-{
-public:
-	CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level);
-	~CLoggerStream();
-
-	template<typename T>
-	CLoggerStream & operator<<(const T & data)
-	{
-		if(!sbuffer)
-			sbuffer = new std::stringstream(std::ios_base::out);
-
-		(*sbuffer) << data;
-
-		return *this;
-	}
-
-private:
-	const CLogger & logger;
-	ELogLevel::ELogLevel level;
-	std::stringstream * sbuffer;
-};
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
@@ -79,13 +56,6 @@ public:
 	static CLogger * getLogger(const CLoggerDomain & domain);
 	static CLogger * getGlobalLogger();
 
-	/// Log streams for various log levels
-	CLoggerStream traceStream() const;
-	CLoggerStream debugStream() const;
-	CLoggerStream infoStream() const;
-	CLoggerStream warnStream() const;
-	CLoggerStream errorStream() const;
-
 	void log(ELogLevel::ELogLevel level, const std::string & message) const override;
 	void log(ELogLevel::ELogLevel level, const boost::format & fmt) const override;
 
@@ -94,8 +64,8 @@ public:
 
 	/// Returns true if a debug/trace log message will be logged, false if not.
 	/// Useful if performance is important and concatenating the log message is a expensive task.
-	bool isDebugEnabled() const;
-	bool isTraceEnabled() const;
+	bool isDebugEnabled() const override;
+	bool isTraceEnabled() const override;
 
 private:
 	explicit CLogger(const CLoggerDomain & domain);
@@ -109,42 +79,6 @@ private:
 	mutable boost::mutex mx;
 	static boost::recursive_mutex smx;
 };
-
-extern DLL_LINKAGE CLogger * logGlobal;
-extern DLL_LINKAGE CLogger * logBonus;
-extern DLL_LINKAGE CLogger * logNetwork;
-extern DLL_LINKAGE CLogger * logAi;
-extern DLL_LINKAGE CLogger * logAnim;
-
-/// RAII class for tracing the program execution.
-/// It prints "Leaving function XYZ" automatically when the object gets destructed.
-class DLL_LINKAGE CTraceLogger : boost::noncopyable
-{
-public:
-	CTraceLogger(const CLogger * logger, const std::string & beginMessage, const std::string & endMessage);
-	~CTraceLogger();
-
-private:
-	const CLogger * logger;
-	std::string endMessage;
-};
-
-/// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
-/// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
-///
-#define RAII_TRACE(logger, onEntry, onLeave)			\
-	std::unique_ptr<CTraceLogger> ctl00;						\
-	if(logger->isTraceEnabled())						\
-		ctl00 = make_unique<CTraceLogger>(logger, onEntry, onLeave);
-
-#define LOG_TRACE(logger) RAII_TRACE(logger,								\
-		boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),	\
-		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
-
-
-#define LOG_TRACE_PARAMS(logger, formatStr, params) RAII_TRACE(logger,		\
-		boost::str(boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), \
-		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */

@@ -134,8 +134,6 @@ public:
 	}
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
-
 typedef std::map<SlotID, CStackInstance*> TSlots;
 typedef std::map<SlotID, CStackBasicDescriptor> TSimpleSlots;
 

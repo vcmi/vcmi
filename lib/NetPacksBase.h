@@ -28,7 +28,7 @@ struct DLL_LINKAGE CPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		logNetwork->errorStream() << "CPack serialized... this should not happen!";
+		logNetwork->error("CPack serialized... this should not happen!");
 		assert(false && "CPack serialized");
 	}
 	void applyGs(CGameState *gs) { }

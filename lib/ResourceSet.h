@@ -134,6 +134,8 @@ namespace Res
 		DLL_LINKAGE bool canAfford(const ResourceSet &price) const;
 		DLL_LINKAGE bool canBeAfforded(const ResourceSet &res) const;
 
+		DLL_LINKAGE std::string toString() const;
+
 		//special iterator of iterating over non-zero resources in set
 		class DLL_LINKAGE nziterator
 		{
@@ -154,9 +156,9 @@ namespace Res
 			const ResEntry* operator->() const;
 
 		};
-	};
 
-	using ::operator<<;
+
+	};
 }
 
 typedef Res::ResourceSet TResources;

@@ -30,15 +30,15 @@ public:
 	float3 operator-(const float3 & i) const { return float3(x - i.x, y - i.y, z - i.z); }
 	// returns float3 with coordinates decreased by given numer
 	float3 operator-(const float i) const { return float3(x - i, y - i, z - (si32)i); }
-	
+
 	// returns float3 with plane coordinates decreased by given numer
 	float3 operator*(const float i) const {return float3(x * i, y * i, z);}
 	// returns float3 with plane coordinates decreased by given numer
 	float3 operator/(const float i) const {return float3(x / i, y / i, z);}
-	
+
 	// returns opposite position
 	float3 operator-() const { return float3(-x, -y, -z); }
-	
+
 	// returns squared distance on Oxy plane (z coord is not used)
 	double dist2dSQ(const float3 & o) const
 	{
@@ -58,7 +58,7 @@ public:
 	double dist2d(const float3 &other) const { return std::sqrt(dist2dSQ(other)); }
 
 	bool areNeighbours(const float3 &other) const { return (dist2dSQ(other) < 4.0) && z == other.z; }
-	
+
 	float3& operator+=(const float3 & i)
 	{
 		x += i.x;
@@ -75,7 +75,7 @@ public:
 
 		return *this;
 	}
-	
+
 	float3& operator-=(const float3 & i)
 	{
 		x -= i.x;
@@ -112,7 +112,7 @@ public:
 
 	bool operator==(const float3 & i) const { return (x == i.x) && (y == i.y) && (z == i.z); }
 	bool operator!=(const float3 & i) const { return (x != i.x) || (y != i.y) || (z != i.z); }
-	
+
 	bool operator<(const float3 & i) const
 	{
 		if (z<i.z)
@@ -131,7 +131,7 @@ public:
 		return false;
 	}
 
-	std::string operator ()() const
+	std::string toString() const
 	{
 		return	"(" + boost::lexical_cast<std::string>(x) +
 				" " + boost::lexical_cast<std::string>(y) +
@@ -150,15 +150,6 @@ public:
 		h & z;
 	}
 };
-
-inline std::istream & operator>>(std::istream & str, float3 & dest)
-{
-	return str >> dest.x >> dest.y >> dest.z;
-}
-inline std::ostream & operator<<(std::ostream & str, const float3 & sth)
-{
-	return str << sth.x << ' ' << sth.y << ' ' << sth.z;
-}
 
 struct Shashfloat3
 {
