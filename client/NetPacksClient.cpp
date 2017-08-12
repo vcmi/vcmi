@@ -819,7 +819,7 @@ void SaveGame::applyCl(CClient *cl)
 
 void PlayerMessage::applyCl(CClient *cl)
 {
-	logNetwork->debug("Player %s sends a message: %s", player.getStr(false), text);
+	logNetwork->debug("Player %s sends a message: %s", player.getStr(), text);
 
 	std::ostringstream str;
 	if(player.isSpectator())

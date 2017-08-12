@@ -43,7 +43,11 @@ CTraceLogger::CTraceLogger(const CLoggerBase * logger, const std::string & begin
 {
 	logger->trace(beginMessage);
 }
-CTraceLogger::~CTraceLogger() { logger->trace(std::move(endMessage)); }
+
+CTraceLogger::~CTraceLogger()
+{
+	logger->trace(endMessage);
+}
 
 }//namespace vstd
 

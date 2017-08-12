@@ -336,7 +336,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size())
 		{
-			logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr(false));
+			logGlobal->error("Cannot pick native hero for %s. Picking any...", player.getStr());
 			return pickHeroFor(false, player, town, available, rand);
 		}
 		else
@@ -359,7 +359,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size() || sum == 0)
 		{
-			logGlobal->error("There are no heroes available for player %s!", player.getStr(false));
+			logGlobal->error("There are no heroes available for player %s!", player.getStr());
 			return nullptr;
 		}
 
@@ -429,7 +429,7 @@ int CGameState::pickUnusedHeroTypeRandomly(PlayerColor owner)
 		return RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator())->getNum();
 	}
 
-	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.getStr(false));
+	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.getStr());
 	if(!otherHeroes.empty())
 	{
 		return RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator())->getNum();
@@ -863,7 +863,7 @@ void CGameState::checkMapChecksum()
 	logGlobal->info("\tOur checksum for the map: %d", map->checksum);
 	if(scenarioOps->mapfileChecksum)
 	{
-		logGlobal->info("\tServer checksum for %s: ", scenarioOps->mapname, scenarioOps->mapfileChecksum);
+		logGlobal->info("\tServer checksum for %s: %d", scenarioOps->mapname, scenarioOps->mapfileChecksum);
 		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
 			logGlobal->error("Wrong map checksum!!!");

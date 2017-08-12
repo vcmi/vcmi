@@ -84,7 +84,7 @@ void CLoadFile::reportState(vstd::CLoggerBase * out)
 {
 	out->debug("CLoadFile");
 	if(!!sfile && *sfile)
-		out->debug("\tOpened %s \tPosition: %d", fName, sfile->tellg());
+		out->debug("\tOpened %s Position: %d", fName, sfile->tellg());
 }
 
 void CLoadFile::clear()

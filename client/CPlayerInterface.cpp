@@ -110,7 +110,7 @@ struct HeroObjectRetriever : boost::static_visitor<const CGHeroInstance *>
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
-	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr(false));
+	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	howManyPeople++;
@@ -136,7 +136,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr(false));
+	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	//howManyPeople--;
 	delete showingDialog;
 	delete cingconsole;

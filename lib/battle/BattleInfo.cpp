@@ -644,7 +644,7 @@ const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 		if(sides[i].color == player)
 			return sides[i].hero;
 
-	logGlobal->error("Player %s is not in battle!", player.getStr(false));
+	logGlobal->error("Player %s is not in battle!", player.getStr());
 	return nullptr;
 }
 
@@ -659,7 +659,7 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 		if(sides[i].color == player)
 			return i;
 
-	logGlobal->warn("BattleInfo::whatSide: Player %s is not in battle!", player.getStr(false));
+	logGlobal->warn("BattleInfo::whatSide: Player %s is not in battle!", player.getStr());
 	return -1;
 }
 

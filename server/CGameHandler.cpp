@@ -6082,7 +6082,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	for (int i = 0; i < amount; ++i)
 	{
 		tile = tiles.begin();
-		logGlobal->trace("\tSpawning monster at %s",tile->toString());
+		logGlobal->trace("\tSpawning monster at %s", tile->toString());
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}

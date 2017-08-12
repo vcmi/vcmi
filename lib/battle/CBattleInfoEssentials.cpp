@@ -133,7 +133,7 @@ BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() co
 	if(*player == getBattle()->sides[1].color)
 		return BattlePerspective::RIGHT_SIDE;
 
-	logGlobal->error("Cannot find player %s in battle!", player.get().getStr(false));
+	logGlobal->error("Cannot find player %s in battle!", player->getStr());
 	return BattlePerspective::INVALID;
 }
 
@@ -267,7 +267,7 @@ BattleSideOpt CBattleInfoEssentials::playerToSide(PlayerColor player) const
 	RETURN_IF_NOT_BATTLE(boost::none);
 	int ret = vstd::find_pos_if(getBattle()->sides, [=](const SideInBattle &side){ return side.color == player; });
 	if(ret < 0)
-		logGlobal->warn("Cannot find side for player %s", player.getStr(false));
+		logGlobal->warn("Cannot find side for player %s", player.getStr());
 
 	return BattleSideOpt(ret);
 }

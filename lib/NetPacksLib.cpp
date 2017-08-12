@@ -306,7 +306,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs(CGameState *gs)
 	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
 	{
-		logNetwork->error("Wrong ChangeObjPos: object %d  doesn't exist!", objid.getNum());
+		logNetwork->error("Wrong ChangeObjPos: object %d doesn't exist!", objid.getNum());
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);

@@ -170,7 +170,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 
 				if(elem.second > 3) //workaround to avoid crashes when same sec skill is given more than once
 				{
-					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", which.toEnum());
+					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", (int)which.toEnum());
 					elem.second = 3;
 				}
 				updateSkill(which, elem.second); //when we know final value

@@ -302,7 +302,7 @@ void CIdentifierStorage::finalize()
 	{
 		for(auto object : registeredObjects)
 		{
-			logGlobal->trace("%s : %s -> %s", object.second.scope, object.first, object.second.id);
+			logGlobal->trace("%s : %s -> %d", object.second.scope, object.first, object.second.id);
 		}
 		logGlobal->error("All known identifiers were dumped into log file");
 	}
@@ -466,7 +466,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 	bool validate = (mod.validation != CModInfo::PASSED);
 
 	// print message in format [<8-symbols checksum>] <modname>
-	logGlobal->info("\t\t[%08d]%s", mod.checksum, mod.name);
+	logGlobal->info("\t\t[%08x]%s", mod.checksum, mod.name);
 
 	if (validate && mod.identifier != "core")
 	{

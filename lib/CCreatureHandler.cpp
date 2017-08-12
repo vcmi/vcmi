@@ -937,7 +937,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-				logGlobal->trace("Not parsed bonus %s %s", buf , mod);
+				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
 				break;
 		}
@@ -1047,7 +1047,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
-				logGlobal->trace("Not parsed bonus %s %s", buf , mod);
+				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 				return;
 		}
 		break;
@@ -1088,7 +1088,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
-		logGlobal->trace("Not parsed bonus %s %s", buf , mod);
+		logGlobal->trace("Not parsed bonus %s %s", buf, mod);
 		return;
 		break;
 	}

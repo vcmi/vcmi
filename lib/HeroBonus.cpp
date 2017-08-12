@@ -842,7 +842,7 @@ void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 		children -= child;
 	else
 	{
-		logBonus->error("Error!%s #cannot be detached from# %s", child->nodeName(), nodeName());
+		logBonus->error("Error! %s #cannot be detached from# %s", child->nodeName(), nodeName());
 		throw std::runtime_error("internal error");
 	}
 

@@ -353,7 +353,7 @@ bool CMap::isCoastalTile(const int3 & pos) const
 
 	if(!isInTheMap(pos))
 	{
-		logGlobal->error("Coastal check outside of map :%s", pos.toString());
+		logGlobal->error("Coastal check outside of map: %s", pos.toString());
 		return false;
 	}
 
