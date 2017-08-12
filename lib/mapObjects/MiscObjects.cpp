@@ -1727,7 +1727,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	default:
-		logGlobal->error("Error: wrong bonus type (%d) for Scholar!\n", (int)type);
+		logGlobal->error("Error: wrong bonus type (%d) for Scholar!\n", static_cast<int>(type));
 		return;
 	}
 

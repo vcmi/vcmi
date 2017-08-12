@@ -64,7 +64,7 @@ CZipOutputStream::~CZipOutputStream()
 {
 	int status = zipCloseFileInZip(handle);
 	if (status != ZIP_OK)
-		logGlobal->error("CZipOutputStream: stream finalize failed: %d", (int)status);
+		logGlobal->error("CZipOutputStream: stream finalize failed: %d", static_cast<int>(status));
 	owner->activeStream = nullptr;
 }
 
@@ -104,7 +104,7 @@ CZipSaver::~CZipSaver()
 	{
 		int status = zipClose(handle, nullptr);
 		if (status != ZIP_OK)
-			logGlobal->error("CZipSaver: archive finalize failed: %d", (int)status);
+			logGlobal->error("CZipSaver: archive finalize failed: %d", static_cast<int>(status));
 	}
 
 }

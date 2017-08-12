@@ -718,7 +718,7 @@ void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 		initCampaign();
 		break;
 	default:
-		logGlobal->error("Wrong mode: %d", (int)scenarioOps->mode);
+		logGlobal->error("Wrong mode: %d", static_cast<int>(scenarioOps->mode));
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);

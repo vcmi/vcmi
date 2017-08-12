@@ -205,7 +205,7 @@ const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(ui8 side) cons
 	}
 	if(!battleDoWeKnowAbout(side))
 	{
-		logGlobal->error("FIXME: %s access check ", __FUNCTION__);
+		logGlobal->error("FIXME: %s access check!", __FUNCTION__);
 		return nullptr;
 	}
 	return getBattle()->sides[side].armyObject;
@@ -216,7 +216,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 	auto hero = getBattle()->sides[side].hero;
 	if(!hero)
 	{
-		logGlobal->warn("%s: side %d does not have hero!", __FUNCTION__, (int)side);
+		logGlobal->warn("%s: side %d does not have hero!", __FUNCTION__, static_cast<int>(side));
 		return InfoAboutHero();
 	}
 	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;

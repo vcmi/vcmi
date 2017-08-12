@@ -634,22 +634,23 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Integer();
 	logGlobal->debug("\tMAX_BUILDING_PER_TURN\t%d", settings.MAX_BUILDING_PER_TURN);
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
-	logGlobal->debug("\tDWELLINGS_ACCUMULATE_CREATURES\t%d", (int)settings.DWELLINGS_ACCUMULATE_CREATURES);
+	logGlobal->debug("\tDWELLINGS_ACCUMULATE_CREATURES\t%d", static_cast<int>(settings.DWELLINGS_ACCUMULATE_CREATURES));
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
-	logGlobal->debug("\tALL_CREATURES_GET_DOUBLE_MONTHS\t%d", (int)settings.ALL_CREATURES_GET_DOUBLE_MONTHS);
+	logGlobal->debug("\tALL_CREATURES_GET_DOUBLE_MONTHS\t%d", static_cast<int>(settings.ALL_CREATURES_GET_DOUBLE_MONTHS));
 	settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS = hardcodedFeatures["WINNING_HERO_WITH_NO_TROOPS_RETREATS"].Bool();
-	logGlobal->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", (int)settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS);
+	logGlobal->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", static_cast<int>(settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS));
 	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
-	logGlobal->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", (int)settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE);
+	logGlobal->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
+
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
-	logGlobal->debug("\tSTACK_EXP\t%d", (int)modules.STACK_EXP);
+	logGlobal->debug("\tSTACK_EXP\t%d", static_cast<int>(modules.STACK_EXP));
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
-	logGlobal->debug("\tSTACK_ARTIFACT\t%d", (int)modules.STACK_ARTIFACT);
+	logGlobal->debug("\tSTACK_ARTIFACT\t%d", static_cast<int>(modules.STACK_ARTIFACT));
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
-	logGlobal->debug("\tCOMMANDERS\t%d", (int)modules.COMMANDERS);
+	logGlobal->debug("\tCOMMANDERS\t%d", static_cast<int>(modules.COMMANDERS));
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-	logGlobal->debug("\tMITHRIL\t%d", (int)modules.MITHRIL);
+	logGlobal->debug("\tMITHRIL\t%d", static_cast<int>(modules.MITHRIL));
 }
 
 // currentList is passed by value to get current list of depending mods
