@@ -143,6 +143,14 @@ vcmi_set_output_dir(vcmiclient "")
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)
 
-if(NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
-endif(NOT APPLE)
+install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
+
+#install icons and desktop file on Linux
+if(NOT WIN32 AND NOT APPLE)
+	#FIXME: move to client makefile?
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
+endif()

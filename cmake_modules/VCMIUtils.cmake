@@ -1,19 +1,9 @@
 #######################################
-#          Output directories         #
+#      Build output directories       #
 #######################################
-if(APPLE)
-	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
-	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
-	set(APP_BUNDLE_NAME "${CMAKE_PROJECT_NAME}.app")
-	set(APP_BUNDLE_DIR "${CMAKE_BINARY_DIR}/build/${APP_BUNDLE_NAME}")
-	set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
-	set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
-	set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
-endif()
-
 macro(vcmi_set_output_dir name dir)
 	# Multi-config builds for Visual Studio, Xcode
-	foreach (OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+	foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 		 string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIGUPPERCASE)
 		 set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/bin/${OUTPUTCONFIG}/${dir})
 		 set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIGUPPERCASE} ${CMAKE_BINARY_DIR}/bin/${OUTPUTCONFIG}/${dir})

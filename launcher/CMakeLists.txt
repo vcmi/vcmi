@@ -110,8 +110,16 @@ vcmi_set_output_dir(vcmilauncher "")
 #set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
 #cotire(vcmilauncher)
 
-if(NOT APPLE) # Already inside bundle
-	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
-	# copy whole directory
-	install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
+# Copy to build directory for easier debugging
+add_custom_command(TARGET vcmilauncher POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+)
+
+install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
+# copy whole directory
+install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
+# Install icons and desktop file on Linux
+if(NOT WIN32 AND NOT APPLE)
+	install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
 endif()

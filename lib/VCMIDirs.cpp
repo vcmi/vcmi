@@ -452,7 +452,7 @@ bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"
 
 std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
-	return std::vector<bfs::path>(1, "../Data");
+	return std::vector<bfs::path>(1, "../Resources/Data");
 }
 
 bfs::path VCMIDirsOSX::libraryPath() const { return "."; }

@@ -41,6 +41,4 @@ vcmi_set_output_dir(vcmiserver "")
 set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiserver)
 
-if(NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
-endif()
+install(TARGETS vcmiserver DESTINATION ${BIN_DIR})

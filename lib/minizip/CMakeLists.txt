@@ -19,6 +19,4 @@ vcmi_set_output_dir(minizip "")
 
 target_link_libraries(minizip ${ZLIB_LIBRARIES})
 
-if (NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS minizip RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
-endif()
+install(TARGETS minizip RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})

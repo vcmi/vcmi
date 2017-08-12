@@ -1,4 +1,15 @@
 project(VCMI)
+# TODO
+# - macOS: there is problem with running fixup_bundle in main project after subdirectories.
+# Cmake put them after all install code of main CMakelists in cmake_install.cmake
+# Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
+# - macOS: fix install with built-in minizip
+# - macOS: try to fix build with RPATH.
+# Currently if CMAKE_MACOSX_RPATH=1 then AI libs unable to find @rpath/libvcmi.dylib
+# I tried to set few different INSTALL_RPATH for all targets in AI directory, but nothing worked.
+# - build: cleanup remove_directory copy_directory mess.
+# When I was trying to fix it copy_if_different failed to work for me.
+# - build: and find a way to move add_custom_command for assets deploy out of "lib/CMakeLists.txt"
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -6,7 +17,6 @@ if(NOT CMAKE_BUILD_TYPE)
 		FORCE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
-set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 include(VCMIUtils)
@@ -19,6 +29,9 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+
+# Useful for debugging
+option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
@@ -35,6 +48,11 @@ elseif(ENABLE_TEST)
 	cmake_minimum_required(VERSION 2.8.7)
 else()
 	cmake_minimum_required(VERSION 2.6)
+endif()
+
+# Find better place for this
+if(APPLE)
+	set(CMAKE_MACOSX_RPATH 0)
 endif()
 
 ############################################
@@ -84,7 +102,7 @@ if(WIN32)
 endif(WIN32)
 
 if(NOT WIN32)
-	INCLUDE(CheckLibraryExists)
+	include(CheckLibraryExists)
 
 	#check if some platform-specific libraries are needed for linking
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
@@ -147,37 +165,51 @@ elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
 
-	set(BIN_DIR "." CACHE STRING "Where to install binaries")
-	set(LIB_DIR "." CACHE STRING "Where to install main library")
-	set(DATA_DIR "../h3" CACHE STRING "Where to install data files")
+	if(ENABLE_MONOLITHIC_INSTALL)
+		set(BIN_DIR "." CACHE STRING "Where to install binaries")
+		set(LIB_DIR "." CACHE STRING "Where to install main library")
+		set(DATA_DIR "." CACHE STRING "Where to install data files")
+	else()
+		set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
+		set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
+		set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
+		set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
+
+		set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
+		set(LIB_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install main library")
+		set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
+	endif()
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
 
-	if(NOT BIN_DIR)
-		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
-	endif()
-	if(NOT LIB_DIR)
-		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
-	endif()
-	if(NOT DATA_DIR)
-		set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
+	if(ENABLE_MONOLITHIC_INSTALL)
+		set(BIN_DIR "." CACHE STRING "Where to install binaries")
+		set(LIB_DIR "." CACHE STRING "Where to install main library")
+		set(DATA_DIR "." CACHE STRING "Where to install data files")
+	else()
+		if(NOT BIN_DIR)
+			set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
+		endif()
+		if(NOT LIB_DIR)
+			set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
+		endif()
+		if(NOT DATA_DIR)
+			set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
+		endif()
 	endif()
 endif()
 
-set (AI_LIB_DIR "${LIB_DIR}/AI")
-set (SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+set(AI_LIB_DIR "${LIB_DIR}/AI")
+set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 
 #define required constants
 add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
 add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
 add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/vcmi")
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 # precompiled header configuration
-SET(PCH_PROPERTIES
+set(PCH_PROPERTIES
 	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
 	COTIRE_ADD_UNITY_BUILD FALSE
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
@@ -202,36 +234,18 @@ if(ENABLE_TEST)
 endif()
 
 #######################################
-#    Installation section             #
+#        Installation section         #
 #######################################
 
-# For apple these files will be already inside vcmiclient bundle
-if(NOT APPLE)
-	# copy whole directory but .svn control files
-	install(DIRECTORY config DESTINATION ${DATA_DIR})
-	# copy vcmi mod along with all its content
-	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods)
+install(DIRECTORY config DESTINATION ${DATA_DIR})
+install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 
-	# that script is useless for Windows
-	if(NOT WIN32)
-		install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
-			OWNER_WRITE OWNER_READ OWNER_EXECUTE
-						GROUP_READ GROUP_EXECUTE
-						WORLD_READ WORLD_EXECUTE)
-	endif()
-endif()
-
-if(NOT WIN32 AND NOT APPLE)
-	#install icons and desktop file on Linux
-	#FIXME: move to client makefile?
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
-	if(ENABLE_LAUNCHER) #FIXME: move to launcher makefile?
-		install(FILES "${CMAKE_SOURCE_DIR}/launcher/vcmilauncher.desktop"     DESTINATION share/applications)
-	endif()
+# that script is useless for Windows
+if(NOT WIN32)
+	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
+		OWNER_WRITE OWNER_READ OWNER_EXECUTE
+					GROUP_READ GROUP_EXECUTE
+					WORLD_READ WORLD_EXECUTE)
 endif()
 
 #######################################
@@ -247,12 +261,6 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSIO
 #TODO: remove version from Global.h and use this one as define?
 
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
-
-INSTALL(CODE "
-set(BU_CHMOD_BUNDLE_ITEMS ON)
-include(BundleUtilities)
-fixup_bundle(\"${APP_BUNDLE_DIR}\" \"\" \"\")
-" COMPONENT Runtime)
 
 if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
 	set(CPACK_PACKAGE_NAME "VCMI")
@@ -277,17 +285,23 @@ if(WIN32)
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION} ${PACKAGE_NAME_SUFFIX} ")
 	endif()
 	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
-	set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
-    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
+	if(ENABLE_LAUNCHER)
+		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
+	else()
+		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"")
+	endif()
+	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
 	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
 	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
-elseif(APPLE)
+elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
 	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
 
+	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	if(ENABLE_LAUNCHER)
 		set(MACOSX_BUNDLE_EXECUTABLE_NAME "vcmilauncher")
 	else()
@@ -295,31 +309,13 @@ elseif(APPLE)
 	endif()
 	set(MACOSX_BUNDLE_ICON_FILE "vcmi.icns")
 
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/config/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/config/)
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/Mods/vcmi/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/Mods/vcmi/)
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/launcher/icons/ DESTINATION ${APP_BUNDLE_CONTENTS_DIR}/Data/launcher/icons/)
+	install(FILES "${CMAKE_SOURCE_DIR}/osx/vcmi.icns" DESTINATION ${APP_BUNDLE_RESOURCES_DIR})
 
-	install(FILES ${CMAKE_SOURCE_DIR}/osx/vcmi.icns DESTINATION ${APP_BUNDLE_RESOURCES_DIR})
+	configure_file("${CMAKE_SOURCE_DIR}/osx/Info.plist.in" "${CMAKE_BINARY_DIR}/Info.plist")
+	install(FILES "${CMAKE_BINARY_DIR}/Info.plist" DESTINATION ${APP_BUNDLE_CONTENTS_DIR})
 
-	configure_file(${CMAKE_SOURCE_DIR}/osx/Info.plist.in
-		"${APP_BUNDLE_CONTENTS_DIR}/Info.plist")
-
-	if(ENABLE_LAUNCHER)
-		find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
-		if(NOT TOOL_MACDEPLOYQT)
-			message(FATAL_ERROR "Could not find macdeployqt")
-		endif()
-		string(REPLACE " " "\\ " ESCAPED_BUNDLE_DIR ${APP_BUNDLE_DIR})
-		install(CODE "execute_process(COMMAND ${TOOL_MACDEPLOYQT} ${ESCAPED_BUNDLE_DIR} -verbose=2)")
-	endif()
-
-	INSTALL(CODE "
-	set(BU_CHMOD_BUNDLE_ITEMS ON)
-	include(BundleUtilities)
-	fixup_bundle(\"${APP_BUNDLE_DIR}\" \"\" \"\")
-	" COMPONENT Runtime)
-
-	install(DIRECTORY ${APP_BUNDLE_DIR} DESTINATION "." USE_SOURCE_PERMISSIONS)
+	# Bundle fixing code must be in separate directory to be executed after all other install code
+	add_subdirectory(osx)
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()
@@ -328,4 +324,4 @@ include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
-INCLUDE(CPack)
+include(CPack)

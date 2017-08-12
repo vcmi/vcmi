@@ -22,6 +22,4 @@ vcmi_set_output_dir(EmptyAI "AI")
 
 set_target_properties(EmptyAI PROPERTIES ${PCH_PROPERTIES})
 
-if(NOT APPLE) # Already inside vcmiclient bundle
-    install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif(NOT APPLE)
+install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

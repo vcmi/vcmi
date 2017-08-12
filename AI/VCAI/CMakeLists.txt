@@ -31,7 +31,7 @@ if(ANDROID) # android compiles ai libs into main lib directly, so we skip this l
 endif()
 
 add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
-if (FL_FOUND)
+if(FL_FOUND)
 	target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
 else()
 	target_link_libraries(VCAI fl-static vcmi)
@@ -42,6 +42,4 @@ vcmi_set_output_dir(VCAI "AI")
 set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
 cotire(VCAI)
 
-if(NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
+install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
