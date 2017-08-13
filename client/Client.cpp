@@ -1121,7 +1121,8 @@ void CServerHandler::callServer()
 	{
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
-		exit(1);// exit in case of error. Othervice without working server VCMI will hang
+		// TODO: make client return to main menu if server actually crashed during game.
+//		exit(1);// exit in case of error. Othervice without working server VCMI will hang
 	}
 #endif
 }
