@@ -113,7 +113,7 @@ public:
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
 
-	static CondSh<bool> terminate_cond; // confirm termination
+	CondSh<bool> * terminate_cond; // confirm termination
 };
 
 extern CGuiHandler GH; //global gui handler

@@ -546,7 +546,7 @@ CGPreGame *CGPreGame::create()
 	if(!CGP)
 		CGP = new CGPreGame();
 
-	GH.terminate_cond.set(false);
+	GH.terminate_cond->set(false);
 	return CGP;
 }
 

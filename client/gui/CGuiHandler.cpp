@@ -26,7 +26,6 @@
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
-CondSh<bool> CGuiHandler::terminate_cond(false);
 boost::thread_specific_ptr<bool> inGuiThread;
 
 SObjectConstruction::SObjectConstruction(CIntObject *obj)
@@ -443,7 +442,7 @@ void CGuiHandler::renderFrame()
 	//in PreGame terminate_cond stay false
 
 	bool acquiredTheLockOnPim = false; //for tracking whether pim mutex locking succeeded
-	while(!terminate_cond.get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
+	while(!terminate_cond->get() && !(acquiredTheLockOnPim = CPlayerInterface::pim->try_lock())) //try acquiring long until it succeeds or we are told to terminate
 		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
 
 	if(acquiredTheLockOnPim)
@@ -481,7 +480,7 @@ CGuiHandler::CGuiHandler()
 	mainFPSmng = new CFramerateManager(48);
 	//do not init CFramerateManager here --AVS
 
-	terminate_cond.set(false);
+	terminate_cond = new CondSh<bool>(false);
 }
 
 CGuiHandler::~CGuiHandler()
