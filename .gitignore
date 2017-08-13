@@ -16,6 +16,7 @@
 *.swp
 *.h.gch
 *~
+*.autosave.*
 /CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

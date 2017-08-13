@@ -486,6 +486,7 @@ CGuiHandler::CGuiHandler()
 CGuiHandler::~CGuiHandler()
 {
 	delete mainFPSmng;
+	delete terminate_cond;
 }
 
 void CGuiHandler::breakEventHandling()
