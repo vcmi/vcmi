@@ -232,11 +232,10 @@ int main(int argc, char * argv[])
 	// boost will crash without this
 	setenv("LANG", "C", 1);
 #endif
-#ifdef VCMI_APPLE
+
+#ifndef VCMI_ANDROID
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
-    std::string executablePath = argv[0];
-    std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
-    chdir(workDir.c_str());
+	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
     std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");

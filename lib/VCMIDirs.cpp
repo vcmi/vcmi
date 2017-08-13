@@ -452,7 +452,17 @@ bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"
 
 std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
-	return std::vector<bfs::path>(1, "../Resources/Data");
+	std::vector<bfs::path> ret;
+	//FIXME: need some proper codepath for detecting running from build output directory
+	if(bfs::exists("config") && bfs::exists("Mods") && bfs::exists("vcmiserver"))
+	{
+		ret.push_back(".");
+	}
+	else
+	{
+		ret.push_back("../Resources/Data");
+	}
+	return ret;
 }
 
 bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
@@ -521,7 +531,13 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 	const char* tempResult;
 	ret.push_back(M_DATA_DIR);
 
-	if ((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
+	//FIXME: need some proper codepath for detecting running from build output directory
+	if(bfs::exists("config") && bfs::exists("Mods") && bfs::exists("vcmiserver"))
+	{
+		//For now we'll disable usage of system directories when VCMI running from bin directory
+		ret.push_back(".");
+	}
+	else if((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
 	{
 		std::string dataDirsEnv = tempResult;
 		std::vector<std::string> dataDirs;
