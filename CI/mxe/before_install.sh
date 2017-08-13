@@ -9,7 +9,7 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D43A795B73B16ABE96
 # Install needed packages
 sudo apt-get update -qq
 
-sudo apt-get install -qq \
+sudo apt-get install -q --yes \
 mxe-$MXE_TARGET-gcc \
 mxe-$MXE_TARGET-boost \
 mxe-$MXE_TARGET-zlib \
