@@ -1,5 +1,8 @@
+# This file should contain custom functions and macro and them only.
+# It's should not alter any configuration on inclusion
+
 #######################################
-#      Build output directories       #
+#        Build output path            #
 #######################################
 macro(vcmi_set_output_dir name dir)
 	# Multi-config builds for Visual Studio, Xcode
@@ -18,7 +21,7 @@ macro(vcmi_set_output_dir name dir)
 endmacro()
 
 #######################################
-#      Better project generation      #
+#        Project generation           #
 #######################################
 
 # Let us have proper tree-like structure in IDEs such as Visual Studio
@@ -35,17 +38,7 @@ function(assign_source_group)
 	endforeach()
 endfunction(assign_source_group)
 
-# Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
-# Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
-set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
-define_property(
-	TARGET
-	PROPERTY FOLDER
-	INHERITED
-	BRIEF_DOCS "Set the folder name."
-	FULL_DOCS  "Use to organize targets in an IDE."
-)
-
+# Macro to add subdirectory and set appropriate FOLDER for generated projects files
 function(add_subdirectory_with_folder _folder_name _folder)
 	add_subdirectory(${_folder} ${ARGN})
 	set_property(DIRECTORY "${_folder}" PROPERTY FOLDER "${_folder_name}")
@@ -65,7 +58,7 @@ if(${CMAKE_GENERATOR} MATCHES "Xcode")
 endif(${CMAKE_GENERATOR} MATCHES "Xcode")
 
 #######################################
-#           CMake debugging           #
+#        CMake debugging              #
 #######################################
 
 # Can be called to see check cmake variables and environment variables

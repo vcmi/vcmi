@@ -2,7 +2,7 @@
 # https://doc.qt.io/qt-5/cmake-manual.html
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${ZLIB_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
-include_directories(${SDL_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR})
 
 set(launcher_modmanager_SRCS
 		modManager/cdownloadmanager_moc.cpp
@@ -102,7 +102,7 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network ${SDL_LIBRARY})
+target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network ${SDL2_LIBRARY})
 
 vcmi_set_output_dir(vcmilauncher "")
 

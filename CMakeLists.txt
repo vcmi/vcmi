@@ -1,15 +1,32 @@
+# Minimum required version greatly affect CMake behavior
+# So cmake_minimum_required must be called before the project()
+# 2.8.12 is used since it's present in Ubuntu 14.04 and Cotire require it
+cmake_minimum_required(VERSION 2.8.12)
+
 project(VCMI)
 # TODO
-# - macOS: there is problem with running fixup_bundle in main project after subdirectories.
+# macOS:
+# - There is problem with running fixup_bundle in main project after subdirectories.
 # Cmake put them after all install code of main CMakelists in cmake_install.cmake
 # Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-# - macOS: fix install with built-in minizip
-# - macOS: try to fix build with RPATH.
+# - Try to fix build with RPATH.
 # Currently if CMAKE_MACOSX_RPATH=1 then AI libs unable to find @rpath/libvcmi.dylib
 # I tried to set few different INSTALL_RPATH for all targets in AI directory, but nothing worked.
-# - build: cleanup remove_directory copy_directory mess.
-# When I was trying to fix it copy_if_different failed to work for me.
-# - build: and find a way to move add_custom_command for assets deploy out of "lib/CMakeLists.txt"
+#
+# MXE:
+# - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
+#
+# Other:
+# - Cleanup remove_directory copy_directory if performance will be a problem.
+# We can use some macro over copy_if_different since it's only work for single file.
+# - Find a way to move add_custom_command for assets deploy out of "lib/CMakeLists.txt"
+# - Consider to remove M_DATA_DIR, DM_BIN_DIR, DM_LIB_DIR and not use them in code as well
+# - Try to get rid of FOLDER override with define_property
+# It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
+
+############################################
+#        User-provided options             #
+############################################
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -17,9 +34,6 @@ if(NOT CMAKE_BUILD_TYPE)
 		FORCE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
-
-set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
-include(VCMIUtils)
 
 set(VCMI_VERSION_MAJOR 0)
 set(VCMI_VERSION_MINOR 99)
@@ -37,23 +51,42 @@ option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linu
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
-if(ENABLE_PCH)
-	# Cotire require CMake 2.8.12
-	cmake_minimum_required(VERSION 2.8.12)
-elseif(ENABLE_LAUNCHER)
-	# Some of Qt5 linking policies require 2.8.11
-	cmake_minimum_required(VERSION 2.8.11)
-elseif(ENABLE_TEST)
-	# For whatever reason test requirement is 2.8.7
-	cmake_minimum_required(VERSION 2.8.7)
-else()
-	cmake_minimum_required(VERSION 2.6)
-endif()
+############################################
+#        Miscellaneous options             #
+############################################
 
-# Find better place for this
-if(APPLE)
-	set(CMAKE_MACOSX_RPATH 0)
-endif()
+set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
+# Contains custom functions and macros, but don't altering any options
+include(VCMIUtils)
+
+# Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
+# Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
+set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
+# Make FOLDER property inheritable
+# So when we set FOLDER property on AI directory all and targets inside will inherit it
+#
+# Important! This trick depend on undefined behavior since we override CMake own property.
+# In same time define_property documentation states it's function for custom properties.
+define_property(
+	TARGET
+	PROPERTY FOLDER
+	INHERITED
+	BRIEF_DOCS "Set the folder name."
+	FULL_DOCS  "Use to organize targets in an IDE."
+)
+
+# Generate Version.cpp
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+
+# Precompiled header configuration
+include(cotire)
+set(PCH_PROPERTIES
+	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
+	COTIRE_ADD_UNITY_BUILD FALSE
+	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
+)
 
 ############################################
 #        Documentation section             #
@@ -62,56 +95,65 @@ endif()
 include(UseDoxygen OPTIONAL)
 
 ############################################
-#        Building section                  #
+#        Compile and linking options       #
 ############################################
+
+if(APPLE)
+	set(CMAKE_MACOSX_RPATH 0)
+endif(APPLE)
 
 if(WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
 
 	#delete lib prefix for dlls (libvcmi -> vcmi)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
-	if(MINGW)
-		#MinGW: check for iconv (may be needed for boost.locale)
-		#include(CheckLibraryExists)
-		#check_library_exists(iconv libiconv_open "" ICONV_FOUND)
-		#if(ICONV_FOUND)
-		#	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-		#endif()
-
-		#MinGW: use O1 to prevent compiler crash in some cases
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
-	endif()
-
 	if(MSVC)
-		#MSVC: Fix problems with linking
 		add_definitions(-DBOOST_ALL_NO_LIB)
 		set(Boost_USE_STATIC_LIBS OFF)
 
-		#MSVC: Don't link with SDLMain
+		# Don't link with SDLMain
 		#set(SDL2_BUILDING_LIBRARY ON)
 
-		#MSVC: Suppress warnings
+		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
 	endif()
 endif(WIN32)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wuninitialized")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
+
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags -Wno-unknown-warning-option")
+	endif()
+
+	if(UNIX)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+	endif()
+endif()
+
+# Check if some platform-specific libraries are needed for linking
 if(NOT WIN32)
 	include(CheckLibraryExists)
 
-	#check if some platform-specific libraries are needed for linking
+	# Shared memory functions used by boost::interprocess
+	# FindBoost handle linking with pthreads, but doesn't handle this
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
 	if(HAVE_RT_LIB)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
 	endif()
 endif()
 
-set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
+############################################
+#        Finding packages                  #
+############################################
 
 set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
 find_package(Boost 1.48.0 COMPONENTS date_time filesystem locale program_options system thread REQUIRED)
@@ -119,7 +161,7 @@ find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
 find_package(Minizip)
 if(MINIZIP_FOUND)
-    add_definitions(-DUSE_SYSTEM_MINIZIP)
+	add_definitions(-DUSE_SYSTEM_MINIZIP)
 endif()
 
 find_package(SDL2 REQUIRED)
@@ -127,35 +169,15 @@ find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
-set(SDL_INCLUDE_DIR "${SDL2_INCLUDE_DIR}")
-set(SDLTTF_INCLUDE_DIR "${SDL2_TTF_INCLUDE_DIR}")
-set(SDLIMAGE_INCLUDE_DIR "${SDL2_IMAGE_INCLUDE_DIR}")
-set(SDLMIXER_INCLUDE_DIR "${SDL2_MIXER_INCLUDE_DIR}")
-set(SDL_LIBRARY "${SDL2_LIBRARY}")
-set(SDLTTF_LIBRARY "${SDL2_TTF_LIBRARY}")
-set(SDLIMAGE_LIBRARY "${SDL2_IMAGE_LIBRARY}")
-set(SDLMIXER_LIBRARY "${SDL2_MIXER_LIBRARY}")
-
-include(cotire)
-
 if(ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(Qt5Widgets REQUIRED)
 	find_package(Qt5Network REQUIRED)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		set(CLANG_SPECIFIC_FLAGS "-Wno-mismatched-tags -Wno-unknown-warning-option")
-	endif()
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs  -Wno-unused-parameter -Wuninitialized -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas -Wno-reorder ${CLANG_SPECIFIC_FLAGS}")
-
-	if(UNIX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-	endif()
-
-endif()
+############################################
+#        Output directories                #
+############################################
 
 if(WIN32) # on Win everything goes into H3 root directory
 	set(BIN_DIR "." CACHE STRING "Where to install binaries")
@@ -208,12 +230,9 @@ add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
 add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
 add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 
-# precompiled header configuration
-set(PCH_PROPERTIES
-	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
-	COTIRE_ADD_UNITY_BUILD FALSE
-	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
-)
+#######################################
+#        Add subdirectories           #
+#######################################
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
@@ -276,8 +295,7 @@ set(CPACK_PACKAGE_VENDOR "VCMI team")
 
 if(WIN32)
 	set(CPACK_MONOLITHIC_INSTALL 1)
-	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/license.txt")
-	set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
+	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/license.txt")
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
 	if("${PACKAGE_NAME_SUFFIX}" STREQUAL "")
 		set(CPACK_NSIS_PACKAGE_NAME "VCMI ${CPACK_PACKAGE_VERSION}")
@@ -286,14 +304,31 @@ if(WIN32)
 	endif()
 	set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 	if(ENABLE_LAUNCHER)
+		set(CPACK_PACKAGE_EXECUTABLES "VCMI_launcher;VCMI")
 		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_launcher.exe\\\"")
 	else()
+		set(CPACK_PACKAGE_EXECUTABLES "VCMI_client;VCMI")
 		set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS " CreateShortCut \\\"$DESKTOP\\\\VCMI.lnk\\\" \\\"$INSTDIR\\\\VCMI_client.exe\\\"")
 	endif()
 	set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS " Delete \\\"$DESKTOP\\\\VCMI.lnk\\\" ")
 
-	configure_file("${CMAKE_SOURCE_DIR}/cmake_modules/CMakeCPackOptions.cmake.in" "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake" @ONLY)
-	set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CMakeCPackOptions.cmake")
+	# set the install/unistall icon used for the installer itself
+	# There is a bug in NSI that does not handle full unix paths properly.
+	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\vcmi.ico")
+	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\vcmi.ico")
+	# set the package header icon for MUI
+	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/client\\vcmi.ico")
+
+	set(CPACK_NSIS_MENU_LINKS "http://vcmi.eu/" "VCMI Web Site")
+
+	set(CPACK_NSIS_INSTALLED_ICON_NAME "VCMI_client.exe")
+	set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+	set(CPACK_NSIS_DISPLAY_NAME "${CPACK_NSIS_PACKAGE_NAME}, open-source engine for Heroes of Might and Magic III ")
+	set(CPACK_NSIS_HELP_LINK "http://vcmi.eu/")
+	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
+	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
+	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+
 elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
@@ -319,9 +354,5 @@ elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()
-
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
 include(CPack)
