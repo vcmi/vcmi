@@ -1,6 +1,3 @@
-project(vcmiclient)
-cmake_minimum_required(VERSION 2.6)
-
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIRS})
@@ -116,30 +113,23 @@ set(client_HEADERS
 		SDLRWwrapper.h
 )
 
+assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
+
 if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
 	return()
-endif()
-
-if(MSVC)
-	# workaround ffmpeg linking problems
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
 endif()
 
 if(APPLE)
 	# OS X specific source files
 	set(client_SRCS ${client_SRCS} SDLMain.m Autoupdate.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
 
-  if(ENABLE_SPARKLE)
-    # OS X specific includes
-    include_directories(${SPARKLE_INCLUDE_DIR})
+	if(ENABLE_SPARKLE)
+		# OS X specific includes
+		include_directories(${SPARKLE_INCLUDE_DIR})
 
-    # OS X specific libraries
-    target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
-  endif()
-
-	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
+		# OS X specific libraries
+		target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
+	endif()
 
 	# Because server and AI libs would be copies to bundle they need to be built before client
 	add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
@@ -189,15 +179,18 @@ if(APPLE)
 	endif()
 
 	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
-elseif(WIN32)
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} VCMI_client.rc)
-else()
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
-endif()
+endif(APPLE)
 
 if(WIN32)
-	set_target_properties(vcmiclient PROPERTIES OUTPUT_NAME VCMI_client)
+	set(client_ICON VCMI_client.rc)
+	set_target_properties(vcmiclient
+		PROPERTIES
+			OUTPUT_NAME "VCMI_client"
+			PROJECT_LABEL "VCMI_client"
+	)
 endif()
+
+add_executable(vcmiclient WIN32 MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS} ${client_ICON})
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
 

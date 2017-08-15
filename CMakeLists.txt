@@ -1,26 +1,18 @@
-project(vcmi)
-cmake_minimum_required(VERSION 2.8.12)
-# TODO:
-# 1) Detection of Qt5 and compilation of launcher, unless explicitly disabled
+project(VCMI)
 
-# where to look for cmake modules
-set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
-
-include(VCMIUtils)
-
-# enable Release mode but only if it was not set
-if (NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE RelWithDebInfo)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+		"Choose the type of build, options are: Debug Release RelWithDebInfo. Default is RelWithDebInfo."
+		FORCE)
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-# VCMI version
+set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
+include(VCMIUtils)
+
 set(VCMI_VERSION_MAJOR 0)
 set(VCMI_VERSION_MINOR 99)
 set(VCMI_VERSION_PATCH 0)
-
-# Allow to pass package name from Travis CI
-set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
-set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
@@ -28,6 +20,23 @@ option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 # TODO: default to ON when we start distributing macOS binaries
 option(ENABLE_SPARKLE "Enable auto-updating with Sparkle on macOS" OFF)
+
+# Allow to pass package name from Travis CI
+set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
+set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
+
+if(ENABLE_PCH)
+	# Cotire require CMake 2.8.12
+	cmake_minimum_required(VERSION 2.8.12)
+elseif(ENABLE_LAUNCHER)
+	# Some of Qt5 linking policies require 2.8.11
+	cmake_minimum_required(VERSION 2.8.11)
+elseif(ENABLE_TEST)
+	# For whatever reason test requirement is 2.8.7
+	cmake_minimum_required(VERSION 2.8.7)
+else()
+	cmake_minimum_required(VERSION 2.6)
+endif()
 
 ############################################
 #        Documentation section             #
@@ -39,41 +48,7 @@ include(UseDoxygen OPTIONAL)
 #        Building section                  #
 ############################################
 
-if (APPLE)
-	# Default location for thirdparty libs
-	set(CMAKE_INCLUDE_PATH "../include" "${CMAKE_OSX_SYSROOT}/usr/include")
-	set(CMAKE_LIBRARY_PATH "../lib")
-	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
-	set(BOOST_ROOT "../")
-
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
-
-	set(CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)")
-	set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
-
-	# Build with clang ang libc++
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
-	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
-
-  if(ENABLE_SPARKLE)
-    # so that OSX_checkForUpdates knows whether to be a noop
-    add_definitions(-DSPARKLE)
-
-    # On OS X we use Sparkle framework for updates
-    find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
-    find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
-  endif()
-
-	# Xcode 5.0 fix
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
-
-	# Link with iconv
-	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
-endif()
-
-if (WIN32)
+if(WIN32)
 	add_definitions(-DBOOST_THREAD_USE_LIB)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
@@ -89,12 +64,6 @@ if (WIN32)
 		if(ICONV_FOUND)
 			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
 		endif()
-
-		#MinGW: copy runtime to VCMI location
-		get_filename_component(MINGW_BIN_PATH ${CMAKE_CXX_COMPILER} PATH )
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libwinpthread-*.dll")
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libgcc_s_*.dll")
-		set(dep_files ${dep_files} "${MINGW_BIN_PATH}/libstdc++-*.dll")
 
 		#MinGW: use O1 to prevent compiler crash in some cases
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
@@ -113,7 +82,41 @@ if (WIN32)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
 	endif()
-endif()
+endif(WIN32)
+
+if(APPLE)
+	# Default location for thirdparty libs
+	set(CMAKE_INCLUDE_PATH "../include" "${CMAKE_OSX_SYSROOT}/usr/include")
+	set(CMAKE_LIBRARY_PATH "../lib")
+	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
+	set(BOOST_ROOT "../")
+
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+
+	set(CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)")
+	set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
+
+	# Build with clang ang libc++
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+
+	if(ENABLE_SPARKLE)
+		# so that OSX_checkForUpdates knows whether to be a noop
+		add_definitions(-DSPARKLE)
+
+		# On OS X we use Sparkle framework for updates
+		find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
+		find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
+	endif()
+
+	# Xcode 5.0 fix
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
+
+	# Link with iconv
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} libiconv.dylib)
+endif(APPLE)
 
 if(NOT WIN32)
 	INCLUDE(CheckLibraryExists)
@@ -132,7 +135,7 @@ find_package(Boost 1.48.0 COMPONENTS date_time filesystem locale program_options
 find_package(ZLIB REQUIRED)
 find_package(FFmpeg REQUIRED)
 find_package(Minizip)
-if (MINIZIP_FOUND)
+if(MINIZIP_FOUND)
     add_definitions(-DUSE_SYSTEM_MINIZIP)
 endif()
 
@@ -155,9 +158,6 @@ include(cotire)
 if(ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(Qt5Widgets REQUIRED)
-endif()
-
-if (ENABLE_LAUNCHER)
 	find_package(Qt5Network REQUIRED)
 endif()
 
@@ -194,13 +194,13 @@ else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
 
-	if (NOT BIN_DIR)
+	if(NOT BIN_DIR)
 		set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
 	endif()
-	if (NOT LIB_DIR)
+	if(NOT LIB_DIR)
 		set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
 	endif()
-	if (NOT DATA_DIR)
+	if(NOT DATA_DIR)
 		set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
 	endif()
 endif()
@@ -223,18 +223,18 @@ SET(PCH_PROPERTIES
 	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
 )
 
-if (ENABLE_ERM)
-		add_subdirectory(scripting/erm)
+if(ENABLE_ERM)
+	add_subdirectory(scripting/erm)
 endif()
-if (NOT MINIZIP_FOUND)
+if(NOT MINIZIP_FOUND)
 	add_subdirectory(lib/minizip)
 	set(MINIZIP_LIBRARIES minizip)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(server)
-add_subdirectory(AI)
-if (ENABLE_LAUNCHER)
+add_subdirectory_with_folder("AI" AI)
+if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
 if(ENABLE_TEST)
@@ -246,14 +246,14 @@ endif()
 #######################################
 
 # For apple these files will be already inside vcmiclient bundle
-if (NOT APPLE)
+if(NOT APPLE)
 	# copy whole directory but .svn control files
 	install(DIRECTORY config DESTINATION ${DATA_DIR})
 	# copy vcmi mod along with all its content
 	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods)
 
 	# that script is useless for Windows
-	if (NOT WIN32)
+	if(NOT WIN32)
 		install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 			OWNER_WRITE OWNER_READ OWNER_EXECUTE
 						GROUP_READ GROUP_EXECUTE
@@ -261,49 +261,7 @@ if (NOT APPLE)
 	endif()
 endif()
 
-if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
-
-	#Copy debug versions of libraries if build type is debug. Doesn't work in MSVC!
-	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-		set(debug_postfix d)
-	endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
-
-	if(ENABLE_LAUNCHER)
-		get_target_property(QtCore_location Qt5::Core LOCATION)
-		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
-		file(GLOB dep_files
-			${dep_files}
-			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
-			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
-			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
-			${Qtbin_folder}/icu*.dll)
-		file(GLOB dep_qwindows
-			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
-		if(MSVC)
-			file(GLOB dep_files
-				${dep_files}
-				${Qtbin_folder}/libEGL.dll
-				${Qtbin_folder}/libGLESv2.dll)
-		endif()
-	endif()
-
-	if (ENABLE_LAUNCHER)
-		file(GLOB dep_files
-			${dep_files}
-			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
-	endif()
-
-	if(MSVC)
-		#install MSVC runtime
-		include(InstallRequiredSystemLibraries)
-		install(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${BIN_DIR})
-	endif()
-	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
-elseif(NOT APPLE)
+if(NOT WIN32 AND NOT APPLE)
 	#install icons and desktop file on Linux
 	#FIXME: move to client makefile?
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
@@ -311,7 +269,7 @@ elseif(NOT APPLE)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
-	if (ENABLE_LAUNCHER) #FIXME: move to launcher makefile?
+	if(ENABLE_LAUNCHER) #FIXME: move to launcher makefile?
 		install(FILES "${CMAKE_SOURCE_DIR}/launcher/vcmilauncher.desktop"     DESTINATION share/applications)
 	endif()
 endif()

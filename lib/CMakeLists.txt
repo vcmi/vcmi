@@ -1,6 +1,3 @@
-project(libvcmi)
-cmake_minimum_required(VERSION 2.6)
-
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/lib)
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
@@ -288,16 +285,24 @@ set(lib_HEADERS
 		VCMI_Lib.h
 )
 
+assign_source_group(${lib_SRCS} ${lib_HEADERS})
+
 add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
-set_target_properties(vcmi PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@rpath/libvcmi.dylib")
+if(APPLE)
+	set_target_properties(vcmi PROPERTIES XCODE_ATTRIBUTE_LD_DYLIB_INSTALL_NAME "@rpath/libvcmi.dylib")
+endif()
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi ${MINIZIP_LIBRARIES} ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES} ${SYSTEM_LIBS})
 
 if(WIN32)
-	set_target_properties(vcmi PROPERTIES OUTPUT_NAME VCMI_lib)
+	set_target_properties(vcmi
+		PROPERTIES
+			OUTPUT_NAME "VCMI_lib"
+			PROJECT_LABEL "VCMI_lib"
+	)
 endif()
 
-if (ANDROID)
+if(ANDROID)
 	return()
 endif()
 
@@ -306,6 +311,6 @@ vcmi_set_output_dir(vcmi "")
 set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmi)
 
-if (NOT APPLE) # Already inside vcmiclient bundle
+if(NOT APPLE) # Already inside vcmiclient bundle
 	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()
