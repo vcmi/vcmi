@@ -2,7 +2,7 @@
 # FindFuzzylite
 # --------
 #
-# Locate Fuzzylite library
+# Locate FuzzyLite library
 #
 #=============================================================================
 # Copyright 2003-2009 Kitware, Inc.

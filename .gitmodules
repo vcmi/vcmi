@@ -1,3 +1,7 @@
 [submodule "test/googletest"]
 	path = test/googletest
 	url = https://github.com/google/googletest
+[submodule "AI/FuzzyLite"]
+	path = AI/FuzzyLite
+	url = https://github.com/fuzzylite/fuzzylite.git
+	branch = release
