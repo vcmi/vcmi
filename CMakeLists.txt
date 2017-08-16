@@ -23,6 +23,10 @@ project(VCMI)
 # - Consider to remove M_DATA_DIR, DM_BIN_DIR, DM_LIB_DIR and not use them in code as well
 # - Try to get rid of FOLDER override with define_property
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
+# - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
+# - Find a way to regenerate Version.cpp before each build.
+# PRE_BUILD only work for some generators.
+# So for now commit hash only updated when CMake reconfigured.
 
 ############################################
 #        User-provided options             #
@@ -43,6 +47,7 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 
 # Useful for debugging
 option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
@@ -76,17 +81,27 @@ define_property(
 )
 
 # Generate Version.cpp
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+if(ENABLE_GITVERSION)
+	include(GetGitRevisionDescription)
+	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+else()
+	add_definitions(-DVCMI_NO_EXTRA_VERSION)
+endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-include(cotire)
-set(PCH_PROPERTIES
-	COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
-	COTIRE_ADD_UNITY_BUILD FALSE
-	COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
-)
+if(ENABLE_PCH)
+	include(cotire)
+	set(PCH_PROPERTIES
+		COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
+		COTIRE_ADD_UNITY_BUILD FALSE
+		COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
+	)
+else()
+	set(PCH_PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+	macro(cotire ignore)
+	endmacro(cotire)
+endif(ENABLE_PCH)
 
 ############################################
 #        Documentation section             #
@@ -121,7 +136,25 @@ if(WIN32)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
-	endif()
+	endif(MSVC)
+
+	if(MINGW)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
+
+		# Check for iconv (may be needed for Boost.Locale)
+		include(CheckLibraryExists)
+		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
+		if(ICONV_FOUND)
+			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
+		endif()
+
+		# Prevent compiler issues when building Debug
+		# Assembler might fail with "too many sections"
+		# With big-obj or 64-bit build will take hours
+		if(CMAKE_BUILD_TYPE MATCHES Debug)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
+		endif()
+	endif(MINGW)
 endif(WIN32)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
@@ -143,7 +176,7 @@ endif()
 if(NOT WIN32)
 	include(CheckLibraryExists)
 
-	# Shared memory functions used by boost::interprocess
+	# Shared memory functions used by Boost.Interprocess
 	# FindBoost handle linking with pthreads, but doesn't handle this
 	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
 	if(HAVE_RT_LIB)
@@ -266,6 +299,41 @@ if(NOT WIN32)
 					GROUP_READ GROUP_EXECUTE
 					WORLD_READ WORLD_EXECUTE)
 endif()
+
+if(MINGW)
+	file(GLOB dep_files
+		${dep_files}
+		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+
+	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
+		message(STATUS "Detected MXE build")
+	elseif(CMAKE_BUILD_TYPE MATCHES Debug)
+		# Copy debug versions of libraries if build type is debug
+		set(debug_postfix d)
+	endif()
+
+	if(ENABLE_LAUNCHER)
+		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
+		file(GLOB dep_files
+			${dep_files}
+			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
+			${Qtbin_folder}/icu*.dll)
+		file(GLOB dep_qwindows
+			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
+	endif()
+
+	if (ENABLE_LAUNCHER)
+		file(GLOB dep_files
+			${dep_files}
+			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
+	endif()
+
+	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
+	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
+endif(MINGW)
 
 #######################################
 #       Packaging section             #

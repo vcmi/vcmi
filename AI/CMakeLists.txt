@@ -2,7 +2,11 @@
 #        FuzzyLite support            #
 #######################################
 
-option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" OFF)
+if(NOT WIN32 AND NOT APPLE)
+	option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" ON)
+else()
+	option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" OFF)
+endif()
 
 if(NOT FORCE_BUNDLED_FL)
 	find_package(FuzzyLite)
