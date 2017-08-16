@@ -16,6 +16,10 @@ project(VCMI)
 # MXE:
 # - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
 #
+# Vckpg:
+# - Improve install code once there is better way to deploy DLLs and Qt plugins
+# - Move Vcpkg install BundleUtilities code from osx/CMakeLists.txt
+#
 # Other:
 # - Cleanup remove_directory copy_directory if performance will be a problem.
 # We can use some macro over copy_if_different since it's only work for single file.
@@ -362,6 +366,7 @@ endif()
 set(CPACK_PACKAGE_VENDOR "VCMI team")
 
 if(WIN32)
+	# Note: due to NSI script generation process all of the backward slashes here are useful
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/license.txt")
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
@@ -382,10 +387,10 @@ if(WIN32)
 
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
-	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\vcmi.ico")
-	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\vcmi.ico")
+	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
+	set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/client\\\\vcmi.ico")
 	# set the package header icon for MUI
-	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/client\\vcmi.ico")
+	set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/client\\\\vcmi.ico")
 
 	set(CPACK_NSIS_MENU_LINKS "http://vcmi.eu/" "VCMI Web Site")
 
@@ -396,7 +401,10 @@ if(WIN32)
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
 	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-
+	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
+	if(NOT (${CMAKE_CROSSCOMPILING}))
+		add_subdirectory(osx)
+	endif()
 elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
