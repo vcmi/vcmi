@@ -52,6 +52,7 @@ option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
+option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 
 # Useful for debugging
 option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
@@ -134,7 +135,10 @@ if(WIN32)
 		set(Boost_USE_STATIC_LIBS OFF)
 
 		# Don't link with SDLMain
-		#set(SDL2_BUILDING_LIBRARY ON)
+		if(ENABLE_DEBUG_CONSOLE)
+			set(SDL2_BUILDING_LIBRARY ON)
+			add_definitions(-DVCMI_WITH_DEBUG_CONSOLE)
+		endif()
 
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)

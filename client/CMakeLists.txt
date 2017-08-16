@@ -125,7 +125,11 @@ elseif(WIN32)
 	set(client_ICON "VCMI_client.rc")
 endif()
 
-add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
+if(ENABLE_DEBUG_CONSOLE)
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} ${client_ICON})
+else()
+	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
+endif(ENABLE_DEBUG_CONSOLE)
 
 if(WIN32)
 	set_target_properties(vcmiclient
@@ -133,7 +137,9 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_client"
 			PROJECT_LABEL "VCMI_client"
 	)
-	target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
+	if(NOT ENABLE_DEBUG_CONSOLE)
+		target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
+	endif()
 endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES}
