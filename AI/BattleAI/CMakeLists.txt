@@ -1,6 +1,3 @@
-project(battleAI)
-cmake_minimum_required(VERSION 2.6)
-
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
 
 set(battleAI_SRCS
@@ -28,9 +25,12 @@ set(battleAI_HEADERS
 		ThreatMap.h
 )
 
-if (ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
+assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
+
+if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
 	return()
 endif()
+
 add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_link_libraries(BattleAI vcmi)
 
@@ -39,7 +39,4 @@ vcmi_set_output_dir(BattleAI "AI")
 set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
 cotire(BattleAI)
 
-if (NOT APPLE) # Already inside vcmiclient bundle
-	install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
-endif()
-
+install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

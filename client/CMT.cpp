@@ -219,11 +219,7 @@ static void SDLLogCallback(void*           userdata,
 	logGlobal->debug("SDL(category %d; priority %d) %s", category, priority, message);
 }
 
-#ifdef VCMI_APPLE
-void OSX_checkForUpdates();
-#endif
-
-#if defined(VCMI_WINDOWS) && !defined (__GNUC__)
+#if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
 #elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
@@ -235,22 +231,10 @@ int main(int argc, char * argv[])
 	// boost will crash without this
 	setenv("LANG", "C", 1);
 #endif
-#ifdef VCMI_APPLE
+
+#ifndef VCMI_ANDROID
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
-    std::string executablePath = argv[0];
-    std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
-    chdir(workDir.c_str());
-
-    // Check for updates
-    OSX_checkForUpdates();
-
-    // Check that game data is prepared. Otherwise run vcmibuilder helper application
-    FILE* check = fopen((VCMIDirs::get().userDataPath() / "game_data_prepared").string().c_str(), "r");
-    if (check == nullptr) {
-        system("open ./vcmibuilder.app");
-        return 0;
-    }
-    fclose(check);
+	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
     std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");

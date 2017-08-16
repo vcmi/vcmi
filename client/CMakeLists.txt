@@ -1,8 +1,5 @@
-project(vcmiclient)
-cmake_minimum_required(VERSION 2.6)
-
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIRS})
 
 set(client_SRCS
@@ -116,95 +113,52 @@ set(client_HEADERS
 		SDLRWwrapper.h
 )
 
+assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
+
 if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
 	return()
 endif()
 
-if(MSVC)
-	# workaround ffmpeg linking problems
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
-endif()
-
 if(APPLE)
-	# OS X specific source files
-	set(client_SRCS ${client_SRCS} SDLMain.m Autoupdate.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
-
-  if(ENABLE_SPARKLE)
-    # OS X specific includes
-    include_directories(${SPARKLE_INCLUDE_DIR})
-
-    # OS X specific libraries
-    target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
-  endif()
-
-	add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} ${client_HEADERS})
-
-	# Because server and AI libs would be copies to bundle they need to be built before client
-	add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI minizip)
-
-	# Custom Info.plist
-	set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
-
-	# Copy icon file and public key for Sparkle
-	set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-	set_source_files_properties(../osx/vcmi_dsa_public.pem PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-
-	set_target_properties(vcmiclient PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks @executable_path/")
-
-	# Copy server executable, libs and game data to bundle
-	set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
-
-	set(CopyVendoredMinizip
-		mkdir -p ${BUNDLE_PATH}/MacOS && cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/lib/libminizip.dylib ${BUNDLE_PATH}/MacOS/libminizip.dylib)
-
-	set(MakeVCMIBundle
-		# Copy all needed binaries
-		mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/vcmiclient.app/Contents/MacOS/vcmiclient ${BUNDLE_PATH}/MacOS/vcmiclient &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
-		cp ${CMAKE_BINARY_DIR}/build/$(CONFIGURATION)/AI/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/osx/vcmibuilder.app ${BUNDLE_PATH}/MacOS/vcmibuilder.app &&
-
-		# Copy frameworks
-		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/${CMAKE_FRAMEWORK_PATH} ${BUNDLE_PATH}/Frameworks/ || true' &&
-
-		# Copy vcmi data
-		mkdir -p ${BUNDLE_PATH}/Data &&
-		mkdir -p ${BUNDLE_PATH}/Data/Mods &&
-		mkdir -p ${BUNDLE_PATH}/Data/launcher &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/config/ ${BUNDLE_PATH}/Data/config/ &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi/ ${BUNDLE_PATH}/Data/Mods/vcmi/ &&
-		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/WoG/ ${BUNDLE_PATH}/Data/Mods/WoG/ || echo "Download WoG mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
-		sh -c 'cp -r ${CMAKE_HOME_DIRECTORY}/Mods/hota/ ${BUNDLE_PATH}/Data/Mods/hota/ || echo "Download HOTA mod from http://wiki.vcmi.eu/index.php?title=Mod_list" ' &&
-		cp -r ${CMAKE_HOME_DIRECTORY}/launcher/icons/ ${BUNDLE_PATH}/Data/launcher/icons/)
-
-	if(NOT MINIZIP_FOUND)
-		add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${CopyVendoredMinizip})
-	endif()
-
-	add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
+	set(client_SRCS ${client_SRCS} SDLMain.m)
 elseif(WIN32)
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} VCMI_client.rc)
-else()
-	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS})
+	set(client_ICON "VCMI_client.rc")
 endif()
+
+if(ENABLE_DEBUG_CONSOLE)
+	add_executable(vcmiclient ${client_SRCS} ${client_HEADERS} ${client_ICON})
+else()
+	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
+endif(ENABLE_DEBUG_CONSOLE)
 
 if(WIN32)
-	set_target_properties(vcmiclient PROPERTIES OUTPUT_NAME VCMI_client)
+	set_target_properties(vcmiclient
+		PROPERTIES
+			OUTPUT_NAME "VCMI_client"
+			PROJECT_LABEL "VCMI_client"
+	)
+	if(NOT ENABLE_DEBUG_CONSOLE)
+		target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
+	endif()
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${SYSTEM_LIBS})
-
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES}
+	${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
+	${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${SYSTEM_LIBS}
+)
 vcmi_set_output_dir(vcmiclient "")
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmiclient)
 
-
 install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
+
+#install icons and desktop file on Linux
+if(NOT WIN32 AND NOT APPLE)
+	#FIXME: move to client makefile?
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
+endif()

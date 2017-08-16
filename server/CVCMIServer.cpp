@@ -609,7 +609,7 @@ void handleLinuxSignal(int sig)
 
 int main(int argc, char * argv[])
 {
-#ifdef VCMI_APPLE
+#ifndef VCMI_WINDOWS
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	std::string executablePath = argv[0];
 	std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
