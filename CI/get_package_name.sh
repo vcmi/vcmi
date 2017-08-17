@@ -20,7 +20,7 @@ fi
 
 VCMI_PACKAGE_FILE_NAME="${TMP_JOBID}-vcmi"
 VCMI_PACKAGE_NAME_SUFFIX=""
-if [ -z "$TMP_PRID" ];
+if [ -z "$TMP_PRID" ] || [ "$TMP_PRID" == "false" ];
 then
 	branch_name=$(echo "$TMP_BRANCH" | sed 's/[^[:alnum:]]\+/_/g')
 	VCMI_PACKAGE_FILE_NAME="${VCMI_PACKAGE_FILE_NAME}-branch-${branch_name}-${TMP_COMMIT}"
