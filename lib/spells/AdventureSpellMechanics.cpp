@@ -322,7 +322,10 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		smp.val = std::max<ui32>(0, parameters.caster->movement - movementCost);
+		if(movementCost < parameters.caster->movement)
+			smp.val = parameters.caster->movement - movementCost;
+		else
+			smp.val = 0;
 		env->sendAndApply(&smp);
 	}
 	return ESpellCastResult::OK;
