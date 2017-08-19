@@ -6,8 +6,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_PropertySheetDisplayName>VCMI_global</_PropertySheetDisplayName>
-    <LibraryPath>$(SolutionDir)..\libs\$(PlatformShortName);$(VCMI_Out);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\deps\libs;$(ProjectDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\deps\include;$(SolutionDir)\include;$(ProjectDir);$(IncludePath)</IncludePath>
     <OutDir>$(VCMI_Out)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>

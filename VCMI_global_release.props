@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros">
-    <VCMI_Out>C:\Temp\RD</VCMI_Out>
-  </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
@@ -29,9 +26,4 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <BuildMacro Include="VCMI_Out">
-      <Value>$(VCMI_Out)</Value>
-    </BuildMacro>
-  </ItemGroup>
 </Project>
