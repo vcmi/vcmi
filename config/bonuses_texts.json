@@ -437,4 +437,10 @@
 		"name": "Water immunity",
 		"description": "Immune to all Water school spells"
 	}
+	
+	"WIDE_BREATH":
+	{
+		"name": "Szerokie Zionięcie",
+		"description": "Stożek ognia obejmuje znacznie większy obszar"
+	}
 }

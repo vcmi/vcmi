@@ -1157,7 +1157,148 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			}
 		}
 	}
-	if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition (destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
+	if (attacker->hasBonusOfType(Bonus::WIDE_BREATH))
+	{
+		std::vector<BattleHex> hexes;
+		const int WN = GameConstants::BFIELD_WIDTH;
+		logGlobal->infoStream() << hex;
+		logGlobal->infoStream() << destinationTile;
+
+		// atack stand
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::LEFT, false)) {
+			if (destinationTile.getY() % 2 == 0)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN) - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN), hexes);
+			}
+			else {
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN) - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN), hexes);
+			}
+
+		}
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::RIGHT, false)) {
+			if (destinationTile.getY() % 2 == 0)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN), hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN) + 1, hexes);
+			}
+			else
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN), hexes);
+				BattleHex::checkAndPush(destinationTile + (2 * WN) + 1, hexes);
+			}
+		}
+		// atack down
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::TOP_LEFT, false)) {
+			if (destinationTile.getY() % 2 == 1)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile - 2, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 2, hexes);
+			}
+			else {
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile - 2, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+			}
+		}
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::TOP_RIGHT, false)) {
+
+			if (destinationTile.getY() % 2 == 1)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + 2, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+			}
+			else
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + 2, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 2, hexes);
+			}
+
+		}
+		// attack up
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::BOTTOM_LEFT, false)) {
+			if (destinationTile.getY() % 2 == 1)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile - WN, hexes);
+				BattleHex::checkAndPush(destinationTile - WN - 1, hexes);
+			}
+			else {
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN + 2, hexes);
+				BattleHex::checkAndPush(destinationTile - WN, hexes);
+				BattleHex::checkAndPush(destinationTile - WN + 1, hexes);
+			}
+		}
+		if (hex == destinationTile.movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false)) {
+
+			if (destinationTile.getY() % 2 == 1)
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 2, hexes);
+				BattleHex::checkAndPush(destinationTile - WN, hexes);
+				BattleHex::checkAndPush(destinationTile - WN - 1, hexes);
+			}
+			else
+			{
+				BattleHex::checkAndPush(destinationTile, hexes);
+				BattleHex::checkAndPush(destinationTile - 1, hexes);
+				BattleHex::checkAndPush(destinationTile + WN, hexes);
+				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
+				BattleHex::checkAndPush(destinationTile - WN, hexes);
+				BattleHex::checkAndPush(destinationTile - WN + 1, hexes);
+			}
+
+		}
+
+		for (BattleHex tile : hexes)
+		{
+			//friendly stacks can also be damaged by Dragon Breath
+			if (battleGetStackByPos(tile, true))
+				at.friendlyCreaturePositions.insert(tile);
+		}
+	}
+
+	else if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition(destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
 	{
 		std::vector<BattleHex> hexes; //only one, in fact
 		int pseudoVector = destinationTile.hex - hex;
@@ -1165,24 +1306,24 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 		{
 		case 1:
 		case -1:
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector, hexes);
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
 			break;
 		case WN: //17 //left-down or right-down
 		case -WN: //-17 //left-up or right-up
 		case WN + 1: //18 //right-down
 		case -WN + 1: //-16 //right-up
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + (((hex/WN)%2) ? 1 : -1), hexes);
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
 			break;
-		case WN-1: //16 //left-down
-		case -WN-1: //-18 //left-up
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + (((hex/WN)%2) ? 1 : 0), hexes);
+		case WN - 1: //16 //left-down
+		case -WN - 1: //-18 //left-up
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
 			break;
 		}
 		for (BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
-			if (battleGetStackByPos (tile, true))
-				at.friendlyCreaturePositions.insert (tile);
+			if (battleGetStackByPos(tile, true))
+				at.friendlyCreaturePositions.insert(tile);
 		}
 	}
 

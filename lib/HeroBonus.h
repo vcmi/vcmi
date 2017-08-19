@@ -235,6 +235,7 @@ private:
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - number of additional shots, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
 	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
+	BONUS_NAME(WIDE_BREATH) /* Kuririn skill */\
 	/* end of list */
 
 
