@@ -7,7 +7,7 @@
   <PropertyGroup>
     <_PropertySheetDisplayName>VCMI_global</_PropertySheetDisplayName>
     <LibraryPath>$(SolutionDir)\deps\libs;$(ProjectDir);$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)\deps\include;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\deps\include;$(SolutionDir)\include;$(ProjectDir);$(IncludePath)</IncludePath>
     <OutDir>$(VCMI_Out)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
