@@ -101,6 +101,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalOptions>/Zm218 %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>

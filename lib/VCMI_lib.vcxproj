@@ -140,6 +140,7 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(BOOSTDIR);$(ZLIBDIR);$(SDLDIR)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>minizip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
