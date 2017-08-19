@@ -3935,6 +3935,19 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			for (int i = 0; i < totalAttacks; ++i)
 			{
+				//first strike
+				if(i == 0 && destinationStack
+					&& destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE)
+					&& destinationStack->ableToRetaliate()
+					&& stack->alive()) //probably not needed
+				{
+					BattleAttack bat;
+					prepareAttack(bat, destinationStack, stack, 0, stack->position);
+					bat.flags |= BattleAttack::COUNTER;
+					sendAndApply(&bat);
+					handleAfterAttackCasting(bat);
+				}
+
 				if (stack &&
 					stack->alive() && //move can cause death, eg. by walking into the moat
 					destinationStack->alive())
@@ -3950,6 +3963,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				//counterattack
 				if (i == 0 && destinationStack
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+					&& !destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE)
 					&& destinationStack->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
 				{

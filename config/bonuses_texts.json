@@ -150,10 +150,15 @@
 		"description": "Immune to all Fire school spells"
 	},
 
-	"FIRE_SHIELD":
+  "FIRE_SHIELD": {
+    "name": "Fire Shield (${val}%)",
+    "description": "Reflects part of melee damage"
+  },
+
+  "FIRST_STRIKE":
 	{
-		"name": "Fire Shield (${val}%)",
-		"description": "Reflects part of melee damage"
+		"name": "First Strike",
+		"description": "This creature attacks first instead of retaliating"
 	},
 
 	"FEAR":
