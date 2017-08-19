@@ -1161,11 +1161,8 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	{
 		std::vector<BattleHex> hexes;
 		const int WN = GameConstants::BFIELD_WIDTH;
-		logGlobal->infoStream() << hex;
-		logGlobal->infoStream() << destinationTile;
-
 		// atack stand
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::LEFT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::LEFT, false)) {
 			if (destinationTile.getY() % 2 == 0)
 			{
 				BattleHex::checkAndPush(destinationTile, hexes);
@@ -1185,7 +1182,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			}
 
 		}
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::RIGHT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::RIGHT, false)) {
 			if (destinationTile.getY() % 2 == 0)
 			{
 				BattleHex::checkAndPush(destinationTile, hexes);
@@ -1206,7 +1203,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			}
 		}
 		// atack down
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::TOP_LEFT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::TOP_LEFT, false)) {
 			if (destinationTile.getY() % 2 == 1)
 			{
 				BattleHex::checkAndPush(destinationTile, hexes);
@@ -1225,7 +1222,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 				BattleHex::checkAndPush(destinationTile + WN - 1, hexes);
 			}
 		}
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::TOP_RIGHT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::TOP_RIGHT, false)) {
 
 			if (destinationTile.getY() % 2 == 1)
 			{
@@ -1248,7 +1245,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 
 		}
 		// attack up
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::BOTTOM_LEFT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false)) {
 			if (destinationTile.getY() % 2 == 1)
 			{
 				BattleHex::checkAndPush(destinationTile, hexes);
@@ -1267,7 +1264,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 				BattleHex::checkAndPush(destinationTile - WN + 1, hexes);
 			}
 		}
-		if (hex == destinationTile.movedInDir(BattleHex::EDir::BOTTOM_RIGHT, false)) {
+		if (hex == destinationTile.cloneInDirection(BattleHex::EDir::BOTTOM_RIGHT, false)) {
 
 			if (destinationTile.getY() % 2 == 1)
 			{
