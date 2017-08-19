@@ -2,13 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <QTDIR>C:\Qt\Qt5.1.0-32-no-opengl\5.1.0\msvc2012\</QTDIR>
+    <QTDIR>D:\Program files co nie\Qt\5.9.1\msvc2015\</QTDIR>
+    <VCMI_Out>D:\VCMI\vcmi_devversion</VCMI_Out>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="QTDIR">
       <Value>$(QTDIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VCMI_Out">
+      <Value>$(VCMI_Out)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
 </Project>
