@@ -14,6 +14,7 @@ class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
+class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
@@ -41,6 +42,7 @@ public:
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	CSpellHandler * spellh;
+	CSkillHandler * skillh;
 	CObjectHandler * objh;
 	CObjectClassesHandler * objtypeh;
 	CTownHandler * townh;
@@ -67,6 +69,7 @@ public:
 		h & objh;
 		h & objtypeh;
 		h & spellh;
+		h & skillh;
 		h & modh;
 		h & IS_AI_ENABLED;
 		h & bth;

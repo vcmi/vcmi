@@ -115,6 +115,7 @@ set(lib_SRCS
 		CModHandler.cpp
 		CPathfinder.cpp
 		CRandomGenerator.cpp
+                CSkillHandler.cpp
 		CStack.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
