@@ -29,14 +29,13 @@
 ///CSkill
 CSkill::CSkill()
 {
+    BonusList emptyList;
     for(auto level : NSecondarySkill::levels)
-        bonusByLevel.push_back(new CBonusSystemNode());
+        bonusByLevel.push_back(emptyList);
 }
 
 CSkill::~CSkill()
 {
-    for(auto bonus : bonusByLevel)
-        delete bonus;
 }
 
 void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
@@ -44,10 +43,10 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
     b->source = Bonus::SECONDARY_SKILL;
     b->duration = Bonus::PERMANENT;
     b->description = identifier;
-    bonusByLevel[level]->addNewBonus(b);
+    bonusByLevel[level].push_back(b);
 }
 
-CBonusSystemNode * CSkill::getBonus(int level)
+BonusList CSkill::getBonus(int level)
 {
     return bonusByLevel[level];
 }

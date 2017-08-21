@@ -21,14 +21,14 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CSkill // secondary skill
 {
 protected:
-    std::vector<CBonusSystemNode *> bonusByLevel; // bonuses provided by none, basic, advanced and expert level
+    std::vector<BonusList> bonusByLevel; // bonuses provided by none, basic, advanced and expert level
 
 public:
     CSkill();
     ~CSkill();
 
     void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
-    CBonusSystemNode * getBonus(int level);
+    BonusList getBonus(int level);
 
     SecondarySkill id;
     std::string identifier;
