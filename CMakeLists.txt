@@ -414,7 +414,15 @@ elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
-	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
+	# So we can keep both enabled and this shouldn't hurt
+	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+	set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/osx/DS_Store_Setup.scpt")
+
+	# Always use "VCMI" as volume name so full path will be /Volumes/VCMI/
+	# Otherwise DMG background image wouldn't work
+	# Pre-generated DS_Store use absolute path to background image
+	set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME}")
 
 	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
