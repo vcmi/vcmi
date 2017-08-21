@@ -17,6 +17,7 @@
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
@@ -765,6 +766,11 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
+	BonusList skillBonus = (*VLC->skillh)[which]->getBonus(val);
+	for (auto b : skillBonus)
+		addNewBonus(std::make_shared<Bonus>(*b));
+
+	/*
 	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)
 	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]
 		bool luck = which == SecondarySkill::LUCK;
@@ -844,6 +850,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
+	*/
 
 	CBonusSystemNode::treeHasChanged();
 }

@@ -54,6 +54,10 @@ BonusList CSkill::getBonus(int level)
 ///CSkillHandler
 CSkillHandler::CSkillHandler()
 {
+    for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
+    {
+        //TODO
+    }
 }
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
@@ -113,4 +117,56 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {
     std::vector<bool> allowedSkills(objects.size(), true);
     return allowedSkills;
+}
+
+// HMM3 default bonus provided by secondary skill
+const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, int level) const
+{
+	Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY;
+	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
+	int bonusVal = level;
+
+	static const int archery_bonus[] = { 10, 25, 50 };
+	switch (skill)
+	{
+	case SecondarySkill::LEADERSHIP:
+		bonusType = Bonus::MORALE; break;
+	case SecondarySkill::LUCK:
+		bonusType = Bonus::LUCK; break;
+	case SecondarySkill::DIPLOMACY:
+		bonusType = Bonus::SURRENDER_DISCOUNT;
+		bonusVal = 20 * level; break;
+	case SecondarySkill::ARCHERY:
+		bonusVal = archery_bonus[level-1]; break;
+	case SecondarySkill::LOGISTICS:
+		bonusVal = 10 * level; break;
+	case SecondarySkill::NAVIGATION:
+		bonusVal = 50 * level; break;
+	case SecondarySkill::MYSTICISM:
+		bonusVal = level; break;
+	case SecondarySkill::EAGLE_EYE:
+		bonusVal = 30 + 10 * level; break;
+	case SecondarySkill::NECROMANCY:
+		bonusVal = 10 * level; break;
+	case SecondarySkill::LEARNING:
+		bonusVal = 5 * level; break;
+	case SecondarySkill::OFFENCE:
+		bonusVal = 10 * level; break;
+	case SecondarySkill::ARMORER:
+		bonusVal = 5 * level; break;
+	case SecondarySkill::INTELLIGENCE:
+		bonusVal = 25 << (level-1); break;
+	case SecondarySkill::SORCERY:
+		bonusVal = 5 * level; break;
+	case SecondarySkill::RESISTANCE:
+		bonusVal = 5 << (level-1); break;
+	case SecondarySkill::FIRST_AID:
+		bonusVal = 25 + 25 * level; break;
+	case SecondarySkill::ESTATES:
+		bonusVal = 125 << (level-1); break;
+	default:
+		valueType = Bonus::INDEPENDENT_MIN; break;
+	}
+
+	return std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, skill, valueType);
 }
