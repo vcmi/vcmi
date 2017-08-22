@@ -768,90 +768,19 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
 	BonusList skillBonus = (*VLC->skillh)[which]->getBonus(val);
 	for (auto b : skillBonus)
-		addNewBonus(std::make_shared<Bonus>(*b));
-
-	/*
-	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)
-	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]
-		bool luck = which == SecondarySkill::LUCK;
-		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
-
-		auto b = getBonusLocalFirst(Selector::type(type[luck]).And(Selector::sourceType(Bonus::SECONDARY_SKILL)));
-		if(!b)
+	{
+		// TODO: add standard method for joining bonuses, should match on valType as well
+		std::shared_ptr<Bonus> existing = getBonusLocalFirst(Selector::typeSubtype(b->type,b->subtype).And(Selector::source(Bonus::SECONDARY_SKILL, b->sid)));
+		if(existing)
 		{
-			b = std::make_shared<Bonus>(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
-			addNewBonus(b);
+			if(b->valType == Bonus::INDEPENDENT_MIN || b->valType == Bonus::BASE_NUMBER)
+				existing->val = b->val;
+			else
+				existing->val += b->val;
 		}
 		else
-			b->val = +val;
+			addNewBonus(std::make_shared<Bonus>(*b));
 	}
-	else if(which == SecondarySkill::DIPLOMACY) //surrender discount: 20% per level
-	{
-
-		if(auto b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT).And(Selector::sourceType(Bonus::SECONDARY_SKILL))))
-			b->val = +val;
-		else
-			addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
-	}
-
-	int skillVal = 0;
-	switch (which)
-	{
-	case SecondarySkill::ARCHERY:
-		switch (val)
-		{
-		case 1:
-			skillVal = 10; break;
-		case 2:
-			skillVal = 25; break;
-		case 3:
-			skillVal = 50; break;
-		}
-		break;
-	case SecondarySkill::LOGISTICS:
-		skillVal = 10 * val; break;
-	case SecondarySkill::NAVIGATION:
-		skillVal = 50 * val; break;
-	case SecondarySkill::MYSTICISM:
-		skillVal = val; break;
-	case SecondarySkill::EAGLE_EYE:
-		skillVal = 30 + 10 * val; break;
-	case SecondarySkill::NECROMANCY:
-		skillVal = 10 * val; break;
-	case SecondarySkill::LEARNING:
-		skillVal = 5 * val; break;
-	case SecondarySkill::OFFENCE:
-		skillVal = 10 * val; break;
-	case SecondarySkill::ARMORER:
-		skillVal = 5 * val; break;
-	case SecondarySkill::INTELLIGENCE:
-		skillVal = 25 << (val-1); break;
-	case SecondarySkill::SORCERY:
-		skillVal = 5 * val; break;
-	case SecondarySkill::RESISTANCE:
-		skillVal = 5 << (val-1); break;
-	case SecondarySkill::FIRST_AID:
-		skillVal = 25 + 25*val; break;
-	case SecondarySkill::ESTATES:
-		skillVal = 125 << (val-1); break;
-	}
-
-
-	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(auto b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
-			.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
-	{
-		b->val = skillVal;
-		b->valType = skillValType;
-	}
-	else
-	{
-		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
-		bonus->source = Bonus::SECONDARY_SKILL;
-		addNewBonus(bonus);
-	}
-	*/
-
 	CBonusSystemNode::treeHasChanged();
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
