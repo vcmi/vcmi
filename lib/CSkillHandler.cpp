@@ -27,8 +27,13 @@
 #include "battle/CBattleInfoCallback.h"
 
 ///CSkill
-CSkill::CSkill()
+CSkill::CSkill(SecondarySkill id) : id(id)
 {
+    if(id == SecondarySkill::DEFAULT)
+        identifier = "default";
+    else
+        identifier = NSecondarySkill::names[id];
+    // init bonus levels
     BonusList emptyList;
     for(auto level : NSecondarySkill::levels)
         bonusByLevel.push_back(emptyList);
@@ -56,7 +61,10 @@ CSkillHandler::CSkillHandler()
 {
     for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
     {
-        //TODO
+        CSkill * skill = new CSkill(SecondarySkill(id));
+        for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+            skill->addNewBonus(defaultBonus(SecondarySkill(id), level), level);
+        objects.push_back(skill);
     }
 }
 
@@ -69,22 +77,26 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 
 const std::string CSkillHandler::getTypeName() const
 {
-    return "secondarySkill";
+	return "secondarySkill";
 }
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
 {
-    CSkill * skill = new CSkill();
-    skill->identifier = identifier;
+    CSkill * skill = NULL;
 
-    skill->id = SecondarySkill::DEFAULT;
     for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
     {
         if(NSecondarySkill::names[id].compare(identifier) == 0)
         {
-            skill->id = SecondarySkill(id);
+            skill = new CSkill(SecondarySkill(id));
             break;
         }
+    }
+
+    if(!skill)
+    {
+        logGlobal->errorStream() << "unknown secondary skill " << identifier;
+        throw std::runtime_error("invalid skill");
     }
 
     for(int level = 1; level < NSecondarySkill::levels.size(); level++)

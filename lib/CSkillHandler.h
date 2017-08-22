@@ -24,7 +24,7 @@ protected:
     std::vector<BonusList> bonusByLevel; // bonuses provided by none, basic, advanced and expert level
 
 public:
-    CSkill();
+    CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
     ~CSkill();
 
     void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
