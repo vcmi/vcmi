@@ -1,0 +1,29 @@
+{
+    "estates" : {
+        "index" : 13,
+        "basic" : [
+            {
+                "subtype" : 13,
+                "type" : "SECONDARY_SKILL_PREMY",
+                "val" : 250,
+                "valueType" : "BASE_NUMBER"
+            }
+        ],
+        "advanced" : [
+            {
+                "subtype" : 13,
+                "type" : "SECONDARY_SKILL_PREMY",
+                "val" : 500,
+                "valueType" : "BASE_NUMBER"
+            }
+        ],
+        "expert" : [
+            {
+                "subtype" : 13,
+                "type" : "SECONDARY_SKILL_PREMY",
+                "val" : 1000,
+                "valueType" : "BASE_NUMBER"
+            }
+        ]
+    }
+}

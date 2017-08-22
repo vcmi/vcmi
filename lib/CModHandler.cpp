@@ -23,6 +23,7 @@
 #include "CStopWatch.h"
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
+#include "CSkillHandler.h"
 
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)
@@ -420,6 +421,7 @@ CContentHandler::CContentHandler()
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(VLC->objtypeh, "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
 
 	//TODO: any other types of moddables?
