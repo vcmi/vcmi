@@ -40,6 +40,7 @@ public:
     }
 
     friend class CSkillHandler;
+    friend std::ostream & operator<<(std::ostream &out, const CSkill &skill);
 };
 
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>

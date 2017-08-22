@@ -56,6 +56,12 @@ BonusList CSkill::getBonus(int level)
     return bonusByLevel[level];
 }
 
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill &skill)
+{
+	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): " << skill.bonusByLevel;
+	return out;
+}
+
 ///CSkillHandler
 CSkillHandler::CSkillHandler()
 {
@@ -109,6 +115,9 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
             skill->addNewBonus(bonus, level);
         }
     }
+    CLogger * logger = CLogger::getLogger(CLoggerDomain("skills"));
+    logger->debugStream() << "loaded secondary skill " << identifier << "(" << (int)skill->id << ")";
+    logger->traceStream() << *skill;
 
     return skill;
 }
