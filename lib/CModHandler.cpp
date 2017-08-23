@@ -204,7 +204,12 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	std::string fullID = type + '.' + name;
 	checkIdentifier(fullID);
 
-	registeredObjects.insert(std::make_pair(fullID, data));
+	auto mapping = std::make_pair(fullID, data);
+	if(!registeredObjects.contains(mapping))
+	{
+		CLogger::getLogger(CLoggerDomain("identifier"))->traceStream() << "registered " << fullID << " as " << scope << ":" << identifier;
+		registeredObjects.insert(mapping);
+	}
 }
 
 std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request)
@@ -393,8 +398,9 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 
 				continue;
 			}
+			logGlobal->debugStream() << "no original data in loadMod(" << name << "): " << data;
 		}
-		// normal new object or one with index bigger that data size
+		// normal new object or one with index bigger than data size
 		performValidate(data,name);
 		handler->loadObject(modName, name, data);
 	}

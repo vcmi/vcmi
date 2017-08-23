@@ -82,12 +82,10 @@ public:
 		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 		object->id = _ObjectID(index);
 
-
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
 		registerObject(scope,type_name, name, object->id);
-
 	}
 
 	ConstTransitivePtr<_Object> operator[] (const _ObjectID id) const

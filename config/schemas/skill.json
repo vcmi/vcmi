@@ -19,6 +19,10 @@
         "required" : ["basic", "advanced", "expert"],
 
         "properties": {
+            "index":{
+                "type": "number",
+                "description": "numeric id of skill required only for original skills, prohibited for new skills"
+            },
             "basic":{
                 "$ref" : "#/definitions/skillBonus"
             },
@@ -27,7 +31,7 @@
             },
             "expert":{
                 "$ref" : "#/definitions/skillBonus"
-            },
+            }
         }
 	}
 }

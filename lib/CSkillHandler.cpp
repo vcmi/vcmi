@@ -83,7 +83,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 
 const std::string CSkillHandler::getTypeName() const
 {
-	return "secondarySkill";
+	return "skill";
 }
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
@@ -115,7 +115,7 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
             skill->addNewBonus(bonus, level);
         }
     }
-    CLogger * logger = CLogger::getLogger(CLoggerDomain("skills"));
+    CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));
     logger->debugStream() << "loaded secondary skill " << identifier << "(" << (int)skill->id << ")";
     logger->traceStream() << *skill;
 
@@ -124,6 +124,10 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 void CSkillHandler::afterLoadFinalization()
 {
+    CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));
+    logger->traceStream() << "skill handler after load: ";
+    for(auto skill : objects)
+        logger->traceStream() << *skill;
 }
 
 void CSkillHandler::beforeValidate(JsonNode & object)
