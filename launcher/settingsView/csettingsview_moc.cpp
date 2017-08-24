@@ -29,19 +29,30 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
     "GB2312"  // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
 };
 
-void CSettingsView::setDisplayList(const QStringList& displayList)
+void CSettingsView::setDisplayList()
 {
-	if (displayList.count() < 2)
-	  {
-	    ui->comboBoxDisplayIndex->hide ();
-	    ui->labelDisplayIndex->hide ();
-	  }
+	QStringList list;
+	QDesktopWidget * widget = QApplication::desktop();
+	for(int display = 0; display < widget->screenCount(); display++)
+	{
+		QString string;
+		auto rect = widget->screenGeometry(display);
+		QTextStream(&string) << display << " - " << rect.width() << "x" << rect.height();
+		list << string;
+	}
+
+	if(list.count() < 2)
+	{
+		ui->comboBoxDisplayIndex->hide();
+		ui->labelDisplayIndex->hide();
+	}
 	else
-	  {
-	    ui->comboBoxDisplayIndex->clear();
-	    ui->comboBoxDisplayIndex->addItems(displayList);
-	    ui->comboBoxDisplayIndex->setCurrentIndex(settings["video"]["displayIndex"].Float());
-	  }
+	{
+		int displayIndex = settings["video"]["displayIndex"].Integer();
+		ui->comboBoxDisplayIndex->clear();
+		ui->comboBoxDisplayIndex->addItems(list);
+		ui->comboBoxDisplayIndex->setCurrentIndex(displayIndex);
+	}
 }
 
 void CSettingsView::loadSettings()

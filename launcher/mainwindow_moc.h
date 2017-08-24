@@ -25,7 +25,7 @@ private:
 	void load();
 	void startExecutable(QString name);
 public:
-	explicit MainWindow(const QStringList& displayList, QWidget *parent = 0);
+	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
 
 private slots:

@@ -22,7 +22,7 @@ public:
 	~CSettingsView();
 
 	void loadSettings();
-	void setDisplayList(const QStringList& displayList);
+	void setDisplayList();
 
 private slots:
 	void on_checkBoxFullScreen_stateChanged(int state);
