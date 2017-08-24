@@ -390,17 +390,20 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			if (originalData.size() > index)
 			{
 				JsonUtils::merge(originalData[index], data);
-
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
-
 				originalData[index].clear(); // do not use same data twice (same ID)
-
-				continue;
 			}
-			logGlobal->debugStream() << "no original data in loadMod(" << name << "): " << data;
+			else
+			{
+				logGlobal->debugStream() << "no original data in loadMod(" << name << ")";
+				logGlobal->traceStream() << data;
+				performValidate(data, name);
+				handler->loadObject(modName, name, data, index);
+			}
+			continue;
 		}
-		// normal new object or one with index bigger than data size
+		// normal new object
 		performValidate(data,name);
 		handler->loadObject(modName, name, data);
 	}
