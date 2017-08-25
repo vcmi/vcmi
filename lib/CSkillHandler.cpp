@@ -207,28 +207,29 @@ const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, i
 	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
 	int bonusVal = level;
 
-	static const int archery_bonus[] = { 10, 25, 50 };
 	switch (skill)
 	{
+	case SecondarySkill::ARCHERY:
+		bonusVal = 5 + 5 * level * level; break;
+	case SecondarySkill::LOGISTICS:
+		bonusVal = 10 * level; break;
+	case SecondarySkill::DIPLOMACY:
+		bonusType = Bonus::SURRENDER_DISCOUNT;
+		bonusVal = 20 * level; break;
+	case SecondarySkill::NAVIGATION:
+		bonusVal = 50 * level; break;
 	case SecondarySkill::LEADERSHIP:
 		bonusType = Bonus::MORALE; break;
 	case SecondarySkill::LUCK:
 		bonusType = Bonus::LUCK; break;
-	case SecondarySkill::DIPLOMACY:
-		bonusType = Bonus::SURRENDER_DISCOUNT;
-		bonusVal = 20 * level; break;
-	case SecondarySkill::ARCHERY:
-		bonusVal = archery_bonus[level-1]; break;
-	case SecondarySkill::LOGISTICS:
-		bonusVal = 10 * level; break;
-	case SecondarySkill::NAVIGATION:
-		bonusVal = 50 * level; break;
-	case SecondarySkill::MYSTICISM:
-		bonusVal = level; break;
 	case SecondarySkill::EAGLE_EYE:
 		bonusVal = 30 + 10 * level; break;
 	case SecondarySkill::NECROMANCY:
 		bonusVal = 10 * level; break;
+	case SecondarySkill::ESTATES:
+		bonusVal = 125 << (level-1); break;
+	case SecondarySkill::TACTICS:
+		bonusVal = 1 + 2 * level; break;
 	case SecondarySkill::LEARNING:
 		bonusVal = 5 * level; break;
 	case SecondarySkill::OFFENCE:
@@ -243,8 +244,6 @@ const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, i
 		bonusVal = 5 << (level-1); break;
 	case SecondarySkill::FIRST_AID:
 		bonusVal = 25 + 25 * level; break;
-	case SecondarySkill::ESTATES:
-		bonusVal = 125 << (level-1); break;
 	default:
 		valueType = Bonus::INDEPENDENT_MIN; break;
 	}
