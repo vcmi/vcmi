@@ -4,7 +4,7 @@
             "description" : "Hero generates 250 gold each day.",
             "effects" : [
                 {
-                    "subtype" : 13,
+                    "subtype" : "skill.estates",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 250,
                     "valueType" : "BASE_NUMBER"
@@ -15,7 +15,7 @@
             "description" : "Hero generates 500 gold each day.",
             "effects" : [
                 {
-                    "subtype" : 13,
+                    "subtype" : "skill.estates",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 500,
                     "valueType" : "BASE_NUMBER"
@@ -26,7 +26,7 @@
             "description" : "Hero generates 1000 gold each day.",
             "effects" : [
                 {
-                    "subtype" : 13,
+                    "subtype" : "skill.estates",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 1000,
                     "valueType" : "BASE_NUMBER"

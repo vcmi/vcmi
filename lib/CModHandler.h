@@ -63,22 +63,7 @@ class CIdentifierStorage
 		}
 	};
 
-	class ObjectMap: public std::multimap<std::string, ObjectData>
-	{
-	public:
-		bool contains(const value_type & value) const
-		{
-			auto range = equal_range(value.first);
-			for(auto contained = range.first; contained != range.second; contained++)
-			{
-				if(value.second == contained->second)
-					return true;
-			}
-			return false;
-		}
-	};
-
-	ObjectMap registeredObjects;
+	std::multimap<std::string, ObjectData> registeredObjects;
 	std::vector<ObjectCallback> scheduledRequests;
 
 	ELoadingState state;

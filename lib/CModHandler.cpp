@@ -204,8 +204,8 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	std::string fullID = type + '.' + name;
 	checkIdentifier(fullID);
 
-	auto mapping = std::make_pair(fullID, data);
-	if(!registeredObjects.contains(mapping))
+	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
+	if(!vstd::containsMapping(registeredObjects, mapping))
 	{
 		CLogger::getLogger(CLoggerDomain("identifier"))->traceStream() << "registered " << fullID << " as " << scope << ":" << identifier;
 		registeredObjects.insert(mapping);
