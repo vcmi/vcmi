@@ -763,7 +763,10 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 	object->index = index;
-	assert(factions[index] == nullptr); // ensure that this id was not loaded before
+	if (factions.size() > index)
+		assert(factions[index] == nullptr); // ensure that this id was not loaded before
+	else
+		factions.resize(index + 1);
 	factions[index] = object;
 
 	if (object->town)

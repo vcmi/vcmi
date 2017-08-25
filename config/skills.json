@@ -1,6 +1,5 @@
 {
     "estates" : {
-        "index" : 13,
         "basic" : {
             "description" : "Hero generates 250 gold each day.",
             "effects" : [

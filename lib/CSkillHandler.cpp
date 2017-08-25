@@ -150,6 +150,34 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
     return skill;
 }
 
+void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+	auto type_name = getTypeName();
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
+
+	if(object->id == SecondarySkill::DEFAULT) // new skill - no index identified
+	{
+		object->id = SecondarySkill(objects.size());
+		objects.push_back(object);
+	}
+	else
+		objects[object->id] = object;
+
+	registerObject(scope, type_name, name, object->id);
+}
+
+void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	auto type_name = getTypeName();
+	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
+
+	assert(object->id == index);
+	objects[index] = object;
+
+	registerObject(scope,type_name, name, object->id);
+}
+
+
 void CSkillHandler::afterLoadFinalization()
 {
     CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));

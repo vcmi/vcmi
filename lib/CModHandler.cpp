@@ -398,8 +398,14 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			}
 			else
 			{
+				// trace only name field of original data - I miss list comprehension
+				std::vector<std::string> originalNames;
+				for (const JsonNode & orgElem : originalData)
+					originalNames.push_back(orgElem["name"].String());
 				logger->debugStream() << "no original data in loadMod(" << name << ") at index " << index;
-				logger->traceStream() << data;
+				logger->traceStream() << "originalData: " << originalNames;
+				logger->traceStream() << "new data: " << data;
+
 				performValidate(data, name);
 				handler->loadObject(modName, name, data, index);
 			}

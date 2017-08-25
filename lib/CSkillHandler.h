@@ -73,6 +73,8 @@ public:
 
     std::vector<bool> getDefaultAllowed() const override;
     const std::string getTypeName() const override;
+    void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+    void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
     template <typename Handler> void serialize(Handler &h, const int version)
     {
