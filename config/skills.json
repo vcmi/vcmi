@@ -1,29 +1,38 @@
 {
     "estates" : {
         "index" : 13,
-        "basic" : [
-            {
-                "subtype" : 13,
-                "type" : "SECONDARY_SKILL_PREMY",
-                "val" : 250,
-                "valueType" : "BASE_NUMBER"
-            }
-        ],
-        "advanced" : [
-            {
-                "subtype" : 13,
-                "type" : "SECONDARY_SKILL_PREMY",
-                "val" : 500,
-                "valueType" : "BASE_NUMBER"
-            }
-        ],
-        "expert" : [
-            {
-                "subtype" : 13,
-                "type" : "SECONDARY_SKILL_PREMY",
-                "val" : 1000,
-                "valueType" : "BASE_NUMBER"
-            }
-        ]
+        "basic" : {
+            "description" : "Hero generates 250 gold each day.",
+            "effects" : [
+                {
+                    "subtype" : 13,
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 250,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "Hero generates 500 gold each day.",
+            "effects" : [
+                {
+                    "subtype" : 13,
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 500,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "Hero generates 1000 gold each day.",
+            "effects" : [
+                {
+                    "subtype" : 13,
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1000,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
     }
 }

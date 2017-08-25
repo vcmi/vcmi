@@ -766,7 +766,7 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
-	BonusList skillBonus = (*VLC->skillh)[which]->getBonus(val);
+	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
 	for (auto b : skillBonus)
 	{
 		// TODO: add standard method for joining bonuses, should match on valType as well

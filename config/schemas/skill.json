@@ -9,10 +9,20 @@
 	"definitions" : {
 
         "skillBonus":{
+            "type": "object",
             "description": "Set of bonuses provided by skill at given level",
-            "type": "array",
-            "items":{
-                "$ref" : "vcmi:bonus"
+            "required" : ["effects"],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "localizable description"
+                },
+                "effects": {
+                    "type": "array",
+                    "items": {
+                        "$ref" : "vcmi:bonus"
+                    }
+                }
             }
         },
 

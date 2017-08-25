@@ -281,7 +281,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **com
 			if (!value)
 				return false;
 
-			text = CGI->generaltexth->skillInfoTexts[subID][value-1];
+			text = CGI->skillInfo(subID,value);
 			*comp = new CComponent(CComponent::secskill, subID, value);
 			return true;
 		}

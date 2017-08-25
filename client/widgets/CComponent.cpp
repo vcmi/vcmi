@@ -148,7 +148,7 @@ std::string CComponent::getDescription()
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 										 : CGI->generaltexth->allTexts[149]; //mana
-	case secskill:   return CGI->generaltexth->skillInfoTexts[subtype][val-1];
+	case secskill:   return CGI->skillInfo(subtype,val);
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
 	case artifact:

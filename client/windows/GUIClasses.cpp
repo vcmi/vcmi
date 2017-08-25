@@ -944,7 +944,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			secSkillAreas[b][g]->type = skill;
 			secSkillAreas[b][g]->bonusValue = level;
-			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
+			secSkillAreas[b][g]->text = CGI->skillInfo(skill,level);
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
@@ -1222,7 +1222,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->generaltexth->skillInfoTexts[ID][0],
+		CRClickPopup::createAndPush(CGI->skillInfo(ID, 1),
 				new CComponent(CComponent::secskill, ID, 1));
 	}
 }

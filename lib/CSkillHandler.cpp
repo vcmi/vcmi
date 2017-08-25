@@ -27,16 +27,24 @@
 #include "battle/CBattleInfoCallback.h"
 
 ///CSkill
+CSkill::LevelInfo::LevelInfo() : description("")
+{
+}
+
+CSkill::LevelInfo::~LevelInfo()
+{
+}
+
 CSkill::CSkill(SecondarySkill id) : id(id)
 {
     if(id == SecondarySkill::DEFAULT)
         identifier = "default";
     else
         identifier = NSecondarySkill::names[id];
-    // init bonus levels
-    BonusList emptyList;
-    for(auto level : NSecondarySkill::levels)
-        bonusByLevel.push_back(emptyList);
+    // init levels
+    LevelInfo emptyLevel;
+    for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+        levels.push_back(emptyLevel);
 }
 
 CSkill::~CSkill()
@@ -48,18 +56,32 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
     b->source = Bonus::SECONDARY_SKILL;
     b->duration = Bonus::PERMANENT;
     b->description = identifier;
-    bonusByLevel[level].push_back(b);
+    levels[level-1].effects.push_back(b);
 }
 
-BonusList CSkill::getBonus(int level)
+void CSkill::setDescription(const std::string & desc, int level)
 {
-    return bonusByLevel[level];
+    levels[level-1].description = desc;
+}
+
+const std::vector<std::shared_ptr<Bonus>> & CSkill::getBonus(int level) const
+{
+    return levels[level-1].effects;
+}
+
+const std::string & CSkill::getDescription(int level) const
+{
+    return levels[level-1].description;
+}
+
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info)
+{
+    return out << "(\"" << info.description << "\"," << info.effects << ")";
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill &skill)
 {
-	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): " << skill.bonusByLevel;
-	return out;
+    return out << "Skill(" << (int)skill.id << "," << skill.identifier << "): " << skill.levels;
 }
 
 ///CSkillHandler
@@ -108,12 +130,18 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
     for(int level = 1; level < NSecondarySkill::levels.size(); level++)
     {
         const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
-        for(auto b : json[levelName].Vector())
+        const JsonNode & levelNode = json[levelName];
+        // parse bonus effects
+        for(auto b : levelNode["effects"].Vector())
         {
             auto bonus = JsonUtils::parseBonus(b);
             bonus->sid = skill->id;
             skill->addNewBonus(bonus, level);
         }
+        // parse skill description - tracked separately
+        if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
+            //CGI->generaltexth->skillInfoTexts[skill->id][level-1] = levelNode["description"].String();
+            skill->setDescription(levelNode["description"].String(), level);
     }
     CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));
     logger->debugStream() << "loaded secondary skill " << identifier << "(" << (int)skill->id << ")";

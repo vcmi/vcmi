@@ -377,6 +377,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 	if (!modInfo.patches.isNull())
 		JsonUtils::merge(modInfo.modData, modInfo.patches);
 
+	CLogger * logger = CLogger::getLogger(CLoggerDomain("mod"));
 	for(auto & entry : modInfo.modData.Struct())
 	{
 		const std::string & name = entry.first;
@@ -389,6 +390,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 
 			if (originalData.size() > index)
 			{
+				logger->traceStream() << "found original data in loadMod(" << name << ") at index " << index;
 				JsonUtils::merge(originalData[index], data);
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
@@ -396,8 +398,8 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			}
 			else
 			{
-				logGlobal->debugStream() << "no original data in loadMod(" << name << ")";
-				logGlobal->traceStream() << data;
+				logger->debugStream() << "no original data in loadMod(" << name << ") at index " << index;
+				logger->traceStream() << data;
 				performValidate(data, name);
 				handler->loadObject(modName, name, data, index);
 			}

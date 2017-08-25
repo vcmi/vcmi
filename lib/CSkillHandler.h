@@ -21,14 +21,30 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CSkill // secondary skill
 {
 protected:
-    std::vector<BonusList> bonusByLevel; // bonuses provided by none, basic, advanced and expert level
+	struct LevelInfo
+	{
+		std::string description; //descriptions of spell for skill level
+		std::vector<std::shared_ptr<Bonus>> effects;
+
+		LevelInfo();
+		~LevelInfo();
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & description & effects;
+		}
+	};
+
+	std::vector<LevelInfo> levels; // bonuses provided by basic, advanced and expert level
 
 public:
     CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
     ~CSkill();
 
     void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
-    BonusList getBonus(int level);
+    void setDescription(const std::string & desc, int level);
+    const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
+    const std::string & getDescription(int level) const;
 
     SecondarySkill id;
     std::string identifier;
@@ -36,11 +52,12 @@ public:
     template <typename Handler> void serialize(Handler &h, const int version)
     {
         h & id & identifier;
-        h & bonusByLevel;
+        h & levels;
     }
 
     friend class CSkillHandler;
     friend std::ostream & operator<<(std::ostream &out, const CSkill &skill);
+    friend std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info);
 };
 
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>
