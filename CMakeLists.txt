@@ -262,15 +262,15 @@ else()
 			set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
 		endif()
 	endif()
+
+	# following constants only used for platforms using XDG (Linux, BSD, etc)
+	add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
+	add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
+	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
 set(AI_LIB_DIR "${LIB_DIR}/AI")
 set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
-
-#define required constants
-add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
-add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
-add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 
 #######################################
 #        Add subdirectories           #

@@ -609,11 +609,9 @@ void handleLinuxSignal(int sig)
 
 int main(int argc, char * argv[])
 {
-#ifndef VCMI_WINDOWS
+#ifndef VCMI_ANDROID
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
-	std::string executablePath = argv[0];
-	std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
-	chdir(workDir.c_str());
+	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
