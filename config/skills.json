@@ -34,6 +34,108 @@
             ]
         }
     },
+    "archery" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.archery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.archery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 25,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.archery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "logistics" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.logistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.logistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 20,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.logistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 30,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "scouting" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SIGHT_RADIOUS",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SIGHT_RADIOUS",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SIGHT_RADIOUS",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
             "description" : "",

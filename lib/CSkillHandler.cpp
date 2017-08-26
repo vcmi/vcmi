@@ -223,6 +223,8 @@ const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, i
 		bonusVal = 5 + 5 * level * level; break;
 	case SecondarySkill::LOGISTICS:
 		bonusVal = 10 * level; break;
+	case SecondarySkill::SCOUTING:
+		bonusType = Bonus::SIGHT_RADIOUS; break;
 	case SecondarySkill::DIPLOMACY:
 		bonusType = Bonus::SURRENDER_DISCOUNT;
 		bonusVal = 20 * level; break;
