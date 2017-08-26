@@ -1079,7 +1079,7 @@ si32 CGHeroInstance::manaRegain() const
 	if (hasBonusOfType(Bonus::FULL_MANA_REGENERATION))
 		return manaLimit();
 
-	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
+	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::MYSTICISM) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
 }
 
 si32 CGHeroInstance::getManaNewTurn() const

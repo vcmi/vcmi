@@ -270,6 +270,105 @@
             ]
         }
     },
+    "mysticism" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MANA_REGENERATION",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MANA_REGENERATION",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MANA_REGENERATION",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "luck" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "LUCK",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "LUCK",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "LUCK",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "ballistics" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.ballistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.ballistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.ballistics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
             "description" : "",

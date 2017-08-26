@@ -4070,7 +4070,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			CHeroHandler::SBallisticsLevelInfo sbi;
 			if(stack->getCreature()->idNumber == CreatureID::CATAPULT)
-				sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
+				sbi = VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
 			else //may need to use higher ballistics level for creatures in future for some cases to match original H3 (upgraded cyclops etc)
 			{
 				sbi = VLC->heroh->ballistics.at(1);
