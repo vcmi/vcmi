@@ -1974,7 +1974,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		// Aurora Borealis give spells of all levels even if only level 1 mages guild built
-		for (int i = 0; i < h->getSecSkillLevel(SecondarySkill::WISDOM)+2; i++)
+		for (int i = 0; i < h->maxSpellLevel(); i++)
 		{
 			std::vector<SpellID> spells;
 			getAllowedSpells(spells, i+1);
@@ -1984,7 +1984,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	}
 	else
 	{
-		for (int i = 0; i < std::min(t->mageGuildLevel(), h->getSecSkillLevel(SecondarySkill::WISDOM)+2); i++)
+		for (int i = 0; i < std::min(t->mageGuildLevel(), h->maxSpellLevel()); i++)
 		{
 			for (int j = 0; j < t->spellsAtLevel(i+1, true) && j < t->spells.at(i).size(); j++)
 			{
@@ -2501,8 +2501,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 	if (!ScholarLevel || !h1->hasSpellbook() || !h2->hasSpellbook())
 		return;//no scholar skill or no spellbook
 
-	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(SecondarySkill::WISDOM)+2),
-	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(SecondarySkill::WISDOM)+2);//heroes can receive this levels
+	int h1Lvl = std::min(ScholarLevel+1, h1->maxSpellLevel()),
+		h2Lvl = std::min(ScholarLevel+1, h2->maxSpellLevel());//heroes can receive this levels
 
 	ChangeSpells cs1;
 	cs1.learn = true;

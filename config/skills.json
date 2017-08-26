@@ -136,6 +136,140 @@
             ]
         }
     },
+    "diplomacy" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SURRENDER_DISCOUNT",
+                    "val" : 20,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SURRENDER_DISCOUNT",
+                    "val" : 40,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "SURRENDER_DISCOUNT",
+                    "val" : 60,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "navigation" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.navigation",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.navigation",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.navigation",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 150,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "leadership" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MORALE",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MORALE",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "type" : "MORALE",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "wisdom" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.wisdom",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.wisdom",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.wisdom",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
             "description" : "",

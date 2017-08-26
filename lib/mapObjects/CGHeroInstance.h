@@ -146,6 +146,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
+	int maxSpellLevel() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;

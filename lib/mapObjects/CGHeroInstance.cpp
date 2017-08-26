@@ -957,7 +957,7 @@ bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
     if(!hasSpellbook())
 		return false;
 
-    if(spell->level > getSecSkillLevel(SecondarySkill::WISDOM) + 2) //not enough wisdom
+	if(spell->level > maxSpellLevel()) //not enough wisdom
 		return false;
 
 	if(vstd::contains(spells, spell->id))//already known
@@ -1173,6 +1173,11 @@ void CGHeroInstance::putInBackpack(CArtifactInstance *art)
 bool CGHeroInstance::hasSpellbook() const
 {
 	return getArt(ArtifactPosition::SPELLBOOK);
+}
+
+int CGHeroInstance::maxSpellLevel() const
+{
+	return std::min(GameConstants::SPELL_LEVELS, 2 + valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::WISDOM)));
 }
 
 void CGHeroInstance::deserializationFix()
