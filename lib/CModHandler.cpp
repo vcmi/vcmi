@@ -207,7 +207,7 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 	std::pair<const std::string, ObjectData> mapping = std::make_pair(fullID, data);
 	if(!vstd::containsMapping(registeredObjects, mapping))
 	{
-		CLogger::getLogger(CLoggerDomain("identifier"))->traceStream() << "registered " << fullID << " as " << scope << ":" << identifier;
+		logMod->trace("registered %s as %s:%s", fullID, scope, identifier);
 		registeredObjects.insert(mapping);
 	}
 }
@@ -377,7 +377,6 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 	if (!modInfo.patches.isNull())
 		JsonUtils::merge(modInfo.modData, modInfo.patches);
 
-	CLogger * logger = CLogger::getLogger(CLoggerDomain("mod"));
 	for(auto & entry : modInfo.modData.Struct())
 	{
 		const std::string & name = entry.first;
@@ -390,7 +389,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 
 			if (originalData.size() > index)
 			{
-				logger->traceStream() << "found original data in loadMod(" << name << ") at index " << index;
+				logMod->trace("found original data in loadMod(%s) at index %d", name, index);
 				JsonUtils::merge(originalData[index], data);
 				performValidate(originalData[index],name);
 				handler->loadObject(modName, name, originalData[index], index);
@@ -398,14 +397,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			}
 			else
 			{
-				// trace only name field of original data - I miss list comprehension
-				std::vector<std::string> originalNames;
-				for (const JsonNode & orgElem : originalData)
-					originalNames.push_back(orgElem["name"].String());
-				logger->debugStream() << "no original data in loadMod(" << name << ") at index " << index;
-				logger->traceStream() << "originalData: " << originalNames;
-				logger->traceStream() << "new data: " << data;
-
+				logMod->debug("no original data in loadMod(%s) at index %d", name, index);
 				performValidate(data, name);
 				handler->loadObject(modName, name, data, index);
 			}

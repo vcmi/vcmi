@@ -45,6 +45,7 @@ public:
     void setDescription(const std::string & desc, int level);
     const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
     const std::string & getDescription(int level) const;
+    std::string toString() const;
 
     SecondarySkill id;
     std::string identifier;

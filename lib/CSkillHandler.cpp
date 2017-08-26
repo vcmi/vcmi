@@ -76,12 +76,25 @@ const std::string & CSkill::getDescription(int level) const
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info)
 {
-    return out << "(\"" << info.description << "\"," << info.effects << ")";
+    out << "(\"" << info.description << "\", [";
+    for(int i=0; i < info.effects.size(); i++)
+        out << (i ? "," : "") << info.effects[i]->Description();
+    return out << "])";
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill &skill)
 {
-    return out << "Skill(" << (int)skill.id << "," << skill.identifier << "): " << skill.levels;
+    out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
+    for(int i=0; i < skill.levels.size(); i++)
+        out << (i ? "," : "") << skill.levels[i];
+    return out << "]";
+}
+
+std::string CSkill::toString() const
+{
+	std::ostringstream ss;
+	ss << *this;
+	return ss.str();
 }
 
 ///CSkillHandler
@@ -123,7 +136,7 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 
     if(!skill)
     {
-        logGlobal->errorStream() << "unknown secondary skill " << identifier;
+        logGlobal->error("unknown secondary skill %s", identifier);
         throw std::runtime_error("invalid skill");
     }
 
@@ -143,9 +156,8 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
             //CGI->generaltexth->skillInfoTexts[skill->id][level-1] = levelNode["description"].String();
             skill->setDescription(levelNode["description"].String(), level);
     }
-    CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));
-    logger->debugStream() << "loaded secondary skill " << identifier << "(" << (int)skill->id << ")";
-    logger->traceStream() << *skill;
+    logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
+    logMod->trace("%s", skill->toString());
 
     return skill;
 }
@@ -180,10 +192,6 @@ void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNo
 
 void CSkillHandler::afterLoadFinalization()
 {
-    CLogger * logger = CLogger::getLogger(CLoggerDomain(getTypeName()));
-    logger->traceStream() << "skill handler after load: ";
-    for(auto skill : objects)
-        logger->traceStream() << *skill;
 }
 
 void CSkillHandler::beforeValidate(JsonNode & object)
