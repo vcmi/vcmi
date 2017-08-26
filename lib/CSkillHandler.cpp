@@ -217,6 +217,8 @@ const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, i
 
 	switch (skill)
 	{
+	case SecondarySkill::PATHFINDING:
+		bonusVal = 25 * level; break;
 	case SecondarySkill::ARCHERY:
 		bonusVal = 5 + 5 * level * level; break;
 	case SecondarySkill::LOGISTICS:

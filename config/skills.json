@@ -1,7 +1,53 @@
 {
+    "pathfinding" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.pathfinding",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 25,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.pathfinding",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.pathfinding",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 75,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
-            "description" : "Hero generates 250 gold each day.",
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.estates",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 125,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
             "effects" : [
                 {
                     "subtype" : "skill.estates",
@@ -11,24 +57,13 @@
                 }
             ]
         },
-        "advanced" : {
-            "description" : "Hero generates 500 gold each day.",
+        "expert" : {
+            "description" : "",
             "effects" : [
                 {
                     "subtype" : "skill.estates",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 500,
-                    "valueType" : "BASE_NUMBER"
-                }
-            ]
-        },
-        "expert" : {
-            "description" : "Hero generates 1000 gold each day.",
-            "effects" : [
-                {
-                    "subtype" : "skill.estates",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "val" : 1000,
                     "valueType" : "BASE_NUMBER"
                 }
             ]
