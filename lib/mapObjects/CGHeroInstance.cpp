@@ -825,7 +825,9 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int thisSchool = std::max<int>(
+			valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, cnf.skill),
+			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;

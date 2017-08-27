@@ -422,6 +422,41 @@
             ]
         }
     },
+    "necromancy" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.necromancy",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.necromancy",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 20,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.necromancy",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 30,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
             "description" : "With Basic Estates, a hero contributes 125 gold per day to your cause.",
@@ -452,6 +487,146 @@
                     "subtype" : "skill.estates",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 500,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "fireMagic" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.fireMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.fireMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.fireMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "airMagic" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.airMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.airMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.airMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "waterMagic" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.waterMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.waterMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.waterMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "earthMagic" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.earthMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.earthMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.earthMagic",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
                     "valueType" : "BASE_NUMBER"
                 }
             ]
