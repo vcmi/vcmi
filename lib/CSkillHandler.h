@@ -84,5 +84,5 @@ public:
 
 protected:
     CSkill * loadFromJson(const JsonNode & json, const std::string & identifier) override;
-    const std::shared_ptr<Bonus> defaultBonus(SecondarySkill skill, int level) const;
+	std::vector<std::shared_ptr<Bonus>> defaultBonus(SecondarySkill skill, int level) const;
 };

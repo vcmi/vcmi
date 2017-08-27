@@ -54,6 +54,7 @@ CSkill::~CSkill()
 void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
 {
     b->source = Bonus::SECONDARY_SKILL;
+	b->sid = id;
     b->duration = Bonus::PERMANENT;
     b->description = identifier;
     levels[level-1].effects.push_back(b);
@@ -104,7 +105,8 @@ CSkillHandler::CSkillHandler()
     {
         CSkill * skill = new CSkill(SecondarySkill(id));
         for(int level = 1; level < NSecondarySkill::levels.size(); level++)
-            skill->addNewBonus(defaultBonus(SecondarySkill(id), level), level);
+			for (auto bonus : defaultBonus(SecondarySkill(id), level))
+				skill->addNewBonus(bonus, level);
         objects.push_back(skill);
     }
 }
@@ -209,56 +211,61 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 }
 
 // HMM3 default bonus provided by secondary skill
-const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, int level) const
+std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill skill, int level) const
 {
-	Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY;
-	Bonus::ValueType valueType = Bonus::BASE_NUMBER;
-	int bonusVal = level;
+	std::vector<std::shared_ptr<Bonus>> result;
 
-	switch (skill)
+	// add bonus based on current values - useful for adding multiple bonuses easily
+	auto addBonus = [=,&result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY) {
+		int subtype = (bonusType == Bonus::SECONDARY_SKILL_PREMY || bonusType == Bonus::SECONDARY_SKILL_VAL2) ? skill : 0;
+		result.push_back(std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, subtype, Bonus::BASE_NUMBER));
+	};
+
+	switch(skill)
 	{
 	case SecondarySkill::PATHFINDING:
-		bonusVal = 25 * level; break;
+		addBonus(25 * level); break;
 	case SecondarySkill::ARCHERY:
-		bonusVal = 5 + 5 * level * level; break;
+		addBonus(5 + 5 * level * level); break;
 	case SecondarySkill::LOGISTICS:
-		bonusVal = 10 * level; break;
+		addBonus(10 * level); break;
 	case SecondarySkill::SCOUTING:
-		bonusType = Bonus::SIGHT_RADIOUS; break;
+		addBonus(level, Bonus::SIGHT_RADIOUS); break;
 	case SecondarySkill::DIPLOMACY:
-		bonusType = Bonus::SURRENDER_DISCOUNT;
-		bonusVal = 20 * level; break;
+		addBonus(20 * level, Bonus::SURRENDER_DISCOUNT); break;
 	case SecondarySkill::NAVIGATION:
-		bonusVal = 50 * level; break;
+		addBonus(50 * level); break;
 	case SecondarySkill::LEADERSHIP:
-		bonusType = Bonus::MORALE; break;
+		addBonus(level, Bonus::MORALE); break;
 	case SecondarySkill::LUCK:
-		bonusType = Bonus::LUCK; break;
+		addBonus(level, Bonus::LUCK); break;
 	case SecondarySkill::EAGLE_EYE:
-		bonusVal = 30 + 10 * level; break;
-	case SecondarySkill::NECROMANCY:
-		bonusVal = 10 * level; break;
-	case SecondarySkill::ESTATES:
-		bonusVal = 125 << (level-1); break;
-	case SecondarySkill::TACTICS:
-		bonusVal = 1 + 2 * level; break;
-	case SecondarySkill::LEARNING:
-		bonusVal = 5 * level; break;
-	case SecondarySkill::OFFENCE:
-		bonusVal = 10 * level; break;
-	case SecondarySkill::ARMORER:
-		bonusVal = 5 * level; break;
-	case SecondarySkill::INTELLIGENCE:
-		bonusVal = 25 << (level-1); break;
-	case SecondarySkill::SORCERY:
-		bonusVal = 5 * level; break;
-	case SecondarySkill::RESISTANCE:
-		bonusVal = 5 << (level-1); break;
-	case SecondarySkill::FIRST_AID:
-		bonusVal = 25 + 25 * level; break;
-	default:
+		addBonus(30 + 10 * level);
+		addBonus(1 + level, Bonus::SECONDARY_SKILL_VAL2);
 		break;
+	case SecondarySkill::NECROMANCY:
+		addBonus(10 * level); break;
+	case SecondarySkill::ESTATES:
+		addBonus(125 << (level-1)); break;
+	case SecondarySkill::TACTICS:
+		addBonus(1 + 2 * level); break;
+	case SecondarySkill::LEARNING:
+		addBonus(5 * level); break;
+	case SecondarySkill::OFFENCE:
+		addBonus(10 * level); break;
+	case SecondarySkill::ARMORER:
+		addBonus(5 * level); break;
+	case SecondarySkill::INTELLIGENCE:
+		addBonus(25 << (level-1)); break;
+	case SecondarySkill::SORCERY:
+		addBonus(5 * level); break;
+	case SecondarySkill::RESISTANCE:
+		addBonus(5 << (level-1)); break;
+	case SecondarySkill::FIRST_AID:
+		addBonus(25 + 25 * level); break;
+	default:
+		addBonus(level); break;
 	}
 
-	return std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, skill, valueType);
+	return result;
 }

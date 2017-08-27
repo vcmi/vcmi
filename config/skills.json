@@ -369,6 +369,59 @@
             ]
         }
     },
+    "eagleEye" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 40,
+                    "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_VAL2",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_VAL2",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 60,
+                    "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "skill.eagleEye",
+                    "type" : "SECONDARY_SKILL_VAL2",
+                    "val" : 4,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
     "estates" : {
         "basic" : {
             "description" : "With Basic Estates, a hero contributes 125 gold per day to your cause.",
