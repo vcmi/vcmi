@@ -257,7 +257,7 @@ const std::shared_ptr<Bonus> CSkillHandler::defaultBonus(SecondarySkill skill, i
 	case SecondarySkill::FIRST_AID:
 		bonusVal = 25 + 25 * level; break;
 	default:
-		valueType = Bonus::INDEPENDENT_MIN; break;
+		break;
 	}
 
 	return std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, skill, valueType);

@@ -950,6 +950,7 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
+	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType);
 
 	/**
 	 * Selects all bonuses

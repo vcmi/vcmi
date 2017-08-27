@@ -769,15 +769,14 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
 	for (auto b : skillBonus)
 	{
-		// TODO: add standard method for joining bonuses, should match on valType as well
-		std::shared_ptr<Bonus> existing = getBonusLocalFirst(Selector::typeSubtype(b->type,b->subtype).And(Selector::source(Bonus::SECONDARY_SKILL, b->sid)));
+		// bonuses provided by different levels of a secondary skill are aggregated via max (not + as usual)
+		// different secondary skills providing the same bonus (e.g. ballistics might improve archery as well) are kept separate
+		std::shared_ptr<Bonus> existing = getBonusLocalFirst(
+			Selector::typeSubtype(b->type, b->subtype).And(
+			Selector::source(Bonus::SECONDARY_SKILL, b->sid).And(
+			Selector::valueType(b->valType))));
 		if(existing)
-		{
-			if(b->valType == Bonus::INDEPENDENT_MIN || b->valType == Bonus::BASE_NUMBER)
-				existing->val = b->val;
-			else
-				existing->val += b->val;
-		}
+			vstd::amax(existing->val, b->val);
 		else
 			addNewBonus(std::make_shared<Bonus>(*b));
 	}

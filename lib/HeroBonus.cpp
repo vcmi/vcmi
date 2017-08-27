@@ -1166,6 +1166,11 @@ namespace Selector
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source);
 	}
 
+	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType)
+	{
+		return CSelectFieldEqual<Bonus::ValueType>(&Bonus::valType)(valType);
+	}
+
 	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});
 	DLL_LINKAGE CSelector none([](const Bonus * b){return false;});
 
