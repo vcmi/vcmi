@@ -371,7 +371,7 @@
     },
     "estates" : {
         "basic" : {
-            "description" : "",
+            "description" : "With Basic Estates, a hero contributes 125 gold per day to your cause.",
             "effects" : [
                 {
                     "subtype" : "skill.estates",
@@ -382,7 +382,7 @@
             ]
         },
         "advanced" : {
-            "description" : "",
+            "description" : "With Advanced Estates, a hero contributes 250 gold per day to your cause.",
             "effects" : [
                 {
                     "subtype" : "skill.estates",
@@ -393,7 +393,7 @@
             ]
         },
         "expert" : {
-            "description" : "",
+            "description" : "With Expert Estates, a hero contributes 500 gold per day to your cause.",
             "effects" : [
                 {
                     "subtype" : "skill.estates",
