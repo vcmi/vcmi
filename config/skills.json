@@ -631,5 +631,40 @@
                 }
             ]
         }
+    },
+    "scholar" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.scholar",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 2,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.scholar",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.scholar",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 4,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
     }
 }

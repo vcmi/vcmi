@@ -252,6 +252,8 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	case SecondarySkill::WATER_MAGIC:
 	case SecondarySkill::EARTH_MAGIC:
 		addBonus(level); break;
+	case SecondarySkill::SCHOLAR:
+		addBonus(1 + level); break;
 	case SecondarySkill::TACTICS:
 		addBonus(1 + 2 * level); break;
 	case SecondarySkill::LEARNING:

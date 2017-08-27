@@ -2489,19 +2489,21 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
+	int h1_scholarLevel = h1->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
+	int h2_scholarLevel = h1->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
 
-	if (h1->getSecSkillLevel(SecondarySkill::SCHOLAR) < h2->getSecSkillLevel(SecondarySkill::SCHOLAR))
+	if (h1_scholarLevel < h2_scholarLevel)
 	{
 		std::swap (h1,h2);//1st hero need to have higher scholar level for correct message
 		std::swap(fromHero, toHero);
 	}
 
-	int ScholarLevel = h1->getSecSkillLevel(SecondarySkill::SCHOLAR);//heroes can trade up to this level
+	int ScholarLevel = std::max(h1_scholarLevel, h2_scholarLevel);//heroes can trade up to this level
 	if (!ScholarLevel || !h1->hasSpellbook() || !h2->hasSpellbook())
 		return;//no scholar skill or no spellbook
 
-	int h1Lvl = std::min(ScholarLevel+1, h1->maxSpellLevel()),
-		h2Lvl = std::min(ScholarLevel+1, h2->maxSpellLevel());//heroes can receive this levels
+	int h1Lvl = std::min(ScholarLevel, h1->maxSpellLevel()),
+		h2Lvl = std::min(ScholarLevel, h2->maxSpellLevel());//heroes can receive this levels
 
 	ChangeSpells cs1;
 	cs1.learn = true;
