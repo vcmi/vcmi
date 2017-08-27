@@ -666,5 +666,81 @@
                 }
             ]
         }
+    },
+    "tactics" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.tactics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 3,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.tactics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 5,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.tactics",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 7,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "artillery" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.artillery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.artillery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 75,
+                    "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "skill.artillery",
+                    "type" : "SECONDARY_SKILL_VAL2",
+                    "val" : 1,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.artillery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
     }
 }

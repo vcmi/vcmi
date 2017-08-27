@@ -256,6 +256,10 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 		addBonus(1 + level); break;
 	case SecondarySkill::TACTICS:
 		addBonus(1 + 2 * level); break;
+	case SecondarySkill::ARTILLERY:
+		addBonus(25 + 25 * level); break;
+		if(level > 1) // extra attack
+			addBonus(1, Bonus::SECONDARY_SKILL_VAL2);
 	case SecondarySkill::LEARNING:
 		addBonus(5 * level); break;
 	case SecondarySkill::OFFENCE:

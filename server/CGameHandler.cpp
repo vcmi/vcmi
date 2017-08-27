@@ -880,9 +880,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if (att->getCreature()->idNumber == CreatureID::BALLISTA)
 	{
-		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
-		int chance = artilleryLvlToChance[owner->getSecSkillLevel(SecondarySkill::ARTILLERY)];
+		int chance = owner->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARTILLERY);
 		if (chance > getRandomGenerator().nextInt(99))
 		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
@@ -4007,19 +4006,18 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				handleAfterAttackCasting(bat);
 			}
 
-			//second shot for ballista, only if hero has advanced artillery
-
-			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-			if(destinationStack->alive()
-				&& (stack->getCreature()->idNumber == CreatureID::BALLISTA)
-				&& (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
-			)
+			//extra shot(s) for ballista, based on artillery skill
+			if(stack->getCreature()->idNumber == CreatureID::BALLISTA)
 			{
-				BattleAttack bat2;
-				bat2.flags |= BattleAttack::SHOT;
-				prepareAttack(bat2, stack, destinationStack, 0, ba.destinationTile);
-				sendAndApply(&bat2);
+				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+				int ballistaBonusAttacks = attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::ARTILLERY);
+				while(destinationStack->alive() && ballistaBonusAttacks-- > 0)
+				{
+					BattleAttack bat2;
+					bat2.flags |= BattleAttack::SHOT;
+					prepareAttack(bat2, stack, destinationStack, 0, ba.destinationTile);
+					sendAndApply(&bat2);
+				}
 			}
 			//allow more than one additional attack
 
