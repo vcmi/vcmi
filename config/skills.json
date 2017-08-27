@@ -742,5 +742,250 @@
                 }
             ]
         }
+    },
+    "learning" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.learning",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 5,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.learning",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.learning",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 15,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "offence" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.offence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.offence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 20,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.offence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 30,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "armorer" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.armorer",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 5,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.armorer",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.armorer",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 15,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "intelligence" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.intelligence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 25,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.intelligence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.intelligence",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "sorcery" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.sorcery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 5,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.sorcery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.sorcery",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 15,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "resistance" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.resistance",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 5,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.resistance",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 10,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.resistance",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 20,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
+    },
+    "firstAid" : {
+        "basic" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.firstAid",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "advanced" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.firstAid",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 75,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        },
+        "expert" : {
+            "description" : "",
+            "effects" : [
+                {
+                    "subtype" : "skill.firstAid",
+                    "type" : "SECONDARY_SKILL_PREMY",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
+                }
+            ]
+        }
     }
 }
