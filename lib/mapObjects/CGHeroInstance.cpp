@@ -761,7 +761,8 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 		removeBonus(bonus);
 
 	for(auto skill_info : secSkills)
-		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
+		for(int level = 1; level <= skill_info.second; level++)
+			updateSkill(SecondarySkill(skill_info.first), level);
 }
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
