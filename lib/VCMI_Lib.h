@@ -69,7 +69,10 @@ public:
 		h & objh;
 		h & objtypeh;
 		h & spellh;
-		h & skillh;
+		if(version >= 777)
+		{
+			h & skillh;
+		}
 		h & modh;
 		h & IS_AI_ENABLED;
 		h & bth;

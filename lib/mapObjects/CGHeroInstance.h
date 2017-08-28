@@ -303,5 +303,7 @@ public:
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
+		if(version < 777 && !h.saving)
+			recreateSecondarySkillsBonuses();
 	}
 };
