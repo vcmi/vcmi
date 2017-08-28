@@ -5799,7 +5799,7 @@ void CGameHandler::runBattle()
 			const CGHeroInstance * curOwner = battleGetOwnerHero(next);
 
 			if ((next->position < 0 || next->getCreature()->idNumber == CreatureID::BALLISTA)	//arrow turret or ballista
-				&& (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::ARTILLERY) == 0)) //hero has no artillery
+				&& (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::BALLISTA)))
 			{
 				BattleAction attack;
 				attack.actionType = Battle::SHOOT;
@@ -5829,7 +5829,7 @@ void CGameHandler::runBattle()
 					continue;
 				}
 
-				if (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)
+				if (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::CATAPULT))
 				{
 					BattleAction attack;
 					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes,
@@ -5857,7 +5857,7 @@ void CGameHandler::runBattle()
 					continue;
 				}
 
-				if (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::FIRST_AID) == 0) //no hero or hero has no first aid
+				if (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT))
 				{
 					RandomGeneratorUtil::randomShuffle(possibleStacks, getRandomGenerator());
 					const CStack * toBeHealed = possibleStacks.front();

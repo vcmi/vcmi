@@ -216,8 +216,10 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	std::vector<std::shared_ptr<Bonus>> result;
 
 	// add bonus based on current values - useful for adding multiple bonuses easily
-	auto addBonus = [=,&result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY) {
-		int subtype = (bonusType == Bonus::SECONDARY_SKILL_PREMY || bonusType == Bonus::SECONDARY_SKILL_VAL2) ? skill : 0;
+	auto addBonus = [=,&result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY, int subtype = 0)
+	{
+		if(bonusType == Bonus::SECONDARY_SKILL_PREMY || bonusType == Bonus::SECONDARY_SKILL_VAL2)
+			subtype = skill;
 		result.push_back(std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, subtype, Bonus::BASE_NUMBER));
 	};
 
@@ -239,6 +241,10 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 		addBonus(level, Bonus::MORALE); break;
 	case SecondarySkill::LUCK:
 		addBonus(level, Bonus::LUCK); break;
+	case SecondarySkill::BALLISTICS:
+		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::CATAPULT);
+		addBonus(level);
+		break;
 	case SecondarySkill::EAGLE_EYE:
 		addBonus(30 + 10 * level);
 		addBonus(1 + level, Bonus::SECONDARY_SKILL_VAL2);
@@ -257,9 +263,11 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	case SecondarySkill::TACTICS:
 		addBonus(1 + 2 * level); break;
 	case SecondarySkill::ARTILLERY:
-		addBonus(25 + 25 * level); break;
+		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::BALLISTA);
+		addBonus(25 + 25 * level);
 		if(level > 1) // extra attack
 			addBonus(1, Bonus::SECONDARY_SKILL_VAL2);
+		 break;
 	case SecondarySkill::LEARNING:
 		addBonus(5 * level); break;
 	case SecondarySkill::OFFENCE:
@@ -273,6 +281,7 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	case SecondarySkill::RESISTANCE:
 		addBonus(5 << (level-1)); break;
 	case SecondarySkill::FIRST_AID:
+		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT);
 		addBonus(25 + 25 * level); break;
 	default:
 		addBonus(level); break;

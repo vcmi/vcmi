@@ -343,6 +343,12 @@
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 1,
                     "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "creature.catapult",
+                    "type" : "MANUAL_CONTROL",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
                 }
             ]
         },
@@ -711,6 +717,12 @@
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 50,
                     "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "creature.ballista",
+                    "type" : "MANUAL_CONTROL",
+                    "val" : 100,
+                    "valueType" : "BASE_NUMBER"
                 }
             ]
         },
@@ -961,6 +973,12 @@
                     "subtype" : "skill.firstAid",
                     "type" : "SECONDARY_SKILL_PREMY",
                     "val" : 50,
+                    "valueType" : "BASE_NUMBER"
+                },
+                {
+                    "subtype" : "creature.firstAidTent",
+                    "type" : "MANUAL_CONTROL",
+                    "val" : 100,
                     "valueType" : "BASE_NUMBER"
                 }
             ]
