@@ -234,6 +234,7 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	case SecondarySkill::SCOUTING:
 		addBonus(level, Bonus::SIGHT_RADIOUS); break;
 	case SecondarySkill::DIPLOMACY:
+		addBonus(level);
 		addBonus(20 * level, Bonus::SURRENDER_DISCOUNT); break;
 	case SecondarySkill::NAVIGATION:
 		addBonus(50 * level); break;

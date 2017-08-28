@@ -323,17 +323,18 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int charisma = powerFactor + h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy;
+	int diplomacy = h->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::DIPLOMACY);
+	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < character)
 		return FIGHT;
 
 	if (allowJoin)
 	{
-		if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy + 1 >= character)
+		if(diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
-		else if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
+		else if(diplomacy * 2  +  sympathy  +  1 >= character)
 			return VLC->creh->creatures[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
 	}
 
