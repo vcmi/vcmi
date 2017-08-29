@@ -18,17 +18,20 @@
                     "description": "localizable description"
                 },
                 "effects": {
-                    "type": "array",
-                    "items": {
+                    "type": "object",
+                    "additionalProperties" : {
                         "$ref" : "vcmi:bonus"
                     }
                 }
             }
         },
 
-        "required" : ["basic", "advanced", "expert"],
+        "required" : ["base", "basic", "advanced", "expert"],
 
         "properties": {
+            "base":{
+                "$ref" : "#/definitions/skillBonus"
+            },
             "basic":{
                 "$ref" : "#/definitions/skillBonus"
             },

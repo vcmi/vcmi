@@ -147,9 +147,9 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
         const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
         const JsonNode & levelNode = json[levelName];
         // parse bonus effects
-        for(auto b : levelNode["effects"].Vector())
+		for(auto b : levelNode["effects"].Struct())
         {
-            auto bonus = JsonUtils::parseBonus(b);
+			auto bonus = JsonUtils::parseBonus(b.second);
             bonus->sid = skill->id;
             skill->addNewBonus(bonus, level);
         }
@@ -198,6 +198,16 @@ void CSkillHandler::afterLoadFinalization()
 
 void CSkillHandler::beforeValidate(JsonNode & object)
 {
+	//handle "base" level info
+	JsonNode & base = object["base"];
+
+	auto inheritNode = [&](const std::string & name){
+		JsonUtils::inherit(object[name], base);
+	};
+
+	inheritNode("basic");
+	inheritNode("advanced");
+	inheritNode("expert");
 }
 
 CSkillHandler::~CSkillHandler()
