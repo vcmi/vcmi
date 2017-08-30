@@ -748,7 +748,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 			auto & advMap = data["town"]["adventureMap"];
 			if (!advMap.isNull())
 			{
-				logGlobal->warn("Outdated town mod. Will try to generate valid templates out of fort");
+				logMod->warn("Outdated town mod. Will try to generate valid templates out of fort");
 				JsonNode config;
 				config["animation"] = advMap["castle"];
 				VLC->objtypeh->getHandlerFor(index, object->index)->addTemplate(config);
@@ -818,9 +818,9 @@ void CTownHandler::initializeRequirements()
 		{
 			if (node.Vector().size() > 1)
 			{
-				logGlobal->warn("Unexpected length of town buildings requirements: %d", node.Vector().size());
-				logGlobal->warn("Entry contains: ");
-				logGlobal->warn(node.toJson());
+				logMod->warn("Unexpected length of town buildings requirements: %d", node.Vector().size());
+				logMod->warn("Entry contains: ");
+				logMod->warn(node.toJson());
 			}
 			return BuildingID(VLC->modh->identifiers.getIdentifier(requirement.town->getBuildingScope(), node.Vector()[0]).get());
 		});

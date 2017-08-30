@@ -395,7 +395,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //T
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logGlobal->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s", type);
 		return b;
 	}
 	b->type = it->second;
@@ -413,7 +413,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		auto it = map.find(type);
 		if (it == map.end())
 		{
-			logGlobal->error("Error: invalid %s%s", err, type);
+			logMod->error("Error: invalid %s%s", err, type);
 			return defaultValue;
 		}
 		else
@@ -445,7 +445,7 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 				});
 				break;
 			default:
-				logGlobal->error("Error! Wrong identifier used for value of %s", name);
+				logMod->error("Error! Wrong identifier used for value of %s", name);
 		}
 	}
 }
@@ -467,7 +467,7 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 			});
 			break;
 		default:
-			logGlobal->error("Error! Wrong identifier used for identifier!");
+			logMod->error("Error! Wrong identifier used for identifier!");
 	}
 }
 
@@ -489,7 +489,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logGlobal->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s", type);
 		return false;
 	}
 	b->type = it->second;
@@ -533,7 +533,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			}
 			break;
 		default:
-			logGlobal->error("Error! Wrong bonus duration format.");
+			logMod->error("Error! Wrong bonus duration format.");
 		}
 	}
 
@@ -580,7 +580,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 							auto it = bonusNameMap.find(anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
-								logGlobal->error("Error: invalid ability type %s", anotherBonusType);
+								logMod->error("Error: invalid ability type %s", anotherBonusType);
 								continue;
 							}
 							l2->type = it->second;
@@ -723,8 +723,8 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	std::string log = Validation::check(schemaName, node);
 	if (!log.empty())
 	{
-		logGlobal->warn("Data in %s is invalid!", dataName);
-		logGlobal->warn(log);
+		logMod->warn("Data in %s is invalid!", dataName);
+		logMod->warn(log);
 	}
 	return log.empty();
 }
@@ -745,7 +745,7 @@ const JsonNode & getSchemaByName(std::string name)
 		return loadedSchemas[name];
 	}
 
-	logGlobal->error("Error: missing schema with name %s!", name);
+	logMod->error("Error: missing schema with name %s!", name);
 	assert(0);
 	return nullNode;
 }
@@ -756,7 +756,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 	size_t posHash  = URI.find('#');
 	if(posColon == std::string::npos)
 	{
-		logGlobal->error("Invalid schema URI:%s", URI);
+		logMod->error("Invalid schema URI:%s", URI);
 		return nullNode;
 	}
 
@@ -765,7 +765,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 
 	if(protocolName != "vcmi")
 	{
-		logGlobal->error("Error: unsupported URI protocol for schema: %s", URI);
+		logMod->error("Error: unsupported URI protocol for schema: %s", URI);
 		return nullNode;
 	}
 

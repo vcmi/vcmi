@@ -94,7 +94,7 @@ public:
 
 		if (raw_id < 0 || raw_id >= objects.size())
 		{
-			logGlobal->error("%s id %d is invalid", getTypeName(), static_cast<si64>(raw_id));
+			logMod->error("%s id %d is invalid", getTypeName(), static_cast<si64>(raw_id));
 			throw std::runtime_error("internal error");
 		}
 

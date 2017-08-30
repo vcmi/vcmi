@@ -183,7 +183,7 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 	if(!skill)
 	{
-		logGlobal->error("unknown secondary skill %s", identifier);
+		logMod->error("unknown secondary skill %s", identifier);
 		throw std::runtime_error("invalid skill");
 	}
 
