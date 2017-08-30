@@ -13,11 +13,6 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
-class CSkillHandler;
-class CGHeroInstance;
-class CMap;
-class JsonSerializeFormat;
-
 class DLL_LINKAGE CSkill // secondary skill
 {
 protected:
@@ -29,9 +24,10 @@ protected:
 		LevelInfo();
 		~LevelInfo();
 
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & description & effects;
+			h & description;
+			h & effects;
 		}
 	};
 
@@ -41,7 +37,7 @@ public:
 	CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
 	~CSkill();
 
-	void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
+	void addNewBonus(const std::shared_ptr<Bonus> & b, int level);
 	void setDescription(const std::string & desc, int level);
 	const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
 	const std::string & getDescription(int level) const;
@@ -50,15 +46,16 @@ public:
 	SecondarySkill id;
 	std::string identifier;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & id & identifier;
+		h & id;
+		h & identifier;
 		h & levels;
 	}
 
 	friend class CSkillHandler;
-	friend std::ostream & operator<<(std::ostream &out, const CSkill &skill);
-	friend std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info);
+	friend std::ostream & operator<<(std::ostream & out, const CSkill & skill);
+	friend std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 };
 
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>
@@ -77,9 +74,9 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & objects ;
+		h & objects;
 	}
 
 protected:

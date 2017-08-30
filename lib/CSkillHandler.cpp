@@ -51,7 +51,7 @@ CSkill::~CSkill()
 {
 }
 
-void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
+void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
 	b->source = Bonus::SECONDARY_SKILL;
 	b->sid = id;
@@ -75,7 +75,7 @@ const std::string & CSkill::getDescription(int level) const
 	return levels[level-1].description;
 }
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info)
+DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
 {
 	out << "(\"" << info.description << "\", [";
 	for(int i=0; i < info.effects.size(); i++)
@@ -83,7 +83,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo
 	return out << "])";
 }
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill &skill)
+DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill)
 {
 	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
 	for(int i=0; i < skill.levels.size(); i++)
@@ -141,7 +141,7 @@ const std::string CSkillHandler::getTypeName() const
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
 {
-	CSkill * skill = NULL;
+	CSkill * skill = nullptr;
 
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
@@ -203,7 +203,7 @@ void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNo
 	assert(object->id == index);
 	objects[index] = object;
 
-	registerObject(scope,type_name, name, object->id);
+	registerObject(scope, type_name, name, object->id);
 }
 
 
@@ -251,22 +251,30 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	switch(skill)
 	{
 	case SecondarySkill::PATHFINDING:
-		addBonus(25 * level); break;
+		addBonus(25 * level);
+		break;
 	case SecondarySkill::ARCHERY:
-		addBonus(5 + 5 * level * level); break;
+		addBonus(5 + 5 * level * level);
+		break;
 	case SecondarySkill::LOGISTICS:
-		addBonus(10 * level); break;
+		addBonus(10 * level);
+		break;
 	case SecondarySkill::SCOUTING:
-		addBonus(level, Bonus::SIGHT_RADIOUS); break;
+		addBonus(level, Bonus::SIGHT_RADIOUS);
+		break;
 	case SecondarySkill::DIPLOMACY:
 		addBonus(level);
-		addBonus(20 * level, Bonus::SURRENDER_DISCOUNT); break;
+		addBonus(20 * level, Bonus::SURRENDER_DISCOUNT);
+		break;
 	case SecondarySkill::NAVIGATION:
-		addBonus(50 * level); break;
+		addBonus(50 * level);
+		break;
 	case SecondarySkill::LEADERSHIP:
-		addBonus(level, Bonus::MORALE); break;
+		addBonus(level, Bonus::MORALE);
+		break;
 	case SecondarySkill::LUCK:
-		addBonus(level, Bonus::LUCK); break;
+		addBonus(level, Bonus::LUCK);
+		break;
 	case SecondarySkill::BALLISTICS:
 		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::CATAPULT);
 		addBonus(level);
@@ -276,18 +284,23 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 		addBonus(1 + level, Bonus::SECONDARY_SKILL_VAL2);
 		break;
 	case SecondarySkill::NECROMANCY:
-		addBonus(10 * level); break;
+		addBonus(10 * level);
+		break;
 	case SecondarySkill::ESTATES:
-		addBonus(125 << (level-1)); break;
+		addBonus(125 << (level-1));
+		break;
 	case SecondarySkill::FIRE_MAGIC:
 	case SecondarySkill::AIR_MAGIC:
 	case SecondarySkill::WATER_MAGIC:
 	case SecondarySkill::EARTH_MAGIC:
-		addBonus(level); break;
+		addBonus(level);
+		break;
 	case SecondarySkill::SCHOLAR:
-		addBonus(1 + level); break;
+		addBonus(1 + level);
+		break;
 	case SecondarySkill::TACTICS:
-		addBonus(1 + 2 * level); break;
+		addBonus(1 + 2 * level);
+		break;
 	case SecondarySkill::ARTILLERY:
 		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::BALLISTA);
 		addBonus(25 + 25 * level);
@@ -295,22 +308,30 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 			addBonus(1, Bonus::SECONDARY_SKILL_VAL2);
 		 break;
 	case SecondarySkill::LEARNING:
-		addBonus(5 * level); break;
+		addBonus(5 * level);
+		break;
 	case SecondarySkill::OFFENCE:
-		addBonus(10 * level); break;
+		addBonus(10 * level);
+		break;
 	case SecondarySkill::ARMORER:
-		addBonus(5 * level); break;
+		addBonus(5 * level);
+		break;
 	case SecondarySkill::INTELLIGENCE:
-		addBonus(25 << (level-1)); break;
+		addBonus(25 << (level-1));
+		break;
 	case SecondarySkill::SORCERY:
-		addBonus(5 * level); break;
+		addBonus(5 * level);
+		break;
 	case SecondarySkill::RESISTANCE:
-		addBonus(5 << (level-1)); break;
+		addBonus(5 << (level-1));
+		break;
 	case SecondarySkill::FIRST_AID:
 		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT);
-		addBonus(25 + 25 * level); break;
+		addBonus(25 + 25 * level);
+		break;
 	default:
-		addBonus(level); break;
+		addBonus(level);
+		break;
 	}
 
 	return result;

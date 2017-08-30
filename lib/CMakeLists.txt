@@ -115,7 +115,7 @@ set(lib_SRCS
 		CModHandler.cpp
 		CPathfinder.cpp
 		CRandomGenerator.cpp
-                CSkillHandler.cpp
+		CSkillHandler.cpp
 		CStack.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
@@ -257,6 +257,7 @@ set(lib_HEADERS
 		CPlayerState.h
 		CRandomGenerator.h
 		CScriptingModule.h
+		CSkillHandler.h
 		CSoundBase.h
 		CStack.h
 		CStopWatch.h
