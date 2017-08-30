@@ -206,7 +206,6 @@ void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNo
 	registerObject(scope, type_name, name, object->id);
 }
 
-
 void CSkillHandler::afterLoadFinalization()
 {
 }

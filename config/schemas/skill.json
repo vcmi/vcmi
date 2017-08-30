@@ -24,25 +24,26 @@
 					}
 				}
 			}
+		}
+		
+	},
+
+	"required" : ["basic", "advanced", "expert"],
+
+	"properties" : {
+		"base" : {
+			"type" : "object",
+			"description" : "will be merged with all levels",
+			"additionalProperties" : true
 		},
-
-		"required" : ["basic", "advanced", "expert"],
-
-		"properties" : {
-			"base" : {
-				"type" : "object",
-				"description" : "will be merged with all levels",
-				"additionalProperties" : true
-			},
-			"basic" : {
-				"$ref" : "#/definitions/skillBonus"
-			},
-			"advanced" : {
-				"$ref" : "#/definitions/skillBonus"
-			},
-			"expert" : {
-				"$ref" : "#/definitions/skillBonus"
-			}
+		"basic" : {
+			"$ref" : "#/definitions/skillBonus"
+		},
+		"advanced" : {
+			"$ref" : "#/definitions/skillBonus"
+		},
+		"expert" : {
+			"$ref" : "#/definitions/skillBonus"
 		}
 	}
 }
