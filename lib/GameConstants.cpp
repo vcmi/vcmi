@@ -68,7 +68,7 @@ const CSpell * SpellID::toSpell() const
 
 const CSkill * SecondarySkill::toSkill() const
 {
-    return VLC->skillh->objects.at(*this);
+	return VLC->skillh->objects.at(*this);
 }
 
 //template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);

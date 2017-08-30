@@ -321,7 +321,7 @@ public:
 	SecondarySkill(ESecondarySkill _num = WRONG) : num(_num)
 	{}
 
-    DLL_LINKAGE const CSkill * toSkill() const;
+	DLL_LINKAGE const CSkill * toSkill() const;
 
 	ID_LIKE_CLASS_COMMON(SecondarySkill, ESecondarySkill)
 

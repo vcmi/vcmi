@@ -241,7 +241,7 @@ std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill s
 	std::vector<std::shared_ptr<Bonus>> result;
 
 	// add bonus based on current values - useful for adding multiple bonuses easily
-	auto addBonus = [=,&result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY, int subtype = 0)
+	auto addBonus = [=, &result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY, int subtype = 0)
 	{
 		if(bonusType == Bonus::SECONDARY_SKILL_PREMY || bonusType == Bonus::SECONDARY_SKILL_VAL2)
 			subtype = skill;
