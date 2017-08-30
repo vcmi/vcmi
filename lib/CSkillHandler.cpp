@@ -37,14 +37,14 @@ CSkill::LevelInfo::~LevelInfo()
 
 CSkill::CSkill(SecondarySkill id) : id(id)
 {
-    if(id == SecondarySkill::DEFAULT)
-        identifier = "default";
-    else
-        identifier = NSecondarySkill::names[id];
-    // init levels
-    LevelInfo emptyLevel;
-    for(int level = 1; level < NSecondarySkill::levels.size(); level++)
-        levels.push_back(emptyLevel);
+	if(id == SecondarySkill::DEFAULT)
+		identifier = "default";
+	else
+		identifier = NSecondarySkill::names[id];
+	// init levels
+	LevelInfo emptyLevel;
+	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+		levels.push_back(emptyLevel);
 }
 
 CSkill::~CSkill()
@@ -53,42 +53,42 @@ CSkill::~CSkill()
 
 void CSkill::addNewBonus(const std::shared_ptr<Bonus>& b, int level)
 {
-    b->source = Bonus::SECONDARY_SKILL;
+	b->source = Bonus::SECONDARY_SKILL;
 	b->sid = id;
-    b->duration = Bonus::PERMANENT;
-    b->description = identifier;
-    levels[level-1].effects.push_back(b);
+	b->duration = Bonus::PERMANENT;
+	b->description = identifier;
+	levels[level-1].effects.push_back(b);
 }
 
 void CSkill::setDescription(const std::string & desc, int level)
 {
-    levels[level-1].description = desc;
+	levels[level-1].description = desc;
 }
 
 const std::vector<std::shared_ptr<Bonus>> & CSkill::getBonus(int level) const
 {
-    return levels[level-1].effects;
+	return levels[level-1].effects;
 }
 
 const std::string & CSkill::getDescription(int level) const
 {
-    return levels[level-1].description;
+	return levels[level-1].description;
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info)
 {
-    out << "(\"" << info.description << "\", [";
-    for(int i=0; i < info.effects.size(); i++)
-        out << (i ? "," : "") << info.effects[i]->Description();
-    return out << "])";
+	out << "(\"" << info.description << "\", [";
+	for(int i=0; i < info.effects.size(); i++)
+		out << (i ? "," : "") << info.effects[i]->Description();
+	return out << "])";
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const CSkill &skill)
 {
-    out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
-    for(int i=0; i < skill.levels.size(); i++)
-        out << (i ? "," : "") << skill.levels[i];
-    return out << "]";
+	out << "Skill(" << (int)skill.id << "," << skill.identifier << "): [";
+	for(int i=0; i < skill.levels.size(); i++)
+		out << (i ? "," : "") << skill.levels[i];
+	return out << "]";
 }
 
 std::string CSkill::toString() const
@@ -101,14 +101,14 @@ std::string CSkill::toString() const
 ///CSkillHandler
 CSkillHandler::CSkillHandler()
 {
-    for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
-    {
-        CSkill * skill = new CSkill(SecondarySkill(id));
-        for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
+	{
+		CSkill * skill = new CSkill(SecondarySkill(id));
+		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 			for (auto bonus : defaultBonus(SecondarySkill(id), level))
 				skill->addNewBonus(bonus, level);
-        objects.push_back(skill);
-    }
+		objects.push_back(skill);
+	}
 }
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
@@ -141,42 +141,42 @@ const std::string CSkillHandler::getTypeName() const
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
 {
-    CSkill * skill = NULL;
+	CSkill * skill = NULL;
 
-    for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
-    {
-        if(NSecondarySkill::names[id].compare(identifier) == 0)
-        {
-            skill = new CSkill(SecondarySkill(id));
-            break;
-        }
-    }
+	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
+	{
+		if(NSecondarySkill::names[id].compare(identifier) == 0)
+		{
+			skill = new CSkill(SecondarySkill(id));
+			break;
+		}
+	}
 
-    if(!skill)
-    {
-        logGlobal->error("unknown secondary skill %s", identifier);
-        throw std::runtime_error("invalid skill");
-    }
+	if(!skill)
+	{
+		logGlobal->error("unknown secondary skill %s", identifier);
+		throw std::runtime_error("invalid skill");
+	}
 
-    for(int level = 1; level < NSecondarySkill::levels.size(); level++)
-    {
-        const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
-        const JsonNode & levelNode = json[levelName];
-        // parse bonus effects
+	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+	{
+		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
+		const JsonNode & levelNode = json[levelName];
+		// parse bonus effects
 		for(auto b : levelNode["effects"].Struct())
-        {
+		{
 			auto bonus = JsonUtils::parseBonus(b.second);
-            bonus->sid = skill->id;
-            skill->addNewBonus(bonus, level);
-        }
-        // parse skill description - tracked separately
-        if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
-            skill->setDescription(levelNode["description"].String(), level);
-    }
-    logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
-    logMod->trace("%s", skill->toString());
+			bonus->sid = skill->id;
+			skill->addNewBonus(bonus, level);
+		}
+		// parse skill description - tracked separately
+		if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
+			skill->setDescription(levelNode["description"].String(), level);
+	}
+	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
+	logMod->trace("%s", skill->toString());
 
-    return skill;
+	return skill;
 }
 
 void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
@@ -231,8 +231,8 @@ CSkillHandler::~CSkillHandler()
 
 std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {
-    std::vector<bool> allowedSkills(objects.size(), true);
-    return allowedSkills;
+	std::vector<bool> allowedSkills(objects.size(), true);
+	return allowedSkills;
 }
 
 // HMM3 default bonus provided by secondary skill

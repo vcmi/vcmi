@@ -38,51 +38,51 @@ protected:
 	std::vector<LevelInfo> levels; // bonuses provided by basic, advanced and expert level
 
 public:
-    CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
-    ~CSkill();
+	CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
+	~CSkill();
 
-    void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
-    void setDescription(const std::string & desc, int level);
-    const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
-    const std::string & getDescription(int level) const;
-    std::string toString() const;
+	void addNewBonus(const std::shared_ptr<Bonus>& b, int level);
+	void setDescription(const std::string & desc, int level);
+	const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
+	const std::string & getDescription(int level) const;
+	std::string toString() const;
 
-    SecondarySkill id;
-    std::string identifier;
+	SecondarySkill id;
+	std::string identifier;
 
-    template <typename Handler> void serialize(Handler &h, const int version)
-    {
-        h & id & identifier;
-        h & levels;
-    }
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & identifier;
+		h & levels;
+	}
 
-    friend class CSkillHandler;
-    friend std::ostream & operator<<(std::ostream &out, const CSkill &skill);
-    friend std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info);
+	friend class CSkillHandler;
+	friend std::ostream & operator<<(std::ostream &out, const CSkill &skill);
+	friend std::ostream & operator<<(std::ostream &out, const CSkill::LevelInfo &info);
 };
 
 class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>
 {
 public:
-    CSkillHandler();
-    virtual ~CSkillHandler();
+	CSkillHandler();
+	virtual ~CSkillHandler();
 
-    ///IHandler base
-    std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
-    void afterLoadFinalization() override;
-    void beforeValidate(JsonNode & object) override;
+	///IHandler base
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	void afterLoadFinalization() override;
+	void beforeValidate(JsonNode & object) override;
 
-    std::vector<bool> getDefaultAllowed() const override;
-    const std::string getTypeName() const override;
-    void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-    void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	std::vector<bool> getDefaultAllowed() const override;
+	const std::string getTypeName() const override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-    template <typename Handler> void serialize(Handler &h, const int version)
-    {
-        h & objects ;
-    }
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & objects ;
+	}
 
 protected:
-    CSkill * loadFromJson(const JsonNode & json, const std::string & identifier) override;
+	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier) override;
 	std::vector<std::shared_ptr<Bonus>> defaultBonus(SecondarySkill skill, int level) const;
 };

@@ -1,798 +1,798 @@
 {
-    "pathfinding" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.pathfinding",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 25 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 50 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 75 }
-            }
-        }
-    },
-    "archery" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.archery",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 25 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 50 }
-            }
-        }
-    },
-    "logistics" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.logistics",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 20 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 30 }
-            }
-        }
-    },
-    "scouting" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "type" : "SIGHT_RADIOUS",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "diplomacy" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.diplomacy",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "surr" : {
-                    "type" : "SURRENDER_DISCOUNT",
-                    "val" : 20,
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 },
-                "surr" : { "val" : 20 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val": 2 },
-                "surr" : { "val" : 40 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val": 3 },
-                "surr" : { "val" : 60 }
-            }
-        }
-    },
-    "navigation" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.navigation",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 50 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 100 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 150 }
-            }
-        }
-    },
-    "leadership" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "type" : "MORALE",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "wisdom" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.wisdom",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "mysticism" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "type" : "MANA_REGENERATION",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "luck" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "type" : "LUCK",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "ballistics" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.ballistics",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "ctrl" : {
-                    "subtype" : "creature.catapult",
-                    "type" : "MANUAL_CONTROL",
-                    "val" : 100,
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "eagleEye" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.eagleEye",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "val2" : {
-                    "subtype" : "skill.eagleEye",
-                    "type" : "SECONDARY_SKILL_VAL2",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 40 },
-                "val2" : { "val" : 2 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 50 },
-                "val2" : { "val" : 3 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 60 },
-                "val2" : { "val" : 4 }
-            }
-        }
-    },
-    "necromancy" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.necromancy",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 20 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 30 }
-            }
-        }
-    },
-    "estates" : {
-        "base" : {
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.estates",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "description" : "With Basic Estates, a hero contributes 125 gold per day to your cause.",
-            "effects" : {
-                "main" : { "val" : 125 }
-            }
-        },
-        "advanced" : {
-            "description" : "With Advanced Estates, a hero contributes 250 gold per day to your cause.",
-            "effects" : {
-                "main" : { "val" : 250 }
-            }
-        },
-        "expert" : {
-            "description" : "With Expert Estates, a hero contributes 500 gold per day to your cause.",
-            "effects" : {
-                "main" : { "val" : 500 }
-            }
-        }
-    },
-    "fireMagic" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.fireMagic",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "airMagic" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.airMagic",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "waterMagic" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.waterMagic",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "earthMagic" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.earthMagic",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 1 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        }
-    },
-    "scholar" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.scholar",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 2 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 4 }
-            }
-        }
-    },
-    "tactics" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.tactics",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 3 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 5 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 7 }
-            }
-        }
-    },
-    "artillery" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.artillery",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "val2" : {
-                    "subtype" : "skill.artillery",
-                    "type" : "SECONDARY_SKILL_VAL2",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "ctrl" : {
-                    "subtype" : "creature.ballista",
-                    "type" : "MANUAL_CONTROL",
-                    "val" : 100,
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 50 },
-                "val2" : { "val" : 0 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 75 },
-                "val2" : { "val" : 1 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 100 },
-                "val2" : { "val" : 1 }
-            }
-        }
-    },
-    "learning" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.learning",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 5 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 15 }
-            }
-        }
-    },
-    "offence" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.offence",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 20 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 30 }
-            }
-        }
-    },
-    "armorer" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.armorer",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 5 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 15 }
-            }
-        }
-    },
-    "intelligence" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.intelligence",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 25 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 50 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 100 }
-            }
-        }
-    },
-    "sorcery" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.sorcery",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 5 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 15 }
-            }
-        }
-    },
-    "resistance" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.resistance",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 5 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 10 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 20 }
-            }
-        }
-    },
-    "firstAid" : {
-        "base" : {
-            "description" : "",
-            "effects" : {
-                "main" : {
-                    "subtype" : "skill.firstAid",
-                    "type" : "SECONDARY_SKILL_PREMY",
-                    "valueType" : "BASE_NUMBER"
-                },
-                "ctrl" : {
-                    "subtype" : "creature.firstAidTent",
-                    "type" : "MANUAL_CONTROL",
-                    "val" : 100,
-                    "valueType" : "BASE_NUMBER"
-                }
-            }
-        },
-        "basic" : {
-            "effects" : {
-                "main" : { "val" : 50 }
-            }
-        },
-        "advanced" : {
-            "effects" : {
-                "main" : { "val" : 75 }
-            }
-        },
-        "expert" : {
-            "effects" : {
-                "main" : { "val" : 100 }
-            }
-        }
-    }
+	"pathfinding" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.pathfinding",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 25 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 50 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 75 }
+			}
+		}
+	},
+	"archery" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.archery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 25 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 50 }
+			}
+		}
+	},
+	"logistics" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.logistics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 20 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 30 }
+			}
+		}
+	},
+	"scouting" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"type" : "SIGHT_RADIOUS",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"diplomacy" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.diplomacy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				},
+				"surr" : {
+					"type" : "SURRENDER_DISCOUNT",
+					"val" : 20,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 },
+				"surr" : { "val" : 20 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val": 2 },
+				"surr" : { "val" : 40 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val": 3 },
+				"surr" : { "val" : 60 }
+			}
+		}
+	},
+	"navigation" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.navigation",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 50 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 100 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 150 }
+			}
+		}
+	},
+	"leadership" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"type" : "MORALE",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"wisdom" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.wisdom",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"mysticism" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"type" : "MANA_REGENERATION",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"luck" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"type" : "LUCK",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"ballistics" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.ballistics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				},
+				"ctrl" : {
+					"subtype" : "creature.catapult",
+					"type" : "MANUAL_CONTROL",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"eagleEye" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				},
+				"val2" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_VAL2",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 40 },
+				"val2" : { "val" : 2 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 50 },
+				"val2" : { "val" : 3 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 60 },
+				"val2" : { "val" : 4 }
+			}
+		}
+	},
+	"necromancy" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.necromancy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 20 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 30 }
+			}
+		}
+	},
+	"estates" : {
+		"base" : {
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.estates",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"description" : "With Basic Estates, a hero contributes 125 gold per day to your cause.",
+			"effects" : {
+				"main" : { "val" : 125 }
+			}
+		},
+		"advanced" : {
+			"description" : "With Advanced Estates, a hero contributes 250 gold per day to your cause.",
+			"effects" : {
+				"main" : { "val" : 250 }
+			}
+		},
+		"expert" : {
+			"description" : "With Expert Estates, a hero contributes 500 gold per day to your cause.",
+			"effects" : {
+				"main" : { "val" : 500 }
+			}
+		}
+	},
+	"fireMagic" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.fireMagic",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"airMagic" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.airMagic",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"waterMagic" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.waterMagic",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"earthMagic" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.earthMagic",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 1 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		}
+	},
+	"scholar" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.scholar",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 2 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 4 }
+			}
+		}
+	},
+	"tactics" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.tactics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 3 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 5 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 7 }
+			}
+		}
+	},
+	"artillery" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.artillery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				},
+				"val2" : {
+					"subtype" : "skill.artillery",
+					"type" : "SECONDARY_SKILL_VAL2",
+					"valueType" : "BASE_NUMBER"
+				},
+				"ctrl" : {
+					"subtype" : "creature.ballista",
+					"type" : "MANUAL_CONTROL",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 50 },
+				"val2" : { "val" : 0 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 75 },
+				"val2" : { "val" : 1 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 100 },
+				"val2" : { "val" : 1 }
+			}
+		}
+	},
+	"learning" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.learning",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 5 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 15 }
+			}
+		}
+	},
+	"offence" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.offence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 20 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 30 }
+			}
+		}
+	},
+	"armorer" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.armorer",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 5 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 15 }
+			}
+		}
+	},
+	"intelligence" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 25 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 50 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 100 }
+			}
+		}
+	},
+	"sorcery" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 5 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 15 }
+			}
+		}
+	},
+	"resistance" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.resistance",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 5 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 10 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 20 }
+			}
+		}
+	},
+	"firstAid" : {
+		"base" : {
+			"description" : "",
+			"effects" : {
+				"main" : {
+					"subtype" : "skill.firstAid",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"valueType" : "BASE_NUMBER"
+				},
+				"ctrl" : {
+					"subtype" : "creature.firstAidTent",
+					"type" : "MANUAL_CONTROL",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		},
+		"basic" : {
+			"effects" : {
+				"main" : { "val" : 50 }
+			}
+		},
+		"advanced" : {
+			"effects" : {
+				"main" : { "val" : 75 }
+			}
+		},
+		"expert" : {
+			"effects" : {
+				"main" : { "val" : 100 }
+			}
+		}
+	}
 }

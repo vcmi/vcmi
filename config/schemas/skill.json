@@ -1,48 +1,48 @@
 {
 
-	"type":"object",
-	"$schema": "http://json-schema.org/draft-04/schema",
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
 
 	"title" : "VCMI skill format",
 	"description" : "Format used to replace bonuses provided by secondary skills in VCMI",
 
 	"definitions" : {
 
-        "skillBonus":{
-            "type": "object",
-            "description": "Set of bonuses provided by skill at given level",
-            "required" : ["effects"],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "description": "localizable description"
-                },
-                "effects": {
-                    "type": "object",
-                    "additionalProperties" : {
-                        "$ref" : "vcmi:bonus"
-                    }
-                }
-            }
-        },
+		"skillBonus" : {
+			"type" : "object",
+			"description" : "Set of bonuses provided by skill at given level",
+			"required" : ["effects"],
+			"properties" : {
+				"description" : {
+					"type" : "string",
+					"description" : "localizable description"
+				},
+				"effects" : {
+					"type" : "object",
+					"additionalProperties" : {
+						"$ref" : "vcmi:bonus"
+					}
+				}
+			}
+		},
 
-        "required" : ["basic", "advanced", "expert"],
+		"required" : ["basic", "advanced", "expert"],
 
-        "properties": {
-            "base":{
-                "type": "object",
-                "description": "will be merged with all levels",
-                "additionalProperties": true
-            },
-            "basic":{
-                "$ref" : "#/definitions/skillBonus"
-            },
-            "advanced":{
-                "$ref" : "#/definitions/skillBonus"
-            },
-            "expert":{
-                "$ref" : "#/definitions/skillBonus"
-            }
-        }
+		"properties" : {
+			"base" : {
+				"type" : "object",
+				"description" : "will be merged with all levels",
+				"additionalProperties" : true
+			},
+			"basic" : {
+				"$ref" : "#/definitions/skillBonus"
+			},
+			"advanced" : {
+				"$ref" : "#/definitions/skillBonus"
+			},
+			"expert" : {
+				"$ref" : "#/definitions/skillBonus"
+			}
+		}
 	}
 }
