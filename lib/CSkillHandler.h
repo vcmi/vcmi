@@ -45,11 +45,13 @@ public:
 
 	SecondarySkill id;
 	std::string identifier;
+	std::string name; //as displayed in GUI
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
 		h & identifier;
+		h & name;
 		h & levels;
 	}
 
@@ -73,6 +75,9 @@ public:
 	const std::string getTypeName() const override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	const std::string & skillInfo(int skill, int level) const;
+	const std::string & skillName(int skill) const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

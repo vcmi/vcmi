@@ -22,6 +22,7 @@
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
@@ -148,7 +149,7 @@ std::string CComponent::getDescription()
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 										 : CGI->generaltexth->allTexts[149]; //mana
-	case secskill:   return CGI->skillInfo(subtype,val);
+	case secskill:   return CGI->skillh->skillInfo(subtype, val);
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
 	case artifact:
@@ -192,7 +193,7 @@ std::string CComponent::getSubtitleInternal()
 	switch(compType)
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
-	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->generaltexth->skillName[subtype];
+	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 	case artifact:   return CGI->arth->artifacts[subtype]->Name();

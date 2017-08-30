@@ -33,6 +33,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/NetPacksBase.h"
 #include "../mapHandler.h"
@@ -240,8 +241,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 			level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
-		secSkillAreas[g]->text = CGI->skillInfo(skill,level);
-		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % CGI->generaltexth->levels[level-1] % CGI->generaltexth->skillName[skill]);
+		secSkillAreas[g]->text = CGI->skillh->skillInfo(skill, level);
+		secSkillAreas[g]->hoverText = boost::str(boost::format(heroscrn[21]) % CGI->generaltexth->levels[level-1] % CGI->skillh->skillName(skill));
 		secSkillImages[g]->setFrame(skill*3 + level + 2);
 	}
 
@@ -372,7 +373,7 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], (v%2) ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
-	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
+		printAtLoc(CGI->skillh->skillName(curHero->secSkills[v].first), (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	}
 
 	//printing special ability

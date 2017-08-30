@@ -1,7 +1,6 @@
 {
 	"pathfinding" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.pathfinding",
@@ -28,7 +27,6 @@
 	},
 	"archery" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.archery",
@@ -55,7 +53,6 @@
 	},
 	"logistics" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.logistics",
@@ -82,7 +79,6 @@
 	},
 	"scouting" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"type" : "SIGHT_RADIOUS",
@@ -108,7 +104,6 @@
 	},
 	"diplomacy" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.diplomacy",
@@ -143,7 +138,6 @@
 	},
 	"navigation" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.navigation",
@@ -170,7 +164,6 @@
 	},
 	"leadership" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"type" : "MORALE",
@@ -196,7 +189,6 @@
 	},
 	"wisdom" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.wisdom",
@@ -223,7 +215,6 @@
 	},
 	"mysticism" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"type" : "MANA_REGENERATION",
@@ -249,7 +240,6 @@
 	},
 	"luck" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"type" : "LUCK",
@@ -275,7 +265,6 @@
 	},
 	"ballistics" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.ballistics",
@@ -308,7 +297,6 @@
 	},
 	"eagleEye" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.eagleEye",
@@ -343,7 +331,6 @@
 	},
 	"necromancy" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.necromancy",
@@ -399,7 +386,6 @@
 	},
 	"fireMagic" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.fireMagic",
@@ -426,7 +412,6 @@
 	},
 	"airMagic" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.airMagic",
@@ -453,7 +438,6 @@
 	},
 	"waterMagic" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.waterMagic",
@@ -480,7 +464,6 @@
 	},
 	"earthMagic" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.earthMagic",
@@ -507,7 +490,6 @@
 	},
 	"scholar" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.scholar",
@@ -534,7 +516,6 @@
 	},
 	"tactics" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.tactics",
@@ -561,7 +542,6 @@
 	},
 	"artillery" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.artillery",
@@ -602,7 +582,6 @@
 	},
 	"learning" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.learning",
@@ -629,7 +608,6 @@
 	},
 	"offence" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.offence",
@@ -656,7 +634,6 @@
 	},
 	"armorer" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.armorer",
@@ -683,7 +660,6 @@
 	},
 	"intelligence" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.intelligence",
@@ -710,7 +686,6 @@
 	},
 	"sorcery" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.sorcery",
@@ -737,7 +712,6 @@
 	},
 	"resistance" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.resistance",
@@ -764,7 +738,6 @@
 	},
 	"firstAid" : {
 		"base" : {
-			"description" : "",
 			"effects" : {
 				"main" : {
 					"subtype" : "skill.firstAid",

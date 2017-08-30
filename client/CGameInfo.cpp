@@ -37,11 +37,3 @@ void CGameInfo::setFromLib()
 	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
 }
-
-const std::string & CGameInfo::skillInfo(int skill, int level) const
-{
-	const std::string & desc = (*skillh)[SecondarySkill(skill)]->getDescription(level);
-	if(desc.size() > 0)
-		return desc;
-	return generaltexth->skillInfoTexts[skill][level-1];
-}

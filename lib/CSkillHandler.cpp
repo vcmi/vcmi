@@ -35,7 +35,7 @@ CSkill::LevelInfo::~LevelInfo()
 {
 }
 
-CSkill::CSkill(SecondarySkill id) : id(id)
+CSkill::CSkill(SecondarySkill id) : id(id), name("")
 {
 	if(id == SecondarySkill::DEFAULT)
 		identifier = "default";
@@ -113,30 +113,57 @@ CSkillHandler::CSkillHandler()
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 {
+	CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
+
+	//skip header
+	parser.endLine();
+	parser.endLine();
+
+	std::vector<std::string> skillNames;
+	std::vector<std::vector<std::string>> skillInfoTexts;
+	do
+	{
+		skillNames.push_back(parser.readString());
+		skillInfoTexts.push_back(std::vector<std::string>());
+		for(int i = 0; i < 3; i++)
+			skillInfoTexts.back().push_back(parser.readString());
+	}
+	while (parser.endLine());
+
+	assert(skillNames.size() == GameConstants::SKILL_QUANTITY);
+
+	//store & construct JSON
 	std::vector<JsonNode> legacyData;
-	/* problem: CGI is client-side only
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
 		CSkill & skill = *objects[id];
 		JsonNode skillNode(JsonNode::DATA_STRUCT);
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{
-			//only "real" legacy data is skill description
-			std::string desc = CGI->generaltexth->skillInfoTexts[skill.id][level-1];
-			//update both skill & JSON
+			skill.name = skillNames[id];
+			std::string & desc = skillInfoTexts[id][level-1];
 			skill.setDescription(desc, level);
 			auto & levelNode = skillNode[NSecondarySkill::levels[level]].Struct();
 			levelNode["description"].String() = desc;
 		}
 		legacyData.push_back(skillNode);
 	}
-	*/
 	return legacyData;
 }
 
 const std::string CSkillHandler::getTypeName() const
 {
 	return "skill";
+}
+
+const std::string & CSkillHandler::skillInfo(int skill, int level) const
+{
+	return objects[skill]->getDescription(level);
+}
+
+const std::string & CSkillHandler::skillName(int skill) const
+{
+	return objects[skill]->name;
 }
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier)
@@ -148,6 +175,8 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 		if(NSecondarySkill::names[id].compare(identifier) == 0)
 		{
 			skill = new CSkill(SecondarySkill(id));
+			//skill name isn't stored in JSON
+			skill->name = objects[id]->name;
 			break;
 		}
 	}
@@ -172,6 +201,8 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 		// parse skill description - tracked separately
 		if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
 			skill->setDescription(levelNode["description"].String(), level);
+		else
+			skill->setDescription(skillInfo(skill->id, level), level);
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
 	logMod->trace("%s", skill->toString());

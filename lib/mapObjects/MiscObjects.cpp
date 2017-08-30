@@ -17,6 +17,7 @@
 #include "../CSoundBase.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
+#include "../CSkillHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
@@ -1476,7 +1477,7 @@ std::string CGWitchHut::getHoverText(PlayerColor player) const
 	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
+		boost::algorithm::replace_first(hoverName, "%s", VLC->skillh->skillName(ability));
 	}
 	return hoverName;
 }

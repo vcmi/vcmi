@@ -68,6 +68,5 @@ public:
 	friend class CClient;
 
 	CGameInfo();
-	const std::string & skillInfo(int skill, int level) const;
 };
 extern const CGameInfo* CGI;
