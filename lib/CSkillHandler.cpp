@@ -113,8 +113,24 @@ CSkillHandler::CSkillHandler()
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 {
-    // not supported - no legacy data to load
 	std::vector<JsonNode> legacyData;
+	/* problem: CGI is client-side only
+	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
+	{
+		CSkill & skill = *objects[id];
+		JsonNode skillNode(JsonNode::DATA_STRUCT);
+		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
+		{
+			//only "real" legacy data is skill description
+			std::string desc = CGI->generaltexth->skillInfoTexts[skill.id][level-1];
+			//update both skill & JSON
+			skill.setDescription(desc, level);
+			auto & levelNode = skillNode[NSecondarySkill::levels[level]].Struct();
+			levelNode["description"].String() = desc;
+		}
+		legacyData.push_back(skillNode);
+	}
+	*/
 	return legacyData;
 }
 
@@ -155,7 +171,6 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
         }
         // parse skill description - tracked separately
         if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
-            //CGI->generaltexth->skillInfoTexts[skill->id][level-1] = levelNode["description"].String();
             skill->setDescription(levelNode["description"].String(), level);
     }
     logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
