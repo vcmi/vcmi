@@ -253,10 +253,26 @@ static CFileCache animationCache;
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
 
+bool operator== (const SDL_Color & lhs, const SDL_Color & rhs)
+{
+	return (lhs.a == rhs.a) && (lhs.b == rhs.b) &&(lhs.g == rhs.g) &&(lhs.r == rhs.r);
+}
+
 CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
+	static SDL_Color H3_ORIG_PALETTE[8] =
+	{
+	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
+	   {255, 150, 255, SDL_ALPHA_OPAQUE},
+	   {255, 100, 255, SDL_ALPHA_OPAQUE},
+	   {255,  50, 255, SDL_ALPHA_OPAQUE},
+	   {255,   0, 255, SDL_ALPHA_OPAQUE},
+	   {255, 255, 0,   SDL_ALPHA_OPAQUE},
+	   {180,   0, 255, SDL_ALPHA_OPAQUE},
+	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
+	};
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
@@ -292,7 +308,17 @@ CDefFile::CDefFile(std::string Name):
 	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
 		memset(palette.get(), 0, sizeof(SDL_Color)*2);
 	else
-		memcpy(palette.get(), H3Palette, sizeof(SDL_Color)*8);//initialize shadow\selection colors
+	{
+		//TODO: more accurate conversion
+		memcpy(palette.get(), H3Palette, sizeof(SDL_Color)*2);
+
+        for(int i = 2; i < 8; i++)
+		{
+			if(palette[i] == H3_ORIG_PALETTE[i])
+				palette[i] = H3Palette[i];
+		}
+	}
+
 
 	for (ui32 i=0; i<totalBlocks; i++)
 	{
