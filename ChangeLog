@@ -11,12 +11,15 @@ GENERAL:
 - CATAPULT_EXTRA_SHOTS - defines number of extra wall attacks for units that can do so
 - RANGED_RETALIATION - allows ranged counterattack
 - BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
+- SECONDARY_SKILL_VAL2 - set additional parameter for certain secondary skills
+- MANUAL_CONTROL - grant manual control over war machine
 
 SPELLS:
 * Implemented cumulative effects for spells
 
 MODS:
 * Improve support for WoG commander artifacts and skill descriptions
+* Added basic support for secondary skill modding
 
 0.98 -> 0.99
 
