@@ -404,6 +404,7 @@ bool CContentHandler::ContentTypeHandler::loadMod(std::string modName, bool vali
 			continue;
 		}
 		// normal new object
+		logMod->trace("no index in loadMod(%s)", name);
 		performValidate(data,name);
 		handler->loadObject(modName, name, data);
 	}

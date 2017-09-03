@@ -1,5 +1,6 @@
 {
 	"pathfinding" : {
+		"index" : 0,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -26,6 +27,7 @@
 		}
 	},
 	"archery" : {
+		"index" : 1,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -52,6 +54,7 @@
 		}
 	},
 	"logistics" : {
+		"index" : 2,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -78,6 +81,7 @@
 		}
 	},
 	"scouting" : {
+		"index" : 3,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -103,6 +107,7 @@
 		}
 	},
 	"diplomacy" : {
+		"index" : 4,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -137,6 +142,7 @@
 		}
 	},
 	"navigation" : {
+		"index" : 5,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -163,6 +169,7 @@
 		}
 	},
 	"leadership" : {
+		"index" : 6,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -188,6 +195,7 @@
 		}
 	},
 	"wisdom" : {
+		"index" : 7,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -214,6 +222,7 @@
 		}
 	},
 	"mysticism" : {
+		"index" : 8,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -239,6 +248,7 @@
 		}
 	},
 	"luck" : {
+		"index" : 9,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -264,6 +274,7 @@
 		}
 	},
 	"ballistics" : {
+		"index" : 10,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -296,6 +307,7 @@
 		}
 	},
 	"eagleEye" : {
+		"index" : 11,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -330,6 +342,7 @@
 		}
 	},
 	"necromancy" : {
+		"index" : 12,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -356,6 +369,7 @@
 		}
 	},
 	"estates" : {
+		"index" : 13,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -385,6 +399,7 @@
 		}
 	},
 	"fireMagic" : {
+		"index" : 14,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -411,6 +426,7 @@
 		}
 	},
 	"airMagic" : {
+		"index" : 15,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -437,6 +453,7 @@
 		}
 	},
 	"waterMagic" : {
+		"index" : 16,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -463,6 +480,7 @@
 		}
 	},
 	"earthMagic" : {
+		"index" : 17,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -489,6 +507,7 @@
 		}
 	},
 	"scholar" : {
+		"index" : 18,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -515,6 +534,7 @@
 		}
 	},
 	"tactics" : {
+		"index" : 19,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -541,6 +561,7 @@
 		}
 	},
 	"artillery" : {
+		"index" : 20,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -581,6 +602,7 @@
 		}
 	},
 	"learning" : {
+		"index" : 21,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -607,6 +629,7 @@
 		}
 	},
 	"offence" : {
+		"index" : 22,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -633,6 +656,7 @@
 		}
 	},
 	"armorer" : {
+		"index" : 23,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -659,6 +683,7 @@
 		}
 	},
 	"intelligence" : {
+		"index" : 24,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -685,6 +710,7 @@
 		}
 	},
 	"sorcery" : {
+		"index" : 25,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -711,6 +737,7 @@
 		}
 	},
 	"resistance" : {
+		"index" : 26,
 		"base" : {
 			"effects" : {
 				"main" : {
@@ -737,6 +764,7 @@
 		}
 	},
 	"firstAid" : {
+		"index" : 27,
 		"base" : {
 			"effects" : {
 				"main" : {

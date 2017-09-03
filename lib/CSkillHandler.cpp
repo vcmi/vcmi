@@ -27,7 +27,7 @@
 #include "battle/CBattleInfoCallback.h"
 
 ///CSkill
-CSkill::LevelInfo::LevelInfo() : description("")
+CSkill::LevelInfo::LevelInfo()
 {
 }
 
@@ -35,7 +35,7 @@ CSkill::LevelInfo::~LevelInfo()
 {
 }
 
-CSkill::CSkill(SecondarySkill id) : id(id), name("")
+CSkill::CSkill(SecondarySkill id) : id(id)
 {
 	if(id == SecondarySkill::DEFAULT)
 		identifier = "default";
@@ -101,14 +101,6 @@ std::string CSkill::toString() const
 ///CSkillHandler
 CSkillHandler::CSkillHandler()
 {
-	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
-	{
-		CSkill * skill = new CSkill(SecondarySkill(id));
-		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
-			for (auto bonus : defaultBonus(SecondarySkill(id), level))
-				skill->addNewBonus(bonus, level);
-		objects.push_back(skill);
-	}
 }
 
 std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
@@ -136,18 +128,18 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	std::vector<JsonNode> legacyData;
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
-		CSkill & skill = *objects[id];
 		JsonNode skillNode(JsonNode::DATA_STRUCT);
+		skillNode["name"].String() = skillNames[id];
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{
-			skill.name = skillNames[id];
 			std::string & desc = skillInfoTexts[id][level-1];
-			skill.setDescription(desc, level);
 			auto & levelNode = skillNode[NSecondarySkill::levels[level]].Struct();
 			levelNode["description"].String() = desc;
+			levelNode["effects"].Struct(); // create empty effects objects
 		}
 		legacyData.push_back(skillNode);
 	}
+	objects.resize(legacyData.size());
 	return legacyData;
 }
 
@@ -175,8 +167,6 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 		if(NSecondarySkill::names[id].compare(identifier) == 0)
 		{
 			skill = new CSkill(SecondarySkill(id));
-			//skill name isn't stored in JSON
-			skill->name = objects[id]->name;
 			break;
 		}
 	}
@@ -187,6 +177,7 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 		throw std::runtime_error("invalid skill");
 	}
 
+	skill->name = json["name"].String();
 	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 	{
 		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
@@ -198,43 +189,12 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 			bonus->sid = skill->id;
 			skill->addNewBonus(bonus, level);
 		}
-		// parse skill description - tracked separately
-		if(vstd::contains(levelNode.Struct(), "description") && !levelNode["description"].isNull())
-			skill->setDescription(levelNode["description"].String(), level);
-		else
-			skill->setDescription(skillInfo(skill->id, level), level);
+		skill->setDescription(levelNode["description"].String(), level);
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
 	logMod->trace("%s", skill->toString());
 
 	return skill;
-}
-
-void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
-{
-	auto type_name = getTypeName();
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-
-	if(object->id == SecondarySkill::DEFAULT) // new skill - no index identified
-	{
-		object->id = SecondarySkill(objects.size());
-		objects.push_back(object);
-	}
-	else
-		objects[object->id] = object;
-
-	registerObject(scope, type_name, name, object->id);
-}
-
-void CSkillHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
-{
-	auto type_name = getTypeName();
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-
-	assert(object->id == index);
-	objects[index] = object;
-
-	registerObject(scope, type_name, name, object->id);
 }
 
 void CSkillHandler::afterLoadFinalization()
@@ -263,106 +223,4 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedSkills(objects.size(), true);
 	return allowedSkills;
-}
-
-// HMM3 default bonus provided by secondary skill
-std::vector<std::shared_ptr<Bonus>> CSkillHandler::defaultBonus(SecondarySkill skill, int level) const
-{
-	std::vector<std::shared_ptr<Bonus>> result;
-
-	// add bonus based on current values - useful for adding multiple bonuses easily
-	auto addBonus = [=, &result](int bonusVal, Bonus::BonusType bonusType = Bonus::SECONDARY_SKILL_PREMY, int subtype = 0)
-	{
-		if(bonusType == Bonus::SECONDARY_SKILL_PREMY || bonusType == Bonus::SECONDARY_SKILL_VAL2)
-			subtype = skill;
-		result.push_back(std::make_shared<Bonus>(Bonus::PERMANENT, bonusType, Bonus::SECONDARY_SKILL, bonusVal, skill, subtype, Bonus::BASE_NUMBER));
-	};
-
-	switch(skill)
-	{
-	case SecondarySkill::PATHFINDING:
-		addBonus(25 * level);
-		break;
-	case SecondarySkill::ARCHERY:
-		addBonus(5 + 5 * level * level);
-		break;
-	case SecondarySkill::LOGISTICS:
-		addBonus(10 * level);
-		break;
-	case SecondarySkill::SCOUTING:
-		addBonus(level, Bonus::SIGHT_RADIOUS);
-		break;
-	case SecondarySkill::DIPLOMACY:
-		addBonus(level);
-		addBonus(20 * level, Bonus::SURRENDER_DISCOUNT);
-		break;
-	case SecondarySkill::NAVIGATION:
-		addBonus(50 * level);
-		break;
-	case SecondarySkill::LEADERSHIP:
-		addBonus(level, Bonus::MORALE);
-		break;
-	case SecondarySkill::LUCK:
-		addBonus(level, Bonus::LUCK);
-		break;
-	case SecondarySkill::BALLISTICS:
-		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::CATAPULT);
-		addBonus(level);
-		break;
-	case SecondarySkill::EAGLE_EYE:
-		addBonus(30 + 10 * level);
-		addBonus(1 + level, Bonus::SECONDARY_SKILL_VAL2);
-		break;
-	case SecondarySkill::NECROMANCY:
-		addBonus(10 * level);
-		break;
-	case SecondarySkill::ESTATES:
-		addBonus(125 << (level-1));
-		break;
-	case SecondarySkill::FIRE_MAGIC:
-	case SecondarySkill::AIR_MAGIC:
-	case SecondarySkill::WATER_MAGIC:
-	case SecondarySkill::EARTH_MAGIC:
-		addBonus(level);
-		break;
-	case SecondarySkill::SCHOLAR:
-		addBonus(1 + level);
-		break;
-	case SecondarySkill::TACTICS:
-		addBonus(1 + 2 * level);
-		break;
-	case SecondarySkill::ARTILLERY:
-		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::BALLISTA);
-		addBonus(25 + 25 * level);
-		if(level > 1) // extra attack
-			addBonus(1, Bonus::SECONDARY_SKILL_VAL2);
-		 break;
-	case SecondarySkill::LEARNING:
-		addBonus(5 * level);
-		break;
-	case SecondarySkill::OFFENCE:
-		addBonus(10 * level);
-		break;
-	case SecondarySkill::ARMORER:
-		addBonus(5 * level);
-		break;
-	case SecondarySkill::INTELLIGENCE:
-		addBonus(25 << (level-1));
-		break;
-	case SecondarySkill::SORCERY:
-		addBonus(5 * level);
-		break;
-	case SecondarySkill::RESISTANCE:
-		addBonus(5 << (level-1));
-		break;
-	case SecondarySkill::FIRST_AID:
-		addBonus(100, Bonus::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT);
-		addBonus(25 + 25 * level);
-		break;
-	default:
-		addBonus(level);
-		break;
-	}
-
-	return result;
 }

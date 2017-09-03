@@ -11,7 +11,7 @@
 		"skillBonus" : {
 			"type" : "object",
 			"description" : "Set of bonuses provided by skill at given level",
-			"required" : ["effects"],
+			"required" : ["description", "effects"],
 			"properties" : {
 				"description" : {
 					"type" : "string",
@@ -28,9 +28,17 @@
 		
 	},
 
-	"required" : ["basic", "advanced", "expert"],
+	"required" : ["name", "basic", "advanced", "expert"],
 
 	"properties" : {
+		"index" : {
+			"type": "number",
+			"description": "numeric id of skill, required for existing skills"
+		},
+		"name" : {
+			"type": "string",
+			"description": "localizable skill name"
+		},
 		"base" : {
 			"type" : "object",
 			"description" : "will be merged with all levels",

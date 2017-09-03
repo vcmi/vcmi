@@ -73,8 +73,6 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 	const std::string getTypeName() const override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	const std::string & skillInfo(int skill, int level) const;
 	const std::string & skillName(int skill) const;
@@ -86,5 +84,4 @@ public:
 
 protected:
 	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier) override;
-	std::vector<std::shared_ptr<Bonus>> defaultBonus(SecondarySkill skill, int level) const;
 };
