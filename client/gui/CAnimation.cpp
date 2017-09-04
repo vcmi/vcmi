@@ -1468,6 +1468,9 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
+
+	if(source.empty())
+		logAnim->error("Animation %s failed to load", Name);
 }
 
 CAnimation::CAnimation():
