@@ -235,8 +235,10 @@ private:
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - number of additional shots, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
 	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
-	BONUS_NAME(WIDE_BREATH) /* Kuririn skill */\
-	BONUS_NAME(FIRST_STRIKE) /* Witchking skill */\
+	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
+	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
+	BONUS_NAME(SYNERGY_TARGET) /* dummy skill for alternative upgrades mod */\
+	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighboring with target) without spell-like mechanics */\
 	/* end of list */
 
 

@@ -892,16 +892,14 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	// only primary target
 	applyBattleEffects(bat, att, def, distance, false);
 
-	if (!bat.shot()) //multiple-hex attack - only in meele
-	{
-		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex); //creatures other than primary target
+	//multiple-hex normal attack
+	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex, bat.shot()); //creatures other than primary target
 
-		for (const CStack * stack : attackedCreatures)
+	for (const CStack * stack : attackedCreatures)
+	{
+		if (stack != def) //do not hit same stack twice
 		{
-			if (stack != def) //do not hit same stack twice
-			{
-				applyBattleEffects(bat, att, stack, distance, true);
-			}
+			applyBattleEffects(bat, att, stack, distance, true);
 		}
 	}
 
@@ -914,11 +912,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 		//TODO: should spell override creature`s projectile?
 
-		auto attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att, bonus->val, targetHex);
+		auto affectedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att, bonus->val, targetHex);
 
 		//TODO: get exact attacked hex for defender
 
-		for (const CStack * stack : attackedCreatures)
+		for (const CStack * stack : affectedCreatures)
 		{
 			if (stack != def) //do not hit same stack twice
 			{

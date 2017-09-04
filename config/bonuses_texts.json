@@ -150,12 +150,13 @@
 		"description": "Immune to all Fire school spells"
 	},
 
-  "FIRE_SHIELD": {
-    "name": "Fire Shield (${val}%)",
-    "description": "Reflects part of melee damage"
-  },
+	"FIRE_SHIELD":
+	{
+		"name": "Fire Shield (${val}%)",
+		"description": "Reflects part of melee damage"
+	},
 
-  "FIRST_STRIKE":
+	"FIRST_STRIKE":
 	{
 		"name": "First Strike",
 		"description": "This creature attacks first instead of retaliating"
@@ -352,6 +353,12 @@
 		"name": "Ranged",
 		"description": "Creature can shoot"
 	},
+
+	"SHOOTS_ALL_ADJACENT":
+	{
+		"name": "Shoot all around",
+		"description": "This creature's ranged attacks strike all targets in a small area"
+	},
 	
 	"SOUL_STEAL":
 	{
@@ -400,11 +407,17 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
-	
+
 	"SUMMON_GUARDIANS":
 	{
 		"name": "Summon guardians",
 		"description": "At battle start summons ${subtype.creature} (${val}%)"
+	},
+
+	"SYNERGY_TARGET":
+	{
+		"name": "Synergizable",
+		"description": "This creature is vulnerable to synergy effect"
 	},
 
 	"TWO_HEX_ATTACK_BREATH":
