@@ -5797,9 +5797,10 @@ void CGameHandler::runBattle()
 			}
 
 			const CGHeroInstance * curOwner = battleGetOwnerHero(next);
+			const int stackCreatureId = next->getCreature()->idNumber;
 
-			if ((next->position < 0 || next->getCreature()->idNumber == CreatureID::BALLISTA)	//arrow turret or ballista
-				&& (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::BALLISTA)))
+			if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
+				&& (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, stackCreatureId)))
 			{
 				BattleAction attack;
 				attack.actionType = Battle::SHOOT;
