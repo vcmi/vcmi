@@ -17,6 +17,7 @@
 #include "CCreatureSet.h"
 #include "CHeroHandler.h"
 #include "CGeneralTextHandler.h"
+#include "CSkillHandler.h"
 #include "CStack.h"
 #include "CArtHandler.h"
 
@@ -1078,7 +1079,7 @@ std::string Bonus::Description() const
 			str << VLC->creh->creatures[sid]->namePl;
 			break;
 		case SECONDARY_SKILL:
-			str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
+			str << VLC->skillh->skillName(sid);
 			break;
 		default:
 			//todo: handle all possible sources
@@ -1164,6 +1165,11 @@ namespace Selector
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source)
 	{
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source)(source);
+	}
+
+	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType)
+	{
+		return CSelectFieldEqual<Bonus::ValueType>(&Bonus::valType)(valType);
 	}
 
 	DLL_LINKAGE CSelector all([](const Bonus * b){return true;});

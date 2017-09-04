@@ -12,6 +12,7 @@
 
 #include "CHeroHandler.h" // for CHeroHandler
 #include "spells/CSpellHandler.h"// for CSpell
+#include "CSkillHandler.h"// for CSkill
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"

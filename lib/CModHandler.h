@@ -51,6 +51,10 @@ class CIdentifierStorage
 		si32 id;
 		std::string scope; /// scope in which this ID located
 
+		bool operator==(const ObjectData & other) const
+		{
+			return id == other.id && scope == other.scope;
+		}
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -59,7 +63,7 @@ class CIdentifierStorage
 		}
 	};
 
-	std::multimap<std::string, ObjectData > registeredObjects;
+	std::multimap<std::string, ObjectData> registeredObjects;
 	std::vector<ObjectCallback> scheduledRequests;
 
 	ELoadingState state;

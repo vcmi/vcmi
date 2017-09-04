@@ -130,8 +130,6 @@ public:
 	std::vector<std::string> tentColors;
 
 	//sec skills
-	std::vector<std::string> skillName;
-	std::vector<std::vector<std::string>> skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
 	std::vector<std::string> levels;
 	std::vector<std::string> zcrexp; //more or less useful content of that file
 	//commanders

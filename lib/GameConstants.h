@@ -62,6 +62,7 @@ class CArtifactInstance;
 class CCreature;
 class CHero;
 class CSpell;
+class CSkill;
 class CGameInfoCallback;
 class CNonConstInfoCallback;
 
@@ -319,6 +320,8 @@ public:
 
 	SecondarySkill(ESecondarySkill _num = WRONG) : num(_num)
 	{}
+
+	DLL_LINKAGE const CSkill * toSkill() const;
 
 	ID_LIKE_CLASS_COMMON(SecondarySkill, ESecondarySkill)
 

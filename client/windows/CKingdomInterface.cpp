@@ -28,6 +28,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -170,7 +171,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 		return CGI->heroh->heroes[getSubID()]->specName;
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
-			return CGI->generaltexth->skillName[getSubID()];
+			return CGI->skillh->skillName(getSubID());
 		else
 			return "";
 	default:
@@ -281,7 +282,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **com
 			if (!value)
 				return false;
 
-			text = CGI->generaltexth->skillInfoTexts[subID][value-1];
+			text = CGI->skillh->skillInfo(subID, value);
 			*comp = new CComponent(CComponent::secskill, subID, value);
 			return true;
 		}
@@ -356,7 +357,7 @@ std::string InfoBoxHeroData::getHoverText()
 		if (hero->secSkills.size() > index)
 		{
 			std::string level = CGI->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = CGI->generaltexth->skillName[hero->secSkills[index].first];
+			std::string skill = CGI->skillh->skillName(hero->secSkills[index].first);
 			return boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else

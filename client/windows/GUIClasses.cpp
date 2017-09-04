@@ -49,6 +49,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CondSh.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/CTownHandler.h"
@@ -944,11 +945,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			secSkillAreas[b][g]->type = skill;
 			secSkillAreas[b][g]->bonusValue = level;
-			secSkillAreas[b][g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
+			secSkillAreas[b][g]->text = CGI->skillh->skillInfo(skill, level);
 
 			secSkillAreas[b][g]->hoverText = CGI->generaltexth->heroscrn[21];
 			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->levels[level - 1]);
-			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->generaltexth->skillName[skill]);
+			boost::algorithm::replace_first(secSkillAreas[b][g]->hoverText, "%s", CGI->skillh->skillName(skill));
 		}
 
 		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
@@ -1222,7 +1223,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->generaltexth->skillInfoTexts[ID][0],
+		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1),
 				new CComponent(CComponent::secskill, ID, 1));
 	}
 }
@@ -1230,7 +1231,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->setText(CGI->generaltexth->skillName[ID]);
+		GH.statusbar->setText(CGI->skillh->skillName(ID));
 	else
 		GH.statusbar->clear();
 }
@@ -1264,7 +1265,7 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 
 	blitAtLoc(bar->bg, -28, -22, to);
 	blitAtLoc(bar->bg, -28,  48, to);
-	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::WHITE,to);//Name
+	printAtMiddleLoc  (CGI->skillh->skillName(ID), 22, -13, FONT_SMALL, Colors::WHITE,to);//Name
 	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::WHITE,to);//Level(always basic)
 
 	CAnimImage::showAll(to);
@@ -1328,12 +1329,12 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 
 	std::string text = CGI->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
 	boost::replace_first(text, "%d", "2000");
 
 	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);//Clerk speech
 
-	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth-> skillName[SKILL]);//Skill name
+	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::WHITE, CGI->skillh->skillName(SKILL));//Skill name
 	new CAnimImage("SECSKILL", SKILL*3+3, 0, 211, 51);//skill
 	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);//Skill level
 
@@ -1341,11 +1342,11 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::WHITE, "2000");//Cost
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->skillh->skillName(SKILL));
 
 	text = CGI->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
+	boost::replace_first(text, "%s", CGI->skillh->skillName(SKILL));
 	boost::replace_first(text, "%d", "2000");
 
 	confirm= new CButton(Point(148, 299), "IBY6432.DEF", CButton::tooltip(hoverText, text), [=](){makeDeal(SKILL);}, SDLK_RETURN);

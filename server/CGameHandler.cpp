@@ -592,12 +592,11 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	if (finishingBattle->winnerHero)
 	{
-		if (int eagleEyeLevel = finishingBattle->winnerHero->getSecSkillLevel(SecondarySkill::EAGLE_EYE))
+		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
 		{
-			int maxLevel = eagleEyeLevel + 1;
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			for (const CSpell *sp : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
-				if (sp->level <= maxLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
+				if (sp->level <= eagleEyeLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
 					cs.spells.insert(sp->id);
 		}
 	}
@@ -881,9 +880,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if (att->getCreature()->idNumber == CreatureID::BALLISTA)
 	{
-		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
-		int chance = artilleryLvlToChance[owner->getSecSkillLevel(SecondarySkill::ARTILLERY)];
+		int chance = owner->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARTILLERY);
 		if (chance > getRandomGenerator().nextInt(99))
 		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
@@ -1974,7 +1972,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		// Aurora Borealis give spells of all levels even if only level 1 mages guild built
-		for (int i = 0; i < h->getSecSkillLevel(SecondarySkill::WISDOM)+2; i++)
+		for (int i = 0; i < h->maxSpellLevel(); i++)
 		{
 			std::vector<SpellID> spells;
 			getAllowedSpells(spells, i+1);
@@ -1984,7 +1982,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	}
 	else
 	{
-		for (int i = 0; i < std::min(t->mageGuildLevel(), h->getSecSkillLevel(SecondarySkill::WISDOM)+2); i++)
+		for (int i = 0; i < std::min(t->mageGuildLevel(), h->maxSpellLevel()); i++)
 		{
 			for (int j = 0; j < t->spellsAtLevel(i+1, true) && j < t->spells.at(i).size(); j++)
 			{
@@ -2490,19 +2488,21 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
+	int h1_scholarLevel = h1->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
+	int h2_scholarLevel = h2->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SCHOLAR);
 
-	if (h1->getSecSkillLevel(SecondarySkill::SCHOLAR) < h2->getSecSkillLevel(SecondarySkill::SCHOLAR))
+	if (h1_scholarLevel < h2_scholarLevel)
 	{
 		std::swap (h1,h2);//1st hero need to have higher scholar level for correct message
 		std::swap(fromHero, toHero);
 	}
 
-	int ScholarLevel = h1->getSecSkillLevel(SecondarySkill::SCHOLAR);//heroes can trade up to this level
+	int ScholarLevel = std::max(h1_scholarLevel, h2_scholarLevel);//heroes can trade up to this level
 	if (!ScholarLevel || !h1->hasSpellbook() || !h2->hasSpellbook())
 		return;//no scholar skill or no spellbook
 
-	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(SecondarySkill::WISDOM)+2),
-	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(SecondarySkill::WISDOM)+2);//heroes can receive this levels
+	int h1Lvl = std::min(ScholarLevel, h1->maxSpellLevel()),
+		h2Lvl = std::min(ScholarLevel, h2->maxSpellLevel());//heroes can receive this levels
 
 	ChangeSpells cs1;
 	cs1.learn = true;
@@ -4006,19 +4006,18 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				handleAfterAttackCasting(bat);
 			}
 
-			//second shot for ballista, only if hero has advanced artillery
-
-			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
-
-			if(destinationStack->alive()
-				&& (stack->getCreature()->idNumber == CreatureID::BALLISTA)
-				&& (attackingHero->getSecSkillLevel(SecondarySkill::ARTILLERY) >= SecSkillLevel::ADVANCED)
-			)
+			//extra shot(s) for ballista, based on artillery skill
+			if(stack->getCreature()->idNumber == CreatureID::BALLISTA)
 			{
-				BattleAttack bat2;
-				bat2.flags |= BattleAttack::SHOT;
-				prepareAttack(bat2, stack, destinationStack, 0, ba.destinationTile);
-				sendAndApply(&bat2);
+				const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
+				int ballistaBonusAttacks = attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::ARTILLERY);
+				while(destinationStack->alive() && ballistaBonusAttacks-- > 0)
+				{
+					BattleAttack bat2;
+					bat2.flags |= BattleAttack::SHOT;
+					prepareAttack(bat2, stack, destinationStack, 0, ba.destinationTile);
+					sendAndApply(&bat2);
+				}
 			}
 			//allow more than one additional attack
 
@@ -4070,7 +4069,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			CHeroHandler::SBallisticsLevelInfo sbi;
 			if(stack->getCreature()->idNumber == CreatureID::CATAPULT)
-				sbi = VLC->heroh->ballistics.at(attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS));
+				sbi = VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
 			else //may need to use higher ballistics level for creatures in future for some cases to match original H3 (upgraded cyclops etc)
 			{
 				sbi = VLC->heroh->ballistics.at(1);
@@ -5798,9 +5797,10 @@ void CGameHandler::runBattle()
 			}
 
 			const CGHeroInstance * curOwner = battleGetOwnerHero(next);
+			const int stackCreatureId = next->getCreature()->idNumber;
 
-			if ((next->position < 0 || next->getCreature()->idNumber == CreatureID::BALLISTA)	//arrow turret or ballista
-				&& (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::ARTILLERY) == 0)) //hero has no artillery
+			if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
+				&& (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, stackCreatureId)))
 			{
 				BattleAction attack;
 				attack.actionType = Battle::SHOOT;
@@ -5830,7 +5830,7 @@ void CGameHandler::runBattle()
 					continue;
 				}
 
-				if (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)
+				if (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::CATAPULT))
 				{
 					BattleAction attack;
 					attack.destinationTile = *RandomGeneratorUtil::nextItem(attackableBattleHexes,
@@ -5858,7 +5858,7 @@ void CGameHandler::runBattle()
 					continue;
 				}
 
-				if (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::FIRST_AID) == 0) //no hero or hero has no first aid
+				if (!curOwner || getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(Bonus::MANUAL_CONTROL, CreatureID::FIRST_AID_TENT))
 				{
 					RandomGeneratorUtil::randomShuffle(possibleStacks, getRandomGenerator());
 					const CStack * toBeHealed = possibleStacks.front();

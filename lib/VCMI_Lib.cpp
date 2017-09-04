@@ -20,6 +20,7 @@
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
+#include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
 #include "IGameEventsReceiver.h"
@@ -113,6 +114,8 @@ void LibClasses::init()
 
 	createHandler(spellh, "Spell", pomtime);
 
+	createHandler(skillh, "Skill", pomtime);
+
 	createHandler(terviewh, "Terrain view pattern", pomtime);
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
@@ -137,6 +140,7 @@ void LibClasses::clear()
 	delete objh;
 	delete objtypeh;
 	delete spellh;
+	delete skillh;
 	delete modh;
 	delete bth;
 	delete tplh;
@@ -154,6 +158,7 @@ void LibClasses::makeNull()
 	objh = nullptr;
 	objtypeh = nullptr;
 	spellh = nullptr;
+	skillh = nullptr;
 	modh = nullptr;
 	bth = nullptr;
 	tplh = nullptr;

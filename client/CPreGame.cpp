@@ -18,6 +18,7 @@
 #include "CGameInfo.h"
 #include "gui/CCursorHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/mapping/CCampaignHandler.h"
@@ -3624,7 +3625,7 @@ void CBonusSelection::updateBonusSelection()
 			desc = CGI->generaltexth->allTexts[718];
 
 			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3 - 1]); //skill level
-			boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->skillName[bonDescs[i].info2]); //skill name
+			boost::algorithm::replace_first(desc, "%s", CGI->skillh->skillName(bonDescs[i].info2)); //skill name
 			picNumber = bonDescs[i].info2 * 3 + bonDescs[i].info3 - 1;
 
 			break;

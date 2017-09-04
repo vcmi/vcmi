@@ -17,6 +17,7 @@
 #include "../CModHandler.h"
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
@@ -86,7 +87,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
 		ret = VLC->heroh->terrCosts[from.terType];
-		ret -= getSecSkillLevel(SecondarySkill::PATHFINDING) * 25;
+		ret -= valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING));
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
@@ -760,91 +761,26 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 		removeBonus(bonus);
 
 	for(auto skill_info : secSkills)
-		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
+		for(int level = 1; level <= skill_info.second; level++)
+			updateSkill(SecondarySkill(skill_info.first), level);
 }
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
-	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)
-	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]
-		bool luck = which == SecondarySkill::LUCK;
-		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
-
-		auto b = getBonusLocalFirst(Selector::type(type[luck]).And(Selector::sourceType(Bonus::SECONDARY_SKILL)));
-		if(!b)
-		{
-			b = std::make_shared<Bonus>(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
-			addNewBonus(b);
-		}
+	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
+	for (auto b : skillBonus)
+	{
+		// bonuses provided by different levels of a secondary skill are aggregated via max (not + as usual)
+		// different secondary skills providing the same bonus (e.g. ballistics might improve archery as well) are kept separate
+		std::shared_ptr<Bonus> existing = getBonusLocalFirst(
+			Selector::typeSubtype(b->type, b->subtype).And(
+			Selector::source(Bonus::SECONDARY_SKILL, b->sid).And(
+			Selector::valueType(b->valType))));
+		if(existing)
+			vstd::amax(existing->val, b->val);
 		else
-			b->val = +val;
+			addNewBonus(std::make_shared<Bonus>(*b));
 	}
-	else if(which == SecondarySkill::DIPLOMACY) //surrender discount: 20% per level
-	{
-
-		if(auto b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT).And(Selector::sourceType(Bonus::SECONDARY_SKILL))))
-			b->val = +val;
-		else
-			addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));
-	}
-
-	int skillVal = 0;
-	switch (which)
-	{
-	case SecondarySkill::ARCHERY:
-		switch (val)
-		{
-		case 1:
-			skillVal = 10; break;
-		case 2:
-			skillVal = 25; break;
-		case 3:
-			skillVal = 50; break;
-		}
-		break;
-	case SecondarySkill::LOGISTICS:
-		skillVal = 10 * val; break;
-	case SecondarySkill::NAVIGATION:
-		skillVal = 50 * val; break;
-	case SecondarySkill::MYSTICISM:
-		skillVal = val; break;
-	case SecondarySkill::EAGLE_EYE:
-		skillVal = 30 + 10 * val; break;
-	case SecondarySkill::NECROMANCY:
-		skillVal = 10 * val; break;
-	case SecondarySkill::LEARNING:
-		skillVal = 5 * val; break;
-	case SecondarySkill::OFFENCE:
-		skillVal = 10 * val; break;
-	case SecondarySkill::ARMORER:
-		skillVal = 5 * val; break;
-	case SecondarySkill::INTELLIGENCE:
-		skillVal = 25 << (val-1); break;
-	case SecondarySkill::SORCERY:
-		skillVal = 5 * val; break;
-	case SecondarySkill::RESISTANCE:
-		skillVal = 5 << (val-1); break;
-	case SecondarySkill::FIRST_AID:
-		skillVal = 25 + 25*val; break;
-	case SecondarySkill::ESTATES:
-		skillVal = 125 << (val-1); break;
-	}
-
-
-	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
-	if(auto b = getExportedBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which)
-			.And(Selector::sourceType(Bonus::SECONDARY_SKILL)))) //only local hero bonus
-	{
-		b->val = skillVal;
-		b->valType = skillValType;
-	}
-	else
-	{
-		auto bonus = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
-		bonus->source = Bonus::SECONDARY_SKILL;
-		addNewBonus(bonus);
-	}
-
 	CBonusSystemNode::treeHasChanged();
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
@@ -890,7 +826,9 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 	spell->forEachSchool([&, this](const SpellSchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(getSecSkillLevel(cnf.skill),	valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
+		int thisSchool = std::max<int>(
+			valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, cnf.skill),
+			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
 		{
 			skill = thisSchool;
@@ -1021,7 +959,7 @@ bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
     if(!hasSpellbook())
 		return false;
 
-    if(spell->level > getSecSkillLevel(SecondarySkill::WISDOM) + 2) //not enough wisdom
+	if(spell->level > maxSpellLevel()) //not enough wisdom
 		return false;
 
 	if(vstd::contains(spells, spell->id))//already known
@@ -1135,7 +1073,7 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadius() const
 {
-	return 5 + getSecSkillLevel(SecondarySkill::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
+	return 5 + valOfBonuses(Bonus::SIGHT_RADIOUS); // scouting gives SIGHT_RADIUS bonus
 }
 
 si32 CGHeroInstance::manaRegain() const
@@ -1143,7 +1081,7 @@ si32 CGHeroInstance::manaRegain() const
 	if (hasBonusOfType(Bonus::FULL_MANA_REGENERATION))
 		return manaLimit();
 
-	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
+	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::MYSTICISM) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
 }
 
 si32 CGHeroInstance::getManaNewTurn() const
@@ -1237,6 +1175,11 @@ void CGHeroInstance::putInBackpack(CArtifactInstance *art)
 bool CGHeroInstance::hasSpellbook() const
 {
 	return getArt(ArtifactPosition::SPELLBOOK);
+}
+
+int CGHeroInstance::maxSpellLevel() const
+{
+	return std::min(GameConstants::SPELL_LEVELS, 2 + valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::WISDOM)));
 }
 
 void CGHeroInstance::deserializationFix()

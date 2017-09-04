@@ -82,12 +82,10 @@ public:
 		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 		object->id = _ObjectID(index);
 
-
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
 		registerObject(scope,type_name, name, object->id);
-
 	}
 
 	ConstTransitivePtr<_Object> operator[] (const _ObjectID id) const
@@ -96,7 +94,7 @@ public:
 
 		if (raw_id < 0 || raw_id >= objects.size())
 		{
-			logGlobal->error("%s id %d is invalid", getTypeName(), static_cast<si64>(raw_id));
+			logMod->error("%s id %d is invalid", getTypeName(), static_cast<si64>(raw_id));
 			throw std::runtime_error("internal error");
 		}
 

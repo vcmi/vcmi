@@ -819,7 +819,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 	spell->name = json["name"].String();
 
-	logGlobal->trace("%s: loading spell %s", __FUNCTION__, spell->name);
+	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->name);
 
 	const auto schoolNames = json["school"];
 
@@ -854,7 +854,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	else if(targetType == "LOCATION")
 		spell->targetType = CSpell::LOCATION;
 	else
-		logGlobal->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->name, (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
+		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->name, (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 		if (counteredSpell.second.Bool())
@@ -899,7 +899,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	else if(!implicitPositiveness)
 	{
 		spell->positiveness = CSpell::NEUTRAL; //duplicates constructor but, just in case
-		logGlobal->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->name);
+		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->name);
 	}
 
 	spell->isSpecial = flags["special"].Bool();
@@ -909,7 +909,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		auto it = bonusNameMap.find(name);
 		if(it == bonusNameMap.end())
 		{
-			logGlobal->error("Spell %s: invalid bonus name %s", spell->name, name);
+			logMod->error("Spell %s: invalid bonus name %s", spell->name, name);
 		}
 		else
 		{
