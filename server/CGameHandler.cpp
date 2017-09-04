@@ -4009,6 +4009,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			if (destinationStack->hasBonusOfType(Bonus::RANGED_RETALIATION)
 				&& !stack->hasBonusOfType(Bonus::BLOCKS_RANGED_RETALIATION)
 				&& destinationStack->ableToRetaliate()
+				&& gs->curB->battleCanShoot(destinationStack, stack->position)
 				&& stack->alive()) //attacker may have died (fire shield)
 			{
 				BattleAttack bat;
