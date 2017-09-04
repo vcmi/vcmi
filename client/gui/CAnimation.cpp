@@ -247,6 +247,20 @@ public:
 	}
 };
 
+enum class DefType : uint32_t
+{
+	SPELL = 0x40,
+	UNUSED_1 = 0x41,
+	CREATURE = 0x42,
+	MAP = 0x43,
+	MAP_HERO = 0x44,
+	TERRAIN = 0x45,
+	CURSOR = 0x46,
+	INTERFACE = 0x47,
+	UNUSED_2 = 0x48,
+	BATTLE_HERO = 0x49
+};
+
 static CFileCache animationCache;
 
 /*************************************************************************
@@ -262,6 +276,8 @@ CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
+
+	#if 0
 	static SDL_Color H3_ORIG_PALETTE[8] =
 	{
 	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
@@ -273,6 +289,8 @@ CDefFile::CDefFile(std::string Name):
 	   {180,   0, 255, SDL_ALPHA_OPAQUE},
 	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
 	};
+	#endif // 0
+
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
@@ -305,18 +323,54 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].b = data[it++];
 		palette[i].a = SDL_ALPHA_OPAQUE;
 	}
-	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
-		memset(palette.get(), 0, sizeof(SDL_Color)*2);
-	else
-	{
-		//TODO: more accurate conversion
-		memcpy(palette.get(), H3Palette, sizeof(SDL_Color)*2);
 
-        for(int i = 2; i < 8; i++)
-		{
-			if(palette[i] == H3_ORIG_PALETTE[i])
-				palette[i] = H3Palette[i];
-		}
+	switch(static_cast<DefType>(type))
+	{
+	case DefType::SPELL:
+		palette[0] = H3Palette[0];
+		break;
+	case DefType::CREATURE:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		palette[5] = H3Palette[5];
+		palette[6] = H3Palette[6];
+		palette[7] = H3Palette[7];
+		break;
+	case DefType::MAP:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		//5 = owner flag, handled separately
+		break;
+	case DefType::MAP_HERO:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		//5 = owner flag, handled separately
+		break;
+	case DefType::TERRAIN:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[2] = H3Palette[2];
+		palette[3] = H3Palette[3];
+		palette[4] = H3Palette[4];
+		break;
+	case DefType::CURSOR:
+		palette[0] = H3Palette[0];
+		break;
+	case DefType::INTERFACE:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		break;
+	case DefType::BATTLE_HERO:
+		//TODO:
+		logAnim->error("Unimplemented def type %d in %s", type, Name);
+		break;
+	default:
+		logAnim->error("Unknown def type %d in %s", type, Name);
+		break;
 	}
 
 
