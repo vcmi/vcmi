@@ -291,8 +291,8 @@ std::array<SDL_Color, 8> CCreatureAnimation::genSpecialPalette()
 
 	ret[0] = genShadow(0);
 	ret[1] = genShadow(64);
-	ret[2] = genShadow(128);
-	ret[3] = genShadow(128);
+	ret[2] = genShadow(128);//unused
+	ret[3] = genShadow(128);//unused
 	ret[4] = genShadow(128);
 	ret[5] = genBorderColor(getBorderStrength(elapsedTime), border);
 	ret[6] = addColors(genShadow(128), genBorderColor(getBorderStrength(elapsedTime), border));
@@ -412,7 +412,7 @@ inline void CCreatureAnimation::putPixelAt(SDL_Surface * dest, int X, int Y, siz
 template<int bpp>
 inline void CCreatureAnimation::putPixel(ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const
 {
-	if (index < 8)
+	if((index <= 1) || (index >=4 && index < 8))
 	{
 		const SDL_Color & pal = special[index];
 		ColorPutter<bpp, 0>::PutColor(dest, pal.r, pal.g, pal.b, pal.a);
