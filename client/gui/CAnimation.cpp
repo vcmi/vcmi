@@ -100,6 +100,8 @@ public:
 
 	void shiftPalette(int from, int howMany) override;
 
+	void setBorderPallete(const BorderPallete & borderPallete) override;
+
 	friend class SDLImageLoader;
 };
 
@@ -157,6 +159,7 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
+	void setBorderPallete(const BorderPallete & borderPallete) override;
 
 	friend class CompImageLoader;
 };
@@ -985,6 +988,15 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
+void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+{
+	if(surf->format->palette)
+	{
+		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+	}
+}
+
+
 SDLImage::~SDLImage()
 {
 	SDL_FreeSurface(surf);
@@ -1238,22 +1250,27 @@ CompImage::~CompImage()
 
 void CompImage::horizontalFlip()
 {
-	logAnim->error("CompImage::horizontalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::verticalFlip()
 {
-	logAnim->error("CompImage::verticalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::shiftPalette(int from, int howMany)
 {
-	logAnim->error("CompImage::shiftPalette is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
-void CompImage::exportBitmap(const boost::filesystem::path& path) const
+void CompImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
 {
-	logAnim->error("CompImage::exportBitmap is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
+}
+
+void CompImage::exportBitmap(const boost::filesystem::path & path) const
+{
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 
