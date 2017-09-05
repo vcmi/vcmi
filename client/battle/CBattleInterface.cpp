@@ -432,9 +432,6 @@ CBattleInterface::~CBattleInterface()
 	for (auto & elem : creAnims)
 		delete elem.second;
 
-	for (auto & elem : idToProjectile)
-		delete elem.second;
-
 	for (auto & elem : idToObstacle)
 		delete elem.second;
 
@@ -1006,20 +1003,21 @@ void CBattleInterface::newStack(const CStack *stack)
 
 void CBattleInterface::initStackProjectile(const CStack * stack)
 {
-	CDefHandler *&projectile = idToProjectile[stack->getCreature()->idNumber];
-
-	const CCreature *creature;//creature whose shots should be loaded
-	if (stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+	const CCreature * creature;//creature whose shots should be loaded
+	if(stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
 		creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
 	else
 		creature = stack->getCreature();
 
-	projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
+	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
+	projectile->preload();
 
-	for (auto & elem : projectile->ourImages) //alpha transforming
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	if(projectile->size(1) != 0)
+		logAnim->error("Expected empty group 1 in stack projectile");
+	else
+		projectile->createFlippedGroup(0, 1);
+
+	idToProjectile[stack->getCreature()->idNumber] = projectile;
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -3173,23 +3171,18 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				continue; // wait...
 		}
 
-		SDL_Surface *image = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap;
+		size_t group = it->reverse ? 1 : 0;
+		IImage * image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
 
-		SDL_Rect dst;
-		dst.h = image->h;
-		dst.w = image->w;
-		dst.x = it->x - dst.w / 2;
-		dst.y = it->y - dst.h / 2;
+		if(image)
+		{
+			SDL_Rect dst;
+			dst.h = image->height();
+			dst.w = image->width();
+			dst.x = it->x - dst.w / 2;
+			dst.y = it->y - dst.h / 2;
 
-		if (it->reverse)
-		{
-			SDL_Surface *rev = CSDL_Ext::verticalFlip(image);
-			CSDL_Ext::blit8bppAlphaTo24bpp(rev, nullptr, to, &dst);
-			SDL_FreeSurface(rev);
-		}
-		else
-		{
-			CSDL_Ext::blit8bppAlphaTo24bpp(image, nullptr, to, &dst);
+			image->draw(to, &dst, nullptr);
 		}
 
 		// Update projectile
@@ -3207,7 +3200,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				it->y = it->catapultInfo->calculateY(it->x);
 
 				++(it->frameNum);
-				it->frameNum %= idToProjectile[it->creID]->ourImages.size();
+				it->frameNum %= idToProjectile[it->creID]->size(0);
 			}
 			else
 			{

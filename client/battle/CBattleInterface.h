@@ -128,7 +128,9 @@ private:
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
 	std::map<int, CCreatureAnimation *> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-	std::map<int, CDefHandler *> idToProjectile; //projectiles of creatures (creatureID, defhandler)
+
+	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
+
 	std::map<int, CDefHandler *> idToObstacle; //obstacles located on the battlefield
 	std::map<int, SDL_Surface *> idToAbsoluteObstacle; //obstacles located on the battlefield
 

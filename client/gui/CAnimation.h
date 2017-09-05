@@ -135,6 +135,8 @@ public:
 	void horizontalFlip();
 	void verticalFlip();
 	void playerColored(PlayerColor player);
+
+    void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
 
 const float DEFAULT_DELTA = 0.05f;

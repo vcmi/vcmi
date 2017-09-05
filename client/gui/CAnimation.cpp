@@ -1643,6 +1643,17 @@ void CAnimation::playerColored(PlayerColor player)
 			image.second->playerColored(player);
 }
 
+void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targetGroup)
+{
+	for(size_t frame = 0; frame < size(sourceGroup); ++frame)
+	{
+		duplicateImage(sourceGroup, frame, targetGroup);
+
+		IImage * image = getImage(frame, targetGroup);
+		image->verticalFlip();
+	}
+}
+
 float CFadeAnimation::initialCounter() const
 {
 	if (fadingMode == EMode::OUT)

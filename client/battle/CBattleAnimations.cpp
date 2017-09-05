@@ -16,7 +16,6 @@
 #include "CBattleInterface.h"
 #include "CCreatureAnimation.h"
 
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
@@ -786,11 +785,11 @@ bool CShootingAnimation::init()
 		spi.dx = animSpeed;
 		spi.dy = 0;
 
-		SDL_Surface * img = owner->idToProjectile[spi.creID]->ourImages[0].bitmap;
+		IImage * img = owner->idToProjectile[spi.creID]->getImage(0);
 
 		// Add explosion anim
-		Point animPos(destPos.x - 126 + img->w / 2,
-		              destPos.y - 105 + img->h / 2);
+		Point animPos(destPos.x - 126 + img->width() / 2,
+		              destPos.y - 105 + img->height() / 2);
 
 		owner->addNewAnim( new CSpellEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
 	}
@@ -802,7 +801,7 @@ bool CShootingAnimation::init()
 		owner->initStackProjectile(shooter);
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->ourImages.size());
+	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
 
 	assert(maxFrame > 0);
 
