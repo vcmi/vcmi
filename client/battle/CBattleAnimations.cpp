@@ -21,6 +21,7 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -909,91 +910,82 @@ bool CSpellEffectAnimation::init()
 
 	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
 
+	std::shared_ptr<CAnimation> animation = std::make_shared<CAnimation>(customAnim);
+
+	animation->preload();
+	if(Vflip)
+		animation->verticalFlip();
+
+	IImage * first = animation->getImage(0, 0, true);
+	if(!first)
+	{
+		endAnim();
+		return false;
+	}
+
 	if(areaEffect) //f.e. armageddon
 	{
-		CDefHandler * anim = CDefHandler::giveDef(customAnim);
-
-		for(int i=0; i * anim->width < owner->pos.w ; ++i)
+		for(int i=0; i * first->width() < owner->pos.w ; ++i)
 		{
-			for(int j=0; j * anim->height < owner->pos.h ; ++j)
+			for(int j=0; j * first->height() < owner->pos.h ; ++j)
 			{
 				BattleEffect be;
 				be.effectID = ID;
-				be.anim = CDefHandler::giveDef(customAnim);
-				if (Vflip)
-				{
-					for (auto & elem : be.anim->ourImages)
-					{
-						CSDL_Ext::VflipSurf(elem.bitmap);
-					}
-				}
+				be.animation = animation;
 				be.currentFrame = 0;
-				be.maxFrame = be.anim->ourImages.size();
-				be.x = i * anim->width + owner->pos.x;
-				be.y = j * anim->height + owner->pos.y;
+
+				be.x = i * first->width() + owner->pos.x;
+				be.y = j * first->height() + owner->pos.y;
 				be.position = BattleHex::INVALID;
 
 				owner->battleEffects.push_back(be);
 			}
 		}
-
-		delete anim;
 	}
 	else // Effects targeted at a specific creature/hex.
 	{
+		const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
+		Rect & tilePos = owner->bfield[destTile]->pos;
+		BattleEffect be;
+		be.effectID = ID;
+		be.animation = animation;
+		be.currentFrame = 0;
 
-			const CStack* destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
-			Rect & tilePos = owner->bfield[destTile]->pos;
-			BattleEffect be;
-			be.effectID = ID;
-			be.anim = CDefHandler::giveDef(customAnim);
 
-			if (Vflip)
-			{
-				for (auto & elem : be.anim->ourImages)
-				{
-					CSDL_Ext::VflipSurf(elem.bitmap);
-				}
-			}
-
-			be.currentFrame = 0;
-			be.maxFrame = be.anim->ourImages.size();
-
-			//todo: lightning anim frame count override
+		//todo: lightning anim frame count override
 
 //			if(effect == 1)
 //				be.maxFrame = 3;
 
-			if(x == -1)
-			{
-				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-			}
+		if(x == -1)
+		{
+			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
+		}
+		else
+		{
+			be.x = x;
+		}
+
+		if(y == -1)
+		{
+			if(alignToBottom)
+				be.y = tilePos.y + tilePos.h - first->height();
 			else
-			{
-				be.x = x;
-			}
+				be.y = tilePos.y - first->height()/2;
+		}
+		else
+		{
+			be.y = y;
+		}
 
-			if(y == -1)
-			{
-				if(alignToBottom)
-					be.y = tilePos.y + tilePos.h - be.anim->height;
-				else
-					be.y = tilePos.y - be.anim->height/2;
-			}
-			else
-			{
-				be.y = y;
-			}
+		// Correction for 2-hex creatures.
+		if(destStack != nullptr && destStack->doubleWide())
+			be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
-			// Correction for 2-hex creatures.
-			if (destStack != nullptr && destStack->doubleWide())
-				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+		//Indicate if effect should be drawn on top of everything or just on top of the hex
+		be.position = destTile;
 
-			//Indicate if effect should be drawn on top of everything or just on top of the hex
-			be.position = destTile;
-
-			owner->battleEffects.push_back(be);
-
+		owner->battleEffects.push_back(be);
 	}
 	//battleEffects
 	return true;
@@ -1008,7 +1000,7 @@ void CSpellEffectAnimation::nextFrame()
 		{
 			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
 
-			if(elem.currentFrame >= elem.maxFrame)
+			if(elem.currentFrame >= elem.animation->size())
 			{
 				endAnim();
 				break;
@@ -1038,7 +1030,6 @@ void CSpellEffectAnimation::endAnim()
 
 	for(auto & elem : toDel)
 	{
-		delete elem->anim;
 		owner->battleEffects.erase(elem);
 	}
 

@@ -3375,11 +3375,13 @@ void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<cons
 	for (auto & elem : battleEffects)
 	{
 		int currentFrame = floor(elem->currentFrame);
-		currentFrame %= elem->anim->ourImages.size();
+		currentFrame %= elem->animation->size();
 
-		SDL_Surface *bitmapToBlit = elem->anim->ourImages[currentFrame].bitmap;
-		SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, elem->x, elem->y);
-		SDL_BlitSurface(bitmapToBlit, nullptr, to, &temp_rect);
+		IImage * img = elem->animation->getImage(currentFrame);
+
+		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem->x, elem->y);
+
+		img->draw(to, &temp_rect, nullptr);
 	}
 }
 

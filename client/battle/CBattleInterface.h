@@ -48,6 +48,7 @@ struct BattleHex;
 struct InfoAboutHero;
 struct BattleAction;
 class CBattleGameInterface;
+class CAnimation;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -67,8 +68,7 @@ struct BattleEffect
 {
 	int x, y; //position on the screen
 	float currentFrame;
-	int maxFrame;
-	CDefHandler *anim; //animation to display
+	std::shared_ptr<CAnimation> animation;
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
