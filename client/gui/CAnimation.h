@@ -127,6 +127,10 @@ public:
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
+
+	void horizontalFlip();
+	void verticalFlip();
+	void playerColored(PlayerColor player);
 };
 
 const float DEFAULT_DELTA = 0.05f;

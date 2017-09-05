@@ -29,7 +29,7 @@ typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
 
- /// Class for def loading, methods are based on CDefHandler
+/// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class CDefFile
 {
@@ -1603,6 +1603,27 @@ size_t CAnimation::size(size_t group) const
 	if (iter != source.end())
 		return iter->second.size();
 	return 0;
+}
+
+void CAnimation::horizontalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->horizontalFlip();
+}
+
+void CAnimation::verticalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->verticalFlip();
+}
+
+void CAnimation::playerColored(PlayerColor player)
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->playerColored(player);
 }
 
 float CFadeAnimation::initialCounter() const

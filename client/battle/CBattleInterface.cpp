@@ -23,6 +23,7 @@
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -263,7 +264,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			battleImage = hero1->type->heroClass->imageBattleMale;
 
 		attackingHero = new CBattleHero(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, this);
-		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, pos.x - 43, pos.y - 19);
+
+		IImage * img = attackingHero->animation->getImage(0, 0, true);
+		if(img)
+			attackingHero->pos = genRect(img->height(), img->width(), pos.x - 43, pos.y - 19);
 	}
 	else
 	{
@@ -278,7 +282,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			battleImage = hero2->type->heroClass->imageBattleMale;
 
 		defendingHero = new CBattleHero(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, this);
-		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
+
+		IImage * img = defendingHero->animation->getImage(0, 0, true);
+		if(img)
+			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
 	else
 	{
