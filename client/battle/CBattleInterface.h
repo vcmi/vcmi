@@ -120,6 +120,7 @@ class CBattleInterface : public CIntObject
 	};
 private:
 	SDL_Surface *background, *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral, *cellBorders, *backgroundWithHexes;
+
 	CButton *bOptions, *bSurrender, *bFlee, *bAutofight, *bSpell,
 		* bWait, *bDefence, *bConsoleUp, *bConsoleDown, *btactNext, *btactEnd;
 	CBattleConsole *console;
@@ -342,7 +343,7 @@ public:
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile); //displays custom effect on the battlefield
+	void displayEffect(ui32 effect, BattleHex destTile); //displays custom effect on the battlefield
 
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
@@ -378,7 +379,7 @@ public:
 
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
-	friend class CSpellEffectAnimation;
+	friend class CEffectAnimation;
 	friend class CBattleStackAnimation;
 	friend class CReverseAnimation;
 	friend class CDefenceAnimation;

@@ -1221,7 +1221,7 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 		{
 			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
 
-			addNewAnim(new CSpellEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
+			addNewAnim(new CEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
 		}
 	}
 
@@ -1309,20 +1309,23 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 
 		std::string animToDisplay = spell.animationInfo.selectProjectile(angle);
 
-		if (!animToDisplay.empty())
+		if(!animToDisplay.empty())
 		{
+			//TODO: calculate inside CEffectAnimation
+			std::shared_ptr<CAnimation> tmp = std::make_shared<CAnimation>(animToDisplay);
+			tmp->load(0, 0);
+			IImage * first = tmp->getImage(0, 0);
+
 			//displaying animation
-			CDefEssential *animDef = CDefHandler::giveDefEss(animToDisplay);
 			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
 			double diffY = (destcoord.y - srccoord.y)*(destcoord.y - srccoord.y);
 			double distance = sqrt(diffX + diffY);
 
 			int steps = distance / AnimationControls::getSpellEffectSpeed() + 1;
-			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps;
-			int dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
+			int dx = (destcoord.x - srccoord.x - first->width())/steps;
+			int dy = (destcoord.y - srccoord.y - first->height())/steps;
 
-			delete animDef;
-			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
+			addNewAnim(new CEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 		}
 	}
 	waitForAnims();
@@ -1354,8 +1357,8 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
-		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
-		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
+		addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
+		addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
 	}
 }
 
@@ -1418,9 +1421,11 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	}
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile)
+void CBattleInterface::displayEffect(ui32 effect, BattleHex destTile)
 {
-	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
+	std::string customAnim = graphics->battleACToDef[effect][0];
+
+	addNewAnim(new CEffectAnimation(this, customAnim, destTile));
 }
 
 void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile)
@@ -1431,7 +1436,7 @@ void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animatio
 	}
 	else
 	{
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 }
 
@@ -2737,7 +2742,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//we assume here that effect graphics have the same size as the usual obstacle image
 	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = getObstaclePosition(getObstacleImage(oi), oi);
-	addNewAnim(new CSpellEffectAnimation(this, defname, whereTo.x, whereTo.y));
+	addNewAnim(new CEffectAnimation(this, defname, whereTo.x, whereTo.y));
 
 	//TODO we need to wait after playing sound till it's finished, otherwise it overlaps and sounds really bad
 	//CCS->soundh->playSound(sound);

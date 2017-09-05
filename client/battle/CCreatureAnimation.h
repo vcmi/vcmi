@@ -52,6 +52,7 @@ public:
 	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;
 
 private:
+	std::string name;
 	std::shared_ptr<CAnimation> forward;
 	std::shared_ptr<CAnimation> reverse;
 
@@ -92,7 +93,7 @@ public:
 	/// name - path to .def file, relative to SPRITES/ directory
 	/// controller - function that will return for how long *each* frame
 	/// in specified group of animation should be played, measured in seconds
-	CCreatureAnimation(std::string name, TSpeedController speedController);
+	CCreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation

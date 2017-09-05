@@ -37,7 +37,6 @@ class CGObjectInstance;
 class CCreature;
 class CMap;
 struct StartInfo;
-struct SDL_Surface;
 class CMapHandler;
 struct SetObjectProperty;
 struct MetaString;

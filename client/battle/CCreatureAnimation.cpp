@@ -138,8 +138,9 @@ void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 	play();
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController controller)
-	: speed(0.1),
+CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedController controller)
+	: name(name_),
+	  speed(0.1),
 	  currentFrame(0),
 	  elapsedTime(0),
 	  type(CCreatureAnim::HOLDING),
@@ -147,8 +148,8 @@ CCreatureAnimation::CCreatureAnimation(std::string name, TSpeedController contro
 	  speedController(controller),
 	  once(false)
 {
-	forward = std::make_shared<CAnimation>(name);
-	reverse = std::make_shared<CAnimation>(name);
+	forward = std::make_shared<CAnimation>(name_);
+	reverse = std::make_shared<CAnimation>(name_);
 
 	//todo: optimize
 	forward->preload();
@@ -269,8 +270,6 @@ void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-
-
 void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
 {
 	size_t frame = floor(currentFrame);
@@ -288,7 +287,6 @@ void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
 	image->setBorderPallete(borderPallete);
 
 	image->draw(dest, pos.x, pos.y);
-
 }
 
 int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
@@ -329,6 +327,7 @@ void CCreatureAnimation::pause()
 
 void CCreatureAnimation::play()
 {
+	logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
     speed = 0;
     if (speedController(this, type) != 0)
         speed = 1 / speedController(this, type);
