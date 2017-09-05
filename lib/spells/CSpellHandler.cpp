@@ -194,7 +194,7 @@ ESpellCastProblem::ESpellCastProblem CSpell::canBeCast(const CBattleInfoCallback
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check creature abilities to block
 	//TODO: check any possible caster
-	if(cb->battleMaxSpellLevel(side.get()) < level)
+	if(cb->battleMaxSpellLevel(side.get()) < level || cb->battleMinSpellLevel(side.get()) > level)
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	const ESpellCastProblem::ESpellCastProblem specificProblem = mechanics->canBeCast(cb, mode, caster);

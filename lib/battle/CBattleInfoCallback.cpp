@@ -1647,6 +1647,24 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	return ret;
 }
 
+si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
+{
+	const IBonusBearer *node = nullptr;
+	if(const CGHeroInstance * h = battleGetFightingHero(side))
+		node = h;
+	else
+		node = getBattleNode();
+
+	if(!node)
+		return 1;
+
+	auto b = node->getBonuses(Selector::type(Bonus::BLOCK_MAGIC_BELOW));
+	if(b->size())
+		return b->totalValue();
+
+	return 1;
+}
+
 si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
 {
 	const IBonusBearer *node = nullptr;

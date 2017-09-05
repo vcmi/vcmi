@@ -239,6 +239,7 @@ private:
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
 	BONUS_NAME(SYNERGY_TARGET) /* dummy skill for alternative upgrades mod */\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighboring with target) without spell-like mechanics */\
+	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	/* end of list */
 
 
