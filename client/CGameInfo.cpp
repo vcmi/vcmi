@@ -9,8 +9,8 @@
  */
 #include "StdInc.h"
 #include "CGameInfo.h"
-#include "CSkillHandler.h"
-#include "CGeneralTextHandler.h"
+#include "../lib/CSkillHandler.h"
+#include "../lib/CGeneralTextHandler.h"
 
 #include "../lib/VCMI_Lib.h"
 
