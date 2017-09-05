@@ -250,14 +250,14 @@ public:
 enum class DefType : uint32_t
 {
 	SPELL = 0x40,
-	UNUSED_1 = 0x41,
+	SPRITE = 0x41,
 	CREATURE = 0x42,
 	MAP = 0x43,
 	MAP_HERO = 0x44,
 	TERRAIN = 0x45,
 	CURSOR = 0x46,
 	INTERFACE = 0x47,
-	UNUSED_2 = 0x48,
+	SPRITE_FRAME = 0x48,
 	BATTLE_HERO = 0x49
 };
 
@@ -329,6 +329,11 @@ CDefFile::CDefFile(std::string Name):
 	case DefType::SPELL:
 		palette[0] = H3Palette[0];
 		break;
+	case DefType::SPRITE:
+	case DefType::SPRITE_FRAME:
+		for(ui32 i= 0; i<8; i++)
+			palette[i] = H3Palette[i];
+		break;
 	case DefType::CREATURE:
 		palette[0] = H3Palette[0];
 		palette[1] = H3Palette[1];
@@ -338,11 +343,6 @@ CDefFile::CDefFile(std::string Name):
 		palette[7] = H3Palette[7];
 		break;
 	case DefType::MAP:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[4] = H3Palette[4];
-		//5 = owner flag, handled separately
-		break;
 	case DefType::MAP_HERO:
 		palette[0] = H3Palette[0];
 		palette[1] = H3Palette[1];
@@ -363,10 +363,13 @@ CDefFile::CDefFile(std::string Name):
 		palette[0] = H3Palette[0];
 		palette[1] = H3Palette[1];
 		palette[4] = H3Palette[4];
+		//player colors handled separately
+		//TODO: disallow colorizing other def types
 		break;
 	case DefType::BATTLE_HERO:
-		//TODO:
-		logAnim->error("Unimplemented def type %d in %s", type, Name);
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
 		break;
 	default:
 		logAnim->error("Unknown def type %d in %s", type, Name);
