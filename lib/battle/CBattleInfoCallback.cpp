@@ -1129,16 +1129,6 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	/*if(rangedAttack)
-	{
-		if(attacker->hasBonusOfType(Bonus::SHOOTS_ALL_ADJACENT) && !vstd::contains(attackerPos.neighbouringTiles(), destinationTile))
-		{
-			std::vector<BattleHex> targetHexes = destinationTile.neighbouringTiles();
-			targetHexes.push_back(destinationTile);
-			boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
-		}
-	}*/
-
 	const int WN = GameConstants::BFIELD_WIDTH;
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 
@@ -1218,12 +1208,34 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	return at;
 }
 
+AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos) const
+{
+	//does not return hex attacked directly
+	AttackableTiles at;
+	RETURN_IF_NOT_BATTLE(at);
+
+	if(attacker->hasBonusOfType(Bonus::SHOOTS_ALL_ADJACENT) && !vstd::contains(attackerPos.neighbouringTiles(), destinationTile))
+	{
+		std::vector<BattleHex> targetHexes = destinationTile.neighbouringTiles();
+		targetHexes.push_back(destinationTile);
+		boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
+	}
+
+	return at;
+}
+
 std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos) const
 {
 	std::set<const CStack*> attackedCres;
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
-	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+	AttackableTiles at;
+
+	if(rangedAttack)
+		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
+	else
+		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+
 	for (BattleHex tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
