@@ -68,6 +68,7 @@ set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 # Contains custom functions and macros, but don't altering any options
 include(VCMIUtils)
+vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
 # Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
@@ -90,6 +91,7 @@ if(ENABLE_GITVERSION)
 	include(GetGitRevisionDescription)
 	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+	vcmi_print_git_commit_hash()
 else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)
 endif(ENABLE_GITVERSION)
