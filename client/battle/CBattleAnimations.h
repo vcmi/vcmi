@@ -208,16 +208,15 @@ public:
 	void endAnim() override;
 
 	//last two params only for catapult attacks
-	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, 
-		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0); 
+	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest,
+		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0);
 	virtual ~CShootingAnimation(){};
 };
 
-/// This class manages a spell effect animation
-class CSpellEffectAnimation : public CBattleAnimation
+/// This class manages effect animation
+class CEffectAnimation : public CBattleAnimation
 {
 private:
-	ui32 effect;
 	BattleHex destTile;
 	std::string	customAnim;
 	int	x, y, dx, dy;
@@ -228,8 +227,7 @@ public:
 	void nextFrame() override;
 	void endAnim() override;
 
-	CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
-	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
-	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
-	virtual ~CSpellEffectAnimation(){};
+	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
+	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
+	virtual ~CEffectAnimation(){};
 };

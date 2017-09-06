@@ -48,6 +48,7 @@ struct BattleHex;
 struct InfoAboutHero;
 struct BattleAction;
 class CBattleGameInterface;
+class CAnimation;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -67,8 +68,7 @@ struct BattleEffect
 {
 	int x, y; //position on the screen
 	float currentFrame;
-	int maxFrame;
-	CDefHandler *anim; //animation to display
+	std::shared_ptr<CAnimation> animation;
 	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
 	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
@@ -120,6 +120,7 @@ class CBattleInterface : public CIntObject
 	};
 private:
 	SDL_Surface *background, *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral, *cellBorders, *backgroundWithHexes;
+
 	CButton *bOptions, *bSurrender, *bFlee, *bAutofight, *bSpell,
 		* bWait, *bDefence, *bConsoleUp, *bConsoleDown, *btactNext, *btactEnd;
 	CBattleConsole *console;
@@ -128,7 +129,9 @@ private:
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
 	std::map<int, CCreatureAnimation *> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-	std::map<int, CDefHandler *> idToProjectile; //projectiles of creatures (creatureID, defhandler)
+
+	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
+
 	std::map<int, CDefHandler *> idToObstacle; //obstacles located on the battlefield
 	std::map<int, SDL_Surface *> idToAbsoluteObstacle; //obstacles located on the battlefield
 
@@ -340,7 +343,7 @@ public:
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile); //displays custom effect on the battlefield
+	void displayEffect(ui32 effect, BattleHex destTile); //displays custom effect on the battlefield
 
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
@@ -376,7 +379,7 @@ public:
 
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
-	friend class CSpellEffectAnimation;
+	friend class CEffectAnimation;
 	friend class CBattleStackAnimation;
 	friend class CReverseAnimation;
 	friend class CDefenceAnimation;

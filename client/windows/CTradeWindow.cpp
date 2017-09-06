@@ -187,7 +187,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor(new CAnimImage("artifact", art->artType->iconIndex));
+				CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", art->artType->iconIndex));
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);

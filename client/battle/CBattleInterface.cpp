@@ -23,6 +23,7 @@
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -263,7 +264,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			battleImage = hero1->type->heroClass->imageBattleMale;
 
 		attackingHero = new CBattleHero(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, this);
-		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, pos.x - 43, pos.y - 19);
+
+		IImage * img = attackingHero->animation->getImage(0, 0, true);
+		if(img)
+			attackingHero->pos = genRect(img->height(), img->width(), pos.x - 43, pos.y - 19);
 	}
 	else
 	{
@@ -278,7 +282,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			battleImage = hero2->type->heroClass->imageBattleMale;
 
 		defendingHero = new CBattleHero(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, this);
-		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
+
+		IImage * img = defendingHero->animation->getImage(0, 0, true);
+		if(img)
+			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
 	else
 	{
@@ -423,9 +430,6 @@ CBattleInterface::~CBattleInterface()
 	SDL_FreeSurface(cellShade);
 
 	for (auto & elem : creAnims)
-		delete elem.second;
-
-	for (auto & elem : idToProjectile)
 		delete elem.second;
 
 	for (auto & elem : idToObstacle)
@@ -999,20 +1003,21 @@ void CBattleInterface::newStack(const CStack *stack)
 
 void CBattleInterface::initStackProjectile(const CStack * stack)
 {
-	CDefHandler *&projectile = idToProjectile[stack->getCreature()->idNumber];
-
-	const CCreature *creature;//creature whose shots should be loaded
-	if (stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+	const CCreature * creature;//creature whose shots should be loaded
+	if(stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
 		creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
 	else
 		creature = stack->getCreature();
 
-	projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
+	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
+	projectile->preload();
 
-	for (auto & elem : projectile->ourImages) //alpha transforming
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	if(projectile->size(1) != 0)
+		logAnim->error("Expected empty group 1 in stack projectile");
+	else
+		projectile->createFlippedGroup(0, 1);
+
+	idToProjectile[stack->getCreature()->idNumber] = projectile;
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -1216,7 +1221,7 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 		{
 			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
 
-			addNewAnim(new CSpellEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
+			addNewAnim(new CEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
 		}
 	}
 
@@ -1304,20 +1309,23 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 
 		std::string animToDisplay = spell.animationInfo.selectProjectile(angle);
 
-		if (!animToDisplay.empty())
+		if(!animToDisplay.empty())
 		{
+			//TODO: calculate inside CEffectAnimation
+			std::shared_ptr<CAnimation> tmp = std::make_shared<CAnimation>(animToDisplay);
+			tmp->load(0, 0);
+			IImage * first = tmp->getImage(0, 0);
+
 			//displaying animation
-			CDefEssential *animDef = CDefHandler::giveDefEss(animToDisplay);
 			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
 			double diffY = (destcoord.y - srccoord.y)*(destcoord.y - srccoord.y);
 			double distance = sqrt(diffX + diffY);
 
 			int steps = distance / AnimationControls::getSpellEffectSpeed() + 1;
-			int dx = (destcoord.x - srccoord.x - animDef->ourImages[0].bitmap->w)/steps;
-			int dy = (destcoord.y - srccoord.y - animDef->ourImages[0].bitmap->h)/steps;
+			int dx = (destcoord.x - srccoord.x - first->width())/steps;
+			int dy = (destcoord.y - srccoord.y - first->height())/steps;
 
-			delete animDef;
-			addNewAnim(new CSpellEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
+			addNewAnim(new CEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 		}
 	}
 	waitForAnims();
@@ -1349,8 +1357,8 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
-		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
-		addNewAnim(new CSpellEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
+		addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
+		addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
 	}
 }
 
@@ -1413,9 +1421,11 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	}
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile)
+void CBattleInterface::displayEffect(ui32 effect, BattleHex destTile)
 {
-	addNewAnim(new CSpellEffectAnimation(this, effect, destTile, 0, 0, false));
+	std::string customAnim = graphics->battleACToDef[effect][0];
+
+	addNewAnim(new CEffectAnimation(this, customAnim, destTile));
 }
 
 void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile)
@@ -1426,7 +1436,7 @@ void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animatio
 	}
 	else
 	{
-		addNewAnim(new CSpellEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 }
 
@@ -2732,7 +2742,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//we assume here that effect graphics have the same size as the usual obstacle image
 	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = getObstaclePosition(getObstacleImage(oi), oi);
-	addNewAnim(new CSpellEffectAnimation(this, defname, whereTo.x, whereTo.y));
+	addNewAnim(new CEffectAnimation(this, defname, whereTo.x, whereTo.y));
 
 	//TODO we need to wait after playing sound till it's finished, otherwise it overlaps and sounds really bad
 	//CCS->soundh->playSound(sound);
@@ -3166,23 +3176,18 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				continue; // wait...
 		}
 
-		SDL_Surface *image = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap;
+		size_t group = it->reverse ? 1 : 0;
+		IImage * image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
 
-		SDL_Rect dst;
-		dst.h = image->h;
-		dst.w = image->w;
-		dst.x = it->x - dst.w / 2;
-		dst.y = it->y - dst.h / 2;
+		if(image)
+		{
+			SDL_Rect dst;
+			dst.h = image->height();
+			dst.w = image->width();
+			dst.x = it->x - dst.w / 2;
+			dst.y = it->y - dst.h / 2;
 
-		if (it->reverse)
-		{
-			SDL_Surface *rev = CSDL_Ext::verticalFlip(image);
-			CSDL_Ext::blit8bppAlphaTo24bpp(rev, nullptr, to, &dst);
-			SDL_FreeSurface(rev);
-		}
-		else
-		{
-			CSDL_Ext::blit8bppAlphaTo24bpp(image, nullptr, to, &dst);
+			image->draw(to, &dst, nullptr);
 		}
 
 		// Update projectile
@@ -3200,7 +3205,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				it->y = it->catapultInfo->calculateY(it->x);
 
 				++(it->frameNum);
-				it->frameNum %= idToProjectile[it->creID]->ourImages.size();
+				it->frameNum %= idToProjectile[it->creID]->size(0);
 			}
 			else
 			{
@@ -3368,11 +3373,13 @@ void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<cons
 	for (auto & elem : battleEffects)
 	{
 		int currentFrame = floor(elem->currentFrame);
-		currentFrame %= elem->anim->ourImages.size();
+		currentFrame %= elem->animation->size();
 
-		SDL_Surface *bitmapToBlit = elem->anim->ourImages[currentFrame].bitmap;
-		SDL_Rect temp_rect = genRect(bitmapToBlit->h, bitmapToBlit->w, elem->x, elem->y);
-		SDL_BlitSurface(bitmapToBlit, nullptr, to, &temp_rect);
+		IImage * img = elem->animation->getImage(currentFrame);
+
+		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem->x, elem->y);
+
+		img->draw(to, &temp_rect, nullptr);
 	}
 }
 

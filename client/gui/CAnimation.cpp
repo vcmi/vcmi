@@ -29,7 +29,7 @@ typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
 
- /// Class for def loading, methods are based on CDefHandler
+/// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class CDefFile
 {
@@ -100,6 +100,8 @@ public:
 
 	void shiftPalette(int from, int howMany) override;
 
+	void setBorderPallete(const BorderPallete & borderPallete) override;
+
 	friend class SDLImageLoader;
 };
 
@@ -157,6 +159,7 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
+	void setBorderPallete(const BorderPallete & borderPallete) override;
 
 	friend class CompImageLoader;
 };
@@ -985,6 +988,15 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
+void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+{
+	if(surf->format->palette)
+	{
+		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+	}
+}
+
+
 SDLImage::~SDLImage()
 {
 	SDL_FreeSurface(surf);
@@ -1238,22 +1250,27 @@ CompImage::~CompImage()
 
 void CompImage::horizontalFlip()
 {
-	logAnim->error("CompImage::horizontalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::verticalFlip()
 {
-	logAnim->error("CompImage::verticalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::shiftPalette(int from, int howMany)
 {
-	logAnim->error("CompImage::shiftPalette is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
-void CompImage::exportBitmap(const boost::filesystem::path& path) const
+void CompImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
 {
-	logAnim->error("CompImage::exportBitmap is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
+}
+
+void CompImage::exportBitmap(const boost::filesystem::path & path) const
+{
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 
@@ -1603,6 +1620,38 @@ size_t CAnimation::size(size_t group) const
 	if (iter != source.end())
 		return iter->second.size();
 	return 0;
+}
+
+void CAnimation::horizontalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->horizontalFlip();
+}
+
+void CAnimation::verticalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->verticalFlip();
+}
+
+void CAnimation::playerColored(PlayerColor player)
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->playerColored(player);
+}
+
+void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targetGroup)
+{
+	for(size_t frame = 0; frame < size(sourceGroup); ++frame)
+	{
+		duplicateImage(sourceGroup, frame, targetGroup);
+
+		IImage * image = getImage(frame, targetGroup);
+		image->verticalFlip();
+	}
 }
 
 float CFadeAnimation::initialCounter() const

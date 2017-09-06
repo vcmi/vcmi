@@ -14,7 +14,6 @@
 #include "../windows/CWindowObject.h"
 
 struct SDL_Surface;
-class CDefHandler;
 class CGHeroInstance;
 class CBattleInterface;
 class CPicture;
@@ -53,19 +52,24 @@ class CBattleHero : public CIntObject
 	void switchToNextPhase();
 public:
 	bool flip; //false if it's attacking hero, true otherwise
-	CDefHandler *dh, *flag; //animation and flag
+
+	std::shared_ptr<CAnimation> animation;
+	std::shared_ptr<CAnimation> flagAnimation;
+
 	const CGHeroInstance * myHero; //this animation's hero instance
 	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
 	int nextPhase; //stage of animation to be set after current phase is fully displayed
 	int currentFrame, firstFrame, lastFrame; //frame of animation
-	ui8 flagAnim, animCount; //for flag animation
+
+	size_t flagAnim;
+	ui8 animCount; //for flag animation
 	void show(SDL_Surface * to) override; //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner);
+	CBattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner);
 	~CBattleHero();
 };
 

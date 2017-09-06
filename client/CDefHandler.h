@@ -66,12 +66,6 @@ struct SSpriteDef
 	ui32 TopMargin;
 } PACKED_STRUCT;
 
-class CDefEssential //DefHandler with images only
-{
-public:
-	std::vector<Cimage> ourImages;
-	~CDefEssential();
-};
 
 class CDefHandler
 {
@@ -84,20 +78,17 @@ private:
 		int group;
 	} ;
 	std::vector<SEntry> SEntries ;
-	
-	void openFromMemory(ui8 * table, const std::string & name);	
+
+	void openFromMemory(ui8 * table, const std::string & name);
 	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const SDL_Color * palette) const;
 public:
 	int width, height; //width and height
 	std::string defName;
 	std::vector<Cimage> ourImages;
-	bool notFreeImgs;
 
 	CDefHandler();
 	~CDefHandler();
-	
-	CDefEssential * essentialize();
+
 
 	static CDefHandler * giveDef(const std::string & defName);
-	static CDefEssential * giveDefEss(const std::string & defName);
 };

@@ -24,6 +24,7 @@
 
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CAnimation.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 
@@ -107,7 +108,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	quitButton = new CButton(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [&](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
 	dismissButton = new CButton(Point(454, 429), "hsbtns2.def", CButton::tooltip(heroscrn[28]), [&](){ dismissCurrent(); }, SDLK_d);
-	questlogButton = new CButton(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [&](){ questlog(); }, SDLK_q);
+	questlogButton = new CButton(Point(314, 429), "hsbtns4.def", CButton::tooltip(heroscrn[0]), [=](){ LOCPLINT->showQuestLog(); }, SDLK_q);
 
 	formations = new CToggleGroup(0);
 	formations->addToggle(0, new CToggleButton(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, SDLK_t));
@@ -144,11 +145,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	luck = new MoraleLuckBox(false, Rect(233,179,53,45));
 	spellPointsArea = new LRClickableAreaWText(Rect(162,228, 136, 42), CGI->generaltexth->heroscrn[22]);
 
+	auto secSkills = std::make_shared<CAnimation>("SECSKILL");
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, CComponent::secskill));
-		secSkillImages.push_back(new CAnimImage("SECSKILL", 0, 0, r.x, r.y));
+		secSkillImages.push_back(new CAnimImage(secSkills, 0, 0, r.x, r.y));
 	}
 
 	//dismiss / quest log
@@ -158,12 +160,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	//////////////////////////////////////////////////////////////////////////???????????????
 
 	//primary skills & exp and mana
-	new CAnimImage("PSKIL42", 0, 0, 32, 111, false);
-	new CAnimImage("PSKIL42", 1, 0, 102, 111, false);
-	new CAnimImage("PSKIL42", 2, 0, 172, 111, false);
-	new CAnimImage("PSKIL42", 3, 0, 162, 230, false);
-	new CAnimImage("PSKIL42", 4, 0, 20, 230, false);
-	new CAnimImage("PSKIL42", 5, 0, 242, 111, false);
+	auto primSkills = std::make_shared<CAnimation>("PSKIL42");
+	primSkills->preload();
+	new CAnimImage(primSkills, 0, 0, 32, 111);
+	new CAnimImage(primSkills, 1, 0, 102, 111);
+	new CAnimImage(primSkills, 2, 0, 172, 111);
+	new CAnimImage(primSkills, 3, 0, 162, 230);
+	new CAnimImage(primSkills, 4, 0, 20, 230);
+	new CAnimImage(primSkills, 5, 0, 242, 111);
 
 	// various texts
 	new CLabel( 52, 99, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[1]);
@@ -304,11 +308,6 @@ void CHeroWindow::dismissCurrent()
 	CFunctionList<void()> ony = [=](){ close(); };
 	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
-}
-
-void CHeroWindow::questlog()
-{
-	LOCPLINT->showQuestLog();
 }
 
 void CHeroWindow::commanderWindow()

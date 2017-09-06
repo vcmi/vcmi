@@ -10,8 +10,8 @@
 #pragma once
 
 #include "../../lib/FunctionList.h"
-#include "../gui/SDL_Extensions.h"
 #include "../widgets/Images.h"
+#include "../gui/CAnimation.h"
 
 class CIntObject;
 class CCreatureAnimation;
@@ -52,21 +52,12 @@ public:
 	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;
 
 private:
-	std::string defName;
+	std::string name;
+	std::shared_ptr<CAnimation> forward;
+	std::shared_ptr<CAnimation> reverse;
 
-	int fullWidth, fullHeight;
-
-	// palette, as read from def file
-	std::array<SDL_Color, 256> palette;
-
-	//key = id of group (note that some groups may be missing)
-	//value = offset of pixel data for each frame, vector size = number of frames in group
-	std::map<int, std::vector<unsigned int>> dataOffsets;
-
-	//animation raw data
-	//TODO: use vector instead?
-	std::unique_ptr<ui8[]> pixelData;
-	size_t pixelDataSize;
+	int fullWidth;
+	int fullHeight;
 
 	// speed of animation, measure in frames per second
 	float speed;
@@ -85,21 +76,10 @@ private:
 
 	bool once; // animation will be played once and the reset to idling
 
-	ui8 * getPixelAddr(SDL_Surface * dest, int ftcpX, int ftcpY) const;
-
-	template<int bpp>
-	void putPixelAt(SDL_Surface * dest, int X, int Y, size_t index, const std::array<SDL_Color, 8> & special) const;
-
-	template<int bpp>
-	void putPixel( ui8 * dest, const SDL_Color & color, size_t index, const std::array<SDL_Color, 8> & special) const;
-
-	template<int bpp>
-	void nextFrameT(SDL_Surface * dest, bool rotate);
-
 	void endAnimation();
 
-	/// creates 8 special colors for current frame
-	std::array<SDL_Color, 8> genSpecialPalette();
+
+	void genBorderPalette(IImage::BorderPallete & target);
 public:
 
 	// function(s) that will be called when animation ends, after reset to 1st frame
@@ -113,12 +93,12 @@ public:
 	/// name - path to .def file, relative to SPRITES/ directory
 	/// controller - function that will return for how long *each* frame
 	/// in specified group of animation should be played, measured in seconds
-	CCreatureAnimation(std::string name, TSpeedController speedController);
+	CCreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
-	void nextFrame(SDL_Surface * dest, bool rotate);
+	void nextFrame(SDL_Surface * dest, bool attacker);
 
 	// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);
