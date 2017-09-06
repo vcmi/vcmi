@@ -1221,6 +1221,8 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	{
 	case CBonusSystemNode::CREATURE:
 		return (static_cast<const CCreature *>(node));
+	case CBonusSystemNode::STACK_BATTLE:
+		return (static_cast<const CStack*>(node))->type;
 	default:
 		const CStackInstance *csi = retreiveStackInstance(node);
 		if(csi)
