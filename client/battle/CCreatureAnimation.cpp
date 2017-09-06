@@ -154,7 +154,13 @@ CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedControll
 	//todo: optimize
 	forward->preload();
 	reverse->preload();
-	reverse->verticalFlip();
+
+	// if necessary, add one frame into vcmi-only group DEAD
+	if(forward->size(CCreatureAnim::DEAD) == 0)
+	{
+		forward->duplicateImage(CCreatureAnim::DEATH, forward->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
+		reverse->duplicateImage(CCreatureAnim::DEATH, reverse->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
+	}
 
 	//TODO: get dimensions form CAnimation
 	IImage * first = forward->getImage(0, type, true);
@@ -168,12 +174,7 @@ CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedControll
 	fullWidth = first->width();
 	fullHeight = first->height();
 
-	// if necessary, add one frame into vcmi-only group DEAD
-	if(forward->size(CCreatureAnim::DEAD) == 0)
-	{
-		forward->duplicateImage(CCreatureAnim::DEATH, forward->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
-		reverse->duplicateImage(CCreatureAnim::DEATH, reverse->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
-	}
+	reverse->verticalFlip();
 
 	play();
 }
@@ -327,8 +328,8 @@ void CCreatureAnimation::pause()
 
 void CCreatureAnimation::play()
 {
-	logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
+	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
     speed = 0;
-    if (speedController(this, type) != 0)
+    if(speedController(this, type) != 0)
         speed = 1 / speedController(this, type);
 }
