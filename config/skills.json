@@ -546,17 +546,17 @@
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 3 }
+				"main" : { "val" : 2 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 5 }
+				"main" : { "val" : 4 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 7 }
+				"main" : { "val" : 6 }
 			}
 		}
 	},

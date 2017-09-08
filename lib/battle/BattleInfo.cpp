@@ -608,7 +608,8 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	if(tacticsSkillDiff && isTacticsAllowed)
 	{
 		curB->tacticsSide = tacticsSkillDiff < 0;
-		curB->tacticDistance = std::abs(tacticsSkillDiff);
+		//bonus specifies distance you can move beyond base row; this allows 100% compatibility with HMM3 mechanics
+		curB->tacticDistance = 1 + std::abs(tacticsSkillDiff);
 	}
 	else
 		curB->tacticDistance = 0;
