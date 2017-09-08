@@ -1636,10 +1636,12 @@ struct BattleSpellCast : public CPackForClient
 		manaGained = 0;
 		casterStack = -1;
 		castByHero = true;
+		activeCast = true;
 	};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
+	bool activeCast;
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id; //id of spell
 	ui8 skill; //caster's skill level
@@ -1663,6 +1665,7 @@ struct BattleSpellCast : public CPackForClient
 		h & casterStack;
 		h & castByHero;
 		h & battleLog;
+		h & activeCast;
 	}
 };
 

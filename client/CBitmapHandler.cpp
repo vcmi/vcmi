@@ -178,7 +178,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 
 SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
-	SDL_Surface *bitmap;
+	SDL_Surface * bitmap = nullptr;
 
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))

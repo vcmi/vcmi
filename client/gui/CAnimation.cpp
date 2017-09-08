@@ -82,6 +82,8 @@ public:
 	SDLImage(CDefFile *data, size_t frame, size_t group=0, bool compressed=false);
 	//Load from bitmap file
 	SDLImage(std::string filename, bool compressed=false);
+
+	SDLImage(const JsonNode & conf);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
@@ -803,15 +805,19 @@ void IImage::increaseRef()
 	refCount++;
 }
 
-SDLImage::SDLImage(CDefFile *data, size_t frame, size_t group, bool compressed):
-	surf(nullptr)
+SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group, bool compressed)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
 }
 
-SDLImage::SDLImage(SDL_Surface * from, bool extraRef):
-	margins(0,0)
+SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0)
 {
 	surf = from;
 	if (extraRef)
@@ -820,8 +826,42 @@ SDLImage::SDLImage(SDL_Surface * from, bool extraRef):
 	fullSize.y = surf->h;
 }
 
-SDLImage::SDLImage(std::string filename, bool compressed):
-	margins(0,0)
+SDLImage::SDLImage(const JsonNode & conf)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0)
+{
+	std::string filename = conf["file"].String();
+
+	surf = BitmapHandler::loadBitmap(filename);
+
+	if(surf == nullptr)
+		return;
+
+	const JsonNode & jsonMargins = conf["margins"];
+
+	margins.x = jsonMargins["left"].Integer();
+	margins.y = jsonMargins["top"].Integer();
+
+	fullSize.x = conf["width"].Integer();
+	fullSize.y = conf["height"].Integer();
+
+	if(fullSize.x == 0)
+	{
+		fullSize.x = margins.x + surf->w + jsonMargins["right"].Integer();
+	}
+
+	if(fullSize.y == 0)
+	{
+		fullSize.y = margins.y + surf->h + jsonMargins["bottom"].Integer();
+	}
+}
+
+
+SDLImage::SDLImage(std::string filename, bool compressed)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0)
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -851,9 +891,10 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 }
 
+
 void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 alpha) const
 {
-	if (!surf)
+	if(!surf)
 		return;
 
 	Rect destRect(posX, posY, surf->w, surf->h);
@@ -995,7 +1036,6 @@ void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
 		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
 	}
 }
-
 
 SDLImage::~SDLImage()
 {
@@ -1300,34 +1340,34 @@ IImage * CAnimation::getFromExtraDef(std::string filename)
 	return ret;
 }
 
-bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
+bool CAnimation::loadFrame(size_t frame, size_t group)
 {
-	if (size(group) <= frame)
+	if(size(group) <= frame)
 	{
 		printError(frame, group, "LoadFrame");
 		return false;
 	}
 
-	IImage *image = getImage(frame, group, false);
-	if (image)
+	IImage * image = getImage(frame, group, false);
+	if(image)
 	{
 		image->increaseRef();
 		return true;
 	}
 
 	//try to get image from def
-	if (source[group][frame].getType() == JsonNode::DATA_NULL)
+	if(source[group][frame].getType() == JsonNode::DATA_NULL)
 	{
-		if (file)
+		if(defFile)
 		{
-			auto frameList = file->getEntries();
+			auto frameList = defFile->getEntries();
 
-			if (vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
+			if(vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
 			{
-				if (compressed)
-					images[group][frame] = new CompImage(file, frame, group);
+				if(compressed)
+					images[group][frame] = new CompImage(defFile, frame, group);
 				else
-					images[group][frame] = new SDLImage(file, frame, group);
+					images[group][frame] = new SDLImage(defFile, frame, group);
 				return true;
 			}
 		}
@@ -1338,11 +1378,9 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		std::string filename = source[group][frame]["file"].String();
-
-		IImage * img = getFromExtraDef(filename);
-		if (!img)
-			img = new SDLImage(filename, compressed);
+		IImage * img = getFromExtraDef(source[group][frame]["file"].String());
+		if(!img)
+			img = new SDLImage(source[group][frame]);
 
 		images[group][frame] = img;
 		return true;
@@ -1373,30 +1411,37 @@ void CAnimation::initFromJson(const JsonNode & config)
 	std::string basepath;
 	basepath = config["basepath"].String();
 
-	for(const JsonNode &group : config["sequences"].Vector())
+	JsonNode base(JsonNode::DATA_STRUCT);
+	base["margins"] = config["margins"];
+	base["width"] = config["width"];
+	base["height"] = config["height"];
+
+	for(const JsonNode & group : config["sequences"].Vector())
 	{
-		size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
+		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
 		source[groupID].clear();
 
-		for(const JsonNode &frame : group["frames"].Vector())
+		for(const JsonNode & frame : group["frames"].Vector())
 		{
-			source[groupID].push_back(JsonNode());
-			std::string filename =  frame.String();
-			source[groupID].back()["file"].String() = basepath + filename;
+			JsonNode toAdd(JsonNode::DATA_STRUCT);
+			JsonUtils::inherit(toAdd, base);
+			toAdd["file"].String() = basepath + frame["file"].String();
+			source[groupID].push_back(toAdd);
 		}
 	}
 
-	for(const JsonNode &node : config["images"].Vector())
+	for(const JsonNode & node : config["images"].Vector())
 	{
-		size_t group = node["group"].Float();
-		size_t frame = node["frame"].Float();
+		size_t group = node["group"].Integer();
+		size_t frame = node["frame"].Integer();
 
 		if (source[group].size() <= frame)
 			source[group].resize(frame+1);
 
-		source[group][frame] = node;
-		std::string filename =  node["file"].String();
-		source[group][frame]["file"].String() = basepath + filename;
+		JsonNode toAdd(JsonNode::DATA_STRUCT);
+		JsonUtils::inherit(toAdd, base);
+		toAdd["file"].String() = basepath + node["file"].String();
+		source[group][frame] = toAdd;
 	}
 }
 
@@ -1433,11 +1478,11 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
 }
 
-void CAnimation::init(CDefFile * file)
+void CAnimation::init()
 {
-	if (file)
+	if(defFile)
 	{
-		const std::map<size_t, size_t> defEntries = file->getEntries();
+		const std::map<size_t, size_t> defEntries = defFile->getEntries();
 
 		for (auto & defEntry : defEntries)
 			source[defEntry.first].resize(defEntry.second);
@@ -1462,15 +1507,6 @@ void CAnimation::init(CDefFile * file)
 	}
 }
 
-CDefFile * CAnimation::getFile() const
-{
-	ResourceID identifier(std::string("SPRITES/") + name, EResType::ANIMATION);
-
-	if (CResourceHandler::get()->existsResource(identifier))
-		return new CDefFile(name);
-	return nullptr;
-}
-
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
 	logGlobal->error("%s error: Request for frame not present in CAnimation! File name: %s, Group: %d, Frame: %d", type, name, group, frame);
@@ -1479,15 +1515,20 @@ void CAnimation::printError(size_t frame, size_t group, std::string type) const
 CAnimation::CAnimation(std::string Name, bool Compressed):
 	name(Name),
 	compressed(Compressed),
-	preloaded(false)
+	preloaded(false),
+	defFile(nullptr)
 {
 	size_t dotPos = name.find_last_of('.');
 	if ( dotPos!=-1 )
 		name.erase(dotPos);
 	std::transform(name.begin(), name.end(), name.begin(), toupper);
-	CDefFile * file = getFile();
-	init(file);
-	delete file;
+
+	ResourceID resource(std::string("SPRITES/") + name, EResType::ANIMATION);
+
+	if(CResourceHandler::get()->existsResource(resource))
+		defFile = new CDefFile(name);
+
+	init();
 
 	if(source.empty())
 		logAnim->error("Animation %s failed to load", Name);
@@ -1496,9 +1537,10 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 CAnimation::CAnimation():
 	name(""),
 	compressed(false),
-	preloaded(false)
+	preloaded(false),
+	defFile(nullptr)
 {
-	init(nullptr);
+	init();
 }
 
 CAnimation::~CAnimation()
@@ -1558,13 +1600,9 @@ IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
 
 void CAnimation::load()
 {
-	CDefFile * file = getFile();
-
 	for (auto & elem : source)
 		for (size_t image=0; image < elem.second.size(); image++)
-			loadFrame(file, image, elem.first);
-
-	delete file;
+			loadFrame(image, elem.first);
 }
 
 void CAnimation::unload()
@@ -1586,13 +1624,9 @@ void CAnimation::preload()
 
 void CAnimation::loadGroup(size_t group)
 {
-	CDefFile * file = getFile();
-
 	if (vstd::contains(source, group))
 		for (size_t image=0; image < source[group].size(); image++)
-			loadFrame(file, image, group);
-
-	delete file;
+			loadFrame(image, group);
 }
 
 void CAnimation::unloadGroup(size_t group)
@@ -1604,9 +1638,7 @@ void CAnimation::unloadGroup(size_t group)
 
 void CAnimation::load(size_t frame, size_t group)
 {
-	CDefFile * file = getFile();
-	loadFrame(file, frame, group);
-	delete file;
+	loadFrame(frame, group);
 }
 
 void CAnimation::unload(size_t frame, size_t group)

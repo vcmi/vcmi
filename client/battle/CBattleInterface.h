@@ -388,5 +388,6 @@ public:
 	friend class CAttackAnimation;
 	friend class CMeleeAttackAnimation;
 	friend class CShootingAnimation;
+	friend class CCastAnimation;
 	friend class CClickableHex;
 };
