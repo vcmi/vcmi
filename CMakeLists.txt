@@ -54,7 +54,7 @@ option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 
-# Useful for debugging
+# Used for Snap packages and also useful for debugging
 option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 
 # Allow to pass package name from Travis CI
@@ -250,6 +250,7 @@ else()
 	include(GNUInstallDirs)
 
 	if(ENABLE_MONOLITHIC_INSTALL)
+		set(CMAKE_INSTALL_RPATH "$ORIGIN/")
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
