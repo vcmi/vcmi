@@ -485,7 +485,7 @@ public:
 	int valOfBonuses(const CSelector &select) const;
 
 	void eliminateDuplicates();
-	void updateBonuses(const CBonusSystemNode & node);
+	bool updateBonuses(const CBonusSystemNode & node);
 
 	// remove_if implementation for STL vector types
 	template <class Predicate>
@@ -1019,7 +1019,7 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 class DLL_LINKAGE IUpdater
 {
 public:
-	virtual void update(Bonus & b, const CBonusSystemNode & context) const = 0;
+	virtual bool update(Bonus & b, const CBonusSystemNode & context) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1038,5 +1038,5 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 		h & stepSize;
 	}
 
-	void update(Bonus & b, const CBonusSystemNode & context);
+	bool update(Bonus & b, const CBonusSystemNode & context);
 };

@@ -318,13 +318,15 @@ void BonusList::eliminateDuplicates()
 	bonuses.erase( unique( bonuses.begin(), bonuses.end() ), bonuses.end() );
 }
 
-void BonusList::updateBonuses(const CBonusSystemNode & context)
+bool BonusList::updateBonuses(const CBonusSystemNode & context)
 {
+	bool updated = false;
 	for(std::shared_ptr<Bonus> b : *this)
 	{
 		if(b->updater)
-			b->updater->update(*b, context);
+			updated = b->updater->update(*b, context) || updated;
 	}
+	return updated;
 }
 
 void BonusList::push_back(std::shared_ptr<Bonus> x)
@@ -808,8 +810,10 @@ void CBonusSystemNode::reduceBonusDurations(const CSelector &s)
 
 void CBonusSystemNode::updateBonuses()
 {
-	bonuses.updateBonuses(*this);
-	exportedBonuses.updateBonuses(*this);
+	bool updated = bonuses.updateBonuses(*this);
+	updated = exportedBonuses.updateBonuses(*this) || updated;
+	if(updated)
+		treeHasChanged();
 }
 
 void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
@@ -1559,15 +1563,21 @@ void LimiterList::add( TLimiterPtr limiter )
 	limiters.push_back(limiter);
 }
 
-void ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context)
+bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
 		int level = static_cast<const CGHeroInstance &>(context).level;
 		int steps = stepSize ? level / stepSize : level;
 		//rounding follows format for HMM3 creature specialty bonus
-		b.val = (valPer20 * steps + 19) / 20;
+		int newVal = (valPer20 * steps + 19) / 20;
+		if(b.val != newVal)
+		{
+			b.val = newVal;
+			return true;
+		}
 	}
+	return false;
 }
 
 std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
