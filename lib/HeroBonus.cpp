@@ -318,6 +318,15 @@ void BonusList::eliminateDuplicates()
 	bonuses.erase( unique( bonuses.begin(), bonuses.end() ), bonuses.end() );
 }
 
+void BonusList::updateBonuses(const CBonusSystemNode & context)
+{
+	for(std::shared_ptr<Bonus> b : *this)
+	{
+		if(b->updater)
+			b->updater->update(*b, context);
+	}
+}
+
 void BonusList::push_back(std::shared_ptr<Bonus> x)
 {
 	bonuses.push_back(x);
@@ -782,7 +791,7 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		child->popBonuses(s);
 }
 
-void CBonusSystemNode::updateBonuses(const CSelector &s)
+void CBonusSystemNode::reduceBonusDurations(const CSelector &s)
 {
 	BonusList bl;
 	exportedBonuses.getBonuses(bl, s, Selector::all);
@@ -794,7 +803,13 @@ void CBonusSystemNode::updateBonuses(const CSelector &s)
 	}
 
 	for(CBonusSystemNode *child : children)
-		child->updateBonuses(s);
+		child->reduceBonusDurations(s);
+}
+
+void CBonusSystemNode::updateBonuses()
+{
+	bonuses.updateBonuses(*this);
+	exportedBonuses.updateBonuses(*this);
 }
 
 void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
@@ -1544,14 +1559,14 @@ void LimiterList::add( TLimiterPtr limiter )
 	limiters.push_back(limiter);
 }
 
-void ScalingUpdater::update(BonusUpdateContext & context)
+void ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context)
 {
-	if(context.node.getNodeType() == CBonusSystemNode::HERO)
+	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
-		int level = static_cast<const CGHeroInstance &>(context.node).level;
+		int level = static_cast<const CGHeroInstance &>(context).level;
 		int steps = stepSize ? level / stepSize : level;
 		//rounding follows format for HMM3 creature specialty bonus
-		context.b->val = (valPer20 * steps + 19) / 20;
+		b.val = (valPer20 * steps + 19) / 20;
 	}
 }
 

@@ -485,6 +485,7 @@ public:
 	int valOfBonuses(const CSelector &select) const;
 
 	void eliminateDuplicates();
+	void updateBonuses(const CBonusSystemNode & node);
 
 	// remove_if implementation for STL vector types
 	template <class Predicate>
@@ -707,7 +708,9 @@ public:
 	///removes bonuses by selector
 	void popBonuses(const CSelector &s);
 	///updates count of remaining turns and removes outdated bonuses by selector
-	void updateBonuses(const CSelector &s);
+	void reduceBonusDurations(const CSelector &s);
+	//run update decorators
+	void updateBonuses();
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
@@ -1013,16 +1016,10 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 
 // bonus decorators for updating bonuses based on events (e.g. hero gaining level)
 
-struct BonusUpdateContext
-{
-	std::shared_ptr<Bonus> b;
-	const CBonusSystemNode & node;
-};
-
 class DLL_LINKAGE IUpdater
 {
 public:
-	virtual void update(BonusUpdateContext & context) const = 0;
+	virtual void update(Bonus & b, const CBonusSystemNode & context) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1041,5 +1038,5 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 		h & stepSize;
 	}
 
-	void update(BonusUpdateContext & context);
+	void update(Bonus & b, const CBonusSystemNode & context);
 };
