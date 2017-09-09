@@ -420,6 +420,12 @@
 		"description": "This creature is vulnerable to synergy effect"
 	},
 
+	"TERMINATOR":
+	{
+		"name": "Terminator",
+		"description": "Has ${val}% chance to kill extra units after attack"
+	},
+
 	"TWO_HEX_ATTACK_BREATH":
 	{
 		"name": "Breath",
@@ -454,11 +460,11 @@
 	{
 		"name": "Water immunity",
 		"description": "Immune to all Water school spells"
-	}
+	},
 	
 	"WIDE_BREATH":
 	{
-		"name": "Szerokie Zionięcie",
-		"description": "Stożek ognia obejmuje znacznie większy obszar"
+		"name": "Wide breath",
+		"description": "Wide breath attack (multiple hexes)"
 	}
 }

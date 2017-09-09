@@ -1656,13 +1656,13 @@ si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
 		node = getBattleNode();
 
 	if(!node)
-		return 1;
+		return 0;
 
 	auto b = node->getBonuses(Selector::type(Bonus::BLOCK_MAGIC_BELOW));
 	if(b->size())
 		return b->totalValue();
 
-	return 1;
+	return 0;
 }
 
 si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const
