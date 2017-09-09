@@ -97,6 +97,11 @@
 			"description": "List of configuration files for spells",
 			"items": { "type":"string", "format" : "textFile" }
 		},
+		"skills": {
+			"type":"array",
+			"description": "List of configuration files for skills",
+			"items": { "type":"string", "format" : "textFile" }
+		},
 		"templates":{
 			"type":"array",
 			"description": "List of configuration files for RMG templates",

@@ -676,6 +676,18 @@ namespace vstd
 		return v3;
 	}
 
+	template <typename Key, typename V>
+	bool containsMapping(const std::multimap<Key,V> & map, const std::pair<const Key,V> & mapping)
+	{
+		auto range = map.equal_range(mapping.first);
+		for(auto contained = range.first; contained != range.second; contained++)
+		{
+			if(mapping.second == contained->second)
+				return true;
+		}
+		return false;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;

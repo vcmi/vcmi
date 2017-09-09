@@ -76,5 +76,9 @@
 		"config/spells/other.json",
 		"config/spells/timed.json",
 		"config/spells/ability.json"
+	],
+	"skills" :
+	[
+        "config/skills.json"
 	]
 }

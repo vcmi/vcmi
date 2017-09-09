@@ -146,6 +146,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	bool hasSpellbook() const;
+	int maxSpellLevel() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;
@@ -302,5 +303,7 @@ public:
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
+		if(version < 777 && !h.saving)
+			recreateSecondarySkillsBonuses();
 	}
 };

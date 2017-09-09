@@ -26,8 +26,9 @@ CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDire
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const ResourceID & resourceName) const
 {
 	assert(fileList.count(resourceName));
-
-	return make_unique<CFileInputStream>(baseDirectory / fileList.at(resourceName));
+	bfs::path file = baseDirectory / fileList.at(resourceName);
+	logGlobal->trace("loading %s", file.string());
+	return make_unique<CFileInputStream>(file);
 }
 
 bool CFilesystemLoader::existsResource(const ResourceID & resourceName) const

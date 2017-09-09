@@ -24,6 +24,7 @@ class IImage
 {
 	int refCount;
 public:
+	using BorderPallete = std::array<SDL_Color, 3>;
 
 	//draws image on surface "where" at position
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
@@ -48,6 +49,9 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
+
+	//only indexed bitmaps, colors 5,6,7 must be special
+	virtual void setBorderPallete(const BorderPallete & borderPallete) = 0;
 
 	virtual void horizontalFlip() = 0;
 	virtual void verticalFlip() = 0;
@@ -127,6 +131,12 @@ public:
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group=0) const;
+
+	void horizontalFlip();
+	void verticalFlip();
+	void playerColored(PlayerColor player);
+
+	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
 
 const float DEFAULT_DELTA = 0.05f;

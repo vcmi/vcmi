@@ -29,7 +29,7 @@ typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
 typedef std::map<size_t, image_map > group_map;
 
- /// Class for def loading, methods are based on CDefHandler
+/// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class CDefFile
 {
@@ -100,6 +100,8 @@ public:
 
 	void shiftPalette(int from, int howMany) override;
 
+	void setBorderPallete(const BorderPallete & borderPallete) override;
+
 	friend class SDLImageLoader;
 };
 
@@ -157,6 +159,7 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
+	void setBorderPallete(const BorderPallete & borderPallete) override;
 
 	friend class CompImageLoader;
 };
@@ -247,16 +250,50 @@ public:
 	}
 };
 
+enum class DefType : uint32_t
+{
+	SPELL = 0x40,
+	SPRITE = 0x41,
+	CREATURE = 0x42,
+	MAP = 0x43,
+	MAP_HERO = 0x44,
+	TERRAIN = 0x45,
+	CURSOR = 0x46,
+	INTERFACE = 0x47,
+	SPRITE_FRAME = 0x48,
+	BATTLE_HERO = 0x49
+};
+
 static CFileCache animationCache;
 
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
 
+bool operator== (const SDL_Color & lhs, const SDL_Color & rhs)
+{
+	return (lhs.a == rhs.a) && (lhs.b == rhs.b) &&(lhs.g == rhs.g) &&(lhs.r == rhs.r);
+}
+
 CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
+
+	#if 0
+	static SDL_Color H3_ORIG_PALETTE[8] =
+	{
+	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
+	   {255, 150, 255, SDL_ALPHA_OPAQUE},
+	   {255, 100, 255, SDL_ALPHA_OPAQUE},
+	   {255,  50, 255, SDL_ALPHA_OPAQUE},
+	   {255,   0, 255, SDL_ALPHA_OPAQUE},
+	   {255, 255, 0,   SDL_ALPHA_OPAQUE},
+	   {180,   0, 255, SDL_ALPHA_OPAQUE},
+	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
+	};
+	#endif // 0
+
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
@@ -289,10 +326,59 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].b = data[it++];
 		palette[i].a = SDL_ALPHA_OPAQUE;
 	}
-	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
-		memset(palette.get(), 0, sizeof(SDL_Color)*2);
-	else
-		memcpy(palette.get(), H3Palette, sizeof(SDL_Color)*8);//initialize shadow\selection colors
+
+	switch(static_cast<DefType>(type))
+	{
+	case DefType::SPELL:
+		palette[0] = H3Palette[0];
+		break;
+	case DefType::SPRITE:
+	case DefType::SPRITE_FRAME:
+		for(ui32 i= 0; i<8; i++)
+			palette[i] = H3Palette[i];
+		break;
+	case DefType::CREATURE:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		palette[5] = H3Palette[5];
+		palette[6] = H3Palette[6];
+		palette[7] = H3Palette[7];
+		break;
+	case DefType::MAP:
+	case DefType::MAP_HERO:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		//5 = owner flag, handled separately
+		break;
+	case DefType::TERRAIN:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[2] = H3Palette[2];
+		palette[3] = H3Palette[3];
+		palette[4] = H3Palette[4];
+		break;
+	case DefType::CURSOR:
+		palette[0] = H3Palette[0];
+		break;
+	case DefType::INTERFACE:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		//player colors handled separately
+		//TODO: disallow colorizing other def types
+		break;
+	case DefType::BATTLE_HERO:
+		palette[0] = H3Palette[0];
+		palette[1] = H3Palette[1];
+		palette[4] = H3Palette[4];
+		break;
+	default:
+		logAnim->error("Unknown def type %d in %s", type, Name);
+		break;
+	}
+
 
 	for (ui32 i=0; i<totalBlocks; i++)
 	{
@@ -902,6 +988,15 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
+void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+{
+	if(surf->format->palette)
+	{
+		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+	}
+}
+
+
 SDLImage::~SDLImage()
 {
 	SDL_FreeSurface(surf);
@@ -1155,22 +1250,27 @@ CompImage::~CompImage()
 
 void CompImage::horizontalFlip()
 {
-	logAnim->error("CompImage::horizontalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::verticalFlip()
 {
-	logAnim->error("CompImage::verticalFlip is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 void CompImage::shiftPalette(int from, int howMany)
 {
-	logAnim->error("CompImage::shiftPalette is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
-void CompImage::exportBitmap(const boost::filesystem::path& path) const
+void CompImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
 {
-	logAnim->error("CompImage::exportBitmap is not implemented");
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
+}
+
+void CompImage::exportBitmap(const boost::filesystem::path & path) const
+{
+	logAnim->error("%s is not implemented", BOOST_CURRENT_FUNCTION);
 }
 
 
@@ -1388,6 +1488,9 @@ CAnimation::CAnimation(std::string Name, bool Compressed):
 	CDefFile * file = getFile();
 	init(file);
 	delete file;
+
+	if(source.empty())
+		logAnim->error("Animation %s failed to load", Name);
 }
 
 CAnimation::CAnimation():
@@ -1517,6 +1620,38 @@ size_t CAnimation::size(size_t group) const
 	if (iter != source.end())
 		return iter->second.size();
 	return 0;
+}
+
+void CAnimation::horizontalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->horizontalFlip();
+}
+
+void CAnimation::verticalFlip()
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->verticalFlip();
+}
+
+void CAnimation::playerColored(PlayerColor player)
+{
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->playerColored(player);
+}
+
+void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targetGroup)
+{
+	for(size_t frame = 0; frame < size(sourceGroup); ++frame)
+	{
+		duplicateImage(sourceGroup, frame, targetGroup);
+
+		IImage * image = getImage(frame, targetGroup);
+		image->verticalFlip();
+	}
 }
 
 float CFadeAnimation::initialCounter() const

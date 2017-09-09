@@ -34,15 +34,15 @@
     <item row="0" column="0">
      <widget class="QListWidget" name="tabSelectList">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>89</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="maximumSize">
+      <property name="minimumSize">
        <size>
-        <width>65</width>
-        <height>16777215</height>
+        <width>89</width>
+        <height>89</height>
        </size>
       </property>
       <property name="verticalScrollBarPolicy">
@@ -61,27 +61,24 @@
        <enum>QAbstractItemView::NoDragDrop</enum>
       </property>
       <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
+       <enum>QAbstractItemView::SelectItems</enum>
       </property>
       <property name="iconSize">
        <size>
-        <width>48</width>
-        <height>64</height>
+        <width>89</width>
+        <height>89</height>
        </size>
       </property>
-      <property name="movement">
-       <enum>QListView::Static</enum>
+      <property name="flow">
+       <enum>QListView::TopToBottom</enum>
       </property>
       <property name="resizeMode">
-       <enum>QListView::Fixed</enum>
-      </property>
-      <property name="spacing">
-       <number>0</number>
+       <enum>QListView::Adjust</enum>
       </property>
       <property name="gridSize">
        <size>
-        <width>64</width>
-        <height>64</height>
+        <width>100</width>
+        <height>100</height>
        </size>
       </property>
       <property name="viewMode">
@@ -92,12 +89,6 @@
       </property>
       <property name="wordWrap">
        <bool>true</bool>
-      </property>
-      <property name="selectionRectVisible">
-       <bool>false</bool>
-      </property>
-      <property name="currentRow">
-       <number>0</number>
       </property>
       <item>
        <property name="text">
@@ -117,32 +108,6 @@
          <normaloff>icons:menu-settings.png</normaloff>icons:menu-settings.png</iconset>
        </property>
       </item>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QToolButton" name="startGameButton">
-      <property name="text">
-       <string>Play</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>icons:menu-game.png</normaloff>icons:menu-game.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>60</width>
-        <height>60</height>
-       </size>
-      </property>
-      <property name="checkable">
-       <bool>false</bool>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-      <property name="toolButtonStyle">
-       <enum>Qt::ToolButtonIconOnly</enum>
-      </property>
      </widget>
     </item>
     <item row="2" column="0">
@@ -177,6 +142,44 @@
       </property>
       <widget class="CModListView" name="stackedWidgetPage2"/>
       <widget class="CSettingsView" name="settingsView"/>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QToolButton" name="startGameButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+        <horstretch>89</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>89</width>
+        <height>89</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Play</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons:menu-game.png</normaloff>icons:menu-game.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>60</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonIconOnly</enum>
+      </property>
      </widget>
     </item>
    </layout>

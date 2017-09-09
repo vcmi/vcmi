@@ -1,0 +1,75 @@
+-- Shamelessly taken from CMake source: Packaging/CMakeDMGSetup.scpt
+-- For licensing check cmake_modules/kitware license.txt
+--
+-- You can as well use this script to manually generate DS_Store
+-- First make DMG writable:
+--  hdiutil convert VCMI.dmg -format UDRW -o VCMI_writable.dmg
+-- Check current size of the image
+--  hdiutil resize -limits VCMI_writable.dmg
+-- Increase it size slightly so you can update .DS_Store
+-- Using 999999 will result in 512mb file though
+--  hdiutil resize -sectors 999999 VCMI_writable.dmg
+-- Attach it to /Volumes/VCMI/
+--  hdiutil attach VCMI_writable.dmg
+-- After run this script directly and it's will do the job
+--  osascript /path/to/vcmi/source/osx/DS_Store_Setup.scpt VCMI
+-- You should see icons moving and background appear
+-- Now /Volumes/VCMI/.DS_Store can be copied over to /path/to/vcmi/source/osx/dmg_DS_Stor
+
+on run argv
+  set image_name to item 1 of argv
+
+  tell application "Finder"
+  tell disk image_name
+
+    -- wait for the image to finish mounting
+    set open_attempts to 0
+    repeat while open_attempts < 4
+      try
+        open
+          delay 1
+          set open_attempts to 5
+        close
+      on error errStr number errorNumber
+        set open_attempts to open_attempts + 1
+        delay 10
+      end try
+    end repeat
+    delay 5
+
+    -- open the image the first time and save a DS_Store with just
+    -- background and icon setup
+    open
+      set current view of container window to icon view
+      set theViewOptions to the icon view options of container window
+      set background picture of theViewOptions to file ".background:background.png"
+      set arrangement of theViewOptions to not arranged
+      set icon size of theViewOptions to 128
+      delay 5
+    close
+
+    -- next setup the position of the app and Applications symlink
+    -- plus hide all the window decoration
+    open
+      update without registering applications
+      tell container window
+        set sidebar width to 0
+        set statusbar visible to false
+        set toolbar visible to false
+        set the bounds to { 400, 100, 900, 423 }
+        set position of item "VCMI.app" to { 133, 140 }
+        set position of item "Applications" to { 378, 140 }
+      end tell
+      update without registering applications
+      delay 5
+    close
+
+    -- one last open and close so you can see everything looks correct
+    open
+      delay 5
+    close
+
+  end tell
+  delay 1
+end tell
+end run

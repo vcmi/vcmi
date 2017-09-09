@@ -54,7 +54,7 @@ option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 
-# Useful for debugging
+# Used for Snap packages and also useful for debugging
 option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
 
 # Allow to pass package name from Travis CI
@@ -68,6 +68,7 @@ set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
 # Contains custom functions and macros, but don't altering any options
 include(VCMIUtils)
+vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
 # Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
@@ -90,6 +91,7 @@ if(ENABLE_GITVERSION)
 	include(GetGitRevisionDescription)
 	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+	vcmi_print_git_commit_hash()
 else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)
 endif(ENABLE_GITVERSION)
@@ -248,6 +250,7 @@ else()
 	include(GNUInstallDirs)
 
 	if(ENABLE_MONOLITHIC_INSTALL)
+		set(CMAKE_INSTALL_RPATH "$ORIGIN/")
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
@@ -262,15 +265,15 @@ else()
 			set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
 		endif()
 	endif()
+
+	# following constants only used for platforms using XDG (Linux, BSD, etc)
+	add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
+	add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
+	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
 set(AI_LIB_DIR "${LIB_DIR}/AI")
 set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
-
-#define required constants
-add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
-add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
-add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 
 #######################################
 #        Add subdirectories           #
@@ -414,7 +417,15 @@ elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
-	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+	# CMake code for CPACK_DMG_DS_STORE executed before DS_STORE_SETUP_SCRIPT
+	# So we can keep both enabled and this shouldn't hurt
+	# set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
+	set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_SOURCE_DIR}/osx/DS_Store_Setup.scpt")
+
+	# Always use "VCMI" as volume name so full path will be /Volumes/VCMI/
+	# Otherwise DMG background image wouldn't work
+	# Pre-generated DS_Store use absolute path to background image
+	set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME}")
 
 	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")

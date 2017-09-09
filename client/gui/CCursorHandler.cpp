@@ -23,11 +23,20 @@ void CCursorHandler::initCursor()
 	xpos = ypos = 0;
 	type = ECursor::DEFAULT;
 	dndObject = nullptr;
-	currentCursor = nullptr;
+
+	cursors =
+	{
+		make_unique<CAnimImage>("CRADVNTR", 0),
+		make_unique<CAnimImage>("CRCOMBAT", 0),
+		make_unique<CAnimImage>("CRDEFLT",  0),
+		make_unique<CAnimImage>("CRSPELL",  0)
+	};
+
+	currentCursor = cursors.at(int(ECursor::DEFAULT)).get();
 
 	help = CSDL_Ext::newSurface(40,40);
 	//No blending. Ensure, that we are copying pixels during "screen restore draw"
-	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);	
+	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	changeGraphic(ECursor::ADVENTURE, 0);
@@ -35,32 +44,23 @@ void CCursorHandler::initCursor()
 
 void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 {
-	std::string cursorDefs[4] = { "CRADVNTR.DEF", "CRCOMBAT.DEF", "CRDEFLT.DEF", "CRSPELL.DEF" };
-
-	if (type != this->type)
+	if(type != this->type)
 	{
-		BLOCK_CAPTURING; // not used here
-
 		this->type = type;
 		this->frame = index;
-
-		delete currentCursor;
-		currentCursor = new CAnimImage(cursorDefs[int(type)], index);
+		currentCursor = cursors.at(int(type)).get();
+		currentCursor->setFrame(index);
 	}
-
-	if (frame != index)
+	else if(index != this->frame)
 	{
-		frame = index;
+		this->frame = index;
 		currentCursor->setFrame(index);
 	}
 }
 
-void CCursorHandler::dragAndDropCursor(CAnimImage * object)
+void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 {
-	if (dndObject)
-		delete dndObject;
-
-	dndObject = object;
+	dndObject = std::move(object);
 }
 
 void CCursorHandler::cursorMove(const int & x, const int & y)
@@ -101,13 +101,6 @@ void CCursorHandler::drawRestored()
 
 	SDL_Rect temp_rect = genRect(40, 40, x, y);
 	SDL_BlitSurface(help, nullptr, screen, &temp_rect);
-	//blitAt(help,x,y);
-}
-
-void CCursorHandler::draw(SDL_Surface *to)
-{
-	currentCursor->moveTo(Point(xpos, ypos));
-	currentCursor->showAll(screen);
 }
 
 void CCursorHandler::shiftPos( int &x, int &y )
@@ -233,12 +226,10 @@ void CCursorHandler::render()
 	drawRestored();
 }
 
+CCursorHandler::CCursorHandler() = default;
 
 CCursorHandler::~CCursorHandler()
 {
 	if(help)
 		SDL_FreeSurface(help);
-
-	delete currentCursor;
-	delete dndObject;
 }

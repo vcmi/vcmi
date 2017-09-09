@@ -266,7 +266,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			{
 				const CSpell * spell = spellId.toSpell();
 				iw.text.addTxt (MetaString::SPELL_NAME, spellId);
-				if(spell->level <= hero->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
+				if(spell->level <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
 					{

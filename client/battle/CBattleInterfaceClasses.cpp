@@ -13,13 +13,13 @@
 #include "CBattleInterface.h"
 
 #include "../CBitmapHandler.h"
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -129,13 +129,18 @@ CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
 
 void CBattleHero::show(SDL_Surface * to)
 {
+	IImage * flagFrame = flagAnimation->getImage(flagAnim, 0, true);
+
+	if(!flagFrame)
+		return;
+
 	//animation of flag
 	SDL_Rect temp_rect;
 	if(flip)
 	{
 		temp_rect = genRect(
-			flag->ourImages[flagAnim].bitmap->h,
-			flag->ourImages[flagAnim].bitmap->w,
+			flagFrame->height(),
+			flagFrame->width(),
 			pos.x + 61,
 			pos.y + 39);
 
@@ -143,28 +148,30 @@ void CBattleHero::show(SDL_Surface * to)
 	else
 	{
 		temp_rect = genRect(
-			flag->ourImages[flagAnim].bitmap->h,
-			flag->ourImages[flagAnim].bitmap->w,
+			flagFrame->height(),
+			flagFrame->width(),
 			pos.x + 72,
 			pos.y + 39);
 	}
-	CSDL_Ext::blit8bppAlphaTo24bpp(
-		flag->ourImages[flagAnim].bitmap,
-		nullptr,
-		screen,
-		&temp_rect);
+
+	flagFrame->draw(screen, &temp_rect, nullptr); //FIXME: why screen?
 
 	//animation of hero
 	SDL_Rect rect = pos;
-	CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[currentFrame].bitmap, nullptr, to, &rect);
 
-	if ( ++animCount == 4 )
+	IImage * heroFrame = animation->getImage(currentFrame, phase, true);
+	if(!heroFrame)
+		return;
+
+	heroFrame->draw(to, &rect, nullptr);
+
+	if(++animCount >= 4)
 	{
 		animCount = 0;
-		if ( ++flagAnim >= flag->ourImages.size())
+		if(++flagAnim >= flagAnimation->size(0))
 			flagAnim = 0;
 
-		if ( ++currentFrame >= lastFrame)
+		if(++currentFrame >= lastFrame)
 			switchToNextPhase();
 	}
 }
@@ -190,7 +197,13 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if(myHero != nullptr && !down &&  myOwner->myTurn && myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, ECastingMode::HERO_CASTING) == ESpellCastProblem::OK) //check conditions
+	if(boost::logic::indeterminate(down))
+		return;
+
+	if(!myHero || down || !myOwner->myTurn)
+		return;
+
+	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, ECastingMode::HERO_CASTING) == ESpellCastProblem::OK) //check conditions
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
@@ -205,6 +218,9 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 
 void CBattleHero::clickRight(tribool down, bool previousState)
 {
+	if(boost::logic::indeterminate(down))
+		return;
+
 	Point windowPosition;
 	windowPosition.x = (!flip) ? myOwner->pos.topLeft().x + 1 : myOwner->pos.topRight().x - 79;
 	windowPosition.y = myOwner->pos.y + 135;
@@ -220,24 +236,19 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 
 void CBattleHero::switchToNextPhase()
 {
-	if (phase != nextPhase)
+	if(phase != nextPhase)
 	{
 		phase = nextPhase;
 
-		//find first and last frames of our animation
-		for (firstFrame = 0;
-		     firstFrame < dh->ourImages.size() && dh->ourImages[firstFrame].groupNumber != phase;
-		     firstFrame++);
+		firstFrame = 0;
 
-		for (lastFrame = firstFrame;
-			 lastFrame < dh->ourImages.size() && dh->ourImages[lastFrame].groupNumber == phase;
-			 lastFrame++);
+		lastFrame = animation->size(phase);
 	}
 
 	currentFrame = firstFrame;
 }
 
-CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner):
+CBattleHero::CBattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner):
     flip(flipG),
     myHero(hero),
     myOwner(owner),
@@ -246,39 +257,25 @@ CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor pl
     flagAnim(0),
     animCount(0)
 {
-	dh = CDefHandler::giveDef( defName );
-	for(auto & elem : dh->ourImages) //transforming images
-	{
-		if(flip)
-		{
-			SDL_Surface * hlp = CSDL_Ext::verticalFlip(elem.bitmap);
-			SDL_FreeSurface(elem.bitmap);
-			elem.bitmap = hlp;
-		}
-		CSDL_Ext::alphaTransform(elem.bitmap);
-	}
+	animation = std::make_shared<CAnimation>(animationPath);
+	animation->preload();
+	if(flipG)
+		animation->verticalFlip();
 
 	if(flip)
-		flag = CDefHandler::giveDef("CMFLAGR.DEF");
+		flagAnimation = std::make_shared<CAnimation>("CMFLAGR");
 	else
-		flag = CDefHandler::giveDef("CMFLAGL.DEF");
+		flagAnimation = std::make_shared<CAnimation>("CMFLAGL");
 
-	//coloring flag and adding transparency
-	for(auto & elem : flag->ourImages)
-	{
-		CSDL_Ext::alphaTransform(elem.bitmap);
-		graphics->blueToPlayersAdv(elem.bitmap, player);
-	}
+	flagAnimation->preload();
+	flagAnimation->playerColored(player);
+
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
 }
 
-CBattleHero::~CBattleHero()
-{
-	delete dh;
-	delete flag;
-}
+CBattleHero::~CBattleHero() = default;
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
 {

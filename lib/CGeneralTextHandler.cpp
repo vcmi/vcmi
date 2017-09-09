@@ -378,23 +378,6 @@ CGeneralTextHandler::CGeneralTextHandler()
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
-
-		//skip header
-		parser.endLine();
-		parser.endLine();
-
-		do
-		{
-			skillName.push_back(parser.readString());
-
-			skillInfoTexts.push_back(std::vector<std::string>());
-			for(int j = 0; j < 3; j++)
-				skillInfoTexts.back().push_back(parser.readString());
-		}
-		while (parser.endLine());
-	}
-	{
 		CLegacyConfigParser parser("DATA/SEERHUT.TXT");
 
 		//skip header

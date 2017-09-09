@@ -17,6 +17,7 @@
 #include "../CSoundBase.h"
 #include "../CModHandler.h"
 #include "../CHeroHandler.h"
+#include "../CSkillHandler.h"
 #include "CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
@@ -323,17 +324,18 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int charisma = powerFactor + h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy;
+	int diplomacy = h->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::DIPLOMACY);
+	int charisma = powerFactor + diplomacy + sympathy;
 
 	if(charisma < character)
 		return FIGHT;
 
 	if (allowJoin)
 	{
-		if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy + 1 >= character)
+		if(diplomacy + sympathy + 1 >= character)
 			return JOIN_FOR_FREE;
 
-		else if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
+		else if(diplomacy * 2  +  sympathy  +  1 >= character)
 			return VLC->creh->creatures[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
 	}
 
@@ -1475,7 +1477,7 @@ std::string CGWitchHut::getHoverText(PlayerColor player) const
 	if(wasVisited(player))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
+		boost::algorithm::replace_first(hoverName, "%s", VLC->skillh->skillName(ability));
 	}
 	return hoverName;
 }
@@ -1601,7 +1603,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,174);
 	}
-	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(SecondarySkill::WISDOM)) //it's third level spell and hero doesn't have wisdom
+	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && h->maxSpellLevel() < 3) //it's third level spell and hero doesn't have wisdom
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}

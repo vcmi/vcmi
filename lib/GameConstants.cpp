@@ -21,6 +21,7 @@
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
+#include "CSkillHandler.h"
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
 
@@ -63,6 +64,11 @@ const CSpell * SpellID::toSpell() const
 		return nullptr;
 	}
 	return VLC->spellh->objects[*this];
+}
+
+const CSkill * SecondarySkill::toSkill() const
+{
+	return VLC->skillh->objects.at(*this);
 }
 
 //template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);

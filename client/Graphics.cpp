@@ -232,16 +232,10 @@ std::shared_ptr<CAnimation> Graphics::loadHeroFlagAnimation(const std::string & 
 
 	for(const auto & rotation : rotations)
 	{
-        const int sourceGroup = rotation.first;
-        const int targetGroup = rotation.second;
+		const int sourceGroup = rotation.first;
+		const int targetGroup = rotation.second;
 
-        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
-		{
-			anim->duplicateImage(sourceGroup, frame, targetGroup);
-
-			IImage * image = anim->getImage(frame, targetGroup);
-			image->verticalFlip();
-		}
+		anim->createFlippedGroup(sourceGroup, targetGroup);
 	}
 
 	return anim;
@@ -262,15 +256,10 @@ std::shared_ptr<CAnimation> Graphics::loadHeroAnimation(const std::string &name)
 
 	for(const auto & rotation : rotations)
 	{
-        const int sourceGroup = rotation.first;
-        const int targetGroup = rotation.second;
+		const int sourceGroup = rotation.first;
+		const int targetGroup = rotation.second;
 
-        for(size_t frame = 0; frame < anim->size(sourceGroup); ++frame)
-		{
-			anim->duplicateImage(sourceGroup, frame, targetGroup);
-			IImage * image = anim->getImage(frame, targetGroup);
-			image->verticalFlip();
-		}
+		anim->createFlippedGroup(sourceGroup, targetGroup);
 	}
 
 	return anim;

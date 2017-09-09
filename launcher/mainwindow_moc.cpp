@@ -39,7 +39,7 @@ void MainWindow::load()
 	settings.init();
 }
 
-MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
+MainWindow::MainWindow(QWidget * parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -62,7 +62,7 @@ MainWindow::MainWindow(const QStringList& displayList, QWidget *parent) :
 		ui->tabSelectList->setMaximumWidth(width + 4);
 	}
 	ui->tabListWidget->setCurrentIndex(0);
-	ui->settingsView->setDisplayList(displayList);
+	ui->settingsView->setDisplayList();
 
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
 	        ui->tabListWidget, SLOT(setCurrentIndex(int)));

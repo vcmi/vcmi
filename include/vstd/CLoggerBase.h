@@ -190,3 +190,4 @@ extern DLL_LINKAGE vstd::CLoggerBase * logBonus;
 extern DLL_LINKAGE vstd::CLoggerBase * logNetwork;
 extern DLL_LINKAGE vstd::CLoggerBase * logAi;
 extern DLL_LINKAGE vstd::CLoggerBase * logAnim;
+extern DLL_LINKAGE vstd::CLoggerBase * logMod;

@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 #include "CGameInfo.h"
+#include "../lib/CSkillHandler.h"
+#include "../lib/CGeneralTextHandler.h"
 
 #include "../lib/VCMI_Lib.h"
 
@@ -32,5 +34,6 @@ void CGameInfo::setFromLib()
 	heroh = VLC->heroh;
 	objh = VLC->objh;
 	spellh = VLC->spellh;
+	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
 }

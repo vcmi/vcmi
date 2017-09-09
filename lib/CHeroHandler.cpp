@@ -362,7 +362,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 		}
 		else
 		{
-			logGlobal->error("Unknown skill level: %s", set["level"].String());
+			logMod->error("Unknown skill level: %s", set["level"].String());
 		}
 	}
 

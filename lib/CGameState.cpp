@@ -20,6 +20,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CModHandler.h"
+#include "CSkillHandler.h"
 #include "mapping/CMap.h"
 #include "mapping/CMapService.h"
 #include "StartInfo.h"
@@ -113,6 +114,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		dst = VLC->objtypeh->getObjectName(ser);
 	}
+	else if(type == SEC_SKILL_NAME)
+	{
+		dst = VLC->skillh->skillName(ser);
+	}
 	else
 	{
 		std::vector<std::string> *vec;
@@ -138,9 +143,6 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			break;
 		case ADVOB_TXT:
 			vec = &VLC->generaltexth->advobtxt;
-			break;
-		case SEC_SKILL_NAME:
-			vec = &VLC->generaltexth->skillName;
 			break;
 		case COLOR:
 			vec = &VLC->generaltexth->capColors;

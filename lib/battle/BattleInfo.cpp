@@ -601,14 +601,14 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
 	{
 		if(heroes[i])
-			tacticLvls[i] += heroes[i]->getSecSkillLevel(SecondarySkill::TACTICS);
+			tacticLvls[i] += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::TACTICS));
 	}
 	int tacticsSkillDiff = tacticLvls[0] - tacticLvls[1];
 
 	if(tacticsSkillDiff && isTacticsAllowed)
 	{
 		curB->tacticsSide = tacticsSkillDiff < 0;
-		curB->tacticDistance = std::abs(tacticsSkillDiff)*2 + 1;
+		curB->tacticDistance = std::abs(tacticsSkillDiff);
 	}
 	else
 		curB->tacticDistance = 0;

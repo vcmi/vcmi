@@ -101,6 +101,8 @@ void ObjectTemplate::afterLoadFixup()
 		usedTiles[0][0] = VISITABLE;
 		visitDir = 0xFF;
 	}
+	boost::algorithm::replace_all(animationFile, "\\", "/");
+	boost::algorithm::replace_all(editorAnimationFile, "\\", "/");
 }
 
 void ObjectTemplate::readTxt(CLegacyConfigParser & parser)

@@ -234,13 +234,16 @@ private:
 	BONUS_NAME(SUMMON_GUARDIANS) /*val - amount in % of stack count, subtype = creature ID*/\
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - number of additional shots, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
-	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
+	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/
+  BONUS_NAME(SECONDARY_SKILL_VAL2) /*for secondary skills that have multiple effects, like eagle eye (max level and chance)*/  \
+	BONUS_NAME(MANUAL_CONTROL) /* manually control warmachine with id = subtype, chance = val */  \
 	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
 	BONUS_NAME(SYNERGY_TARGET) /* dummy skill for alternative upgrades mod */\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighboring with target) without spell-like mechanics */\
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	BONUS_NAME(TERMINATOR) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
+
 	/* end of list */
 
 
@@ -956,6 +959,7 @@ namespace Selector
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
+	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType);
 
 	/**
 	 * Selects all bonuses

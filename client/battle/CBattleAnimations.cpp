@@ -16,11 +16,11 @@
 #include "CBattleInterface.h"
 #include "CCreatureAnimation.h"
 
-#include "../CDefHandler.h"
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
+#include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -58,13 +58,13 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 {
 	int lowestMoveID = owner->animIDhelper + 5;
 	CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
-	CSpellEffectAnimation * thSen = dynamic_cast<CSpellEffectAnimation *>(this);
+	CEffectAnimation * thSen = dynamic_cast<CEffectAnimation *>(this);
 
 	for(auto & elem : owner->pendingAnims)
 	{
 
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
-		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
+		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
 			continue;
 
@@ -171,7 +171,7 @@ bool CDefenceAnimation::init()
 		if(attAnim && attAnim->stack->ID != stack->ID)
 			continue;
 
-		CSpellEffectAnimation * sen = dynamic_cast<CSpellEffectAnimation *>(elem.first);
+		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
 		if (sen)
 			continue;
 
@@ -243,7 +243,7 @@ CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
 	if(killed)
 		return CCreatureAnim::DEATH;
 
-	if (vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
+	if(vstd::contains(stack->state, EBattleStackState::DEFENDING_ANIM))
 		return CCreatureAnim::DEFENCE;
 
 	return CCreatureAnim::HITTED;
@@ -270,10 +270,15 @@ void CDefenceAnimation::nextFrame()
 
 void CDefenceAnimation::endAnim()
 {
-	if (killed)
+	if(killed)
+	{
 		myAnim->setType(CCreatureAnim::DEAD);
+	}
 	else
+	{
 		myAnim->setType(CCreatureAnim::HOLDING);
+	}
+
 
 	CBattleAnimation::endAnim();
 
@@ -785,13 +790,13 @@ bool CShootingAnimation::init()
 		spi.dx = animSpeed;
 		spi.dy = 0;
 
-		SDL_Surface * img = owner->idToProjectile[spi.creID]->ourImages[0].bitmap;
+		IImage * img = owner->idToProjectile[spi.creID]->getImage(0);
 
 		// Add explosion anim
-		Point animPos(destPos.x - 126 + img->w / 2,
-		              destPos.y - 105 + img->h / 2);
+		Point animPos(destPos.x - 126 + img->width() / 2,
+		              destPos.y - 105 + img->height() / 2);
 
-		owner->addNewAnim( new CSpellEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
+		owner->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
 	}
 
 	auto & angles = shooterInfo->animation.missleFrameAngles;
@@ -801,7 +806,7 @@ bool CShootingAnimation::init()
 		owner->initStackProjectile(shooter);
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->ourImages.size());
+	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
 
 	assert(maxFrame > 0);
 
@@ -872,34 +877,39 @@ void CShootingAnimation::endAnim()
 	delete this;
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
-	:CBattleAnimation(_owner), effect(_effect), destTile(_destTile), customAnim(""), x(-1), y(-1), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
+CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
+	: CBattleAnimation(_owner),
+	destTile(BattleHex::INVALID),
+	customAnim(_customAnim),
+	x(_x),
+	y(_y),
+	dx(_dx),
+	dy(_dy),
+	Vflip(_Vflip),
+	alignToBottom(_alignToBottom)
 {
-	logAnim->debug("Created spell anim for effect #%d", effect);
+	logAnim->debug("Created effect animation %s", customAnim);
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
-	:CBattleAnimation(_owner), effect(-1), destTile(BattleHex::INVALID), customAnim(_customAnim), x(_x), y(_y), dx(_dx), dy(_dy), Vflip(_Vflip), alignToBottom(_alignToBottom)
+CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
+	: CBattleAnimation(_owner),
+	destTile(_destTile),
+	customAnim(_customAnim),
+	x(-1),
+	y(-1),
+	dx(0),
+	dy(0),
+	Vflip(_Vflip),
+	alignToBottom(_alignToBottom)
 {
-	logAnim->debug("Created spell anim for %s", customAnim);
+	logAnim->debug("Created effect animation %s", customAnim);
 }
 
-CSpellEffectAnimation::CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip, bool _alignToBottom)
-	:CBattleAnimation(_owner), effect(-1), destTile(_destTile), customAnim(_customAnim), x(-1), y(-1), dx(0), dy(0), Vflip(_Vflip), alignToBottom(_alignToBottom)
-{
-	logAnim->debug("Created spell anim for %s", customAnim);
-}
 
-
-bool CSpellEffectAnimation::init()
+bool CEffectAnimation::init()
 {
 	if(!isEarliest(true))
 		return false;
-
-	if(customAnim.empty() && effect != ui32(-1) && !graphics->battleACToDef[effect].empty())
-	{
-		customAnim = graphics->battleACToDef[effect][0];
-	}
 
 	if(customAnim.empty())
 	{
@@ -909,97 +919,88 @@ bool CSpellEffectAnimation::init()
 
 	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
 
+	std::shared_ptr<CAnimation> animation = std::make_shared<CAnimation>(customAnim);
+
+	animation->preload();
+	if(Vflip)
+		animation->verticalFlip();
+
+	IImage * first = animation->getImage(0, 0, true);
+	if(!first)
+	{
+		endAnim();
+		return false;
+	}
+
 	if(areaEffect) //f.e. armageddon
 	{
-		CDefHandler * anim = CDefHandler::giveDef(customAnim);
-
-		for(int i=0; i * anim->width < owner->pos.w ; ++i)
+		for(int i=0; i * first->width() < owner->pos.w ; ++i)
 		{
-			for(int j=0; j * anim->height < owner->pos.h ; ++j)
+			for(int j=0; j * first->height() < owner->pos.h ; ++j)
 			{
 				BattleEffect be;
 				be.effectID = ID;
-				be.anim = CDefHandler::giveDef(customAnim);
-				if (Vflip)
-				{
-					for (auto & elem : be.anim->ourImages)
-					{
-						CSDL_Ext::VflipSurf(elem.bitmap);
-					}
-				}
+				be.animation = animation;
 				be.currentFrame = 0;
-				be.maxFrame = be.anim->ourImages.size();
-				be.x = i * anim->width + owner->pos.x;
-				be.y = j * anim->height + owner->pos.y;
+
+				be.x = i * first->width() + owner->pos.x;
+				be.y = j * first->height() + owner->pos.y;
 				be.position = BattleHex::INVALID;
 
 				owner->battleEffects.push_back(be);
 			}
 		}
-
-		delete anim;
 	}
 	else // Effects targeted at a specific creature/hex.
 	{
+		const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
+		Rect & tilePos = owner->bfield[destTile]->pos;
+		BattleEffect be;
+		be.effectID = ID;
+		be.animation = animation;
+		be.currentFrame = 0;
 
-			const CStack* destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
-			Rect & tilePos = owner->bfield[destTile]->pos;
-			BattleEffect be;
-			be.effectID = ID;
-			be.anim = CDefHandler::giveDef(customAnim);
 
-			if (Vflip)
-			{
-				for (auto & elem : be.anim->ourImages)
-				{
-					CSDL_Ext::VflipSurf(elem.bitmap);
-				}
-			}
-
-			be.currentFrame = 0;
-			be.maxFrame = be.anim->ourImages.size();
-
-			//todo: lightning anim frame count override
+		//todo: lightning anim frame count override
 
 //			if(effect == 1)
 //				be.maxFrame = 3;
 
-			if(x == -1)
-			{
-				be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
-			}
+		if(x == -1)
+		{
+			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
+		}
+		else
+		{
+			be.x = x;
+		}
+
+		if(y == -1)
+		{
+			if(alignToBottom)
+				be.y = tilePos.y + tilePos.h - first->height();
 			else
-			{
-				be.x = x;
-			}
+				be.y = tilePos.y - first->height()/2;
+		}
+		else
+		{
+			be.y = y;
+		}
 
-			if(y == -1)
-			{
-				if(alignToBottom)
-					be.y = tilePos.y + tilePos.h - be.anim->height;
-				else
-					be.y = tilePos.y - be.anim->height/2;
-			}
-			else
-			{
-				be.y = y;
-			}
+		// Correction for 2-hex creatures.
+		if(destStack != nullptr && destStack->doubleWide())
+			be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 
-			// Correction for 2-hex creatures.
-			if (destStack != nullptr && destStack->doubleWide())
-				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+		//Indicate if effect should be drawn on top of everything or just on top of the hex
+		be.position = destTile;
 
-			//Indicate if effect should be drawn on top of everything or just on top of the hex
-			be.position = destTile;
-
-			owner->battleEffects.push_back(be);
-
+		owner->battleEffects.push_back(be);
 	}
 	//battleEffects
 	return true;
 }
 
-void CSpellEffectAnimation::nextFrame()
+void CEffectAnimation::nextFrame()
 {
 	//notice: there may be more than one effect in owner->battleEffects correcponding to this animation (ie. armageddon)
 	for(auto & elem : owner->battleEffects)
@@ -1008,7 +1009,7 @@ void CSpellEffectAnimation::nextFrame()
 		{
 			elem.currentFrame += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
 
-			if(elem.currentFrame >= elem.maxFrame)
+			if(elem.currentFrame >= elem.animation->size())
 			{
 				endAnim();
 				break;
@@ -1022,7 +1023,7 @@ void CSpellEffectAnimation::nextFrame()
 	}
 }
 
-void CSpellEffectAnimation::endAnim()
+void CEffectAnimation::endAnim()
 {
 	CBattleAnimation::endAnim();
 
@@ -1038,7 +1039,6 @@ void CSpellEffectAnimation::endAnim()
 
 	for(auto & elem : toDel)
 	{
-		delete elem->anim;
 		owner->battleEffects.erase(elem);
 	}
 

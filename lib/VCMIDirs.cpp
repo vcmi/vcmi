@@ -271,7 +271,7 @@ bfs::path VCMIDirsWIN32::userDataPath() const
 	wchar_t profileDir[MAX_PATH];
 
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games\\vcmi";
+		return bfs::path(profileDir) / "My Games" / "vcmi";
 
 	return ".";
 }
@@ -350,7 +350,15 @@ class IVCMIDirsUNIX : public IVCMIDirs
 		boost::filesystem::path serverPath() const override;
 
 		std::string genHelpString() const override;
+
+		bool developmentMode() const;
 };
+
+bool IVCMIDirsUNIX::developmentMode() const
+{
+	// We want to be able to run VCMI from single directory. E.g to run from build output directory
+	return bfs::exists("AI") && bfs::exists("config") && bfs::exists("Mods") && bfs::exists("vcmiserver") && bfs::exists("vcmiclient");
+}
 
 bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
 bfs::path IVCMIDirsUNIX::serverPath() const { return binaryPath() / "vcmiserver"; }
@@ -454,7 +462,7 @@ std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
 	std::vector<bfs::path> ret;
 	//FIXME: need some proper codepath for detecting running from build output directory
-	if(bfs::exists("config") && bfs::exists("Mods") && bfs::exists("vcmiserver"))
+	if(developmentMode())
 	{
 		ret.push_back(".");
 	}
@@ -489,9 +497,9 @@ bfs::path VCMIDirsXDG::userDataPath() const
 {
 	// $XDG_DATA_HOME, default: $HOME/.local/share
 	const char* homeDir;
-	if ((homeDir = getenv("XDG_DATA_HOME")))
-		return homeDir;
-	else if ((homeDir = getenv("HOME")))
+	if((homeDir = getenv("XDG_DATA_HOME")))
+		return bfs::path(homeDir) / "vcmi";
+	else if((homeDir = getenv("HOME")))
 		return bfs::path(homeDir) / ".local" / "share" / "vcmi";
 	else
 		return ".";
@@ -499,7 +507,7 @@ bfs::path VCMIDirsXDG::userDataPath() const
 bfs::path VCMIDirsXDG::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
-	const char* tempResult;
+	const char * tempResult;
 	if ((tempResult = getenv("XDG_CACHE_HOME")))
 		return bfs::path(tempResult) / "vcmi";
 	else if ((tempResult = getenv("HOME")))
@@ -510,7 +518,7 @@ bfs::path VCMIDirsXDG::userCachePath() const
 bfs::path VCMIDirsXDG::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config
-	const char* tempResult;
+	const char * tempResult;
 	if ((tempResult = getenv("XDG_CONFIG_HOME")))
 		return bfs::path(tempResult) / "vcmi";
 	else if ((tempResult = getenv("HOME")))
@@ -528,34 +536,51 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 	// in vcmi fs last directory has highest priority
 	std::vector<bfs::path> ret;
 
-	const char* tempResult;
-	ret.push_back(M_DATA_DIR);
-
-	//FIXME: need some proper codepath for detecting running from build output directory
-	if(bfs::exists("config") && bfs::exists("Mods") && bfs::exists("vcmiserver"))
+	if(developmentMode())
 	{
 		//For now we'll disable usage of system directories when VCMI running from bin directory
 		ret.push_back(".");
 	}
-	else if((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
-	{
-		std::string dataDirsEnv = tempResult;
-		std::vector<std::string> dataDirs;
-		boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
-		for (auto & entry : boost::adaptors::reverse(dataDirs))
-			ret.push_back(entry + "/vcmi");
-	}
 	else
 	{
-		ret.push_back("/usr/share/");
-		ret.push_back("/usr/local/share/");
+		ret.push_back(M_DATA_DIR);
+		const char * tempResult;
+		if((tempResult = getenv("XDG_DATA_DIRS")) != nullptr)
+		{
+			std::string dataDirsEnv = tempResult;
+			std::vector<std::string> dataDirs;
+			boost::split(dataDirs, dataDirsEnv, boost::is_any_of(":"));
+			for (auto & entry : boost::adaptors::reverse(dataDirs))
+				ret.push_back(bfs::path(entry) / "vcmi");
+		}
+		else
+		{
+			ret.push_back(bfs::path("/usr/share") / "vcmi");
+			ret.push_back(bfs::path("/usr/local/share") / "vcmi");
+		}
+
+		// Debian and other distributions might want to use it while it's not part of XDG
+		ret.push_back(bfs::path("/usr/share/games") / "vcmi");
 	}
 
 	return ret;
 }
 
-bfs::path VCMIDirsXDG::libraryPath() const { return M_LIB_DIR; }
-bfs::path VCMIDirsXDG::binaryPath() const { return M_BIN_DIR; }
+bfs::path VCMIDirsXDG::libraryPath() const
+{
+	if(developmentMode())
+		return ".";
+	else
+		return M_LIB_DIR;
+}
+
+bfs::path VCMIDirsXDG::binaryPath() const
+{
+	if(developmentMode())
+		return ".";
+	else
+		return M_BIN_DIR;
+}
 
 std::string VCMIDirsXDG::libraryName(const std::string& basename) const { return "lib" + basename + ".so"; }
 

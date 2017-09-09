@@ -18,6 +18,7 @@ class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
+class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
 class CSoundHandler;
@@ -55,6 +56,7 @@ public:
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;
+	ConstTransitivePtr<CSkillHandler> skillh;
 	ConstTransitivePtr<CObjectHandler> objh;
 	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
 	CGeneralTextHandler * generaltexth;

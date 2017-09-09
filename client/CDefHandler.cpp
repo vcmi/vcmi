@@ -29,12 +29,9 @@ static long long pow(long long a, int b)
 
 CDefHandler::CDefHandler()
 {
-	notFreeImgs = false;
 }
 CDefHandler::~CDefHandler()
 {
-	if (notFreeImgs)
-		return;
 	for (auto & elem : ourImages)
 	{
 		if (elem.bitmap)
@@ -43,11 +40,6 @@ CDefHandler::~CDefHandler()
 			elem.bitmap=nullptr;
 		}
 	}
-}
-CDefEssential::~CDefEssential()
-{
-	for(auto & elem : ourImages)
-		SDL_FreeSurface(elem.bitmap);
 }
 
 void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
@@ -350,14 +342,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const SDL_Co
 	return ret;
 }
 
-CDefEssential * CDefHandler::essentialize()
-{
-	auto ret = new CDefEssential();
-	ret->ourImages = ourImages;
-	notFreeImgs = true;
-	return ret;
-}
-
 CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
 	ResourceID resID(std::string("SPRITES/") + defName, EResType::ANIMATION);
@@ -368,13 +352,5 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 	auto   nh = new CDefHandler();
 	nh->openFromMemory(data.get(), defName);
 	return nh;
-}
-CDefEssential * CDefHandler::giveDefEss(const std::string & defName)
-{
-	CDefEssential * ret;
-	CDefHandler * temp = giveDef(defName);
-	ret = temp->essentialize();
-	delete temp;
-	return ret;
 }
 
