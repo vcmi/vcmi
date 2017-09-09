@@ -234,8 +234,8 @@ private:
 	BONUS_NAME(SUMMON_GUARDIANS) /*val - amount in % of stack count, subtype = creature ID*/\
 	BONUS_NAME(CATAPULT_EXTRA_SHOTS) /*val - number of additional shots, requires CATAPULT bonus to work*/\
 	BONUS_NAME(RANGED_RETALIATION) /*allows shooters to perform ranged retaliation*/\
-	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/
-  BONUS_NAME(SECONDARY_SKILL_VAL2) /*for secondary skills that have multiple effects, like eagle eye (max level and chance)*/  \
+	BONUS_NAME(BLOCKS_RANGED_RETALIATION) /*disallows ranged retaliation for shooter unit, BLOCKS_RETALIATION bonus is for melee retaliation only*/\
+  	BONUS_NAME(SECONDARY_SKILL_VAL2) /*for secondary skills that have multiple effects, like eagle eye (max level and chance)*/  \
 	BONUS_NAME(MANUAL_CONTROL) /* manually control warmachine with id = subtype, chance = val */  \
 	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
