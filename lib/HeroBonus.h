@@ -17,11 +17,13 @@ class IBonusBearer;
 class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
+class IUpdater;
 class BonusList;
 
 typedef std::shared_ptr<BonusList> TBonusListPtr;
 typedef std::shared_ptr<ILimiter> TLimiterPtr;
 typedef std::shared_ptr<IPropagator> TPropagatorPtr;
+typedef std::shared_ptr<IUpdater> TUpdaterPtr;
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
@@ -340,6 +342,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
+	TUpdaterPtr updater;
 
 	std::string description;
 
@@ -422,6 +425,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
+	std::shared_ptr<Bonus> addUpdater(TUpdaterPtr Updater); //returns this for convenient chain-calls
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -1006,3 +1010,36 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 	bonuses.insert(bonuses.begin() + position, first, last);
 	changed();
 }
+
+// bonus decorators for updating bonuses based on events (e.g. hero gaining level)
+
+struct BonusUpdateContext
+{
+	std::shared_ptr<Bonus> b;
+	const CBonusSystemNode & node;
+};
+
+class DLL_LINKAGE IUpdater
+{
+public:
+	virtual void update(BonusUpdateContext & context) const = 0;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+	}
+};
+
+struct DLL_LINKAGE ScalingUpdater : public IUpdater
+{
+	int valPer20 = 0;
+	int stepSize = 1;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		IUpdater::serialize(h, version);
+		h & valPer20;
+		h & stepSize;
+	}
+
+	void update(BonusUpdateContext & context);
+};

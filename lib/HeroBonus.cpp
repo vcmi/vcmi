@@ -1543,3 +1543,20 @@ void LimiterList::add( TLimiterPtr limiter )
 {
 	limiters.push_back(limiter);
 }
+
+void ScalingUpdater::update(BonusUpdateContext & context)
+{
+	if(context.node.getNodeType() == CBonusSystemNode::HERO)
+	{
+		int level = static_cast<const CGHeroInstance &>(context.node).level;
+		int steps = stepSize ? level / stepSize : level;
+		//rounding follows format for HMM3 creature specialty bonus
+		context.b->val = (valPer20 * steps + 19) / 20;
+	}
+}
+
+std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
+{
+	updater = Updater;
+	return this->shared_from_this();
+}
