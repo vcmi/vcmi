@@ -419,7 +419,7 @@ void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 
 void CGuiHandler::fakeMouseMove()
 {
-	SDL_Event evnt;
+	SDL_Event event;
 	SDL_MouseMotionEvent sme = {SDL_MOUSEMOTION, 0, 0, 0, 0, 0, 0, 0, 0};
 	int x, y;
 
@@ -427,9 +427,8 @@ void CGuiHandler::fakeMouseMove()
 	sme.x = x;
 	sme.y = y;
 
-	evnt.motion = sme;
-	current = &evnt;
-	handleMouseMotion(&evnt);
+	event.motion = sme;
+	SDL_PushEvent(&event);
 }
 
 void CGuiHandler::renderFrame()
