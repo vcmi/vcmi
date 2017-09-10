@@ -827,6 +827,8 @@ void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
 	assert(!vstd::contains(exportedBonuses, b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);
+	if(b->updater)
+		b->updater->update(*b, *this);
 	CBonusSystemNode::treeHasChanged();
 }
 
@@ -1563,7 +1565,11 @@ void LimiterList::add( TLimiterPtr limiter )
 	limiters.push_back(limiter);
 }
 
-bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context)
+ScalingUpdater::ScalingUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
+{
+}
+
+bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{

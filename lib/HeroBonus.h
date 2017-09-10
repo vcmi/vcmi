@@ -365,6 +365,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & effectRange;
 		h & limiter;
 		h & propagator;
+		h & updater;
 	}
 
 	template <typename Ptr>
@@ -709,7 +710,7 @@ public:
 	void popBonuses(const CSelector &s);
 	///updates count of remaining turns and removes outdated bonuses by selector
 	void reduceBonusDurations(const CSelector &s);
-	//run update decorators
+	//run updaters attached to bonuses
 	void updateBonuses();
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
@@ -1014,7 +1015,7 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 	changed();
 }
 
-// bonus decorators for updating bonuses based on events (e.g. hero gaining level)
+// observers for updating bonuses based on certain events (e.g. hero gaining level)
 
 class DLL_LINKAGE IUpdater
 {
@@ -1028,8 +1029,10 @@ public:
 
 struct DLL_LINKAGE ScalingUpdater : public IUpdater
 {
-	int valPer20 = 0;
-	int stepSize = 1;
+	int valPer20;
+	int stepSize;
+
+	ScalingUpdater(int valPer20, int stepSize = 1);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1038,5 +1041,5 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 		h & stepSize;
 	}
 
-	bool update(Bonus & b, const CBonusSystemNode & context);
+	bool update(Bonus & b, const CBonusSystemNode & context) const override;
 };

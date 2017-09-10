@@ -71,8 +71,9 @@ public:
 
 	CHeroClass * heroClass;
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
-	std::vector<SSpecialtyInfo> spec;
-	std::vector<SSpecialtyBonus> specialty;
+	std::vector<SSpecialtyInfo> specDeprecated;
+	std::vector<SSpecialtyBonus> specialtyDeprecated;
+	BonusList specialty;
 	std::set<SpellID> spells;
 	bool haveSpellBook;
 	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
@@ -98,7 +99,8 @@ public:
 		h & initialArmy;
 		h & heroClass;
 		h & secSkillsInit;
-		h & spec;
+		//h & specDeprecated;
+		//h & specialtyDeprecated;
 		h & specialty;
 		h & spells;
 		h & haveSpellBook;
@@ -119,6 +121,9 @@ public:
 		}
 	}
 };
+
+// convert deprecated format
+std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid);
 
 class DLL_LINKAGE CHeroClass
 {

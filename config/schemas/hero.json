@@ -118,20 +118,29 @@
 			"type":"array",
 			"description": "Description of hero specialty using bonus system",	
 			"items": {
-				"type":"object",
-				"additionalProperties" : false,
-				"required" : [ "bonuses" ],
-				"properties":{
-					"growsWithLevel" : {
-						"type" : "boolean",
-						"description" : "Specialty growth with level, so far only SECONDARY_SKILL_PREMY and PRIMATY SKILL with creature limiter can grow"
+				"oneOf" : [
+					{
+						"type" : "object",
+						"additionalProperties" : false,
+						"required" : [ "bonuses" ],
+						"properties" : {
+							"growsWithLevel" : {
+								"type" : "boolean",
+								"description" : "Specialty growth with level. Deprecated, use bonuses with updaters instead."
+							},
+							"bonuses" : {
+								"type" : "array",
+								"description" : "List of bonuses",
+								"items" : { "$ref" : "vcmi:bonus" }
+							}
+						}
 					},
-					"bonuses": {
-						"type":"array",
-						"description": "List of bonuses",
-						"items": { "$ref" : "vcmi:bonus" }
+					{
+						"type" : "object",
+						"description" : "List of bonuses",
+						"items" : { "$ref" : "vcmi:bonus" }
 					}
-				}
+				]
 			}
 		},
 		"spellbook": {

@@ -108,7 +108,8 @@ public:
 		}
 	};
 
-	std::vector<HeroSpecial*> specialty;
+	std::vector<HeroSpecial*> specialtyDeprecated;
+	CBonusSystemNode specialty;
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
@@ -215,7 +216,6 @@ public:
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
-	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
 
