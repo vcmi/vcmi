@@ -1565,6 +1565,16 @@ void LimiterList::add( TLimiterPtr limiter )
 	limiters.push_back(limiter);
 }
 
+// Updaters
+
+IUpdater::~IUpdater()
+{
+}
+
+ScalingUpdater::ScalingUpdater() : valPer20(0), stepSize(1)
+{
+}
+
 ScalingUpdater::ScalingUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
 {
 }

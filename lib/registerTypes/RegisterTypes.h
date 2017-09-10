@@ -181,6 +181,9 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, RankRangeLimiter>();
 	s.template registerType<ILimiter, StackOwnerLimiter>();
 
+	// Updaters
+	s.template registerType<IUpdater, ScalingUpdater>();
+
 //	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CBonusSystemNode, CArtifact>();
 	s.template registerType<CArtifact, CGrowingArtifact>();

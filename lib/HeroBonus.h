@@ -1020,6 +1020,8 @@ void BonusList::insert(const int position, InputIterator first, InputIterator la
 class DLL_LINKAGE IUpdater
 {
 public:
+	virtual ~IUpdater();
+
 	virtual bool update(Bonus & b, const CBonusSystemNode & context) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1032,11 +1034,12 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 	int valPer20;
 	int stepSize;
 
+	ScalingUpdater();
 	ScalingUpdater(int valPer20, int stepSize = 1);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		IUpdater::serialize(h, version);
+		h & static_cast<IUpdater &>(*this);
 		h & valPer20;
 		h & stepSize;
 	}
