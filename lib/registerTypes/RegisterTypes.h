@@ -181,9 +181,6 @@ void registerTypesMapObjects2(Serializer &s)
 	s.template registerType<ILimiter, RankRangeLimiter>();
 	s.template registerType<ILimiter, StackOwnerLimiter>();
 
-	// Updaters
-	s.template registerType<IUpdater, ScalingUpdater>();
-
 //	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CBonusSystemNode, CArtifact>();
 	s.template registerType<CArtifact, CGrowingArtifact>();
@@ -204,6 +201,9 @@ void registerTypesMapObjects2(Serializer &s)
 	//s.template registerType<CObstacleInstance>();
 		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
+
+	// Updaters
+	s.template registerType<IUpdater, ScalingUpdater>();
 }
 template<typename Serializer>
 void registerTypesClientPacks1(Serializer &s)
