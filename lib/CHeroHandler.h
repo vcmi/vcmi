@@ -99,9 +99,15 @@ public:
 		h & initialArmy;
 		h & heroClass;
 		h & secSkillsInit;
-		//h & specDeprecated;
-		//h & specialtyDeprecated;
-		h & specialty;
+		if(version >= 778)
+		{
+			h & specialty;
+		}
+		else
+		{
+			h & specDeprecated;
+			h & specialtyDeprecated;
+		}
 		h & spells;
 		h & haveSpellBook;
 		h & sex;

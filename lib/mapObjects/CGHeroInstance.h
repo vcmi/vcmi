@@ -297,7 +297,10 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		h & specialty;
+		if(version >= 778)
+			h & specialty;
+		else
+			h & specialtyDeprecated;
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
