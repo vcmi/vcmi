@@ -48,6 +48,7 @@ public:
 	CGStatusBar * statusbar;
 
 private:
+	std::atomic<bool> continueEventHandling;
 	typedef std::list<CIntObject*> CIntObjectList;
 
 	//active GUI elements (listening for events
@@ -99,8 +100,8 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleEvent(SDL_Event *sEvent);
-	void handleMouseMotion(SDL_Event *sEvent);
+	void handleCurrentEvent();
+	void handleMouseMotion();
 	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
