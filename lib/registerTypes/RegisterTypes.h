@@ -135,6 +135,10 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGWitchHut);
 
 #undef REGISTER_GENERIC_HANDLER
+
+	s.template registerType<IUpdater, ScalingUpdater>();
+	//new types (other than netpacks) must register here
+	//order of type registration is critical for loading old savegames
 }
 
 template<typename Serializer>
@@ -201,9 +205,6 @@ void registerTypesMapObjects2(Serializer &s)
 	//s.template registerType<CObstacleInstance>();
 		s.template registerType<CObstacleInstance, MoatObstacle>();
 		s.template registerType<CObstacleInstance, SpellCreatedObstacle>();
-
-	// Updaters
-	s.template registerType<IUpdater, ScalingUpdater>();
 }
 template<typename Serializer>
 void registerTypesClientPacks1(Serializer &s)
