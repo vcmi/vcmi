@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "JsonNode.h"
 
 class CCreature;
 struct Bonus;
@@ -424,6 +425,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	}
 
 	std::string Description() const;
+	JsonNode toJsonNode() const;
 
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
@@ -1025,6 +1027,7 @@ public:
 
 	virtual bool update(Bonus & b, const CBonusSystemNode & context) const = 0;
 	virtual std::string toString() const;
+	virtual JsonNode toJsonNode() const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1048,4 +1051,5 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 
 	bool update(Bonus & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 };

@@ -1163,6 +1163,22 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
+JsonNode Bonus::toJsonNode() const
+{
+	JsonNode root(JsonNode::DATA_STRUCT);
+
+	root["type"].Float() = type;
+	if(subtype != -1)
+		root["subtype"].Float() = subtype;
+	if(val != 0)
+		root["val"].Float() = val;
+	if(valType != ADDITIVE_VALUE)
+		root["valType"].Float() = valType;
+	if(updater)
+		root["updater"] = updater->toJsonNode();
+	return root;
+}
+
 Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
@@ -1609,6 +1625,24 @@ std::string ScalingUpdater::toString() const
 	char buf[100];
 	sprintf(buf, "ScalingUpdater(valPer20=%d, stepSize=%d)", valPer20, stepSize);
 	return std::string(buf);
+}
+
+JsonNode ScalingUpdater::toJsonNode() const
+{
+	JsonNode root(JsonNode::DATA_STRUCT);
+	auto addParam = [&](int param)
+	{
+		JsonNode paramNode(JsonNode::DATA_INTEGER);
+		paramNode.Integer() = param;
+		root["parameters"].Vector().push_back(paramNode);
+	};
+
+	root["type"].String() = "GROWS_WITH_LEVEL";
+	addParam(valPer20);
+	if(stepSize > 1)
+		addParam(stepSize);
+
+	return root;
 }
 
 std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)

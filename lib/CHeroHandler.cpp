@@ -542,18 +542,28 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		return bonus;
 	};
 
-	//deprecated, used only for original spciealties
-	for(const JsonNode &specialty : node["specialties"].Vector())
+	//deprecated, used only for original specialties
+	const JsonNode & specialties = node["specialties"];
+	if (!specialties.isNull())
 	{
-		SSpecialtyInfo spec;
+		logMod->warn("Hero %s has deprecated specialties format. New format:", hero->identifier);
+		JsonNode specVec(JsonNode::DATA_VECTOR);
+		for(const JsonNode &specialty : node["specialties"].Vector())
+		{
+			SSpecialtyInfo spec;
 
-		spec.type = specialty["type"].Float();
-		spec.val = specialty["val"].Float();
-		spec.subtype = specialty["subtype"].Float();
-		spec.additionalinfo = specialty["info"].Float();
+			spec.type = specialty["type"].Float();
+			spec.val = specialty["val"].Float();
+			spec.subtype = specialty["subtype"].Float();
+			spec.additionalinfo = specialty["info"].Float();
 
-		for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, sid))
-			hero->specialty.push_back(bonus);
+			for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, sid))
+			{
+				hero->specialty.push_back(bonus);
+				specVec.Vector().push_back(bonus->toJsonNode());
+			}
+		}
+		logMod->info("\"specialty\" = %s", specVec.toJson());
 	}
 	//new format, using bonus system
 	for(const JsonNode & specialty : node["specialty"].Vector())
