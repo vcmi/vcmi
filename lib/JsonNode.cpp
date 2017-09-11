@@ -877,3 +877,31 @@ JsonNode JsonUtils::assembleFromFiles(std::string filename)
 	}
 	return result;
 }
+
+DLL_LINKAGE JsonNode JsonUtils::boolNode(bool value)
+{
+	JsonNode node;
+	node.Bool() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
+{
+	JsonNode node;
+	node.Float() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::stringNode(std::string value)
+{
+	JsonNode node;
+	node.String() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
+{
+	JsonNode node;
+	node.Integer() = value;
+	return node;
+}

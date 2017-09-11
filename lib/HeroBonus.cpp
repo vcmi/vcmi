@@ -1174,6 +1174,8 @@ JsonNode Bonus::toJsonNode() const
 		root["val"].Float() = val;
 	if(valType != ADDITIVE_VALUE)
 		root["valType"].Float() = valType;
+	if(limiter)
+		root["limiter"] = limiter->toJsonNode();
 	if(updater)
 		root["updater"] = updater->toJsonNode();
 	return root;
@@ -1343,6 +1345,8 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	printField(effectRange);
 #undef printField
 
+	if(bonus.limiter)
+		out << "\tLimiter: " << bonus.limiter->toString() << "\n";
 	if(bonus.updater)
 		out << "\tUpdater: " << bonus.updater->toString() << "\n";
 
@@ -1381,6 +1385,18 @@ int ILimiter::limit(const BonusLimitationContext &context) const /*return true t
 	return false;
 }
 
+std::string ILimiter::toString() const
+{
+	return typeid(*this).name();
+}
+
+JsonNode ILimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::DATA_STRUCT);
+	root["type"].String() = toString();
+	return root;
+}
+
 int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
@@ -1404,6 +1420,26 @@ CCreatureTypeLimiter::CCreatureTypeLimiter()
 void CCreatureTypeLimiter::setCreature (CreatureID id)
 {
 	creature = VLC->creh->creatures[id];
+}
+
+std::string CCreatureTypeLimiter::toString() const
+{
+	char buf[100];
+	sprintf(buf, "CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)",
+		creature->identifier.c_str(),
+		(includeUpgrades ? "true" : "false"));
+	return std::string(buf);
+}
+
+JsonNode CCreatureTypeLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_TYPE_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->identifier));
+	root["parameters"].Vector().push_back(JsonUtils::boolNode(includeUpgrades));
+
+	return root;
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus )
@@ -1586,6 +1622,12 @@ void LimiterList::add( TLimiterPtr limiter )
 
 // Updaters
 
+std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
+{
+	updater = Updater;
+	return this->shared_from_this();
+}
+
 IUpdater::~IUpdater()
 {
 }
@@ -1630,23 +1672,11 @@ std::string ScalingUpdater::toString() const
 JsonNode ScalingUpdater::toJsonNode() const
 {
 	JsonNode root(JsonNode::DATA_STRUCT);
-	auto addParam = [&](int param)
-	{
-		JsonNode paramNode(JsonNode::DATA_INTEGER);
-		paramNode.Integer() = param;
-		root["parameters"].Vector().push_back(paramNode);
-	};
 
 	root["type"].String() = "GROWS_WITH_LEVEL";
-	addParam(valPer20);
+	root["parameters"].Vector().push_back(JsonUtils::intNode(valPer20));
 	if(stepSize > 1)
-		addParam(stepSize);
+		root["parameters"].Vector().push_back(JsonUtils::intNode(stepSize));
 
 	return root;
-}
-
-std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
-{
-	updater = Updater;
-	return this->shared_from_this();
 }

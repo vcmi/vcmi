@@ -404,6 +404,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 
 				bonus = std::make_shared<Bonus>(*bonus);
 				bonus->type = Bonus::PRIMARY_SKILL;
+				bonus->val = 0;
 				int stepSize = specCreature.level ? specCreature.level : 5;
 
 				bonus->subtype = PrimarySkill::ATTACK;
@@ -420,6 +421,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 			bonus->type = Bonus::SECONDARY_SKILL_PREMY;
 			bonus->valType = Bonus::PERCENT_TO_BASE;
 			bonus->subtype = spec.subtype;
+			bonus->val = 0;
 			bonus->updater.reset(new ScalingUpdater(spec.val * 20));
 			result.push_back(bonus);
 			break;

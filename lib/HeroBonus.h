@@ -592,6 +592,8 @@ public:
 	virtual ~ILimiter();
 
 	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
+	virtual std::string toString() const;
+	virtual JsonNode toJsonNode() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -858,6 +860,8 @@ public:
 	void setCreature (CreatureID id);
 
 	int limit(const BonusLimitationContext &context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
