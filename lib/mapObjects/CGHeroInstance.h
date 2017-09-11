@@ -297,9 +297,7 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		if(version >= 778)
-			h & specialty;
-		else
+		if(version < 778)
 			h & specialtyDeprecated;
 		h & commander;
 		h & visitedObjects;

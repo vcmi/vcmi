@@ -496,8 +496,6 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
-	specialty.setNodeType(CBonusSystemNode::SPECIALTY);
-	attachTo(&specialty); //do we ever need to detach it?
 
 	if(!type)
 		initHero(rand); //TODO: set up everything for prison before specialties are configured
@@ -515,14 +513,14 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(std::shared_ptr<Bonus> b : type->specialty)
-		specialty.addNewBonus(b);
+		addNewBonus(b);
 	//dito for old-style bonuses -> compatibility for old savegames
 	for(SSpecialtyBonus & sb : type->specialtyDeprecated)
 		for(std::shared_ptr<Bonus> b : sb.bonuses)
-			specialty.addNewBonus(b);
+			addNewBonus(b);
 	for(SSpecialtyInfo & spec : type->specDeprecated)
 		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->ID.getNum()))
-			specialty.addNewBonus(b);
+			addNewBonus(b);
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
@@ -988,7 +986,6 @@ int CGHeroInstance::maxSpellLevel() const
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
-	attachTo(&specialty);
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
