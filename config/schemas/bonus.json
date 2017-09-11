@@ -70,6 +70,23 @@
 				}
 			]
 		},
+		"updater" : {
+			"description" : "updater",
+			"type" : "object",
+			"required" : ["type", "parameters"],
+			"additionalProperties" : false,
+			"properties" : {
+				"type" : {
+					"type" : "string",
+					"description" : "type"
+				},
+				"parameters": {
+					"type" : "array",
+					"description" : "parameters",
+					"additionalItems" : true
+				}
+			}
+		},
 		"sourceID": {
 			"type":"number",
 			"description": "sourceID"

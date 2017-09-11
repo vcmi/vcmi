@@ -603,6 +603,23 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if (!value->isNull())
 		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
 
+	value = &ability["updater"];
+	if (!value->isNull())
+	{
+		const JsonNode & updaterJson = *value;
+		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		{
+			std::shared_ptr<ScalingUpdater> updater = std::make_shared<ScalingUpdater>();
+			const JsonVector param = updaterJson["parameters"].Vector();
+			updater->valPer20 = param[0].Float();
+			if(param.size() > 1)
+				updater->stepSize = param[1].Float();
+			b->addUpdater(updater);
+		}
+		else
+			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+	}
+
 	return true;
 }
 

@@ -1024,6 +1024,7 @@ public:
 	virtual ~IUpdater();
 
 	virtual bool update(Bonus & b, const CBonusSystemNode & context) const = 0;
+	virtual std::string toString() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1046,4 +1047,5 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 	}
 
 	bool update(Bonus & b, const CBonusSystemNode & context) const override;
+	virtual std::string toString() const override;
 };

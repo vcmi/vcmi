@@ -1327,6 +1327,9 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	printField(effectRange);
 #undef printField
 
+	if(bonus.updater)
+		out << "\tUpdater: " << bonus.updater->toString() << "\n";
+
 	return out;
 }
 
@@ -1571,6 +1574,11 @@ IUpdater::~IUpdater()
 {
 }
 
+std::string IUpdater::toString() const
+{
+	return typeid(*this).name();
+}
+
 ScalingUpdater::ScalingUpdater() : valPer20(0), stepSize(1)
 {
 }
@@ -1594,6 +1602,13 @@ bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context) const
 		}
 	}
 	return false;
+}
+
+std::string ScalingUpdater::toString() const
+{
+	char buf[100];
+	sprintf(buf, "ScalingUpdater(valPer20=%d, stepSize=%d)", valPer20, stepSize);
+	return std::string(buf);
 }
 
 std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
