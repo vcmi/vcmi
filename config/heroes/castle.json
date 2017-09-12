@@ -31,9 +31,54 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 2 }
+		"specialty" : [
+			{
+				"limiter" : {
+					"parameters" : [
+						"archer",
+						true
+					],
+					"type" : "CREATURE_TYPE_LIMITER"
+				},
+				"type" : "STACKS_SPEED",
+				"val" : 1
+			},
+			{
+				"limiter" : {
+					"parameters" : [
+						"archer",
+						true
+					],
+					"type" : "CREATURE_TYPE_LIMITER"
+				},
+				"subtype" : "attack",
+				"type" : "PRIMARY_SKILL",
+				"updater" : {
+					"parameters" : [
+						6,
+						2
+					],
+					"type" : "GROWS_WITH_LEVEL"
+				}
+			},
+			{
+				"limiter" : {
+					"parameters" : [
+						"archer",
+						true
+					],
+					"type" : "CREATURE_TYPE_LIMITER"
+				},
+				"subtype" : "defence",
+				"type" : "PRIMARY_SKILL",
+				"updater" : {
+					"parameters" : [
+						3,
+						2
+					],
+					"type" : "GROWS_WITH_LEVEL"
+				}
+			}
 		]
 	},
 	"edric":

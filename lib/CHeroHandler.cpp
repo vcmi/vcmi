@@ -747,7 +747,7 @@ void CHeroHandler::afterLoadFinalization()
 				}
 			}
 			hero->specDeprecated.clear();
-			logMod->trace("\"specialty\" = %s", specVec.toJson());
+			logMod->trace("\"specialty\" : %s", specVec.toJson());
 		}
 	}
 }
