@@ -369,6 +369,18 @@ namespace vstd
 		return std::find(c.begin(),c.end(),i);
 	}
 
+	//returns first key that maps to given value if present, returns success via found if provided
+	template <typename Key, typename T>
+	Key findKey(const std::map<Key, T> & map, const T & value, bool * found = nullptr)
+	{
+		for(auto iter = map.cbegin(); iter != map.cend(); iter++)
+		{
+			if(iter->second == value)
+				return iter->first;
+		}
+		return Key();
+	}
+
 	//removes element i from container c, returns false if c does not contain i
 	template <typename Container, typename Item>
 	typename Container::size_type operator-=(Container &c, const Item &i)

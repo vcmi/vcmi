@@ -611,9 +611,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		{
 			std::shared_ptr<ScalingUpdater> updater = std::make_shared<ScalingUpdater>();
 			const JsonVector param = updaterJson["parameters"].Vector();
-			updater->valPer20 = param[0].Float();
+			updater->valPer20 = param[0].Integer();
 			if(param.size() > 1)
-				updater->stepSize = param[1].Float();
+				updater->stepSize = param[1].Integer();
 			b->addUpdater(updater);
 		}
 		else

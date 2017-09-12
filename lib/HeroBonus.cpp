@@ -20,6 +20,7 @@
 #include "CSkillHandler.h"
 #include "CStack.h"
 #include "CArtHandler.h"
+#include "StringConstants.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)
@@ -1163,17 +1164,37 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
+JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
+{
+	JsonNode node;
+
+	switch(type)
+	{
+	case Bonus::PRIMARY_SKILL:
+		node.String() = PrimarySkill::names[subtype];
+		break;
+	case Bonus::SECONDARY_SKILL_PREMY:
+		node.String() = NSecondarySkill::names[subtype];
+		break;
+	default:
+		node.Integer() = subtype;
+		break;
+	}
+
+	return node;
+}
+
 JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root(JsonNode::DATA_STRUCT);
 
-	root["type"].Float() = type;
+	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != -1)
-		root["subtype"].Float() = subtype;
+		root["subtype"] = subtypeToJson(type, subtype);
 	if(val != 0)
-		root["val"].Float() = val;
+		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
-		root["valType"].Float() = valType;
+		root["valType"].String() = vstd::findKey(bonusValueMap, valType);
 	if(limiter)
 		root["limiter"] = limiter->toJsonNode();
 	if(updater)
