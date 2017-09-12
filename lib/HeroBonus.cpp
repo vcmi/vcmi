@@ -1166,31 +1166,48 @@ std::string Bonus::Description() const
 
 JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 {
-	JsonNode node;
-
 	switch(type)
 	{
 	case Bonus::PRIMARY_SKILL:
-		node.String() = PrimarySkill::names[subtype];
-		break;
+		return JsonUtils::stringNode(PrimarySkill::names[subtype]);
 	case Bonus::SECONDARY_SKILL_PREMY:
-		node.String() = NSecondarySkill::names[subtype];
-		break;
+		return JsonUtils::stringNode(NSecondarySkill::names[subtype]);
+	case Bonus::SPECIAL_SPELL_LEV:
+	case Bonus::SPECIFIC_SPELL_DAMAGE:
+	case Bonus::SPECIAL_BLESS_DAMAGE:
+	case Bonus::MAXED_SPELL:
+	case Bonus::SPECIAL_PECULIAR_ENCHANT:
+		//return JsonUtils::stringNode((*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
+		return JsonUtils::intNode(subtype); //Issue 2790
+	case Bonus::SPECIAL_UPGRADE:
+		return JsonUtils::stringNode(CreatureID::encode(subtype));
+	case Bonus::GENERATE_RESOURCE:
+		return JsonUtils::stringNode(GameConstants::RESOURCE_NAMES[subtype]);
 	default:
-		node.Integer() = subtype;
-		break;
+		return JsonUtils::intNode(subtype);
 	}
+}
 
-	return node;
+JsonNode additionalInfoToJson(Bonus::BonusType type, int addInfo)
+{
+	switch(type)
+	{
+	case Bonus::SPECIAL_UPGRADE:
+		return JsonUtils::stringNode(CreatureID::encode(addInfo));
+	default:
+		return JsonUtils::intNode(addInfo);
+	}
 }
 
 JsonNode Bonus::toJsonNode() const
 {
-	JsonNode root(JsonNode::DATA_STRUCT);
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != -1)
 		root["subtype"] = subtypeToJson(type, subtype);
+	if(additionalInfo != -1)
+		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
 	if(val != 0)
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
@@ -1413,7 +1430,7 @@ std::string ILimiter::toString() const
 
 JsonNode ILimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::DATA_STRUCT);
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 	root["type"].String() = toString();
 	return root;
 }
@@ -1454,7 +1471,7 @@ std::string CCreatureTypeLimiter::toString() const
 
 JsonNode CCreatureTypeLimiter::toJsonNode() const
 {
-	JsonNode root(JsonNode::DATA_STRUCT);
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TYPE_LIMITER";
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(creature->identifier));
@@ -1692,7 +1709,7 @@ std::string ScalingUpdater::toString() const
 
 JsonNode ScalingUpdater::toJsonNode() const
 {
-	JsonNode root(JsonNode::DATA_STRUCT);
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "GROWS_WITH_LEVEL";
 	root["parameters"].Vector().push_back(JsonUtils::intNode(valPer20));

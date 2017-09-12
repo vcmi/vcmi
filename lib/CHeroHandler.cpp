@@ -549,7 +549,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	if (!specialties.isNull())
 	{
 		logMod->warn("Hero %s has deprecated specialties format. New format:", hero->identifier);
-		JsonNode specVec(JsonNode::DATA_VECTOR);
+		JsonNode specVec(JsonNode::JsonType::DATA_VECTOR);
 		for(const JsonNode &specialty : node["specialties"].Vector())
 		{
 			SSpecialtyInfo spec;
