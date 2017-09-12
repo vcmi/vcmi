@@ -194,6 +194,7 @@
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="battle\CObstacleInstance.cpp" />
     <ClCompile Include="CPathfinder.cpp" />
+    <ClCompile Include="CSkillHandler.cpp" />
     <ClCompile Include="CStack.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="CPlayerState.h" />
     <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
+    <ClInclude Include="CSkillHandler.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CStack.h" />
     <ClInclude Include="CStopWatch.h" />
