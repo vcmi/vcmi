@@ -548,24 +548,17 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	const JsonNode & specialties = node["specialties"];
 	if (!specialties.isNull())
 	{
-		logMod->warn("Hero %s has deprecated specialties format. New format:", hero->identifier);
-		JsonNode specVec(JsonNode::JsonType::DATA_VECTOR);
+		logMod->warn("Hero %s has deprecated specialties format.", hero->identifier);
 		for(const JsonNode &specialty : node["specialties"].Vector())
 		{
 			SSpecialtyInfo spec;
-
 			spec.type = specialty["type"].Float();
 			spec.val = specialty["val"].Float();
 			spec.subtype = specialty["subtype"].Float();
 			spec.additionalinfo = specialty["info"].Float();
-
-			for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, sid))
-			{
-				hero->specialty.push_back(bonus);
-				specVec.Vector().push_back(bonus->toJsonNode());
-			}
+			//we convert after loading completes, to have all identifiers for json logging
+			hero->specDeprecated.push_back(spec);
 		}
-		logMod->info("\"specialty\" = %s", specVec.toJson());
 	}
 	//new format, using bonus system
 	for(const JsonNode & specialty : node["specialty"].Vector())
@@ -735,6 +728,28 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 	heroes[index] = object;
 
 	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID.getNum());
+}
+
+void CHeroHandler::afterLoadFinalization()
+{
+	for(ConstTransitivePtr<CHero> hero : heroes)
+	{
+		if(hero->specDeprecated.size() > 0)
+		{
+			logMod->debug("Converting specialties format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
+			JsonNode specVec(JsonNode::JsonType::DATA_VECTOR);
+			for(const SSpecialtyInfo & spec : hero->specDeprecated)
+			{
+				for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
+				{
+					hero->specialty.push_back(bonus);
+					specVec.Vector().push_back(bonus->toJsonNode());
+				}
+			}
+			hero->specDeprecated.clear();
+			logMod->trace("\"specialty\" = %s", specVec.toJson());
+		}
+	}
 }
 
 ui32 CHeroHandler::level (ui64 experience) const

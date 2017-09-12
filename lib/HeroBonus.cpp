@@ -1177,8 +1177,7 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
-		//return JsonUtils::stringNode((*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
-		return JsonUtils::intNode(subtype); //Issue 2790
+		return JsonUtils::stringNode((*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode(CreatureID::encode(subtype));
 	case Bonus::GENERATE_RESOURCE:
