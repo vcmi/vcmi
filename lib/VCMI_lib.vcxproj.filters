@@ -313,6 +313,7 @@
     <ClCompile Include="serializer\CTypeList.cpp">
       <Filter>serializer</Filter>
     </ClCompile>
+    <ClCompile Include="CSkillHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -734,6 +735,9 @@
     </ClInclude>
     <ClInclude Include="serializer\CTypeList.h">
       <Filter>serializer</Filter>
+    </ClInclude>
+    <ClInclude Include="CSkillHandler.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
