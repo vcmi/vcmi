@@ -6,89 +6,522 @@
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
 				"mask" : [ "VVV", "VBB", "VAA" ]
+			},
+			"sounds" : {
+				"ambient" : ["LOOPSWOR"],
+				"visit" : ["MILITARY"]
 			}
 		},
 		"types" : {
-			"basiliskPit" :      { "index" : 0,  "creatures" :  [ [ "basilisk" ] ] },
-			"behemothCrag" :     { "index" : 1,  "creatures" :  [ [ "behemoth" ] ]},
-			"pillarOfEyes" :     { "index" : 2,  "creatures" :  [ [ "beholder" ] ] },
-			"hallOfDarkness" :   { "index" : 3,  "creatures" :  [ [ "blackKnight" ] ]},
-			"dragonVault" :      { "index" : 4,  "creatures" :  [ [ "boneDragon" ] ]},
-			"trainingGrounds" :  { "index" : 5,  "creatures" :  [ [ "cavalier" ] ]},
-			"centaurStables" :   { "index" : 6,  "creatures" :  [ [ "centaur" ] ] },
-			"airConflux" :       { "index" : 7,  "creatures" :  [ [ "airElemental" ] ] },
-			"portalOfGlory" :    { "index" : 8,  "creatures" :  [ [ "angel" ] ]},
-			"cyclopsCave" :      { "index" : 9,  "creatures" :  [ [ "cyclop" ] ]},
-			"forsakenPalace" :   { "index" : 10, "creatures" : [ [ "devil" ] ]},
-			"serpentFlyHive" :   { "index" : 11, "creatures" : [ [ "serpentFly" ] ] },
-			"dwarfCottage" :     { "index" : 12, "creatures" : [ [ "dwarf" ] ] },
-			"earthConflux" :     { "index" : 13, "creatures" : [ [ "earthElemental" ] ]},
-			"fireLake" :         { "index" : 14, "creatures" : [ [ "efreet" ] ]},
-			"homestead" :        { "index" : 15, "creatures" : [ [ "woodElf" ] ] },
-			"fireConflux" :      { "index" : 16, "creatures" : [ [ "fireElemental" ] ] },
-			"parapet" :          { "index" : 17, "creatures" : [ [ "stoneGargoyle" ] ] },
-			"altarOfWishes" :    { "index" : 18, "creatures" : [ [ "genie" ] ]},
-			"wolfPen" :          { "index" : 19, "creatures" : [ [ "goblinWolfRider" ] ] },
-			"gnollHut" :         { "index" : 20, "creatures" : [ [ "gnoll" ] ] },
-			"goblinBarracks" :   { "index" : 21, "creatures" : [ [ "goblin" ] ] },
-			"hallOfSins" :       { "index" : 22, "creatures" : [ [ "gog" ] ] },
-			"gorgonLair" :       { "index" : 23, "creatures" : [ [ "gorgon" ] ]},
-			"dragonCliffs" :     { "index" : 24, "creatures" : [ [ "greenDragon" ] ]},
-			"griffinTower" :     { "index" : 25, "creatures" : [ [ "griffin" ] ] },
-			"harpyLoft" :        { "index" : 26, "creatures" : [ [ "harpy" ] ] },
-			"kennels" :          { "index" : 27, "creatures" : [ [ "hellHound" ] ] },
-			"hydraPond" :        { "index" : 28, "creatures" : [ [ "hydra" ] ]},
-			"impCrucible" :      { "index" : 29, "creatures" : [ [ "imp" ] ] },
-			"lizardDen" :        { "index" : 30, "creatures" : [ [ "lizardman" ] ] },
-			"mageTower" :        { "index" : 31, "creatures" : [ [ "mage" ] ] },
-			"manticoreLair" :    { "index" : 32, "creatures" : [ [ "manticore" ] ]},
-			"medusaChapel" :     { "index" : 33, "creatures" : [ [ "medusa" ] ] },
-			"labyrinth" :        { "index" : 34, "creatures" : [ [ "minotaur" ] ]},
-			"monastery" :        { "index" : 35, "creatures" : [ [ "monk" ] ]},
-			"goldenPavilion" :   { "index" : 36, "creatures" : [ [ "naga" ] ]},
-			"demonGate" :        { "index" : 37, "creatures" : [ [ "demon" ] ] },
-			"ogreFort" :         { "index" : 38, "creatures" : [ [ "ogre" ] ] },
-			"orcTower" :         { "index" : 39, "creatures" : [ [ "orc" ] ] },
-			"hellHole" :         { "index" : 40, "creatures" : [ [ "pitFiend" ] ]},
-			"dragonCave" :       { "index" : 41, "creatures" : [ [ "redDragon" ] ]},
-			"cliffNest" :        { "index" : 42, "creatures" : [ [ "roc" ] ]},
-			"workshop" :         { "index" : 43, "creatures" : [ [ "gremlin" ] ] },
-			"cloudTemple" :      { "index" : 44, "creatures" : [ [ "giant" ] ]},
-			"dendroidArches" :   { "index" : 45, "creatures" : [ [ "dendroidGuard" ] ]},
-			"warren" :           { "index" : 46, "creatures" : [ [ "troglodyte" ] ] },
-			"waterConflux" :     { "index" : 47, "creatures" : [ [ "waterElemental" ] ] },
-			"tombOfSouls" :      { "index" : 48, "creatures" : [ [ "wight" ] ] },
-			"wyvernNest" :       { "index" : 49, "creatures" : [ [ "wyvern" ] ]},
-			"enchantedSpring" :  { "index" : 50, "creatures" : [ [ "pegasus" ] ] },
-			"unicornGladeBig" :  { "index" : 51, "creatures" : [ [ "unicorn" ] ]},
-			"mausoleum" :        { "index" : 52, "creatures" : [ [ "lich" ] ]},
-			"estate" :           { "index" : 53, "creatures" : [ [ "vampire" ] ] },
-			"cursedTemple" :     { "index" : 54, "creatures" : [ [ "skeleton" ] ] },
-			"graveyard" :        { "index" : 55, "creatures" : [ [ "walkingDead" ] ] },
-			"guardhouse" :       { "index" : 56, "creatures" : [ [ "pikeman" ] ] },
-			"archersTower" :     { "index" : 57, "creatures" : [ [ "archer" ] ] },
-			"barracks" :         { "index" : 58, "creatures" : [ [ "swordsman" ] ] },
-			"magicLantern" :     { "index" : 59, "creatures" : [ [ "pixie" ] ] },
-			"altarOfThought" :   { "index" : 60, "creatures" : [ [ "psychicElemental" ] ]},
-			"pyre" :             { "index" : 61, "creatures" : [ [ "firebird" ] ]},
-			"frozenCliffs" :     { "index" : 62, "creatures" : [ [ "azureDragon" ] ]},
-			"crystalCavern" :    { "index" : 63, "creatures" : [ [ "crystalDragon" ] ]},
-			"magicForest" :      { "index" : 64, "creatures" : [ [ "fairieDragon" ] ]},
-			"sulfurousLair" :    { "index" : 65, "creatures" : [ [ "rustDragon" ] ]},
-			"enchantersHollow" : { "index" : 66, "creatures" : [ [ "enchanter" ] ]},
-			"treetopTower" :     { "index" : 67, "creatures" : [ [ "sharpshooter" ] ]},
-			"unicornGlade" :     { "index" : 68, "creatures" : [ [ "unicorn" ] ]},
-			"altarOfAir" :       { "index" : 69, "creatures" : [ [ "airElemental" ] ] },
-			"altarOfEarth" :     { "index" : 70, "creatures" : [ [ "earthElemental" ] ]},
-			"altarOfFire" :      { "index" : 71, "creatures" : [ [ "fireElemental" ] ] },
-			"altarOfWater" :     { "index" : 72, "creatures" : [ [ "waterElemental" ] ] },
-			"thatchedHut" :      { "index" : 73, "creatures" : [ [ "halfling" ] ] },
-			"hovel" :            { "index" : 74, "creatures" : [ [ "peasant" ] ] },
-			"boarGlen" :         { "index" : 75, "creatures" : [ [ "boar" ] ] },
-			"tombOfCurses" :     { "index" : 76, "creatures" : [ [ "mummy" ] ] },
-			"nomadTent" :        { "index" : 77, "creatures" : [ [ "nomad" ] ] },
-			"rogueCavern" :      { "index" : 78, "creatures" : [ [ "rogue" ] ] },
-			"trollBridge" :      { "index" : 79, "creatures" : [ [ "troll" ] ] }
+			"basiliskPit": {
+				"index": 0,
+				"creatures": [["basilisk"]],
+				"sounds": {
+					"ambient": ["LOOPMONS"]
+				}
+			},
+			"behemothCrag": {
+				"index": 1,
+				"creatures": [["behemoth"]],
+				"sounds": {
+					"ambient": ["LOOPBEHE"]
+				}
+			},
+			"pillarOfEyes": {
+				"index": 2,
+				"creatures": [["beholder"]],
+				"sounds": {
+					"ambient": ["LOOPCAVE"]
+				}
+			},
+			"hallOfDarkness": {
+				"index": 3,
+				"creatures": [["blackKnight"]],
+				"sounds": {
+					"ambient": ["LOOPDEAD"]
+				}
+			},
+			"dragonVault": {
+				"index": 4,
+				"creatures": [["boneDragon"]],
+				"sounds": {
+					"ambient": ["LOOPDRAG"]
+				}
+			},
+			"trainingGrounds": {
+				"index": 5,
+				"creatures": [["cavalier"]],
+				"sounds": {
+					"ambient": ["LOOPHORS"]
+				}
+			},
+			"centaurStables": {
+				"index": 6,
+				"creatures": [["centaur"]],
+				"sounds": {
+					"ambient": ["LOOPHORS"]
+				}
+			},
+			"airConflux": {
+				"index": 7,
+				"creatures": [["airElemental"]],
+				"sounds": {
+					"ambient": ["LOOPAIR"]
+				}
+			},
+			"portalOfGlory": {
+				"index": 8,
+				"creatures": [["angel"]],
+				"sounds": {
+					"ambient": ["LOOPSANC"]
+				}
+			},
+			"cyclopsCave": {
+				"index": 9,
+				"creatures": [["cyclop"]],
+				"sounds": {
+					"ambient": ["LOOPCAVE"]
+				}
+			},
+			"forsakenPalace": {
+				"index": 10,
+				"creatures": [["devil"]],
+				"sounds": {
+					"ambient": ["LOOPDEVL"]
+				}
+			},
+			"serpentFlyHive": {
+				"index": 11,
+				"creatures": [["serpentFly"]],
+				"sounds": {
+					"ambient": ["LOOPLEAR"]
+				}
+			},
+			"dwarfCottage": {
+				"index": 12,
+				"creatures": [["dwarf"]],
+				"sounds": {
+					"ambient": ["LOOPDWAR"]
+				}
+			},
+			"earthConflux": {
+				"index": 13,
+				"creatures": [["earthElemental"]],
+				"sounds": {
+					"ambient": ["LOOPEART"]
+				}
+			},
+			"fireLake": {
+				"index": 14,
+				"creatures": [["efreet"]],
+				"sounds": {
+					"ambient": ["LOOPVENT"]
+				}
+			},
+			"homestead": {
+				"index": 15,
+				"creatures": [["woodElf"]],
+				"sounds": {
+					"ambient": ["LOOPELF"]
+				}
+			},
+			"fireConflux": {
+				"index": 16,
+				"creatures": [["fireElemental"]],
+				"sounds": {
+					"ambient": ["LOOPFIRE"]
+				}
+			},
+			"parapet": {
+				"index": 17,
+				"creatures": [["stoneGargoyle"]],
+				"sounds": {
+					"ambient": ["LOOPGRIF"]
+				}
+			},
+			"altarOfWishes": {
+				"index": 18,
+				"creatures": [["genie"]],
+				"sounds": {
+					"ambient": ["LOOPMAGI"]
+				}
+			},
+			"wolfPen": {
+				"index": 19,
+				"creatures": [["goblinWolfRider"]],
+				"sounds": {
+					"ambient": ["LOOPWOLF"]
+				}
+			},
+			"gnollHut": {
+				"index": 20,
+				"creatures": [["gnoll"]],
+				"sounds": {
+					"ambient": ["LOOPORC"]
+				}
+			},
+			"goblinBarracks": {
+				"index": 21,
+				"creatures": [["goblin"]],
+				"sounds": {
+					"ambient": ["LOOPGOBL"]
+				}
+			},
+			"hallOfSins": {
+				"index": 22,
+				"creatures": [["gog"]],
+				"sounds": {
+					"ambient": ["LOOPVENT"]
+				}
+			},
+			"gorgonLair": {
+				"index": 23,
+				"creatures": [["gorgon"]],
+				"sounds": {
+					"ambient": ["LOOPBEHE"]
+				}
+			},
+			"dragonCliffs": {
+				"index": 24,
+				"creatures": [["greenDragon"]],
+				"sounds": {
+					"ambient": ["LOOPDRAG"]
+				}
+			},
+			"griffinTower": {
+				"index": 25,
+				"creatures": [["griffin"]],
+				"sounds": {
+					"ambient": ["LOOPGRIF"]
+				}
+			},
+			"harpyLoft": {
+				"index": 26,
+				"creatures": [["harpy"]],
+				"sounds": {
+					"ambient": ["LOOPHARP"]
+				}
+			},
+			"kennels": {
+				"index": 27,
+				"creatures": [["hellHound"]],
+				"sounds": {
+					"ambient": ["LOOPDOG"]
+				}
+			},
+			"hydraPond": {
+				"index": 28,
+				"creatures": [["hydra"]],
+				"sounds": {
+					"ambient": ["LOOPHYDR"]
+				}
+			},
+			"impCrucible": {
+				"index": 29,
+				"creatures": [["imp"]],
+				"sounds": {
+					"ambient": ["LOOPFIRE"]
+				}
+			},
+			"lizardDen": {
+				"index": 30,
+				"creatures": [["lizardman"]],
+				"sounds": {
+					"ambient": ["LOOPARCH"]
+				}
+			},
+			"mageTower": {
+				"index": 31,
+				"creatures": [["mage"]],
+				"sounds": {
+					"ambient": ["LOOPMAGI"]
+				}
+			},
+			"manticoreLair": {
+				"index": 32,
+				"creatures": [["manticore"]],
+				"sounds": {
+					"ambient": ["LOOPMANT"]
+				}
+			},
+			"medusaChapel": {
+				"index": 33,
+				"creatures": [["medusa"]],
+				"sounds": {
+					"ambient": ["LOOPMEDU"]
+				}
+			},
+			"labyrinth": {
+				"index": 34,
+				"creatures": [["minotaur"]],
+				"sounds": {
+					"ambient": ["LOOPANIM"]
+				}
+			},
+			"monastery": {
+				"index": 35,
+				"creatures": [["monk"]],
+				"sounds": {
+					"ambient": ["LOOPMONK"]
+				}
+			},
+			"goldenPavilion": {
+				"index": 36,
+				"creatures": [["naga"]],
+				"sounds": {
+					"ambient": ["LOOPNAGA"]
+				}
+			},
+			"demonGate": {
+				"index": 37,
+				"creatures": [["demon"]],
+				"sounds": {
+					"ambient": ["LOOPCAVE"]
+				}
+			},
+			"ogreFort": {
+				"index": 38,
+				"creatures": [["ogre"]],
+				"sounds": {
+					"ambient": ["LOOPOGRE"]
+				}
+			},
+			"orcTower": {
+				"index": 39,
+				"creatures": [["orc"]],
+				"sounds": {
+					"ambient": ["LOOPORC"]
+				}
+			},
+			"hellHole": {
+				"index": 40,
+				"creatures": [["pitFiend"]],
+				"sounds": {
+					"ambient": ["LOOPFIRE"]
+				}
+			},
+			"dragonCave": {
+				"index": 41,
+				"creatures": [["redDragon"]],
+				"sounds": {
+					"ambient": ["LOOPDRAG"]
+				}
+			},
+			"cliffNest": {
+				"index": 42,
+				"creatures": [["roc"]],
+				"sounds": {
+					"ambient": ["LOOPBIRD"]
+				}
+			},
+			"workshop": {
+				"index": 43,
+				"creatures": [["gremlin"]],
+				"sounds": {
+					"ambient": ["LOOPGREM"]
+				}
+			},
+			"cloudTemple": {
+				"index": 44,
+				"creatures": [["giant"]],
+				"sounds": {
+					"ambient": ["LOOPTITA"]
+				}
+			},
+			"dendroidArches": {
+				"index": 45,
+				"creatures": [["dendroidGuard"]],
+				"sounds": {
+					"ambient": ["LOOPGARD"]
+				}
+			},
+			"warren": {
+				"index": 46,
+				"creatures": [["troglodyte"]],
+				"sounds": {
+					"ambient": ["LOOPCAVE"]
+				}
+			},
+			"waterConflux": {
+				"index": 47,
+				"creatures": [["waterElemental"]],
+				"sounds": {
+					"ambient": ["LOOPFOUN"]
+				}
+			},
+			"tombOfSouls": {
+				"index": 48,
+				"creatures": [["wight"]],
+				"sounds": {
+					"ambient": ["LOOPDEAD"]
+				}
+			},
+			"wyvernNest": {
+				"index": 49,
+				"creatures": [["wyvern"]],
+				"sounds": {
+					"ambient": ["LOOPMONS"]
+				}
+			},
+			"enchantedSpring": {
+				"index": 50,
+				"creatures": [["pegasus"]],
+				"sounds": {
+					"ambient": ["LOOPPEGA"]
+				}
+			},
+			"unicornGladeBig": {
+				"index": 51,
+				"creatures": [["unicorn"]],
+				"sounds": {
+					"ambient": ["LOOPUNIC"]
+				}
+			},
+			"mausoleum": {
+				"index": 52,
+				"creatures": [["lich"]],
+				"sounds": {
+					"ambient": ["LOOPDEAD"]
+				}
+			},
+			"estate": {
+				"index": 53,
+				"creatures": [["vampire"]],
+				"sounds": {
+					"ambient": ["LOOPDEAD"]
+				}
+			},
+			"cursedTemple": {
+				"index": 54,
+				"creatures": [["skeleton"]],
+				"sounds": {
+					"ambient": ["LOOPSKEL"]
+				}
+			},
+			"graveyard": {
+				"index": 55,
+				"creatures": [["walkingDead"]],
+				"sounds": {
+					"ambient": ["LOOPDEAD"]
+				}
+			},
+			"guardhouse": {
+				"index": 56,
+				"creatures": [["pikeman"]],
+				"sounds": {
+					"ambient": ["LOOPPIKE"]
+				}
+			},
+			"archersTower": {
+				"index": 57,
+				"creatures": [["archer"]],
+				"sounds": {
+					"ambient": ["LOOPARCH"]
+				}
+			},
+			"barracks": {
+				"index": 58,
+				"creatures": [["swordsman"]]
+			},
+			"magicLantern": {
+				"index": 59,
+				"creatures": [["pixie"]]
+			},
+			"altarOfThought": {
+				"index": 60,
+				"creatures": [["psychicElemental"]]
+			},
+			"pyre": {
+				"index": 61,
+				"creatures": [["firebird"]]
+			},
+			"frozenCliffs": {
+				"index": 62,
+				"creatures": [["azureDragon"]]
+			},
+			"crystalCavern": {
+				"index": 63,
+				"creatures": [["crystalDragon"]]
+			},
+			"magicForest": {
+				"index": 64,
+				"creatures": [["fairieDragon"]]
+			},
+			"sulfurousLair": {
+				"index": 65,
+				"creatures": [["rustDragon"]]
+			},
+			"enchantersHollow": {
+				"index": 66,
+				"creatures": [["enchanter"]]
+			},
+			"treetopTower": {
+				"index": 67,
+				"creatures": [["sharpshooter"]]
+			},
+			"unicornGlade": {
+				"index": 68,
+				"creatures": [["unicorn"]],
+				"sounds": {
+					"ambient": ["LOOPUNIC"]
+				}
+			},
+			"altarOfAir": {
+				"index": 69,
+				"creatures": [["airElemental"]],
+				"sounds": {
+					"ambient": ["LOOPAIR"]
+				}
+			},
+			"altarOfEarth": {
+				"index": 70,
+				"creatures": [["earthElemental"]],
+				"sounds": {
+					"ambient": ["LOOPEART"]
+				}
+			},
+			"altarOfFire": {
+				"index": 71,
+				"creatures": [["fireElemental"]],
+				"sounds": {
+					"ambient": ["LOOPFIRE"]
+				}
+			},
+			"altarOfWater": {
+				"index": 72,
+				"creatures": [["waterElemental"]],
+				"sounds": {
+					"ambient": ["LOOPFOUN"]
+				}
+			},
+			"thatchedHut": {
+				"index": 73,
+				"creatures": [["halfling"]]
+			},
+			"hovel": {
+				"index": 74,
+				"creatures": [["peasant"]]
+			},
+			"boarGlen": {
+				"index": 75,
+				"creatures": [["boar"]]
+			},
+			"tombOfCurses": {
+				"index": 76,
+				"creatures": [["mummy"]]
+			},
+			"nomadTent": {
+				"index": 77,
+				"creatures": [["nomad"]]
+			},
+			"rogueCavern": {
+				"index": 78,
+				"creatures": [["rogue"]]
+			},
+			"trollBridge": {
+				"index": 79,
+				"creatures": [["troll"]]
+			}
 		}
 	},
 	// subtype: unique special dwellings - golem factory and elemental conflux
@@ -106,7 +539,10 @@
 				],
 				"guards" : [
 					{ "amount" : 12, "type" : "earthElemental" }
-				]
+				],
+				"sounds" : {
+					"ambient" : ["LOOPTITA"]
+				}
 			},
 			"golemFactory" : {
 				"index" : 1,
@@ -119,7 +555,10 @@
 				"guards" : [
 					{ "amount" : 9, "type" : "goldGolem" },
 					{ "amount" : 6, "type" : "diamondGolem" }
-				]
+				],
+				"sounds" : {
+					"ambient" : ["LOOPFACT"]
+				}
 			}
 		}
 	},

@@ -4,6 +4,11 @@
 	"prison" : {
 		"index" :62,
 		"handler": "prison",
+		"base" : {
+			"sounds" : {
+				"visit" : ["ROGUE"]
+			}
+		},
 		"types" : {
 			"prison" : { "index" : 0 }
 		}
@@ -12,6 +17,11 @@
 	"altarOfSacrifice" : {
 		"index" :2,
 		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -26,6 +36,12 @@
 	"tradingPost" : {
 		"index" :221,
 		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -40,6 +56,12 @@
 	"tradingPostDUPLICATE"		: {
 		"index" :99, 
 		"handler" : "market",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -69,6 +91,12 @@
 	"blackMarket" : {
 		"index" :7,
 		"handler" : "blackMarket",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMARK"],
+				"visit" : ["MYSTERY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -83,6 +111,12 @@
 	"pandoraBox" : {
 		"index" :6,
 		"handler" : "pandora",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -109,6 +143,11 @@
 	"redwoodObservatory" : {
 		"index" :58,	
 		"handler" : "observatory",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -128,6 +167,12 @@
 	"pillarOfFire" : {
 		"index" :60, 
 		"handler" : "observatory",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFIRE"],
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -142,6 +187,11 @@
 	"coverOfDarkness" : {
 		"index" :15, 
 		"handler" : "observatory",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -154,6 +204,12 @@
 	"whirlpool" : {
 		"index" :111,
 		"handler" : "whirlpool",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPWHIRL"],
+				"visit" : ["DANGER"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -165,6 +221,12 @@
 	"subterraneanGate" : {
 		"index" :103,
 		"handler" : "subterraneanGate",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPGATE"],
+				"visit" : ["CAVEHEAD"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0 },
@@ -175,6 +237,12 @@
 	"refugeeCamp" : {
 		"index" :78, 
 		"handler" : "dwelling",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMERC"],
+				"visit" : ["MILITARY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -188,6 +256,12 @@
 	"warMachineFactory" : {
 		"index" :106,
 		"handler" : "dwelling",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPFACT"],
+				"visit" : ["MILITARY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -202,6 +276,12 @@
 	"shrineOfMagicLevel1" : {//incantation
 		"index" :88, 
 		"handler" : "shrine",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -215,6 +295,12 @@
 	"shrineOfMagicLevel2" : {//gesture
 		"index" :89, 
 		"handler" : "shrine",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -228,6 +314,12 @@
 	"shrineOfMagicLevel3" : {//thinking
 		"index" :90, 
 		"handler" : "shrine",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSHRIN"],
+				"visit" : ["TEMPLE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -244,6 +336,11 @@
 	"eyeOfTheMagi" : {
 		"index" :27, 
 		"handler" : "magi",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -255,6 +352,11 @@
 	"hutOfTheMagi" : {
 		"index" :37, 
 		"handler" : "magi",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -266,6 +368,11 @@
 	"lighthouse" : {
 		"index" :42, 
 		"handler" : "lighthouse",
+		"base" : {
+			"sounds" : {
+				"visit" : ["LIGHTHOUSE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -277,6 +384,11 @@
 	"obelisk" : {
 		"index" :57, 
 		"handler" : "obelisk",
+		"base" : {
+			"sounds" : {
+				"visit" : ["MYSTERY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -291,6 +403,11 @@
 	"oceanBottle" : {
 		"index" :59, 
 		"handler" : "sign",
+		"base" : {
+			"sounds" : {
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -302,6 +419,12 @@
 	"scholar" : {
 		"index" :81, 
 		"handler" : "scholar",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -315,6 +438,12 @@
 	"shipyard" : {
 		"index" :87, 
 		"handler" : "shipyard",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPLUMB"],
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -326,6 +455,11 @@
 	"sign" : {
 		"index" :91, 
 		"handler" : "sign",
+		"base" : {
+			"sounds" : {
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -337,6 +471,12 @@
 	"sirens" : {
 		"index" :92, 
 		"handler" : "siren",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSIRE"],
+				"visit" : ["DANGER"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -351,6 +491,12 @@
 	"denOfThieves" : {
 		"index" :97, 
 		"handler" : "denOfThieves",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPDEN"],
+				"visit" : ["MYSTERY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -370,6 +516,11 @@
 	"university" : {
 		"index" :104,
 		"handler" : "university",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -383,6 +534,11 @@
 	"witchHut" : {
 		"index" :113,
 		"handler" : "witch",
+		"base" : {
+			"sounds" : {
+				"visit" : ["GAZEBO"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -400,6 +556,12 @@
 	"questGuard" : {
 		"index" :215,
 		"handler" : "questGuard",
+		"base" : {
+			"sounds" : {
+				"visit" : ["CAVEHEAD"],
+				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -411,6 +573,11 @@
 	"magicWell" : {
 		"index" :49,
 		"handler" : "magicWell",
+		"base" : {
+			"sounds" : {
+				"visit" : ["FAERIE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -620,6 +787,12 @@
 	"hillFort" : {
 		"index" :35, 
 		"handler": "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSWAR"],
+				"visit" : ["MILITARY"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -645,6 +818,12 @@
 	"tavern" : {
 		"index" :95, 
 		"handler": "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPTAV"],
+				"visit" : ["STORE"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -659,6 +838,12 @@
 	"sanctuary" : {
 		"index" :80, 
 		"handler": "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPSANC"],
+				"visit" : ["GETPROTECTION"]
+			}
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -672,19 +857,71 @@
 	},
 
 	/// Passive objects, terrain overlays
-	"cursedGround"					: { "index" :21,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"magicPlains"					: { "index" :46,  "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"swampFoliage"					: { "index" :211, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"cloverField"					: { "index" :222, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"cursedGroundDUPLICATE"			: { "index" :223, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"evilFog"						: { "index" :224, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"favorableWinds"				: { "index" :225, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"fieryFields"					: { "index" :226, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"holyGround"					: { "index" :227, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"lucidPools"					: { "index" :228, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"magicClouds"					: { "index" :229, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"magicPlainsDUPLICATE"			: { "index" :230, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"rocklands"						: { "index" :231, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"cursedGround" : {
+		"index" : 21,
+		"handler": "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPCURS"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0
+			}
+		}
+	},
+	"magicPlains"	: {
+		"index" : 46,
+		"handler" : "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMAGI"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0
+			}
+		}
+	},
+	"swampFoliage" : { "index" :211, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"cloverField"	: { "index" :222, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"cursedGroundDUPLICATE"	: {
+		"index" : 223,
+		"handler" : "generic",
+		"types" : {
+			"object" : {
+				"index" : 0
+			}
+		},
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPCURS"]
+			}
+		}
+	},
+	"evilFog"	: { "index" :224, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"favorableWinds" : { "index" :225, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"fieryFields"	: { "index" :226, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"holyGround" : { "index" :227, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"lucidPools" : { "index" :228, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"magicClouds"	: { "index" :229, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"magicPlainsDUPLICATE" : {
+		"index" : 230,
+		"handler": "generic",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPMAGI"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0
+			}
+		}
+	},
+	"rocklands"	: { "index" :231, "handler": "generic", "types" : { "object" : { "index" : 0} } },
 
 	/// Decorations
 	"cactus"						: { "index" :116, "handler": "static", "types" : { "object" : { "index" : 0} } },
@@ -715,7 +952,20 @@
 	"skull"							: { "index" :151, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"stump"							: { "index" :153, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"trees"							: { "index" :155, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	"volcano"						: { "index" :158, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	"volcano"	: {
+		"index" : 158,
+		"handler": "static",
+		"base" : {
+			"sounds" : {
+				"ambient" : ["LOOPVOLC"]
+			}
+		},
+		"types" : {
+			"object" : {
+				"index" : 0
+			}
+		}
+	},
 	"reef"							: { "index" :161, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"lakeDUPLICATE"					: { "index" :177, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"treesDUPLICATE"				: { "index" :199, "handler": "static", "types" : { "object" : { "index" : 0} } },
