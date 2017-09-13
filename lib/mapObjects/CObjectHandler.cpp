@@ -53,7 +53,7 @@ static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const u
 	showInfoDialog(playerID,txtID,soundID);
 }*/
 
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
 {
 	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
@@ -271,6 +271,33 @@ std::string CGObjectInstance::getObjectName() const
 	return VLC->objtypeh->getObjectName(ID, subID);
 }
 
+boost::optional<std::string> CGObjectInstance::getAmbientSound() const
+{
+	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).ambient;
+	if(sounds.size())
+		return sounds.front(); // TODO: Support randomization of ambient sounds
+
+	return boost::none;
+}
+
+boost::optional<std::string> CGObjectInstance::getVisitSound() const
+{
+	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).visit;
+	if(sounds.size())
+		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
+
+	return boost::none;
+}
+
+boost::optional<std::string> CGObjectInstance::getRemovalSound() const
+{
+	const auto & sounds = VLC->objtypeh->getObjectSounds(ID, subID).removal;
+	if(sounds.size())
+		return *RandomGeneratorUtil::nextItem(sounds, CRandomGenerator::getDefault());
+
+	return boost::none;
+}
+
 std::string CGObjectInstance::getHoverText(PlayerColor player) const
 {
 	return getObjectName();
@@ -293,7 +320,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::SANCTUARY:
 		{
 			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			showInfoDialog(h,114,soundBase::GETPROTECTION);
+			showInfoDialog(h, 114);
 		}
 		break;
 	case Obj::TAVERN:

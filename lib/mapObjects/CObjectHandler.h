@@ -144,6 +144,11 @@ public:
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 
+	boost::optional<std::string> getAmbientSound() const;
+	boost::optional<std::string> getVisitSound() const;
+	boost::optional<std::string> getRemovalSound() const;
+
+
 	/** VIRTUAL METHODS **/
 
 	/// Returns true if player can pass through visitable tiles of this object

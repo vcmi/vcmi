@@ -136,6 +136,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
+	CCS->soundh->ambientStopAllChannels();
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	//howManyPeople--;
 	delete showingDialog;
@@ -266,6 +267,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	if (makingTurn  &&  hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
+		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
 		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
 
@@ -446,6 +448,15 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 		adventureInt->selection = nullptr;
 }
 
+void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(start && visitedObj->getVisitSound())
+	{
+		CCS->soundh->playSound(visitedObj->getVisitSound().get());
+	}
+}
+
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -456,6 +467,7 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	if (castleInt)
 		castleInt->close();
+
 	castleInt = new CCastleInterface(town);
 	GH.pushInt(castleInt);
 }
@@ -1644,22 +1656,17 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 	CCS->curh->show();
 }
 
-void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
+void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (LOCPLINT->cb->getCurrentPlayer() == playerID) {
-		std::string handlerName = VLC->objtypeh->getObjectHandlerName(obj->ID);
-		if ((handlerName == "pickable") || (handlerName == "scholar") || (handlerName== "artifact") || (handlerName == "pandora")) {
-			waitWhileDialog();
-			CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-		} else if ((handlerName == "monster") || (handlerName == "hero")) {
-			waitWhileDialog();
-			CCS->soundh->playSound(soundBase::KillFade);
-		}
-	}
-	if (obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
+	if(LOCPLINT->cb->getCurrentPlayer() == playerID && obj->getRemovalSound())
 	{
-		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
+		waitWhileDialog();
+		CCS->soundh->playSound(obj->getRemovalSound().get());
+	}
+	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
+	{
+		const CGHeroInstance * h = static_cast<const CGHeroInstance *>(obj);
 		heroKilled(h);
 	}
 }
@@ -1677,6 +1684,7 @@ const CArmedInstance * CPlayerInterface::getSelection()
 void CPlayerInterface::setSelection(const CArmedInstance * obj)
 {
 	currentSelection = obj;
+	updateAmbientSounds(true);
 }
 
 void CPlayerInterface::update()
@@ -2373,9 +2381,9 @@ void CPlayerInterface::acceptTurn()
 	adventureInt->updateNextHero(nullptr);
 	adventureInt->showAll(screen);
 
-	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{
-		if (CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
+		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
 
 		adventureInt->fendTurn();
@@ -2537,6 +2545,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 void CPlayerInterface::requestReturningToMainMenu()
 {
 	sendCustomEvent(RETURN_TO_MAIN_MENU);
+	CCS->soundh->ambientStopAllChannels();
 	cb->unregisterAllInterfaces();
 }
 
@@ -2902,4 +2911,53 @@ void CPlayerInterface::showWorldViewEx(const std::vector<ObjectPosInfo>& objectP
 	std::copy(objectPositions.begin(), objectPositions.end(), std::back_inserter(adventureInt->worldViewOptions.iconPositions));
 
 	viewWorldMap();
+}
+
+void CPlayerInterface::updateAmbientSounds(bool resetAll)
+{
+	if(castleInt || battleInt || !makingTurn || !currentSelection)
+	{
+		CCS->soundh->ambientStopAllChannels();
+		return;
+	}
+	else if(!dynamic_cast<CAdvMapInt *>(GH.topInt()))
+	{
+		return;
+	}
+	if(resetAll)
+		CCS->soundh->ambientStopAllChannels();
+
+	std::map<std::string, int> currentSounds;
+	auto updateSounds = [&](std::string soundId, int distance) -> void
+	{
+		if(vstd::contains(currentSounds, soundId))
+			currentSounds[soundId] = std::max(currentSounds[soundId], distance);
+		else
+			currentSounds.insert(std::make_pair(soundId, distance));
+	};
+
+	int3 pos = currentSelection->getSightCenter();
+	std::unordered_set<int3, ShashInt3> tiles;
+	cb->getVisibleTilesInRange(tiles, pos, CCS->soundh->ambientGetRange(), int3::DIST_CHEBYSHEV);
+	for(int3 tile : tiles)
+	{
+		int dist = pos.dist(tile, int3::DIST_CHEBYSHEV);
+		// We want sound for every special terrain on tile and not just one on top
+		for(auto & ttObj : CGI->mh->ttiles[tile.x][tile.y][tile.z].objects)
+		{
+			auto obj = ttObj.obj;
+			if(!obj || !obj->getAmbientSound())
+				continue;
+
+			// All tiles of static objects are sound sources. E.g Volcanos and special terrains
+			// For visitable object only their visitable tile is sound source
+			if(CCS->soundh->ambientCheckVisitable() && obj->isVisitable() && !obj->visitableAt(tile.x, tile.y))
+				continue;
+
+			updateSounds(obj->getAmbientSound().get(), dist);
+		}
+		if(CGI->mh->map->isCoastalTile(tile))
+			updateSounds("LOOPOCEA", dist);
+	}
+	CCS->soundh->ambientUpdateChannels(currentSounds);
 }

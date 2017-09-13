@@ -500,7 +500,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 	{
 	case Obj::CAMPFIRE:
 		{
-			soundID = soundBase::experience;
 			int givenRes = rand.nextInt(5);
 			int givenAmm = rand.nextInt(4, 6);
 
@@ -514,7 +513,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 	case Obj::FLOTSAM:
 		{
 			int type = rand.nextInt(3);
-			soundID = soundBase::GENIE;
 			switch(type)
 			{
 			case 0:
@@ -553,7 +551,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 		}
 	case Obj::SEA_CHEST:
 		{
-			soundID = soundBase::chest;
 			int hlp = rand.nextInt(99);
 			if(hlp < 20)
 			{
@@ -581,7 +578,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 		break;
 	case Obj::SHIPWRECK_SURVIVOR:
 		{
-			soundID = soundBase::experience;
 			info.resize(1);
 			loadRandomArtifact(rand, info[0], 55, 20, 20, 5);
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 125);
@@ -594,7 +590,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 			int hlp = rand.nextInt(99);
 			if(hlp >= 95)
 			{
-				soundID = soundBase::treasure;
 				info.resize(1);
 				loadRandomArtifact(rand, info[0], 100, 0, 0, 0);
 				info[0].message.addTxt(MetaString::ADVOB_TXT,145);
@@ -604,7 +599,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 			}
 			else if (hlp >= 65)
 			{
-				soundID = soundBase::chest;
 				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 2000;
@@ -614,7 +608,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 			}
 			else if(hlp >= 33)
 			{
-				soundID = soundBase::chest;
 				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1500;
@@ -624,7 +617,6 @@ void CGPickable::initObj(CRandomGenerator & rand)
 			}
 			else
 			{
-				soundID = soundBase::chest;
 				onSelect.addTxt(MetaString::ADVOB_TXT,146);
 				info.resize(2);
 				info[0].reward.resources[Res::GOLD] = 1000;
@@ -662,11 +654,10 @@ void CGBonusingObject::initObj(CRandomGenerator & rand)
 		configureBonusDuration(visit, Bonus::ONE_BATTLE, type, value, descrID);
 	};
 
-	auto configureMessage = [&](CVisitInfo & visit, int onGrantID, int onVisitedID, soundBase::soundID sound)
+	auto configureMessage = [&](CVisitInfo & visit, int onGrantID, int onVisitedID)
 	{
 		visit.message.addTxt(MetaString::ADVOB_TXT, onGrantID);
 		onVisited.addTxt(MetaString::ADVOB_TXT, onVisitedID);
-		soundID = sound;
 	};
 
 	info.resize(1);
@@ -675,16 +666,16 @@ void CGBonusingObject::initObj(CRandomGenerator & rand)
 	{
 	case Obj::BUOY:
 			blockVisit = true;
-		configureMessage(info[0], 21, 22, soundBase::MORALE);
+		configureMessage(info[0], 21, 22);
 		configureBonus(info[0], Bonus::MORALE, +1, 94);
 		break;
 	case Obj::SWAN_POND:
-		configureMessage(info[0], 29, 30, soundBase::LUCK);
+		configureMessage(info[0], 29, 30);
 		configureBonus(info[0], Bonus::LUCK, 2, 67);
 		info[0].reward.movePercentage = 0;
 		break;
 	case Obj::FAERIE_RING:
-		configureMessage(info[0], 49, 50, soundBase::LUCK);
+		configureMessage(info[0], 49, 50);
 		configureBonus(info[0], Bonus::LUCK, 1, 71);
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
@@ -694,7 +685,6 @@ void CGBonusingObject::initObj(CRandomGenerator & rand)
 		{
 			configureBonus(info[i], Bonus::LUCK, i-1, 69); //NOTE: description have %d that should be replaced with value
 			info[i].message.addTxt(MetaString::ADVOB_TXT, 55);
-			soundID = soundBase::LUCK;
 		}
 		onVisited.addTxt(MetaString::ADVOB_TXT, 56);
 		break;
@@ -706,27 +696,26 @@ void CGBonusingObject::initObj(CRandomGenerator & rand)
 			info[i].limiter.dayOfWeek = i+1;
 			configureBonus(info[i], (i%2) ? Bonus::MORALE : Bonus::LUCK, 1, 68);
 			info[i].message.addTxt(MetaString::ADVOB_TXT, 62);
-			soundID = soundBase::experience;
 		}
 		info.back().limiter.dayOfWeek = 7;
 		configureBonus(info.back(), Bonus::MORALE, 1, 68); // on last day of week
 		configureBonus(info.back(), Bonus::LUCK,   1, 68);
-		configureMessage(info.back(), 62, 63, soundBase::experience);
+		configureMessage(info.back(), 62, 63);
 
 		break;
 	case Obj::MERMAID:
 		blockVisit = true;
-		configureMessage(info[0], 83, 82, soundBase::LUCK);
+		configureMessage(info[0], 83, 82);
 		configureBonus(info[0], Bonus::LUCK, 1, 72);
 		break;
 	case Obj::RALLY_FLAG:
-		configureMessage(info[0], 111, 110, soundBase::MORALE);
+		configureMessage(info[0], 111, 110);
 		configureBonus(info[0], Bonus::MORALE, 1, 102);
 		configureBonus(info[0], Bonus::LUCK,   1, 102);
 		info[0].reward.movePoints = 400;
 		break;
 	case Obj::OASIS:
-		configureMessage(info[0], 95, 94, soundBase::MORALE);
+		configureMessage(info[0], 95, 94);
 		configureBonus(info[0], Bonus::MORALE, 1, 95);
 		info[0].reward.movePoints = 800;
 		break;
@@ -739,20 +728,19 @@ void CGBonusingObject::initObj(CRandomGenerator & rand)
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 140);
 		info[1].message.addTxt(MetaString::ADVOB_TXT, 140);
 		onVisited.addTxt(MetaString::ADVOB_TXT, 141);
-		soundID = soundBase::temple;
 		break;
 	case Obj::WATERING_HOLE:
-		configureMessage(info[0], 166, 167, soundBase::MORALE);
+		configureMessage(info[0], 166, 167);
 		configureBonus(info[0], Bonus::MORALE, 1, 100);
 		info[0].reward.movePoints = 400;
 		break;
 	case Obj::FOUNTAIN_OF_YOUTH:
-		configureMessage(info[0], 57, 58, soundBase::MORALE);
+		configureMessage(info[0], 57, 58);
 		configureBonus(info[0], Bonus::MORALE, 1, 103);
 		info[0].reward.movePoints = 400;
 		break;
 	case Obj::STABLES:
-		configureMessage(info[0], 137, 136, soundBase::STORE);
+		configureMessage(info[0], 137, 136);
 		configureBonusDuration(info[0], Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, 400, 0);
 		info[0].reward.movePoints = 400;
 		break;
@@ -838,7 +826,6 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 	case Obj::CORPSE:
 		{
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 38);
-			soundID = soundBase::MYSTERY;
 			blockVisit = true;
 			if(rand.nextInt(99) < 20)
 			{
@@ -851,7 +838,6 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 		break;
 	case Obj::LEAN_TO:
 		{
-			soundID = soundBase::GENIE;
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 65);
 			info.resize(1);
 			int type =  rand.nextInt(5); //any basic resource without gold
@@ -863,7 +849,6 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 		break;
 	case Obj::WARRIORS_TOMB:
 		{
-			soundID = soundBase::GRAVEYARD;
 			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
 
 			info.resize(2);
@@ -880,7 +865,6 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 		break;
 	case Obj::WAGON:
 		{
-			soundID = soundBase::GENIE;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 156);
 
 			int hlp = rand.nextInt(99);
@@ -921,7 +905,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 	switch(ID)
 	{
 		case Obj::ARENA:
-			soundID = soundBase::NOMAD;
 			info.resize(2);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 2;
 			info[1].reward.primary[PrimarySkill::DEFENSE] = 2;
@@ -932,40 +915,34 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 		case Obj::MERCENARY_CAMP:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::ATTACK] = 1;
-			soundID = soundBase::NOMAD;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 80);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 81);
 			break;
 		case Obj::MARLETTO_TOWER:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::DEFENSE] = 1;
-			soundID = soundBase::NOMAD;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 39);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 40);
 			break;
 		case Obj::STAR_AXIS:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::SPELL_POWER] = 1;
-			soundID = soundBase::gazebo;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 100);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 101);
 			break;
 		case Obj::GARDEN_OF_REVELATION:
 			info.resize(1);
 			info[0].reward.primary[PrimarySkill::KNOWLEDGE] = 1;
-			soundID = soundBase::GETPROTECTION;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 59);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 60);
 			break;
 		case Obj::LEARNING_STONE:
 			info.resize(1);
 			info[0].reward.gainedExp = 1000;
-			soundID = soundBase::gazebo;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 143);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 144);
 			break;
 		case Obj::TREE_OF_KNOWLEDGE:
-			soundID = soundBase::gazebo;
 			info.resize(1);
 			canRefuse = true;
 			info[0].reward.gainedLevels = 1;
@@ -1010,7 +987,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 				visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 				info.push_back(visit);
 			}
-			soundID = soundBase::gazebo;
 			break;
 		}
 		case Obj::SCHOOL_OF_MAGIC:
@@ -1022,7 +998,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			onSelect.addTxt(MetaString::ADVOB_TXT, 71);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 72);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 73);
-			soundID = soundBase::faerie;
 			canRefuse = true;
 			break;
 		case Obj::SCHOOL_OF_WAR:
@@ -1034,7 +1009,6 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			onSelect.addTxt(MetaString::ADVOB_TXT, 158);
 			onVisited.addTxt(MetaString::ADVOB_TXT, 159);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 160);
-			soundID = soundBase::MILITARY;
 			canRefuse = true;
 			break;
 	}
@@ -1063,17 +1037,14 @@ void CGVisitableOPW::initObj(CRandomGenerator & rand)
 	switch (ID)
 	{
 	case Obj::MYSTICAL_GARDEN:
-		soundID = soundBase::experience;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 93);
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 92);
 		break;
 	case Obj::WINDMILL:
-		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 169);
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 170);
 		break;
 	case Obj::WATER_WHEEL:
-		soundID = soundBase::GENIE;
 		onEmpty.addTxt(MetaString::ADVOB_TXT, 165);
 		info[0].message.addTxt(MetaString::ADVOB_TXT, 164);
 		break;
@@ -1146,7 +1117,6 @@ void CGMagicSpring::initObj(CRandomGenerator & rand)
 	info.push_back(visit); // two rewards, one for each entrance
 	info.push_back(visit);
 	onEmpty.addTxt(MetaString::ADVOB_TXT, 75);
-	soundID = soundBase::GENIE;
 }
 
 std::vector<int3> CGMagicSpring::getVisitableOffsets() const

@@ -26,6 +26,11 @@ SPELLS:
 MODS:
 * Improve support for WoG commander artifacts and skill descriptions
 * Added basic support for secondary skill modding
+* Map object sounds can now be configured via json
+
+SOUND:
+* Fixed many mising or wrong pickup and visit sounds for map objects
+* All map objects now have ambient sounds identical to OH3
 
 0.98 -> 0.99
 

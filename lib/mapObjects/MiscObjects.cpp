@@ -40,16 +40,17 @@ static void openWindow(const OpenWindow::EWindow type, const int id1, const int 
 	IObjectInterface::cb->sendAndApply(&ow);
 }
 
-static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
 {
 	InfoWindow iw;
-	iw.soundID = soundID;
+	if(soundID)
+		iw.soundID = soundID;
 	iw.player = playerID;
 	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
 {
 	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
@@ -1324,7 +1325,6 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		{
 		case Obj::ARTIFACT:
 			{
-				iw.soundID = soundBase::treasure; //play sound only for non-scroll arts
 				iw.components.push_back(Component(Component::ARTIFACT, subID, 0, 0));
 				if(message.length())
 					iw.text << message;
@@ -1446,7 +1446,6 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id, CGWitchHut::OBJPROP_VISITED, h->tempOwner.getNum());
@@ -1535,7 +1534,7 @@ void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		message = 79;
 	}
-	showInfoDialog(h,message,soundBase::faerie);
+	showInfoDialog(h, message);
 }
 
 std::string CGMagicWell::getHoverText(const CGHeroInstance * hero) const
@@ -1552,7 +1551,6 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::REDWOOD_OBSERVATORY:
 	case Obj::PILLAR_OF_FIRE:
 	{
-		iw.soundID = soundBase::LIGHTHOUSE;
 		iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
 
 		FoWChange fw;
@@ -1589,7 +1587,6 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		cb->setObjProperty(id, CGShrine::OBJPROP_VISITED, h->tempOwner.getNum());
 
 	InfoWindow iw;
-	iw.soundID = soundBase::temple;
 	iw.player = h->getOwner();
 	iw.text.addTxt(MetaString::ADVOB_TXT,127 + ID - 88);
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
@@ -1678,7 +1675,6 @@ void CGSignBottle::initObj(CRandomGenerator & rand)
 void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::STORE;
 	iw.player = h->getOwner();
 	iw.text << message;
 	cb->showInfoDialog(&iw);
@@ -1706,7 +1702,6 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	InfoWindow iw;
-	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
 	iw.text.addTxt(MetaString::ADVOB_TXT,115);
 
@@ -1874,7 +1869,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
-		showInfoDialog(h, 61, soundBase::LIGHTHOUSE);
+		showInfoDialog(h, 61);
 
 		if (!eyelist[subID].empty())
 		{
@@ -1904,7 +1899,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
 	{
-		showInfoDialog(h,48,soundBase::invalid);
+		showInfoDialog(h, 48);
 	}
 
 }
@@ -1926,7 +1921,6 @@ std::string CGSirens::getHoverText(const CGHeroInstance * hero) const
 void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
-	iw.soundID = soundBase::DANGER;
 	iw.player = h->tempOwner;
 	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Sirens
 	{
@@ -2030,18 +2024,17 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			assert(text);
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
-			bd.soundID = soundBase::LIGHTHOUSE;
 			bd.text.addTxt (MetaString::ADVOB_TXT, text);
 			cb->showBlockingDialog (&bd);
 		}
 		else //if he cannot afford
 		{
-			showInfoDialog(h,28,soundBase::CAVEHEAD);
+			showInfoDialog(h, 28);
 		}
 	}
 	else //if he already visited carographer
 	{
-		showInfoDialog(h,24,soundBase::CAVEHEAD);
+		showInfoDialog(h, 24);
 	}
 }
 
@@ -2144,7 +2137,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		PlayerColor oldOwner = tempOwner;
 		cb->setOwner(this,h->tempOwner); //not ours? flag it!
-		showInfoDialog(h,69,soundBase::LIGHTHOUSE);
+		showInfoDialog(h, 69);
 		giveBonusTo(h->tempOwner);
 
 		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner

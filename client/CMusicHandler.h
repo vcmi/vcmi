@@ -29,7 +29,7 @@ public:
 	virtual void release() = 0;
 
 	virtual void setVolume(ui32 percent);
-	ui32 getVolume() { return volume; };
+	ui32 getVolume() const { return volume; };
 };
 
 class CSoundHandler: public CAudioBase
@@ -49,6 +49,13 @@ private:
 	//std::function will be nullptr if callback was not set
 	std::map<int, std::function<void()> > callbacks;
 
+	int ambientDistToVolume(int distance) const;
+	void ambientStopSound(std::string soundId);
+
+	const JsonNode ambientConfig;
+	bool allTilesSource;
+	std::map<std::string, int> ambientChannels;
+
 public:
 	CSoundHandler();
 
@@ -56,6 +63,7 @@ public:
 	void release() override;
 
 	void setVolume(ui32 percent) override;
+	void setChannelVolume(int channel, ui32 percent);
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
@@ -65,6 +73,11 @@ public:
 
 	void setCallback(int channel, std::function<void()> function);
 	void soundFinishedCallback(int channel);
+
+	int ambientGetRange() const;
+	bool ambientCheckVisitable() const;
+	void ambientUpdateChannels(std::map<std::string, int> currentSounds);
+	void ambientStopAllChannels();
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
