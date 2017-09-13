@@ -1169,17 +1169,17 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	switch(type)
 	{
 	case Bonus::PRIMARY_SKILL:
-		return JsonUtils::stringNode(PrimarySkill::names[subtype]);
+		return JsonUtils::stringNode("primSkill." + PrimarySkill::names[subtype]);
 	case Bonus::SECONDARY_SKILL_PREMY:
-		return JsonUtils::stringNode(NSecondarySkill::names[subtype]);
+		return JsonUtils::stringNode("skill." + NSecondarySkill::names[subtype]);
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
 	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
-		return JsonUtils::stringNode((*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
+		return JsonUtils::stringNode("spell." + (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
 	case Bonus::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CreatureID::encode(subtype));
+		return JsonUtils::stringNode("creature." + CreatureID::encode(subtype));
 	case Bonus::GENERATE_RESOURCE:
 		return JsonUtils::stringNode(GameConstants::RESOURCE_NAMES[subtype]);
 	default:
@@ -1192,7 +1192,7 @@ JsonNode additionalInfoToJson(Bonus::BonusType type, int addInfo)
 	switch(type)
 	{
 	case Bonus::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode(CreatureID::encode(addInfo));
+		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo));
 	default:
 		return JsonUtils::intNode(addInfo);
 	}
@@ -1716,4 +1716,27 @@ JsonNode ScalingUpdater::toJsonNode() const
 		root["parameters"].Vector().push_back(JsonUtils::intNode(stepSize));
 
 	return root;
+}
+
+std::string nameForBonus(const Bonus & bonus)
+{
+	switch(bonus.type)
+	{
+	case Bonus::PRIMARY_SKILL:
+		return PrimarySkill::names[bonus.subtype];
+	case Bonus::SECONDARY_SKILL_PREMY:
+		return NSecondarySkill::names[bonus.subtype];
+	case Bonus::SPECIAL_SPELL_LEV:
+	case Bonus::SPECIFIC_SPELL_DAMAGE:
+	case Bonus::SPECIAL_BLESS_DAMAGE:
+	case Bonus::MAXED_SPELL:
+	case Bonus::SPECIAL_PECULIAR_ENCHANT:
+		return (*VLC->spellh)[SpellID::ESpellID(bonus.subtype)]->identifier;
+	case Bonus::SPECIAL_UPGRADE:
+		return CreatureID::encode(bonus.subtype) + "2" + CreatureID::encode(bonus.additionalInfo);
+	case Bonus::GENERATE_RESOURCE:
+		return GameConstants::RESOURCE_NAMES[bonus.subtype];
+	default:
+		return vstd::findKey(bonusNameMap, bonus.type);
+	}
 }

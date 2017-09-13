@@ -737,17 +737,43 @@ void CHeroHandler::afterLoadFinalization()
 		if(hero->specDeprecated.size() > 0)
 		{
 			logMod->debug("Converting specialties format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
-			JsonNode specVec(JsonNode::JsonType::DATA_VECTOR);
+			std::vector<JsonNode> specVec;
+			std::vector<std::string> specNames;
 			for(const SSpecialtyInfo & spec : hero->specDeprecated)
 			{
 				for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
 				{
 					hero->specialty.push_back(bonus);
-					specVec.Vector().push_back(bonus->toJsonNode());
+					specVec.push_back(bonus->toJsonNode());
+					// find fitting & unique bonus name
+					std::string bonusName = nameForBonus(*bonus);
+					if(vstd::contains(specNames, bonusName))
+					{
+						int i = 2;
+						while(vstd::contains(specNames, bonusName + std::to_string(i)))
+							i++;
+						bonusName += std::to_string(i);
+					}
+					specNames.push_back(bonusName);
 				}
 			}
 			hero->specDeprecated.clear();
-			logMod->trace("\"specialty\" : %s", specVec.toJson());
+			// log new format for easy copy-and-paste
+			JsonNode specNode(JsonNode::JsonType::DATA_STRUCT);
+			if(specVec.size() > 1)
+			{
+				JsonNode base = JsonUtils::intersect(specVec);
+				if(!base.isEmpty())
+				{
+					specNode["base"] = base;
+					//TODO: subtract base from bonuses
+				}
+			}
+			// add json for bonuses
+			specNode["bonuses"].Struct();
+			for(int i = 0; i < specVec.size(); i++)
+				specNode["bonuses"][specNames[i]] = specVec[i];
+			logMod->trace("\"specialty\" : %s", specNode.toJson());
 		}
 	}
 }

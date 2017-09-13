@@ -1057,3 +1057,6 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
+
+// generate suitable name for bonus - e.g. for storing in json struct
+DLL_LINKAGE std::string nameForBonus(const Bonus & bonus);

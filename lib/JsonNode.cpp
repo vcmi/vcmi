@@ -214,6 +214,24 @@ bool JsonNode::isNumber() const
 	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
 }
 
+bool JsonNode::isEmpty() const
+{
+	switch(type)
+	{
+		case JsonType::DATA_NULL:
+			return true;
+		case JsonType::DATA_STRUCT:
+			for(auto elem : *data.Struct)
+			{
+				if(!elem.second.isEmpty())
+					return false;
+			}
+			return true;
+		default:
+			return false;
+	}
+}
+
 void JsonNode::clear()
 {
 	setType(JsonType::DATA_NULL);
@@ -837,6 +855,48 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	JsonNode inheritedNode(base);
 	merge(inheritedNode,descendant);
 	descendant.swap(inheritedNode);
+}
+
+JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
+{
+	if(nodes.size() == 0)
+		return nullNode;
+
+	JsonNode result = nodes[0];
+	for(int i = 1; i < nodes.size(); i++)
+	{
+		if(result.isNull())
+			break;
+		result = JsonUtils::intersect(result, nodes[i], pruneEmpty);
+	}
+	return result;
+}
+
+JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty)
+{
+	if(a.getType() == JsonNode::JsonType::DATA_STRUCT && b.getType() == JsonNode::JsonType::DATA_STRUCT)
+	{
+		// intersect individual properties
+		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
+		for(auto property : a.Struct())
+		{
+			if(vstd::contains(b.Struct(), property.first))
+			{
+				JsonNode propertyIntersect = JsonUtils::intersect(property.second, b.Struct().find(property.first)->second);
+				if(pruneEmpty && propertyIntersect.isEmpty())
+					continue;
+				result[property.first] = propertyIntersect;
+			}
+		}
+		return result;
+	}
+	else
+	{
+		// not a struct - same or different, no middle ground
+		if(a == b)
+			return a;
+	}
+	return nullNode;
 }
 
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
