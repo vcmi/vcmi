@@ -300,6 +300,7 @@ public:
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
+	void beforeValidate(JsonNode & object);
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;

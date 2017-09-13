@@ -9,17 +9,19 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialty" : [
-			{
-				"type" : "SECONDARY_SKILL_PREMY",
-				"subtype" : "skill.archery",
-				"valueType" : "PERCENT_TO_BASE",
-				"updater" : {
-					"type" : "GROWS_WITH_LEVEL",
-					"parameters" : [100]
+		"specialty" : {
+			"bonuses" : {
+				"archery" : {
+					"type" : "SECONDARY_SKILL_PREMY",
+					"subtype" : "skill.archery",
+					"valueType" : "PERCENT_TO_BASE",
+					"updater" : {
+						"type" : "GROWS_WITH_LEVEL",
+						"parameters" : [100]
+					}
 				}
 			}
-		]
+		}
 	},
 	"valeska":
 	{
@@ -31,55 +33,45 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialty" : [
-			{
+		"specialty" : {
+			"base" : {
 				"limiter" : {
 					"parameters" : [
 						"archer",
 						true
 					],
 					"type" : "CREATURE_TYPE_LIMITER"
-				},
-				"type" : "STACKS_SPEED",
-				"val" : 1
-			},
-			{
-				"limiter" : {
-					"parameters" : [
-						"archer",
-						true
-					],
-					"type" : "CREATURE_TYPE_LIMITER"
-				},
-				"subtype" : "primSkill.attack",
-				"type" : "PRIMARY_SKILL",
-				"updater" : {
-					"parameters" : [
-						6,
-						2
-					],
-					"type" : "GROWS_WITH_LEVEL"
 				}
 			},
-			{
-				"limiter" : {
-					"parameters" : [
-						"archer",
-						true
-					],
-					"type" : "CREATURE_TYPE_LIMITER"
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [
+							6,
+							2
+						],
+						"type" : "GROWS_WITH_LEVEL"
+					}
 				},
-				"subtype" : "primSkill.defence",
-				"type" : "PRIMARY_SKILL",
-				"updater" : {
-					"parameters" : [
-						3,
-						2
-					],
-					"type" : "GROWS_WITH_LEVEL"
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [
+							3,
+							2
+						],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
 				}
 			}
-		]
+		}
 	},
 	"edric":
 	{

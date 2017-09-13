@@ -115,11 +115,11 @@
 			"additionalItems" : true
 		},
 		"specialty": {
-			"type":"array",
-			"description": "Description of hero specialty using bonus system",	
-			"items": {
-				"oneOf" : [
-					{
+			"oneOf" : [
+				{
+					"type":"array",
+					"description": "Description of hero specialty using bonus system (deprecated)",
+					"items": {
 						"type" : "object",
 						"additionalProperties" : false,
 						"required" : [ "bonuses" ],
@@ -134,14 +134,26 @@
 								"items" : { "$ref" : "vcmi:bonus" }
 							}
 						}
-					},
-					{
-						"type" : "object",
-						"description" : "List of bonuses",
-						"items" : { "$ref" : "vcmi:bonus" }
 					}
-				]
-			}
+				},
+				{
+					"type" : "object",
+					"description": "Description of hero specialty using bonus system",
+					"additionalProperties" : false,
+					"required" : [ "bonuses" ],
+					"properties" : { 
+						"base" : {
+							"type" : "object",
+							"description" : "Will be merged with all bonuses."
+						},
+						"bonuses" : {
+							"type" : "object",
+							"description" : "Set of bonuses",
+							"additionalProperties" : { "$ref" : "vcmi:bonus" }
+						}
+					}
+				}
+			]
 		},
 		"spellbook": {
 			"type":"array",

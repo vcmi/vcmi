@@ -533,6 +533,21 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	return result;
 }
 
+void CHeroHandler::beforeValidate(JsonNode & object)
+{
+	//handle "base" specialty info
+	const JsonNode & specialtyNode = object["specialty"];
+	if(specialtyNode.getType() == JsonNode::DATA_STRUCT)
+	{
+		const JsonNode & base = specialtyNode["base"];
+		if(!base.isNull())
+		{
+			for(auto keyValue : specialtyNode["bonuses"].Struct())
+				JsonUtils::inherit(keyValue.second, base);
+		}
+	}
+}
+
 void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 {
 	int sid = hero->ID.getNum();
@@ -545,11 +560,11 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	};
 
 	//deprecated, used only for original specialties
-	const JsonNode & specialties = node["specialties"];
-	if (!specialties.isNull())
+	const JsonNode & specialtiesNode = node["specialties"];
+	if (!specialtiesNode.isNull())
 	{
 		logMod->warn("Hero %s has deprecated specialties format.", hero->identifier);
-		for(const JsonNode &specialty : node["specialties"].Vector())
+		for(const JsonNode &specialty : specialtiesNode.Vector())
 		{
 			SSpecialtyInfo spec;
 			spec.type = specialty["type"].Float();
@@ -560,19 +575,22 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 			hero->specDeprecated.push_back(spec);
 		}
 	}
-	//new format, using bonus system
-	for(const JsonNode & specialty : node["specialty"].Vector())
+	//new(er) format, using bonus system
+	const JsonNode & specialtyNode = node["specialty"];
+	if(specialtyNode.getType() == JsonNode::DATA_VECTOR)
 	{
-		//deprecated new format
-		if(!specialty["bonuses"].isNull())
+		//deprecated middle-aged format
+		for(const JsonNode & specialty : node["specialty"].Vector())
 		{
 			for (const JsonNode & bonus : specialty["bonuses"].Vector())
 				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
 		}
-		else //proper new format
-		{
-			hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(specialty)));
-		}
+	}
+	else if(specialtyNode.getType() == JsonNode::DATA_STRUCT)
+	{
+		//proper new format
+		for(auto keyValue : specialtyNode["bonuses"].Struct())
+			hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
 	}
 }
 
