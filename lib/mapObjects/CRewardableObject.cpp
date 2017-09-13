@@ -102,7 +102,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.soundID = soundID;
 			iw.text = vi.message;
 			vi.reward.loadComponents(iw.components, h);
 			cb->showInfoDialog(&iw);
@@ -114,7 +113,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 	{
 		BlockingDialog sd(canRefuse, rewards.size() > 1);
 		sd.player = h->tempOwner;
-		sd.soundID = soundID;
 		sd.text = onSelect;
 		for (auto index : rewards)
 			sd.components.push_back(getVisitInfo(index, h).reward.getDisplayedComponent(h));
@@ -138,7 +136,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
-				iw.soundID = soundID;
 				if (!onEmpty.toString().empty())
 					iw.text = onEmpty;
 				else
@@ -182,7 +179,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 		logGlobal->debug("Revisiting already visited object");
 		InfoWindow iw;
 		iw.player = h->tempOwner;
-		iw.soundID = soundID;
 		if (!onVisited.toString().empty())
 			iw.text = onVisited;
 		else
@@ -451,7 +447,6 @@ void CRewardableObject::newTurn(CRandomGenerator & rand) const
 }
 
 CRewardableObject::CRewardableObject():
-	soundID(soundBase::invalid),
 	selectMode(0),
 	visitMode(0),
 	selectedReward(0),
