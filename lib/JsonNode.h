@@ -200,6 +200,12 @@ namespace JsonUtils
 	DLL_LINKAGE JsonNode intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty = true);
 
 	/**
+	 * @brief construct node representing the difference "node - base"
+	 * merging difference with base gives node
+	 */
+	DLL_LINKAGE JsonNode difference(const JsonNode & node, const JsonNode & base);
+
+	/**
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */

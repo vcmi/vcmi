@@ -766,7 +766,8 @@ void CHeroHandler::afterLoadFinalization()
 				if(!base.isEmpty())
 				{
 					specNode["base"] = base;
-					//TODO: subtract base from bonuses
+					for(JsonNode & node : specVec)
+						node = JsonUtils::difference(node, base);
 				}
 			}
 			// add json for bonuses

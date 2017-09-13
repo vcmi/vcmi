@@ -1736,6 +1736,8 @@ std::string nameForBonus(const Bonus & bonus)
 		return CreatureID::encode(bonus.subtype) + "2" + CreatureID::encode(bonus.additionalInfo);
 	case Bonus::GENERATE_RESOURCE:
 		return GameConstants::RESOURCE_NAMES[bonus.subtype];
+	case Bonus::STACKS_SPEED:
+		return "speed";
 	default:
 		return vstd::findKey(bonusNameMap, bonus.type);
 	}

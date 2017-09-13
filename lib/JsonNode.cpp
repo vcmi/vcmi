@@ -899,6 +899,36 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 	return nullNode;
 }
 
+JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
+{
+	if(node.getType() == JsonNode::DATA_STRUCT && base.getType() == JsonNode::DATA_STRUCT)
+	{
+		// subtract individual properties
+		JsonNode result(JsonNode::DATA_STRUCT);
+		for(auto property : node.Struct())
+		{
+			if(vstd::contains(base.Struct(), property.first))
+			{
+				JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
+				if(propertyDifference.isEmpty())
+					continue;
+				result[property.first] = propertyDifference;
+			}
+			else
+			{
+				result[property.first] = property.second;
+			}
+		}
+		return result;
+	}
+	else
+	{
+		if(node == base)
+			return nullNode;
+	}
+	return node;
+}
+
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
 	bool isValid;
