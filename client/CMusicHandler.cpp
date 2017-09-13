@@ -282,6 +282,7 @@ bool CSoundHandler::ambientCheckVisitable() const
 void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
 {
 	boost::mutex::scoped_lock guard(mutex);
+
 	std::vector<std::string> stoppedSounds;
 	for(auto & pair : ambientChannels)
 	{
@@ -312,6 +313,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
 void CSoundHandler::ambientStopAllChannels()
 {
 	boost::mutex::scoped_lock guard(mutex);
+
 	for(auto ch : ambientChannels)
 	{
 		ambientStopSound(ch.first);
