@@ -330,7 +330,7 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 					switch (std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 					{
                         case 0: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::newGame, CMenuScreen::SINGLE_PLAYER);
-						case 1: return &pushIntT<CMultiMode>;
+						case 1: return &pushIntT<CNewGameMultiMode>;
                         case 2: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::campaignList, CMenuScreen::SINGLE_PLAYER);
 						//TODO: start tutorial
                         case 3: return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
@@ -341,7 +341,7 @@ static std::function<void()> genCommand(CMenuScreen* menu, std::vector<std::stri
 					switch (std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 					{
 						case 0: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_PLAYER);
-						case 1: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT);
+						case 1: return &pushIntT<CLoadGameMultiMode>;
 						case 2: return std::bind(&CGPreGame::openSel, CGP, CMenuScreen::loadGame, CMenuScreen::SINGLE_CAMPAIGN);
 						//TODO: load tutorial
                         case 3: return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent*>*)nullptr, false, PlayerColor(1));
@@ -3154,19 +3154,23 @@ CMultiMode::CMultiMode()
 	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
 	txt->setText(settings["general"]["playerName"].String()); //Player
-
-	btns[0] = new CButton(Point(373, 78),        "MUBHOT.DEF",  CGI->generaltexth->zelp[266], std::bind(&CMultiMode::openHotseat, this));
-	btns[1] = new CButton(Point(373, 78 + 57*1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CMultiMode::hostTCP, this));
-	btns[2] = new CButton(Point(373, 78 + 57*2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CMultiMode::joinTCP, this));
-	btns[6] = new CButton(Point(373, 424),       "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&](){ GH.popIntTotally(this);}, SDLK_ESCAPE);
 }
 
-void CMultiMode::openHotseat()
+CNewGameMultiMode::CNewGameMultiMode()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	btns[0] = new CButton(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CNewGameMultiMode::openHotseat, this));
+	btns[1] = new CButton(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CNewGameMultiMode::hostTCP, this));
+	btns[2] = new CButton(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CNewGameMultiMode::joinTCP, this));
+	btns[6] = new CButton(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&]() { GH.popIntTotally(this);}, SDLK_ESCAPE);
+}
+
+void CNewGameMultiMode::openHotseat()
 {
 	GH.pushInt(new CHotSeatPlayers(txt->text));
 }
 
-void CMultiMode::hostTCP()
+void CNewGameMultiMode::hostTCP()
 {
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
@@ -3177,7 +3181,36 @@ void CMultiMode::hostTCP()
 		GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_HOST));
 }
 
-void CMultiMode::joinTCP()
+void CNewGameMultiMode::joinTCP()
+{
+	Settings name = settings.write["general"]["playerName"];
+	name->String() = txt->text;
+	GH.pushInt(new CSimpleJoinScreen(CMenuScreen::MULTI_NETWORK_GUEST));
+}
+
+CLoadGameMultiMode::CLoadGameMultiMode()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	btns[0] = new CButton(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CLoadGameMultiMode::openHotseat, this));
+	btns[1] = new CButton(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CLoadGameMultiMode::hostTCP, this));
+	btns[2] = new CButton(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CLoadGameMultiMode::joinTCP, this));
+	btns[6] = new CButton(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&]() { GH.popIntTotally(this);}, SDLK_ESCAPE);
+}
+
+void CLoadGameMultiMode::openHotseat()
+{
+	GH.pushInt(new CSelectionScreen(CMenuScreen::loadGame, CMenuScreen::MULTI_HOT_SEAT));
+}
+
+void CLoadGameMultiMode::hostTCP()
+{
+	Settings name = settings.write["general"]["playerName"];
+	name->String() = txt->text;
+	GH.popIntTotally(this);
+	GH.pushInt(new CSelectionScreen(CMenuScreen::loadGame, CMenuScreen::MULTI_NETWORK_HOST));
+}
+
+void CLoadGameMultiMode::joinTCP()
 {
 	Settings name = settings.write["general"]["playerName"];
 	name->String() = txt->text;
