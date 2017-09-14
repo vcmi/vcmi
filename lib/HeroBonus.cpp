@@ -1218,6 +1218,31 @@ JsonNode Bonus::toJsonNode() const
 	return root;
 }
 
+std::string Bonus::nameForBonus() const
+{
+	switch(type)
+	{
+	case Bonus::PRIMARY_SKILL:
+		return PrimarySkill::names[subtype];
+	case Bonus::SECONDARY_SKILL_PREMY:
+		return NSecondarySkill::names[subtype];
+	case Bonus::SPECIAL_SPELL_LEV:
+	case Bonus::SPECIFIC_SPELL_DAMAGE:
+	case Bonus::SPECIAL_BLESS_DAMAGE:
+	case Bonus::MAXED_SPELL:
+	case Bonus::SPECIAL_PECULIAR_ENCHANT:
+		return (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier;
+	case Bonus::SPECIAL_UPGRADE:
+		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo);
+	case Bonus::GENERATE_RESOURCE:
+		return GameConstants::RESOURCE_NAMES[subtype];
+	case Bonus::STACKS_SPEED:
+		return "speed";
+	default:
+		return vstd::findKey(bonusNameMap, type);
+	}
+}
+
 Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
@@ -1716,29 +1741,4 @@ JsonNode ScalingUpdater::toJsonNode() const
 		root["parameters"].Vector().push_back(JsonUtils::intNode(stepSize));
 
 	return root;
-}
-
-std::string nameForBonus(const Bonus & bonus)
-{
-	switch(bonus.type)
-	{
-	case Bonus::PRIMARY_SKILL:
-		return PrimarySkill::names[bonus.subtype];
-	case Bonus::SECONDARY_SKILL_PREMY:
-		return NSecondarySkill::names[bonus.subtype];
-	case Bonus::SPECIAL_SPELL_LEV:
-	case Bonus::SPECIFIC_SPELL_DAMAGE:
-	case Bonus::SPECIAL_BLESS_DAMAGE:
-	case Bonus::MAXED_SPELL:
-	case Bonus::SPECIAL_PECULIAR_ENCHANT:
-		return (*VLC->spellh)[SpellID::ESpellID(bonus.subtype)]->identifier;
-	case Bonus::SPECIAL_UPGRADE:
-		return CreatureID::encode(bonus.subtype) + "2" + CreatureID::encode(bonus.additionalInfo);
-	case Bonus::GENERATE_RESOURCE:
-		return GameConstants::RESOURCE_NAMES[bonus.subtype];
-	case Bonus::STACKS_SPEED:
-		return "speed";
-	default:
-		return vstd::findKey(bonusNameMap, bonus.type);
-	}
 }

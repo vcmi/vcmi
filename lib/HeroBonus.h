@@ -426,6 +426,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string Description() const;
 	JsonNode toJsonNode() const;
+	std::string nameForBonus() const; // generate suitable name for bonus - e.g. for storing in json struct
 
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
@@ -1057,6 +1058,3 @@ struct DLL_LINKAGE ScalingUpdater : public IUpdater
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
-
-// generate suitable name for bonus - e.g. for storing in json struct
-DLL_LINKAGE std::string nameForBonus(const Bonus & bonus);

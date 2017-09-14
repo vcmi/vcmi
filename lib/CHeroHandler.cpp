@@ -559,7 +559,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 					if(creatureLimiter)
 					{
 						const CCreature * cre = creatureLimiter->creature;
-						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->Attack() : cre->Defense();
+						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefence(false);
 						int creLevel = cre->level ? cre->level : 5;
 						newBonus->updater = std::make_shared<ScalingUpdater>(creStat, creLevel);
 					}
@@ -823,7 +823,7 @@ void CHeroHandler::afterLoadFinalization()
 				hero->specialty.push_back(bonus);
 				specVec.push_back(bonus->toJsonNode());
 				// find fitting & unique bonus name
-				std::string bonusName = nameForBonus(*bonus);
+				std::string bonusName = bonus->nameForBonus();
 				if(vstd::contains(specNames, bonusName))
 				{
 					int suffix = 2;
