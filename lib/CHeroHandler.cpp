@@ -533,6 +533,51 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	return result;
 }
 
+// convert deprecated format
+std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec)
+{
+	std::vector<std::shared_ptr<Bonus>> result;
+	for(std::shared_ptr<Bonus> oldBonus : spec.bonuses)
+	{
+		if(spec.growsWithLevel)
+		{
+			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
+			switch(newBonus->type)
+			{
+			case Bonus::SECONDARY_SKILL_PREMY:
+				break; // ignore - used to be overwritten based on SPECIAL_SECONDARY_SKILL
+			case Bonus::SPECIAL_SECONDARY_SKILL:
+				newBonus->type = Bonus::SECONDARY_SKILL_PREMY;
+				newBonus->updater = std::make_shared<ScalingUpdater>(newBonus->val * 20);
+				newBonus->val = 0; // for json printing
+				result.push_back(newBonus);
+				break;
+			case Bonus::PRIMARY_SKILL:
+				if((newBonus->subtype == PrimarySkill::ATTACK || newBonus->subtype == PrimarySkill::DEFENSE) && newBonus->limiter)
+				{
+					const std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(newBonus->limiter);
+					if(creatureLimiter)
+					{
+						const CCreature * cre = creatureLimiter->creature;
+						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->Attack() : cre->Defense();
+						int creLevel = cre->level ? cre->level : 5;
+						newBonus->updater = std::make_shared<ScalingUpdater>(creStat, creLevel);
+					}
+					result.push_back(newBonus);
+				}
+				break;
+			default:
+				result.push_back(newBonus);
+			}
+		}
+		else
+		{
+			result.push_back(oldBonus);
+		}
+	}
+	return result;
+}
+
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
@@ -583,8 +628,11 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		//deprecated middle-aged format
 		for(const JsonNode & specialty : node["specialty"].Vector())
 		{
+			SSpecialtyBonus hs;
+			hs.growsWithLevel = specialty["growsWithLevel"].Bool();
 			for (const JsonNode & bonus : specialty["bonuses"].Vector())
-				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
+				hs.bonuses.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
+			hero->specialtyDeprecated.push_back(hs);
 		}
 	}
 	else if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
@@ -753,28 +801,37 @@ void CHeroHandler::afterLoadFinalization()
 {
 	for(ConstTransitivePtr<CHero> hero : heroes)
 	{
-		if(hero->specDeprecated.size() > 0)
+		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
 		{
-			logMod->debug("Converting specialties format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
-			std::vector<JsonNode> specVec;
-			std::vector<std::string> specNames;
+			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
+			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
 			for(const SSpecialtyInfo & spec : hero->specDeprecated)
 			{
-				for(std::shared_ptr<Bonus> bonus : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
+				for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, hero->ID.getNum()))
+					convertedBonuses.push_back(b);
+			}
+			for(const SSpecialtyBonus & spec : hero->specialtyDeprecated)
+			{
+				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec))
+					convertedBonuses.push_back(b);
+			}
+			// store and create json for logging
+			std::vector<JsonNode> specVec;
+			std::vector<std::string> specNames;
+			for(std::shared_ptr<Bonus> bonus : convertedBonuses)
+			{
+				hero->specialty.push_back(bonus);
+				specVec.push_back(bonus->toJsonNode());
+				// find fitting & unique bonus name
+				std::string bonusName = nameForBonus(*bonus);
+				if(vstd::contains(specNames, bonusName))
 				{
-					hero->specialty.push_back(bonus);
-					specVec.push_back(bonus->toJsonNode());
-					// find fitting & unique bonus name
-					std::string bonusName = nameForBonus(*bonus);
-					if(vstd::contains(specNames, bonusName))
-					{
-						int i = 2;
-						while(vstd::contains(specNames, bonusName + std::to_string(i)))
-							i++;
-						bonusName += std::to_string(i);
-					}
-					specNames.push_back(bonusName);
+					int suffix = 2;
+					while(vstd::contains(specNames, bonusName + std::to_string(suffix)))
+						suffix++;
+					bonusName += std::to_string(suffix);
 				}
+				specNames.push_back(bonusName);
 			}
 			hero->specDeprecated.clear();
 			// log new format for easy copy-and-paste

@@ -194,9 +194,43 @@
 			{ "skill" : "tactics", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
+		"specialty" :
 		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			{
+				"growsWithLevel" : true,
+				"bonuses" : [
+					{
+						"limiters" : [
+							{
+								"parameters" : [ "ogre", true ],
+								"type" : "CREATURE_TYPE_LIMITER"
+							}
+						],
+						"subtype" : "primSkill.attack",
+						"type" : "PRIMARY_SKILL",
+					},
+					{
+						"limiters" : [
+							{
+								"parameters" : [ "ogre", true ],
+								"type" : "CREATURE_TYPE_LIMITER"
+							}
+						],
+						"subtype" : "primSkill.defence",
+						"type" : "PRIMARY_SKILL",
+					},
+					{
+						"limiters" : [
+							{
+								"parameters" : [ "ogre", true ],
+								"type" : "CREATURE_TYPE_LIMITER"
+							}
+						],
+						"type" : "STACKS_SPEED",
+						"val" : 1
+					}
+				]
+			}
 		],
 		"army" :
 		[
