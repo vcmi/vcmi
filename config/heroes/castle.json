@@ -17,7 +17,7 @@
 					"valueType" : "PERCENT_TO_BASE",
 					"updater" : {
 						"type" : "GROWS_WITH_LEVEL",
-						"parameters" : [100]
+						"parameters" : [ 100 ]
 					}
 				}
 			}
@@ -36,10 +36,7 @@
 		"specialty" : {
 			"base" : {
 				"limiter" : {
-					"parameters" : [
-						"archer",
-						true
-					],
+					"parameters" : [ "archer", true ],
 					"type" : "CREATURE_TYPE_LIMITER"
 				}
 			},
@@ -48,10 +45,7 @@
 					"subtype" : "primSkill.attack",
 					"type" : "PRIMARY_SKILL",
 					"updater" : {
-						"parameters" : [
-							6,
-							2
-						],
+						"parameters" : [ 6, 2 ],
 						"type" : "GROWS_WITH_LEVEL"
 					}
 				},
@@ -59,10 +53,7 @@
 					"subtype" : "primSkill.defence",
 					"type" : "PRIMARY_SKILL",
 					"updater" : {
-						"parameters" : [
-							3,
-							2
-						],
+						"parameters" : [ 3, 2 ],
 						"type" : "GROWS_WITH_LEVEL"
 					}
 				},

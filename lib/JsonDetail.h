@@ -16,6 +16,10 @@ class JsonWriter
 	//prefix for each line (tabulation)
 	std::string prefix;
 	std::ostream & out;
+	//sets whether compact nodes are written in single-line format
+	bool compact;
+	//tracks whether we are currently using single-line format
+	bool compactMode = false;
 public:
 	template<typename Iterator>
 	void writeContainer(Iterator begin, Iterator end);
@@ -23,7 +27,7 @@ public:
 	void writeEntry(JsonVector::const_iterator entry);
 	void writeString(const std::string & string);
 	void writeNode(const JsonNode & node);
-	JsonWriter(std::ostream & output);
+	JsonWriter(std::ostream & output, bool compact = false);
 };
 
 //Tiny string class that uses const char* as data for speed, members are private

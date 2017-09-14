@@ -76,6 +76,7 @@ public:
 	bool isNull() const;
 	bool isNumber() const;
 	bool isEmpty() const;
+	bool isCompact() const;
 	/// removes all data from node and sets type to null
 	void clear();
 
@@ -111,7 +112,7 @@ public:
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
 
-	std::string toJson() const;
+	std::string toJson(bool compact = false) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -232,6 +232,31 @@ bool JsonNode::isEmpty() const
 	}
 }
 
+bool JsonNode::isCompact() const
+{
+	switch(type)
+	{
+		case JsonType::DATA_VECTOR:
+			for(JsonNode & elem : *data.Vector)
+			{
+				if(!elem.isCompact())
+					return false;
+			}
+			return true;
+		case JsonType::DATA_STRUCT:
+			{
+				int propertyCount = data.Struct->size();
+				if(propertyCount == 0)
+					return true;
+				else if(propertyCount == 1)
+					return data.Struct->begin()->second.isCompact();
+			}
+			return false;
+		default:
+			return true;
+	}
+}
+
 void JsonNode::clear()
 {
 	setType(JsonType::DATA_NULL);
@@ -385,10 +410,10 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 	return ::resolvePointer(*this, jsonPointer);
 }
 
-std::string JsonNode::toJson() const
+std::string JsonNode::toJson(bool compact) const
 {
 	std::ostringstream out;
-	JsonWriter writer(out);
+	JsonWriter writer(out, compact);
 	writer.writeNode(*this);
 	out << "\n";
 	return out.str();
@@ -901,10 +926,10 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 
 JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 {
-	if(node.getType() == JsonNode::DATA_STRUCT && base.getType() == JsonNode::DATA_STRUCT)
+	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		// subtract individual properties
-		JsonNode result(JsonNode::DATA_STRUCT);
+		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
 		for(auto property : node.Struct())
 		{
 			if(vstd::contains(base.Struct(), property.first))

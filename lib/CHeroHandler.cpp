@@ -537,7 +537,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
 	const JsonNode & specialtyNode = object["specialty"];
-	if(specialtyNode.getType() == JsonNode::DATA_STRUCT)
+	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		const JsonNode & base = specialtyNode["base"];
 		if(!base.isNull())
@@ -577,7 +577,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	}
 	//new(er) format, using bonus system
 	const JsonNode & specialtyNode = node["specialty"];
-	if(specialtyNode.getType() == JsonNode::DATA_VECTOR)
+	if(specialtyNode.getType() == JsonNode::JsonType::DATA_VECTOR)
 	{
 		//deprecated middle-aged format
 		for(const JsonNode & specialty : node["specialty"].Vector())
@@ -586,7 +586,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(bonus)));
 		}
 	}
-	else if(specialtyNode.getType() == JsonNode::DATA_STRUCT)
+	else if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		//proper new format
 		for(auto keyValue : specialtyNode["bonuses"].Struct())
@@ -792,7 +792,7 @@ void CHeroHandler::afterLoadFinalization()
 			specNode["bonuses"].Struct();
 			for(int i = 0; i < specVec.size(); i++)
 				specNode["bonuses"][specNames[i]] = specVec[i];
-			logMod->trace("\"specialty\" : %s", specNode.toJson());
+			logMod->trace("\"specialty\" : %s", specNode.toJson(true));
 		}
 	}
 }
