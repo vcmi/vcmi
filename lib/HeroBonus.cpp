@@ -1212,7 +1212,7 @@ JsonNode Bonus::toJsonNode() const
 	if(valType != ADDITIVE_VALUE)
 		root["valType"].String() = vstd::findKey(bonusValueMap, valType);
 	if(limiter)
-		root["limiter"] = limiter->toJsonNode();
+		root["limiters"].Vector().push_back(limiter->toJsonNode());
 	if(updater)
 		root["updater"] = updater->toJsonNode();
 	return root;

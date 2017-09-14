@@ -35,10 +35,12 @@
 		],
 		"specialty" : {
 			"base" : {
-				"limiter" : {
-					"parameters" : [ "archer", true ],
-					"type" : "CREATURE_TYPE_LIMITER"
-				}
+				"limiters" : [
+					{
+						"parameters" : [ "archer", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
 			},
 			"bonuses" : {
 				"attack" : {

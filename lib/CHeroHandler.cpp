@@ -536,14 +536,15 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 void CHeroHandler::beforeValidate(JsonNode & object)
 {
 	//handle "base" specialty info
-	const JsonNode & specialtyNode = object["specialty"];
+	JsonNode & specialtyNode = object["specialty"];
 	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		const JsonNode & base = specialtyNode["base"];
 		if(!base.isNull())
 		{
-			for(auto keyValue : specialtyNode["bonuses"].Struct())
-				JsonUtils::inherit(keyValue.second, base);
+			JsonMap & bonuses = specialtyNode["bonuses"].Struct();
+			for(std::pair<std::string, JsonNode> keyValue : bonuses)
+				JsonUtils::inherit(bonuses[keyValue.first], base);
 		}
 	}
 }
