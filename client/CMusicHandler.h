@@ -20,6 +20,7 @@ struct Mix_Chunk;
 
 class CAudioBase {
 protected:
+	boost::mutex mutex;
 	bool initialized;
 	int volume;					// from 0 (mute) to 100
 
@@ -118,9 +119,6 @@ public:
 class CMusicHandler: public CAudioBase
 {
 private:
-	// Because we use the SDL music callback, our music variables must
-	// be protected
-	boost::mutex musicMutex;
 	//update volume on configuration change
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);

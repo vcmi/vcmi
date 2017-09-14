@@ -281,6 +281,7 @@ bool CSoundHandler::ambientCheckVisitable() const
 
 void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
 {
+	boost::mutex::scoped_lock guard(mutex);
 	std::vector<std::string> stoppedSounds;
 	for(auto & pair : ambientChannels)
 	{
@@ -310,6 +311,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
 
 void CSoundHandler::ambientStopAllChannels()
 {
+	boost::mutex::scoped_lock guard(mutex);
 	for(auto ch : ambientChannels)
 	{
 		ambientStopSound(ch.first);
@@ -375,7 +377,7 @@ void CMusicHandler::release()
 {
 	if (initialized)
 	{
-		boost::mutex::scoped_lock guard(musicMutex);
+		boost::mutex::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
 
@@ -439,7 +441,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	next = std::move(queued);
 
@@ -468,7 +470,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	if (current.get() != nullptr)
 		current->stop(fade_ms);
@@ -485,7 +487,7 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback(void)
 {
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	if (current.get() != nullptr)
 	{
