@@ -2945,16 +2945,8 @@ void CPlayerInterface::updateAmbientSounds(bool resetAll)
 		// We want sound for every special terrain on tile and not just one on top
 		for(auto & ttObj : CGI->mh->ttiles[tile.x][tile.y][tile.z].objects)
 		{
-			auto obj = ttObj.obj;
-			if(!obj || !obj->getAmbientSound())
-				continue;
-
-			// All tiles of static objects are sound sources. E.g Volcanos and special terrains
-			// For visitable object only their visitable tile is sound source
-			if(CCS->soundh->ambientCheckVisitable() && obj->isVisitable() && !obj->visitableAt(tile.x, tile.y))
-				continue;
-
-			updateSounds(obj->getAmbientSound().get(), dist);
+			if(ttObj.ambientSound)
+				updateSounds(ttObj.ambientSound.get(), dist);
 		}
 		if(CGI->mh->map->isCoastalTile(tile))
 			updateSounds("LOOPOCEA", dist);

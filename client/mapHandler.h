@@ -69,8 +69,9 @@ struct TerrainTileObject
 	const CGObjectInstance *obj;
 	SDL_Rect rect;
 	int fadeAnimKey;
+	boost::optional<std::string> ambientSound;
 
-	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_);
+	TerrainTileObject(const CGObjectInstance *obj_, SDL_Rect rect_, bool visitablePos = false);
 	~TerrainTileObject();
 };
 
