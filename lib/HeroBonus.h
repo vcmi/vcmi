@@ -1039,8 +1039,9 @@ public:
 	}
 };
 
-struct DLL_LINKAGE ScalingUpdater : public IUpdater
+class DLL_LINKAGE ScalingUpdater : public IUpdater
 {
+public:
 	int valPer20;
 	int stepSize;
 

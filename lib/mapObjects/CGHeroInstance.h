@@ -109,7 +109,6 @@ public:
 	};
 
 	std::vector<HeroSpecial*> specialtyDeprecated;
-	CBonusSystemNode specialty;
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
