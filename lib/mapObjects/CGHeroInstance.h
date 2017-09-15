@@ -39,21 +39,6 @@ public:
 
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster
 {
-private:
-	// deprecated - used only for loading of old saves
-	struct HeroSpecial : CBonusSystemNode
-	{
-		bool growsWithLevel;
-
-		HeroSpecial(){growsWithLevel = false;};
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & static_cast<CBonusSystemNode&>(*this);
-			h & growsWithLevel;
-		}
-	};
-
 public:
 	//////////////////////////////////////////////////////////////////////////
 
@@ -109,6 +94,20 @@ public:
 			h & patrolRadius;
 		}
 	} patrol;
+
+	// deprecated - used only for loading of old saves
+	struct HeroSpecial : CBonusSystemNode
+	{
+		bool growsWithLevel;
+
+		HeroSpecial(){growsWithLevel = false;};
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & static_cast<CBonusSystemNode&>(*this);
+			h & growsWithLevel;
+		}
+	};
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
