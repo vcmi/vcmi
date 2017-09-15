@@ -130,6 +130,7 @@ public:
 
 // convert deprecated format
 std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid);
+std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec);
 
 class DLL_LINKAGE CHeroClass
 {

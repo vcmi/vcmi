@@ -39,6 +39,21 @@ public:
 
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster
 {
+private:
+	// deprecated - used only for loading of old saves
+	struct HeroSpecial : CBonusSystemNode
+	{
+		bool growsWithLevel;
+
+		HeroSpecial(){growsWithLevel = false;};
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & static_cast<CBonusSystemNode&>(*this);
+			h & growsWithLevel;
+		}
+	};
+
 public:
 	//////////////////////////////////////////////////////////////////////////
 
@@ -94,21 +109,6 @@ public:
 			h & patrolRadius;
 		}
 	} patrol;
-
-	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
-	{
-		bool growsWithLevel;
-
-		HeroSpecial(){growsWithLevel = false;};
-
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & static_cast<CBonusSystemNode&>(*this);
-			h & growsWithLevel;
-		}
-	};
-
-	std::vector<HeroSpecial*> specialtyDeprecated;
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
@@ -268,6 +268,7 @@ protected:
 
 private:
 	void levelUpAutomatically(CRandomGenerator & rand);
+	void recreateSpecialtyBonuses(std::vector<HeroSpecial*> & specialtyDeprecated);
 
 public:
 	std::string getHeroTypeName() const;
@@ -297,7 +298,12 @@ public:
 		h & boat;
 		h & type;
 		if(version < 778)
+		{
+			std::vector<HeroSpecial*> specialtyDeprecated;
 			h & specialtyDeprecated;
+			if(!h.saving)
+				recreateSpecialtyBonuses(specialtyDeprecated);
+		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
