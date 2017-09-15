@@ -214,21 +214,22 @@ bool JsonNode::isNumber() const
 	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
 }
 
-bool JsonNode::isEmpty() const
+bool JsonNode::containsBaseData() const
 {
 	switch(type)
 	{
 	case JsonType::DATA_NULL:
-		return true;
+		return false;
 	case JsonType::DATA_STRUCT:
 		for(auto elem : *data.Struct)
 		{
-			if(!elem.second.isEmpty())
-				return false;
+			if(elem.second.containsBaseData())
+				return true;
 		}
-		return true;
-	default:
 		return false;
+	default:
+		//other types (including vector) cannot be extended via merge
+		return true;
 	}
 }
 
@@ -908,7 +909,7 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 			if(vstd::contains(b.Struct(), property.first))
 			{
 				JsonNode propertyIntersect = JsonUtils::intersect(property.second, b.Struct().find(property.first)->second);
-				if(pruneEmpty && propertyIntersect.isEmpty())
+				if(pruneEmpty && !propertyIntersect.containsBaseData())
 					continue;
 				result[property.first] = propertyIntersect;
 			}
@@ -934,16 +935,17 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 		{
 			if(vstd::contains(base.Struct(), property.first))
 			{
-				JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
-				if(propertyDifference.isEmpty())
-					continue;
-				result[property.first] = propertyDifference;
+				const JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
+				if(!propertyDifference.isNull())
+					result[property.first] = propertyDifference;
 			}
 			else
 			{
 				result[property.first] = property.second;
 			}
 		}
+		if(result.Struct().empty())
+			return nullNode;
 		return result;
 	}
 	else

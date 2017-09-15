@@ -840,7 +840,7 @@ void CHeroHandler::afterLoadFinalization()
 			if(specVec.size() > 1)
 			{
 				JsonNode base = JsonUtils::intersect(specVec);
-				if(!base.isEmpty())
+				if(base.containsBaseData())
 				{
 					specNode["base"] = base;
 					for(JsonNode & node : specVec)

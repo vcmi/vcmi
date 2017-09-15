@@ -75,7 +75,9 @@ public:
 
 	bool isNull() const;
 	bool isNumber() const;
-	bool isEmpty() const;
+	/// true if node contains not-null data that cannot be extended via merging
+	/// used for generating common base node from multiple nodes (e.g. bonuses)
+	bool containsBaseData() const;
 	bool isCompact() const;
 	/// removes all data from node and sets type to null
 	void clear();
