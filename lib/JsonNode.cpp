@@ -237,24 +237,24 @@ bool JsonNode::isCompact() const
 {
 	switch(type)
 	{
-		case JsonType::DATA_VECTOR:
-			for(JsonNode & elem : *data.Vector)
-			{
-				if(!elem.isCompact())
-					return false;
-			}
-			return true;
-		case JsonType::DATA_STRUCT:
-			{
-				int propertyCount = data.Struct->size();
-				if(propertyCount == 0)
-					return true;
-				else if(propertyCount == 1)
-					return data.Struct->begin()->second.isCompact();
-			}
-			return false;
-		default:
-			return true;
+	case JsonType::DATA_VECTOR:
+		for(JsonNode & elem : *data.Vector)
+		{
+			if(!elem.isCompact())
+				return false;
+		}
+		return true;
+	case JsonType::DATA_STRUCT:
+		{
+			int propertyCount = data.Struct->size();
+			if(propertyCount == 0)
+				return true;
+			else if(propertyCount == 1)
+				return data.Struct->begin()->second.isCompact();
+		}
+		return false;
+	default:
+		return true;
 	}
 }
 
