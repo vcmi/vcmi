@@ -218,17 +218,17 @@ bool JsonNode::isEmpty() const
 {
 	switch(type)
 	{
-		case JsonType::DATA_NULL:
-			return true;
-		case JsonType::DATA_STRUCT:
-			for(auto elem : *data.Struct)
-			{
-				if(!elem.second.isEmpty())
-					return false;
-			}
-			return true;
-		default:
-			return false;
+	case JsonType::DATA_NULL:
+		return true;
+	case JsonType::DATA_STRUCT:
+		for(auto elem : *data.Struct)
+		{
+			if(!elem.second.isEmpty())
+				return false;
+		}
+		return true;
+	default:
+		return false;
 	}
 }
 

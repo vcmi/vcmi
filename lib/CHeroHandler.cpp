@@ -392,142 +392,142 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 
 	switch (spec.type)
 	{
-		case 1: //creature specialty
-			{
-				const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
-				bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
+	case 1: //creature specialty
+		{
+			const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
+			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
 
-				bonus->type = Bonus::STACKS_SPEED;
-				bonus->valType = Bonus::ADDITIVE_VALUE;
-				bonus->val = 1;
-				result.push_back(bonus);
-
-				bonus = std::make_shared<Bonus>(*bonus);
-				bonus->type = Bonus::PRIMARY_SKILL;
-				bonus->val = 0;
-				int stepSize = specCreature.level ? specCreature.level : 5;
-
-				bonus->subtype = PrimarySkill::ATTACK;
-				bonus->updater.reset(new ScalingUpdater(specCreature.getAttack(false), stepSize));
-				result.push_back(bonus);
-
-				bonus = std::make_shared<Bonus>(*bonus);
-				bonus->subtype = PrimarySkill::DEFENSE;
-				bonus->updater.reset(new ScalingUpdater(specCreature.getDefence(false), stepSize));
-				result.push_back(bonus);
-			}
-			break;
-		case 2: //secondary skill
-			bonus->type = Bonus::SECONDARY_SKILL_PREMY;
-			bonus->valType = Bonus::PERCENT_TO_BASE;
-			bonus->subtype = spec.subtype;
-			bonus->val = 0;
-			bonus->updater.reset(new ScalingUpdater(spec.val * 20));
-			result.push_back(bonus);
-			break;
-		case 3: //spell damage bonus, level dependent but calculated elsewhere
-			bonus->type = Bonus::SPECIAL_SPELL_LEV;
-			bonus->subtype = spec.subtype;
-			result.push_back(bonus);
-			break;
-		case 4: //creature stat boost
-			switch (spec.subtype)
-			{
-				case 1:
-					bonus->type = Bonus::PRIMARY_SKILL;
-					bonus->subtype = PrimarySkill::ATTACK;
-					break;
-				case 2:
-					bonus->type = Bonus::PRIMARY_SKILL;
-					bonus->subtype = PrimarySkill::DEFENSE;
-					break;
-				case 3:
-					bonus->type = Bonus::CREATURE_DAMAGE;
-					bonus->subtype = 0; //both min and max
-					break;
-				case 4:
-					bonus->type = Bonus::STACK_HEALTH;
-					break;
-				case 5:
-					bonus->type = Bonus::STACKS_SPEED;
-					break;
-				default:
-					logMod->warn("Unknown subtype for specialty 4");
-					return result;
-			}
-			bonus->valType = Bonus::ADDITIVE_VALUE;
-			bonus->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[spec.additionalinfo], true));
-			result.push_back(bonus);
-			break;
-		case 5: //spell damage bonus in percent
-			bonus->type = Bonus::SPECIFIC_SPELL_DAMAGE;
-			bonus->valType = Bonus::BASE_NUMBER; //current spell system is screwed
-			bonus->subtype = spec.subtype; //spell id
-			result.push_back(bonus);
-			break;
-		case 6: //damage bonus for bless (Adela)
-			bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
-			bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
-			bonus->additionalInfo = spec.additionalinfo; //damage factor
-			result.push_back(bonus);
-			break;
-		case 7: //maxed mastery for spell
-			bonus->type = Bonus::MAXED_SPELL;
-			bonus->subtype = spec.subtype; //spell id
-			result.push_back(bonus);
-			break;
-		case 8: //peculiar spells - enchantments
-			bonus->type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-			bonus->subtype = spec.subtype; //spell id
-			bonus->additionalInfo = spec.additionalinfo; //0, 1 for Coronius
-			result.push_back(bonus);
-			break;
-		case 9: //upgrade creatures
-			{
-				const auto &creatures = VLC->creh->creatures;
-				bonus->type = Bonus::SPECIAL_UPGRADE;
-				bonus->subtype = spec.subtype; //base id
-				bonus->additionalInfo = spec.additionalinfo; //target id
-				result.push_back(bonus);
-				//propagate for regular upgrades of base creature
-				for(auto cre_id : creatures[spec.subtype]->upgrades)
-				{
-					bonus = std::make_shared<Bonus>(*bonus);
-					bonus->subtype = cre_id;
-					result.push_back(bonus);
-				}
-			}
-			break;
-		case 10: //resource generation
-			bonus->type = Bonus::GENERATE_RESOURCE;
-			bonus->subtype = spec.subtype;
-			result.push_back(bonus);
-			break;
-		case 11: //starting skill with mastery (Adrienne)
-			logMod->warn("Secondary skill mastery is no longer supported as specialty.");
-			break;
-		case 12: //army speed
 			bonus->type = Bonus::STACKS_SPEED;
-			result.push_back(bonus);
-			break;
-		case 13: //Dragon bonuses (Mutare)
-			bonus->type = Bonus::PRIMARY_SKILL;
 			bonus->valType = Bonus::ADDITIVE_VALUE;
-			switch (spec.subtype)
-			{
-				case 1:
-					bonus->subtype = PrimarySkill::ATTACK;
-					break;
-				case 2:
-					bonus->subtype = PrimarySkill::DEFENSE;
-					break;
-			}
-			bonus->limiter.reset(new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
+			bonus->val = 1;
 			result.push_back(bonus);
+
+			bonus = std::make_shared<Bonus>(*bonus);
+			bonus->type = Bonus::PRIMARY_SKILL;
+			bonus->val = 0;
+			int stepSize = specCreature.level ? specCreature.level : 5;
+
+			bonus->subtype = PrimarySkill::ATTACK;
+			bonus->updater.reset(new ScalingUpdater(specCreature.getAttack(false), stepSize));
+			result.push_back(bonus);
+
+			bonus = std::make_shared<Bonus>(*bonus);
+			bonus->subtype = PrimarySkill::DEFENSE;
+			bonus->updater.reset(new ScalingUpdater(specCreature.getDefence(false), stepSize));
+			result.push_back(bonus);
+		}
+		break;
+	case 2: //secondary skill
+		bonus->type = Bonus::SECONDARY_SKILL_PREMY;
+		bonus->valType = Bonus::PERCENT_TO_BASE;
+		bonus->subtype = spec.subtype;
+		bonus->val = 0;
+		bonus->updater.reset(new ScalingUpdater(spec.val * 20));
+		result.push_back(bonus);
+		break;
+	case 3: //spell damage bonus, level dependent but calculated elsewhere
+		bonus->type = Bonus::SPECIAL_SPELL_LEV;
+		bonus->subtype = spec.subtype;
+		result.push_back(bonus);
+		break;
+	case 4: //creature stat boost
+		switch (spec.subtype)
+		{
+		case 1:
+			bonus->type = Bonus::PRIMARY_SKILL;
+			bonus->subtype = PrimarySkill::ATTACK;
+			break;
+		case 2:
+			bonus->type = Bonus::PRIMARY_SKILL;
+			bonus->subtype = PrimarySkill::DEFENSE;
+			break;
+		case 3:
+			bonus->type = Bonus::CREATURE_DAMAGE;
+			bonus->subtype = 0; //both min and max
+			break;
+		case 4:
+			bonus->type = Bonus::STACK_HEALTH;
+			break;
+		case 5:
+			bonus->type = Bonus::STACKS_SPEED;
 			break;
 		default:
-			logMod->warn("Unknown hero specialty %d", spec.type);
+			logMod->warn("Unknown subtype for specialty 4");
+			return result;
+		}
+		bonus->valType = Bonus::ADDITIVE_VALUE;
+		bonus->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[spec.additionalinfo], true));
+		result.push_back(bonus);
+		break;
+	case 5: //spell damage bonus in percent
+		bonus->type = Bonus::SPECIFIC_SPELL_DAMAGE;
+		bonus->valType = Bonus::BASE_NUMBER; //current spell system is screwed
+		bonus->subtype = spec.subtype; //spell id
+		result.push_back(bonus);
+		break;
+	case 6: //damage bonus for bless (Adela)
+		bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
+		bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
+		bonus->additionalInfo = spec.additionalinfo; //damage factor
+		result.push_back(bonus);
+		break;
+	case 7: //maxed mastery for spell
+		bonus->type = Bonus::MAXED_SPELL;
+		bonus->subtype = spec.subtype; //spell id
+		result.push_back(bonus);
+		break;
+	case 8: //peculiar spells - enchantments
+		bonus->type = Bonus::SPECIAL_PECULIAR_ENCHANT;
+		bonus->subtype = spec.subtype; //spell id
+		bonus->additionalInfo = spec.additionalinfo; //0, 1 for Coronius
+		result.push_back(bonus);
+		break;
+	case 9: //upgrade creatures
+		{
+			const auto &creatures = VLC->creh->creatures;
+			bonus->type = Bonus::SPECIAL_UPGRADE;
+			bonus->subtype = spec.subtype; //base id
+			bonus->additionalInfo = spec.additionalinfo; //target id
+			result.push_back(bonus);
+			//propagate for regular upgrades of base creature
+			for(auto cre_id : creatures[spec.subtype]->upgrades)
+			{
+				bonus = std::make_shared<Bonus>(*bonus);
+				bonus->subtype = cre_id;
+				result.push_back(bonus);
+			}
+		}
+		break;
+	case 10: //resource generation
+		bonus->type = Bonus::GENERATE_RESOURCE;
+		bonus->subtype = spec.subtype;
+		result.push_back(bonus);
+		break;
+	case 11: //starting skill with mastery (Adrienne)
+		logMod->warn("Secondary skill mastery is no longer supported as specialty.");
+		break;
+	case 12: //army speed
+		bonus->type = Bonus::STACKS_SPEED;
+		result.push_back(bonus);
+		break;
+	case 13: //Dragon bonuses (Mutare)
+		bonus->type = Bonus::PRIMARY_SKILL;
+		bonus->valType = Bonus::ADDITIVE_VALUE;
+		switch(spec.subtype)
+		{
+		case 1:
+			bonus->subtype = PrimarySkill::ATTACK;
 			break;
+		case 2:
+			bonus->subtype = PrimarySkill::DEFENSE;
+			break;
+		}
+		bonus->limiter.reset(new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
+		result.push_back(bonus);
+		break;
+	default:
+		logMod->warn("Unknown hero specialty %d", spec.type);
+		break;
 	}
 
 	return result;
