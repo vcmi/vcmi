@@ -815,6 +815,8 @@ void CHeroHandler::afterLoadFinalization()
 				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec))
 					convertedBonuses.push_back(b);
 			}
+			hero->specDeprecated.clear();
+			hero->specialtyDeprecated.clear();
 			// store and create json for logging
 			std::vector<JsonNode> specVec;
 			std::vector<std::string> specNames;
@@ -833,7 +835,6 @@ void CHeroHandler::afterLoadFinalization()
 				}
 				specNames.push_back(bonusName);
 			}
-			hero->specDeprecated.clear();
 			// log new format for easy copy-and-paste
 			JsonNode specNode(JsonNode::JsonType::DATA_STRUCT);
 			if(specVec.size() > 1)
