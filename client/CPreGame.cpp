@@ -673,7 +673,17 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EGameM
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
+		curTab = sel;
 		start  = new CButton(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CSelectionScreen::startScenario, this), SDLK_l);
+
+		if(GameMode == CMenuScreen::EGameMode::MULTI_HOT_SEAT || GameMode == CMenuScreen::EGameMode::MULTI_NETWORK_HOST)
+		{
+			SDL_Color orange = { 232, 184, 32, 0 };
+			SDL_Color overlayColor = isGuest() ? orange : Colors::WHITE;
+
+			CButton *opts = new CButton(Point(411, 510), "GSPBUTT.DEF", CGI->generaltexth->zelp[46], std::bind(&CSelectionScreen::toggleTab, this, opt), SDLK_a);
+			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL, overlayColor);
+		}
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
@@ -782,6 +792,13 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 	else
 	{
 		curTab = nullptr;
+
+		if(screenType == CMenuScreen::loadGame)
+		{
+			curTab = sel;
+			curTab->recActions = 255;
+			curTab->activate();
+		}
 	}
 	GH.totalRedraw();
 }
