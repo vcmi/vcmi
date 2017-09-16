@@ -10,10 +10,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 58 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "walkingDead", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"vokial":
 	{
@@ -26,10 +54,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 62 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "vampire", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 9, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"moandor":
 	{
@@ -42,10 +98,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 64 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "lich", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"charna":
 	{
@@ -58,10 +142,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 60 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "wight", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"tamika":
 	{
@@ -74,10 +186,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 66 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "blackKnight", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 16, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 16, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"isra":
 	{
@@ -89,10 +229,19 @@
 		[
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"necromancy" : {
+					"subtype" : "skill.necromancy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"clavius":
 	{
@@ -105,10 +254,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"galthran":
 	{
@@ -121,10 +275,38 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "armorer", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 56 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "skeleton", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"septienna":
 	{
@@ -137,10 +319,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"deathRipple" : {
+					"subtype" : "spell.deathRipple",
+					"type" : "SPECIAL_SPELL_LEV",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"aislinn":
 	{
@@ -153,10 +340,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "wisdom", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 23, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"meteorShower" : {
+					"subtype" : "spell.meteorShower",
+					"type" : "SPECIAL_SPELL_LEV",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"sandro":
 	{
@@ -169,10 +361,19 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"nimbus":
 	{
@@ -185,10 +386,19 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"thant":
 	{
@@ -201,10 +411,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 39, "subtype": 0, "info": 3 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"summonBoat" : {
+					"subtype" : "spell.summonBoat",
+					"type" : "SPECIAL_SPELL_LEV",
+					"val" : 39
+				}
+			}
+		}
 	},
 	"xsi":
 	{
@@ -217,10 +432,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"vidomina":
 	{
@@ -232,10 +452,19 @@
 		[
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"necromancy" : {
+					"subtype" : "skill.necromancy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"nagash":
 	{
@@ -248,9 +477,14 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	}
 }

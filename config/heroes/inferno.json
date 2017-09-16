@@ -8,10 +8,38 @@
 		[
 			{ "skill" : "scouting", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 46 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "hellHound", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 6, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"rashka":
 	{
@@ -23,10 +51,38 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 52 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "efreet", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 16, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 12, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"marius":
 	{
@@ -37,10 +93,38 @@
 		[
 			{ "skill" : "armorer", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 48 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "demon", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"ignatius":
 	{
@@ -52,10 +136,38 @@
 			{ "skill" : "tactics", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "imp", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"octavia":
 	{
@@ -67,10 +179,15 @@
 			{ "skill" : "scholar", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"calh":
 	{
@@ -82,10 +199,38 @@
 			{ "skill" : "archery", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "imp", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"pyre":
 	{
@@ -97,10 +242,38 @@
 			{ "skill" : "artillery", "level": "basic" },
 			{ "skill" : "logistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "ballista", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"nymus":
 	{
@@ -111,10 +284,38 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 50 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "pitFiend", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"ayden":
 	{
@@ -127,10 +328,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"intelligence" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"xyron":
 	{
@@ -143,10 +353,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 22, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"inferno" : {
+					"subtype" : "spell.inferno",
+					"type" : "SPECIAL_SPELL_LEV",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"axsis":
 	{
@@ -159,10 +374,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"mysticism" : {
+					"subtype" : "skill.mysticism",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"olema":
 	{
@@ -175,10 +399,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "ballistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"calid":
 	{
@@ -191,10 +420,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 1, "subtype": 3, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sulfur" : {
+					"subtype" : "resource.sulfur",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"ash":
 	{
@@ -207,10 +441,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 43, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"bloodlust" : {
+					"addInfo" : 0,
+					"subtype" : "spell.bloodlust",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"zydar":
 	{
@@ -223,10 +462,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"xarfax":
 	{
@@ -239,9 +487,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 21, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"fireball" : {
+					"subtype" : "spell.fireball",
+					"type" : "SPECIAL_SPELL_LEV",
+					"val" : 3
+				}
+			}
+		}
 	}
 }
