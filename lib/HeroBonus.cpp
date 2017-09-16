@@ -319,17 +319,6 @@ void BonusList::eliminateDuplicates()
 	bonuses.erase( unique( bonuses.begin(), bonuses.end() ), bonuses.end() );
 }
 
-bool BonusList::updateBonuses(const CBonusSystemNode & context)
-{
-	bool updated = false;
-	for(std::shared_ptr<Bonus> b : *this)
-	{
-		if(b->updater)
-			updated = b->updater->update(*b, context) || updated;
-	}
-	return updated;
-}
-
 void BonusList::push_back(std::shared_ptr<Bonus> x)
 {
 	bonuses.push_back(x);
@@ -591,22 +580,28 @@ void CBonusSystemNode::getParents(TNodes &out)
 
 void CBonusSystemNode::getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const
 {
+	BonusList beforeUpdate;
 	FOREACH_CPARENT(p)
 	{
-		p->getBonusesRec(out, selector, limit);
+		p->getBonusesRec(beforeUpdate, selector, limit);
 	}
+	bonuses.getBonuses(beforeUpdate, selector, limit);
 
-	bonuses.getBonuses(out, selector, limit);
+	for(auto b : beforeUpdate)
+		out.push_back(update(b));
 }
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
+	BonusList beforeUpdate;
 	FOREACH_CPARENT(p)
 	{
-		p->getAllBonusesRec(out);
+		p->getAllBonusesRec(beforeUpdate);
 	}
+	bonuses.getAllBonuses(beforeUpdate);
 
-	bonuses.getAllBonuses(out);
+	for(auto b : beforeUpdate)
+		out.push_back(update(b));
 }
 
 const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
@@ -696,6 +691,13 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 		afterLimiting.getBonuses(*ret, selector, limit);
 	}
 	return ret;
+}
+
+const std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> b) const
+{
+	if(b->updater)
+		return b->updater->update(b, *this);
+	return b;
 }
 
 CBonusSystemNode::CBonusSystemNode()
@@ -809,14 +811,6 @@ void CBonusSystemNode::reduceBonusDurations(const CSelector &s)
 		child->reduceBonusDurations(s);
 }
 
-void CBonusSystemNode::updateBonuses()
-{
-	bool updated = bonuses.updateBonuses(*this);
-	updated = exportedBonuses.updateBonuses(*this) || updated;
-	if(updated)
-		treeHasChanged();
-}
-
 void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	//turnsRemain shouldn't be zero for following durations
@@ -828,8 +822,6 @@ void CBonusSystemNode::addNewBonus(const std::shared_ptr<Bonus>& b)
 	assert(!vstd::contains(exportedBonuses, b));
 	exportedBonuses.push_back(b);
 	exportBonus(b);
-	if(b->updater)
-		b->updater->update(*b, *this);
 	CBonusSystemNode::treeHasChanged();
 }
 
@@ -1707,7 +1699,7 @@ ScalingUpdater::ScalingUpdater(int valPer20, int stepSize) : valPer20(valPer20),
 {
 }
 
-bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context) const
+const std::shared_ptr<Bonus> ScalingUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -1715,13 +1707,12 @@ bool ScalingUpdater::update(Bonus & b, const CBonusSystemNode & context) const
 		int steps = stepSize ? level / stepSize : level;
 		//rounding follows format for HMM3 creature specialty bonus
 		int newVal = (valPer20 * steps + 19) / 20;
-		if(b.val != newVal)
-		{
-			b.val = newVal;
-			return true;
-		}
+		//return copy of bonus with updated val
+		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		newBonus->val = newVal;
+		return newBonus;
 	}
-	return false;
+	return b;
 }
 
 std::string ScalingUpdater::toString() const

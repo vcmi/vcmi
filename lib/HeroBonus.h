@@ -490,7 +490,6 @@ public:
 	int valOfBonuses(const CSelector &select) const;
 
 	void eliminateDuplicates();
-	bool updateBonuses(const CBonusSystemNode & node);
 
 	// remove_if implementation for STL vector types
 	template <class Predicate>
@@ -675,6 +674,7 @@ private:
 	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
 	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
+	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b) const;
 
 public:
 	explicit CBonusSystemNode();
@@ -716,8 +716,6 @@ public:
 	void popBonuses(const CSelector &s);
 	///updates count of remaining turns and removes outdated bonuses by selector
 	void reduceBonusDurations(const CSelector &s);
-	//run updaters attached to bonuses
-	void updateBonuses();
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
@@ -1030,7 +1028,7 @@ class DLL_LINKAGE IUpdater
 public:
 	virtual ~IUpdater();
 
-	virtual bool update(Bonus & b, const CBonusSystemNode & context) const = 0;
+	virtual const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const = 0;
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const = 0;
 
@@ -1055,7 +1053,7 @@ public:
 		h & stepSize;
 	}
 
-	bool update(Bonus & b, const CBonusSystemNode & context) const override;
+	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };

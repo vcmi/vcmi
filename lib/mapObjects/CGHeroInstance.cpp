@@ -524,7 +524,6 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
-	updateBonuses();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 	type->name = name;
@@ -1255,8 +1254,8 @@ void CGHeroInstance::levelUp(std::vector<SecondarySkill> skills)
 		}
 	}
 
-	//specialty and other bonuses that scale with level
-	updateBonuses();
+	//update specialty and other bonuses that scale with level
+	treeHasChanged();
 }
 
 void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)
