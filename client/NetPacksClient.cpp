@@ -420,6 +420,11 @@ void TryMoveHero::applyCl(CClient *cl)
 		CGI->mh->printObject(h);
 }
 
+bool TryMoveHero::stopMovement() const
+{
+	return result != SUCCESS && result != EMBARK && result != DISEMBARK && result != TELEPORTATION;
+}
+
 void NewStructures::applyCl(CClient *cl)
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);

@@ -308,7 +308,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		}
 	}
 
-	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
+	if(details.stopMovement()) //hero failed to move
 	{
 		hero->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);

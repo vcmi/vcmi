@@ -634,6 +634,8 @@ struct TryMoveHero : public CPackForClient
 
 	bool humanKnows; //used locally during applying to client
 
+	bool stopMovement() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id;
