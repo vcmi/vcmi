@@ -1173,7 +1173,7 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode("creature." + CreatureID::encode(subtype));
 	case Bonus::GENERATE_RESOURCE:
-		return JsonUtils::stringNode(GameConstants::RESOURCE_NAMES[subtype]);
+		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
 	default:
 		return JsonUtils::intNode(subtype);
 	}
@@ -1202,7 +1202,7 @@ JsonNode Bonus::toJsonNode() const
 	if(val != 0)
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
-		root["valType"].String() = vstd::findKey(bonusValueMap, valType);
+		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
 	if(limiter)
 		root["limiters"].Vector().push_back(limiter->toJsonNode());
 	if(updater)
