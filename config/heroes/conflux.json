@@ -93,8 +93,8 @@
 					"type" : "PRIMARY_SKILL",
 					"val" : 1
 				},
-				"attack2" : {
-					"subtype" : "primSkill.attack",
+				"defence" : {
+					"subtype" : "primSkill.defence",
 					"type" : "PRIMARY_SKILL",
 					"val" : 2
 				}

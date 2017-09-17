@@ -125,7 +125,7 @@
 					"subtype" : "skill.navigation",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"updater" : {
-						"parameters" : [ 40 ],
+						"parameters" : [ 100 ],
 						"type" : "GROWS_WITH_LEVEL"
 					},
 					"valueType" : "PERCENT_TO_BASE"

@@ -295,13 +295,12 @@
 						"type" : "HAS_ANOTHER_BONUS_LIMITER"
 					}
 				],
-				"subtype" : "primSkill.attack",
 				"type" : "PRIMARY_SKILL",
-				"val" : 1
+				"val" : 5
 			},
 			"bonuses" : {
-				"attack" : {  },
-				"attack2" : {  }
+				"attack" : { "subtype" : "primSkill.attack" },
+				"defence" : { "subtype" : "primSkill.defence" }
 			}
 		},
 		"army" :

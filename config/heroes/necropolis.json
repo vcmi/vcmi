@@ -413,10 +413,10 @@
 		],
 		"specialty" : {
 			"bonuses" : {
-				"summonBoat" : {
-					"subtype" : "spell.summonBoat",
+				"animateDead" : {
+					"subtype" : "spell.animateDead",
 					"type" : "SPECIAL_SPELL_LEV",
-					"val" : 39
+					"val" : 3
 				}
 			}
 		}
