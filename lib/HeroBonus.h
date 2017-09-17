@@ -1034,7 +1034,7 @@ public:
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const = 0;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 	}
 };
@@ -1048,7 +1048,7 @@ public:
 	ScalingUpdater();
 	ScalingUpdater(int valPer20, int stepSize = 1);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<IUpdater &>(*this);
 		h & valPer20;

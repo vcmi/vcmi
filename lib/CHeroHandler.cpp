@@ -492,9 +492,9 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 			//propagate for regular upgrades of base creature
 			for(auto cre_id : creatures[spec.subtype]->upgrades)
 			{
-				bonus = std::make_shared<Bonus>(*bonus);
-				bonus->subtype = cre_id;
-				result.push_back(bonus);
+				std::shared_ptr<Bonus> upgradeUpgradedVersion = std::make_shared<Bonus>(*bonus);
+				upgradeUpgradedVersion->subtype = cre_id;
+				result.push_back(upgradeUpgradedVersion);
 			}
 		}
 		break;
@@ -613,10 +613,10 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		for(const JsonNode &specialty : specialtiesNode.Vector())
 		{
 			SSpecialtyInfo spec;
-			spec.type = specialty["type"].Float();
-			spec.val = specialty["val"].Float();
-			spec.subtype = specialty["subtype"].Float();
-			spec.additionalinfo = specialty["info"].Float();
+			spec.type = specialty["type"].Integer();
+			spec.val = specialty["val"].Integer();
+			spec.subtype = specialty["subtype"].Integer();
+			spec.additionalinfo = specialty["info"].Integer();
 			//we convert after loading completes, to have all identifiers for json logging
 			hero->specDeprecated.push_back(spec);
 		}

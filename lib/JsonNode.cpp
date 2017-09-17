@@ -648,7 +648,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
 
 	value = &ability["updater"];
-	if (!value->isNull())
+	if(!value->isNull())
 	{
 		const JsonNode & updaterJson = *value;
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")

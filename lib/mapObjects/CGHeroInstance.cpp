@@ -540,7 +540,7 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 			updateSkill(SecondarySkill(skill_info.first), level);
 }
 
-void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial*> & specialtyDeprecated)
+void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
 {
 	auto HeroSpecialToSpecialtyBonus = [](HeroSpecial & hs) -> SSpecialtyBonus
 	{
