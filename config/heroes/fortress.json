@@ -9,10 +9,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 106 }
-		],		
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "basilisk", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 11, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 11, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		},
 		"army" :
 		[
 			{
@@ -39,10 +67,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 98 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "gnoll", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"wystan":
 	{
@@ -54,10 +110,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 100 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "lizardman", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 6, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"tazar":
 	{
@@ -68,10 +152,19 @@
 		[
 			{ "skill" : "armorer", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"armorer" : {
+					"subtype" : "skill.armorer",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"alkin":
 	{
@@ -83,10 +176,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 102 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "gorgon", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 14, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"korbac":
 	{
@@ -98,10 +219,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "pathfinding", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 104 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "serpentFly", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 9, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"gerwulf":
 	{
@@ -113,10 +262,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "ballista", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"broghild":
 	{
@@ -128,10 +305,38 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 108 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "wyvern", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 14, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 14, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"mirlanda":
 	{
@@ -143,10 +348,15 @@
 		[
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"rosic":
 	{
@@ -159,10 +369,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"mysticism" : {
+					"subtype" : "skill.mysticism",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"voy":
 	{
@@ -175,10 +394,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "navigation", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 2, "subtype": 5, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"navigation" : {
+					"subtype" : "skill.navigation",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 40 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"verdish":
 	{
@@ -191,10 +419,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "firstAid", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 27, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"firstAid" : {
+					"subtype" : "skill.firstAid",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"merist":
 	{
@@ -207,10 +444,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"styg":
 	{
@@ -223,10 +465,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"andra":
 	{
@@ -239,10 +490,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"intelligence" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"tiva":
 	{
@@ -255,9 +515,18 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	}
 }
