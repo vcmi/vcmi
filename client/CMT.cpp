@@ -54,6 +54,9 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
 #include "gui/CAnimation.h"
+#include "../lib/serializer/Connection.h"
+
+#include <boost/asio.hpp>
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -1327,10 +1330,24 @@ void startGame(StartInfo * options, CConnection *serv)
 	case StartInfo::LOAD_GAME:
 		std::string fname = options->mapname;
 		boost::algorithm::erase_last(fname,".vlgm1");
-        if(!vm.count("loadplayer"))
-            client->loadGame(fname);
-        else
-			client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
+		if(vm.count("loadplayer"))
+			client->loadGame(fname, vm.count("loadserver"), vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(), vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1, vm["loadplayer"].as<int>(), vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
+		else if(SEL->gameMode == CMenuScreen::EGameMode::MULTI_NETWORK_HOST || SEL->gameMode == CMenuScreen::EGameMode::MULTI_NETWORK_GUEST)
+		{			
+			std::vector<std::pair<PlayerColor, PlayerSettings>> humanPlayerInfos;
+			auto selector = [](std::pair<PlayerColor, PlayerSettings> x) -> bool { return x.second.playerID > 0;};
+			std::copy_if(options->playerInfos.begin(), options->playerInfos.end(), std::back_inserter(humanPlayerInfos), selector);
+
+			std::vector<int> humanPlayerIndices;
+			for(auto playerInfo : humanPlayerInfos)
+				humanPlayerIndices.push_back(playerInfo.first.getNum());
+
+			bool isHost = SEL->gameMode == CMenuScreen::EGameMode::MULTI_NETWORK_HOST ? true : false;
+			auto destination = isHost ? serv->socket->local_endpoint() : serv->socket->remote_endpoint();
+			client->loadGame(fname, isHost, humanPlayerIndices, humanPlayerInfos.size(), serv->connectionID, destination.address().to_string(), destination.port());
+		}
+		else
+			client->loadGame(fname);
 		break;
 	}
 	{
