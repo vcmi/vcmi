@@ -881,6 +881,8 @@ public:
 	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype);
 
 	int limit(const BonusLimitationContext &context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

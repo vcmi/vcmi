@@ -927,6 +927,19 @@ JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool prune
 
 JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 {
+	auto addsInfo = [](JsonNode diff) -> bool
+	{
+		switch(diff.getType())
+		{
+		case JsonNode::JsonType::DATA_NULL:
+			return false;
+		case JsonNode::JsonType::DATA_STRUCT:
+			return diff.Struct().size() > 0;
+		default:
+			return true;
+		}
+	};
+
 	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		// subtract individual properties
@@ -936,7 +949,7 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 			if(vstd::contains(base.Struct(), property.first))
 			{
 				const JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
-				if(!propertyDifference.isNull())
+				if(addsInfo(propertyDifference))
 					result[property.first] = propertyDifference;
 			}
 			else
@@ -944,8 +957,6 @@ JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
 				result[property.first] = property.second;
 			}
 		}
-		if(result.Struct().empty())
-			return nullNode;
 		return result;
 	}
 	else

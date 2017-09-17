@@ -1520,6 +1520,32 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 	return NOT_SURE;
 }
 
+std::string HasAnotherBonusLimiter::toString() const
+{
+	char buf[100];
+
+	std::string typeName = vstd::findKey(bonusNameMap, type);
+	if(isSubtypeRelevant)
+		sprintf(buf, "HasAnotherBonusLimiter(type=%s, subtype=%d)",	typeName.c_str(), subtype);
+	else
+		sprintf(buf, "HasAnotherBonusLimiter(type=%s)",	typeName.c_str());
+
+	return std::string(buf);
+}
+
+JsonNode HasAnotherBonusLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+	std::string typeName = vstd::findKey(bonusNameMap, type);
+
+	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(typeName));
+	if(isSubtypeRelevant)
+		root["parameters"].Vector().push_back(JsonUtils::intNode(subtype));
+
+	return root;
+}
+
 IPropagator::~IPropagator()
 {
 
