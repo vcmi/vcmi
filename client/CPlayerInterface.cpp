@@ -1707,12 +1707,10 @@ void CPlayerInterface::update()
 	GH.updateTime();
 	GH.handleEvents();
 
-#ifdef VCMI_ANDROID
-	if (adventureInt && !adventureInt->isActive() && (adventureInt->swipeTargetPosition.x >= 0 || adventureInt->swipeTargetPosition.y >= 0))
-#else // !VCMI_ANDROID
-	if (adventureInt && !adventureInt->isActive() && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
-#endif // !VCMI_ANDROID
-		GH.totalRedraw();
+	if (!adventureInt || adventureInt->isActive())
+		GH.simpleRedraw();
+	else if((adventureInt->swipeEnabled && adventureInt->swipeMovementRequested) || adventureInt->scrollingDir)
+		GH.totalRedraw(); //player forces map scrolling though interface is disabled
 	else
 		GH.simpleRedraw();
 }
