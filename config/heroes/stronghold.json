@@ -9,10 +9,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "ballistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 94 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "cyclop", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 15, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 12, 6 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"gurnisson":
 	{
@@ -24,10 +52,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "ballista", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 10, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"jabarkas":
 	{
@@ -39,10 +95,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 88 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "orc", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 8, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 4, 3 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"shiva":
 	{
@@ -54,10 +138,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 92 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "roc", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 11, 5 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"gretchin":
 	{
@@ -69,10 +181,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "pathfinding", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 84 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "goblin", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"krellion":
 	{
@@ -84,10 +224,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "ogre", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"cragHack":
 	{
@@ -98,10 +266,19 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 22, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"offence" : {
+					"subtype" : "skill.offence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"tyraxor":
 	{
@@ -113,10 +290,38 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 86 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "goblinWolfRider", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 5, 2 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"gird":
 	{
@@ -129,10 +334,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"vey":
 	{
@@ -145,10 +359,38 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "ogre", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 13, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"updater" : {
+						"parameters" : [ 7, 4 ],
+						"type" : "GROWS_WITH_LEVEL"
+					}
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"dessa":
 	{
@@ -161,10 +403,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "logistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"logistics" : {
+					"subtype" : "skill.logistics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"terek":
 	{
@@ -177,10 +428,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"haste" : {
+					"addInfo" : 0,
+					"subtype" : "spell.haste",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"zubin":
 	{
@@ -193,10 +449,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 44, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"precision" : {
+					"addInfo" : 0,
+					"subtype" : "spell.precision",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"gundula":
 	{
@@ -209,10 +470,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"oris":
 	{
@@ -225,10 +495,19 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : {
+						"parameters" : [ 100 ],
+						"type" : "GROWS_WITH_LEVEL"
+					},
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"saurug":
 	{
@@ -241,9 +520,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 1, "subtype": 5, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gems" : {
+					"subtype" : "resource.gems",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 1
+				}
+			}
+		}
 	}
 }
