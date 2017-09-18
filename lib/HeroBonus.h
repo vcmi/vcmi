@@ -1013,7 +1013,7 @@ extern DLL_LINKAGE const std::map<std::string, ui16> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect;
 extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
 extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
-
+extern DLL_LINKAGE const std::map<std::string, TUpdaterPtr> bonusUpdaterMap;
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>
@@ -1030,29 +1030,44 @@ class DLL_LINKAGE IUpdater
 public:
 	virtual ~IUpdater();
 
-	virtual const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const = 0;
+	virtual const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const;
 	virtual std::string toString() const;
-	virtual JsonNode toJsonNode() const = 0;
+	virtual JsonNode toJsonNode() const;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 	}
 };
 
-class DLL_LINKAGE ScalingUpdater : public IUpdater
+class DLL_LINKAGE GrowsWithLevelUpdater : public IUpdater
 {
 public:
 	int valPer20;
 	int stepSize;
 
-	ScalingUpdater();
-	ScalingUpdater(int valPer20, int stepSize = 1);
+	GrowsWithLevelUpdater();
+	GrowsWithLevelUpdater(int valPer20, int stepSize = 1);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<IUpdater &>(*this);
 		h & valPer20;
 		h & stepSize;
+	}
+
+	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
+{
+public:
+	TimesHeroLevelUpdater();
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<IUpdater &>(*this);
 	}
 
 	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;

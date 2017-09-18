@@ -136,7 +136,8 @@ void registerTypesMapObjectTypes(Serializer &s)
 
 #undef REGISTER_GENERIC_HANDLER
 
-	s.template registerType<IUpdater, ScalingUpdater>();
+	s.template registerType<IUpdater, GrowsWithLevelUpdater>();
+	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
 	//new types (other than netpacks) must register here
 	//order of type registration is critical for loading old savegames
 }

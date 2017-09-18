@@ -408,12 +408,12 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 			int stepSize = specCreature.level ? specCreature.level : 5;
 
 			bonus->subtype = PrimarySkill::ATTACK;
-			bonus->updater.reset(new ScalingUpdater(specCreature.getAttack(false), stepSize));
+			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
 			result.push_back(bonus);
 
 			bonus = std::make_shared<Bonus>(*bonus);
 			bonus->subtype = PrimarySkill::DEFENSE;
-			bonus->updater.reset(new ScalingUpdater(specCreature.getDefence(false), stepSize));
+			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefence(false), stepSize));
 			result.push_back(bonus);
 		}
 		break;
@@ -421,8 +421,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		bonus->type = Bonus::SECONDARY_SKILL_PREMY;
 		bonus->valType = Bonus::PERCENT_TO_BASE;
 		bonus->subtype = spec.subtype;
-		bonus->val = 0;
-		bonus->updater.reset(new ScalingUpdater(spec.val * 20));
+		bonus->updater.reset(new TimesHeroLevelUpdater());
 		result.push_back(bonus);
 		break;
 	case 3: //spell damage bonus, level dependent but calculated elsewhere
@@ -548,8 +547,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 				break; // ignore - used to be overwritten based on SPECIAL_SECONDARY_SKILL
 			case Bonus::SPECIAL_SECONDARY_SKILL:
 				newBonus->type = Bonus::SECONDARY_SKILL_PREMY;
-				newBonus->updater = std::make_shared<ScalingUpdater>(newBonus->val * 20);
-				newBonus->val = 0; // for json printing
+				newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
 				result.push_back(newBonus);
 				break;
 			case Bonus::PRIMARY_SKILL:
@@ -561,7 +559,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 						const CCreature * cre = creatureLimiter->creature;
 						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefence(false);
 						int creLevel = cre->level ? cre->level : 5;
-						newBonus->updater = std::make_shared<ScalingUpdater>(creStat, creLevel);
+						newBonus->updater = std::make_shared<GrowsWithLevelUpdater>(creStat, creLevel);
 					}
 					result.push_back(newBonus);
 				}

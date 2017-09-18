@@ -81,6 +81,11 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
 }; //untested
 
+const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
+{
+	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()}
+};
+
 ///CBonusProxy
 CBonusProxy::CBonusProxy(const IBonusBearer * Target, CSelector Selector)
 	: cachedLast(0),
@@ -1712,20 +1717,30 @@ IUpdater::~IUpdater()
 {
 }
 
+const std::shared_ptr<Bonus> IUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+{
+	return b;
+}
+
 std::string IUpdater::toString() const
 {
 	return typeid(*this).name();
 }
 
-ScalingUpdater::ScalingUpdater() : valPer20(0), stepSize(1)
+JsonNode IUpdater::toJsonNode() const
+{
+	return JsonNode(JsonNode::JsonType::DATA_NULL);
+}
+
+GrowsWithLevelUpdater::GrowsWithLevelUpdater() : valPer20(0), stepSize(1)
 {
 }
 
-ScalingUpdater::ScalingUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
+GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
 {
 }
 
-const std::shared_ptr<Bonus> ScalingUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+const std::shared_ptr<Bonus> GrowsWithLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -1741,14 +1756,14 @@ const std::shared_ptr<Bonus> ScalingUpdater::update(const std::shared_ptr<Bonus>
 	return b;
 }
 
-std::string ScalingUpdater::toString() const
+std::string GrowsWithLevelUpdater::toString() const
 {
 	char buf[100];
-	sprintf(buf, "ScalingUpdater(valPer20=%d, stepSize=%d)", valPer20, stepSize);
+	sprintf(buf, "GrowsWithLevelUpdater(valPer20=%d, stepSize=%d)", valPer20, stepSize);
 	return std::string(buf);
 }
 
-JsonNode ScalingUpdater::toJsonNode() const
+JsonNode GrowsWithLevelUpdater::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
@@ -1758,4 +1773,30 @@ JsonNode ScalingUpdater::toJsonNode() const
 		root["parameters"].Vector().push_back(JsonUtils::intNode(stepSize));
 
 	return root;
+}
+
+TimesHeroLevelUpdater::TimesHeroLevelUpdater()
+{
+}
+
+const std::shared_ptr<Bonus> TimesHeroLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+{
+	if(context.getNodeType() == CBonusSystemNode::HERO)
+	{
+		int level = static_cast<const CGHeroInstance &>(context).level;
+		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		newBonus->val *= level;
+		return newBonus;
+	}
+	return b;
+}
+
+std::string TimesHeroLevelUpdater::toString() const
+{
+	return "TimesHeroLevelUpdater";
+}
+
+JsonNode TimesHeroLevelUpdater::toJsonNode() const
+{
+	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
 }

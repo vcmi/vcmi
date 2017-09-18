@@ -651,17 +651,25 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if(!value->isNull())
 	{
 		const JsonNode & updaterJson = *value;
-		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+		switch(updaterJson.getType())
 		{
-			std::shared_ptr<ScalingUpdater> updater = std::make_shared<ScalingUpdater>();
-			const JsonVector param = updaterJson["parameters"].Vector();
-			updater->valPer20 = param[0].Integer();
-			if(param.size() > 1)
-				updater->stepSize = param[1].Integer();
-			b->addUpdater(updater);
+		case JsonNode::JsonType::DATA_STRING:
+			b->addUpdater(parseByMap(bonusUpdaterMap, &updaterJson, "updater type "));
+			break;
+		case JsonNode::JsonType::DATA_STRUCT:
+			if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+			{
+				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+				const JsonVector param = updaterJson["parameters"].Vector();
+				updater->valPer20 = param[0].Integer();
+				if(param.size() > 1)
+					updater->stepSize = param[1].Integer();
+				b->addUpdater(updater);
+			}
+			else
+				logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+			break;
 		}
-		else
-			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
 	}
 
 	return true;

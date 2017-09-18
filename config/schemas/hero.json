@@ -115,7 +115,7 @@
 			"additionalItems" : true
 		},
 		"specialty": {
-			"oneOf" : [
+			"anyOf" : [
 				{
 					"type":"array",
 					"description": "Description of hero specialty using bonus system (deprecated)",
