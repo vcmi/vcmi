@@ -205,10 +205,8 @@
 				"logistics" : {
 					"subtype" : "skill.logistics",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -337,10 +335,8 @@
 				"mysticism" : {
 					"subtype" : "skill.mysticism",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -362,10 +358,8 @@
 				"sorcery" : {
 					"subtype" : "skill.sorcery",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -407,10 +401,8 @@
 				"eagleEye" : {
 					"subtype" : "skill.eagleEye",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}

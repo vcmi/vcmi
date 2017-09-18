@@ -122,10 +122,8 @@
 				"navigation" : {
 					"subtype" : "skill.navigation",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -147,10 +145,8 @@
 				"estates" : {
 					"subtype" : "skill.estates",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -301,10 +297,8 @@
 				"firstAid" : {
 					"subtype" : "skill.firstAid",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
@@ -433,10 +427,8 @@
 				"eagleEye" : {
 					"subtype" : "skill.eagleEye",
 					"type" : "SECONDARY_SKILL_PREMY",
-					"updater" : {
-						"parameters" : [ 100 ],
-						"type" : "GROWS_WITH_LEVEL"
-					},
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
 					"valueType" : "PERCENT_TO_BASE"
 				}
 			}
