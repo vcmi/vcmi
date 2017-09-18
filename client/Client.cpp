@@ -1081,9 +1081,7 @@ CServerHandler::CServerHandler(bool runServer)
 	catch(...)
 	{
 		vstd::clear_pointer(shared);
-		logNetwork->error("Cannot open interprocess memory.");
-		handleException();
-		throw;
+		logNetwork->error("Cannot open interprocess memory. Continue without it...");
 	}
 #endif
 }
