@@ -83,7 +83,8 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 
 const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
 {
-	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()}
+	{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
+	{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()}
 };
 
 ///CBonusProxy
@@ -1799,4 +1800,43 @@ std::string TimesHeroLevelUpdater::toString() const
 JsonNode TimesHeroLevelUpdater::toJsonNode() const
 {
 	return JsonUtils::stringNode("TIMES_HERO_LEVEL");
+}
+
+TimesStackLevelUpdater::TimesStackLevelUpdater()
+{
+}
+
+const std::shared_ptr<Bonus> TimesStackLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+{
+	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
+	{
+		int level = static_cast<const CStackInstance &>(context).getLevel();
+		std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+		newBonus->val *= level;
+		return newBonus;
+	}
+	else if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	{
+		const CStack & stack = static_cast<const CStack &>(context);
+		//only update if stack doesn't have an instance (summons, war machines)
+		//otherwise we'd end up multiplying twice
+		if(stack.base == nullptr)
+		{
+			int level = stack.type->level;
+			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*b);
+			newBonus->val *= level;
+			return newBonus;
+		}
+	}
+	return b;
+}
+
+std::string TimesStackLevelUpdater::toString() const
+{
+	return "TimesStackLevelUpdater";
+}
+
+JsonNode TimesStackLevelUpdater::toJsonNode() const
+{
+	return JsonUtils::stringNode("TIMES_STACK_LEVEL");
 }

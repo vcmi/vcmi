@@ -138,6 +138,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 
 	s.template registerType<IUpdater, GrowsWithLevelUpdater>();
 	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
+	s.template registerType<IUpdater, TimesStackLevelUpdater>();
 	//new types (other than netpacks) must register here
 	//order of type registration is critical for loading old savegames
 }

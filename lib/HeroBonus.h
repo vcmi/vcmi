@@ -1074,3 +1074,18 @@ public:
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
+
+class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
+{
+public:
+	TimesStackLevelUpdater();
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<IUpdater &>(*this);
+	}
+
+	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
+};
