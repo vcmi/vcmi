@@ -1069,12 +1069,27 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		}
 	}
 	waitForAnims();
-	int targets = 0, killed = 0, damage = 0;
-	for (auto & attackedInfo : attackedInfos)
+
+	std::array<int, 2> killedBySide = {0, 0};
+
+	int targets = 0, damage = 0;
+	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		killed += attackedInfo.amountKilled;
 		damage += attackedInfo.dmg;
+
+		ui8 side = attackedInfo.defender->side;
+		killedBySide.at(side) += attackedInfo.amountKilled;
+	}
+
+	int killed = killedBySide[0] + killedBySide[1];
+
+	for(ui8 side = 0; side < 2; side++)
+	{
+		if(killedBySide.at(side) > killedBySide.at(1-side))
+			setHeroAnimation(side, 2);
+		else if(killedBySide.at(side) < killedBySide.at(1-side))
+			setHeroAnimation(side, 3);
 	}
 
 	for (auto & attackedInfo : attackedInfos)
@@ -1396,6 +1411,14 @@ CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell
 		spellSelMode = OBSTACLE;
 
 	return spellSelMode;
+}
+
+void CBattleInterface::setHeroAnimation(ui8 side, int phase)
+{
+	if(side == BattleSide::ATTACKER)
+		attackingHero->setPhase(phase);
+	else
+		defendingHero->setPhase(phase);
 }
 
 void CBattleInterface::castThisSpell(SpellID spellID)
@@ -1781,13 +1804,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
-	if (action->actionType == Battle::HERO_SPELL)
-	{
-		if (action->side)
-			defendingHero->setPhase(0);
-		else
-			attackingHero->setPhase(0);
-	}
+	if(action->actionType == Battle::HERO_SPELL)
+		setHeroAnimation(action->side, 0);
 
 	if (stack && action->actionType == Battle::WALK &&
 		!creAnims[action->stackNumber]->isIdle()) //walk or walk & attack
@@ -1935,14 +1953,12 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
-	if (action->actionType == Battle::HERO_SPELL) //when hero casts spell
+	if(action->actionType == Battle::HERO_SPELL) //when hero casts spell
 	{
-		if (action->side)
-			defendingHero->setPhase(4);
-		else
-			attackingHero->setPhase(4);
+		setHeroAnimation(action->side, 4);
 		return;
 	}
+
 	if (!stack)
 	{
 		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action->stackNumber);

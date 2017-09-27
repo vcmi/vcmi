@@ -138,11 +138,6 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 		dest(_dest), attackedStack(defender), attackingStack(attacker)
 {
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
-	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT)
-							&& owner->getCurrentPlayerInterface()->cb->battleHexToWallPart(_dest) >= 0;
-
-	assert(attackedStack || isCatapultAttack);
-	UNUSED(isCatapultAttack);
 	attackingStackPosBeforeReturn = attackingStack->position;
 }
 

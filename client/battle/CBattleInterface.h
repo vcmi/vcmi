@@ -265,6 +265,8 @@ private:
 	/** End of battle screen blitting methods */
 
 	PossibleActions getCasterAction(const CSpell *spell, const ISpellCaster *caster, ECastingMode::ECastingMode mode) const;
+
+	void setHeroAnimation(ui8 side, int phase);
 public:
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
