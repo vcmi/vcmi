@@ -294,4 +294,6 @@ public:
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+private:
+	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 };

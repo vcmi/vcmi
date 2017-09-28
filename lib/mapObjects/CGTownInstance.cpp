@@ -157,7 +157,7 @@ void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case ObjProperty::OWNER: //change owner
-			if (ID == Obj::CREATURE_GENERATOR1) //single generators
+			if (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 			{
 				if (tempOwner != PlayerColor::NEUTRAL)
 				{
@@ -546,9 +546,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
 	{
-		for(const CGDwelling *dwelling : p->dwellings)
-			if(vstd::contains(creatures[level].second, dwelling->creatures[0].second[0]))
-				dwellingBonus++;
+		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
 	}
 
 	if(dwellingBonus)
@@ -568,6 +566,17 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::GRAIL, ret.totalGrowth() / 2));
 
 	return ret;
+}
+
+int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const
+{
+	return std::accumulate(dwellings.cbegin(), dwellings.cend(), 0,
+			[&creatureIds] (int count, decltype(dwellings[0])& dwelling) -> int {
+				return count + std::count_if(dwelling->creatures.cbegin(), dwelling->creatures.cend(),
+					[&creatureIds](decltype(dwelling->creatures[0])& creature) -> bool {
+						return vstd::contains(creatureIds, creature.second[0]);
+					});
+			});
 }
 
 TResources CGTownInstance::dailyIncome() const
