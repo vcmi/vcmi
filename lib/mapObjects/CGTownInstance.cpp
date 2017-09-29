@@ -570,13 +570,15 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const
 {
-	return std::accumulate(dwellings.cbegin(), dwellings.cend(), 0,
-			[&creatureIds] (int count, decltype(dwellings[0])& dwelling) -> int {
-				return count + std::count_if(dwelling->creatures.cbegin(), dwelling->creatures.cend(),
-					[&creatureIds](decltype(dwelling->creatures[0])& creature) -> bool {
-						return vstd::contains(creatureIds, creature.second[0]);
-					});
-			});
+	int totalBonus = 0;
+	for (const auto& dwelling : dwellings)
+	{
+		for (const auto& creature : dwelling->creatures)
+		{
+			totalBonus += vstd::contains(creatureIds, creature.second[0]) ? 1 : 0;
+		}
+	}
+	return totalBonus;
 }
 
 TResources CGTownInstance::dailyIncome() const
