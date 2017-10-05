@@ -389,6 +389,18 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		text += CGI->generaltexth->arraytxt[noneTxtId];
 		bonusValue = 0;
 	}
+	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))
+	{
+		auto noMorale = node->getBonus(Selector::type(Bonus::NO_MORALE));
+		text += "\n" + noMorale->Description();
+		bonusValue = 0;
+	}
+	else if (!morale && node && node->hasBonusOfType(Bonus::NO_LUCK))
+	{
+		auto noLuck = node->getBonus(Selector::type(Bonus::NO_LUCK));
+		text += "\n" + noLuck->Description();
+		bonusValue = 0;
+	}
 	else if(modifierList->empty())
 		text += CGI->generaltexth->arraytxt[noneTxtId];//no modifiers
 	else
