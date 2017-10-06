@@ -891,6 +891,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
 				info[0].limiter.numOfGrants = 1;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
+				info[0].message.addReplacement(VLC->arth->artifacts[info[0].reward.artifacts.back()]->Name());
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{

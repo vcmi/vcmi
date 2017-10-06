@@ -1133,12 +1133,7 @@ bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type,
 	if(hasBuilt(building))
 	{
 		std::ostringstream descr;
-		descr << town->buildings.at(building)->Name() << " ";
-		if(val > 0)
-			descr << "+";
-		else if(val < 0)
-			descr << "-";
-		descr << val;
+		descr << town->buildings.at(building)->Name();
 
 		auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, descr.str(), subtype);
 		if(prop)
