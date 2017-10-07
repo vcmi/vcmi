@@ -157,7 +157,8 @@ void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case ObjProperty::OWNER: //change owner
-			if (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
+			if (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR2
+				|| ID == Obj::CREATURE_GENERATOR3 || ID == Obj::CREATURE_GENERATOR4)
 			{
 				if (tempOwner != PlayerColor::NEUTRAL)
 				{
