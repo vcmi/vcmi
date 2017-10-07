@@ -1416,9 +1416,15 @@ CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell
 void CBattleInterface::setHeroAnimation(ui8 side, int phase)
 {
 	if(side == BattleSide::ATTACKER)
-		attackingHero->setPhase(phase);
+	{
+		if(attackingHero)
+			attackingHero->setPhase(phase);
+	}
 	else
-		defendingHero->setPhase(phase);
+	{
+		if(defendingHero)
+			defendingHero->setPhase(phase);
+	}
 }
 
 void CBattleInterface::castThisSpell(SpellID spellID)
