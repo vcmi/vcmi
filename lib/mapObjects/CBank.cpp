@@ -101,9 +101,6 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	ui16 soundID = soundBase::ROGUE;
 	switch (ID)
 	{
-	case Obj::CREATURE_BANK:
-		banktext = 32;
-		break;
 	case Obj::DERELICT_SHIP:
 		banktext = 41;
 		break;
@@ -119,6 +116,10 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	case Obj::PYRAMID:
 		soundID = soundBase::MYSTERY;
 		banktext = 105;
+		break;
+	case Obj::CREATURE_BANK:
+	default:
+		banktext = 32;
 		break;
 	}
 	BlockingDialog bd(true, false);
@@ -141,10 +142,6 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 	{
 		switch (ID)
 		{
-		case Obj::CREATURE_BANK:
-		case Obj::DRAGON_UTOPIA:
-			textID = 34;
-			break;
 		case Obj::DERELICT_SHIP:
 			textID = 43;
 			break;
@@ -156,11 +153,16 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			break;
 		case Obj::PYRAMID:
 			textID = 106;
+			break;
+		case Obj::CREATURE_BANK:
+		case Obj::DRAGON_UTOPIA:
+		default:
+			textID = 34;
+			break;
 		}
 	}
 	else
 	{
-		
 		switch (ID)
 		{
 		case Obj::SHIPWRECK:
@@ -210,7 +212,8 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			iw.text << VLC->generaltexth->advobtxt[33];// This was X, now is completely empty
 			iw.text.addReplacement(getObjectName());
 		}
-		if (textID != -1) {
+		if(textID != -1)
+		{
 			iw.text.addTxt(MetaString::ADVOB_TXT, textID);
 		}
 		cb->showInfoDialog(&iw);
@@ -265,7 +268,8 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			std::set<SpellID> spells;
 
 			bool noWisdom = false;
-			if(textID == 106){
+			if(textID == 106)
+			{
 				iw.text.addTxt(MetaString::ADVOB_TXT, textID); //pyramid
 			}
 			for(const SpellID & spellId : bc->spells)
