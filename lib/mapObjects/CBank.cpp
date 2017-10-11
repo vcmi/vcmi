@@ -126,7 +126,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	bd.player = h->getOwner();
 	bd.soundID = soundID;
 	bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
-	if (ID == Obj::CREATURE_BANK)
+	if (banktext == 32)
 		bd.text.addReplacement(getObjectName());
 	cb->showBlockingDialog(&bd);
 }
