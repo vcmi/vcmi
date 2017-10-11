@@ -199,6 +199,10 @@ void SpellCastContext::beforeCast()
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}
 	}
+
+	sc.activeCast = parameters.mode == ECastingMode::HERO_CASTING ||
+		parameters.mode == ECastingMode::CREATURE_ACTIVE_CASTING ||
+		parameters.mode == ECastingMode::ENCHANTER_CASTING;
 }
 
 void SpellCastContext::afterCast()

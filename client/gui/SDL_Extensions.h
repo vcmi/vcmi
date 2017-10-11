@@ -218,8 +218,10 @@ namespace CSDL_Ext
 	void stopTextInput();
 
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
+
 	///set key-color to 0,255,255
 	void setDefaultColorKey(SDL_Surface * surface);
+
 	///set key-color to 0,255,255 only if it exactly mapped
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
 }

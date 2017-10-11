@@ -1069,12 +1069,27 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		}
 	}
 	waitForAnims();
-	int targets = 0, killed = 0, damage = 0;
-	for (auto & attackedInfo : attackedInfos)
+
+	std::array<int, 2> killedBySide = {0, 0};
+
+	int targets = 0, damage = 0;
+	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		killed += attackedInfo.amountKilled;
 		damage += attackedInfo.dmg;
+
+		ui8 side = attackedInfo.defender->side;
+		killedBySide.at(side) += attackedInfo.amountKilled;
+	}
+
+	int killed = killedBySide[0] + killedBySide[1];
+
+	for(ui8 side = 0; side < 2; side++)
+	{
+		if(killedBySide.at(side) > killedBySide.at(1-side))
+			setHeroAnimation(side, 2);
+		else if(killedBySide.at(side) < killedBySide.at(1-side))
+			setHeroAnimation(side, 3);
 	}
 
 	for (auto & attackedInfo : attackedInfos)
@@ -1266,7 +1281,7 @@ void CBattleInterface::displayBattleFinished()
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 }
 
-void CBattleInterface::spellCast(const BattleSpellCast *sc)
+void CBattleInterface::spellCast(const BattleSpellCast * sc)
 {
 	const SpellID spellID(sc->id);
 	const CSpell & spell = *spellID.toSpell();
@@ -1276,24 +1291,32 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 
+	const auto casterStackID = sc->casterStack;
+	const CStack * casterStack = nullptr;
+	if(casterStackID >= 0)
+	{
+		casterStack = curInt->cb->battleGetStackByID(casterStackID);
+	}
+
 	Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position by default
 	{
-		const auto casterStackID = sc->casterStack;
-
-		if (casterStackID > 0)
+		if(casterStack != nullptr)
 		{
-			const CStack *casterStack = curInt->cb->battleGetStackByID(casterStackID);
-			if (casterStack != nullptr)
-			{
-				srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this);
-				srccoord.x += 250;
-				srccoord.y += 240;
-			}
+			srccoord = CClickableHex::getXYUnitAnim(casterStack->position, casterStack, this);
+			srccoord.x += 250;
+			srccoord.y += 240;
 		}
 	}
 
-	//todo: play custom cast animation
-	displaySpellCast(spellID, BattleHex::INVALID);
+	if(casterStack != nullptr && sc->activeCast)
+	{
+		//todo: custom cast animation for hero
+		displaySpellCast(spellID, casterStack->position);
+
+		addNewAnim(new CCastAnimation(this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile)));
+	}
+
+	waitForAnims(); //wait for cast animation
 
 	//playing projectile animation
 	if (sc->tile.isValid())
@@ -1328,7 +1351,8 @@ void CBattleInterface::spellCast(const BattleSpellCast *sc)
 			addNewAnim(new CEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
 		}
 	}
-	waitForAnims();
+
+	waitForAnims(); //wait for projectile animation
 
 	displaySpellHit(spellID, sc->tile);
 
@@ -1387,6 +1411,20 @@ CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell
 		spellSelMode = OBSTACLE;
 
 	return spellSelMode;
+}
+
+void CBattleInterface::setHeroAnimation(ui8 side, int phase)
+{
+	if(side == BattleSide::ATTACKER)
+	{
+		if(attackingHero)
+			attackingHero->setPhase(phase);
+	}
+	else
+	{
+		if(defendingHero)
+			defendingHero->setPhase(phase);
+	}
 }
 
 void CBattleInterface::castThisSpell(SpellID spellID)
@@ -1772,13 +1810,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
-	if (action->actionType == Battle::HERO_SPELL)
-	{
-		if (action->side)
-			defendingHero->setPhase(0);
-		else
-			attackingHero->setPhase(0);
-	}
+	if(action->actionType == Battle::HERO_SPELL)
+		setHeroAnimation(action->side, 0);
 
 	if (stack && action->actionType == Battle::WALK &&
 		!creAnims[action->stackNumber]->isIdle()) //walk or walk & attack
@@ -1926,14 +1959,12 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
-	if (action->actionType == Battle::HERO_SPELL) //when hero casts spell
+	if(action->actionType == Battle::HERO_SPELL) //when hero casts spell
 	{
-		if (action->side)
-			defendingHero->setPhase(4);
-		else
-			attackingHero->setPhase(4);
+		setHeroAnimation(action->side, 4);
 		return;
 	}
+
 	if (!stack)
 	{
 		logGlobal->error("Something wrong with stackNumber in actionStarted. Stack number: %d", action->stackNumber);

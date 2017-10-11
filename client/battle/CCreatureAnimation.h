@@ -108,7 +108,7 @@ public:
 
 	void playOnce(CCreatureAnim::EAnimType type); //plays once given stage of animation, then resets to 2
 
-	int framesInGroup(CCreatureAnim::EAnimType group) const; //retirns number of fromes in given group
+	int framesInGroup(CCreatureAnim::EAnimType group) const;
 
 	void pause();
 	void play();

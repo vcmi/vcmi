@@ -72,6 +72,9 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::CAST_UP:
 	case CCreatureAnim::CAST_FRONT:
 	case CCreatureAnim::CAST_DOWN:
+	case CCreatureAnim::VCMI_CAST_DOWN:
+	case CCreatureAnim::VCMI_CAST_FRONT:
+	case CCreatureAnim::VCMI_CAST_UP:
 		return speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type);
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
@@ -82,6 +85,10 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::HITTED:
 	case CCreatureAnim::DEFENCE:
 	case CCreatureAnim::DEATH:
+	case CCreatureAnim::DEATH_RANGED:
+	case CCreatureAnim::VCMI_2HEX_DOWN:
+	case CCreatureAnim::VCMI_2HEX_FRONT:
+	case CCreatureAnim::VCMI_2HEX_UP:
 		return speed * 3 / anim->framesInGroup(type);
 
 	case CCreatureAnim::TURN_L:
@@ -93,11 +100,11 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 		return speed / 3;
 
 	case CCreatureAnim::DEAD:
+	case CCreatureAnim::DEAD_RANGED:
 		return speed;
 
 	default:
-		assert(0);
-		return 1;
+		return speed;
 	}
 }
 
@@ -128,9 +135,6 @@ CCreatureAnim::EAnimType CCreatureAnimation::getType() const
 
 void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 {
-	assert(type >= 0);
-	assert(framesInGroup(type) != 0);
-
 	this->type = type;
 	currentFrame = 0;
 	once = false;
@@ -162,6 +166,12 @@ CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedControll
 		reverse->duplicateImage(CCreatureAnim::DEATH, reverse->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
 	}
 
+	if(forward->size(CCreatureAnim::DEAD_RANGED) == 0 && forward->size(CCreatureAnim::DEATH_RANGED) != 0)
+	{
+		forward->duplicateImage(CCreatureAnim::DEATH_RANGED, forward->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
+		reverse->duplicateImage(CCreatureAnim::DEATH_RANGED, reverse->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
+	}
+
 	//TODO: get dimensions form CAnimation
 	IImage * first = forward->getImage(0, type, true);
 
@@ -191,6 +201,7 @@ bool CCreatureAnimation::incrementFrame(float timePassed)
 {
 	elapsedTime += timePassed;
 	currentFrame += timePassed * speed;
+
 	if (currentFrame >= float(framesInGroup(type)))
 	{
 		// just in case of extremely low fps (or insanely high speed)
@@ -271,7 +282,7 @@ void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
+void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
 {
 	size_t frame = floor(currentFrame);
 
@@ -282,12 +293,15 @@ void CCreatureAnimation::nextFrame(SDL_Surface *dest, bool attacker)
 	else
 		image = reverse->getImage(frame, type);
 
-	IImage::BorderPallete borderPallete;
-	genBorderPalette(borderPallete);
+	if(image)
+	{
+		IImage::BorderPallete borderPallete;
+		genBorderPalette(borderPallete);
 
-	image->setBorderPallete(borderPallete);
+		image->setBorderPallete(borderPallete);
 
-	image->draw(dest, pos.x, pos.y);
+		image->draw(dest, pos.x, pos.y);
+	}
 }
 
 int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
@@ -298,7 +312,9 @@ int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 bool CCreatureAnimation::isDead() const
 {
 	return getType() == CCreatureAnim::DEAD
-	    || getType() == CCreatureAnim::DEATH;
+	    || getType() == CCreatureAnim::DEATH
+	    || getType() == CCreatureAnim::DEAD_RANGED
+	    || getType() == CCreatureAnim::DEATH_RANGED;
 }
 
 bool CCreatureAnimation::isIdle() const

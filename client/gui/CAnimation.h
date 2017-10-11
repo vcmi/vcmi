@@ -78,18 +78,17 @@ private:
 
 	bool preloaded;
 
+	CDefFile * defFile;
+
 	//loader, will be called by load(), require opened def file for loading from it. Returns true if image is loaded
-	bool loadFrame(CDefFile * file, size_t frame, size_t group);
+	bool loadFrame(size_t frame, size_t group);
 
 	//unloadFrame, returns true if image has been unloaded ( either deleted or decreased refCount)
 	bool unloadFrame(size_t frame, size_t group);
 
 	//initialize animation from file
 	void initFromJson(const JsonNode & input);
-	void init(CDefFile * file);
-
-	//try to open def file
-	CDefFile * getFile() const;
+	void init();
 
 	//to get rid of copy-pasting error message :]
 	void printError(size_t frame, size_t group, std::string type) const;
@@ -99,7 +98,6 @@ private:
 	IImage * getFromExtraDef(std::string filename);
 
 public:
-
 	CAnimation(std::string Name, bool Compressed = false);
 	CAnimation();
 	~CAnimation();

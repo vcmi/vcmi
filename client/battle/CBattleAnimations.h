@@ -197,8 +197,16 @@ struct ProjectileInfo
 	std::shared_ptr<CatapultProjectileInfo> catapultInfo; // holds info about the parabolic trajectory of the cannon
 };
 
+class CRangedAttackAnimation : public CAttackAnimation
+{
+public:
+	CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender);
+protected:
+
+};
+
 /// Shooting attack
-class CShootingAnimation : public CAttackAnimation
+class CShootingAnimation : public CRangedAttackAnimation
 {
 private:
 	int catapultDamage;
@@ -212,6 +220,18 @@ public:
 		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0);
 	virtual ~CShootingAnimation(){};
 };
+
+class CCastAnimation : public CRangedAttackAnimation
+{
+public:
+	CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender);
+
+	bool init() override;
+	void nextFrame() override;
+	void endAnim() override;
+
+};
+
 
 /// This class manages effect animation
 class CEffectAnimation : public CBattleAnimation
