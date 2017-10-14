@@ -1450,7 +1450,7 @@ void CAltarWindow::updateRight(CTradeableItem *toUpdate)
 {
 	int val = sacrificedUnits[toUpdate->serial];
 	toUpdate->setType(val ? CREATURE : CREATURE_PLACEHOLDER);
-	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(val * expPerUnit[toUpdate->serial])) : ""; //%s exp
+	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(hero->calculateXp(val * expPerUnit[toUpdate->serial]))) : ""; //%s exp
 }
 
 int CAltarWindow::firstFreeSlot()
@@ -1495,6 +1495,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+		val = hero->calculateXp(val);
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
 }
@@ -1520,6 +1521,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 
 	int dmp, val;
 	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+	val = hero->calculateXp(val);
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);

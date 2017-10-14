@@ -5467,7 +5467,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	int expSum = 0;
 	auto finish = [this, &hero, &expSum]()
 	{
-		changePrimSkill(hero, PrimarySkill::EXPERIENCE, expSum);
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
 	};
 
 	for (int i = 0; i < slot.size(); ++i)
