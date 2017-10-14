@@ -1231,12 +1231,19 @@ void CAltarWindow::makeDeal()
 		blockTrade();
 		slider->moveTo(0);
 
-		std::vector<int> toSacrifice = sacrificedUnits;
-		for (int i = 0; i < toSacrifice.size(); i++)
+		std::vector<int> ids;
+		std::vector<int> toSacrifice;
+
+		for (int i = 0; i < sacrificedUnits.size(); i++)
 		{
-			if(toSacrifice[i])
-				LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
+			if(sacrificedUnits[i])
+			{
+				ids.push_back(i);
+				toSacrifice.push_back(sacrificedUnits[i]);
+			}
 		}
+
+		LOCPLINT->cb->trade(market->o, mode, ids, {}, toSacrifice, hero);
 
 		for(int& val : sacrificedUnits)
 			val = 0;
@@ -1249,10 +1256,13 @@ void CAltarWindow::makeDeal()
 	}
 	else
 	{
+		std::vector<int> positions;
 		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
 		{
-			LOCPLINT->cb->trade(market->o, mode, hero->getArtPos(art), -1, 1, hero);
+			positions.push_back(hero->getArtPos(art));
 		}
+
+		LOCPLINT->cb->trade(market->o, mode, positions, {}, {}, hero);
 		arts->artifactsOnAltar.clear();
 
 		for(CTradeableItem *t : items[0])

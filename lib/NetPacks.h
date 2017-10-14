@@ -2196,14 +2196,14 @@ struct BuyArtifact : public CPackForServer
 struct TradeOnMarketplace : public CPackForServer
 {
 	TradeOnMarketplace()
-		:market(nullptr), hero(nullptr), mode(EMarketMode::RESOURCE_RESOURCE), r1(0), r2(0), val(0)
+		:market(nullptr), hero(nullptr), mode(EMarketMode::RESOURCE_RESOURCE)
 	{};
 
 	const CGObjectInstance *market; //todo: replace with ObjectInstanceID
 	const CGHeroInstance *hero; //needed when trading artifacts / creatures
 	EMarketMode::EMarketMode mode;
-	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res (exception: when sacrificing art r1 is art id [todo: make r2 preferred slot?]
-	ui32 val; //units of sold resource
+	std::vector<ui32> r1, r2; //mode 0: r1 - sold resource, r2 - bought res (exception: when sacrificing art r1 is art id [todo: make r2 preferred slot?]
+	std::vector<ui32> val; //units of sold resource
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)

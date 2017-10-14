@@ -5418,50 +5418,89 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 	}
 }
 
-bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, SlotID slot, ui32 count)
+bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, std::vector<SlotID> slot, std::vector<ui32> count)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice creature!");
 
-	int oldCount = hero->getStackCount(slot);
+	int expSum = 0;
+	auto finish = [this, &hero, &expSum]()
+	{
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
+	};
 
-	if (oldCount < count)
-		COMPLAIN_RET("Not enough creatures to sacrifice!")
-	else if (oldCount == count && hero->stacksCount() == 1 && hero->needsLastStack())
-		COMPLAIN_RET("Cannot sacrifice last creature!");
+	for (int i = 0; i < slot.size(); ++i)
+	{
+		int oldCount = hero->getStackCount(slot[i]);
 
-	int crid = hero->getStack(slot).type->idNumber;
+		if (oldCount < count[i])
+		{
+			finish();
+			COMPLAIN_RET("Not enough creatures to sacrifice!")
+		}
+		else if (oldCount == count[i] && hero->stacksCount() == 1 && hero->needsLastStack())
+		{
+			finish();
+			COMPLAIN_RET("Cannot sacrifice last creature!");
+		}
 
-	changeStackCount(StackLocation(hero, slot), -count);
+		int crid = hero->getStack(slot[i]).type->idNumber;
 
-	int dump, exp;
-	market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
-	exp *= count;
-	changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(exp));
+		changeStackCount(StackLocation(hero, slot[i]), -count[i]);
+
+		int dump, exp;
+		market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
+		exp *= count[i];
+		expSum += exp;
+	}
+
+	finish();
 
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, std::vector<ArtifactPosition> slot)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
 
-	ArtifactLocation al(hero, slot);
-	const CArtifactInstance *a = al.getArt();
+	int expSum = 0;
+	auto finish = [this, &hero, &expSum]()
+	{
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, expSum);
+	};
 
-	COMPLAIN_RET_FALSE_IF(!a,"Cannot find artifact to sacrifice!");
+	for (int i = 0; i < slot.size(); ++i)
+	{
+		ArtifactLocation al(hero, slot[i]);
+		const CArtifactInstance *a = al.getArt();
 
-	int dmp, expToGive;
-	const CArtifactInstance * art = hero->getArt(slot);
-	COMPLAIN_RET_FALSE_IF((!art), "No artifact at position to sacrifice!");
+		if (!a)
+		{
+			finish();
+			COMPLAIN_RET("Cannot find artifact to sacrifice!");
+		}
 
-	si32 typId = art->artType->id;
+		const CArtifactInstance * art = hero->getArt(slot[i]);
 
-	m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+		if (!art)
+		{
+			finish();
+			COMPLAIN_RET("No artifact at position to sacrifice!");
+		}
 
-	removeArtifact(al);
-	changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
+		si32 typId = art->artType->id;
+		int dmp, expToGive;
+
+		m->getOffer(typId, 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
+
+		expSum += expToGive;
+
+		removeArtifact(al);
+	}
+
+	finish();
+
 	return true;
 }
 

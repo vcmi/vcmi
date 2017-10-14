@@ -57,6 +57,7 @@ public:
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
 	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = nullptr)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, std::vector<int> id1, std::vector<int> id2, std::vector<int> val1, const CGHeroInstance *hero = nullptr)=0;
 
 	virtual int selectionMade(int selection, QueryID queryID) =0;
 	virtual int sendQueryReply(const JsonNode & reply, QueryID queryID) =0;
@@ -139,6 +140,7 @@ public:
 	void swapGarrisonHero(const CGTownInstance *town) override;
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) override;
 	void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = nullptr) override;
+	void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, std::vector<int> id1, std::vector<int> id2, std::vector<int> val1, const CGHeroInstance *hero = nullptr) override;
 	void setFormation(const CGHeroInstance * hero, bool tight) override;
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero) override;
 	void save(const std::string &fname) override;
