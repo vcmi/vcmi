@@ -218,9 +218,9 @@ void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode m
 	pack.market = market;
 	pack.hero = hero;
 	pack.mode = mode;
-	pack.r1 = std::vector<ui32>{id1};
-	pack.r2 = std::vector<ui32>{id2};
-	pack.val = std::vector<ui32>{val1};
+	pack.r1 = std::vector<ui32>{static_cast<ui32>(id1)};
+	pack.r2 = std::vector<ui32>{static_cast<ui32>(id2)};
+	pack.val = std::vector<ui32>{static_cast<ui32>(val1)};
 	sendRequest(&pack);
 }
 
