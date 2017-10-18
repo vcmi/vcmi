@@ -204,7 +204,7 @@ public:
 	bool buildBoat( ObjectInstanceID objid );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2);
-	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, std::vector<SlotID> slot, std::vector<ui32> count);
+	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, const std::vector<SlotID> &slot, const std::vector<ui32> &count);
 	bool sendResources(ui32 val, PlayerColor player, Res::ERes r1, PlayerColor r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot);
@@ -287,7 +287,7 @@ public:
 	void handleAttackBeforeCasting(BattleAttack *bat);
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, std::vector<ArtifactPosition> slot);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> &slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
 	friend class CVCMIServer;

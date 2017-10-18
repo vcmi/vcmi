@@ -5418,7 +5418,7 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 	}
 }
 
-bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, std::vector<SlotID> slot, std::vector<ui32> count)
+bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, const std::vector<SlotID> &slot, const std::vector<ui32> &count)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice creature!");
@@ -5459,7 +5459,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, std::vector<ArtifactPosition> slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> &slot)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");

@@ -224,7 +224,7 @@ void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode m
 	sendRequest(&pack);
 }
 
-void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, std::vector<ui32> id1, std::vector<ui32> id2, std::vector<ui32> val1, const CGHeroInstance *hero)
+void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, const std::vector<ui32> &id1, const std::vector<ui32> &id2, const std::vector<ui32> &val1, const CGHeroInstance *hero)
 {
 	TradeOnMarketplace pack;
 	pack.market = market;
