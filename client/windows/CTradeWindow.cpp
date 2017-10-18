@@ -1231,8 +1231,8 @@ void CAltarWindow::makeDeal()
 		blockTrade();
 		slider->moveTo(0);
 
-		std::vector<int> ids;
-		std::vector<int> toSacrifice;
+		std::vector<ui32> ids;
+		std::vector<ui32> toSacrifice;
 
 		for (int i = 0; i < sacrificedUnits.size(); i++)
 		{
@@ -1256,7 +1256,7 @@ void CAltarWindow::makeDeal()
 	}
 	else
 	{
-		std::vector<int> positions;
+		std::vector<ui32> positions;
 		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
 		{
 			positions.push_back(hero->getArtPos(art));
