@@ -55,6 +55,9 @@ public:
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * Creature=nullptr);
 
+	void splitIntoParts(EGarrisonType type, int amount, int maxOfSplittedSlots);
+	void handleSplittingShortcuts();
+
 	friend class CGarrisonInt;
 };
 
@@ -83,7 +86,8 @@ public:
 		 twoRows,         ///< slots Will be placed in 2 rows
 		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
-	std::vector<CGarrisonSlot*> availableSlots;  ///< Slots of upper and lower garrison
+	std::vector<CGarrisonSlot *> availableSlots;  ///< Slots of upper and lower garrison
+	std::vector<CGarrisonSlot *> getEmptySlots(CGarrisonSlot::EGarrisonType type);
 
 	const CArmedInstance *armedObjs[2];  ///< [0] is upper, [1] is down
 
