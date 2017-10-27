@@ -171,7 +171,7 @@
 
 				"special1":       { "id" : 17, "requires" : [ "marketplace" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
+				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "allOf", [ "horde1" ], [ "dwellingUpLvl1" ] ], "mode" : "auto" },
 				"special2":       { "id" : 21, "requires" : [ "mageGuild1" ] },
 				"special3":       { "id" : 22 },
 				"special4":       { "id" : 23 },
@@ -192,7 +192,7 @@
 				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
 				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
 				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
-				
+
 				"horde2" : null,
 				"horde2Upgr" : null,
 				"ship" : null,
