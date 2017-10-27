@@ -281,7 +281,10 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		bool refr = false;
 		const CGarrisonSlot * selection = owner->getSelection();
 		if(!selection)
+		{
 			refr = highlightOrDropArtifact();
+			handleSplittingShortcuts();
+		}
 		else if(selection == this)
 			refr = viewInfo();
 		// Re-highlight if troops aren't removable or not ours.
@@ -394,6 +397,35 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, CGar
 		stackCount->disable();
 	else
 		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));
+}
+
+void CGarrisonSlot::splitIntoParts(CGarrisonSlot::EGarrisonType type, int amount, int maxOfSplittedSlots)
+{
+	owner->pb = type;
+	for(CGarrisonSlot * slot : owner->getEmptySlots(type))
+	{
+		owner->p2 = slot->ID;
+		owner->splitStacks(1, amount);
+		maxOfSplittedSlots--;
+		if(!maxOfSplittedSlots || owner->getSelection()->myStack->count <= 1)
+			break;
+	}
+}
+
+void CGarrisonSlot::handleSplittingShortcuts()
+{
+	const Uint8 * state = SDL_GetKeyboardState(NULL);
+	if(owner->getSelection() && owner->getEmptySlots(owner->getSelection()->upg).size() && owner->getSelection()->myStack->count > 1){
+		if (state[SDL_SCANCODE_LCTRL] && state[SDL_SCANCODE_LSHIFT])
+			splitIntoParts(owner->getSelection()->upg, 1, 7);
+		else if(state[SDL_SCANCODE_LCTRL])
+			splitIntoParts(owner->getSelection()->upg, 1, 1);
+		else if(state[SDL_SCANCODE_LSHIFT])
+			splitIntoParts(owner->getSelection()->upg, owner->getSelection()->myStack->count/2 , 1);
+		else
+			return;
+		owner->selectSlot(nullptr);
+	}
 }
 
 void CGarrisonInt::addSplitBtn(CButton * button)
@@ -517,6 +549,17 @@ void CGarrisonInt::setSplittingMode(bool on)
 bool CGarrisonInt::getSplittingMode()
 {
 	return inSplittingMode;
+}
+
+std::vector<CGarrisonSlot *> CGarrisonInt::getEmptySlots(CGarrisonSlot::EGarrisonType type)
+{
+	std::vector<CGarrisonSlot *> emptySlots;
+	for(CGarrisonSlot * slot : availableSlots)
+	{
+		if(type == slot->upg && ((slot->our() || slot->ally()) && slot->creature == nullptr))
+			emptySlots.push_back(slot);
+	}
+	return emptySlots;
 }
 
 void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
