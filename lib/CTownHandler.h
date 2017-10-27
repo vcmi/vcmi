@@ -78,9 +78,15 @@ public:
 		h & requirements;
 		h & upgrade;
 		h & mode;
+		if(!h.saving)
+			deserializeFix();
 	}
 
 	friend class CTownHandler;
+
+private:
+
+	void deserializeFix();
 };
 
 /// This is structure used only by client

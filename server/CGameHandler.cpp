@@ -2993,9 +2993,11 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		buildingsThatWillBe.insert(b->bid);
 		remainingAutoBuildings -= b;
 
-		for (auto autoBuilding : remainingAutoBuildings)
+		for(auto autoBuilding : remainingAutoBuildings)
 		{
-			if (autoBuilding->requirements.test(areRequirementsFullfilled))
+			auto actualRequirements = t->genBuildingRequirements(autoBuilding->bid);
+
+			if(actualRequirements.test(areRequirementsFullfilled))
 				buildingsToAdd.push(autoBuilding);
 		}
 	}

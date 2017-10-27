@@ -129,7 +129,7 @@
 			[
 				[ [ "villageHall", "townHall", "cityHall", "capitol" ], [ "fort", "citadel", "castle" ], [ "tavern" ], [ "blacksmith" ] ],
 				[ [ "marketplace", "resourceSilo" ], [ "mageGuild1", "mageGuild2", "mageGuild3", "mageGuild4", "mageGuild5" ], [ "special2" ], [ "special3" ] ],
-				[ [ "special1" ], [ "special4" ], [ "horde1" ] ],
+				[ [ "special1" ], [ "special4" ], [ "horde1", "horde1Upgr" ] ],
 				[ [ "dwellingLvl1", "dwellingUpLvl1" ], [ "dwellingLvl2", "dwellingUpLvl2" ], [ "dwellingLvl3", "dwellingUpLvl3" ], [ "dwellingLvl4", "dwellingUpLvl4" ] ],
 				[ [ "dwellingLvl5", "dwellingUpLvl5" ], [ "dwellingLvl6", "dwellingUpLvl6" ], [ "dwellingLvl7", "dwellingUpLvl7" ] ]
 			],
@@ -171,7 +171,7 @@
 
 				"special1":       { "id" : 17, "requires" : [ "marketplace" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "allOf", [ "horde1" ], [ "dwellingUpLvl1" ] ], "mode" : "auto" },
+				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       { "id" : 21, "requires" : [ "mageGuild1" ] },
 				"special3":       { "id" : 22 },
 				"special4":       { "id" : 23 },

@@ -1339,14 +1339,22 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	{
 		for(size_t col=0; col<boxList[row].size(); col++) //for each box
 		{
-			const CBuilding *building = nullptr;
-			for(auto & elem : boxList[row][col])//we are looking for the first not build structure
+			const CBuilding * building = nullptr;
+			for(auto & buildingID : boxList[row][col])//we are looking for the first not built structure
 			{
-				auto buildingID = elem;
-				building = town->town->buildings.at(buildingID);
-
-				if(!vstd::contains(town->builtBuildings,buildingID))
-					break;
+				const CBuilding * current = town->town->buildings.at(buildingID);
+				if(vstd::contains(town->builtBuildings, buildingID))
+				{
+					building = current;
+				}
+				else
+				{
+					if(current->mode == CBuilding::BUILD_NORMAL)
+					{
+						building = current;
+						break;
+					}
+				}
 			}
 			int posX = pos.w/2 - boxList[row].size()*154/2 - (boxList[row].size()-1)*20 + 194*col,
 			    posY = 35 + 104*row;

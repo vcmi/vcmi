@@ -66,6 +66,24 @@ si32 CBuilding::getDistance(BuildingID buildID) const
 	return -1;
 }
 
+void CBuilding::deserializeFix()
+{
+	//default value for mode was broken, have to fix it here for old saves (v777 and older)
+	switch(mode)
+	{
+	case BUILD_NORMAL:
+	case BUILD_AUTO:
+	case BUILD_SPECIAL:
+	case BUILD_GRAIL:
+		break;
+
+	default:
+		mode = BUILD_NORMAL;
+		break;
+	}
+}
+
+
 CFaction::CFaction()
 {
 	town = nullptr;
@@ -329,9 +347,20 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 {
 	auto ret = new CBuilding();
 
-	static const std::string modes [] = {"normal", "auto", "special", "grail"};
+	static const std::vector<std::string> MODES =
+	{
+		"normal", "auto", "special", "grail"
+	};
 
-	ret->mode = static_cast<CBuilding::EBuildMode>(boost::find(modes, source["mode"].String()) - modes);
+	ret->mode = CBuilding::BUILD_NORMAL;
+	{
+		if(source["mode"].getType() == JsonNode::DATA_STRING)
+		{
+			auto rawMode = vstd::find_pos(MODES, source["mode"].String());
+			if(rawMode > 0)
+				ret->mode = static_cast<CBuilding::EBuildMode>(rawMode);
+		}
+	}
 
 	ret->identifier = stringID;
 	ret->town = town;
