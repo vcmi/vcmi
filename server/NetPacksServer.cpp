@@ -183,31 +183,31 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->tradeResources(m, val[i], player, r1[i], r2[i]);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->sendResources(val[i], player, static_cast<Res::ERes>(r1[i]), PlayerColor(r2[i]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->sellCreatures(val[i], m, hero, SlotID(r1[i]), static_cast<Res::ERes>(r2[i]));
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->buyArtifact(m, hero, static_cast<Res::ERes>(r1[i]), ArtifactID(r2[i]));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->sellArtifact(m, hero, ArtifactInstanceID(r1[i]), static_cast<Res::ERes>(r2[i]));
 		break;
 	case EMarketMode::CREATURE_UNDEAD:
-		for (int i = 0; i < r1.size(); ++i)
+		for(int i = 0; i < r1.size(); ++i)
 			result &= gh->transformInUndead(m, hero, SlotID(r1[i]));
 		break;
 	case EMarketMode::RESOURCE_SKILL:
-		for (int i = 0; i < r2.size(); ++i)
+		for(int i = 0; i < r2.size(); ++i)
 			result &= gh->buySecSkill(m, hero, SecondarySkill(r2[i]));
 		break;
 	case EMarketMode::CREATURE_EXP:

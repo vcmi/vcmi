@@ -1234,7 +1234,7 @@ void CAltarWindow::makeDeal()
 		std::vector<ui32> ids;
 		std::vector<ui32> toSacrifice;
 
-		for (int i = 0; i < sacrificedUnits.size(); i++)
+		for(int i = 0; i < sacrificedUnits.size(); i++)
 		{
 			if(sacrificedUnits[i])
 			{

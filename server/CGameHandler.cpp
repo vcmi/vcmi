@@ -5418,7 +5418,7 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 	}
 }
 
-bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, const std::vector<SlotID> &slot, const std::vector<ui32> &count)
+bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice creature!");
@@ -5429,16 +5429,16 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
 	};
 
-	for (int i = 0; i < slot.size(); ++i)
+	for(int i = 0; i < slot.size(); ++i)
 	{
 		int oldCount = hero->getStackCount(slot[i]);
 
-		if (oldCount < count[i])
+		if(oldCount < count[i])
 		{
 			finish();
 			COMPLAIN_RET("Not enough creatures to sacrifice!")
 		}
-		else if (oldCount == count[i] && hero->stacksCount() == 1 && hero->needsLastStack())
+		else if(oldCount == count[i] && hero->stacksCount() == 1 && hero->needsLastStack())
 		{
 			finish();
 			COMPLAIN_RET("Cannot sacrifice last creature!");
@@ -5459,7 +5459,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> &slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot)
 {
 	if (!hero)
 		COMPLAIN_RET("You need hero to sacrifice artifact!");
@@ -5470,12 +5470,12 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(expSum));
 	};
 
-	for (int i = 0; i < slot.size(); ++i)
+	for(int i = 0; i < slot.size(); ++i)
 	{
 		ArtifactLocation al(hero, slot[i]);
-		const CArtifactInstance *a = al.getArt();
+		const CArtifactInstance * a = al.getArt();
 
-		if (!a)
+		if(!a)
 		{
 			finish();
 			COMPLAIN_RET("Cannot find artifact to sacrifice!");
@@ -5483,7 +5483,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 
 		const CArtifactInstance * art = hero->getArt(slot[i]);
 
-		if (!art)
+		if(!art)
 		{
 			finish();
 			COMPLAIN_RET("No artifact at position to sacrifice!");
