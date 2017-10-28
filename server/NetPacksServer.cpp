@@ -178,29 +178,54 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 
 	ERROR_IF_NOT(player);
 
+	bool result = true;
+
 	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
-		return gh->tradeResources(m, val, player, r1, r2);
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->tradeResources(m, val[i], player, r1[i], r2[i]);
+		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		return gh->sendResources(val, player, static_cast<Res::ERes>(r1), PlayerColor(r2));
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->sendResources(val[i], player, static_cast<Res::ERes>(r1[i]), PlayerColor(r2[i]));
+		break;
 	case EMarketMode::CREATURE_RESOURCE:
-		return gh->sellCreatures(val, m, hero, SlotID(r1), static_cast<Res::ERes>(r2));
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->sellCreatures(val[i], m, hero, SlotID(r1[i]), static_cast<Res::ERes>(r2[i]));
+		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
-		return gh->buyArtifact(m, hero, static_cast<Res::ERes>(r1), ArtifactID(r2));
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->buyArtifact(m, hero, static_cast<Res::ERes>(r1[i]), ArtifactID(r2[i]));
+		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
-		return gh->sellArtifact(m, hero, ArtifactInstanceID(r1), static_cast<Res::ERes>(r2));
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->sellArtifact(m, hero, ArtifactInstanceID(r1[i]), static_cast<Res::ERes>(r2[i]));
+		break;
 	case EMarketMode::CREATURE_UNDEAD:
-		return gh->transformInUndead(m, hero, SlotID(r1));
+		for(int i = 0; i < r1.size(); ++i)
+			result &= gh->transformInUndead(m, hero, SlotID(r1[i]));
+		break;
 	case EMarketMode::RESOURCE_SKILL:
-		return gh->buySecSkill(m, hero, SecondarySkill(r2));
+		for(int i = 0; i < r2.size(); ++i)
+			result &= gh->buySecSkill(m, hero, SecondarySkill(r2[i]));
+		break;
 	case EMarketMode::CREATURE_EXP:
-		return gh->sacrificeCreatures(m, hero, SlotID(r1), val);
+	{
+		std::vector<SlotID> slotIDs(r1.begin(), r1.end());
+		std::vector<ui32> count(val.begin(), val.end());
+		return gh->sacrificeCreatures(m, hero, slotIDs, count);
+	}
 	case EMarketMode::ARTIFACT_EXP:
-		return gh->sacrificeArtifact(m, hero, ArtifactPosition(r1));
+	{
+		std::vector<ArtifactPosition> positions(r1.begin(), r1.end());
+		return gh->sacrificeArtifact(m, hero, positions);
+	}
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}
+
+	return result;
 }
 
 bool SetFormation::applyGh( CGameHandler *gh )

@@ -1231,12 +1231,19 @@ void CAltarWindow::makeDeal()
 		blockTrade();
 		slider->moveTo(0);
 
-		std::vector<int> toSacrifice = sacrificedUnits;
-		for (int i = 0; i < toSacrifice.size(); i++)
+		std::vector<ui32> ids;
+		std::vector<ui32> toSacrifice;
+
+		for(int i = 0; i < sacrificedUnits.size(); i++)
 		{
-			if(toSacrifice[i])
-				LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
+			if(sacrificedUnits[i])
+			{
+				ids.push_back(i);
+				toSacrifice.push_back(sacrificedUnits[i]);
+			}
 		}
+
+		LOCPLINT->cb->trade(market->o, mode, ids, {}, toSacrifice, hero);
 
 		for(int& val : sacrificedUnits)
 			val = 0;
@@ -1249,10 +1256,13 @@ void CAltarWindow::makeDeal()
 	}
 	else
 	{
+		std::vector<ui32> positions;
 		for(const CArtifactInstance *art : arts->artifactsOnAltar) //sacrifice each artifact on the list
 		{
-			LOCPLINT->cb->trade(market->o, mode, hero->getArtPos(art), -1, 1, hero);
+			positions.push_back(hero->getArtPos(art));
 		}
+
+		LOCPLINT->cb->trade(market->o, mode, positions, {}, {}, hero);
 		arts->artifactsOnAltar.clear();
 
 		for(CTradeableItem *t : items[0])
@@ -1440,7 +1450,7 @@ void CAltarWindow::updateRight(CTradeableItem *toUpdate)
 {
 	int val = sacrificedUnits[toUpdate->serial];
 	toUpdate->setType(val ? CREATURE : CREATURE_PLACEHOLDER);
-	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(val * expPerUnit[toUpdate->serial])) : ""; //%s exp
+	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(hero->calculateXp(val * expPerUnit[toUpdate->serial]))) : ""; //%s exp
 }
 
 int CAltarWindow::firstFreeSlot()
@@ -1485,6 +1495,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+		val = hero->calculateXp(val);
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
 }
@@ -1510,6 +1521,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 
 	int dmp, val;
 	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+	val = hero->calculateXp(val);
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);
