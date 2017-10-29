@@ -566,7 +566,7 @@ void CClickableHex::hover(bool on)
 	}
 }
 
-CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), hovered(false), strictHovered(false), myInterface(nullptr)
+CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), strictHovered(false), myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }

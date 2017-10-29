@@ -1152,7 +1152,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 	if (ret.empty())
 	{
-		if (hero == ai->primaryHero() || value >= 1.1f)
+		if (hero == ai->primaryHero() || value >= 1.1f) // FIXME: check PR388
 			ret.push_back (sptr(Goals::Explore()));
 		else //workaround to break loop - seemingly there are no ways to explore left
 			throw goalFulfilledException (sptr(Goals::GatherArmy(0).sethero(hero)));

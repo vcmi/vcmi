@@ -116,18 +116,31 @@ public:
 	{
 		h & meta;
 		h & type;
-		switch (type) {
-			break; case JsonType::DATA_NULL:
-			break; case JsonType::DATA_BOOL:   h & data.Bool;
-			break; case JsonType::DATA_FLOAT:  h & data.Float;
-			break; case JsonType::DATA_STRING: h & data.String;
-			break; case JsonType::DATA_VECTOR: h & data.Vector;
-			break; case JsonType::DATA_STRUCT: h & data.Struct;
-		}
-		if(version >= 770)
+		switch(type)
 		{
-			if(type == JsonType::DATA_INTEGER)
+		case JsonType::DATA_NULL:
+			break;
+		case JsonType::DATA_BOOL:
+			h & data.Bool;
+			break;
+		case JsonType::DATA_FLOAT:
+			h & data.Float;
+			break;
+		case JsonType::DATA_STRING:
+			h & data.String;
+			break;
+		case JsonType::DATA_VECTOR:
+			h & data.Vector;
+			break;
+		case JsonType::DATA_STRUCT:
+			h & data.Struct;
+			break;
+		case JsonType::DATA_INTEGER:
+			if(version >= 770)
+			{
 				h & data.Integer;
+			}
+			break;
 		}
 	}
 };

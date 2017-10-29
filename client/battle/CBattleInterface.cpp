@@ -602,8 +602,8 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	CCursorHandler *cursor = CCS->curh;
 
 	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
-	const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
-	const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
+	const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2.0;
+	const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2.0;
 	const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
 	const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
 	const int zigzagCorrection = !((myNumber/GameConstants::BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.

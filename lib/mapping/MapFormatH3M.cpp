@@ -2201,7 +2201,7 @@ void CMapLoaderH3M::readBitmask(std::vector<bool>& dest, const int byteCount, co
 			if(byte * 8 + bit < limit)
 			{
 				const bool flag = mask & (1 << bit);
-				if((negate && flag) || (!negate && !flag))
+				if((negate && flag) || (!negate && !flag)) // FIXME: check PR388
 					dest[byte * 8 + bit] = false;
 			}
 		}

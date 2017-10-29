@@ -161,7 +161,8 @@ void CPregameServer::run()
 			if(state != RUNNING)
 			{
 				logNetwork->info("Stopping listening for connections...");
-				acceptor->close();
+				if(acceptor)
+					acceptor->close();
 			}
 
 			if(acceptor)
