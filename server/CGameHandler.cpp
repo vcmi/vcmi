@@ -5930,7 +5930,8 @@ void CGameHandler::runBattle()
 					}
 					else
 					{
-						logGlobal->trace("Activating %s", next->nodeName());
+						if(next)
+							logGlobal->trace("Activating %s", next->nodeName());
 						auto nextId = next->ID;
 						BattleSetActiveStack sas;
 						sas.stack = nextId;

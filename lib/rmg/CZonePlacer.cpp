@@ -287,7 +287,7 @@ void CZonePlacer::attractConnectedZones(TZoneMap &zones, TForceVector &forces, T
 			{
 				//WARNING: compiler used to 'optimize' that line so it never actually worked
 				float overlapMultiplier = (pos.z == otherZoneCenter.z) ? (minDistance / distance) : 1.0f;
-				forceVector += (((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance))) * gravityConstant; //positive value
+				forceVector += ((otherZoneCenter - pos)* overlapMultiplier / getDistance(distance)) * gravityConstant; //positive value
 				totalDistance += (distance - minDistance);
 			}
 		}

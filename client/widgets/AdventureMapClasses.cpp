@@ -1062,7 +1062,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 				captureAllKeys = false;
 				endEnteringText(false);
 			}
-			else if(SDLK_TAB)
+			else if(SDLK_TAB == key.keysym.sym)
 			{
 				captureAllKeys = true;
 				startEnteringText();

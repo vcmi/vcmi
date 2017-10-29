@@ -526,7 +526,7 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 			return false;
 	}
 
-	if(stack->getCreature()->idNumber == CreatureID::CATAPULT && dst) //catapult cannot attack creatures
+	if(stack->getCreature()->idNumber == CreatureID::CATAPULT) //catapult cannot attack creatures
 		return false;
 
 	if(stack->canShoot()
@@ -626,7 +626,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	}
 
 	//applying jousting bonus
-	if(info.attackerBonuses->hasBonusOfType(Bonus::JOUSTING) && !info.defenderBonuses->hasBonusOfType(Bonus::CHARGE_IMMUNITY))
+	if(info.attackerBonuses->hasBonusOfType(Bonus::JOUSTING) && info.defenderBonuses && !info.defenderBonuses->hasBonusOfType(Bonus::CHARGE_IMMUNITY))
 		additiveBonus += info.chargedFields * 0.05;
 
 	//handling secondary abilities and artifacts giving premies to them

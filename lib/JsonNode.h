@@ -118,11 +118,12 @@ public:
 		h & type;
 		switch (type) {
 			break; case DATA_NULL:
-			break; case DATA_BOOL:   h & data.Bool;
-			break; case DATA_FLOAT:  h & data.Float;
-			break; case DATA_STRING: h & data.String;
-			break; case DATA_VECTOR: h & data.Vector;
-			break; case DATA_STRUCT: h & data.Struct;
+			break; case DATA_BOOL:    h & data.Bool;
+			break; case DATA_INTEGER: h & data.Integer;
+			break; case DATA_FLOAT:   h & data.Float;
+			break; case DATA_STRING:  h & data.String;
+			break; case DATA_VECTOR:  h & data.Vector;
+			break; case DATA_STRUCT:  h & data.Struct;
 		}
 		if(version >= 770)
 		{

@@ -121,7 +121,7 @@ public:
 	ui32 myNumber; //number of hex in commonly used format
 	bool accessible; //if true, this hex is accessible for units
 	//CStack * ourStack;
-	bool hovered, strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
+	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
 	static Point getXYUnitAnim(BattleHex hexNum, const CStack * creature, CBattleInterface * cbi); //returns (x, y) of left top corner of animation
 

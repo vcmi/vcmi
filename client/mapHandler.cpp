@@ -69,7 +69,7 @@ struct NeighborTilesInfo
 
 	bool areAllHidden() const
 	{
-		return !(d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d8 );
+		return !(d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9 );
 	}
 
 	int getBitmapID() const
