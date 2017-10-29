@@ -1,17 +1,8 @@
 #!/bin/sh
 
-# https://gist.github.com/vmarkovtsev/3f2dd98e56cb63098027
-
+brew update
 brew unlink boost
 brew install boost smpeg2 innoextract libpng freetype sdl2 sdl2_ttf sdl2_image qt5 ffmpeg
 brew install sdl2_mixer --with-smpeg2
-sudo sed -i.bak 's/106200/106900/g' /usr/local/Cellar/cmake/*/share/cmake/Modules/FindBoost.cmake
 
 export CMAKE_PREFIX_PATH="/usr/local/opt/qt5:$CMAKE_PREFIX_PATH"
-
-sparkle_version=$(curl -L https://github.com/sparkle-project/Sparkle/releases/latest | grep '<span class="css-truncate-target">' | sed -E 's|^.*([1-9]\.[0-9]+\.[0-9]+).*$|\1|g')
-wget https://github.com/sparkle-project/Sparkle/releases/download/$sparkle_version/Sparkle-$sparkle_version.tar.bz2
-mkdir sparkle && cd sparkle
-tar -xf ../Sparkle-*.tar.bz2
-sudo mv Sparkle.framework /Library/Frameworks/
-cd .. && rm -rf sparkle
