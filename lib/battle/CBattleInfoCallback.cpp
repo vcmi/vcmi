@@ -360,11 +360,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 	{
 		if(active)
 		{
-			//FIXME: both branches contain same code!!!
-			if(out.size() && out.front() == active)
-				lastMoved = active->side;
-			else
-				lastMoved = active->side;
+			lastMoved = active->side;
 		}
 		else
 		{
