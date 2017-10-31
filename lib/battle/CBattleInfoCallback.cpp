@@ -514,6 +514,9 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 
 	if(!stack || !dst)
 		return false;
+	
+	if(stack->getCreature()->idNumber == CreatureID::CATAPULT) //catapult cannot attack creatures
+		return false;
 
 	//forgetfulness
 	TBonusListPtr forgetfulList = stack->getBonuses(Selector::type(Bonus::FORGETFULL),"");
@@ -525,9 +528,6 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 		if(forgetful > 1)
 			return false;
 	}
-
-	if(stack->getCreature()->idNumber == CreatureID::CATAPULT) //catapult cannot attack creatures
-		return false;
 
 	if(stack->canShoot()
 		&& battleMatchOwner(stack, dst)
