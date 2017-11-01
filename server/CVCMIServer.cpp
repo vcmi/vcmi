@@ -352,9 +352,9 @@ CVCMIServer::~CVCMIServer()
 	//delete firstConnection;
 }
 
-CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
+std::shared_ptr<CGameHandler> CVCMIServer::initGhFromHostingConnection(CConnection &c)
 {
-	auto gh = new CGameHandler();
+	auto gh = std::make_shared<CGameHandler>();
 	StartInfo si;
 	c >> si; //get start options
 
@@ -366,7 +366,8 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 		if(!mapFound && si.mode == StartInfo::NEW_GAME)
 		{
 			c << ui8(1); //WRONG!
-			return nullptr;
+			gh.reset();
+			return gh;
 		}
 	}
 
@@ -385,14 +386,10 @@ void CVCMIServer::newGame()
 	c >> clients; //how many clients should be connected
 	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
 
-	CGameHandler *gh = initGhFromHostingConnection(c);
+	auto gh = initGhFromHostingConnection(c);
 
-	auto onExit = vstd::makeScopeGuard([&]()
-	{
-		vstd::clear_pointer(gh);
-	});
-
-	gh->run(false);
+	if(gh)
+		gh->run(false);
 }
 
 void CVCMIServer::newPregame()

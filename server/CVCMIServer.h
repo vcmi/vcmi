@@ -54,7 +54,7 @@ public:
 	~CVCMIServer();
 
 	void start();
-	CGameHandler *initGhFromHostingConnection(CConnection &c);
+	std::shared_ptr<CGameHandler> initGhFromHostingConnection(CConnection &c);
 
 	void newGame();
 	void loadGame();
