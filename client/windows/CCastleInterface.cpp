@@ -14,6 +14,7 @@
 #include "CHeroWindow.h"
 #include "CTradeWindow.h"
 #include "GUIClasses.h"
+#include "QuickRecruitmentWindow.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -21,7 +22,6 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
-
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../windows/InfoWindows.h"
@@ -795,6 +795,11 @@ void CCastleBuildings::enterDwelling(int level)
 	GH.pushInt(new CRecruitmentWindow(town, level, town, recruitCb, -87));
 }
 
+void CCastleBuildings::enterToTheQuickRecruitmentWindow()
+{
+	GH.pushInt(new QuickRecruitmentWindow(town));
+}
+
 void CCastleBuildings::enterFountain(BuildingID building)
 {
 	std::vector<CComponent*> comps(1, new CComponent(CComponent::building,town->subID,building));
@@ -885,6 +890,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	LOCPLINT->castleInt = this;
 	addUsedEvents(KEYBOARD);
 
@@ -990,7 +996,8 @@ void CCastleInterface::recreateIcons()
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
-
+	fastArmyPurhase = std::make_shared<CButton>(Point(122, 413), "itmcl.def", CButton::tooltip("quick army purhase"), [&](){builds->enterToTheQuickRecruitmentWindow();});
+	fastArmyPurhase->setImageOrder(town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1);
 	for (auto & elem : creainfo)
 		delete elem;
 	creainfo.clear();

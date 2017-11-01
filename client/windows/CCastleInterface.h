@@ -143,6 +143,7 @@ public:
 	~CCastleBuildings();
 
 	void enterDwelling(int level);
+	void enterToTheQuickRecruitmentWindow();
 
 	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
@@ -180,8 +181,8 @@ class CTownInfo : public CIntObject
 {
 	const CGTownInstance *town;
 	const CBuilding *building;
-	CAnimImage *picture;
 public:
+	CAnimImage * picture;
 	//if (townHall) hall-capital else fort - castle
 	CTownInfo(int posX, int posY, const CGTownInstance* town, bool townHall);
 
@@ -204,6 +205,7 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 
 	CButton *exit;
 	CButton *split;
+	std::shared_ptr<CButton> fastArmyPurhase;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 

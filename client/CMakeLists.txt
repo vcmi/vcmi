@@ -32,6 +32,7 @@ set(client_SRCS
 		windows/CAdvmapInterface.cpp
 		windows/CCastleInterface.cpp
 		windows/CCreatureWindow.cpp
+		windows/CreaturePurhaseCard.cpp
 		windows/CHeroWindow.cpp
 		windows/CKingdomInterface.cpp
 		windows/CQuestLog.cpp
@@ -40,8 +41,10 @@ set(client_SRCS
 		windows/CWindowObject.cpp
 		windows/GUIClasses.cpp
 		windows/InfoWindows.cpp
+		windows/QuickRecruitmentWindow.cpp
 
 		CBitmapHandler.cpp
+		CreatureCostBox.cpp
 		CDefHandler.cpp
 		CGameInfo.cpp
 		Client.cpp
@@ -87,6 +90,7 @@ set(client_HEADERS
 		windows/CAdvmapInterface.h
 		windows/CCastleInterface.h
 		windows/CCreatureWindow.h
+		windows/CreaturePurhaseCard.h
 		windows/CHeroWindow.h
 		windows/CKingdomInterface.h
 		windows/CQuestLog.h
@@ -95,8 +99,10 @@ set(client_HEADERS
 		windows/CWindowObject.h
 		windows/GUIClasses.h
 		windows/InfoWindows.h
+		windows/QuickRecruitmentWindow.h
 
 		CBitmapHandler.h
+		CreatureCostBox.h
 		CDefHandler.h
 		CGameInfo.h
 		Client.h
