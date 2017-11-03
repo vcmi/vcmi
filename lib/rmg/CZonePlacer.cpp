@@ -562,11 +562,11 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		if (zone.second->getPos().z)
 		{
 			if (!CREATE_FULL_UNDERGROUND)
-				zone.second->discardDistantTiles(gen, zone.second->getSize() + 1);
+				zone.second->discardDistantTiles(zone.second->getSize() + 1);
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			zone.second->paintZoneTerrain (gen, ETerrainType::SUBTERRANEAN);
+			zone.second->paintZoneTerrain (ETerrainType::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");

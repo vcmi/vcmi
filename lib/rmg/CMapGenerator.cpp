@@ -274,6 +274,9 @@ void CMapGenerator::genZones()
 
 	auto tmpl = mapGenOptions->getMapTemplate();
 	zones = tmpl->getZones(); //copy from template (refactor?)
+	//immediately set gen pointer before taking any actions on zones
+	for (auto zone : zones)
+		zone.second->setGenPtr(this);
 
 	CZonePlacer placer(this);
 	placer.placeZones(mapGenOptions, &rand);
@@ -295,23 +298,23 @@ void CMapGenerator::fillZones()
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
 	for (auto it : zones)
-		it.second->initTownType(this);
+		it.second->initTownType();
 
 	//make sure there are some free tiles in the zone
 	for (auto it : zones)
-		it.second->initFreeTiles(this);
+		it.second->initFreeTiles();
 
 	createDirectConnections(); //direct
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
-		it.second->createBorder(this); //once direct connections are done
+		it.second->createBorder(); //once direct connections are done
 
 	createConnections2(); //subterranean gates and monoliths
 
 	std::vector<CRmgTemplateZone*> treasureZones;
 	for (auto it : zones)
 	{
-		it.second->fill(this);
+		it.second->fill();
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
@@ -320,12 +323,12 @@ void CMapGenerator::fillZones()
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
 	for (auto it : zones)
-		it.second->createObstacles1(this);
+		it.second->createObstacles1();
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
 	{
-		it.second->createObstacles2(this);
+		it.second->createObstacles2();
 	}
 
 	#define PRINT_MAP_BEFORE_ROADS false
@@ -365,7 +368,7 @@ void CMapGenerator::fillZones()
 
 	for (auto it : zones)
 	{
-		it.second->connectRoads(this); //draw roads after everything else has been placed
+		it.second->connectRoads(); //draw roads after everything else has been placed
 	}
 
 	//find place for Grail
@@ -543,11 +546,11 @@ void CMapGenerator::createDirectConnections()
 				if (guardPos.valid())
 				{
 					//zones can make paths only in their own area
-					zoneA->connectWithCenter(this, guardPos, true);
-					zoneB->connectWithCenter(this, guardPos, true);
+					zoneA->connectWithCenter(guardPos, true);
+					zoneB->connectWithCenter(guardPos, true);
 
-					bool monsterPresent = zoneA->addMonster(this, guardPos, connection.getGuardStrength(), false, true);
-					zoneB->updateDistances(this, guardPos); //place next objects away from guard in both zones
+					bool monsterPresent = zoneA->addMonster(guardPos, connection.getGuardStrength(), false, true);
+					zoneB->updateDistances(guardPos); //place next objects away from guard in both zones
 
 					//set free tile only after connection is made to the center of the zone
 					if (!monsterPresent)
@@ -638,20 +641,20 @@ void CMapGenerator::createConnections2()
 
 					if (distanceFromA > 5 && distanceFromB > 5)
 					{
-						if (zoneA->areAllTilesAvailable(this, gate1, tile, tilesBlockedByObject) &&
-							zoneB->areAllTilesAvailable(this, gate2, otherTile, tilesBlockedByObject))
+						if (zoneA->areAllTilesAvailable(gate1, tile, tilesBlockedByObject) &&
+							zoneB->areAllTilesAvailable(gate2, otherTile, tilesBlockedByObject))
 						{
-							if (zoneA->getAccessibleOffset(this, sgt, tile).valid() && zoneB->getAccessibleOffset(this, sgt, otherTile).valid())
+							if (zoneA->getAccessibleOffset(sgt, tile).valid() && zoneB->getAccessibleOffset(sgt, otherTile).valid())
 							{
-								EObjectPlacingResult::EObjectPlacingResult result1 = zoneA->tryToPlaceObjectAndConnectToPath(this, gate1, tile);
-								EObjectPlacingResult::EObjectPlacingResult result2 = zoneB->tryToPlaceObjectAndConnectToPath(this, gate2, otherTile);
+								EObjectPlacingResult::EObjectPlacingResult result1 = zoneA->tryToPlaceObjectAndConnectToPath(gate1, tile);
+								EObjectPlacingResult::EObjectPlacingResult result2 = zoneB->tryToPlaceObjectAndConnectToPath(gate2, otherTile);
 
 								if ((result1 == EObjectPlacingResult::SUCCESS) && (result2 == EObjectPlacingResult::SUCCESS))
 								{
-									zoneA->placeObject(this, gate1, tile);
-									zoneA->guardObject(this, gate1, strength, true, true);
-									zoneB->placeObject(this, gate2, otherTile);
-									zoneB->guardObject(this, gate2, strength, true, true);
+									zoneA->placeObject(gate1, tile);
+									zoneA->guardObject(gate1, strength, true, true);
+									zoneB->placeObject(gate2, otherTile);
+									zoneB->guardObject(gate2, strength, true, true);
 									guardPos = tile; //set to break the loop
 									break;
 								}
