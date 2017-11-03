@@ -1425,7 +1425,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 		{
 			JsonNode toAdd(JsonNode::DATA_STRUCT);
 			JsonUtils::inherit(toAdd, base);
-			toAdd["file"].String() = basepath + frame["file"].String();
+			toAdd["file"].String() = basepath + frame.String();
 			source[groupID].push_back(toAdd);
 		}
 	}
