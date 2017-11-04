@@ -1555,6 +1555,8 @@ CAnimation::~CAnimation()
 			for (auto & _image : elem.second)
 				delete _image.second;
 	}
+	if(defFile)
+		delete defFile;
 }
 
 void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup)
