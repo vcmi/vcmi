@@ -2204,7 +2204,6 @@ void VCAI::tryRealize(Goals::Build & g)
 	{
 		logAi->debug("Looking into %s", t->name);
 		buildStructure(t);
-		buildArmyIn(t);
 
 		if(!ai->primaryHero() ||
 			(t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 && !isAccessibleForHero(t->visitablePos(), ai->primaryHero())))
@@ -2548,6 +2547,11 @@ void VCAI::striveToQuest (const QuestInfo &q)
 
 void VCAI::performTypicalActions()
 {
+	//TODO: build army only on request
+	for(auto t : cb->getTownsInfo())
+	{
+		buildArmyIn(t);
+	}
 	for(auto h : getUnblockedHeroes())
 	{
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn
