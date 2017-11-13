@@ -5417,22 +5417,21 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		sendAndApply(&victimInfo);
 		sendAndApply(&resurrectInfo);
 	}
-	if(attacker->hasBonusOfType(Bonus::TERMINATOR, 0) || attacker->hasBonusOfType(Bonus::TERMINATOR, 1))
+	if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0) || attacker->hasBonusOfType(Bonus::DESTRUCTION, 1))
 	{
 		double chanceToTrigger = 0;
 		int amountToDie = 0;
 
-		if(attacker->hasBonusOfType(Bonus::TERMINATOR, 0)) //killing by percentage
+		if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0)) //killing by percentage
 		{
-			chanceToTrigger = attacker->valOfBonuses(Bonus::TERMINATOR, 0) / 100.0f;
-			int percentageToDie = attacker->getBonus(Selector::type(Bonus::TERMINATOR).And(Selector::subtype(0)))->additionalInfo;
-			amountToDie = defender->getCount() * (percentageToDie / 100.0);
-			
+			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 0) / 100.0f;
+			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo;
+			amountToDie = defender->getCount() * percentageToDie * 0.01f;
 		}
-		else if(attacker->hasBonusOfType(Bonus::TERMINATOR, 1)) //killing by count
+		else if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 1)) //killing by count
 		{
-			chanceToTrigger = attacker->valOfBonuses(Bonus::TERMINATOR, 1) / 100.0f;
-			amountToDie = attacker->getBonus(Selector::type(Bonus::TERMINATOR).And(Selector::subtype(1)))->additionalInfo;
+			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 1) / 100.0f;
+			amountToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(1)))->additionalInfo;
 		}
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
@@ -5446,7 +5445,7 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 		bsa.damageAmount = amountToDie * defender->getCreature()->MaxHealth();
 		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
 		bsa.spellID = SpellID::SLAYER;
-		attacker->prepareAttacked(bsa, getRandomGenerator());
+		defender->prepareAttacked(bsa, getRandomGenerator());
 		sendAndApply(&bsa);
 	}
 }

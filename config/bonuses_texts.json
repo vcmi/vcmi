@@ -96,6 +96,12 @@
 		"description": "+${val} Defense when defending"
 	},
 
+	"DESTRUCTION":
+	{
+		"name": "Destruction",
+		"description": "Has ${val}% chance to kill extra units after attack"
+	},
+
 	"DOUBLE_DAMAGE_CHANCE":
 	{
 		"name": "Death Blow",
@@ -418,12 +424,6 @@
 	{
 		"name": "Synergizable",
 		"description": "This creature is vulnerable to synergy effect"
-	},
-
-	"TERMINATOR":
-	{
-		"name": "Terminator",
-		"description": "Has ${val}% chance to kill extra units after attack"
 	},
 
 	"TWO_HEX_ATTACK_BREATH":
