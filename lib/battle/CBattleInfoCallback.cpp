@@ -186,7 +186,7 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 {
 	std::set<BattleHex> attackedHexes;
 	RETURN_IF_NOT_BATTLE(attackedHexes);
-	
+
 	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
 
 	for (BattleHex tile : at.hostileCreaturePositions)
@@ -1157,13 +1157,13 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			}
 		}
 	}
-
 	if(attacker->hasBonusOfType(Bonus::WIDE_BREATH))
 	{
 		std::vector<BattleHex> hexes = destinationTile.neighbouringTiles();
 		for(int i = 0; i<hexes.size(); i++)
 		{
-			if(hexes.at(i) == hex) {
+			if(hexes.at(i) == hex)
+			{
 				hexes.erase(hexes.begin() + i);
 				i = 0;
 			}
@@ -1172,11 +1172,12 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 		{
 			//friendly stacks can also be damaged by Dragon Breath
 			if(battleGetStackByPos(tile, true))
+			{
 				if(battleGetStackByPos(tile, true) != attacker)
 					at.friendlyCreaturePositions.insert(tile);
+			}
 		}
 	}
-
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition(destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
 	{
 		std::vector<BattleHex> hexes; //only one, in fact
@@ -1649,7 +1650,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 
 si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
 {
-	const IBonusBearer *node = nullptr;
+	const IBonusBearer * node = nullptr;
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		node = h;
 	else
