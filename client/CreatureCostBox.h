@@ -14,9 +14,10 @@
 
 class CreatureCostBox : public CIntObject
 {
-	std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
 public:
 	void set(TResources res);
 	CreatureCostBox(Rect position, std::string title);
 	void createItems(TResources res);
+private:
+	std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
 };

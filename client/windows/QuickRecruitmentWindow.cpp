@@ -149,7 +149,8 @@ void QuickRecruitmentWindow::updateAllSliders()
 
 QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd) : CWindowObject(PLAYER_COLORED | BORDERED), town(townd)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL);
+
 	initWindow();
 	setButtons();
 	setCreaturePurhaseCards();

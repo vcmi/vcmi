@@ -205,7 +205,7 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 
 	CButton *exit;
 	CButton *split;
-	std::shared_ptr<CButton> fastArmyPurhase;
+	CButton * fastArmyPurhase;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 

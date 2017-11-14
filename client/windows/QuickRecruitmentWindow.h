@@ -36,6 +36,7 @@ private:
 	void maxAllCards(std::vector<std::shared_ptr<CreaturePurhaseCard>> cards);
 	void maxAllSlidersAmount(std::vector<std::shared_ptr<CreaturePurhaseCard>> cards);
 	void purhaseUnits();
+
 	const CGTownInstance * town;
 	std::shared_ptr<CButton> maxButton, buyButton, cancelButton;
 	std::shared_ptr<CreatureCostBox> totalCost;
