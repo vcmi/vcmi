@@ -122,6 +122,8 @@
 		<Unit filename="CVideoHandler.h" />
 		<Unit filename="Client.cpp" />
 		<Unit filename="Client.h" />
+		<Unit filename="CreatureCostBox.cpp" />
+		<Unit filename="CreatureCostBox.h" />
 		<Unit filename="Graphics.cpp" />
 		<Unit filename="Graphics.h" />
 		<Unit filename="NetPacksClient.cpp" />
@@ -198,10 +200,14 @@
 		<Unit filename="windows/CTradeWindow.h" />
 		<Unit filename="windows/CWindowObject.cpp" />
 		<Unit filename="windows/CWindowObject.h" />
+		<Unit filename="windows/CreaturePurhaseCard.cpp" />
+		<Unit filename="windows/CreaturePurhaseCard.h" />
 		<Unit filename="windows/GUIClasses.cpp" />
 		<Unit filename="windows/GUIClasses.h" />
 		<Unit filename="windows/InfoWindows.cpp" />
 		<Unit filename="windows/InfoWindows.h" />
+		<Unit filename="windows/QuickRecruitmentWindow.cpp" />
+		<Unit filename="windows/QuickRecruitmentWindow.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
