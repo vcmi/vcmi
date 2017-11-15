@@ -797,7 +797,7 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
-	GH.pushInt(new QuickRecruitmentWindow(town));
+	GH.pushInt(new QuickRecruitmentWindow(town, pos));
 }
 
 void CCastleBuildings::enterFountain(BuildingID building)
@@ -996,7 +996,7 @@ void CCastleInterface::recreateIcons()
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
-	fastArmyPurhase = new CButton(Point(122, 413), "itmcl.def", CButton::tooltip("quick army purhase"), [&](){builds->enterToTheQuickRecruitmentWindow();});
+	fastArmyPurhase = new CButton(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){builds->enterToTheQuickRecruitmentWindow();});
 	fastArmyPurhase->setImageOrder(town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1);
 	for (auto & elem : creainfo)
 		delete elem;

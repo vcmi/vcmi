@@ -20,12 +20,12 @@ class QuickRecruitmentWindow;
 class CreaturePurhaseCard : public CIntObject
 {
 public:
-	const CCreature * creature;
+	const CCreature * creatureOnTheCard;
 	std::shared_ptr<CSlider> slider;
 	QuickRecruitmentWindow * parent;
-	int maxamount;
+	int maxAmount;
 	void sliderMoved(int to);
-	CreaturePurhaseCard(const CCreature * monster, Point p, int amount, QuickRecruitmentWindow * par);
+	CreaturePurhaseCard(const CCreature * creature, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents);
 
 private:
 	void initView();

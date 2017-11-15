@@ -21,10 +21,10 @@ class QuickRecruitmentWindow : public CWindowObject
 public:
 	int getAvailableCreatures();
 	void updateAllSliders();
-	QuickRecruitmentWindow(const CGTownInstance * townd);
+	QuickRecruitmentWindow(const CGTownInstance * townd, Rect startupPosition);
 
 private:
-	void initWindow();
+	void initWindow(Rect startupPosition);
 
 	void setButtons();
 	void setCancelButton();

@@ -41,38 +41,38 @@ void CreaturePurhaseCard::initAmountInfo()
 
 void CreaturePurhaseCard::updateAmountInfo(int value)
 {
-	availableAmount->setText(boost::lexical_cast<std::string>(maxamount-value));
+	availableAmount->setText(boost::lexical_cast<std::string>(maxAmount-value));
 	purhaseAmount->setText(boost::lexical_cast<std::string>(value));
 }
 
 void CreaturePurhaseCard::initSlider()
 {
-	slider = std::make_shared<CSlider>(Point(pos.x, pos.y + 158), 102, std::bind(&CreaturePurhaseCard::sliderMoved, this , _1), 0, maxamount, 0);
+	slider = std::make_shared<CSlider>(Point(pos.x, pos.y + 158), 102, std::bind(&CreaturePurhaseCard::sliderMoved, this , _1), 0, maxAmount, 0);
 }
 
 void CreaturePurhaseCard::initCostBox()
 {
 	cost = std::make_shared<CreatureCostBox>(Rect(pos.x, pos.y + 194, 97, 74), "");
-	cost->createItems(creature->cost);
+	cost->createItems(creatureOnTheCard->cost);
 }
 
 
 void CreaturePurhaseCard::sliderMoved(int to)
 {
 	updateAmountInfo(to);
-	cost->set(creature->cost * to);
+	cost->set(creatureOnTheCard->cost * to);
 	parent->updateAllSliders();
 }
 
-CreaturePurhaseCard::CreaturePurhaseCard(const CCreature * monster, Point p, int amount, QuickRecruitmentWindow * par) : creature(monster), parent(par), maxamount(amount)
+CreaturePurhaseCard::CreaturePurhaseCard(const CCreature * creature, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents) : creatureOnTheCard(creature), parent(parents), maxAmount(creaturesMaxAmount)
 {
-	moveTo(Point(p.x, p.y));
+	moveTo(Point(position.x, position.y));
 	initView();
 }
 
 void CreaturePurhaseCard::initView()
 {
-	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creature);
+	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creatureOnTheCard);
 	initAmountInfo();
 	initSlider();
 	initButtons();

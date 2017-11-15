@@ -47,26 +47,24 @@ void QuickRecruitmentWindow::setMaxButton()
 
 void QuickRecruitmentWindow::setCreaturePurhaseCards()
 {
-	Point pos = Point(8,64);
-	for (int i=0; i < GameConstants::CREATURES_PER_TOWN; i++)
+	int availableAmount = getAvailableCreatures();
+	Point position = Point((pos.w - 100*availableAmount - 8*(availableAmount-1))/2,64);
+	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
 	{
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 		{
-			CreatureID crid = town->creatures[i].second[0];
-			if(town->creatures[i].second.size() > 1)
-				crid = town->creatures[i].second[1];
-
-			cards.push_back(std::make_shared<CreaturePurhaseCard>(VLC->creh->creatures[crid], pos, town->creatures[i].first, this));
-			pos.x += 108;
+			CreatureID crid = town->creatures[i].second[town->creatures[i].second.size() - 1];
+			cards.push_back(std::make_shared<CreaturePurhaseCard>(VLC->creh->creatures[crid], position, town->creatures[i].first, this));
+			position.x += 108;
 		}
 	}
-	totalCost = std::make_shared<CreatureCostBox>(Rect((this->pos.w/2)-45, pos.y + 260, 97, 74), "");
+	totalCost = std::make_shared<CreatureCostBox>(Rect((this->pos.w/2)-45, position.y+260, 97, 74), "");
 }
 
-void QuickRecruitmentWindow::initWindow()
+void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 {
-	pos.x = 238;
-	pos.y = 45;
+	pos.x = startupPosition.x + 238;
+	pos.y = startupPosition.y + 45;
 	pos.w = 332;
 	pos.h = 461;
 	int creaturesAmount = getAvailableCreatures();
@@ -83,8 +81,8 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
 	{
-		si32 maxAmount = i->creature->maxAmount(allAvailableResources);
-		vstd::amin(maxAmount, i->maxamount);
+		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
+		vstd::amin(maxAmount, i->maxAmount);
 
 		i->slider->setAmount(maxAmount);
 
@@ -94,7 +92,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 			i->sliderMoved(maxAmount);
 
 		i->slider->moveToMax();
-		allAvailableResources -= (i->creature->cost * maxAmount);
+		allAvailableResources -= (i->creatureOnTheCard->cost * maxAmount);
 	}
 	maxButton->block(allAvailableResources == LOCPLINT->cb->getResourceAmount());
 }
@@ -106,8 +104,8 @@ void QuickRecruitmentWindow::purhaseUnits()
 	{
 		if(selected->slider->getValue())
 		{
-			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creature->level-1); };
-			CreatureID crid =  selected->creature->idNumber;
+			auto onRecruit = [=](CreatureID id, int count){ LOCPLINT->cb->recruitCreatures(town, town->getUpperArmy(), id, count, selected->creatureOnTheCard->level-1); };
+			CreatureID crid =  selected->creatureOnTheCard->idNumber;
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())
 				continue;
@@ -130,28 +128,29 @@ void QuickRecruitmentWindow::updateAllSliders()
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))
-		allAvailableResources -= (i->creature->cost * i->slider->getValue());
+		allAvailableResources -= (i->creatureOnTheCard->cost * i->slider->getValue());
 	for(auto i : cards)
 	{
-		si32 maxAmount = i->creature->maxAmount(allAvailableResources);
-		vstd::amin(maxAmount, i->maxamount);
+		si32 maxAmount = i->creatureOnTheCard->maxAmount(allAvailableResources);
+		vstd::amin(maxAmount, i->maxAmount);
 		if(maxAmount < 0)
 			continue;
-		if(i->slider->getValue() + maxAmount < i->maxamount)
+		if(i->slider->getValue() + maxAmount < i->maxAmount)
 			i->slider->setAmount(i->slider->getValue() + maxAmount);
 		else
-			i->slider->setAmount(i->maxamount);
+			i->slider->setAmount(i->maxAmount);
 		i->slider->moveTo(i->slider->getValue());
 	}
 	totalCost->createItems(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
 	totalCost->set(LOCPLINT->cb->getResourceAmount() - allAvailableResources);
 }
 
-QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd) : CWindowObject(PLAYER_COLORED | BORDERED), town(townd)
+QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rect startupPosition)
+	: CWindowObject(PLAYER_COLORED | BORDERED), town(townd)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL);
 
-	initWindow();
+	initWindow(startupPosition);
 	setButtons();
 	setCreaturePurhaseCards();
 	maxAllCards(cards);
