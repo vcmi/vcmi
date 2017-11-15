@@ -36,14 +36,14 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 
 si8 PlayerInfo::defaultCastle() const
 {
-	if(allowedFactions.size() == 1 || !isFactionRandom)
-	{
-		// faction can't be chosen - set to first that is marked as allowed
-		assert(!allowedFactions.empty());
-		return *allowedFactions.begin();
-	}
+	//if random allowed set it as default
+	if(isFactionRandom)
+		return -1;
 
-	// set to random
+	if(!allowedFactions.empty())
+		return *allowedFactions.begin();
+
+	// fall back to random
 	return -1;
 }
 

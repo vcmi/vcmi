@@ -2367,6 +2367,7 @@ void OptionsTab::nextCastle( PlayerColor player, int dir )
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	si16 &cur = s.castle;
 	auto & allowed = SEL->current->mapHeader->players[s.color.getNum()].allowedFactions;
+	const bool allowRandomTown = SEL->current->mapHeader->players[s.color.getNum()].isFactionRandom;
 
 	if (cur == PlayerSettings::NONE) //no change
 		return;
@@ -2381,9 +2382,20 @@ void OptionsTab::nextCastle( PlayerColor player, int dir )
 	}
 	else // next/previous available
 	{
-		if ( (cur == *allowed.begin() && dir < 0 )
-		  || (cur == *allowed.rbegin() && dir > 0) )
-			cur = -1;
+		if((cur == *allowed.begin() && dir < 0 ) || (cur == *allowed.rbegin() && dir > 0))
+		{
+			if(allowRandomTown)
+			{
+				cur = PlayerSettings::RANDOM;
+			}
+			else
+			{
+				if (dir > 0)
+					cur = *allowed.begin();
+				else
+					cur = *allowed.rbegin();
+			}
+		}
 		else
 		{
 			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
@@ -2699,8 +2711,9 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	if(!btns[0])
 		return;
 
-	if( (pi.defaultCastle() != -1) //fixed tow
-		|| (SEL->isGuest() && s.color != playerColor)) //or not our player
+	const bool foreignPlayer = SEL->isGuest() && s.color != playerColor;
+
+	if( (pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer)
 	{
 		btns[0]->disable();
 		btns[1]->disable();
@@ -2712,7 +2725,7 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	}
 
 	if( (pi.defaultHero() != -1  ||  !s.playerID  ||  s.castle < 0) //fixed hero
-		|| (SEL->isGuest() && s.color != playerColor))//or not our player
+		|| foreignPlayer)//or not our player
 	{
 		btns[2]->disable();
 		btns[3]->disable();
@@ -2723,7 +2736,7 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 		btns[3]->enable();
 	}
 
-	if(SEL->isGuest() && s.color != playerColor)//or not our player
+	if(foreignPlayer)
 	{
 		btns[4]->disable();
 		btns[5]->disable();
