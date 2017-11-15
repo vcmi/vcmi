@@ -2121,7 +2121,6 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 	{
 		case CGObelisk::OBJPROP_INC:
 			{
-				assert(val < PlayerColor::PLAYER_LIMIT_I);
 				auto progress = ++visited[TeamID(val)];
 				logGlobal->debug("Player %d: obelisk progress %d / %d", val, static_cast<int>(progress) , static_cast<int>(obeliskCount));
 
