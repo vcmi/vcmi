@@ -20,6 +20,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/VCMIDirs.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -252,18 +253,34 @@ CMusicHandler::CMusicHandler():
 	listener(settings.listen["general"]["music"])
 {
 	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
-	// Map music IDs
-	// Vectors for helper
-	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};
-	const std::string setBattle[] = {"Combat01", "Combat02", "Combat03", "Combat04"};
 
-	auto fillSet = [=](std::string setName, const std::string list[], size_t amount)
+	auto mp3Folders = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
 	{
-		for (size_t i=0; i < amount; i++)
-			addEntryToSet(setName, i, "music/" + list[i]);
-	};
-	fillSet("enemy-turn", setEnemy, ARRAY_COUNT(setEnemy));
-	fillSet("battle", setBattle, ARRAY_COUNT(setBattle));
+		if (id.getType() != EResType::DIRECTORY)
+			return false;
+		if (!(boost::algorithm::iends_with(id.getName(), "mp3")))
+			return false;
+		return true;
+	});
+
+	boost::filesystem::path userDataPath = VCMIDirs::get().userDataPath();
+	int battleMusicID = 0;
+	int AIThemeID = 0;
+	for (ResourceID folder : mp3Folders)
+	{
+		const boost::filesystem::directory_iterator enddir;
+		for (boost::filesystem::directory_iterator dir(userDataPath / folder.getName()); dir != enddir; ++dir)
+		{
+			if (is_regular(dir->status()))
+			{
+				std::string name = dir->path().filename().string();
+				if (boost::algorithm::istarts_with(name, "Combat"))
+					addEntryToSet("battle", battleMusicID++, "Music/" + name);
+				else if (boost::algorithm::istarts_with(name, "AITheme"))
+					addEntryToSet("enemy-turn", AIThemeID++, "Music/" + name);
+			}
+		}
+	}
 
 	JsonNode terrains(ResourceID("config/terrains.json"));
 	for (auto entry : terrains.Struct())
