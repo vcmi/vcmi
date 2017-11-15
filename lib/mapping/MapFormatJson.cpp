@@ -102,10 +102,20 @@ namespace HeaderDetail
 		"IMPOSSIBLE"
 	};
 
+	enum class ECanPlay
+	{
+        NONE = 0,
+        PLAYER_OR_AI = 1,
+        PLAYER_ONLY = 2,
+        AI_ONLY = 3
+	};
+
 	static const std::vector<std::string> canPlayMap =
 	{
-		"AIOnly",
-		"PlayerOrAI"
+		"",
+		"PlayerOrAI",
+		"PlayerOnly",
+		"AIOnly"
 	};
 }
 
@@ -420,12 +430,48 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 				info.canHumanPlay = false;
 				continue;
 			}
-			info.canComputerPlay = true;
 		}
 
 		serializeAllowedFactions(handler, info.allowedFactions);
 
-		handler.serializeEnum("canPlay", info.canHumanPlay, HeaderDetail::canPlayMap);
+		HeaderDetail::ECanPlay canPlay = HeaderDetail::ECanPlay::NONE;
+
+		if(handler.saving)
+		{
+			if(info.canComputerPlay)
+			{
+				canPlay = info.canHumanPlay ? HeaderDetail::ECanPlay::PLAYER_OR_AI : HeaderDetail::ECanPlay::AI_ONLY;
+			}
+			else
+			{
+				canPlay = info.canHumanPlay ? HeaderDetail::ECanPlay::PLAYER_ONLY : HeaderDetail::ECanPlay::NONE;
+			}
+		}
+
+		handler.serializeEnum("canPlay", canPlay, HeaderDetail::canPlayMap);
+
+		if(!handler.saving)
+		{
+			switch(canPlay)
+			{
+			case HeaderDetail::ECanPlay::PLAYER_OR_AI:
+				info.canComputerPlay = true;
+				info.canHumanPlay = true;
+				break;
+			case HeaderDetail::ECanPlay::PLAYER_ONLY:
+				info.canComputerPlay = false;
+				info.canHumanPlay = true;
+				break;
+			case HeaderDetail::ECanPlay::AI_ONLY:
+				info.canComputerPlay = true;
+				info.canHumanPlay = false;
+				break;
+            default:
+				info.canComputerPlay = false;
+				info.canHumanPlay = false;
+				break;
+			}
+		}
 
 		//saving whole structure only if position is valid
 		if(!handler.saving || info.posOfMainTown.valid())
