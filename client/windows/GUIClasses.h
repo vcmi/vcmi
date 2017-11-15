@@ -18,6 +18,7 @@
 #include "../windows/CWindowObject.h"
 
 class CGDwelling;
+class CreatureCostBox;
 class IMarket;
 class CCreaturePic;
 class MoraleLuckBox;
@@ -54,18 +55,6 @@ class CRecruitmentWindow : public CWindowObject
 		CCreatureCard(CRecruitmentWindow * window, const CCreature *crea, int totalAmount);
 	};
 
-	/// small class to display creature costs
-	class CCostBox : public CIntObject
-	{
-		std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
-	public:
-		//res - resources to show
-		void set(TResources res);
-		//res - visible resources
-		CCostBox(Rect position, std::string title);
-		void createItems(TResources res);
-	};
-
 	std::function<void(CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
 
 	int level;
@@ -80,8 +69,8 @@ class CRecruitmentWindow : public CWindowObject
 	CLabel * title;
 	CLabel * availableValue;
 	CLabel * toRecruitValue;
-	CCostBox * costPerTroopValue;
-	CCostBox * totalCostValue;
+	CreatureCostBox * costPerTroopValue;
+	CreatureCostBox * totalCostValue;
 
 	void select(CCreatureCard * card);
 	void buy();

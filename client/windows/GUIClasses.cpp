@@ -14,6 +14,7 @@
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
+#include "CreatureCostBox.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -108,57 +109,6 @@ void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 		drawBorder(to, pos, int3(232, 212, 120));
 }
 
-CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
-{
-	type |= REDRAW_PARENT;
-	pos = position + pos;
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
-}
-
-void CRecruitmentWindow::CCostBox::set(TResources res)
-{
-	//just update values
-	for(auto & item : resources)
-	{
-		item.second.first->setText(boost::lexical_cast<std::string>(res[item.first]));
-	}
-}
-
-void CRecruitmentWindow::CCostBox::createItems(TResources res)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	for(auto & curr : resources)
-	{
-		delete curr.second.first;
-		delete curr.second.second;
-	}
-	resources.clear();
-
-	TResources::nziterator iter(res);
-	while (iter.valid())
-	{
-		CAnimImage * image = new CAnimImage("RESOURCE", iter->resType);
-		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
-
-		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
-		iter++;
-	}
-
-	if (!resources.empty())
-	{
-		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
-		//reverse to display gold as first resource
-		for (auto & res : boost::adaptors::reverse(resources))
-		{
-			res.second.first->moveBy(Point(curx, 22));
-			res.second.second->moveBy(Point(curx, 22));
-			curx += 48;
-		}
-	}
-	redraw();
-}
 
 void CRecruitmentWindow::select(CCreatureCard *card)
 {
@@ -268,8 +218,8 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
 	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
 
-	costPerTroopValue =  new CCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
-	totalCostValue = new CCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
+	costPerTroopValue =  new CreatureCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
+	totalCostValue = new CreatureCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
 
 	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]); //available t
 	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]); //recruit t
