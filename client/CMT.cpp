@@ -681,6 +681,39 @@ void processCommand(const std::string &message)
 //		readed >> fname;
 //		client->loadGame(fname);
 //	}
+	else if(message=="convert txt")
+	{
+		std::cout << "Command accepted.\t";
+
+		const bfs::path outPath =
+			VCMIDirs::get().userCachePath() / "extracted";
+
+		bfs::create_directories(outPath);
+
+		auto extractVector = [=](const std::vector<std::string> & source, const std::string & name)
+		{
+			JsonNode data(JsonNode::DATA_VECTOR);
+			size_t index = 0;
+			for(auto & line : source)
+			{
+				JsonNode lineNode(JsonNode::DATA_STRUCT);
+				lineNode["text"].String() = line;
+				lineNode["index"].Integer() = index++;
+				data.Vector().push_back(lineNode);
+			}
+
+			const bfs::path filePath = outPath / (name + ".json");
+			bfs::ofstream file(filePath);
+			file << data.toJson();
+		};
+
+		extractVector(VLC->generaltexth->allTexts, "generalTexts");
+		extractVector(VLC->generaltexth->jktexts, "jkTexts");
+		extractVector(VLC->generaltexth->arraytxt, "arrayTexts");
+
+		std::cout << "\rExtracting done :)\n";
+		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+	}
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";
