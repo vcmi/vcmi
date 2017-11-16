@@ -254,32 +254,27 @@ CMusicHandler::CMusicHandler():
 {
 	listener(std::bind(&CMusicHandler::onVolumeChange, this, _1));
 
-	auto mp3Folders = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
+	auto mp3files = CResourceHandler::get()->getFilteredFiles([](const ResourceID & id) ->  bool
 	{
-		if (id.getType() != EResType::DIRECTORY)
+		if(id.getType() != EResType::MUSIC)
 			return false;
-		if (!(boost::algorithm::iends_with(id.getName(), "mp3")))
+
+		if(!boost::algorithm::istarts_with(id.getName(), "MUSIC/"))
 			return false;
+
+		logGlobal->trace("Found music file %s", id.getName());
 		return true;
 	});
 
-	boost::filesystem::path userDataPath = VCMIDirs::get().userDataPath();
 	int battleMusicID = 0;
 	int AIThemeID = 0;
-	for (ResourceID folder : mp3Folders)
+
+	for(const ResourceID & file : mp3files)
 	{
-		const boost::filesystem::directory_iterator enddir;
-		for (boost::filesystem::directory_iterator dir(userDataPath / folder.getName()); dir != enddir; ++dir)
-		{
-			if (is_regular(dir->status()))
-			{
-				std::string name = dir->path().filename().string();
-				if (boost::algorithm::istarts_with(name, "Combat"))
-					addEntryToSet("battle", battleMusicID++, "Music/" + name);
-				else if (boost::algorithm::istarts_with(name, "AITheme"))
-					addEntryToSet("enemy-turn", AIThemeID++, "Music/" + name);
-			}
-		}
+		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
+			addEntryToSet("battle", battleMusicID++, file.getName());
+		else if(boost::algorithm::istarts_with(file.getName(), "MUSIC/AITheme"))
+			addEntryToSet("enemy-turn", AIThemeID++, file.getName());
 	}
 
 	JsonNode terrains(ResourceID("config/terrains.json"));
