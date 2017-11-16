@@ -816,6 +816,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::battleFinished()
 {
+	stopAllBattleActions();
 	for(auto & side : gs->curB->sides)
 		if(battleCallbacks.count(side.color))
 			battleCallbacks[side.color]->setBattle(nullptr);
@@ -980,6 +981,38 @@ std::string CClient::aiNameForPlayer(bool battleAI)
 		return badAI;
 
 	return goodAI;
+}
+
+void CClient::startPlayerBattleAction(PlayerColor color)
+{
+	stopPlayerBattleAction(color);
+
+	if(vstd::contains(battleints, color))
+	{
+		auto thread = std::make_shared<boost::thread>(std::bind(&CClient::waitForMoveAndSend, this, color));
+		playerActionThreads[color] = thread;
+	}
+}
+
+void CClient::stopPlayerBattleAction(PlayerColor color)
+{
+	if(vstd::contains(playerActionThreads, color))
+	{
+		auto thread = playerActionThreads.at(color);
+		if(thread->joinable())
+		{
+			thread->interrupt();
+			thread->join();
+		}
+		playerActionThreads.erase(color);
+	}
+
+}
+
+void CClient::stopAllBattleActions()
+{
+	while(!playerActionThreads.empty())
+		stopPlayerBattleAction(playerActionThreads.begin()->first);
 }
 
 void CServerHandler::startServer()

@@ -103,6 +103,10 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			}
 		}
 	}
+	catch(boost::thread_interrupted &)
+	{
+		throw;
+	}
 	catch(std::exception &e)
 	{
 		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());

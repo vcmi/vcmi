@@ -123,6 +123,8 @@ public:
 class CClient : public IGameCallback
 {
 	std::unique_ptr<CPathsInfo> pathInfo;
+
+	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
 public:
 	std::map<PlayerColor,std::shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
 	std::map<PlayerColor,std::shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
@@ -143,7 +145,7 @@ public:
 
 	static ThreadSafeVector<int> waitingRequest;//FIXME: make this normal field (need to join all threads before client destruction)
 
-	void waitForMoveAndSend(PlayerColor color);
+
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);
@@ -252,4 +254,11 @@ public:
 	void serialize(BinarySerializer & h, const int version, const std::set<PlayerColor>& playerIDs);
 	void serialize(BinaryDeserializer & h, const int version, const std::set<PlayerColor>& playerIDs);
 	void battleFinished();
+
+    void startPlayerBattleAction(PlayerColor color);
+
+    void stopPlayerBattleAction(PlayerColor color);
+    void stopAllBattleActions();
+private:
+	void waitForMoveAndSend(PlayerColor color);
 };
