@@ -110,6 +110,13 @@
     </ClCompile>
     <ClCompile Include="..\CCallback.cpp" />
     <ClCompile Include="SDLRWwrapper.cpp" />
+    <ClCompile Include="windows\QuickRecruitmentWindow.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\CreaturePurhaseCard.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="CreatureCostBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -247,5 +254,12 @@
     </ClInclude>
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="SDLRWwrapper.h" />
+    <ClInclude Include="windows\QuickRecruitmentWindow.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\CreaturePurhaseCard.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="CreatureCostBox.h" />
   </ItemGroup>
 </Project>
