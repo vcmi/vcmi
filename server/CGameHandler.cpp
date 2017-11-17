@@ -854,7 +854,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
-	const int attackerLuck = att->LuckVal();
+	const int attackerLuck = (att->getCreature()->idNumber != CreatureID::ARROW_TOWERS) ? att->LuckVal() : 0;
 
 	auto sideHeroBlocksLuck = [](const SideInBattle &side){ return NBonus::hasOfType(side.hero, Bonus::BLOCK_LUCK); };
 
