@@ -192,6 +192,7 @@
     <ClCompile Include="CMusicHandler.cpp" />
     <ClCompile Include="CPlayerInterface.cpp" />
     <ClCompile Include="CPreGame.cpp" />
+    <ClCompile Include="CreatureCostBox.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="gui\CAnimation.cpp" />
@@ -222,11 +223,13 @@
     <ClCompile Include="windows\CHeroWindow.cpp" />
     <ClCompile Include="windows\CKingdomInterface.cpp" />
     <ClCompile Include="windows\CQuestLog.cpp" />
+    <ClCompile Include="windows\CreaturePurhaseCard.cpp" />
     <ClCompile Include="windows\CSpellWindow.cpp" />
     <ClCompile Include="windows\CTradeWindow.cpp" />
     <ClCompile Include="windows\CWindowObject.cpp" />
     <ClCompile Include="windows\GUIClasses.cpp" />
     <ClCompile Include="windows\InfoWindows.cpp" />
+    <ClCompile Include="windows\QuickRecruitmentWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CCallback.h" />
@@ -243,6 +246,7 @@
     <ClInclude Include="CMusicHandler.h" />
     <ClInclude Include="CPlayerInterface.h" />
     <ClInclude Include="CPreGame.h" />
+    <ClInclude Include="CreatureCostBox.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="gui\CAnimation.h" />
@@ -273,11 +277,13 @@
     <ClInclude Include="windows\CHeroWindow.h" />
     <ClInclude Include="windows\CKingdomInterface.h" />
     <ClInclude Include="windows\CQuestLog.h" />
+    <ClInclude Include="windows\CreaturePurhaseCard.h" />
     <ClInclude Include="windows\CSpellWindow.h" />
     <ClInclude Include="windows\CTradeWindow.h" />
     <ClInclude Include="windows\CWindowObject.h" />
     <ClInclude Include="windows\GUIClasses.h" />
     <ClInclude Include="windows\InfoWindows.h" />
+    <ClInclude Include="windows\QuickRecruitmentWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcmi.ico" />
