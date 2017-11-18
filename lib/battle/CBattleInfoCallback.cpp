@@ -17,19 +17,39 @@
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
-static void retreiveTurretDamageRange(const CGTownInstance * town, const CStack * turret, double & outMinDmg, double & outMaxDmg)
+/*
+ *Here are 2 explanations how below algorithm should work in H3, looks like they are not 100% accurate as it results in one damage number, not min/max range:
+ *
+ *1. http://heroes.thelazy.net/wiki/Arrow_tower
+ *
+ *2. All towns' turrets do the same damage. If Fort, Citadel or Castle is built damage of the Middle turret is 15, and 7,5 for others.
+ *Buildings increase turrets' damage, but only those buildings that are new in town view, not upgrades to the existing. So, every building save:
+ *- dwellings' upgrades
+ *- Mage Guild upgrades
+ *- Horde buildings
+ *- income upgrades
+ *- some special ones
+ *increases middle Turret damage by 3, and 1,5 for the other two.
+ *Damage is almost always the maximum one (right click on the Turret), sometimes +1/2 points, and it does not depend on the target. Nothing can influence it, except the mentioned above (but it will be roughly double if the defender has Armorer or Air Shield).
+ *Maximum damage for Castle, Conflux is 120, Necropolis, Inferno, Fortress 125, Stronghold, Turret, and Dungeon 130 (for all three Turrets).
+ *Artillery allows the player to control the Turrets.
+ */
+static void retreiveTurretDamageRange(const CGTownInstance * town, const CStack * turret, double & outMinDmg, double & outMaxDmg) //does not match OH3 yet, but damage is somewhat close
 {
 	assert(turret->getCreature()->idNumber == CreatureID::ARROW_TOWERS);
 	assert(town);
 	assert(turret->position >= -4 && turret->position <= -2);
 
-	float multiplier = (turret->position == -2) ? 1 : 0.5;
+	const float multiplier = (turret->position == -2) ? 1 : 0.5;
 
-	int baseMin = 6;
-	int baseMax = 10;
+	//Revised - Where do below values come from?
+	/*int baseMin = 6;
+	int baseMax = 10;*/
 
-	outMinDmg = multiplier * (baseMin + town->getTownLevel() * 2);
-	outMaxDmg = multiplier * (baseMax + town->getTownLevel() * 3);
+	const int baseDamage = 15;
+
+	outMinDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
+	outMaxDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
 }
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
@@ -557,9 +577,11 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	const CCreature *attackerType = info.attacker->getCreature(),
 			*defenderType = info.defender->getCreature();
 
-	if(attackerType->idNumber == CreatureID::ARROW_TOWERS)
+	if(attackerType->idNumber == CreatureID::ARROW_TOWERS) //separately handled case
 	{
 		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
+		TDmgRange unmodifiableTowerDamage = std::make_pair(int(minDmg), int(maxDmg));
+		return unmodifiableTowerDamage;
 	}
 
 	if(info.attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && attackerType->idNumber != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
