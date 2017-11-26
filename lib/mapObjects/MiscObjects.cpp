@@ -788,7 +788,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 				if(tempOwner.getNum() & 1<<i)
 				{
-					JsonNode one(JsonNode::DATA_STRING);
+					JsonNode one(JsonNode::JsonType::DATA_STRING);
 					one.String() = GameConstants::RESOURCE_NAMES[i];
 					node.Vector().push_back(one);
 				}

@@ -232,7 +232,7 @@ namespace TriggeredEventsDetail
 			default:
 				{
 					//old format
-					if (data["type"].getType() == JsonNode::DATA_STRING)
+					if (data["type"].getType() == JsonNode::JsonType::DATA_STRING)
 					{
 						auto identifier = VLC->modh->identifiers.getIdentifier(data["type"]);
 						if(identifier)
@@ -567,10 +567,10 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 	auto teams = handler.enterArray("teams");
 	const JsonNode & src = teams.get();
 
-    if(src.getType() != JsonNode::DATA_VECTOR)
+	if(src.getType() != JsonNode::JsonType::DATA_VECTOR)
 	{
 		// No alliances
-		if(src.getType() != JsonNode::DATA_NULL)
+		if(src.getType() != JsonNode::JsonType::DATA_NULL)
 			logGlobal->error("Invalid teams field type");
 
 		mapHeader->howManyTeams = 0;
@@ -625,14 +625,14 @@ void CMapFormatJson::writeTeams(JsonSerializer & handler)
 		JsonNode & dest = teams.get();
 
 		//construct output
-		dest.setType(JsonNode::DATA_VECTOR);
+		dest.setType(JsonNode::JsonType::DATA_VECTOR);
 
 		for(const std::set<PlayerColor> & teamData : teamsData)
 		{
-			JsonNode team(JsonNode::DATA_VECTOR);
+			JsonNode team(JsonNode::JsonType::DATA_VECTOR);
 			for(const PlayerColor & player : teamData)
 			{
-				JsonNode member(JsonNode::DATA_STRING);
+				JsonNode member(JsonNode::JsonType::DATA_STRING);
 				member.String() = GameConstants::PLAYER_COLOR_NAMES[player.getNum()];
 				team.Vector().push_back(std::move(member));
 			}
@@ -747,7 +747,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 		for(int playerNum = 0; playerNum < PlayerColor::PLAYER_LIMIT_I; playerNum++)
             if((1 << playerNum) & hero.players)
 			{
-				JsonNode player(JsonNode::DATA_STRING);
+				JsonNode player(JsonNode::JsonType::DATA_STRING);
 				player.String() = GameConstants::PLAYER_COLOR_NAMES[playerNum];
 				players.push_back(player);
 			}
@@ -1347,7 +1347,7 @@ void CMapSaverJson::writeTerrain()
 void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
-	JsonNode data(JsonNode::DATA_STRUCT);
+	JsonNode data(JsonNode::JsonType::DATA_STRUCT);
 
 	JsonSerializer handler(mapObjectResolver.get(), data);
 
@@ -1361,7 +1361,7 @@ void CMapSaverJson::writeObjects()
 
 	if(map->grailPos.valid())
 	{
-		JsonNode grail(JsonNode::DATA_STRUCT);
+		JsonNode grail(JsonNode::JsonType::DATA_STRUCT);
 		grail["type"].String() = "grail";
 
 		grail["x"].Float() = map->grailPos.x;

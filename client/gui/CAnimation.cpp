@@ -1356,7 +1356,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	}
 
 	//try to get image from def
-	if(source[group][frame].getType() == JsonNode::DATA_NULL)
+	if(source[group][frame].getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		if(defFile)
 		{
@@ -1411,7 +1411,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 	std::string basepath;
 	basepath = config["basepath"].String();
 
-	JsonNode base(JsonNode::DATA_STRUCT);
+	JsonNode base(JsonNode::JsonType::DATA_STRUCT);
 	base["margins"] = config["margins"];
 	base["width"] = config["width"];
 	base["height"] = config["height"];
@@ -1423,7 +1423,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 
 		for(const JsonNode & frame : group["frames"].Vector())
 		{
-			JsonNode toAdd(JsonNode::DATA_STRUCT);
+			JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
 			source[groupID].push_back(toAdd);
@@ -1438,7 +1438,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 		if (source[group].size() <= frame)
 			source[group].resize(frame+1);
 
-		JsonNode toAdd(JsonNode::DATA_STRUCT);
+		JsonNode toAdd(JsonNode::JsonType::DATA_STRUCT);
 		JsonUtils::inherit(toAdd, base);
 		toAdd["file"].String() = basepath + node["file"].String();
 		source[group][frame] = toAdd;
@@ -1564,7 +1564,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 	//todo: clone actual loaded Image object
 	JsonNode clone(source[sourceGroup][sourceFrame]);
 
-	if(clone.getType() == JsonNode::DATA_NULL)
+	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
         clone["file"].String() = temp;

@@ -79,7 +79,7 @@ JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat & owner_, const s
 	optional(false)
 {
 	if(owner.saving)
-		thisNode->setType(JsonNode::DATA_STRUCT);
+		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
 }
 
 JsonStructSerializer::JsonStructSerializer(JsonSerializeHelper & parent, const std::string & fieldName):
@@ -87,7 +87,7 @@ JsonStructSerializer::JsonStructSerializer(JsonSerializeHelper & parent, const s
 	optional(false)
 {
 	if(owner.saving)
-		thisNode->setType(JsonNode::DATA_STRUCT);
+		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
 }
 
 JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat & owner_, JsonNode * thisNode_):
@@ -95,7 +95,7 @@ JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat & owner_, JsonNod
 	optional(false)
 {
 	if(owner.saving)
-		thisNode->setType(JsonNode::DATA_STRUCT);
+		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
 }
 
 JsonStructSerializer::~JsonStructSerializer()
@@ -141,7 +141,7 @@ void JsonArraySerializer::resize(const size_t newSize, JsonNode::JsonType type)
 	resize(newSize);
 
 	for(JsonNode & n : thisNode->Vector())
-		if(n.getType() == JsonNode::DATA_NULL)
+		if(n.getType() == JsonNode::JsonType::DATA_NULL)
 			n.setType(type);
 }
 

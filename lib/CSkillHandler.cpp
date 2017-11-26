@@ -128,7 +128,7 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	std::vector<JsonNode> legacyData;
 	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
 	{
-		JsonNode skillNode(JsonNode::DATA_STRUCT);
+		JsonNode skillNode(JsonNode::JsonType::DATA_STRUCT);
 		skillNode["name"].String() = skillNames[id];
 		for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 		{

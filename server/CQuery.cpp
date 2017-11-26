@@ -426,7 +426,7 @@ bool CDialogQuery::blocksPack(const CPack * pack) const
 
 void CDialogQuery::setReply(const JsonNode & reply)
 {
-	if(reply.getType() == JsonNode::DATA_INTEGER)
+	if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
 		answer = reply.Integer();
 }
 

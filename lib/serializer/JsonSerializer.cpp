@@ -61,7 +61,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 
 	for(const si32 rawId : value)
 	{
-        JsonNode jsonElement(JsonNode::DATA_STRING);
+        JsonNode jsonElement(JsonNode::JsonType::DATA_STRING);
         jsonElement.String() = encoder(rawId);
         data.push_back(std::move(jsonElement));
 	}
@@ -133,7 +133,7 @@ void JsonSerializer::writeLICPartBuffer(const std::string & fieldName, const std
 
 		for(auto & s : buffer)
 		{
-			JsonNode val(JsonNode::DATA_STRING);
+			JsonNode val(JsonNode::JsonType::DATA_STRING);
 			std::swap(val.String(), s);
 			target.push_back(std::move(val));
 		}

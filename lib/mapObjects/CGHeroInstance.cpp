@@ -1546,7 +1546,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		{
 			const JsonNode & portraitNode = handler.getCurrent()["portrait"];
 
-			if(portraitNode.getType() == JsonNode::DATA_STRING)
+			if(portraitNode.getType() == JsonNode::JsonType::DATA_STRING)
 				handler.serializeId("portrait", portrait, -1, &VLC->heroh->decodeHero, &VLC->heroh->encodeHero);
 			else
 				handler.serializeInt("portrait", portrait, -1);
@@ -1574,7 +1574,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	{
 		auto primarySkills = handler.enterStruct("primarySkills");
 
-		if(primarySkills.get().getType() == JsonNode::DATA_STRUCT)
+		if(primarySkills.get().getType() == JsonNode::JsonType::DATA_STRUCT)
 		{
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
@@ -1625,7 +1625,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 		const JsonNode & skillMap = handler.getCurrent();
 
 		secSkills.clear();
-		if(skillMap.getType() == JsonNode::DATA_NULL)
+		if(skillMap.getType() == JsonNode::JsonType::DATA_NULL)
 		{
 			secSkills.push_back(std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1));
 		}

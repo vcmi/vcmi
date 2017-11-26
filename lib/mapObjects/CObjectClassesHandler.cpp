@@ -221,7 +221,7 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, boost::optional<si32> subID)
 {
-	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not NULL
+	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
 	if (subID)
 	{
@@ -398,7 +398,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 
 	for (auto entry : input["templates"].Struct())
 	{
-		entry.second.setType(JsonNode::DATA_STRUCT);
+		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
 		JsonUtils::inherit(entry.second, base);
 
 		ObjectTemplate tmpl;
@@ -449,7 +449,7 @@ void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
-	config.setType(JsonNode::DATA_STRUCT); // ensure that input is not null
+	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
 	ObjectTemplate tmpl;
 	tmpl.id = Obj(type);

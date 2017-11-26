@@ -336,7 +336,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 
 			for(auto type : allowedTerrains)
 			{
-				JsonNode value(JsonNode::DATA_STRING);
+				JsonNode value(JsonNode::JsonType::DATA_STRING);
 				value.String() = GameConstants::TERRAIN_NAMES[type.num];
 				data.push_back(value);
 			}
@@ -379,7 +379,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 
 	for(size_t i=0; i < height; i++)
 	{
-		JsonNode lineNode(JsonNode::DATA_STRING);
+		JsonNode lineNode(JsonNode::JsonType::DATA_STRING);
 
 		std::string & line = lineNode.String();
 		line.resize(width);

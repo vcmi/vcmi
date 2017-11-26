@@ -501,7 +501,7 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 		if(fixedSize)
 			vstd::amax(sz, fixedSize.get());
 
-		a.resize(sz, JsonNode::DATA_STRUCT);
+		a.resize(sz, JsonNode::JsonType::DATA_STRUCT);
 
 		for(const auto & p : stacks)
 		{

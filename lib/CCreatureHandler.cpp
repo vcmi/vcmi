@@ -735,7 +735,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->animDefName = config["graphics"]["animation"].String();
 
 	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::DATA_STRUCT)
+	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
 		for(auto &ability : config["abilities"].Struct())
 		{
@@ -752,7 +752,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		for(const JsonNode &ability : config["abilities"].Vector())
 		{
-			if (ability.getType() == JsonNode::DATA_VECTOR)
+			if (ability.getType() == JsonNode::JsonType::DATA_VECTOR)
 			{
 				assert(0); // should be unused now
 				AddAbility(creature, ability.Vector()); // used only for H3 creatures

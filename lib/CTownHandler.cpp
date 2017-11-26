@@ -354,7 +354,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->mode = CBuilding::BUILD_NORMAL;
 	{
-		if(source["mode"].getType() == JsonNode::DATA_STRING)
+		if(source["mode"].getType() == JsonNode::JsonType::DATA_STRING)
 		{
 			auto rawMode = vstd::find_pos(MODES, source["mode"].String());
 			if(rawMode > 0)
@@ -563,7 +563,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 
 static void readIcon(JsonNode source, std::string & small, std::string & large)
 {
-	if (source.getType() == JsonNode::DATA_STRUCT) // don't crash on old format
+	if (source.getType() == JsonNode::JsonType::DATA_STRUCT) // don't crash on old format
 	{
 		small = source["small"].String();
 		large = source["large"].String();

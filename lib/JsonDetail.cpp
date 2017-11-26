@@ -96,31 +96,31 @@ void JsonWriter::writeNode(const JsonNode &node)
 {
 	switch(node.getType())
 	{
-		break; case JsonNode::DATA_NULL:
+		break; case JsonNode::JsonType::DATA_NULL:
 			out << "null";
 
-		break; case JsonNode::DATA_BOOL:
+		break; case JsonNode::JsonType::DATA_BOOL:
 			if (node.Bool())
 				out << "true";
 			else
 				out << "false";
 
-		break; case JsonNode::DATA_FLOAT:
+		break; case JsonNode::JsonType::DATA_FLOAT:
 			out << node.Float();
 
-		break; case JsonNode::DATA_STRING:
+		break; case JsonNode::JsonType::DATA_STRING:
 			writeString(node.String());
 
-		break; case JsonNode::DATA_VECTOR:
+		break; case JsonNode::JsonType::DATA_VECTOR:
 			out << "[" << "\n";
 			writeContainer(node.Vector().begin(), node.Vector().end());
 			out << prefix << "]";
 
-		break; case JsonNode::DATA_STRUCT:
+		break; case JsonNode::JsonType::DATA_STRUCT:
 			out << "{" << "\n";
 			writeContainer(node.Struct().begin(), node.Struct().end());
 			out << prefix << "}";
-		break; case JsonNode::DATA_INTEGER:
+		break; case JsonNode::JsonType::DATA_INTEGER:
 			out << node.Integer();
 	}
 }
@@ -306,7 +306,7 @@ bool JsonParser::extractString(JsonNode &node)
 	if (!extractString(str))
 		return false;
 
-	node.setType(JsonNode::DATA_STRING);
+	node.setType(JsonNode::JsonType::DATA_STRING);
 	node.String() = str;
 	return true;
 }
@@ -354,7 +354,7 @@ bool JsonParser::extractFalse(JsonNode &node)
 
 bool JsonParser::extractStruct(JsonNode &node)
 {
-	node.setType(JsonNode::DATA_STRUCT);
+	node.setType(JsonNode::JsonType::DATA_STRUCT);
 	pos++;
 
 	if (!extractWhitespace())
@@ -396,7 +396,7 @@ bool JsonParser::extractStruct(JsonNode &node)
 bool JsonParser::extractArray(JsonNode &node)
 {
 	pos++;
-	node.setType(JsonNode::DATA_VECTOR);
+	node.setType(JsonNode::JsonType::DATA_VECTOR);
 
 	if (!extractWhitespace())
 		return false;
@@ -536,7 +536,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 		if(negative)
 			result = -result;
 
-		node.setType(JsonNode::DATA_FLOAT);
+		node.setType(JsonNode::JsonType::DATA_FLOAT);
 		node.Float() = result;
 	}
 	else
@@ -544,7 +544,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 		if(negative)
 			integerPart = -integerPart;
 
-		node.setType(JsonNode::DATA_INTEGER);
+		node.setType(JsonNode::JsonType::DATA_INTEGER);
 		node.Integer() = integerPart;
 	}
 
@@ -569,12 +569,12 @@ bool JsonParser::error(const std::string &message, bool warning)
 
 static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
 {
-	{"null",   JsonNode::DATA_NULL},
-	{"boolean", JsonNode::DATA_BOOL},
-	{"number", JsonNode::DATA_FLOAT},
-	{"string",  JsonNode::DATA_STRING},
-	{"array",  JsonNode::DATA_VECTOR},
-	{"object",  JsonNode::DATA_STRUCT}
+	{"null",   JsonNode::JsonType::DATA_NULL},
+	{"boolean", JsonNode::JsonType::DATA_BOOL},
+	{"number", JsonNode::JsonType::DATA_FLOAT},
+	{"string",  JsonNode::JsonType::DATA_STRING},
+	{"array",  JsonNode::JsonType::DATA_VECTOR},
+	{"object",  JsonNode::JsonType::DATA_STRUCT}
 };
 
 namespace
@@ -670,10 +670,10 @@ namespace
 			JsonNode::JsonType type = it->second;
 
 			//FIXME: hack for integer values
-			if(data.isNumber() && type == JsonNode::DATA_FLOAT)
+			if(data.isNumber() && type == JsonNode::JsonType::DATA_FLOAT)
 				return "";
 
-			if(type != data.getType() && data.getType() != JsonNode::DATA_NULL)
+			if(type != data.getType() && data.getType() != JsonNode::JsonType::DATA_NULL)
 				return validator.makeErrorMessage("Type mismatch! Expected " + schema.String());
 			return "";
 		}
@@ -785,7 +785,7 @@ namespace
 			std::string errors;
 			for (size_t i=0; i<data.Vector().size(); i++)
 			{
-				if (schema.getType() == JsonNode::DATA_VECTOR)
+				if (schema.getType() == JsonNode::JsonType::DATA_VECTOR)
 				{
 					if (schema.Vector().size() > i)
 						errors += itemEntryCheck(validator, data.Vector(), schema.Vector()[i], i);
@@ -803,12 +803,12 @@ namespace
 			std::string errors;
 			// "items" is struct or empty (defaults to empty struct) - validation always successful
 			const JsonNode & items = baseSchema["items"];
-			if (items.getType() != JsonNode::DATA_VECTOR)
+			if (items.getType() != JsonNode::JsonType::DATA_VECTOR)
 				return "";
 
 			for (size_t i=items.Vector().size(); i<data.Vector().size(); i++)
 			{
-				if (schema.getType() == JsonNode::DATA_STRUCT)
+				if (schema.getType() == JsonNode::JsonType::DATA_STRUCT)
 					errors += itemEntryCheck(validator, data.Vector(), schema, i);
 				else if (!schema.isNull() && schema.Bool() == false)
 					errors += validator.makeErrorMessage("Unknown entry found");
@@ -896,7 +896,7 @@ namespace
 			{
 				if (!data[deps.first].isNull())
 				{
-					if (deps.second.getType() == JsonNode::DATA_VECTOR)
+					if (deps.second.getType() == JsonNode::JsonType::DATA_VECTOR)
 					{
 						JsonVector depList = deps.second.Vector();
 						for(auto & depEntry : depList)
@@ -947,7 +947,7 @@ namespace
 				if (baseSchema["properties"].Struct().count(entry.first) == 0)
 				{
 					// try generic additionalItems schema
-					if (schema.getType() == JsonNode::DATA_STRUCT)
+					if (schema.getType() == JsonNode::JsonType::DATA_STRUCT)
 						errors += propertyEntryCheck(validator, entry.second, schema, entry.first);
 
 					// or, additionalItems field can be bool which indicates if such items are allowed
@@ -1134,7 +1134,7 @@ namespace Validation
 			for(const JsonNode &path : currentPath)
 			{
 				errors += "/";
-				if (path.getType() == JsonNode::DATA_STRING)
+				if (path.getType() == JsonNode::JsonType::DATA_STRING)
 					errors += path.String();
 				else
 					errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
@@ -1187,12 +1187,12 @@ namespace Validation
 
 		switch (type)
 		{
-			case JsonNode::DATA_FLOAT:
-			case JsonNode::DATA_INTEGER:
+			case JsonNode::JsonType::DATA_FLOAT:
+			case JsonNode::JsonType::DATA_INTEGER:
 				return numberFields;
-			case JsonNode::DATA_STRING: return stringFields;
-			case JsonNode::DATA_VECTOR: return vectorFields;
-			case JsonNode::DATA_STRUCT: return structFields;
+			case JsonNode::JsonType::DATA_STRING: return stringFields;
+			case JsonNode::JsonType::DATA_VECTOR: return vectorFields;
+			case JsonNode::JsonType::DATA_STRUCT: return structFields;
 			default: return commonFields;
 		}
 	}

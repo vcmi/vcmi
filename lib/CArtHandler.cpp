@@ -337,7 +337,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
-	if(warMachine.getType() == JsonNode::DATA_STRING && warMachine.String() != "")
+	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && warMachine.String() != "")
 	{
 		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
 		{
@@ -396,7 +396,7 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
 {
 	if (!node["slot"].isNull()) //we assume non-hero slots are irrelevant?
 	{
-		if (node["slot"].getType() == JsonNode::DATA_STRING)
+		if (node["slot"].getType() == JsonNode::JsonType::DATA_STRING)
 			addSlot(art, node["slot"].String());
 		else
 		{

@@ -137,7 +137,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 			if (!zoneNode["treasure"].isNull())
 			{
 				//TODO: parse vector of different treasure settings
-				if (zoneNode["treasure"].getType() == JsonNode::DATA_STRUCT)
+				if (zoneNode["treasure"].getType() == JsonNode::JsonType::DATA_STRUCT)
 				{
 					auto treasureInfo = zoneNode["treasure"].Struct();
 					{
@@ -148,7 +148,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 						zone->addTreasureInfo(ti);
 					}
 				}
-				else if (zoneNode["treasure"].getType() == JsonNode::DATA_VECTOR)
+				else if (zoneNode["treasure"].getType() == JsonNode::JsonType::DATA_VECTOR)
 				{
 					for (auto treasureInfo : zoneNode["treasure"].Vector())
 					{

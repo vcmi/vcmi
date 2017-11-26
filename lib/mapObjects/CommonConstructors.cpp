@@ -198,14 +198,14 @@ void CDwellingInstanceConstructor::configureObject(CGObjectInstance * object, CR
 
 	bool guarded = false; //TODO: serialize for sanity
 
-	if (guards.getType() == JsonNode::DATA_BOOL) //simple switch
+	if (guards.getType() == JsonNode::JsonType::DATA_BOOL) //simple switch
 	{
 		if (guards.Bool())
 		{
 			guarded = true;
 		}
 	}
-	else if (guards.getType() == JsonNode::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
+	else if (guards.getType() == JsonNode::JsonType::DATA_VECTOR) //custom guards (eg. Elemental Conflux)
 	{
 		for (auto & stack : JsonRandom::loadCreatures(guards, rng))
 		{
