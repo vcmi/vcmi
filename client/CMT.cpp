@@ -692,11 +692,11 @@ void processCommand(const std::string &message)
 
 		auto extractVector = [=](const std::vector<std::string> & source, const std::string & name)
 		{
-			JsonNode data(JsonNode::DATA_VECTOR);
+			JsonNode data(JsonNode::JsonType::DATA_VECTOR);
 			size_t index = 0;
 			for(auto & line : source)
 			{
-				JsonNode lineNode(JsonNode::DATA_STRUCT);
+				JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
 				lineNode["text"].String() = line;
 				lineNode["index"].Integer() = index++;
 				data.Vector().push_back(lineNode);

@@ -58,12 +58,12 @@ QVariant toVariant(const JsonNode & node)
 {
 	switch (node.getType())
 	{
-		break; case JsonNode::DATA_NULL:   return QVariant();
-		break; case JsonNode::DATA_BOOL:   return QVariant(node.Bool());
-		break; case JsonNode::DATA_FLOAT:  return QVariant(node.Float());
-		break; case JsonNode::DATA_STRING: return QVariant(QString::fromUtf8(node.String().c_str()));
-		break; case JsonNode::DATA_VECTOR: return JsonToList(node.Vector());
-		break; case JsonNode::DATA_STRUCT: return JsonToMap(node.Struct());
+		break; case JsonNode::JsonType::DATA_NULL:   return QVariant();
+		break; case JsonNode::JsonType::DATA_BOOL:   return QVariant(node.Bool());
+		break; case JsonNode::JsonType::DATA_FLOAT:  return QVariant(node.Float());
+		break; case JsonNode::JsonType::DATA_STRING: return QVariant(QString::fromUtf8(node.String().c_str()));
+		break; case JsonNode::JsonType::DATA_VECTOR: return JsonToList(node.Vector());
+		break; case JsonNode::JsonType::DATA_STRUCT: return JsonToMap(node.Struct());
 	}
 	return QVariant();
 }

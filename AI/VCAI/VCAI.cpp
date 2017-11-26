@@ -2851,7 +2851,7 @@ void VCAI::requestSent(const CPackForServer *pack, int requestID)
 
 std::string VCAI::getBattleAIName() const
 {
-	if(settings["server"]["enemyAI"].getType() == JsonNode::DATA_STRING)
+	if(settings["server"]["enemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
 		return settings["server"]["enemyAI"].String();
 	else
 		return "BattleAI";

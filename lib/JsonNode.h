@@ -19,7 +19,7 @@ class ResourceID;
 class DLL_LINKAGE JsonNode
 {
 public:
-	enum JsonType
+	enum class JsonType
 	{
 		DATA_NULL,
 		DATA_BOOL,
@@ -49,7 +49,7 @@ public:
 	std::string meta;
 
 	//Create empty node
-	JsonNode(JsonType Type = DATA_NULL);
+	JsonNode(JsonType Type = JsonType::DATA_NULL);
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
@@ -117,16 +117,16 @@ public:
 		h & meta;
 		h & type;
 		switch (type) {
-			break; case DATA_NULL:
-			break; case DATA_BOOL:   h & data.Bool;
-			break; case DATA_FLOAT:  h & data.Float;
-			break; case DATA_STRING: h & data.String;
-			break; case DATA_VECTOR: h & data.Vector;
-			break; case DATA_STRUCT: h & data.Struct;
+			break; case JsonType::DATA_NULL:
+			break; case JsonType::DATA_BOOL:   h & data.Bool;
+			break; case JsonType::DATA_FLOAT:  h & data.Float;
+			break; case JsonType::DATA_STRING: h & data.String;
+			break; case JsonType::DATA_VECTOR: h & data.Vector;
+			break; case JsonType::DATA_STRUCT: h & data.Struct;
 		}
 		if(version >= 770)
 		{
-            if(type == DATA_INTEGER)
+			if(type == JsonType::DATA_INTEGER)
 				h & data.Integer;
 		}
 	}

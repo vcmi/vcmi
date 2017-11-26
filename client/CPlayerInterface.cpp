@@ -1207,14 +1207,14 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	auto selectCallback = [=](int selection)
 	{
-		JsonNode reply(JsonNode::DATA_INTEGER);
+		JsonNode reply(JsonNode::JsonType::DATA_INTEGER);
 		reply.Integer() = selection;
 		cb->sendQueryReply(reply, askID);
 	};
 
 	auto cancelCallback = [=]()
 	{
-		JsonNode reply(JsonNode::DATA_NULL);
+		JsonNode reply(JsonNode::JsonType::DATA_NULL);
 		cb->sendQueryReply(reply, askID);
 	};
 

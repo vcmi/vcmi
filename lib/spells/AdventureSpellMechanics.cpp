@@ -443,7 +443,7 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 	{
 		auto queryCallback = [=](const JsonNode & reply) -> void
 		{
-			if(reply.getType() == JsonNode::DATA_INTEGER)
+			if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
 			{
 				ObjectInstanceID townId(reply.Integer());
 

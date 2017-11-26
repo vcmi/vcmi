@@ -305,17 +305,17 @@ bool JsonMapComparer::isEmpty(const JsonNode & value)
 {
 	switch (value.getType())
 	{
-	case JsonNode::DATA_NULL:
+	case JsonNode::JsonType::DATA_NULL:
 		return true;
-	case JsonNode::DATA_BOOL:
+	case JsonNode::JsonType::DATA_BOOL:
 		return !value.Bool();
-	case JsonNode::DATA_FLOAT:
+	case JsonNode::JsonType::DATA_FLOAT:
 		return value.Float() == 0;
-	case JsonNode::DATA_STRING:
+	case JsonNode::JsonType::DATA_STRING:
 		return value.String() == "";
-	case JsonNode::DATA_VECTOR:
+	case JsonNode::JsonType::DATA_VECTOR:
 		return value.Vector().empty();
-	case JsonNode::DATA_STRUCT:
+	case JsonNode::JsonType::DATA_STRUCT:
 		return value.Struct().empty();
 		break;
 	default:
@@ -392,24 +392,24 @@ void JsonMapComparer::checkEqualJson(const JsonNode & actual, const JsonNode & e
 	{
 		switch (actual.getType())
 		{
-		case JsonNode::DATA_NULL:
+		case JsonNode::JsonType::DATA_NULL:
 			break; //do nothing
-		case JsonNode::DATA_BOOL:
+		case JsonNode::JsonType::DATA_BOOL:
 			check(actual.Bool() == expected.Bool(), "mismatch");
 			break;
-		case JsonNode::DATA_FLOAT:
+		case JsonNode::JsonType::DATA_FLOAT:
 			checkEqualFloat(actual.Float(),expected.Float());
 			break;
-		case JsonNode::DATA_STRING:
+		case JsonNode::JsonType::DATA_STRING:
 			checkEqualString(actual.String(),expected.String());
 			break;
-		case JsonNode::DATA_VECTOR:
+		case JsonNode::JsonType::DATA_VECTOR:
 			checkEqualJson(actual.Vector(), expected.Vector());
 			break;
-		case JsonNode::DATA_STRUCT:
+		case JsonNode::JsonType::DATA_STRUCT:
 			checkEqualJson(actual.Struct(), expected.Struct());
 			break;
-		case JsonNode::DATA_INTEGER:
+		case JsonNode::JsonType::DATA_INTEGER:
 			checkEqualInteger(actual.Integer(), expected.Integer());
 			break;
 		default:

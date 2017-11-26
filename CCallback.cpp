@@ -45,7 +45,7 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst, bool transit)
 
 int CCallback::selectionMade(int selection, QueryID queryID)
 {
-	JsonNode reply(JsonNode::DATA_INTEGER);
+	JsonNode reply(JsonNode::JsonType::DATA_INTEGER);
 	reply.Integer() = selection;
 	return sendQueryReply(reply, queryID);
 }

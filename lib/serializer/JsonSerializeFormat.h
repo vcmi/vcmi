@@ -75,13 +75,13 @@ public:
 	JsonStructSerializer enterStruct(const size_t index);
 
 	template <typename Container>
-	void syncSize(Container & c, JsonNode::JsonType type = JsonNode::DATA_NULL);
+	void syncSize(Container & c, JsonNode::JsonType type = JsonNode::JsonType::DATA_NULL);
 
 	///vector of serializable <-> Json vector of structs
 	template <typename Element>
 	void serializeStruct(std::vector<Element> & value)
 	{
-		syncSize(value, JsonNode::DATA_STRUCT);
+		syncSize(value, JsonNode::JsonType::DATA_STRUCT);
 
 		for(size_t idx = 0; idx < size(); idx++)
 		{

@@ -708,7 +708,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 	{
 		do
 		{
-			JsonNode lineNode(JsonNode::DATA_STRUCT);
+			JsonNode lineNode(JsonNode::JsonType::DATA_STRUCT);
 
 			const si32 id = legacyData.size();
 
@@ -951,9 +951,9 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		{
 			CSpell::TAnimation newItem;
 
-			if(item.getType() == JsonNode::DATA_STRING)
+			if(item.getType() == JsonNode::JsonType::DATA_STRING)
 				newItem.resourceName = item.String();
-			else if(item.getType() == JsonNode::DATA_STRUCT)
+			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
 				newItem.resourceName = item["defName"].String();
 
