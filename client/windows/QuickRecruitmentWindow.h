@@ -13,7 +13,7 @@
 
 class CButton;
 class CreatureCostBox;
-class CreaturePurhaseCard;
+class CreaturePurchaseCard;
 class CFilledTexture;
 
 class QuickRecruitmentWindow : public CWindowObject
@@ -33,13 +33,13 @@ private:
 
 	void setCreaturePurhaseCards();
 
-	void maxAllCards(std::vector<std::shared_ptr<CreaturePurhaseCard>> cards);
-	void maxAllSlidersAmount(std::vector<std::shared_ptr<CreaturePurhaseCard>> cards);
+	void maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard>> cards);
+	void maxAllSlidersAmount(std::vector<std::shared_ptr<CreaturePurchaseCard>> cards);
 	void purhaseUnits();
 
 	const CGTownInstance * town;
 	std::shared_ptr<CButton> maxButton, buyButton, cancelButton;
 	std::shared_ptr<CreatureCostBox> totalCost;
-	std::vector<std::shared_ptr<CreaturePurhaseCard>> cards;
+	std::vector<std::shared_ptr<CreaturePurchaseCard>> cards;
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 };

@@ -32,7 +32,7 @@ set(client_SRCS
 		windows/CAdvmapInterface.cpp
 		windows/CCastleInterface.cpp
 		windows/CCreatureWindow.cpp
-		windows/CreaturePurhaseCard.cpp
+		windows/CreaturePurchaseCard.cpp
 		windows/CHeroWindow.cpp
 		windows/CKingdomInterface.cpp
 		windows/CQuestLog.cpp
@@ -90,7 +90,7 @@ set(client_HEADERS
 		windows/CAdvmapInterface.h
 		windows/CCastleInterface.h
 		windows/CCreatureWindow.h
-		windows/CreaturePurhaseCard.h
+		windows/CreaturePurchaseCard.h
 		windows/CHeroWindow.h
 		windows/CKingdomInterface.h
 		windows/CQuestLog.h

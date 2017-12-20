@@ -16,7 +16,7 @@
 #include "../../CCallback.h"
 #include "../CreatureCostBox.h"
 #include "../lib/ResourceSet.h"
-#include "CreaturePurhaseCard.h"
+#include "CreaturePurchaseCard.h"
 
 
 void QuickRecruitmentWindow::setButtons()
@@ -53,8 +53,7 @@ void QuickRecruitmentWindow::setCreaturePurhaseCards()
 	{
 		if(!town->town->creatures.at(i).empty() && !town->creatures.at(i).second.empty() && town->creatures[i].first)
 		{
-			CreatureID crid = town->creatures[i].second[town->creatures[i].second.size() - 1];
-			cards.push_back(std::make_shared<CreaturePurhaseCard>(VLC->creh->creatures[crid], position, town->creatures[i].first, this));
+			cards.push_back(std::make_shared<CreaturePurchaseCard>(town->creatures[i].second, position, town->creatures[i].first, this));
 			position.x += 108;
 		}
 	}
@@ -76,7 +75,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK.pcx", Rect(0, 0, pos.w, pos.h));
 }
 
-void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurhaseCard> > cards)
+void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
 {
 	auto allAvailableResources = LOCPLINT->cb->getResourceAmount();
 	for(auto i : boost::adaptors::reverse(cards))

@@ -17,7 +17,7 @@ class CButton;
 class CreatureCostBox;
 class QuickRecruitmentWindow;
 
-class CreaturePurhaseCard : public CIntObject
+class CreaturePurchaseCard : public CIntObject
 {
 public:
 	const CCreature * creatureOnTheCard;
@@ -25,14 +25,15 @@ public:
 	QuickRecruitmentWindow * parent;
 	int maxAmount;
 	void sliderMoved(int to);
-	CreaturePurhaseCard(const CCreature * creature, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents);
-
+	CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents);
 private:
 	void initView();
 
 	void initButtons();
 	void initMaxButton();
 	void initMinButton();
+	void initCreatureSwitcherButton();
+	void switchCreatureLevel();
 
 	void initAmountInfo();
 	void updateAmountInfo(int value);
@@ -41,9 +42,9 @@ private:
 
 	void initCostBox();
 
-	std::shared_ptr<CButton> maxButton, minButton;
+	std::shared_ptr<CButton> maxButton, minButton, creatureSwitcher;
 	std::shared_ptr<CLabel> availableAmount,  purhaseAmount;
 	std::shared_ptr<CCreaturePic> picture;
 	std::shared_ptr<CreatureCostBox> cost;
-
+	const std::vector<CreatureID> & upgradesID;
 };
