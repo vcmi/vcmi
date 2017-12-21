@@ -145,7 +145,8 @@ void QuickRecruitmentWindow::updateAllSliders()
 }
 
 QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rect startupPosition)
-	: CWindowObject(PLAYER_COLORED | BORDERED), town(townd)
+	: CWindowObject(PLAYER_COLORED | BORDERED),
+	town(townd)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(ACTIVATE + DEACTIVATE + UPDATE + SHOWALL);
 

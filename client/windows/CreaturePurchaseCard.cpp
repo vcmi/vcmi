@@ -1,5 +1,5 @@
 /*
- * CreaturePurhaseCard.cpp, part of VCMI engine
+ * CreaturePurchaseCard.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -82,7 +82,10 @@ void CreaturePurchaseCard::sliderMoved(int to)
 	parent->updateAllSliders();
 }
 
-CreaturePurchaseCard::CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents) : upgradesID(creaturesID), parent(parents), maxAmount(creaturesMaxAmount)
+CreaturePurchaseCard::CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents)
+	: upgradesID(creaturesID),
+	parent(parents),
+	maxAmount(creaturesMaxAmount)
 {
 	creatureOnTheCard = upgradesID.back().toCreature();
 	moveTo(Point(position.x, position.y));

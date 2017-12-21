@@ -1,5 +1,5 @@
 /*
- * CreaturePurhaseCard.h, part of VCMI engine
+ * CreaturePurchaseCard.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -46,5 +46,5 @@ private:
 	std::shared_ptr<CLabel> availableAmount,  purhaseAmount;
 	std::shared_ptr<CCreaturePic> picture;
 	std::shared_ptr<CreatureCostBox> cost;
-	const std::vector<CreatureID> & upgradesID;
+	std::vector<CreatureID> upgradesID;
 };

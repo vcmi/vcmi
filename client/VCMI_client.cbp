@@ -200,8 +200,8 @@
 		<Unit filename="windows/CTradeWindow.h" />
 		<Unit filename="windows/CWindowObject.cpp" />
 		<Unit filename="windows/CWindowObject.h" />
-		<Unit filename="windows/CreaturePurhaseCard.cpp" />
-		<Unit filename="windows/CreaturePurhaseCard.h" />
+		<Unit filename="windows/CreaturePurchaseCard.cpp" />
+		<Unit filename="windows/CreaturePurchaseCard.h" />
 		<Unit filename="windows/GUIClasses.cpp" />
 		<Unit filename="windows/GUIClasses.h" />
 		<Unit filename="windows/InfoWindows.cpp" />
