@@ -47,4 +47,5 @@ private:
 	std::shared_ptr<CCreaturePic> picture;
 	std::shared_ptr<CreatureCostBox> cost;
 	std::vector<CreatureID> upgradesID;
+	std::shared_ptr<CPicture> background;
 };
