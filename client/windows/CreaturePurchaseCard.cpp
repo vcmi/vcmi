@@ -36,7 +36,7 @@ void CreaturePurchaseCard::initMinButton()
 
 void CreaturePurchaseCard::initCreatureSwitcherButton()
 {
-	creatureSwitcher = std::make_shared<CButton>(Point(pos.x + 20, pos.y-33), "iDv6432.def", CButton::tooltip(), [&](){ switchCreatureLevel(); });
+	creatureSwitcher = std::make_shared<CButton>(Point(pos.x + 18, pos.y-37), "iDv6432.def", CButton::tooltip(), [&](){ switchCreatureLevel(); });
 }
 
 void CreaturePurchaseCard::switchCreatureLevel()
@@ -52,8 +52,8 @@ void CreaturePurchaseCard::switchCreatureLevel()
 
 void CreaturePurchaseCard::initAmountInfo()
 {
-	availableAmount = std::make_shared<CLabel>(pos.x + 27, pos.y + 146, FONT_SMALL, CENTER, Colors::YELLOW);
-	purhaseAmount = std::make_shared<CLabel>(pos.x + 77, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
+	availableAmount = std::make_shared<CLabel>(pos.x + 24, pos.y + 144, FONT_SMALL, CENTER, Colors::YELLOW);
+	purhaseAmount = std::make_shared<CLabel>(pos.x + 77, pos.y + 144, FONT_SMALL, CENTER, Colors::WHITE);
 	updateAmountInfo(0);
 }
 
@@ -70,7 +70,7 @@ void CreaturePurchaseCard::initSlider()
 
 void CreaturePurchaseCard::initCostBox()
 {
-	cost = std::make_shared<CreatureCostBox>(Rect(pos.x, pos.y + 194, 97, 74), "");
+	cost = std::make_shared<CreatureCostBox>(Rect(pos.x+2, pos.y + 194, 97, 74), "");
 	cost->createItems(creatureOnTheCard->cost);
 }
 
@@ -95,6 +95,7 @@ CreaturePurchaseCard::CreaturePurchaseCard(const std::vector<CreatureID> & creat
 void CreaturePurchaseCard::initView()
 {
 	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creatureOnTheCard);
+	background = std::make_shared<CPicture>("QuickRecruitmentWindow/CreaturePurchaseCard.png", pos.x-4, pos.y-50);
 	initAmountInfo();
 	initSlider();
 	initButtons();
