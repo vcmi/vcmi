@@ -62,9 +62,17 @@ before_script:
 - if [[ $TRAVIS_BRANCH != 'coverity_scan' ]];
   then
     source $TRAVIS_BUILD_DIR/CI/get_package_name.sh;
-    cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
+    if [[ $VCMI_PLATFORM == 'mxe' ]];
+    then
+      /usr/lib/mxe/usr/bin/i686-w64-mingw32.shared-cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
       -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX"
       -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME";
+    else
+      cmake -G "Unix Makefiles" .. $VCMI_CMAKE_FLAGS
+      -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX"
+      -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME";
+    fi
+
   fi
   
 script:
