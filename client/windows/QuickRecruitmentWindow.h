@@ -42,4 +42,5 @@ private:
 	std::shared_ptr<CreatureCostBox> totalCost;
 	std::vector<std::shared_ptr<CreaturePurchaseCard>> cards;
 	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::shared_ptr<CPicture> costBackground;
 };

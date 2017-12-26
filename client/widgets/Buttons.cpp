@@ -34,6 +34,13 @@ void CButton::update()
 	}
 
 	int newPos = stateToIndex[int(state)];
+	if(animateLonelyFrame)
+	{
+		if(state == PRESSED)
+			image->moveBy(Point(1,1));
+		else
+			image->moveBy(Point(-1,-1));
+	}
 	if (newPos < 0)
 		newPos = 0;
 
@@ -85,6 +92,10 @@ void CButton::setImageOrder(int state1, int state2, int state3, int state4)
 	update();
 }
 
+void CButton::setAnimateLonelyFrame(bool agreement)
+{
+	animateLonelyFrame = agreement;
+}
 void CButton::setState(ButtonState newState)
 {
 	if (state == newState)

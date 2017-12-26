@@ -28,20 +28,20 @@ void QuickRecruitmentWindow::setButtons()
 
 void QuickRecruitmentWindow::setCancelButton()
 {
-	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 47, 417), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_RETURN);
+	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_RETURN);
 	cancelButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w/2)-33, 417), "IBY6432.DEF", CButton::tooltip(), [&](){ purhaseUnits(); });
+	buyButton = std::make_shared<CButton>(Point((pos.w/2)-32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purhaseUnits(); });
 	cancelButton->assignedKeys.insert(SDLK_ESCAPE);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point((pos.w/2)-113, 417), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); });
+	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); });
 	maxButton->setImageOrder(0, 1, 2, 3);
 }
 
@@ -73,6 +73,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 		pos.x -= 55 * (creaturesAmount - 3);
 	}
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK.pcx", Rect(0, 0, pos.w, pos.h));
+	costBackground = std::make_shared<CPicture>("QuickRecruitmentWindow/costBackground.png", pos.w/2-113, pos.y+290);
 }
 
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)

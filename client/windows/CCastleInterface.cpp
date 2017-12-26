@@ -887,6 +887,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	CWindowObject(PLAYER_COLORED | BORDERED),
 	hall(nullptr),
 	fort(nullptr),
+	fastArmyPurhase(nullptr),
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -988,6 +989,7 @@ void CCastleInterface::recreateIcons()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	delete fort;
 	delete hall;
+	delete fastArmyPurhase;
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);
@@ -996,8 +998,10 @@ void CCastleInterface::recreateIcons()
 
 	hall = new CTownInfo( 80, 413, town, true);
 	fort = new CTownInfo(122, 413, town, false);
+
 	fastArmyPurhase = new CButton(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){builds->enterToTheQuickRecruitmentWindow();});
 	fastArmyPurhase->setImageOrder(town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1,town->fortLevel()-1);
+	fastArmyPurhase->setAnimateLonelyFrame(true);
 	for (auto & elem : creainfo)
 		delete elem;
 	creainfo.clear();
