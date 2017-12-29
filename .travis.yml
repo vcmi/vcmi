@@ -77,13 +77,6 @@ before_script:
   
 script:
 - test $TRAVIS_BRANCH != coverity_scan || exit 0
-- if [[ $TRAVIS_OS_NAME == 'osx' ]];
-  then
-    cd ..;
-    xcodebuild -project osx/osx-vcmibuilder/vcmibuilder.xcodeproj/
-      -configuration Release CONFIGURATION_BUILD_DIR=..;
-    cd build;
-  fi
 - make -j2
 
 after_success:
