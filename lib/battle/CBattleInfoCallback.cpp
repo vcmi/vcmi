@@ -1155,21 +1155,21 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse (hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
-	if (reverse && attacker->doubleWide())
+	bool reverse = isToReverse(hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
+	if(reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
 	}
-	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
+	if(attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
-		boost::copy (attacker->getSurroundingHexes (attackerPos), vstd::set_inserter (at.hostileCreaturePositions));
+		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));
 	}
-	if (attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
+	if(attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
 	{
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
-		for (BattleHex tile : hexes)
+		for(BattleHex tile : hexes)
 		{
-			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition (tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
+			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
 				const CStack * st = battleGetStackByPos(tile, true);
 				if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
@@ -1179,44 +1179,86 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 			}
 		}
 	}
-	if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition (destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
+	if(attacker->hasBonusOfType(Bonus::WIDE_BREATH))
+	{
+		std::vector<BattleHex> hexes = destinationTile.neighbouringTiles();
+		for(int i = 0; i<hexes.size(); i++)
+		{
+			if(hexes.at(i) == hex)
+			{
+				hexes.erase(hexes.begin() + i);
+				i = 0;
+			}
+		}
+		for(BattleHex tile : hexes)
+		{
+			//friendly stacks can also be damaged by Dragon Breath
+			if(battleGetStackByPos(tile, true))
+			{
+				if(battleGetStackByPos(tile, true) != attacker)
+					at.friendlyCreaturePositions.insert(tile);
+			}
+		}
+	}
+	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition(destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
 	{
 		std::vector<BattleHex> hexes; //only one, in fact
 		int pseudoVector = destinationTile.hex - hex;
-		switch (pseudoVector)
+		switch(pseudoVector)
 		{
 		case 1:
 		case -1:
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector, hexes);
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
 			break;
 		case WN: //17 //left-down or right-down
 		case -WN: //-17 //left-up or right-up
 		case WN + 1: //18 //right-down
 		case -WN + 1: //-16 //right-up
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + (((hex/WN)%2) ? 1 : -1), hexes);
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
 			break;
-		case WN-1: //16 //left-down
-		case -WN-1: //-18 //left-up
-			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + (((hex/WN)%2) ? 1 : 0), hexes);
+		case WN - 1: //16 //left-down
+		case -WN - 1: //-18 //left-up
+			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
 			break;
 		}
-		for (BattleHex tile : hexes)
+		for(BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
-			if (battleGetStackByPos (tile, true))
-				at.friendlyCreaturePositions.insert (tile);
+			if(battleGetStackByPos(tile, true))
+				at.friendlyCreaturePositions.insert(tile);
 		}
+	}
+	return at;
+}
+
+AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos) const
+{
+	//does not return hex attacked directly
+	AttackableTiles at;
+	RETURN_IF_NOT_BATTLE(at);
+
+	if(attacker->hasBonusOfType(Bonus::SHOOTS_ALL_ADJACENT) && !vstd::contains(attackerPos.neighbouringTiles(), destinationTile))
+	{
+		std::vector<BattleHex> targetHexes = destinationTile.neighbouringTiles();
+		targetHexes.push_back(destinationTile);
+		boost::copy(targetHexes, vstd::set_inserter(at.hostileCreaturePositions));
 	}
 
 	return at;
 }
 
-std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos) const
 {
 	std::set<const CStack*> attackedCres;
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
-	AttackableTiles at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+	AttackableTiles at;
+
+	if(rangedAttack)
+		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
+	else
+		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+
 	for (BattleHex tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
@@ -1626,6 +1668,24 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	ret *= (100.0 - discount) / 100.0;
 	vstd::amax(ret, 0); //no negative costs for >100% discounts (impossible in original H3 mechanics, but some day...)
 	return ret;
+}
+
+si8 CBattleInfoCallback::battleMinSpellLevel(ui8 side) const
+{
+	const IBonusBearer * node = nullptr;
+	if(const CGHeroInstance * h = battleGetFightingHero(side))
+		node = h;
+	else
+		node = getBattleNode();
+
+	if(!node)
+		return 0;
+
+	auto b = node->getBonuses(Selector::type(Bonus::BLOCK_MAGIC_BELOW));
+	if(b->size())
+		return b->totalValue();
+
+	return 0;
 }
 
 si8 CBattleInfoCallback::battleMaxSpellLevel(ui8 side) const

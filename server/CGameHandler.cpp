@@ -890,16 +890,14 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	// only primary target
 	applyBattleEffects(bat, att, def, distance, false);
 
-	if (!bat.shot()) //multiple-hex attack - only in meele
-	{
-		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex); //creatures other than primary target
+	//multiple-hex normal attack
+	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex, bat.shot()); //creatures other than primary target
 
-		for (const CStack * stack : attackedCreatures)
+	for (const CStack * stack : attackedCreatures)
+	{
+		if (stack != def) //do not hit same stack twice
 		{
-			if (stack != def) //do not hit same stack twice
-			{
-				applyBattleEffects(bat, att, stack, distance, true);
-			}
+			applyBattleEffects(bat, att, stack, distance, true);
 		}
 	}
 
@@ -912,11 +910,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 		//TODO: should spell override creature`s projectile?
 
-		auto attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att, bonus->val, targetHex);
+		auto affectedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, ECastingMode::SPELL_LIKE_ATTACK, att, bonus->val, targetHex);
 
 		//TODO: get exact attacked hex for defender
 
-		for (const CStack * stack : attackedCreatures)
+		for (const CStack * stack : affectedCreatures)
 		{
 			if (stack != def) //do not hit same stack twice
 			{
@@ -3937,6 +3935,19 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			for (int i = 0; i < totalAttacks; ++i)
 			{
+				//first strike
+				if(i == 0 && destinationStack
+					&& destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE)
+					&& destinationStack->ableToRetaliate()
+					&& stack->alive()) //probably not needed
+				{
+					BattleAttack bat;
+					prepareAttack(bat, destinationStack, stack, 0, stack->position);
+					bat.flags |= BattleAttack::COUNTER;
+					sendAndApply(&bat);
+					handleAfterAttackCasting(bat);
+				}
+
 				if (stack &&
 					stack->alive() && //move can cause death, eg. by walking into the moat
 					destinationStack->alive())
@@ -3952,6 +3963,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				//counterattack
 				if (i == 0 && destinationStack
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+					&& !destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE)
 					&& destinationStack->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
 				{
@@ -3999,6 +4011,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			if (destinationStack->hasBonusOfType(Bonus::RANGED_RETALIATION)
 				&& !stack->hasBonusOfType(Bonus::BLOCKS_RANGED_RETALIATION)
 				&& destinationStack->ableToRetaliate()
+				&& gs->curB->battleCanShoot(destinationStack, stack->position)
 				&& stack->alive()) //attacker may have died (fire shield)
 			{
 				BattleAttack bat;
@@ -5405,6 +5418,37 @@ void CGameHandler::handleAfterAttackCasting(const BattleAttack & bat)
 
 		sendAndApply(&victimInfo);
 		sendAndApply(&resurrectInfo);
+	}
+	if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0) || attacker->hasBonusOfType(Bonus::DESTRUCTION, 1))
+	{
+		double chanceToTrigger = 0;
+		int amountToDie = 0;
+
+		if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0)) //killing by percentage
+		{
+			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 0) / 100.0f;
+			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo;
+			amountToDie = defender->getCount() * percentageToDie * 0.01f;
+		}
+		else if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 1)) //killing by count
+		{
+			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 1) / 100.0f;
+			amountToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(1)))->additionalInfo;
+		}
+
+		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
+
+		if(getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
+			return;
+
+		BattleStackAttacked bsa;
+		bsa.attackerID = -1;
+		bsa.stackAttacked = defender->ID;
+		bsa.damageAmount = amountToDie * defender->getCreature()->MaxHealth();
+		bsa.flags = BattleStackAttacked::SPELL_EFFECT;
+		bsa.spellID = SpellID::SLAYER;
+		defender->prepareAttacked(bsa, getRandomGenerator());
+		sendAndApply(&bsa);
 	}
 }
 

@@ -96,6 +96,12 @@
 		"description": "+${val} Defense when defending"
 	},
 
+	"DESTRUCTION":
+	{
+		"name": "Destruction",
+		"description": "Has ${val}% chance to kill extra units after attack"
+	},
+
 	"DOUBLE_DAMAGE_CHANCE":
 	{
 		"name": "Death Blow",
@@ -154,6 +160,12 @@
 	{
 		"name": "Fire Shield (${val}%)",
 		"description": "Reflects part of melee damage"
+	},
+
+	"FIRST_STRIKE":
+	{
+		"name": "First Strike",
+		"description": "This creature attacks first instead of retaliating"
 	},
 
 	"FEAR":
@@ -347,6 +359,12 @@
 		"name": "Ranged",
 		"description": "Creature can shoot"
 	},
+
+	"SHOOTS_ALL_ADJACENT":
+	{
+		"name": "Shoot all around",
+		"description": "This creature's ranged attacks strike all targets in a small area"
+	},
 	
 	"SOUL_STEAL":
 	{
@@ -395,11 +413,17 @@
 		"name": "Aura of Resistance",
 		"description": "Nearby stacks get ${val}% resistance"
 	},
-	
+
 	"SUMMON_GUARDIANS":
 	{
 		"name": "Summon guardians",
 		"description": "At battle start summons ${subtype.creature} (${val}%)"
+	},
+
+	"SYNERGY_TARGET":
+	{
+		"name": "Synergizable",
+		"description": "This creature is vulnerable to synergy effect"
 	},
 
 	"TWO_HEX_ATTACK_BREATH":
@@ -436,5 +460,11 @@
 	{
 		"name": "Water immunity",
 		"description": "Immune to all Water school spells"
+	},
+	
+	"WIDE_BREATH":
+	{
+		"name": "Wide breath",
+		"description": "Wide breath attack (multiple hexes)"
 	}
 }

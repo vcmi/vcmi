@@ -13,6 +13,12 @@ GENERAL:
 - BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
 - SECONDARY_SKILL_VAL2 - set additional parameter for certain secondary skills
 - MANUAL_CONTROL - grant manual control over war machine
+- WIDE_BREATH - melee creature attacks affect many nearby hexes
+- FIRST_STRIKE - creature counterattacks before attack if possible
+- SYNERGY_TARGET - placeholder bonus for Mod Design Team (subject to removal in future)
+- SHOOTS_ALL_ADJACENT - makes creature shots affect all neighbouring hexes
+- BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
+- DESTRUCTION - creature ability for killing extra units after hit, configurable
 
 SPELLS:
 * Implemented cumulative effects for spells
