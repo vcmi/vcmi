@@ -23,7 +23,7 @@ mxe-$MXE_TARGET-qt \
 mxe-$MXE_TARGET-qtbase
 
 # Install nsis for installer creation
-sudo apt-get install -qq nsis
+sudo apt-get install -qq nsis ninja-build
 
 # alias for CMake
 sudo mv /usr/bin/cmake /usr/bin/cmake.orig
