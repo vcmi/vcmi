@@ -423,9 +423,27 @@ public:
 	CGStatusBar *bar;
 
 	CMultiMode();
-	void openHotseat();
-	void hostTCP();
-	void joinTCP();
+	virtual void openHotseat() = 0;
+	virtual void hostTCP() = 0;
+	virtual void joinTCP() = 0;
+};
+
+class CNewGameMultiMode : public CMultiMode
+{
+public:
+	CNewGameMultiMode();
+	void openHotseat() override;
+	void hostTCP() override;
+	void joinTCP() override;
+};
+
+class CLoadGameMultiMode : public CMultiMode
+{
+public:
+	CLoadGameMultiMode();
+	void openHotseat() override;
+	void hostTCP() override;
+	void joinTCP() override;
 };
 
 /// Hot seat player window
