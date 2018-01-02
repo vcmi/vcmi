@@ -223,7 +223,7 @@
     <ClCompile Include="windows\CHeroWindow.cpp" />
     <ClCompile Include="windows\CKingdomInterface.cpp" />
     <ClCompile Include="windows\CQuestLog.cpp" />
-    <ClCompile Include="windows\CreaturePurhaseCard.cpp" />
+    <ClCompile Include="windows\CreaturePurchaseCard.cpp" />
     <ClCompile Include="windows\CSpellWindow.cpp" />
     <ClCompile Include="windows\CTradeWindow.cpp" />
     <ClCompile Include="windows\CWindowObject.cpp" />
@@ -277,7 +277,7 @@
     <ClInclude Include="windows\CHeroWindow.h" />
     <ClInclude Include="windows\CKingdomInterface.h" />
     <ClInclude Include="windows\CQuestLog.h" />
-    <ClInclude Include="windows\CreaturePurhaseCard.h" />
+    <ClInclude Include="windows\CreaturePurchaseCard.h" />
     <ClInclude Include="windows\CSpellWindow.h" />
     <ClInclude Include="windows\CTradeWindow.h" />
     <ClInclude Include="windows\CWindowObject.h" />

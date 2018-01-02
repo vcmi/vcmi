@@ -113,7 +113,7 @@
     <ClCompile Include="windows\QuickRecruitmentWindow.cpp">
       <Filter>windows</Filter>
     </ClCompile>
-    <ClCompile Include="windows\CreaturePurhaseCard.cpp">
+    <ClCompile Include="windows\CreaturePurchaseCard.cpp">
       <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="CreatureCostBox.cpp" />
@@ -257,7 +257,7 @@
     <ClInclude Include="windows\QuickRecruitmentWindow.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="windows\CreaturePurhaseCard.h">
+    <ClInclude Include="windows\CreaturePurchaseCard.h">
       <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="CreatureCostBox.h" />
