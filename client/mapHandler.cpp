@@ -27,6 +27,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
 #include "CMT.h"
+#include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
 
 #define ADVOPT (conf.go()->ac)
@@ -318,7 +319,7 @@ void CMapHandler::initObjectRects()
 				cr.h = 32;
 				cr.x = image->width() - fx * 32 - 32;
 				cr.y = image->height() - fy * 32 - 32;
-				TerrainTileObject toAdd(obj,cr);
+				TerrainTileObject toAdd(obj, cr, obj->visitableAt(currTile.x, currTile.y));
 
 
 				if( map->isInTheMap(currTile) && // within map
@@ -1216,13 +1217,13 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			TerrainTileObject toAdd(obj, cr);
 
 			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
 				int3 pos(obj->pos.x + fx - tilesW + 1, obj->pos.y + fy - tilesH + 1, obj->pos.z);
 				TerrainTile2 & curt = ttiles[pos.x][pos.y][pos.z];
 
+				TerrainTileObject toAdd(obj, cr, obj->visitableAt(pos.x, pos.y));
 				if (fadein && ADVOPT.objectFading)
 				{
 					startObjectFade(toAdd, true, pos);
@@ -1482,11 +1483,19 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	return false;
 }
 
-TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rect_)
+TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, SDL_Rect rect_, bool visitablePos)
 	: obj(obj_),
 	  rect(rect_),
 	  fadeAnimKey(-1)
 {
+	// We store information about ambient sound is here because object might disappear while sound is updating
+	if(obj->getAmbientSound())
+	{
+		// All tiles of static objects are sound sources. E.g Volcanos and special terrains
+		// For visitable object only their visitable tile is sound source
+		if(!CCS->soundh->ambientCheckVisitable() || !obj->isVisitable() || visitablePos)
+			ambientSound = obj->getAmbientSound();
+	}
 }
 
 TerrainTileObject::~TerrainTileObject()

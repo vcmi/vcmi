@@ -18,6 +18,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
+#include "../CSoundBase.h"
 
 #include "CRewardableConstructor.h"
 #include "CommonConstructors.h"
@@ -201,6 +202,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	{
 		loadObjectEntry(entry.first, entry.second, obj);
 	}
+
 	return obj;
 }
 
@@ -348,6 +350,22 @@ std::string CObjectClassesHandler::getObjectName(si32 type, si32 subtype) const
 	return getObjectName(type);
 }
 
+SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type) const
+{
+	if(objects.count(type))
+		return objects.at(type)->sounds;
+	logGlobal->error("Access to non existing object of type %d", type);
+	return SObjectSounds();
+}
+
+SObjectSounds CObjectClassesHandler::getObjectSounds(si32 type, si32 subtype) const
+{
+	if(knownSubObjects(type).count(subtype))
+		return getHandlerFor(type, subtype)->getSounds();
+	else
+		return getObjectSounds(type);
+}
+
 std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 {
 	return objects.at(type)->handlerName;
@@ -414,6 +432,15 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	else
 		objectName.reset(input["name"].String());
 
+	for(const JsonNode & node : input["sounds"]["ambient"].Vector())
+		sounds.ambient.push_back(node.String());
+
+	for(const JsonNode & node : input["sounds"]["visit"].Vector())
+		sounds.visit.push_back(node.String());
+
+	for(const JsonNode & node : input["sounds"]["removal"].Vector())
+		sounds.removal.push_back(node.String());
+
 	initTypeData(input);
 }
 
@@ -438,6 +465,11 @@ void AObjectTypeHandler::initTypeData(const JsonNode & input)
 boost::optional<std::string> AObjectTypeHandler::getCustomName() const
 {
 	return objectName;
+}
+
+SObjectSounds AObjectTypeHandler::getSounds() const
+{
+	return sounds;
 }
 
 void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)

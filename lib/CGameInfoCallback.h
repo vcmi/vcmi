@@ -29,6 +29,7 @@ class CMapHeader;
 struct TeamState;
 struct QuestInfo;
 class int3;
+struct ShashInt3;
 
 
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
@@ -92,6 +93,7 @@ public:
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
 	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	bool isInTheMap(const int3 &pos) const;
+	void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 
 	//town
 	const CGTownInstance* getTown(ObjectInstanceID objid) const;
