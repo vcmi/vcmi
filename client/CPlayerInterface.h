@@ -75,7 +75,8 @@ enum
 	RETURN_TO_MENU_LOAD,
 	FULLSCREEN_TOGGLED,
 	PREPARE_RESTART_CAMPAIGN,
-	FORCE_QUIT //quit client without question
+	FORCE_QUIT, //quit client without question
+	INTERFACE_CHANGED
 };
 
 /// Central class for managing user interface logic
@@ -151,6 +152,7 @@ public:
 	void artifactAssembled(const ArtifactLocation &al) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
 
+	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void heroCreated(const CGHeroInstance* hero) override;
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
@@ -262,6 +264,9 @@ public:
 	void requestReturningToMainMenu();
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
+
+	// Ambient sounds
+	void updateAmbientSounds(bool resetAll = false);
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();

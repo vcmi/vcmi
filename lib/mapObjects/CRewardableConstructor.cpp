@@ -119,7 +119,6 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 	//TODO: visitMode and selectMode
 
-	object->soundID = parameters["soundID"].Float();
 	object->resetDuration = parameters["resetDuration"].Float();
 	object->canRefuse =parameters["canRefuse"].Bool();
 }

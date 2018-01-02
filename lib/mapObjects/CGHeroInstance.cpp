@@ -30,7 +30,7 @@
 #include "../StringConstants.h"
 
 ///helpers
-static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
@@ -39,7 +39,7 @@ static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const u
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
-static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID = 0)
 {
 	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
@@ -443,7 +443,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			txt_id = 103;
 		}
 
-		showInfoDialog(h,txt_id,soundBase::ROGUE);
+		showInfoDialog(h,txt_id);
 	}
 }
 

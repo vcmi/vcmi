@@ -82,8 +82,10 @@ void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 }
 
 CSoundHandler::CSoundHandler():
-	listener(settings.listen["general"]["sound"])
+	listener(settings.listen["general"]["sound"]),
+	ambientConfig(JsonNode(ResourceID("config/ambientSounds.json")))
 {
+	allTilesSource = ambientConfig["allTilesSource"].Bool();
 	listener(std::bind(&CSoundHandler::onVolumeChange, this, _1));
 
 	// Vectors for helper(s)
@@ -112,6 +114,8 @@ CSoundHandler::CSoundHandler():
 void CSoundHandler::init()
 {
 	CAudioBase::init();
+	if(ambientConfig["allocateChannels"].isNumber())
+		Mix_AllocateChannels(ambientConfig["allocateChannels"].Integer());
 
 	if (initialized)
 	{
@@ -158,6 +162,21 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 		logGlobal->warn("Cannot get sound %s chunk: %s", sound, e.what());
 		return nullptr;
 	}
+}
+
+int CSoundHandler::ambientDistToVolume(int distance) const
+{
+	if(distance >= ambientConfig["distances"].Vector().size())
+		return 0;
+
+	int volume = ambientConfig["distances"].Vector()[distance].Integer();
+	return volume * ambientConfig["volume"].Integer() * getVolume() / 10000;
+}
+
+void CSoundHandler::ambientStopSound(std::string soundId)
+{
+	stopSound(ambientChannels[soundId]);
+	setChannelVolume(ambientChannels[soundId], 100);
 }
 
 // Plays a sound, and return its channel so we can fade it out later
@@ -216,7 +235,13 @@ void CSoundHandler::setVolume(ui32 percent)
 	CAudioBase::setVolume(percent);
 
 	if (initialized)
-		Mix_Volume(-1, (MIX_MAX_VOLUME * volume)/100);
+		setChannelVolume(-1, volume);
+}
+
+// Sets the sound volume, from 0 (mute) to 100
+void CSoundHandler::setChannelVolume(int channel, ui32 percent)
+{
+	Mix_Volume(channel, (MIX_MAX_VOLUME * percent)/100);
 }
 
 void CSoundHandler::setCallback(int channel, std::function<void()> function)
@@ -242,6 +267,56 @@ void CSoundHandler::soundFinishedCallback(int channel)
 		iter->second();
 
 	callbacks.erase(iter);
+}
+
+int CSoundHandler::ambientGetRange() const
+{
+	return ambientConfig["range"].Integer();
+}
+
+bool CSoundHandler::ambientCheckVisitable() const
+{
+	return !allTilesSource;
+}
+
+void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
+{
+	boost::mutex::scoped_lock guard(mutex);
+	std::vector<std::string> stoppedSounds;
+	for(auto & pair : ambientChannels)
+	{
+		if(!vstd::contains(sounds, pair.first))
+		{
+			ambientStopSound(pair.first);
+			stoppedSounds.push_back(pair.first);
+		}
+		else
+		{
+			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(sounds[pair.first]));
+		}
+	}
+	for(auto soundId : stoppedSounds)
+		ambientChannels.erase(soundId);
+
+	for(auto & pair : sounds)
+	{
+		if(!vstd::contains(ambientChannels, pair.first))
+		{
+			int channel = CCS->soundh->playSound(pair.first, -1);
+			CCS->soundh->setChannelVolume(channel, ambientDistToVolume(pair.second));
+			CCS->soundh->ambientChannels.insert(std::make_pair(pair.first, channel));
+		}
+	}
+}
+
+void CSoundHandler::ambientStopAllChannels()
+{
+	boost::mutex::scoped_lock guard(mutex);
+	for(auto ch : ambientChannels)
+	{
+		ambientStopSound(ch.first);
+	}
+	ambientChannels.clear();
 }
 
 void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
@@ -302,7 +377,7 @@ void CMusicHandler::release()
 {
 	if (initialized)
 	{
-		boost::mutex::scoped_lock guard(musicMutex);
+		boost::mutex::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
 
@@ -366,7 +441,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	next = std::move(queued);
 
@@ -395,7 +470,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if (!initialized)
 		return;
 
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	if (current.get() != nullptr)
 		current->stop(fade_ms);
@@ -412,7 +487,7 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback(void)
 {
-	boost::mutex::scoped_lock guard(musicMutex);
+	boost::mutex::scoped_lock guard(mutex);
 
 	if (current.get() != nullptr)
 	{

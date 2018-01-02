@@ -220,8 +220,6 @@ protected:
 	MetaString onVisited;
 	MetaString onEmpty;
 
-	/// sound that will be played alongside with *any* message
-	ui16 soundID;
 	/// how reward will be selected, uses ESelectMode enum
 	ui8 selectMode;
 	/// contols who can visit an object, uses EVisitMode enum
@@ -271,7 +269,11 @@ public:
 		h & onVisited;
 		h & onEmpty;
 		h & visitMode;
-		h & soundID;
+		if(version < 778)
+		{
+			ui16 soundID = 0;
+			h & soundID;
+		}
 		h & selectMode;
 		h & selectedReward;
 	}

@@ -53,7 +53,6 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 {
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
-		bd.soundID = soundBase::QUEST;
 		bd.text.addTxt (MetaString::ADVOB_TXT, 14);
 		cb->showBlockingDialog (&bd);
 }

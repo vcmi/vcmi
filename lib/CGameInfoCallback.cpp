@@ -908,6 +908,11 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 	return gs->map->isInTheMap(pos);
 }
 
+void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
+{
+	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
+}
+
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
 	return gs->map->artInstances[aid.num];

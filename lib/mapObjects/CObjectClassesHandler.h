@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectClassesHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -18,6 +18,21 @@
 
 class JsonNode;
 class CRandomGenerator;
+
+
+struct SObjectSounds
+{
+	std::vector<std::string> ambient;
+	std::vector<std::string> visit;
+	std::vector<std::string> removal;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ambient;
+		h & visit;
+		h & removal;
+	}
+};
 
 /// Structure that describes placement rules for this object in random map
 struct DLL_LINKAGE RandomMapInfo
@@ -108,6 +123,8 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	JsonNode base; /// describes base template
 
 	std::vector<ObjectTemplate> templates;
+
+	SObjectSounds sounds;
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
@@ -131,6 +148,7 @@ public:
 
 	/// Returns object-specific name, if set
 	boost::optional<std::string> getCustomName() const;
+	SObjectSounds getSounds() const;
 
 	void addTemplate(const ObjectTemplate & templ);
 	void addTemplate(JsonNode config);
@@ -172,6 +190,10 @@ public:
 			h & typeName;
 			h & subTypeName;
 		}
+		if(version >= 778)
+		{
+			h & sounds;
+		}
 	}
 };
 
@@ -192,6 +214,8 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 		std::map<si32, TObjectTypeHandler> subObjects;
 		std::map<std::string, si32> subIds;//full id from core scope -> subtype
 
+		SObjectSounds sounds;
+
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & name;
@@ -202,6 +226,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 			{
 				h & identifier;
 				h & subIds;
+			}
+			if(version >= 778)
+			{
+				h & sounds;
 			}
 		}
 	};
@@ -249,6 +277,9 @@ public:
 
 	std::string getObjectName(si32 type) const;
 	std::string getObjectName(si32 type, si32 subtype) const;
+
+	SObjectSounds getObjectSounds(si32 type) const;
+	SObjectSounds getObjectSounds(si32 type, si32 subtype) const;
 
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(si32 type) const;

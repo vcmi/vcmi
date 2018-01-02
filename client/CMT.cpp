@@ -1280,6 +1280,10 @@ static void handleEvent(SDL_Event & ev)
 		case FULLSCREEN_TOGGLED:
 			fullScreenChanged();
 			break;
+		case INTERFACE_CHANGED:
+			if(LOCPLINT)
+				LOCPLINT->updateAmbientSounds();
+			break;
 		default:
 			logGlobal->error("Unknown user event. Code %d", ev.user.code);
 			break;
