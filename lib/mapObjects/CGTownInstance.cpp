@@ -1348,6 +1348,12 @@ void CGTownInstance::afterAddToMap(CMap * map)
 		map->towns.push_back(this);
 }
 
+void CGTownInstance::reset()
+{
+	CGTownInstance::merchantArtifacts.clear();
+	CGTownInstance::universitySkills.clear();
+}
+
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CGObjectInstance::serializeJsonOwner(handler);

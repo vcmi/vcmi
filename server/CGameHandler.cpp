@@ -48,7 +48,6 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-extern std::atomic<bool> serverShuttingDown;
 #ifdef min
 #undef min
 #endif
@@ -178,7 +177,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const =0;
+	virtual bool applyOnGH(CGameHandler * gh, void * pack) const =0;
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=nullptr)
 	{
@@ -189,11 +188,9 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const override
+	bool applyOnGH(CGameHandler * gh, void * pack) const override
 	{
 		T *ptr = static_cast<T*>(pack);
-		ptr->c = c;
-		ptr->player = player;
 		try
 		{
 			return ptr->applyGh(gh);
@@ -213,15 +210,13 @@ template <>
 class CApplyOnGH<CPack> : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const override
+	bool applyOnGH(CGameHandler * gh, void * pack) const override
 	{
 		logGlobal->error("Cannot apply on GH plain CPack!");
 		assert(0);
 		return false;
 	}
 };
-
-static CApplier<CBaseForGHApply> *applier = nullptr;
 
 static inline double distance(int3 a, int3 b)
 {
@@ -1191,114 +1186,70 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle
 		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
 }
-void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &c)
-{
-	setThreadName("CGameHandler::handleConnection");
 
-	auto handleDisconnection = [&](const std::exception & e)
+void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
+{
+	conns -= c;
+	for(auto playerConns : connections)
 	{
-		boost::unique_lock<boost::mutex> lock(*c.wmx);
-		assert(!c.connected); //make sure that connection has been marked as broken
-		logGlobal->error(e.what());
-		conns -= &c;
-		for(auto playerConn : connections)
+		for(auto conn : playerConns.second)
 		{
-			if(!serverShuttingDown && playerConn.second == &c)
+			if(!CVCMIServer::shuttingDown && conn == c)
 			{
+				vstd::erase_if_present(playerConns.second, conn);
+				if(playerConns.second.size())
+					continue;
 				PlayerCheated pc;
-				pc.player = playerConn.first;
+				pc.player = playerConns.first;
 				pc.losingCheatCode = true;
 				sendAndApply(&pc);
-				checkVictoryLossConditionsForPlayer(playerConn.first);
+				checkVictoryLossConditionsForPlayer(playerConns.first);
 			}
 		}
+	}
+}
+
+void CGameHandler::handleReceivedPack(CPackForServer * pack)
+{
+	//prepare struct informing that action was applied
+	auto sendPackageResponse = [&](bool succesfullyApplied)
+	{
+		//dont reply to disconnected client
+		//TODO: this must be implemented as option of CPackForServer
+		if(dynamic_cast<LeaveGame *>(pack) || dynamic_cast<CloseServer *>(pack))
+			return;
+
+		PackageApplied applied;
+		applied.player = pack->player;
+		applied.result = succesfullyApplied;
+		applied.packType = typeList.getTypeID(pack);
+		applied.requestID = pack->requestID;
+		pack->c->sendPack(&applied);
 	};
 
-	try
+	CBaseForGHApply * apply = applier->getApplier(typeList.getTypeID(pack)); //and appropriate applier object
+	if(isBlockedByQueries(pack, pack->player))
 	{
-		while(1)//server should never shut connection first //was: while(!end2)
-		{
-			CPack *pack = nullptr;
-			PlayerColor player = PlayerColor::NEUTRAL;
-			si32 requestID = -999;
-			int packType = 0;
-
-			{
-				boost::unique_lock<boost::mutex> lock(*c.rmx);
-				if(!c.connected)
-					throw clientDisconnectedException();
-				c >> player >> requestID >> pack; //get the package
-
-				if (!pack)
-				{
-					logGlobal->error("Received a null package marked as request %d from player %d", requestID, player);
-				}
-				else
-				{
-					packType = typeList.getTypeID(pack); //get the id of type
-
-					logGlobal->trace("Received client message (request %d by player %d (%s)) of type with ID=%d (%s).\n",
-									 requestID, player, player.getStr(), packType, typeid(*pack).name());
-				}
-			}
-
-			//prepare struct informing that action was applied
-			auto sendPackageResponse = [&](bool succesfullyApplied)
-			{
-				//dont reply to disconnected client
-				//TODO: this must be implemented as option of CPackForServer
-				if(dynamic_cast<LeaveGame *>(pack) || dynamic_cast<CloseServer *>(pack))
-					return;
-
-				PackageApplied applied;
-				applied.player = player;
-				applied.result = succesfullyApplied;
-				applied.packType = packType;
-				applied.requestID = requestID;
-				boost::unique_lock<boost::mutex> lock(*c.wmx);
-				c << &applied;
-			};
-			CBaseForGHApply *apply = applier->getApplier(packType); //and appropriate applier object
-			if(isBlockedByQueries(pack, player))
-			{
-				sendPackageResponse(false);
-			}
-			else if (apply)
-			{
-				const bool result = apply->applyOnGH(this, &c, pack, player);
-				if (result)
-					logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
-				else
-					complain((boost::format("Got false in applying %s... that request must have been fishy!")
-						% typeid(*pack).name()).str());
-
-				sendPackageResponse(true);
-			}
-			else
-			{
-				logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
-				sendPackageResponse(false);
-			}
-
-			vstd::clear_pointer(pack);
-		}
+		sendPackageResponse(false);
 	}
-	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+	else if(apply)
 	{
-		handleDisconnection(e);
+		const bool result = apply->applyOnGH(this, pack);
+		if(result)
+			logGlobal->trace("Message %s successfully applied!", typeid(*pack).name());
+		else
+			complain((boost::format("Got false in applying %s... that request must have been fishy!")
+				% typeid(*pack).name()).str());
+
+		sendPackageResponse(true);
 	}
-	catch(clientDisconnectedException & e)
+	else
 	{
-		handleDisconnection(e);
-	}
-	catch(...)
-	{
-		serverShuttingDown = true;
-		handleException();
-		throw;
+		logGlobal->error("Message cannot be applied, cannot find applier (unregistered type)!");
+		sendPackageResponse(false);
 	}
 
-	logGlobal->error("Ended handling connection");
+	vstd::clear_pointer(pack);
 }
 
 int CGameHandler::moveStack(int stack, BattleHex dest)
@@ -1581,8 +1532,6 @@ CGameHandler::CGameHandler()
 CGameHandler::~CGameHandler()
 {
 	delete spellEnv;
-	delete applier;
-	applier = nullptr;
 	delete gs;
 }
 
@@ -1980,21 +1929,14 @@ void CGameHandler::newTurn()
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
-void CGameHandler::run(bool resume)
+void CGameHandler::run(bool resume, CVCMIServer * srv)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
 	using namespace boost::posix_time;
-	for (CConnection *cc : conns)
+	for (auto cc : conns)
 	{
-		if (!resume)
-		{
-			(*cc) << gs->initialOpts; // gs->scenarioOps
-		}
-
-		std::set<PlayerColor> players;
-		(*cc) >> players; //how many players will be handled at that client
-
+		auto players = srv->getAllClientPlayers(cc->connectionID);
 		std::stringstream sbuffer;
 		sbuffer << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
 		for (PlayerColor color : players)
@@ -2003,29 +1945,15 @@ void CGameHandler::run(bool resume)
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
 				if(!color.isSpectator()) // there can be more than one spectator
-					connections[color] = cc;
+					connections[color].insert(cc);
 			}
 		}
 		logGlobal->info(sbuffer.str());
-
-		cc->addStdVecItems(gs);
-		cc->enableStackSendingByID();
-		cc->disableSmartPointerSerialization();
-	}
-
-	for (auto & elem : conns)
-	{
-		std::set<PlayerColor> pom;
-		for (auto j = connections.cbegin(); j!=connections.cend();j++)
-			if (j->second == elem)
-				pom.insert(j->first);
-
-		boost::thread(std::bind(&CGameHandler::handleConnection,this,pom,std::ref(*elem)));
 	}
 
 	auto playerTurnOrder = generatePlayerTurnOrder();
 
-	while(!serverShuttingDown)
+	while(!CVCMIServer::shuttingDown)
 	{
 		if (!resume) newTurn();
 
@@ -2066,7 +1994,7 @@ void CGameHandler::run(bool resume)
 
 					//wait till turn is done
 					boost::unique_lock<boost::mutex> lock(states.mx);
-					while(states.players.at(playerColor).makingTurn && !serverShuttingDown)
+					while(states.players.at(playerColor).makingTurn && !CVCMIServer::shuttingDown)
 					{
 						static time_duration p = milliseconds(100);
 						states.cv.timed_wait(lock, p);
@@ -2082,7 +2010,7 @@ void CGameHandler::run(bool resume)
 					activePlayer = true;
 		}
 		if (!activePlayer)
-			serverShuttingDown = true;
+			CVCMIServer::shuttingDown = true;
 	}
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
@@ -2616,12 +2544,12 @@ void CGameHandler::changeSpells(const CGHeroInstance * hero, bool give, const st
 	sendAndApply(&cs);
 }
 
-void CGameHandler::sendMessageTo(CConnection &c, const std::string &message)
+void CGameHandler::sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	boost::unique_lock<boost::mutex> lock(*c.wmx);
-	c << &sm;
+	boost::unique_lock<boost::mutex> lock(*c->wmx);
+	*(c.get()) << &sm;
 }
 
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)
@@ -2813,14 +2741,14 @@ void CGameHandler::sendAndApply(NewStructures * info)
 
 void CGameHandler::save(const std::string & filename)
 {
-	logGlobal->info("Saving to %s", filename);
+	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	CResourceHandler::get("local")->createResource(savefname);
 
 	{
 		logGlobal->info("Ordering clients to serialize...");
-		SaveGame sg(savefname);
+		SaveGameClient sg(savefname);
 		sendToAllClients(&sg);
 	}
 
@@ -2840,10 +2768,32 @@ void CGameHandler::save(const std::string & filename)
 	}
 }
 
+void CGameHandler::load(const std::string & filename)
+{
+	logGlobal->info("Saving to %s", filename);
+	const auto stem	= FileInfo::GetPathStem(filename);
+	const auto savefname = stem.to_string() + ".vsgm1";
+
+	try
+	{
+		{
+			CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SERVER_SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			loadCommonState(lf);
+			logGlobal->info("Loading server state");
+			lf >> *this;
+		}
+		logGlobal->info("Game has been successfully loaded!");
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+	}
+}
+
 void CGameHandler::close()
 {
 	logGlobal->info("We have been requested to close.");
-	serverShuttingDown = true;
+	CVCMIServer::shuttingDown = true;
 
 	for (auto & elem : conns)
 	{
@@ -2858,6 +2808,7 @@ void CGameHandler::close()
 
 void CGameHandler::playerLeftGame(int cid)
 {
+	// MPTODO this seems to be no longer working!
 	for (auto & elem : conns)
 	{
 		if(elem->isOpen() && elem->connectionID == cid)
@@ -3009,11 +2960,11 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	return true;
 }
 
-PlayerColor CGameHandler::getPlayerAt(CConnection *c) const
+PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
 {
 	std::set<PlayerColor> all;
 	for (auto i=connections.cbegin(); i!=connections.cend(); i++)
-		if (i->second == c)
+		if(vstd::contains(i->second, c))
 			all.insert(i->first);
 
 	switch(all.size())
@@ -4552,7 +4503,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
 	bool cheated = true;
-	PlayerMessage temp_message(player, message, ObjectInstanceID(-1)); // don't inform other client on selected object
+	PlayerMessageClient temp_message(player, message);
 	sendAndApply(&temp_message);
 
 	std::vector<std::string> cheat;
@@ -5284,49 +5235,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if (p->human)
 			{
-				serverShuttingDown = true;
-
-				if (gs->scenarioOps->campState)
-				{
-					std::vector<CGHeroInstance *> crossoverHeroes;
-					for (CGHeroInstance * hero : gs->map->heroesOnMap)
-					{
-						if (hero->tempOwner == player)
-						{
-							// keep all heroes from the winning player
-							crossoverHeroes.push_back(hero);
-						}
-						else if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(hero->subID)))
-						{
-							// keep hero whether lost or won (like Xeron in AB campaign)
-							crossoverHeroes.push_back(hero);
-						}
-					}
-					// keep lost heroes which are in heroes pool
-					for (auto & heroPair : gs->hpool.heroesPool)
-					{
-						if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(heroPair.first)))
-						{
-							crossoverHeroes.push_back(heroPair.second.get());
-						}
-					}
-
-					gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
-
-					//Request clients to change connection mode
-					PrepareForAdvancingCampaign pfac;
-					sendAndApply(&pfac);
-					//Change connection mode
-					if (getPlayer(player)->human && getStartInfo()->campState)
-					{
-						for (auto connection : conns)
-							connection->prepareForSendingHeroes();
-					}
-
-					UpdateCampaignState ucs;
-					ucs.camp = gs->scenarioOps->campState;
-					sendAndApply(&ucs);
-				}
+				CVCMIServer::shuttingDown = true;
 			}
 		}
 		else

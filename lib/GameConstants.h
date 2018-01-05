@@ -51,6 +51,8 @@ namespace GameConstants
 	const ui32 BASE_MOVEMENT_COST = 100; //default cost for non-diagonal movement
 
 	const int HERO_PORTRAIT_SHIFT = 30;// 2 special frames + some extra portraits
+
+	const int POSSIBLE_TURNTIME[] = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
 
 class CArtifact;

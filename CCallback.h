@@ -78,12 +78,12 @@ public:
 	virtual void buildBoat(const IShipyard *obj) = 0;
 };
 
-struct CPack;
+struct CPackForServer;
 
 class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
 {
 protected:
-	int sendRequest(const CPack *request); //returns requestID (that'll be matched to requestID in PackageApplied)
+	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
@@ -95,8 +95,10 @@ public:
 	friend class CClient;
 };
 
+class CPlayerInterface;
 class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
 {
+	friend class CPlayerInterface; // MPTODO: dirty hack!
 public:
 	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
 	virtual ~CCallback();

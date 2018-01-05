@@ -31,7 +31,7 @@ void CPackForServer::throwNotAllowedAction()
 	if(c)
 	{
 		SystemMessage temp_message("You are not allowed to perform this action!");
-		*c << &temp_message;
+		c->sendPack(&temp_message);
 	}
 	logNetwork->error("Player is not allowed to perform this action!");
 	throw ExceptionNotAllowedAction();
@@ -45,7 +45,7 @@ void CPackForServer::wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedp
 	if(c)
 	{
 		SystemMessage temp_message(oss.str());
-		*c << &temp_message;
+		c->sendPack(&temp_message);
 	}
 }
 
@@ -100,7 +100,9 @@ bool CloseServer::applyGh(CGameHandler * gh)
 
 bool LeaveGame::applyGh(CGameHandler * gh)
 {
-	gh->playerLeftGame(c->connectionID);
+	// MPTODO this seems to be no longer working!
+	// gh->playerLeftGame(c->connectionID);
+	gh->handleClientDisconnection(c);
 	return true;
 }
 
@@ -287,7 +289,7 @@ bool QueryReply::applyGh(CGameHandler * gh)
 	auto playerToConnection = gh->connections.find(player);
 	if(playerToConnection == gh->connections.end())
 		throwAndCompain(gh, "No such player!");
-	if(playerToConnection->second != c)
+	if(!vstd::contains(playerToConnection->second, c))
 		throwAndCompain(gh, "Message came from wrong connection!");
 	if(qid == QueryID(-1))
 		throwAndCompain(gh, "Cannot answer the query with id -1!");
@@ -307,17 +309,18 @@ bool MakeAction::applyGh(CGameHandler * gh)
 		if(ba.actionType != EActionType::WALK && ba.actionType != EActionType::END_TACTIC_PHASE
 			&& ba.actionType != EActionType::RETREAT && ba.actionType != EActionType::SURRENDER)
 			throwNotAllowedAction();
-		if(gh->connections[b->sides[b->tacticsSide].color] != c)
+		if(!vstd::contains(gh->connections[b->sides[b->tacticsSide].color], c))
 			throwNotAllowedAction();
 	}
 	else
 	{
 		auto active = b->battleActiveUnit();
-		if(!active) throwNotAllowedAction();
+		if(!active)
+			throwNotAllowedAction();
 		auto unitOwner = b->battleGetOwner(active);
-		if(gh->connections[unitOwner] != c) throwNotAllowedAction();
+		if(!vstd::contains(gh->connections[unitOwner], c))
+			throwNotAllowedAction();
 	}
-
 	return gh->makeBattleAction(ba);
 }
 
@@ -332,7 +335,7 @@ bool MakeCustomAction::applyGh(CGameHandler * gh)
 	if(!active)
 		throwNotAllowedAction();
 	auto unitOwner = b->battleGetOwner(active);
-	if(gh->connections[unitOwner] != c)
+	if(!vstd::contains(gh->connections[unitOwner], c))
 		throwNotAllowedAction();
 	if(ba.actionType != EActionType::HERO_SPELL)
 		throwNotAllowedAction();
@@ -368,7 +371,7 @@ bool PlayerMessage::applyGh(CGameHandler * gh)
 	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
 	{
 		throwOnWrongPlayer(gh, player);
-		if(gh->getPlayerAt(c) != player)
+		if(gh->getPlayerAt(this->c) != player)
 			throwNotAllowedAction();
 	}
 	gh->playerMessage(player, text, currObj);

@@ -22,7 +22,10 @@
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CPreGame.h"
+#include "../mainmenu/CMainMenu.h"
+#include "../lobby/CBonusSelection.h"
+#include "../lobby/CSavingScreen.h"
+#include "../lobby/CScenarioInfoScreen.h"
 #include "../Graphics.h"
 #include "../mapHandler.h"
 
@@ -926,7 +929,8 @@ void CAdvMapInt::activate()
 		}
 		minimap.activate();
 		terrain.activate();
-		LOCPLINT->cingconsole->activate();
+		if(LOCPLINT)
+			LOCPLINT->cingconsole->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
 	}
@@ -1206,7 +1210,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_s:
 		if(isActive() && key.type == SDL_KEYUP)
-			GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
+			GH.pushInt(new CSavingScreen());
 		return;
 	case SDLK_d:
 		{
@@ -1226,7 +1230,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
 			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
-				[](){ LOCPLINT->sendCustomEvent(RESTART_GAME); },
+				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); },
 				[](){}, true);
 		}
 		return;
@@ -1938,14 +1942,13 @@ CAdventureOptions::CAdventureOptions():
 
 void CAdventureOptions::showScenarioInfo()
 {
-	auto campState = LOCPLINT->cb->getStartInfo()->campState;
-	if(campState)
+	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.pushInt(new CBonusSelection(campState));
+		GH.pushInt(new CBonusSelection());
 	}
 	else
 	{
-		GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
+		GH.pushInt(new CScenarioInfoScreen());
 	}
 }
 

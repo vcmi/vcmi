@@ -30,6 +30,9 @@ class IMarket;
 
 class SpellCastEnvironment;
 
+template<typename T> class CApplier;
+class CBaseForGHApply;
+
 struct PlayerStatus
 {
 	bool makingTurn;
@@ -74,6 +77,7 @@ struct CasualtiesAfterBattle
 
 class CGameHandler : public IGameCallback, CBattleInfoCallback
 {
+	CApplier<CBaseForGHApply> * applier;
 public:
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -81,9 +85,9 @@ public:
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
 	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
 
-	std::map<PlayerColor, CConnection*> connections; //player color -> connection to client with interface of that player
+	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state
-	std::set<CConnection*> conns;
+	std::set<std::shared_ptr<CConnection>> conns;
 
 	//queries stuff
 	boost::recursive_mutex gsm;
@@ -189,8 +193,9 @@ public:
 	void commitPackage(CPackForClient *pack) override;
 
 	void init(StartInfo *si);
-	void handleConnection(std::set<PlayerColor> players, CConnection &c);
-	PlayerColor getPlayerAt(CConnection *c) const;
+	void handleClientDisconnection(std::shared_ptr<CConnection> c);
+	void handleReceivedPack(CPackForServer * pack);
+	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
 
 	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
@@ -225,6 +230,8 @@ public:
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
 	void save(const std::string &fname);
+	void load(const std::string &fname);
+
 	void close();
 	void playerLeftGame(int cid);
 	void handleTimeEvents();
@@ -248,7 +255,7 @@ public:
 	}
 
 	void sendMessageToAll(const std::string &message);
-	void sendMessageTo(CConnection &c, const std::string &message);
+	void sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info) override;
 	void applyAndSend(CPackForClient * info);
@@ -285,7 +292,7 @@ public:
 
 	void battleAfterLevelUp(const BattleResult &result);
 
-	void run(bool resume);
+	void run(bool resume, CVCMIServer * srv);
 	void newTurn();
 	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
 	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
@@ -308,10 +315,6 @@ private:
 	void checkVictoryLossConditionsForAll();
 };
 
-class clientDisconnectedException : public std::exception
-{
-
-};
 class ExceptionNotAllowedAction : public std::exception
 {
 

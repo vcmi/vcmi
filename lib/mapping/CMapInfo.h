@@ -38,9 +38,9 @@ public:
 	int humanPlayers; //players ALLOWED to be controlled by human
 	int actualHumanPlayers; // >1 if multiplayer game
 	bool isRandomMap; // true if the map will be created randomly, false if not
+	bool isSaveGame; // FIXME: There must be beter way to split saves
 
 	CMapInfo();
-	CMapInfo(CMapInfo && tmp);
 	virtual ~CMapInfo();
 
 	CMapInfo &operator=(CMapInfo &&other);
@@ -48,6 +48,9 @@ public:
 	void mapInit(const std::string & fname);
 	void campaignInit();
 	void countPlayers();
+	std::string getName() const;
+	std::string getNameForList() const;
+	std::string getDescription() const;
 
 	template <typename Handler> void serialize(Handler &h, const int Version)
 	{

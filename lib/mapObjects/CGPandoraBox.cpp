@@ -467,7 +467,7 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!(availableFor & (1 << h->tempOwner.getNum())))
 		return;
-	if(cb->getPlayerSettings(h->tempOwner)->playerID)
+	if(cb->getPlayerSettings(h->tempOwner)->isControlledByHuman())
 	{
 		if(humanActivate)
 			activated(h);

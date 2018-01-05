@@ -15,49 +15,10 @@
 #include "../GameConstants.h"
 #include "CMapService.h"
 
-void CMapInfo::countPlayers()
-{
-	actualHumanPlayers = playerAmnt = humanPlayers = 0;
-	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
-	{
-		if(mapHeader->players[i].canHumanPlay)
-		{
-			playerAmnt++;
-			humanPlayers++;
-		}
-		else if(mapHeader->players[i].canComputerPlay)
-		{
-			playerAmnt++;
-		}
-	}
-
-	if(scenarioOpts)
-		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
-			if(i->second.playerID != PlayerSettings::PLAYER_AI)
-				actualHumanPlayers++;
-}
-
 CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
+	actualHumanPlayers(0), isRandomMap(false), isSaveGame(false)
 {
 
-}
-
-#define STEAL(x) x = std::move(tmp.x)
-
-CMapInfo::CMapInfo(CMapInfo && tmp):
-	scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
-{
-	std::swap(scenarioOpts, tmp.scenarioOpts);
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
 }
 
 CMapInfo::~CMapInfo()
@@ -78,18 +39,58 @@ void CMapInfo::campaignInit()
 	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
 }
 
-CMapInfo & CMapInfo::operator=(CMapInfo &&tmp)
+void CMapInfo::countPlayers()
 {
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(scenarioOpts);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
-	return *this;
+	actualHumanPlayers = playerAmnt = humanPlayers = 0;
+	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
+	{
+		if(mapHeader->players[i].canHumanPlay)
+		{
+			playerAmnt++;
+			humanPlayers++;
+		}
+		else if(mapHeader->players[i].canComputerPlay)
+		{
+			playerAmnt++;
+		}
+	}
+
+	if(scenarioOpts)
+		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
+			if(i->second.isControlledByHuman())
+				actualHumanPlayers++;
 }
 
-#undef STEAL
+std::string CMapInfo::getName() const
+{
+	std::string name;
+	if(campaignHeader)
+		name = campaignHeader->name;
+	else
+		name = mapHeader->name;
+
+	return name.length() ? name : "Unnamed";
+}
+
+std::string CMapInfo::getNameForList() const
+{
+	if(isSaveGame)
+	{
+		// TODO: this could be handled differently
+		std::vector<std::string> path;
+		boost::split(path, fileURI, boost::is_any_of("\\/"));
+		return path[path.size()-1];
+	}
+	else
+	{
+		return getName();
+	}
+}
+
+std::string CMapInfo::getDescription() const
+{
+	if(campaignHeader)
+		return campaignHeader->description;
+	else
+		return mapHeader->description;
+}

@@ -32,8 +32,9 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
-	boost::asio::ip::tcp::no_delay option(true);
-	socket->set_option(option);
+	socket->set_option(boost::asio::ip::tcp::no_delay(true));
+	socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
+	socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
 
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
@@ -47,21 +48,18 @@ void CConnection::init()
 	connected = true;
 	std::string pom;
 	//we got connection
-	oser & std::string("Aiya!\n") & name & myEndianess; //identify ourselves
-	iser & pom & pom & contactEndianess;
-	logNetwork->info("Established connection with %s", pom);
+	oser & std::string("Aiya!\n") & name & uuid & myEndianess; //identify ourselves
+	iser & pom & pom & contactUuid & contactEndianess;
+	logNetwork->info("Established connection with %s. UUID: %s", pom, contactUuid);
 	wmx = new boost::mutex();
 	rmx = new boost::mutex();
 
 	handler = nullptr;
-	receivedStop = sendStop = false;
-	static int cid = 1;
-	connectionID = cid++;
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
-CConnection::CConnection(std::string host, ui16 port, std::string Name)
-:iser(this), oser(this), io_service(new asio::io_service), name(Name)
+CConnection::CConnection(std::string host, ui16 port, std::string Name, std::string UUID)
+	: iser(this), oser(this), io_service(new asio::io_service), connectionID(0), name(Name), uuid(UUID)
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
@@ -115,13 +113,13 @@ connerror1:
 	//delete socket;
 	throw std::runtime_error("Can't establish connection :(");
 }
-CConnection::CConnection(TSocket * Socket, std::string Name )
-	:iser(this), oser(this), socket(Socket),io_service(&Socket->get_io_service()), name(Name)//, send(this), rec(this)
+CConnection::CConnection(TSocket * Socket, std::string Name, std::string UUID)
+	: iser(this), oser(this), socket(Socket),io_service(&Socket->get_io_service()), connectionID(0), name(Name), uuid(UUID)
 {
 	init();
 }
-CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name)
-: iser(this), oser(this), name(Name)//, send(this), rec(this)
+CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name, std::string UUID)
+	: iser(this), oser(this), connectionID(0), name(Name), uuid(UUID)
 {
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
@@ -199,11 +197,6 @@ bool CConnection::isOpen() const
 	return socket && connected;
 }
 
-bool CConnection::isHost() const
-{
-	return connectionID == 1;
-}
-
 void CConnection::reportState(vstd::CLoggerBase * out)
 {
 	out->debug("CConnection");
@@ -216,19 +209,26 @@ void CConnection::reportState(vstd::CLoggerBase * out)
 
 CPack * CConnection::retreivePack()
 {
-	CPack *ret = nullptr;
+	CPack * pack = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);
-	logNetwork->trace("Listening... ");
-	iser & ret;
-	logNetwork->trace("\treceived server message of type %s", (ret? typeid(*ret).name() : "nullptr"));
-	return ret;
+	iser & pack;
+	logNetwork->trace("\treceived CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
+	if(pack == nullptr)
+	{
+		logNetwork->error("Received a nullptr CPack! You should check whether client and server ABI matches.");
+	}
+	else
+	{
+		pack->c = this->shared_from_this();
+	}
+	return pack;
 }
 
-void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID)
+void CConnection::sendPack(const CPack * pack)
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
-	logNetwork->trace("Sending to server a pack of type %s", typeid(pack).name());
-	oser & player & requestID & &pack; //packs has to be sent as polymorphic pointers!
+	logNetwork->trace("Sending a pack of type %s", typeid(*pack).name());
+	oser & pack;
 }
 
 void CConnection::disableStackSendingByID()
@@ -251,21 +251,19 @@ void CConnection::enableSmartPointerSerialization()
 	iser.smartPointerSerialization = oser.smartPointerSerialization = true;
 }
 
-void CConnection::prepareForSendingHeroes()
-{
-	iser.loadedPointers.clear();
-	oser.savedPointers.clear();
-	disableSmartVectorMemberSerialization();
-	enableSmartPointerSerialization();
-	disableStackSendingByID();
-}
-
-void CConnection::enterPregameConnectionMode()
+void CConnection::enterLobbyConnectionMode()
 {
 	iser.loadedPointers.clear();
 	oser.savedPointers.clear();
 	disableSmartVectorMemberSerialization();
 	disableSmartPointerSerialization();
+}
+
+void CConnection::enterGameplayConnectionMode(CGameState * gs)
+{
+	enableStackSendingByID();
+	disableSmartPointerSerialization();
+	addStdVecItems(gs);
 }
 
 void CConnection::disableSmartVectorMemberSerialization()
@@ -280,7 +278,7 @@ void CConnection::enableSmartVectorMemberSerializatoin()
 
 std::string CConnection::toString() const
 {
-    boost::format fmt("Connection with %s (ID: %d)");
-    fmt % name % connectionID;
-    return fmt.str();
+	boost::format fmt("Connection with %s (ID: %d UUID: %s)");
+	fmt % name % connectionID % uuid;
+	return fmt.str();
 }

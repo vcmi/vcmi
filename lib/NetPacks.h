@@ -21,10 +21,15 @@
 #include "battle/CObstacleInstance.h"
 
 #include "spells/ViewSpellInt.h"
+#include "StartInfo.h"
 
+class CClient;
+class CGameState;
+class CGameHandler;
+class CConnection;
 class CCampaignState;
 class CArtifact;
-class CSelectionScreen;
+class CLobbyScreen;
 class CGObjectInstance;
 class CArtifactInstance;
 struct StackLocation;
@@ -33,6 +38,9 @@ struct QuestInfo;
 class CMapInfo;
 struct StartInfo;
 class IBattleState;
+class CMapGenOptions;
+struct ClientPlayer;
+class CVCMIServer;
 
 struct Query : public CPackForClient
 {
@@ -438,18 +446,6 @@ struct RemoveBonus :  public CPackForClient
 	}
 };
 
-struct UpdateCampaignState : public CPackForClient
-{
-	UpdateCampaignState(){}
-	std::shared_ptr<CCampaignState> camp;
-	void applyCl(CClient *cl);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & camp;
-	}
-};
-
 struct SetCommanderProperty : public CPackForClient
 {
 	enum ECommanderProperty {ALIVE, BONUS, SECONDARY_SKILL, EXPERIENCE, SPECIAL_SKILL};
@@ -492,16 +488,6 @@ struct AddQuest : public CPackForClient
 	{
 		h & player;
 		h & quest;
-	}
-};
-
-struct PrepareForAdvancingCampaign : public CPackForClient
-{
-	PrepareForAdvancingCampaign(){}
-
-	void applyCl(CClient *cl);
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
 	}
 };
 
@@ -1855,6 +1841,7 @@ struct CommitPackage : public CPackForServer
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & packToCommit;
 	}
 };
@@ -1864,21 +1851,27 @@ struct CloseServer : public CPackForServer
 {
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
 };
 
 struct LeaveGame : public CPackForServer
 {
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
 };
 
 struct EndTurn : public CPackForServer
 {
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
 };
 
 struct DismissHero : public CPackForServer
@@ -1890,6 +1883,7 @@ struct DismissHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & hid;
 	}
 };
@@ -1905,6 +1899,7 @@ struct MoveHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & dest;
 		h & hid;
 		h & transit;
@@ -1922,6 +1917,7 @@ struct CastleTeleportHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & dest;
 		h & hid;
 	}
@@ -1940,6 +1936,7 @@ struct ArrangeStacks : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & what;
 		h & p1;
 		h & p2;
@@ -1959,6 +1956,7 @@ struct DisbandCreature : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & pos;
 		h & id;
 	}
@@ -1974,6 +1972,7 @@ struct BuildStructure : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & tid;
 		h & bid;
 	}
@@ -1999,6 +1998,7 @@ struct RecruitCreatures : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & tid;
 		h & dst;
 		h & crid;
@@ -2018,6 +2018,7 @@ struct UpgradeCreature : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & pos;
 		h & id;
 		h & cid;
@@ -2033,6 +2034,7 @@ struct GarrisonHeroSwap : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & tid;
 	}
 };
@@ -2046,6 +2048,7 @@ struct ExchangeArtifacts : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & src;
 		h & dst;
 	}
@@ -2064,6 +2067,7 @@ struct AssembleArtifacts : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & heroID;
 		h & artifactSlot;
 		h & assemble;
@@ -2081,6 +2085,7 @@ struct BuyArtifact : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & hid;
 		h & aid;
 	}
@@ -2101,6 +2106,7 @@ struct TradeOnMarketplace : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & market;
 		h & hero;
 		h & mode;
@@ -2120,6 +2126,7 @@ struct SetFormation : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & hid;
 		h & formation;
 	}
@@ -2136,6 +2143,7 @@ struct HireHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & hid;
 		h & tid;
 		h & player;
@@ -2150,6 +2158,7 @@ struct BuildBoat : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & objid;
 	}
 
@@ -2166,6 +2175,7 @@ struct QueryReply : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & qid;
 		h & player;
 		h & reply;
@@ -2181,6 +2191,7 @@ struct MakeAction : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & ba;
 	}
 };
@@ -2194,6 +2205,7 @@ struct MakeCustomAction : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & ba;
 	}
 };
@@ -2206,6 +2218,7 @@ struct DigWithHero : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & id;
 	}
 };
@@ -2220,6 +2233,7 @@ struct CastAdvSpell : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & hid;
 		h & sid;
 		h & pos;
@@ -2228,40 +2242,70 @@ struct CastAdvSpell : public CPackForServer
 
 /***********************************************************************************************************/
 
-struct SaveGame : public CPackForClient, public CPackForServer
+struct SaveGame : public CPackForServer
 {
 	SaveGame(){};
 	SaveGame(const std::string &Fname) :fname(Fname){};
 	std::string fname;
 
-	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
 	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & fname;
+	}
+};
+
+// TODO: Eventually we should re-merge both SaveGame and PlayerMessage
+struct SaveGameClient : public CPackForClient
+{
+	SaveGameClient(){};
+	SaveGameClient(const std::string &Fname) :fname(Fname){};
+	std::string fname;
+
+	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & fname;
 	}
 };
 
-struct PlayerMessage : public CPackForClient, public CPackForServer
+struct PlayerMessage : public CPackForServer
 {
 	PlayerMessage(){};
-	PlayerMessage(PlayerColor Player, const std::string &Text, ObjectInstanceID obj)
-		:player(Player),text(Text), currObj(obj)
+	PlayerMessage(const std::string &Text, ObjectInstanceID obj)
+		: text(Text), currObj(obj)
 	{};
-	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
 	bool applyGh(CGameHandler *gh);
 
-	PlayerColor player;
 	std::string text;
 	ObjectInstanceID currObj; // optional parameter that specifies current object. For cheats :)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CPackForServer &>(*this);
 		h & text;
-		h & player;
 		h & currObj;
+	}
+};
+
+struct PlayerMessageClient : public CPackForClient
+{
+	PlayerMessageClient(){};
+	PlayerMessageClient(PlayerColor Player, const std::string &Text)
+		: player(Player), text(Text)
+	{}
+	void applyCl(CClient *cl);
+
+	PlayerColor player;
+	std::string text;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player;
+		h & text;
 	}
 };
 
@@ -2284,22 +2328,98 @@ struct CenterView : public CPackForClient
 
 /***********************************************************************************************************/
 
-struct CPackForSelectionScreen : public CPack
+struct CPackForLobby : public CPack
 {
-	void apply(CSelectionScreen *selScreen) {} // implemented in CPreGame.cpp
+	bool applied; // MPTODO: Only used by server. Find better way handle this since it's only used for propogate netpacks
+
+	bool checkClientPermissions(CVCMIServer * srv) const
+	{
+		return false;
+	}
+
+	bool applyOnServer(CVCMIServer * srv)
+	{
+		return true;
+	}
+
+	void applyOnServerAfterAnnounce(CVCMIServer * srv) {}
+
+	bool applyOnLobbyImmidiately(CLobbyScreen * lobby)
+	{
+		return true;
+	}
+
+	void applyOnLobby(CLobbyScreen * lobby) {}
 };
 
-class CPregamePackToPropagate  : public CPackForSelectionScreen
-{};
+struct CLobbyPackToPropagate : public CPackForLobby
+{
 
-class CPregamePackToHost  : public CPackForSelectionScreen
-{};
+};
 
-struct ChatMessage : public CPregamePackToPropagate
+struct CLobbyPackToServer : public CPackForLobby
+{
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+};
+
+struct LobbyClientConnected : public CLobbyPackToPropagate
+{
+	// Set by client before sending pack to server
+	std::string uuid;
+	std::vector<std::string> names;
+	StartInfo::EMode mode;
+	// Changed by server before announcing pack
+	int clientId;
+	int hostClientId;
+
+	LobbyClientConnected()
+		: mode(StartInfo::INVALID), clientId(-1), hostClientId(-1)
+	{}
+
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnLobbyImmidiately(CLobbyScreen * lobby);
+	void applyOnLobby(CLobbyScreen * lobby);
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & uuid;
+		h & names;
+		h & mode;
+
+		h & clientId;
+		h & hostClientId;
+	}
+};
+
+struct LobbyClientDisconnected : public CLobbyPackToPropagate
+{
+	int clientId;
+	bool shutdownServer;
+
+	LobbyClientDisconnected() : shutdownServer(false) {}
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+	bool applyOnLobbyImmidiately(CLobbyScreen * lobby);
+	void applyOnLobby(CLobbyScreen * lobby);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & clientId;
+		h & shutdownServer;
+	}
+};
+
+struct LobbyChatMessage : public CLobbyPackToPropagate
 {
 	std::string playerName, message;
 
-	void apply(CSelectionScreen *selScreen);
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	void applyOnLobby(CLobbyScreen * lobby);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & playerName;
@@ -2307,70 +2427,15 @@ struct ChatMessage : public CPregamePackToPropagate
 	}
 };
 
-struct QuitMenuWithoutStarting : public CPregamePackToPropagate
+struct LobbyGuiAction : public CLobbyPackToPropagate
 {
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	enum EAction : ui8 {
+		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS
+	} action;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
-};
-
-struct PlayerJoined : public CPregamePackToHost
-{
-	std::string playerName;
-	ui8 connectionID;
-
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & playerName;
-		h & connectionID;
-	}
-};
-
-struct ELF_VISIBILITY SelectMap : public CPregamePackToPropagate
-{
-	const CMapInfo *mapInfo;
-	bool free;//local flag, do not serialize
-
-	DLL_LINKAGE SelectMap(const CMapInfo &src);
-	DLL_LINKAGE SelectMap();
-	DLL_LINKAGE ~SelectMap();
-
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & mapInfo;
-	}
-
-};
-
-struct ELF_VISIBILITY UpdateStartOptions : public CPregamePackToPropagate
-{
-	StartInfo *options;
-	bool free;//local flag, do not serialize
-
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
-
-	DLL_LINKAGE UpdateStartOptions(StartInfo &src);
-	DLL_LINKAGE UpdateStartOptions();
-	DLL_LINKAGE ~UpdateStartOptions();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & options;
-	}
-
-};
-
-struct PregameGuiAction : public CPregamePackToPropagate
-{
-	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS}
-		action;
-
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	LobbyGuiAction() : action(NONE) {}
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	void applyOnLobby(CLobbyScreen * lobby);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -2378,62 +2443,175 @@ struct PregameGuiAction : public CPregamePackToPropagate
 	}
 };
 
-struct RequestOptionsChange : public CPregamePackToHost
+struct LobbyStartGame : public CLobbyPackToPropagate
 {
-	enum EWhat {TOWN, HERO, BONUS};
+	// Set by server
+	std::shared_ptr<StartInfo> initializedStartInfo;
+
+	LobbyStartGame() : initializedStartInfo(nullptr) {}
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+	bool applyOnLobbyImmidiately(CLobbyScreen * lobby);
+	void applyOnLobby(CLobbyScreen * lobby);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & initializedStartInfo;
+	}
+};
+
+struct LobbyChangeHost : public CLobbyPackToPropagate
+{
+	int newHostConnectionId;
+
+	LobbyChangeHost() : newHostConnectionId(-1) {}
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnLobby(CLobbyScreen * lobby);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & newHostConnectionId;
+	}
+};
+
+struct LobbyUpdateState : public CLobbyPackToPropagate
+{
+	LobbyState state;
+
+	LobbyUpdateState() {}
+	void applyOnLobby(CLobbyScreen * lobby);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & state;
+	}
+};
+
+struct LobbySetMap : public CLobbyPackToServer
+{
+	std::shared_ptr<CMapInfo> mapInfo;
+	std::shared_ptr<CMapGenOptions> mapGenOpts;
+
+	LobbySetMap() : mapInfo(nullptr), mapGenOpts(nullptr) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & mapInfo;
+		h & mapGenOpts;
+	}
+};
+
+struct LobbySetCampaign : public CLobbyPackToServer
+{
+	std::shared_ptr<CCampaignState> ourCampaign;
+
+	LobbySetCampaign() {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ourCampaign;
+	}
+};
+
+struct LobbySetCampaignMap : public CLobbyPackToServer
+{
+	int mapId;
+
+	LobbySetCampaignMap() : mapId(-1) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & mapId;
+	}
+};
+
+struct LobbySetCampaignBonus : public CLobbyPackToServer
+{
+	int bonusId;
+
+	LobbySetCampaignBonus() : bonusId(-1) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & bonusId;
+	}
+};
+
+struct LobbyChangePlayerOption : public CLobbyPackToServer
+{
+	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS};
 	ui8 what;
 	si8 direction; //-1 or +1
-	ui8 playerID;
+	PlayerColor color;
 
-	RequestOptionsChange(ui8 What, si8 Dir, ui8 Player)
-		:what(What), direction(Dir), playerID(Player)
-	{}
-	RequestOptionsChange()
-		:what(0), direction(0), playerID(0)
-	{}
-
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	LobbyChangePlayerOption() : what(UNKNOWN), direction(0), color(PlayerColor::CANNOT_DETERMINE) {}
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & what;
 		h & direction;
-		h & playerID;
+		h & color;
 	}
 };
 
-struct PlayerLeft : public CPregamePackToPropagate
+struct LobbySetPlayer : public CLobbyPackToServer
 {
-	ui8 playerID;
+	PlayerColor clickedColor;
 
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	LobbySetPlayer() : clickedColor(PlayerColor::CANNOT_DETERMINE){}
+	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & playerID;
+		h & clickedColor;
 	}
 };
 
-struct PlayersNames : public CPregamePackToPropagate
+struct LobbySetTurnTime : public CLobbyPackToServer
 {
-public:
-	std::map<ui8, std::string> playerNames;
+	ui8 turnTime;
 
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	LobbySetTurnTime() : turnTime(0) {}
+	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & playerNames;
+		h & turnTime;
 	}
 };
 
-struct StartWithCurrentSettings : public CPregamePackToPropagate
+struct LobbySetDifficulty : public CLobbyPackToServer
 {
-public:
-	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
+	ui8 difficulty;
+
+	LobbySetDifficulty() : difficulty(0) {}
+	bool applyOnServer(CVCMIServer * srv);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		//h & playerNames;
+		h & difficulty;
+	}
+};
+
+struct LobbyForceSetPlayer : public CLobbyPackToServer
+{
+	ui8 targetConnectedPlayer;
+	PlayerColor targetPlayerColor;
+
+	LobbyForceSetPlayer() : targetConnectedPlayer(-1), targetPlayerColor(PlayerColor::CANNOT_DETERMINE) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & targetConnectedPlayer;
+		h & targetPlayerColor;
 	}
 };

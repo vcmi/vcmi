@@ -20,6 +20,7 @@ const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
 const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
 const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 const SDL_Color Colors::GREEN = { 0, 255, 0, 0 };
+const SDL_Color Colors::ORANGE = { 232, 184, 32, 0 };
 const SDL_Color Colors::DEFAULT_KEY_COLOR = {0, 255, 255, 0};
 
 void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)

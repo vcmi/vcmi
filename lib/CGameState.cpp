@@ -822,7 +822,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				playerSettings.compOnly = !playerInfo.canHumanPlay;
 				playerSettings.team = playerInfo.team;
 				playerSettings.castle = playerInfo.defaultCastle();
-				if(playerSettings.playerID == PlayerSettings::PLAYER_AI && playerSettings.name.empty())
+				if(playerSettings.isControlledByAI() && playerSettings.name.empty())
 				{
 					playerSettings.name = VLC->generaltexth->allTexts[468];
 				}
@@ -847,16 +847,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 void CGameState::initCampaign(const IMapService * mapService)
 {
 	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.get());
-	auto campaign = scenarioOps->campState;
-	assert(vstd::contains(campaign->camp->mapPieces, *scenarioOps->campState->currentMap));
-
-	std::string scenarioName = scenarioOps->mapname.substr(0, scenarioOps->mapname.find('.'));
-	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(*campaign->currentMap);
-
-	std::string & mapContent = campaign->camp->mapPieces[*campaign->currentMap];
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	map = mapService->loadMap(buffer, mapContent.size(), scenarioName).release();
+	map = scenarioOps->campState->getMap();
 }
 
 void CGameState::checkMapChecksum()
@@ -971,7 +962,7 @@ void CGameState::initPlayerStates()
 		PlayerState & p = players[elem.first];
 		//std::pair<PlayerColor, PlayerState> ins(elem.first,PlayerState());
 		p.color=elem.first;
-		p.human = elem.second.playerID;
+		p.human = elem.second.isControlledByHuman();
 		p.team = map->players[elem.first.getNum()].team;
 		teams[p.team].id = p.team;//init team
 		teams[p.team].players.insert(elem.first);//add player to team
@@ -1098,13 +1089,26 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 	auto bonus = campaignState->getBonusForCurrentMap();
 	if (bonus && bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
-		crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = campaignState->camp->scenarios[bonus->info2].crossoverHeroes;
+		std::vector<CGHeroInstance *> heroes;
+		for(auto & node : campaignState->camp->scenarios[bonus->info2].crossoverHeroes)
+		{
+			auto h = CCampaignState::crossoverDeserialize(node);
+			heroes.push_back(h);
+		}
+		crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = heroes;
 	}
 	else
 	{
 		if(!campaignState->mapsConquered.empty())
 		{
-			crossoverHeroes.heroesFromPreviousScenario = campaignState->camp->scenarios[campaignState->mapsConquered.back()].crossoverHeroes;
+			std::vector<CGHeroInstance *> heroes;
+			for(auto & node : campaignState->camp->scenarios[campaignState->mapsConquered.back()].crossoverHeroes)
+			{
+				auto h = CCampaignState::crossoverDeserialize(node);
+				heroes.push_back(h);
+			}
+			crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = heroes;
+			crossoverHeroes.heroesFromPreviousScenario = heroes;
 
 			for(auto mapNr : campaignState->mapsConquered)
 			{
@@ -1115,15 +1119,22 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios,
-					               CGObjectInstanceBySubIdFinder(hero));
+//					auto hero = CCampaignState::crossoverDeserialize(node);
+					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios, [hero](CGHeroInstance * h)
+					{
+						return hero->subID == h->subID;
+					});
 				}
 
 				// now add heroes which completed the scenario
-				for(auto hero : scenario.crossoverHeroes)
+				for(auto node : scenario.crossoverHeroes)
 				{
+					auto hero = CCampaignState::crossoverDeserialize(node);
 					// add new heroes and replace old heroes with newer ones
-					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios, CGObjectInstanceBySubIdFinder(hero));
+					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios,  [hero](CGHeroInstance * h)
+					{
+						return hero->subID == h->subID;
+					});
 					if (it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
 					{
 						// replace old hero with newer one
@@ -1313,7 +1324,7 @@ void CGameState::initStartingResources()
 		for(auto it = scenarioOps->playerInfos.cbegin();
 			it != scenarioOps->playerInfos.cend(); ++it)
 		{
-			if(it->second.playerID != PlayerSettings::PLAYER_AI)
+			if(it->second.isControlledByHuman())
 				ret.push_back(&it->second);
 		}
 
@@ -2812,7 +2823,7 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 		map->objects[heroToPlace->id.getNum()] = heroToPlace;
 		map->addBlockVisTiles(heroToPlace);
 
-		scenarioOps->campState->getCurrentScenario().placedCrossoverHeroes.push_back(heroToPlace);
+		scenarioOps->campState->getCurrentScenario().placedCrossoverHeroes.push_back(CCampaignState::crossoverSerialize(heroToPlace));
 	}
 }
 

@@ -41,7 +41,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
 class DLL_LINKAGE CConnection
-	: public IBinaryReader, public IBinaryWriter
+	: public IBinaryReader, public IBinaryWriter, public std::enable_shared_from_this<CConnection>
 {
 	CConnection();
 
@@ -58,27 +58,26 @@ public:
 	TSocket * socket;
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
+	std::string contactUuid;
 	boost::asio::io_service *io_service;
 	std::string name; //who uses this connection
+	std::string uuid;
 
 	int connectionID;
 	boost::thread *handler;
 
-	bool receivedStop, sendStop;
-
-	CConnection(std::string host, ui16 port, std::string Name);
-	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name);
-	CConnection(TSocket * Socket, std::string Name); //use immediately after accepting connection into socket
+	CConnection(std::string host, ui16 port, std::string Name, std::string UUID);
+	CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_service, std::string Name, std::string UUID);
+	CConnection(TSocket * Socket, std::string Name, std::string UUID); //use immediately after accepting connection into socket
 
 	void close();
 	bool isOpen() const;
-	bool isHost() const;
 	template<class T>
 	CConnection &operator&(const T&);
 	virtual ~CConnection();
 
-	CPack *retreivePack(); //gets from server next pack (allocates it with new)
-	void sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID);
+	CPack * retreivePack();
+	void sendPack(const CPack * pack);
 
 	void disableStackSendingByID();
 	void enableStackSendingByID();
@@ -87,8 +86,8 @@ public:
 	void disableSmartVectorMemberSerialization();
 	void enableSmartVectorMemberSerializatoin();
 
-	void prepareForSendingHeroes(); //disables sending vectorized, enables smart pointer serialization, clears saved/loaded ptr cache
-	void enterPregameConnectionMode();
+	void enterLobbyConnectionMode();
+	void enterGameplayConnectionMode(CGameState * gs);
 
 	std::string toString() const;
 

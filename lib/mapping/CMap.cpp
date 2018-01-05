@@ -268,6 +268,8 @@ CMap::~CMap()
 
 	for(auto quest : quests)
 		quest.dellNull();
+
+	resetStaticData();
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
@@ -645,4 +647,12 @@ CMapEditManager * CMap::getEditManager()
 {
 	if(!editManager) editManager = make_unique<CMapEditManager>(this);
 	return editManager.get();
+}
+
+void CMap::resetStaticData()
+{
+	CGKeys::reset();
+	CGMagi::reset();
+	CGObelisk::reset();
+	CGTownInstance::reset();
 }

@@ -18,7 +18,7 @@
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CPreGame.h"
+#include "../mainmenu/CMainMenu.h"
 #include "../Graphics.h"
 #include "../CMessage.h"
 

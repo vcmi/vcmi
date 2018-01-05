@@ -41,6 +41,7 @@
 #include "widgets/MiscWidgets.h"
 #include "widgets/AdventureMapClasses.h"
 #include "CMT.h"
+#include "CServerHandler.h"
 
 // TODO: as Tow suggested these template should all be part of CClient
 // This will require rework spectator interface properly though
@@ -334,17 +335,6 @@ void RemoveBonus::applyCl(CClient *cl)
 		}
 		break;
 	}
-}
-
-void UpdateCampaignState::applyCl(CClient *cl)
-{
-	cl->stopConnection();
-	cl->campaignMapFinished(camp);
-}
-
-void PrepareForAdvancingCampaign::applyCl(CClient *cl)
-{
-	cl->serv->prepareForSendingHeroes();
 }
 
 void RemoveObject::applyFirstCl(CClient *cl)
@@ -733,7 +723,7 @@ void PackageApplied::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, player, &IGameEventsReceiver::requestRealized, this);
 	if(!CClient::waitingRequest.tryRemovingElement(requestID))
-		logNetwork->warn("Surprising server message!");
+		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
 }
 
 void SystemMessage::applyCl(CClient *cl)
@@ -753,11 +743,13 @@ void PlayerBlocked::applyCl(CClient *cl)
 
 void YourTurn::applyCl(CClient *cl)
 {
+	logNetwork->debug("Server gives turn to %s", player.getStr());
+
 	callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
 	callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
 }
 
-void SaveGame::applyCl(CClient *cl)
+void SaveGameClient::applyCl(CClient *cl)
 {
 	const auto stem = FileInfo::GetPathStem(fname);
 	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
@@ -774,7 +766,7 @@ void SaveGame::applyCl(CClient *cl)
 	}
 }
 
-void PlayerMessage::applyCl(CClient *cl)
+void PlayerMessageClient::applyCl(CClient *cl)
 {
 	logNetwork->debug("Player %s sends a message: %s", player.getStr(), text);
 

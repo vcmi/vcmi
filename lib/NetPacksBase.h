@@ -20,7 +20,6 @@ class CArmedInstance;
 class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
-class BattleInfo;
 
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
@@ -28,7 +27,9 @@ class BattleInfo;
 
 struct DLL_LINKAGE CPack
 {
-	CPack() {};
+	std::shared_ptr<CConnection> c; // Pointer to connection that pack received from
+
+	CPack() : c(nullptr) {};
 	virtual ~CPack() {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -54,12 +55,11 @@ struct CPackForClient : public CPack
 
 struct CPackForServer : public CPack
 {
-	PlayerColor player;
-	CConnection *c;
+	mutable PlayerColor player;
+	mutable si32 requestID;
 	CGameState* GS(CGameHandler *gh);
 	CPackForServer():
-		player(PlayerColor::NEUTRAL),
-		c(nullptr)
+		player(PlayerColor::NEUTRAL)
 	{
 	}
 
@@ -67,6 +67,12 @@ struct CPackForServer : public CPack
 	{
 		logGlobal->error("Should not happen... applying plain CPackForServer");
 		return false;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player;
+		h & requestID;
 	}
 
 protected:

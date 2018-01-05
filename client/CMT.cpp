@@ -20,7 +20,8 @@
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileStream.h"
-#include "CPreGame.h"
+#include "mainmenu/CMainMenu.h"
+#include "lobby/CSelectionBase.h"
 #include "windows/CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
 #include "gui/CCursorHandler.h"
@@ -54,6 +55,12 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CPlayerState.h"
 #include "gui/CAnimation.h"
+#include "../lib/serializer/Connection.h"
+#include "CServerHandler.h"
+
+#include <boost/asio.hpp>
+
+#include "mainmenu/CPrologEpilogVideo.h"
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -75,7 +82,6 @@ namespace bfs = boost::filesystem;
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-static CClient *client = nullptr;
 
 int preferredDriverIndex = -1;
 SDL_Window * mainWindow = nullptr;
@@ -91,7 +97,6 @@ SDL_Surface *screen = nullptr, //main screen surface
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
-CondSh<bool> serverAlive(false);
 static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
@@ -102,9 +107,6 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayInde
 void dispose();
 void playIntro();
 static void mainLoop();
-//void requestChangingResolution();
-void startGame(StartInfo * options, CConnection *serv = nullptr);
-void endGame();
 
 #ifndef VCMI_WINDOWS
 #ifndef _GNU_SOURCE
@@ -112,54 +114,6 @@ void endGame();
 #endif
 #include <getopt.h>
 #endif
-
-void startTestMap(const std::string &mapname)
-{
-	StartInfo si;
-	si.mapname = mapname;
-	si.mode = StartInfo::NEW_GAME;
-	for (int i = 0; i < 8; i++)
-	{
-		PlayerSettings &pset = si.playerInfos[PlayerColor(i)];
-		pset.color = PlayerColor(i);
-		pset.name = CGI->generaltexth->allTexts[468];//Computer
-		pset.playerID = PlayerSettings::PLAYER_AI;
-		pset.compOnly = true;
-		pset.castle = 0;
-		pset.hero = -1;
-		pset.heroPortrait = -1;
-		pset.handicap = PlayerSettings::NO_HANDICAP;
-	}
-
-	while(GH.topInt())
-		GH.popIntTotally(GH.topInt());
-	startGame(&si);
-}
-
-void startGameFromFile(const bfs::path &fname)
-{
-	StartInfo si;
-	try //attempt retrieving start info from given file
-	{
-		if(fname.empty() || !bfs::exists(fname))
-			throw std::runtime_error("Startfile \"" + fname.string() + "\" does not exist!");
-
-		CLoadFile out(fname);
-		if (!out.sfile || !*out.sfile)
-			throw std::runtime_error("Cannot read from startfile \"" + fname.string() +"\"!");
-		out >> si;
-	}
-	catch(std::exception &e)
-	{
-		logGlobal->error("Failed to start from the file: %s. Error: %s. Falling back to main menu.", fname, e.what());
-		GH.curInt = CGPreGame::create();
-		return;
-	}
-
-	while(GH.topInt())
-		GH.popIntTotally(GH.topInt());
-	startGame(&si);
-}
 
 void init()
 {
@@ -243,15 +197,15 @@ int main(int argc, char * argv[])
 		("version,v", "display version information and exit")
 		("disable-shm", "force disable shared memory usage")
 		("enable-shm-uuid", "use UUID for shared memory identifier")
-		("start", po::value<bfs::path>(), "starts game from saved StartInfo file")
 		("testmap", po::value<std::string>(), "")
+		("testsave", po::value<std::string>(), "")
 		("spectate,s", "enable spectator interface for AI-only games")
 		("spectate-ignore-hero", "wont follow heroes on adventure map")
 		("spectate-hero-speed", po::value<int>(), "hero movement speed on adventure map")
 		("spectate-battle-speed", po::value<int>(), "battle animation speed for spectator")
 		("spectate-skip-battle", "skip battles in spectator view")
 		("spectate-skip-battle-result", "skip battle result window")
-		("onlyAI", "runs without human player, all players will be default AI")
+		("onlyAI", "allow to run without human player, all players will be default AI")
 		("headless", "runs without GUI, implies --onlyAI")
 		("ai", po::value<std::vector<std::string>>(), "AI to be used for the player, can be specified several times for the consecutive players")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
@@ -259,12 +213,6 @@ int main(int argc, char * argv[])
 		("disable-video", "disable video player")
 		("nointro,i", "skips intro movies")
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
-        ("loadserver","specifies we are the multiplayer server for loaded games")
-        ("loadnumplayers",po::value<int>(),"specifies the number of players connecting to a multiplayer game")
-        ("loadhumanplayerindices",po::value<std::vector<int>>(),"Indexes of human players (0=Red, etc.)")
-        ("loadplayer", po::value<int>(),"specifies which player we are in multiplayer loaded games (0=Red, etc.)")
-        ("loadserverip",po::value<std::string>(),"IP for loaded game server")
-		("loadserverport",po::value<std::string>(),"port for loaded game server")
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
 		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
@@ -328,6 +276,11 @@ int main(int argc, char * argv[])
 	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
 	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
 	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
+
+	// MPTODO: probably last items should be saved between client restart and not just in session
+	session["lastMap"].String() = "Maps/Arrogance";
+	session["lastSave"].String() = "NEWGAME";
+	session["lastCampaign"].String() = "";
 
 	// Initialize logging based on settings
 	logConfig.configure();
@@ -441,6 +394,7 @@ int main(int argc, char * argv[])
 
 	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
+	CSH = new CServerHandler();
 	// Initialize video
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer();
@@ -453,15 +407,17 @@ int main(int argc, char * argv[])
 
 	logGlobal->info("\tInitializing video: %d ms", pomtime.getDiff());
 
-	//initializing audio
-	CCS->soundh = new CSoundHandler();
-	CCS->soundh->init();
-	CCS->soundh->setVolume(settings["general"]["sound"].Float());
-	CCS->musich = new CMusicHandler();
-	CCS->musich->init();
-	CCS->musich->setVolume(settings["general"]["music"].Float());
-	logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
-
+	if(!settings["session"]["headless"].Bool())
+	{
+		//initializing audio
+		CCS->soundh = new CSoundHandler();
+		CCS->soundh->init();
+		CCS->soundh->setVolume(settings["general"]["sound"].Float());
+		CCS->musich = new CMusicHandler();
+		CCS->musich->init();
+		CCS->musich->setVolume(settings["general"]["music"].Float());
+		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
+	}
 #ifdef __APPLE__
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
@@ -500,12 +456,13 @@ int main(int argc, char * argv[])
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
 
-	bfs::path fileToStartFrom; //none by default
-	if(vm.count("start"))
-		fileToStartFrom = vm["start"].as<bfs::path>();
 	if(vm.count("testmap"))
 	{
 		session["testmap"].String() = vm["testmap"].as<std::string>();
+	}
+	if(vm.count("testsave"))
+	{
+		session["testsave"].String() = vm["testsave"].as<std::string>();
 	}
 
 	session["spectate"].Bool() = vm.count("spectate");
@@ -521,20 +478,17 @@ int main(int argc, char * argv[])
 	}
 	if(!session["testmap"].isNull())
 	{
-		startTestMap(session["testmap"].String());
+		session["onlyai"].Bool() = true;
+		CSH->debugStartTest(session["testmap"].String());
+	}
+	if(!session["testsave"].isNull())
+	{
+		session["onlyai"].Bool() = true;
+		CSH->debugStartTest(session["testsave"].String(), true);
 	}
 	else
 	{
-		if(!fileToStartFrom.empty() && bfs::exists(fileToStartFrom))
-			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from file
-		else
-		{
-			if(!fileToStartFrom.empty())
-			{
-				logGlobal->warn("Warning: cannot find given file to start from (%s). Falling back to main menu.", fileToStartFrom.string());
-			}
-			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
-		}
+		GH.curInt = CMainMenu::create(); //will set CGP pointer to itself
 	}
 
 	if(!settings["session"]["headless"].Bool())
@@ -614,8 +568,8 @@ void processCommand(const std::string &message)
 		}
 		else
 		{
-			if(client && client->erm)
-				client->erm->executeUserCommand(message);
+			if(CSH->client && CSH->client->erm)
+				CSH->client->erm->executeUserCommand(message);
 			std::cout << "erm>";
 		}
 	}
@@ -665,21 +619,21 @@ void processCommand(const std::string &message)
 	}
 	else if(cn=="save")
 	{
-		if(!client)
+		if(!CSH->client)
 		{
 			std::cout << "Game in not active";
 			return;
 		}
 		std::string fname;
 		readed >> fname;
-		client->save(fname);
+		CSH->client->save(fname);
 	}
 //	else if(cn=="load")
 //	{
 //		// TODO: this code should end the running game and manage to call startGame instead
 //		std::string fname;
 //		readed >> fname;
-//		client->loadGame(fname);
+//		CSH->client->loadGame(fname);
 //	}
 	else if(message=="convert txt")
 	{
@@ -859,14 +813,8 @@ void processCommand(const std::string &message)
 		if(fname.size() && SEL)
 		{
 			CSaveFile out(fname);
-			out << SEL->sInfo;
+			out << CSH->si;
 		}
-	}
-	else if(cn == "start")
-	{
-		std::string fname;
-		readed >> fname;
-		startGameFromFile(fname);
 	}
 	else if(cn == "unlock")
 	{
@@ -926,8 +874,8 @@ void processCommand(const std::string &message)
 	{
 		YourTurn yt;
 		yt.player = player;
-		yt.daysWithoutCastle = client->getPlayer(player)->daysWithoutCastle;
-		yt.applyCl(client);
+		yt.daysWithoutCastle = CSH->client->getPlayer(player)->daysWithoutCastle;
+		yt.applyCl(CSH->client);
 	};
 
 	Settings session = settings.write["session"];
@@ -938,7 +886,7 @@ void processCommand(const std::string &message)
 	else if(cn == "gosolo")
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		if(!client)
+		if(!CSH->client)
 		{
 			std::cout << "Game in not active";
 			return;
@@ -946,23 +894,23 @@ void processCommand(const std::string &message)
 		PlayerColor color;
 		if(session["aiSolo"].Bool())
 		{
-			for(auto & elem : client->gameState()->players)
+			for(auto & elem : CSH->client->gameState()->players)
 			{
 				if(elem.second.human)
-					client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+					CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 			}
 		}
 		else
 		{
 			color = LOCPLINT->playerID;
 			removeGUI();
-			for(auto & elem : client->gameState()->players)
+			for(auto & elem : CSH->client->gameState()->players)
 			{
 				if(elem.second.human)
 				{
-					auto AiToGive = client->aiNameForPlayer(*client->getPlayerSettings(elem.first), false);
+					auto AiToGive = CSH->client->aiNameForPlayer(*CSH->client->getPlayerSettings(elem.first), false);
 					logNetwork->info("Player %s will be lead by %s", elem.first, AiToGive);
-					client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
+					CSH->client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), elem.first);
 				}
 			}
 			GH.totalRedraw();
@@ -977,7 +925,7 @@ void processCommand(const std::string &message)
 		boost::to_lower(colorName);
 
 		boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-		if(!client)
+		if(!CSH->client)
 		{
 			std::cout << "Game in not active";
 			return;
@@ -985,7 +933,7 @@ void processCommand(const std::string &message)
 		PlayerColor color;
 		if(LOCPLINT)
 			color = LOCPLINT->playerID;
-		for(auto & elem : client->gameState()->players)
+		for(auto & elem : CSH->client->gameState()->players)
 		{
 			if(elem.second.human || (colorName.length() &&
 				elem.first.getNum() != vstd::find_pos(GameConstants::PLAYER_COLOR_NAMES, colorName)))
@@ -994,7 +942,7 @@ void processCommand(const std::string &message)
 			}
 
 			removeGUI();
-			client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
+			CSH->client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(elem.first), elem.first);
 		}
 		GH.totalRedraw();
 		if(color != PlayerColor::NEUTRAL)
@@ -1281,46 +1229,62 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch(ev.user.code)
 		{
-		case FORCE_QUIT:
+		case EUserEvent::FORCE_QUIT:
 			{
 				handleQuit(false);
 				return;
 			}
 		    break;
-		case RETURN_TO_MAIN_MENU:
+		case EUserEvent::RETURN_TO_MAIN_MENU:
 			{
-				endGame();
-				GH.curInt = CGPreGame::create();
+				CSH->endGameplay();
+				GH.curInt = CMainMenu::create();
 				GH.defActionsDef = 63;
 			}
 			break;
-		case RESTART_GAME:
+		case EUserEvent::RESTART_GAME:
 			{
-				StartInfo si = *client->getStartInfo(true);
+				StartInfo si = *CSH->client->getStartInfo(true);
 				si.seedToBeUsed = 0; //server gives new random generator seed if 0
-				endGame();
-				startGame(&si);
+				CSH->endGameplay();
+//MPTODO				startGame(&si);
 			}
 			break;
-		case PREPARE_RESTART_CAMPAIGN:
+		case EUserEvent::CAMPAIGN_START_SCENARIO:
 			{
-				auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
-				endGame();
-				startGame(si);
+				CSH->endGameplay();
+				GH.curInt = CMainMenu::create();
+				auto ourCampaign = std::shared_ptr<CCampaignState>(reinterpret_cast<CCampaignState *>(ev.user.data1));
+				auto & epilogue = ourCampaign->camp->scenarios[ourCampaign->mapsConquered.back()].epilog;
+				auto finisher = [=]()
+				{
+					if(ourCampaign->mapsRemaining.size())
+					{
+						CMM->openCampaignLobby(ourCampaign);
+					}
+				};
+				if(epilogue.hasPrologEpilog)
+				{
+					GH.pushInt(new CPrologEpilogVideo(epilogue, finisher));
+				}
+				else
+				{
+					finisher();
+				}
 			}
 			break;
-		case RETURN_TO_MENU_LOAD:
-			endGame();
-			CGPreGame::create();
+		case EUserEvent::RETURN_TO_MENU_LOAD:
+			CSH->endGameplay();
+			CMainMenu::create();
 			GH.defActionsDef = 63;
-			CGP->update();
-			CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
-			GH.curInt = CGP;
+			CMM->update();
+			CMM->menu->switchToTab(vstd::find_pos(CMM->menu->menuNameToEntry, "load"));
+			GH.curInt = CMM;
 			break;
-		case FULLSCREEN_TOGGLED:
+		case EUserEvent::FULLSCREEN_TOGGLED:
 			fullScreenChanged();
 			break;
-		case INTERFACE_CHANGED:
+		case EUserEvent::INTERFACE_CHANGED:
 			if(LOCPLINT)
 				LOCPLINT->updateAmbientSounds();
 			break;
@@ -1351,7 +1315,7 @@ static void handleEvent(SDL_Event & ev)
 static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
+	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();
@@ -1370,64 +1334,12 @@ static void mainLoop()
 	}
 }
 
-void startGame(StartInfo * options, CConnection *serv)
-{
-	if(!settings["session"]["donotstartserver"].Bool())
-	{
-		serverAlive.waitWhileTrue();
-		serverAlive.setn(true);
-	}
-
-	if(settings["session"]["onlyai"].Bool())
-	{
-		auto ais = vm.count("ai") ? vm["ai"].as<std::vector<std::string>>() : std::vector<std::string>();
-
-		int i = 0;
-
-
-		for(auto & elem : options->playerInfos)
-		{
-			elem.second.playerID = PlayerSettings::PLAYER_AI;
-			if(i < ais.size())
-				elem.second.name = ais[i++];
-		}
-	}
-
-    client = new CClient();
-	CPlayerInterface::howManyPeople = 0;
-	switch(options->mode) //new game
-	{
-	case StartInfo::NEW_GAME:
-	case StartInfo::CAMPAIGN:
-		client->newGame(serv, options);
-		break;
-	case StartInfo::LOAD_GAME:
-		std::string fname = options->mapname;
-		boost::algorithm::erase_last(fname,".vlgm1");
-        if(!vm.count("loadplayer"))
-            client->loadGame(fname);
-        else
-			client->loadGame(fname,vm.count("loadserver"),vm.count("loadhumanplayerindices") ? vm["loadhumanplayerindices"].as<std::vector<int>>() : std::vector<int>(),vm.count("loadnumplayers") ? vm["loadnumplayers"].as<int>() : 1,vm["loadplayer"].as<int>(),vm.count("loadserverip") ? vm["loadserverip"].as<std::string>() : "", vm.count("loadserverport") ? vm["loadserverport"].as<ui16>() : CServerHandler::getDefaultPort());
-		break;
-	}
-	{
-		TLockGuard _(client->connectionHandlerMutex);
-		client->connectionHandler = make_unique<boost::thread>(&CClient::run, client);
-	}
-}
-
-void endGame()
-{
-	client->endGame();
-	vstd::clear_pointer(client);
-}
-
 void handleQuit(bool ask)
 {
 	auto quitApplication = []()
 	{
-		if(client)
-			endGame();
+		if(CSH->client)
+			CSH->endGameplay();
 		dispose();
 		vstd::clear_pointer(console);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
@@ -1441,7 +1353,7 @@ void handleQuit(bool ask)
 		exit(0);
 	};
 
-	if(client && LOCPLINT && ask)
+	if(CSH->client && LOCPLINT && ask)
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, 0);

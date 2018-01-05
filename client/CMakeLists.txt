@@ -43,6 +43,20 @@ set(client_SRCS
 		windows/InfoWindows.cpp
 		windows/QuickRecruitmentWindow.cpp
 
+		mainmenu/CMainMenu.cpp
+		mainmenu/CCampaignScreen.cpp
+		mainmenu/CreditsScreen.cpp
+		mainmenu/CPrologEpilogVideo.cpp
+
+		lobby/CBonusSelection.cpp
+		lobby/CSelectionBase.cpp
+		lobby/CLobbyScreen.cpp
+		lobby/CSavingScreen.cpp
+		lobby/CScenarioInfoScreen.cpp
+		lobby/OptionsTab.cpp
+		lobby/RandomMapTab.cpp
+		lobby/SelectionTab.cpp
+
 		CBitmapHandler.cpp
 		CreatureCostBox.cpp
 		CGameInfo.cpp
@@ -51,11 +65,12 @@ set(client_SRCS
 		CMT.cpp
 		CMusicHandler.cpp
 		CPlayerInterface.cpp
-		CPreGame.cpp
 		CVideoHandler.cpp
+		CServerHandler.cpp
 		Graphics.cpp
 		mapHandler.cpp
 		NetPacksClient.cpp
+		NetPacksLobbyClient.cpp
 		SDLRWwrapper.cpp
 )
 
@@ -100,6 +115,20 @@ set(client_HEADERS
 		windows/InfoWindows.h
 		windows/QuickRecruitmentWindow.h
 
+		mainmenu/CMainMenu.h
+		mainmenu/CCampaignScreen.h
+		mainmenu/CreditsScreen.h
+		mainmenu/CPrologEpilogVideo.h
+
+		lobby/CBonusSelection.h
+		lobby/CSelectionBase.h
+		lobby/CLobbyScreen.h
+		lobby/CSavingScreen.h
+		lobby/CScenarioInfoScreen.h
+		lobby/OptionsTab.h
+		lobby/RandomMapTab.h
+		lobby/SelectionTab.h
+
 		CBitmapHandler.h
 		CreatureCostBox.h
 		CGameInfo.h
@@ -108,8 +137,8 @@ set(client_HEADERS
 		CMT.h
 		CMusicHandler.h
 		CPlayerInterface.h
-		CPreGame.h
 		CVideoHandler.h
+		CServerHandler.h
 		Graphics.h
 		mapHandler.h
 		resource.h

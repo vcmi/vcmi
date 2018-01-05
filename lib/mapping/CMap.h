@@ -381,6 +381,8 @@ public:
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
 
+	void resetStaticData();
+
 	ui32 checksum;
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
