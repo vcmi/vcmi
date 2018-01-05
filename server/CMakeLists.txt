@@ -8,6 +8,7 @@ set(server_SRCS
 		CQuery.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
+		NetPacksLobbyServer.cpp
 )
 
 set(server_HEADERS

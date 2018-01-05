@@ -15,54 +15,23 @@
 #include "../GameConstants.h"
 #include "CMapService.h"
 
-void CMapInfo::countPlayers()
-{
-	actualHumanPlayers = playerAmnt = humanPlayers = 0;
-	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
-	{
-		if(mapHeader->players[i].canHumanPlay)
-		{
-			playerAmnt++;
-			humanPlayers++;
-		}
-		else if(mapHeader->players[i].canComputerPlay)
-		{
-			playerAmnt++;
-		}
-	}
+#include "../filesystem/Filesystem.h"
+#include "../serializer/CMemorySerializer.h"
+#include "../CGeneralTextHandler.h"
+#include "../rmg/CMapGenOptions.h"
+#include "../CCreatureHandler.h"
+#include "../CHeroHandler.h"
+#include "../CModHandler.h"
 
-	if(scenarioOpts)
-		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
-			if(i->second.playerID != PlayerSettings::PLAYER_AI)
-				actualHumanPlayers++;
-}
-
-CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
+CMapInfo::CMapInfo()
+	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
 
-}
-
-#define STEAL(x) x = std::move(tmp.x)
-
-CMapInfo::CMapInfo(CMapInfo && tmp):
-	scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
-{
-	std::swap(scenarioOpts, tmp.scenarioOpts);
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
 }
 
 CMapInfo::~CMapInfo()
 {
-	vstd::clear_pointer(scenarioOpts);
+	vstd::clear_pointer(scenarioOptionsOfSave);
 }
 
 void CMapInfo::mapInit(const std::string & fname)
@@ -73,23 +42,143 @@ void CMapInfo::mapInit(const std::string & fname)
 	countPlayers();
 }
 
+void CMapInfo::saveInit(ResourceID file)
+{
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
+	lf.checkMagicBytes(SAVEGAME_MAGIC);
+
+	mapHeader = make_unique<CMapHeader>();
+	lf >> *(mapHeader.get()) >> scenarioOptionsOfSave;
+	fileURI = file.getName();
+	countPlayers();
+	std::time_t time = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
+	date = std::asctime(std::localtime(&time));
+	// We absolutely not need this data for lobby and server will read it from save
+	// FIXME: actually we don't want them in CMapHeader!
+	mapHeader->triggeredEvents.clear();
+}
+
 void CMapInfo::campaignInit()
 {
 	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
 }
 
-CMapInfo & CMapInfo::operator=(CMapInfo &&tmp)
+void CMapInfo::countPlayers()
 {
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(scenarioOpts);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
-	return *this;
+	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
+	{
+		if(mapHeader->players[i].canHumanPlay)
+		{
+			amountOfPlayersOnMap++;
+			amountOfHumanControllablePlayers++;
+		}
+		else if(mapHeader->players[i].canComputerPlay)
+		{
+			amountOfPlayersOnMap++;
+		}
+	}
+
+	if(scenarioOptionsOfSave)
+		for (auto i = scenarioOptionsOfSave->playerInfos.cbegin(); i != scenarioOptionsOfSave->playerInfos.cend(); i++)
+			if(i->second.isControlledByHuman())
+				amountOfHumanPlayersInSave++;
 }
 
-#undef STEAL
+std::string CMapInfo::getName() const
+{
+	if(campaignHeader && campaignHeader->name.length())
+		return campaignHeader->name;
+	else if(mapHeader && mapHeader->name.length())
+		return mapHeader->name;
+	else
+		return VLC->generaltexth->allTexts[508];
+}
+
+std::string CMapInfo::getNameForList() const
+{
+	if(scenarioOptionsOfSave)
+	{
+		// TODO: this could be handled differently
+		std::vector<std::string> path;
+		boost::split(path, fileURI, boost::is_any_of("\\/"));
+		return path[path.size()-1];
+	}
+	else
+	{
+		return getName();
+	}
+}
+
+std::string CMapInfo::getDescription() const
+{
+	if(campaignHeader)
+		return campaignHeader->description;
+	else
+		return mapHeader->description;
+}
+
+int CMapInfo::getMapSizeIconId() const
+{
+	if(!mapHeader)
+		return 4;
+
+	switch(mapHeader->width)
+	{
+	case CMapHeader::MAP_SIZE_SMALL:
+		return 0;
+	case CMapHeader::MAP_SIZE_MIDDLE:
+		return 1;
+	case CMapHeader::MAP_SIZE_LARGE:
+		return 2;
+	case CMapHeader::MAP_SIZE_XLARGE:
+		return 3;
+	default:
+		return 4;
+	}
+}
+
+std::pair<int, int> CMapInfo::getMapSizeFormatIconId() const
+{
+	int frame = -1, group = 0;
+	switch(mapHeader->version)
+	{
+	case EMapFormat::ROE:
+		frame = 0;
+		break;
+	case EMapFormat::AB:
+		frame = 1;
+		break;
+	case EMapFormat::SOD:
+		frame = 2;
+		break;
+	case EMapFormat::WOG:
+		frame = 3;
+		break;
+	case EMapFormat::VCMI:
+		frame = 0;
+		group = 1;
+		break;
+	default:
+		// Unknown version. Be safe and ignore that map
+		//logGlobal->warn("Warning: %s has wrong version!", currentItem->fileURI);
+		break;
+	}
+	return std::make_pair(frame, group);
+}
+
+std::string CMapInfo::getMapSizeName() const
+{
+	switch(mapHeader->width)
+	{
+	case CMapHeader::MAP_SIZE_SMALL:
+		return "S";
+	case CMapHeader::MAP_SIZE_MIDDLE:
+		return "M";
+	case CMapHeader::MAP_SIZE_LARGE:
+		return "L";
+	case CMapHeader::MAP_SIZE_XLARGE:
+		return "XL";
+	default:
+		return "C";
+	}
+}

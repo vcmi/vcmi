@@ -9,7 +9,6 @@
  */
 #pragma once
 
-
 #include "../lib/ConstTransitivePtr.h"
 
 class CModHandler;
@@ -30,6 +29,7 @@ class CConsoleHandler;
 class CCursorHandler;
 class CGameState;
 class IMainVideoPlayer;
+class CServerHandler;
 
 class CMap;
 

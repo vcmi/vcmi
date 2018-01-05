@@ -106,7 +106,7 @@ void CGuiHandler::popInt(IShowActivatable *top)
 		listInt.front()->activate();
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, INTERFACE_CHANGED);
+	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::popIntTotally(IShowActivatable *top)
@@ -132,7 +132,7 @@ void CGuiHandler::pushInt(IShowActivatable *newInt)
 	objsToBlit.push_back(newInt);
 	totalRedraw();
 
-	pushSDLEvent(SDL_USEREVENT, INTERFACE_CHANGED);
+	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
 }
 
 void CGuiHandler::popInts(int howMany)
@@ -155,7 +155,7 @@ void CGuiHandler::popInts(int howMany)
 	}
 	fakeMouseMove();
 
-	pushSDLEvent(SDL_USEREVENT, INTERFACE_CHANGED);
+	pushSDLEvent(SDL_USEREVENT, EUserEvent::INTERFACE_CHANGED);
 }
 
 IShowActivatable * CGuiHandler::topInt()

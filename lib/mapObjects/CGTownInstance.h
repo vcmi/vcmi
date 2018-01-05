@@ -291,6 +291,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+	static void reset();
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

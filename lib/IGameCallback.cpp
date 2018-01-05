@@ -28,6 +28,9 @@
 #include "CGameState.h"
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
+#include "CSkillHandler.h"
+
+#include "serializer/Connection.h"
 
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {

@@ -14,8 +14,10 @@
 
 #include "../lib/VCMI_Lib.h"
 
-const CGameInfo * CGI; //game info for general use
+const CGameInfo * CGI;
 CClientState * CCS = nullptr;
+CServerHandler * CSH;
+
 
 CGameInfo::CGameInfo()
 {

@@ -59,19 +59,6 @@ namespace boost
 	class recursive_mutex;
 }
 
-enum
-{
-	/*CHANGE_SCREEN_RESOLUTION = 1,*/
-	RETURN_TO_MAIN_MENU = 2,
-	//STOP_CLIENT = 3,
-	RESTART_GAME = 4,
-	RETURN_TO_MENU_LOAD,
-	FULLSCREEN_TOGGLED,
-	PREPARE_RESTART_CAMPAIGN,
-	FORCE_QUIT, //quit client without question
-	INTERFACE_CHANGED
-};
-
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
@@ -88,7 +75,6 @@ public:
 	int firstCall; // -1 - just loaded game; 1 - just started game; 0 otherwise
 	int autosaveCount;
 	static const int SAVES_COUNT = 5;
-	static int howManyPeople;
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened
 	static CBattleInterface * battleInt; //nullptr if no battle
@@ -247,7 +233,7 @@ public:
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
-	void requestReturningToMainMenu();
+	void requestReturningToMainMenu(bool won);
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
 

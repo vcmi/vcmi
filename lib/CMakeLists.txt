@@ -74,7 +74,7 @@ set(lib_SRCS
 		registerTypes/TypesMapObjects1.cpp
 		registerTypes/TypesMapObjects2.cpp
 		registerTypes/TypesMapObjects3.cpp
-		registerTypes/TypesPregamePacks.cpp
+		registerTypes/TypesLobbyPacks.cpp
 		registerTypes/TypesServerPacks.cpp
 
 		rmg/CMapGenerator.cpp
@@ -152,6 +152,7 @@ set(lib_SRCS
 		JsonNode.cpp
 		LogicalExpression.cpp
 		NetPacksLib.cpp
+		StartInfo.cpp
 		ResourceSet.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
@@ -336,6 +337,7 @@ set(lib_HEADERS
 		LogicalExpression.h
 		NetPacksBase.h
 		NetPacks.h
+		NetPacksLobby.h
 		ResourceSet.h
 		ScopeGuard.h
 		StartInfo.h

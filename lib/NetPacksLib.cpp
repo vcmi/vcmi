@@ -56,40 +56,6 @@ DLL_LINKAGE void SetSecSkill::applyGs(CGameState *gs)
 	hero->setSecSkillLevel(which, val, abs);
 }
 
-DLL_LINKAGE SelectMap::SelectMap(const CMapInfo &src)
-{
-	mapInfo = &src;
-	free = false;
-}
-DLL_LINKAGE SelectMap::SelectMap()
-{
-	mapInfo = nullptr;
-	free = true;
-}
-
-DLL_LINKAGE SelectMap::~SelectMap()
-{
-	if(free)
-		delete mapInfo;
-}
-
-DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions(StartInfo &src)
-{
-	options = &src;
-	free = false;
-}
-DLL_LINKAGE  UpdateStartOptions::UpdateStartOptions()
-{
-	options = nullptr;
-	free = true;
-}
-
-DLL_LINKAGE UpdateStartOptions::~UpdateStartOptions()
-{
-	if(free)
-		delete options;
-}
-
 DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 {
 	CCommanderInstance * commander = gs->getHero(heroid)->commander;
@@ -346,8 +312,43 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
 DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState *gs)
 {
 	PlayerState *p = gs->getPlayer(player);
-	if(victoryLossCheckResult.victory()) p->status = EPlayerStatus::WINNER;
-	else p->status = EPlayerStatus::LOSER;
+	if(victoryLossCheckResult.victory())
+	{
+		p->status = EPlayerStatus::WINNER;
+
+		// TODO: Campaign-specific code might as well go somewhere else
+		if(p->human && gs->scenarioOps->campState)
+		{
+			std::vector<CGHeroInstance *> crossoverHeroes;
+			for (CGHeroInstance * hero : gs->map->heroesOnMap)
+			{
+				if (hero->tempOwner == player)
+				{
+					// keep all heroes from the winning player
+					crossoverHeroes.push_back(hero);
+				}
+				else if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(hero->subID)))
+				{
+					// keep hero whether lost or won (like Xeron in AB campaign)
+					crossoverHeroes.push_back(hero);
+				}
+			}
+			// keep lost heroes which are in heroes pool
+			for (auto & heroPair : gs->hpool.heroesPool)
+			{
+				if (vstd::contains(gs->scenarioOps->campState->getCurrentScenario().keepHeroes, HeroTypeID(heroPair.first)))
+				{
+					crossoverHeroes.push_back(heroPair.second.get());
+				}
+			}
+
+			gs->scenarioOps->campState->setCurrentMapAsConquered(crossoverHeroes);
+		}
+	}
+	else
+	{
+		p->status = EPlayerStatus::LOSER;
+	}
 }
 
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)

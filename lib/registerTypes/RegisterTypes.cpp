@@ -44,7 +44,7 @@ DEFINE_EXTERNAL_METHOD(registerTypesMapObjects2)
 DEFINE_EXTERNAL_METHOD(registerTypesClientPacks1)
 DEFINE_EXTERNAL_METHOD(registerTypesClientPacks2)
 DEFINE_EXTERNAL_METHOD(registerTypesServerPacks)
-DEFINE_EXTERNAL_METHOD(registerTypesPregamePacks)
+DEFINE_EXTERNAL_METHOD(registerTypesLobbyPacks)
 
 template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypes<BinarySerializer>(BinarySerializer & s);

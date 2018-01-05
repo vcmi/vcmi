@@ -60,6 +60,9 @@ namespace boost
 	class shared_mutex;
 }
 
+template<typename T> class CApplier;
+class CBaseForGSApply;
+
 struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<PlayerColor> playerColors; //colors of players that are in-game
@@ -153,6 +156,7 @@ public:
 	virtual ~CGameState();
 
 	void init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap = false);
+	void updateOnLoad(StartInfo * si);
 
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	PlayerColor currentPlayer; //ID of player currently having turn
@@ -246,7 +250,7 @@ private:
 	// ----- initialization -----
 
 	void initNewGame(const IMapService * mapService, bool allowSavingRandomMap);
-	void initCampaign(const IMapService * mapService);
+	void initCampaign();
 	void checkMapChecksum();
 	void initGrailPosition();
 	void initRandomFactionsForPlayers();
@@ -291,6 +295,7 @@ private:
 	int pickNextHeroType(PlayerColor owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
 
 	// ---- data -----
+	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
 	CRandomGenerator rand;
 
 	friend class CCallback;
