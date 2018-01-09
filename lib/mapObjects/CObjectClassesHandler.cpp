@@ -24,6 +24,14 @@
 #include "CommonConstructors.h"
 #include "MapObjects.h"
 
+// FIXME: move into inheritNode?
+static void inheritNodeWithMeta(JsonNode & descendant, const JsonNode & base)
+{
+	std::string oldMeta = descendant.meta;
+	JsonUtils::inherit(descendant, base);
+	descendant.setMeta(oldMeta);
+}
+
 CObjectClassesHandler::CObjectClassesHandler()
 {
 #define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
@@ -184,7 +192,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		legacyTemplates.erase(range.first, range.second);
 	}
 
-	logGlobal->debug("Loaded object %s(%d):%s(%d)", obj->identifier, obj->id, convertedId, id);
+	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->identifier, obj->id, convertedId, id);
 	assert(!obj->subObjects.count(id)); // DO NOT override
 	obj->subObjects[id] = handler;
 	obj->subIds[convertedId] = id;
@@ -232,9 +240,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		config["index"].Float() = subID.get();
 	}
 
-	std::string oldMeta = config.meta; // FIXME: move into inheritNode?
-	JsonUtils::inherit(config, objects.at(ID)->base);
-	config.setMeta(oldMeta);
+	inheritNodeWithMeta(config, objects.at(ID)->base);
 
 	loadObjectEntry(identifier, config, objects[ID]);
 }
@@ -267,10 +273,15 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::s
 	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("core", "object", type, false);
 	if(id)
 	{
-		si32 subId = objects.at(id.get())->subIds.at(subtype);
-		return objects.at(id.get())->subObjects.at(subId);
+		auto object = objects.at(id.get());
+		if(object->subIds.count(subtype))
+		{
+			si32 subId = object->subIds.at(subtype);
+
+			return object->subObjects.at(subId);
+		}
 	}
-	logGlobal->error("Failed to find object of type %s:%s", type, subtype);
+	logGlobal->error("Failed to find object of type %s::%s", type, subtype);
 	throw std::runtime_error("Object type handler not found");
 }
 
@@ -300,10 +311,10 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
 	{
-		JsonUtils::inherit(entry.second, object["base"]);
+		inheritNodeWithMeta(entry.second, object["base"]);
 		for (auto & templ : entry.second["templates"].Struct())
 		{
-			JsonUtils::inherit(templ.second, entry.second["base"]);
+			inheritNodeWithMeta(templ.second, entry.second["base"]);
 		}
 	}
 }
