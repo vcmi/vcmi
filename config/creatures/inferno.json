@@ -108,7 +108,11 @@
 		"upgrades": ["cerberus"],
 		"abilities":
 		{
-			 "FLYING_ARMY" : null //hell hound doesn't fly
+			"FLYING_ARMY" : 
+			{
+				// null //cerberus doesn't fly
+				"subtype" : 1 
+			}
 		},
 		"graphics" :
 		{
@@ -138,7 +142,11 @@
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"FLYING_ARMY" : null //cerberus doesn't fly
+			"FLYING_ARMY" : 
+			{
+				// null //cerberus doesn't fly
+				"subtype" : 1 
+			}
 		},
 		"graphics" :
 		{

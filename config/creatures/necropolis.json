@@ -72,15 +72,6 @@
 			"killed": "ZMBLKILL.wav",
 			"move": "ZMBLMOVE.wav",
 			"wince": "ZMBLWNCE.wav"
-		},
-		"abilities":
-		{
-			"castDisease" : 
-			{
-				"type" : "SPELL_AFTER_ATTACK",
-				"subtype" : "spell.disease",
-				"val" : 20
-			}
 		}
 	},
 	"wight" :

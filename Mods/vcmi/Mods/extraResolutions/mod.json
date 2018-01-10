@@ -1,0 +1,9 @@
+{
+	"name" : "Extra resolutions",
+	"description" : "This mod provides extra resolutions for VCMI. List of currently available resolutions:<br> 1) 1024x600<br> 2) 1024x768<br> 3) 1280x960<br> 4) 1280x1024<br> 5) 1366x768<br> 6) 1280x800<br> 7) 1440x900<br> 8) 1600x1200<br> 9) 1680x1050<br> 10) 1920x1080",
+
+	"version" : "0.96",
+	"author" : "VCMI Team",
+	"contact" : "http://forum.vcmi.eu/index.php",
+	"modType" : "Graphical"
+}

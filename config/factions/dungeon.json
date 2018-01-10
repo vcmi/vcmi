@@ -192,7 +192,7 @@
 				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
 				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
 				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
-
+				
 				"horde2" : null,
 				"horde2Upgr" : null,
 				"ship" : null,
