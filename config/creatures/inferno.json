@@ -4,6 +4,13 @@
 		"index": 42,
 		"level": 1,
 		"faction": "inferno",
+		"abilities": 
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"upgrades": ["familiar"],
 		"graphics" :
 		{
@@ -29,6 +36,10 @@
 			{
 				"type" : "MANA_CHANNELING",
 				"val" : 20
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
 			}
 		},
 		"graphics" :
