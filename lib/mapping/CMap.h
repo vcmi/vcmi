@@ -376,6 +376,8 @@ public:
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);
+	const CGObjectInstance * getObjectiveObjectFrom(const std::string & instanceName, const int3 & pos);
+
 	CGHeroInstance * getHero(int heroId);
 
 	/// Sets the victory/loss condition objectives ??

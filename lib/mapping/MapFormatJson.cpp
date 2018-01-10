@@ -227,6 +227,8 @@ namespace TriggeredEventsDetail
 			case EventCondition::HAVE_BUILDING_0:
 				{
 					//todo: support of new condition format HAVE_BUILDING_0
+
+					event.objectInstanceName = data["object"].String();
 				}
 				break;
 			default:

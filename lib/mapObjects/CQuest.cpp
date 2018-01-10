@@ -456,7 +456,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 	case MISSION_NONE:
 		break;
 	case MISSION_LEVEL:
-		handler.serializeInt("heroLevel", m13489val, -1);
+		handler.serializeInt("heroLevel", m13489val, 0);
 		break;
 	case MISSION_PRIMARY_STAT:
 		{

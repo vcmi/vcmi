@@ -524,9 +524,29 @@ const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, Obj::EObj type)
 	return bestMatch;
 }
 
+const CGObjectInstance * CMap::getObjectiveObjectFrom(const std::string & instanceName, const int3 & pos)
+{
+	if(instanceName != "")
+	{
+		if(instanceNames.count(instanceName) > 0)
+			return instanceNames.at(instanceName).get();
+		else
+			logGlobal->error("Instance name %s is invalid", instanceName);
+	}
+	else if(isInTheMap(pos))
+	{
+		auto & tile = getTile(pos);
+		if(!tile.visitableObjects.empty())
+			return tile.visitableObjects.front();
+		else
+			logGlobal->error("No objects at tile %s found", pos.toString());
+	}
+
+	return nullptr;
+}
+
 void CMap::checkForObjectives()
 {
-	// NOTE: probably should be moved to MapFormatH3M.cpp
 	for (TriggeredEvent & event : triggeredEvents)
 	{
 		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
@@ -586,12 +606,12 @@ void CMap::checkForObjectives()
 				//break; case EventCondition::DAYS_WITHOUT_TOWN:
 				//break; case EventCondition::STANDARD_WIN:
 
-				//TODO: support new condition format
 				case EventCondition::HAVE_0:
-					break;
 				case EventCondition::DESTROY_0:
-					break;
 				case EventCondition::HAVE_BUILDING_0:
+					{
+						cond.object = getObjectiveObjectFrom(cond.objectInstanceName, cond.position);
+					}
 					break;
 			}
 			return cond;

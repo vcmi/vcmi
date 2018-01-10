@@ -36,6 +36,7 @@
 #include "serializer/CTypeList.h"
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
+#include "StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -2370,9 +2371,7 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		}
 		case EventCondition::HAVE_0:
 		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
+			return checkForHaveCondition(p, condition);
 		}
 		case EventCondition::HAVE_BUILDING_0:
 		{
@@ -2382,14 +2381,199 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		}
 		case EventCondition::DESTROY_0:
 		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
+			return checkForDestroyCondition(p, condition);
 		}
 		default:
 			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
 			return false;
 	}
+}
+
+bool CGameState::checkForHaveCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	//FIXME: with such flexible conditions server must check victory loss almost every time smth changed
+
+	auto & team = CGameInfoCallback::getPlayerTeam(playerState->color)->players;
+
+	std::vector<const CGHeroInstance *> heroesToCheck;
+
+	std::vector<const CArmedInstance *> armiesToCheck;
+
+	auto collectHeroes = [&]()
+	{
+		if(condition.object)
+		{
+			auto hero = dynamic_cast<const CGHeroInstance *>(condition.object);
+
+			if(hero && team.count(hero->getOwner()) != 0)
+			{
+				if(team.count(hero->getOwner()) != 0)
+					heroesToCheck.push_back(hero);
+			}
+			else
+			{
+				auto town = dynamic_cast<const CGTownInstance *>(condition.object);
+
+				if(town && team.count(town->getOwner()) != 0)
+				{
+					if(town->visitingHero)
+						heroesToCheck.push_back(town->visitingHero);
+					if(town->garrisonHero)
+						heroesToCheck.push_back(town->visitingHero);
+				}
+			}
+		}
+		else
+		{
+			for(auto player : team)
+			{
+				auto allyState = CGameInfoCallback::getPlayer(player);
+				for(auto hero : allyState->heroes)
+					heroesToCheck.push_back(hero.get());
+			}
+		}
+	};
+
+	auto collectArmies = [&]()
+	{
+		if(condition.object)
+		{
+			collectHeroes();
+
+			std::copy(heroesToCheck.begin(), heroesToCheck.end(), std::back_inserter(armiesToCheck));
+		}
+		else
+		{
+			for(size_t i = 0; i < map->objects.size(); i++)
+			{
+				const CArmedInstance * army = nullptr;
+				if(map->objects[i]
+					&& team.count(map->objects[i]->getOwner()) != 0
+					&& (army = dynamic_cast<const CArmedInstance*>(map->objects[i].get())))
+				{
+					armiesToCheck.push_back(army);
+				}
+			}
+		}
+	};
+
+	switch(condition.metaType)
+	{
+	case EMetaclass::ARTIFACT:
+		{
+			collectHeroes();
+
+			for(const CGHeroInstance * hero : heroesToCheck)
+			{
+				if(hero->hasArt(condition.objectType))
+					return true;
+			}
+		}
+		return false;
+	case EMetaclass::CREATURE:
+		{
+			collectArmies();
+
+			int total = 0;
+
+			for(const CArmedInstance * army : armiesToCheck)
+			{
+				for(auto & elem : army->Slots())
+					if(elem.second->type->idNumber == condition.objectType)
+						total += elem.second->count;
+			}
+			return total >= condition.value;
+		}
+	case EMetaclass::INVALID:
+		{
+			if(condition.object)
+				return team.count(condition.object->getOwner());
+		}
+		return false;
+	case EMetaclass::OBJECT:
+		{
+			if(condition.object)
+			{
+				//only this object
+				return team.count(condition.object->getOwner()) > 0;
+			}
+			else if(condition.value == 0)
+			{
+				//all objects
+				for(auto & elem : map->objects)
+				{
+					if(elem && elem->ID == condition.objectType && team.count(elem->getOwner()) == 0)
+						return false;
+				}
+				return true;
+			}
+			else
+			{
+				//at least N objects
+				int total = 0;
+
+				for(auto & elem : map->objects)
+				{
+					if(elem && elem->ID == condition.objectType && team.count(elem->getOwner()) != 0)
+						total++;
+				}
+				return total >= condition.value;
+			}
+		}
+
+//	case EMetaclass::PRIMARY_SKILL:
+//		break;
+//	case EMetaclass::SECONDARY_SKILL:
+//		break;
+	case EMetaclass::SPELL:
+		{
+			//amount ignored
+			//object if set must be hero
+			//check spellbook for now
+
+			SpellID spell(condition.objectType);
+			collectHeroes();
+
+			for(const CGHeroInstance * hero : heroesToCheck)
+			{
+				if(vstd::contains(hero->spells, spell))
+					return true;
+			}
+			return false;
+		}
+		return false;
+	case EMetaclass::RESOURCE:
+		return playerState->resources[condition.objectType] >= condition.value;
+
+	default:
+		logGlobal->error("Not supported meta type %s in event condition type HAVE_0", NMetaclass::names[(int)condition.metaType]);
+		return false;
+	}
+}
+
+bool CGameState::checkForDestroyCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	if(condition.object)
+	{
+		return getObj(condition.object->id) == nullptr;
+	}
+	else if(condition.value > 0 && condition.metaType == EMetaclass::OBJECT)
+	{
+		return false;//handled by RemoveObject::applyGs
+	}
+	else if(condition.metaType == EMetaclass::OBJECT)
+	{
+		for(auto & elem : map->objects)
+		{
+			if(elem && elem->ID == condition.objectType)
+				return false;
+		}
+		return true;
+	}
+
+	logGlobal->error("Not supported meta type %s in event condition type DESTROY_0", NMetaclass::names[(int)condition.metaType]);
+
+	return false;
 }
 
 PlayerColor CGameState::checkForStandardWin() const
