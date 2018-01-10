@@ -259,5 +259,50 @@
 		[
 			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
 		]
-	}
+	},
+	"kuckuc":
+	{
+		"index" : 63,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "magicArrow", "slow", "chainLightning" ],
+		"skills":
+		[
+			{ "skill" : "intelligence", "level": "expert" },
+			{ "skill" : "wisdom", "level": "expert" },
+			{ "skill" : "learning", "level": "expert" },
+			{ "skill" : "sorcery", "level": "expert" }
+		],
+		"army" :
+		[
+			{
+				"min" : 10, "max" : 20,
+				"creature" : "troglodyte"
+			},
+			{
+				"min" : 4, "max" : 7,
+				"creature" : "angel"
+			},
+			{
+				"min" : 2, "max" : 4,
+				"creature" : "serpentFly"
+			}
+		],
+		"texts" :
+		{
+			"name" : "Kuckuc",
+			"biography" : "He farts a lot.",
+			"specialty" : 
+			{
+				"description" : "His fart is so smelly it confuses enemies.",
+				"name" : "Fartmeister",
+				"tooltip": "His fart is so smelly it confuses enemies."
+			}
+		},
+		"images" :
+		{
+			"small" : "HPS156WL.bmp",
+			"large" : "HPL156WL.bmp"
+		}
+	},
 }
