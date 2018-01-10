@@ -244,5 +244,51 @@
 		[
 			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
 		]
+	},
+	"kuckuc":
+	{
+		"class" : "warlock",
+		"female": true,
+		"spellbook": [ "magicArrow", "slow" ],
+		"skills":
+		[
+			{ "skill" : "intelligence", "level": "basic" },
+			{ "skill" : "necromancy", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+		],
+		"army" :
+		[
+			{
+				"min" : 10, "max" : 20,
+				"creature" : "troglodyte"
+			},
+			{
+				"min" : 4, "max" : 7,
+				"creature" : "angel"
+			},
+			{
+				"min" : 2, "max" : 4,
+				"creature" : "serpentFly"
+			}
+		],
+		"texts" :
+		{
+			"name" : "Kuckuc",
+			"biography" : "He farts a lot.",
+			"specialty" : 
+			{
+				"description" : "His fart is so smelly it confuses enemies.",
+				"name" : "Fartmeister",
+				"tooltip": "His fart is so smelly it confuses enemies."
+			}
+		},
+		"images" :
+		{
+			"small" : "HPS156WL.bmp",
+			"large" : "HPL156WL.bmp"
+		}
 	}
 }
