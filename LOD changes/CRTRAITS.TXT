@@ -1,0 +1,202 @@
+Name		Cost															Damage				Adv. Map			
+Singular	Plural	Wood	Mercury	Ore	Sulfur	Crystal	Gems	Gold	Fight Value	AI Value	Growth	Horde Growth	Hit Points	Speed	Attack	Defense	Low	High	Shots	Spells	Low	High	Ability Text	"Attributes (Reference only, do not change these values)"
+Pikeman	Pikemen	0	0	0	0	0	0	40	100	80	16	0	10	4	4	6	2	4	0	0	20	50		0
+Halberdier	Halberdiers	0	0	0	0	0	0	50	115	115	16	0	10	5	6	7	3	5	0	0	20	30		0
+Archer	Archers	0	0	0	0	0	0	70	115	126	12	0	10	4	8	3	2	3	30	0	16	30		SHOOTING_ARMY
+Marksman	Marksmen	0	0	0	0	0	0	150	115	184	12	0	10	6	8	3	2	3	50	0	16	25	Shoots twice.	const_two_attacks | SHOOTING_ARMY
+Griffin	Griffins	0	0	0	0	0	0	200	324	351	7	3	40	6	10	10	3	6	0	0	12	25	Retaliates twice.	DOUBLE_WIDE | FLYING_ARMY
+Royal Griffin	Royal Griffins	0	0	0	0	0	0	240	364	448	7	3	40	12	12	9	3	6	0	0	12	20	Unlimited retaliations.	DOUBLE_WIDE|FLYING_ARMY
+Swordsman	Swordsmen	0	0	0	0	0	0	300	445	445	4	0	35	5	10	12	6	9	0	0	10	20		0
+Crusader	Crusaders	0	0	0	0	0	0	400	588	588	4	0	35	6	12	12	7	10	0	0	10	16	Strikes twice.	const_two_attacks
+Monk	Monks	0	0	0	0	0	0	400	485	485	3	0	30	5	12	7	10	12	12	0	8	16		SHOOTING_ARMY
+Zealot	Zealots	0	0	0	0	0	0	450	500	750	3	0	30	7	12	10	10	12	24	0	8	12	No melee penalty.	SHOOTING_ARMY | const_no_melee_penalty
+Cavalier	Cavaliers	0	0	0	0	0	0	1000	1668	1946	2	0	100	7	15	15	15	25	0	0	5	12	Jousting bonus.	DOUBLE_WIDE | const_jousting
+Champion	Champions	0	0	0	0	0	0	1200	1800	2100	2	0	100	9	16	16	20	25	0	0	5	10	Jousting bonus.	DOUBLE_WIDE | const_jousting
+Angel	Angels	0	0	0	0	0	1	6000	3585	5019	1	0	350	12	25	25	70	70	0	0	4	10	Hates Devils.	FLYING_ARMY | const_raises_morale | KING_2
+Archangel	Archangels	0	1	0	1	1	1	10000	6033	8776	1	0	500	18	35	35	100	100	0	1	3	8	"+1 morale.  Hates Devils.
+Resurrects allies."	DOUBLE_WIDE | FLYING_ARMY | const_raises_morale | KING_2
+																								
+																								
+																								
+Centaur	Centaurs	0	0	0	0	0	0	70	100	100	14	0	8	8	5	3	2	3	0	0	20	50		DOUBLE_WIDE
+Centaur Captain	Centaur Captains	0	0	0	0	0	0	90	115	138	14	0	10	10	6	3	2	3	0	0	20	30		DOUBLE_WIDE
+Dwarf	Dwarves	0	0	0	0	0	0	120	194	138	8	4	25	3	6	10	2	4	0	0	16	30	20% magic resistance.	0
+Battle Dwarf	Battle Dwarves	0	0	0	0	0	0	150	209	209	8	4	30	5	7	11	2	5	0	0	16	25	40% magic resistance.	0
+Wood Elf	Wood Elves	0	0	0	0	0	0	200	195	234	7	0	15	6	9	5	5	7	40	0	12	25		SHOOTING_ARMY
+Grand Elf	Grand Elves	0	0	0	0	0	0	225	195	331	7	0	15	7	9	5	5	7	40	0	12	20	Shoots twice.	SHOOTING_ARMY | const_two_attacks
+Pegasus	Pegasi	0	0	0	0	0	0	250	407	518	5	0	30	8	11	8	6	11	0	0	10	20	Magic damper.	DOUBLE_WIDE | FLYING_ARMY
+Silver Pegasus	Silver Pegasi	0	0	0	0	0	0	275	418	532	5	0	33	12	11	12	7	12	0	0	10	16	Magic damper.	DOUBLE_WIDE | FLYING_ARMY
+Dendroid Guard	Dendroid Guards	0	0	0	0	0	0	350	690	517	4	2	65	3	9	12	10	14	0	0	8	16	Binds enemies in place.	0
+Dendroid Soldier	Dendroid Soldiers	0	0	0	0	0	0	425	765	803	4	2	75	4	9	15	10	14	0	0	8	12	Binds enemies in place.	0
+Unicorn	Unicorns	0	0	0	0	0	0	850	1548	1806	4	0	90	7	15	14	18	22	0	0	5	12	Aura of magic resistance.  Blinding attack.	DOUBLE_WIDE
+War Unicorn	War Unicorns	0	0	0	0	0	0	950	1740	2030	4	0	110	9	15	14	18	22	0	0	5	10	Aura of magic resistance. Blinding attack.	DOUBLE_WIDE
+Green Dragon	Green Dragons	0	0	0	0	1	0	3800	3654	4872	2	0	400	10	18	18	40	50	0	0	4	10	Immune to spell levels 1-3.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Gold Dragon	Gold Dragons	0	0	0	0	4	0	6000	6220	8613	2	0	650	16	27	27	55	65	0	0	3	8	Immune to spell levels 1-4.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Gremlin	Gremlins	0	0	0	0	0	0	20	55	44	24	0	4	4	3	3	1	2	0	0	20	50		0
+Master Gremlin	Master Gremlins	0	0	0	0	0	0	30	55	66	24	0	4	5	4	4	1	2	8	0	20	30	Ranged attacker.	SHOOTING_ARMY
+Stone Gargoyle	Stone Gargoyles	0	0	0	0	0	0	110	150	165	9	4	16	6	6	10	2	3	0	0	16	30		FLYING_ARMY
+Obsidian Gargoyle	Obsidian Gargoyles	0	0	0	0	0	0	140	155	201	9	4	20	9	7	11	2	3	0	0	16	25		FLYING_ARMY
+Stone Golem	Stone Golems	0	0	0	0	0	0	150	339	250	8	0	40	3	7	15	4	5	0	0	12	25	Damage from spells reduced 50%.	0
+Iron Golem	Iron Golems	0	0	0	0	0	0	200	412	412	8	0	50	5	9	15	4	6	0	0	12	20	Damage from spells reduced 75%.	0
+Mage	Magi	0	0	0	0	0	0	350	418	570	3	0	25	5	16	11	7	9	24	0	10	20	"No melee penalty.
+Hero spells cost less."	SHOOTING_ARMY | const_no_melee_penalty
+Arch Mage	Arch Magi	0	0	0	0	0	0	500	467	680	3	0	30	7	20	16	10	12	24	0	10	16	"No melee penalty.
+Hero spells cost less."	SHOOTING_ARMY | const_no_melee_penalty | const_no_wall_penalty
+Genie	Genies	0	0	0	0	0	0	550	680	884	3	0	50	7	12	12	20	24	0	0	8	16	Hates Efreet.	FLYING_ARMY
+Master Genie	Master Genies	0	0	0	0	0	0	600	748	942	3	0	55	11	14	14	23	27	0	3	8	12	"Spellcaster: Random benefit.
+Hates Efreet."	FLYING_ARMY
+Naga	Nagas	0	0	0	0	0	0	1100	2016	2016	2	0	110	5	16	13	30	30	0	0	5	12	No enemy retaliation.	DOUBLE_WIDE
+Naga Queen	Naga Queens	0	0	0	0	0	0	1600	2485	2840	2	0	110	7	18	13	40	40	0	0	5	10	No enemy retaliation.	DOUBLE_WIDE
+Giant	Giants	0	0	0	0	0	2	4000	3146	3718	1	0	400	9	19	16	55	75	0	0	4	10	Mind spell immunity	KING_3
+Titan	Titans	0	0	0	0	0	6	8000	5000	7500	1	0	800	11	40	40	80	120	24	0	3	8	No melee penalty. Mind spell immunity.  Hates Black Dragons.	SHOOTING_ARMY | const_no_melee_penalty | KING_3
+                                   																								
+																								
+																								
+Imp	Imps	0	0	0	0	0	0	20	50	50	22	8	4	5	2	3	1	2	0	0	20	50	No enemy retaliation. Immune to fire.	0
+Familiar	Familiars	0	0	0	0	0	0	25	60	60	22	8	4	7	4	4	1	2	0	0	20	30	No enemy retaliation. Magic channel. Immune to fire.	0
+Gog	Gogs	0	0	0	0	0	0	125	145	159	8	0	13	4	7	4	5	8	20	0	16	30		SHOOTING_ARMY
+Magog	Magogs	0	0	0	0	0	0	175	210	240	8	0	16	6	9	4	6	8	40	0	16	25	Fireball attack.	SHOOTING_ARMY
+Hell Hound	Hell Hounds	0	0	0	0	0	0	200	275	357	5	3	35	7	14	6	5	10	0	0	12	25		DOUBLE_WIDE | FLYING_ARMY
+Cerberus	Cerberi	0	0	0	0	0	0	250	308	392	5	3	40	8	16	8	8	12	0	0	12	20	"3-headed attack.
+Enemies cannot retaliate."	DOUBLE_WIDE | FLYING_ARMY
+Demon	Demons	0	0	0	0	0	0	250	445	445	7	0	35	5	14	14	10	13	0	0	10	20		0
+Horned Demon	Horned Demons	0	0	0	0	0	0	270	480	480	7	0	40	6	17	17	10	13	0	0	10	16		0
+Pit Fiend	Pit Fiends	0	0	0	0	0	0	500	765	765	3	0	45	6	13	13	13	17	0	0	8	16		0
+Pit Lord	Pit Lords	0	0	0	0	0	0	700	1071	1224	3	0	45	7	13	13	13	17	0	1	8	12	"Summon demons from
+a dead ally."	0
+Efreeti	Efreet	0	0	0	0	0	0	900	1413	1670	2	0	90	9	16	12	16	24	0	0	5	12	Immune to fire.  Hates Genies.	0
+Efreet Sultan	Efreet Sultans	0	0	0	0	0	0	1100	1584	1848	2	0	105	13	20	14	20	28	0	0	5	10	Fire shield.  Immune to fire.  Hates Genies.	0
+Devil	Devils	0	3	0	0	0	0	3333	3759	5101	1	0	666	11	23	23	30	70	0	0	4	10	-1 enemy luck. No enemy retaliation. Hates Angels.	FLYING_ARMY | KING_2
+Arch Devil	Arch Devils	0	6	0	0	0	0	6660	5243	7115	1	0	999	17	33	33	60	120	0	0	3	8	-1 enemy luck. No enemy retaliation. Hates Angels.	FLYING_ARMY | KING_2
+																								
+																								
+																								
+Skeleton	Skeletons	0	0	0	0	0	0	20	75	60	12	6	20	4	5	4	1	3	0	0	20	50	Undead.	IS_UNDEAD
+Skeleton Warrior	Skeleton Warriors	0	0	0	0	0	0	30	85	85	12	6	20	5	7	6	1	3	0	0	20	30	Undead.	IS_UNDEAD
+Walking Dead	Walking Dead	0	0	0	0	0	0	50	140	98	8	0	30	3	5	5	2	3	0	0	16	30	Undead.	IS_UNDEAD
+Zombie	Zombies	0	0	0	0	0	0	65	160	128	8	0	40	4	5	5	2	3	0	0	16	25	"Undead.
+Disease."	IS_UNDEAD
+Wight	Wights	0	0	0	0	0	0	100	231	252	7	0	18	5	7	14	5	8	0	0	12	25	Undead.  Regenerating.	FLYING_ARMY | IS_UNDEAD
+Wraith	Wraiths	0	0	0	0	0	0	130	252	315	7	0	23	7	7	17	6	9	0	0	12	20	"Undead.  Regenerating.
+Drains enemy mana."	FLYING_ARMY | IS_UNDEAD
+Vampire	Vampires	0	0	0	0	0	0	360	518	555	4	0	40	6	12	9	5	8	0	0	10	20	"Undead.
+No enemy retaliation."	FLYING_ARMY | IS_UNDEAD
+Vampire Lord	Vampire Lords	0	0	0	0	0	0	500	652	783	4	0	60	9	16	10	8	15	0	0	10	16	"Undead.  Drains life.
+No enemy retaliation."	FLYING_ARMY | IS_UNDEAD
+Lich	Liches	0	0	0	0	0	0	550	742	848	3	0	50	6	17	10	16	18	16	0	8	16	Undead.  Death cloud attack.	SHOOTING_ARMY | IS_UNDEAD
+Power Lich	Power Liches	0	0	0	0	0	0	600	889	1079	3	0	65	7	21	10	21	24	24	0	8	12	Undead.  Death cloud attack.	SHOOTING_ARMY | IS_UNDEAD
+Black Knight	Black Knights	0	0	0	0	0	0	1500	1753	2087	2	0	180	9	18	18	15	30	0	0	5	12	Undead.  Curses enemies.	DOUBLE_WIDE | IS_UNDEAD
+Dread Knight	Dread Knights	0	0	0	0	0	0	2000	2029	2382	2	0	220	11	22	22	15	30	0	0	5	10	"Undead.  Curses enemies.  
+Death Blow attack."	DOUBLE_WIDE | IS_UNDEAD
+Bone Dragon	Bone Dragons	0	0	0	0	0	0	3000	2420	3388	1	0	300	9	22	25	50	80	0	0	4	10	Undead.  -1 to enemy morale.	DOUBLE_WIDE | IS_UNDEAD | const_lowers_morale | FLYING_ARMY | KING_1
+Ghost Dragon	Ghost Dragons	0	4	0	0	0	0	7000	3228	4696	1	0	450	14	32	40	75	100	0	0	3	8	Undead.  -1 to enemy morale.  Attack ages enemies.	DOUBLE_WIDE | IS_UNDEAD | const_lowers_morale | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Troglodyte	Troglodytes	0	0	0	0	0	0	20	73	59	30	7	5	4	4	3	1	3	0	0	20	50	Immune to Blinding.	0
+Infernal Troglodyte	Infernal Troglodytes	0	0	0	0	0	0	30	84	84	30	7	6	5	5	4	1	3	0	0	20	30	Immune to Blinding.	0
+Harpy	Harpies	0	0	0	0	0	0	100	140	154	8	0	14	7	6	5	1	4	0	0	16	30	Strike and return.	FLYING_ARMY
+Harpy Hag	Harpy Hags	0	0	0	0	0	0	150	196	238	8	0	14	11	6	6	1	4	0	0	16	25	"Strike and return.
+No enemy retaliation."	FLYING_ARMY
+Beholder	Beholders	0	0	0	0	0	0	160	240	336	10	0	22	5	9	7	3	5	12	0	12	25	No melee penalty.	SHOOTING_ARMY | const_no_melee_penalty
+Evil Eye	Evil Eyes	0	0	0	0	0	0	220	245	367	10	0	22	7	10	8	3	5	24	0	12	20	No melee penalty.	SHOOTING_ARMY | const_no_melee_penalty
+Medusa	Medusas	0	0	0	0	0	0	300	379	517	4	0	25	5	9	9	6	8	4	0	10	20	"No melee penalty.
+Stone gaze."	DOUBLE_WIDE | SHOOTING_ARMY | const_no_melee_penalty
+Medusa Queen	Medusa Queens	0	0	0	0	0	0	330	423	577	4	0	30	6	10	10	6	8	8	0	10	16	"No melee penalty.
+Stone gaze."	DOUBLE_WIDE | SHOOTING_ARMY | const_no_melee_penalty
+Minotaur	Minotaurs	0	0	0	0	0	0	500	835	835	3	0	60	6	14	12	12	20	0	0	8	16	Good morale.	0
+Minotaur King	Minotaur Kings	0	0	0	0	0	0	575	890	1068	3	0	60	8	15	15	12	20	0	0	8	12	Good morale.	0
+Manticore	Manticores	0	0	0	0	0	0	850	1215	1547	2	0	80	7	15	13	14	20	0	0	5	12		DOUBLE_WIDE | FLYING_ARMY
+Scorpicore	Scorpicores	0	0	0	0	0	0	1050	1248	1589	2	0	80	11	16	14	14	20	0	0	5	10	Paralyzing venom.	DOUBLE_WIDE | FLYING_ARMY
+Red Dragon	Red Dragons	0	0	0	4	0	0	6000	3762	4702	1	0	500	11	25	25	55	65	0	0	4	10	Immune to spell levels 1-3.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Black Dragon	Black Dragons	0	0	0	8	0	0	8000	6783	8721	1	0	1200	15	32	32	60	75	0	0	3	8	Immune to all spells.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Goblin	Goblins	0	0	0	0	0	0	10	60	60	60	8	5	5	4	2	1	2	0	0	20	50		0
+Hobgoblin	Hobgoblins	0	0	0	0	0	0	12	65	78	60	8	5	7	5	3	1	2	0	0	20	30		0
+Wolf Rider	Wolf Riders	0	0	0	0	0	0	20	130	130	20	0	10	6	7	5	2	4	0	0	16	30		DOUBLE_WIDE
+Wolf Raider	Wolf Raiders	0	0	0	0	0	0	25	174	203	20	0	10	8	8	5	3	4	0	0	16	25	Strikes twice	DOUBLE_WIDE
+Orc	Orcs	0	0	0	0	0	0	150	175	192	7	0	15	4	8	4	2	5	12	0	12	25		SHOOTING_ARMY
+Orc Chieftain	Orc Chieftains	0	0	0	0	0	0	165	200	240	7	0	20	5	8	4	2	5	24	0	12	20		SHOOTING_ARMY
+Ogre	Ogres	0	0	0	0	0	0	300	520	416	4	0	40	4	13	7	6	12	0	0	10	20		0
+Ogre Mage	Ogre Magi	0	0	0	0	0	0	400	672	672	4	0	60	5	13	7	6	12	0	3	10	16	Spellcaster: Bloodlust.	0
+Roc	Rocs	0	0	0	0	0	0	600	790	1027	3	0	60	7	13	11	13	18	0	0	8	16		FLYING_ARMY | DOUBLE_WIDE
+Thunderbird	Thunderbirds	0	0	0	0	0	0	700	869	1106	3	0	60	11	13	11	15	20	0	0	8	12	Lightning strike.	FLYING_ARMY | DOUBLE_WIDE
+Cyclops	Cyclopes	0	0	0	0	0	0	750	1055	1266	2	0	70	6	15	12	16	20	16	0	5	12	Attacks siege walls.	SHOOTING_ARMY | CATAPULT
+Cyclops King	Cyclops Kings	0	0	0	0	0	0	1100	1110	1443	2	0	100	8	17	13	16	20	24	0	5	10	Attacks siege walls.	SHOOTING_ARMY | CATAPULT
+Behemoth	Behemoths	0	0	0	0	0	0	1500	3162	3162	1	0	400	6	17	17	50	80	0	0	4	10	Target enemy's defense is reduced 40%.	DOUBLE_WIDE | KING_1
+Ancient Behemoth	Ancient Behemoths	0	0	0	0	1	0	3000	5397	6168	1	0	600	9	19	19	60	80	0	0	3	8	Target enemy's defense is reduced 80%.	DOUBLE_WIDE | KING_1
+																								
+																								
+																								
+Gnoll	Gnolls	0	0	0	0	0	0	50	70	56	12	6	6	4	3	5	2	3	0	0	20	50		0
+Gnoll Marauder	Gnoll Marauders	0	0	0	0	0	0	70	90	90	12	6	6	5	4	6	2	3	0	0	20	30		0
+Lizardman	Lizardmen	0	0	0	0	0	0	110	115	126	9	0	14	4	5	6	2	3	12	0	16	30		SHOOTING_ARMY
+Lizard Warrior	Lizard Warriors	0	0	0	0	0	0	140	130	156	9	0	15	5	6	8	2	5	24	0	16	25		SHOOTING_ARMY
+Gorgon	Gorgons	0	0	0	0	0	0	525	890	890	3	0	70	5	10	14	12	16	0	0	12	25		DOUBLE_WIDE
+Mighty Gorgon	Mighty Gorgons	0	0	0	0	0	0	600	1028	1028	3	0	70	6	11	16	12	16	0	0	12	20	Death stare.	DOUBLE_WIDE
+Serpent Fly	Serpent Flies	0	0	0	0	0	0	220	215	268	8	0	20	9	7	9	2	5	0	0	10	20	Dispels beneficial spells.	FLYING_ARMY
+Dragon Fly	Dragon Flies	0	0	0	0	0	0	240	250	312	8	0	20	13	8	10	2	5	0	0	10	16	Dispels beneficial spells.  Weakens enemies.	FLYING_ARMY
+Basilisk	Basilisks	0	0	0	0	0	0	325	506	552	4	0	35	5	11	11	6	10	0	0	8	16	Petrifying attack.	DOUBLE_WIDE
+Greater Basilisk	Greater Basilisks	0	0	0	0	0	0	400	561	714	4	0	40	7	12	12	6	10	0	0	8	12	Petrifying attack.	DOUBLE_WIDE
+Wyvern	Wyverns	0	0	0	0	0	0	800	1050	1350	2	0	70	7	14	14	14	18	0	0	5	12		DOUBLE_WIDE | FLYING_ARMY
+Wyvern Monarch	Wyvern Monarchs	0	0	0	0	0	0	1100	1181	1518	2	0	70	11	14	14	18	22	0	0	5	10	Poisonous.	DOUBLE_WIDE | FLYING_ARMY
+Hydra	Hydras	0	0	0	0	0	0	2200	4120	4120	1	0	175	5	16	18	25	45	0	0	4	10	Attacks all adjacent enemies.  Enemies cannot retaliate.	DOUBLE_WIDE | KING_1
+Chaos Hydra	Chaos Hydras	0	0	0	1	0	0	3500	5272	5931	1	0	250	7	18	20	25	45	0	0	3	8	Attacks all adjacent enemies.  Enemies cannot retaliate.	DOUBLE_WIDE | KING_1
+																								
+																								
+																								
+Air Elemental	Air Elementals	0	0	0	0	0	0	250	324	356	6	0	25	7	9	9	2	8	0	0	8	12	Lightning and firestorm vulnerability.	0
+Earth Elemental	Earth Elementals	0	0	0	0	0	0	400	415	330	4	0	40	4	10	10	4	8	0	0	16	30	Meteor shower vulnerability.	0
+Fire Elemental	Fire Elementals	0	0	0	0	0	0	350	345	345	5	0	35	6	10	8	4	6	0	0	16	25	"Immune to fire.
+Vulnerable to ice."	0
+Water Elemental	Water Elementals	0	0	0	0	0	0	300	315	315	6	0	30	5	8	10	3	7	0	0	12	25	"Immune to ice.
+Vulnerable to fire."	0
+Gold Golem	Gold Golems	0	0	0	0	0	0	500	600	600	3	0	50	5	11	12	8	10	0	0	10	16	Damage from spells reduced 85%.	0
+Diamond Golem	Diamond Golems	0	0	0	0	0	0	750	775	775	2	0	60	5	13	12	10	14	0	0	8	12	Damage from spells reduced 95%.	0
+																								
+																								
+																								
+Pixie	Pixies	0	0	0	0	0	0	25	40	55	20	10	3	7	2	2	1	2	0	0	20	50		FLYING_ARMY
+Sprite	Sprites	0	0	0	0	0	0	30	70	95	20	10	3	9	2	2	1	3	0	0	20	30	No enemy retaliation.	FLYING_ARMY | const_free_attack
+Psychic Elemental	Psychic Elementals	0	0	0	0	0	0	750	1431	1669	2	0	75	7	15	13	10	20	0	0	8	16	Attacks all adjacent enemies w/o retaliation. Mind spell immunity.	IMMUNE_TO_MIND_SPELLS | DOUBLE_WIDE | const_free_attack | MULTI_HEADED
+Magic Elemental	Magic Elementals	0	0	0	0	0	0	800	1724	2012	2	0	80	9	15	13	15	25	0	0	8	12	Attacks all adjacent enemies w/o retaliation. Spell immunity.	IMMUNE_TO_MIND_SPELLS | DOUBLE_WIDE | const_free_attack | MULTI_HEADED
+NOT USED (1)	NOT USED (1)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+Ice Elemental	Ice Elementals	0	0	0	0	0	0	375	315	380	6	0	30	6	8	10	3	7	24	3	12	20	Mind spell immunity. Ice immunity. Fire vulnerability.	IMMUNE_TO_MIND_SPELLS | SHOOTING_ARMY
+NOT USED (2) 	NOT USED (2)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+Magma Elemental	Magma Elementals	0	0	0	0	0	0	500	490	490	4	0	40	6	11	11	6	10	0	3	16	25	Mind spell immunity.  Casts protection from Earth.	IMMUNE_TO_MIND_SPELLS
+NOT USED (3)	NOT USED (3)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+Storm Elemental	Storm Elementals	0	0	0	0	0	0	275	324	486	6	0	25	8	9	9	2	8	24	3	6	12	No melee penalty.  Lightning and firestorm vulnerability.	IMMUNE_TO_MIND_SPELLS | SHOOTING_ARMY
+NOT USED (4)	NOT USED (4)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+Energy Elemental	Energy Elementals	0	0	0	0	0	0	400	360	470	5	0	35	8	12	8	4	6	0	3	12	25	"Casts Protect from Fire. Mind & fire immunity, cold vulnerability."	IMMUNE_TO_MIND_SPELLS | IMMUNE_TO_FIRE_SPELLS | FLYING_ARMY
+Firebird	Firebirds	0	0	0	0	0	0	1500	3248	4547	2	0	150	15	18	18	30	40	0	0	4	10	Breath attack.  Fire spell immunity.	IMMUNE_TO_FIRE_SPELLS | DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+Phoenix	Phoenixes	0	1	0	0	0	0	2000	4929	6721	2	0	200	21	21	18	30	40	0	1	4	10	Breath attack.  Fire spell immunity.  Rebirth.	IMMUNE_TO_FIRE_SPELLS | DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+																								
+																								
+																								
+Azure Dragon	Azure Dragons	0	20	0	0	0	0	30000	56315	78845	1	0	1000	19	50	50	70	80	0	0	1	3	Fear.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Crystal Dragon	Crystal Dragons	0	0	0	0	10	0	20000	30260	39338	1	0	800	16	40	40	60	75	0	0	1	3	Crystal generation.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Faerie Dragon	Faerie Dragons	0	0	0	0	0	8	10000	16317	19580	1	0	500	15	20	20	20	30	0	5	1	3	Offensive spell caster.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Rust Dragon	Rust Dragons	0	0	0	14	0	0	15000	24030	26433	1	0	750	17	30	30	50	50	0	0	1	3	Spits acid.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Enchanter	Enchanters	0	0	0	0	0	0	750	805	1210	2	0	30	9	17	12	14	14	32	0	5	12	"No melee penalty.
+Group spell casters."	SHOOTING_ARMY | const_no_melee_penalty
+Sharpshooter	Sharpshooters	0	0	0	0	0	0	400	415	585	4	0	15	9	12	10	8	10	32	0	5	12	No Range or Barrier penalties.	SHOOTING_ARMY
+Halfling	Halflings	0	0	0	0	0	0	40	60	75	15	0	4	5	4	2	1	3	24	0	20	50	Positive luck.	SHOOTING_ARMY
+Peasant	Peasants	0	0	0	0	0	0	10	15	15	25	0	1	3	1	1	1	1	0	0	20	50		
+Boar	Boars	0	0	0	0	0	0	150	145	145	8	0	15	6	6	5	2	3	0	0	16	30		
+Mummy	Mummies	0	0	0	0	0	0	300	270	270	7	0	30	5	7	7	3	5	0	0	12	25	Curse.	
+Nomad	Nomads	0	0	0	0	0	0	200	285	345	7	0	30	7	9	8	2	6	0	0	12	25	Sandwalkers.	
+Rogue	Rogues	0	0	0	0	0	0	100	135	135	8	0	10	6	8	3	2	4	0	0	16	30	Spying.	
+Troll	Trolls	0	0	0	0	0	0	500	1024	1024	3	0	40	7	14	7	10	15	0	0	8	12	Regenerating.	
+																								
+																								
+																								
+Catapult	Catapults	0	0	0	0	0	0	1	10	500	0	0	1000	0	10	10	0	0	24	0	0	0	Attacks siege walls.	DOUBLE_WIDE | SHOOTING_ARMY | CATAPULT | SIEGE_WEAPON
+Ballista	Ballistas	0	0	0	0	0	0	2500	650	600	0	0	250	0	10	10	2	3	24	0	0	0		DOUBLE_WIDE | SHOOTING_ARMY | SIEGE_WEAPON
+First Aid Tent	First Aid Tents	0	0	0	0	0	0	750	10	300	0	0	75	0	0	0	0	0	0	0	0	0	Heals troops.	DOUBLE_WIDE | SIEGE_WEAPON
+Ammo Cart	Ammo Carts	0	0	0	0	0	0	1000	5	400	0	0	100	0	0	5	0	0	0	0	0	0	Unlimited ammunition.	SIEGE_WEAPON
+Arrow Tower	Arrow Towers	0	0	0	0	0	0	1000	5	400	0	0	100	0	10	5	2	4	99	0	0	0	Unlimited ammunition.	SIEGE_WEAPON
