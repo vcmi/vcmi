@@ -42,6 +42,15 @@
 		"level": 2,
 		"extraNames": [ "primitiveLizardman" ],
 		"faction": "fortress",
+		"abilities":
+		{
+			"castWeakness" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.weakness",
+				"val" : 100
+			}
+		},
 		"upgrades": ["lizardWarrior"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -67,6 +76,21 @@
 		"index": 101,
 		"level": 2,
 		"faction": "fortress",
+		"abilities":
+		{
+			"castWeakness" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.weakness",
+				"val" : 100
+			},
+			"petrify" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.poison",
+				"val" : 35
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CALIZA.DEF",
@@ -83,52 +107,6 @@
 			"move": "ALIZMOVE.wav",
 			"shoot": "ALIZSHOT.wav",
 			"wince": "ALIZWNCE.wav"
-		}
-	},
-	"gorgon" :
-	{
-		"index": 102,
-		"level": 5,
-		"faction": "fortress",
-		"upgrades": ["mightyGorgon"],
-		"graphics" :
-		{
-			"animation": "CCGORG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "CGORATTK.wav",
-			"defend": "CGORDFND.wav",
-			"killed": "CGORKILL.wav",
-			"move": "CGORMOVE.wav",
-			"wince": "CGORWNCE.wav"
-		}
-	},
-	"mightyGorgon" :
-	{
-		"index": 103,
-		"level": 5,
-		"faction": "fortress",
-		"abilities":
-		{
-			"deathStare" : 
-			{
-				"type" : "DEATH_STARE",
-				"subtype" : 0,
-				"val" : 10
-			}
-		},
-		"graphics" :
-		{
-			"animation": "CBGOG.DEF"
-		},
-		"sound" :
-		{
-			"attack": "BGORATTK.wav",
-			"defend": "BGORDFND.wav",
-			"killed": "BGORKILL.wav",
-			"move": "BGORMOVE.wav",
-			"wince": "BGORWNCE.wav"
 		}
 	},
 	"serpentFly" :
@@ -248,6 +226,52 @@
 			"killed": "GBASKILL.wav",
 			"move": "GBASMOVE.wav",
 			"wince": "GBASWNCE.wav"
+		}
+	},
+	"gorgon" :
+	{
+		"index": 102,
+		"level": 5,
+		"faction": "fortress",
+		"upgrades": ["mightyGorgon"],
+		"graphics" :
+		{
+			"animation": "CCGORG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CGORATTK.wav",
+			"defend": "CGORDFND.wav",
+			"killed": "CGORKILL.wav",
+			"move": "CGORMOVE.wav",
+			"wince": "CGORWNCE.wav"
+		}
+	},
+	"mightyGorgon" :
+	{
+		"index": 103,
+		"level": 5,
+		"faction": "fortress",
+		"abilities":
+		{
+			"deathStare" : 
+			{
+				"type" : "DEATH_STARE",
+				"subtype" : 0,
+				"val" : 10
+			}
+		},
+		"graphics" :
+		{
+			"animation": "CBGOG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
 		}
 	},
 	"wyvern" :

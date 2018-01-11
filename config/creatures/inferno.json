@@ -9,6 +9,11 @@
 			"canFly" :
 			{
 				"type" : "FLYING"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			}
 		},
 		"upgrades": ["familiar"],
@@ -40,6 +45,11 @@
 			"canFly" :
 			{
 				"type" : "FLYING"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			}
 		},
 		"graphics" :
