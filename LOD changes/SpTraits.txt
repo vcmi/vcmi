@@ -1,0 +1,1136 @@
+			School				Cost				Effect					% Chance to gain									AI value				Right Click Text				
+Name	Abbreviated Name	Level	Earth	Water	Fire	Air	None	Basic	Advanced	Expert	Power 	None	Basic	Advanced	Expert	Castle	Rampart	Tower	Inferno	Necropolis	Dungeon	Stronghold	Fortress	Conflux	None	Basic	Advanced	Expert	Normal	Basic	Advanced	Expert	"Attributes (reference only, do not change)"
+																																	
+Adventure Spells																																	
+																																	
+Summon Boat	Summon Boat	1	 	x	 	 	8	7	7	7	0	50	50	75	100	3	5	5	5	3	5	5	3	3	10	10	20	20	"{Summon Boat}
+
+Summons an existing, friendly, unoccupied boat from anywhere in the world to your location.
+
+Chances for success are 50%.
+"	"{Basic Summon Boat}
+
+Summons an existing, friendly, unoccupied boat from anywhere in the world to your location.
+
+Chances for success are 50%.
+"	"{Advanced Summon Boat}
+
+Summons an existing, friendly, unoccupied boat from anywhere in the world to your location.  If no boats exist, one is created.
+
+Chances for success are 75%.
+"	"{Expert Summon Boat}
+
+Summons an existing, friendly, unoccupied boat from anywhere in the world to your location.  If no boats exist, one is created.
+"	 ADV_SPELL
+Scuttle Boat	Scuttle Boat	2	 	x	 	 	8	6	6	6	0	50	50	75	100	6	4	4	4	4	4	4	4	4	1	1	1	1	"{Scuttle Boat}
+
+Destroys a boat you own.  Use with caution, the effects are permanent.
+
+Chances for success are 50%.
+"	"{Basic Scuttle Boat}
+
+Destroys a boat you own.  Use with caution, the effects are permanent.
+
+Chances for success are 50%.
+"	"{Advanced Scuttle Boat}
+
+Destroys a boat you own.  Use with caution, the effects are permanent.
+
+Chances for success are 75%.
+"	"{Expert Scuttle Boat}
+
+Destroys a boat you own.  Use with caution, the effects are permanent.
+"	 ADV_SPELL
+Visions	Visions	2	x	x	x	x	4	2	2	2	0	1	1	2	3	2	2	2	4	2	2	2	2	2	1	1	1	1	"{Visions}
+
+Gives you a basic idea of the strength of an opposing army, hero, or garrison.
+"	"{Basic Visions}
+
+Gives you a basic idea of the strength of an opposing hero or garrison.  In the case of nearby wandering monsters, gives you exact numbers of troops and tells you if they would be willing to join your hero.
+"	"{Advanced Visions}
+
+Gives you a basic idea of the strength of an opposing garrison.  In the case of nearby wandering monsters, gives you exact numbers of troops and tells you if they would be willing to join your hero.  Allows you to view a nearby enemy hero's primary skill statistics, creature type and quantity, as if the hero was part of your kingdom.
+"	"{Expert Visions}
+
+Gives you exact numbers of wandering monsters and tells you if they would be willing to join your hero.  Allows you to view a nearby enemy hero's primary skill statistics, creature type and quantity, as if the hero was part of your kingdom, as well as a nearby town's statistics, garrison creatures and quantity.
+"	 ADV_SPELL
+View Earth	View Earth	1	x				2	1	1	1	0	0	0	0	0	3	3	3	3	3	3	3	3	3	1	1	1	1	"{View earth}
+
+Reveals the location of all resources to the caster.
+"	"{Basic View Earth}
+
+Reveals the location of all resources to the caster.
+"	"{Advanced View Earth}
+
+Reveals the location of all resources and mines to the caster.
+"	"{Expert View Earth}
+
+Reveals the location of all resources and mines and reveals all terrain to the caster.
+"	 ADV_SPELL
+Disguise	Disguise	2	 	 	 	x	4	2	2	2	0	0	0	0	0	2	2	2	4	2	2	2	0	2	1	1	1	1	"{Disguise}
+
+Gives false information to an enemy attempting to view your hero.
+"	"{Basic Disguise}
+
+Makes all units in your army look like your most powerful unit to enemies trying to view your hero.  Numbers in each group are unchanged.
+"	"{Advanced Disguise}
+
+Makes all units in your army look like your most powerful unit to enemies trying to view your hero.  Numbers in each group appear as zero.
+"	"{Expert Disguise}
+
+Makes all units in your army look like the most powerful unit affiliated to your hero type to enemies trying to view your hero.  Numbers in each group appear as zero.
+"	 ADV_SPELL
+View Air	View Air	1				x	2	1	1	1	0	0	0	0	0	3	3	3	3	3	3	3	3	3	1	1	1	1	"{View Air}
+
+Reveals the location of all unclaimed artifacts to the caster.
+"	"{Basic View Air}
+
+Reveals the location of all unclaimed artifacts to the caster.
+"	"{Advanced View Air}
+
+Reveals the location of all unclaimed artifacts, plus enemy heroes to the caster.
+"	"{Expert View Air}
+
+Reveals the location of all unclaimed artifacts, plus enemy heroes and towns to the caster.
+"	 ADV_SPELL
+Fly	Fly	5	 	 	 	x	20	15	15	15	0	60	60	80	100	0	16	16	16	16	12	0	0	13	30	30	40	50	"{Fly}
+
+Allows your army to use part of its movement to fly over obstacles.  You must land at the end of the turn.
+"	"{Basic Fly}
+
+Allows your army to use part of its movement to fly over obstacles.  You must land at the end of the turn.
+"	"{Advanced Fly}
+
+Allows your army to use most of its movement to fly over obstacles.  You must land at the end of the turn.
+"	"{Expert Fly}
+
+Allows your army to use up to all of its movement to fly over obstacles.  You must land at the end of the turn.
+"	 ADV_SPELL
+Water Walk	Water Walk	4	 	x	 	 	12	8	8	8	0	60	60	80	100	10	10	10	10	10	10	0	0	10	15	15	20	25	"{Water Walk}
+
+Allows your army to use part of its movement to walk across bodies of water.  You must end your movement on dry land.
+"	"{Basic Water Walk}
+
+Allows your army to use part of its movement to walk across bodies of water.  You must end your movement on dry land.
+"	"{Advanced Water Walk}
+
+Allows your army to use most of its movement to walk across bodies of water.  You must end your movement on dry land.
+"	"{Expert Water Walk}
+
+Allows your army to use up to all of its movement to walk across bodies of water.  You must end your movement on dry land.
+"	 ADV_SPELL
+Dimension Door	Dimension Door	5	 	 	 	x	25	20	20	20	0	1	2	3	4	0	20	14	16	16	16	0	0	13	30	30	40	50	"{Dimension Door}
+
+Once per day, you may teleport your hero to a visible, unoccupied location on the adventure map.
+"	"{Basic Dimension Door}
+
+Twice per day, you may teleport your hero to a visible, unoccupied location on the adventure map.
+"	"{Advanced Dimension Door}
+
+Three times per day, you may teleport your hero to a visible, unoccupied location on the adventure map.
+"	"{Expert Dimension Door}
+
+Four times per day, you may teleport your hero to a visible, unoccupied location on the adventure map.
+"	 ADV_SPELL
+Town Portal	Town Portal	4	x	 	 	 	16	12	12	12	0	0	0	0	0	10	10	10	10	10	10	0	0	10	5	5	70	70	"{Town Portal}
+
+Teleports your hero to the nearest friendly town.  The town must be unoccupied.
+"	"{Basic Town Portal}
+
+Teleports your hero to the nearest friendly town.  The town must be unoccupied.
+"	"{Advanced Town Portal}
+
+Teleports your hero to any friendly town.  The town must be unoccupied.
+"	"{Expert Town Portal}
+
+Teleports your hero to any friendly town.  The town must be unoccupied.
+"	 ADV_SPELL
+																																	
+Combat Spells																																	
+																																	
+Quicksand	Quicksand	2	x	 	 	 	8	6	6	6	0	0	0	0	0	4	4	6	4	4	4	6	6	4	1	1	1	1	"{Quicksand}
+
+Randomly places four small patches of quicksand on the battlefield which are only visible to the caster and creatures native to the terrain.  Walking into quicksand ends a unit's movement for the turn and makes it visible to all.
+"	"{Basic Quicksand}
+
+Randomly places four small patches of quicksand on the battlefield which are only visible to the caster and creatures native to the terrain.  Walking into quicksand ends a unit's movement for the turn and makes it visible to all.
+"	"{Advanced Quicksand}
+
+Randomly places six small patches of quicksand on the battlefield which are only visible to the caster and creatures native to the terrain.  Walking into quicksand ends a unit's movement for the turn and makes it visible to all.
+"	"{Expert Quicksand}
+
+Randomly places eight small patches of quicksand on the battlefield which are only visible to the caster and creatures native to the terrain.  Walking into quicksand ends a unit's movement for the turn and makes it visible to all.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Land Mine	Land Mine	3	 	 	x	 	18	15	15	15	10	25	25	50	100	8	8	8	6	8	12	8	2	4	1	1	1	1	"{Land Mine}
+
+Randomly places four small areas of landmines on the battlefield which are only visible to the caster and creatures native to the terrain.  It inflicts damage to any unit walking over it.
+"	"{Basic Land Mine}
+
+Randomly places four small areas of landmines on the battlefield which are only visible to the caster and creatures native to the terrain.  It inflicts damage to any unit walking over it.
+"	"{Advanced Land Mine}
+
+Randomly places six small areas of landmines on the battlefield which are only visible to the caster and creatures native to the terrain.  It inflicts damage to any unit walking over it.
+
+Inflicted damage 25 points more than Basic Land Mine.
+"	"{Expert Land Mine}
+
+Randomly places eight small areas of landmines on the battlefield which are only visible to the caster and creatures native to the terrain.  It inflicts damage to any unit walking over it.
+
+Inflicted damage 75 points more than Basic Land Mine.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Force Field	Force Field	3	x	 	 	 	12	9	9	9	0	0	0	0	0	4	4	8	2	8	8	4	4	8	1	1	1	1	"{Force Field}
+
+Places a small Force Field on the battlefield at a point specified by the caster. 
+"	"{Basic Force Field}
+
+Places a small Force Field on the battlefield at a point specified by the caster. 
+"	"{Advanced Force Field}
+
+Places a medium sized Force Field on the battlefield at a point specified by the caster.
+"	"{Expert Force Field}
+
+Places a medium sized Force Field on the battlefield at a point specified by the caster.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Fire Wall	Fire Wall	2	 	 	x	 	8	6	6	6	10	10	10	20	50	4	4	4	12	4	4	4	4	8	1	1	1	1	"{Fire Wall}
+
+Places a small wildfire on the battlefield at a point specified by the caster.  Any units passing through the wall take damage.
+"	"{Basic Fire Wall}
+
+Places a small wildfire on the battlefield at a point specified by the caster.  Any units passing through the wall take damage.
+"	"{Advanced Fire Wall}
+
+Places a medium sized wildfire on the battlefield at a point specified by the caster.  Any units passing through the wall take damage.
+"	"{Expert Fire Wall}
+
+Places a medium sized wildfire on the battlefield at a point specified by the caster.  Any units passing through the wall take damage.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Earthquake	Earthquake	3	x	 	 	 	20	17	17	17	1	2	2	3	4	4	8	4	6	4	4	4	50	4	1	1	1	1	"{Earthquake}
+
+Randomly damages two sections of castle wall in combat.
+"	"{Basic Earthquake}
+
+Randomly damages two sections of castle wall in combat.
+"	"{Advanced Earthquake}
+
+Randomly damages three sections of castle wall in combat.
+"	"{Expert Earthquake}
+
+Randomly damages four sections of castle wall in combat.
+"	 COMBAT_SPELL
+Magic Arrow	Magic Arrow	1	x	x	x	x	5	4	4	4	10	10	10	20	30	30	30	30	30	30	30	30	30	30	10	10	10	10	"{Magic Arrow}
+
+Causes a bolt of magical energy to strike the selected unit.
+"	"{Basic Magic Arrow}
+
+Causes a bolt of magical energy to strike the selected unit.
+"	"{Advanced Magic Arrow}
+
+Causes a bolt of magical energy to strike the selected unit.
+
+Damage inflicted is 10 points more than Basic Magic Arrow.
+"	"{Expert Magic Arrow}
+
+Causes a bolt of magical energy to strike the selected unit.
+
+Damage inflicted is 20 points more than Basic Magic Arrow.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Ice Bolt	Ice Bolt	2	 	x	 	 	8	6	6	6	20	10	10	20	50	50	50	6	0	6	6	4	50	25	20	20	20	20	"{Ice Bolt}
+
+Drains the body heat from the selected enemy unit.
+"	"{Basic Ice Bolt}
+
+Drains the body heat from the selected enemy unit.
+"	"{Advanced Ice Bolt}
+
+Drains the body heat from the selected enemy unit.
+
+Damage inflicted is 10 points more than Basic Ice Bolt.
+"	"{Expert Ice Bolt}
+
+Drains the body heat from the selected enemy unit.
+
+Damage inflicted is 40 points more than Basic Ice Bolt.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Lightning Bolt	Lightning Bolt	2	 	 	 	x	10	8	8	8	25	10	10	20	50	4	4	50	20	6	50	50	4	25	25	25	25	25	"{Lightning Bolt}
+
+Causes a bolt of lightning to strike the selected unit.
+"	"{Basic Lightning Bolt}
+
+Causes a bolt of lightning to strike the selected unit.
+"	"{Advanced Lightning Bolt}
+
+Causes a bolt of lightning to strike the selected unit.
+
+Damage inflicted is 10 points more than Basic Lightning Bolt.
+"	"{Expert Lightning Bolt}
+
+Causes a bolt of lightning to strike the selected unit.
+
+Damage inflicted is 40 points more than Basic Lightning Bolt.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Implosion	Implosion	5	x	 	 	 	30	25	25	25	75	100	100	200	300	0	16	14	16	20	12	0	0	13	75	75	75	75	"{Implosion}
+
+Inflicts massive damage to a single creature stack.
+"	"{Basic Implosion}
+
+Inflicts massive damage to a single creature stack.
+"	"{Advanced Implosion}
+
+Inflicts massive damage to a single creature stack.
+
+Damage inflicted is 100 points more than Basic Implosion.
+"	"{Expert Implosion}
+
+Inflicts massive damage to a single creature stack.
+
+Damage inflicted 200 points more than Basic Implosion.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Chain Lightning	Chain Lightning	4	 	 	 	x	24	20	20	20	40	25	25	50	100	10	10	10	10	10	10	0	0	10	75	75	75	75	"{Chain Lightning}
+
+Fires a bolt of lightning at the selected unit which then travels to the nearest adjacent unit, inflicting half damage before traveling to the next adjacent unit, again inflicting half damage, etc.  Strikes four units.
+"	"{Basic Chain Lightning}
+
+Fires a bolt of lightning at the selected unit which then travels to the nearest adjacent unit, inflicting half damage before traveling to the next adjacent unit, again inflicting half damage, etc.  Strikes four units.
+"	"{Advanced Chain Lightning}
+
+Fires a bolt of lightning at the selected unit which then travels to the nearest adjacent unit, inflicting half damage before traveling to the next adjacent unit, again inflicting half damage, etc.  Strikes five units.
+
+Base Damage inflicted is 25 points more than Basic Chain Lightning.
+"	"{Expert Chain Lightning}
+
+Fires a bolt of lightning at the selected unit which then travels to the nearest adjacent unit, inflicting half damage before traveling to the next adjacent unit, again inflicting half damage, etc.  Strikes five units.
+
+Base Damage inflicted is 75 points more than Basic Chain Lightning.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Frost Ring	Frost Ring	3	 	x	 	 	12	9	9	9	10	15	15	30	60	16	16	16	0	12	12	12	4	12	12	12	12	12	"{Frost Ring}
+
+Drains the body heat of any units adjacent to the target location, without inflicting damage on the target.
+"	"{Basic Frost Ring}
+
+Drains the body heat of any units adjacent to the target location, without inflicting damage on the target.
+"	"{Advanced Frost Ring}
+
+Drains the body heat of any units adjacent to the target location, without inflicting damage on the target.
+
+Damage inflicted is 15 points more than Basic Frost Ring.
+"	"{Expert Frost Ring}
+
+Drains the body heat of any units adjacent to the target location, without inflicting damage on the target.
+
+Damage inflicted is 45 points more than Basic Frost Ring.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Fireball	Fireball	3	 	 	x	 	15	12	12	12	10	15	15	30	60	8	8	8	50	12	16	12	2	12	15	15	15	15	"{Fireball}
+
+Causes the selected target to burst into flames, inflicting fire damage to the target and any adjacent units.
+"	"{Basic Fireball}
+
+Causes the selected target to burst into flames, inflicting fire damage to the target and any adjacent units.
+"	"{Advanced Fireball}
+
+Causes the selected target to burst into flames, inflicting fire damage to the target and any adjacent units.
+
+Damage inflicted is 15 points more than Basic Fireball.
+"	"{Expert Fireball}
+
+Causes the selected target to burst into flames, inflicting fire damage to the target and any adjacent units.
+
+Damage inflicted is 45 points more than Basic Fireball.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Inferno	Inferno	4	 	 	x	 	16	12	12	12	10	20	20	40	80	5	5	5	10	5	5	0	0	10	20	20	20	20	"{Inferno}
+
+Causes a huge blast of fire to strike the selected target.  Don't be near this when it goes off!
+"	"{Basic Inferno}
+
+Causes a huge blast of fire to strike the selected target.  Don't be near this when it goes off!
+"	"{Advanced Inferno}
+
+Causes a huge blast of fire to strike the selected target.  Don't be near this when it goes off!
+
+Damage inflicted is 20 points more than Basic Inferno.
+"	"{Expert Inferno}
+
+Causes a huge blast of fire to strike the selected target.  Don't be near this when it goes off!
+
+Damage inflicted is 60 points more than Basic Inferno.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Meteor Shower	Meteor Shower	4	x	 	 	 	16	12	12	12	25	25	25	50	100	10	10	10	10	10	10	0	0	10	37	37	37	37	"{Meteor Shower}
+
+Causes a meteor shower to rain down on the selected target and any adjacent units.
+"	"{Basic Meteor Shower}
+
+Causes a meteor shower to rain down on the selected target and any adjacent units.
+"	"{Advanced Meteor Shower}
+
+Causes a meteor shower to rain down on the selected target and any adjacent units.
+
+Damage inflicted is 25 points more than Basic Meteor Shower.
+"	"{Expert Meteor Shower}
+
+Causes a meteor shower to rain down on the selected target and any adjacent units.
+
+Damage inflicted is 75 points more than Basic Meteor Shower.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Death Ripple	Death Ripple	2	x	 	 	 	10	8	8	8	5	10	10	20	30	0	0	0	0	50	0	0	0	0	20	20	20	20	"{Death Ripple}
+
+Sends a wave of death across the battlefield which damages all non-undead units.
+"	"{Basic Death Ripple}
+
+Sends a wave of death across the battlefield which damages all non-undead units.
+"	"{Advanced Death Ripple}
+
+Sends a wave of death across the battlefield which damages all non-undead units.
+
+Damage inflicted is 10 points more than Basic Death Ripple.
+"	"{Expert Death Ripple}
+
+Sends a wave of death across the battlefield which damages all non-undead units.
+
+Damage inflicted is 20 points more than Basic Death Ripple.
+"	 COMBAT_SPELL
+Destroy Undead	Destroy Undead	3	 	 	 	x	15	12	12	12	10	10	10	20	50	12	8	8	2	0	4	4	2	4	40	40	40	40	"{Destroy Undead}
+
+Attempts to destroy any undead creatures on the battlefield.
+"	"{Basic Destroy Undead}
+
+Attempts to destroy any undead creatures on the battlefield.
+"	"{Advanced Destroy Undead}
+
+Attempts to destroy any undead creatures on the battlefield.
+
+Damage inflicted is 10 points more than Basic Destroy Undead.
+"	"{Expert Destroy Undead}
+
+Attempts to destroy any undead creatures on the battlefield.
+
+Damage inflicted is 40 points more than Basic Destroy Undead.
+"	 COMBAT_SPELL
+Armageddon	Armageddon	4	 	 	x	 	24	20	20	20	50	30	30	60	120	0	0	0	5	5	10	0	0	0	100	100	100	100	"{Armageddon}
+
+Rains fire down upon the battlefield, damaging all units.
+"	"{Basic Armageddon}
+
+Rains fire down upon the battlefield, damaging all units.
+"	"{Advanced Armageddon}
+
+Rains fire down upon the battlefield, damaging all units.
+
+Damage inflicted is 30 points more than Basic Armageddon.
+"	"{Expert Armageddon}
+
+Rains fire down upon the battlefield, damaging all units.
+
+Damage inflicted is 90 points more than Basic Armageddon.
+"	 COMBAT_SPELL
+Shield	Shield	1	x	 	 	 	5	4	4	4	0	85	85	70	70	10	3	5	3	10	5	5	5	5	10	10	20	20	"{Shield}
+
+Shields a selected unit, reducing the amount of damage received from hand-to-hand attacks.
+"	"{Basic Shield}
+
+Shields a selected unit, reducing the amount of damage received from hand-to-hand attacks.
+"	"{Advanced Shield}
+
+Shields a selected unit, reducing the amount of damage received from hand-to-hand attacks.
+
+Protection is twice that of Basic Shield.
+"	"{Expert Shield}
+
+Shields all friendly units, reducing the amount of damage received from hand-to-hand attacks.
+
+Protection is twice that of Basic Shield.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Air Shield	Air Shield	3	 	 	 	x	12	9	9	9	0	75	75	50	50	4	8	8	2	4	4	8	4	4	20	20	50	50	"{Air Shield}
+
+Shields a selected unit, reducing the amount of damage received from ranged attacks.
+"	"{Basic Air Shield}
+
+Shields a selected unit, reducing the amount of damage received from ranged attacks.
+"	"{Advanced Air Shield}
+
+Shields a selected unit, reducing the amount of damage received from ranged attacks.
+
+Protection is twice that of Basic Air Shield.
+"	"{Expert Air Shield}
+
+Shields all friendly units, reducing the amount of damage received from ranged attacks.
+
+Protection is twice that of Basic Air Shield.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Fire Shield	Fire Shield	4	 	 	x	 	16	12	12	12	0	20	20	25	30	5	5	5	5	5	5	0	0	5	10	10	12	15	"{Fire Shield}
+
+Cast on a friendly unit, it does not provide any additional protection, but any enemy attacking through the fire shield will suffer damage equal to a portion of what it inflicts.
+"	"{Basic Fire Shield}
+
+Cast on a friendly unit, it does not provide any additional protection, but any enemy attacking through the fire shield will suffer damage equal to a portion of what it inflicts.
+"	"{Advanced Fire Shield}
+
+Cast on a friendly unit, it does not provide any additional protection, but any enemy attacking through the fire shield will suffer damage equal to a portion of what it inflicts.
+
+Damage to attacking enemy units is 5% more than Basic Fire Shield.
+"	"{Expert Fire Shield}
+
+Cast on a friendly unit, it does not provide any additional protection, but any enemy attacking through the fire shield will suffer damage equal to a portion of what it inflicts.
+
+Damage to attacking enemy units is 10% more than Basic Fire Shield.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Protection from Air	Prot. from Air	2		 	 	x	7	5	5	5	0	70	70	50	50	2	2	2	4	2	2	2	2	2	2	2	4	4	"{Protection from Air}
+
+Protects the selected unit, reducing damage received from Air spells.
+"	"{Basic Protection from Air}
+
+Protects the selected unit, reducing damage received from Air spells.
+"	"{Advanced Protection from Air}
+
+Protects the selected unit, reducing damage received from Air spells.
+
+Protection is nearly twice that of Basic Protection from Air.
+"	"{Expert Protection from Air}
+
+Protects the selected unit, reducing damage received from Air spells.
+
+Protection is nearly twice that of Basic Protection from Air.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Protection from Fire	Prot. from Fire	1	 		x	 	5	4	4	4	0	70	70	50	50	3	3	3	3	3	3	3	3	3	2	2	4	4	"{Protection from Fire}
+
+Protects the selected unit, reducing damage received from Fire spells.
+"	"{Basic Protection from Fire}
+
+Protects the selected unit, reducing damage received from Fire spells.
+"	"{Advanced Protection from Fire}
+
+Protects the selected unit, reducing damage received from Fire spells.
+
+Protection is nearly twice that of Basic Protection from Fire.
+"	"{Expert Protection from Fire}
+
+Protects the selected unit, reducing damage received from Fire spells.
+
+Protection is nearly twice that of Basic Protection from Fire.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Prot. from Water	Prot. from Water	1	 	x		 	5	4	4	4	0	70	70	50	50	3	3	3	3	3	3	3	3	3	2	2	4	4	"{Protection from Water}
+
+Protects the selected unit, reducing damage received from Water spells.
+"	"{Basic Protection from Water}
+
+Protects the selected unit, reducing damage received from Water spells.
+"	"{Advanced Protection from Water}
+
+Protects the selected unit, reducing damage received from Water spells.
+
+Protection is nearly twice that of Basic Protection from Water.
+"	"{Expert Protection from Water}
+
+Protects the selected unit, reducing damage received from Water spells.
+
+Protection is nearly twice that of Basic Protection from Water.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Prot. from Earth	Prot. from Earth	3	x	 	 		12	9	9	9	0	70	70	50	50	4	4	4	2	4	4	4	0	4	2	2	4	4	"{Protection from Earth}
+
+Protects the selected unit, reducing damage received from Earth spells.
+"	"{Basic Protection from Earth}
+
+Protects the selected unit, reducing damage received from Earth spells.
+"	"{Advanced Protection from Earth}
+
+Protects the selected unit, reducing damage received from Earth spells.
+
+Protection is  nearly twice that of Basic Protection from Earth.
+"	"{Expert Protection from Earth}
+
+Protects the selected unit, reducing damage received from Earth spells.
+
+Protection is  nearly twice that of Basic Protection from Earth.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Anti-Magic	Anti-Magic	3	x	 	 	 	15	12	12	12	0	4	4	5	6	12	8	8	4	8	8	12	10	12	10	10	15	20	"{Anti-magic}
+
+Protects the selected unit from all low level spells.
+"	"{Basic Anti-magic}
+
+Protects the selected unit from all low level spells.
+"	"{Advanced Anti-magic}
+
+Protects the selected unit all but the most powerful spells.
+"	"{Expert Anti-magic}
+
+Protects the selected unit from all spells.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Dispel	Dispel	1	 	x	 	 	5	4	4	4	0	0	0	0	0	10	10	10	10	10	10	10	10	10	3	3	3	3	"{Dispel}
+
+Removes all spell effects from a friendly creature.
+"	"{Basic Dispel}
+
+Removes all spell effects from a friendly creature.
+"	"{Advanced Dispel}
+
+Removes all spell effects from a friendly or hostile creature.
+"	"{Expert Dispel}
+
+Removes all spell effects from all units on the battlefield.
+"	 COMBAT_SPELL|CREATURE_TARGET_1
+Magic Mirror	Magic Mirror	5	 	 	 	x	25	20	20	20	0	20	20	30	40	0	16	14	0	0	12	0	0	13	12	12	18	24	"{Magic Mirror}
+
+Reflects hostile spells towards a random enemy creature 20% of the time.
+"	"{Basic Magic Mirror}
+
+Reflects hostile spells towards a random enemy creature 20% of the time.
+"	"{Advanced Magic Mirror}
+
+Reflects hostile spells towards a random enemy creature 30% of the time.
+"	"{Expert Magic Mirror}
+
+Reflects hostile spells towards a random enemy creature 40% of the time.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Cure	Cure	1	 	x	 	 	6	5	5	5	5	10	10	20	30	10	10	5	5	0	5	5	10	5	4	4	4	4	"{Cure}
+
+Removes all negative spell effects and heals a small number of hit points on the selected unit.
+"	"{Basic Cure}
+
+Removes all negative spell effects and heals a small number of hit points on the selected unit.
+"	"{Advanced Cure}
+
+Removes all negative spell effects and heals a small number of hit points on all friendly units.
+
+Damage healed is 10 points more than Basic Cure.
+"	"{Expert Cure}
+
+Removes all negative spell effects and heals a small number of hit points on all friendly units.
+
+Damage healed is 20 points more than Basic Cure.
+"	 COMBAT_SPELL|CREATURE_TARGET_1
+Resurrection	Resurrection	4	x	 	 	 	20	16	16	16	50	40	40	80	160	10	10	10	10	10	10	0	0	5	50	50	60	120	"{Resurrection}
+
+Resurrects units in the selected group by restoring a fixed number of hit points to the target.
+"	"{Basic Resurrection}
+
+Resurrects units in the selected group by restoring a fixed number of hit points to the target.
+"	"{Advanced Resurrection}
+
+Resurrects units in the selected group by restoring a fixed number of hit points to the target.
+
+Provides an additional 40 hit points over Basic Resurrection.
+"	"{Expert Resurrection}
+
+Resurrects units in the selected group by restoring a fixed number of hit points to the target. 
+
+Provides an additional 120 hit points over Basic Resurrection.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Animate Dead	Animate Dead	3	x	 	 	 	15	12	12	12	50	30	30	60	160	0	0	0	0	16	0	0	0	0	60	60	60	120	"{Animate Dead}
+
+Re-animates any destroyed undead in the selected group by restoring a fixed number of hit points to the target.
+"	"{Basic Animate Dead}
+
+Re-animates any destroyed undead in the selected group by restoring a fixed number of hit points to the target.
+"	"{Advanced Animate Dead}
+
+Re-animates any destroyed undead in the selected group by restoring a fixed number of hit points to the target.
+
+Provides an additional 30 hit points over Basic Animate Dead.
+"	"{Expert Animate Dead}
+
+Re-animates any destroyed undead in the selected group by restoring a fixed number of hit points to the target.
+
+Provides an additional 130  hit points over Basic Animate Dead.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Sacrifice	Sacrifice	5	 	 	x	 	25	20	20	20	1	3	3	6	10	0	0	0	20	16	12	0	0	0	1	1	1	1	"{Sacrifice}
+
+Destroys a friendly creature group in order to resurrect a dead group.  Number of resurrected creatures depends on the caster's spell power and the health of the destroyed stack.
+"	"{Basic Sacrifice}
+
+Destroys a friendly creature group in order to resurrect a dead group.  Number of resurrected creatures depends on the caster's spell power and the health of the destroyed stack.
+"	"{Advanced Sacrifice}
+
+Destroys a friendly creature group in order to resurrect a dead group.  Number of resurrected creatures depends on the caster's spell power and the health of the destroyed stack.
+
+Restores more creature health than Basic Sacrifice.
+"	"{Expert Sacrifice}
+
+Destroys a friendly creature group in order to resurrect a dead group.  Number of resurrected creatures depends on the caster's spell power and the health of the destroyed stack.
+
+Restores more creature health than Advanced Sacrifice.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Bless	Bless	1	 	x	 	 	5	4	4	4	0	0	0	1	1	10	5	5	0	0	3	3	5	5	10	10	11	11	"{Bless}
+
+Causes the selected unit to inflict maximum damage in combat.
+"	"{Basic Bless}
+
+Causes the selected unit to inflict maximum damage in combat.
+"	"{Advanced Bless}
+
+Causes the selected unit to inflict greater than their normal maximum damage in combat.
+"	"{Expert Bless}
+
+Causes all friendly units to inflict greater than their normal maximum damage in combat.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Curse	Curse	1	 		x	 	6	5	5	5	0	0	0	1	1	0	0	3	5	10	5	0	0	0	10	10	11	11	"{Curse}
+
+Causes the selected enemy unit to inflict minimum damage in combat.
+"	"{Basic Curse}
+
+Causes the selected enemy unit to inflict minimum damage in combat.
+"	"{Advanced Curse}
+
+Causes the selected enemy unit to inflict less than their normal minimum damage in combat.
+"	"{Expert Curse}
+
+Causes all enemy units to inflict less than their normal minimum damage in combat.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Bloodlust	Bloodlust	1	 	 	x	 	5	4	4	4	0	3	3	6	6	0	0	0	10	5	5	10	5	5	7	7	15	15	"{Bloodlust}
+
+Increases the hand-to-hand damage inflicted by the selected unit.
+"	"{Basic Bloodlust}
+
+Increases the hand-to-hand damage inflicted by the selected unit.
+"	"{Advanced Bloodlust}
+
+Increases the hand-to-hand damage inflicted by the selected unit.
+
+Effect is twice that of Basic Bloodlust.
+"	"{Expert Bloodlust}
+
+Increases the hand-to-hand damage inflicted by all friendly units.
+
+Effect is twice that of Basic Bloodlust.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Precision	Precision	2	 	 	 	x	8	6	6	6	0	3	3	6	6	6	6	4	8	2	6	4	4	2	7	7	15	15	"{Precision}
+
+Increases the ranged attack damage inflicted by the selected unit.
+"	"{Basic Precision}
+
+Increases the ranged attack damage inflicted by the selected unit.
+"	"{Advanced Precision}
+
+Increases the ranged attack damage inflicted by the selected unit.
+
+Effect is twice that of Basic Precision.
+"	"{Expert Precision}
+
+Increases the ranged attack damage inflicted by all friendly units.
+
+Effect is twice that of Basic Precision.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Weakness	Weakness	2	 	x	 	 	8	6	6	6	0	3	3	6	6	2	2	2	8	4	4	4	4	4	7	7	15	15	"{Weakness}
+
+Reduces the selected enemy unit's attack strength.
+"	"{Basic Weakness}
+
+Reduces the selected enemy unit's attack strength.
+"	"{Advanced Weakness}
+
+Reduces the selected enemy unit's attack strength.
+
+Effect is twice that of Basic Weakness.
+"	"{Expert Weakness}
+
+Reduces the attack strength of all enemy units.
+
+Effect is twice that of Basic Weakness.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Stone Skin	Stone Skin	1	x	 	 	 	5	4	4	4	0	3	3	6	6	5	5	10	5	10	5	10	5	5	7	7	15	15	"{Stone Skin}
+
+Increases the selected unit's defense strength.
+"	"{Basic Stone Skin}
+
+Increases the selected unit's defense strength.
+"	"{Advanced Stone Skin}
+
+Increases the selected unit's defense strength.
+
+Effect is twice that of Basic Stone Skin.
+"	"{Expert Stone Skin}
+
+Increases the defense strength of all friendly units.
+
+Effect is twice that of Basic Stone Skin.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Disrupting Ray	Disrupting Ray	2	 	 	 	x	10	8	8	8	0	3	3	4	5	6	4	6	12	4	6	6	6	8	7	7	15	15	"{Disrupting Ray}
+
+Reduces the selected enemy unit's defense strength.  A single enemy may be targeted multiple times by this spell.
+"	"{Basic Disrupting Ray}
+
+Reduces the selected enemy unit's defense strength.  A single enemy may be targeted multiple times by this spell.
+"	"{Advanced Disrupting Ray}
+
+Reduces the selected enemy unit's defense strength.  A single enemy may be targeted multiple times by this spell.
+
+Effect is greater than that of Basic Disrupting Ray.
+"	"{Expert Disrupting Ray}
+
+Reduces the selected enemy unit's defense strength.  A single enemy may be targeted multiple times by this spell.
+
+Effect is greater than that of Advanced Disrupting Ray.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Prayer	Prayer	4	 	x	 	 	16	12	12	12	0	2	2	4	4	10	5	5	0	0	0	0	0	5	8	8	16	16	"{Prayer}
+
+Bestows a bonus to the attack strength, defense strength and speed of the selected unit.
+"	"{Basic Prayer}
+
+Bestows a bonus to the attack strength, defense strength and speed of the selected unit.
+"	"{Advanced Prayer}
+
+Bestows a bonus to the attack strength, defense strength and speed of the selected unit.
+
+Effect is twice that of Basic Prayer.
+"	"{Expert Prayer}
+
+Bestows a bonus to the attack strength, defense strength and speed of all friendly units.
+
+Effect is twice that of Basic Prayer.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Mirth	Mirth	3	 	x	 	 	12	9	9	9	0	1	1	2	2	4	4	4	2	4	4	12	2	4	1	1	2	2	"{Mirth}
+
+Increases the selected unit's morale.
+"	"{Basic Mirth}
+
+Increases the selected unit's morale.
+"	"{Advanced Mirth}
+
+Increases the selected unit's morale.
+
+Effect is twice that of Basic Mirth.
+"	"{Expert Mirth}
+
+Increases the morale of all friendly units.
+
+Effect is twice that of Basic Mirth.
+"	 COMBAT_SPELL|CREATURE_TARGET_2|MIND_SPELL
+Sorrow	Sorrow	4	x	 	 	 	16	12	12	12	0	1	1	2	2	5	5	5	5	5	5	0	0	5	1	1	2	2	"{Sorrow}
+
+Reduces the morale of the selected enemy unit.
+"	"{Basic Sorrow}
+
+Reduces the morale of the selected enemy unit.
+"	"{Advanced Sorrow}
+
+Reduces the morale of the selected enemy unit.
+
+Effect is twice that of Basic Sorrow.
+"	"{Expert Sorrow}
+
+Reduces the morale of all enemy units.
+
+Effect is twice that of Basic Sorrow.
+"	 COMBAT_SPELL|CREATURE_TARGET_2|MIND_SPELL
+Fortune	Fortune	2	 	 	 	x	7	5	5	5	0	1	1	2	2	4	6	4	4	2	2	4	4	2	1	1	2	2	"{Fortune}
+
+Increases the selected unit's luck.
+"	"{Basic Fortune}
+
+Increases the selected unit's luck.
+"	"{Advanced Fortune}
+
+Increases the selected unit's luck.
+
+Effect is twice that of Basic Fortune.
+"	"{Expert Fortune}
+
+Increases the luck of all friendly units.
+
+Effect is twice that of Basic Fortune.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Misfortune	Misfortune	3	 	 	x	 	12	9	9	9	0	1	1	2	2	4	4	4	6	8	4	4	2	4	1	1	2	2	"{Misfortune}
+
+Reduces the luck of the selected enemy unit.
+"	"{Basic Misfortune}
+
+Reduces the luck of the selected enemy unit.
+
+Spell Point cost is half that of Normal Misfortune.
+"	"{Advanced Misfortune}
+
+Reduces the luck of the selected enemy unit.
+
+Effect is twice that of Basic Misfortune.
+"	"{Expert Misfortune}
+
+Reduces the luck of all enemy units.
+
+Effect is twice that of Basic Misfortune.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Haste	Haste	1		 	 	x	6	5	5	5	0	3	3	5	5	5	10	5	5	5	10	5	10	10	5	5	10	10	"{Haste}
+
+Increases the speed of the selected unit.
+"	"{Basic Haste}
+
+Increases the speed of the selected unit.
+"	"{Advanced Haste}
+
+Increases the speed of the selected unit.
+
+Effect is nearly twice that of Basic Haste.
+"	"{Expert Haste}
+
+Increases the speed of all friendly units.
+
+Effect is nearly twice that of Basic Haste.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Slow	Slow	1	x	 	 	 	6	5	5	5	0	75	75	50	50	5	10	10	10	5	5	5	5	10	5	5	15	15	"{Slow}
+
+Reduces the speed of the selected enemy unit.
+"	"{Basic Slow}
+
+Reduces the speed of the selected enemy unit.
+"	"{Advanced Slow}
+
+Reduces the speed of the selected enemy unit.
+
+Effect is twice that of Basic Slow.
+"	"{Expert Slow}
+
+Reduces the speed of all enemy units.
+
+Effect is twice that of Basic Slow.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Slayer	Slayer	4	 		x	 	16	12	12	12	0	8	8	8	8	5	5	5	5	5	5	0	0	5	1	1	1	1	"{Slayer}
+
+Increases the amount of damage inflicted by a unit when fighting against Dragons, Behemoths and Hydras.
+"	"{Basic Slayer}
+
+Increases the amount of damage inflicted by a unit when fighting against Dragons, Behemoths and Hydras.
+"	"{Advanced Slayer}
+
+Increases the amount of damage inflicted by a unit when fighting against Dragons, Behemoths, Hydras, Devils and Angels.
+"	"{Expert Slayer}
+
+Increases the amount of damage inflicted by a unit when fighting against Dragons, Behemoths, Hydras, Devils, Angels and Titans.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Frenzy	Frenzy	4	 	 	x	 	16	12	12	12	0	100	100	150	200	5	5	5	5	5	5	0	0	5	10	10	20	30	"{Frenzy}
+
+Selected troop intentionally lowers its defenses to increase the ferocity of its attack.
+"	"{Basic Frenzy}
+
+Selected troop intentionally lowers its defenses to increase the ferocity of its attack.
+"	"{Advanced Frenzy}
+
+Selected troop intentionally lowers its defenses to increase the ferocity of its attack.
+
+Bonus to attack is 50% greater than Basic Frenzy.
+"	"{Expert Frenzy}
+
+Selected troop intentionally lowers its defenses to increase the ferocity of its attack.
+
+Bonus to attack is double Basic Frenzy.
+"	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Fear ( disabled )	Fear ( disabled )	4	 	 	 	 	16	8	8	8	0	75	75	50	25	0	0	0	0	0	0	0	0	0	50	50	50	50	"{Fear}
+
+Strikes an enemy unit with such fear that it becomes unable to attack and nearly unable to move.
+"	"{Basic Fear}
+
+Strikes an enemy unit with such fear that it becomes unable to attack and nearly unable to move.
+
+Spell Point cost is half that of Normal Fear.
+"	"{Advanced Fear}
+
+Strikes an enemy unit with such fear that it becomes unable to attack and nearly unable to move.
+
+Penalty to movement is twice that of Basic Fear.
+"	"{Expert Fear}
+
+Strikes an enemy unit with such fear that it becomes unable to attack and nearly unable to move.
+
+Penalty to movement is three times that of Basic Fear.
+"	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Counterstrike	Counterstrike	4	 	 	 	x	24	20	20	20	0	1	1	2	2	5	10	5	5	5	5	0	0	5	20	20	30	30	"{Counterstrike}
+
+The selected unit will retaliate against one additional attack each round.
+"	"{Basic Counterstrike}
+
+The selected unit will retaliate against one additional attack each round.
+"	"{Advanced Counterstrike}
+
+The selected unit will retaliate against two additional attacks each round.
+"	"{Expert Counterstrike}
+
+All friendly units will retaliate against two additional attacks each round.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Berserk	Berserk	4	 	 	x	 	20	16	16	16	0	0	0	1	2	5	5	5	5	10	5	0	0	5	60	60	60	60	"{Berserk}
+
+The targeted unit will randomly attack the nearest unit, be it friend or foe.
+"	"{Basic Berserk}
+
+The targeted unit will randomly attack the nearest unit, be it friend or foe.
+"	"{Advanced Berserk}
+
+The targeted unit will randomly attack the nearest unit, be it friend or foe.
+
+Area of effect is six hexes greater than Basic Berserk.
+"	"{Expert Berserk}
+
+The targeted unit will randomly attack the nearest unit, be it friend or foe.
+
+Area of effect is eighteen hexes greater than Basic Berserk.
+"	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Hypnotize	Hypnotize	3	 	 	 	x	18	15	15	15	25	10	10	20	50	4	4	8	6	0	8	4	4	12	25	25	50	100	"{Hypnotize}
+
+Puts an enemy unit temporarily under your control.
+"	"{Basic Hypnotize}
+
+Puts an enemy unit temporarily under your control.
+"	"{Advanced Hypnotize}
+
+Puts an enemy unit temporarily under your control.
+
+Allows you to control an additional 10 hit points of enemies over Basic Hypnotize.
+"	"{Expert Hypnotize}
+
+Puts an enemy unit temporarily under your control.
+
+Allows you to control an additional 40 hit points of enemies over Basic Hypnotize.
+"	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Forgetfulness	Forgetfulness	3	 	x	 	 	12	9	9	9	0	0	0	0	0	8	8	4	4	4	4	4	4	8	1	1	1	1	"{Forgetfulness}
+
+Half of the selected enemy unit forgets to use its ranged attack.
+"	"{Basic Forgetfulness}
+
+Half of the selected enemy unit forgets to use its ranged attack.
+"	"{Advanced Forgetfulness}
+
+Causes the selected enemy unit to forget to use its ranged attack in combat.
+"	"{Expert Forgetfulness}
+
+Causes all enemy troops to forget to use their ranged attack in combat.
+"	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Blind	Blind	2	 	 	x	 	10	8	8	8	0	50	50	25	0	4	6	2	12	4	4	4	6	8	50	50	50	50	"{Blind}
+
+Blinds a creature so that it cannot move and causes it to counterattack at half its normal attack strength.  Blindness persists until the unit is attacked or dispelled.
+"	"{Basic Blind}
+
+Blinds a creature so that it cannot move and causes it to counterattack at half its normal attack strength.  Blindness persists until the unit is attacked or dispelled.
+"	"{Advanced Blind}
+
+Blinds a creature so that it cannot move and causes it to counterattack at one-quarter of its normal attack strength.  Blindness persists until the unit is attacked or dispelled.
+"	"{Expert Blind}
+
+Blinds a creature so that it cannot move or counterattack.  Blindness persists until the unit is attacked or dispelled.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Teleport	Teleport	3	 	x	 	 	15	12	6	3	0	0	0	0	0	8	8	8	8	8	8	8	10	8	20	20	20	20	"{Teleport}
+
+Teleports any friendly unit to any unoccupied spot on the battlefield.
+"	"{Basic Teleport}
+
+Teleports any friendly unit to an unoccupied spot on the battlefield.
+
+Troop cannot teleport over walls or moats.
+"	"{Advanced Teleport}
+
+Teleports any friendly unit to an unoccupied spot on the battlefield.
+
+Troop cannot teleport over walls.
+"	"{Expert Teleport}
+
+Teleports any friendly unit to any unoccupied spot on the battlefield.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Remove Obstacle	Remove Obstacle	2	 	x	 	 	7	5	5	5	0	0	0	0	0	4	4	6	4	4	4	4	4	4	1	1	1	1	"{Remove Obstacle}
+
+Removes any normal obstacle (trees, rocks, etc.) of the caster's choice from the battlefield.
+"	"{Basic Remove Obstacle}
+
+Removes any normal obstacle (trees, rocks, etc.) of the caster's choice from the battlefield.
+"	"{Advanced Remove Obstacle}
+
+Removes any normal obstacle (trees, rocks, etc.) or Fire Wall of the caster's choice from the battlefield.
+"	"{Expert Remove Obstacle}
+
+Removes any normal or magical obstacle of the caster's choice from the battlefield.
+"	 COMBAT_SPELL|OBSTACLE_TARGET
+Clone	Clone	4	 	x	 	 	24	20	20	20	0	5	5	6	7	5	5	10	5	5	5	0	0	10	20	20	40	50	"{Clone}
+
+Creates a duplicate of the selected unit stack.  The image is dispelled if it is attacked.
+
+Clones creatures of levels 1-5.
+"	"{Basic Clone}
+
+Creates a duplicate of the selected unit stack.  The image is dispelled if it is attacked.
+
+Clones creatures of levels 1-5.
+"	"{Advanced Clone}
+
+Creates a duplicate of the selected unit stack.  The image is dispelled if it is attacked.
+
+Clones creatures of levels 1-6.
+"	"{Expert Clone}
+
+Creates a duplicate of the selected unit stack.  The image is dispelled if it is attacked.
+
+Clones creatures of any level.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Fire Elemental	Fire Elemental	5			x		25	20	20	20	0	2	2	3	4	0	0	0	16	0	12	0	0	12	50	50	100	150	"{Summon Fire Elemental}
+
+Allows you to summon fire elementals.  Once cast, no other elemental types may be summoned.
+"	"{Basic Summon Fire Elemental}
+
+Allows you to summon fire elementals.  Once cast, no other elemental types may be summoned.
+"	"{Advanced Summon Fire Elemental}
+
+Allows you to summon fire elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately one-and-a-half times the number of units as Basic Summon Fire Elemental.
+"	"{Expert Summon Fire Elemental}
+
+Allows you to summon fire elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately twice the number of units as Basic Summon Fire Elemental.
+"	 COMBAT_SPELL
+Earth Elemental	Earth Elemental	5	x				25	20	20	20	0	2	2	3	4	0	16	14	16	16	12	0	0	12	50	50	100	150	"{Summon Earth Elemental}
+
+Allows you to summon earth elementals.  Once cast, no other elemental types may be summoned.
+"	"{Basic Summon Earth Elemental}
+
+Allows you to summon earth elementals.  Once cast, no other elemental types may be summoned.
+"	"{Advanced Summon Earth Elemental}
+
+Allows you to summon earth elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately one-and-a-half times the number of units as Basic Summon Creature.
+"	"{Expert Summon Earth Elemental}
+
+Allows you to summon earth elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately twice the number of units as Basic Summon Creature.
+"	 COMBAT_SPELL
+Water Elemental	Water Elemental	5		x			25	20	20	20	0	2	2	3	4	0	16	14	0	0	12	0	0	12	50	50	100	150	"{Summon Water Elemental}
+
+Allows you to summon water elementals.  Once cast, no other elemental types may be summoned.
+"	"{Basic Summon Water Elemental}
+
+Allows you to summon water elementals.  Once cast, no other elemental types may be summoned.
+"	"{Advanced Summon Water Elemental}
+
+Allows you to summon water elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately one-and-a-half times the number of units as Basic Summon Water Elemental.
+"	"{Expert Summon Water Elemental}
+
+Allows you to summon water elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately twice the number of units as Basic Summon Water Elemental.
+"	 COMBAT_SPELL
+Air Elemental	Air Elemental	5				x	25	20	20	20	0	2	2	3	4	0	0	14	0	16	0	0	0	12	50	50	100	150	"{Summon Air Elemental}
+
+Allows you to summon air elementals.  Once cast, no other elemental types may be summoned.
+"	"{Basic Summon Air Elemental}
+
+Allows you to summon air elementals.  Once cast, no other elemental types may be summoned.
+"	"{Advanced Summon Air Elemental}
+
+Allows you to summon air elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately one-and-a-half times the number of units as Basic Summon Air Elemental.
+"	"{Expert Summon Air Elemental}
+
+Allows you to summon air elementals.  Once cast, no other elemental types may be summoned.
+
+Summons approximately twice the number of units as Basic Summon Air Elemental.
+"	 COMBAT_SPELL
+																																	
+Creature Abilities																																	
+																																	
+Stone Gaze	Stone Gaze	3					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Poison	Poison	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Bind	Bind	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Disease	Disease	2					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Paralyze	Paralyze	4					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Age	Age	5					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Death Cloud	Death Cloud	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Thunderbolt	Thunderbolt	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Dispel Helpful Spells	Dispel Helpful Spells	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					
+Death Stare	Death Stare	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					
+Acid breath	Acid Breath	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					
