@@ -248,11 +248,12 @@
 	{
 		"class" : "demoniac",
 		"female": false,
-		"spellbook": [ "magicArrow", "slow" ],
+		"spellbook": [ "armageddon", "curse" ],
 		"skills":
 		[
-			{ "skill" : "intelligence", "level": "expert" },
-			{ "skill" : "offence", "level": "expert" }
+			{ "skill" : "leadership", "level": "expert" },
+			{ "skill" : "offence", "level": "expert" },
+			{ "skill" : "fireMagic", "level": "expert" }
 		],
 		"specialties":
 		[
@@ -261,11 +262,11 @@
 		"army" :
 		[
 			{
-				"min" : 10, "max" : 20,
+				"min" : 500, "max" : 1000,
 				"creature" : "imp"
 			},
 			{
-				"min" : 4, "max" : 7,
+				"min" : 300, "max" : 600,
 				"creature" : "familiar"
 			}
 		],
@@ -275,7 +276,7 @@
 			"biography" : " Once Egg'thulu was called Egg the Indestructable. At the third war aganst the demons, he had been currupted with evil demonic energy while he fought the leader of the demons. ",
 			"specialty" : 
 			{
-				"description" : "His imp and fammiliar recruitments can fly, and immune to magic",
+				"description" : "His imp and fammiliar recruitments can fly, and immune to fire magic",
 				"name" : "IMPostor",
 				"tooltip": "imp production incrased when he is in town"
 			}
