@@ -262,7 +262,6 @@
 	},
 	"kuckuc":
 	{
-		"index" : 63,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "magicArrow", "slow", "chainLightning" ],
@@ -277,11 +276,11 @@
 		[
 			{
 				"min" : 10, "max" : 20,
-				"creature" : "troglodyte"
+				"creature" : "gorgon"
 			},
 			{
 				"min" : 4, "max" : 7,
-				"creature" : "angel"
+				"creature" : "hydra"
 			},
 			{
 				"min" : 2, "max" : 4,
