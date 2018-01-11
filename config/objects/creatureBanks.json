@@ -2,19 +2,11 @@
 	"creatureBank" : {
 		"index" :16,
 		"handler": "bank",
-		"base" : {
-			"sounds" : {
-				"visit" : ["ROGUE"]
-			}
-		},
 		"types" : {
 			"cyclopsStockpile" :
 			{
 				"index" : 0,
 				"name" : "Cyclops Stockpile",
-				"sounds" : {
-					"ambient" : ["LOOPCAVE"]
-				},
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 100
@@ -120,9 +112,6 @@
 				"index" : 1,
 				"resetDuration" : 0,
 				"name" : "Dwarven Treasury",
-				"sounds" : {
-					"ambient" : ["LOOPDWAR"]
-				},
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -210,9 +199,6 @@
 				"index" : 2,
 				"resetDuration" : 0,
 				"name" : "Griffin Conservatory",
-				"sounds" : {
-					"ambient" : ["LOOPGRIF"]
-				},
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -284,9 +270,6 @@
 				"index" : 3,
 				"resetDuration" : 0,
 				"name" : "Imp Cache",
-				"sounds" : {
-					"ambient" : ["LOOPFIRE"]
-				},
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 100
@@ -373,9 +356,6 @@
 				"index" : 4,
 				"resetDuration" : 0,
 				"name" : "Medusa Stores",
-				"sounds" : {
-					"ambient" : ["LOOPMEDU"]
-				},
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -463,9 +443,6 @@
 				"index" : 5,
 				"resetDuration" : 0,
 				"name" : "Naga Bank",
-				"sounds" : {
-					"ambient" : ["LOOPNAGA"]
-				},
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 100
@@ -553,9 +530,6 @@
 				"index" : 6,
 				"resetDuration" : 0,
 				"name" : "Dragon Fly Hive",
-				"sounds" : {
-					"ambient" : ["LOOPLEAR"]
-				},
 				"rmg" : {
 					"value"		: 9000,
 					"rarity"	: 100
@@ -811,12 +785,6 @@
 	"crypt" : {
 		"index" :84,
 		"handler": "bank",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPDEAD"],
-				"visit" : ["GRAVEYARD"]
-			}
-		},
 		"types" : {
 			"crypt" : {
 				"index" : 0,
@@ -906,12 +874,6 @@
 	"dragonUtopia" : {
 		"index" :25,
 		"handler": "bank",
-		"base" : {
-			"sounds" : {
-				"ambient" : ["LOOPDRAG"],
-				"visit" : ["DRAGON"]
-			}
-		},
 		"types" : {
 			"dragonUtopia" : {
 				"index" : 0,
@@ -1021,11 +983,6 @@
 	"pyramid" : {
 		"index" :63,
 		"handler": "bank",
-		"base" : {
-			"sounds" : {
-				"visit" : ["MYSTERY"]
-			}
-		},
 		"types" : {
 			"pyramid" : {
 				"index" : 0,

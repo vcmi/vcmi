@@ -17,26 +17,22 @@
 	"catapult":
 	{
 		"index" : 3,
-		"type" : ["HERO"],
-		"warMachine" : "catapult"
+		"type" : ["HERO"]
 	},
 	"ballista":
 	{
 		"index" : 4,
-		"type" : ["HERO"],
-		"warMachine" : "ballista"
+		"type" : ["HERO"]
 	},
 	"ammoCart":
 	{
 		"index" : 5,
-		"type" : ["HERO"],
-		"warMachine" : "ammoCart"
+		"type" : ["HERO"]
 	},
 	"firstAidTent":
 	{
 		"index" : 6,
-		"type" : ["HERO"],
-		"warMachine" : "firstAidTent"
+		"type" : ["HERO"]
 	},
 	"centaurAxe":
 	{
@@ -1337,7 +1333,7 @@
 				"subtype" : 1,
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
-			}
+			}			
 		],
 		"index" : 93,
 		"type" : ["HERO"]

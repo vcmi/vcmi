@@ -13,7 +13,6 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				//no cumulative effect even with mods here
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
@@ -44,7 +43,6 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				//no cumulative effect even with mods here
 				"effects" : {
 					"generalDamageReduction" : {
 						"type" : "GENERAL_DAMAGE_REDUCTION",
@@ -560,7 +558,7 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"cumulativeEffects" : {
+				"effects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
 						"subtype" : "primSkill.defence",
@@ -571,14 +569,14 @@
 				}
 			},
 			"advanced":{
-				"cumulativeEffects" : {
+				"effects" : {
 					"primarySkill" : {
 						"val" : -4
 					}
 				}
 			},
 			"expert":{
-				"cumulativeEffects" : {
+				"effects" : {
 					"primarySkill" : {
 						"val" : -5
 					}

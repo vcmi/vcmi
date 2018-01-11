@@ -1,37 +1,3 @@
-0.99 -> 1.00
-
-GENERAL:
-* Spectator mode was implemented through command-line options
-* Some main menu settings get saved after returning to main menu - last selected map, save etc.
-* Restart scenario button should work correctly now
-* New bonuses:
-- SOUL_STEAL - "WoG ghost" ability, should work somewhat same as in H3
-- TRANSMUTATION - "WoG werewolf"-like ability
-- SUMMON_GUARDIANS - "WoG santa gremlin"-like ability + two-hex unit extension
-- CATAPULT_EXTRA_SHOTS - defines number of extra wall attacks for units that can do so
-- RANGED_RETALIATION - allows ranged counterattack
-- BLOCKS_RANGED_RETALIATION - disallow enemy ranged counterattack
-- SECONDARY_SKILL_VAL2 - set additional parameter for certain secondary skills
-- MANUAL_CONTROL - grant manual control over war machine
-- WIDE_BREATH - melee creature attacks affect many nearby hexes
-- FIRST_STRIKE - creature counterattacks before attack if possible
-- SYNERGY_TARGET - placeholder bonus for Mod Design Team (subject to removal in future)
-- SHOOTS_ALL_ADJACENT - makes creature shots affect all neighbouring hexes
-- BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
-- DESTRUCTION - creature ability for killing extra units after hit, configurable
-
-SPELLS:
-* Implemented cumulative effects for spells
-
-MODS:
-* Improve support for WoG commander artifacts and skill descriptions
-* Added basic support for secondary skill modding
-* Map object sounds can now be configured via json
-
-SOUND:
-* Fixed many mising or wrong pickup and visit sounds for map objects
-* All map objects now have ambient sounds identical to OH3
-
 0.98 -> 0.99
 
 GENERAL:
@@ -55,7 +21,7 @@ BATTLES:
 * Merging of town and visiting hero armies on siege implemented
 * Hero info tooltip for skills and mana implemented
 
-ADVENTURE AI:
+ADVETURE AI:
 * Fixed AI trying to go through underground rock
 * Fixed several cases causing AI wandering aimlessly
 * AI can again pick best artifacts and exchange artifacts between heroes

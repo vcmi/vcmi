@@ -1,0 +1,109 @@
+{
+	"Gimlis Revenge" :
+	{
+		"minSize" : "m", "maxSize" : "l",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 15,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "ore" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 10000, "max" : 15000, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 6 },
+					{ "min" : 500, "max" : 3000, "density" : 9 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 15,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "normal",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 15,
+				"monsters" : "normal",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"8" :
+			{
+				"type" : "junction",
+				"size" : 10,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 20000, "density" : 1 },
+					{ "min" : 10000, "max" : 15000, "density" : 6 },
+					{ "min" : 3000, "max" : 6000, "density" : 9 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 6000 },
+			{ "a" : "2", "b" : "4", "guard" : 6000 },
+			{ "a" : "3", "b" : "5", "guard" : 9000 },
+			{ "a" : "5", "b" : "6", "guard" : 9000 },
+			{ "a" : "4", "b" : "6", "guard" : 9000 },
+			{ "a" : "6", "b" : "7", "guard" : 12000 },
+			{ "a" : "6", "b" : "8", "guard" : 12000 },
+			{ "a" : "5", "b" : "8", "guard" : 12000 },
+			{ "a" : "4", "b" : "7", "guard" : 12000 }
+		]
+	}
+}

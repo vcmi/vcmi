@@ -1,0 +1,63 @@
+{
+	"Schaafworld" :
+	{
+		"minSize" : "l", "maxSize" : "xl",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "grass" ],
+				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 5000, "max" : 14000, "density" : 1 },
+					{ "min" : 3000, "max" : 6000, "density" : 6 },
+					{ "min" : 500, "max" : 3000, "density" : 9 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 2 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypeLikeZone" : 1,
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 5,
+				"owner" : 3,
+				"monsters" : "strong",
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"minesLikeZone" : 1,
+				"treasure" :
+				[
+					{ "min" : 14000, "max" : 20000, "density" : 3 },
+					{ "min" : 5000, "max" : 8000, "density" : 6 },
+					{ "min" : 1000, "max" : 5000, "density" : 9 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 80000 },
+			{ "a" : "2", "b" : "3", "guard" : 80000 }
+		]
+	}
+}

@@ -1,0 +1,165 @@
+{
+	"Balance (sc2tv tourney edition)" :
+	{
+		"minSize" : "m", "maxSize" : "m+u",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart",
+				"size" : 8,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"townsAreSameType" : true,
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "mercury" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 1000, "max" : 2100, "density" : 4 },
+					{ "min" : 3500, "max" : 4900, "density" : 7 },
+					{ "min" : 800, "max" : 800, "density" : 2 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 8,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"neutralTowns" : { "towns" : 1 },
+				"townsAreSameType" : true,
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "strong",
+				"neutralTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "necropolis", "conflux" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "grass", "snow", "rough", "subterra", "lava" ],
+				"treasure" :
+				[
+					{ "min" : 100, "max" : 2000, "density" : 3 },
+					{ "min" : 4000, "max" : 5000, "density" : 6 },
+					{ "min" : 7000, "max" : 9000, "density" : 9 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "strong",
+				"terrainTypeLikeZone" : 3,
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 800, "max" : 2000, "density" : 3 },
+					{ "min" : 4000, "max" : 5000, "density" : 6 },
+					{ "min" : 7000, "max" : 9000, "density" : 9 }
+				]
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "strong",
+				"allowedTowns" : [ "necropolis", "conflux" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "sand" ],
+				"mines" : { "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 5000, "max" : 5000, "density" : 5 },
+					{ "min" : 8000, "max" : 8500, "density" : 7 },
+					{ "min" : 8000, "max" : 9500, "density" : 7 }
+				]
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "normal",
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "grass", "subterra", "lava" ],
+				"mines" : { "sulfur" : 1, "gems" : 1 },
+				"treasure" :
+				[
+					{ "min" : 800, "max" : 2100, "density" : 5 },
+					{ "min" : 4000, "max" : 5000, "density" : 5 },
+					{ "min" : 6000, "max" : 8000, "density" : 7 }
+				]
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"mines" : { "crystal" : 1 },
+				"treasureLikeZone" : 6
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "normal",
+				"terrainTypeLikeZone" : 6,
+				"minesLikeZone" : 7,
+				"treasureLikeZone" : 6
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 4,
+				"monsters" : "normal",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "conflux" ],
+				"minesLikeZone" : 6,
+				"treasureLikeZone" : 6
+			},
+			"10" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"allowedTowns" : [ "necropolis", "conflux" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "sand", "grass", "rough", "subterra", "lava" ],
+				"mines" : { "gold" : 2 },
+				"treasure" :
+				[
+					{ "min" : 9500, "max" : 9900, "density" : 50 },
+					{ "min" : 0, "max" : 0, "density" : 1 },
+					{ "min" : 0, "max" : 0, "density" : 1 }
+				]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "6", "guard" : 5000 },
+			{ "a" : "1", "b" : "7", "guard" : 5000 },
+			{ "a" : "2", "b" : "8", "guard" : 5000 },
+			{ "a" : "2", "b" : "9", "guard" : 5000 },
+			{ "a" : "6", "b" : "3", "guard" : 11000 },
+			{ "a" : "7", "b" : "4", "guard" : 12000 },
+			{ "a" : "8", "b" : "3", "guard" : 11000 },
+			{ "a" : "9", "b" : "4", "guard" : 12000 },
+			{ "a" : "3", "b" : "4", "guard" : 0 },
+			{ "a" : "3", "b" : "4", "guard" : 0 },
+			{ "a" : "1", "b" : "5", "guard" : 20000 },
+			{ "a" : "2", "b" : "5", "guard" : 20000 },
+			{ "a" : "5", "b" : "10", "guard" : 16000 },
+			{ "a" : "4", "b" : "5", "guard" : 0 },
+			{ "a" : "4", "b" : "5", "guard" : 0 }
+		]
+	}
+}

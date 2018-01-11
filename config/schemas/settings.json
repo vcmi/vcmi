@@ -5,8 +5,8 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"required" : [ "general", "video", "adventure", "pathfinder", "battle", "server", "logging", "launcher" ],
 	"definitions" : {
-		"logLevelEnum" : {
-			"type" : "string",
+		"logLevelEnum" : { 
+			"type" : "string", 
 			"enum" : [ "trace", "debug", "info", "warn", "error" ]
 		}
 	},
@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -38,14 +38,6 @@
 				"encoding" : {
 					"type" : "string",
 					"default" : "CP1252"
-				},
-				"swipe" : {
-					"type" : "boolean",
-					"default" : true
-				},
-				"saveRandomMaps" : {
-					"type" : "boolean",
-					"default" : false
 				}
 			}
 		},
@@ -53,7 +45,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "realFullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
+			"required" : [ "screenRes", "bitsPerPixel", "fullscreen", "spellbookAnimation","driver", "showIntro", "displayIndex" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
@@ -69,11 +61,7 @@
 					"type" : "number",
 					"default" : 32
 				},
-				"fullscreen": {
-					"type": "boolean",
-					"default": false
-				},
-				"realFullscreen" : {
+				"fullscreen" : {
 					"type" : "boolean",
 					"default" : false
 				},
@@ -224,7 +212,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "neutralAI" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -242,17 +230,9 @@
 					"type" : "string",
 					"default" : "VCAI"
 				},
-				"friendlyAI" : {
-					"type" : "string",
-					"default" : "BattleAI"
-				},
 				"neutralAI" : {
 					"type" : "string",
 					"default" : "StupidAI"
-				},
-				"enemyAI" : {
-					"type" : "string",
-					"default" : "BattleAI"
 				}
 			}
 		},

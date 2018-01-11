@@ -4,6 +4,18 @@
 		"index": 42,
 		"level": 1,
 		"faction": "inferno",
+		"abilities": 
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
+			}
+		},
 		"upgrades": ["familiar"],
 		"graphics" :
 		{
@@ -29,6 +41,15 @@
 			{
 				"type" : "MANA_CHANNELING",
 				"val" : 20
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			}
 		},
 		"graphics" :

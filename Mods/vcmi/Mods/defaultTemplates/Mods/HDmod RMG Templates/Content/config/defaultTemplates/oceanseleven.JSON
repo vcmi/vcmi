@@ -1,0 +1,160 @@
+{
+	"Oceans Eleven" :
+	{
+		"minSize" : "m+u", "maxSize" : "l+u",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "grass" ],
+				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 1 },
+				"treasure" :
+				[
+					{ "min" : 5000, "max" : 6000, "density" : 1 },
+					{ "min" : 4000, "max" : 5000, "density" : 10 },
+					{ "min" : 500, "max" : 3000, "density" : 9 }
+				]
+			},
+			"2" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 1,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"mines" : { "wood" : 1, "ore" : 1 },
+				"treasure" :
+				[
+					{ "min" : 4000, "max" : 6000, "density" : 1 },
+					{ "min" : 4000, "max" : 6000, "density" : 10 },
+					{ "min" : 2000, "max" : 3000, "density" : 9 }
+				]
+			},
+			"3" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 7000, "max" : 8000, "density" : 1 },
+					{ "min" : 6000, "max" : 8000, "density" : 9 },
+					{ "min" : 2000, "max" : 3000, "density" : 9 }
+				]
+			},
+			"4" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasure" :
+				[
+					{ "min" : 9000, "max" : 11000, "density" : 1 },
+					{ "min" : 5000, "max" : 7000, "density" : 9 },
+					{ "min" : 3000, "max" : 4000, "density" : 9 }
+				]
+			},
+			"5" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 4
+			},
+			"6" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"neutralTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"terrainTypes" : [ "dirt", "sand", "snow", "swamp", "lava" ],
+				"treasure" :
+				[
+					{ "min" : 15000, "max" : 20000, "density" : 1 },
+					{ "min" : 6000, "max" : 8000, "density" : 8 },
+					{ "min" : 2000, "max" : 3000, "density" : 10 }
+				]
+			},
+			"7" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 4
+			},
+			"8" :
+			{
+				"type" : "treasure",
+				"size" : 10,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 4
+			},
+			"9" :
+			{
+				"type" : "treasure",
+				"size" : 12,
+				"monsters" : "strong",
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"matchTerrainToTown" : false,
+				"treasureLikeZone" : 3
+			},
+			"10" :
+			{
+				"type" : "playerStart",
+				"size" : 10,
+				"owner" : 2,
+				"monsters" : "normal",
+				"playerTowns" : { "castles" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"minesLikeZone" : 2,
+				"treasureLikeZone" : 2
+			},
+			"11" :
+			{
+				"type" : "treasure",
+				"size" : 8,
+				"monsters" : "strong",
+				"neutralTowns" : { "towns" : 1 },
+				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
+				"terrainTypes" : [ "grass" ],
+				"minesLikeZone" : 1,
+				"treasureLikeZone" : 1
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "2", "guard" : 5000 },
+			{ "a" : "2", "b" : "3", "guard" : 6000 },
+			{ "a" : "3", "b" : "4", "guard" : 7000 },
+			{ "a" : "3", "b" : "5", "guard" : 7000 },
+			{ "a" : "4", "b" : "5", "guard" : 6000 },
+			{ "a" : "4", "b" : "6", "guard" : 9000 },
+			{ "a" : "5", "b" : "6", "guard" : 9000 },
+			{ "a" : "6", "b" : "7", "guard" : 9000 },
+			{ "a" : "6", "b" : "8", "guard" : 9000 },
+			{ "a" : "7", "b" : "8", "guard" : 6000 },
+			{ "a" : "7", "b" : "9", "guard" : 7000 },
+			{ "a" : "9", "b" : "10", "guard" : 6000 },
+			{ "a" : "10", "b" : "11", "guard" : 5000 }
+		]
+	}
+}
