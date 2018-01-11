@@ -311,7 +311,7 @@
 		"upgrades": ["archangel"],
 		"graphics" :
 		{
-			"animation": "CDEVIL.DEF"
+			"animation": "CANGEL.DEF"
 		},
 		"sound" :
 		{
