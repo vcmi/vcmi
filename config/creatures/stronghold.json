@@ -218,13 +218,13 @@
 			{
 				"type" : "SPECIFIC_SPELL_POWER",
 				"subtype" : "spell.thunderbolt",
-				"val" : 10
+				"val" : 20
 			},
 			"thunderOnAttack" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.thunderbolt",
-				"val" : 20
+				"val" : 60
 			}
 		},
 		"graphics" :
