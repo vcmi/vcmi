@@ -42,21 +42,21 @@
 			{ "type":1, "val": 0, "subtype": 0, "info": 48 }
 		]
 	},
-	"ignatius":
-	{
-		"index": 51,
-		"class" : "demoniac",
-		"female": false,
-		"skills":
-		[
-			{ "skill" : "tactics", "level": "basic" },
-			{ "skill" : "resistance", "level": "basic" }
-		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
-		]
-	},
+	// "ignatius":
+	// {
+	// 	"index": 51,
+	// 	"class" : "demoniac",
+	// 	"female": false,
+	// 	"skills":
+	// 	[
+	// 		{ "skill" : "tactics", "level": "basic" },
+	// 		{ "skill" : "resistance", "level": "basic" }
+	// 	],
+	// 	"specialties":
+	// 	[
+	// 		{ "type":1, "val": 0, "subtype": 0, "info": 42 }
+	// 	]
+	// },
 	"octavia":
 	{
 		"index": 52,
@@ -246,6 +246,7 @@
 	},
 	"egg":
 	{
+		"index": 51,
 		"class" : "demoniac",
 		"female": false,
 		"spellbook": [ "armageddon", "curse" ],
@@ -280,11 +281,6 @@
 				"name" : "IMPostor",
 				"tooltip": "imp production incrased when he is in town"
 			}
-		},
-		"images" :
-		{
-			"small" : "HPS158DM.bmp",
-			"large" : "HPL158DM.bmp"
 		}
 	}
 }

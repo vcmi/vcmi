@@ -55,8 +55,8 @@ Titan	Titans	0	0	0	0	0	6	8000	5000	7500	1	0	800	11	40	40	80	120	24	0	3	8	No mele
                                    																								
 																								
 																								
-Imp	Imps	0	0	0	0	0	0	20	50	50	22	8	4	5	2	3	1	2	0	0	20	50	Immune to fire.	FLYING_ARMY
-Familiar	Familiars	0	0	0	0	0	0	25	60	60	22	8	4	7	4	4	1	2	0	0	20	30	Magic channel. Immune to fire.	FLYING_ARMY
+Imp	Imps	0	0	0	0	0	0	20	50	50	22	8	5	5	2	3	2	3	0	0	20	50	Immune to fire.	FLYING_ARMY
+Familiar	Familiars	0	0	0	0	0	0	25	60	60	22	8	6	7	4	4	3	4	0	0	20	30	Magic channel. Immune to fire.	FLYING_ARMY
 Gog	Gogs	0	0	0	0	0	0	125	145	159	8	0	13	4	7	4	5	8	20	0	16	30		SHOOTING_ARMY
 Magog	Magogs	0	0	0	0	0	0	175	210	240	8	0	16	6	9	4	6	8	40	0	16	25	Fireball attack.	SHOOTING_ARMY
 Hell Hound	Hell Hounds	0	0	0	0	0	0	200	275	357	5	3	35	7	14	6	5	10	0	0	12	25		DOUBLE_WIDE | FLYING_ARMY
