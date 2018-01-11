@@ -4,6 +4,13 @@
 		"index": 42,
 		"level": 1,
 		"faction": "inferno",
+		"abilities": 
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"upgrades": ["familiar"],
 		"graphics" :
 		{
@@ -29,6 +36,10 @@
 			{
 				"type" : "MANA_CHANNELING",
 				"val" : 20
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
 			}
 		},
 		"graphics" :
@@ -108,11 +119,7 @@
 		"upgrades": ["cerberus"],
 		"abilities":
 		{
-			"FLYING_ARMY" : 
-			{
-				// null //cerberus doesn't fly
-				"subtype" : 1 
-			}
+			 "FLYING_ARMY" : null //hell hound doesn't fly
 		},
 		"graphics" :
 		{
@@ -142,11 +149,7 @@
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"FLYING_ARMY" : 
-			{
-				// null //cerberus doesn't fly
-				"subtype" : 1 
-			}
+			"FLYING_ARMY" : null //cerberus doesn't fly
 		},
 		"graphics" :
 		{

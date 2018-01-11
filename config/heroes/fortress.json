@@ -259,5 +259,49 @@
 		[
 			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
 		]
-	}
+	},
+	"mrfox":
+	{
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "magicArrow", "slow", "chainLightning" ],
+		"skills":
+		[
+			{ "skill" : "intelligence", "level": "expert" },
+			{ "skill" : "wisdom", "level": "expert" },
+			{ "skill" : "learning", "level": "expert" },
+			{ "skill" : "sorcery", "level": "expert" }
+		],
+		"army" :
+		[
+			{
+				"min" : 10, "max" : 20,
+				"creature" : "gorgon"
+			},
+			{
+				"min" : 4, "max" : 7,
+				"creature" : "hydra"
+			},
+			{
+				"min" : 2, "max" : 4,
+				"creature" : "serpentFly"
+			}
+		],
+		"texts" :
+		{
+			"name" : "Mr.Fox",
+			"biography" : "Mr.Fox was a brilliant young software developer, but when he decided to create a new mod for Heroes 3 he got sucked in the game.",
+			"specialty" : 
+			{
+				"description" : "Develop the shit out of his enemies.",
+				"name" : "Developacolypse",
+				"tooltip": "Develop the shit out of his enemies."
+			}
+		},
+		"images" :
+		{
+			"small" : "HPS156WL.bmp",
+			"large" : "HPL156WL.bmp"
+		}
+	},
 }
