@@ -260,7 +260,7 @@
 			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
 		]
 	},
-	"kuckuc":
+	"mrfox":
 	{
 		"class" : "witch",
 		"female": true,
@@ -289,13 +289,13 @@
 		],
 		"texts" :
 		{
-			"name" : "Kuckuc",
-			"biography" : "He farts a lot.",
+			"name" : "Mr.Fox",
+			"biography" : "Mr.Fox was a brilliant young software developer, but when he decided to create a new mod for Heroes 3 he got sucked in the game.",
 			"specialty" : 
 			{
-				"description" : "His fart is so smelly it confuses enemies.",
-				"name" : "Fartmeister",
-				"tooltip": "His fart is so smelly it confuses enemies."
+				"description" : "Develop the shit out of his enemies.",
+				"name" : "Developacolypse",
+				"tooltip": "Develop the shit out of his enemies."
 			}
 		},
 		"images" :
