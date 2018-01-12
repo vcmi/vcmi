@@ -115,7 +115,12 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-		        "crystals" :
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 20
+			},
+			"crystals" :
 			{
 				"type" : "GENERATE_RESOURCE",
 				"subtype" : "resource.crystal",
