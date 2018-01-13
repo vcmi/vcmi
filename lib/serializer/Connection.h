@@ -43,7 +43,7 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 class DLL_LINKAGE CConnection
 	: public IBinaryReader, public IBinaryWriter
 {
-	CConnection(void);
+	CConnection();
 
 	void init();
 	void reportState(vstd::CLoggerBase * out) override;
@@ -75,7 +75,7 @@ public:
 	bool isHost() const;
 	template<class T>
 	CConnection &operator&(const T&);
-	virtual ~CConnection(void);
+	virtual ~CConnection();
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
 	void sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID);

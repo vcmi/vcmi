@@ -54,7 +54,7 @@ public:
 
 	virtual void setReply(const JsonNode & reply);
 
-	virtual ~CQuery(void);
+	virtual ~CQuery();
 protected:
 	Queries * owner;
 	void addPlayer(PlayerColor color);

@@ -40,7 +40,7 @@ static void soundFinishedCallbackC(int channel)
 	CCS->soundh->soundFinishedCallback(channel);
 }
 
-static void musicFinishedCallbackC(void)
+static void musicFinishedCallbackC()
 {
 	CCS->musich->musicFinishedCallback();
 }
@@ -487,7 +487,7 @@ void CMusicHandler::setVolume(ui32 percent)
 		Mix_VolumeMusic((MIX_MAX_VOLUME * volume)/100);
 }
 
-void CMusicHandler::musicFinishedCallback(void)
+void CMusicHandler::musicFinishedCallback()
 {
 	boost::mutex::scoped_lock guard(mutex);
 

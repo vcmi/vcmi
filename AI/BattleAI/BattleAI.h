@@ -61,8 +61,8 @@ class CBattleAI : public CBattleGameInterface
 	bool wasWaitingForRealize, wasUnlockingGs;
 
 public:
-	CBattleAI(void);
-	~CBattleAI(void);
+	CBattleAI();
+	~CBattleAI();
 
 	void init(std::shared_ptr<CBattleCallback> CB) override;
 	void attemptCastingSpell();

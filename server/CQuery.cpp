@@ -55,7 +55,7 @@ CQuery::CQuery(Queries * Owner):
 }
 
 
-CQuery::~CQuery(void)
+CQuery::~CQuery()
 {
 	logGlobal->trace("Destructed the query with id %d", queryID);
 }

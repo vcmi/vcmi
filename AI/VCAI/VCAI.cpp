@@ -81,7 +81,7 @@ struct ObjInfo
 
 std::map<const CGObjectInstance *, ObjInfo> helperObjInfo;
 
-VCAI::VCAI(void)
+VCAI::VCAI()
 {
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
@@ -89,7 +89,7 @@ VCAI::VCAI(void)
 	destinationTeleportPos = int3(-1);
 }
 
-VCAI::~VCAI(void)
+VCAI::~VCAI()
 {
 	LOG_TRACE(logAi);
 	finish();

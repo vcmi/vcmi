@@ -191,7 +191,7 @@ void init()
 	}
 }
 
-static void prog_version(void)
+static void prog_version()
 {
 	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
 	std::cout << VCMIDirs::get().genHelpString();

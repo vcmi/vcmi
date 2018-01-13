@@ -130,7 +130,7 @@ void CClient::init()
 	terminate = false;
 }
 
-CClient::CClient(void)
+CClient::CClient()
 {
 	init();
 }
@@ -141,7 +141,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	newGame(con,si);
 }
 
-CClient::~CClient(void)
+CClient::~CClient()
 {
 	delete applier;
 }

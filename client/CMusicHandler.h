@@ -147,7 +147,7 @@ public:
 	/// play specific track from set
 	void playMusicFromSet(std::string musicSet, int entryID, bool loop);
 	void stopMusic(int fade_ms=1000);
-	void musicFinishedCallback(void);
+	void musicFinishedCallback();
 
 	friend class MusicEntry;
 };

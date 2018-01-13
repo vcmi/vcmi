@@ -1388,7 +1388,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	return ret;
 }
 
-CGameHandler::CGameHandler(void)
+CGameHandler::CGameHandler()
 {
 	QID = 1;
 	//gs = nullptr;
@@ -1400,7 +1400,7 @@ CGameHandler::CGameHandler(void)
 	spellEnv = new ServerSpellCastEnvironment(this);
 }
 
-CGameHandler::~CGameHandler(void)
+CGameHandler::~CGameHandler()
 {
 	delete spellEnv;
 	delete applier;

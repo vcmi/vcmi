@@ -147,9 +147,9 @@ public:
 
 
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);
-	CClient(void);
+	CClient();
 	CClient(CConnection *con, StartInfo *si);
-	~CClient(void);
+	~CClient();
 
 	void init();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server

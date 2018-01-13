@@ -200,11 +200,12 @@ static void setGem(AdventureMapConfig &ac, const int gem, const JsonNode &g)
 	ac.gemG.push_back(g["graphic"].String());
 }
 
-CConfigHandler::CConfigHandler(void): current(nullptr)
+CConfigHandler::CConfigHandler()
+	: current(nullptr)
 {
 }
 
-CConfigHandler::~CConfigHandler(void)
+CConfigHandler::~CConfigHandler()
 {
 }
 

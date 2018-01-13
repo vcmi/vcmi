@@ -16,14 +16,14 @@
 
 static std::shared_ptr<CBattleCallback> cbc;
 
-CStupidAI::CStupidAI(void)
+CStupidAI::CStupidAI()
 	: side(-1)
 {
 	print("created");
 }
 
 
-CStupidAI::~CStupidAI(void)
+CStupidAI::~CStupidAI()
 {
 	print("destroyed");
 }

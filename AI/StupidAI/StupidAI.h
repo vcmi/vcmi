@@ -18,8 +18,8 @@ class CStupidAI : public CBattleGameInterface
 
 	void print(const std::string &text) const;
 public:
-	CStupidAI(void);
-	~CStupidAI(void);
+	CStupidAI();
+	~CStupidAI();
 
 	void init(std::shared_ptr<CBattleCallback> CB) override;
 	void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero

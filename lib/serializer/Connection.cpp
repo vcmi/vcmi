@@ -163,7 +163,7 @@ int CConnection::read(void * data, unsigned size)
 		throw;
 	}
 }
-CConnection::~CConnection(void)
+CConnection::~CConnection()
 {
 	if(handler)
 		handler->join();

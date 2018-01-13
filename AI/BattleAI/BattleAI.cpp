@@ -16,12 +16,12 @@
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
-CBattleAI::CBattleAI(void)
+CBattleAI::CBattleAI()
 	: side(-1), wasWaitingForRealize(false), wasUnlockingGs(false)
 {
 }
 
-CBattleAI::~CBattleAI(void)
+CBattleAI::~CBattleAI()
 {
 	if(cb)
 	{
