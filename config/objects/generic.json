@@ -54,7 +54,7 @@
 		}
 	},
 	"tradingPostDUPLICATE"		: {
-		"index" :99, 
+		"index" :99,
 		"handler" : "market",
 		"base" : {
 			"sounds" : {
@@ -129,7 +129,7 @@
 		}
 	},
 	"event" : {
-		"index" :26, 
+		"index" :26,
 		"handler" : "event",
 		"types" : {
 			"object" : {
@@ -141,7 +141,7 @@
 	},
 
 	"redwoodObservatory" : {
-		"index" :58,	
+		"index" :58,
 		"handler" : "observatory",
 		"base" : {
 			"sounds" : {
@@ -155,7 +155,7 @@
 				{
 					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
 					"snow" : { "animation" : "avxreds0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["snow"] }
-				},	
+				},
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 750,
@@ -165,7 +165,7 @@
 		}
 	},
 	"pillarOfFire" : {
-		"index" :60, 
+		"index" :60,
 		"handler" : "observatory",
 		"base" : {
 			"sounds" : {
@@ -185,7 +185,7 @@
 		}
 	},
 	"coverOfDarkness" : {
-		"index" :15, 
+		"index" :15,
 		"handler" : "observatory",
 		"base" : {
 			"sounds" : {
@@ -200,7 +200,7 @@
 			}
 		}
 	},
-	
+
 	"whirlpool" : {
 		"index" :111,
 		"handler" : "whirlpool",
@@ -235,7 +235,7 @@
 	},
 
 	"refugeeCamp" : {
-		"index" :78, 
+		"index" :78,
 		"handler" : "dwelling",
 		"base" : {
 			"sounds" : {
@@ -274,7 +274,7 @@
 		}
 	},
 	"shrineOfMagicLevel1" : {//incantation
-		"index" :88, 
+		"index" :88,
 		"handler" : "shrine",
 		"base" : {
 			"sounds" : {
@@ -293,7 +293,7 @@
 		}
 	},
 	"shrineOfMagicLevel2" : {//gesture
-		"index" :89, 
+		"index" :89,
 		"handler" : "shrine",
 		"base" : {
 			"sounds" : {
@@ -312,7 +312,7 @@
 		}
 	},
 	"shrineOfMagicLevel3" : {//thinking
-		"index" :90, 
+		"index" :90,
 		"handler" : "shrine",
 		"base" : {
 			"sounds" : {
@@ -330,11 +330,11 @@
 			},
 			"object1":{ //WoG?
 				"index" :1
-			}			
+			}
 		}
 	},
 	"eyeOfTheMagi" : {
-		"index" :27, 
+		"index" :27,
 		"handler" : "magi",
 		"base" : {
 			"sounds" : {
@@ -350,7 +350,7 @@
 		}
 	},
 	"hutOfTheMagi" : {
-		"index" :37, 
+		"index" :37,
 		"handler" : "magi",
 		"base" : {
 			"sounds" : {
@@ -366,7 +366,7 @@
 		}
 	},
 	"lighthouse" : {
-		"index" :42, 
+		"index" :42,
 		"handler" : "lighthouse",
 		"base" : {
 			"sounds" : {
@@ -382,7 +382,7 @@
 		}
 	},
 	"obelisk" : {
-		"index" :57, 
+		"index" :57,
 		"handler" : "obelisk",
 		"base" : {
 			"sounds" : {
@@ -401,7 +401,7 @@
 		}
 	},
 	"oceanBottle" : {
-		"index" :59, 
+		"index" :59,
 		"handler" : "sign",
 		"base" : {
 			"sounds" : {
@@ -417,7 +417,7 @@
 		}
 	},
 	"scholar" : {
-		"index" :81, 
+		"index" :81,
 		"handler" : "scholar",
 		"base" : {
 			"sounds" : {
@@ -436,7 +436,7 @@
 		}
 	},
 	"shipyard" : {
-		"index" :87, 
+		"index" :87,
 		"handler" : "shipyard",
 		"base" : {
 			"sounds" : {
@@ -453,7 +453,7 @@
 		}
 	},
 	"sign" : {
-		"index" :91, 
+		"index" :91,
 		"handler" : "sign",
 		"base" : {
 			"sounds" : {
@@ -469,7 +469,7 @@
 		}
 	},
 	"sirens" : {
-		"index" :92, 
+		"index" :92,
 		"handler" : "siren",
 		"base" : {
 			"sounds" : {
@@ -489,7 +489,7 @@
 		}
 	},
 	"denOfThieves" : {
-		"index" :97, 
+		"index" :97,
 		"handler" : "denOfThieves",
 		"base" : {
 			"sounds" : {
@@ -504,7 +504,7 @@
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
 					"brown" : { "animation" : "avxdend0.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["sand", "lava", "rough", "snow", "subterra"] },
-				},	
+				},
 				"rmg" : {
 					"value"		: 100,
 					"rarity"	: 100,
@@ -593,7 +593,30 @@
 
 	/// Random objects
 	"randomTown"					: { "index" :77,  "handler": "randomTown", "types" : { "object" : { "index" : 0} }  },
-	"randomHero"					: { "index" :70,  "handler": "randomHero", "types" : { "object" : { "index" : 0} }  },
+	"randomHero" : {
+		"index" :70,
+		"handler": "randomHero",
+		"types" : {
+			"object" : {
+				"index" : 0,
+				"templates" : {
+					"normal" : {
+						"animation" : "AHRANDOM",
+						"editorAnimation" : "AHRANDOM",
+						"visitableFrom" : [
+							"+++",
+							"+-+",
+							"+++"
+						],
+						"mask" : [
+							"VVV",
+							"VAV"
+						]
+					}
+				}
+			}
+		}
+	},
 	"randomDwelling"				: { "index" :216, "handler": "randomDwelling", "types" : { "object" : { "index" : 0} }  },
 
 	"randomResource" : {
@@ -609,7 +632,7 @@
 		}
 	},
 
-	"randomArtifact" : { 
+	"randomArtifact" : {
 		"index" :65,
 		"handler": "randomArtifact",
 		"types" : {
@@ -621,7 +644,7 @@
 			}
 		}
 	},
-	"randomArtifactTreasure" : { 
+	"randomArtifactTreasure" : {
 		"index" :66,
 		"handler": "randomArtifact",
 		"types" : {
@@ -637,7 +660,7 @@
 			}
 		}
 	},
-	"randomArtifactMinor" : { 
+	"randomArtifactMinor" : {
 		"index" :67,
 		"handler": "randomArtifact",
 		"types" : {
@@ -653,7 +676,7 @@
 			}
 		}
 	},
-	"randomArtifactMajor" : { 
+	"randomArtifactMajor" : {
 		"index" :68,
 		"handler": "randomArtifact",
 		"types" : {
@@ -669,7 +692,7 @@
 			}
 		}
 	},
-	"randomArtifactRelic" : { 
+	"randomArtifactRelic" : {
 		"index" :69,
 		"handler": "randomArtifact",
 		"types" : {
@@ -686,7 +709,7 @@
 		}
 	},
 
-	"randomMonster" : { 
+	"randomMonster" : {
 		"index" :71,
 		"handler": "randomMonster",
 		"types" : {
@@ -698,7 +721,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel1" : { 
+	"randomMonsterLevel1" : {
 		"index" :72,
 		"handler": "randomMonster",
 		"types" : {
@@ -710,7 +733,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel2" : { 
+	"randomMonsterLevel2" : {
 		"index" :73,
 		"handler": "randomMonster",
 		"types" : {
@@ -722,7 +745,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel3" : { 
+	"randomMonsterLevel3" : {
 		"index" :74,
 		"handler": "randomMonster",
 		"types" : {
@@ -734,7 +757,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel4" : { 
+	"randomMonsterLevel4" : {
 		"index" :75,
 		"handler": "randomMonster",
 		"types" : {
@@ -746,7 +769,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel5" : { 
+	"randomMonsterLevel5" : {
 		"index" :162,
 		"handler": "randomMonster",
 		"types" : {
@@ -758,7 +781,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel6" : { 
+	"randomMonsterLevel6" : {
 		"index" :163,
 		"handler": "randomMonster",
 		"types" : {
@@ -770,7 +793,7 @@
 			}
 		}
 	},
-	"randomMonsterLevel7" : { 
+	"randomMonsterLevel7" : {
 		"index" :164,
 		"handler": "randomMonster",
 		"types" : {
@@ -785,7 +808,7 @@
 
 	/// Classes without dedicated object
 	"hillFort" : {
-		"index" :35, 
+		"index" :35,
 		"handler": "generic",
 		"base" : {
 			"sounds" : {
@@ -805,7 +828,7 @@
 		}
 	},
 	"grail" : {
-		"index" :36, 
+		"index" :36,
 		"handler": "generic",
 		"types" : {
 			"object" : {
@@ -816,7 +839,7 @@
 		}
 	},
 	"tavern" : {
-		"index" :95, 
+		"index" :95,
 		"handler": "generic",
 		"base" : {
 			"sounds" : {
@@ -836,7 +859,7 @@
 		}
 	},
 	"sanctuary" : {
-		"index" :80, 
+		"index" :80,
 		"handler": "generic",
 		"base" : {
 			"sounds" : {
@@ -974,7 +997,7 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
-	
+
 	//These are WoG objects? They are not available in H3
 	"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"oakTreesDUPLICATE"				: { "index" :186, "handler": "static", "types" : { "object" : { "index" : 0} } },
