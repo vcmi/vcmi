@@ -227,6 +227,16 @@ namespace TriggeredEventsDetail
 				{
 					//todo: support of new condition format HAVE_BUILDING_0
 
+					//TODO: parse faction
+					//type - faction
+					//subtype building
+
+					auto subtype = VLC->modh->identifiers.getIdentifier("core", VLC->townh->randomTown->getBuildingScope(), data["type"].String(), false);
+
+					event.objectSubtype = -1;
+					if(subtype)
+						event.objectSubtype = subtype.get();
+
 					event.objectInstanceName = data["object"].String();
 				}
 				break;
@@ -293,7 +303,15 @@ namespace TriggeredEventsDetail
 			break;
 		case EventCondition::HAVE_BUILDING_0:
 			{
-			//todo: support of new condition format HAVE_BUILDING_0
+				//todo: encode faction
+
+				if(event.objectSubtype >= 0)
+				{
+					data["type"].String() = VLC->townh->randomTown->buildings.at(BuildingID(event.objectSubtype))->identifier;
+				}
+
+				if(event.objectInstanceName != "")
+					data["object"].String() = event.objectInstanceName;
 			}
 			break;
 		default:
