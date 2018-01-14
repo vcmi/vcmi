@@ -203,6 +203,7 @@ public:
 	int getDate(Date::EDateType mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
 	bool checkForHaveCondition(const PlayerState * playerState, const EventCondition & condition) const;
+	bool checkForHaveBuildingCondition(const PlayerState * playerState, const EventCondition & condition) const;
 	bool checkForDestroyCondition(const PlayerState * playerState, const EventCondition & condition) const;
 
 	// ----- getters, setters -----

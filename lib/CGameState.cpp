@@ -2341,48 +2341,32 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 			}
 		}
 		case EventCondition::TRANSPORT:
-		{
-			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-			if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
-				|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
 			{
-				return true;
+				const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
+				if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
+					|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
+				{
+					return true;
+				}
 			}
 			return false;
-		}
 		case EventCondition::DAYS_PASSED:
-		{
 			return (si32)gs->day > condition.value;
-		}
 		case EventCondition::IS_HUMAN:
-		{
 			return p->human ? condition.value == 1 : condition.value == 0;
-		}
 		case EventCondition::DAYS_WITHOUT_TOWN:
-		{
 			if (p->daysWithoutCastle)
 				return p->daysWithoutCastle.get() >= condition.value;
 			else
 				return false;
-		}
 		case EventCondition::CONST_VALUE:
-		{
 			return condition.value; // just convert to bool
-		}
 		case EventCondition::HAVE_0:
-		{
 			return checkForHaveCondition(p, condition);
-		}
 		case EventCondition::HAVE_BUILDING_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
+			return checkForHaveBuildingCondition(p, condition);
 		case EventCondition::DESTROY_0:
-		{
 			return checkForDestroyCondition(p, condition);
-		}
 		default:
 			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
 			return false;
@@ -2395,6 +2379,16 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 
 	auto & team = CGameInfoCallback::getPlayerTeam(playerState->color)->players;
 
+	bool checkTeam = false;
+
+	auto checkOwner = [&](const CGObjectInstance * object) -> bool
+	{
+		if(checkTeam)
+			return team.count(object->getOwner()) != 0;
+		else
+			return object->getOwner() == playerState->color;
+	};
+
 	std::vector<const CGHeroInstance *> heroesToCheck;
 
 	std::vector<const CArmedInstance *> armiesToCheck;
@@ -2405,16 +2399,16 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 		{
 			auto hero = dynamic_cast<const CGHeroInstance *>(condition.object);
 
-			if(hero && team.count(hero->getOwner()) != 0)
+			if(hero)
 			{
-				if(team.count(hero->getOwner()) != 0)
+				if(checkOwner(hero))
 					heroesToCheck.push_back(hero);
 			}
 			else
 			{
 				auto town = dynamic_cast<const CGTownInstance *>(condition.object);
 
-				if(town && team.count(town->getOwner()) != 0)
+				if(town && checkOwner(town))
 				{
 					if(town->visitingHero)
 						heroesToCheck.push_back(town->visitingHero);
@@ -2425,10 +2419,18 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 		}
 		else
 		{
-			for(auto player : team)
+			if(checkTeam)
 			{
-				auto allyState = CGameInfoCallback::getPlayer(player);
-				for(auto hero : allyState->heroes)
+				for(auto player : team)
+				{
+					auto allyState = CGameInfoCallback::getPlayerState(player);
+					for(auto hero : allyState->heroes)
+						heroesToCheck.push_back(hero.get());
+				}
+			}
+			else
+			{
+				for(auto hero : playerState->heroes)
 					heroesToCheck.push_back(hero.get());
 			}
 		}
@@ -2448,7 +2450,7 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 			{
 				const CArmedInstance * army = nullptr;
 				if(map->objects[i]
-					&& team.count(map->objects[i]->getOwner()) != 0
+					&& checkOwner(map->objects[i])
 					&& (army = dynamic_cast<const CArmedInstance*>(map->objects[i].get())))
 				{
 					armiesToCheck.push_back(army);
@@ -2486,23 +2488,25 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 		}
 	case EMetaclass::INVALID:
 		{
+			checkTeam = true;
 			if(condition.object)
-				return team.count(condition.object->getOwner());
+				return checkOwner(condition.object);
 		}
 		return false;
 	case EMetaclass::OBJECT:
 		{
+			checkTeam = true;
 			if(condition.object)
 			{
 				//only this object
-				return team.count(condition.object->getOwner()) > 0;
+				return checkOwner(condition.object);
 			}
 			else if(condition.value == 0)
 			{
 				//all objects
 				for(auto & elem : map->objects)
 				{
-					if(elem && elem->ID == condition.objectType && team.count(elem->getOwner()) == 0)
+					if(elem && elem->ID == condition.objectType && !checkOwner(elem))
 						return false;
 				}
 				return true;
@@ -2514,7 +2518,7 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 
 				for(auto & elem : map->objects)
 				{
-					if(elem && elem->ID == condition.objectType && team.count(elem->getOwner()) != 0)
+					if(elem && elem->ID == condition.objectType && checkOwner(elem))
 						total++;
 				}
 				return total >= condition.value;
@@ -2536,7 +2540,7 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 
 			for(const CGHeroInstance * hero : heroesToCheck)
 			{
-				if(vstd::contains(hero->spells, spell))
+				if(hero->spellbookContainsSpell(spell))
 					return true;
 			}
 			return false;
@@ -2547,6 +2551,28 @@ bool CGameState::checkForHaveCondition(const PlayerState * playerState, const Ev
 
 	default:
 		logGlobal->error("Not supported meta type %s in event condition type HAVE_0", NMetaclass::names[(int)condition.metaType]);
+		return false;
+	}
+}
+
+bool CGameState::checkForHaveBuildingCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	auto bid = condition.condition == EventCondition::HAVE_BUILDING
+		? condition.objectType
+		: condition.objectSubtype;
+
+	if(condition.object)
+	{
+		const CGTownInstance * town = static_cast<const CGTownInstance *>(condition.object);
+		return (town->tempOwner == playerState->color && town->hasBuilt(BuildingID(bid)));
+	}
+	else // any town
+	{
+		for(const CGTownInstance * town : playerState->towns)
+		{
+			if(town->hasBuilt(BuildingID(bid)))
+				return true;
+		}
 		return false;
 	}
 }
