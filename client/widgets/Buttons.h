@@ -51,7 +51,7 @@ private:
 
 	CAnimImage * image; //image for this button
 	CIntObject * overlay;//object-overlay, can be null
-
+	bool animateLonelyFrame = false;
 protected:
 	void onButtonClicked(); // calls callback
 	void update();//to refresh button after image or text change
@@ -79,6 +79,7 @@ public:
 	void addHoverText(ButtonState state, std::string text);
 
 	void setImageOrder(int state1, int state2, int state3, int state4);
+	void setAnimateLonelyFrame(bool agreement);
 	void block(bool on);
 
 	/// State modifiers

@@ -26,12 +26,12 @@ void CreaturePurchaseCard::initButtons()
 
 void CreaturePurchaseCard::initMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point(pos.x + 52, pos.y + 178), "iam014.def", CButton::tooltip(), std::bind(&CSlider::moveToMax,slider), SDLK_LSHIFT);
+	maxButton = std::make_shared<CButton>(Point(pos.x + 52, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentAllButton.def", CButton::tooltip(), std::bind(&CSlider::moveToMax,slider), SDLK_LSHIFT);
 }
 
 void CreaturePurchaseCard::initMinButton()
 {
-	minButton = std::make_shared<CButton>(Point(pos.x, pos.y + 178), "iam015.def", CButton::tooltip(), std::bind(&CSlider::moveToMin,slider), SDLK_LCTRL);
+	minButton = std::make_shared<CButton>(Point(pos.x, pos.y + 180), "QuickRecruitmentWindow/QuickRecruitmentNoneButton.def", CButton::tooltip(), std::bind(&CSlider::moveToMin,slider), SDLK_LCTRL);
 }
 
 void CreaturePurchaseCard::initCreatureSwitcherButton()
@@ -52,8 +52,8 @@ void CreaturePurchaseCard::switchCreatureLevel()
 
 void CreaturePurchaseCard::initAmountInfo()
 {
-	availableAmount = std::make_shared<CLabel>(pos.x + 24, pos.y + 144, FONT_SMALL, CENTER, Colors::YELLOW);
-	purhaseAmount = std::make_shared<CLabel>(pos.x + 77, pos.y + 144, FONT_SMALL, CENTER, Colors::WHITE);
+	availableAmount = std::make_shared<CLabel>(pos.x + 25, pos.y + 146, FONT_SMALL, CENTER, Colors::YELLOW);
+	purhaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
 	updateAmountInfo(0);
 }
 
