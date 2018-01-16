@@ -73,7 +73,7 @@ void QuickRecruitmentWindow::initWindow(Rect startupPosition)
 		pos.x -= 55 * (creaturesAmount - 3);
 	}
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK.pcx", Rect(0, 0, pos.w, pos.h));
-	costBackground = std::make_shared<CPicture>("QuickRecruitmentWindow/costBackground.png", pos.w/2-113, pos.y+290);
+	costBackground = std::make_shared<CPicture>("QuickRecruitmentWindow/costBackground.png", pos.w/2-113, 335);
 }
 
 void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard> > cards)
