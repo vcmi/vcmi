@@ -194,7 +194,8 @@ void CGuiHandler::handleEvents()
 	while(!events.empty())
 	{
 		continueEventHandling = true;
-		current = &events.front();
+		SDL_Event ev = events.front();
+		current = &ev;
 		events.pop();
 		handleCurrentEvent();
 	}
