@@ -106,6 +106,15 @@ then
 	fi
 fi
 
+if [[ -n "$gog_file" ]]
+then
+	currentver="$(innoextract --version | head -n1 | cut -d ' ' -f2)"
+	requiredver="1.6"
+		if [ "$(printf "$requiredver\n$currentver" | sort -V | head -n1)" == "$currentver" ] && [ "$currentver" != "$requiredver" ]; then
+		fail "innoextract version is $currentver, update it to version 1.6+"
+	fi
+fi
+
 if [[ -n "$useffmpeg" ]]
 then
 	ffmpeg -version > /dev/null 2>&1 && AUDIO_CONV=ffmpeg
