@@ -62,7 +62,7 @@ then
 	exit 0
 fi
 
-# test if a program version ($1) is lesser than the required one ($2)
+# test if a program version ($1) is less than the required one ($2)
 verlt() {
 	[ "$1" = "$2" ] && return 1 || \
 	[ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
