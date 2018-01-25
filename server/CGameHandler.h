@@ -310,4 +310,9 @@ class clientDisconnectedException : public std::exception
 
 };
 
+class ExceptionNotAllowedAction : public std::exception
+{
+
+};
+
 void makeStackDoNothing();
