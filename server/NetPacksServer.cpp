@@ -21,149 +21,181 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 
+bool CPackForServer::isPlayerOwns(CGameHandler * gh, ObjectInstanceID id)
+{
+	return gh->getPlayerAt(c) == gh->getOwner(id);
+}
 
-#define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
-#define ERROR_AND_RETURN												\
-	do { if(c) {														\
-			SystemMessage temp_message("You are not allowed to perform this action!"); \
-			boost::unique_lock<boost::mutex> lock(*c->wmx);				\
-			*c << &temp_message;										\
-		}																\
-		logNetwork->error("Player is not allowed to perform this action!");		\
-		return false;} while(0)
+void CPackForServer::throwNotAllowedAction()
+{
+	if(c)
+	{
+		SystemMessage temp_message("You are not allowed to perform this action!");
+		*c << &temp_message;
+	}
+	logNetwork->error("Player is not allowed to perform this action!");
+	throw ExceptionNotAllowedAction();
+}
 
-#define WRONG_PLAYER_MSG(expectedplayer) do {std::ostringstream oss;\
-			oss << "You were identified as player " << gh->getPlayerAt(c) << " while expecting " << expectedplayer;\
-			logNetwork->error(oss.str()); \
-			if(c) { SystemMessage temp_message(oss.str()); boost::unique_lock<boost::mutex> lock(*c->wmx); *c << &temp_message; } } while(0)
+void CPackForServer::wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedplayer)
+{
+	std::ostringstream oss;
+	oss << "You were identified as player " << gh->getPlayerAt(c) << " while expecting " << expectedplayer;
+	logNetwork->error(oss.str());
+	if(c)
+	{
+		SystemMessage temp_message(oss.str());
+		*c << &temp_message;
+	}
+}
 
-#define ERROR_IF_NOT_OWNS(id)	do{if(!PLAYER_OWNS(id)){WRONG_PLAYER_MSG(gh->getOwner(id)); ERROR_AND_RETURN; }}while(0)
-#define ERROR_IF_NOT(player)	do{if(player != gh->getPlayerAt(c)){WRONG_PLAYER_MSG(player); ERROR_AND_RETURN; }}while(0)
-#define COMPLAIN_AND_RETURN(txt)	{ gh->complain(txt); ERROR_AND_RETURN; }
+void CPackForServer::throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id)
+{
+	if(!isPlayerOwns(gh, id))
+	{
+		wrongPlayerMessage(gh, gh->getOwner(id));
+		throwNotAllowedAction();
+	}
+}
+
+void CPackForServer::throwOnWrongPlayer(CGameHandler * gh, PlayerColor player)
+{
+	if(player != gh->getPlayerAt(c))
+	{
+		wrongPlayerMessage(gh, player);
+		throwNotAllowedAction();
+	}
+}
+
+void CPackForServer::throwAndCompain(CGameHandler * gh, std::string txt)
+{
+	gh->complain(txt);
+	throwNotAllowedAction();
+}
 
 
-CGameState* CPackForServer::GS(CGameHandler *gh)
+CGameState * CPackForServer::GS(CGameHandler * gh)
 {
 	return gh->gs;
 }
 
-bool SaveGame::applyGh( CGameHandler *gh )
+bool SaveGame::applyGh(CGameHandler * gh)
 {
 	gh->save(fname);
 	logGlobal->info("Game has been saved as %s", fname);
 	return true;
 }
 
-bool CommitPackage::applyGh( CGameHandler *gh )
+bool CommitPackage::applyGh(CGameHandler * gh)
 {
 	gh->sendAndApply(packToCommit);
 	return true;
 }
 
-bool CloseServer::applyGh( CGameHandler *gh )
+bool CloseServer::applyGh(CGameHandler * gh)
 {
 	gh->close();
 	return true;
 }
 
-bool LeaveGame::applyGh( CGameHandler *gh )
+bool LeaveGame::applyGh(CGameHandler * gh)
 {
 	gh->playerLeftGame(c->connectionID);
 	return true;
 }
 
-bool EndTurn::applyGh( CGameHandler *gh )
+bool EndTurn::applyGh(CGameHandler * gh)
 {
 	PlayerColor player = GS(gh)->currentPlayer;
-	ERROR_IF_NOT(player);
+	throwOnWrongPlayer(gh, player);
 	if(gh->queries.topQuery(player))
-		COMPLAIN_AND_RETURN("Cannot end turn before resolving queries!");
+		throwAndCompain(gh, "Cannot end turn before resolving queries!");
 
-	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
+	gh->states.setFlag(GS(gh)->currentPlayer, &PlayerStatus::makingTurn, false);
 	return true;
 }
 
-bool DismissHero::applyGh( CGameHandler *gh )
+bool DismissHero::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
+	throwOnWrongOwner(gh, hid);
 	return gh->removeObject(gh->getObj(hid));
 }
 
-bool MoveHero::applyGh( CGameHandler *gh )
+bool MoveHero::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
-	return gh->moveHero(hid,dest,0,transit,gh->getPlayerAt(c));
+	throwOnWrongOwner(gh, hid);
+	return gh->moveHero(hid, dest, 0, transit, gh->getPlayerAt(c));
 }
 
-bool CastleTeleportHero::applyGh( CGameHandler *gh )
+bool CastleTeleportHero::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
+	throwOnWrongOwner(gh, hid);
 
-	return gh->teleportHero(hid,dest,source,gh->getPlayerAt(c));
+	return gh->teleportHero(hid, dest, source, gh->getPlayerAt(c));
 }
 
-bool ArrangeStacks::applyGh( CGameHandler *gh )
+bool ArrangeStacks::applyGh(CGameHandler * gh)
 {
 	//checks for owning in the gh func
-	return gh->arrangeStacks(id1,id2,what,p1,p2,val,gh->getPlayerAt(c));
+	return gh->arrangeStacks(id1, id2, what, p1, p2, val, gh->getPlayerAt(c));
 }
 
-bool DisbandCreature::applyGh( CGameHandler *gh )
+bool DisbandCreature::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(id);
-	return gh->disbandCreature(id,pos);
+	throwOnWrongOwner(gh, id);
+	return gh->disbandCreature(id, pos);
 }
 
-bool BuildStructure::applyGh( CGameHandler *gh )
+bool BuildStructure::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(tid);
-	return gh->buildStructure(tid,bid);
+	throwOnWrongOwner(gh, tid);
+	return gh->buildStructure(tid, bid);
 }
 
-bool RecruitCreatures::applyGh( CGameHandler *gh )
+bool RecruitCreatures::applyGh(CGameHandler * gh)
 {
-	return gh->recruitCreatures(tid,dst,crid,amount,level);
+	return gh->recruitCreatures(tid, dst, crid, amount, level);
 }
 
-bool UpgradeCreature::applyGh( CGameHandler *gh )
+bool UpgradeCreature::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(id);
-	return gh->upgradeCreature(id,pos,cid);
+	throwOnWrongOwner(gh, id);
+	return gh->upgradeCreature(id, pos, cid);
 }
 
-bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
+bool GarrisonHeroSwap::applyGh(CGameHandler * gh)
 {
 	const CGTownInstance * town = gh->getTown(tid);
-	if (!PLAYER_OWNS(tid) && !( town->garrisonHero && PLAYER_OWNS(town->garrisonHero->id) ) )
-		ERROR_AND_RETURN;//neither town nor garrisoned hero (if present) is ours
+	if(!isPlayerOwns(gh, tid) && !(town->garrisonHero && isPlayerOwns(gh, town->garrisonHero->id)))
+		throwNotAllowedAction(); //neither town nor garrisoned hero (if present) is ours
 	return gh->garrisonSwap(tid);
 }
 
-bool ExchangeArtifacts::applyGh( CGameHandler *gh )
+bool ExchangeArtifacts::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT(src.owningPlayer());//second hero can be ally
+	throwOnWrongPlayer(gh, src.owningPlayer()); //second hero can be ally
 	return gh->moveArtifact(src, dst);
 }
 
-bool AssembleArtifacts::applyGh( CGameHandler *gh )
+bool AssembleArtifacts::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(heroID);
+	throwOnWrongOwner(gh, heroID);
 	return gh->assembleArtifacts(heroID, artifactSlot, assemble, assembleTo);
 }
 
-bool BuyArtifact::applyGh( CGameHandler *gh )
+bool BuyArtifact::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
-	return gh->buyArtifact(hid,aid);
+	throwOnWrongOwner(gh, hid);
+	return gh->buyArtifact(hid, aid);
 }
 
-bool TradeOnMarketplace::applyGh( CGameHandler *gh )
+bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 {
 	//market must be owned or visited
-	const IMarket *m = IMarket::castFrom(market);
+	const IMarket * m = IMarket::castFrom(market);
 
 	if(!m)
-		COMPLAIN_AND_RETURN("market is not-a-market! :/");
+		throwAndCompain(gh, "market is not-a-market! :/");
 
 	PlayerColor player = market->tempOwner;
 
@@ -171,12 +203,12 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
 	if(player >= PlayerColor::PLAYER_LIMIT)
-		COMPLAIN_AND_RETURN("No player can use this market!");
+		throwAndCompain(gh, "No player can use this market!");
 
 	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
-		COMPLAIN_AND_RETURN("This hero can't use this marketplace!");
+		throwAndCompain(gh, "This hero can't use this marketplace!");
 
-	ERROR_IF_NOT(player);
+	throwOnWrongPlayer(gh, player);
 
 	bool result = true;
 
@@ -222,95 +254,101 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 		return gh->sacrificeArtifact(m, hero, positions);
 	}
 	default:
-		COMPLAIN_AND_RETURN("Unknown exchange mode!");
+		throwAndCompain(gh, "Unknown exchange mode!");
 	}
 
 	return result;
 }
 
-bool SetFormation::applyGh( CGameHandler *gh )
+bool SetFormation::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
-	return gh->setFormation(hid,formation);
+	throwOnWrongOwner(gh, hid);
+	return gh->setFormation(hid, formation);
 }
 
-bool HireHero::applyGh( CGameHandler *gh )
+bool HireHero::applyGh(CGameHandler * gh)
 {
-	const CGObjectInstance *obj = gh->getObj(tid);
-	const CGTownInstance *town = dynamic_ptr_cast<CGTownInstance>(obj);
+	const CGObjectInstance * obj = gh->getObj(tid);
+	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh->getPlayerRelations(obj->tempOwner, gh->getPlayerAt(c)))
-		COMPLAIN_AND_RETURN("Can't buy hero in enemy town!");
+		throwAndCompain(gh, "Can't buy hero in enemy town!");
 
-	return gh->hireHero(obj, hid,player);
+	return gh->hireHero(obj, hid, player);
 }
 
-bool BuildBoat::applyGh( CGameHandler *gh )
+bool BuildBoat::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(objid);
+	throwOnWrongOwner(gh, objid);
 	return gh->buildBoat(objid);
 }
 
-bool QueryReply::applyGh( CGameHandler *gh )
+bool QueryReply::applyGh(CGameHandler * gh)
 {
 	auto playerToConnection = gh->connections.find(player);
 	if(playerToConnection == gh->connections.end())
-		COMPLAIN_AND_RETURN("No such player!");
+		throwAndCompain(gh, "No such player!");
 	if(playerToConnection->second != c)
-		COMPLAIN_AND_RETURN("Message came from wrong connection!");
+		throwAndCompain(gh, "Message came from wrong connection!");
 	if(qid == QueryID(-1))
-		COMPLAIN_AND_RETURN("Cannot answer the query with id -1!");
+		throwAndCompain(gh, "Cannot answer the query with id -1!");
 
 	assert(vstd::contains(gh->states.players, player));
 	return gh->queryReply(qid, reply, player);
 }
 
-bool MakeAction::applyGh( CGameHandler *gh )
+bool MakeAction::applyGh(CGameHandler * gh)
 {
-	const BattleInfo *b = GS(gh)->curB;
-	if(!b) ERROR_AND_RETURN;
+	const BattleInfo * b = GS(gh)->curB;
+	if(!b)
+		throwNotAllowedAction();
 
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != Battle::WALK  &&  ba.actionType != Battle::END_TACTIC_PHASE
+		if(ba.actionType != Battle::WALK && ba.actionType != Battle::END_TACTIC_PHASE
 			&& ba.actionType != Battle::RETREAT && ba.actionType != Battle::SURRENDER)
-			ERROR_AND_RETURN;
+			throwNotAllowedAction();
 		if(gh->connections[b->sides[b->tacticsSide].color] != c)
-			ERROR_AND_RETURN;
+			throwNotAllowedAction();
 	}
 	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c)
-		ERROR_AND_RETURN;
+		throwNotAllowedAction();
 
 	return gh->makeBattleAction(ba);
 }
 
-bool MakeCustomAction::applyGh( CGameHandler *gh )
+bool MakeCustomAction::applyGh(CGameHandler * gh)
 {
-	const BattleInfo *b = GS(gh)->curB;
-	if(!b) ERROR_AND_RETURN;
-	if(b->tacticDistance) ERROR_AND_RETURN;
-	const CStack *active = GS(gh)->curB->battleGetStackByID(GS(gh)->curB->activeStack);
-	if(!active) ERROR_AND_RETURN;
-	if(gh->connections[active->owner] != c) ERROR_AND_RETURN;
-	if(ba.actionType != Battle::HERO_SPELL) ERROR_AND_RETURN;
+	const BattleInfo * b = GS(gh)->curB;
+	if(!b)
+		throwNotAllowedAction();
+	if(b->tacticDistance)
+		throwNotAllowedAction();
+	const CStack * active = GS(gh)->curB->battleGetStackByID(GS(gh)->curB->activeStack);
+	if(!active)
+		throwNotAllowedAction();
+	if(gh->connections[active->owner] != c)
+		throwNotAllowedAction();
+	if(ba.actionType != Battle::HERO_SPELL)
+		throwNotAllowedAction();
 	return gh->makeCustomAction(ba);
 }
 
-bool DigWithHero::applyGh( CGameHandler *gh )
+bool DigWithHero::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(id);
+	throwOnWrongOwner(gh, id);
 	return gh->dig(gh->getHero(id));
 }
 
 bool CastAdvSpell::applyGh(CGameHandler * gh)
 {
-	ERROR_IF_NOT_OWNS(hid);
+	throwOnWrongOwner(gh, hid);
 
 	const CSpell * s = sid.toSpell();
 	if(!s)
-		ERROR_AND_RETURN;
+		throwNotAllowedAction();
 	const CGHeroInstance * h = gh->getHero(hid);
 	if(!h)
-		ERROR_AND_RETURN;
+		throwNotAllowedAction();
 
 	AdventureSpellCastParameters p;
 	p.caster = h;
@@ -319,13 +357,14 @@ bool CastAdvSpell::applyGh(CGameHandler * gh)
 	return s->adventureCast(gh->spellEnv, p);
 }
 
-bool PlayerMessage::applyGh( CGameHandler *gh )
+bool PlayerMessage::applyGh(CGameHandler * gh)
 {
 	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
 	{
-		ERROR_IF_NOT(player);
-		if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
+		throwOnWrongPlayer(gh, player);
+		if(gh->getPlayerAt(c) != player)
+			throwNotAllowedAction();
 	}
-	gh->playerMessage(player,text, currObj);
+	gh->playerMessage(player, text, currObj);
 	return true;
 }

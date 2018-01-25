@@ -98,7 +98,18 @@ public:
 		T *ptr = static_cast<T*>(pack);
 		ptr->c = c;
 		ptr->player = player;
-		return ptr->applyGh(gh);
+		try
+		{
+			return ptr->applyGh(gh);
+		}
+		catch(ExceptionNotAllowedAction & e)
+		{
+			return false;
+		}
+		catch(...)
+		{
+			throw;
+		}
 	}
 };
 
