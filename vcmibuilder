@@ -62,13 +62,19 @@ then
 	exit 0
 fi
 
+# test if a program version ($1) is less than the required one ($2)
+verlt() {
+	[ "$1" = "$2" ] && return 1 || \
+	[ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+}
+
 # test presence of program $1, $2 will be passed as parameters to test presence
 test_utility ()
 {
 	$1 $2 > /dev/null 2>&1 || { echo "$1 was not found. Please install it" 1>&2 ; exit 1; }
 }
 
-#print error message and exit
+# print error message and exit
 fail ()
 {
 	$2
@@ -104,6 +110,16 @@ then
 		warning "Warning: Both gog and cd options were specified. cd options will be ignored"
 		unset cd1_dir cd2_dir
 	fi
+fi
+
+if [[ -n "$gog_file" ]]
+then
+	currentver="$(innoextract --version | head -n1 | cut -d ' ' -f2)"
+	requiredver="1.6"
+        if verlt $currentver $requiredver;
+           then
+                fail "innoextract version is $currentver, update it to version $requiredver or higher"
+        fi
 fi
 
 if [[ -n "$useffmpeg" ]]
