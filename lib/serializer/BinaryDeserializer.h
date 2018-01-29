@@ -13,6 +13,7 @@
 
 #include "CTypeList.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../../Global.h"
 
 class CStackInstance;
 class FileStream;
@@ -111,14 +112,17 @@ class DLL_LINKAGE BinaryDeserializer : public CLoaderBase
 		}
 	};
 
-#define READ_CHECK_U32(x)			\
-	ui32 length;			\
-	load(length);				\
-	if(length > 500000)				\
-	{								\
-		logGlobal->warn("Warning: very big length: %d", length);\
-		reader->reportState(logGlobal);			\
-	};
+	STRONG_INLINE ui32 readAndCheckLength()
+	{
+		ui32 length;
+		load(length);
+		if(length > 500000)
+		{
+			logGlobal->warn("Warning: very big length: %d", length);
+			reader->reportState(logGlobal);
+		};
+		return length;
+	}
 
 	template <typename T> class CPointerLoader;
 
@@ -237,7 +241,7 @@ public:
 	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
 	void load(std::vector<T> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.resize(length);
 		for(ui32 i=0;i<length;i++)
 			load( data[i]);
@@ -401,7 +405,7 @@ public:
 	template <typename T>
 	void load(std::set<T> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
@@ -413,7 +417,7 @@ public:
 	template <typename T, typename U>
 	void load(std::unordered_set<T, U> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
@@ -425,7 +429,7 @@ public:
 	template <typename T>
 	void load(std::list<T> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
@@ -444,7 +448,7 @@ public:
 	template <typename T1, typename T2>
 	void load(std::map<T1,T2> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.clear();
 		T1 key;
 		T2 value;
@@ -458,7 +462,7 @@ public:
 	template <typename T1, typename T2>
 	void load(std::multimap<T1, T2> &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.clear();
 		T1 key;
 		T2 value;
@@ -471,7 +475,7 @@ public:
 	}
 	void load(std::string &data)
 	{
-		READ_CHECK_U32(length);
+		ui32 length = readAndCheckLength();
 		data.resize(length);
 		this->read((void*)data.c_str(),length);
 	}
