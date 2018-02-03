@@ -485,8 +485,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 // 	for(FileInfo &m : scriptModules)
 // 	{
 // 		CScriptingModule * nm = CDynLibHandler::getNewScriptingModule(m.name);
-// 		privilagedGameEventReceivers.push_back(nm);
-// 		privilagedBattleEventReceivers.push_back(nm);
+// 		privilegedGameEventReceivers.push_back(nm);
+// 		privilegedBattleEventReceivers.push_back(nm);
 // 		nm->giveActionCB(this);
 // 		nm->giveInfoCB(this);
 // 		nm->init();
@@ -925,7 +925,7 @@ void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInte
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
 	if(!color)
-		privilagedGameEventReceivers.push_back(gameInterface);
+		privilegedGameEventReceivers.push_back(gameInterface);
 
 	playerint[colorUsed] = gameInterface;
 
@@ -944,7 +944,7 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
 	if(!color)
-		privilagedBattleEventReceivers.push_back(battleInterface);
+		privilegedBattleEventReceivers.push_back(battleInterface);
 
 	battleints[colorUsed] = battleInterface;
 
