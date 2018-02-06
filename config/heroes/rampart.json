@@ -32,36 +32,7 @@
 			{ "skill" : "resistance", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "dwarf", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 6, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 7, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "dwarf"
 		}
 	},
 	"jenova":
@@ -94,36 +65,7 @@
 			{ "skill" : "leadership", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "dendroidGuard", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 9, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 12, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "dendroidGuard"
 		}
 	},
 	"thorgrim":
@@ -158,36 +100,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "woodElf", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 9, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "woodElf"
 		}
 	},
 	"clancy":
@@ -201,36 +114,7 @@
 			{ "skill" : "resistance", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "unicorn", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 15, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 14, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "unicorn"
 		}
 	},
 	"kyrre":
@@ -419,36 +303,7 @@
 			{ "skill" : "scouting", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "pegasus", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 9, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 8, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "pegasus"
 		}
 	}
 }

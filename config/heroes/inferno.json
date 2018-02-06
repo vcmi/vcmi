@@ -9,36 +9,7 @@
 			{ "skill" : "scouting", "level": "advanced" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "hellHound", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 6, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "hellHound"
 		}
 	},
 	"rashka":
@@ -52,36 +23,7 @@
 			{ "skill" : "scholar", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "efreet", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 16, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 12, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "efreet"
 		}
 	},
 	"marius":
@@ -94,36 +36,7 @@
 			{ "skill" : "armorer", "level": "advanced" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "demon", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "demon"
 		}
 	},
 	"ignatius":
@@ -137,36 +50,7 @@
 			{ "skill" : "resistance", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "imp", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "imp"
 		}
 	},
 	"octavia":
@@ -200,36 +84,7 @@
 			{ "skill" : "scouting", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "gog", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 6, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 4, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "gog"
 		}
 	},
 	"pyre":
@@ -243,36 +98,7 @@
 			{ "skill" : "logistics", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "ballista", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "ballista"
 		}
 	},
 	"nymus":
@@ -285,36 +111,7 @@
 			{ "skill" : "offence", "level": "advanced" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "pitFiend", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 13, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 13, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "pitFiend"
 		}
 	},
 	"ayden":

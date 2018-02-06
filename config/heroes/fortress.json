@@ -10,36 +10,7 @@
 			{ "skill" : "resistance", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "basilisk", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 11, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 11, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "basilisk"
 		},
 		"army" :
 		[
@@ -68,36 +39,7 @@
 			{ "skill" : "leadership", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "gnoll", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "gnoll"
 		}
 	},
 	"wystan":
@@ -111,36 +53,7 @@
 			{ "skill" : "archery", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "lizardman", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 6, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "lizardman"
 		}
 	},
 	"tazar":
@@ -175,36 +88,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "gorgon", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 14, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "gorgon"
 		}
 	},
 	"korbac":
@@ -218,36 +102,7 @@
 			{ "skill" : "pathfinding", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "serpentFly", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 7, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 9, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "serpentFly"
 		}
 	},
 	"gerwulf":
@@ -261,36 +116,7 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "ballista", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "ballista"
 		}
 	},
 	"broghild":
@@ -304,36 +130,7 @@
 			{ "skill" : "scouting", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "wyvern", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 14, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 14, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "wyvern"
 		}
 	},
 	"mirlanda":

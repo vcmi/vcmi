@@ -11,36 +11,7 @@
 			{ "skill" : "resistance", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "walkingDead", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5, 2 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "walkingDead"
 		}
 	},
 	"vokial":
@@ -55,36 +26,7 @@
 			{ "skill" : "artillery", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "vampire", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 9, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "vampire"
 		}
 	},
 	"moandor":
@@ -99,36 +41,7 @@
 			{ "skill" : "learning", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "lich", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 13, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 10, 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "lich"
 		}
 	},
 	"charna":
@@ -143,36 +56,7 @@
 			{ "skill" : "tactics", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "wight", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 7, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 7, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "wight"
 		}
 	},
 	"tamika":
@@ -187,36 +71,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "blackKnight", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 16, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 16, 6 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "blackKnight"
 		}
 	},
 	"isra":
@@ -274,36 +129,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "skeleton", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 5 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "skeleton"
 		}
 	},
 	"septienna":

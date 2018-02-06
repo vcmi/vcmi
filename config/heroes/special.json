@@ -45,36 +45,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "griffin", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 8, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 8, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "griffin"
 		}
 	},
 	"dracon":
@@ -243,36 +214,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "griffin", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 8, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 8, 3 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "griffin"
 		}
 	},
 	"mutareDrake":
@@ -331,36 +273,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"base" : {
-				"limiters" : [
-					{
-						"parameters" : [ "ogre", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
-					}
-				]
-			},
-			"bonuses" : {
-				"attack" : {
-					"subtype" : "primSkill.attack",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 13, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"defence" : {
-					"subtype" : "primSkill.defence",
-					"type" : "PRIMARY_SKILL",
-					"updater" : {
-						"parameters" : [ 7, 4 ],
-						"type" : "GROWS_WITH_LEVEL"
-					}
-				},
-				"speed" : {
-					"type" : "STACKS_SPEED",
-					"val" : 1
-				}
-			}
+			"creature" : "ogre"
 		},
 		"army" :
 		[
