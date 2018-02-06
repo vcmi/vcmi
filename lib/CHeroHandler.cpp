@@ -379,6 +379,43 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 	}
 }
 
+// add standard creature specialty to result
+void AddSpecialtyForCreature(int creatureID, std::shared_ptr<Bonus> bonus, std::vector<std::shared_ptr<Bonus>> &result)
+{
+	const CCreature &specBaseCreature = *VLC->creh->creatures[creatureID]; //base creature in which we have specialty
+
+	bonus->limiter.reset(new CCreatureTypeLimiter(specBaseCreature, true));
+	bonus->type = Bonus::STACKS_SPEED;
+	bonus->valType = Bonus::ADDITIVE_VALUE;
+	bonus->val = 1;
+	result.push_back(bonus);
+
+	// attack and defense may differ for upgraded creatures => separate bonuses
+	std::vector<int> specTargets;
+	specTargets.push_back(creatureID);
+	specTargets.insert(specTargets.end(), specBaseCreature.upgrades.begin(), specBaseCreature.upgrades.end());
+
+	for(int cid : specTargets)
+	{
+		const CCreature &specCreature = *VLC->creh->creatures[cid];
+		bonus = std::make_shared<Bonus>(*bonus);
+		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
+		bonus->type = Bonus::PRIMARY_SKILL;
+		bonus->val = 0;
+
+		int stepSize = specCreature.level ? specCreature.level : 5;
+
+		bonus->subtype = PrimarySkill::ATTACK;
+		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
+		result.push_back(bonus);
+
+		bonus = std::make_shared<Bonus>(*bonus);
+		bonus->subtype = PrimarySkill::DEFENSE;
+		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefence(false), stepSize));
+		result.push_back(bonus);
+	}
+}
+
 // convert deprecated format
 std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid)
 {
@@ -393,29 +430,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	switch (spec.type)
 	{
 	case 1: //creature specialty
-		{
-			const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
-			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
-
-			bonus->type = Bonus::STACKS_SPEED;
-			bonus->valType = Bonus::ADDITIVE_VALUE;
-			bonus->val = 1;
-			result.push_back(bonus);
-
-			bonus = std::make_shared<Bonus>(*bonus);
-			bonus->type = Bonus::PRIMARY_SKILL;
-			bonus->val = 0;
-			int stepSize = specCreature.level ? specCreature.level : 5;
-
-			bonus->subtype = PrimarySkill::ATTACK;
-			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
-			result.push_back(bonus);
-
-			bonus = std::make_shared<Bonus>(*bonus);
-			bonus->subtype = PrimarySkill::DEFENSE;
-			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefence(false), stepSize));
-			result.push_back(bonus);
-		}
+		AddSpecialtyForCreature(spec.additionalinfo, bonus, result);
 		break;
 	case 2: //secondary skill
 		bonus->type = Bonus::SECONDARY_SKILL_PREMY;
@@ -585,9 +600,16 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 		const JsonNode & base = specialtyNode["base"];
 		if(!base.isNull())
 		{
-			JsonMap & bonuses = specialtyNode["bonuses"].Struct();
-			for(std::pair<std::string, JsonNode> keyValue : bonuses)
-				JsonUtils::inherit(bonuses[keyValue.first], base);
+			if(specialtyNode["bonuses"].isNull())
+			{
+				logMod->warn("specialty has base without bonuses");
+			}
+			else
+			{
+				JsonMap & bonuses = specialtyNode["bonuses"].Struct();
+				for(std::pair<std::string, JsonNode> keyValue : bonuses)
+					JsonUtils::inherit(bonuses[keyValue.first], base);
+			}
 		}
 	}
 }
@@ -635,9 +657,23 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	}
 	else if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
-		//proper new format
-		for(auto keyValue : specialtyNode["bonuses"].Struct())
-			hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
+		//creature specialty - alias for simplicity
+		if(!specialtyNode["creature"].isNull())
+		{
+			VLC->modh->identifiers.requestIdentifier("creature", specialtyNode["creature"], [hero](si32 creature) {
+				// use legacy format for delayed conversion (must have all creature data loaded, also for upgrades)
+				SSpecialtyInfo spec;
+				spec.type = 1;
+				spec.additionalinfo = creature;
+				hero->specDeprecated.push_back(spec);
+			});
+		}
+		if(!specialtyNode["bonuses"].isNull())
+		{
+			//proper new format
+			for(auto keyValue : specialtyNode["bonuses"].Struct())
+				hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second)));
+		}
 	}
 }
 

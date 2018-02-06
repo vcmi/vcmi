@@ -140,7 +140,6 @@
 					"type" : "object",
 					"description": "Description of hero specialty using bonus system",
 					"additionalProperties" : false,
-					"required" : [ "bonuses" ],
 					"properties" : { 
 						"base" : {
 							"type" : "object",
@@ -150,6 +149,10 @@
 							"type" : "object",
 							"description" : "Set of bonuses",
 							"additionalProperties" : { "$ref" : "vcmi:bonus" }
+						},
+						"creature" : {
+							"type" : "string",
+							"description" : "Name of base creature to grant standard specialty to."
 						}
 					}
 				}
