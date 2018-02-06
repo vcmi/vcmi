@@ -439,7 +439,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //T
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s.", type);
 		return b;
 	}
 	b->type = it->second;
@@ -457,7 +457,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		auto it = map.find(type);
 		if (it == map.end())
 		{
-			logMod->error("Error: invalid %s%s", err, type);
+			logMod->error("Error: invalid %s%s.", err, type);
 			return defaultValue;
 		}
 		else
@@ -489,7 +489,7 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 				});
 				break;
 			default:
-				logMod->error("Error! Wrong identifier used for value of %s", name);
+				logMod->error("Error! Wrong identifier used for value of %s.", name);
 		}
 	}
 }
@@ -533,7 +533,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s.", type);
 		return false;
 	}
 	b->type = it->second;
@@ -624,7 +624,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 							auto it = bonusNameMap.find(anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
-								logMod->error("Error: invalid ability type %s", anotherBonusType);
+								logMod->error("Error: invalid ability type %s.", anotherBonusType);
 								continue;
 							}
 							l2->type = it->second;
@@ -794,6 +794,7 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	{
 		logMod->warn("Data in %s is invalid!", dataName);
 		logMod->warn(log);
+		logMod->trace("%s json: %s", dataName, node.toJson(true));
 	}
 	return log.empty();
 }
