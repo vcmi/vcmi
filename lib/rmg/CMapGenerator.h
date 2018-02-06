@@ -29,7 +29,7 @@ class CTileInfo;
 
 typedef std::vector<JsonNode> JsonVector;
 
-class rmgException : std::exception
+class rmgException : public std::exception
 {
 	std::string msg;
 public:

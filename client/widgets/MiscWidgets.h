@@ -123,7 +123,7 @@ class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
 public:
 	int baseType;
-	int bonusValue, type;
+	int bonusValue;
 	virtual void clickLeft(tribool down, bool previousState) override;
 	virtual void clickRight(tribool down, bool previousState) override;
 

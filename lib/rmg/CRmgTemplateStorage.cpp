@@ -117,7 +117,10 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 			else if (monsterStrength == "strong")
 				zone->setMonsterStrength(EMonsterStrength::ZONE_STRONG);
 			else
+			{
+				delete zone;
 				throw (rmgException("incorrect monster power"));
+			}
 
 			if (!zoneNode["mines"].isNull())
 			{

@@ -93,8 +93,9 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 }
 
 LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType)
-	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1), type(-1)
+	: LRClickableAreaWText(Pos), baseType(BaseType), bonusValue(-1)
 {
+	type = -1;
 }
 
 CComponent * LRClickableAreaWTextComp::createComponent() const
