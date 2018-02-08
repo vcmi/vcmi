@@ -210,7 +210,7 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::s
 
 		if(resurrectValue > 0 && customState->canCast()) //there must be casts left
 		{
-			double resurrectFactor = resurrectValue / 100;
+			double resurrectFactor = resurrectValue / 100.0;
 
 			auto baseAmount = customState->unitBaseAmount();
 
