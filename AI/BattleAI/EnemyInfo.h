@@ -9,21 +9,16 @@
  */
 #pragma once
 
-#include "../../lib/battle/BattleHex.h"
-
-class CStack;
+namespace battle
+{
+	class Unit;
+}
 
 class EnemyInfo
 {
 public:
-	const CStack * s;
-	int adi, adr;
-	std::vector<BattleHex> attackFrom; //for melee fight
-	EnemyInfo(const CStack * _s) : s(_s)
+	const battle::Unit * s;
+	EnemyInfo(const battle::Unit * _s) : s(_s)
 	{}
-	void calcDmg(const CStack * ourStack);
-	bool operator==(const EnemyInfo& ei) const
-	{
-		return s == ei.s;
-	}
+	bool operator==(const EnemyInfo & ei) const;
 };

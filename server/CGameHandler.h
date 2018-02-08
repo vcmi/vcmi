@@ -75,6 +75,7 @@ struct CasualtiesAfterBattle
 class CGameHandler : public IGameCallback, CBattleInfoCallback
 {
 public:
+	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
 	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
@@ -102,8 +103,10 @@ public:
 	bool visitObjectAfterVictory;
 	//
 	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
-	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex); //distance - number of hexes travelled before attacking
-	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
+
+	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
+
+	void applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary); //damage, drain life & fire shield
 	void checkBattleStateChanges();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
 	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
@@ -284,9 +287,9 @@ public:
 
 	void run(bool resume);
 	void newTurn();
-	void handleAttackBeforeCasting(BattleAttack *bat);
-	void handleAfterAttackCasting (const BattleAttack & bat);
-	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
+	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
+	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
+	void attackCasting(bool ranged, Bonus::BonusType attackMode, const CStack * attacker, const CStack * defender);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, const std::vector<ArtifactPosition> & slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	void handleCheatCode(std::string & cheat, PlayerColor player, const CGHeroInstance * hero, const CGTownInstance * town, bool & cheated);
@@ -309,10 +312,7 @@ class clientDisconnectedException : public std::exception
 {
 
 };
-
 class ExceptionNotAllowedAction : public std::exception
 {
 
 };
-
-void makeStackDoNothing();

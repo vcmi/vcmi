@@ -12,7 +12,6 @@
 #include "NetPacksBase.h"
 
 #include "battle/BattleAction.h"
-#include "JsonNode.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "ConstTransitivePtr.h"
 #include "int3.h"
@@ -23,10 +22,6 @@
 
 #include "spells/ViewSpellInt.h"
 
-class CClient;
-class CGameState;
-class CGameHandler;
-class CConnection;
 class CCampaignState;
 class CArtifact;
 class CSelectionScreen;
@@ -37,45 +32,7 @@ struct ArtSlotInfo;
 struct QuestInfo;
 class CMapInfo;
 struct StartInfo;
-
-struct CPackForClient : public CPack
-{
-	CPackForClient(){};
-
-	CGameState* GS(CClient *cl);
-	void applyFirstCl(CClient *cl)//called before applying to gs
-	{}
-	void applyCl(CClient *cl)//called after applying to gs
-	{}
-};
-
-struct CPackForServer : public CPack
-{
-	PlayerColor player;
-	CConnection *c;
-	CGameState* GS(CGameHandler *gh);
-	CPackForServer():
-		player(PlayerColor::NEUTRAL),
-		c(nullptr)
-	{
-	}
-
-	bool applyGh(CGameHandler *gh) //called after applying to gs
-	{
-		logGlobal->error("Should not happen... applying plain CPackForServer");
-		return false;
-	}
-
-protected:
-	void throwNotAllowedAction();
-	void throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id);
-	void throwOnWrongPlayer(CGameHandler * gh, PlayerColor player);
-	void throwAndCompain(CGameHandler * gh, std::string txt);
-	bool isPlayerOwns(CGameHandler * gh, ObjectInstanceID id);
-
-private:
-	void wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedplayer);
-};
+class IBattleState;
 
 struct Query : public CPackForClient
 {
@@ -1351,7 +1308,7 @@ struct MapObjectSelectDialog : public Query
 	}
 };
 
-struct BattleInfo;
+class BattleInfo;
 struct BattleStart : public CPackForClient
 {
 	BattleStart()
@@ -1440,12 +1397,16 @@ struct BattleStackMoved : public CPackForClient
 {
 	ui32 stack;
 	std::vector<BattleHex> tilesToMove;
-	ui8 distance, teleporting;
+	int distance;
+	bool teleporting;
 	BattleStackMoved()
-		:stack(0), distance(0), teleporting(0)
+		: stack(0),
+		distance(0),
+		teleporting(false)
 	{};
 	void applyFirstCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stack;
@@ -1454,52 +1415,46 @@ struct BattleStackMoved : public CPackForClient
 	}
 };
 
-struct StacksHealedOrResurrected : public CPackForClient
+struct BattleUnitsChanged : public CPackForClient
 {
-	StacksHealedOrResurrected()
-		:lifeDrain(false), tentHealing(false), drainedFrom(0), cure(false)
-	{}
+	BattleUnitsChanged(){}
 
 	DLL_LINKAGE void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
 	void applyCl(CClient *cl);
 
-	std::vector<CHealthInfo> healedStacks;
-	bool lifeDrain; //if true, this heal is an effect of life drain or soul steal
-	bool tentHealing; //if true, than it's healing via First Aid Tent
-	si32 drainedFrom; //if life drain or soul steal - then stack life was drain from, if tentHealing - stack that is a healer
-	bool cure; //archangel cast also remove negative effects
+	std::vector<UnitChanges> changedStacks;
+	std::vector<MetaString> battleLog;
+	std::vector<CustomEffectInfo> customEffects;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & healedStacks;
-		h & lifeDrain;
-		h & tentHealing;
-		h & drainedFrom;
-		h & cure;
+		h & changedStacks;
+		h & battleLog;
+		h & customEffects;
 	}
 };
 
-struct BattleStackAttacked : public CPackForClient
+struct BattleStackAttacked
 {
 	BattleStackAttacked():
 		stackAttacked(0), attackerID(0),
 		killedAmount(0), damageAmount(0),
-		newHealth(),
+		newState(),
 		flags(0), effect(0), spellID(SpellID::NONE)
 	{};
-	void applyFirstCl(CClient * cl);
-	//void applyCl(CClient *cl);
+
 	DLL_LINKAGE void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
 
 	ui32 stackAttacked, attackerID;
 	ui32 killedAmount;
-	si32 damageAmount;
-	CHealthInfo newHealth;
+	int64_t damageAmount;
+	UnitChanges newState;
 	enum EFlags {KILLED = 1, EFFECT = 2/*deprecated */, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16, SPELL_EFFECT = 32 /*, BONUS_EFFECT = 64 */};
 	ui32 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
 	SpellID spellID; //only if flag SPELL_EFFECT is set
-	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
 
 	bool killed() const//if target stack was killed
 	{
@@ -1526,20 +1481,15 @@ struct BattleStackAttacked : public CPackForClient
 	{
 		return flags & REBIRTH;
 	}
-	bool lifeDrain() const //if this attack involves life drain effect
-	{
-		return healedStacks.size() > 0;
-	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stackAttacked;
 		h & attackerID;
-		h & newHealth;
+		h & newState;
 		h & flags;
 		h & killedAmount;
 		h & damageAmount;
 		h & effect;
-		h & healedStacks;
 		h & spellID;
 	}
 	bool operator<(const BattleStackAttacked &b) const
@@ -1557,12 +1507,17 @@ struct BattleAttack : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
+	BattleUnitsChanged attackerChanges;
+
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui32 flags; //uses Eflags (below)
 	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
 
 	SpellID spellID; //for SPELL_LIKE
+
+	std::vector<MetaString> battleLog;
+	std::vector<CustomEffectInfo> customEffects;
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1598,6 +1553,9 @@ struct BattleAttack : public CPackForClient
 		h & stackAttacking;
 		h & flags;
 		h & spellID;
+		h & battleLog;
+		h & customEffects;
+		h & attackerChanges;
 	}
 };
 
@@ -1627,24 +1585,9 @@ struct EndAction : public CPackForClient
 
 struct BattleSpellCast : public CPackForClient
 {
-	///custom effect (resistance, reflection, etc)
-	struct CustomEffect
-	{
-		/// WoG AC format
-		ui32 effect;
-		ui32 stack;
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & effect;
-			h & stack;
-		}
-	};
-
 	BattleSpellCast()
 	{
 		side = 0;
-		id = 0;
-		skill = 0;
 		manaGained = 0;
 		casterStack = -1;
 		castByHero = true;
@@ -1655,11 +1598,10 @@ struct BattleSpellCast : public CPackForClient
 
 	bool activeCast;
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
-	ui32 id; //id of spell
-	ui8 skill; //caster's skill level
+	SpellID spellID; //id of spell
 	ui8 manaGained; //mana channeling ability
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
-	std::vector<CustomEffect> customEffects;
+	std::vector<CustomEffectInfo> customEffects;
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
 	bool castByHero; //if true - spell has been cast by hero, otherwise by a creature
@@ -1668,8 +1610,7 @@ struct BattleSpellCast : public CPackForClient
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & side;
-		h & id;
-		h & skill;
+		h & spellID;
 		h & manaGained;
 		h & tile;
 		h & customEffects;
@@ -1684,27 +1625,20 @@ struct BattleSpellCast : public CPackForClient
 struct SetStackEffect : public CPackForClient
 {
 	SetStackEffect(){};
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
+	void applyCl(CClient * cl);
 
-	std::vector<ui32> stacks; //affected stacks (IDs)
-
-	//regular effects
-	std::vector<Bonus> effect; //bonuses to apply
-	std::vector<std::pair<ui32, Bonus> > uniqueBonuses; //bonuses per single stack
-
-	//cumulative effects
-	std::vector<Bonus> cumulativeEffects; //bonuses to apply
-	std::vector<std::pair<ui32, Bonus> > cumulativeUniqueBonuses; //bonuses per single stack
+	std::vector<std::pair<ui32, std::vector<Bonus>>> toAdd;
+	std::vector<std::pair<ui32, std::vector<Bonus>>> toUpdate;
+	std::vector<std::pair<ui32, std::vector<Bonus>>> toRemove;
 
 	std::vector<MetaString> battleLog;
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & stacks;
-		h & effect;
-		h & uniqueBonuses;
-		h & cumulativeEffects;
-		h & cumulativeUniqueBonuses;
+		h & toAdd;
+		h & toUpdate;
+		h & toRemove;
 		h & battleLog;
 	}
 };
@@ -1712,13 +1646,18 @@ struct SetStackEffect : public CPackForClient
 struct StacksInjured : public CPackForClient
 {
 	StacksInjured(){}
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
+
+	void applyCl(CClient * cl);
 
 	std::vector<BattleStackAttacked> stacks;
-	template <typename Handler> void serialize(Handler &h, const int version)
+	std::vector<MetaString> battleLog;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & stacks;
+		h & battleLog;
 	}
 };
 
@@ -1736,18 +1675,19 @@ struct BattleResultsApplied : public CPackForClient
 	}
 };
 
-struct ObstaclesRemoved : public CPackForClient
+struct BattleObstaclesChanged : public CPackForClient
 {
-	ObstaclesRemoved(){}
+	BattleObstaclesChanged(){}
 
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
+	void applyCl(CClient * cl);
 
-	std::set<si32> obstacles; //uniqueIDs of removed obstacles
+	std::vector<ObstacleChanges> changes;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & obstacles;
+		h & changes;
 	}
 };
 
@@ -1759,9 +1699,7 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 		ui8 attackedPart;
 		ui8 damageDealt;
 
-		DLL_LINKAGE std::string toString() const;
-
-		template <typename Handler> void serialize(Handler &h, const int version)
+		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & destinationTile;
 			h & attackedPart;
@@ -1772,9 +1710,9 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 	DLL_LINKAGE CatapultAttack();
 	DLL_LINKAGE ~CatapultAttack();
 
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
-	DLL_LINKAGE std::string toString() const override;
+	DLL_LINKAGE void applyGs(CGameState * gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
+	void applyCl(CClient * cl);
 
 	std::vector< AttackInfo > attackedParts;
 	int attacker; //if -1, then a spell caused this
@@ -1783,49 +1721,6 @@ struct ELF_VISIBILITY CatapultAttack : public CPackForClient
 	{
 		h & attackedParts;
 		h & attacker;
-	}
-};
-
-struct BattleStacksRemoved : public CPackForClient
-{
-	BattleStacksRemoved(){}
-
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyFirstCl(CClient *cl);//inform client before stack objects are destroyed
-
-	std::set<ui32> stackIDs; //IDs of removed stacks
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & stackIDs;
-	}
-};
-
-struct BattleStackAdded : public CPackForClient
-{
-	BattleStackAdded()
-		: side(0), amount(0), pos(0), summoned(0), newStackID(0)
-	{};
-
-	DLL_LINKAGE void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
-
-	ui8 side;
-	CreatureID creID;
-	int amount;
-	int pos;
-	int summoned; //if true, remove it afterwards
-
-	///Actual stack ID, set on apply, do not serialize
-	int newStackID;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & side;
-		h & creID;
-		h & amount;
-		h & pos;
-		h & summoned;
 	}
 };
 
@@ -1874,21 +1769,6 @@ struct BattleTriggerEffect : public CPackForClient
 		h & effect;
 		h & val;
 		h & additionalInfo;
-	}
-};
-
-struct BattleObstaclePlaced : public CPackForClient
-{
-	BattleObstaclePlaced(){};
-
-	DLL_LINKAGE void applyGs(CGameState *gs); //effect
-	void applyCl(CClient *cl); //play animations & stuff
-
-	std::shared_ptr<CObstacleInstance> obstacle;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & obstacle;
 	}
 };
 

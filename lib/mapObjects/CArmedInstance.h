@@ -12,7 +12,7 @@
 #include "CObjectHandler.h"
 #include "../CCreatureSet.h"
 
-struct BattleInfo;
+class BattleInfo;
 class CGameState;
 
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet

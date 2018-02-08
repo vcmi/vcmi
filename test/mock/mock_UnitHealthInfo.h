@@ -8,10 +8,11 @@
  *
  */
 
-#include "StdInc.h"
-#include "../../lib/CStack.h"
+#pragma once
 
-class UnitHealthInfoMock : public IUnitHealthInfo
+#include "../../lib/battle/IUnitInfo.h"
+
+class UnitHealthInfoMock : public battle::IUnitHealthInfo
 {
 public:
 	MOCK_CONST_METHOD0(unitMaxHealth, int32_t());

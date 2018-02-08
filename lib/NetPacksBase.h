@@ -9,7 +9,10 @@
  */
 #pragma once
 
+class CClient;
 class CGameState;
+class CGameHandler;
+class CConnection;
 class CStackBasicDescriptor;
 class CGHeroInstance;
 class CStackInstance;
@@ -17,9 +20,11 @@ class CArmedInstance;
 class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
+class BattleInfo;
 
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
+#include "JsonNode.h"
 
 struct DLL_LINKAGE CPack
 {
@@ -31,11 +36,49 @@ struct DLL_LINKAGE CPack
 		logNetwork->error("CPack serialized... this should not happen!");
 		assert(false && "CPack serialized");
 	}
-	void applyGs(CGameState *gs) { }
-	virtual std::string toString() const { return boost::str(boost::format("{CPack: type '%s'}") % typeid(this).name()); }
+
+	void applyGs(CGameState * gs)
+	{}
 };
 
-std::ostream & operator<<(std::ostream & out, const CPack * pack);
+struct CPackForClient : public CPack
+{
+	CPackForClient(){};
+
+	CGameState* GS(CClient *cl);
+	void applyFirstCl(CClient *cl)//called before applying to gs
+	{}
+	void applyCl(CClient *cl)//called after applying to gs
+	{}
+};
+
+struct CPackForServer : public CPack
+{
+	PlayerColor player;
+	CConnection *c;
+	CGameState* GS(CGameHandler *gh);
+	CPackForServer():
+		player(PlayerColor::NEUTRAL),
+		c(nullptr)
+	{
+	}
+
+	bool applyGh(CGameHandler *gh) //called after applying to gs
+	{
+		logGlobal->error("Should not happen... applying plain CPackForServer");
+		return false;
+	}
+
+protected:
+	void throwNotAllowedAction();
+	void throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id);
+	void throwOnWrongPlayer(CGameHandler * gh, PlayerColor player);
+	void throwAndCompain(CGameHandler * gh, std::string txt);
+	bool isPlayerOwns(CGameHandler * gh, ObjectInstanceID id);
+
+private:
+	void wrongPlayerMessage(CGameHandler * gh, PlayerColor expectedplayer);
+};
 
 struct DLL_LINKAGE MetaString
 {
@@ -196,25 +239,104 @@ struct ArtifactLocation
 	}
 };
 
-class CHealthInfo
+///custom effect (resistance, reflection, etc)
+struct CustomEffectInfo
 {
-public:
-	CHealthInfo():
-		stackId(0), delta(0), firstHPleft(0), fullUnits(0), resurrected(0)
+	CustomEffectInfo()
+		:effect(0),
+		sound(0),
+		stack(0)
 	{
 	}
-	uint32_t stackId;
-	int32_t delta;
-	int32_t firstHPleft;
-	int32_t fullUnits;
-	int32_t resurrected;
+	/// WoG AC format
+	ui32 effect;
+	ui32 sound;
+	ui32 stack;
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & effect;
+		h & sound;
+		h & stack;
+	}
+};
+
+class BattleChanges
+{
+public:
+	enum class EOperation : si8
+	{
+		ADD,
+		RESET_STATE,
+		UPDATE,
+		REMOVE
+	};
+
+	JsonNode data;
+	EOperation operation;
+
+	BattleChanges()
+		: operation(EOperation::RESET_STATE),
+		data()
+	{
+	}
+
+	BattleChanges(EOperation operation_)
+		: operation(operation_),
+		data()
+	{
+	}
+};
+
+class UnitChanges : public BattleChanges
+{
+public:
+	uint32_t id;
+	int64_t healthDelta;
+
+	UnitChanges()
+		: BattleChanges(EOperation::RESET_STATE),
+		id(0),
+		healthDelta(0)
+	{
+	}
+
+	UnitChanges(uint32_t id_, EOperation operation_)
+		: BattleChanges(operation_),
+		id(id_),
+		healthDelta(0)
+	{
+	}
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & stackId;
-		h & delta;
-		h & firstHPleft;
-		h & fullUnits;
-		h & resurrected;
+		h & id;
+		h & healthDelta;
+		h & data;
+		h & operation;
+	}
+};
+
+class ObstacleChanges : public BattleChanges
+{
+public:
+	uint32_t id;
+
+	ObstacleChanges()
+		: BattleChanges(EOperation::RESET_STATE),
+		id(0)
+	{
+	}
+
+	ObstacleChanges(uint32_t id_, EOperation operation_)
+		: BattleChanges(operation_),
+		id(id_)
+	{
+	}
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & id;
+		h & data;
+		h & operation;
 	}
 };

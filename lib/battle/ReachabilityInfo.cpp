@@ -10,26 +10,24 @@
 
 #include "StdInc.h"
 #include "ReachabilityInfo.h"
-#include "../CStack.h"
+#include "Unit.h"
 
 
 ReachabilityInfo::Parameters::Parameters()
 {
-	stack = nullptr;
 	perspective = BattlePerspective::ALL_KNOWING;
 	side = 0;
 	doubleWide = flying = false;
 }
 
-ReachabilityInfo::Parameters::Parameters(const CStack * Stack)
+ReachabilityInfo::Parameters::Parameters(const battle::Unit * Stack, BattleHex StartPosition)
 {
-	stack = Stack;
-	perspective = (BattlePerspective::BattlePerspective)(Stack->side);
-	startPosition = Stack->position;
-	doubleWide = stack->doubleWide();
-	side = stack->side;
-	flying = stack->hasBonusOfType(Bonus::FLYING);
-	knownAccessible = stack->getHexes();
+	perspective = (BattlePerspective::BattlePerspective)(Stack->unitSide());
+	startPosition = StartPosition;
+	doubleWide = Stack->doubleWide();
+	side = Stack->unitSide();
+	flying = Stack->hasBonusOfType(Bonus::FLYING);
+	knownAccessible = battle::Unit::getHexes(startPosition, doubleWide, side);
 }
 
 ReachabilityInfo::ReachabilityInfo()

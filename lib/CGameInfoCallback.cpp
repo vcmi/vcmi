@@ -189,14 +189,14 @@ int CGameInfoCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * ca
 	return caster->getSpellCost(sp);
 }
 
-int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const
+int64_t CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
 	ERROR_RET_VAL_IF(hero && !canGetFullInfo(hero), "Cannot get info about caster!", -1);
 
-	if (hero) //we see hero's spellbook
-		return sp->calculateDamage(hero, nullptr, hero->getEffectLevel(sp), hero->getEffectPower(sp));
+	if(hero) //we see hero's spellbook
+		return sp->calculateDamage(hero);
 	else
 		return 0; //mage guild
 }

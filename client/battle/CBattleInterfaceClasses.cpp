@@ -203,7 +203,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	if(!myHero || down || !myOwner->myTurn)
 		return;
 
-	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, ECastingMode::HERO_CASTING) == ESpellCastProblem::OK) //check conditions
+	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
@@ -505,9 +505,9 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 	assert(cbi);
 
 	Point ret(-500, -500); //returned value
-	if(stack && stack->position < 0) //creatures in turrets
+	if(stack && stack->initialPosition < 0) //creatures in turrets
 	{
-		switch(stack->position)
+		switch(stack->initialPosition)
 		{
 		case -2: //keep
 			ret = cbi->siegeH->town->town->clientInfo.siegePositions[18];
@@ -669,105 +669,130 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero &hero, Point *position) : C
 	new CLabel(39, 186, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints));
 }
 
-void CStackQueue::update()
-{
-	stacksSorted.clear();
-	owner->getCurrentPlayerInterface()->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
-	if(stacksSorted.size())
-	{
-		for (int i = 0; i < stackBoxes.size() ; i++)
-		{
-			stackBoxes[i]->setStack(stacksSorted[i]);
-		}
-	}
-	else
-	{
-		//no stacks on battlefield... what to do with queue?
-	}
-}
-
 CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
-:embedded(Embedded), owner(_owner)
+	: embedded(Embedded),
+	owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	if(embedded)
 	{
-		bg = nullptr;
 		pos.w = QUEUE_SIZE * 37;
 		pos.h = 46;
 		pos.x = screen->w/2 - pos.w/2;
 		pos.y = (screen->h - 600)/2 + 10;
+
+		icons = std::make_shared<CAnimation>("CPRSMALL");
+		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
 	}
 	else
 	{
-		bg = BitmapHandler::loadBitmap("DIBOXBCK");
 		pos.w = 800;
 		pos.h = 85;
+
+		new CFilledTexture("DIBOXBCK", Rect(0,0, pos.w, pos.h));
+
+		icons = std::make_shared<CAnimation>("TWCRPORT");
+		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
+		//TODO: where use big icons?
+		//stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESBIG");
 	}
+	stateIcons->preload();
 
 	stackBoxes.resize(QUEUE_SIZE);
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
-		stackBoxes[i] = new StackBox(embedded);
+		stackBoxes[i] = new StackBox(this);
 		stackBoxes[i]->moveBy(Point(1 + (embedded ? 36 : 80)*i, 0));
 	}
 }
 
 CStackQueue::~CStackQueue()
 {
-	SDL_FreeSurface(bg);
 }
 
-void CStackQueue::showAll(SDL_Surface * to)
+void CStackQueue::update()
 {
-	blitBg(to);
+	std::vector<battle::Units> queueData;
 
-	CIntObject::showAll(to);
-}
+	owner->getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
 
-void CStackQueue::blitBg( SDL_Surface * to )
-{
-	if(bg)
+	size_t boxIndex = 0;
+
+	for(size_t turn = 0; turn < queueData.size() && boxIndex < stackBoxes.size(); turn++)
 	{
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::fillTexture(to, bg);
-		SDL_SetClipRect(to, nullptr);
+		for(size_t unitIndex = 0; unitIndex < queueData[turn].size() && boxIndex < stackBoxes.size(); boxIndex++, unitIndex++)
+			stackBoxes[boxIndex]->setStack(queueData[turn][unitIndex], turn);
 	}
+
+	for(; boxIndex < stackBoxes.size(); boxIndex++)
+		stackBoxes[boxIndex]->setStack(nullptr);
 }
 
-void CStackQueue::StackBox::showAll(SDL_Surface * to)
-{
-	assert(stack);
-	bg->colorize(stack->owner);
-	CIntObject::showAll(to);
-
-	if(small)
-		printAtMiddleLoc(makeNumberShort(stack->getCount()), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
-	else
-		printAtMiddleLoc(makeNumberShort(stack->getCount()), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
-}
-
-void CStackQueue::StackBox::setStack( const CStack *stack )
-{
-	this->stack = stack;
-	assert(stack);
-	icon->setFrame(stack->getCreature()->iconIndex);
-}
-
-CStackQueue::StackBox::StackBox(bool small):
-    stack(nullptr),
-    small(small)
+CStackQueue::StackBox::StackBox(CStackQueue * owner)
+	: bg(nullptr),
+	icon(nullptr),
+	amount(nullptr),
+	stateIcon(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(small ? "StackQueueSmall" : "StackQueueLarge" );
-
-	if (small)
-	{
-		icon = new CAnimImage("CPRSMALL", 0, 0, 5, 2);
-	}
-	else
-		icon = new CAnimImage("TWCRPORT", 0, 0, 9, 1);
+	bg = new CPicture(owner->embedded ? "StackQueueSmall" : "StackQueueLarge" );
 
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
+
+	if(owner->embedded)
+	{
+		icon = new CAnimImage(owner->icons, 0, 0, 5, 2);
+		amount = new CLabel(pos.w/2, pos.h - 7, FONT_SMALL, CENTER, Colors::WHITE);
+	}
+	else
+	{
+		icon = new CAnimImage(owner->icons, 0, 0, 9, 1);
+		amount = new CLabel(pos.w/2, pos.h - 8, FONT_MEDIUM, CENTER, Colors::WHITE);
+
+		int icon_x = pos.w - 17;
+		int icon_y = pos.h - 18;
+
+		stateIcon = new CAnimImage(owner->stateIcons, 0, 0, icon_x, icon_y);
+		stateIcon->visible = false;
+	}
+}
+
+void CStackQueue::StackBox::setStack(const battle::Unit * nStack, size_t turn)
+{
+	if(nStack)
+	{
+		bg->colorize(nStack->unitOwner());
+		icon->visible = true;
+		icon->setFrame(nStack->creatureIconIndex());
+		amount->setText(makeNumberShort(nStack->getCount()));
+
+		if(stateIcon)
+		{
+			if(nStack->defended(turn) || (turn > 0 && nStack->defended(turn - 1)))
+			{
+				stateIcon->setFrame(0, 0);
+				stateIcon->visible = true;
+			}
+			else if(nStack->waited(turn))
+			{
+				stateIcon->setFrame(1, 0);
+				stateIcon->visible = true;
+			}
+			else
+			{
+				stateIcon->visible = false;
+			}
+		}
+	}
+	else
+	{
+		bg->colorize(PlayerColor::NEUTRAL);
+		icon->visible = false;
+		icon->setFrame(0);
+		amount->setText("");
+
+		if(stateIcon)
+			stateIcon->visible = false;
+	}
 }

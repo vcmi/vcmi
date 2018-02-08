@@ -19,8 +19,16 @@ class IBonusBearer;
 struct InfoAboutHero;
 class CArmedInstance;
 
-typedef std::vector<const CStack*> TStacks;
+typedef std::vector<const CStack *> TStacks;
 typedef std::function<bool(const CStack *)> TStackFilter;
+
+namespace battle
+{
+	class IUnitInfo;
+	class Unit;
+	using Units = std::vector<const Unit *>;
+	using UnitFilter = std::function<bool(const Unit *)>;
+}
 
 namespace BattlePerspective
 {
@@ -37,7 +45,7 @@ class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
-	const IBonusBearer * getBattleNode() const;
+
 public:
 	enum EStackOwnership
 	{
@@ -45,34 +53,48 @@ public:
 	};
 
 	BattlePerspective::BattlePerspective battleGetMySide() const;
+	const IBonusBearer * getBattleNode() const;
 
 	ETerrainType battleTerrainType() const;
 	BFieldType battleGetBattlefieldType() const;
+	int32_t battleGetEnchanterCounter(ui8 side) const;
+
 	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
 
+	std::shared_ptr<const CObstacleInstance> battleGetObstacleByID(uint32_t ID) const;
+
 	/** @brief Main method for getting battle stacks
-	 *
+	 * returns also turrets and removed stacks
 	 * @param predicate Functor that shall return true for desired stack
 	 * @return filtered stacks
 	 *
 	 */
-	TStacks battleGetStacksIf(TStackFilter predicate) const;
+	TStacks battleGetStacksIf(TStackFilter predicate) const; //deprecated
+	battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const;
+
+	const battle::Unit * battleGetUnitByID(uint32_t ID) const;
+	const battle::Unit * battleActiveUnit() const;
+
+	uint32_t battleNextUnitId() const;
 
 	bool battleHasNativeStack(ui8 side) const;
-	int battleGetMoatDmg() const; //what dmg unit will suffer if ending turn in the moat
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
-	const CStack *battleActiveStack() const;
+
 	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
+
 	ui8 otherSide(ui8 side) const;
+	PlayerColor otherPlayer(PlayerColor player) const;
+
 	BattleSideOpt playerToSide(PlayerColor player) const;
+	PlayerColor sideToPlayer(ui8 side) const;
 	bool playerHasAccessToHeroInfo(PlayerColor player, const CGHeroInstance * h) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
-	int battleCastSpells(ui8 side) const; //how many spells has given side cast
-	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
+	uint32_t battleCastSpells(ui8 side) const; //how many spells has given side cast
+	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //deprecated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(ui8 side) const;
 	InfoAboutHero battleGetHeroInfo(ui8 side) const;
 
@@ -85,21 +107,17 @@ public:
 	///returns all stacks, alive or dead or undead or mechanical :)
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
 
-	///returns all alive stacks excluding turrets
-	TStacks battleAliveStacks() const;
-	///returns all alive stacks from particular side excluding turrets
-	TStacks battleAliveStacks(ui8 side) const;
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
 	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
 
 	///returns player that controls given stack; mind control included
-	PlayerColor battleGetOwner(const CStack * stack) const;
+	PlayerColor battleGetOwner(const battle::Unit * unit) const;
 
 	///returns hero that controls given stack; nullptr if none; mind control included
-	const CGHeroInstance * battleGetOwnerHero(const CStack * stack) const;
+	const CGHeroInstance * battleGetOwnerHero(const battle::Unit * unit) const;
 
 	///check that stacks are controlled by same|other player(s) depending on positiveness
 	///mind control included
-	bool battleMatchOwner(const CStack * attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
-	bool battleMatchOwner(const PlayerColor & attacker, const CStack * defender, const boost::logic::tribool positivness = false) const;
+	bool battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
+	bool battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
 };

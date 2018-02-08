@@ -43,7 +43,6 @@ struct Bonus;
 struct PackageApplied;
 struct SetObjectProperty;
 struct CatapultAttack;
-struct BattleStacksRemoved;
 struct StackLocation;
 class CStackInstance;
 class CCommanderInstance;
@@ -134,20 +133,17 @@ public:
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog) override;
 	virtual void actionStarted(const BattleAction &action) override;
 	virtual void battleNewRoundFirst(int round) override;
 	virtual void actionFinished(const BattleAction &action) override;
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse) override;
-	//virtual void battleTriggerEffect(const BattleTriggerEffect & bte);
-	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr) override;
-	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles) override;
-	virtual void battleNewStackAppeared(const CStack * stack) override;
+	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
 	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
 	virtual void battleEnd(const BattleResult *br) override;
-	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom) override;
+	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override; //saving
 	virtual void loadGame(BinaryDeserializer & h, const int version) override; //loading

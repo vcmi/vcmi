@@ -1,0 +1,50 @@
+{
+	"hero_0" : {
+		"l" : 0,
+		"template" : {
+			"animation" : "AH00_",
+			"editorAnimation" : "AH00_E",
+			"mask" : [
+				"VV",
+				"AV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"x" : 2,
+		"y" : 2,
+		"type" : "hero",
+		"subtype" : "knight",
+		"options" : {
+			"owner" : "red",
+			"type" : "catherine"
+		}
+	},
+	"hero_1" : {
+		"l" : 0,
+		"template" : {
+			"animation" : "AH00_",
+			"editorAnimation" : "AH00_E",
+			"mask" : [
+				"VV",
+				"AV"
+			],
+			"visitableFrom" : [
+				"+++",
+				"+-+",
+				"+++"
+			]
+		},
+		"x" : 6,
+		"y" : 2,
+		"type" : "hero",
+		"subtype" : "knight",
+		"options" : {
+			"owner" : "blue",
+			"type" : "christian"
+		}
+	}
+}

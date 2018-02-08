@@ -62,4 +62,4 @@ boost::string_ref GetPathStem(boost::string_ref path)
 	return path.substr(0, dotPos);
 }
 
-} // namespace FileInfo
+}

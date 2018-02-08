@@ -64,16 +64,21 @@ public:
 	}
 };
 
-class DLL_LINKAGE CBonusProxy : public boost::noncopyable
+class DLL_LINKAGE CBonusProxy
 {
 public:
 	CBonusProxy(const IBonusBearer * Target, CSelector Selector);
+	CBonusProxy(const CBonusProxy & other);
+	CBonusProxy(CBonusProxy && other);
+
+	CBonusProxy & operator=(CBonusProxy && other);
+	CBonusProxy & operator=(const CBonusProxy & other);
 
 	TBonusListPtr get() const;
 
 	const BonusList * operator->() const;
 private:
-	mutable int cachedLast;
+	mutable int64_t cachedLast;
 	const IBonusBearer * target;
 	CSelector selector;
 	mutable TBonusListPtr data;
@@ -607,12 +612,15 @@ public:
 	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
 
 	//various hlp functions for non-trivial values
-	ui32 getMinDamage() const; //used for stacks and creatures only
-	ui32 getMaxDamage() const;
+	//used for stacks and creatures only
+
+	virtual int getMinDamage(bool ranged) const;
+	virtual int getMaxDamage(bool ranged) const;
+	virtual int getAttack(bool ranged) const;
+	virtual int getDefence(bool ranged) const;
+
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
-	si32 Attack() const; //get attack of stack with all modificators
-	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
 	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
@@ -620,9 +628,11 @@ public:
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
+
+	virtual int64_t getTreeVersion() const = 0;
 };
 
-class DLL_LINKAGE CBonusSystemNode : public IBonusBearer, public boost::noncopyable
+class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::noncopyable
 {
 public:
 	enum ENodeTypes
@@ -642,8 +652,8 @@ private:
 
 	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
-	mutable int cachedLast;
-	static int treeChanged;
+	mutable int64_t cachedLast;
+	static std::atomic<int32_t> treeChanged;
 
 	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
 	// This string needs to be unique, that's why it has to be setted in the following manner:
@@ -656,6 +666,7 @@ private:
 
 public:
 	explicit CBonusSystemNode();
+	explicit CBonusSystemNode(ENodeTypes NodeType);
 	CBonusSystemNode(CBonusSystemNode && other);
 	virtual ~CBonusSystemNode();
 
@@ -710,6 +721,8 @@ public:
 	void setDescription(const std::string &description);
 
 	static void treeHasChanged();
+
+	int64_t getTreeVersion() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

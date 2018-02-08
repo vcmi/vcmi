@@ -14,12 +14,10 @@ class PotentialTargets
 {
 public:
 	std::vector<AttackPossibility> possibleAttacks;
-	std::vector<const CStack *> unreachableEnemies;
-
-	//std::function<AttackPossibility(bool,BattleHex)>  GenerateAttackInfo; //args: shooting, destHex
+	std::vector<const battle::Unit *> unreachableEnemies;
 
 	PotentialTargets(){};
-	PotentialTargets(const CStack *attacker, const HypotheticChangesToBattleState &state = HypotheticChangesToBattleState());
+	PotentialTargets(const battle::Unit * attacker, const HypotheticBattle * state);
 
 	AttackPossibility bestAction() const;
 	int bestActionValue() const;

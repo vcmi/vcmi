@@ -479,20 +479,6 @@ std::vector<bool> CCreatureHandler::getDefaultAllowed() const
 	return ret;
 }
 
-si32 CCreatureHandler::decodeCreature(const std::string& identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CCreatureHandler::encodeCreature(const si32 index)
-{
-	return VLC->creh->creatures[index]->identifier;
-}
-
 void CCreatureHandler::loadCrExpBon()
 {
 	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses

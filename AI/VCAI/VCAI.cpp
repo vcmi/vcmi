@@ -1359,7 +1359,7 @@ static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingI
 	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
 static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
 	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
-static const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+static const BuildingID _spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
 static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
 	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
@@ -1416,7 +1416,7 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	}
 
 	//remaining tasks
-	if(tryBuildNextStructure(t, std::vector<BuildingID>(spells, spells + ARRAY_COUNT(spells))))
+	if(tryBuildNextStructure(t, std::vector<BuildingID>(_spells, _spells + ARRAY_COUNT(_spells))))
 		return;
 	if(tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
 		return;

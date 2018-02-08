@@ -714,6 +714,46 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+	else if(message=="get config")
+	{
+		std::cout << "Command accepted.\t";
+
+		const bfs::path outPath =
+			VCMIDirs::get().userCachePath() / "extracted" / "configuration";
+
+		bfs::create_directories(outPath);
+
+		const std::vector<std::string> contentNames = {"heroClasses", "artifacts", "creatures", "factions", "objects", "heroes", "spells", "skills"};
+
+		for(auto contentName : contentNames)
+		{
+			auto & content = VLC->modh->content[contentName];
+
+			auto contentOutPath = outPath / contentName;
+			bfs::create_directories(contentOutPath);
+
+			for(auto & iter : content.modData)
+			{
+				const JsonNode & modData = iter.second.modData;
+
+				for(auto & nameAndObject : modData.Struct())
+				{
+					const JsonNode & object = nameAndObject.second;
+
+					std::string name = CModHandler::normalizeIdentifier(object.meta, "core", nameAndObject.first);
+
+					boost::algorithm::replace_all(name,":","_");
+
+					const bfs::path filePath = contentOutPath / (name + ".json");
+					bfs::ofstream file(filePath);
+					file << object.toJson();
+				}
+			}
+		}
+
+		std::cout << "\rExtracting done :)\n";
+		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+	}
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";

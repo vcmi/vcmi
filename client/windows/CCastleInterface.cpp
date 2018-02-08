@@ -1641,11 +1641,11 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
 
 		Rect sizes(287, 4, 96, 18);
-		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->Attack()));
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
 		sizes.y+=20;
-		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], getMyCreature()->Defense()));
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], getMyCreature()->getDefence(false)));
 		sizes.y+=21;
-		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(), getMyCreature()->getMaxDamage()));
+		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
 		sizes.y+=20;
 		values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[388], CGI->generaltexth->fcommands[3], getMyCreature()->MaxHealth()));
 		sizes.y+=21;

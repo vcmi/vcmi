@@ -8,27 +8,24 @@
  *
  */
 #pragma once
-#include "BattleHex.h"
-#include "../CStack.h"
 
-class IBonusBearer;
+namespace battle
+{
+	class Unit;
+	class CUnitState;
+}
 
 struct DLL_LINKAGE BattleAttackInfo
 {
-	const IBonusBearer *attackerBonuses, *defenderBonuses;
-	const CStack *attacker, *defender;
-	BattleHex attackerPosition, defenderPosition;
-
-	CHealth attackerHealth, defenderHealth;
+	const battle::Unit * attacker;
+	const battle::Unit * defender;
 
 	bool shooting;
 	int chargedFields;
 
-	bool luckyHit;
-	bool unluckyHit;
-	bool deathBlow;
-	bool ballistaDoubleDamage;
+	double additiveBonus;
+	double multBonus;
 
-	BattleAttackInfo(const CStack * Attacker, const CStack * Defender, bool Shooting = false);
+	BattleAttackInfo(const battle::Unit * Attacker, const battle::Unit * Defender, bool Shooting = false);
 	BattleAttackInfo reverse() const;
 };

@@ -103,8 +103,6 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 
 static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNode & objects, const JsonNode & surface, const JsonNode & underground)
 {
-	std::unique_ptr<CMap> map;
-
 	CMemoryBuffer initialBuffer;
 
 	std::shared_ptr<CIOApi> originalDataIO(new CProxyIOApi(&initialBuffer));

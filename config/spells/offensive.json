@@ -2,7 +2,7 @@
 	"magicArrow" : {
 		"index" : 15,
 		"targetType": "CREATURE",
-		
+
 		"animation":{
 			"projectile": [
 				{"minimumAngle": 0 ,"defName":"C20SPX4"},
@@ -19,22 +19,26 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"iceBolt" : {
 		"index" : 16,
 		"targetType": "CREATURE",
-		
+
 		"animation":{
 			"projectile": [
 				{"minimumAngle": 0 ,"defName":"C08SPW4"},
@@ -44,54 +48,62 @@
 				{"minimumAngle": 1.50 ,"defName":"C08SPW0"}
 			],
 			"hit":["C08SPW5"]
-		},		
+		},
 		"sounds": {
 			"cast": "ICERAY"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"lightningBolt" : {
 		"index" : 17,
 		"targetType": "CREATURE",
-		
+
 		"animation":{
 			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
-		},		
+		},
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"implosion" : {
 		"index" : 18,
 		"targetType": "CREATURE",
-		
+
 		"animation":{
 			"affect":["C05SPE0"]
 		},
@@ -101,245 +113,294 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
-
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"chainLightning" : {
 		"index" : 19,
 		"targetType": "CREATURE",
-		
+
 		"animation":{
 			"affect":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
-		},		
+		},
 		"sounds": {
 			"cast": "CHAINLTE"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {
+						"type" : "core:damage",
+						"chainFactor" : 0.5,
+						"chainLength" : 4
+					}
+				},
 				"targetModifier":{"smart":true}
+			},
+			"advanced" : {
+				"battleEffects" : {
+					"directDamage" : {
+						"chainLength" : 5
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects" : {
+					"directDamage" : {
+						"chainLength" : 5
+					}
+				}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		}
 	},
 	"frostRing" : {
 		"index" : 20,
 		"targetType": "LOCATION",
-		
+
 		"animation":{
 			"hit":["C07SPW"] //C07SPW0 ???
-		},			
+		},
 		"sounds": {
 			"cast": "FROSTING"
 		},
 		"levels" : {
 			"base":{
 				"range" : "1",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"fireball" : {
 		"index" : 21,
 		"targetType": "LOCATION",
-		
+
 		"animation":{
 			"hit":["C13SPF"] //C13SPF0 ???
-		},		
+		},
 		"sounds": {
 			"cast": "SPONTCOMB"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0,1",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"inferno" : {
 		"index" : 22,
 		"targetType": "LOCATION",
-		
+
 		"animation":{
 			"hit":["C04SPF0"]
-		},		
+		},
 		"sounds": {
 			"cast": "FIREBLST"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0-2",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"meteorShower" : {
 		"index" : 23,
 		"targetType": "LOCATION",
-		
+
 		"animation":{
 			"hit":["C08SPE0"]
-		},		
+		},
 		"sounds": {
 			"cast": "METEOR"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0,1",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"deathRipple" : {
 		"index" : 24,
 		"targetType" : "CREATURE",
-		
+
 		"animation":{
 			"affect":["C04SPE0"]
-		},		
+		},
 		"sounds": {
 			"cast": "DEATHRIP"
 		},
 		"levels" : {
 			"base":{
 				"range" : "X",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true,
-		},		
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"destroyUndead" : {
 		"index" : 25,
 		"targetType" : "CREATURE",
-		
+
 		"animation":{
 			"affect":["C14SPA0"]
-		},		
+		},
 		"sounds": {
 			"cast": "SACBRETH"
 		},
 		"levels" : {
 			"base":{
 				"range" : "X",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"absoluteLimit" : {
-			"UNDEAD": true
-		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"allOf" : {
+				"bonus.UNDEAD" : "absolute"
+			},
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"armageddon" : {
 		"index" : 26,
 		"targetType" : "CREATURE",
-		
+
 		"animation":{
 			"hit":["C06SPF0"]
-		},		
+		},
 		"sounds": {
 			"cast": "ARMGEDN"
 		},
 		"levels" : {
 			"base":{
 				"range" : "X",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":false}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	},
 	"titanBolt" : {
 		"index" : 57,
 		"targetType" : "CREATURE",
-		
+
 		"animation":{
 			"hit":[{"defName":"C03SPA0", "verticalPosition":"bottom"}, "C11SPA1"]
-		},		
+		},
 		"sounds": {
 			"cast": "LIGHTBLT"
 		},
 		"levels" : {
 			"base":{
 				"range" : "0",
+				"battleEffects" : {
+					"directDamage" : {"type":"core:damage"}
+				},
 				"targetModifier":{"smart":true}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true,
 			"special": true
 		}

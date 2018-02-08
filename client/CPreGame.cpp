@@ -3455,7 +3455,8 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 		//get header
 		std::string & headerStr = ourCampaign->camp->mapPieces.find(mapNr)->second;
 		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
+		CMapService mapService;
+		ourHeader = mapService.loadMapHeader(buffer, headerStr.size(), scenarioName);
 
 		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();

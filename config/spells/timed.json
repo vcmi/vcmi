@@ -108,11 +108,24 @@
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
 						"subtype" : 0,
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS",
+						"val" : 30
+					}
+				}
+			},
+			"advanced" : {
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
 					}
 				}
 			},
 			"expert":{
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
+					}
+				},
 				"range" : "X"
 			}
 		},
@@ -138,11 +151,24 @@
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
 						"subtype" : 1,
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS",
+						"val" : 30
+					}
+				}
+			},
+			"advanced" : {
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
 					}
 				}
 			},
 			"expert":{
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
+					}
+				},
 				"range" : "X"
 			}
 		},
@@ -168,11 +194,24 @@
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
 						"subtype" : 2,
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS",
+						"val" : 30
+					}
+				}
+			},
+			"advanced" : {
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
 					}
 				}
 			},
 			"expert":{
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
+					}
+				},
 				"range" : "X"
 			}
 		},
@@ -198,11 +237,24 @@
 					"spellDamageReduction" : {
 						"type" : "SPELL_DAMAGE_REDUCTION",
 						"subtype" : 3,
-						"duration" : "N_TURNS"
+						"duration" : "N_TURNS",
+						"val" : 30
+					}
+				}
+			},
+			"advanced" : {
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
 					}
 				}
 			},
 			"expert":{
+				"effects" : {
+					"spellDamageReduction" : {
+						"val" : 50
+					}
+				},
 				"range" : "X"
 			}
 		},
@@ -224,26 +276,47 @@
 			"base":{
 				"range" : "0",
 				"targetModifier":{"smart":true},
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 3,
-						"type" : "LEVEL_SPELL_IMMUNITY",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+				"battleEffects":{
+					"spellImmunity":{
+						"type":"core:timed",
+						"bonus":{
+							"levelSpellImmunity":{
+								"addInfo" : 1, //absolute
+								"val" : 3,
+								"type" : "LEVEL_SPELL_IMMUNITY",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS"
+							}
+						}
+					},
+					"dispel":{
+						"type":"core:dispel",
+						"optional":true,
+						"dispelNegative":true,
+						"dispelNeutral":true,
+						"dispelPositive":false
 					}
 				}
 			},
 			"advanced":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 4
+				"battleEffects":{
+					"spellImmunity":{
+						"bonus" :{
+							"levelSpellImmunity":{
+								"val" : 4
+							}
+						}
 					}
 				}
 			},
 			"expert":{
-				"effects" : {
-					"levelSpellImmunity" : {
-						"val" : 5
+				"battleEffects":{
+					"spellImmunity":{
+						"bonus":{
+							"levelSpellImmunity":{
+								"val" : 5
+							}
+						}
 					}
 				}
 			}
@@ -310,12 +383,14 @@
 		"counters" : {
 			"spell.curse": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"curse" : {
@@ -350,12 +425,14 @@
 		"counters" : {
 			"spell.bless": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"bloodlust" : {
@@ -401,11 +478,13 @@
 		"counters" : {
 			"spell.weakness": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"precision" : {
@@ -448,11 +527,13 @@
 				}
 			}
 		},
-		"absoluteLimit" : {
-			"SHOOTER": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"allOf" : {
+				"bonus.SHOOTER" : "absolute"
+			}
 		}
 	},
 	"weakness" : {
@@ -697,16 +778,16 @@
 		"counters" : {
 			"spell.sorrow":true
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true,
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"sorrow" : {
@@ -750,16 +831,16 @@
 		"counters" : {
 			"spell.mirth":true
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true,
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"fortune" : {
@@ -894,11 +975,13 @@
 		"counters" : {
 			"spell.slow": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"slow" : {
@@ -941,15 +1024,16 @@
 				}
 			}
 		},
-
 		"counters" : {
 			"spell.haste":true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"slayer" : {
@@ -1024,8 +1108,7 @@
 					"inFrenzy" : {
 						"type" : "IN_FRENZY",
 						"val" : 100,
-						"duration" : "N_TURNS",
-						"turns" : 1
+						"duration" : "UNTIL_ATTACK"
 					}
 				}
 			},
@@ -1044,11 +1127,13 @@
 				}
 			}
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"counterstrike" : {
@@ -1089,11 +1174,13 @@
 				}
 			}
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"positive": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"berserk" : {
@@ -1127,16 +1214,16 @@
 		"counters" : {
 			"spell.hypnotize": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"hypnotize" : {
@@ -1192,13 +1279,16 @@
 		"counters" : {
 			"spell.berserk": true
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
-			"NON_LIVING": true
+		"targetCondition" : {
+			"allOf" : {
+				"healthValueSpecial" : "absolute"
+			},
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON":"absolute",
+				"bonus.MIND_IMMUNITY":"normal",
+				"bonus.UNDEAD":"normal",
+				"bonus.NON_LIVING":"normal"
+			}
 		},
 		"flags" : {
 			"negative": true
@@ -1255,19 +1345,19 @@
 				}
 			}
 		},
-		"absoluteLimit" : {
-			"SHOOTER": true
-		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"UNDEAD": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"allOf" : {
+				"bonus.SHOOTER" : "absolute"
+			},
+			"noneOf" : {
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"blind" : {
@@ -1316,16 +1406,17 @@
 				}
 			}
 		},
-		"absoluteImmunity" : {
-			"SIEGE_WEAPON": true,
-			"UNDEAD": true
-		},
-		"immunity" : {
-			"MIND_IMMUNITY": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
+
 	}
 }

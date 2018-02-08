@@ -9,13 +9,11 @@
  */
 #include "StdInc.h"
 #include "EnemyInfo.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../CCallback.h"
-#include "common.h"
 
-void EnemyInfo::calcDmg(const CStack * ourStack)
+#include "../../lib/battle/Unit.h"
+
+bool EnemyInfo::operator==(const EnemyInfo & ei) const
 {
-	TDmgRange retal, dmg = getCbc()->battleEstimateDamage(CRandomGenerator::getDefault(), ourStack, s, &retal);
-	adi = (dmg.first + dmg.second) / 2;
-	adr = (retal.first + retal.second) / 2;
+	return s->unitId() == ei.s->unitId();
 }
+

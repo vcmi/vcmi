@@ -16,7 +16,7 @@
 					"notActive" : {
 						"val" : 0,
 						"type" : "NOT_ACTIVE",
-						"subtype" : 62,
+						"subtype" : "spell.stoneGaze",
 						"duration" : [
 							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
@@ -43,11 +43,13 @@
 				}
 			}
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"indifferent": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"poison" : {
@@ -80,15 +82,15 @@
 				}
 			}
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"UNDEAD": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"bind" : {
@@ -149,15 +151,15 @@
 				}
 			}
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"UNDEAD": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"paralyze" : {
@@ -178,7 +180,7 @@
 					"notActive" : {
 						"val" : 0,
 						"type" : "NOT_ACTIVE",
-						"subtype" : 74,
+						"subtype" : "spell.paralyze",
 						"duration" : [
 							"UNTIL_BEING_ATTACKED",
 							"N_TURNS"
@@ -195,11 +197,13 @@
 				}
 			}
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.SIEGE_WEAPON" : "absolute"
+			}
 		}
 	},
 	"age" : {
@@ -226,15 +230,15 @@
 				}
 			}
 		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"UNDEAD": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"negative": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"deathCloud" : {
@@ -249,18 +253,23 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "0-1"
+				"range" : "0-1",
+				"battleEffects":{
+					"damage":{
+						"type":"core:damage"
+					}
+				}
 			}
-		},
-		"absoluteImmunity":{
-			"SIEGE_WEAPON": true
-		},
-		"immunity" : {
-			"UNDEAD": true,
-			"NON_LIVING": true
 		},
 		"flags" : {
 			"indifferent": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "normal",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "normal"
+			}
 		}
 	},
 	"thunderbolt" : {
@@ -275,12 +284,16 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "0"
+				"range" : "0",
+				"battleEffects":{
+					"damage":{
+						"type":"core:damage"
+					}
+				}
 			}
 		},
 		"flags" : {
 			"damage": true,
-			"offensive": true,
 			"negative": true
 		}
 	},
@@ -296,6 +309,15 @@
 		},
 		"levels" : {
 			"base":{
+				"battleEffects":{
+					"dispel":{
+						"type":"core:dispel",
+						"ignoreImmunity" : true,
+						"dispelNegative":false,
+						"dispelNeutral":false,
+						"dispelPositive":true
+					}
+				},
 				"range" : "0"
 			}
 		},
@@ -316,41 +338,50 @@
 		},
 		"levels" : {
 			"base":{
+				"battleEffects":{
+					"destruction":{
+						"type":"core:damage",
+						"killByCount": true
+					}
+				},
 				"range" : "0"
 			}
 		},
-		"absoluteImmunity" : {
-			"UNDEAD": true,
-			"SIEGE_WEAPON": true,
-			"NON_LIVING": true
-		},
 		"flags" : {
 			"indifferent": true
+		},
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.UNDEAD" : "absolute"
+			}
 		}
 	},
 	"acidBreath" : {
 		"index" : 80,
 		"targetType": "NO_TARGET",
 
-		"animation":{
-			//???
-		},
-		"sounds": {
-			"cast": "ACID"
-		},
 		"levels" : {
 			"base":{
-				"range" : "0",
-				"targetModifier":{"smart":true},
-				"cumulativeEffects" : {
-					"primarySkill" : {
-						"val" : -3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "primSkill.defence",
-						"duration" : "PERMANENT",
-						"valueType" : "ADDITIVE_VALUE"
+				"battleEffects":{
+					"timed":{
+						"type":"core:timed",
+						"cumulative":true,
+						"ignoreImmunity" : true,
+						"bonus" :{
+							"primarySkill" : {
+								"val" : -3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "primSkill.defence",
+								"duration" : "PERMANENT",
+								"valueType" : "ADDITIVE_VALUE"
+							}
+						}
 					}
-				}
+				},
+				"range" : "0",
+				"targetModifier":{"smart":true}
 			}
 		},
 		"flags" : {
@@ -369,6 +400,12 @@
 		},
 		"levels" : {
 			"base":{
+				"battleEffects":{
+					"damage":{
+						"type":"core:damage",
+						"ignoreImmunity" : true
+					}
+				},
 				"range" : "0"
 			}
 		},
@@ -376,8 +413,10 @@
 			"damage": true,
 			"indifferent": true
 		},
-		"immunity" : {
-			"DIRECT_DAMAGE_IMMUNITY": true
+		"targetCondition" : {
+			"noneOf" : {
+				"bonus.DIRECT_DAMAGE_IMMUNITY" : "normal"
+			}
 		}
 	}
 }

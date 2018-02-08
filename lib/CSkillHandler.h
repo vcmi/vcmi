@@ -83,5 +83,5 @@ public:
 	}
 
 protected:
-	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier) override;
+	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) override;
 };

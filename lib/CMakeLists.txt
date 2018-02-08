@@ -10,14 +10,19 @@ set(lib_SRCS
 		battle/BattleAttackInfo.cpp
 		battle/BattleHex.cpp
 		battle/BattleInfo.cpp
+		battle/BattleProxy.cpp
 		battle/CBattleInfoCallback.cpp
 		battle/CBattleInfoEssentials.cpp
 		battle/CCallbackBase.cpp
 		battle/CObstacleInstance.cpp
 		battle/CPlayerBattleCallback.cpp
+		battle/CUnitState.cpp
+		battle/Destination.cpp
+		battle/IBattleState.cpp
 		battle/ReachabilityInfo.cpp
 		battle/SideInBattle.cpp
 		battle/SiegeInfo.cpp
+		battle/Unit.cpp
 
 		filesystem/AdapterLoaders.cpp
 		filesystem/CArchiveLoader.cpp
@@ -93,11 +98,28 @@ set(lib_SRCS
 
 		spells/AdventureSpellMechanics.cpp
 		spells/BattleSpellMechanics.cpp
-		spells/CDefaultSpellMechanics.cpp
-		spells/CreatureSpellMechanics.cpp
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
+		spells/Problem.cpp
+		spells/TargetCondition.cpp
 		spells/ViewSpellInt.cpp
+
+		spells/effects/Catapult.cpp
+		spells/effects/Clone.cpp
+		spells/effects/Damage.cpp
+		spells/effects/Dispel.cpp
+		spells/effects/Effect.cpp
+		spells/effects/Effects.cpp
+		spells/effects/Heal.cpp
+		spells/effects/LocationEffect.cpp
+		spells/effects/Obstacle.cpp
+		spells/effects/Registry.cpp
+		spells/effects/UnitEffect.cpp
+		spells/effects/Summon.cpp
+		spells/effects/Teleport.cpp
+		spells/effects/Timed.cpp
+		spells/effects/RemoveObstacle.cpp
+		spells/effects/Sacrifice.cpp
 
 		CAndroidVMHelper.cpp
 		CArtHandler.cpp
@@ -143,14 +165,20 @@ set(lib_HEADERS
 		battle/BattleAttackInfo.h
 		battle/BattleHex.h
 		battle/BattleInfo.h
+		battle/BattleProxy.h
 		battle/CBattleInfoCallback.h
 		battle/CBattleInfoEssentials.h
 		battle/CCallbackBase.h
 		battle/CObstacleInstance.h
 		battle/CPlayerBattleCallback.h
+		battle/CUnitState.h
+		battle/Destination.h
+		battle/IBattleState.h
+		battle/IUnitInfo.h
 		battle/ReachabilityInfo.h
 		battle/SideInBattle.h
 		battle/SiegeInfo.h
+		battle/Unit.h
 
 		filesystem/AdapterLoaders.h
 		filesystem/CArchiveLoader.h
@@ -227,14 +255,31 @@ set(lib_HEADERS
 
 		spells/AdventureSpellMechanics.h
 		spells/BattleSpellMechanics.h
-		spells/CDefaultSpellMechanics.h
-		spells/CreatureSpellMechanics.h
 		spells/CSpellHandler.h
 		spells/ISpellMechanics.h
 		spells/Magic.h
 		spells/SpellMechanics.h
+		spells/Problem.h
+		spells/TargetCondition.h
 		spells/ViewSpellInt.h
 
+		spells/effects/Catapult.h
+		spells/effects/Clone.h
+		spells/effects/Damage.h
+		spells/effects/Dispel.h
+		spells/effects/Effect.h
+		spells/effects/Effects.h
+		spells/effects/EffectsFwd.h
+		spells/effects/Heal.h
+		spells/effects/LocationEffect.h
+		spells/effects/Obstacle.h
+		spells/effects/Registry.h
+		spells/effects/UnitEffect.h
+		spells/effects/Summon.h
+		spells/effects/Teleport.h
+		spells/effects/Timed.h
+		spells/effects/RemoveObstacle.h
+		spells/effects/Sacrifice.h
 		AI_Base.h
 		CAndroidVMHelper.h
 		CArtHandler.h

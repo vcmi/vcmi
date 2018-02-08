@@ -8,43 +8,29 @@
  *
  */
 #pragma once
-#include "../../lib/CStack.h"
+#include "../../lib/battle/CUnitState.h"
 #include "../../CCallback.h"
 #include "common.h"
-
-
-struct HypotheticChangesToBattleState
-{
-	std::map<const CStack *, const IBonusBearer *> bonusesOfStacks;
-	std::map<const CStack *, int> counterAttacksLeft;
-};
-
-class Priorities
-{
-public:
-	std::vector<double> resourceTypeBaseValues;
-	std::function<double(const CStack *)> stackEvaluator;
-	Priorities()
-	{
-		//        range::copy(VLC->objh->resVals, std::back_inserter(resourceTypeBaseValues));
-		stackEvaluator = [](const CStack*){ return 1.0; };
-	}
-};
+#include "StackWithBonuses.h"
 
 class AttackPossibility
 {
 public:
-	const CStack *enemy; //redundant (to attack.defender) but looks nice
 	BattleHex tile; //tile from which we attack
 	BattleAttackInfo attack;
 
-	int damageDealt;
-	int damageReceived; //usually by counter-attack
-	int tacticImpact;
+	std::shared_ptr<battle::CUnitState> attackerState;
 
-	int damageDiff() const;
-	int attackValue() const;
+	std::vector<std::shared_ptr<battle::CUnitState>> affectedUnits;
 
-	static AttackPossibility evaluate(const BattleAttackInfo &AttackInfo, const HypotheticChangesToBattleState &state, BattleHex hex);
-	static Priorities * priorities;
+	int64_t damageDealt = 0;
+	int64_t damageReceived = 0; //usually by counter-attack
+	int64_t tacticImpact = 0;
+
+	AttackPossibility(BattleHex tile_, const BattleAttackInfo & attack_);
+
+	int64_t damageDiff() const;
+	int64_t attackValue() const;
+
+	static AttackPossibility evaluate(const BattleAttackInfo & attackInfo, BattleHex hex);
 };

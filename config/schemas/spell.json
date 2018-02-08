@@ -97,6 +97,12 @@
 						"$ref" : "vcmi:bonus"
 					}
 				},
+				"battleEffects":{
+					"type": "object",
+					"additionalProperties" : {
+						"type": "object"
+					}
+				},
 				"targetModifier":{
 					"type": "object",
 					"additionalProperties": false,
@@ -246,7 +252,10 @@
 				 "$ref" : "#/definitions/flags",
 				 "description": "flags structure of bonus names, presence of all bonuses required to be affected by, can't be negated."
 		},
-
+		"targetCondition":{
+			"type": "object",
+			"additionalProperties" : true
+		},
 		"animation":{"$ref": "#/definitions/animation"},
 
 		"graphics":{

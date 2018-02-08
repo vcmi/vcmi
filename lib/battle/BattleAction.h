@@ -8,42 +8,67 @@
  *
  */
 #pragma once
-#include "BattleHex.h"
+#include "Destination.h"
 #include "../GameConstants.h"
 
-class CStack;
+class CBattleInfoCallback;
+
+namespace battle
+{
+	class Unit;
+}
 
 /// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
-struct DLL_LINKAGE BattleAction
+class DLL_LINKAGE BattleAction
 {
-	ui8 side; //who made this action: false - left, true - right player
+public:
+	ui8 side; //who made this action
 	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
-	Battle::ActionType actionType; //use ActionType enum for values
-	BattleHex destinationTile;
-	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
-	si32 selectedStack; //spell subject for teleport / sacrifice
+	EActionType actionType; //use ActionType enum for values
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	si32 actionSubtype;
+
+	BattleAction();
+
+	static BattleAction makeHeal(const battle::Unit * healer, const battle::Unit * healed);
+	static BattleAction makeDefend(const battle::Unit * stack);
+	static BattleAction makeWait(const battle::Unit * stack);
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, BattleHex destination, BattleHex attackFrom, bool returnAfterAttack = true);
+	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
+	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
+	static BattleAction makeEndOFTacticPhase(ui8 side);
+
+	std::string toString() const;
+
+	void aimToHex(const BattleHex & destination);
+	void aimToUnit(const battle::Unit * destination);
+
+	battle::Target getTarget(const CBattleInfoCallback * cb) const;
+	void setTarget(const battle::Target & target_);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & side;
 		h & stackNumber;
 		h & actionType;
-		h & destinationTile;
-		h & additionalInfo;
-		h & selectedStack;
+		h & actionSubtype;
+		h & target;
 	}
+private:
 
-	BattleAction();
+	struct DestinationInfo
+	{
+		int32_t unitValue;
+		BattleHex hexValue;
 
-	static BattleAction makeHeal(const CStack * healer, const CStack * healed);
-	static BattleAction makeDefend(const CStack * stack);
-	static BattleAction makeWait(const CStack * stack);
-	static BattleAction makeMeleeAttack(const CStack * stack, const CStack * attacked, BattleHex attackFrom = BattleHex::INVALID);
-	static BattleAction makeShotAttack(const CStack * shooter, const CStack * target);
-	static BattleAction makeMove(const CStack * stack, BattleHex dest);
-	static BattleAction makeEndOFTacticPhase(ui8 side);
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & unitValue;
+			h & hexValue;
+		}
+	};
 
-	std::string toString() const;
+	std::vector<DestinationInfo> target;
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove

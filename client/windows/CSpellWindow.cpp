@@ -34,14 +34,13 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/CHeroHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/Problem.h"
 #include "../../lib/GameConstants.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
+
+#include "../../lib/mapObjects/CGHeroInstance.h"
 
 CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
@@ -125,7 +124,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 		++sitesPerOurTab[4];
 
-		spell->forEachSchool([&sitesPerOurTab](const SpellSchoolInfo & school, bool & stop)
+		spell->forEachSchool([&sitesPerOurTab](const spells::SchoolInfo & school, bool & stop)
 		{
 			++sitesPerOurTab[(ui8)school.id];
 		});
@@ -536,101 +535,46 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
 			return;
 		}
-		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
-		if((mySpell->isCombatSpell() && !owner->myInt->battleInt)
-		   || (mySpell->isAdventureSpell() && (owner->myInt->battleInt || owner->myInt->castleInt)))
+
+		//anything that is not combat spell is adventure spell
+		//this not an error in general to cast even creature ability with hero
+		const bool combatSpell = mySpell->isCombatSpell();
+		if(mySpell->isCombatSpell() != !mySpell->isAdventureSpell())
 		{
-			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
+			logGlobal->error("Spell have invalid flags");
 			return;
 		}
 
-		//we will cast a spell
-		if(mySpell->isCombatSpell() && owner->myInt->battleInt) //if battle window is open
+		const bool inCombat = owner->myInt->battleInt != nullptr;
+		const bool inCastle = owner->myInt->castleInt != nullptr;
+
+		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
+		if((combatSpell ^ inCombat) || inCastle)
 		{
-			ESpellCastProblem::ESpellCastProblem problem = mySpell->canBeCast(owner->myInt->cb.get(), ECastingMode::HERO_CASTING, owner->myHero);
-			switch (problem)
+			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell->id, 0));
+			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
+		}
+		else if(combatSpell)
+		{
+			spells::detail::ProblemImpl problem;
+			if(mySpell->canBeCast(problem, owner->myInt->cb.get(), spells::Mode::HERO, owner->myHero))
 			{
-			case ESpellCastProblem::OK:
-				{
-					owner->myInt->battleInt->castThisSpell(mySpell->id);
-					owner->fexitb();
-					return;
-				}
-				break;
-			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
-				{
-					std::string text = CGI->generaltexth->allTexts[538], elemental, caster;
-					const PlayerColor player = owner->myInt->playerID;
-
-					const TStacks stacks = owner->myInt->cb->battleGetStacksIf([player](const CStack * s)
-					{
-						return s->owner == player
-							&& vstd::contains(s->state, EBattleStackState::SUMMONED)
-							&& !s->isClone();
-					});
-					for(const CStack * s : stacks)
-					{
-						elemental = s->getCreature()->namePl;
-					}
-					if (owner->myHero->type->sex)
-					{ //female
-						caster = CGI->generaltexth->allTexts[540];
-					}
-					else
-					{ //male
-						caster = CGI->generaltexth->allTexts[539];
-					}
-					std::string summoner = owner->myHero->name;
-
-					text = boost::str(boost::format(text) % summoner % elemental % caster);
-
-					owner->myInt->showInfoDialog(text);
-				}
-				break;
-			case ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED:
-				{
-					//Recanter's Cloak or similar effect. Try to retrieve bonus
-					const auto b = owner->myHero->getBonusLocalFirst(Selector::type(Bonus::BLOCK_MAGIC_ABOVE));
-					//TODO what about other values and non-artifact sources?
-					if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
-					{
-						std::string artName = CGI->arth->artifacts[b->sid]->Name();
-						//The %s prevents %s from casting 3rd level or higher spells.
-						owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[536])
-							% artName % owner->myHero->name));
-					}
-					else if(b && b->source == Bonus::TERRAIN_OVERLAY && b->sid == BFieldType::CURSED_GROUND)
-					{
-						owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[537]);
-					}
-					else
-					{
-						// General message:
-						// %s recites the incantations but they seem to have no effect.
-						std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
-						text = boost::str(boost::format(text) % caster);
-						owner->myInt->showInfoDialog(text);
-					}
-				}
-				break;
-			case ESpellCastProblem::NO_APPROPRIATE_TARGET:
-				{
-					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[185]);
-				}
-				break;
-			default:
-				{
-					// General message:
-					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
-					text = boost::str(boost::format(text) % caster);
-					owner->myInt->showInfoDialog(text);
-				}
+				owner->myInt->battleInt->castThisSpell(mySpell->id);
+				owner->fexitb();
+			}
+			else
+			{
+				std::vector<std::string> texts;
+				problem.getAll(texts);
+				if(!texts.empty())
+					owner->myInt->showInfoDialog(texts.front());
+				else
+					owner->myInt->showInfoDialog("Unknown problem with this spell, no more information available.");
 			}
 		}
-		else if(mySpell->isAdventureSpell() && !owner->myInt->battleInt) //adventure spell and not in battle
+		else //adventure spell
 		{
-			const CGHeroInstance *h = owner->myHero;
+			const CGHeroInstance * h = owner->myHero;
 			GH.popInt(owner);
 
 			auto guard = vstd::makeScopeGuard([this]()
@@ -639,9 +583,9 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				owner->myInt->spellbookSettings.spellbokLastPageAdvmap = owner->currentPage;
 			});
 
-			if(mySpell->getTargetType() == CSpell::LOCATION)
+			if(mySpell->getTargetType() == spells::AimType::LOCATION)
 				adventureInt->enterCastingMode(mySpell);
-			else if(mySpell->getTargetType() == CSpell::NO_TARGET)
+			else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
 				owner->myInt->cb->castSpell(h, mySpell->id);
 			else
 				logGlobal->error("Invalid spell target type");
@@ -654,7 +598,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 	if(mySpell && down)
 	{
 		std::string dmgInfo;
-		int causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);
+		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);
 		if(causedDmg == 0 || mySpell->id == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
 			dmgInfo = "";
 		else

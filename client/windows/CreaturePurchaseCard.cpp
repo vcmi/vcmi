@@ -16,6 +16,7 @@
 #include "../CreatureCostBox.h"
 #include "QuickRecruitmentWindow.h"
 #include "../gui/CGuiHandler.h"
+#include "../../lib/CCreatureHandler.h"
 
 void CreaturePurchaseCard::initButtons()
 {

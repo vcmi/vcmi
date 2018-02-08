@@ -33,7 +33,6 @@
 #include "rmg/CMapGenerator.h"
 #include "CStopWatch.h"
 #include "mapping/CMapEditManager.h"
-#include "mapping/CMapService.h"
 #include "serializer/CTypeList.h"
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
@@ -703,7 +702,7 @@ CGameState::~CGameState()
 		ptr.second.dellNull();
 }
 
-void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
+void CGameState::init(const IMapService * mapService, StartInfo * si, bool allowSavingRandomMap)
 {
 	logGlobal->info("\tUsing random seed: %d", si->seedToBeUsed);
 	getRandomGenerator().setSeed(si->seedToBeUsed);
@@ -714,10 +713,10 @@ void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		initNewGame(allowSavingRandomMap);
+		initNewGame(mapService, allowSavingRandomMap);
 		break;
 	case StartInfo::CAMPAIGN:
-		initCampaign();
+		initCampaign(mapService);
 		break;
 	default:
 		logGlobal->error("Wrong mode: %d", static_cast<int>(scenarioOps->mode));
@@ -773,7 +772,7 @@ void CGameState::init(StartInfo * si, bool allowSavingRandomMap)
 	}
 }
 
-void CGameState::initNewGame(bool allowSavingRandomMap)
+void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap)
 {
 	if(scenarioOps->createRandomMap())
 	{
@@ -800,7 +799,7 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 				const std::string fileName = boost::str(boost::format("%s_%d.vmap") % templateName % seed );
 				const auto fullPath = path / fileName;
 
-				CMapService::saveMap(randomMap, fullPath);
+				mapService->saveMap(randomMap, fullPath);
 
 				logGlobal->info("Random map has been saved to:");
 				logGlobal->info(fullPath.string());
@@ -841,11 +840,11 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourceID mapURI(scenarioOps->mapname, EResType::MAP);
-		map = CMapService::loadMap(mapURI).release();
+		map = mapService->loadMap(mapURI).release();
 	}
 }
 
-void CGameState::initCampaign()
+void CGameState::initCampaign(const IMapService * mapService)
 {
 	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.get());
 	auto campaign = scenarioOps->campState;
@@ -857,7 +856,7 @@ void CGameState::initCampaign()
 
 	std::string & mapContent = campaign->camp->mapPieces[*campaign->currentMap];
 	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	map = CMapService::loadMap(buffer, mapContent.size(), scenarioName).release();
+	map = mapService->loadMap(buffer, mapContent.size(), scenarioName).release();
 }
 
 void CGameState::checkMapChecksum()

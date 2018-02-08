@@ -174,7 +174,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 
 int CBattleCallback::battleMakeAction(BattleAction* action)
 {
-	assert(action->actionType == Battle::HERO_SPELL);
+	assert(action->actionType == EActionType::HERO_SPELL);
 	MakeCustomAction mca(*action);
 	sendRequest(&mca);
 	return 0;
@@ -279,9 +279,11 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback( CGameState * GS, boost::optional<PlayerColor> Player, CClient *C )
-	:CBattleCallback(GS, Player, C)
+CCallback::CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient * C)
+	: CBattleCallback(Player, C)
 {
+	gs = GS;
+
 	waitTillRealize = false;
 	unlockGsWhenWaiting = false;
 }
@@ -367,9 +369,8 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
-CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
 {
-	gs = GS;
 	player = Player;
 	cl = C;
 }

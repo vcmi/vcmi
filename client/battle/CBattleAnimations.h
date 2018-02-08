@@ -238,7 +238,7 @@ class CEffectAnimation : public CBattleAnimation
 {
 private:
 	BattleHex destTile;
-	std::string	customAnim;
+	std::shared_ptr<CAnimation>	customAnim;
 	int	x, y, dx, dy;
 	bool Vflip;
 	bool alignToBottom;
@@ -248,6 +248,9 @@ public:
 	void endAnim() override;
 
 	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
+
+	CEffectAnimation(CBattleInterface * _owner, std::shared_ptr<CAnimation> _customAnim, int _x, int _y, int _dx = 0, int _dy = 0);
+
 	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
 	virtual ~CEffectAnimation(){};
 };

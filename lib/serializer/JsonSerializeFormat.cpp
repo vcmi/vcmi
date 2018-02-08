@@ -15,8 +15,6 @@
 //JsonSerializeHelper
 JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other):
 	owner(other.owner),
-	thisNode(other.thisNode),
-	parentNode(other.parentNode),
 	restoreState(false)
 {
 	std::swap(restoreState, other.restoreState);
@@ -25,126 +23,84 @@ JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other):
 JsonSerializeHelper::~JsonSerializeHelper()
 {
 	if(restoreState)
-		owner.current = parentNode;
-}
-
-JsonNode & JsonSerializeHelper::get()
-{
-	return * thisNode;
+		owner->pop();
 }
 
 JsonSerializeFormat * JsonSerializeHelper::operator->()
 {
-	return &owner;
+	return owner;
 }
 
-JsonSerializeHelper::JsonSerializeHelper(JsonSerializeFormat & owner_, JsonNode * thisNode_):
-	owner(owner_),
-	thisNode(thisNode_),
-	parentNode(owner.current),
+JsonSerializeHelper::JsonSerializeHelper(JsonSerializeFormat * owner_)
+	: owner(owner_),
 	restoreState(true)
 {
-	owner.current = thisNode;
-}
-
-JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper & parent, const std::string & fieldName):
-	owner(parent.owner),
-	thisNode(&(parent.thisNode->operator[](fieldName))),
-	parentNode(parent.thisNode),
-	restoreState(true)
-{
-	owner.current = thisNode;
-}
-
-JsonStructSerializer JsonSerializeHelper::enterStruct(const std::string & fieldName)
-{
-	return JsonStructSerializer(*this, fieldName);
-}
-
-JsonArraySerializer JsonSerializeHelper::enterArray(const std::string & fieldName)
-{
-	return JsonArraySerializer(*this, fieldName);
 }
 
 //JsonStructSerializer
-JsonStructSerializer::JsonStructSerializer(JsonStructSerializer && other):
-	JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other))),
-	optional(other.optional)
+JsonStructSerializer::JsonStructSerializer(JsonStructSerializer && other)
+	: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
 {
 
 }
 
-JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat & owner_, const std::string & fieldName):
-	JsonSerializeHelper(owner_, &(owner_.current->operator[](fieldName))),
-	optional(false)
+JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat * owner_)
+	: JsonSerializeHelper(owner_)
 {
-	if(owner.saving)
-		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
-}
-
-JsonStructSerializer::JsonStructSerializer(JsonSerializeHelper & parent, const std::string & fieldName):
-	JsonSerializeHelper(parent, fieldName),
-	optional(false)
-{
-	if(owner.saving)
-		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
-}
-
-JsonStructSerializer::JsonStructSerializer(JsonSerializeFormat & owner_, JsonNode * thisNode_):
-	JsonSerializeHelper(owner_, thisNode_),
-	optional(false)
-{
-	if(owner.saving)
-		thisNode->setType(JsonNode::JsonType::DATA_STRUCT);
 }
 
 JsonStructSerializer::~JsonStructSerializer()
 {
-	//todo: delete empty optional node
-	if(owner.saving && optional && thisNode->Struct().empty())
-	{
-		//
-	}
 }
 
 //JsonArraySerializer
-JsonArraySerializer::JsonArraySerializer(JsonStructSerializer && other):
-	JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
+JsonArraySerializer::JsonArraySerializer(JsonArraySerializer && other)
+	: JsonSerializeHelper(std::move(static_cast<JsonSerializeHelper &>(other)))
 {
 
 }
 
-JsonArraySerializer::JsonArraySerializer(JsonSerializeFormat & owner_, const std::string & fieldName):
-	JsonSerializeHelper(owner_, &(owner_.current->operator[](fieldName)))
+JsonArraySerializer::JsonArraySerializer(JsonSerializeFormat * owner_):
+	JsonSerializeHelper(owner_)
 {
-
-}
-
-JsonArraySerializer::JsonArraySerializer(JsonSerializeHelper & parent, const std::string & fieldName):
-	JsonSerializeHelper(parent, fieldName)
-{
-
+	thisNode = &owner->getCurrent();
 }
 
 JsonStructSerializer JsonArraySerializer::enterStruct(const size_t index)
 {
-    return JsonStructSerializer(owner, &(thisNode->Vector()[index]));
+	owner->pushArrayElement(index);
+	return JsonStructSerializer(owner);
+}
+
+JsonArraySerializer JsonArraySerializer::enterArray(const size_t index)
+{
+	owner->pushArrayElement(index);
+	return JsonArraySerializer(owner);
+}
+
+void JsonArraySerializer::serializeString(const size_t index, std::string & value)
+{
+	owner->pushArrayElement(index);
+	owner->serializeInternal(value);
+	owner->pop();
+}
+
+void JsonArraySerializer::serializeInt64(const size_t index, int64_t & value)
+{
+	owner->pushArrayElement(index);
+	owner->serializeInternal(value);
+	owner->pop();
 }
 
 void JsonArraySerializer::resize(const size_t newSize)
 {
-    thisNode->Vector().resize(newSize);
+	resize(newSize, JsonNode::JsonType::DATA_NULL);
 }
 
 void JsonArraySerializer::resize(const size_t newSize, JsonNode::JsonType type)
 {
-	resize(newSize);
-
-	for(JsonNode & n : thisNode->Vector())
-		if(n.getType() == JsonNode::JsonType::DATA_NULL)
-			n.setType(type);
+	owner->resizeCurrent(newSize, type);
 }
-
 
 size_t JsonArraySerializer::size() const
 {
@@ -167,26 +123,30 @@ JsonSerializeFormat::LICSet::LICSet(const std::set<si32>& Standard, const TDecod
 }
 
 //JsonSerializeFormat
-JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, JsonNode & root_, const bool saving_):
+JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_):
 	saving(saving_),
-	root(&root_),
-	current(root),
 	instanceResolver(instanceResolver_)
 {
-
 }
 
 JsonStructSerializer JsonSerializeFormat::enterStruct(const std::string & fieldName)
 {
-	return JsonStructSerializer(*this, fieldName);
+	pushStruct(fieldName);
+	return JsonStructSerializer(this);
 }
 
 JsonArraySerializer JsonSerializeFormat::enterArray(const std::string & fieldName)
 {
-	return JsonArraySerializer(*this, fieldName);
+	pushArray(fieldName);
+	return JsonArraySerializer(this);
 }
 
 void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & value)
 {
 	serializeBool<bool>(fieldName, value, true, false, false);
+}
+
+void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & value, const bool defaultValue)
+{
+	serializeBool<bool>(fieldName, value, true, false, defaultValue);
 }
