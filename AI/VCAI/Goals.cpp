@@ -62,11 +62,12 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 			desc = "GATHER TROOPS";
 			break;
 		case GET_OBJ:
-		{
-			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
-			if (obj)
-				desc = "GET OBJ " + obj->getObjectName();
-		}
+			{
+				auto obj = cb->getObjInstance(ObjectInstanceID(objid));
+				if(obj)
+					desc = "GET OBJ " + obj->getObjectName();
+			}
+			break;
 		case FIND_OBJ:
 			desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
 			break;

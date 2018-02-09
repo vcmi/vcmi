@@ -303,19 +303,21 @@ int InfoBoxHeroData::getSubID()
 {
 	switch(type)
 	{
-		case HERO_PRIMARY_SKILL:
-			return index;
-		case HERO_SECONDARY_SKILL:
-			if (hero->secSkills.size() > index)
-				return hero->secSkills[index].first;
-		case HERO_SPECIAL:
-			return hero->type->ID.getNum();
-		case HERO_MANA:
-		case HERO_EXPERIENCE:
+	case HERO_PRIMARY_SKILL:
+		return index;
+	case HERO_SECONDARY_SKILL:
+		if(hero->secSkills.size() > index)
+			return hero->secSkills[index].first;
+		else
 			return 0;
-		default:
-			assert(0);
-			return 0;
+	case HERO_SPECIAL:
+		return hero->type->ID.getNum();
+	case HERO_MANA:
+	case HERO_EXPERIENCE:
+		return 0;
+	default:
+		assert(0);
+		return 0;
 	}
 }
 
@@ -330,10 +332,12 @@ si64 InfoBoxHeroData::getValue()
 	case HERO_EXPERIENCE:
 		return hero->exp;
 	case HERO_SECONDARY_SKILL:
-		if (hero->secSkills.size() > index)
+		if(hero->secSkills.size() > index)
 			return hero->secSkills[index].second;
-	case HERO_SPECIAL:
+		else
 			return 0;
+	case HERO_SPECIAL:
+		return 0;
 	default:
 		assert(0);
 		return 0;
@@ -353,7 +357,6 @@ std::string InfoBoxHeroData::getHoverText()
 	case HERO_SPECIAL:
 		return CGI->generaltexth->heroscrn[27];
 	case HERO_SECONDARY_SKILL:
-		{
 		if (hero->secSkills.size() > index)
 		{
 			std::string level = CGI->generaltexth->levels[hero->secSkills[index].second-1];
@@ -361,6 +364,7 @@ std::string InfoBoxHeroData::getHoverText()
 			return boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else
+		{
 			return "";
 		}
 	default:

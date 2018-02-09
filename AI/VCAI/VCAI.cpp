@@ -3310,12 +3310,13 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::PRISON:
 			return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
 		case Obj::TAVERN:
-		{//TODO: make AI actually recruit heroes
-		 //TODO: only on request
-			if ((ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER) ||
-				(ai->myCb->getResourceAmount()[Res::GOLD] - GOLD_RESERVE < GameConstants::HERO_GOLD_COST))
-				return false;
-		}
+			{//TODO: make AI actually recruit heroes
+			 //TODO: only on request
+				if((ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER) ||
+					(ai->myCb->getResourceAmount()[Res::GOLD] - GOLD_RESERVE < GameConstants::HERO_GOLD_COST))
+					return false;
+			}
+			break;
 		case Obj::BOAT:
 			return false;
 			//Boats are handled by pathfinder
