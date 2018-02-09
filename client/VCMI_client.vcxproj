@@ -184,7 +184,6 @@
     <ClCompile Include="battle\CBattleInterfaceClasses.cpp" />
     <ClCompile Include="battle\CCreatureAnimation.cpp" />
     <ClCompile Include="CBitmapHandler.cpp" />
-    <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="CMessage.cpp" />
@@ -238,7 +237,6 @@
     <ClInclude Include="battle\CBattleInterfaceClasses.h" />
     <ClInclude Include="battle\CCreatureAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="CMessage.h" />
