@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="CBitmapHandler.cpp" />
-    <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="CMessage.cpp" />
@@ -140,7 +139,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="CMessage.h" />
