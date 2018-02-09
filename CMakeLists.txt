@@ -28,9 +28,6 @@ project(VCMI)
 # - Try to get rid of FOLDER override with define_property
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
-# - Find a way to regenerate Version.cpp before each build.
-# PRE_BUILD only work for some generators.
-# So for now commit hash only updated when CMake reconfigured.
 
 ############################################
 #        User-provided options             #
@@ -88,10 +85,9 @@ define_property(
 
 # Generate Version.cpp
 if(ENABLE_GITVERSION)
-	include(GetGitRevisionDescription)
-	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
-	vcmi_print_git_commit_hash()
+	add_custom_target(update_version ALL
+		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${CMAKE_MODULE_PATH}/Version.cmake"
+	)
 else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)
 endif(ENABLE_GITVERSION)
