@@ -527,6 +527,7 @@ CGPathNode::ENodeAction CPathfinder::getDestAction() const
 		}
 
 		/// don't break - next case shared for both land and sail layers
+		FALLTHROUGH
 
 	case ELayer::SAIL:
 		if(isDestVisitableObj())

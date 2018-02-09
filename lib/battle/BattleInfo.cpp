@@ -462,18 +462,22 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		{
 			bonusSubtype = 0;
 		}
+		FALLTHROUGH
 	case BFieldType::FIERY_FIELDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 1;
 		}
+		FALLTHROUGH
 	case BFieldType::ROCKLANDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 8;
 		}
+		FALLTHROUGH
 	case BFieldType::MAGIC_CLOUDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 2;
 		}
+		FALLTHROUGH
 	case BFieldType::LUCID_POOLS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 4;
