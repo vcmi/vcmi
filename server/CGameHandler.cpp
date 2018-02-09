@@ -4137,10 +4137,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			for (int i = 0; i < totalAttacks; ++i)
 			{
 				const bool firstStrike = destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE);
+				const bool retaliation = destinationStack->ableToRetaliate();
 				//first strike
-				if(i == 0 && firstStrike
-					&& destinationStack->ableToRetaliate()
-					&& stack->alive()) //probably not needed
+				if(i == 0 && firstStrike && retaliation)
 				{
 					makeAttack(destinationStack, stack, 0, stack->getPosition(), true, false, true);
 				}
@@ -4152,10 +4151,11 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				}
 
 				//counterattack
+				//we check retaliation twice, so if it unblocked during attack it will work only on next attack
 				if(stack->alive()
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
 					&& (i > 0 || !firstStrike)
-					&& destinationStack->ableToRetaliate())
+					&& retaliation && destinationStack->ableToRetaliate())
 				{
 					makeAttack(destinationStack, stack, 0, stack->getPosition(), i==0, false, true);
 				}
