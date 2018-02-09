@@ -569,7 +569,10 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	PlayerSettings * old = nullptr;
 
 	//identify clicked player
-	int clickedNameID = *(clicked.connectedPlayerIDs.begin()); //human is a number of player, zero means AI
+	int clickedNameID = 0; //number of player - zero means AI, assume it initially
+	if(!clicked.connectedPlayerIDs.empty())
+		clickedNameID = *(clicked.connectedPlayerIDs.begin()); //if not AI - set appropiate ID
+
 	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
 	{
 		PlayerSettings & restPos = si->playerInfos[playerToRestore.color];
