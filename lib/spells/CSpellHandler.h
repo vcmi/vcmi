@@ -213,10 +213,6 @@ public:
 		spells::AimType type;
 		bool smart;
 		bool massive;
-		bool onlyAlive;
-		///no immunity on primary target (mostly spell-like attack)
-		bool alwaysHitDirectly;
-
 		bool clearAffected;
 		bool clearTarget;
 

@@ -82,7 +82,14 @@ static const ESpellSchool SCHOOL_ORDER[4] =
 
 ///CSpell::LevelInfo
 CSpell::LevelInfo::LevelInfo()
-	:description(""),cost(0),power(0),AIValue(0),smartTarget(true), clearTarget(false), clearAffected(false), range("0")
+	: description(""),
+	cost(0),
+	power(0),
+	AIValue(0),
+	smartTarget(true),
+	clearTarget(false),
+	clearAffected(false),
+	range("0")
 {
 
 }
@@ -563,8 +570,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	: type(spell->getTargetType()),
 	smart(false),
 	massive(false),
-	onlyAlive(!spell->isRisingSpell()),
-	alwaysHitDirectly(false),
 	clearAffected(false),
 	clearTarget(false)
 {
@@ -579,10 +584,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	{
 		smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
 		massive = true;
-	}
-	else if(mode == spells::Mode::SPELL_LIKE_ATTACK)
-	{
-		alwaysHitDirectly = true;
 	}
 	else if(mode == spells::Mode::CREATURE_ACTIVE)
 	{
