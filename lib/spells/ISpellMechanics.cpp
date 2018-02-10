@@ -162,7 +162,9 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, c
 	effectLevel(),
 	effectPower(),
 	effectDuration(),
-	effectValue()
+	effectValue(),
+	smart(boost::logic::indeterminate),
+	massive(boost::logic::indeterminate)
 {
 
 }
@@ -176,7 +178,9 @@ BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	effectLevel(orig.effectLevel),
 	effectPower(orig.effectPower),
 	effectDuration(orig.effectDuration),
-	effectValue(orig.effectValue)
+	effectValue(orig.effectValue),
+	smart(true),
+	massive(false)
 {
 }
 
@@ -231,6 +235,16 @@ BattleCast::OptionalValue BattleCast::getEffectDuration() const
 BattleCast::OptionalValue64 BattleCast::getEffectValue() const
 {
 	return effectValue;
+}
+
+boost::logic::tribool BattleCast::isSmart() const
+{
+	return smart;
+}
+
+boost::logic::tribool BattleCast::isMassive() const
+{
+	return massive;
 }
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
@@ -455,7 +469,9 @@ Mechanics::~Mechanics() = default;
 BaseMechanics::BaseMechanics(const IBattleCast * event)
 	: Mechanics(),
 	owner(event->getSpell()),
-	mode(event->getMode())
+	mode(event->getMode()),
+	smart(event->isSmart()),
+	massive(event->isMassive())
 {
 	cb = event->getBattle();
 	caster = event->getCaster();
@@ -612,14 +628,28 @@ int32_t BaseMechanics::getSpellLevel() const
 
 bool BaseMechanics::isSmart() const
 {
-	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-	return targetInfo.smart;
+	if(boost::logic::indeterminate(smart))
+	{
+		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+		return targetInfo.smart;
+	}
+	else
+	{
+		return smart;
+	}
 }
 
 bool BaseMechanics::isMassive() const
 {
-	const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
-	return targetInfo.massive;
+	if(boost::logic::indeterminate(massive))
+	{
+		const CSpell::TargetInfo targetInfo(owner, getRangeLevel(), mode);
+		return targetInfo.massive;
+	}
+	else
+	{
+		return massive;
+	}
 }
 
 bool BaseMechanics::requiresClearTiles() const

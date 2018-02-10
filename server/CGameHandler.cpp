@@ -4818,6 +4818,8 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				});
 				spells::BattleCast parameters(gs->curB, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
+				parameters.massive = true;
+				parameters.smart = true;
 				//todo: recheck effect level
 				if(parameters.castIfPossible(spellEnv))
 				{
@@ -5985,6 +5987,7 @@ void CGameHandler::runBattle()
 				spells::BattleCast parameters(gs->curB, h, spells::Mode::PASSIVE, spell);
 				parameters.setSpellLevel(3);
 				parameters.setEffectDuration(b->val);
+				parameters.massive = true;
 				parameters.castIfPossible(spellEnv);
 			}
 		}

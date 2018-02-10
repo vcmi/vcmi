@@ -580,12 +580,7 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	clearAffected = levelInfo.clearAffected;
 	clearTarget = levelInfo.clearTarget;
 
-	if(mode == spells::Mode::ENCHANTER)
-	{
-		smart = true; //FIXME: not sure about that, this makes all spells smart in this mode
-		massive = true;
-	}
-	else if(mode == spells::Mode::CREATURE_ACTIVE)
+	if(mode == spells::Mode::CREATURE_ACTIVE)
 	{
 		massive = false;//FIXME: find better solution for Commander spells
 	}

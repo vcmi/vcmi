@@ -74,7 +74,6 @@ private:
 	IBattleState * battleState;
 };
 
-
 class DLL_LINKAGE IBattleCast
 {
 public:
@@ -96,6 +95,9 @@ public:
 	virtual OptionalValue getEffectDuration() const = 0;
 
 	virtual OptionalValue64 getEffectValue() const = 0;
+
+	virtual boost::logic::tribool isSmart() const = 0;
+	virtual boost::logic::tribool isMassive() const = 0;
 };
 
 ///all parameters of particular cast event
@@ -103,6 +105,9 @@ class DLL_LINKAGE BattleCast : public IBattleCast
 {
 public:
 	Target target;
+
+	boost::logic::tribool smart;
+	boost::logic::tribool massive;
 
 	//normal constructor
 	BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, const Mode mode_, const CSpell * spell_);
@@ -125,6 +130,9 @@ public:
 	OptionalValue getEffectDuration() const override;
 
 	OptionalValue64 getEffectValue() const override;
+
+	boost::logic::tribool isSmart() const override;
+	boost::logic::tribool isMassive() const override;
 
 	void setSpellLevel(Value value);
 	void setEffectLevel(Value value);
@@ -306,8 +314,8 @@ public:
 protected:
 	const CSpell * owner;
 	Mode mode;
-private:
 
+private:
     IBattleCast::Value rangeLevel;
 	IBattleCast::Value effectLevel;
 
@@ -318,6 +326,9 @@ private:
 
 	///raw damage/heal amount
 	IBattleCast::Value64 effectValue;
+
+	boost::logic::tribool smart;
+	boost::logic::tribool massive;
 };
 
 class DLL_LINKAGE IReceptiveCheck
