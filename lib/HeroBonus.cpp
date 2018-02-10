@@ -559,7 +559,7 @@ const std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst( const CSelect
 	return (const_cast<CBonusSystemNode*>(this))->getBonusLocalFirst(selector);
 }
 
-void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */
+void CBonusSystemNode::getParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
 {
 	for (auto & elem : parents)
 	{
@@ -1238,7 +1238,7 @@ namespace Selector
 	}
 }
 
-const CStack * retreiveStackBattle(const CBonusSystemNode *node)
+const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 {
 	switch(node->getNodeType())
 	{
@@ -1249,7 +1249,7 @@ const CStack * retreiveStackBattle(const CBonusSystemNode *node)
 	}
 }
 
-const CStackInstance * retreiveStackInstance(const CBonusSystemNode *node)
+const CStackInstance * retrieveStackInstance(const CBonusSystemNode * node)
 {
 	switch(node->getNodeType())
 	{
@@ -1271,7 +1271,7 @@ const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	case CBonusSystemNode::STACK_BATTLE:
 		return (static_cast<const CStack*>(node))->type;
 	default:
-		const CStackInstance *csi = retreiveStackInstance(node);
+		const CStackInstance * csi = retrieveStackInstance(node);
 		if(csi)
 			return csi->type;
 		return nullptr;
@@ -1491,7 +1491,7 @@ RankRangeLimiter::RankRangeLimiter()
 
 int RankRangeLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CStackInstance *csi = retreiveStackInstance(&context.node);
+	const CStackInstance * csi = retrieveStackInstance(&context.node);
 	if(csi)
 	{
 		if (csi->getNodeType() == CBonusSystemNode::COMMANDER) //no stack exp bonuses for commander creatures
@@ -1503,14 +1503,14 @@ int RankRangeLimiter::limit(const BonusLimitationContext &context) const
 
 int StackOwnerLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CStack *s = retreiveStackBattle(&context.node);
+	const CStack * s = retrieveStackBattle(&context.node);
 	if(s)
 		return s->owner != owner;
 
- 	const CStackInstance *csi = retreiveStackInstance(&context.node);
- 	if(csi && csi->armyObj)
- 		return csi->armyObj->tempOwner != owner;
- 	return true;
+	const CStackInstance * csi = retrieveStackInstance(&context.node);
+	if(csi && csi->armyObj)
+		return csi->armyObj->tempOwner != owner;
+	return true;
 }
 
 StackOwnerLimiter::StackOwnerLimiter()

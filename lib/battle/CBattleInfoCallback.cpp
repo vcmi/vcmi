@@ -34,7 +34,7 @@ namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
  *Maximum damage for Castle, Conflux is 120, Necropolis, Inferno, Fortress 125, Stronghold, Turret, and Dungeon 130 (for all three Turrets).
  *Artillery allows the player to control the Turrets.
  */
-static void retreiveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)//does not match OH3 yet, but damage is somewhat close
+static void retrieveTurretDamageRange(const CGTownInstance * town, const battle::Unit * turret, double & outMinDmg, double & outMaxDmg)//does not match OH3 yet, but damage is somewhat close
 {
 	assert(turret->creatureIndex() == CreatureID::ARROW_TOWERS);
 	assert(town);
@@ -647,7 +647,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 
 	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
 	{
-		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
+		SiegeStuffThatShouldBeMovedToHandlers::retrieveTurretDamageRange(battleGetDefendedTown(), info.attacker, minDmg, maxDmg);
 		TDmgRange unmodifiableTowerDamage = std::make_pair(int64_t(minDmg), int64_t(maxDmg));
 		return unmodifiableTowerDamage;
 	}
@@ -657,15 +657,15 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 
 	if(attackerBonuses->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
-		auto retreiveHeroPrimSkill = [&](int skill) -> int
+		auto retrieveHeroPrimSkill = [&](int skill) -> int
 		{
 			const std::shared_ptr<Bonus> b = attackerBonuses->getBonus(Selector::sourceTypeSel(Bonus::HERO_BASE_SKILL).And(Selector::typeSubtype(Bonus::PRIMARY_SKILL, skill)));
 			return b ? b->val : 0; //if there is no hero or no info on his primary skill, return 0
 		};
 
 
-		minDmg *= retreiveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-		maxDmg *= retreiveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
+		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
+		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
 	}
 
 	double attackDefenceDifference = 0.0;

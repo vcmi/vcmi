@@ -590,7 +590,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	retreiveVisitableObjs();
+	retrieveVisitableObjs();
 }
 
 void VCAI::yourTurn()
@@ -762,7 +762,7 @@ void VCAI::makeTurn()
 		{
 			townVisitsThisWeek.clear();
 			std::vector<const CGObjectInstance *> objs;
-			retreiveVisitableObjs(objs, true);
+			retrieveVisitableObjs(objs, true);
 			for(const CGObjectInstance *obj : objs)
 			{
 				if (isWeeklyRevisitable(obj))
@@ -1784,7 +1784,7 @@ void VCAI::validateVisitableObjs()
 	vstd::erase_if(alreadyVisited, shouldBeErased);
 }
 
-void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned) const
+void VCAI::retrieveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned) const
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
@@ -1796,7 +1796,7 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 	});
 }
 
-void VCAI::retreiveVisitableObjs()
+void VCAI::retrieveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
@@ -3094,21 +3094,21 @@ void SectorMap::update()
 	CCallback * cbp = cb.get(); //optimization
 	foreach_tile_pos([&](crint3 pos)
 	{
-		if(retreiveTile(pos) == NOT_CHECKED)
+		if(retrieveTile(pos) == NOT_CHECKED)
 		{
-			if(!markIfBlocked(retreiveTile(pos), pos))
+			if(!markIfBlocked(retrieveTile(pos), pos))
 				exploreNewSector(pos, curSector++, cbp);
 		}
 	});
 	valid = true;
 }
 
-SectorMap::TSectorID &SectorMap::retreiveTileN(SectorMap::TSectorArray &a, const int3 &pos)
+SectorMap::TSectorID & SectorMap::retrieveTileN(SectorMap::TSectorArray & a, const int3 & pos)
 {
 	return a[pos.x][pos.y][pos.z];
 }
 
-const SectorMap::TSectorID &SectorMap::retreiveTileN(const SectorMap::TSectorArray &a, const int3 &pos)
+const SectorMap::TSectorID & SectorMap::retrieveTileN(const SectorMap::TSectorArray & a, const int3 & pos)
 {
 	return a[pos.x][pos.y][pos.z];
 }
@@ -3144,7 +3144,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		TSectorID &sec = retreiveTile(curPos);
+		TSectorID & sec = retrieveTile(curPos);
 		if(sec == NOT_CHECKED)
 		{
 			const TerrainTile *t = getTile(curPos);
@@ -3156,7 +3156,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 					s.tiles.push_back(curPos);
 					foreach_neighbour(cbp, curPos, [&](CCallback * cbp, crint3 neighPos)
 					{
-						if(retreiveTile(neighPos) == NOT_CHECKED)
+						if(retrieveTile(neighPos) == NOT_CHECKED)
 						{
 							toVisit.push(neighPos);
 							//parent[neighPos] = curPos;
@@ -3339,8 +3339,8 @@ For ship construction etc, another function (goal?) is needed
 {
 	int3 ret(-1,-1,-1);
 
-	int sourceSector = retreiveTile(h->visitablePos()),
-		destinationSector = retreiveTile(dst);
+	int sourceSector = retrieveTile(h->visitablePos()),
+		destinationSector = retrieveTile(dst);
 
 	const Sector *src = &infoOnSectors[sourceSector],
 		*dest = &infoOnSectors[destinationSector];
@@ -3360,7 +3360,7 @@ For ship construction etc, another function (goal?) is needed
 
 			for(int3 ep : s->embarkmentPoints)
 			{
-				Sector *neigh = &infoOnSectors[retreiveTile(ep)];
+				Sector * neigh = &infoOnSectors[retrieveTile(ep)];
 				//preds[s].push_back(neigh);
 				if(!preds[neigh])
 				{
@@ -3397,7 +3397,7 @@ For ship construction etc, another function (goal?) is needed
 				{
 					const TerrainTile *t = getTile(pos);
                     return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT
-						&& retreiveTile(pos) == sectorToReach->id;
+						&& retrieveTile(pos) == sectorToReach->id;
 				});
 
 				if(firstEP != src->embarkmentPoints.end())
@@ -3424,7 +3424,7 @@ For ship construction etc, another function (goal?) is needed
 
 					shipyards.erase(boost::remove_if(shipyards, [=](const IShipyard *shipyard) -> bool
 					{
-						return shipyard->shipyardStatus() != 0 || retreiveTile(shipyard->bestLocation()) != sectorToReach->id;
+						return shipyard->shipyardStatus() != 0 || retrieveTile(shipyard->bestLocation()) != sectorToReach->id;
 					}),shipyards.end());
 
 					if(!shipyards.size())
@@ -3531,20 +3531,20 @@ void SectorMap::makeParentBFS(crint3 source)
 {
 	parent.clear();
 
-	int mySector = retreiveTile(source);
+	int mySector = retrieveTile(source);
 	std::queue<int3> toVisit;
 	toVisit.push(source);
 	while(!toVisit.empty())
 	{
 		int3 curPos = toVisit.front();
 		toVisit.pop();
-		TSectorID &sec = retreiveTile(curPos);
+		TSectorID & sec = retrieveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 		UNUSED(sec);
 
 		foreach_neighbour(curPos, [&](crint3 neighPos)
 		{
-			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))
+			if(retrieveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))
 			{
 				if (cb->canMoveBetween(curPos, neighPos))
 				{
@@ -3556,9 +3556,9 @@ void SectorMap::makeParentBFS(crint3 source)
 	}
 }
 
-SectorMap::TSectorID & SectorMap::retreiveTile(crint3 pos)
+SectorMap::TSectorID & SectorMap::retrieveTile(crint3 pos)
 {
-	return retreiveTileN(sector, pos);
+	return retrieveTileN(sector, pos);
 }
 
 TerrainTile* SectorMap::getTile(crint3 pos) const
@@ -3570,13 +3570,13 @@ TerrainTile* SectorMap::getTile(crint3 pos) const
 
 std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool sectorsAround)
 {
-	const Sector *heroSector = &infoOnSectors[retreiveTile(h->visitablePos())];
+	const Sector * heroSector = &infoOnSectors[retrieveTile(h->visitablePos())];
 	if(sectorsAround)
 	{
 		std::vector<const CGObjectInstance *> ret;
 		for(auto embarkPoint : heroSector->embarkmentPoints)
 		{
-			const Sector *embarkSector = &infoOnSectors[retreiveTile(embarkPoint)];
+			const Sector * embarkSector = &infoOnSectors[retrieveTile(embarkPoint)];
 			range::copy(embarkSector->visitableObjs, std::back_inserter(ret));
 		}
 		return ret;

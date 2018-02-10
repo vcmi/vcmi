@@ -1309,7 +1309,7 @@ bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck) cons
 	return true; //no slot means not used
 }
 
-ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ArtifactPosition slot)
+ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
 	ArtSlotInfo &ret = slot < GameConstants::BACKPACK_START
@@ -1321,7 +1321,7 @@ ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ArtifactPosition slot)
 
 void CArtifactSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, bool locked)
 {
-	ArtSlotInfo &asi = retreiveNewArtSlot(slot);
+	ArtSlotInfo & asi = retrieveNewArtSlot(slot);
 	asi.artifact = art;
 	asi.locked = locked;
 }

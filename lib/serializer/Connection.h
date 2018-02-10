@@ -77,7 +77,7 @@ public:
 	CConnection &operator&(const T&);
 	virtual ~CConnection();
 
-	CPack *retreivePack(); //gets from server next pack (allocates it with new)
+	CPack * retrievePack(); //gets from server next pack (allocates it with new)
 	void sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID);
 
 	void disableStackSendingByID();

@@ -24,7 +24,7 @@ class CERMPreprocessor
 
 public:
 	CERMPreprocessor(const std::string &Fname);
-	std::string retreiveCommandLine();
+	std::string retrieveCommandLine();
 	int getCurLineNo() const
 	{
 		return lineNo;

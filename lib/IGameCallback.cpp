@@ -29,7 +29,7 @@
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 
-void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
+void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
 	for (int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
@@ -52,7 +52,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 	}
 }
 
-void CPrivilagedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player, int mode, int3::EDistanceFormula distanceFormula) const
+void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3> & tiles, int3 pos, int radious, boost::optional<PlayerColor> player, int mode, int3::EDistanceFormula distanceFormula) const
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -84,7 +84,7 @@ void CPrivilagedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 	}
 }
 
-void CPrivilagedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player, int level, int surface ) const
+void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & tiles, boost::optional<PlayerColor> Player, int level, int surface) const
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
@@ -120,7 +120,7 @@ void CPrivilagedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> &t
 	}
 }
 
-void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out, CRandomGenerator & rand)
+void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
 {
 	for (int j = 0; j < 3 ; j++)
 		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)]);
@@ -130,7 +130,7 @@ void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &
 	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
 }
 
-void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)
+void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 level)
 {
 	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
@@ -143,13 +143,13 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 l
 	}
 }
 
-CGameState * CPrivilagedInfoCallback::gameState ()
+CGameState * CPrivilegedInfoCallback::gameState()
 {
 	return gs;
 }
 
 template<typename Loader>
-void CPrivilagedInfoCallback::loadCommonState(Loader &in)
+void CPrivilegedInfoCallback::loadCommonState(Loader & in)
 {
 	logGlobal->info("Loading lib part of game...");
 	in.checkMagicBytes(SAVEGAME_MAGIC);
@@ -171,7 +171,7 @@ void CPrivilagedInfoCallback::loadCommonState(Loader &in)
 }
 
 template<typename Saver>
-void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
+void CPrivilegedInfoCallback::saveCommonState(Saver & out) const
 {
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
@@ -186,9 +186,9 @@ void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
 }
 
 // hardly memory usage for `-gdwarf-4` flag
-template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator&);
-template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadFile>(CLoadFile&);
-template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CSaveFile&) const;
+template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator &);
+template DLL_LINKAGE void CPrivilegedInfoCallback::loadCommonState<CLoadFile>(CLoadFile &);
+template DLL_LINKAGE void CPrivilegedInfoCallback::saveCommonState<CSaveFile>(CSaveFile &) const;
 
 TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 {

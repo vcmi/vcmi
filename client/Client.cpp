@@ -178,7 +178,7 @@ void CClient::run()
 	{
 		while(!terminate)
 		{
-			CPack *pack = serv->retreivePack(); //get the package from the server
+			CPack * pack = serv->retrievePack(); //get the package from the server
 
 			if (terminate)
 			{

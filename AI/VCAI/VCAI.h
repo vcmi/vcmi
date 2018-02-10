@@ -109,9 +109,9 @@ struct SectorMap
 
 	bool markIfBlocked(TSectorID &sec, crint3 pos, const TerrainTile *t);
 	bool markIfBlocked(TSectorID &sec, crint3 pos);
-	TSectorID & retreiveTile(crint3 pos);
-	TSectorID & retreiveTileN(TSectorArray &vectors, const int3 &pos);
-	const TSectorID & retreiveTileN(const TSectorArray &vectors, const int3 &pos);
+	TSectorID & retrieveTile(crint3 pos);
+	TSectorID & retrieveTileN(TSectorArray & vectors, const int3 & pos);
+	const TSectorID & retrieveTileN(const TSectorArray &vectors, const int3 &pos);
 	TerrainTile* getTile(crint3 pos) const;
 	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
 
@@ -297,8 +297,8 @@ public:
 	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
 	void validateVisitableObjs();
-	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
-	void retreiveVisitableObjs();
+	void retrieveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
+	void retrieveVisitableObjs();
 	std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	const CGObjectInstance *lookForArt(int aid) const;

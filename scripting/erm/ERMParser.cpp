@@ -59,7 +59,7 @@ class ParseErrorException : public std::exception
 
 };
 
-std::string CERMPreprocessor::retreiveCommandLine()
+std::string CERMPreprocessor::retrieveCommandLine()
 {
 	std::string wholeCommand;
 
@@ -171,7 +171,7 @@ std::vector<LineInfo> ERMParser::parseFile()
 	{
 		while(1)
 		{
-			std::string command = preproc.retreiveCommandLine();
+			std::string command = preproc.retrieveCommandLine();
 			if(command.length() == 0)
 				break;
 

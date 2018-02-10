@@ -13,7 +13,7 @@
 #include "ERMInterpreter.h"
 
 IGameEventRealizer *acb;
-CPrivilagedInfoCallback *icb;
+CPrivilegedInfoCallback *icb;
 
 
 #ifdef __GNUC__

@@ -2759,7 +2759,7 @@ void ERMInterpreter::executeUserCommand(const std::string &cmd)
 	}
 }
 
-void ERMInterpreter::giveInfoCB(CPrivilagedInfoCallback *cb)
+void ERMInterpreter::giveInfoCB(CPrivilegedInfoCallback *cb)
 {
 	icb = cb;
 }

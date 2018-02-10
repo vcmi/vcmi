@@ -12,4 +12,4 @@
 #include "../../lib/CScriptingModule.h"
 
 extern IGameEventRealizer *acb;
-extern CPrivilagedInfoCallback *icb;
+extern CPrivilegedInfoCallback *icb;

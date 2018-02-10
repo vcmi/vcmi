@@ -805,7 +805,7 @@ TSubgoal CollectRes::whatToDoToAchieve()
 	std::vector<const IMarket*> markets;
 
 	std::vector<const CGObjectInstance*> visObjs;
-	ai->retreiveVisitableObjs(visObjs, true);
+	ai->retrieveVisitableObjs(visObjs, true);
 	for(const CGObjectInstance *obj : visObjs)
 	{
 		if(const IMarket *m = IMarket::castFrom(obj, false))

@@ -214,7 +214,7 @@ void CConnection::reportState(vstd::CLoggerBase * out)
 	}
 }
 
-CPack * CConnection::retreivePack()
+CPack * CConnection::retrievePack()
 {
 	CPack *ret = nullptr;
 	boost::unique_lock<boost::mutex> lock(*rmx);

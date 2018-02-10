@@ -25,7 +25,7 @@ class CStackBasicDescriptor;
 class CGCreature;
 struct ShashInt3;
 
-class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
+class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
 	CGameState * gameState();
@@ -97,7 +97,7 @@ public:
 	virtual void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) = 0;
 };
 
-class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback
+class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback
 {
 public:
 	PlayerState *getPlayer(PlayerColor color, bool verbose = true);
@@ -111,7 +111,7 @@ public:
 };
 
 /// Interface class for handling general game logic and actions
-class DLL_LINKAGE IGameCallback : public CPrivilagedInfoCallback, public IGameEventCallback
+class DLL_LINKAGE IGameCallback : public CPrivilegedInfoCallback, public IGameEventCallback
 {
 public:
 	virtual ~IGameCallback(){};
