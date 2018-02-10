@@ -86,6 +86,21 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  error "iOS system isn't yet supported."
 #endif
 
+// Each compiler uses own way to supress fall through warning. Try to find it.
+#ifdef __has_cpp_attribute
+#  if __has_cpp_attribute(fallthrough)
+#    define FALLTHROUGH [[fallthrough]];
+#  elif __has_cpp_attribute(gnu::fallthrough)
+#    define FALLTHROUGH [[gnu::fallthrough]];
+#  elif __has_cpp_attribute(clang::fallthrough)
+#    define FALLTHROUGH [[clang::fallthrough]];
+#  else
+#    define FALLTHROUGH
+#  endif
+#else
+#  define FALLTHROUGH
+#endif
+
 /* ---------------------------------------------------------------------------- */
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */

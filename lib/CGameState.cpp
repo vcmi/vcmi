@@ -2090,6 +2090,7 @@ void CGameState::updateRumor()
 			}
 			else
 				rumor.type = RumorState::TYPE_RAND;
+			FALLTHROUGH
 
 		case RumorState::TYPE_RAND:
 			do

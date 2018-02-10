@@ -754,7 +754,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand)
 			break;
 		case ETownType::DUNGEON:
 			bonusingBuildings.push_back (new COPWBonus(BuildingID::MANA_VORTEX, this));
-			//fallthrough
+			FALLTHROUGH
 		case ETownType::TOWER: case ETownType::INFERNO: case ETownType::STRONGHOLD:
 			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_4, this));
 			break;
