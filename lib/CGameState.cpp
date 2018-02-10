@@ -37,13 +37,6 @@
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
 
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
-
 boost::shared_mutex CGameState::mutex;
 
 template <typename T> class CApplyOnGS;

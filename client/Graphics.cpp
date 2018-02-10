@@ -33,12 +33,6 @@
 #include "../lib/mapObjects/CObjectHandler.h"
 
 using namespace CSDL_Ext;
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
 
 Graphics * graphics = nullptr;
 

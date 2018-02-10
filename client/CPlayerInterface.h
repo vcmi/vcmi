@@ -19,13 +19,6 @@
 #define sprintf_s snprintf
 #endif
 
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
-
 class CButton;
 class CToggleGroup;
 struct TryMoveHero;

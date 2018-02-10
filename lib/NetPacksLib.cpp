@@ -28,9 +28,6 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 
-#undef min
-#undef max
-
 
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {

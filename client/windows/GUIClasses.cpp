@@ -65,9 +65,6 @@ using namespace CSDL_Ext;
 std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
-#undef min
-#undef max
-
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow *window, const CCreature *crea, int totalAmount):
 	CIntObject(LCLICK | RCLICK),
 	parent(window),

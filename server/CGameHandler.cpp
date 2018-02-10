@@ -49,12 +49,6 @@
 #include <boost/thread/xtime.hpp>
 #endif
 extern std::atomic<bool> serverShuttingDown;
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
 
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
