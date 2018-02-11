@@ -156,6 +156,11 @@ set(lib_SRCS
 		${VCMILIB_ADDITIONAL_SOURCES}
 )
 
+# Version.cpp is a generated file
+set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
+	PROPERTIES GENERATED TRUE
+)
+
 set(lib_HEADERS
 		StdInc.h
 		../Global.h
@@ -362,5 +367,10 @@ add_custom_command(TARGET vcmi POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
 )
+
+# Update version before vcmi compiling
+if(TARGET update_version)
+	add_dependencies(vcmi update_version)
+endif()
 
 install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
