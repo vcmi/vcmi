@@ -1,5 +1,15 @@
 #!/bin/sh
 
+# Install nsis for installer creation
+sudo apt-get install -qq nsis ninja-build
+
+# MXE repository was too slow for Travis far too often
+wget https://github.com/vcmi/vcmi-deps-mxe/releases/download/2018-02-10/mxe-$MXE_TARGET-2018-02-10.tar
+tar -xvf mxe-$MXE_TARGET-2018-02-10.tar
+sudo dpkg -i mxe-*.deb
+sudo apt-get install -f --yes
+
+if false; then
 # Add MXE repository and key
 echo "deb http://pkg.mxe.cc/repos/apt/debian wheezy main" \
     | sudo tee /etc/apt/sources.list.d/mxeapt.list
@@ -22,8 +32,7 @@ mxe-$MXE_TARGET-ffmpeg \
 mxe-$MXE_TARGET-qt \
 mxe-$MXE_TARGET-qtbase
 
-# Install nsis for installer creation
-sudo apt-get install -qq nsis ninja-build
+fi # Disable
 
 # alias for CMake
 sudo mv /usr/bin/cmake /usr/bin/cmake.orig
