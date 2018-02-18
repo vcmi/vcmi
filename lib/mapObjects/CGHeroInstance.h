@@ -296,7 +296,7 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		if(version < 778)
+		if(version < 781)
 		{
 			std::vector<HeroSpecial*> specialtyDeprecated;
 			h & specialtyDeprecated;

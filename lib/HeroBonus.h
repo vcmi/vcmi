@@ -366,7 +366,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & effectRange;
 		h & limiter;
 		h & propagator;
-		if(version >= 778)
+		if(version >= 781)
 			h & updater;
 	}
 

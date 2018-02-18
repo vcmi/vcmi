@@ -99,7 +99,7 @@ public:
 		h & initialArmy;
 		h & heroClass;
 		h & secSkillsInit;
-		if(version >= 778)
+		if(version >= 781)
 		{
 			h & specialty;
 		}
