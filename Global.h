@@ -376,8 +376,14 @@ namespace vstd
 		for(auto iter = map.cbegin(); iter != map.cend(); iter++)
 		{
 			if(iter->second == value)
+			{
+				if(found)
+					*found = true;
 				return iter->first;
+			}
 		}
+		if(found)
+			*found = false;
 		return Key();
 	}
 
