@@ -176,6 +176,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 
 	if(UNIX)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 	endif()
 endif()
 
