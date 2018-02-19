@@ -45,7 +45,7 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "griffin"
+			"creature" : "swordsman"
 		}
 	},
 	"dracon":
