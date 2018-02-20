@@ -286,7 +286,7 @@ TEST_P(HealApplyTest, Heals)
 	GTEST_ASSERT_EQ(targetUnitState->getAvailableHealth(), unitAmount * unitHP / 2 + 1);
 	GTEST_ASSERT_EQ(targetUnitState->getFirstHPleft(), 1);
 
-	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
+	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
 

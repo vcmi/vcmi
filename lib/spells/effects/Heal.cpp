@@ -16,7 +16,7 @@
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
 #include "../../battle/CBattleInfoCallback.h"
-#include "../../battle/CUnitState.h"
+#include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 
@@ -120,7 +120,7 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, RNG & rng
 		{
 			auto unitHPgained = m->applySpellBonus(value, unit);
 
-			auto state = unit->acquireState();
+			auto state = unit->acquire();
 			state->heal(unitHPgained, healLevel, healPower);
 
 			if(unitHPgained > 0)

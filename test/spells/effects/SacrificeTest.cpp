@@ -198,7 +198,7 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 		targetUnitState->damage(initialDmg);
 	}
 
-	EXPECT_CALL(targetUnit, acquireState()).WillOnce(Return(targetUnitState));
+	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
 	setupDefaultRNG();
 
