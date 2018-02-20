@@ -18,8 +18,10 @@
 #include "../../NetPacks.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+#include "../../CCreatureHandler.h"
 #include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
+
 
 static const std::string EFFECT_NAME = "core:summon";
 
@@ -34,7 +36,8 @@ Summon::Summon()
 	: Effect(),
 	creature(),
 	permanent(false),
-	exclusive(true)
+	exclusive(true),
+	summonByHealth(false)
 {
 }
 
@@ -52,41 +55,41 @@ void Summon::adjustTargetTypes(std::vector<TargetType> & types) const
 
 bool Summon::applicable(Problem & problem, const Mechanics * m) const
 {
-	if(!exclusive)
-		return true;
-
-	//check if there are summoned elementals of other type
-
-	auto otherSummoned = m->cb->battleGetUnitsIf([m, this](const battle::Unit * unit)
+	if(exclusive)
 	{
-		return (unit->unitOwner() == m->getCasterColor())
-			&& (unit->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
-			&& (!unit->isClone())
-			&& (unit->creatureId() != creature);
-	});
+		//check if there are summoned creatures of other type
 
-	if(!otherSummoned.empty())
-	{
-		auto elemental = otherSummoned.front();
-
-		MetaString text;
-		text.addTxt(MetaString::GENERAL_TXT, 538);
-
-		auto caster = dynamic_cast<const CGHeroInstance *>(m->caster);
-		if(caster)
+		auto otherSummoned = m->cb->battleGetUnitsIf([m, this](const battle::Unit * unit)
 		{
-			text.addReplacement(caster->name);
+			return (unit->unitOwner() == m->getCasterColor())
+				&& (unit->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
+				&& (!unit->isClone())
+				&& (unit->creatureId() != creature);
+		});
 
-			text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
+		if(!otherSummoned.empty())
+		{
+			auto elemental = otherSummoned.front();
 
-			if(caster->type->sex)
-				text.addReplacement(MetaString::GENERAL_TXT, 540);
-			else
-				text.addReplacement(MetaString::GENERAL_TXT, 539);
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 538);
 
+			auto caster = dynamic_cast<const CGHeroInstance *>(m->caster);
+			if(caster)
+			{
+				text.addReplacement(caster->name);
+
+				text.addReplacement(MetaString::CRE_PL_NAMES, elemental->creatureIndex());
+
+				if(caster->type->sex)
+					text.addReplacement(MetaString::GENERAL_TXT, 540);
+				else
+					text.addReplacement(MetaString::GENERAL_TXT, 539);
+
+			}
+			problem.add(std::move(text), Problem::NORMAL);
+			return false;
 		}
-		problem.add(std::move(text), Problem::NORMAL);
-		return false;
 	}
 
 	return true;
@@ -95,12 +98,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
 {
 	//new feature - percentage bonus
-	auto amount = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));
-	if(amount < 1)
-	{
-		battleState->complain("Summoning didn't summon any!");
-		return;
-	}
+	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
 
 	BattleUnitsChanged pack;
 
@@ -110,13 +108,32 @@ void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * 
 		{
 			const battle::Unit * summoned = dest.unitValue;
 			std::shared_ptr<battle::Unit> state = summoned->acquire();
-			int64_t healthValue = amount * summoned->MaxHealth();
+			int64_t healthValue = (summonByHealth ? valueWithBonus : (valueWithBonus * summoned->MaxHealth()));
 			state->heal(healthValue, EHealLevel::OVERHEAL, (permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE));
 			pack.changedStacks.emplace_back(summoned->unitId(), UnitChanges::EOperation::RESET_STATE);
 			state->save(pack.changedStacks.back().data);
 		}
 		else
 		{
+			int32_t amount = 0;
+
+			if(summonByHealth)
+			{
+				auto creatureType = creature.toCreature();
+				auto creatureMaxHealth = creatureType->MaxHealth();
+				amount = valueWithBonus / creatureMaxHealth;
+			}
+			else
+			{
+				amount = static_cast<int32_t>(valueWithBonus);
+			}
+
+			if(amount < 1)
+			{
+				battleState->complain("Summoning didn't summon any!");
+				continue;
+			}
+
 			battle::UnitInfo info;
 			info.id = m->cb->battleNextUnitId();
 			info.count = amount;
@@ -144,6 +161,7 @@ void Summon::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeId("id", creature, CreatureID());
 	handler.serializeBool("permanent", permanent, false);
 	handler.serializeBool("exclusive", exclusive, true);
+	handler.serializeBool("summonByHealth", summonByHealth, false);
 }
 
 EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const

@@ -21,8 +21,6 @@ namespace effects
 class Summon : public Effect
 {
 public:
-	CreatureID creature;
-
 	Summon();
 	virtual ~Summon();
 
@@ -41,8 +39,11 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override final;
 
 private:
+	CreatureID creature;
+
 	bool permanent;
 	bool exclusive;
+	bool summonByHealth;
 };
 
 }

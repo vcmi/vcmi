@@ -13,6 +13,8 @@
 
 #include <vstd/RNG.h>
 
+#include "../../../lib/CCreatureHandler.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -133,20 +135,28 @@ INSTANTIATE_TEST_CASE_P
 	)
 );
 
-class SummonApplyTest : public TestWithParam<bool>, public EffectFixture
+class SummonApplyTest : public TestWithParam<::testing::tuple<bool, bool>>, public EffectFixture
 {
 public:
 	CreatureID toSummon;
 	bool permanent = false;
+	bool summonByHealth = false;
 
+	const uint32_t unitId = 42;
 	const int32_t unitAmount = 123;
+	const int32_t unitHealth;
+	const int64_t unitTotalHealth;
+
+	const BattleHex unitPosition = BattleHex(5,5);
 
 	std::shared_ptr<::battle::UnitInfo> unitAddInfo;
 	std::shared_ptr<UnitFake> acquired;
 
 	SummonApplyTest()
 		: EffectFixture("core:summon"),
-		toSummon(creature1)
+		toSummon(creature1),
+		unitHealth(toSummon.toCreature()->MaxHealth()),
+		unitTotalHealth(unitAmount * unitHealth)
 	{
 	}
 
@@ -155,7 +165,15 @@ public:
 		InSequence local;
 		EXPECT_CALL(mechanicsMock, getEffectPower()).WillOnce(Return(38));
 		EXPECT_CALL(mechanicsMock, calculateRawEffectValue(Eq(0), Eq(38))).WillOnce(Return(567));
-		EXPECT_CALL(mechanicsMock, applySpecificSpellBonus(Eq(567))).WillOnce(Return(unitAmount));
+
+		if(summonByHealth)
+		{
+			EXPECT_CALL(mechanicsMock, applySpecificSpellBonus(Eq(567))).WillOnce(Return(unitTotalHealth));
+		}
+		else
+		{
+			EXPECT_CALL(mechanicsMock, applySpecificSpellBonus(Eq(567))).WillOnce(Return(unitAmount));
+		}
 	}
 
     void onUnitAdded(uint32_t id, const JsonNode & data)
@@ -168,11 +186,13 @@ protected:
 	{
 		EffectFixture::setUp();
 
-		permanent = GetParam();
+		permanent = ::testing::get<0>(GetParam());
+		summonByHealth = ::testing::get<1>(GetParam());
 
 		JsonNode options(JsonNode::JsonType::DATA_STRUCT);
 		options["id"].String() = "airElemental";
 		options["permanent"].Bool() = permanent;
+		options["summonByHealth"].Bool() = summonByHealth;
 
 		EffectFixture::setupEffect(options);
 
@@ -182,6 +202,7 @@ protected:
 	void TearDown() override
 	{
 		acquired.reset();
+		unitAddInfo.reset();
 	}
 };
 
@@ -189,20 +210,17 @@ TEST_P(SummonApplyTest, SpawnsNewUnit)
 {
 	expectAmountCalculation();
 
-	BattleHex position(5,5);
-	const uint32_t unitId = 42;
-
 	EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(unitId));
 	EXPECT_CALL(*battleFake, addUnit(Eq(unitId), _)).WillOnce(Invoke(this, &SummonApplyTest::onUnitAdded));
 
 	EffectTarget target;
-	target.emplace_back(position);
+	target.emplace_back(unitPosition);
 
 	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
 
 	EXPECT_EQ(unitAddInfo->count, unitAmount);
 	EXPECT_EQ(unitAddInfo->id, unitId);
-	EXPECT_EQ(unitAddInfo->position, position);
+	EXPECT_EQ(unitAddInfo->position, unitPosition);
 	EXPECT_EQ(unitAddInfo->side, mechanicsMock.casterSide);
 	EXPECT_EQ(unitAddInfo->summoned, !permanent);
 	EXPECT_EQ(unitAddInfo->type, toSummon);
@@ -211,10 +229,6 @@ TEST_P(SummonApplyTest, SpawnsNewUnit)
 TEST_P(SummonApplyTest, UpdatesOldUnit)
 {
 	expectAmountCalculation();
-
-	BattleHex position(5,5);
-	const uint32_t unitId = 42;
-	const int32_t unitHealth = 234;
 
 	acquired = std::make_shared<UnitFake>();
 	acquired->addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHealth, 0));
@@ -226,13 +240,12 @@ TEST_P(SummonApplyTest, UpdatesOldUnit)
 
 	{
 		EXPECT_CALL(unit, acquire()).WillOnce(Return(acquired));
-		EXPECT_CALL(*acquired, heal(Eq(unitHealth * unitAmount), Eq(EHealLevel::OVERHEAL), Eq(permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE)));
+		EXPECT_CALL(*acquired, heal(Eq(unitTotalHealth), Eq(EHealLevel::OVERHEAL), Eq(permanent ? EHealPower::PERMANENT : EHealPower::ONE_BATTLE)));
 		EXPECT_CALL(*acquired, save(_));
 		EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, _));
 	}
 
 	EXPECT_CALL(unit, unitId()).WillOnce(Return(unitId));
-
 
 	unitsFake.setDefaultBonusExpectations();
 
@@ -242,12 +255,15 @@ TEST_P(SummonApplyTest, UpdatesOldUnit)
 	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
 }
 
-
 INSTANTIATE_TEST_CASE_P
 (
 	ByConfig,
 	SummonApplyTest,
-	Values(false, true)
+	Combine
+	(
+		Values(false, true),
+		Values(false, true)
+	)
 );
 
 }
