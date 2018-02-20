@@ -367,7 +367,9 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & limiter;
 		h & propagator;
 		if(version >= 781)
+		{
 			h & updater;
+		}
 	}
 
 	template <typename Ptr>

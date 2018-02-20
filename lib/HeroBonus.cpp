@@ -1759,9 +1759,7 @@ const std::shared_ptr<Bonus> GrowsWithLevelUpdater::update(const std::shared_ptr
 
 std::string GrowsWithLevelUpdater::toString() const
 {
-	char buf[100];
-	sprintf(buf, "GrowsWithLevelUpdater(valPer20=%d, stepSize=%d)", valPer20, stepSize);
-	return std::string(buf);
+	return boost::str(boost::format("GrowsWithLevelUpdater(valPer20=%d, stepSize=%d)") % valPer20 % stepSize);
 }
 
 JsonNode GrowsWithLevelUpdater::toJsonNode() const
