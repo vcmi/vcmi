@@ -31,7 +31,7 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "fireMagic", "level": "expert" }
 		],
-		"specialty" : { "bonuses" : {  } }
+		"specialty" : { "bonuses" : {  } } // has expert fire magic as "specialty"
 	},
 	"catherine":
 	{
