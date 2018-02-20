@@ -176,7 +176,7 @@
 				"cure" : {
 					"subtype" : "spell.cure",
 					"type" : "SPECIAL_SPELL_LEV",
-                    "updater" : "TIMES_HERO_LEVEL",
+					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -287,7 +287,7 @@
 				"iceBolt" : {
 					"subtype" : "spell.iceBolt",
 					"type" : "SPECIAL_SPELL_LEV",
-                    "updater" : "TIMES_HERO_LEVEL",
+					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}

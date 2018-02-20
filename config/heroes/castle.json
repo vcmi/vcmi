@@ -176,7 +176,7 @@
 					"addInfo" : 0,
 					"subtype" : "spell.bless",
 					"type" : "SPECIAL_BLESS_DAMAGE",
-                    "updater" : "TIMES_HERO_LEVEL",
+					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -218,7 +218,7 @@
 				"frostRing" : {
 					"subtype" : "spell.frostRing",
 					"type" : "SPECIAL_SPELL_LEV",
-                    "updater" : "TIMES_HERO_LEVEL",
+					"updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
