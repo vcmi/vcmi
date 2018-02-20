@@ -651,7 +651,7 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	});
 
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
-		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) * level) / affectedStack->creatureLevel())) / 100.0;
+		base *= (100. + valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) / affectedStack->creatureLevel()) / 100.0;
 
 	return base;
 }

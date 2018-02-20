@@ -442,6 +442,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 	case 3: //spell damage bonus, level dependent but calculated elsewhere
 		bonus->type = Bonus::SPECIAL_SPELL_LEV;
 		bonus->subtype = spec.subtype;
+		bonus->updater.reset(new TimesHeroLevelUpdater());
 		result.push_back(bonus);
 		break;
 	case 4: //creature stat boost
@@ -483,6 +484,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
 		bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
 		bonus->additionalInfo = spec.additionalinfo; //damage factor
+		bonus->updater.reset(new TimesHeroLevelUpdater());
 		result.push_back(bonus);
 		break;
 	case 7: //maxed mastery for spell
@@ -553,7 +555,14 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 	std::vector<std::shared_ptr<Bonus>> result;
 	for(std::shared_ptr<Bonus> oldBonus : spec.bonuses)
 	{
-		if(spec.growsWithLevel)
+		if(oldBonus->type == Bonus::SPECIAL_SPELL_LEV || oldBonus->type == Bonus::SPECIAL_BLESS_DAMAGE)
+		{
+			// these bonuses used to auto-scale with hero level
+			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
+			newBonus->updater = std::make_shared<TimesHeroLevelUpdater>();
+			result.push_back(newBonus);
+		}
+		else if(spec.growsWithLevel)
 		{
 			std::shared_ptr<Bonus> newBonus = std::make_shared<Bonus>(*oldBonus);
 			switch(newBonus->type)

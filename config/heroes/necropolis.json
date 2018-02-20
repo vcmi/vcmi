@@ -148,6 +148,7 @@
 				"deathRipple" : {
 					"subtype" : "spell.deathRipple",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -169,6 +170,7 @@
 				"meteorShower" : {
 					"subtype" : "spell.meteorShower",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -236,6 +238,7 @@
 				"animateDead" : {
 					"subtype" : "spell.animateDead",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}

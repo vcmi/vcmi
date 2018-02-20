@@ -153,6 +153,7 @@
 				"inferno" : {
 					"subtype" : "spell.inferno",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -283,6 +284,7 @@
 				"fireball" : {
 					"subtype" : "spell.fireball",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}

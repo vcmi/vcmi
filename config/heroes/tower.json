@@ -147,6 +147,7 @@
 				"hypnotize" : {
 					"subtype" : "spell.hypnotize",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
@@ -249,6 +250,7 @@
 				"chainLightning" : {
 					"subtype" : "spell.chainLightning",
 					"type" : "SPECIAL_SPELL_LEV",
+                    "updater" : "TIMES_HERO_LEVEL",
 					"val" : 3
 				}
 			}
