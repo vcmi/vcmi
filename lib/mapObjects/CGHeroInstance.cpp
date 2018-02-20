@@ -853,11 +853,14 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	base *= (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
 	base *= (100.0 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0;
 
-	spell->forEachSchool([&base, this](const spells::SchoolInfo & cnf, bool & stop)
+	int maxSchoolBonus = 0;
+
+	spell->forEachSchool([&maxSchoolBonus, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		base *= (100.0 + valOfBonuses(cnf.damagePremyBonus)) / 100.0;
-		stop = true; //only bonus from one school is used
+		vstd::amax(maxSchoolBonus, valOfBonuses(cnf.damagePremyBonus));
 	});
+
+	base *= (100.0 + maxSchoolBonus) / 100.0;
 
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
 		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) * level) / affectedStack->creatureLevel())) / 100.0;
