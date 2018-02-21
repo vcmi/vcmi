@@ -360,7 +360,7 @@
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [
-						"http://download.vcmi.eu/mods/repository/repository.json"
+						"https://mods.vcmi.download/repository/develop.json"
 					],
 					"items" : {
 						"type" : "string"
