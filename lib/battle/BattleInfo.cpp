@@ -797,8 +797,8 @@ void BattleInfo::addUnit(uint32_t id, const JsonNode & data)
 	auto ret = new CStack(&base, owner, info.id, info.side, SlotID::SUMMONED_SLOT_PLACEHOLDER);
 	ret->initialPosition = info.position;
 	stacks.push_back(ret);
-	ret->summoned = info.summoned;
 	ret->localInit(this);
+	ret->summoned = info.summoned;
 }
 
 void BattleInfo::moveUnit(uint32_t id, BattleHex destination)

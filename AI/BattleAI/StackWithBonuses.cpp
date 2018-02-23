@@ -53,9 +53,10 @@ StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle:
 
 	player = Owner->getSidePlayer(side);
 
+	localInit(Owner);
+
 	position = info.position;
 	summoned = info.summoned;
-	localInit(Owner);
 }
 
 StackWithBonuses::~StackWithBonuses() = default;
