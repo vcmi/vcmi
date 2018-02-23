@@ -60,6 +60,10 @@ assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
 
+if(POLICY CMP0071)
+	cmake_policy(SET CMP0071 NEW)
+endif()
+
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
