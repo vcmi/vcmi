@@ -28,9 +28,6 @@ ui8 AbilityCaster::getSpellSchoolLevel(const Spell * spell, int * outSelectedSch
 {
 	int skill = baseSpellLevel;
 
-	//if spell level is 0, it is not actually spell, but non magic ability
-	//in ability cast spell school is ignored, but generic bonus is applicable
-
 	if(spell->getLevel() > 0)
 	{
 		vstd::amax(skill, actualCaster->valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0));

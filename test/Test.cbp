@@ -109,6 +109,7 @@
 		<Unit filename="mock/mock_spells_Problem.h" />
 		<Unit filename="mock/mock_spells_Spell.h" />
 		<Unit filename="mock/mock_vstd_RNG.h" />
+		<Unit filename="spells/AbilityCasterTest.cpp" />
 		<Unit filename="spells/TargetConditionTest.cpp" />
 		<Unit filename="spells/effects/CatapultTest.cpp" />
 		<Unit filename="spells/effects/CloneTest.cpp" />
