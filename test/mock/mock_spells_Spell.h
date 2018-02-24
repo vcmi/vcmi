@@ -19,6 +19,7 @@ class SpellMock : public Spell
 {
 public:
 	MOCK_CONST_METHOD0(getIndex, int32_t());
+	MOCK_CONST_METHOD0(getLevel, int32_t());
 	MOCK_CONST_METHOD1(forEachSchool, void(const std::function<void (const SchoolInfo &, bool &)> &));
 };
 

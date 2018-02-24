@@ -88,8 +88,7 @@ public:
 	virtual const Caster * getCaster() const = 0;
 	virtual const CBattleInfoCallback * getBattle() const = 0;
 
-	virtual OptionalValue getEffectLevel() const = 0;
-	virtual OptionalValue getRangeLevel() const = 0;
+	virtual OptionalValue getSpellLevel() const = 0;
 
 	virtual OptionalValue getEffectPower() const = 0;
 	virtual OptionalValue getEffectDuration() const = 0;
@@ -123,8 +122,7 @@ public:
 	const Caster * getCaster() const override;
 	const CBattleInfoCallback * getBattle() const override;
 
-	OptionalValue getEffectLevel() const override;
-	OptionalValue getRangeLevel() const override;
+	OptionalValue getSpellLevel() const override;
 
 	OptionalValue getEffectPower() const override;
 	OptionalValue getEffectDuration() const override;
@@ -135,8 +133,6 @@ public:
 	boost::logic::tribool isMassive() const override;
 
 	void setSpellLevel(Value value);
-	void setEffectLevel(Value value);
-	void setRangeLevel(Value value);
 
 	void setEffectPower(Value value);
 	void setEffectDuration(Value value);
@@ -162,10 +158,8 @@ public:
 
 private:
 	///spell school level
-	OptionalValue spellLvl;
+	OptionalValue magicSkillLevel;
 
-	OptionalValue rangeLevel;
-	OptionalValue effectLevel;
 	///actual spell-power affecting effect values
 	OptionalValue effectPower;
 	///actual spell-power affecting effect duration

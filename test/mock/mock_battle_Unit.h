@@ -27,7 +27,6 @@ public:
 	MOCK_CONST_METHOD1(getEffectValue, int64_t(const spells::Spell *));
 	MOCK_CONST_METHOD0(getOwner, const PlayerColor());
 	MOCK_CONST_METHOD1(getCasterName, void(MetaString &));
-	MOCK_CONST_METHOD2(getCastDescription, void(const spells::Spell *, MetaString &));
 	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const std::vector<const battle::Unit *> &, MetaString &));
 	MOCK_CONST_METHOD2(spendMana, void(const spells::PacketSender *, const int));
 

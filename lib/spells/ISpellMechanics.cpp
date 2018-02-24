@@ -158,8 +158,7 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, c
 	cb(cb),
 	caster(caster_),
 	mode(mode_),
-	spellLvl(),
-	effectLevel(),
+	magicSkillLevel(),
 	effectPower(),
 	effectDuration(),
 	effectValue(),
@@ -174,8 +173,7 @@ BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	cb(orig.cb),
 	caster(caster_),
 	mode(Mode::MAGIC_MIRROR),
-	spellLvl(orig.spellLvl),
-	effectLevel(orig.effectLevel),
+	magicSkillLevel(orig.magicSkillLevel),
 	effectPower(orig.effectPower),
 	effectDuration(orig.effectDuration),
 	effectValue(orig.effectValue),
@@ -206,20 +204,9 @@ const CBattleInfoCallback * BattleCast::getBattle() const
 	return cb;
 }
 
-BattleCast::OptionalValue BattleCast::getEffectLevel() const
+BattleCast::OptionalValue BattleCast::getSpellLevel() const
 {
-	if(effectLevel)
-		return effectLevel;
-	else
-		return spellLvl;
-}
-
-BattleCast::OptionalValue BattleCast::getRangeLevel() const
-{
-	if(rangeLevel)
-		return rangeLevel;
-	else
-		return spellLvl;
+	return magicSkillLevel;
 }
 
 BattleCast::OptionalValue BattleCast::getEffectPower() const
@@ -249,17 +236,7 @@ boost::logic::tribool BattleCast::isMassive() const
 
 void BattleCast::setSpellLevel(BattleCast::Value value)
 {
-	spellLvl = boost::make_optional(value);
-}
-
-void BattleCast::setEffectLevel(BattleCast::Value value)
-{
-	effectLevel = boost::make_optional(value);
-}
-
-void BattleCast::setRangeLevel(BattleCast::Value value)
-{
-	rangeLevel = boost::make_optional(value);
+	magicSkillLevel = boost::make_optional(value);
 }
 
 void BattleCast::setEffectPower(BattleCast::Value value)
@@ -484,7 +461,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event)
 		casterSide = cb->playerToSide(caster->getOwner()).get();
 
 	{
-		auto value = event->getRangeLevel();
+		auto value = event->getSpellLevel();
 		if(value)
 			rangeLevel = value.get();
 		else
@@ -492,7 +469,7 @@ BaseMechanics::BaseMechanics(const IBattleCast * event)
 		vstd::abetween(rangeLevel, 0, 3);
 	}
 	{
-		auto value = event->getEffectLevel();
+		auto value = event->getSpellLevel();
         if(value)
 			effectLevel = value.get();
 		else

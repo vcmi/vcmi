@@ -18,6 +18,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/spells/AbilityCaster.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/spells/Problem.h"
@@ -141,11 +142,6 @@ public:
 		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCasterName");
 	}
 
-	void getCastDescription(const Spell * spell, MetaString & text) const override
-	{
-		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCastDescription");
-	}
-
 	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override
 	{
 		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCastDescription");
@@ -221,13 +217,6 @@ public:
 			text.addReplacement(bonus->description);
 		else
 			hero->getCasterName(text);
-	}
-
-	void getCastDescription(const Spell * spell, MetaString & text) const override
-	{
-		text.addTxt(MetaString::GENERAL_TXT, 196);
-		getCasterName(text);
-		text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
 	}
 
 	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override
@@ -5561,7 +5550,9 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if(!spell->canBeCastAt(gs->curB, spells::Mode::ABILITY, attacker, defender->getPosition()))
+			spells::AbilityCaster caster(attacker, spellLevel);
+
+			if(!spell->canBeCastAt(gs->curB, spells::Mode::PASSIVE, &caster, defender->getPosition()))
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -5571,8 +5562,8 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			//casting
 			if(castMe)
 			{
-				spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
-				parameters.setSpellLevel(spellLevel);
+
+				spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
 				parameters.aimToUnit(defender);
 				parameters.cast(spellEnv);
 			}
@@ -5621,8 +5612,9 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 			//TODO: death stare was not originally available for multiple-hex attacks, but...
 			const CSpell * spell = SpellID(SpellID::DEATH_STARE).toSpell();
 
-			spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
-			parameters.setSpellLevel(0);
+			spells::AbilityCaster caster(attacker, 0);
+
+			spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
 			parameters.aimToUnit(defender);
 			parameters.setEffectValue(staredCreatures);
 			parameters.cast(spellEnv);
@@ -5644,8 +5636,9 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 	{
 		const CSpell * spell = SpellID(SpellID::ACID_BREATH_DAMAGE).toSpell();
 
-		spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
-		parameters.setSpellLevel(0);
+		spells::AbilityCaster caster(attacker, 0);
+
+		spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
 		parameters.aimToUnit(defender);
 		parameters.setEffectValue(acidDamage * attacker->getCount());
 		parameters.cast(spellEnv);
