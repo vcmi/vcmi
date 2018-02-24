@@ -41,8 +41,7 @@ enum class Mode
 {
 	//ACTIVE, //todo: use
 	HERO, //deprecated
-	AFTER_ATTACK,
-	BEFORE_ATTACK,
+	ABILITY,
 	MAGIC_MIRROR,
 	CREATURE_ACTIVE, //deprecated
 	ENCHANTER,

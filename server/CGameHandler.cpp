@@ -5532,8 +5532,6 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 
 void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const CStack * attacker, const CStack * defender)
 {
-	spells::Mode mode = (attackMode == Bonus::SPELL_AFTER_ATTACK) ? spells::Mode::AFTER_ATTACK : spells::Mode::BEFORE_ATTACK;
-
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<SpellID> spellsToCast;
@@ -5563,7 +5561,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			vstd::amin(chance, 100);
 
 			const CSpell * spell = SpellID(spellID).toSpell();
-			if(!spell->canBeCastAt(gs->curB, mode, attacker, defender->getPosition()))
+			if(!spell->canBeCastAt(gs->curB, spells::Mode::ABILITY, attacker, defender->getPosition()))
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -5573,7 +5571,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			//casting
 			if(castMe)
 			{
-				spells::BattleCast parameters(gs->curB, attacker, mode, spell);
+				spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
 				parameters.setSpellLevel(spellLevel);
 				parameters.aimToUnit(defender);
 				parameters.cast(spellEnv);
@@ -5623,7 +5621,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 			//TODO: death stare was not originally available for multiple-hex attacks, but...
 			const CSpell * spell = SpellID(SpellID::DEATH_STARE).toSpell();
 
-			spells::BattleCast parameters(gs->curB, attacker, spells::Mode::AFTER_ATTACK, spell);
+			spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
 			parameters.setSpellLevel(0);
 			parameters.aimToUnit(defender);
 			parameters.setEffectValue(staredCreatures);
@@ -5646,7 +5644,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 	{
 		const CSpell * spell = SpellID(SpellID::ACID_BREATH_DAMAGE).toSpell();
 
-		spells::BattleCast parameters(gs->curB, attacker, spells::Mode::AFTER_ATTACK, spell);
+		spells::BattleCast parameters(gs->curB, attacker, spells::Mode::ABILITY, spell);
 		parameters.setSpellLevel(0);
 		parameters.aimToUnit(defender);
 		parameters.setEffectValue(acidDamage * attacker->getCount());

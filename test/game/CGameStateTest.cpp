@@ -225,11 +225,11 @@ TEST_F(CGameStateTest, issue2765)
 		const CSpell * age = SpellID(SpellID::AGE).toSpell();
 		ASSERT_NE(age, nullptr);
 		//here tested ballista, but this applied to all war machines
-		spells::BattleCast cast(gameState->curB, att, spells::Mode::AFTER_ATTACK, age);
+		spells::BattleCast cast(gameState->curB, att, spells::Mode::ABILITY, age);
 		cast.aimToUnit(def);
 		cast.setSpellLevel(3);
 
-		EXPECT_FALSE(age->canBeCastAt(gameState->curB, spells::Mode::AFTER_ATTACK, att, def->getPosition()));
+		EXPECT_FALSE(age->canBeCastAt(gameState->curB, spells::Mode::ABILITY, att, def->getPosition()));
 
 		EXPECT_TRUE(cast.castIfPossible(this));//should be possible, but with no effect (change to aimed cast check?)
 
