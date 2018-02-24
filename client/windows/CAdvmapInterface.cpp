@@ -830,14 +830,23 @@ void CAdvMapInt::fendTurn()
 	if(!LOCPLINT->makingTurn)
 		return;
 
-	if ( settings["adventure"]["heroReminder"].Bool())
+	if(settings["adventure"]["heroReminder"].Bool())
 	{
-		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
-			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
+		for(auto hero : LOCPLINT->wanderingHeroes)
+		{
+			if(!isHeroSleeping(hero) && hero->movement > 0)
 			{
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), 0, false);
-				return;
+				// Only show hero reminder if conditions met:
+				// - There still movement points
+				// - Hero don't have a path or there not points for first step on path
+				auto path = LOCPLINT->getAndVerifyPath(hero);
+				if(!path || path->nodes.size() < 2 || !path->nodes[path->nodes.size()-2].turns)
+				{
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), 0, false);
+					return;
+				}
 			}
+		}
 	}
 	endingTurn();
 }
