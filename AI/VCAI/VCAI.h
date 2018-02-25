@@ -327,6 +327,8 @@ public:
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(std::function<void()> whatToDo);
 
+	#if 0
+	//disabled due to issue 2890
 	template <typename Handler> void registerGoals(Handler &h)
 	{
 		//h.template registerType<Goals::AbstractGoal, Goals::BoostHero>();
@@ -350,6 +352,7 @@ public:
 		h.template registerType<Goals::AbstractGoal, Goals::VisitTile>();
 		h.template registerType<Goals::AbstractGoal, Goals::Win>();
 	}
+	#endif
 
 	template <typename Handler> void serializeInternal(Handler &h, const int version)
 	{
@@ -357,7 +360,48 @@ public:
 		h & knownSubterraneanGates;
 		h & destinationTeleport;
 		h & townVisitsThisWeek;
+
+		#if 0
+		//disabled due to issue 2890
 		h & lockedHeroes;
+		#else
+		{
+			ui32 length = 0;
+			h & length;
+			if(!h.saving)
+			{
+				std::set<ui32> loadedPointers;
+				lockedHeroes.clear();
+				for(ui32 index = 0; index < length; index++)
+				{
+					HeroPtr ignored1;
+					h & ignored1;
+
+					ui8 flag = 0;
+					h & flag;
+
+					if(flag)
+					{
+						ui32 pid = 0xffffffff;
+						h & pid;
+
+						if(!vstd::contains(loadedPointers, pid))
+						{
+							loadedPointers.insert(pid);
+
+							ui16 typeId = 0;
+							//this is the problem requires such hack
+							//we have to explicitly ignore invalid goal class type id
+							h & typeId;
+							Goals::AbstractGoal ignored2;
+							ignored2.serialize(h, version);
+						}
+					}
+				}
+			}
+		}
+		#endif
+
 		h & reservedHeroesMap; //FIXME: cannot instantiate abstract class
 		h & visitableObjs;
 		h & alreadyVisited;
