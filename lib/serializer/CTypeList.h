@@ -215,7 +215,8 @@ class CApplier : boost::noncopyable
 public:
 	T * getApplier(ui16 ID)
 	{
-		assert(apps.count(ID));
+		if(!apps.count(ID))
+			throw std::runtime_error("No applier found.");
 		return apps[ID].get();
 	}
 

@@ -714,7 +714,10 @@ void VCAI::saveGame(BinarySerializer & h, const int version)
 	NET_EVENT_HANDLER;
 	validateVisitableObjs();
 
+	#if 0
+	//disabled due to issue 2890
 	registerGoals(h);
+	#endif // 0
 	CAdventureAI::saveGame(h, version);
 	serializeInternal(h, version);
 }
@@ -724,7 +727,10 @@ void VCAI::loadGame(BinaryDeserializer & h, const int version)
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
 
+	#if 0
+	//disabled due to issue 2890
 	registerGoals(h);
+	#endif // 0
 	CAdventureAI::loadGame(h, version);
 	serializeInternal(h, version);
 }
