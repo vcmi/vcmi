@@ -44,9 +44,9 @@ public:
 		IObjectInterface::cb = nullptr;
 	}
 
-	void sendAndApply(CPackForClient * info) const override
+	void sendAndApply(CPackForClient * pack) const override
 	{
-		gameState->apply(info);
+		gameState->apply(pack);
 	}
 
 	void complain(const std::string & problem) const

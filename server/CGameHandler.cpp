@@ -61,7 +61,7 @@ class ServerSpellCastEnvironment : public SpellCastEnvironment
 public:
 	ServerSpellCastEnvironment(CGameHandler * gh);
 	~ServerSpellCastEnvironment() = default;
-	void sendAndApply(CPackForClient * info) const override;
+	void sendAndApply(CPackForClient * pack) const override;
 	CRandomGenerator & getRandomGenerator() const override;
 	void complain(const std::string & problem) const override;
 	const CMap * getMap() const override;
@@ -2694,46 +2694,47 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	}
 }
 
-void CGameHandler::sendToAllClients(CPackForClient * info)
+void CGameHandler::sendToAllClients(CPackForClient * pack)
 {
-	logNetwork->trace("Sending to all clients a package of type %s", typeid(*info).name());
+	logNetwork->trace("\tSending to all clients: %s", typeid(*pack).name());
 	for (auto c : lobby->connections)
 	{
 		if(!c->isOpen())
 			continue;
 
-		c->sendPack(info);
+		c->sendPack(pack);
 	}
 }
 
-void CGameHandler::sendAndApply(CPackForClient * info)
+void CGameHandler::sendAndApply(CPackForClient * pack)
 {
-	sendToAllClients(info);
-	gs->apply(info);
+	sendToAllClients(pack);
+	gs->apply(pack);
+	logNetwork->trace("\tApplied on gs: %s", typeid(*pack).name());
 }
 
-void CGameHandler::applyAndSend(CPackForClient * info)
+void CGameHandler::applyAndSend(CPackForClient * pack)
 {
-	gs->apply(info);
-	sendToAllClients(info);
+	gs->apply(pack);
+	sendToAllClients(pack);
 }
 
-void CGameHandler::sendAndApply(CGarrisonOperationPack * info)
+void CGameHandler::sendAndApply(CGarrisonOperationPack * pack)
 {
-	sendAndApply(static_cast<CPackForClient*>(info));
+	sendAndApply(static_cast<CPackForClient *>(pack));
 	checkVictoryLossConditionsForAll();
 }
 
-void CGameHandler::sendAndApply(SetResources * info)
+void CGameHandler::sendAndApply(SetResources * pack)
 {
-	sendAndApply(static_cast<CPackForClient*>(info));
-	checkVictoryLossConditionsForPlayer(info->player);
+	sendAndApply(static_cast<CPackForClient *>(pack));
+	checkVictoryLossConditionsForPlayer(pack->player);
 }
 
-void CGameHandler::sendAndApply(NewStructures * info)
+void CGameHandler::sendAndApply(NewStructures * pack)
 {
-	sendAndApply(static_cast<CPackForClient*>(info));
-	checkVictoryLossConditionsForPlayer(getTown(info->tid)->tempOwner);
+	sendAndApply(static_cast<CPackForClient *>(pack));
+	checkVictoryLossConditionsForPlayer(getTown(pack->tid)->tempOwner);
 }
 
 void CGameHandler::save(const std::string & filename)
@@ -6726,9 +6727,9 @@ ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh): gh(gh
 
 }
 
-void ServerSpellCastEnvironment::sendAndApply(CPackForClient * info) const
+void ServerSpellCastEnvironment::sendAndApply(CPackForClient * pack) const
 {
-	gh->sendAndApply(info);
+	gh->sendAndApply(pack);
 }
 
 CRandomGenerator & ServerSpellCastEnvironment::getRandomGenerator() const

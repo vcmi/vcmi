@@ -32,7 +32,7 @@ void GameCallbackMock::commitPackage(CPackForClient * pack)
 	sendAndApply(pack);
 }
 
-void GameCallbackMock::sendAndApply(CPackForClient * info)
+void GameCallbackMock::sendAndApply(CPackForClient * pack)
 {
-	upperCallback->sendAndApply(info);
+	upperCallback->sendAndApply(pack);
 }

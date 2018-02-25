@@ -60,7 +60,7 @@ class DLL_LINKAGE PacketSender
 {
 public:
 	virtual ~PacketSender(){};
-	virtual void sendAndApply(CPackForClient * info) const = 0;
+	virtual void sendAndApply(CPackForClient * pack) const = 0;
 	virtual void complain(const std::string & problem) const = 0;
 };
 

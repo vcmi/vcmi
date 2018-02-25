@@ -207,7 +207,7 @@ CPack * CConnection::retrievePack()
 	CPack * pack = nullptr;
 	boost::unique_lock<boost::mutex> lock(*mutexRead);
 	iser & pack;
-	logNetwork->trace("\treceived CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
+	logNetwork->trace("Received CPack of type %s", (pack ? typeid(*pack).name() : "nullptr"));
 	if(pack == nullptr)
 	{
 		logNetwork->error("Received a nullptr CPack! You should check whether client and server ABI matches.");

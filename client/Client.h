@@ -203,7 +203,7 @@ public:
 	void setManaPoints(ObjectInstanceID hid, int val) override {};
 	void giveHero(ObjectInstanceID id, PlayerColor player) override {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) override {};
-	void sendAndApply(CPackForClient * info) override {};
+	void sendAndApply(CPackForClient * pack) override {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {};
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, bool hide) override {}

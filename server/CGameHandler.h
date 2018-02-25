@@ -254,12 +254,12 @@ public:
 
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message);
-	void sendToAllClients(CPackForClient * info);
-	void sendAndApply(CPackForClient * info) override;
-	void applyAndSend(CPackForClient * info);
-	void sendAndApply(CGarrisonOperationPack * info);
-	void sendAndApply(SetResources * info);
-	void sendAndApply(NewStructures * info);
+	void sendToAllClients(CPackForClient * pack);
+	void sendAndApply(CPackForClient * pack) override;
+	void applyAndSend(CPackForClient * pack);
+	void sendAndApply(CGarrisonOperationPack * pack);
+	void sendAndApply(SetResources * pack);
+	void sendAndApply(NewStructures * pack);
 
 	struct FinishingBattleHelper
 	{
