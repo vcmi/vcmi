@@ -164,7 +164,8 @@ struct DLL_LINKAGE EventCondition
 		h & objectType;
 		h & position;
 		h & condition;
-		if(version >= 759)
+		//(!!!) should be `version >= 759` here, but do not try to "fix" it
+		if(version > 759)
 		{
 			h & objectSubtype;
 			h & objectInstanceName;
