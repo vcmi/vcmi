@@ -9,10 +9,17 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 1, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"archery" : {
+					"subtype" : "skill.archery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"valeska":
 	{
@@ -24,10 +31,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 2 }
-		]
+		"specialty" : {
+			"creature" : "archer"
+		}
 	},
 	"edric":
 	{
@@ -39,10 +45,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "armorer", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 4 }
-		]
+		"specialty" : {
+			"creature" : "griffin"
+		}
 	},
 	"sylvia":
 	{
@@ -54,10 +59,17 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "navigation", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 2, "subtype": 5, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"navigation" : {
+					"subtype" : "skill.navigation",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"lordHaart":
 	{
@@ -70,10 +82,17 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "estates", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 13, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"estates" : {
+					"subtype" : "skill.estates",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"sorsha":
 	{
@@ -85,10 +104,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 6 }
-		]
+		"specialty" : {
+			"creature" : "swordsman"
+		}
 	},
 	"christian":
 	{
@@ -100,10 +118,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"creature" : "ballista"
+		}
 	},
 	"tyris":
 	{
@@ -115,10 +132,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 10 }
-		]
+		"specialty" : {
+			"creature" : "cavalier"
+		}
 	},
 	"rion":
 	{
@@ -131,10 +147,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "firstAid", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 27, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"firstAid" : {
+					"subtype" : "skill.firstAid",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"adela":
 	{
@@ -147,10 +170,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "diplomacy", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":6, "val": 3, "subtype": 41, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"bless" : {
+					"addInfo" : 0,
+					"subtype" : "spell.bless",
+					"type" : "SPECIAL_BLESS_DAMAGE",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"cuthbert":
 	{
@@ -163,10 +193,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "estates", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"adelaide":
 	{
@@ -178,10 +213,16 @@
 		[
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 20, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"frostRing" : {
+					"subtype" : "spell.frostRing",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"ingham":
 	{
@@ -194,10 +235,9 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 8 }
-		]
+		"specialty" : {
+			"creature" : "monk"
+		}
 	},
 	"sanya":
 	{
@@ -210,10 +250,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"loynis":
 	{
@@ -226,10 +273,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 48, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"prayer" : {
+					"addInfo" : 0,
+					"subtype" : "spell.prayer",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"caitlin":
 	{
@@ -242,9 +294,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	}
 }

@@ -10,10 +10,14 @@
 		[
 			{ "skill" : "leadership", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":12, "val": 2, "subtype": 0, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 2
+				}
+			}
+		}
 	},
 	"adrienne":
 	{
@@ -25,11 +29,9 @@
 		"skills":
 		[
 			{ "skill" : "wisdom", "level": "basic" },
-			{ "skill" : "fireMagic", "level": "expert" } ],
-		"specialties":
-		[
-			{ "type":11, "val": 14, "subtype": 0, "info": 3 }
-		]
+			{ "skill" : "fireMagic", "level": "expert" }
+		],
+		"specialty" : { "bonuses" : {  } } // has expert fire magic as "specialty"
 	},
 	"catherine":
 	{
@@ -42,10 +44,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 4 }
-		]
+		"specialty" : {
+			"creature" : "swordsman"
+		}
 	},
 	"dracon":
 	{
@@ -58,11 +59,18 @@
 		[
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":9, "val": 0, "subtype": 8, "info": 136 },
-			{ "type":9, "val": 0, "subtype": 34, "info": 136 }
-		]
+		"specialty" : {
+			"base" : {
+				"addInfo" : "creature.enchanter",
+				"type" : "SPECIAL_UPGRADE"
+			},
+			"bonuses" : {
+				"archMage2enchanter" : { "subtype" : "creature.archMage" },
+				"mage2enchanter" : { "subtype" : "creature.mage" },
+				"monk2enchanter" : { "subtype" : "creature.monk" },
+				"zealot2enchanter" : { "subtype" : "creature.zealot" }
+			}
+		}
 	},
 	"gelu":
 	{
@@ -75,11 +83,18 @@
 			{ "skill" : "archery", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":9, "val": 0, "subtype": 2, "info": 137 },
-			{ "type":9, "val": 0, "subtype": 18, "info": 137 }
-		]
+		"specialty" : {
+			"base" : {
+				"addInfo" : "creature.sharpshooter",
+				"type" : "SPECIAL_UPGRADE"
+			},
+			"bonuses" : {
+				"archer2sharpshooter" : { "subtype" : "creature.archer" },
+				"grandElf2sharpshooter" : { "subtype" : "creature.grandElf" },
+				"marksman2sharpshooter" : { "subtype" : "creature.marksman" },
+				"woodElf2sharpshooter" : { "subtype" : "creature.woodElf" }
+			}
+		}
 	},
 	"kilgor":
 	{
@@ -91,12 +106,33 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 5,  "subtype": 1, "info": 96 },
-			{ "type":4, "val": 5,  "subtype": 2, "info": 96 },
-			{ "type":4, "val": 10, "subtype": 3, "info": 96 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "behemoth", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"damage" : {
+					"subtype" : 0,
+					"type" : "CREATURE_DAMAGE",
+					"val" : 10
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 5
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 5
+				}
+			}
+		}
 	},
 	"undeadHaart": // undead version of Lord Haart
 	{
@@ -109,12 +145,33 @@
 		[
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 5,  "subtype": 1, "info": 66 },
-			{ "type":4, "val": 5,  "subtype": 2, "info": 66 },
-			{ "type":4, "val": 10, "subtype": 3, "info": 66 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "blackKnight", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"damage" : {
+					"subtype" : 0,
+					"type" : "CREATURE_DAMAGE",
+					"val" : 10
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 5
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 5
+				}
+			}
+		}
 	},
 	"mutare":
 	{
@@ -128,11 +185,22 @@
 			{ "skill" : "estates", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":13, "val": 5, "subtype": 1, "info": 0 },
-			{ "type":13, "val": 5, "subtype": 2, "info": 0 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "DRAGON_NATURE" ],
+						"type" : "HAS_ANOTHER_BONUS_LIMITER"
+					}
+				],
+				"type" : "PRIMARY_SKILL",
+				"val" : 5
+			},
+			"bonuses" : {
+				"attack" : { "subtype" : "primSkill.attack" },
+				"defence" : { "subtype" : "primSkill.defence" }
+			}
+		}
 	},
 	"roland":
 	{
@@ -145,10 +213,9 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "armorer", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 4 }
-		]
+		"specialty" : {
+			"creature" : "griffin"
+		}
 	},
 	"mutareDrake":
 	{
@@ -162,11 +229,22 @@
 			{ "skill" : "estates", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":13, "val": 1, "subtype": 1, "info": 5 },
-			{ "type":13, "val": 1, "subtype": 1, "info": 5 }
-		],
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "DRAGON_NATURE" ],
+						"type" : "HAS_ANOTHER_BONUS_LIMITER"
+					}
+				],
+				"type" : "PRIMARY_SKILL",
+				"val" : 5
+			},
+			"bonuses" : {
+				"attack" : { "subtype" : "primSkill.attack" },
+				"defence" : { "subtype" : "primSkill.defence" }
+			}
+		},
 		"army" :
 		[
 			{
@@ -194,10 +272,9 @@
 			{ "skill" : "tactics", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
-		],
+		"specialty" : {
+			"creature" : "ogre"
+		},
 		"army" :
 		[
 			{
@@ -225,12 +302,32 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 4, "subtype": 1, "info": 54 },
-			{ "type":4, "val": 2, "subtype": 2, "info": 54 },
-			{ "type":4, "val": 1, "subtype": 5, "info": 54 }
-		],
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "devil", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 4
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				},
+				"speed" : {
+					"type" : "STACKS_SPEED",
+					"val" : 1
+				}
+			}
+		},
 		"army" :
 		[
 			{

@@ -75,6 +75,10 @@ public:
 
 	bool isNull() const;
 	bool isNumber() const;
+	/// true if node contains not-null data that cannot be extended via merging
+	/// used for generating common base node from multiple nodes (e.g. bonuses)
+	bool containsBaseData() const;
+	bool isCompact() const;
 	/// removes all data from node and sets type to null
 	void clear();
 
@@ -110,7 +114,7 @@ public:
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
 
-	std::string toJson() const;
+	std::string toJson(bool compact = false) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -189,6 +193,22 @@ namespace JsonUtils
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
 	/**
+	 * @brief construct node representing the common structure of input nodes
+	 * @param pruneEmpty - omit common properties whose intersection is empty
+	 * different types: null
+	 * struct: recursive intersect on common properties
+	 * other: input if equal, null otherwise
+	 */
+	DLL_LINKAGE JsonNode intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty = true);
+	DLL_LINKAGE JsonNode intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty = true);
+
+	/**
+	 * @brief construct node representing the difference "node - base"
+	 * merging difference with base gives node
+	 */
+	DLL_LINKAGE JsonNode difference(const JsonNode & node, const JsonNode & base);
+
+	/**
 	 * @brief generate one Json structure from multiple files
 	 * @param files - list of filenames with parts of json structure
 	 */
@@ -220,6 +240,12 @@ namespace JsonUtils
 	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
 	/// example: schema "vcmi:settings" is used to check user settings
 	DLL_LINKAGE const JsonNode & getSchema(std::string URI);
+
+	/// for easy construction of JsonNodes; helps with inserting primitives into vector node
+	DLL_LINKAGE JsonNode boolNode(bool value);
+	DLL_LINKAGE JsonNode floatNode(double value);
+	DLL_LINKAGE JsonNode stringNode(std::string value);
+	DLL_LINKAGE JsonNode intNode(si64 value);
 }
 
 namespace JsonDetail

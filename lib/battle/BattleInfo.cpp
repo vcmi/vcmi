@@ -765,7 +765,7 @@ void BattleInfo::nextRound(int32_t roundNr)
 	for(CStack * s : stacks)
 	{
 		// new turn effects
-		s->updateBonuses(Bonus::NTurns);
+		s->reduceBonusDurations(Bonus::NTurns);
 
 		s->afterNewRound();
 	}

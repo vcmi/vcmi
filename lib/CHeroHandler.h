@@ -71,8 +71,9 @@ public:
 
 	CHeroClass * heroClass;
 	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
-	std::vector<SSpecialtyInfo> spec;
-	std::vector<SSpecialtyBonus> specialty;
+	std::vector<SSpecialtyInfo> specDeprecated;
+	std::vector<SSpecialtyBonus> specialtyDeprecated;
+	BonusList specialty;
 	std::set<SpellID> spells;
 	bool haveSpellBook;
 	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
@@ -98,8 +99,15 @@ public:
 		h & initialArmy;
 		h & heroClass;
 		h & secSkillsInit;
-		h & spec;
-		h & specialty;
+		if(version >= 781)
+		{
+			h & specialty;
+		}
+		else
+		{
+			h & specDeprecated;
+			h & specialtyDeprecated;
+		}
 		h & spells;
 		h & haveSpellBook;
 		h & sex;
@@ -119,6 +127,10 @@ public:
 		}
 	}
 };
+
+// convert deprecated format
+std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid);
+std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec);
 
 class DLL_LINKAGE CHeroClass
 {
@@ -289,8 +301,10 @@ public:
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
+	void beforeValidate(JsonNode & object);
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void afterLoadFinalization() override;
 
 	CHeroHandler();
 	~CHeroHandler();

@@ -9,10 +9,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 106 }
-		],		
+		"specialty" : {
+			"creature" : "basilisk"
+		},
 		"army" :
 		[
 			{
@@ -39,10 +38,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 98 }
-		]
+		"specialty" : {
+			"creature" : "gnoll"
+		}
 	},
 	"wystan":
 	{
@@ -54,10 +52,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 100 }
-		]
+		"specialty" : {
+			"creature" : "lizardman"
+		}
 	},
 	"tazar":
 	{
@@ -68,10 +65,17 @@
 		[
 			{ "skill" : "armorer", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"armorer" : {
+					"subtype" : "skill.armorer",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"alkin":
 	{
@@ -83,10 +87,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 102 }
-		]
+		"specialty" : {
+			"creature" : "gorgon"
+		}
 	},
 	"korbac":
 	{
@@ -98,10 +101,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "pathfinding", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 104 }
-		]
+		"specialty" : {
+			"creature" : "serpentFly"
+		}
 	},
 	"gerwulf":
 	{
@@ -113,10 +115,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"creature" : "ballista"
+		}
 	},
 	"broghild":
 	{
@@ -128,10 +129,9 @@
 			{ "skill" : "armorer", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 108 }
-		]
+		"specialty" : {
+			"creature" : "wyvern"
+		}
 	},
 	"mirlanda":
 	{
@@ -143,10 +143,15 @@
 		[
 			{ "skill" : "wisdom", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"rosic":
 	{
@@ -159,10 +164,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"mysticism" : {
+					"subtype" : "skill.mysticism",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"voy":
 	{
@@ -175,10 +187,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "navigation", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 2, "subtype": 5, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"navigation" : {
+					"subtype" : "skill.navigation",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"verdish":
 	{
@@ -191,10 +210,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "firstAid", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 27, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"firstAid" : {
+					"subtype" : "skill.firstAid",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"merist":
 	{
@@ -207,10 +233,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"styg":
 	{
@@ -223,10 +254,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"andra":
 	{
@@ -239,10 +277,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"intelligence" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"tiva":
 	{
@@ -255,9 +300,16 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	}
 }

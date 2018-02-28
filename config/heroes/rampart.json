@@ -9,10 +9,17 @@
 			{ "skill" : "leadership", "level": "basic" },
 			{ "skill" : "armorer", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"armorer" : {
+					"subtype" : "skill.armorer",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"ufretin":
 	{
@@ -24,10 +31,9 @@
 			{ "skill" : "luck", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 16 }
-		]
+		"specialty" : {
+			"creature" : "dwarf"
+		}
 	},
 	"jenova":
 	{
@@ -38,10 +44,15 @@
 		[
 			{ "skill" : "archery", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"ryland":
 	{
@@ -53,10 +64,9 @@
 			{ "skill" : "diplomacy", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 22 }
-		]
+		"specialty" : {
+			"creature" : "dendroidGuard"
+		}
 	},
 	"thorgrim":
 	{
@@ -67,10 +77,17 @@
 		[
 			{ "skill" : "resistance", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 26, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"resistance" : {
+					"subtype" : "skill.resistance",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"ivor":
 	{
@@ -82,10 +99,9 @@
 			{ "skill" : "archery", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 18 }
-		]
+		"specialty" : {
+			"creature" : "woodElf"
+		}
 	},
 	"clancy":
 	{
@@ -97,10 +113,9 @@
 			{ "skill" : "pathfinding", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 24 }
-		]
+		"specialty" : {
+			"creature" : "unicorn"
+		}
 	},
 	"kyrre":
 	{
@@ -112,10 +127,17 @@
 			{ "skill" : "archery", "level": "basic" },
 			{ "skill" : "logistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"logistics" : {
+					"subtype" : "skill.logistics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"coronius":
 	{
@@ -128,10 +150,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 55, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"slayer" : {
+					"addInfo" : 1,
+					"subtype" : "spell.slayer",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"uland":
 	{
@@ -144,10 +171,16 @@
 			{ "skill" : "wisdom", "level": "advanced" },
 			{ "skill" : "ballistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 37, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"cure" : {
+					"subtype" : "spell.cure",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"elleshar":
 	{
@@ -160,10 +193,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"intelligence" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"gem":
 	{
@@ -176,10 +216,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "firstAid", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 27, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"firstAid" : {
+					"subtype" : "skill.firstAid",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"malcom":
 	{
@@ -192,10 +239,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"melodia":
 	{
@@ -208,10 +262,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "luck", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":7, "val": 0, "subtype": 51, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"fortune" : {
+					"subtype" : "spell.fortune",
+					"type" : "MAXED_SPELL"
+				}
+			}
+		}
 	},
 	"alagar":
 	{
@@ -224,10 +282,16 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 16, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"iceBolt" : {
+					"subtype" : "spell.iceBolt",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"aeris":
 	{
@@ -240,9 +304,8 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 20 }
-		]
+		"specialty" : {
+			"creature" : "pegasus"
+		}
 	}
 }

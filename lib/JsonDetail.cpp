@@ -32,19 +32,22 @@ void JsonWriter::writeContainer(Iterator begin, Iterator end)
 
 	while (begin != end)
 	{
-		out<<",\n";
+		out << (compactMode ? ", " : ",\n");
 		writeEntry(begin++);
 	}
 
-	out<<"\n";
+	out << (compactMode ? "" : "\n");
 	prefix.resize(prefix.size()-1);
 }
 
 void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 {
-	if (!entry->second.meta.empty())
-		out << prefix << " // " << entry->second.meta << "\n";
-	out << prefix;
+	if(!compactMode)
+	{
+		if (!entry->second.meta.empty())
+			out << prefix << " // " << entry->second.meta << "\n";
+		out << prefix;
+	}
 	writeString(entry->first);
 	out << " : ";
 	writeNode(entry->second);
@@ -52,9 +55,12 @@ void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 
 void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 {
-	if (!entry->meta.empty())
-		out << prefix << " // " << entry->meta << "\n";
-	out << prefix;
+	if(!compactMode)
+	{
+		if (!entry->meta.empty())
+			out << prefix << " // " << entry->meta << "\n";
+		out << prefix;
+	}
 	writeNode(*entry);
 }
 
@@ -94,6 +100,10 @@ void JsonWriter::writeString(const std::string &string)
 
 void JsonWriter::writeNode(const JsonNode &node)
 {
+	bool originalMode = compactMode;
+	if(compact && !compactMode && node.isCompact())
+		compactMode = true;
+
 	switch(node.getType())
 	{
 		break; case JsonNode::JsonType::DATA_NULL:
@@ -112,21 +122,24 @@ void JsonWriter::writeNode(const JsonNode &node)
 			writeString(node.String());
 
 		break; case JsonNode::JsonType::DATA_VECTOR:
-			out << "[" << "\n";
+			out << "[" << (compactMode ? " " : "\n");
 			writeContainer(node.Vector().begin(), node.Vector().end());
-			out << prefix << "]";
+			out << (compactMode ? " " : prefix) << "]";
 
 		break; case JsonNode::JsonType::DATA_STRUCT:
-			out << "{" << "\n";
+			out << "{" << (compactMode ? " " : "\n");
 			writeContainer(node.Struct().begin(), node.Struct().end());
-			out << prefix << "}";
+			out << (compactMode ? " " : prefix) << "}";
+
 		break; case JsonNode::JsonType::DATA_INTEGER:
 			out << node.Integer();
 	}
+
+	compactMode = originalMode;
 }
 
-JsonWriter::JsonWriter(std::ostream & output)
-	: out(output)
+JsonWriter::JsonWriter(std::ostream & output, bool compact)
+	: out(output), compact(compact)
 {
 }
 

@@ -496,9 +496,6 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 void CGHeroInstance::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
-	auto  hs = new HeroSpecial();
-	hs->setNodeType(CBonusSystemNode::SPECIALTY);
-	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
 		initHero(rand); //TODO: set up everything for prison before specialties are configured
@@ -514,245 +511,22 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 			appearance = customApp.get();
 	}
 
-	for(const auto &spec : type->spec) //TODO: unfity with bonus system
-	{
-		auto bonus = std::make_shared<Bonus>();
-		bonus->val = spec.val;
-		bonus->sid = id.getNum(); //from the hero, specialty has no unique id
-		bonus->duration = Bonus::PERMANENT;
-		bonus->source = Bonus::HERO_SPECIAL;
-		switch (spec.type)
-		{
-			case 1:// creature specialty
-				{
-					hs->growsWithLevel = true;
-
-					const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
-
-					//bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
-					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
-					bonus->type = Bonus::PRIMARY_SKILL;
-					bonus->valType = Bonus::ADDITIVE_VALUE;
-
-					bonus->subtype = PrimarySkill::ATTACK;
-					hs->addNewBonus(bonus);
-
-					bonus = std::make_shared<Bonus>(*bonus);
-					bonus->subtype = PrimarySkill::DEFENSE;
-					hs->addNewBonus(bonus);
-					//values will be calculated later
-
-					bonus = std::make_shared<Bonus>(*bonus);
-					bonus->type = Bonus::STACKS_SPEED;
-					bonus->val = 1; //+1 speed
-					hs->addNewBonus(bonus);
-				}
-				break;
-			case 2://secondary skill
-				hs->growsWithLevel = true;
-				bonus->type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
-				bonus->valType = Bonus::BASE_NUMBER; // to receive nonzero value
-				bonus->subtype = spec.subtype; //skill id
-				bonus->val = spec.val; //value per level, in percent
-				hs->addNewBonus(bonus);
-				bonus = std::make_shared<Bonus>(*bonus);
-
-				switch (spec.additionalinfo)
-				{
-					case 0: //normal
-						bonus->valType = Bonus::PERCENT_TO_BASE;
-						break;
-					case 1: //when it's navigation or there's no 'base' at all
-						bonus->valType = Bonus::PERCENT_TO_ALL;
-						break;
-				}
-				bonus->type = Bonus::SECONDARY_SKILL_PREMY; //value will be calculated later
-				hs->addNewBonus(bonus);
-				break;
-			case 3://spell damage bonus, level dependent but calculated elsewhere
-				bonus->type = Bonus::SPECIAL_SPELL_LEV;
-				bonus->subtype = spec.subtype;
-				hs->addNewBonus(bonus);
-				break;
-			case 4://creature stat boost
-				switch (spec.subtype)
-				{
-					case 1://attack
-						bonus->type = Bonus::PRIMARY_SKILL;
-						bonus->subtype = PrimarySkill::ATTACK;
-						break;
-					case 2://defense
-						bonus->type = Bonus::PRIMARY_SKILL;
-						bonus->subtype = PrimarySkill::DEFENSE;
-						break;
-					case 3:
-						bonus->type = Bonus::CREATURE_DAMAGE;
-						bonus->subtype = 0; //both min and max
-						break;
-					case 4://hp
-						bonus->type = Bonus::STACK_HEALTH;
-						break;
-					case 5:
-						bonus->type = Bonus::STACKS_SPEED;
-						break;
-					default:
-						continue;
-				}
-				bonus->additionalInfo = spec.additionalinfo; //creature id
-				bonus->valType = Bonus::ADDITIVE_VALUE;
-				bonus->limiter.reset(new CCreatureTypeLimiter (*VLC->creh->creatures[spec.additionalinfo], true));
-				hs->addNewBonus(bonus);
-				break;
-			case 5://spell damage bonus in percent
-				bonus->type = Bonus::SPECIFIC_SPELL_DAMAGE;
-				bonus->valType = Bonus::BASE_NUMBER; // current spell system is screwed
-				bonus->subtype = spec.subtype; //spell id
-				hs->addNewBonus(bonus);
-				break;
-			case 6://damage bonus for bless (Adela)
-				bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
-				bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
-				bonus->additionalInfo = spec.additionalinfo; //damage factor
-				hs->addNewBonus(bonus);
-				break;
-			case 7://maxed mastery for spell
-				bonus->type = Bonus::MAXED_SPELL;
-				bonus->subtype = spec.subtype; //spell i
-				hs->addNewBonus(bonus);
-				break;
-			case 8://peculiar spells - enchantments
-				bonus->type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-				bonus->subtype = spec.subtype; //spell id
-				bonus->additionalInfo = spec.additionalinfo;//0, 1 for Coronius
-				hs->addNewBonus(bonus);
-				break;
-			case 9://upgrade creatures
-			{
-				const auto &creatures = VLC->creh->creatures;
-				bonus->type = Bonus::SPECIAL_UPGRADE;
-				bonus->subtype = spec.subtype; //base id
-				bonus->additionalInfo = spec.additionalinfo; //target id
-				hs->addNewBonus(bonus);
-				bonus = std::make_shared<Bonus>(*bonus);
-
-				for(auto cre_id : creatures[spec.subtype]->upgrades)
-				{
-					bonus->subtype = cre_id; //propagate for regular upgrades of base creature
-					hs->addNewBonus(bonus);
-					bonus = std::make_shared<Bonus>(*bonus);
-				}
-				break;
-			}
-			case 10://resource generation
-				bonus->type = Bonus::GENERATE_RESOURCE;
-				bonus->subtype = spec.subtype;
-				hs->addNewBonus(bonus);
-				break;
-			case 11://starting skill with mastery (Adrienne)
-				setSecSkillLevel(SecondarySkill(spec.val), spec.additionalinfo, true);
-				break;
-			case 12://army speed
-				bonus->type = Bonus::STACKS_SPEED;
-				hs->addNewBonus(bonus);
-				break;
-			case 13://Dragon bonuses (Mutare)
-				bonus->type = Bonus::PRIMARY_SKILL;
-				bonus->valType = Bonus::ADDITIVE_VALUE;
-				switch (spec.subtype)
-				{
-					case 1:
-						bonus->subtype = PrimarySkill::ATTACK;
-						break;
-					case 2:
-						bonus->subtype = PrimarySkill::DEFENSE;
-						break;
-				}
-				bonus->limiter.reset(new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
-				hs->addNewBonus(bonus);
-				break;
-			default:
-				logGlobal->warn("Unexpected hero %s specialty %d", type->name, spec.type);
-				break;
-		}
-	}
-	specialty.push_back(hs); //will it work?
-
-	for (auto hs2 : type->specialty) //copy active (probably growing) bonuses from hero prootype to hero object
-	{
-		auto  hs = new HeroSpecial();
-		attachTo(hs); //do we ever need to detach it?
-
-		hs->setNodeType(CBonusSystemNode::SPECIALTY);
-		for (auto bonus : hs2.bonuses)
-		{
-			hs->addNewBonus (bonus);
-		}
-		hs->growsWithLevel = hs2.growsWithLevel;
-
-		specialty.push_back(hs); //will it work?
-	}
+	//copy active (probably growing) bonuses from hero prototype to hero object
+	for(std::shared_ptr<Bonus> b : type->specialty)
+		addNewBonus(b);
+	//dito for old-style bonuses -> compatibility for old savegames
+	for(SSpecialtyBonus & sb : type->specialtyDeprecated)
+		for(std::shared_ptr<Bonus> b : sb.bonuses)
+			addNewBonus(b);
+	for(SSpecialtyInfo & spec : type->specDeprecated)
+		for(std::shared_ptr<Bonus> b : SpecialtyInfoToBonuses(spec, type->ID.getNum()))
+			addNewBonus(b);
 
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
-	Updatespecialty();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 	type->name = name;
-}
-void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuses on-the-fly?
-{
-	for (auto hs : specialty)
-	{
-		if (hs->growsWithLevel)
-		{
-			//const auto &creatures = VLC->creh->creatures;
-
-			for(auto& b : hs->getBonusList())
-			{
-				switch (b->type)
-				{
-					case Bonus::SECONDARY_SKILL_PREMY:
-						b->val = (hs->valOfBonuses(Bonus::SPECIAL_SECONDARY_SKILL, b->subtype) * level);
-						break; //use only hero skills as bonuses to avoid feedback loop
-					case Bonus::PRIMARY_SKILL: //for creatures, that is
-					{
-						const CCreature * cre = nullptr;
-						int creLevel = 0;
-						if (auto creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(b->limiter)) //TODO: more general eveluation of bonuses?
-						{
-							cre = creatureLimiter->creature;
-							creLevel = cre->level;
-							if (!creLevel)
-							{
-								creLevel = 5; //treat ballista as tier 5
-							}
-						}
-						else //no creature found, can't calculate value
-						{
-							logGlobal->warn("Primary skill specialty growth supported only with creature type limiters");
-							break;
-						}
-
-						double primSkillModifier = (int)(level / creLevel) / 20.0;
-						int param;
-						switch (b->subtype)
-						{
-							case PrimarySkill::ATTACK:
-								param = cre->getPrimSkillLevel(PrimarySkill::ATTACK);
-								break;
-							case PrimarySkill::DEFENSE:
-								param = cre->getPrimSkillLevel(PrimarySkill::DEFENSE);
-								break;
-							default:
-								continue;
-						}
-						b->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
-						break;
-					}
-				}
-			}
-		}
-	}
 }
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
@@ -764,6 +538,23 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 	for(auto skill_info : secSkills)
 		for(int level = 1; level <= skill_info.second; level++)
 			updateSkill(SecondarySkill(skill_info.first), level);
+}
+
+void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
+{
+	auto HeroSpecialToSpecialtyBonus = [](HeroSpecial & hs) -> SSpecialtyBonus
+	{
+		SSpecialtyBonus sb;
+		sb.growsWithLevel = hs.growsWithLevel;
+		sb.bonuses = hs.getBonusList();
+		return sb;
+	};
+
+	for(HeroSpecial * hs : specialtyDeprecated)
+	{
+		for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(HeroSpecialToSpecialtyBonus(*hs)))
+			addNewBonus(b);
+	}
 }
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
@@ -863,7 +654,7 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 	base *= (100.0 + maxSchoolBonus) / 100.0;
 
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
-		base *= (100. + ((valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) * level) / affectedStack->creatureLevel())) / 100.0;
+		base *= (100. + valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) / affectedStack->creatureLevel()) / 100.0;
 
 	return base;
 }
@@ -1214,11 +1005,6 @@ int CGHeroInstance::maxSpellLevel() const
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
-
-	for (auto hs : specialty)
-	{
-		attachTo (hs);
-	}
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
@@ -1471,8 +1257,8 @@ void CGHeroInstance::levelUp(std::vector<SecondarySkill> skills)
 		}
 	}
 
-	//specialty
-	Updatespecialty();
+	//update specialty and other bonuses that scale with level
+	treeHasChanged();
 }
 
 void CGHeroInstance::levelUpAutomatically(CRandomGenerator & rand)

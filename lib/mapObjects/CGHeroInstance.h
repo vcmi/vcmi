@@ -95,7 +95,8 @@ public:
 		}
 	} patrol;
 
-	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
+	// deprecated - used only for loading of old saves
+	struct HeroSpecial : CBonusSystemNode
 	{
 		bool growsWithLevel;
 
@@ -107,8 +108,6 @@ public:
 			h & growsWithLevel;
 		}
 	};
-
-	std::vector<HeroSpecial*> specialty;
 
 	struct DLL_LINKAGE SecondarySkillsInfo
 	{
@@ -215,7 +214,6 @@ public:
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
-	void Updatespecialty();
 	void recreateSecondarySkillsBonuses();
 	void updateSkill(SecondarySkill which, int val);
 
@@ -269,6 +267,7 @@ protected:
 
 private:
 	void levelUpAutomatically(CRandomGenerator & rand);
+	void recreateSpecialtyBonuses(std::vector<HeroSpecial*> & specialtyDeprecated);
 
 public:
 	std::string getHeroTypeName() const;
@@ -297,7 +296,13 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		h & specialty;
+		if(version < 781)
+		{
+			std::vector<HeroSpecial*> specialtyDeprecated;
+			h & specialtyDeprecated;
+			if(!h.saving)
+				recreateSpecialtyBonuses(specialtyDeprecated);
+		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX

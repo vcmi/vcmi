@@ -10,10 +10,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 58 }
-		]
+		"specialty" : {
+			"creature" : "walkingDead"
+		}
 	},
 	"vokial":
 	{
@@ -26,10 +25,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 62 }
-		]
+		"specialty" : {
+			"creature" : "vampire"
+		}
 	},
 	"moandor":
 	{
@@ -42,10 +40,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 64 }
-		]
+		"specialty" : {
+			"creature" : "lich"
+		}
 	},
 	"charna":
 	{
@@ -58,10 +55,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 60 }
-		]
+		"specialty" : {
+			"creature" : "wight"
+		}
 	},
 	"tamika":
 	{
@@ -74,10 +70,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 66 }
-		]
+		"specialty" : {
+			"creature" : "blackKnight"
+		}
 	},
 	"isra":
 	{
@@ -89,10 +84,17 @@
 		[
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"necromancy" : {
+					"subtype" : "skill.necromancy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"clavius":
 	{
@@ -105,10 +107,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"galthran":
 	{
@@ -121,10 +128,9 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "armorer", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 56 }
-		]
+		"specialty" : {
+			"creature" : "skeleton"
+		}
 	},
 	"septienna":
 	{
@@ -137,10 +143,16 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"deathRipple" : {
+					"subtype" : "spell.deathRipple",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"aislinn":
 	{
@@ -153,10 +165,16 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "wisdom", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 23, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"meteorShower" : {
+					"subtype" : "spell.meteorShower",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"sandro":
 	{
@@ -169,10 +187,17 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"nimbus":
 	{
@@ -185,10 +210,17 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"thant":
 	{
@@ -201,10 +233,16 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 39, "subtype": 0, "info": 3 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"animateDead" : {
+					"subtype" : "spell.animateDead",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"xsi":
 	{
@@ -217,10 +255,15 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"vidomina":
 	{
@@ -232,10 +275,17 @@
 		[
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"necromancy" : {
+					"subtype" : "skill.necromancy",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"nagash":
 	{
@@ -248,9 +298,14 @@
 			{ "skill" : "necromancy", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	}
 }

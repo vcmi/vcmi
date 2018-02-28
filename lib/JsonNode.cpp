@@ -214,6 +214,50 @@ bool JsonNode::isNumber() const
 	return type == JsonType::DATA_INTEGER || type == JsonType::DATA_FLOAT;
 }
 
+bool JsonNode::containsBaseData() const
+{
+	switch(type)
+	{
+	case JsonType::DATA_NULL:
+		return false;
+	case JsonType::DATA_STRUCT:
+		for(auto elem : *data.Struct)
+		{
+			if(elem.second.containsBaseData())
+				return true;
+		}
+		return false;
+	default:
+		//other types (including vector) cannot be extended via merge
+		return true;
+	}
+}
+
+bool JsonNode::isCompact() const
+{
+	switch(type)
+	{
+	case JsonType::DATA_VECTOR:
+		for(JsonNode & elem : *data.Vector)
+		{
+			if(!elem.isCompact())
+				return false;
+		}
+		return true;
+	case JsonType::DATA_STRUCT:
+		{
+			int propertyCount = data.Struct->size();
+			if(propertyCount == 0)
+				return true;
+			else if(propertyCount == 1)
+				return data.Struct->begin()->second.isCompact();
+		}
+		return false;
+	default:
+		return true;
+	}
+}
+
 void JsonNode::clear()
 {
 	setType(JsonType::DATA_NULL);
@@ -367,10 +411,10 @@ JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
 	return ::resolvePointer(*this, jsonPointer);
 }
 
-std::string JsonNode::toJson() const
+std::string JsonNode::toJson(bool compact) const
 {
 	std::ostringstream out;
-	JsonWriter writer(out);
+	JsonWriter writer(out, compact);
 	writer.writeNode(*this);
 	out << "\n";
 	return out.str();
@@ -395,7 +439,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //T
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s.", type);
 		return b;
 	}
 	b->type = it->second;
@@ -413,7 +457,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		auto it = map.find(type);
 		if (it == map.end())
 		{
-			logMod->error("Error: invalid %s%s", err, type);
+			logMod->error("Error: invalid %s%s.", err, type);
 			return defaultValue;
 		}
 		else
@@ -445,7 +489,7 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 				});
 				break;
 			default:
-				logMod->error("Error! Wrong identifier used for value of %s", name);
+				logMod->error("Error! Wrong identifier used for value of %s.", name);
 		}
 	}
 }
@@ -489,7 +533,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		logMod->error("Error: invalid ability type %s", type);
+		logMod->error("Error: invalid ability type %s.", type);
 		return false;
 	}
 	b->type = it->second;
@@ -580,7 +624,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 							auto it = bonusNameMap.find(anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
-								logMod->error("Error: invalid ability type %s", anotherBonusType);
+								logMod->error("Error: invalid ability type %s.", anotherBonusType);
 								continue;
 							}
 							l2->type = it->second;
@@ -602,6 +646,31 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	value = &ability["propagator"];
 	if (!value->isNull())
 		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
+
+	value = &ability["updater"];
+	if(!value->isNull())
+	{
+		const JsonNode & updaterJson = *value;
+		switch(updaterJson.getType())
+		{
+		case JsonNode::JsonType::DATA_STRING:
+			b->addUpdater(parseByMap(bonusUpdaterMap, &updaterJson, "updater type "));
+			break;
+		case JsonNode::JsonType::DATA_STRUCT:
+			if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
+			{
+				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
+				const JsonVector param = updaterJson["parameters"].Vector();
+				updater->valPer20 = param[0].Integer();
+				if(param.size() > 1)
+					updater->stepSize = param[1].Integer();
+				b->addUpdater(updater);
+			}
+			else
+				logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
+			break;
+		}
+	}
 
 	return true;
 }
@@ -725,6 +794,7 @@ bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::stri
 	{
 		logMod->warn("Data in %s is invalid!", dataName);
 		logMod->warn(log);
+		logMod->trace("%s json: %s", dataName, node.toJson(true));
 	}
 	return log.empty();
 }
@@ -822,6 +892,90 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	descendant.swap(inheritedNode);
 }
 
+JsonNode JsonUtils::intersect(const std::vector<JsonNode> & nodes, bool pruneEmpty)
+{
+	if(nodes.size() == 0)
+		return nullNode;
+
+	JsonNode result = nodes[0];
+	for(int i = 1; i < nodes.size(); i++)
+	{
+		if(result.isNull())
+			break;
+		result = JsonUtils::intersect(result, nodes[i], pruneEmpty);
+	}
+	return result;
+}
+
+JsonNode JsonUtils::intersect(const JsonNode & a, const JsonNode & b, bool pruneEmpty)
+{
+	if(a.getType() == JsonNode::JsonType::DATA_STRUCT && b.getType() == JsonNode::JsonType::DATA_STRUCT)
+	{
+		// intersect individual properties
+		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
+		for(auto property : a.Struct())
+		{
+			if(vstd::contains(b.Struct(), property.first))
+			{
+				JsonNode propertyIntersect = JsonUtils::intersect(property.second, b.Struct().find(property.first)->second);
+				if(pruneEmpty && !propertyIntersect.containsBaseData())
+					continue;
+				result[property.first] = propertyIntersect;
+			}
+		}
+		return result;
+	}
+	else
+	{
+		// not a struct - same or different, no middle ground
+		if(a == b)
+			return a;
+	}
+	return nullNode;
+}
+
+JsonNode JsonUtils::difference(const JsonNode & node, const JsonNode & base)
+{
+	auto addsInfo = [](JsonNode diff) -> bool
+	{
+		switch(diff.getType())
+		{
+		case JsonNode::JsonType::DATA_NULL:
+			return false;
+		case JsonNode::JsonType::DATA_STRUCT:
+			return diff.Struct().size() > 0;
+		default:
+			return true;
+		}
+	};
+
+	if(node.getType() == JsonNode::JsonType::DATA_STRUCT && base.getType() == JsonNode::JsonType::DATA_STRUCT)
+	{
+		// subtract individual properties
+		JsonNode result(JsonNode::JsonType::DATA_STRUCT);
+		for(auto property : node.Struct())
+		{
+			if(vstd::contains(base.Struct(), property.first))
+			{
+				const JsonNode propertyDifference = JsonUtils::difference(property.second, base.Struct().find(property.first)->second);
+				if(addsInfo(propertyDifference))
+					result[property.first] = propertyDifference;
+			}
+			else
+			{
+				result[property.first] = property.second;
+			}
+		}
+		return result;
+	}
+	else
+	{
+		if(node == base)
+			return nullNode;
+	}
+	return node;
+}
+
 JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 {
 	bool isValid;
@@ -859,4 +1013,32 @@ JsonNode JsonUtils::assembleFromFiles(std::string filename)
 		merge(result, section);
 	}
 	return result;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::boolNode(bool value)
+{
+	JsonNode node;
+	node.Bool() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::floatNode(double value)
+{
+	JsonNode node;
+	node.Float() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::stringNode(std::string value)
+{
+	JsonNode node;
+	node.String() = value;
+	return node;
+}
+
+DLL_LINKAGE JsonNode JsonUtils::intNode(si64 value)
+{
+	JsonNode node;
+	node.Integer() = value;
+	return node;
 }

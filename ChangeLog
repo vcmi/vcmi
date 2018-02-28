@@ -27,6 +27,7 @@ MODS:
 * Improve support for WoG commander artifacts and skill descriptions
 * Added basic support for secondary skill modding
 * Map object sounds can now be configured via json
+* Added bonus updaters for hero specialties
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects

@@ -9,10 +9,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "ballistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 94 }
-		]
+		"specialty" : {
+			"creature" : "cyclop"
+		}
 	},
 	"gurnisson":
 	{
@@ -24,10 +23,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"creature" : "ballista"
+		}
 	},
 	"jabarkas":
 	{
@@ -39,10 +37,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "archery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 88 }
-		]
+		"specialty" : {
+			"creature" : "orc"
+		}
 	},
 	"shiva":
 	{
@@ -54,10 +51,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 92 }
-		]
+		"specialty" : {
+			"creature" : "roc"
+		}
 	},
 	"gretchin":
 	{
@@ -69,10 +65,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "pathfinding", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 84 }
-		]
+		"specialty" : {
+			"creature" : "goblin"
+		}
 	},
 	"krellion":
 	{
@@ -84,10 +79,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
-		]
+		"specialty" : {
+			"creature" : "ogre"
+		}
 	},
 	"cragHack":
 	{
@@ -98,10 +92,17 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 22, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"offence" : {
+					"subtype" : "skill.offence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"tyraxor":
 	{
@@ -113,10 +114,9 @@
 			{ "skill" : "offence", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 86 }
-		]
+		"specialty" : {
+			"creature" : "goblinWolfRider"
+		}
 	},
 	"gird":
 	{
@@ -129,10 +129,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"vey":
 	{
@@ -145,10 +152,9 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 90 }
-		]
+		"specialty" : {
+			"creature" : "ogre"
+		}
 	},
 	"dessa":
 	{
@@ -161,10 +167,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "logistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"logistics" : {
+					"subtype" : "skill.logistics",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"terek":
 	{
@@ -177,10 +190,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"haste" : {
+					"addInfo" : 0,
+					"subtype" : "spell.haste",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"zubin":
 	{
@@ -193,10 +211,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "artillery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 44, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"precision" : {
+					"addInfo" : 0,
+					"subtype" : "spell.precision",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"gundula":
 	{
@@ -209,10 +232,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"oris":
 	{
@@ -225,10 +255,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"eagleEye" : {
+					"subtype" : "skill.eagleEye",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"saurug":
 	{
@@ -241,9 +278,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 1, "subtype": 5, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gems" : {
+					"subtype" : "resource.gems",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 1
+				}
+			}
+		}
 	}
 }

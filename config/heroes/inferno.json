@@ -8,10 +8,9 @@
 		[
 			{ "skill" : "scouting", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 46 }
-		]
+		"specialty" : {
+			"creature" : "hellHound"
+		}
 	},
 	"rashka":
 	{
@@ -23,10 +22,9 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 52 }
-		]
+		"specialty" : {
+			"creature" : "efreet"
+		}
 	},
 	"marius":
 	{
@@ -37,10 +35,9 @@
 		[
 			{ "skill" : "armorer", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 48 }
-		]
+		"specialty" : {
+			"creature" : "demon"
+		}
 	},
 	"ignatius":
 	{
@@ -52,10 +49,9 @@
 			{ "skill" : "tactics", "level": "basic" },
 			{ "skill" : "resistance", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
-		]
+		"specialty" : {
+			"creature" : "imp"
+		}
 	},
 	"octavia":
 	{
@@ -67,10 +63,15 @@
 			{ "skill" : "scholar", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"calh":
 	{
@@ -82,10 +83,9 @@
 			{ "skill" : "archery", "level": "basic" },
 			{ "skill" : "scouting", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
-		]
+		"specialty" : {
+			"creature" : "gog"
+		}
 	},
 	"pyre":
 	{
@@ -97,10 +97,9 @@
 			{ "skill" : "artillery", "level": "basic" },
 			{ "skill" : "logistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
-		]
+		"specialty" : {
+			"creature" : "ballista"
+		}
 	},
 	"nymus":
 	{
@@ -111,10 +110,9 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":1, "val": 0, "subtype": 0, "info": 50 }
-		]
+		"specialty" : {
+			"creature" : "pitFiend"
+		}
 	},
 	"ayden":
 	{
@@ -127,10 +125,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "intelligence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"intelligence" : {
+					"subtype" : "skill.intelligence",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"xyron":
 	{
@@ -143,10 +148,16 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "scholar", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 22, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"inferno" : {
+					"subtype" : "spell.inferno",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	},
 	"axsis":
 	{
@@ -159,10 +170,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "mysticism", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"mysticism" : {
+					"subtype" : "skill.mysticism",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"olema":
 	{
@@ -175,10 +193,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "ballistics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"weakness" : {
+					"addInfo" : 0,
+					"subtype" : "spell.weakness",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"calid":
 	{
@@ -191,10 +214,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 1, "subtype": 3, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sulfur" : {
+					"subtype" : "resource.sulfur",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"ash":
 	{
@@ -207,10 +235,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 43, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"bloodlust" : {
+					"addInfo" : 0,
+					"subtype" : "spell.bloodlust",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"zydar":
 	{
@@ -223,10 +256,17 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "sorcery", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"sorcery" : {
+					"subtype" : "skill.sorcery",
+					"type" : "SECONDARY_SKILL_PREMY",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 5,
+					"valueType" : "PERCENT_TO_BASE"
+				}
+			}
+		}
 	},
 	"xarfax":
 	{
@@ -239,9 +279,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "leadership", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":3, "val": 3, "subtype": 21, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"fireball" : {
+					"subtype" : "spell.fireball",
+					"type" : "SPECIAL_SPELL_LEV",
+					"updater" : "TIMES_HERO_LEVEL",
+					"val" : 3
+				}
+			}
+		}
 	}
 }

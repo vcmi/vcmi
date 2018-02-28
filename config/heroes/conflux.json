@@ -9,11 +9,22 @@
 			{ "skill" : "artillery", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 3, "subtype": 1, "info": 120 },
-			{ "type":4, "val": 3, "subtype": 2, "info": 120 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "psychicElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				],
+				"type" : "PRIMARY_SKILL",
+				"val" : 3
+			},
+			"bonuses" : {
+				"attack" : { "subtype" : "primSkill.attack" },
+				"defence" : { "subtype" : "primSkill.defence" }
+			}
+		}
 	},
 	"thunar":
 	{
@@ -25,12 +36,32 @@
 			{ "skill" : "estates", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 2, "subtype": 1, "info": 113 },
-			{ "type":4, "val": 1, "subtype": 2, "info": 113 },
-			{ "type":4, "val": 5, "subtype": 4, "info": 113 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "earthElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"health" : {
+					"type" : "STACK_HEALTH",
+					"val" : 5
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"ignissa":
 	{
@@ -42,12 +73,33 @@
 			{ "skill" : "artillery", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 1, "subtype": 1, "info": 114 },
-			{ "type":4, "val": 2, "subtype": 1, "info": 114 },
-			{ "type":4, "val": 2, "subtype": 3, "info": 114 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "fireElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"damage" : {
+					"subtype" : 0,
+					"type" : "CREATURE_DAMAGE",
+					"val" : 2
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 1
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				}
+			}
+		}
 	},
 	"lacus":
 	{
@@ -58,10 +110,21 @@
 		[
 			{ "skill" : "tactics", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 2, "subtype": 1, "info": 115 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"attack" : {
+					"limiters" : [
+						{
+							"parameters" : [ "waterElemental", true ],
+							"type" : "CREATURE_TYPE_LIMITER"
+						}
+					],
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				}
+			}
+		}
 	},
 	"monere":
 	{
@@ -73,11 +136,22 @@
 			{ "skill" : "logistics", "level": "basic" },
 			{ "skill" : "offence", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 3, "subtype": 1, "info": 120 },
-			{ "type":4, "val": 3, "subtype": 2, "info": 120 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "psychicElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				],
+				"type" : "PRIMARY_SKILL",
+				"val" : 3
+			},
+			"bonuses" : {
+				"attack" : { "subtype" : "primSkill.attack" },
+				"defence" : { "subtype" : "primSkill.defence" }
+			}
+		}
 	},
 	"erdamon":
 	{
@@ -89,12 +163,32 @@
 			{ "skill" : "estates", "level": "basic" },
 			{ "skill" : "tactics", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 2, "subtype": 1, "info": 113 },
-			{ "type":4, "val": 1, "subtype": 2, "info": 113 },
-			{ "type":4, "val": 5, "subtype": 4, "info": 113 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "earthElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"health" : {
+					"type" : "STACK_HEALTH",
+					"val" : 5
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 1
+				}
+			}
+		}
 	},
 	"fiur":
 	{
@@ -105,12 +199,33 @@
 		[
 			{ "skill" : "offence", "level": "advanced" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 1, "subtype": 1, "info": 114 },
-			{ "type":4, "val": 2, "subtype": 1, "info": 114 },
-			{ "type":4, "val": 2, "subtype": 3, "info": 114 }
-		]
+		"specialty" : {
+			"base" : {
+				"limiters" : [
+					{
+						"parameters" : [ "fireElemental", true ],
+						"type" : "CREATURE_TYPE_LIMITER"
+					}
+				]
+			},
+			"bonuses" : {
+				"damage" : {
+					"subtype" : 0,
+					"type" : "CREATURE_DAMAGE",
+					"val" : 2
+				},
+				"attack" : {
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 1
+				},
+				"defence" : {
+					"subtype" : "primSkill.defence",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				}
+			}
+		}
 	},
 	"kalt":
 	{
@@ -122,10 +237,21 @@
 			{ "skill" : "tactics", "level": "basic" },
 			{ "skill" : "learning", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":4, "val": 2, "subtype": 1, "info": 115 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"attack" : {
+					"limiters" : [
+						{
+							"parameters" : [ "waterElemental", true ],
+							"type" : "CREATURE_TYPE_LIMITER"
+						}
+					],
+					"subtype" : "primSkill.attack",
+					"type" : "PRIMARY_SKILL",
+					"val" : 2
+				}
+			}
+		}
 	},
 	"luna":
 	{
@@ -138,10 +264,16 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "fireMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":5, "val": 100, "subtype": 13, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"fireWall" : {
+					"subtype" : "spell.fireWall",
+					"type" : "SPECIFIC_SPELL_DAMAGE",
+					"val" : 100,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		}
 	},
 	"brissa":
 	{
@@ -154,10 +286,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "airMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"haste" : {
+					"addInfo" : 0,
+					"subtype" : "spell.haste",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"ciele":
 	{
@@ -170,10 +307,16 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "waterMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":5, "val": 50, "subtype": 15, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"magicArrow" : {
+					"subtype" : "spell.magicArrow",
+					"type" : "SPECIFIC_SPELL_DAMAGE",
+					"val" : 50,
+					"valueType" : "BASE_NUMBER"
+				}
+			}
+		}
 	},
 	"labetha":
 	{
@@ -186,10 +329,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "earthMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"stoneSkin" : {
+					"addInfo" : 0,
+					"subtype" : "spell.stoneSkin",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"inteus":
 	{
@@ -202,10 +350,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "fireMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 43, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"bloodlust" : {
+					"addInfo" : 0,
+					"subtype" : "spell.bloodlust",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"aenain":
 	{
@@ -218,10 +371,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "airMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":8, "val": 0, "subtype": 47, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"disruptingRay" : {
+					"addInfo" : 0,
+					"subtype" : "spell.disruptingRay",
+					"type" : "SPECIAL_PECULIAR_ENCHANT"
+				}
+			}
+		}
 	},
 	"gelare":
 	{
@@ -234,10 +392,15 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "waterMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	},
 	"grindan":
 	{
@@ -250,9 +413,14 @@
 			{ "skill" : "wisdom", "level": "basic" },
 			{ "skill" : "earthMagic", "level": "basic" }
 		],
-		"specialties":
-		[
-			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
-		]
+		"specialty" : {
+			"bonuses" : {
+				"gold" : {
+					"subtype" : "resource.gold",
+					"type" : "GENERATE_RESOURCE",
+					"val" : 350
+				}
+			}
+		}
 	}
 }
