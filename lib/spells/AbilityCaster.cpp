@@ -17,7 +17,8 @@ namespace spells
 {
 
 AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int baseSpellLevel_)
-	: actualCaster(actualCaster_),
+	: ProxyCaster(actualCaster_),
+	actualCaster(actualCaster_),
 	baseSpellLevel(baseSpellLevel_)
 {
 }
@@ -44,41 +45,6 @@ int AbilityCaster::getEffectLevel(const Spell * spell) const
 	return getSpellSchoolLevel(spell);
 }
 
-int64_t AbilityCaster::getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const
-{
-	return actualCaster->getSpellBonus(spell, base, affectedStack);
-}
-
-int64_t AbilityCaster::getSpecificSpellBonus(const Spell * spell, int64_t base) const
-{
-	return actualCaster->getSpecificSpellBonus(spell, base);
-}
-
-int AbilityCaster::getEffectPower(const Spell * spell) const
-{
-	return actualCaster->getEffectPower(spell);
-}
-
-int AbilityCaster::getEnchantPower(const Spell * spell) const
-{
-	return actualCaster->getEnchantPower(spell);
-}
-
-int64_t AbilityCaster::getEffectValue(const Spell * spell) const
-{
-	return actualCaster->getEffectValue(spell);
-}
-
-const PlayerColor AbilityCaster::getOwner() const
-{
-	return actualCaster->getOwner();
-}
-
-void AbilityCaster::getCasterName(MetaString & text) const
-{
-	return actualCaster->getCasterName(text);
-}
-
 void AbilityCaster::getCastDescription(const Spell * spell, const std::vector<const battle::Unit*> & attacked, MetaString & text) const
 {
 	//do nothing
@@ -88,6 +54,5 @@ void AbilityCaster::spendMana(const PacketSender * server, const int spellCost) 
 {
 	//do nothing
 }
-
 
 } // namespace spells

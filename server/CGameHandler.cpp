@@ -19,6 +19,7 @@
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/spells/AbilityCaster.h"
+#include "../lib/spells/BonusCaster.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
 #include "../lib/spells/Problem.h"
@@ -157,88 +158,6 @@ private:
 	const CGameHandler * gh;
 	const PlayerColor owner;
 	const SpellCreatedObstacle * obs;
-};
-
-class BonusCasterProxy : public Caster
-{
-public:
-	BonusCasterProxy(const CGHeroInstance * hero_, std::shared_ptr<const Bonus> bonus_)
-		: hero(hero_),
-		bonus(bonus_)
-	{
-
-	}
-
-	~BonusCasterProxy() = default;
-
-	ui8 getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool = nullptr) const override
-	{
-		return hero->getSpellSchoolLevel(spell, outSelectedSchool);
-	}
-
-	int getEffectLevel(const Spell * spell) const override
-	{
-		return hero->getEffectLevel(spell);
-	}
-
-	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override
-	{
-		return hero->getSpellBonus(spell, base, affectedStack);
-	}
-
-	int64_t getSpecificSpellBonus(const Spell * spell, int64_t base) const override
-	{
-		return hero->getSpecificSpellBonus(spell, base);
-	}
-
-	int getEffectPower(const Spell * spell) const override
-	{
-		return hero->getEffectPower(spell);
-	}
-
-	int getEnchantPower(const Spell * spell) const override
-	{
-		return hero->getEnchantPower(spell);
-	}
-
-	int64_t getEffectValue(const Spell * spell) const override
-	{
-		return hero->getEffectValue(spell);
-	}
-
-	const PlayerColor getOwner() const override
-	{
-		return hero->getOwner();
-	}
-
-	void getCasterName(MetaString & text) const override
-	{
-		if(!bonus->description.empty())
-			text.addReplacement(bonus->description);
-		else
-			hero->getCasterName(text);
-	}
-
-	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override
-	{
-		const bool singleTarget = attacked.size() == 1;
-		const int textIndex = singleTarget ? 195 : 196;
-
-		text.addTxt(MetaString::GENERAL_TXT, textIndex);
-		getCasterName(text);
-		text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
-		if(singleTarget)
-			attacked.at(0)->addNameReplacement(text, true);
-	}
-
-	void spendMana(const PacketSender * server, const int spellCost) const override
-	{
-		logGlobal->error("Unexpected call to BonusCasterProxy::spendMana");
-	}
-
-private:
-	const CGHeroInstance * hero;
-	std::shared_ptr<const Bonus> bonus;
 };
 
 }//
@@ -5519,7 +5438,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	return true;
 }
 
-void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const CStack * attacker, const CStack * defender)
+void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const battle::Unit * attacker, const battle::Unit * defender)
 {
 	if(attacker->hasBonusOfType(attackMode))
 	{
@@ -5562,7 +5481,6 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			//casting
 			if(castMe)
 			{
-
 				spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
 				parameters.aimToUnit(defender);
 				parameters.cast(spellEnv);
@@ -6057,7 +5975,7 @@ void CGameHandler::runBattle()
 
 			for (auto b : *bl)
 			{
-				spells::BonusCasterProxy caster(h, b);
+				spells::BonusCaster caster(h, b);
 
 				const CSpell * spell = SpellID(b->subtype).toSpell();
 
