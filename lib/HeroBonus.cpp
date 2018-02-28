@@ -850,6 +850,14 @@ void CBonusSystemNode::removeBonus(const std::shared_ptr<Bonus>& b)
 	CBonusSystemNode::treeHasChanged();
 }
 
+void CBonusSystemNode::removeBonuses(const CSelector &selector)
+{
+	BonusList toRemove;
+	exportedBonuses.getBonuses(toRemove, selector);
+	for(auto bonus : toRemove)
+		removeBonus(bonus);
+}
+
 bool CBonusSystemNode::actsAsBonusSourceOnly() const
 {
 	switch(nodeType)

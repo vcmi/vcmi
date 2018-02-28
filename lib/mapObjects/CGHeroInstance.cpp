@@ -536,8 +536,8 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 		removeBonus(bonus);
 
 	for(auto skill_info : secSkills)
-		for(int level = 1; level <= skill_info.second; level++)
-			updateSkill(SecondarySkill(skill_info.first), level);
+		if(skill_info.second > 0)
+			updateSkill(SecondarySkill(skill_info.first), skill_info.second);
 }
 
 void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
@@ -559,21 +559,10 @@ void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & speci
 
 void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
+	removeBonuses(Selector::source(Bonus::SECONDARY_SKILL, which));
 	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
 	for (auto b : skillBonus)
-	{
-		// bonuses provided by different levels of a secondary skill are aggregated via max (not + as usual)
-		// different secondary skills providing the same bonus (e.g. ballistics might improve archery as well) are kept separate
-		std::shared_ptr<Bonus> existing = getBonusLocalFirst(
-			Selector::typeSubtype(b->type, b->subtype).And(
-			Selector::source(Bonus::SECONDARY_SKILL, b->sid).And(
-			Selector::valueType(b->valType))));
-		if(existing)
-			vstd::amax(existing->val, b->val);
-		else
-			addNewBonus(std::make_shared<Bonus>(*b));
-	}
-	CBonusSystemNode::treeHasChanged();
+		addNewBonus(std::make_shared<Bonus>(*b));
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {

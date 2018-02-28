@@ -709,6 +709,7 @@ public:
 	void propagateBonus(std::shared_ptr<Bonus> b);
 	void unpropagateBonus(std::shared_ptr<Bonus> b);
 	void removeBonus(const std::shared_ptr<Bonus>& b);
+	void removeBonuses(const CSelector &selector);
 	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
 	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
 
