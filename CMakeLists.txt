@@ -50,6 +50,7 @@ option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
+option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 
 # Used for Snap packages and also useful for debugging
 option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
@@ -143,6 +144,10 @@ if(WIN32)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
+
+		if(ENABLE_MULTI_PROCESS_BUILDS)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+		endif()
 	endif(MSVC)
 
 	if(MINGW)
