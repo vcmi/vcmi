@@ -121,6 +121,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & meta;
+		if(version >= 782)
+		{
+			h & flags;
+		}
 		h & type;
 		switch(type)
 		{
