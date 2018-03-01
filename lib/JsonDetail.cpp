@@ -46,6 +46,8 @@ void JsonWriter::writeEntry(JsonMap::const_iterator entry)
 	{
 		if (!entry->second.meta.empty())
 			out << prefix << " // " << entry->second.meta << "\n";
+		if(!entry->second.flags.empty())
+			out << prefix << " // flags: " << boost::algorithm::join(entry->second.flags, ", ") << "\n";
 		out << prefix;
 	}
 	writeString(entry->first);
@@ -59,6 +61,8 @@ void JsonWriter::writeEntry(JsonVector::const_iterator entry)
 	{
 		if (!entry->meta.empty())
 			out << prefix << " // " << entry->meta << "\n";
+		if(!entry->flags.empty())
+			out << prefix << " // flags: " << boost::algorithm::join(entry->flags, ", ") << "\n";
 		out << prefix;
 	}
 	writeNode(*entry);
@@ -389,6 +393,11 @@ bool JsonParser::extractStruct(JsonNode &node)
 		if (!extractString(key))
 			return false;
 
+		// split key string into actual key and meta-flags
+		std::vector<std::string> keyAndFlags;
+		boost::split(keyAndFlags, key, boost::is_any_of("#"));
+		key = keyAndFlags[0];
+
 		if (node.Struct().find(key) != node.Struct().end())
 			error("Dublicated element encountered!", true);
 
@@ -397,6 +406,10 @@ bool JsonParser::extractStruct(JsonNode &node)
 
 		if (!extractElement(node.Struct()[key], '}'))
 			return false;
+
+		// flags from key string belong to referenced element
+		for(int i = 1; i < keyAndFlags.size(); i++)
+			node.Struct()[key].flags.push_back(keyAndFlags[i]);
 
 		if (input[pos] == '}')
 		{
