@@ -15,7 +15,7 @@
 namespace spells
 {
 
-class ProxyCaster : public Caster
+class DLL_LINKAGE ProxyCaster : public Caster
 {
 public:
 	ProxyCaster(const Caster * actualCaster_);

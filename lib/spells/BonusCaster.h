@@ -12,7 +12,7 @@
 
 #include "ProxyCaster.h"
 
-class Bonus;
+struct Bonus;
 
 namespace spells
 {
