@@ -359,7 +359,7 @@ void CBattleAI::attemptCastingSpell()
 		if(enemyHadTurnOut)
 			*enemyHadTurnOut = enemyHadTurn;
 
-		return ourTurnSpan > minTurnSpan;
+		return ourTurnSpan >= minTurnSpan;
 	};
 
 	RNGStub rngStub;
@@ -369,11 +369,25 @@ void CBattleAI::attemptCastingSpell()
 
 	TStacks all = cb->battleGetAllStacks(false);
 
+	size_t ourRemainingTurns = 0;
+
 	for(auto unit : all)
 	{
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
 		valueOfStack[unit->unitId()] = 0;
+
+		if(cb->battleGetOwner(unit) == playerID && unit->canMove() && !unit->moved())
+			ourRemainingTurns++;
 	}
+
+	LOGFL("I have %d turns left in this round", ourRemainingTurns);
+
+	const bool castNow = ourRemainingTurns <= 1;
+
+	if(castNow)
+		print("I should try to cast a spell now");
+	else
+		print("I could wait better moment to cast a spell");
 
 	auto amount = all.size();
 
@@ -401,8 +415,6 @@ void CBattleAI::attemptCastingSpell()
 
 	auto evaluateSpellcast = [&] (PossibleSpellcast * ps)
 	{
-		int64_t totalGain = 0;
-
 		HypotheticBattle state(cb);
 
 		spells::BattleCast cast(&state, hero, spells::Mode::HERO, ps->spell);
@@ -415,10 +427,13 @@ void CBattleAI::attemptCastingSpell()
 
 		for(auto unit : all)
 		{
-			newHealthOfStack[unit->unitId()] = unit->getAvailableHealth();
-			newValueOfStack[unit->unitId()] = 0;
+			auto unitId = unit->unitId();
+			auto localUnit = state.battleGetUnitByID(unitId);
 
-			if(state.battleGetOwner(unit) == playerID && unit->alive() && unit->willMove())
+			newHealthOfStack[unitId] = localUnit->getAvailableHealth();
+			newValueOfStack[unitId] = 0;
+
+			if(state.battleGetOwner(localUnit) == playerID && localUnit->alive() && localUnit->willMove())
 				ourUnits++;
 		}
 
@@ -427,22 +442,32 @@ void CBattleAI::attemptCastingSpell()
 		std::vector<battle::Units> newTurnOrder;
 		state.battleGetTurnOrder(newTurnOrder, amount, 2);
 
-		if(evaluateQueue(newValueOfStack, newTurnOrder, &state, minTurnSpan, nullptr))
+		const bool turnSpanOK = evaluateQueue(newValueOfStack, newTurnOrder, &state, minTurnSpan, nullptr);
+
+		if(turnSpanOK || castNow)
 		{
+			int64_t totalGain = 0;
+
 			for(auto unit : all)
 			{
-				auto newValue = getValOr(newValueOfStack, unit->unitId(), 0);
-				auto oldValue = getValOr(valueOfStack, unit->unitId(), 0);
+				auto unitId = unit->unitId();
+				auto localUnit = state.battleGetUnitByID(unitId);
 
-				auto healthDiff = newHealthOfStack[unit->unitId()] - healthOfStack[unit->unitId()];
+				auto newValue = getValOr(newValueOfStack, unitId, 0);
+				auto oldValue = getValOr(valueOfStack, unitId, 0);
 
-				if(unit->unitOwner() != playerID)
+				auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
+
+				if(localUnit->unitOwner() != playerID)
 					healthDiff = -healthDiff;
 
-				auto gain = newValue - oldValue + healthDiff;
+				if(healthDiff < 0)
+				{
+					ps->value = -1;
+					return; //do not damage own units at all
+				}
 
-				if(gain != 0)
-					totalGain += gain;
+				totalGain += (newValue - oldValue + healthDiff);
 			}
 
 			ps->value = totalGain;
@@ -456,10 +481,7 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<std::function<void()>> tasks;
 
 	for(PossibleSpellcast & psc : possibleCasts)
-	{
 		tasks.push_back(std::bind(evaluateSpellcast, &psc));
-
-	}
 
 	uint32_t threadCount = boost::thread::hardware_concurrency();
 
@@ -476,7 +498,7 @@ void CBattleAI::attemptCastingSpell()
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
-	auto pscValue = [] (const PossibleSpellcast &ps) -> int64_t
+	auto pscValue = [](const PossibleSpellcast &ps) -> int64_t
 	{
 		return ps.value;
 	};
