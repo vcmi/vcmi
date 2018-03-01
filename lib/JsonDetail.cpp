@@ -397,6 +397,13 @@ bool JsonParser::extractStruct(JsonNode &node)
 		std::vector<std::string> keyAndFlags;
 		boost::split(keyAndFlags, key, boost::is_any_of("#"));
 		key = keyAndFlags[0];
+		// check for unknown flags - helps with debugging
+		std::vector<std::string> knownFlags = { "override" };
+		for(int i = 1; i < keyAndFlags.size(); i++)
+		{
+			if(!vstd::contains(knownFlags, keyAndFlags[i]))
+				error("Encountered unknown flag #" + keyAndFlags[i], true);
+		}
 
 		if (node.Struct().find(key) != node.Struct().end())
 			error("Dublicated element encountered!", true);
