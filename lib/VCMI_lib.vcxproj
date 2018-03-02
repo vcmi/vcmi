@@ -221,6 +221,8 @@
     <ClCompile Include="serializer\JsonSerializer.cpp" />
     <ClCompile Include="battle\SideInBattle.cpp" />
     <ClCompile Include="battle\SiegeInfo.cpp" />
+    <ClCompile Include="spells\AbilityCaster.cpp" />
+    <ClCompile Include="spells\BonusCaster.cpp" />
     <ClCompile Include="spells\CSpellHandler.cpp" />
     <ClCompile Include="spells\effects\Catapult.cpp" />
     <ClCompile Include="spells\effects\Dispel.cpp" />
@@ -234,6 +236,7 @@
     <ClCompile Include="spells\AdventureSpellMechanics.cpp" />
     <ClCompile Include="spells\BattleSpellMechanics.cpp" />
     <ClCompile Include="spells\Problem.cpp" />
+    <ClCompile Include="spells\ProxyCaster.cpp" />
     <ClCompile Include="spells\TargetCondition.cpp" />
     <ClCompile Include="spells\ViewSpellInt.cpp" />
     <ClCompile Include="spells\effects\Effect.cpp" />
@@ -449,8 +452,10 @@
     <ClInclude Include="battle\SideInBattle.h" />
     <ClInclude Include="battle\SiegeInfo.h" />
     <ClInclude Include="serializer\JsonTreeSerializer.h" />
+    <ClInclude Include="spells\AbilityCaster.h" />
     <ClInclude Include="spells\AdventureSpellMechanics.h" />
     <ClInclude Include="spells\BattleSpellMechanics.h" />
+    <ClInclude Include="spells\BonusCaster.h" />
     <ClInclude Include="spells\CSpellHandler.h" />
     <ClInclude Include="spells\effects\Catapult.h" />
     <ClInclude Include="spells\effects\Dispel.h" />
@@ -463,6 +468,7 @@
     <ClInclude Include="spells\effects\UnitEffect.h" />
     <ClInclude Include="spells\ISpellMechanics.h" />
     <ClInclude Include="spells\Magic.h" />
+    <ClInclude Include="spells\ProxyCaster.h" />
     <ClInclude Include="spells\SpellMechanics.h" />
     <ClInclude Include="spells\Problem.h" />
     <ClInclude Include="spells\TargetCondition.h" />

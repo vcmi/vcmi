@@ -380,6 +380,15 @@
     <ClCompile Include="spells\Problem.cpp">
       <Filter>spells</Filter>
     </ClCompile>
+    <ClCompile Include="spells\AbilityCaster.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\BonusCaster.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\ProxyCaster.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCreatureSet.h">
@@ -881,6 +890,15 @@
       <Filter>spells\effects</Filter>
     </ClInclude>
     <ClInclude Include="spells\Problem.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\AbilityCaster.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\BonusCaster.h">
+      <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\ProxyCaster.h">
       <Filter>spells</Filter>
     </ClInclude>
   </ItemGroup>
