@@ -291,6 +291,7 @@ public:
 	void forEachSchool(const std::function<void (const spells::SchoolInfo &, bool &)> & cb) const override;
 
 	int32_t getIndex() const override;
+	int32_t getLevel() const override;
 
 	/**
 	 * Returns resource name of icon for SPELL_IMMUNITY bonus

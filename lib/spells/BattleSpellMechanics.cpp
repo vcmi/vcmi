@@ -262,7 +262,8 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 		{
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
-			sc.battleLog.push_back(line);
+			if(!line.message.empty())
+				sc.battleLog.push_back(line);
 		}
 		break;
 

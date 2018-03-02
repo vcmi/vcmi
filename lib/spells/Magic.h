@@ -41,8 +41,6 @@ enum class Mode
 {
 	//ACTIVE, //todo: use
 	HERO, //deprecated
-	AFTER_ATTACK,
-	BEFORE_ATTACK,
 	MAGIC_MIRROR,
 	CREATURE_ACTIVE, //deprecated
 	ENCHANTER,
@@ -92,6 +90,8 @@ public:
 
 	virtual int32_t getIndex() const = 0;
 
+	virtual int32_t getLevel() const = 0;
+
 	virtual void forEachSchool(const std::function<void (const SchoolInfo &, bool &)> & cb) const = 0;
 };
 
@@ -129,7 +129,6 @@ public:
 	virtual void getCasterName(MetaString & text) const = 0;
 
 	///full default text
-	virtual void getCastDescription(const Spell * spell, MetaString & text) const = 0;
 	virtual void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const = 0;
 
 	virtual void spendMana(const PacketSender * server, const int spellCost) const = 0;

@@ -381,10 +381,14 @@
 		<Unit filename="serializer/JsonSerializer.cpp" />
 		<Unit filename="serializer/JsonSerializer.h" />
 		<Unit filename="serializer/JsonTreeSerializer.h" />
+		<Unit filename="spells/AbilityCaster.cpp" />
+		<Unit filename="spells/AbilityCaster.h" />
 		<Unit filename="spells/AdventureSpellMechanics.cpp" />
 		<Unit filename="spells/AdventureSpellMechanics.h" />
 		<Unit filename="spells/BattleSpellMechanics.cpp" />
 		<Unit filename="spells/BattleSpellMechanics.h" />
+		<Unit filename="spells/BonusCaster.cpp" />
+		<Unit filename="spells/BonusCaster.h" />
 		<Unit filename="spells/CSpellHandler.cpp" />
 		<Unit filename="spells/CSpellHandler.h" />
 		<Unit filename="spells/ISpellMechanics.cpp" />
@@ -392,6 +396,8 @@
 		<Unit filename="spells/Magic.h" />
 		<Unit filename="spells/Problem.cpp" />
 		<Unit filename="spells/Problem.h" />
+		<Unit filename="spells/ProxyCaster.cpp" />
+		<Unit filename="spells/ProxyCaster.h" />
 		<Unit filename="spells/TargetCondition.cpp" />
 		<Unit filename="spells/TargetCondition.h" />
 		<Unit filename="spells/ViewSpellInt.cpp" />

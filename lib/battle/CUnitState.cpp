@@ -606,17 +606,12 @@ void CUnitState::getCasterName(MetaString & text) const
 	addNameReplacement(text, true);
 }
 
-void CUnitState::getCastDescription(const spells::Spell * spell, MetaString & text) const
+void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
 {
 	text.addTxt(MetaString::GENERAL_TXT, 565);//The %s casts %s
 	//todo: use text 566 for single creature
 	getCasterName(text);
 	text.addReplacement(MetaString::SPELL_NAME, spell->getIndex());
-}
-
-void CUnitState::getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const
-{
-	getCastDescription(spell, text);
 }
 
 bool CUnitState::ableToRetaliate() const

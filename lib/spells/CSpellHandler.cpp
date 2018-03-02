@@ -250,6 +250,11 @@ int32_t CSpell::getIndex() const
 	return id.toEnum();
 }
 
+int32_t CSpell::getLevel() const
+{
+	return level;
+}
+
 bool CSpell::isCombatSpell() const
 {
 	return combatSpell;

@@ -30,6 +30,7 @@ set(test_SRCS
  		map/CMapFormatTest.cpp
  		map/MapComparer.cpp
 
+		spells/AbilityCasterTest.cpp
  		spells/TargetConditionTest.cpp
 
 		spells/effects/EffectFixture.cpp

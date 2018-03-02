@@ -96,11 +96,14 @@ set(lib_SRCS
 		serializer/JsonSerializeFormat.cpp
 		serializer/JsonSerializer.cpp
 
+		spells/AbilityCaster.cpp
 		spells/AdventureSpellMechanics.cpp
 		spells/BattleSpellMechanics.cpp
+		spells/BonusCaster.cpp
 		spells/CSpellHandler.cpp
 		spells/ISpellMechanics.cpp
 		spells/Problem.cpp
+		spells/ProxyCaster.cpp
 		spells/TargetCondition.cpp
 		spells/ViewSpellInt.cpp
 
@@ -258,13 +261,16 @@ set(lib_HEADERS
 		serializer/JsonSerializeFormat.h
 		serializer/JsonSerializer.h
 
+		spells/AbilityCaster.h
 		spells/AdventureSpellMechanics.h
 		spells/BattleSpellMechanics.h
+		spells/BonusCaster.h
 		spells/CSpellHandler.h
 		spells/ISpellMechanics.h
 		spells/Magic.h
 		spells/SpellMechanics.h
 		spells/Problem.h
+		spells/ProxyCaster.h
 		spells/TargetCondition.h
 		spells/ViewSpellInt.h
 

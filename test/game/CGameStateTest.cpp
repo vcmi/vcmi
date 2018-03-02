@@ -26,6 +26,7 @@
 
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/AbilityCaster.h"
 
 class CGameStateTest : public ::testing::Test, public SpellCastEnvironment, public MapListener
 {
@@ -224,12 +225,14 @@ TEST_F(CGameStateTest, issue2765)
 	{
 		const CSpell * age = SpellID(SpellID::AGE).toSpell();
 		ASSERT_NE(age, nullptr);
-		//here tested ballista, but this applied to all war machines
-		spells::BattleCast cast(gameState->curB, att, spells::Mode::AFTER_ATTACK, age);
-		cast.aimToUnit(def);
-		cast.setSpellLevel(3);
 
-		EXPECT_FALSE(age->canBeCastAt(gameState->curB, spells::Mode::AFTER_ATTACK, att, def->getPosition()));
+		spells::AbilityCaster caster(att, 3);
+
+		//here tested ballista, but this applied to all war machines
+		spells::BattleCast cast(gameState->curB, &caster, spells::Mode::PASSIVE, age);
+		cast.aimToUnit(def);
+
+		EXPECT_FALSE(age->canBeCastAt(gameState->curB, spells::Mode::PASSIVE, &caster, def->getPosition()));
 
 		EXPECT_TRUE(cast.castIfPossible(this));//should be possible, but with no effect (change to aimed cast check?)
 
