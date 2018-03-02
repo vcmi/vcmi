@@ -4362,7 +4362,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
 
 				//removing creatures in turrets / keep if one is destroyed
-				if (attack.damageDealt > 0 && (attackedPart == EWallPart::KEEP ||
+				if (currentHP.at(attackedPart) - attack.damageDealt <= 0 && (attackedPart == EWallPart::KEEP ||
 					attackedPart == EWallPart::BOTTOM_TOWER || attackedPart == EWallPart::UPPER_TOWER))
 				{
 					int posRemove = -1;

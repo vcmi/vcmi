@@ -2905,9 +2905,13 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) co
 		switch (state)
 		{
 		case EWallState::INTACT : return 1;
-		case EWallState::DAMAGED : return 2;
+		case EWallState::DAMAGED :
+			if(what == 2 || what == 3 || what == 8) // towers don't have separate image here - INTACT and DAMAGED is 1, DESTROYED is 2
+				return 1;
+			else
+				return 2;
 		case EWallState::DESTROYED :
-			if (what == 2 || what == 3 || what == 8) // towers don't have separate image here
+			if (what == 2 || what == 3 || what == 8)
 				return 2;
 			else
 				return 3;
