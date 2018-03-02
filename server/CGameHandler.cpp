@@ -4340,6 +4340,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				attack.attackedPart = attackedPart;
 				attack.destinationTile = destination;
 				attack.damageDealt = 0;
+				BattleUnitsChanged removeUnits;
 
 				int dmgChance[] = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
 
@@ -4379,7 +4380,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 						break;
 					}
 
-					BattleUnitsChanged removeUnits;
 					for(auto & elem : gs->curB->stacks)
 					{
 						if(elem->initialPosition == posRemove)
@@ -4388,13 +4388,14 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 							break;
 						}
 					}
-					if(!removeUnits.changedStacks.empty())
-						sendAndApply(&removeUnits);
 				}
 				ca.attacker = ba.stackNumber;
 				ca.attackedParts.push_back(attack);
 
 				sendAndApply(&ca);
+
+				if(!removeUnits.changedStacks.empty())
+					sendAndApply(&removeUnits);
 			}
 			//finish by scope guard
 			break;
