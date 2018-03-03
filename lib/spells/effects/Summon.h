@@ -44,6 +44,7 @@ private:
 	bool permanent;
 	bool exclusive;
 	bool summonByHealth;
+	bool summonSameUnit;
 };
 
 }

@@ -24,12 +24,13 @@ using namespace ::testing;
 static const CreatureID creature1(CreatureID::AIR_ELEMENTAL);
 static const CreatureID creature2(CreatureID::FIRE_ELEMENTAL);
 
-class SummonTest : public TestWithParam<::testing::tuple<bool, CreatureID>>, public EffectFixture
+class SummonTest : public TestWithParam<::testing::tuple<CreatureID, bool, bool>>, public EffectFixture
 {
 public:
-	bool exclusive;
 	CreatureID toSummon;
 	CreatureID otherSummoned;
+	bool exclusive;
+	bool summonSameUnit;
 
 	const battle::Unit * otherSummonedUnit;
 
@@ -65,14 +66,16 @@ protected:
 	{
 		EffectFixture::setUp();
 
-		exclusive = ::testing::get<0>(GetParam());
-		otherSummoned = ::testing::get<1>(GetParam());
+		otherSummoned = ::testing::get<0>(GetParam());
+		exclusive = ::testing::get<1>(GetParam());
+		summonSameUnit = ::testing::get<2>(GetParam());
 
 		toSummon = creature1;
 
 		JsonNode options(JsonNode::JsonType::DATA_STRUCT);
 		options["id"].String() = "airElemental";
 		options["exclusive"].Bool() = exclusive;
+		options["summonSameUnit"].Bool() = summonSameUnit;
 
 		EffectFixture::setupEffect(options);
 	}
@@ -112,7 +115,7 @@ TEST_P(SummonTest, Transform)
 
 	EffectTarget expected;
 
-	if(otherSummoned == toSummon)
+	if(otherSummoned == toSummon && summonSameUnit)
 	{
 		expected.emplace_back(otherSummonedUnit);
 	}
@@ -130,8 +133,9 @@ INSTANTIATE_TEST_CASE_P
 	SummonTest,
 	Combine
 	(
+		Values(CreatureID(), creature1, creature2),
 		Values(false, true),
-		Values(CreatureID(), creature1, creature2)
+		Values(false, true)
 	)
 );
 

@@ -37,7 +37,8 @@ Summon::Summon()
 	creature(),
 	permanent(false),
 	exclusive(true),
-	summonByHealth(false)
+	summonByHealth(false),
+	summonSameUnit(false)
 {
 }
 
@@ -162,6 +163,7 @@ void Summon::serializeJsonEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("permanent", permanent, false);
 	handler.serializeBool("exclusive", exclusive, true);
 	handler.serializeBool("summonByHealth", summonByHealth, false);
+	handler.serializeBool("summonSameUnit", summonSameUnit, false);
 }
 
 EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
@@ -177,7 +179,7 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 	EffectTarget effectTarget;
 
-	if(sameSummoned.empty())
+	if(sameSummoned.empty() || !summonSameUnit)
 	{
 		BattleHex hex = m->cb->getAvaliableHex(creature, m->casterSide);
 		if(!hex.isValid())
@@ -192,7 +194,6 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 	return effectTarget;
 }
-
 
 }
 }
