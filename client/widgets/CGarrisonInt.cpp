@@ -27,6 +27,10 @@
 
 #include "../../lib/CGameState.h"
 
+#ifdef VCMI_MAC
+#define SDL_SCANCODE_LCTRL SDL_SCANCODE_LGUI
+#endif
+
 void CGarrisonSlot::setHighlight(bool on)
 {
 	if (on)
