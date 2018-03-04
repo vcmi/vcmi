@@ -100,6 +100,8 @@ class DLL_LINKAGE Caster
 public:
 	virtual ~Caster() = default;
 
+	virtual int32_t getCasterUnitId() const = 0;
+
 	/// returns level on which given spell would be cast by this(0 - none, 1 - basic etc);
 	/// caster may not know this spell at all
 	/// optionally returns number of selected school by arg - 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic

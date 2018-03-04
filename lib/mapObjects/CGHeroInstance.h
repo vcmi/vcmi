@@ -232,6 +232,7 @@ public:
 	std::string nodeName() const override;
 
 	///spells::Caster
+	int32_t getCasterUnitId() const override;
 	ui8 getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool = nullptr) const override;
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;
 	int64_t getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const override;

@@ -21,6 +21,7 @@ public:
 	ProxyCaster(const Caster * actualCaster_);
 	virtual ~ProxyCaster();
 
+	int32_t getCasterUnitId() const override;
 	ui8 getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool = nullptr) const override;
 	int getEffectLevel(const Spell * spell) const override;
 	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;

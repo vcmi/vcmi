@@ -89,6 +89,14 @@ public:
 
 	~ObstacleCasterProxy() = default;
 
+	int32_t getCasterUnitId() const override
+	{
+		if(hero)
+			return hero->getCasterUnitId();
+		else
+			return -1;
+	}
+
 	ui8 getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool = nullptr) const override
 	{
 		return obs->spellLevel;
@@ -4715,11 +4723,18 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 
 			for (auto b : bl)
 			{
-				const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo); //binding stack must be alive and adjacent
-				if(stack)
+				if(b->additionalInfo >= 0)
 				{
-					if(vstd::contains(adjacent, stack)) //binding stack is still present
-						unbind = false;
+					const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo); //binding stack must be alive and adjacent
+					if(stack)
+					{
+						if(vstd::contains(adjacent, stack)) //binding stack is still present
+							unbind = false;
+					}
+				}
+				else
+				{
+					unbind = false;
 				}
 			}
 			if (unbind)

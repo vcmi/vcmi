@@ -256,8 +256,6 @@ public:
 	const CBattleInfoCallback * cb;
 	const Caster * caster;
 
-	const battle::Unit * casterUnit; //deprecated
-
 	ui8 casterSide;
 };
 

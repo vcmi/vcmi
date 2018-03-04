@@ -210,7 +210,7 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 	sc.tile = target.at(0).hexValue;
 
 	sc.castByHero = mode == Mode::HERO;
-	sc.casterStack = (casterUnit ? casterUnit->unitId() : -1);
+	sc.casterStack = caster->getCasterUnitId();
 	sc.manaGained = 0;
 
 	sc.activeCast = false;
@@ -350,9 +350,9 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	if(mode == Mode::MAGIC_MIRROR)
 	{
-		if(casterUnit)
+		if(caster->getCasterUnitId() >= 0)
 		{
-			addCustomEffect(sc, casterUnit, 3);
+			addCustomEffect(sc, caster->getCasterUnitId(), 3);
 		}
 	}
 
@@ -394,9 +394,14 @@ void BattleSpellMechanics::cast(IBattleState * battleState, vstd::RNG & rng, con
 
 void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect)
 {
+	addCustomEffect(sc, target->unitId(), effect);
+}
+
+void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, ui32 targetId, ui32 effect)
+{
 	CustomEffectInfo customEffect;
 	customEffect.effect = effect;
-	customEffect.stack = target->unitId();
+	customEffect.stack = targetId;
 	sc.customEffects.push_back(customEffect);
 }
 

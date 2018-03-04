@@ -24,6 +24,11 @@ ProxyCaster::ProxyCaster(const Caster * actualCaster_)
 
 ProxyCaster::~ProxyCaster() = default;
 
+int32_t ProxyCaster::getCasterUnitId() const
+{
+	return actualCaster->getCasterUnitId();
+}
+
 ui8 ProxyCaster::getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool) const
 {
 	return actualCaster->getSpellSchoolLevel(spell, outSelectedSchool);

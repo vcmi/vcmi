@@ -612,6 +612,11 @@ TExpType CGHeroInstance::calculateXp(TExpType exp) const
 	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING))/100.0;
 }
 
+int32_t CGHeroInstance::getCasterUnitId() const
+{
+	return -1; //TODO: special value for attacker/defender hero
+}
+
 ui8 CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool) const
 {
 	si16 skill = -1; //skill level

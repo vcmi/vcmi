@@ -554,6 +554,11 @@ int32_t CUnitState::creatureIconIndex() const
 	return unitType()->iconIndex;
 }
 
+int32_t CUnitState::getCasterUnitId() const
+{
+	return static_cast<int32_t>(unitId());
+}
+
 ui8 CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool) const
 {
 	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->getIndex()));

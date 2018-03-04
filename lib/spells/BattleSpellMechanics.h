@@ -54,6 +54,7 @@ private:
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
 
 	void addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect);
+	void addCustomEffect(BattleSpellCast & sc, ui32 targetId, ui32 effect);
 
 	std::set<const battle::Unit *> collectTargets() const;
 

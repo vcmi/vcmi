@@ -214,6 +214,8 @@ public:
 	int32_t creatureCost() const override;
 	int32_t creatureIconIndex() const override;
 
+	int32_t getCasterUnitId() const override;
+
 	ui8 getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool = nullptr) const override;
 	int getEffectLevel(const spells::Spell * spell) const override;
 
