@@ -825,7 +825,7 @@ void CCommanderInstance::setAlive (bool Alive)
 	alive = Alive;
 	if (!alive)
 	{
-		popBonuses(Bonus::UntilCommanderKilled);
+		removeBonusesRecursive(Bonus::UntilCommanderKilled);
 	}
 }
 

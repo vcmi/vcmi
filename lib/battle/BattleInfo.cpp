@@ -781,7 +781,7 @@ void BattleInfo::nextTurn(uint32_t unitId)
 	CStack * st = getStack(activeStack);
 
 	//remove bonuses that last until when stack gets new turn
-	st->popBonuses(Bonus::UntilGetsTurn);
+	st->removeBonusesRecursive(Bonus::UntilGetsTurn);
 
 	st->afterGetsTurn();
 }
@@ -852,7 +852,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 
 	if(healthDelta < 0)
 	{
-		changedStack->popBonuses(Bonus::UntilBeingAttacked);
+		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
 	}
 
 	resurrected = resurrected || (killed && changedStack->alive());
@@ -881,7 +881,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 			else
 				return false;
 		};
-		changedStack->popBonuses(selector);
+		changedStack->removeBonusesRecursive(selector);
 	}
 
 	if(!changedStack->alive() && changedStack->isClone())
@@ -989,7 +989,7 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 			&& one.effectRange == b->effectRange
 			&& one.description == b->description;
 		};
-		sta->popBonuses(selector);
+		sta->removeBonusesRecursive(selector);
 	}
 }
 
