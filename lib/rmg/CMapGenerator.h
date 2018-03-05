@@ -13,9 +13,8 @@
 #include "../GameConstants.h"
 #include "../CRandomGenerator.h"
 #include "CMapGenOptions.h"
-#include "CRmgTemplateZone.h"
 #include "../int3.h"
-#include "CRmgTemplate.h" //for CRmgTemplateZoneConnection
+#include "CRmgTemplate.h"
 
 class CMap;
 class CRmgTemplate;
@@ -100,7 +99,7 @@ public:
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
 
 private:
-	std::list<CRmgTemplateZoneConnection> connectionsLeft;
+	std::list<rmg::ZoneConnection> connectionsLeft;
 	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only

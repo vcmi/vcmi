@@ -27,62 +27,13 @@ class CMap;
 class CMapEditManager;
 //class CGObjectInstance;
 
-CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDensity(0), castleDensity(0)
-{
+using namespace rmg; //TODO: move all to namespace
 
-}
+
 
 void CRmgTemplateZone::addRoadNode(const int3& node)
 {
 	roadNodes.insert(node);
-}
-
-int CRmgTemplateZone::CTownInfo::getTownCount() const
-{
-	return townCount;
-}
-
-void CRmgTemplateZone::CTownInfo::setTownCount(int value)
-{
-	if(value < 0)
-		throw rmgException("Negative value for town count not allowed.");
-	townCount = value;
-}
-
-int CRmgTemplateZone::CTownInfo::getCastleCount() const
-{
-	return castleCount;
-}
-
-void CRmgTemplateZone::CTownInfo::setCastleCount(int value)
-{
-	if(value < 0)
-		throw rmgException("Negative value for castle count not allowed.");
-	castleCount = value;
-}
-
-int CRmgTemplateZone::CTownInfo::getTownDensity() const
-{
-	return townDensity;
-}
-
-void CRmgTemplateZone::CTownInfo::setTownDensity(int value)
-{
-	if(value < 0)
-		throw rmgException("Negative value for town density not allowed.");
-	townDensity = value;
-}
-
-int CRmgTemplateZone::CTownInfo::getCastleDensity() const
-{
-	return castleDensity;
-}
-
-void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
-{
-	if(value < 0)
-		throw rmgException("Negative value for castle density not allowed.");
-	castleDensity = value;
 }
 
 CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD)
@@ -152,174 +103,25 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 }
 
 
-CRmgTemplateZone::CRmgTemplateZone() :
-	id(0),
-	type(ETemplateZoneType::PLAYER_START),
-	owner(boost::none),
-	size(1),
-	townsAreSameType(false),
-	matchTerrainToTown(true),
+CRmgTemplateZone::CRmgTemplateZone()
+	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
-	zoneMonsterStrength(EMonsterStrength::ZONE_NORMAL),
 	minGuardedValue(0),
 	questArtZone(nullptr),
 	gen(nullptr)
 {
-	terrainTypes = getDefaultTerrainTypes();
+
+}
+
+void CRmgTemplateZone::setOptions(const ZoneOptions * options)
+{
+	ZoneOptions::operator=(*options);
 }
 
 void CRmgTemplateZone::setGenPtr(CMapGenerator * Gen)
 {
 	gen = Gen;
-}
-
-TRmgTemplateZoneId CRmgTemplateZone::getId() const
-{
-	return id;
-}
-
-void CRmgTemplateZone::setId(TRmgTemplateZoneId value)
-{
-	if(value <= 0)
-		throw rmgException(boost::to_string(boost::format("Zone %d id should be greater than 0.") %id));
-	id = value;
-}
-
-ETemplateZoneType::ETemplateZoneType CRmgTemplateZone::getType() const
-{
-	return type;
-}
-void CRmgTemplateZone::setType(ETemplateZoneType::ETemplateZoneType value)
-{
-	type = value;
-}
-
-int CRmgTemplateZone::getSize() const
-{
-	return size;
-}
-
-void CRmgTemplateZone::setSize(int value)
-{
-	if(value <= 0)
-		throw rmgException(boost::to_string(boost::format("Zone %d size needs to be greater than 0.") % id));
-	size = value;
-}
-
-boost::optional<int> CRmgTemplateZone::getOwner() const
-{
-	return owner;
-}
-
-void CRmgTemplateZone::setOwner(boost::optional<int> value)
-{
-	if(!(*value >= 0 && *value <= PlayerColor::PLAYER_LIMIT_I))
-		throw rmgException(boost::to_string(boost::format ("Owner of zone %d has to be in range 0 to max player count.") %id));
-	owner = value;
-}
-
-const CRmgTemplateZone::CTownInfo & CRmgTemplateZone::getPlayerTowns() const
-{
-	return playerTowns;
-}
-
-void CRmgTemplateZone::setPlayerTowns(const CTownInfo & value)
-{
-	playerTowns = value;
-}
-
-const CRmgTemplateZone::CTownInfo & CRmgTemplateZone::getNeutralTowns() const
-{
-	return neutralTowns;
-}
-
-void CRmgTemplateZone::setNeutralTowns(const CTownInfo & value)
-{
-	neutralTowns = value;
-}
-
-bool CRmgTemplateZone::getTownsAreSameType() const
-{
-	return townsAreSameType;
-}
-
-void CRmgTemplateZone::setTownsAreSameType(bool value)
-{
-	townsAreSameType = value;
-}
-
-const std::set<TFaction> & CRmgTemplateZone::getTownTypes() const
-{
-	return townTypes;
-}
-
-void CRmgTemplateZone::setTownTypes(const std::set<TFaction> & value)
-{
-	townTypes = value;
-}
-void CRmgTemplateZone::setMonsterTypes(const std::set<TFaction> & value)
-{
-	monsterTypes = value;
-}
-
-std::set<TFaction> CRmgTemplateZone::getDefaultTownTypes() const
-{
-	std::set<TFaction> defaultTowns;
-	auto towns = VLC->townh->getDefaultAllowed();
-	for(int i = 0; i < towns.size(); ++i)
-	{
-		if(towns[i]) defaultTowns.insert(i);
-	}
-	return defaultTowns;
-}
-
-bool CRmgTemplateZone::getMatchTerrainToTown() const
-{
-	return matchTerrainToTown;
-}
-
-void CRmgTemplateZone::setMatchTerrainToTown(bool value)
-{
-	matchTerrainToTown = value;
-}
-
-const std::set<ETerrainType> & CRmgTemplateZone::getTerrainTypes() const
-{
-	return terrainTypes;
-}
-
-void CRmgTemplateZone::setTerrainTypes(const std::set<ETerrainType> & value)
-{
-	assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
-		   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
-	terrainTypes = value;
-}
-
-std::set<ETerrainType> CRmgTemplateZone::getDefaultTerrainTypes() const
-{
-	std::set<ETerrainType> terTypes;
-	static const ETerrainType::EETerrainType allowedTerTypes[] = {ETerrainType::DIRT, ETerrainType::SAND, ETerrainType::GRASS, ETerrainType::SNOW,
-												   ETerrainType::SWAMP, ETerrainType::ROUGH, ETerrainType::SUBTERRANEAN, ETerrainType::LAVA};
-	for (auto & allowedTerType : allowedTerTypes)
-		terTypes.insert(allowedTerType);
-
-	return terTypes;
-}
-
-void CRmgTemplateZone::setMinesAmount (TResource res, ui16 amount)
-{
-	mines[res] = amount;
-}
-
-std::map<TResource, ui16> CRmgTemplateZone::getMinesInfo() const
-{
-	return mines;
-}
-
-void CRmgTemplateZone::addConnection(TRmgTemplateZoneId otherZone)
-{
-	connections.push_back (otherZone);
 }
 
 void CRmgTemplateZone::setQuestArtZone(CRmgTemplateZone * otherZone)
@@ -330,22 +132,6 @@ void CRmgTemplateZone::setQuestArtZone(CRmgTemplateZone * otherZone)
 std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
 {
 	return connections;
-}
-
-void CRmgTemplateZone::setMonsterStrength (EMonsterStrength::EMonsterStrength val)
-{
-	assert (vstd::iswithin(val, EMonsterStrength::ZONE_WEAK, EMonsterStrength::ZONE_STRONG));
-	zoneMonsterStrength = val;
-}
-
-void CRmgTemplateZone::addTreasureInfo(CTreasureInfo & info)
-{
-	treasureInfo.push_back(info);
-}
-
-std::vector<CTreasureInfo> CRmgTemplateZone::getTreasureInfo()
-{
-	return treasureInfo;
 }
 
 std::set<int3>* CRmgTemplateZone::getFreePaths()

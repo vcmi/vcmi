@@ -11,7 +11,6 @@
 #pragma once
 
 #include "CRmgTemplate.h"
-#include "CRmgTemplateZone.h"
 #include "../IHandlerBase.h"
 
 class JsonNode;
@@ -36,7 +35,7 @@ public:
 
 private:
 	CRmgTemplate::CSize parseMapTemplateSize(const std::string & text) const;
-	CRmgTemplateZone::CTownInfo parseTemplateZoneTowns(const JsonNode & node) const;
+	rmg::ZoneOptions::CTownInfo parseTemplateZoneTowns(const JsonNode & node) const;
 	ETemplateZoneType::ETemplateZoneType parseZoneType(const std::string & type) const;
 	std::set<TFaction> parseTownTypes(const JsonVector & townTypesVector, const std::set<TFaction> & defaultTownTypes) const;
 	std::set<ETerrainType> parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const;

@@ -20,6 +20,8 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 
+using namespace rmg;
+
 const std::map<std::string, CRmgTemplate *> & CRmgTemplateStorage::getTemplates() const
 {
 	return templates;
@@ -49,10 +51,10 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 		tpl->setCpuPlayers(parsePlayers(templateNode["cpu"].String()));
 
 		// Parse zones
-		std::map<TRmgTemplateZoneId, CRmgTemplateZone *> zones;
+		std::map<TRmgTemplateZoneId, ZoneOptions *> zones;
 		for (const auto & zonePair : templateNode["zones"].Struct())
 		{
-			auto zone = new CRmgTemplateZone();
+			auto zone = new ZoneOptions();
 			auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
 			zone->setId(zoneId);
 
@@ -65,7 +67,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 			zone->setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
 			if (!zoneNode["matchTerrainToTown"].isNull()) //default : true
 				zone->setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
-			zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone->getDefaultTerrainTypes()));
+			zone->setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), ZoneOptions::DEFAULT_TERRAIN_TYPES));
 
 			if (!zoneNode["townsAreSameType"].isNull()) //default : false
 				zone->setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
@@ -119,7 +121,7 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 			else
 			{
 				delete zone;
-				throw (rmgException("incorrect monster power"));
+				throw (std::runtime_error("incorrect monster power"));
 			}
 
 			if (!zoneNode["mines"].isNull())
@@ -206,12 +208,12 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 		tpl->setZones(zones);
 
 		// Parse connections
-		std::list<CRmgTemplateZoneConnection> connections;
+		std::list<ZoneConnection> connections;
 		for(const auto & connPair : templateNode["connections"].Vector())
 		{
-			CRmgTemplateZoneConnection conn;
-			conn.setZoneA(zones.find(boost::lexical_cast<TRmgTemplateZoneId>(connPair["a"].String()))->second);
-			conn.setZoneB(zones.find(boost::lexical_cast<TRmgTemplateZoneId>(connPair["b"].String()))->second);
+			ZoneConnection conn;
+			conn.setZoneA(zones.find(boost::lexical_cast<TRmgTemplateZoneId>(connPair["a"].String()))->second->getId());
+			conn.setZoneB(zones.find(boost::lexical_cast<TRmgTemplateZoneId>(connPair["b"].String()))->second->getId());
 			conn.setGuardStrength(connPair["guard"].Float());
 			connections.push_back(conn);
 		}
@@ -220,8 +222,8 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 			auto zones = tpl->getZones();
 			for (auto con : tpl->getConnections())
 			{
-				auto idA = con.getZoneA()->getId();
-				auto idB = con.getZoneB()->getId();
+				auto idA = con.getZoneA();
+				auto idB = con.getZoneB();
 				zones[idA]->addConnection(idB);
 				zones[idB]->addConnection(idA);
 			}
@@ -284,9 +286,9 @@ ETemplateZoneType::ETemplateZoneType CRmgTemplateStorage::parseZoneType(const st
 	return it->second;
 }
 
-CRmgTemplateZone::CTownInfo CRmgTemplateStorage::parseTemplateZoneTowns(const JsonNode & node) const
+ZoneOptions::CTownInfo CRmgTemplateStorage::parseTemplateZoneTowns(const JsonNode & node) const
 {
-	CRmgTemplateZone::CTownInfo towns;
+	ZoneOptions::CTownInfo towns;
 	towns.setTownCount(node["towns"].Float());
 	towns.setCastleCount(node["castles"].Float());
 	towns.setTownDensity(node["townDensity"].Float());

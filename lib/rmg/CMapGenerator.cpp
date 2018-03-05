@@ -18,6 +18,7 @@
 #include "../StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
+#include "CRmgTemplateZone.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
@@ -273,10 +274,15 @@ void CMapGenerator::genZones()
 	editManager->drawTerrain(ETerrainType::GRASS, &rand);
 
 	auto tmpl = mapGenOptions->getMapTemplate();
-	zones = tmpl->getZones(); //copy from template (refactor?)
-	//immediately set gen pointer before taking any actions on zones
-	for (auto zone : zones)
-		zone.second->setGenPtr(this);
+	zones.clear();
+	for(const auto & option : tmpl->getZones())
+	{
+		auto zone = new CRmgTemplateZone();
+		zone->setOptions(option.second);
+		zones[zone->getId()] = zone;
+		//todo: move to CRmgTemplateZone constructor
+		zone->setGenPtr(this);//immediately set gen pointer before taking any actions on zones
+	}
 
 	CZonePlacer placer(this);
 	placer.placeZones(mapGenOptions, &rand);
@@ -474,8 +480,8 @@ void CMapGenerator::findZonesForQuestArts()
 
 	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
 	{
-		auto zoneA = connection.getZoneA();
-		auto zoneB = connection.getZoneB();
+		auto zoneA = zones[connection.getZoneA()];
+		auto zoneB = zones[connection.getZoneB()];
 
 		if (zoneA->getId() > zoneB->getId())
 		{
@@ -492,8 +498,8 @@ void CMapGenerator::createDirectConnections()
 {
 	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
 	{
-		auto zoneA = connection.getZoneA();
-		auto zoneB = connection.getZoneB();
+		auto zoneA = zones[connection.getZoneA()];
+		auto zoneB = zones[connection.getZoneB()];
 
 		//rearrange tiles in random order
 		auto tilesCopy = zoneA->getTileInfo();
@@ -572,8 +578,8 @@ void CMapGenerator::createConnections2()
 {
 	for (auto & connection : connectionsLeft)
 	{
-		auto zoneA = connection.getZoneA();
-		auto zoneB = connection.getZoneB();
+		auto zoneA = zones[connection.getZoneA()];
+		auto zoneB = zones[connection.getZoneB()];
 
 		int3 guardPos(-1, -1, -1);
 
