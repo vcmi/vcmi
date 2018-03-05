@@ -874,19 +874,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			bool override = false;
-			if(!noOverride)
-			{
-				for(std::string flag : source.flags)
-				{
-					if(flag.compare("override") == 0)
-					{
-						override = true;
-						break;
-					}
-				}
-			}
-			if(override)
+			if(!noOverride && vstd::contains(source.flags, "override"))
 			{
 				std::swap(dest, source);
 			}
