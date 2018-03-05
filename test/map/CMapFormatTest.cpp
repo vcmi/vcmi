@@ -22,6 +22,7 @@
 #include "../lib/VCMIDirs.h"
 
 #include "MapComparer.h"
+#include "../JsonComparer.h"
 
 static const int TEST_RANDOM_SEED = 1337;
 
@@ -166,13 +167,13 @@ TEST(MapFormat, Objects)
 	saveTestMap(serializeBuffer, "test_object_property.vmap");
 
 	{
-		JsonMapComparer c(false);
-		c.compareHeader(actualHeader, expectedHeader);
-		c.compareObjects(actualObjects, expectedObjects);
+		JsonComparer c(false);
+		c.compare("hdr", actualHeader, expectedHeader);
+		c.compare("obj", actualObjects, expectedObjects);
 	}
 
 	{
-		JsonMapComparer c(true);
+		JsonComparer c(true);
 		c.compare("surface", actualSurface, expectedSurface);
 		c.compare("underground", actualUnderground, expectedUnderground);
 	}
@@ -202,13 +203,13 @@ TEST(MapFormat, Terrain)
 	saveTestMap(serializeBuffer, "test_terrain.vmap");
 
 	{
-		JsonMapComparer c(false);
-		c.compareHeader(actualHeader, expectedHeader);
-		c.compareObjects(actualObjects, expectedObjects);
+		JsonComparer c(false);
+		c.compare("hdr", actualHeader, expectedHeader);
+		c.compare("obj", actualObjects, expectedObjects);
 	}
 
 	{
-		JsonMapComparer c(true);
+		JsonComparer c(true);
 		c.compare("surface", actualSurface, expectedSurface);
 		c.compare("underground", actualUnderground, expectedUnderground);
 	}

@@ -72,6 +72,8 @@
 		<Unit filename="CMemoryBufferTest.cpp" />
 		<Unit filename="CVcmiTestConfig.cpp" />
 		<Unit filename="CVcmiTestConfig.h" />
+		<Unit filename="JsonComparer.cpp" />
+		<Unit filename="JsonComparer.h" />
 		<Unit filename="StdInc.cpp">
 			<Option compile="0" />
 			<Option link="0" />

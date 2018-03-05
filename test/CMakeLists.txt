@@ -16,6 +16,7 @@ set(test_SRCS
  		main.cpp
  		CMemoryBufferTest.cpp
  		CVcmiTestConfig.cpp
+ 		JsonComparer.cpp
 
  		battle/BattleHexTest.cpp
  		battle/CBattleInfoCallbackTest.cpp
@@ -66,6 +67,8 @@ set(test_HEADERS
  		StdInc.h
 
  		CVcmiTestConfig.h
+		JsonComparer.h
+
  		map/MapComparer.h
 
 		spells/effects/EffectFixture.h
