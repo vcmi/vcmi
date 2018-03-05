@@ -70,7 +70,8 @@ JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
 
 JsonNode::JsonNode(const JsonNode &copy):
 	type(JsonType::DATA_NULL),
-	meta(copy.meta)
+	meta(copy.meta),
+	flags(copy.flags)
 {
 	setType(copy.getType());
 	switch(type)
@@ -96,6 +97,7 @@ void JsonNode::swap(JsonNode &b)
 	swap(meta, b.meta);
 	swap(data, b.data);
 	swap(type, b.type);
+	swap(flags, b.flags);
 }
 
 JsonNode & JsonNode::operator =(JsonNode node)
@@ -846,7 +848,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
 }
 
-void JsonUtils::merge(JsonNode & dest, JsonNode & source)
+void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
 {
 	if (dest.getType() == JsonNode::JsonType::DATA_NULL)
 	{
@@ -872,23 +874,30 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			//recursively merge all entries from struct
-			for(auto & node : source.Struct())
-				merge(dest[node.first], node.second);
+			if(!noOverride && vstd::contains(source.flags, "override"))
+			{
+				std::swap(dest, source);
+			}
+			else
+			{
+				//recursively merge all entries from struct
+				for(auto & node : source.Struct())
+					merge(dest[node.first], node.second, noOverride);
+			}
 		}
 	}
 }
 
-void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
+void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool noOverride)
 {
 	// uses copy created in stack to safely merge two nodes
-	merge(dest, source);
+	merge(dest, source, noOverride);
 }
 
 void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
 	JsonNode inheritedNode(base);
-	merge(inheritedNode,descendant);
+	merge(inheritedNode, descendant, true);
 	descendant.swap(inheritedNode);
 }
 

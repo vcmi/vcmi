@@ -45,8 +45,10 @@ private:
 	JsonData data;
 
 public:
-	/// free to use metadata field
+	/// free to use metadata fields
 	std::string meta;
+	// meta-flags like override
+	std::vector<std::string> flags;
 
 	//Create empty node
 	JsonNode(JsonType Type = JsonType::DATA_NULL);
@@ -119,6 +121,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & meta;
+		if(version >= 782)
+		{
+			h & flags;
+		}
 		h & type;
 		switch(type)
 		{
@@ -173,7 +179,7 @@ namespace JsonUtils
 	 * null   : if value in source is present but set to null it will delete entry in dest
 	 * @note this function will destroy data in source
 	 */
-	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
+	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source, bool noOverride = false);
 
 	/**
 	 * @brief recursively merges source into dest, replacing identical fields
@@ -183,7 +189,7 @@ namespace JsonUtils
 	 * null   : if value in source is present but set to null it will delete entry in dest
 	 * @note this function will preserve data stored in source by creating copy
 	 */
-	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
+	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source, bool noOverride = false);
 
     /** @brief recursively merges descendant into copy of base node
      * Result emulates inheritance semantic
