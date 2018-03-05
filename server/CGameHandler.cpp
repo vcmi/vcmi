@@ -4279,13 +4279,20 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			const CGHeroInstance * attackingHero = gs->curB->battleGetFightingHero(ba.side);
 
-			CHeroHandler::SBallisticsLevelInfo sbi;
+			CHeroHandler::SBallisticsLevelInfo stackBallisticsParameters;
 			if(stack->getCreature()->idNumber == CreatureID::CATAPULT)
-				sbi = VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
-			else //may need to use higher ballistics level for creatures in future for some cases to match original H3 (upgraded cyclops etc)
+				stackBallisticsParameters = VLC->heroh->ballistics.at(attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::BALLISTICS));
+			else
 			{
-				sbi = VLC->heroh->ballistics.at(1);
-				sbi.shots += std::max(stack->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0);
+				if(stack->hasBonusOfType(Bonus::CATAPULT_EXTRA_SHOTS)) //by design use advanced ballistics parameters with this bonus present, upg. cyclops use advanced ballistics, nonupg. use basic in OH3
+				{
+					stackBallisticsParameters = VLC->heroh->ballistics.at(2);
+					stackBallisticsParameters.shots = 1; //skip default "2 shots" from adv. ballistics
+				}
+				else
+					stackBallisticsParameters = VLC->heroh->ballistics.at(1);
+
+				stackBallisticsParameters.shots += std::max(stack->valOfBonuses(Bonus::CATAPULT_EXTRA_SHOTS), 0); //0 is allowed minimum to let modders force advanced ballistics for "oneshotting creatures"
 			}
 
 			auto wallPart = gs->curB->battleHexToWallPart(destination);
@@ -4304,7 +4311,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				break;
 			}
 
-			for (int g=0; g<sbi.shots; ++g)
+			for (int g=0; g<stackBallisticsParameters.shots; ++g)
 			{
 				bool hitSuccessfull = false;
 				auto attackedPart = wallPart;
@@ -4313,7 +4320,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				{
 					if (currentHP.at(attackedPart) != EWallState::DESTROYED && // this part can be hit
 					   currentHP.at(attackedPart) != EWallState::NONE &&
-					   getRandomGenerator().nextInt(99) < getCatapultHitChance(attackedPart, sbi))//hit is successful
+					   getRandomGenerator().nextInt(99) < getCatapultHitChance(attackedPart, stackBallisticsParameters))//hit is successful
 					{
 						hitSuccessfull = true;
 					}
@@ -4341,8 +4348,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				attack.attackedPart = attackedPart;
 				attack.destinationTile = destination;
 				attack.damageDealt = 0;
+				BattleUnitsChanged removeUnits;
 
-				int dmgChance[] = { sbi.noDmg, sbi.oneDmg, sbi.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
+				int dmgChance[] = { stackBallisticsParameters.noDmg, stackBallisticsParameters.oneDmg, stackBallisticsParameters.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
 
 				int dmgRand = getRandomGenerator().nextInt(99);
 				//accumulating dmgChance
@@ -4363,7 +4371,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				logGlobal->trace("Catapult attacks %d dealing %d damage", (int)attack.attackedPart, (int)attack.damageDealt);
 
 				//removing creatures in turrets / keep if one is destroyed
-				if (attack.damageDealt > 0 && (attackedPart == EWallPart::KEEP ||
+				if (currentHP.at(attackedPart) - attack.damageDealt <= 0 && (attackedPart == EWallPart::KEEP || //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage
 					attackedPart == EWallPart::BOTTOM_TOWER || attackedPart == EWallPart::UPPER_TOWER))
 				{
 					int posRemove = -1;
@@ -4380,7 +4388,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 						break;
 					}
 
-					BattleUnitsChanged removeUnits;
 					for(auto & elem : gs->curB->stacks)
 					{
 						if(elem->initialPosition == posRemove)
@@ -4389,13 +4396,14 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 							break;
 						}
 					}
-					if(!removeUnits.changedStacks.empty())
-						sendAndApply(&removeUnits);
 				}
 				ca.attacker = ba.stackNumber;
 				ca.attackedParts.push_back(attack);
 
 				sendAndApply(&ca);
+
+				if(!removeUnits.changedStacks.empty())
+					sendAndApply(&removeUnits);
 			}
 			//finish by scope guard
 			break;
