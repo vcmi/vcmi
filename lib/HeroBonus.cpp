@@ -791,7 +791,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 	CBonusSystemNode::treeHasChanged();
 }
 
-void CBonusSystemNode::popBonuses(const CSelector &s)
+void CBonusSystemNode::removeBonusesRecursive(const CSelector &s)
 {
 	BonusList bl;
 	exportedBonuses.getBonuses(bl, s, Selector::all);
@@ -799,7 +799,7 @@ void CBonusSystemNode::popBonuses(const CSelector &s)
 		removeBonus(b);
 
 	for(CBonusSystemNode *child : children)
-		child->popBonuses(s);
+		child->removeBonusesRecursive(s);
 }
 
 void CBonusSystemNode::reduceBonusDurations(const CSelector &s)

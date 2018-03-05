@@ -1084,7 +1084,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 	gs->day = day;
 
 	// Update bonuses before doing anything else so hero don't get more MP than needed
-	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
+	gs->globalEffects.removeBonusesRecursive(Bonus::OneDay); //works for children -> all game objs
 	gs->globalEffects.reduceBonusDurations(Bonus::NDays);
 	gs->globalEffects.reduceBonusDurations(Bonus::OneWeek);
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
@@ -1286,7 +1286,7 @@ void BattleResult::applyGs(CGameState *gs)
 	{
 		if(auto h = gs->curB->battleGetFightingHero(i))
 		{
-			h->popBonuses(Bonus::OneBattle); 	//remove any "until next battle" bonuses
+			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
 			{
 				for (auto art : h->commander->artifactsWorn) //increment bonuses for commander artifacts
@@ -1342,7 +1342,7 @@ DLL_LINKAGE void BattleAttack::applyGs(CGameState * gs)
 	for(BattleStackAttacked & stackAttacked : bsa)
 		stackAttacked.applyGs(gs);
 
-	attacker->popBonuses(Bonus::UntilAttack);
+	attacker->removeBonusesRecursive(Bonus::UntilAttack);
 }
 
 DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
@@ -1542,7 +1542,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
 		}
 		case UNBIND:
 		{
-			stack->popBonuses(Selector::type(Bonus::BIND_EFFECT));
+			stack->removeBonusesRecursive(Selector::type(Bonus::BIND_EFFECT));
 			break;
 		}
 		case CLONED:
