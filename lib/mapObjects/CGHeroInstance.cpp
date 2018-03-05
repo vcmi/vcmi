@@ -157,7 +157,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 	if(getSecSkillLevel(which) == 0)
 	{
 		secSkills.push_back(std::pair<SecondarySkill,ui8>(which, val));
-		updateSkill(which, val);
+		updateSkillBonus(which, val);
 	}
 	else
 	{
@@ -175,7 +175,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", static_cast<int>(which.toEnum()));
 					elem.second = 3;
 				}
-				updateSkill(which, elem.second); //when we know final value
+				updateSkillBonus(which, elem.second); //when we know final value
 			}
 		}
 	}
@@ -537,7 +537,7 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 
 	for(auto skill_info : secSkills)
 		if(skill_info.second > 0)
-			updateSkill(SecondarySkill(skill_info.first), skill_info.second);
+			updateSkillBonus(SecondarySkill(skill_info.first), skill_info.second);
 }
 
 void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
@@ -557,13 +557,14 @@ void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & speci
 	}
 }
 
-void CGHeroInstance::updateSkill(SecondarySkill which, int val)
+void CGHeroInstance::updateSkillBonus(SecondarySkill which, int val)
 {
 	removeBonuses(Selector::source(Bonus::SECONDARY_SKILL, which));
 	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
 	for (auto b : skillBonus)
 		addNewBonus(std::make_shared<Bonus>(*b));
 }
+
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == ObjProperty::PRIMARY_STACK_COUNT)

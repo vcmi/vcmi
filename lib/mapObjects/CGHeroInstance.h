@@ -215,7 +215,7 @@ public:
 	ui8 maxlevelsToMagicSchool() const;
 	ui8 maxlevelsToWisdom() const;
 	void recreateSecondarySkillsBonuses();
-	void updateSkill(SecondarySkill which, int val);
+	void updateSkillBonus(SecondarySkill which, int val);
 
 	bool hasVisions(const CGObjectInstance * target, const int subtype) const;
 	/// If this hero perishes, the scenario is failed
