@@ -86,6 +86,8 @@ void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 	CatapultAttack ca;
 	ca.attacker = -1;
 
+	BattleUnitsChanged removeUnits;
+
 	for(int i = 0; i < targetsToAttack; i++)
 	{
 		//Any destructible part can be hit regardless of its HP. Multiple hit on same target is allowed.
@@ -120,9 +122,8 @@ void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 			break;
 		}
 
-		if(posRemove != BattleHex::INVALID)
+		if(posRemove != BattleHex::INVALID && state - attackInfo.damageDealt <= 0) //HP enum subtraction not intuitive, consider using SiegeInfo::applyDamage
 		{
-			BattleUnitsChanged removeUnits;
 			auto all = m->cb->battleGetUnitsIf([=](const battle::Unit * unit)
 			{
 				return !unit->isGhost();
@@ -136,12 +137,13 @@ void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 					break;
 				}
 			}
-			if(!removeUnits.changedStacks.empty())
-				battleState->apply(&removeUnits);
 		}
 	}
 
 	battleState->apply(&ca);
+
+	if(!removeUnits.changedStacks.empty())
+		battleState->apply(&removeUnits);
 }
 
 void Catapult::serializeJsonEffect(JsonSerializeFormat & handler)
