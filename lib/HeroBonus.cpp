@@ -791,14 +791,10 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 	CBonusSystemNode::treeHasChanged();
 }
 
-void CBonusSystemNode::removeBonusesRecursive(const CSelector &s)
+void CBonusSystemNode::removeBonusesRecursive(const CSelector & s)
 {
-	BonusList bl;
-	exportedBonuses.getBonuses(bl, s, Selector::all);
-	for(auto b : bl)
-		removeBonus(b);
-
-	for(CBonusSystemNode *child : children)
+	removeBonuses(s);
+	for(CBonusSystemNode * child : children)
 		child->removeBonusesRecursive(s);
 }
 
@@ -850,10 +846,10 @@ void CBonusSystemNode::removeBonus(const std::shared_ptr<Bonus>& b)
 	CBonusSystemNode::treeHasChanged();
 }
 
-void CBonusSystemNode::removeBonuses(const CSelector &selector)
+void CBonusSystemNode::removeBonuses(const CSelector & selector)
 {
 	BonusList toRemove;
-	exportedBonuses.getBonuses(toRemove, selector);
+	exportedBonuses.getBonuses(toRemove, selector, Selector::all);
 	for(auto bonus : toRemove)
 		removeBonus(bonus);
 }
