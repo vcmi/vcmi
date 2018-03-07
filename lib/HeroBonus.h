@@ -378,7 +378,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & val;
 		h & sid;
 		h & description;
-		h & additionalInfo;
+		if(version >= 783)
+		{
+			h & additionalInfo;
+		}
+		else
+		{
+			additionalInfo.resize(1, -1);
+			h & additionalInfo[0];
+		}
 		h & turnsRemain;
 		h & valType;
 		h & effectRange;
