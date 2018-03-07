@@ -1330,7 +1330,6 @@ Bonus::Bonus()
 	turnsRemain = 0;
 	type = NONE;
 	subtype = -1;
-	additionalInfo = CAddInfo::NONE;
 
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
