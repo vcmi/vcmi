@@ -87,6 +87,24 @@ private:
 	mutable TBonusListPtr data;
 };
 
+class DLL_LINKAGE CAddInfo : public std::vector<si32>
+{
+public:
+	static const si32 NONE = -1;
+
+	CAddInfo();
+	CAddInfo(si32 value);
+
+	bool operator==(si32 value) const;
+	bool operator!=(si32 value) const;
+
+	using std::vector<si32>::operator[];
+	si32 operator[](size_type pos) const;
+
+	std::string toString() const;
+	JsonNode toJsonNode() const;
+};
+
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
 #define BONUS_LIST										\
@@ -338,7 +356,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	ui32 sid; //source id: id of object/artifact/spell
 	ValueType valType;
 
-	si32 additionalInfo;
+	CAddInfo additionalInfo;
 	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
 	TLimiterPtr limiter;
@@ -980,14 +998,14 @@ namespace Selector
 {
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
-	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
+	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> info;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
+	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, CAddInfo info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType);

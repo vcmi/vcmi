@@ -4731,9 +4731,9 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 
 			for (auto b : bl)
 			{
-				if(b->additionalInfo >= 0)
+				if(b->additionalInfo != CAddInfo::NONE)
 				{
-					const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo); //binding stack must be alive and adjacent
+					const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo[0]); //binding stack must be alive and adjacent
 					if(stack)
 					{
 						if(vstd::contains(adjacent, stack)) //binding stack is still present
@@ -4840,7 +4840,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				{
 					cast = true;
 
-					int cooldown = bonus->additionalInfo;
+					int cooldown = bonus->additionalInfo[0];
 					BattleSetStackProperty ssp;
 					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
 					ssp.absolute = false;
@@ -5483,8 +5483,9 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
 			for(const std::shared_ptr<Bonus> sf : *spellsByType)
 			{
-				vstd::amax(spellLevel, sf->additionalInfo % 1000); //pick highest level
-				int meleeRanged = sf->additionalInfo / 1000;
+				//TODO: refactor to use separate addInfo fields
+				vstd::amax(spellLevel, sf->additionalInfo[0] % 1000); //pick highest level
+				int meleeRanged = sf->additionalInfo[0] / 1000;
 				if (meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}
@@ -5569,7 +5570,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
 	for(const std::shared_ptr<Bonus> b : *acidBreath)
 	{
-		if(b->additionalInfo > getRandomGenerator().nextInt(99))
+		if(b->additionalInfo[0] > getRandomGenerator().nextInt(99))
 			acidDamage += b->val;
 	}
 
@@ -5597,10 +5598,10 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		if(getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
 			return;
 
-		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo;
+		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo[0];
 
 		if(defender->getCreature()->idNumber == bonusAdditionalInfo ||
-			(bonusAdditionalInfo == -1 && defender->getCreature()->idNumber == attacker->getCreature()->idNumber))
+			(bonusAdditionalInfo == CAddInfo::NONE && defender->getCreature()->idNumber == attacker->getCreature()->idNumber))
 			return;
 
 		battle::UnitInfo resurrectInfo;
@@ -5609,7 +5610,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		resurrectInfo.position = defender->getPosition();
 		resurrectInfo.side = defender->unitSide();
 
-		if(bonusAdditionalInfo != -1)
+		if(bonusAdditionalInfo != CAddInfo::NONE)
 			resurrectInfo.type = CreatureID(bonusAdditionalInfo);
 		else
 			resurrectInfo.type = attacker->creatureId();
@@ -5639,13 +5640,13 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0)) //killing by percentage
 		{
 			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 0) / 100.0f;
-			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo;
+			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo[0];
 			amountToDie = defender->getCount() * percentageToDie * 0.01f;
 		}
 		else if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 1)) //killing by count
 		{
 			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 1) / 100.0f;
-			amountToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(1)))->additionalInfo;
+			amountToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(1)))->additionalInfo[0];
 		}
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%

@@ -181,7 +181,7 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 		const auto tier = std::max(affected->creatureLevel(), 1); //don't divide by 0 for certain creatures (commanders, war machines)
 		if(bonus)
 		{
-			switch(bonus->additionalInfo)
+			switch(bonus->additionalInfo[0])
 			{
 			case 0: //normal
 				switch(tier)
