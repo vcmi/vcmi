@@ -10,7 +10,16 @@
 		"addInfo": {
 			"anyOf" : [
 				{ "type" : "string" },
-				{ "type" : "number" }
+				{ "type" : "number" },
+				{
+					"type" : "array",
+					"items" : {
+						"anyof" : [
+							{ "type" : "string" },
+							{ "type" : "number" }
+						]
+					}
+				}
 			],
 			"description": "addInfo"
 		},

@@ -5483,9 +5483,18 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
 			for(const std::shared_ptr<Bonus> sf : *spellsByType)
 			{
-				//TODO: refactor to use separate addInfo fields
-				vstd::amax(spellLevel, sf->additionalInfo[0] % 1000); //pick highest level
-				int meleeRanged = sf->additionalInfo[0] / 1000;
+				int meleeRanged;
+				if(sf->additionalInfo.size() < 2)
+				{
+					// legacy format
+					vstd::amax(spellLevel, sf->additionalInfo[0] % 1000);
+					meleeRanged = sf->additionalInfo[0] / 1000;
+				}
+				else
+				{
+					vstd::amax(spellLevel, sf->additionalInfo[0]);
+					meleeRanged = sf->additionalInfo[1];
+				}
 				if (meleeRanged == 0 || (meleeRanged == 1 && ranged) || (meleeRanged == 2 && !ranged))
 					castMe = true;
 			}

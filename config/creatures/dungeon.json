@@ -183,7 +183,7 @@
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.stoneGaze",
 				"val" : 20,
-				"addInfo" : 2000 // FIXME: replace with range field?
+				"addInfo" : [0,2]
 			}
 		},
 		"upgrades": ["medusaQueen"],
@@ -217,7 +217,7 @@
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.stoneGaze",
 				"val" : 20,
-				"addInfo" : 2000 // FIXME: replace with range?
+				"addInfo" : [0,2]
 			}
 		},
 		"graphics" :
