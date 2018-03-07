@@ -418,7 +418,6 @@ std::string JsonNode::toJson(bool compact) const
 	std::ostringstream out;
 	JsonWriter writer(out, compact);
 	writer.writeNode(*this);
-	out << "\n";
 	return out.str();
 }
 
