@@ -20,22 +20,10 @@ class CRandomGenerator;
 class CRmgTemplateZone;
 class CMapGenerator;
 
-typedef std::vector<std::pair<TRmgTemplateZoneId, CRmgTemplateZone*>> TZoneVector;
-typedef std::map <TRmgTemplateZoneId, CRmgTemplateZone*> TZoneMap;
-typedef std::map <CRmgTemplateZone *, float3> TForceVector;
-typedef std::map <CRmgTemplateZone *, float> TDistanceVector;
-
-class CPlacedZone
-{
-public:
-	explicit CPlacedZone(const CRmgTemplateZone * Zone);
-
-private:
-    //const CRmgTemplateZone * zone;
-
-	//TODO exact outline data of zone
-	//TODO perhaps further zone data, guards, obstacles, etc...
-};
+typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>> TZoneVector;
+typedef std::map <TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>> TZoneMap;
+typedef std::map <std::shared_ptr<CRmgTemplateZone>, float3> TForceVector;
+typedef std::map <std::shared_ptr<CRmgTemplateZone>, float> TDistanceVector;
 
 class CZonePlacer
 {

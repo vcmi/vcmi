@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "CMapGenOptions.h"
@@ -33,6 +34,11 @@ public:
 	ui32 min;
 	ui32 max;
 	ui16 density;
+	CTreasureInfo();
+
+	bool operator ==(const CTreasureInfo & other) const;
+
+	void serializeJson(JsonSerializeFormat & handler);
 };
 
 namespace rmg
@@ -44,12 +50,10 @@ public:
 	ZoneConnection();
 
 	TRmgTemplateZoneId getZoneA() const;
-	void setZoneA(TRmgTemplateZoneId value);
 	TRmgTemplateZoneId getZoneB() const;
-	void setZoneB(TRmgTemplateZoneId value);
-	int getGuardStrength() const; /// Default: 0
-	void setGuardStrength(int value);
+	int getGuardStrength() const;
 
+	void serializeJson(JsonSerializeFormat & handler);
 private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
@@ -60,23 +64,25 @@ class DLL_LINKAGE ZoneOptions
 {
 public:
 	static const std::set<ETerrainType> DEFAULT_TERRAIN_TYPES;
+	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo
 	{
 	public:
 		CTownInfo();
 
-		int getTownCount() const; /// Default: 0
-		void setTownCount(int value);
-		int getCastleCount() const; /// Default: 0
-		void setCastleCount(int value);
-		int getTownDensity() const; /// Default: 0
-		void setTownDensity(int value);
-		int getCastleDensity() const; /// Default: 0
-		void setCastleDensity(int value);
+		int getTownCount() const;
+		int getCastleCount() const;
+		int getTownDensity() const;
+		int getCastleDensity() const;
+
+		void serializeJson(JsonSerializeFormat & handler);
 
 	private:
-		int townCount, castleCount, townDensity, castleDensity;
+		int townCount;
+		int castleCount;
+		int townDensity;
+		int castleDensity;
 	};
 
 	ZoneOptions();
@@ -86,44 +92,34 @@ public:
 	TRmgTemplateZoneId getId() const;
 	void setId(TRmgTemplateZoneId value);
 
-	ETemplateZoneType::ETemplateZoneType getType() const; /// Default: ETemplateZoneType::PLAYER_START
-	void setType(ETemplateZoneType::ETemplateZoneType value);
-
-	int getSize() const; /// Default: 1
+	ETemplateZoneType::ETemplateZoneType getType() const;
+	int getSize() const;
 	void setSize(int value);
-
 	boost::optional<int> getOwner() const;
-	void setOwner(boost::optional<int> value);
 
-	const CTownInfo & getPlayerTowns() const;
-	void setPlayerTowns(const CTownInfo & value);
-	const CTownInfo & getNeutralTowns() const;
-	void setNeutralTowns(const CTownInfo & value);
-
-	bool getMatchTerrainToTown() const; /// Default: true
-	void setMatchTerrainToTown(bool value);
-
-	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
+	const std::set<ETerrainType> & getTerrainTypes() const;
 	void setTerrainTypes(const std::set<ETerrainType> & value);
 
-	bool getTownsAreSameType() const; /// Default: false
-	void setTownsAreSameType(bool value);
-
 	std::set<TFaction> getDefaultTownTypes() const;
+	const std::set<TFaction> & getTownTypes() const;
 
-	const std::set<TFaction> & getTownTypes() const; /// Default: all
 	void setTownTypes(const std::set<TFaction> & value);
 	void setMonsterTypes(const std::set<TFaction> & value);
 
-	void setMonsterStrength(EMonsterStrength::EMonsterStrength val);
-
-	void setMinesAmount (TResource res, ui16 amount);
+	void setMinesInfo(const std::map<TResource, ui16> & value);
 	std::map<TResource, ui16> getMinesInfo() const;
 
-	void addTreasureInfo(const CTreasureInfo & info);
+	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
 
+	TRmgTemplateZoneId getMinesLikeZone() const;
+	TRmgTemplateZoneId getTerrainTypeLikeZone() const;
+	TRmgTemplateZoneId getTreasureLikeZone() const;
+
 	void addConnection(TRmgTemplateZoneId otherZone);
+	std::vector<TRmgTemplateZoneId> getConnections() const;
+
+	void serializeJson(JsonSerializeFormat & handler);
 
 protected:
 	TRmgTemplateZoneId id;
@@ -146,6 +142,10 @@ protected:
 	std::vector<CTreasureInfo> treasureInfo;
 
 	std::vector<TRmgTemplateZoneId> connections; //list of adjacent zones
+
+	TRmgTemplateZoneId minesLikeZone;
+	TRmgTemplateZoneId terrainTypeLikeZone;
+	TRmgTemplateZoneId treasureLikeZone;
 };
 
 }
@@ -154,27 +154,9 @@ protected:
 class DLL_LINKAGE CRmgTemplate
 {
 public:
-	class CSize
-	{
-	public:
-		CSize();
-		CSize(int width, int height, bool under);
+	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<rmg::ZoneOptions>>;
 
-		int getWidth() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
-		void setWidth(int value);
-		int getHeight() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
-		void setHeight(int value);
-		bool getUnder() const; /// Default: true
-		void setUnder(bool value);
-		bool operator<=(const CSize & value) const;
-		bool operator>=(const CSize & value) const;
-
-	private:
-		int width, height;
-		bool under;
-	};
-
-	class CPlayerCountRange
+	class DLL_LINKAGE CPlayerCountRange
 	{
 	public:
 		void addRange(int lower, int upper);
@@ -182,34 +164,39 @@ public:
 		bool isInRange(int count) const;
 		std::set<int> getNumbers() const;
 
+		std::string toString() const;
+		void fromString(const std::string & value);
+
 	private:
-		std::list<std::pair<int, int> > range;
+		std::vector<std::pair<int, int> > range;
 	};
 
 	CRmgTemplate();
 	~CRmgTemplate();
 
+	bool matchesSize(const int3 & value) const;
+
+	void setId(const std::string & value);
 	const std::string & getName() const;
-	void setName(const std::string & value);
-	const CSize & getMinSize() const;
-	void setMinSize(const CSize & value);
-	const CSize & getMaxSize() const;
-	void setMaxSize(const CSize & value);
+
 	const CPlayerCountRange & getPlayers() const;
-	void setPlayers(const CPlayerCountRange & value);
 	const CPlayerCountRange & getCpuPlayers() const;
-	void setCpuPlayers(const CPlayerCountRange & value);
-	const std::map<TRmgTemplateZoneId, rmg::ZoneOptions *> & getZones() const;
-	void setZones(const std::map<TRmgTemplateZoneId, rmg::ZoneOptions *> & value);
-	const std::list<rmg::ZoneConnection> & getConnections() const;
-	void setConnections(const std::list<rmg::ZoneConnection> & value);
+	const Zones & getZones() const;
+	const std::vector<rmg::ZoneConnection> & getConnections() const;
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
+	void serializeJson(JsonSerializeFormat & handler);
+
 private:
+	std::string id;
 	std::string name;
-	CSize minSize, maxSize;
+	int3 minSize, maxSize;
 	CPlayerCountRange players, cpuPlayers;
-	std::map<TRmgTemplateZoneId, rmg::ZoneOptions *> zones;
-	std::list<rmg::ZoneConnection> connections;
+	Zones zones;
+	std::vector<rmg::ZoneConnection> connections;
+
+	void afterLoad();
+	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
+	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };

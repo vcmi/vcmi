@@ -144,7 +144,6 @@ void checkEqual(const TerrainTile & actual, const TerrainTile & expected)
 
 	VCMI_REQUIRE_FIELD_EQUAL(visitable);
 	VCMI_REQUIRE_FIELD_EQUAL(blocked);
-
 }
 
 //MapComparer

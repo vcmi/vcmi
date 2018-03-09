@@ -111,6 +111,7 @@
 		<Unit filename="mock/mock_spells_Problem.h" />
 		<Unit filename="mock/mock_spells_Spell.h" />
 		<Unit filename="mock/mock_vstd_RNG.h" />
+		<Unit filename="rmg/CRmgTemplateTest.cpp" />
 		<Unit filename="spells/AbilityCasterTest.cpp" />
 		<Unit filename="spells/TargetConditionTest.cpp" />
 		<Unit filename="spells/effects/CatapultTest.cpp" />
@@ -137,6 +138,7 @@
 		<Unit filename="spells/targetConditions/SpellEffectConditionTest.cpp" />
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.cpp" />
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.h" />
+		<Unit filename="testdata/rmg/1.json" />
 		<Extensions>
 			<code_completion />
 			<envvars />

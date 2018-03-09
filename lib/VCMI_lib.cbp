@@ -130,6 +130,7 @@
 		<Unit filename="../Global.h" />
 		<Unit filename="../Version.h" />
 		<Unit filename="../include/vstd/CLoggerBase.h" />
+		<Unit filename="../include/vstd/ContainerUtils.h" />
 		<Unit filename="../include/vstd/RNG.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="CArtHandler.cpp" />

@@ -18,11 +18,6 @@
 
 class CRandomGenerator;
 
-CPlacedZone::CPlacedZone(const CRmgTemplateZone * zone)
-{
-
-}
-
 CZonePlacer::CZonePlacer(CMapGenerator * Gen)
 	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
 	gen(Gen)
@@ -78,7 +73,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	float bestTotalDistance = 1e10;
 	float bestTotalOverlap = 1e10;
 
-	std::map<CRmgTemplateZone *, float3> bestSolution;
+	std::map<std::shared_ptr<CRmgTemplateZone>, float3> bestSolution;
 
 	TForceVector forces;
 	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
@@ -359,7 +354,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 {
 	float maxRatio = 0;
 	const int maxDistanceMovementRatio = zones.size() * zones.size(); //experimental - the more zones, the greater total distance expected
-	CRmgTemplateZone * misplacedZone = nullptr;
+	std::shared_ptr<CRmgTemplateZone> misplacedZone;
 
 	float totalDistance = 0;
 	float totalOverlap = 0;
@@ -379,7 +374,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 
 	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
-		CRmgTemplateZone * targetZone = nullptr;
+		std::shared_ptr<CRmgTemplateZone> targetZone;
 		float3 ourCenter = misplacedZone->getCenter();
 
 		if (totalDistance > totalOverlap)
@@ -471,7 +466,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 
 	auto zones = gen->getZones();
 
-	typedef std::pair<CRmgTemplateZone *, float> Dpair;
+	typedef std::pair<std::shared_ptr<CRmgTemplateZone>, float> Dpair;
 	std::vector <Dpair> distances;
 	distances.reserve(zones.size());
 
@@ -483,7 +478,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
 	};
 
-	auto moveZoneToCenterOfMass = [](CRmgTemplateZone * zone) -> void
+	auto moveZoneToCenterOfMass = [](std::shared_ptr<CRmgTemplateZone> zone) -> void
 	{
 		int3 total(0, 0, 0);
 		auto tiles = zone->getTileInfo();

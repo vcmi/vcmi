@@ -406,8 +406,8 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	for(const auto & tplPair : tpls)
 	{
 		const auto & tpl = tplPair.second;
-		CRmgTemplate::CSize tplSize(width, height, hasTwoLevels);
-		if(tplSize >= tpl->getMinSize() && tplSize <= tpl->getMaxSize())
+		int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
+		if(tpl->matchesSize(tplSize))
 		{
 			bool isPlayerCountValid = false;
 			if (getPlayerCount() != RANDOM_SIZE)

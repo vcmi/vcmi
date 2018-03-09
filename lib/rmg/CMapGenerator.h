@@ -50,6 +50,8 @@ public:
 class DLL_LINKAGE CMapGenerator
 {
 public:
+	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;
+
 	explicit CMapGenerator();
 	~CMapGenerator(); // required due to std::unique_ptr
 
@@ -61,7 +63,7 @@ public:
 	int randomSeed;
 	CMapEditManager * editManager;
 
-	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> getZones() const;
+	Zones & getZones();
 	void createDirectConnections();
 	void createConnections2();
 	void findZonesForQuestArts();
@@ -100,7 +102,7 @@ public:
 
 private:
 	std::list<rmg::ZoneConnection> connectionsLeft;
-	std::map<TRmgTemplateZoneId, CRmgTemplateZone*> zones;
+	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 

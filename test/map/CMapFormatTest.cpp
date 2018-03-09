@@ -9,15 +9,15 @@
  */
 #include "StdInc.h"
 
-#include "../lib/JsonDetail.h"
+#include "../../lib/JsonDetail.h"
 
-#include "../lib/filesystem/CMemoryBuffer.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CMemoryBuffer.h"
+#include "../../lib/filesystem/Filesystem.h"
 
-#include "../lib/mapping/CMap.h"
-#include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/rmg/CMapGenerator.h"
-#include "../lib/mapping/MapFormatJson.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/rmg/CMapGenerator.h"
+#include "../../lib/mapping/MapFormatJson.h"
 
 #include "../lib/VCMIDirs.h"
 

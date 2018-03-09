@@ -46,6 +46,8 @@ bool JsonComparer::isEmpty(const JsonNode & value)
 		return !value.Bool();
 	case JsonNode::JsonType::DATA_FLOAT:
 		return value.Float() == 0;
+	case JsonNode::JsonType::DATA_INTEGER:
+		return value.Integer() == 0;
 	case JsonNode::JsonType::DATA_STRING:
 		return value.String() == "";
 	case JsonNode::JsonType::DATA_VECTOR:

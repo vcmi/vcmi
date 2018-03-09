@@ -13,8 +13,8 @@
 #include "mock/mock_BonusBearer.h"
 #include "mock/mock_spells_Spell.h"
 
-#include "../../../lib/NetPacksBase.h"
-#include "../../../lib/spells/AbilityCaster.h"
+#include "../../lib/NetPacksBase.h"
+#include "../../lib/spells/AbilityCaster.h"
 
 namespace test
 {

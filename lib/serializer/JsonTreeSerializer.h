@@ -54,6 +54,11 @@ protected:
 		pushObject(&(currentObject->Vector().at(index)));
 	}
 
+	void pushField(const std::string & fieldName) override
+	{
+		pushObject(fieldName);
+	}
+
 private:
 	void pushObject(const std::string & fieldName)
 	{

@@ -11,9 +11,9 @@
 
 #include <vstd/RNG.h>
 
-#include "../../../lib/NetPacksBase.h"
-#include "../../../lib/spells/TargetCondition.h"
-#include "../../../lib/serializer/JsonDeserializer.h"
+#include "../../lib/NetPacksBase.h"
+#include "../../lib/spells/TargetCondition.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 #include "mock/mock_spells_Mechanics.h"
 #include "mock/mock_BonusBearer.h"

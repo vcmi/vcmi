@@ -232,6 +232,7 @@ public:
 	};
 
 	///Anything int64-convertible <-> Json integer
+	///no default value
 	template <typename T>
 	void serializeInt(const std::string & fieldName, T & value)
 	{
@@ -239,10 +240,19 @@ public:
 	};
 
 	///Anything int64-convertible <-> Json integer
+	///custom default value
 	template <typename T, typename U>
 	void serializeInt(const std::string & fieldName, T & value, const U & defaultValue)
 	{
 		doSerializeInternal<T, U, si64>(fieldName, value, defaultValue);
+	};
+
+	///Anything int64-convertible <-> Json integer
+	///default value is boost::none
+	template <typename T>
+	void serializeInt(const std::string & fieldName, boost::optional<T> & value)
+	{
+		dispatchOptional<T, si64>(fieldName, value);
 	};
 
 	///si32-convertible identifier <-> Json string
@@ -253,14 +263,14 @@ public:
 	}
 
 	///si32-convertible identifier <-> Json string
-	template <typename T, typename U>
+	template <typename T, typename U, typename E = T>
 	void serializeId(const std::string & fieldName, T & value, const U & defaultValue)
 	{
-		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, &T::decode, &T::encode);
+		doSerializeInternal<T, U, si32>(fieldName, value, defaultValue, &E::decode, &E::encode);
 	}
 
 	///si32-convertible identifier vector <-> Json array of string
-	template <typename T, typename U = T>
+	template <typename T, typename E = T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value)
 	{
 		std::vector<si32> temp;
@@ -276,7 +286,7 @@ public:
 			}
 		}
 
-		serializeInternal(fieldName, temp, &U::decode, &U::encode);
+		serializeInternal(fieldName, temp, &E::decode, &E::encode);
 		if(!saving)
 		{
 			value.clear();
@@ -316,6 +326,43 @@ public:
 			{
 				T vitem = static_cast<T>(item);
 				value.insert(vitem);
+			}
+		}
+	}
+
+	///si32-convertible identifier set <-> Json array of string
+	template <typename T, typename U = T>
+	void serializeIdArray(const std::string & fieldName, std::set<T> & value, const std::set<T> & defaultValue)
+	{
+		std::vector<si32> temp;
+
+		if(saving && value != defaultValue)
+		{
+			temp.reserve(value.size());
+
+			for(const T & vitem : value)
+			{
+				si32 item = static_cast<si32>(vitem);
+				temp.push_back(item);
+			}
+		}
+
+		serializeInternal(fieldName, temp, &U::decode, &U::encode);
+		if(!saving)
+		{
+			if(temp.empty())
+			{
+				value = defaultValue;
+			}
+			else
+			{
+				value.clear();
+
+				for(const si32 item : temp)
+				{
+					T vitem = static_cast<T>(item);
+					value.insert(vitem);
+				}
 			}
 		}
 	}
@@ -397,6 +444,7 @@ protected:
 	virtual void pushStruct(const std::string & fieldName) = 0;
 	virtual void pushArray(const std::string & fieldName) = 0;
 	virtual void pushArrayElement(const size_t index) = 0;
+	virtual void pushField(const std::string & fieldName) = 0;
 
 	virtual void resizeCurrent(const size_t newSize, JsonNode::JsonType type){};
 
@@ -406,9 +454,9 @@ protected:
 private:
 	const IInstanceResolver * instanceResolver;
 
-    template <typename VType, typename DVType, typename IType, typename... Args>
-    void doSerializeInternal(const std::string & fieldName, VType & value, const boost::optional<DVType> & defaultValue, Args ... args)
-    {
+	template <typename VType, typename DVType, typename IType, typename... Args>
+	void doSerializeInternal(const std::string & fieldName, VType & value, const boost::optional<DVType> & defaultValue, Args ... args)
+	{
 		const boost::optional<IType> tempDefault = defaultValue ? boost::optional<IType>(static_cast<IType>(defaultValue.get())) : boost::none;
 		IType temp = static_cast<IType>(value);
 
@@ -416,7 +464,39 @@ private:
 
 		if(!saving)
 			value = static_cast<VType>(temp);
-    }
+	}
+
+	template <typename VType, typename IType, typename... Args>
+	void dispatchOptional(const std::string & fieldName, boost::optional<VType> & value, Args ... args)
+	{
+		if(saving)
+		{
+			if(value)
+			{
+				IType temp = static_cast<IType>(value.get());
+				pushField(fieldName);
+				serializeInternal(temp, args...);
+				pop();
+			}
+		}
+		else
+		{
+			pushField(fieldName);
+
+			if(getCurrent().getType() == JsonNode::JsonType::DATA_NULL)
+			{
+				value = boost::none;
+			}
+			else
+			{
+				IType temp = IType();
+				serializeInternal(temp, args...);
+				value = boost::make_optional(temp);
+			}
+
+			pop();
+		}
+	}
 
 	friend class JsonSerializeHelper;
 	friend class JsonStructSerializer;

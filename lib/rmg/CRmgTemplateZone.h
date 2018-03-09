@@ -136,8 +136,7 @@ public:
 	std::vector<int3> getAccessibleOffsets (const CGObjectInstance* object);
 	bool areAllTilesAvailable(CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
 
-	void setQuestArtZone(CRmgTemplateZone * otherZone);
-	std::vector<TRmgTemplateZoneId> getConnections() const;
+	void setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone);
 	std::set<int3>* getFreePaths();
 
 	ObjectInfo getRandomObject (CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
@@ -166,7 +165,7 @@ private:
 
 	si32 townType;
 	ETerrainType terrainType;
-	CRmgTemplateZone * questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
+	std::weak_ptr<CRmgTemplateZone> questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
 
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue;

@@ -69,14 +69,12 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 
 void JsonSerializer::serializeInternal(std::string & value)
 {
-	if(value != "")
-		currentObject->String() = value;
+	currentObject->String() = value;
 }
 
 void JsonSerializer::serializeInternal(int64_t & value)
 {
-	if(value != 0)
-		currentObject->Integer() = value;
+	currentObject->Integer() = value;
 }
 
 void JsonSerializer::serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::vector<bool> & standard, std::vector<bool> & value)

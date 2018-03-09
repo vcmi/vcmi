@@ -165,6 +165,9 @@ set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
 )
 
 set(lib_HEADERS
+		${CMAKE_HOME_DIRECTORY}/include/vstd/CLoggerBase.h
+		${CMAKE_HOME_DIRECTORY}/include/vstd/ContainerUtils.h
+		${CMAKE_HOME_DIRECTORY}/include/vstd/RNG.h
 		StdInc.h
 		../Global.h
 

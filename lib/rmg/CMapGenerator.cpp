@@ -149,6 +149,7 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 		map->calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
+		zones.clear();
 	}
 	catch (rmgException &e)
 	{
@@ -277,8 +278,8 @@ void CMapGenerator::genZones()
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = new CRmgTemplateZone();
-		zone->setOptions(option.second);
+		auto zone = std::make_shared<CRmgTemplateZone>();
+		zone->setOptions(option.second.get());
 		zones[zone->getId()] = zone;
 		//todo: move to CRmgTemplateZone constructor
 		zone->setGenPtr(this);//immediately set gen pointer before taking any actions on zones
@@ -317,7 +318,7 @@ void CMapGenerator::fillZones()
 
 	createConnections2(); //subterranean gates and monoliths
 
-	std::vector<CRmgTemplateZone*> treasureZones;
+	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
 	for (auto it : zones)
 	{
 		it.second->fill();
@@ -716,7 +717,7 @@ void CMapGenerator::checkIsOnMap(const int3& tile) const
 }
 
 
-std::map<TRmgTemplateZoneId, CRmgTemplateZone*> CMapGenerator::getZones() const
+CMapGenerator::Zones & CMapGenerator::getZones()
 {
 	return zones;
 }

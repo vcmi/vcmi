@@ -108,7 +108,7 @@ CRmgTemplateZone::CRmgTemplateZone()
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
 	minGuardedValue(0),
-	questArtZone(nullptr),
+	questArtZone(),
 	gen(nullptr)
 {
 
@@ -124,14 +124,9 @@ void CRmgTemplateZone::setGenPtr(CMapGenerator * Gen)
 	gen = Gen;
 }
 
-void CRmgTemplateZone::setQuestArtZone(CRmgTemplateZone * otherZone)
+void CRmgTemplateZone::setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone)
 {
 	questArtZone = otherZone;
-}
-
-std::vector<TRmgTemplateZoneId> CRmgTemplateZone::getConnections() const
-{
-	return connections;
 }
 
 std::set<int3>* CRmgTemplateZone::getFreePaths()
@@ -2488,7 +2483,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 	//seer huts with creatures or generic rewards
 
-	if (questArtZone) //we won't be placing seer huts if there is no zone left to place arties
+	if(questArtZone.lock()) //we won't be placing seer huts if there is no zone left to place arties
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
@@ -2549,7 +2544,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 				gen->banQuestArt(artid);
 
-				this->questArtZone->possibleObjects.push_back (generateArtInfo(artid));
+				this->questArtZone.lock()->possibleObjects.push_back (generateArtInfo(artid));
 
 				return obj;
 			};
@@ -2587,7 +2582,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 				gen->banQuestArt(artid);
 
-				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone.lock()->possibleObjects.push_back(generateArtInfo(artid));
 
 				return obj;
 			};
@@ -2610,7 +2605,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 				gen->banQuestArt(artid);
 
-				this->questArtZone->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone.lock()->possibleObjects.push_back(generateArtInfo(artid));
 
 				return obj;
 			};
