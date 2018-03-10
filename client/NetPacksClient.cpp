@@ -260,9 +260,11 @@ void DisassembledArtifact::applyCl(CClient *cl)
 	callInterfaceIfPresent(cl, al.owningPlayer(), &IGameEventsReceiver::artifactDisassembled, al);
 }
 
-void HeroVisit::applyCl(CClient *cl)
+void HeroVisit::applyCl(CClient * cl)
 {
+	auto hero = cl->getHero(heroId);
 	assert(hero);
+	auto obj = cl->getObj(objId, false);
 	callInterfaceIfPresent(cl, player, &IGameEventsReceiver::heroVisit, hero, obj, starting);
 }
 
@@ -270,7 +272,6 @@ void NewTurn::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
 }
-
 
 void GiveBonus::applyCl(CClient *cl)
 {
@@ -547,15 +548,19 @@ void SetObjectProperty::applyCl(CClient *cl)
 
 void HeroLevelUp::applyCl(CClient *cl)
 {
-	callOnlyThatInterface(cl, hero->tempOwner, &CGameInterface::heroGotLevel, hero, primskill, skills, queryID);
+	const CGHeroInstance * hero = cl->getHero(heroId);
+	assert(hero);
+	callOnlyThatInterface(cl, player, &CGameInterface::heroGotLevel, hero, primskill, skills, queryID);
 }
 
 void CommanderLevelUp::applyCl(CClient *cl)
 {
+	const CGHeroInstance * hero = cl->getHero(heroId);
+	assert(hero);
 	const CCommanderInstance * commander = hero->commander;
 	assert(commander);
 	assert(commander->armyObj); //is it possible for Commander to exist beyond armed instance?
-	callOnlyThatInterface(cl, hero->tempOwner, &CGameInterface::commanderGotLevel, commander, skills, queryID);
+	callOnlyThatInterface(cl, player, &CGameInterface::commanderGotLevel, commander, skills, queryID);
 }
 
 void BlockingDialog::applyCl(CClient *cl)
@@ -577,13 +582,12 @@ void GarrisonDialog::applyCl(CClient *cl)
 
 void ExchangeDialog::applyCl(CClient *cl)
 {
-	assert(heroes[0] && heroes[1]);
-	callInterfaceIfPresent(cl, heroes[0]->tempOwner, &IGameEventsReceiver::heroExchangeStarted, heroes[0]->id, heroes[1]->id, queryID);
+	callInterfaceIfPresent(cl, player, &IGameEventsReceiver::heroExchangeStarted, hero1, hero2, queryID);
 }
 
 void TeleportDialog::applyCl(CClient *cl)
 {
-	callOnlyThatInterface(cl, hero->tempOwner, &CGameInterface::showTeleportDialog, channel, exits, impassable, queryID);
+	callOnlyThatInterface(cl, player, &CGameInterface::showTeleportDialog, channel, exits, impassable, queryID);
 }
 
 void MapObjectSelectDialog::applyCl(CClient * cl)
@@ -795,8 +799,12 @@ void ShowInInfobox::applyCl(CClient *cl)
 void AdvmapSpellCast::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
-	//consider notifying other interfaces that see hero?
-	callInterfaceIfPresent(cl, caster->getOwner(), &IGameEventsReceiver::advmapSpellCast, caster, spellID);
+	auto caster = cl->getHero(casterID);
+	if(caster)
+		//consider notifying other interfaces that see hero?
+		callInterfaceIfPresent(cl, caster->getOwner(), &IGameEventsReceiver::advmapSpellCast, caster, spellID);
+	else
+		logNetwork->error("Invalid hero instance");
 }
 
 void ShowWorldViewEx::applyCl(CClient * cl)

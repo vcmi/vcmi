@@ -1188,14 +1188,16 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState *gs)
+DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState * gs)
 {
-	CGHeroInstance * h = gs->getHero(hero->id);
-	auto proposedSkills = h->getLevelUpProposedSecondarySkills();
+	auto hero = gs->getHero(heroId);
+	assert(hero);
+
+	auto proposedSkills = hero->getLevelUpProposedSecondarySkills();
 
 	if(skills.size() == 1 || hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
 	{
-		skills.push_back(*RandomGeneratorUtil::nextItem(proposedSkills, h->skillsInfo.rand));
+		skills.push_back(*RandomGeneratorUtil::nextItem(proposedSkills, hero->skillsInfo.rand));
 	}
 	else
 	{
@@ -1203,16 +1205,19 @@ DLL_LINKAGE void PrepareHeroLevelUp::applyGs(CGameState *gs)
 	}
 }
 
-DLL_LINKAGE void HeroLevelUp::applyGs(CGameState *gs)
+DLL_LINKAGE void HeroLevelUp::applyGs(CGameState * gs)
 {
-	CGHeroInstance * h = gs->getHero(hero->id);
-	h->levelUp(skills);
+	auto hero = gs->getHero(heroId);
+	assert(hero);
+	hero->levelUp(skills);
 }
 
-DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)
+DLL_LINKAGE void CommanderLevelUp::applyGs(CGameState * gs)
 {
-	CCommanderInstance * commander = gs->getHero(hero->id)->commander;
-	assert (commander);
+	auto hero = gs->getHero(heroId);
+	assert(hero);
+	auto commander = hero->commander;
+	assert(commander);
 	commander->levelUp();
 }
 

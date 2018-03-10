@@ -191,6 +191,11 @@ bool BuyArtifact::applyGh(CGameHandler * gh)
 
 bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 {
+	const CGObjectInstance * market = gh->getObj(marketId);
+	if(!market)
+		throwAndCompain(gh, "Invalid market object");
+	const CGHeroInstance * hero = gh->getHero(heroId);
+
 	//market must be owned or visited
 	const IMarket * m = IMarket::castFrom(market);
 

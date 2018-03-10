@@ -215,8 +215,8 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, ui32 id1, ui32 id2, ui32 val1, const CGHeroInstance * hero)
 {
 	TradeOnMarketplace pack;
-	pack.market = market;
-	pack.hero = hero;
+	pack.marketId = market->id;
+	pack.heroId = hero->id;
 	pack.mode = mode;
 	pack.r1 = {id1};
 	pack.r2 = {id2};
@@ -227,8 +227,8 @@ void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode 
 void CCallback::trade(const CGObjectInstance * market, EMarketMode::EMarketMode mode, const std::vector<ui32> & id1, const std::vector<ui32> & id2, const std::vector<ui32> & val1, const CGHeroInstance * hero)
 {
 	TradeOnMarketplace pack;
-	pack.market = market;
-	pack.hero = hero;
+	pack.marketId = market->id;
+	pack.heroId = hero->id;
 	pack.mode = mode;
 	pack.r1 = id1;
 	pack.r2 = id2;

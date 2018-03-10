@@ -393,11 +393,12 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	sendAndApply(&sps);
 
 	PrepareHeroLevelUp pre;
-	pre.hero = hero;
+	pre.heroId = hero->id;
 	sendAndApply(&pre);
 
 	HeroLevelUp hlu;
-	hlu.hero = hero;
+	hlu.player = hero->tempOwner;
+	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
 	hlu.skills = pre.skills;
 
@@ -413,7 +414,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 	else if (hlu.skills.size() > 1)
 	{
-		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu);
+		auto levelUpQuery = std::make_shared<CHeroLevelUpDialogQuery>(this, hlu, hero);
 		hlu.queryID = levelUpQuery->queryID;
 		queries.addQuery(levelUpQuery);
 		sendAndApply(&hlu);
@@ -513,8 +514,11 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	CommanderLevelUp clu;
 
 	auto hero = dynamic_cast<const CGHeroInstance *>(c->armyObj);
-	if (hero)
-		clu.hero = hero;
+	if(hero)
+	{
+		clu.heroId = hero->id;
+		clu.player = hero->tempOwner;
+	}
 	else
 	{
 		complain ("Commander is not led by hero!");
@@ -551,7 +555,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	else if (skillAmount > 1) //apply and ask for secondary skill
 	{
-		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu);
+		auto commanderLevelUp = std::make_shared<CCommanderLevelUpDialogQuery>(this, clu, hero);
 		clu.queryID = commanderLevelUp->queryID;
 		queries.addQuery(commanderLevelUp);
 		sendAndApply(&clu);
@@ -2759,9 +2763,11 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		auto exchange = std::make_shared<CGarrisonDialogQuery>(this, h1, h2);
 		ExchangeDialog hex;
 		hex.queryID = exchange->queryID;
-		hex.heroes[0] = getHero(hero1);
-		hex.heroes[1] = getHero(hero2);
+		hex.player = h1->getOwner();
+		hex.hero1 = hero1;
+		hex.hero2 = hero2;
 		sendAndApply(&hex);
+
 		useScholarSkill(hero1,hero2);
 		queries.addQuery(exchange);
 	}
@@ -5161,8 +5167,8 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 	queries.addQuery(visitQuery); //TODO real visit pos
 
 	HeroVisit hv;
-	hv.obj = obj;
-	hv.hero = h;
+	hv.objId = obj->id;
+	hv.heroId = h->id;
 	hv.player = h->tempOwner;
 	hv.starting = true;
 	sendAndApply(&hv);
@@ -5178,9 +5184,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
 
 	HeroVisit hv;
 	hv.player = query.players.front();
-	hv.obj = nullptr; //not necessary, moreover may have been deleted in the meantime
-	hv.hero = query.visitingHero;
-	assert(hv.hero);
+	hv.heroId = query.visitingHero->id;
 	hv.starting = false;
 	sendAndApply(&hv);
 }
