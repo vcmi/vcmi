@@ -424,11 +424,11 @@ CStackInstance * CCreatureSet::detachStack(SlotID slot)
 	return ret;
 }
 
-void CCreatureSet::setStackType(SlotID slot, const CCreature *type)
+void CCreatureSet::setStackType(SlotID slot, CreatureID type)
 {
 	assert(hasStackAtSlot(slot));
 	CStackInstance *s = stacks[slot];
-	s->setType(type->idNumber);
+	s->setType(type);
 	armyChanged();
 }
 

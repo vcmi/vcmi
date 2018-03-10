@@ -3360,8 +3360,9 @@ bool CGameHandler::changeStackType(const StackLocation &sl, const CCreature *c)
 		COMPLAIN_RET("Cannot find a stack to change type");
 
 	SetStackType sst;
-	sst.sl = sl;
-	sst.type = c;
+	sst.army = sl.army->id;
+	sst.slot = sl.slot;
+	sst.type = c->idNumber;
 	sendAndApply(&sst);
 	return true;
 }
@@ -5799,8 +5800,10 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 		COMPLAIN_RET("Cannot insert stack to that slot!");
 
 	InsertNewStack ins;
-	ins.sl = sl;
-	ins.stack = CStackBasicDescriptor(c, count);
+	ins.army = sl.army->id;
+	ins.slot = sl.slot;
+	ins.type = c->idNumber;
+	ins.count = count;
 	sendAndApply(&ins);
 	return true;
 }
@@ -5818,7 +5821,8 @@ bool CGameHandler::eraseStack(const StackLocation &sl, bool forceRemoval)
 	}
 
 	EraseStack es;
-	es.sl = sl;
+	es.army = sl.army->id;
+	es.slot = sl.slot;
 	sendAndApply(&es);
 	return true;
 }
@@ -5840,7 +5844,8 @@ bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, bo
 	else
 	{
 		ChangeStackCount csc;
-		csc.sl = sl;
+		csc.army = sl.army->id;
+		csc.slot = sl.slot;
 		csc.count = count;
 		csc.absoluteValue = absoluteValue;
 		sendAndApply(&csc);
@@ -5920,25 +5925,32 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	}
 
 	RebalanceStacks rs;
-	rs.src = src;
-	rs.dst = dst;
+	rs.srcArmy = src.army->id;
+	rs.dstArmy = dst.army->id;
+	rs.srcSlot = src.slot;
+	rs.dstSlot = dst.slot;
 	rs.count = count;
 	sendAndApply(&rs);
 	return true;
 }
 
-bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2)
+bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)
 {
-
-	if (!sl1.army->hasStackAtSlot(sl1.slot))
+	if(!sl1.army->hasStackAtSlot(sl1.slot))
+	{
 		return moveStack(sl2, sl1);
-	else if (!sl2.army->hasStackAtSlot(sl2.slot))
+	}
+	else if(!sl2.army->hasStackAtSlot(sl2.slot))
+	{
 		return moveStack(sl1, sl2);
+	}
 	else
 	{
 		SwapStacks ss;
-		ss.sl1 = sl1;
-		ss.sl2 = sl2;
+		ss.srcArmy = sl1.army->id;
+		ss.dstArmy = sl2.army->id;
+		ss.srcSlot = sl1.slot;
+		ss.dstSlot = sl2.slot;
 		sendAndApply(&ss);
 		return true;
 	}

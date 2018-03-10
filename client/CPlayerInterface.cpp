@@ -609,6 +609,24 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 	waitWhileDialog();
 	openTownWindow(town);
 }
+
+void CPlayerInterface::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
+{
+	std::vector<const CGObjectInstance *> instances;
+
+	if(auto obj = cb->getObj(id1))
+		instances.push_back(obj);
+
+
+	if(id2 != ObjectInstanceID() && id2 != id1)
+	{
+		if(auto obj = cb->getObj(id2))
+			instances.push_back(obj);
+	}
+
+	garrisonsChanged(instances);
+}
+
 void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -2565,54 +2583,6 @@ void CPlayerInterface::requestReturningToMainMenu()
 void CPlayerInterface::sendCustomEvent( int code )
 {
 	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);
-}
-
-void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(location.army);
-}
-
-void CPlayerInterface::stackChangedType(const StackLocation &location, const CCreature &newType)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(location.army);
-}
-
-void CPlayerInterface::stacksErased(const StackLocation &location)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(location.army);
-}
-
-void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-
-	std::vector<const CGObjectInstance *> objects;
-	objects.push_back(loc1.army);
-	if (loc2.army != loc1.army)
-		objects.push_back(loc2.army);
-
-	garrisonsChanged(objects);
-}
-
-void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(location.army);
-}
-
-void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
-{
-	EVENT_HANDLER_CALLED_BY_CLIENT;
-
-	std::vector<const CGObjectInstance *> objects;
-	objects.push_back(src.army);
-	if (src.army != dst.army)
-		objects.push_back(dst.army);
-
-	garrisonsChanged(objects);
 }
 
 void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)

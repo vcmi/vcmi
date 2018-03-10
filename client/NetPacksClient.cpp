@@ -199,38 +199,59 @@ void SetAvailableHeroes::applyCl(CClient *cl)
 	//TODO: inform interface?
 }
 
-void ChangeStackCount::applyCl(CClient *cl)
+static void dispatchGarrisonChange(CClient * cl, ObjectInstanceID army1, ObjectInstanceID army2)
 {
-	callInterfaceIfPresent(cl, sl.army->tempOwner, &IGameEventsReceiver::stackChagedCount, sl, count, absoluteValue);
+	auto obj1 = cl->getObj(army1);
+	if(!obj1)
+	{
+		logNetwork->error("Cannot find army with ID %d", army1.getNum());
+		return;
+	}
+
+	callInterfaceIfPresent(cl, obj1->tempOwner, &IGameEventsReceiver::garrisonsChanged, army1, army2);
+
+	if(army2 != ObjectInstanceID() && army2 != army1)
+	{
+		auto obj2 = cl->getObj(army2);
+		if(!obj2)
+		{
+			logNetwork->error("Cannot find army with ID %d", army2.getNum());
+			return;
+		}
+
+		if(obj1->tempOwner != obj2->tempOwner)
+			callInterfaceIfPresent(cl, obj2->tempOwner, &IGameEventsReceiver::garrisonsChanged, army1, army2);
+	}
 }
 
-void SetStackType::applyCl(CClient *cl)
+void ChangeStackCount::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, sl.army->tempOwner, &IGameEventsReceiver::stackChangedType, sl, *type);
+	dispatchGarrisonChange(cl, army, ObjectInstanceID());
 }
 
-void EraseStack::applyCl(CClient *cl)
+void SetStackType::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, sl.army->tempOwner, &IGameEventsReceiver::stacksErased, sl);
+	dispatchGarrisonChange(cl, army, ObjectInstanceID());
 }
 
-void SwapStacks::applyCl(CClient *cl)
+void EraseStack::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, sl1.army->tempOwner, &IGameEventsReceiver::stacksSwapped, sl1, sl2);
-	if(sl1.army->tempOwner != sl2.army->tempOwner)
-		callInterfaceIfPresent(cl, sl2.army->tempOwner, &IGameEventsReceiver::stacksSwapped, sl1, sl2);
+	dispatchGarrisonChange(cl, army, ObjectInstanceID());
 }
 
-void InsertNewStack::applyCl(CClient *cl)
+void SwapStacks::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, sl.army->tempOwner, &IGameEventsReceiver::newStackInserted, sl, *sl.getStack());
+	dispatchGarrisonChange(cl, srcArmy, dstArmy);
 }
 
-void RebalanceStacks::applyCl(CClient *cl)
+void InsertNewStack::applyCl(CClient * cl)
 {
-	callInterfaceIfPresent(cl, src.army->tempOwner, &IGameEventsReceiver::stacksRebalanced, src, dst, count);
-	if(src.army->tempOwner != dst.army->tempOwner)
-		callInterfaceIfPresent(cl, dst.army->tempOwner, &IGameEventsReceiver::stacksRebalanced, src, dst, count);
+	dispatchGarrisonChange(cl, army, ObjectInstanceID());
+}
+
+void RebalanceStacks::applyCl(CClient * cl)
+{
+	dispatchGarrisonChange(cl, srcArmy, dstArmy);
 }
 
 void PutArtifact::applyCl(CClient *cl)

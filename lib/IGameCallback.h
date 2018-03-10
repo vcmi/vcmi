@@ -108,6 +108,7 @@ public:
 	TerrainTile * getTile(int3 pos);
 	CArtifactInstance * getArtInstance(ArtifactInstanceID aid);
 	CGObjectInstance * getObjInstance(ObjectInstanceID oid);
+	CArmedInstance * getArmyInstance(ObjectInstanceID oid);
 };
 
 /// Interface class for handling general game logic and actions

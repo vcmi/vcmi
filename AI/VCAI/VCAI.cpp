@@ -148,12 +148,6 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	}
 }
 
-void VCAI::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
-{
-	LOG_TRACE_PARAMS(logAi, "isAbsolute '%i'", isAbsolute);
-	NET_EVENT_HANDLER;
-}
-
 void VCAI::heroInGarrisonChange(const CGTownInstance *town)
 {
 	LOG_TRACE(logAi);
@@ -246,18 +240,11 @@ void VCAI::artifactRemoved(const ArtifactLocation &al)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::stacksErased(const StackLocation &location)
-{
-	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-}
-
 void VCAI::artifactDisassembled(const ArtifactLocation &al)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
-
 
 void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start)
 {
@@ -377,13 +364,7 @@ void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::stackChangedType(const StackLocation &location, const CCreature &newType)
-{
-	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-}
-
-void VCAI::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
+void VCAI::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -452,12 +433,6 @@ void VCAI::playerBonusChanged(const Bonus &bonus, bool gain)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::newStackInserted(const StackLocation &location, const CStackInstance &stack)
-{
-	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-}
-
 void VCAI::heroCreated(const CGHeroInstance* h)
 {
 	LOG_TRACE(logAi);
@@ -496,12 +471,6 @@ void VCAI::requestRealized(PackageApplied *pa)
 }
 
 void VCAI::receivedResource()
-{
-	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-}
-
-void VCAI::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;

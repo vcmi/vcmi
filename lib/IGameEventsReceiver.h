@@ -80,14 +80,7 @@ public:
 
 	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
 
-	//garrison operations
-	virtual void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute){}; //if absolute, change is the new count; otherwise count was modified by adding change
-	virtual void stackChangedType(const StackLocation &location, const CCreature &newType){}; //used eg. when upgrading creatures
-	virtual void stacksErased(const StackLocation &location){}; //stack removed from previously filled slot
-	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2){};
-	virtual void newStackInserted(const StackLocation &location, const CStackInstance &stack){}; //new stack inserted at given (previously empty position)
-	virtual void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count){}; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
-	//virtual void garrisonChanged(const CGObjectInstance * obj){};
+	virtual void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2){};
 
 	//artifacts operations
 	virtual void artifactPut(const ArtifactLocation &al){};
