@@ -798,16 +798,18 @@ struct CArtifactOperationPack : CPackForClient
 
 struct ChangeStackCount : CGarrisonOperationPack
 {
-	StackLocation sl;
+	ObjectInstanceID army;
+	SlotID slot;
 	TQuantity count;
-	ui8 absoluteValue; //if not -> count will be added (or subtracted if negative)
+	bool absoluteValue; //if not -> count will be added (or subtracted if negative)
 
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & sl;
+		h & army;
+		h & slot;
 		h & count;
 		h & absoluteValue;
 	}
@@ -815,65 +817,87 @@ struct ChangeStackCount : CGarrisonOperationPack
 
 struct SetStackType : CGarrisonOperationPack
 {
-	StackLocation sl;
-	const CCreature *type;
+	ObjectInstanceID army;
+	SlotID slot;
+	CreatureID type;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl;
+		h & army;
+		h & slot;
 		h & type;
 	}
 };
 
 struct EraseStack : CGarrisonOperationPack
 {
-	StackLocation sl;
+	ObjectInstanceID army;
+	SlotID slot;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sl;
+		h & army;
+		h & slot;
 	}
 };
 
 struct SwapStacks : CGarrisonOperationPack
 {
-	StackLocation sl1, sl2;
+	ObjectInstanceID srcArmy;
+	ObjectInstanceID dstArmy;
+	SlotID srcSlot;
+	SlotID dstSlot;
 
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & sl1;
-		h & sl2;
+		h & srcArmy;
+		h & dstArmy;
+		h & srcSlot;
+		h & dstSlot;
 	}
 };
 
 struct InsertNewStack : CGarrisonOperationPack
 {
-	StackLocation sl;
-	CStackBasicDescriptor stack;
+	ObjectInstanceID army;
+	SlotID slot;
+	CreatureID type;
+	TQuantity count;
 
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
+	InsertNewStack()
+		: count(0)
 	{
-		h & sl;
-		h & stack;
+	}
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & army;
+		h & slot;
+		h & type;
+		h & count;
 	}
 };
 
 ///moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
 struct RebalanceStacks : CGarrisonOperationPack
 {
-	StackLocation src, dst;
+	ObjectInstanceID srcArmy;
+	ObjectInstanceID dstArmy;
+	SlotID srcSlot;
+	SlotID dstSlot;
+
 	TQuantity count;
 
 	void applyCl(CClient *cl);
@@ -881,8 +905,10 @@ struct RebalanceStacks : CGarrisonOperationPack
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & src;
-		h & dst;
+		h & srcArmy;
+		h & dstArmy;
+		h & srcSlot;
+		h & dstSlot;
 		h & count;
 	}
 };

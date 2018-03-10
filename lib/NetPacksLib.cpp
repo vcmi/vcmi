@@ -826,42 +826,77 @@ DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
 	return getHolderArtSet()->getSlot(slot);
 }
 
-DLL_LINKAGE void ChangeStackCount::applyGs(CGameState *gs)
+DLL_LINKAGE void ChangeStackCount::applyGs(CGameState * gs)
 {
+	auto srcObj = gs->getArmyInstance(army);
+	if(!srcObj)
+		logNetwork->error("[CRITICAL] ChangeStackCount: invalid army object %d, possible game state corruption.", army.getNum());
+
 	if(absoluteValue)
-		sl.army->setStackCount(sl.slot, count);
+		srcObj->setStackCount(slot, count);
 	else
-		sl.army->changeStackCount(sl.slot, count);
+		srcObj->changeStackCount(slot, count);
 }
 
-DLL_LINKAGE void SetStackType::applyGs(CGameState *gs)
+DLL_LINKAGE void SetStackType::applyGs(CGameState * gs)
 {
-	sl.army->setStackType(sl.slot, type);
+	auto srcObj = gs->getArmyInstance(army);
+	if(!srcObj)
+		logNetwork->error("[CRITICAL] SetStackType: invalid army object %d, possible game state corruption.", army.getNum());
+
+	srcObj->setStackType(slot, type);
 }
 
-DLL_LINKAGE void EraseStack::applyGs(CGameState *gs)
+DLL_LINKAGE void EraseStack::applyGs(CGameState * gs)
 {
-	sl.army->eraseStack(sl.slot);
+	auto srcObj = gs->getArmyInstance(army);
+	if(!srcObj)
+		logNetwork->error("[CRITICAL] EraseStack: invalid army object %d, possible game state corruption.", army.getNum());
+
+	srcObj->eraseStack(slot);
 }
 
-DLL_LINKAGE void SwapStacks::applyGs(CGameState *gs)
+DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 {
-	CStackInstance *s1 = sl1.army->detachStack(sl1.slot),
-		*s2 = sl2.army->detachStack(sl2.slot);
+	auto srcObj = gs->getArmyInstance(srcArmy);
+	if(!srcObj)
+		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
 
-	sl2.army->putStack(sl2.slot, s1);
-	sl1.army->putStack(sl1.slot, s2);
+	auto dstObj = gs->getArmyInstance(dstArmy);
+	if(!dstObj)
+		logNetwork->error("[CRITICAL] SwapStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
+
+	CStackInstance * s1 = srcObj->detachStack(srcSlot);
+	CStackInstance * s2 = dstObj->detachStack(dstSlot);
+
+	srcObj->putStack(srcSlot, s2);
+	dstObj->putStack(dstSlot, s1);
 }
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	auto s = new CStackInstance(stack.type, stack.count);
-	sl.army->putStack(sl.slot, s);
+	auto s = new CStackInstance(type, count);
+	auto obj = gs->getArmyInstance(army);
+	if(obj)
+		obj->putStack(slot, s);
+	else
+		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }
 
-DLL_LINKAGE void RebalanceStacks::applyGs(CGameState *gs)
+DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 {
-	const CCreature *srcType = src.army->getCreature(src.slot);
+	auto srcObj = gs->getArmyInstance(srcArmy);
+	if(!srcObj)
+		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", srcArmy.getNum());
+
+	auto dstObj = gs->getArmyInstance(dstArmy);
+	if(!dstObj)
+		logNetwork->error("[CRITICAL] RebalanceStacks: invalid army object %d, possible game state corruption.", dstArmy.getNum());
+
+	StackLocation src(srcObj, srcSlot);
+	StackLocation dst(dstObj, dstSlot);
+
+	const CCreature * srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
 	bool stackExp = VLC->modh->modules.STACK_EXP;
 

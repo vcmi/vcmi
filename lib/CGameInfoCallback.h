@@ -78,6 +78,7 @@ public:
 	int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
+	const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
 
 	//objects
 	const CGObjectInstance* getObj(ObjectInstanceID objid, bool verbose = true) const;

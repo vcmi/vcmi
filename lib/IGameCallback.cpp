@@ -224,12 +224,17 @@ PlayerState * CNonConstInfoCallback::getPlayer( PlayerColor color, bool verbose 
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance( ArtifactInstanceID aid )
 {
-	return gs->map->artInstances[aid.num];
+	return gs->map->artInstances.at(aid.num);
 }
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
 {
-	return gs->map->objects[oid.num];
+	return gs->map->objects.at(oid.num);
+}
+
+CArmedInstance * CNonConstInfoCallback::getArmyInstance(ObjectInstanceID oid)
+{
+	return dynamic_cast<CArmedInstance *>(getObjInstance(oid));
 }
 
 const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos)

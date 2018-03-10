@@ -131,13 +131,9 @@ public:
 	int getLastIndex(std::string namePrefix);
 
 	//overridden funcs from CGameInterface
+	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
+
 	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) override; //what: 1 - built, 2 - demolished
-	void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) override; //if absolute, change is the new count; otherwise count was modified by adding change
-	void stackChangedType(const StackLocation &location, const CCreature &newType) override; //used eg. when upgrading creatures
-	void stacksErased(const StackLocation &location) override; //stack removed from previously filled slot
-	void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) override;
-	void newStackInserted(const StackLocation &location, const CStackInstance &stack) override; //new stack inserted at given (previously empty position)
-	void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) override; //moves creatures from src stack to dst slot, may be used for merging/splittint/moving stacks
 
 	void artifactPut(const ArtifactLocation &al) override;
 	void artifactRemoved(const ArtifactLocation &al) override;

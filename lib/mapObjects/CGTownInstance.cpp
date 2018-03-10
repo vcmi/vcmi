@@ -296,13 +296,13 @@ void CGDwelling::updateGuards() const
 		for (auto creatureEntry : creatures)
 		{
 			const CCreature * crea = VLC->creh->creatures[creatureEntry.second.at(0)];
-
 			SlotID slot = getSlotFor(crea->idNumber);
-			StackLocation stackLocation = StackLocation(this, slot);
+
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
 			{
 				ChangeStackCount csc;
-				csc.sl = stackLocation;
+				csc.army = this->id;
+				csc.slot = slot;
 				csc.count = crea->growth * 3;
 				csc.absoluteValue = true;
 				cb->sendAndApply(&csc);
@@ -310,8 +310,10 @@ void CGDwelling::updateGuards() const
 			else //slot is empty, create whole new stack
 			{
 				InsertNewStack ns;
-				ns.sl = stackLocation;
-				ns.stack = CStackBasicDescriptor(crea->idNumber, crea->growth * 3);
+				ns.army = this->id;
+				ns.slot = slot;
+				ns.type = crea->idNumber;
+				ns.count = crea->growth * 3;
 				cb->sendAndApply(&ns);
 			}
 		}

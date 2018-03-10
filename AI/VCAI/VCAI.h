@@ -203,7 +203,6 @@ public:
 
 	virtual void availableCreaturesChanged(const CGDwelling *town) override;
 	virtual void heroMoved(const TryMoveHero & details) override;
-	virtual void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) override;
 	virtual void heroInGarrisonChange(const CGTownInstance *town) override;
 	virtual void centerView(int3 pos, int focusTime) override;
 	virtual void tileHidden(const std::unordered_set<int3, ShashInt3> &pos) override;
@@ -217,7 +216,6 @@ public:
 	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
 	virtual void artifactPut(const ArtifactLocation &al) override;
 	virtual void artifactRemoved(const ArtifactLocation &al) override;
-	virtual void stacksErased(const StackLocation &location) override;
 	virtual void artifactDisassembled(const ArtifactLocation &al) override;
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start) override;
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override;
@@ -227,18 +225,15 @@ public:
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero) override;
-	virtual void stackChangedType(const StackLocation &location, const CCreature &newType) override;
-	virtual void stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count) override;
+	virtual void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
 	virtual void newObject(const CGObjectInstance * obj) override;
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain) override;
-	virtual void newStackInserted(const StackLocation &location, const CStackInstance &stack) override;
 	virtual void heroCreated(const CGHeroInstance*) override;
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
 	virtual void requestRealized(PackageApplied *pa) override;
 	virtual void receivedResource() override;
-	virtual void stacksSwapped(const StackLocation &loc1, const StackLocation &loc2) override;
 	virtual void objectRemoved(const CGObjectInstance *obj) override;
 	virtual void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) override;
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero) override;

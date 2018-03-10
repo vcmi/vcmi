@@ -185,7 +185,7 @@ public:
 	void putStack(SlotID slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
 	void setStackCount(SlotID slot, TQuantity count); //stack must exist!
 	CStackInstance *detachStack(SlotID slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
-	void setStackType(SlotID slot, const CCreature *type);
+	void setStackType(SlotID slot, CreatureID type);
 	void giveStackExp(TExpType exp);
 	void setStackExp(SlotID slot, TExpType exp);
 
