@@ -190,7 +190,7 @@ typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CS
 
 struct ArtifactLocation
 {
-	TArtHolder artHolder;
+	TArtHolder artHolder;//TODO: identify holder by id
 	ArtifactPosition slot;
 
 	ArtifactLocation()

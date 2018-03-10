@@ -452,9 +452,10 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(start && visitedObj->getVisitSound())
+	if(start && visitedObj)
 	{
-		CCS->soundh->playSound(visitedObj->getVisitSound().get());
+		if(visitedObj->getVisitSound())
+			CCS->soundh->playSound(visitedObj->getVisitSound().get());
 	}
 }
 

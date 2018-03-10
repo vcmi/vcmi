@@ -102,7 +102,7 @@ ESpellCastResult AdventureSpellMechanics::beginCast(const SpellCastEnvironment *
 void AdventureSpellMechanics::performCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	AdvmapSpellCast asc;
-	asc.caster = parameters.caster;
+	asc.casterID = parameters.caster->id;
 	asc.spellID = owner->id;
 	env->sendAndApply(&asc);
 

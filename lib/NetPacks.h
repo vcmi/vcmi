@@ -777,7 +777,7 @@ struct SetAvailableArtifacts  : public CPackForClient
 struct NewArtifact : public CPackForClient
 {
 	NewArtifact(){}
-	//void applyCl(CClient *cl);
+
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ConstTransitivePtr<CArtifactInstance> art;
@@ -971,21 +971,22 @@ struct DisassembledArtifact : CArtifactOperationPack
 	}
 };
 
-struct HeroVisit : CPackForClient
+struct HeroVisit : public CPackForClient
 {
-	const CGHeroInstance *hero;
-	const CGObjectInstance *obj;
-	PlayerColor player; //if hero was killed during the visit, its color is already reset
+	PlayerColor player;
+	ObjectInstanceID heroId;
+	ObjectInstanceID objId;
+
 	bool starting; //false -> ending
 
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
-		h & hero;
-		h & obj;
 		h & player;
+		h & heroId;
+		h & objId;
 		h & starting;
 	}
 };
@@ -1123,36 +1124,39 @@ struct ChangeObjectVisitors : public CPackForClient
 
 struct PrepareHeroLevelUp : public CPackForClient
 {
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	const CGHeroInstance *hero;
+	ObjectInstanceID heroId;
 
 	/// Do not serialize, used by server only
 	std::vector<SecondarySkill> skills;
 
-	PrepareHeroLevelUp():hero(nullptr){}
+	PrepareHeroLevelUp(){}
+
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hero;
+		h & heroId;
 	}
 };
 
 struct HeroLevelUp : public Query
 {
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	PlayerColor player;
+	ObjectInstanceID heroId;
 
-	const CGHeroInstance *hero;
 	PrimarySkill::PrimarySkill primskill;
 	std::vector<SecondarySkill> skills;
 
-	HeroLevelUp():hero(nullptr),primskill(PrimarySkill::ATTACK){}
+	HeroLevelUp(): primskill(PrimarySkill::ATTACK){}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & queryID;
-		h & hero;
+		h & player;
+		h & heroId;
 		h & primskill;
 		h & skills;
 	}
@@ -1160,19 +1164,21 @@ struct HeroLevelUp : public Query
 
 struct CommanderLevelUp : public Query
 {
-	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
-
-	const CGHeroInstance *hero;
+	PlayerColor player;
+	ObjectInstanceID heroId;
 
 	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
 
-	CommanderLevelUp():hero(nullptr){}
+	CommanderLevelUp(){}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & queryID;
-		h & hero;
+		h & player;
+		h & heroId;
 		h & skills;
 	}
 };
@@ -1243,34 +1249,36 @@ struct GarrisonDialog : public Query
 
 struct ExchangeDialog : public Query
 {
-	ExchangeDialog()
-	{
-		heroes = {nullptr,nullptr};
-	}
+	ExchangeDialog() {}
 	void applyCl(CClient *cl);
 
-	std::array<const CGHeroInstance*, 2> heroes;
+	PlayerColor player;
+
+	ObjectInstanceID hero1;
+	ObjectInstanceID hero2;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & queryID;
-		h & heroes;
+		h & player;
+		h & hero1;
+		h & hero2;
 	}
 };
 
 struct TeleportDialog : public Query
 {
 	TeleportDialog()
-		: hero(nullptr), impassable(false)
+		: impassable(false)
 	{}
 
-	TeleportDialog(const CGHeroInstance *Hero, TeleportChannelID Channel)
-		: hero(Hero), channel(Channel), impassable(false)
+	TeleportDialog(PlayerColor Player, TeleportChannelID Channel)
+		: player(Player), channel(Channel), impassable(false)
 	{}
 
 	void applyCl(CClient *cl);
 
-	const CGHeroInstance *hero;
+	PlayerColor player;
 	TeleportChannelID channel;
 	TTeleportExitsList exits;
 	bool impassable;
@@ -1278,7 +1286,7 @@ struct TeleportDialog : public Query
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & queryID;
-		h & hero;
+		h & player;
 		h & channel;
 		h & exits;
 		h & impassable;
@@ -1805,14 +1813,14 @@ struct ShowInInfobox : public CPackForClient
 
 struct AdvmapSpellCast : public CPackForClient
 {
-	AdvmapSpellCast():caster(nullptr){}
-	const CGHeroInstance * caster;//todo: replace with ObjectInstanceID
+	AdvmapSpellCast():casterID(){}
+	ObjectInstanceID casterID;
 	SpellID spellID;
 
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & caster;
+		h & casterID;
 		h & spellID;
 	}
 };
@@ -2038,7 +2046,6 @@ struct GarrisonHeroSwap : public CPackForServer
 };
 
 struct ExchangeArtifacts : public CPackForServer
-//TODO: allow exchange between heroes, stacks and commanders
 {
 	ArtifactLocation src, dst;
 	ExchangeArtifacts(){};
@@ -2089,11 +2096,12 @@ struct BuyArtifact : public CPackForServer
 struct TradeOnMarketplace : public CPackForServer
 {
 	TradeOnMarketplace()
-		:market(nullptr), hero(nullptr), mode(EMarketMode::RESOURCE_RESOURCE)
+		:marketId(), heroId(), mode(EMarketMode::RESOURCE_RESOURCE)
 	{};
 
-	const CGObjectInstance *market; //todo: replace with ObjectInstanceID
-	const CGHeroInstance *hero; //needed when trading artifacts / creatures
+	ObjectInstanceID marketId;
+	ObjectInstanceID heroId;
+
 	EMarketMode::EMarketMode mode;
 	std::vector<ui32> r1, r2; //mode 0: r1 - sold resource, r2 - bought res (exception: when sacrificing art r1 is art id [todo: make r2 preferred slot?]
 	std::vector<ui32> val; //units of sold resource
@@ -2101,8 +2109,8 @@ struct TradeOnMarketplace : public CPackForServer
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & market;
-		h & hero;
+		h & marketId;
+		h & heroId;
 		h & mode;
 		h & r1;
 		h & r2;

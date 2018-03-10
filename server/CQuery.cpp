@@ -367,21 +367,21 @@ CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportD
 	CDialogQuery(owner)
 {
 	this->td = td;
-	addPlayer(td.hero->tempOwner);
+	addPlayer(td.player);
 }
 
-CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu):
-	CDialogQuery(owner)
+CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu, const CGHeroInstance * Hero):
+	CDialogQuery(owner), hero(Hero)
 {
 	hlu = Hlu;
-	addPlayer(hlu.hero->tempOwner);
+	addPlayer(hero->tempOwner);
 }
 
 void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hlu.hero->getObjectName(), answer.get());
-	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
+	logGlobal->trace("Completing hero level-up query. %s gains skill %d", hero->getObjectName(), answer.get());
+	gh->levelUpHero(hero, hlu.skills[*answer]);
 }
 
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
@@ -389,18 +389,18 @@ void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &
 	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
 
-CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu):
-	CDialogQuery(owner)
+CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
+	CDialogQuery(owner), hero(Hero)
 {
 	clu = Clu;
-	addPlayer(clu.hero->tempOwner);
+	addPlayer(hero->tempOwner);
 }
 
 void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
-	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", clu.hero->getObjectName(), answer.get());
-	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
+	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.get());
+	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
