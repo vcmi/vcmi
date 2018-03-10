@@ -16,8 +16,6 @@ namespace spells
 namespace effects
 {
 
-std::unique_ptr<Registry> Instance;
-
 namespace detail
 {
 class RegistryImpl : public Registry
@@ -53,8 +51,7 @@ Registry::~Registry() = default;
 
 Registry * Registry::get()
 {
-	if(!Instance)
-		Instance = make_unique<detail::RegistryImpl>();
+	static std::unique_ptr<Registry> Instance = make_unique<detail::RegistryImpl>();
 	return Instance.get();
 }
 
