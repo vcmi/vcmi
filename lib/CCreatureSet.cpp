@@ -399,10 +399,7 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 	{
 		auto i = src.army.begin();
 
-		assert(i->second.type);
-		assert(i->second.count);
-
-		putStack(i->first, new CStackInstance(i->second.type, i->second.count));
+		putStack(i->first, new CStackInstance(i->second.first, i->second.second));
 		src.army.erase(i);
 	}
 }
@@ -919,6 +916,6 @@ CSimpleArmy::operator bool() const
 bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)
 {
 	assert(!vstd::contains(army, slot));
-	army[slot] = CStackBasicDescriptor(cre, count);
+	army[slot] = std::make_pair(cre, count);
 	return true;
 }

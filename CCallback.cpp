@@ -126,12 +126,6 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 	return true;
 }
 
-// int CCallback::getMySerial() const
-// {
-// 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-// 	return gs->players[player].serial;
-// }
-
 bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)
 {
 	ExchangeArtifacts ea;
