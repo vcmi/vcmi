@@ -26,7 +26,13 @@ namespace boost
 		{
 			class tcp;
 		}
+
+#if BOOST_VERSION >= 106600  // Boost version >= 1.66
+		class io_context;
+		typedef io_context io_service;
+#else
 		class io_service;
+#endif
 
 		template <typename Protocol> class stream_socket_service;
 		template <typename Protocol,typename StreamSocketService>
