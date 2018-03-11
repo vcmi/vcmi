@@ -135,7 +135,7 @@ public:
 };
 
 typedef std::map<SlotID, CStackInstance*> TSlots;
-typedef std::map<SlotID, CStackBasicDescriptor> TSimpleSlots;
+typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
 
 class IArmyDescriptor
 {

@@ -126,10 +126,7 @@ public:
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
-	//bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
-	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
-	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
