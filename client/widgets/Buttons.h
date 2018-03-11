@@ -47,6 +47,7 @@ private:
 
 	std::array<int, 4> stateToIndex; // mapping of button state to index of frame in animation
 	std::array<std::string, 4> hoverTexts; //texts for statusbar, if empty - first entry will be used
+	std::array<boost::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
 	CAnimImage * image; //image for this button
@@ -65,8 +66,15 @@ public:
 		hoverable,//if true, button will be highlighted when hovered (e.g. main menu)
 		soundDisabled;
 
-	// if set, button will have 1-px border around it with this color
-	boost::optional<SDL_Color> borderColor;
+	// sets border color for each button state;
+	// if it's set, the button will have 1-px border around it with this color
+	void setBorderColor(boost::optional<SDL_Color> normalBorderColor,
+	                    boost::optional<SDL_Color> pressedBorderColor,
+	                    boost::optional<SDL_Color> blockedBorderColor,
+	                    boost::optional<SDL_Color> highlightedBorderColor);
+
+	// sets the same border color for all button states.
+	void setBorderColor(boost::optional<SDL_Color> borderColor);
 
 	/// adds one more callback to on-click actions
 	void addCallback(std::function<void()> callback);

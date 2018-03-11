@@ -1451,11 +1451,11 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		std::string tooltipNo  = boost::str(boost::format(CGI->generaltexth->allTexts[596]) % building->Name());
 
 		CButton * buy = new CButton(Point(45, 446), "IBUY30", CButton::tooltip(tooltipYes), [&](){ buyFunc(); }, SDLK_RETURN);
-		buy->borderColor = boost::make_optional(Colors::METALLIC_GOLD);
+		buy->setBorderColor(Colors::METALLIC_GOLD);
 		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 
 		CButton * cancel = new CButton(Point(290, 445), "ICANCEL", CButton::tooltip(tooltipNo), [&](){ close();}, SDLK_ESCAPE);
-		cancel->borderColor = boost::make_optional(Colors::METALLIC_GOLD);
+		cancel->setBorderColor(Colors::METALLIC_GOLD);
 	}
 }
 
