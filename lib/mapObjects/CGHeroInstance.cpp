@@ -803,10 +803,11 @@ bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY) / 100.0;
-
-	if (necromancySkill > 0)
+	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
+	// need skill or cloak of undead king - lesser artifacts don't work without skill
+	if (necromancyLevel > 0 || hasBonusOfType(Bonus::IMPROVED_NECROMANCY))
 	{
+		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY) / 100.0;
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		// figure out what to raise - pick strongest creature meeting requirements
@@ -815,7 +816,6 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		const TBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
-			const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
 			auto legacyCreatureID = [necromancyLevel](int id) -> CreatureID
 			{
 				const CreatureID legacyTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
