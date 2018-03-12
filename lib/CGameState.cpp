@@ -1890,7 +1890,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		for(const std::shared_ptr<Bonus> it : *lista)
 		{
-			auto nid = CreatureID(it->additionalInfo);
+			auto nid = CreatureID(it->additionalInfo[0]);
 			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)
 			{
 				ret.newID.push_back(nid);

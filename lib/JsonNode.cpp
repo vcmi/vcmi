@@ -418,7 +418,6 @@ std::string JsonNode::toJson(bool compact) const
 	std::ostringstream out;
 	JsonWriter writer(out, compact);
 	writer.writeNode(*this);
-	out << "\n";
 	return out.str();
 }
 
@@ -496,6 +495,57 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 	}
 }
 
+void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
+{
+	const JsonNode & value = node["addInfo"];
+	if (!value.isNull())
+	{
+		switch (value.getType())
+		{
+		case JsonNode::JsonType::DATA_INTEGER:
+			var = value.Integer();
+			break;
+		case JsonNode::JsonType::DATA_FLOAT:
+			var = value.Float();
+			break;
+		case JsonNode::JsonType::DATA_STRING:
+			VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
+			{
+				var = identifier;
+			});
+			break;
+		case JsonNode::JsonType::DATA_VECTOR:
+			{
+				const JsonVector & vec = value.Vector();
+				var.resize(vec.size());
+				for(int i = 0; i < vec.size(); i++)
+				{
+					switch(vec[i].getType())
+					{
+						case JsonNode::JsonType::DATA_INTEGER:
+							var[i] = vec[i].Integer();
+							break;
+						case JsonNode::JsonType::DATA_FLOAT:
+							var[i] = vec[i].Float();
+							break;
+						case JsonNode::JsonType::DATA_STRING:
+							VLC->modh->identifiers.requestIdentifier(vec[i], [&var,i](si32 identifier)
+							{
+								var[i] = identifier;
+							});
+							break;
+						default:
+							logMod->error("Error! Wrong identifier used for value of addInfo[%d].", i);
+					}
+				}
+				break;
+			}
+		default:
+			logMod->error("Error! Wrong identifier used for value of addInfo.");
+		}
+	}
+}
+
 void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 {
 	switch (node.getType())
@@ -548,7 +598,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if (!value->isNull())
 		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
-	resolveIdentifier(b->additionalInfo, ability, "addInfo");
+	resolveAddInfo(b->additionalInfo, ability);
 
 	b->turnsRemain = ability["turns"].Float();
 
@@ -698,7 +748,7 @@ void JsonUtils::unparseBonus( JsonNode &node, const std::shared_ptr<Bonus>& bonu
 	node["subtype"].Float() = bonus->subtype;
 	node["val"].Float() = bonus->val;
 	node["valueType"].String() = reverseMapFirst<std::string, Bonus::ValueType>(bonus->valType, bonusValueMap);
-	node["additionalInfo"].Float() = bonus->additionalInfo;
+	node["additionalInfo"] = bonus->additionalInfo.toJsonNode();
 	node["turns"].Float() = bonus->turnsRemain;
 	node["sourceID"].Float() = bonus->source;
 	node["description"].String() = bonus->description;

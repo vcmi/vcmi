@@ -15,6 +15,7 @@ typedef std::vector <JsonNode> JsonVector;
 
 struct Bonus;
 class ResourceID;
+class CAddInfo;
 
 class DLL_LINKAGE JsonNode
 {
@@ -170,6 +171,7 @@ namespace JsonUtils
 	DLL_LINKAGE void unparseBonus (JsonNode &node, const std::shared_ptr<Bonus>& bonus);
 	DLL_LINKAGE void resolveIdentifier(si32 &var, const JsonNode &node, std::string name);
 	DLL_LINKAGE void resolveIdentifier(const JsonNode &node, si32 &var);
+	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 
 	/**
 	 * @brief recursively merges source into dest, replacing identical fields

@@ -150,6 +150,59 @@ const BonusList * CBonusProxy::operator->() const
 	return get().get();
 }
 
+CAddInfo::CAddInfo()
+{
+}
+
+CAddInfo::CAddInfo(si32 value)
+{
+	if(value != CAddInfo::NONE)
+		push_back(value);
+}
+
+bool CAddInfo::operator==(si32 value) const
+{
+	switch(size())
+	{
+	case 0:
+		return value == CAddInfo::NONE;
+	case 1:
+		return operator[](0) == value;
+	default:
+		return false;
+	}
+}
+
+bool CAddInfo::operator!=(si32 value) const
+{
+	return !operator==(value);
+}
+
+si32 CAddInfo::operator[](size_type pos) const
+{
+	return pos < size() ? vector::operator[](pos) : CAddInfo::NONE;
+}
+
+std::string CAddInfo::toString() const
+{
+	return toJsonNode().toJson(true);
+}
+
+JsonNode CAddInfo::toJsonNode() const
+{
+	if(size() < 2)
+	{
+		return JsonUtils::intNode(operator[](0));
+	}
+	else
+	{
+		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+		for(si32 value : *this)
+			node.Vector().push_back(JsonUtils::intNode(value));
+		return node;
+	}
+}
+
 std::atomic<int32_t> CBonusSystemNode::treeChanged(1);
 const bool CBonusSystemNode::cachingEnabled = true;
 
@@ -1189,14 +1242,24 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	}
 }
 
-JsonNode additionalInfoToJson(Bonus::BonusType type, int addInfo)
+JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
 {
 	switch(type)
 	{
 	case Bonus::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo));
+		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo[0]));
 	default:
-		return JsonUtils::intNode(addInfo);
+		if(addInfo.size() <= 1)
+		{
+			return JsonUtils::intNode(addInfo[0]);
+		}
+		else
+		{
+			JsonNode vecNode(JsonNode::JsonType::DATA_VECTOR);
+			for(si32 value : addInfo)
+				vecNode.Vector().push_back(JsonUtils::intNode(value));
+			return vecNode;
+		}
 	}
 }
 
@@ -1207,7 +1270,7 @@ JsonNode Bonus::toJsonNode() const
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != -1)
 		root["subtype"] = subtypeToJson(type, subtype);
-	if(additionalInfo != -1)
+	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
 	if(val != 0)
 		root["val"].Integer() = val;
@@ -1235,7 +1298,7 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 		return (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier;
 	case Bonus::SPECIAL_UPGRADE:
-		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo);
+		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
 	case Bonus::GENERATE_RESOURCE:
 		return GameConstants::RESOURCE_NAMES[subtype];
 	case Bonus::STACKS_SPEED:
@@ -1248,7 +1311,6 @@ std::string Bonus::nameForBonus() const
 Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
-	additionalInfo = -1;
 	turnsRemain = 0;
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
@@ -1258,7 +1320,6 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::
 Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
-	additionalInfo = -1;
 	turnsRemain = 0;
 	effectRange = NO_LIMIT;
 }
@@ -1269,7 +1330,6 @@ Bonus::Bonus()
 	turnsRemain = 0;
 	type = NONE;
 	subtype = -1;
-	additionalInfo = -1;
 
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
@@ -1288,7 +1348,7 @@ namespace Selector
 {
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type);
 	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype);
-	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo);
+	DLL_LINKAGE CSelectFieldEqual<CAddInfo> info(&Bonus::additionalInfo);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
 	DLL_LINKAGE CWillLastTurns turns;
@@ -1299,11 +1359,11 @@ namespace Selector
 		return type(Type).And(subtype(Subtype));
 	}
 
-	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info)
+	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, CAddInfo info)
 	{
 		return CSelectFieldEqual<Bonus::BonusType>(&Bonus::type)(type)
 			.And(CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype)(subtype))
-			.And(CSelectFieldEqual<si32>(&Bonus::additionalInfo)(info));
+			.And(CSelectFieldEqual<CAddInfo>(&Bonus::additionalInfo)(info));
 	}
 
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID)
@@ -1403,7 +1463,8 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	printField(duration);
 	printField(source);
 	printField(sid);
-	printField(additionalInfo);
+	if(bonus.additionalInfo != CAddInfo::NONE)
+		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);
 	printField(valType);
 	printField(effectRange);

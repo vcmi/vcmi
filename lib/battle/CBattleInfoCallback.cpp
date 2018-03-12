@@ -797,7 +797,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	TBonusListPtr blessEffects = attackerBonuses->getBonuses(selectorForcedMaxDamage, cachingStrForcedMaxDamage);
 
 	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
-	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo<std::shared_ptr<Bonus>>))->additionalInfo : 0;
+	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo<std::shared_ptr<Bonus>>))->additionalInfo[0] : 0;
 
 	if(curseMultiplicativePenalty) //curse handling (partial, the rest is below)
 	{
@@ -1738,12 +1738,12 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 	int totalWeight = 0;
 	for(auto b : *bl)
 	{
-		totalWeight += std::max(b->additionalInfo, 1); //minimal chance to cast is 1
+		totalWeight += std::max(b->additionalInfo[0], 1); //minimal chance to cast is 1
 	}
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(auto b : *bl)
 	{
-		randomPos -= std::max(b->additionalInfo, 1);
+		randomPos -= std::max(b->additionalInfo[0], 1);
 		if(randomPos < 0)
 		{
 			return SpellID(b->subtype);

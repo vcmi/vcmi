@@ -87,6 +87,24 @@ private:
 	mutable TBonusListPtr data;
 };
 
+class DLL_LINKAGE CAddInfo : public std::vector<si32>
+{
+public:
+	static const si32 NONE = -1;
+
+	CAddInfo();
+	CAddInfo(si32 value);
+
+	bool operator==(si32 value) const;
+	bool operator!=(si32 value) const;
+
+	using std::vector<si32>::operator[];
+	si32 operator[](size_type pos) const;
+
+	std::string toString() const;
+	JsonNode toJsonNode() const;
+};
+
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
 #define BONUS_LIST										\
@@ -147,8 +165,8 @@ private:
 	BONUS_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
 	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
-	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, additional info % 1000 - level, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
-	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, additional info % 1000 - level, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
+	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only] */ \
+	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only] */ \
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus */ \
 	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
@@ -338,7 +356,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	ui32 sid; //source id: id of object/artifact/spell
 	ValueType valType;
 
-	si32 additionalInfo;
+	CAddInfo additionalInfo;
 	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
 	TLimiterPtr limiter;
@@ -360,7 +378,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & val;
 		h & sid;
 		h & description;
-		h & additionalInfo;
+		if(version >= 783)
+		{
+			h & additionalInfo;
+		}
+		else
+		{
+			additionalInfo.resize(1, -1);
+			h & additionalInfo[0];
+		}
 		h & turnsRemain;
 		h & valType;
 		h & effectRange;
@@ -980,14 +1006,14 @@ namespace Selector
 {
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
-	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
+	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> info;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
+	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, CAddInfo info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 	CSelector DLL_LINKAGE valueType(Bonus::ValueType valType);
