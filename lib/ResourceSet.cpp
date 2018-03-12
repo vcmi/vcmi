@@ -13,6 +13,8 @@
 #include "StringConstants.h"
 #include "JsonNode.h"
 #include "serializer/JsonSerializeFormat.h"
+#include "VCMI_Lib.h"
+#include "mapObjects/CObjectHandler.h"
 
 Res::ResourceSet::ResourceSet()
 {
@@ -84,6 +86,14 @@ bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 			return false;
 
 	return true;
+}
+
+int Res::ResourceSet::marketValue() const
+{
+	int total = 0;
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+		total += VLC->objh->resVals[i] * operator[](i);
+	return total;
 }
 
 std::string Res::ResourceSet::toString() const

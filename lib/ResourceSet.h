@@ -133,6 +133,7 @@ namespace Res
 		DLL_LINKAGE bool nonZero() const; //returns true if at least one value is non-zero;
 		DLL_LINKAGE bool canAfford(const ResourceSet &price) const;
 		DLL_LINKAGE bool canBeAfforded(const ResourceSet &res) const;
+		DLL_LINKAGE int marketValue() const;
 
 		DLL_LINKAGE std::string toString() const;
 
