@@ -816,31 +816,31 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		const TBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
-			auto legacyCreatureID = [necromancyLevel](int id) -> CreatureID
+			auto getCreatureID = [necromancyLevel](std::shared_ptr<Bonus> bonus) -> CreatureID
 			{
 				const CreatureID legacyTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
-				return CreatureID(id > 0 ? id : legacyTypes[necromancyLevel]);
+				return CreatureID(bonus->subtype >= 0 ? bonus->subtype : legacyTypes[necromancyLevel]);
 			};
 			int maxCasualtyLevel = 1;
-			for (auto & casualty : casualties)
+			for(auto & casualty : casualties)
 				vstd::amax(maxCasualtyLevel, VLC->creh->creatures[casualty.first]->level);
 			// pick best bonus available
-			std::shared_ptr<Bonus> topPick = NULL;
+			std::shared_ptr<Bonus> topPick;
 			for(std::shared_ptr<Bonus> newPick : *improvedNecromancy)
 			{
 				// addInfo[0] = required necromancy skill, addInfo[1] = required casualty level
 				if(newPick->additionalInfo[0] > necromancyLevel || newPick->additionalInfo[1] > maxCasualtyLevel)
 					continue;
-				if(topPick == NULL)
+				if(!topPick)
 				{
 					topPick = newPick;
 				}
 				else
 				{
-					auto quality = [legacyCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
 					{
-						CCreature * c = VLC->creh->creatures[legacyCreatureID(pick->subtype)];
-						std::vector<int> v = {c->level, c->cost.marketValue(), -pick->additionalInfo[1]};
+						const CCreature * c = VLC->creh->creatures[getCreatureID(pick)];
+						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
 						return v;
 					};
 					if(quality(topPick) < quality(newPick))
@@ -849,7 +849,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 			}
 			if(topPick != NULL)
 			{
-				creatureTypeRaised = legacyCreatureID(topPick->subtype);
+				creatureTypeRaised = getCreatureID(topPick);
 				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
 			}
 		}
@@ -871,7 +871,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double raisedUnits = 0;
 		for(auto & casualty : casualties)
 		{
-			CCreature * c = VLC->creh->creatures[casualty.first];
+			const CCreature * c = VLC->creh->creatures[casualty.first];
 			double raisedFromCasualty = std::min(c->MaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
 			if(c->level < requiredCasualtyLevel)
 				raisedFromCasualty *= 0.5;

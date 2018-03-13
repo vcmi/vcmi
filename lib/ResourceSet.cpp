@@ -88,11 +88,11 @@ bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 	return true;
 }
 
-int Res::ResourceSet::marketValue() const
+TResourceCap Res::ResourceSet::marketValue() const
 {
-	int total = 0;
+	TResourceCap total = 0;
 	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		total += VLC->objh->resVals[i] * operator[](i);
+		total += static_cast<TResourceCap>(VLC->objh->resVals[i]) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }
 
