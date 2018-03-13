@@ -847,7 +847,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 						topPick = newPick;
 				}
 			}
-			if(topPick != NULL)
+			if(topPick)
 			{
 				creatureTypeRaised = getCreatureID(topPick);
 				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
