@@ -90,7 +90,7 @@ private:
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {
 public:
-	static const si32 NONE = -1;
+	enum { NONE = -1 };
 
 	CAddInfo();
 	CAddInfo(si32 value);
@@ -98,7 +98,7 @@ public:
 	bool operator==(si32 value) const;
 	bool operator!=(si32 value) const;
 
-	using std::vector<si32>::operator[];
+	si32 & operator[](size_type pos);
 	si32 operator[](size_type pos) const;
 
 	std::string toString() const;
