@@ -180,7 +180,7 @@ bool CAddInfo::operator!=(si32 value) const
 
 si32 & CAddInfo::operator[](size_type pos)
 {
-	if (pos <= size())
+	if(pos <= size())
 		resize(pos + 1, CAddInfo::NONE);
 	return vector::operator[](pos);
 }
