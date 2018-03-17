@@ -284,7 +284,6 @@ void DisassembledArtifact::applyCl(CClient *cl)
 void HeroVisit::applyCl(CClient * cl)
 {
 	auto hero = cl->getHero(heroId);
-	assert(hero);
 	auto obj = cl->getObj(objId, false);
 	callInterfaceIfPresent(cl, player, &IGameEventsReceiver::heroVisit, hero, obj, starting);
 }
