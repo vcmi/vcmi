@@ -52,6 +52,23 @@ void CButton::update()
 		redraw();
 }
 
+void CButton::setBorderColor(boost::optional<SDL_Color> borderColor)
+{
+	setBorderColor(borderColor, borderColor, borderColor, borderColor);
+}
+
+void CButton::setBorderColor(boost::optional<SDL_Color> normalBorderColor,
+                             boost::optional<SDL_Color> pressedBorderColor,
+                             boost::optional<SDL_Color> blockedBorderColor,
+                             boost::optional<SDL_Color> highlightedBorderColor)
+{
+	stateToBorderColor[NORMAL] = normalBorderColor;
+	stateToBorderColor[PRESSED] = pressedBorderColor;
+	stateToBorderColor[BLOCKED] = blockedBorderColor;
+	stateToBorderColor[HIGHLIGHTED] = highlightedBorderColor;
+	update();
+}
+
 void CButton::addCallback(std::function<void()> callback)
 {
 	this->callback += callback;
@@ -273,6 +290,7 @@ void CButton::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
+	auto borderColor = stateToBorderColor[getState()];
 	if (borderColor && borderColor->a == 0)
 		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor->r, borderColor->g, borderColor->b));
 }

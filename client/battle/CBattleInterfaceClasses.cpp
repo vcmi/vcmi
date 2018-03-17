@@ -347,7 +347,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	bg->colorize(owner.playerID);
 
 	exit = new CButton (Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
-	exit->borderColor = boost::make_optional(Colors::METALLIC_GOLD);
+	exit->setBorderColor(Colors::METALLIC_GOLD);
 
 	if(br.winner==0) //attacker won
 	{
