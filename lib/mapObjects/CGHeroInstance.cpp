@@ -804,45 +804,80 @@ bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
 	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
-
-	// Hero knows necromancy or has Necromancer Cloak
+	// need skill or cloak of undead king - lesser artifacts don't work without skill
 	if (necromancyLevel > 0 || hasBonusOfType(Bonus::IMPROVED_NECROMANCY))
 	{
-		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY)/100.0;
+		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY) / 100.0;
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
-		ui32 raisedUnits = 0;
-
-		// Figure out what to raise and how many.
-		const CreatureID creatureTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
-		const bool improvedNecromancy = hasBonusOfType(Bonus::IMPROVED_NECROMANCY);
-		const CCreature *raisedUnitType = VLC->creh->creatures[creatureTypes[improvedNecromancy ? necromancyLevel : 0]];
-		const ui32 raisedUnitHP = raisedUnitType->MaxHealth();
-
-		//calculate creatures raised from each defeated stack
-		for (auto & casualtie : casualties)
+		// figure out what to raise - pick strongest creature meeting requirements
+		CreatureID creatureTypeRaised = CreatureID::SKELETON;
+		int requiredCasualtyLevel = 1;
+		const TBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
+		if(!improvedNecromancy->empty())
 		{
-			// Get lost enemy hit points convertible to units.
-			CCreature * c = VLC->creh->creatures[casualtie.first];
-
-			const ui32 raisedHP = c->MaxHealth() * casualtie.second * necromancySkill;
-			raisedUnits += std::min<ui32>(raisedHP / raisedUnitHP, casualtie.second * necromancySkill); //limit to % of HP and % of original stack count
+			auto getCreatureID = [necromancyLevel](std::shared_ptr<Bonus> bonus) -> CreatureID
+			{
+				const CreatureID legacyTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
+				return CreatureID(bonus->subtype >= 0 ? bonus->subtype : legacyTypes[necromancyLevel]);
+			};
+			int maxCasualtyLevel = 1;
+			for(auto & casualty : casualties)
+				vstd::amax(maxCasualtyLevel, VLC->creh->creatures[casualty.first]->level);
+			// pick best bonus available
+			std::shared_ptr<Bonus> topPick;
+			for(std::shared_ptr<Bonus> newPick : *improvedNecromancy)
+			{
+				// addInfo[0] = required necromancy skill, addInfo[1] = required casualty level
+				if(newPick->additionalInfo[0] > necromancyLevel || newPick->additionalInfo[1] > maxCasualtyLevel)
+					continue;
+				if(!topPick)
+				{
+					topPick = newPick;
+				}
+				else
+				{
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					{
+						const CCreature * c = VLC->creh->creatures[getCreatureID(pick)];
+						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
+						return v;
+					};
+					if(quality(topPick) < quality(newPick))
+						topPick = newPick;
+				}
+			}
+			if(topPick)
+			{
+				creatureTypeRaised = getCreatureID(topPick);
+				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
+			}
 		}
-
-		// Make room for new units.
-		SlotID slot = getSlotFor(raisedUnitType->idNumber);
-		if (slot == SlotID())
+		// raise upgraded creature (at 2/3 rate) if no space available otherwise
+		if(getSlotFor(creatureTypeRaised) == SlotID())
 		{
-			// If there's no room for unit, try it's upgraded version 2/3rds the size.
-			raisedUnitType = VLC->creh->creatures[*raisedUnitType->upgrades.begin()];
-			raisedUnits = (raisedUnits*2)/3;
-
-			slot = getSlotFor(raisedUnitType->idNumber);
+			for(CreatureID upgraded : VLC->creh->creatures[creatureTypeRaised]->upgrades)
+			{
+				if(getSlotFor(upgraded) != SlotID())
+				{
+					creatureTypeRaised = upgraded;
+					necromancySkill *= 2/3.0;
+					break;
+				}
+			}
 		}
-		if (raisedUnits <= 0)
-			raisedUnits = 1;
-
-		return CStackBasicDescriptor(raisedUnitType->idNumber, raisedUnits);
+		// calculate number of creatures raised - low level units contribute at 50% rate
+		const double raisedUnitHealth = VLC->creh->creatures[creatureTypeRaised]->MaxHealth();
+		double raisedUnits = 0;
+		for(auto & casualty : casualties)
+		{
+			const CCreature * c = VLC->creh->creatures[casualty.first];
+			double raisedFromCasualty = std::min(c->MaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
+			if(c->level < requiredCasualtyLevel)
+				raisedFromCasualty *= 0.5;
+			raisedUnits += raisedFromCasualty;
+		}
+		return CStackBasicDescriptor(creatureTypeRaised, std::max(static_cast<int>(raisedUnits), 1));
 	}
 
 	return CStackBasicDescriptor();

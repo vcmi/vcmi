@@ -1884,9 +1884,19 @@
 	{
 		"bonuses" : [
 			{
-				"type" : "IMPROVED_NECROMANCY", //TODO: more flexible?
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"type" : "IMPROVED_NECROMANCY",
+				"subtype" : "creature.walkingDead",
+				"addInfo" : 1
+			},
+			{
+				"type" : "IMPROVED_NECROMANCY",
+				"subtype" : "creature.wight",
+				"addInfo" : 2
+			},
+			{
+				"type" : "IMPROVED_NECROMANCY",
+				"subtype" : "creature.lich",
+				"addInfo" : 3
 			}
 		],
 		"index" : 130,
