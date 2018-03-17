@@ -154,7 +154,7 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 				for(auto direction : trasformation)
 					hex.moveInDirection(direction, false);
 
-				if(!isHexAvailable(m->cb, hex, requiresClearTiles))
+				if(!isHexAvailable(m->battle(), hex, requiresClearTiles))
 					return noRoomToPlace(problem, m);
 			}
 		}
@@ -188,7 +188,7 @@ EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPo
 	return ret;
 }
 
-void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Obstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	if(m->isMassive())
 	{
@@ -196,10 +196,10 @@ void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 		for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 		{
 			BattleHex hex = i;
-			if(isHexAvailable(m->cb, hex, true))
+			if(isHexAvailable(m->battle(), hex, true))
 				availableTiles.push_back(hex);
 		}
-		RandomGeneratorUtil::randomShuffle(availableTiles, rng);
+		RandomGeneratorUtil::randomShuffle(availableTiles, *server->getRNG());
 
 		const int patchesToPut = std::min<int>(patchCount, availableTiles.size());
 
@@ -208,11 +208,11 @@ void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 		for(int i = 0; i < patchesToPut; i++)
 			randomTarget.emplace_back(availableTiles.at(i));
 
-		placeObstacles(battleState, m, randomTarget);
+		placeObstacles(server, m, randomTarget);
 	}
 	else
 	{
-		placeObstacles(battleState, m, target);
+		placeObstacles(server, m, target);
 	}
 }
 
@@ -274,7 +274,7 @@ bool Obstacle::noRoomToPlace(Problem & problem, const Mechanics * m)
 	return false;
 }
 
-void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * m, const EffectTarget & target) const
+void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
@@ -282,10 +282,10 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 
 	boost::optional<BattlePerspective::BattlePerspective> perspective;
 
-	if(!m->cb->getPlayerID())
+	if(!m->battle()->getPlayerID())
 		perspective = boost::make_optional(BattlePerspective::ALL_KNOWING);
 
-	auto all = m->cb->battleGetAllObstacles(perspective);
+	auto all = m->battle()->battleGetAllObstacles(perspective);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)
@@ -334,7 +334,7 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 	}
 
 	if(!pack.changes.empty())
-		battleState->apply(&pack);
+		server->apply(&pack);
 }
 
 

@@ -1142,9 +1142,9 @@ void CRmgTemplateZone::initTownType ()
 				town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 
-			for (auto spell : VLC->spellh->objects) //add all regular spells to town
+			for(auto spell : VLC->spellh->objects) //add all regular spells to town
 			{
-				if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+				if(!spell->isSpecial() && !spell->isCreatureAbility())
 					town->possibleSpells.push_back(spell->id);
 			}
 
@@ -1192,9 +1192,9 @@ void CRmgTemplateZone::initTownType ()
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
 
-		for (auto spell : VLC->spellh->objects) //add all regular spells to town
+		for(auto spell : VLC->spellh->objects) //add all regular spells to town
 		{
-			if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+			if(!spell->isSpecial() && !spell->isCreatureAbility())
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
@@ -2300,7 +2300,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto a = CArtifactInstance::createScroll(RandomGeneratorUtil::nextItem(out, gen->rand)->toSpell());
+			auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, gen->rand));
 			obj->storedArtifact = a;
 			return obj;
 		};
@@ -2433,7 +2433,6 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
 			{
-
 				if (gen->isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
 					spells.push_back(spell);
 			}

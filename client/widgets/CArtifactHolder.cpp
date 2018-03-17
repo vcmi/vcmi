@@ -25,7 +25,6 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CArtHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -172,7 +171,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 					else if(cur->isBig())
 					{
 						//war machines cannot go to backpack
-						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->getName()));
 					}
 					else
 					{
@@ -233,7 +232,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 			0);
 
 		if(assemblyPossibilities.size() > 2)
-			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->Name());
+			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getName());
 		return true;
 	}
 	return false;
@@ -414,7 +413,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	if (locked) // Locks should appear as empty.
 		hoverText = CGI->generaltexth->allTexts[507];
 	else
-		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
+		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->getName());
 }
 
 void CArtifactsOfHero::SCommonPart::reset()

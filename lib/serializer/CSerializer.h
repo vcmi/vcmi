@@ -12,7 +12,7 @@
 #include "../ConstTransitivePtr.h"
 #include "../GameConstants.h"
 
-const ui32 SERIALIZATION_VERSION = 791;
+const ui32 SERIALIZATION_VERSION = 800;
 const ui32 MINIMAL_SERIALIZATION_VERSION = 753;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 

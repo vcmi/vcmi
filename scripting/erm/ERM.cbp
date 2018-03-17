@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
-				<Option output="../ERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../vcmiERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -29,7 +29,7 @@
 			</Target>
 			<Target title="Release-win32">
 				<Option platforms="Windows;" />
-				<Option output="../ERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../vcmiERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -50,7 +50,7 @@
 			</Target>
 			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
-				<Option output="../ERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="../vcmiERM" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_x64" />
@@ -89,6 +89,7 @@
 		<Linker>
 			<Add directory="../.." />
 		</Linker>
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="ERMInterpreter.cpp" />
 		<Unit filename="ERMInterpreter.h" />
 		<Unit filename="ERMParser.cpp" />

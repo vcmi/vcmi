@@ -929,7 +929,7 @@ public:
 	bool includeUpgrades;
 
 	CCreatureTypeLimiter();
-	CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades = true);
+	CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades = true);
 	void setCreature (CreatureID id);
 
 	int limit(const BonusLimitationContext &context) const override;

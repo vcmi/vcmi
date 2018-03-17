@@ -9,26 +9,17 @@
  */
 #pragma once
 #include "CCallbackBase.h"
-#include "BattleHex.h"
+#include "IBattleInfoCallback.h"
 
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
-struct CObstacleInstance;
 class IBonusBearer;
 struct InfoAboutHero;
 class CArmedInstance;
 
 typedef std::vector<const CStack *> TStacks;
 typedef std::function<bool(const CStack *)> TStackFilter;
-
-namespace battle
-{
-	class IUnitInfo;
-	class Unit;
-	using Units = std::vector<const Unit *>;
-	using UnitFilter = std::function<bool(const Unit *)>;
-}
 
 namespace BattlePerspective
 {
@@ -41,7 +32,7 @@ namespace BattlePerspective
 	};
 }
 
-class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase
+class DLL_LINKAGE CBattleInfoEssentials : public virtual CCallbackBase, public IBattleInfoCallback
 {
 protected:
 	bool battleDoWeKnowAbout(ui8 side) const;
@@ -55,8 +46,8 @@ public:
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 	const IBonusBearer * getBattleNode() const;
 
-	ETerrainType battleTerrainType() const;
-	BFieldType battleGetBattlefieldType() const;
+	ETerrainType battleTerrainType() const override;
+	BFieldType battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
 	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
@@ -70,18 +61,19 @@ public:
 	 *
 	 */
 	TStacks battleGetStacksIf(TStackFilter predicate) const; //deprecated
-	battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const;
+	battle::Units battleGetUnitsIf(battle::UnitFilter predicate) const override;
 
-	const battle::Unit * battleGetUnitByID(uint32_t ID) const;
-	const battle::Unit * battleActiveUnit() const;
+	const battle::Unit * battleGetUnitByID(uint32_t ID) const override;
+	const battle::Unit * battleActiveUnit() const override;
 
-	uint32_t battleNextUnitId() const;
+	uint32_t battleNextUnitId() const override;
 
 	bool battleHasNativeStack(ui8 side) const;
 	const CGTownInstance * battleGetDefendedTown() const; //returns defended town if current battle is a siege, nullptr instead
 
-	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
-	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
+	si8 battleTacticDist() const override; //returns tactic distance in current tactics phase; 0 if not in tactics phase
+	si8 battleGetTacticsSide() const override; //returns which side is in tactics phase, undefined if none (?)
+
 	bool battleCanFlee(PlayerColor player) const;
 	bool battleCanSurrender(PlayerColor player) const;
 

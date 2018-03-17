@@ -209,11 +209,11 @@ void CBonusSelection::createBonusesIcons()
 		}
 		case CScenarioTravel::STravelBonus::ARTIFACT:
 			desc = CGI->generaltexth->allTexts[715];
-			boost::algorithm::replace_first(desc, "%s", CGI->arth->artifacts[bonDescs[i].info2]->Name());
+			boost::algorithm::replace_first(desc, "%s", CGI->arth->artifacts[bonDescs[i].info2]->getName());
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			desc = CGI->generaltexth->allTexts[716];
-			boost::algorithm::replace_first(desc, "%s", CGI->spellh->objects[bonDescs[i].info2]->name);
+			boost::algorithm::replace_first(desc, "%s", CGI->spellh->objects[bonDescs[i].info2]->getName());
 			break;
 		case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 		{

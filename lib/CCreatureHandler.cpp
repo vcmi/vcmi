@@ -20,6 +20,31 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
+int32_t CCreature::getIndex() const
+{
+	return idNumber.toEnum();
+}
+
+const std::string & CCreature::getName() const
+{
+	return nameSing;//???
+}
+
+const std::string & CCreature::getJsonKey() const
+{
+	return identifier;
+}
+
+CreatureID CCreature::getId() const
+{
+	return idNumber;
+}
+
+uint32_t CCreature::getMaxHealth() const
+{
+	return CBonusSystemNode::MaxHealth();
+}
+
 int CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
@@ -1146,6 +1171,11 @@ CCreatureHandler::~CCreatureHandler()
 
 	for(auto & p : skillRequirements)
 		p.first = nullptr;
+}
+
+const Creature * CCreatureHandler::getCreature(const CreatureID & creatureID) const
+{
+	return creatures.at(creatureID.toEnum());
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const

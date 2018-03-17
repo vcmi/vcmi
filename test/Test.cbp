@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug-win32">
 				<Option platforms="Windows;" />
-				<Option output="../Test" prefix_auto="1" extension_auto="1" />
+				<Option output="../VCMI_Test" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="../." />
 				<Option object_output="obj/Debug/x86/" />
 				<Option type="1" />
@@ -17,7 +17,7 @@
 					<Add option="-Og" />
 					<Add option="-Wextra" />
 					<Add option="-g" />
-					<Add directory="mock" />
+					<Add directory="mock/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
@@ -28,7 +28,8 @@
 			</Target>
 			<Target title="Debug-win64">
 				<Option platforms="Windows;" />
-				<Option output="../Test" prefix_auto="1" extension_auto="1" />
+				<Option output="../VCMI_Test" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../." />
 				<Option object_output="obj/Debug/x64/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_x64" />
@@ -36,7 +37,7 @@
 					<Add option="-Og" />
 					<Add option="-Wextra" />
 					<Add option="-g" />
-					<Add directory="mock" />
+					<Add directory="mock/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lboost_filesystem$(#boost.libsuffix64)" />
@@ -95,6 +96,13 @@
 		<Unit filename="battle/CUnitStateMagicTest.cpp" />
 		<Unit filename="battle/CUnitStateTest.cpp" />
 		<Unit filename="battle/battle_UnitTest.cpp" />
+		<Unit filename="erm/ERMPersistenceTest.cpp" />
+		<Unit filename="erm/ERM_BM.cpp" />
+		<Unit filename="erm/ERM_BU.cpp" />
+		<Unit filename="erm/ERM_MF.cpp" />
+		<Unit filename="erm/ExamplesTest.cpp" />
+		<Unit filename="events/ApplyDamageTest.cpp" />
+		<Unit filename="events/EventBusTest.cpp" />
 		<Unit filename="game/CGameStateTest.cpp" />
 		<Unit filename="googletest/googlemock/src/gmock-all.cc" />
 		<Unit filename="googletest/googletest/src/gtest-all.cc" />
@@ -103,23 +111,45 @@
 		<Unit filename="map/CMapFormatTest.cpp" />
 		<Unit filename="map/MapComparer.cpp" />
 		<Unit filename="map/MapComparer.h" />
+		<Unit filename="mock/BattleFake.cpp" />
+		<Unit filename="mock/BattleFake.h" />
 		<Unit filename="mock/mock_BonusBearer.cpp" />
 		<Unit filename="mock/mock_BonusBearer.h" />
 		<Unit filename="mock/mock_CPSICallback.cpp" />
 		<Unit filename="mock/mock_CPSICallback.h" />
+		<Unit filename="mock/mock_Creature.h" />
+		<Unit filename="mock/mock_CreatureService.h" />
+		<Unit filename="mock/mock_Environment.h" />
+		<Unit filename="mock/mock_IBattleInfoCallback.h" />
 		<Unit filename="mock/mock_IGameCallback.cpp" />
 		<Unit filename="mock/mock_IGameCallback.h" />
+		<Unit filename="mock/mock_IGameEventCallback.h" />
+		<Unit filename="mock/mock_IGameInfoCallback.h" />
 		<Unit filename="mock/mock_MapService.cpp" />
 		<Unit filename="mock/mock_MapService.h" />
+		<Unit filename="mock/mock_ServerCallback.h" />
 		<Unit filename="mock/mock_UnitEnvironment.h" />
 		<Unit filename="mock/mock_UnitInfo.h" />
 		<Unit filename="mock/mock_battle_IBattleState.h" />
 		<Unit filename="mock/mock_battle_Unit.h" />
+		<Unit filename="mock/mock_events_ApplyDamage.h" />
+		<Unit filename="mock/mock_scripting_Context.h" />
+		<Unit filename="mock/mock_scripting_Pool.h" />
+		<Unit filename="mock/mock_scripting_Script.h" />
+		<Unit filename="mock/mock_scripting_Service.h" />
 		<Unit filename="mock/mock_spells_Mechanics.h" />
 		<Unit filename="mock/mock_spells_Problem.h" />
 		<Unit filename="mock/mock_spells_Spell.h" />
+		<Unit filename="mock/mock_spells_SpellService.h" />
+		<Unit filename="mock/mock_spells_effects_Registry.h" />
+		<Unit filename="mock/mock_vstd_CLoggerBase.h" />
 		<Unit filename="mock/mock_vstd_RNG.h" />
 		<Unit filename="rmg/CRmgTemplateTest.cpp" />
+		<Unit filename="scripting/LuaSpellEffectAPITest.cpp" />
+		<Unit filename="scripting/LuaSpellEffectTest.cpp" />
+		<Unit filename="scripting/PoolTest.cpp" />
+		<Unit filename="scripting/ScriptFixture.cpp" />
+		<Unit filename="scripting/ScriptFixture.h" />
 		<Unit filename="spells/AbilityCasterTest.cpp" />
 		<Unit filename="spells/TargetConditionTest.cpp" />
 		<Unit filename="spells/effects/CatapultTest.cpp" />
@@ -146,6 +176,22 @@
 		<Unit filename="spells/targetConditions/SpellEffectConditionTest.cpp" />
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.cpp" />
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.h" />
+		<Unit filename="testdata/MiniTest/header.json" />
+		<Unit filename="testdata/MiniTest/objects.json" />
+		<Unit filename="testdata/MiniTest/surface_terrain.json" />
+		<Unit filename="testdata/ObjectPropertyTest/header.json" />
+		<Unit filename="testdata/ObjectPropertyTest/objects.ex.json" />
+		<Unit filename="testdata/ObjectPropertyTest/objects.json" />
+		<Unit filename="testdata/ObjectPropertyTest/surface_terrain.json" />
+		<Unit filename="testdata/ObjectPropertyTest/underground_terrain.json" />
+		<Unit filename="testdata/TerrainTest/header.json" />
+		<Unit filename="testdata/TerrainTest/objects.json" />
+		<Unit filename="testdata/TerrainTest/surface_terrain.json" />
+		<Unit filename="testdata/TerrainTest/underground_terrain.json" />
+		<Unit filename="testdata/erm/std.verm" />
+		<Unit filename="testdata/erm/testy.erm" />
+		<Unit filename="testdata/lua/SpellEffectAPIMoveUnit.lua" />
+		<Unit filename="testdata/lua/SpellEffectAPITest.lua" />
 		<Unit filename="testdata/rmg/1.json" />
 		<Unit filename="vcai/ResourceManagerTest.h" />
 		<Unit filename="vcai/ResurceManagerTest.cpp" />

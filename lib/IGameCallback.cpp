@@ -29,6 +29,7 @@
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 #include "CSkillHandler.h"
+#include "ScriptHandler.h"
 
 #include "serializer/Connection.h"
 
@@ -138,10 +139,10 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 
 	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
 
-		const CSpell *spell = SpellID(i).toSpell();
-		if (isAllowed (0, spell->id) && spell->level == level)
+		const spells::Spell * spell = SpellID(i).toSpell();
+		if(isAllowed(0, spell->getIndex()) && spell->getLevel() == level)
 		{
-			out.push_back(spell->id);
+			out.push_back(spell->getId());
 		}
 	}
 }
@@ -240,27 +241,9 @@ CArmedInstance * CNonConstInfoCallback::getArmyInstance(ObjectInstanceID oid)
 	return dynamic_cast<CArmedInstance *>(getObjInstance(oid));
 }
 
-const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos)
-{
-	NewObject no;
-	no.ID = ID; //creature
-	no.subID= subID;
-	no.pos = pos;
-	commitPackage(&no);
-	return getObj(no.id); //id field will be filled during applying on gs
-}
-
-const CGCreature * IGameCallback::putNewMonster(CreatureID creID, int count, int3 pos)
-{
-	const CGObjectInstance *m = putNewObject(Obj::MONSTER, creID, pos);
-	setObjProperty(m->id, ObjProperty::MONSTER_COUNT, count);
-	setObjProperty(m->id, ObjProperty::MONSTER_POWER, (si64)1000*count);
-	return dynamic_cast<const CGCreature*>(m);
-}
-
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
 	//only server knows
-	assert(0);
+	logGlobal->error("isVisitCoveredByAnotherQuery call on client side");
 	return false;
 }

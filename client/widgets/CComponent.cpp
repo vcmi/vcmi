@@ -159,7 +159,7 @@ std::string CComponent::getDescription()
 		}
 		else
 		{
-			art.reset(CArtifactInstance::createScroll(static_cast<SpellID>(val)));
+			art.reset(CArtifactInstance::createScroll(SpellID(val)));
 		}
 		return art->getEffectiveDescription();
 	}
@@ -194,7 +194,7 @@ std::string CComponent::getSubtitleInternal()
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
-	case artifact:   return CGI->arth->artifacts[subtype]->Name();
+	case artifact:   return CGI->arth->artifacts[subtype]->getName();
 	case experience:
 		{
 			if(subtype == 1) //+1 level - tree of knowledge
@@ -208,7 +208,7 @@ std::string CComponent::getSubtitleInternal()
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 			}
 		}
-	case spell:      return CGI->spellh->objects[subtype]->name;
+	case spell:      return CGI->spellh->objects[subtype]->getName();
 	case morale:     return "";
 	case luck:       return "";
 	case building:
@@ -224,7 +224,7 @@ std::string CComponent::getSubtitleInternal()
 	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
-	assert(0);
+	logGlobal->error("Invalid CComponent type: %d", (int)compType);
 	return "";
 }
 

@@ -31,14 +31,11 @@ namespace phoenix = boost::phoenix;
 //actually these macros help in dealing with boost::variant
 
 
-CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), file(Fname.c_str()), lineNo(0), version(INVALID)
+CERMPreprocessor::CERMPreprocessor(const std::string & source)
+	: sourceStream(source),
+	lineNo(0),
+	version(INVALID)
 {
-	if(!file.is_open())
-	{
-		logGlobal->error("File %s not found or unable to open", Fname);
-		return;
-	}
-
 	//check header
 	std::string header;
 	getline(header);
@@ -69,7 +66,7 @@ std::string CERMPreprocessor::retrieveCommandLine()
 	int openedBraces = 0;
 
 
-	while(file.good())
+	while(sourceStream.good())
 	{
 
 		std::string line ;
@@ -122,11 +119,16 @@ std::string CERMPreprocessor::retrieveCommandLine()
 				}
 				else if(c == '^')
 					openedString = true;
-				else if(c == ';') // a ';' that is in command line (and not in string) ends the command -> throw away rest
+				else if(c == ';' && !verm) //do not allow comments inside VExp for now
 				{
 					line.erase(i+!verm, line.length() - i - !verm); //leave ';' at the end only at ERM commands
 					break;
 				}
+//				else if(c == ';') // a ';' that is in command line (and not in string) ends the command -> throw away rest
+//				{
+//					line.erase(i+!verm, line.length() - i - !verm); //leave ';' at the end only at ERM commands
+//					break;
+//				}
 			}
 			else if(c == '^')
 				openedString = false;
@@ -148,24 +150,27 @@ std::string CERMPreprocessor::retrieveCommandLine()
 	}
 
 	if(openedBraces || openedString)
+	{
 		logGlobal->error("Ill-formed file: %s", fname);
+		throw ParseErrorException();
+	}
 	return "";
 }
 
 void CERMPreprocessor::getline(std::string &ret)
 {
 	lineNo++;
-	std::getline(file, ret);
+	std::getline(sourceStream, ret);
 	boost::trim(ret); //get rid of wspace
 }
 
-ERMParser::ERMParser(std::string file)
-	:srcFile(file)
+ERMParser::ERMParser(std::string source_)
+	:source(source_)
 {}
 
 std::vector<LineInfo> ERMParser::parseFile()
 {
-	CERMPreprocessor preproc(srcFile);
+	CERMPreprocessor preproc(source);
 	std::vector<LineInfo> ret;
 	try
 	{
@@ -185,6 +190,7 @@ std::vector<LineInfo> ERMParser::parseFile()
 	catch (ParseErrorException & e)
 	{
 		logGlobal->error("Stopped parsing file.");
+		throw;
 	}
 	return ret;
 }
@@ -308,10 +314,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 	(boost::optional<ERM::Tcondition>, condition)
 	)
 
+//BOOST_FUSION_ADAPT_STRUCT(
+//	ERM::Tcommand,
+//	(ERM::Tcommand::Tcmd, cmd)
+//	(std::string, comment)
+//	)
+
 BOOST_FUSION_ADAPT_STRUCT(
 	ERM::Tcommand,
 	(ERM::Tcommand::Tcmd, cmd)
-	(std::string, comment)
 	)
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -346,10 +357,14 @@ namespace ERM
 			commentLine %= (~qi::char_("!") >> comment | (qi::char_('!') >> (~qi::char_("?!$#[")) >> comment ));
  			cmdName %= qi::lexeme[qi::repeat(2)[qi::char_]];
 			arithmeticOp %= iexp >> qi::char_ >> iexp;
+			//???
 			//identifier is usually a vector of i-expressions but VR receiver performs arithmetic operations on it
-			identifier %= (iexp | arithmeticOp) % qi::lit('/');
+
+			//identifier %= (iexp | arithmeticOp) % qi::lit('/');
+			identifier %= iexp % qi::lit('/');
+
 			comparison %= iexp >> (*qi::char_("<=>")) >> iexp;
-			condition %= qi::char_("&|X/") >> (comparison | qi::int_) >> -condition;
+			condition %= qi::char_("&|/") >> (comparison | qi::int_) >> -condition;
 
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
@@ -363,10 +378,10 @@ namespace ERM
 			exactBodyOptionList %= (bodyOptionItem % qi::lit("/"));
 			normalBodyOption = qi::char_("A-Z+") > exactBodyOptionList;
 			bodyOption %= VRLogic | VRarithmetic | normalBodyOption;
-			body %= qi::lit(":") >> +(bodyOption) > qi::lit(";");
+			body %= qi::lit(":") >> *(bodyOption) > qi::lit(";");
 
 			instruction %= cmdName >> -identifier >> -condition >> body;
-			receiver %= cmdName >> -identifier >> -condition >> -body; //receiver without body exists... change needed
+			receiver %= cmdName >> -identifier >> -condition >> body; //receiver without body exists... change needed
 			postTrigger %= cmdName >> -identifier >> -condition > qi::lit(";");
 
 			command %= (qi::lit("!") >>
@@ -375,7 +390,7 @@ namespace ERM
 						(qi::lit("!") >> receiver) |
 						(qi::lit("#") >> instruction) |
 						(qi::lit("$") >> postTrigger)
-					) >> comment
+					) //>> comment
 				);
 
 			rline %=
@@ -479,7 +494,7 @@ ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 	}
 	catch(...)
 	{
-		logGlobal->error("Parse error occurred in file %s (line %d): %s", srcFile, realLineNo, line);
+		//logGlobal->error("Parse error occurred in file %s (line %d): %s", fname, realLineNo, line);
 		throw;
 	}
 }

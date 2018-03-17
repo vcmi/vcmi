@@ -11,5 +11,15 @@
 
 #include "../../lib/CScriptingModule.h"
 
-extern IGameEventRealizer *acb;
-extern CPrivilegedInfoCallback *icb;
+class ERMScriptModule : public scripting::Module
+{
+public:
+	ERMScriptModule();
+
+	std::string compile(const std::string & name, const std::string & source) const override;
+
+	std::shared_ptr<scripting::ContextBase> createContextFor(const scripting::Script * source, const Environment * env) const override;
+
+	void registerSpellEffect(spells::effects::Registry * registry, const scripting::Script * source) const override;
+};
+

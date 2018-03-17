@@ -20,6 +20,7 @@
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
+#include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
@@ -30,6 +31,7 @@
 #include "CConsoleHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapping/CMapEditManager.h"
+#include "ScriptHandler.h"
 
 LibClasses * VLC = nullptr;
 
@@ -53,9 +55,39 @@ DLL_LINKAGE void loadDLLClasses(bool onlyEssential)
 	VLC->init(onlyEssential);
 }
 
+const ArtifactService * LibClasses::artifactService() const
+{
+	return arth;
+}
+
+const CreatureService * LibClasses::creatureService() const
+{
+	return creh;
+}
+
+const scripting::Service * LibClasses::scriptingService() const
+{
+	return scriptHandler;
+}
+
+const spells::Service * LibClasses::spellService() const
+{
+	return spellh;
+}
+
 const IBonusTypeHandler * LibClasses::getBth() const
 {
 	return bth;
+}
+
+const spells::effects::Registry * LibClasses::spellEffects() const
+{
+	return spells::effects::GlobalRegistry::get();
+}
+
+spells::effects::Registry * LibClasses::spellEffects()
+{
+	return spells::effects::GlobalRegistry::get();
 }
 
 void LibClasses::loadFilesystem(bool onlyEssential)
@@ -120,6 +152,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
+	createHandler(scriptHandler, "Script", pomtime);
+
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
 	modh->load();
@@ -145,6 +179,7 @@ void LibClasses::clear()
 	delete bth;
 	delete tplh;
 	delete terviewh;
+	delete scriptHandler;
 	makeNull();
 }
 
@@ -163,6 +198,7 @@ void LibClasses::makeNull()
 	bth = nullptr;
 	tplh = nullptr;
 	terviewh = nullptr;
+	scriptHandler = nullptr;
 }
 
 LibClasses::LibClasses()
@@ -182,7 +218,19 @@ void LibClasses::callWhenDeserializing()
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }
 
+void LibClasses::scriptsLoaded()
+{
+	scriptHandler->performRegistration(this);
+}
+
 LibClasses::~LibClasses()
 {
 	clear();
 }
+
+void LibClasses::update800()
+{
+	vstd::clear_pointer(scriptHandler);
+	scriptHandler = new scripting::ScriptHandler();
+}
+

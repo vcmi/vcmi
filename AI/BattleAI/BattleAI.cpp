@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "BattleAI.h"
 
-#include <vstd/RNG.h>
-
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
 #include "../../lib/CStopWatch.h"
@@ -23,26 +21,6 @@
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
-class RNGStub : public vstd::RNG
-{
-public:
-	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
-	{
-		return [=]()->int64_t
-		{
-			return (lower + upper)/2;
-		};
-	}
-
-	vstd::TRand getDoubleRange(double lower, double upper) override
-	{
-		return [=]()->double
-		{
-			return (lower + upper)/2;
-		};
-	}
-};
-
 enum class SpellTypes
 {
 	ADVENTURE, BATTLE, OTHER
@@ -50,17 +28,19 @@ enum class SpellTypes
 
 SpellTypes spellType(const CSpell * spell)
 {
-	if(!spell->isCombatSpell() || spell->isCreatureAbility())
+	if(!spell->isCombat() || spell->isCreatureAbility())
 		return SpellTypes::OTHER;
 
-	if(spell->isOffensiveSpell() || spell->hasEffects() || spell->hasBattleEffects())
+	if(spell->isOffensive() || spell->hasEffects() || spell->hasBattleEffects())
 		return SpellTypes::BATTLE;
 
 	return SpellTypes::OTHER;
 }
 
 CBattleAI::CBattleAI()
-	: side(-1), wasWaitingForRealize(false), wasUnlockingGs(false)
+	: side(-1),
+	wasWaitingForRealize(false),
+	wasUnlockingGs(false)
 {
 }
 
@@ -74,12 +54,13 @@ CBattleAI::~CBattleAI()
 	}
 }
 
-void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
+void CBattleAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	setCbc(CB);
+	env = ENV;
 	cb = CB;
 	playerID = *CB->getPlayerID(); //TODO should be sth in callback
-	wasWaitingForRealize = cb->waitTillRealize;
+	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = true;
 	CB->unlockGsWhenWaiting = false;
@@ -108,7 +89,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		attemptCastingSpell();
 
-		if(auto ret = getCbc()->battleIsFinished())
+		if(auto ret = cb->battleIsFinished())
 		{
 			//spellcast may finish battle
 			//send special preudo-action
@@ -121,7 +102,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			return *action;
 		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
 
-	
+
 		//evaluate casting spell for spellcasting stack
 		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
 		//TODO: faerie dragon type spell should be selected by server
@@ -151,7 +132,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			}
 		}
 
-		HypotheticBattle hb(getCbc());
+		HypotheticBattle hb(env.get(), cb);
 
 		PotentialTargets targets(stack, &hb);
 		if(targets.possibleAttacks.size())
@@ -175,7 +156,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			if(stack->waited())
 			{
 				//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-				auto dists = getCbc()->battleGetDistances(stack, stack->getPosition());
+				auto dists = cb->battleGetDistances(stack, stack->getPosition());
 				if(!targets.unreachableEnemies.empty())
 				{
 					const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, std::bind(isCloser, _1, _2, std::ref(dists)));
@@ -280,9 +261,9 @@ void CBattleAI::attemptCastingSpell()
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero](const CSpell *s) -> bool
+	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero, this](const CSpell *s) -> bool
 	{
-		return s->canBeCast(getCbc().get(), spells::Mode::HERO, hero);
+		return s->canBeCast(cb.get(), spells::Mode::HERO, hero);
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
@@ -297,7 +278,7 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		spells::BattleCast temp(getCbc().get(), hero, spells::Mode::HERO, spell);
+		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
 
 		for(auto & target : temp.findPotentialTargets())
 		{
@@ -399,8 +380,6 @@ void CBattleAI::attemptCastingSpell()
 		return ourTurnSpan >= minTurnSpan;
 	};
 
-	RNGStub rngStub;
-
 	ValueMap valueOfStack;
 	ValueMap healthOfStack;
 
@@ -435,7 +414,8 @@ void CBattleAI::attemptCastingSpell()
 	{
 		bool enemyHadTurn = false;
 
-		HypotheticBattle state(cb);
+		HypotheticBattle state(env.get(), cb);
+
 		evaluateQueue(valueOfStack, turnOrder, &state, 0, &enemyHadTurn);
 
 		if(!enemyHadTurn)
@@ -450,13 +430,12 @@ void CBattleAI::attemptCastingSpell()
 		}
 	}
 
-	auto evaluateSpellcast = [&] (PossibleSpellcast * ps)
+	auto evaluateSpellcast = [&] (PossibleSpellcast * ps, std::shared_ptr<void>)
 	{
-		HypotheticBattle state(cb);
+		HypotheticBattle state(env.get(), cb);
 
 		spells::BattleCast cast(&state, hero, spells::Mode::HERO, ps->spell);
-		cast.target = ps->dest;
-		cast.cast(&state, rngStub);
+		cast.castEval(state.getServerCallback(), ps->dest);
 		ValueMap newHealthOfStack;
 		ValueMap newValueOfStack;
 
@@ -515,10 +494,12 @@ void CBattleAI::attemptCastingSpell()
 		}
 	};
 
-	std::vector<std::function<void()>> tasks;
+	using EvalRunner = ThreadPool<void>;
+
+	EvalRunner::Tasks tasks;
 
 	for(PossibleSpellcast & psc : possibleCasts)
-		tasks.push_back(std::bind(evaluateSpellcast, &psc));
+		tasks.push_back(std::bind(evaluateSpellcast, &psc, _1));
 
 	uint32_t threadCount = boost::thread::hardware_concurrency();
 
@@ -530,8 +511,15 @@ void CBattleAI::attemptCastingSpell()
 
 	CStopWatch timer;
 
-	CThreadHelper threadHelper(&tasks, threadCount);
-	threadHelper.run();
+	std::vector<std::shared_ptr<void>> scriptsPool; //todo: re-implement scripts context cache
+
+	for(uint32_t idx = 0; idx < threadCount; idx++)
+	{
+		scriptsPool.emplace_back();
+	}
+
+	EvalRunner runner(&tasks, scriptsPool);
+	runner.run();
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
@@ -564,9 +552,9 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	using ValueMap = PossibleSpellcast::ValueMap;
 
 	RNGStub rngStub;
-	HypotheticBattle state(getCbc());
-	TStacks all = getCbc()->battleGetAllStacks(false);
-	
+	HypotheticBattle state(env.get(), cb);
+	TStacks all = cb->battleGetAllStacks(false);
+
 	ValueMap healthOfStack;
 	ValueMap newHealthOfStack;
 
@@ -576,8 +564,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	}
 
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
-	cast.target = ps.dest;
-	cast.cast(&state, rngStub);
+	cast.castEval(state.getServerCallback(), ps.dest);
 
 	for(auto unit : all)
 	{

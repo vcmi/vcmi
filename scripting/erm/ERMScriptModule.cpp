@@ -12,10 +12,6 @@
 
 #include "ERMInterpreter.h"
 
-IGameEventRealizer *acb;
-CPrivilegedInfoCallback *icb;
-
-
 #ifdef __GNUC__
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
@@ -27,7 +23,32 @@ extern "C" DLL_EXPORT void GetAiName(char* name)
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
 }
 
-extern "C" DLL_EXPORT void GetNewModule(std::shared_ptr<CScriptingModule> &out)
+extern "C" DLL_EXPORT void GetNewModule(std::shared_ptr<scripting::Module> &out)
 {
-	out = std::make_shared<ERMInterpreter>();
+	out = std::make_shared<ERMScriptModule>();
+}
+
+ERMScriptModule::ERMScriptModule()
+{
+
+}
+
+std::string ERMScriptModule::compile(const std::string & name, const std::string & source) const
+{
+	std::shared_ptr<ERMInterpreter> interp = std::make_shared<ERMInterpreter>(logMod);
+
+	interp->loadScript(name, source);
+	interp->scanScripts();
+
+	return interp->convert();
+}
+
+std::shared_ptr<scripting::ContextBase> ERMScriptModule::createContextFor(const scripting::Script * source, const Environment * env) const
+{
+	throw std::runtime_error("ERM context creation is not possible");
+}
+
+void ERMScriptModule::registerSpellEffect(spells::effects::Registry * registry, const scripting::Script * source) const
+{
+	throw std::runtime_error("ERM spell effect registration is not possible");
 }

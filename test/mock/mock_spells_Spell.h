@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../lib/spells/Magic.h"
+#include <vcmi/spells/Spell.h>
 
 namespace spells
 {
@@ -19,8 +19,24 @@ class SpellMock : public Spell
 {
 public:
 	MOCK_CONST_METHOD0(getIndex, int32_t());
+	MOCK_CONST_METHOD0(getJsonKey, const std::string &());
+	MOCK_CONST_METHOD0(getName, const std::string &());
+	MOCK_CONST_METHOD0(getId, SpellID());
 	MOCK_CONST_METHOD0(getLevel, int32_t());
-	MOCK_CONST_METHOD1(forEachSchool, void(const std::function<void (const SchoolInfo &, bool &)> &));
+	MOCK_CONST_METHOD1(getCost, int32_t(const int32_t));
+	MOCK_CONST_METHOD0(getBasePower, int32_t());
+	MOCK_CONST_METHOD1(getLevelPower, int32_t(const int32_t));
+	MOCK_CONST_METHOD0(getPositiveness, boost::logic::tribool());
+	MOCK_CONST_METHOD0(isAdventure, bool());
+	MOCK_CONST_METHOD0(isCombat, bool());
+	MOCK_CONST_METHOD0(isCreatureAbility, bool());
+	MOCK_CONST_METHOD0(isPositive, bool());
+	MOCK_CONST_METHOD0(isNegative, bool());
+	MOCK_CONST_METHOD0(isNeutral, bool());
+	MOCK_CONST_METHOD0(isDamage, bool());
+	MOCK_CONST_METHOD0(isOffensive, bool());
+	MOCK_CONST_METHOD0(isSpecial, bool());
+	MOCK_CONST_METHOD1(forEachSchool, void(const SchoolCallback &));
 };
 
 }

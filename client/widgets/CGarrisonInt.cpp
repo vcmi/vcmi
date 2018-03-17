@@ -367,12 +367,12 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * Creature)
-	: ID(IID),
-	owner(Owner),
-	myStack(Creature),
-	creature(nullptr),
-	upg(Upg)
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * creature_)
+    : ID(IID),
+    owner(Owner),
+    myStack(creature_),
+    creature(creature_ ? creature_->type : nullptr),
+    upg(Upg)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -382,7 +382,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
 
 	creatureImage =  std::make_shared<CAnimImage>(imgName, 0);
-	creatureImage->disable();
+		creatureImage->disable();
 
 	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
 	selectionImage->disable();
@@ -496,13 +496,13 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point & garsOffset,
 		const CArmedInstance * s1, const CArmedInstance * s2,
 		bool _removableUnits, bool smallImgs, bool _twoRows)
 	: highlighted(nullptr),
-	inSplittingMode(false),
-	interx(inx),
-	garOffset(garsOffset),
-	pb(false),
-	smallIcons(smallImgs),
-	removableUnits(_removableUnits),
-	twoRows(_twoRows)
+    inSplittingMode(false),
+    interx(inx),
+    garOffset(garsOffset),
+    pb(false),
+    smallIcons(smallImgs),
+    removableUnits(_removableUnits),
+    twoRows(_twoRows)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

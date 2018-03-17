@@ -1,0 +1,19 @@
+ZVSE
+
+!?FU1;
+	!!VRv2778:Sx16%2;
+	!!IF&x16>3:M^Hello world number %X16! (1)^;
+	!!if&x16<=3:;
+		!!if&v2778==0:;
+			!!IF:M^Hello world number %X16! (2)^;
+		!!el:;
+			!!IF:M^Hello world number %X16! (3)^;
+		!!en:;
+	!!en:;
+
+!?FU42;
+	!!VRv2777:S4;
+	!!DO1/0/5/1&v2777<>1:P0;
+
+	!!VRz10:S^Composed hello ^;
+	!!IF:M^%Z10%%world%%, v2777=%V2777, v2778=%V2778!^;

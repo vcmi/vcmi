@@ -11,6 +11,26 @@
 
 #include "ConstTransitivePtr.h"
 
+class Artifact;
+class ArtifactService;
+class Creature;
+class CreatureService;
+
+namespace spells
+{
+	class Spell;
+	class Service;
+}
+
+class CArtifact;
+class CArtifactInstance;
+class CCreature;
+class CHero;
+class CSpell;
+class CSkill;
+class CGameInfoCallback;
+class CNonConstInfoCallback;
+
 namespace GameConstants
 {
 	DLL_LINKAGE extern const std::string VCMI_VERSION;
@@ -54,15 +74,6 @@ namespace GameConstants
 
 	const std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
-
-class CArtifact;
-class CArtifactInstance;
-class CCreature;
-class CHero;
-class CSpell;
-class CSkill;
-class CGameInfoCallback;
-class CNonConstInfoCallback;
 
 #define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
 CLASS_NAME(const CLASS_NAME & other)				\
@@ -318,8 +329,6 @@ public:
 
 	SecondarySkill(ESecondarySkill _num = WRONG) : num(_num)
 	{}
-
-	DLL_LINKAGE const CSkill * toSkill() const;
 
 	ID_LIKE_CLASS_COMMON(SecondarySkill, ESecondarySkill)
 
@@ -929,6 +938,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
+	DLL_LINKAGE const Artifact * toArtifact(const ArtifactService * service) const;
 
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
@@ -978,6 +988,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CCreature * toCreature() const;
+	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatureService) const;
 
 	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
 
@@ -1024,7 +1035,8 @@ public:
 	SpellID(ESpellID _num = NONE) : num(_num)
 	{}
 
-	DLL_LINKAGE const CSpell * toSpell() const;
+	DLL_LINKAGE const CSpell * toSpell() const; //deprecated
+	DLL_LINKAGE const spells::Spell * toSpell(const spells::Service * service) const;
 
 	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)
 

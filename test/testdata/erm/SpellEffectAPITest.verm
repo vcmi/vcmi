@@ -1,0 +1,29 @@
+VERM
+
+!?PI;
+
+; make effect work only on expert level
+
+![defun applicable []
+	[if [>= effect-level 3] 1 0]
+]
+
+![defun check-one [destination]
+	[progn
+		[setq hex [car destination]]
+		[setq x [% hex 17]]
+		[<= x 9]
+	]
+]
+
+
+; make effect work only on left side of battle field
+
+![defun applicableTarget [targets]
+
+	[progn
+		[setq first [car targets]]
+		[setq chkres [check-one first]]
+		[if chkres 1 0]
+	]
+]

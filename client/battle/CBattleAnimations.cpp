@@ -29,7 +29,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/spells/CSpellHandler.h"
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
     : owner(_owner), ID(_owner->animIDhelper++)

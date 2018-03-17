@@ -8,7 +8,7 @@
  *
  */
 #pragma once
- 
+
 #include <boost/spirit/home/support/unused.hpp>
 
 namespace spirit = boost::spirit;
@@ -16,14 +16,14 @@ namespace spirit = boost::spirit;
 class CERMPreprocessor
 {
 	std::string fname;
-	std::ifstream file;
+	std::stringstream sourceStream;
 	int lineNo;
 	enum {INVALID, ERM, VERM} version;
 
 	void getline(std::string &ret);
 
 public:
-	CERMPreprocessor(const std::string &Fname);
+	CERMPreprocessor(const std::string & source);
 	std::string retrieveCommandLine();
 	int getCurLineNo() const
 	{
@@ -34,6 +34,9 @@ public:
 //various classes that represent ERM/VERM AST
 namespace ERM
 {
+	using ValType = int; //todo: set to int64_t
+	using IType = int; //todo: set to int32_t
+
 	struct TStringConstant
 	{
 		std::string str;
@@ -105,7 +108,7 @@ namespace ERM
 		TStringConstant string;
 	};
 
-	struct TVarConcatString 
+	struct TVarConcatString
 	{
 		TVarExp var;
 		TStringConstant string;
@@ -122,8 +125,8 @@ namespace ERM
 	};
 	typedef boost::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
 
-	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
-	typedef std::vector< TIdentifierInternal > Tidentifier;
+//	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
+	typedef std::vector< TIexp > Tidentifier;
 
 	struct TComparison
 	{
@@ -160,7 +163,7 @@ namespace ERM
 
 	struct Ttrigger : TTriggerBase
 	{
-		Ttrigger() 
+		Ttrigger()
 		{
 			pre = true;
 		}
@@ -209,7 +212,7 @@ namespace ERM
 		>
 		Tcmd;
 		Tcmd cmd;
-		std::string comment;
+		//std::string comment;
 	};
 
 	//vector expression
@@ -250,7 +253,7 @@ struct LineInfo
 class ERMParser
 {
 private:
-	std::string srcFile;
+	std::string source;
 	void repairEncoding(char * str, int len) const; //removes nonstandard ascii characters from string
 	void repairEncoding(std::string & str) const; //removes nonstandard ascii characters from string
 	enum ELineType{COMMAND_FULL, COMMENT, UNFINISHED, END_OF};
@@ -259,7 +262,7 @@ private:
 
 
 public:
-	ERMParser(std::string file);
+	ERMParser(std::string source_);
 	std::vector<LineInfo> parseFile();
 	static ERM::TLine parseLine(const std::string & line);
 };

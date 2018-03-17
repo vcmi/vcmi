@@ -27,7 +27,6 @@ namespace battle
 	class UnitInfo;
 }
 
-
 class DLL_LINKAGE IBattleInfo
 {
 public:

@@ -16,11 +16,13 @@
 #include "../Version.h"
 #endif
 
+#include <vcmi/spells/Service.h>
+
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectClassesHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
-#include "spells/CSpellHandler.h"
+#include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
@@ -52,6 +54,11 @@ const CArtifact * ArtifactID::toArtifact() const
 	return VLC->arth->artifacts.at(*this);
 }
 
+const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
+{
+	return service->getArtifact(*this);
+}
+
 si32 ArtifactID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
@@ -69,6 +76,11 @@ std::string ArtifactID::encode(const si32 index)
 const CCreature * CreatureID::toCreature() const
 {
 	return VLC->creh->creatures.at(*this);
+}
+
+const Creature * CreatureID::toCreature(const CreatureService * creatureService) const
+{
+	return creatureService->getCreature(*this);
 }
 
 si32 CreatureID::decode(const std::string & identifier)
@@ -95,6 +107,11 @@ const CSpell * SpellID::toSpell() const
 	return VLC->spellh->objects[*this];
 }
 
+const spells::Spell * SpellID::toSpell(const spells::Service * service) const
+{
+	return service->getSpell(*this);
+}
+
 si32 SpellID::decode(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
@@ -108,14 +125,6 @@ std::string SpellID::encode(const si32 index)
 {
 	return VLC->spellh->objects.at(index)->identifier;
 }
-
-const CSkill * SecondarySkill::toSkill() const
-{
-	return VLC->skillh->objects.at(*this);
-}
-
-//template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
-//template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
 
 bool PlayerColor::isValidPlayer() const
 {

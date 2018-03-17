@@ -63,10 +63,17 @@ bool JsonComparer::isEmpty(const JsonNode & value)
 
 void JsonComparer::check(const bool condition, const std::string & message)
 {
-	if(strict)
-		ASSERT_TRUE(condition) << buildMessage(message);
-	else
-		EXPECT_TRUE(condition) << buildMessage(message);
+	if(!condition)
+	{
+		if(strict)
+		{
+			GTEST_FAIL() << buildMessage(message);
+		}
+		else
+		{
+			ADD_FAILURE() << buildMessage(message);
+		}
+	}
 }
 
 void JsonComparer::checkEqualInteger(const si64 actual, const si64 expected)
@@ -121,7 +128,8 @@ void JsonComparer::checkEqualJson(const JsonNode & actual, const JsonNode & expe
 
 	const bool validType = actual.getType() == expected.getType();
 
-	check(validType, "type mismatch");
+	check(validType, "type mismatch. \n expected:\n"+expected.toJson(true)+"\n actual:\n" +actual.toJson(true));
+
 
 	//do detail checks avoiding assertions in JsonNode
 	if(validType)

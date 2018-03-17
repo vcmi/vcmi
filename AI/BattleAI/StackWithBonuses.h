@@ -8,6 +8,12 @@
  *
  */
 #pragma once
+
+#include <vstd/RNG.h>
+
+#include <vcmi/Environment.h>
+#include <vcmi/ServerCallback.h>
+
 #include "../../lib/HeroBonus.h"
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
@@ -15,10 +21,31 @@
 class HypotheticBattle;
 class CStack;
 
+
+class RNGStub : public vstd::RNG
+{
+public:
+	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
+	{
+		return [=]()->int64_t
+		{
+			return (lower + upper)/2;
+		};
+	}
+
+	vstd::TRand getDoubleRange(double lower, double upper) override
+	{
+		return [=]()->double
+		{
+			return (lower + upper)/2;
+		};
+	}
+};
+
+
 class StackWithBonuses : public battle::CUnitState, public virtual IBonusBearer
 {
 public:
-
 	std::vector<Bonus> bonusesToAdd;
 	std::vector<Bonus> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
@@ -53,7 +80,7 @@ public:
 
 	void removeUnitBonus(const CSelector & selector);
 
-	void spendMana(const spells::PacketSender * server, const int spellCost) const override;
+	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 private:
 	const IBonusBearer * origBearer;
@@ -72,7 +99,9 @@ class HypotheticBattle : public BattleProxy, public battle::IUnitEnvironment
 public:
 	std::map<uint32_t, std::shared_ptr<StackWithBonuses>> stackStates;
 
-	HypotheticBattle(Subject realBattle);
+	const Environment * env;
+
+	HypotheticBattle(const Environment * ENV, Subject realBattle);
 
 	bool unitHasAmmoCart(const battle::Unit * unit) const override;
 	PlayerColor unitEffectiveOwner(const battle::Unit * unit) const override;
@@ -106,8 +135,59 @@ public:
 
 	int64_t getTreeVersion() const;
 
+	scripting::Pool * getContextPool() const override;
+
+	ServerCallback * getServerCallback();
+
 private:
+
+	class HypotheticServerCallback : public ServerCallback
+	{
+	public:
+		HypotheticServerCallback(HypotheticBattle * owner_);
+
+		void complain(const std::string & problem) override;
+		bool describeChanges() const override;
+
+		vstd::RNG * getRNG() override;
+
+		void apply(CPackForClient * pack) override;
+
+		void apply(BattleLogMessage * pack) override;
+		void apply(BattleStackMoved * pack) override;
+		void apply(BattleUnitsChanged * pack) override;
+		void apply(SetStackEffect * pack) override;
+		void apply(StacksInjured * pack) override;
+		void apply(BattleObstaclesChanged * pack) override;
+		void apply(CatapultAttack * pack) override;
+	private:
+		HypotheticBattle * owner;
+		RNGStub rngStub;
+	};
+
+	class HypotheticEnvironment : public Environment
+	{
+	public:
+		HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment);
+
+		const Services * services() const override;
+		const BattleCb * battle() const override;
+		const GameCb * game() const override;
+		vstd::CLoggerBase * logger() const override;
+		events::EventBus * eventBus() const override;
+
+	private:
+		HypotheticBattle * owner;
+		const Environment * env;
+	};
+
 	int32_t bonusTreeVersion;
 	int32_t activeUnitId;
 	mutable uint32_t nextId;
+
+	std::unique_ptr<HypotheticServerCallback> serverCallback;
+	std::unique_ptr<HypotheticEnvironment> localEnvironment;
+
+	mutable std::shared_ptr<scripting::Pool> pool;
+	mutable std::shared_ptr<events::EventBus> eventBus;
 };

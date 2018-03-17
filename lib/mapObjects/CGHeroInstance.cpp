@@ -11,6 +11,9 @@
 #include "StdInc.h"
 #include "CGHeroInstance.h"
 
+#include <vcmi/ServerCallback.h>
+#include <vcmi/spells/Spell.h>
+
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
@@ -610,13 +613,13 @@ int32_t CGHeroInstance::getCasterUnitId() const
 	return -1; //TODO: special value for attacker/defender hero
 }
 
-ui8 CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool) const
+int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
 {
-	si16 skill = -1; //skill level
+	int32_t skill = -1; //skill level
 
 	spell->forEachSchool([&, this](const spells::SchoolInfo & cnf, bool & stop)
 	{
-		int thisSchool = std::max<int>(
+		int32_t thisSchool = std::max<int32_t>(
 			valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, cnf.skill),
 			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << ((ui8)cnf.id))); //FIXME: Bonus shouldn't be additive (Witchking Artifacts : Crown of Skies)
 		if(thisSchool > skill)
@@ -663,7 +666,7 @@ int64_t CGHeroInstance::getSpecificSpellBonus(const spells::Spell * spell, int64
 	return base;
 }
 
-int CGHeroInstance::getEffectLevel(const spells::Spell * spell) const
+int32_t CGHeroInstance::getEffectLevel(const spells::Spell * spell) const
 {
 	if(hasBonusOfType(Bonus::MAXED_SPELL, spell->getIndex()))
 		return 3;//todo: recheck specialty from where this bonus is. possible bug
@@ -671,12 +674,12 @@ int CGHeroInstance::getEffectLevel(const spells::Spell * spell) const
 		return getSpellSchoolLevel(spell);
 }
 
-int CGHeroInstance::getEffectPower(const spells::Spell * spell) const
+int32_t CGHeroInstance::getEffectPower(const spells::Spell * spell) const
 {
 	return getPrimSkillLevel(PrimarySkill::SPELL_POWER);
 }
 
-int CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
+int32_t CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
 {
 	return getPrimSkillLevel(PrimarySkill::SPELL_POWER) + valOfBonuses(Bonus::SPELL_DURATION);
 }
@@ -709,7 +712,7 @@ void CGHeroInstance::getCastDescription(const spells::Spell * spell, const std::
 		attacked.at(0)->addNameReplacement(text, true);
 }
 
-void CGHeroInstance::spendMana(const spells::PacketSender * server, const int spellCost) const
+void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) const
 {
 	if(spellCost != 0)
 	{
@@ -718,16 +721,16 @@ void CGHeroInstance::spendMana(const spells::PacketSender * server, const int sp
 		sm.hid = id;
 		sm.val = -spellCost;
 
-		server->sendAndApply(&sm);
+		server->apply(&sm);
 	}
 }
 
-bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
+bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->id);
+	const bool isAllowed = IObjectInterface::cb->isAllowed(0, spell->getIndex());
 
-	const bool inSpellBook = vstd::contains(spells, spell->id) && hasSpellbook();
-	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->id);
+	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
+	const bool specificBonus = hasBonusOfType(Bonus::SPELL, spell->getIndex());
 
 	bool schoolBonus = false;
 
@@ -739,13 +742,13 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 		}
 	});
 
-	const bool levelBonus = hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->level);
+	const bool levelBonus = hasBonusOfType(Bonus::SPELLS_OF_LEVEL, spell->getLevel());
 
-	if(spell->isSpecialSpell())
+	if(spell->isSpecial())
 	{
 		if(inSpellBook)
 		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->name);
+			logGlobal->error("Special spell %s in spellbook.", spell->getLevel());
 		}
 		return specificBonus;
 	}
@@ -755,7 +758,7 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 		{
 			//hero has this spell in spellbook
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
-			logGlobal->trace("Banned spell %s in spellbook.", spell->name);
+			logGlobal->trace("Banned spell %s in spellbook.", spell->getName());
 		}
 		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
@@ -765,32 +768,32 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	}
 }
 
-bool CGHeroInstance::canLearnSpell(const CSpell * spell) const
+bool CGHeroInstance::canLearnSpell(const spells::Spell * spell) const
 {
     if(!hasSpellbook())
 		return false;
 
-	if(spell->level > maxSpellLevel()) //not enough wisdom
+	if(spell->getLevel() > maxSpellLevel()) //not enough wisdom
 		return false;
 
-	if(vstd::contains(spells, spell->id))//already known
+	if(vstd::contains(spells, spell->getId()))//already known
 		return false;
 
-	if(spell->isSpecialSpell())
+	if(spell->isSpecial())
 	{
-		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->name);
+		logGlobal->warn("Hero %s try to learn special spell %s", nodeName(), spell->getName());
 		return false;//special spells can not be learned
 	}
 
 	if(spell->isCreatureAbility())
 	{
-		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->name);
+		logGlobal->warn("Hero %s try to learn creature spell %s", nodeName(), spell->getName());
 		return false;//creature abilities can not be learned
 	}
 
-	if(!IObjectInterface::cb->isAllowed(0, spell->id))
+	if(!IObjectInterface::cb->isAllowed(0, spell->getIndex()))
 	{
-		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->name);
+		logGlobal->warn("Hero %s try to learn banned spell %s", nodeName(), spell->getName());
 		return false;//banned spells should not be learned
 	}
 
@@ -980,7 +983,7 @@ void CGHeroInstance::getOutOffsets(std::vector<int3> &offsets) const
 	};
 }
 
-int CGHeroInstance::getSpellCost(const CSpell * sp) const
+int32_t CGHeroInstance::getSpellCost(const spells::Spell * sp) const
 {
 	return sp->getCost(getSpellSchoolLevel(sp));
 }

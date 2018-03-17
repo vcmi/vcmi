@@ -9,20 +9,39 @@
  */
 #pragma once
 
-#include "IGameEventsReceiver.h"
+#include <vcmi/scripting/Service.h>
 
-class IGameEventRealizer;
-class CPrivilegedInfoCallback;
+namespace spells
+{
+	namespace effects
+	{
+		class Registry;
+	}
+}
 
-class CScriptingModule : public IGameEventsReceiver, public IBattleEventsReceiver
+namespace scripting
+{
+
+class DLL_LINKAGE ContextBase : public Context
 {
 public:
-	virtual void executeUserCommand(const std::string &cmd){};
-	virtual void init(){}; //called upon the start of game (after map randomization, before first turn)
-	virtual void giveActionCB(IGameEventRealizer *cb){}; 
-	virtual void giveInfoCB(CPrivilegedInfoCallback *cb){};
-
-	CScriptingModule(){}
-	virtual ~CScriptingModule(){}
+	ContextBase(vstd::CLoggerBase * logger_);
+	virtual ~ContextBase();
+protected:
+	vstd::CLoggerBase * logger;
 };
 
+class DLL_LINKAGE Module
+{
+public:
+	Module();
+	virtual ~Module();
+
+	virtual std::string compile(const std::string & name, const std::string & source) const = 0;
+
+	virtual std::shared_ptr<ContextBase> createContextFor(const Script * source, const Environment * env) const = 0;
+
+	virtual void registerSpellEffect(spells::effects::Registry * registry, const Script * source) const = 0;
+};
+
+}

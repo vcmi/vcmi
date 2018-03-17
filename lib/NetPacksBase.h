@@ -98,9 +98,9 @@ public:
 
 	std::vector<std::pair<ui8,ui32> > localStrings;
 	std::vector<std::string> exactStrings;
-	std::vector<si32> numbers;
+	std::vector<int64_t> numbers;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & exactStrings;
 		h & localStrings;
@@ -124,7 +124,7 @@ public:
 		exactStrings.push_back(txt);
 		return *this;
 	}
-	MetaString& operator<<(int txt)
+	MetaString& operator<<(int64_t txt)
 	{
 		message.push_back(TNUMBER);
 		numbers.push_back(txt);
@@ -140,12 +140,12 @@ public:
 		message.push_back(TREPLACE_ESTRING);
 		exactStrings.push_back(txt);
 	}
-	void addReplacement(int txt)
+	void addReplacement(int64_t txt)
 	{
 		message.push_back(TREPLACE_NUMBER);
 		numbers.push_back(txt);
 	}
-	void addReplacement2(int txt)
+	void addReplacement2(int64_t txt)
 	{
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);

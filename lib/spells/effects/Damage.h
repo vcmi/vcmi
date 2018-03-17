@@ -25,7 +25,7 @@ public:
 	Damage();
 	virtual ~Damage();
 
-	void apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
 	bool isReceptive(const Mechanics * m, const battle::Unit * unit) const override;
@@ -40,8 +40,6 @@ private:
 	int32_t customEffectId;
 	bool killByPercentage;
 	bool killByCount;
-
-	void prepareEffects(StacksInjured & stacksInjured, RNG & rng, const Mechanics * m, const EffectTarget & target, bool describe) const;
 };
 
 }

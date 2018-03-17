@@ -712,7 +712,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 	//do not generate special abilities and spells
 	for (auto spell : VLC->spellh->objects)
-		if (spell->isSpecialSpell() || spell->isCreatureAbility())
+		if (spell->isSpecial() || spell->isCreatureAbility())
 			map->allowedSpell[spell->id] = false;
 }
 

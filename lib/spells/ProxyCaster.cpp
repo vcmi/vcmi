@@ -29,12 +29,12 @@ int32_t ProxyCaster::getCasterUnitId() const
 	return actualCaster->getCasterUnitId();
 }
 
-ui8 ProxyCaster::getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool) const
+int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
 {
 	return actualCaster->getSpellSchoolLevel(spell, outSelectedSchool);
 }
 
-int ProxyCaster::getEffectLevel(const Spell * spell) const
+int32_t ProxyCaster::getEffectLevel(const Spell * spell) const
 {
 	return actualCaster->getEffectLevel(spell);
 }
@@ -49,12 +49,12 @@ int64_t ProxyCaster::getSpecificSpellBonus(const Spell * spell, int64_t base) co
 	return actualCaster->getSpecificSpellBonus(spell, base);
 }
 
-int ProxyCaster::getEffectPower(const Spell * spell) const
+int32_t ProxyCaster::getEffectPower(const Spell * spell) const
 {
 	return actualCaster->getEffectPower(spell);
 }
 
-int ProxyCaster::getEnchantPower(const Spell * spell) const
+int32_t ProxyCaster::getEnchantPower(const Spell * spell) const
 {
 	return actualCaster->getEnchantPower(spell);
 }
@@ -79,7 +79,7 @@ void ProxyCaster::getCastDescription(const Spell * spell, const std::vector<cons
 	actualCaster->getCastDescription(spell, attacked, text);
 }
 
-void ProxyCaster::spendMana(const PacketSender * server, const int spellCost) const
+void ProxyCaster::spendMana(ServerCallback * server, const int32_t spellCost) const
 {
 	actualCaster->spendMana(server, spellCost);
 }

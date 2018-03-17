@@ -10,19 +10,20 @@
 
 #pragma once
 
+#include <vcmi/ServerCallback.h>
+
 #include "../../lib/IGameCallback.h"
 
-//TODO: move/rename PacketSender to better place
 #include "../../lib/int3.h"
-#include "../../lib/spells/Magic.h"
+
 
 
 class GameCallbackMock : public IGameCallback
 {
 public:
-	using UpperCallback = ::spells::PacketSender;
+	using UpperCallback = ::ServerCallback;
 
-	GameCallbackMock(const UpperCallback * upperCallback_);
+	GameCallbackMock(UpperCallback * upperCallback_);
 	virtual ~GameCallbackMock();
 
 	void setGameState(CGameState * gameState);
@@ -34,9 +35,12 @@ public:
 
 	//TODO: fail all stub calls
 
+	void setObjProperty(ObjectInstanceID objid, int prop, si64 val) override {};
+	void showInfoDialog(InfoWindow * iw) override {};
+	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
+
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override {};
 	bool removeObject(const CGObjectInstance * obj) override {return false;};
-	void setBlockVis(ObjectInstanceID objid, bool bv) override {};
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) override {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {};
@@ -65,7 +69,6 @@ public:
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override {};
 	void removeArtifact(const ArtifactLocation &al) override {};
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override {return false;};
-	void synchronizeArtifactHandlerLists() override {};
 
 	void showCompInfo(ShowInInfobox * comp) override {};
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
@@ -73,7 +76,6 @@ public:
 	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	void setAmount(ObjectInstanceID objid, ui32 val) override {};
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;};
 	void giveHeroBonus(GiveBonus * bonus) override {};
 	void setMovePoints(SetMovePoints * smp) override {};
@@ -85,8 +87,9 @@ public:
 	void changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, PlayerColor player, bool hide) override {};
 
 	///useful callback methods
-	void commitPackage(CPackForClient * pack) override;
 	void sendAndApply(CPackForClient * pack) override;
+
+	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
 private:
-	const UpperCallback * upperCallback;
+	UpperCallback * upperCallback;
 };

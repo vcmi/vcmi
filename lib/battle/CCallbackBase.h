@@ -11,6 +11,7 @@
 #include "../GameConstants.h"
 
 #define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return X; }
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 class IBattleInfo;
 class BattleInfo;

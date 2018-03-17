@@ -23,7 +23,7 @@
 #include "../CPlayerInterface.h"
 #include "../battle/CBattleInterface.h"
 
-extern std::queue<SDL_Event> events;
+extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 
 boost::thread_specific_ptr<bool> inGuiThread;
@@ -185,12 +185,12 @@ void CGuiHandler::handleEvents()
 		return;
 
 	boost::unique_lock<boost::mutex> lock(eventsM);
-	while(!events.empty())
+	while(!SDLEventsQueue.empty())
 	{
 		continueEventHandling = true;
-		SDL_Event ev = events.front();
+		SDL_Event ev = SDLEventsQueue.front();
 		current = &ev;
-		events.pop();
+		SDLEventsQueue.pop();
 		handleCurrentEvent();
 	}
 }

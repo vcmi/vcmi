@@ -60,6 +60,8 @@ namespace boost
 	class shared_mutex;
 }
 
+
+
 template<typename T> class CApplier;
 class CBaseForGSApply;
 

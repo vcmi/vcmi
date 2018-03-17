@@ -205,7 +205,19 @@ void CResourceHandler::load(const std::string &fsConfigURI)
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
 {
-	assert(knownLoaders.count(identifier) == 0);
+	if(knownLoaders.count(identifier) != 0)
+	{
+		logMod->error("[CRITICAL] Virtual filesystem %s already loaded!", identifier);
+		delete loader;
+		return;
+	}
+
+	if(knownLoaders.count(parent) == 0)
+	{
+		logMod->error("[CRITICAL] Parent virtual filesystem %s for %s not found!", parent, identifier);
+		delete loader;
+		return;
+	}
 
 	auto list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
 	assert(list);

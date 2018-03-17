@@ -16,15 +16,13 @@
 #include "../../lib/battle/CUnitState.h"
 #include "../../lib/CCreatureHandler.h"
 
-class UnitStateMagicTest : public testing::Test
+class UnitStateMagicTest : public ::testing::Test
 {
 public:
 	UnitInfoMock infoMock;
 	UnitEnvironmentMock envMock;
 	BonusBearerMock bonusMock;
-	spells::SpellMock spellMock;
-
-	const CCreature * pikeman;
+	::testing::StrictMock<spells::SpellMock> spellMock;
 
 	battle::CUnitStateDetached subject;
 
@@ -39,7 +37,6 @@ public:
 		spellMock(),
 		subject(&infoMock, &bonusMock)
 	{
-		pikeman = CreatureID(0).toCreature();
 	}
 
 	void setDefaultExpectations()

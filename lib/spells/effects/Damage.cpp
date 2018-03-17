@@ -39,12 +39,60 @@ Damage::Damage()
 
 Damage::~Damage() = default;
 
-void Damage::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	StacksInjured stacksInjured;
-	prepareEffects(stacksInjured, rng, m, target, battleState->describe);
+	BattleLogMessage blm;
+	size_t targetIndex = 0;
+	const battle::Unit * firstTarget = nullptr;
+	const bool describe = server->describeChanges();
+
+	int64_t damageToDisplay = 0;
+	uint32_t killed = 0;
+	bool multiple = false;
+
+	for(auto & t : target)
+	{
+		const battle::Unit * unit = t.unitValue;
+		if(unit && unit->alive())
+		{
+			BattleStackAttacked bsa;
+			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
+			bsa.stackAttacked = unit->unitId();
+			bsa.attackerID = -1;
+			auto newState = unit->acquireState();
+			CStack::prepareAttacked(bsa, *server->getRNG(), newState);
+
+			if(describe)
+			{
+				if(!firstTarget)
+					firstTarget = unit;
+				else
+					multiple = true;
+				damageToDisplay += bsa.damageAmount;
+				killed += bsa.killedAmount;
+			}
+			if(customEffectId >= 0)
+			{
+				bsa.effect = 82;
+				bsa.flags |= BattleStackAttacked::EFFECT;
+			}
+
+			stacksInjured.stacks.push_back(bsa);
+		}
+		targetIndex++;
+	}
+
+	if(describe && firstTarget && damageToDisplay > 0)
+	{
+		describeEffect(blm.lines, m, firstTarget, killed, damageToDisplay, multiple);
+	}
+
 	if(!stacksInjured.stacks.empty())
-		battleState->apply(&stacksInjured);
+		server->apply(&stacksInjured);
+
+	if(!blm.lines.empty())
+		server->apply(&blm);
 }
 
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
@@ -173,51 +221,6 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			log.push_back(line);
 		}
 	}
-}
-
-void Damage::prepareEffects(StacksInjured & stacksInjured, RNG & rng, const Mechanics * m, const EffectTarget & target, bool describe) const
-{
-	size_t targetIndex = 0;
-	const battle::Unit * firstTarget = nullptr;
-
-	int64_t damageToDisplay = 0;
-	uint32_t killed = 0;
-	bool multiple = false;
-
-	for(auto & t : target)
-	{
-		const battle::Unit * unit = t.unitValue;
-		if(unit && unit->alive())
-		{
-			BattleStackAttacked bsa;
-			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
-			bsa.stackAttacked = unit->unitId();
-			bsa.attackerID = -1;
-			auto newState = unit->acquireState();
-			CStack::prepareAttacked(bsa, rng, newState);
-
-			if(describe)
-			{
-				if(!firstTarget)
-					firstTarget = unit;
-				else
-					multiple = true;
-				damageToDisplay += bsa.damageAmount;
-				killed += bsa.killedAmount;
-			}
-			if(customEffectId >= 0)
-			{
-				bsa.effect = 82;
-				bsa.flags |= BattleStackAttacked::EFFECT;
-			}
-
-			stacksInjured.stacks.push_back(bsa);
-		}
-		targetIndex++;
-	}
-
-	if(describe && firstTarget && damageToDisplay > 0)
-		describeEffect(stacksInjured.battleLog, m, firstTarget, killed, damageToDisplay, multiple);
 }
 
 }

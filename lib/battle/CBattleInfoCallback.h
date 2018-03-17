@@ -8,10 +8,12 @@
  *
  */
 #pragma once
+
+#include <vcmi/spells/Magic.h>
+
 #include "CCallbackBase.h"
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
-#include "../spells/Magic.h"
 
 class CGHeroInstance;
 class CStack;
@@ -20,6 +22,19 @@ class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
 class CRandomGenerator;
+
+namespace scripting
+{
+	class Context;
+	class Pool;
+	class Script;
+}
+
+namespace spells
+{
+	class Caster;
+	class Spell;
+}
 
 struct DLL_LINKAGE AttackableTiles
 {
@@ -57,14 +72,16 @@ public:
 		RANDOM_GENIE, RANDOM_AIMED
 	};
 
-	boost::optional<int> battleIsFinished() const; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
+	std::shared_ptr<scripting::Context> getScriptingContext(const scripting::Script * script) const;
 
-	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const; //blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
-	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const CStack * stack) const;
+	boost::optional<int> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
+
+	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(BattleHex tile, bool onlyBlocking = true) const override;
+	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit) const override;
 
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true) const;
 
-	const battle::Unit * battleGetUnitByPos(BattleHex pos, bool onlyAlive = true) const;
+	const battle::Unit * battleGetUnitByPos(BattleHex pos, bool onlyAlive = true) const override;
 
 	///returns all alive units excluding turrets
 	battle::Units battleAliveUnits() const;
@@ -72,8 +89,6 @@ public:
 	battle::Units battleAliveUnits(ui8 side) const;
 
 	void battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn = 0, int8_t lastMoved = -1) const;
-
-	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
 
 	///returns reachable hexes (valid movement destinations), DOES contain stack current position
 	std::vector<BattleHex> battleGetAvailableHexes(const battle::Unit * unit, bool addOccupiable, std::vector<BattleHex> * attackable) const;
@@ -108,7 +123,7 @@ public:
 
 	si8 battleMinSpellLevel(ui8 side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	si8 battleMaxSpellLevel(ui8 side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
-	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
+	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
 	SpellID battleGetRandomStackSpell(CRandomGenerator & rand, const CStack * stack, ERandomSpell mode) const;
@@ -141,4 +156,6 @@ protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
+
+	virtual scripting::Pool * getContextPool() const = 0;
 };

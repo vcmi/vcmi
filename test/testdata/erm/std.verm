@@ -1,0 +1,64 @@
+VERM
+
+!?FU42;
+
+![defun print [text]
+	[setq z 1 text]
+	!!IF:M^%Z1^;
+]
+
+; example 2 --- simple arithmetics
+![defun add [x y] [+ x y]]
+
+
+; example 6 --- resursion
+![defun factorial [n]
+	[if [= n 0] 1
+		[* n [factorial [- n 1]]]
+	]
+]
+
+; example 1 --- Hello World
+![print ^Hello world!^]
+
+; example 2 --- simple arithmetics
+![print [add 2 3]]
+
+; example 3 --- semantic macros
+;![defmacro doNTimes [times body]
+;	`[progn
+;		!!IF:M^Hello world from macro def^;
+;		[setq doCounter 0]
+;		[setq doMax ,times]
+;		[do [< doCounter doMax]
+;			[progn
+;				[setq doCounter [+ doCounter 1]]
+;				,body
+;			]
+;		]
+;	]
+;]
+
+;![doNTimes 4
+;	[progn
+;		!!IF:M^Hello world from macro usage^;
+;		[print ^tekst\n^]
+;	]
+;]
+
+; example 4 --- conditional expression
+![if [> 2 1] [print ^2>1^] [print ^2<=1^]]
+
+; example 5 --- lambda expressions
+![
+	[lambda [x y]
+		[if [> x y]
+			[print ^x>y^]
+			[print ^x<=y^]
+		]
+	]
+	2 3
+]
+
+; example 6 --- resursion
+![print [factorial 8]]

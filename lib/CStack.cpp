@@ -12,6 +12,8 @@
 
 #include <vstd/RNG.h>
 
+#include <vcmi/ServerCallback.h>
+
 #include "CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
 #include "spells/CSpellHandler.h"
@@ -353,7 +355,7 @@ std::string CStack::getDescription() const
 	return nodeName();
 }
 
-void CStack::spendMana(const spells::PacketSender * server, const int spellCost) const
+void CStack::spendMana(ServerCallback * server, const int spellCost) const
 {
 	if(spellCost != 1)
 		logGlobal->warn("Unexpected spell cost %d for creature", spellCost);
@@ -363,5 +365,5 @@ void CStack::spendMana(const spells::PacketSender * server, const int spellCost)
 	ssp.which = BattleSetStackProperty::CASTS;
 	ssp.val = -spellCost;
 	ssp.absolute = false;
-	server->sendAndApply(&ssp);
+	server->apply(&ssp);
 }

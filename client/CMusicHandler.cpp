@@ -13,8 +13,6 @@
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
 #include "SDLRWwrapper.h"
-#include "../lib/CCreatureHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include "../lib/filesystem/Filesystem.h"

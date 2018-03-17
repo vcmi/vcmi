@@ -9,9 +9,10 @@
  */
 #pragma once
 
+#include <vcmi/spells/Caster.h>
+
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
-#include "../spells/Magic.h"
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
@@ -168,9 +169,11 @@ public:
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;
-	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
+	int32_t getSpellCost(const spells::Spell * sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	bool canLearnSpell(const CSpell * spell) const;
+	bool canLearnSpell(const spells::Spell * spell) const;
+	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
+
 
 	// ----- primary and secondary skill, experience, level handling -----
 
@@ -208,7 +211,6 @@ public:
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 
-	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, CRandomGenerator & rand) const;
 	EDiggingStatus diggingStatus() const;
@@ -247,23 +249,20 @@ public:
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
-	ui8 getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool = nullptr) const override;
+	int32_t getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;
 	int64_t getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const override;
 
-	int getEffectLevel(const spells::Spell * spell) const override;
-
-	int getEffectPower(const spells::Spell * spell) const override;
-
-	int getEnchantPower(const spells::Spell * spell) const override;
-
+	int32_t getEffectLevel(const spells::Spell * spell) const override;
+	int32_t getEffectPower(const spells::Spell * spell) const override;
+	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	const PlayerColor getOwner() const override;
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
-	void spendMana(const spells::PacketSender * server, const int spellCost) const override;
+	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 	void deserializationFix();
 

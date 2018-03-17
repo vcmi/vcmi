@@ -19,17 +19,17 @@ public:
 	MOCK_CONST_METHOD0(getTreeVersion, int64_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());
-	MOCK_CONST_METHOD2(getSpellSchoolLevel, ui8(const spells::Spell *, int *));
-	MOCK_CONST_METHOD1(getEffectLevel, int(const spells::Spell *));
+	MOCK_CONST_METHOD2(getSpellSchoolLevel, int32_t(const spells::Spell *, int32_t *));
+	MOCK_CONST_METHOD1(getEffectLevel, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD3(getSpellBonus, int64_t(const spells::Spell *, int64_t, const battle::Unit *));
 	MOCK_CONST_METHOD2(getSpecificSpellBonus, int64_t(const spells::Spell *, int64_t));
-	MOCK_CONST_METHOD1(getEffectPower, int(const spells::Spell *));
-	MOCK_CONST_METHOD1(getEnchantPower, int(const spells::Spell *));
+	MOCK_CONST_METHOD1(getEffectPower, int32_t(const spells::Spell *));
+	MOCK_CONST_METHOD1(getEnchantPower, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD1(getEffectValue, int64_t(const spells::Spell *));
 	MOCK_CONST_METHOD0(getOwner, const PlayerColor());
 	MOCK_CONST_METHOD1(getCasterName, void(MetaString &));
 	MOCK_CONST_METHOD3(getCastDescription, void(const spells::Spell *, const std::vector<const battle::Unit *> &, MetaString &));
-	MOCK_CONST_METHOD2(spendMana, void(const spells::PacketSender *, const int));
+	MOCK_CONST_METHOD2(spendMana, void(ServerCallback *, const int32_t));
 
 	MOCK_CONST_METHOD0(unitBaseAmount, int32_t());
 	MOCK_CONST_METHOD0(unitId, uint32_t());

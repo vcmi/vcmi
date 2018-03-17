@@ -47,6 +47,9 @@
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/Cast.h"
+#include "../lib/ScriptHandler.h"
+#include <vcmi/events/EventBus.h>
+
 
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
@@ -62,15 +65,28 @@ class ServerSpellCastEnvironment : public SpellCastEnvironment
 public:
 	ServerSpellCastEnvironment(CGameHandler * gh);
 	~ServerSpellCastEnvironment() = default;
-	void sendAndApply(CPackForClient * pack) const override;
-	CRandomGenerator & getRandomGenerator() const override;
-	void complain(const std::string & problem) const override;
+
+	void complain(const std::string & problem) override;
+	bool describeChanges() const override;
+
+	vstd::RNG * getRNG() override;
+
+	void apply(CPackForClient * pack) override;
+
+	void apply(BattleLogMessage * pack) override;
+	void apply(BattleStackMoved * pack) override;
+	void apply(BattleUnitsChanged * pack) override;
+	void apply(SetStackEffect * pack) override;
+	void apply(StacksInjured * pack) override;
+	void apply(BattleObstaclesChanged * pack) override;
+	void apply(CatapultAttack * pack) override;
+
 	const CMap * getMap() const override;
 	const CGameInfoCallback * getCb() const override;
-	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const override;
-	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const override;
+	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) override;
+	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) override;
 private:
-	mutable CGameHandler * gh;
+	CGameHandler * gh;
 };
 
 namespace spells
@@ -96,12 +112,12 @@ public:
 			return -1;
 	}
 
-	ui8 getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool = nullptr) const override
+	int32_t getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool = nullptr) const override
 	{
 		return obs->spellLevel;
 	}
 
-	int getEffectLevel(const Spell * spell) const override
+	int32_t getEffectLevel(const Spell * spell) const override
 	{
 		return obs->spellLevel;
 	}
@@ -122,12 +138,12 @@ public:
 			return base;
 	}
 
-	int getEffectPower(const Spell * spell) const override
+	int32_t getEffectPower(const Spell * spell) const override
 	{
 		return obs->casterSpellPower;
 	}
 
-	int getEnchantPower(const Spell * spell) const override
+	int32_t getEnchantPower(const Spell * spell) const override
 	{
 		return obs->casterSpellPower;
 	}
@@ -155,7 +171,7 @@ public:
 		logGlobal->error("Unexpected call to ObstacleCasterProxy::getCastDescription");
 	}
 
-	void spendMana(const PacketSender * server, const int spellCost) const override
+	void spendMana(ServerCallback * server, const int spellCost) const override
 	{
 		logGlobal->error("Unexpected call to ObstacleCasterProxy::spendMana");
 	}
@@ -359,6 +375,31 @@ template <typename T>
 void callWith(std::vector<T> args, std::function<void(T)> fun, ui32 which)
 {
 	fun(args[which]);
+}
+
+const Services * CGameHandler::services() const
+{
+	return VLC;
+}
+
+const CGameHandler::BattleCb * CGameHandler::battle() const
+{
+	return this;
+}
+
+const CGameHandler::GameCb * CGameHandler::game() const
+{
+	return this;
+}
+
+vstd::CLoggerBase * CGameHandler::logger() const
+{
+	return logGlobal;
+}
+
+events::EventBus * CGameHandler::eventBus() const
+{
+	return serverEventBus.get();
 }
 
 void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
@@ -959,6 +1000,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	FireShieldInfo fireShield;
 	BattleAttack bat;
+	BattleLogMessage blm;
 	bat.stackAttacking = attacker->unitId();
 
 	std::shared_ptr<battle::CUnitState> attackerState = attacker->acquireState();
@@ -1003,7 +1045,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	}
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, attackerState, fireShield, defender, distance, false);
+		applyBattleEffects(bat, blm, attackerState, fireShield, defender, distance, false);
 
 	//multiple-hex normal attack
 	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
@@ -1011,7 +1053,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
-			applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
+			applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
 	}
 
 	const std::shared_ptr<Bonus> bonus = attacker->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
@@ -1023,10 +1065,15 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		//TODO: should spell override creature`s projectile?
 
+        auto spell = bat.spellID.toSpell();
+
 		battle::Target target;
 		target.emplace_back(defender);
 
-		auto attackedCreatures = SpellID(bonus->subtype).toSpell()->getAffectedStacks(gs->curB, spells::Mode::SPELL_LIKE_ATTACK, attacker, bonus->val, target);
+		spells::BattleCast event(gs->curB, attacker, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		event.setSpellLevel(bonus->val);
+
+		auto attackedCreatures = spell->battleMechanics(&event)->getAffectedStacks(target);
 
 		//TODO: get exact attacked hex for defender
 
@@ -1034,7 +1081,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
+				applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
 			}
 		}
 
@@ -1060,11 +1107,26 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	sendAndApply(&bat);
 
+	{
+		const bool multipleTargets = bat.bsa.size() > 1;
+
+		int64_t totalDamage = 0;
+		int32_t totalKills = 0;
+
+		for(const BattleStackAttacked & bsa : bat.bsa)
+		{
+			totalDamage += bsa.damageAmount;
+			totalKills += bsa.killedAmount;
+		}
+
+		addGenericDamageLog(blm, attacker, defender, totalDamage, totalKills, multipleTargets);
+	}
+	sendAndApply(&blm);
+
 	if(!fireShield.empty())
 	{
 		//todo: this should be "virtual" spell instead, we only need fire spell school bonus here
 		const CSpell * fireShieldSpell = SpellID(SpellID::FIRE_SHIELD).toSpell();
-		StacksInjured pack;
 		int64_t totalDamage = 0;
 
 		for(const auto & item : fireShield)
@@ -1096,14 +1158,15 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bsa.damageAmount = totalDamage;
 		attacker->prepareAttacked(bsa, getRandomGenerator());
 
+		StacksInjured pack;
 		pack.stacks.push_back(bsa);
-
 		sendAndApply(&pack);
+		sendGenericDamageLog(attacker, bsa.killedAmount, false);
 	}
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
+void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1149,7 +1212,7 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle
 			attackerState->addNameReplacement(text, false);
 			text.addReplacement(toHeal);
 			def->addNameReplacement(text, true);
-			bat.battleLog.push_back(text);
+			blm.lines.push_back(text);
 		}
 	};
 
@@ -1187,6 +1250,62 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
 		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
+}
+
+void CGameHandler::sendGenericDamageLog(const CStack * defender, int32_t killed, bool multiple)
+{
+	if(killed > 0)
+	{
+		boost::format txt;
+		if(killed > 1)
+		{
+			txt = boost::format(VLC->generaltexth->allTexts[379]) % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
+		}
+		else //killed == 1
+		{
+			txt = boost::format(VLC->generaltexth->allTexts[378]) % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
+		}
+		std::string trimmed = boost::to_string(txt);
+		boost::algorithm::trim(trimmed); // these default h3 texts have unnecessary new lines, so get rid of them before displaying
+
+		MetaString line;
+		line.addReplacement(trimmed);
+		BattleLogMessage blm;
+		blm.lines.push_back(line);
+		sendAndApply(&blm);
+	}
+}
+
+void CGameHandler::addGenericDamageLog(BattleLogMessage & blm, const battle::Unit * attacker, const CStack * defender, int64_t dmg, int32_t killed, bool multiple)
+{
+	std::string formattedText;
+
+	MetaString text;
+	attacker->addText(text, MetaString::GENERAL_TXT, 376);
+	attacker->addNameReplacement(text);
+	text.addReplacement(dmg);
+
+	if(killed > 0)
+	{
+		std::string formattedText = " ";
+
+		boost::format txt;
+		if(killed > 1)
+		{
+			txt = boost::format(VLC->generaltexth->allTexts[379]) % killed % (multiple ? VLC->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
+		}
+		else //killed == 1
+		{
+			txt = boost::format(VLC->generaltexth->allTexts[378]) % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
+		}
+		std::string trimmed = boost::to_string(txt);
+		boost::algorithm::trim(trimmed); // these default h3 texts have unnecessary new lines, so get rid of them before displaying
+		formattedText.append(trimmed);
+	}
+
+	text.addReplacement(formattedText);
+	blm.lines.push_back(text);
+	sendAndApply(&blm);
 }
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
@@ -1531,6 +1650,12 @@ CGameHandler::~CGameHandler()
 	delete gs;
 }
 
+void CGameHandler::reinitScripting()
+{
+	serverEventBus = make_unique<events::EventBus>();
+	serverScripts.reset(new scripting::PoolImpl(this));
+}
+
 void CGameHandler::init(StartInfo *si)
 {
 	if (si->seedToBeUsed == 0)
@@ -1550,6 +1675,8 @@ void CGameHandler::init(StartInfo *si)
 	{
 		states.addPlayer(elem.first);
 	}
+
+	reinitScripting();
 }
 
 static bool evntCmp(const CMapEvent &a, const CMapEvent &b)
@@ -2130,12 +2257,6 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 		sendAndApply(&cs);
 }
 
-void CGameHandler::setBlockVis(ObjectInstanceID objid, bool bv)
-{
-	SetObjectProperty sop(objid, ObjProperty::BLOCKVIS, bv);
-	sendAndApply(&sop);
-}
-
 bool CGameHandler::removeObject(const CGObjectInstance * obj)
 {
 	if (!obj || !getObj(obj->id))
@@ -2150,12 +2271,6 @@ bool CGameHandler::removeObject(const CGObjectInstance * obj)
 
 	checkVictoryLossConditionsForAll(); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
 	return true;
-}
-
-void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
-{
-	SetObjectProperty sop(objid, ObjProperty::PRIMARY_STACK_COUNT, val);
-	sendAndApply(&sop);
 }
 
 bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit, PlayerColor asker)
@@ -2778,7 +2893,7 @@ void CGameHandler::sendAndApply(NewStructures * pack)
 
 void CGameHandler::save(const std::string & filename)
 {
-	logGlobal->info("Loading from %s", filename);
+	logGlobal->info("Saving to %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	CResourceHandler::get("local")->createResource(savefname);
@@ -2809,6 +2924,8 @@ void CGameHandler::load(const std::string & filename)
 {
 	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
+
+	reinitScripting();
 
 	try
 	{
@@ -3998,14 +4115,19 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			buffer.push_back(bonus2);
 
+			sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
+			sendAndApply(&sse);
+
+			BattleLogMessage message;
+
 			MetaString text;
 			stack->addText(text, MetaString::GENERAL_TXT, 120);
 			stack->addNameReplacement(text);
 			text.addReplacement(difference);
-			sse.battleLog.push_back(text);
-			sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
-			sendAndApply(&sse);
 
+			message.lines.push_back(text);
+
+			sendAndApply(&message);
 			//don't break - we share code with next case
 		}
 		FALLTHROUGH
@@ -4416,18 +4538,21 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				{
 					BattleUnitsChanged pack;
 
+					BattleLogMessage message;
+
 					MetaString text;
 					text.addTxt(MetaString::GENERAL_TXT, 414);
 					healer->addNameReplacement(text, false);
 					destStack->addNameReplacement(text, false);
 					text.addReplacement(toHeal);
-					pack.battleLog.push_back(text);
+					message.lines.push_back(text);
 
 					UnitChanges info(state->unitId(), UnitChanges::EOperation::RESET_STATE);
 					info.healthDelta = toHeal;
 					state->save(info.data);
 					pack.changedStacks.push_back(info);
 					sendAndApply(&pack);
+					sendAndApply(&message);
 				}
 			}
 			break;
@@ -4510,9 +4635,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				if(randSpellcaster)
 					vstd::amax(spellLvl, randSpellcaster->val);
 				parameters.setSpellLevel(spellLvl);
-
-				parameters.target = target;
-				parameters.cast(spellEnv);
+				parameters.cast(spellEnv, target);
 			}
 			break;
 		}
@@ -4612,10 +4735,12 @@ bool CGameHandler::makeCustomAction(BattleAction & ba)
 			}
 
 			spells::BattleCast parameters(gs->curB, h, spells::Mode::HERO, s);
-			parameters.target = ba.getTarget(gs->curB);
 
 			spells::detail::ProblemImpl problem;
-			if(!s->canBeCast(problem, gs->curB, spells::Mode::HERO, h))//todo: should we check aimed cast?
+
+			auto m = s->battleMechanics(&parameters);
+
+			if(!m->canBeCast(problem))//todo: should we check aimed cast?
 			{
 				logGlobal->warn("Spell cannot be cast!");
 				std::vector<std::string> texts;
@@ -4628,7 +4753,7 @@ bool CGameHandler::makeCustomAction(BattleAction & ba)
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start spell casting
 
-			parameters.cast(spellEnv);
+			parameters.cast(spellEnv, ba.getTarget(gs->curB));
 
 			sendAndApply(&end_action);
 			if (!gs->curB->battleGetStackByID(gs->curB->activeStack))
@@ -4666,18 +4791,19 @@ void CGameHandler::stackEnchantedTrigger(const CStack * st)
 		//this makes effect accumulate for at most 50 turns by default, but effect may be permanent and last till the end of battle
 		battleCast.setEffectDuration(50);
 		battleCast.setSpellLevel(level);
+		spells::Target target;
 
 		if(val > 3)
 		{
 			for(auto s : gs->curB->battleGetAllStacks())
 				if(battleMatchOwner(st, s, true) && s->isValidTarget()) //all allied
-					battleCast.aimToUnit(s);
+					target.emplace_back(s);
 		}
 		else
 		{
-			battleCast.aimToUnit(st);
+			target.emplace_back(st);
 		}
-		battleCast.applyEffects(spellEnv, false, true);
+		battleCast.applyEffects(spellEnv, target, false, true);
 	}
 }
 
@@ -4804,7 +4930,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				parameters.massive = true;
 				parameters.smart = true;
 				//todo: recheck effect level
-				if(parameters.castIfPossible(spellEnv))
+				if(parameters.castIfPossible(spellEnv, spells::Target(1, spells::Destination())))
 				{
 					cast = true;
 
@@ -4853,8 +4979,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 						COMPLAIN_RET("Invalid obstacle instance");
 
 					spells::BattleCast battleCast(gs->curB, &caster, spells::Mode::HERO, sp);
-					battleCast.aimToUnit(curStack);
-					battleCast.applyEffects(spellEnv, true);
+					battleCast.applyEffects(spellEnv, spells::Target(1, spells::Destination(curStack)), true);
 
 					if(oneTimeObstacle)
 						removeObstacle(*obstacle);
@@ -4878,6 +5003,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				StacksInjured si;
 				si.stacks.push_back(bsa);
 				sendAndApply(&si);
+				sendGenericDamageLog(curStack, bsa.killedAmount, false);
 			}
 		}
 
@@ -5428,7 +5554,16 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			const CSpell * spell = SpellID(spellID).toSpell();
 			spells::AbilityCaster caster(attacker, spellLevel);
 
-			if(!spell->canBeCastAt(gs->curB, spells::Mode::PASSIVE, &caster, defender->getPosition()))
+			spells::Target target;
+			target.emplace_back(defender);
+
+			spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
+
+			auto m = spell->battleMechanics(&parameters);
+
+			spells::detail::ProblemImpl ingored;
+
+			if(!m->canBeCastAt(ingored, target))
 				continue;
 
 			//check if spell should be cast (probability handling)
@@ -5438,9 +5573,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 			//casting
 			if(castMe)
 			{
-				spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
-				parameters.aimToUnit(defender);
-				parameters.cast(spellEnv);
+				parameters.cast(spellEnv, target);
 			}
 		}
 	}
@@ -5490,9 +5623,10 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 			spells::AbilityCaster caster(attacker, 0);
 
 			spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
-			parameters.aimToUnit(defender);
+			spells::Target target;
+			target.emplace_back(defender);
 			parameters.setEffectValue(staredCreatures);
-			parameters.cast(spellEnv);
+			parameters.cast(spellEnv, target);
 		}
 	}
 
@@ -5514,9 +5648,11 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		spells::AbilityCaster caster(attacker, 0);
 
 		spells::BattleCast parameters(gs->curB, &caster, spells::Mode::PASSIVE, spell);
-		parameters.aimToUnit(defender);
+		spells::Target target;
+		target.emplace_back(defender);
+
 		parameters.setEffectValue(acidDamage * attacker->getCount());
-		parameters.cast(spellEnv);
+		parameters.cast(spellEnv, target);
 	}
 
 
@@ -5599,6 +5735,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		si.stacks.push_back(bsa);
 
 		sendAndApply(&si);
+		sendGenericDamageLog(defender, bsa.killedAmount, false);
 	}
 }
 
@@ -5951,7 +6088,7 @@ void CGameHandler::runBattle()
 				parameters.setSpellLevel(3);
 				parameters.setEffectDuration(b->val);
 				parameters.massive = true;
-				parameters.castIfPossible(spellEnv);
+				parameters.castIfPossible(spellEnv, spells::Target());
 			}
 		}
 	}
@@ -6340,11 +6477,6 @@ void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victori
 	battleResult.data = br;
 }
 
-void CGameHandler::commitPackage(CPackForClient *pack)
-{
-	sendAndApply(pack);
-}
-
 void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 {
 	std::vector<int3>::iterator tile;
@@ -6359,7 +6491,13 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	{
 		tile = tiles.begin();
 		logGlobal->trace("\tSpawning monster at %s", tile->toString());
-		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
+		{
+			auto count = cre->getRandomAmount(std::rand);
+
+			auto monsterId  = putNewObject(Obj::MONSTER, creatureID, *tile);
+			setObjProperty(monsterId, ObjProperty::MONSTER_COUNT, count);
+			setObjProperty(monsterId, ObjProperty::MONSTER_POWER, (si64)1000*count);
+		}
 		tiles.erase(tile); //not use it again
 	}
 }
@@ -6603,6 +6741,28 @@ bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, con
 	return true;
 }
 
+void CGameHandler::setObjProperty(ObjectInstanceID objid, int prop, si64 val)
+{
+	SetObjectProperty sob;
+	sob.id = objid;
+	sob.what = prop;
+	sob.val = static_cast<ui32>(val);
+	sendAndApply(&sob);
+}
+
+void CGameHandler::showInfoDialog(InfoWindow * iw)
+{
+	sendAndApply(iw);
+}
+
+void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
+{
+	InfoWindow iw;
+	iw.player = player;
+	iw.text << msg;
+	showInfoDialog(&iw);
+}
+
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat):
 	army(_army)
 {
@@ -6769,25 +6929,86 @@ CRandomGenerator & CGameHandler::getRandomGenerator()
 	return CRandomGenerator::getDefault();
 }
 
+scripting::Pool * CGameHandler::getGlobalContextPool() const
+{
+	return serverScripts.get();
+}
+
+scripting::Pool *  CGameHandler::getContextPool() const
+{
+	return serverScripts.get();
+}
+
+const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
+{
+	NewObject no;
+	no.ID = ID; //creature
+	no.subID= subID;
+	no.pos = pos;
+	sendAndApply(&no);
+	return no.id; //id field will be filled during applying on gs
+}
+
 ///ServerSpellCastEnvironment
-ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh): gh(gh)
+ServerSpellCastEnvironment::ServerSpellCastEnvironment(CGameHandler * gh)
+	: gh(gh)
 {
 
 }
 
-void ServerSpellCastEnvironment::sendAndApply(CPackForClient * pack) const
+bool ServerSpellCastEnvironment::describeChanges() const
+{
+	return true;
+}
+
+void ServerSpellCastEnvironment::complain(const std::string & problem)
+{
+	gh->complain(problem);
+}
+
+vstd::RNG * ServerSpellCastEnvironment::getRNG()
+{
+	return &gh->getRandomGenerator();
+}
+
+void ServerSpellCastEnvironment::apply(CPackForClient * pack)
 {
 	gh->sendAndApply(pack);
 }
 
-CRandomGenerator & ServerSpellCastEnvironment::getRandomGenerator() const
+void ServerSpellCastEnvironment::apply(BattleLogMessage * pack)
 {
-	return gh->getRandomGenerator();
+	gh->sendAndApply(pack);
 }
 
-void ServerSpellCastEnvironment::complain(const std::string& problem) const
+void ServerSpellCastEnvironment::apply(BattleStackMoved * pack)
 {
-	gh->complain(problem);
+	gh->sendAndApply(pack);
+}
+
+void ServerSpellCastEnvironment::apply(BattleUnitsChanged * pack)
+{
+	gh->sendAndApply(pack);
+}
+
+void ServerSpellCastEnvironment::apply(SetStackEffect * pack)
+{
+	gh->sendAndApply(pack);
+}
+
+void ServerSpellCastEnvironment::apply(StacksInjured * pack)
+{
+	gh->sendAndApply(pack);
+}
+
+void ServerSpellCastEnvironment::apply(BattleObstaclesChanged * pack)
+{
+	gh->sendAndApply(pack);
+}
+
+void ServerSpellCastEnvironment::apply(CatapultAttack * pack)
+{
+	gh->sendAndApply(pack);
 }
 
 const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
@@ -6800,12 +7021,12 @@ const CMap * ServerSpellCastEnvironment::getMap() const
 	return gh->gameState()->map;
 }
 
-bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const
+bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, bool teleporting)
 {
 	return gh->moveHero(hid, dst, teleporting, false);
 }
 
-void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback) const
+void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode&)> callback)
 {
 	auto query = std::make_shared<CGenericQuery>(&gh->queries, color, callback);
 	request->queryID = query->queryID;

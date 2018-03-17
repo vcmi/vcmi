@@ -28,7 +28,7 @@ public:
 	Dispel();
 	virtual ~Dispel();
 
-	void apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
 	bool isValidTarget(const Mechanics * m, const battle::Unit * unit) const override;
@@ -40,9 +40,6 @@ private:
 	bool neutral = false;
 
 	std::shared_ptr<BonusList> getBonuses(const Mechanics * m, const battle::Unit * unit) const;
-
-	static bool mainSelector(const Bonus * bonus);
-	void prepareEffects(SetStackEffect & pack, RNG & rng, const Mechanics * m, const EffectTarget & target, bool describe) const;
 };
 
 }

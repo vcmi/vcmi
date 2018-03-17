@@ -70,7 +70,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 
 	if(type == ART_NAMES)
 	{
-		dst = VLC->arth->artifacts[ser]->Name();
+		dst = VLC->arth->artifacts[ser]->getName();
 	}
 	else if(type == CRE_PL_NAMES)
 	{
@@ -94,11 +94,11 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == ART_DESCR)
 	{
-		dst = VLC->arth->artifacts[ser]->Description();
+		dst = VLC->arth->artifacts[ser]->getDescription();
 	}
 	else if (type == ART_EVNTS)
 	{
-		dst = VLC->arth->artifacts[ser]->EventText();
+		dst = VLC->arth->artifacts[ser]->getEventText();
 	}
 	else if (type == OBJ_NAMES)
 	{
@@ -258,8 +258,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 	return lista;
 }
 
-
-void  MetaString::addCreReplacement(CreatureID id, TQuantity count) //adds sing or plural name;
+void MetaString::addCreReplacement(CreatureID id, TQuantity count) //adds sing or plural name;
 {
 	if (!count)
 		addReplacement (CRE_PL_NAMES, id); //no creatures - just empty name (eg. defeat Angels)
@@ -269,7 +268,7 @@ void  MetaString::addCreReplacement(CreatureID id, TQuantity count) //adds sing 
 		addReplacement (CRE_PL_NAMES, id);
 }
 
-void MetaString::addReplacement(const CStackBasicDescriptor &stack)
+void MetaString::addReplacement(const CStackBasicDescriptor & stack)
 {
 	assert(stack.type); //valid type
 	addCreReplacement(stack.type->idNumber, stack.count);
@@ -1483,7 +1482,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 			break;
 		case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 			{
-				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2).toSpell());
+				CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2));
 				scroll->putAt(ArtifactLocation(hero, scroll->firstAvailableSlot(hero)));
 			}
 			break;

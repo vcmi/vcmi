@@ -217,14 +217,14 @@ public:
 
 	int32_t getCasterUnitId() const override;
 
-	ui8 getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool = nullptr) const override;
-	int getEffectLevel(const spells::Spell * spell) const override;
+	int32_t getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
+	int32_t getEffectLevel(const spells::Spell * spell) const override;
 
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const Unit * affectedStack) const override;
 	int64_t getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const override;
 
-	int getEffectPower(const spells::Spell * spell) const override;
-	int getEnchantPower(const spells::Spell * spell) const override;
+	int32_t getEffectPower(const spells::Spell * spell) const override;
+	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
 	const PlayerColor getOwner() const override;
@@ -327,7 +327,7 @@ public:
 
 	int32_t unitBaseAmount() const override;
 
-	void spendMana(const spells::PacketSender * server, const int spellCost) const override;
+	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 private:
 	const IUnitInfo * unit;

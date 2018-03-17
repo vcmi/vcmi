@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "../Magic.h"
+#include <vcmi/spells/Magic.h>
 
 struct BattleHex;
 class CBattleInfoCallback;
 class JsonSerializeFormat;
-class IBattleState;
+class ServerCallback;
 
 namespace vstd
 {
@@ -25,8 +25,6 @@ namespace vstd
 namespace spells
 {
 using EffectTarget = Target;
-
-class BattleStateProxy;
 
 namespace effects
 {
@@ -58,7 +56,7 @@ public:
 	virtual bool applicable(Problem & problem, const Mechanics * m) const;
 	virtual bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const;
 
-	virtual void apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const = 0;
+	virtual void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const = 0;
 
 	virtual EffectTarget filterTarget(const Mechanics * m, const EffectTarget & target) const = 0;
 
@@ -66,7 +64,7 @@ public:
 
 	void serializeJson(JsonSerializeFormat & handler);
 
-	static std::shared_ptr<Effect> create(const std::string & type);
+	static std::shared_ptr<Effect> create(const Registry * registry, const std::string & type);
 
 protected:
 	virtual void serializeJsonEffect(JsonSerializeFormat & handler) = 0;

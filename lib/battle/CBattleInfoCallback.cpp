@@ -9,6 +9,9 @@
  */
 #include "StdInc.h"
 #include "CBattleInfoCallback.h"
+
+#include <vcmi/scripting/Service.h>
+
 #include "../CStack.h"
 #include "BattleInfo.h"
 #include "../NetPacks.h"
@@ -113,6 +116,11 @@ static BattleHex WallPartToHex(EWallPart::EWallPart part)
 }
 
 using namespace SiegeStuffThatShouldBeMovedToHandlers;
+
+std::shared_ptr<scripting::Context> CBattleInfoCallback::getScriptingContext(const scripting::Script * script) const
+{
+	return getContextPool()->getContext(script);
+}
 
 ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const
 {
@@ -531,15 +539,6 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 		battleGetTurnOrder(out, maxUnits, maxTurns, actualTurn + 1, lastMoved);
 }
 
-void CBattleInfoCallback::battleGetStackCountOutsideHexes(bool *ac) const
-{
-	RETURN_IF_NOT_BATTLE();
-	auto accessibility = getAccesibility();
-
-	for(int i = 0; i < accessibility.size(); i++)
-		ac[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
-}
-
 std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit) const
 {
 
@@ -783,7 +782,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 		}
 
 		if(isAffected)
-			attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getPower(spLevel);
+			attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getLevelPower(spLevel);
 	}
 
 	//bonus from attack/defense skills
@@ -1008,21 +1007,21 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battl
 	return obstacles;
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const CStack * stack) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::getAllAffectedObstaclesByStack(const battle::Unit * unit) const
 {
 	std::vector<std::shared_ptr<const CObstacleInstance>> affectedObstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	RETURN_IF_NOT_BATTLE(affectedObstacles);
-	if(stack->alive())
+	if(unit->alive())
 	{
-		affectedObstacles = battleGetAllObstaclesOnPos(stack->getPosition(), false);
-		if(stack->doubleWide())
+		affectedObstacles = battleGetAllObstaclesOnPos(unit->getPosition(), false);
+		if(unit->doubleWide())
 		{
-			BattleHex otherHex = stack->occupiedHex(stack->getPosition());
+			BattleHex otherHex = unit->occupiedHex(unit->getPosition());
 			if(otherHex.isValid())
 				for(auto & i : battleGetAllObstaclesOnPos(otherHex, false))
 					affectedObstacles.push_back(i);
 		}
-		for(auto hex : stack->getHexes())
+		for(auto hex : unit->getHexes())
 			if(hex == ESiegeHex::GATE_BRIDGE)
 				if(battleGetGateState() == EGateState::OPENED || battleGetGateState() == EGateState::DESTROYED)
 					for(int i=0; i<affectedObstacles.size(); i++)
@@ -1611,17 +1610,17 @@ std::vector<BattleHex> CBattleInfoCallback::getAttackableBattleHexes() const
 	return attackableBattleHexes;
 }
 
-ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
+int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	//TODO should be replaced using bonus system facilities (propagation onto battle node)
 
-	ui32 ret = caster->getSpellCost(sp);
+	int32_t ret = caster->getSpellCost(sp);
 
 	//checking for friendly stacks reducing cost of the spell and
 	//enemy stacks increasing it
-	si32 manaReduction = 0;
-	si32 manaIncrease = 0;
+	int32_t manaReduction = 0;
+	int32_t manaIncrease = 0;
 
 	for(auto unit : battleAliveUnits())
 	{

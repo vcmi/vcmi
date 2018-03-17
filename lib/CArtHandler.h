@@ -9,9 +9,10 @@
  */
 #pragma once
 
-#include "../lib/HeroBonus.h"
-//#include "../lib/ConstTransitivePtr.h"
-//#include "JsonNode.h"
+#include <vcmi/Artifact.h>
+#include <vcmi/ArtifactService.h>
+
+#include "HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
@@ -40,7 +41,7 @@ namespace ArtBearer
 	};
 }
 
-class DLL_LINKAGE CArtifact : public CBonusSystemNode //container for artifacts
+class DLL_LINKAGE CArtifact : public Artifact, public CBonusSystemNode //container for artifacts
 {
 protected:
 	std::string name, description; //set if custom
@@ -61,12 +62,17 @@ public:
 	ArtifactID id;
 	CreatureID warMachine;
 
-	const std::string &Name() const; //getter
-	const std::string &Description() const; //getter
-	const std::string &EventText() const;
+	int32_t getIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	ArtifactID getId() const override;
 
-	bool isBig () const;
-	bool isTradable () const;
+	const std::string & getDescription() const;
+	const std::string & getEventText() const;
+
+	CreatureID getWarMachine() const override;
+	bool isBig() const override;
+	bool isTradable() const override;
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
@@ -171,7 +177,6 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 
-	static CArtifactInstance *createScroll(const CSpell *s);
 	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
 	static CArtifactInstance *createNewArtifactInstance(int aid);
@@ -230,7 +235,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CArtHandler : public IHandlerBase //handles artifacts
+class DLL_LINKAGE CArtHandler : public IHandlerBase, public ArtifactService
 {
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics; //tmp vectors!!! do not touch if you don't know what you are doing!!!
@@ -239,9 +244,11 @@ public:
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> growingArtifacts;
 
+	const Artifact * getArtifact(const ArtifactID & artifactID) const override;
+
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
-	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of gibven class. No side effects
+	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of given class. No side effects
 
 	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
 
@@ -256,9 +263,7 @@ public:
 	bool legalArtifact(ArtifactID id);
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
-	void makeItCreatureArt (ArtifactID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
-	void makeItCommanderArt (ArtifactID aid, bool onlyCommander = true);
 
 	CArtHandler();
 	~CArtHandler();
@@ -291,10 +296,6 @@ private:
 	void loadType(CArtifact * art, const JsonNode & node);
 	void loadComponents(CArtifact * art, const JsonNode & node);
 	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
-
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus);
 
 	void erasePickedArt(ArtifactID id);
 };

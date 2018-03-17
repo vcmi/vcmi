@@ -16,6 +16,9 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
 
+//TODO: remove
+#include "../IGameCallback.h"
+
 ///BattleInfo
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
 {
@@ -734,7 +737,6 @@ const IBonusBearer * BattleInfo::asBearer() const
 
 int64_t BattleInfo::getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const
 {
-
 	if(damage.first != damage.second)
 	{
 		int64_t sum = 0;
@@ -1049,6 +1051,13 @@ CArmedInstance * BattleInfo::battleGetArmyObject(ui8 side) const
 CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 {
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
+}
+
+scripting::Pool * BattleInfo::getContextPool() const
+{
+	//this is real battle, use global scripting context pool
+	//TODO: make this line not ugly
+	return IObjectInterface::cb->getGlobalContextPool();
 }
 
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)

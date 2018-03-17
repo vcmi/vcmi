@@ -250,7 +250,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 		if(id < 0)
 			GH.statusbar->setText(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->setText(CGI->arth->artifacts[id]->Name());
+			GH.statusbar->setText(CGI->arth->artifacts[id]->getName());
 		break;
 	}
 }
@@ -269,7 +269,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
+				adventureInt->handleRightClick(CGI->arth->artifacts[id]->getDescription(), down);
 			break;
 		}
 	}
@@ -290,9 +290,9 @@ std::string CTradeWindow::CTradeableItem::getName(int number) const
 			return CGI->creh->creatures[id]->namePl;
 	case ARTIFACT_TYPE:
 	case ARTIFACT_INSTANCE:
-		return CGI->arth->artifacts[id]->Name();
+		return CGI->arth->artifacts[id]->getName();
 	}
-	assert(0);
+	logGlobal->error("Invalid trade item type: %d", (int)type);
 	return "";
 }
 

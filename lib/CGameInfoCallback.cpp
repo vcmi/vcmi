@@ -46,7 +46,7 @@ const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) c
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
 
-bool CGameInfoCallback::isAllowed( int type, int id )
+bool CGameInfoCallback::isAllowed(int32_t type, int32_t id)
 {
 	switch(type)
 	{
@@ -177,7 +177,7 @@ const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization) cons
 		return gs->scenarioOps;
 }
 
-int CGameInfoCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
+int32_t CGameInfoCallback::getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(!canGetFullInfo(caster), "Cannot get info about caster!", -1);
@@ -989,26 +989,4 @@ bool CGameInfoCallback::isTeleportChannelUnidirectional(TeleportChannelID id, Pl
 bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const
 {
 	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
-}
-
-void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
-{
-	commitPackage(iw);
-}
-
-void IGameEventRealizer::showInfoDialog(const std::string &msg, PlayerColor player)
-{
-	InfoWindow iw;
-	iw.player = player;
-	iw.text << msg;
-	showInfoDialog(&iw);
-}
-
-void IGameEventRealizer::setObjProperty(ObjectInstanceID objid, int prop, si64 val)
-{
-	SetObjectProperty sob;
-	sob.id = objid;
-	sob.what = prop;
-	sob.val = static_cast<ui32>(val);
-	commitPackage(&sob);
 }

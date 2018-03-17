@@ -60,7 +60,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		cb->calculatePaths(config, hero);
 	};
 
-	std::vector<Task> calculationTasks;
+	std::vector<CThreadHelper::Task> calculationTasks;
 
 	for(HeroPtr hero : heroes)
 	{

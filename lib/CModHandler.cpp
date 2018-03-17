@@ -24,6 +24,7 @@
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "ScriptHandler.h"
 
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)
@@ -438,7 +439,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
-
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 	//TODO: any other types of moddables?
 }
 
@@ -984,6 +985,8 @@ void CModHandler::load()
 	content.load(coreMod);
 	for(const TModID & modName : activeMods)
 		content.load(allMods[modName]);
+
+	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
 
 	content.loadCustom();
 

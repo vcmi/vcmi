@@ -428,7 +428,7 @@ void Graphics::addImageListEntry(size_t index, std::string listName, std::string
 	if (!imageName.empty())
 	{
 		JsonNode entry;
-		entry["frame"].Float() = index;
+		entry["frame"].Integer() = index;
 		entry["file"].String() = imageName;
 
 		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
