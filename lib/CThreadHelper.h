@@ -10,25 +10,74 @@
 #pragma once
 
 
-typedef std::function<void()> Task;
-
+///DEPRECATED
 /// Can assign CPU work to other threads/cores
 class DLL_LINKAGE CThreadHelper
 {
+public:
+	typedef std::function<void()> Task;
+	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
+	void run();
+private:
 	boost::mutex rtinm;
 	int currentTask, amount, threads;
 	std::vector<Task> *tasks;
 
 
 	void processTasks();
-public:
-	CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads);
-	void run();
 };
 
-template <typename T> inline void setData(T * data, std::function<T()> func)
+template<typename Payload>
+class ThreadPool
 {
-	*data = func();
-}
+public:
+	using Task = std::function<void(std::shared_ptr<Payload>)>;
+	using Tasks = std::vector<Task>;
+
+	ThreadPool(Tasks * tasks_, std::vector<std::shared_ptr<Payload>> context_)
+		: currentTask(0),
+		amount(tasks_->size()),
+		threads(context_.size()),
+		tasks(tasks_),
+		context(context_)
+	{}
+
+	void run()
+	{
+		boost::thread_group grupa;
+		for(size_t i=0; i<threads; i++)
+		{
+			std::shared_ptr<Payload> payload = context.at(i);
+
+			grupa.create_thread(std::bind(&ThreadPool::processTasks, this, payload));
+		}
+
+		grupa.join_all();
+
+		//thread group deletes threads, do not free manually
+	}
+private:
+	boost::mutex rtinm;
+	size_t currentTask, amount, threads;
+	Tasks * tasks;
+	std::vector<std::shared_ptr<Payload>> context;
+
+	void processTasks(std::shared_ptr<Payload> payload)
+	{
+		while(true)
+		{
+			size_t pom;
+			{
+				boost::unique_lock<boost::mutex> lock(rtinm);
+				if((pom = currentTask) >= amount)
+					break;
+				else
+					++currentTask;
+			}
+			(*tasks)[pom](payload);
+		}
+	}
+};
+
 
 void DLL_LINKAGE setThreadName(const std::string &name);

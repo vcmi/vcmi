@@ -63,6 +63,7 @@ TEST_F(CloneTest, ApplicableToValidTarget)
 
 TEST_F(CloneTest, CloneIsNotClonable)
 {
+	setupEffect(JsonNode());
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
 	EXPECT_CALL(unit, hasClone()).WillRepeatedly(Return(false));
@@ -77,6 +78,7 @@ TEST_F(CloneTest, CloneIsNotClonable)
 
 TEST_F(CloneTest, SecondCloneRejected)
 {
+	setupEffect(JsonNode());
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
 	EXPECT_CALL(unit, hasClone()).Times(AtLeast(1)).WillRepeatedly(Return(true));
@@ -113,7 +115,7 @@ public:
 	{
 		using namespace ::battle;
 
-		UnitFake & clone = unitsFake.add(BattleSide::ATTACKER);
+		auto & clone = unitsFake.add(BattleSide::ATTACKER);
 
 		EXPECT_CALL(clone, unitId()).WillRepeatedly(Return(id));
 
@@ -142,6 +144,11 @@ public:
 	void setDefaultExpectations()
 	{
 		using namespace ::battle;
+
+		battleFake->setupEmptyBattlefield();
+
+		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(2);
+		EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).Times(1);
 
 		EXPECT_CALL(mechanicsMock, getEffectDuration()).WillOnce(Return(effectDuration));
 		EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
@@ -173,6 +180,7 @@ protected:
 	void SetUp() override
 	{
 		EffectFixture::setUp();
+		setupEffect(JsonNode());
 
 		cloneAddInfo = std::make_shared<::battle::UnitInfo>();
 	}
@@ -181,12 +189,11 @@ protected:
 
 TEST_F(CloneApplyTest, AddsNewUnit)
 {
-	setupEmptyBattlefield();
 	setDefaultExpectations();
 
 	EXPECT_CALL(*battleFake, addUnitBonus(_,_)).Times(AtLeast(1));
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	EXPECT_EQ(cloneAddInfo->id, cloneId);
 	EXPECT_EQ(cloneAddInfo->count, expectedAmount);
@@ -199,37 +206,35 @@ TEST_F(CloneApplyTest, AddsNewUnit)
 
 TEST_F(CloneApplyTest, SetsClonedFlag)
 {
-	setupEmptyBattlefield();
 	setDefaultExpectations();
 
 	EXPECT_CALL(*battleFake, addUnitBonus(_,_)).Times(AtLeast(1));
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
+
+	GTEST_ASSERT_NE(cloneState, nullptr);
 
 	EXPECT_TRUE(cloneState->cloned);
 }
 
 TEST_F(CloneApplyTest, SetsCloneLink)
 {
-	setupEmptyBattlefield();
 	setDefaultExpectations();
 
 	EXPECT_CALL(*battleFake, addUnitBonus(_,_)).Times(AtLeast(1));
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	EXPECT_EQ(originalState->cloneID, cloneId);
 }
 
-
 TEST_F(CloneApplyTest, SetsLifetimeMarker)
 {
-	setupEmptyBattlefield();
 	setDefaultExpectations();
 
 	EXPECT_CALL(*battleFake, addUnitBonus(_,_)).WillOnce(Invoke(this, &CloneApplyTest::checkCloneLifetimeMarker));
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
 }

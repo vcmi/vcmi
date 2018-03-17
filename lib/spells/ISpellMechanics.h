@@ -10,7 +10,9 @@
 
 #pragma once
 
-#include "Magic.h"
+#include <vcmi/spells/Magic.h>
+#include <vcmi/ServerCallback.h>
+
 #include "../battle/Destination.h"
 #include "../int3.h"
 #include "../GameConstants.h"
@@ -22,6 +24,7 @@ class CRandomGenerator;
 class CMap;
 class CGameInfoCallback;
 class CBattleInfoCallback;
+class IGameInfoCallback;
 class JsonNode;
 class CStack;
 class CGObjectInstance;
@@ -32,47 +35,28 @@ namespace vstd
 	class RNG;
 }
 
+namespace scripting
+{
+	class Service;
+}
+
+
 ///callback to be provided by server
-class DLL_LINKAGE SpellCastEnvironment : public spells::PacketSender
+class DLL_LINKAGE SpellCastEnvironment : public ServerCallback
 {
 public:
 	virtual ~SpellCastEnvironment(){};
 
-	virtual CRandomGenerator & getRandomGenerator() const = 0;
-
 	virtual const CMap * getMap() const = 0;
 	virtual const CGameInfoCallback * getCb() const = 0;
 
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const = 0;	//TODO: remove
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) = 0;	//TODO: remove
 
-	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const = 0;//TODO: type safety on query, use generic query packet when implemented
+	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
 };
 
 namespace spells
 {
-
-class DLL_LINKAGE BattleStateProxy
-{
-public:
-	const bool describe;
-
-	BattleStateProxy(const PacketSender * server_);
-	BattleStateProxy(IBattleState * battleState_);
-
-	template<typename P>
-	void apply(P * pack)
-	{
-		if(server)
-			server->sendAndApply(pack);
-		else
-			pack->applyBattle(battleState);
-	}
-
-	void complain(const std::string & problem) const;
-private:
-	const PacketSender * server;
-	IBattleState * battleState;
-};
 
 class DLL_LINKAGE IBattleCast
 {
@@ -87,6 +71,7 @@ public:
 	virtual Mode getMode() const = 0;
 	virtual const Caster * getCaster() const = 0;
 	virtual const CBattleInfoCallback * getBattle() const = 0;
+	virtual const IGameInfoCallback * getGame() const = 0;
 
 	virtual OptionalValue getSpellLevel() const = 0;
 
@@ -103,13 +88,11 @@ public:
 class DLL_LINKAGE BattleCast : public IBattleCast
 {
 public:
-	Target target;
-
 	boost::logic::tribool smart;
 	boost::logic::tribool massive;
 
 	//normal constructor
-	BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, const Mode mode_, const CSpell * spell_);
+	BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_);
 
 	//magic mirror constructor
 	BattleCast(const BattleCast & orig, const Caster * caster_);
@@ -121,6 +104,7 @@ public:
 	Mode getMode() const override;
 	const Caster * getCaster() const override;
 	const CBattleInfoCallback * getBattle() const override;
+	const IGameInfoCallback * getGame() const override;
 
 	OptionalValue getSpellLevel() const override;
 
@@ -139,20 +123,17 @@ public:
 
 	void setEffectValue(Value64 value);
 
-	void aimToHex(const BattleHex & destination);
-	void aimToUnit(const battle::Unit * destination);
-
 	///only apply effects to specified targets
-	void applyEffects(const SpellCastEnvironment * env, bool indirect = false, bool ignoreImmunity = false) const;
+	void applyEffects(ServerCallback * server, Target target, bool indirect = false, bool ignoreImmunity = false) const;
 
 	///normal cast
-	void cast(const SpellCastEnvironment * env);
+	void cast(ServerCallback * server, Target target);
 
 	///cast evaluation
-	void cast(IBattleState * battleState, vstd::RNG & rng);
+	void castEval(ServerCallback * server, Target target);
 
 	///cast with silent check for permitted cast
-	bool castIfPossible(const SpellCastEnvironment * env);
+	bool castIfPossible(ServerCallback * server, Target target);
 
 	std::vector<Target> findPotentialTargets() const;
 
@@ -171,6 +152,7 @@ private:
 	Mode mode;
 	const CSpell * spell;
 	const CBattleInfoCallback * cb;
+	const IGameInfoCallback * gameCb;
 	const Caster * caster;
 };
 
@@ -192,7 +174,6 @@ protected:
 class DLL_LINKAGE Mechanics
 {
 public:
-	Mechanics();
 	virtual ~Mechanics();
 
 	virtual bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const = 0;
@@ -202,19 +183,21 @@ public:
 	virtual std::vector<const CStack *> getAffectedStacks(const Target & target) const = 0;
 
 	virtual bool canBeCast(Problem & problem) const = 0;
-	virtual bool canBeCastAt(const Target & target) const = 0;
+	virtual bool canBeCastAt(Problem & problem, const Target & target) const = 0;
 
-	virtual void applyEffects(BattleStateProxy * battleState, vstd::RNG & rng, const Target & targets, bool indirect, bool ignoreImmunity) const = 0;
+	virtual void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const = 0;
 
-	virtual void cast(const PacketSender * server, vstd::RNG & rng, const Target & target) = 0;
+	virtual void cast(ServerCallback * server, const Target & target) = 0;
 
-	virtual void cast(IBattleState * battleState, vstd::RNG & rng, const Target & target) = 0;
+	virtual void castEval(ServerCallback * server, const Target & target) = 0;
 
 	virtual bool isReceptive(const battle::Unit * target) const = 0;
 
-    virtual std::vector<AimType> getTargetTypes() const = 0;
+	virtual std::vector<AimType> getTargetTypes() const = 0;
 
-    virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const = 0;
+	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const = 0;
+
+	virtual const Spell * getSpell() const = 0;
 
 	//Cast event facade
 
@@ -253,16 +236,25 @@ public:
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
 	virtual bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const = 0;
 
-	const CBattleInfoCallback * cb;
+	//Global environment facade
+	virtual const CreatureService * creatures() const = 0;
+	virtual const scripting::Service * scripts() const = 0;
+	virtual const Service * spells() const = 0;
+
+	virtual const IGameInfoCallback * game() const = 0;
+	virtual const CBattleInfoCallback * battle() const = 0;
+
 	const Caster * caster;
 
 	ui8 casterSide;
+
+protected:
+	Mechanics();
 };
 
 class DLL_LINKAGE BaseMechanics : public Mechanics
 {
 public:
-	BaseMechanics(const IBattleCast * event);
 	virtual ~BaseMechanics();
 
 	bool adaptProblem(ESpellCastProblem::ESpellCastProblem source, Problem & target) const override;
@@ -303,9 +295,18 @@ public:
 
 	std::vector<AimType> getTargetTypes() const override;
 
+	const CreatureService * creatures() const override;
+	const scripting::Service * scripts() const override;
+	const Service * spells() const override;
+
+	const IGameInfoCallback * game() const override;
+	const CBattleInfoCallback * battle() const override;
+
 protected:
 	const CSpell * owner;
 	Mode mode;
+
+	BaseMechanics(const IBattleCast * event);
 
 private:
     IBattleCast::Value rangeLevel;
@@ -321,6 +322,9 @@ private:
 
 	boost::logic::tribool smart;
 	boost::logic::tribool massive;
+
+	const IGameInfoCallback * gameCb;
+	const CBattleInfoCallback * cb;
 };
 
 class DLL_LINKAGE IReceptiveCheck
@@ -346,7 +350,7 @@ public:
 	IAdventureSpellMechanics(const CSpell * s);
 	virtual ~IAdventureSpellMechanics() = default;
 
-	virtual bool adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
+	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
 protected:

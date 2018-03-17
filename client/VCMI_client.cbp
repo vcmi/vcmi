@@ -4,6 +4,7 @@
 	<Project>
 		<Option title="VCMI_client" />
 		<Option pch_mode="2" />
+		<Option default_target="Debug-win64" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug-win32">
@@ -13,7 +14,6 @@
 				<Option object_output="../obj/Client/Debug/x86" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--testmap=Maps/Reclamation --spectate --spectate-skip-battle --spectate-ignore-hero" />
 				<Compiler>
 					<Add option="-Og" />
 					<Add option="-g" />
@@ -91,7 +91,7 @@
 			<Add option="-isystem $(#boost.include)" />
 			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0600" />
 			<Add option="-D_WIN32" />
 			<Add option="-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT" />
 			<Add directory="../client" />
@@ -246,10 +246,6 @@
 		<Unit filename="windows/QuickRecruitmentWindow.cpp" />
 		<Unit filename="windows/QuickRecruitmentWindow.h" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-			<lib_finder disable_auto="1" />
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
 				<doxyfile_project />
@@ -259,6 +255,7 @@
 				<doxyfile_dot />
 				<general />
 			</DoxyBlocks>
+			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

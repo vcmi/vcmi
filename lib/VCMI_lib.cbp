@@ -20,7 +20,6 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -50,7 +49,6 @@
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
 					<Add directory="$(#zlib.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -82,7 +80,6 @@
 					<Add option="-Og" />
 					<Add option="-g" />
 					<Add directory="$(#zlib64.include)" />
-					<Add directory="lib/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lws2_32" />
@@ -118,7 +115,7 @@
 			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0600" />
 			<Add option="-D_WIN32" />
 			<Add option="-DVCMI_NO_EXTRA_VERSION" />
 			<Add directory="." />
@@ -131,10 +128,69 @@
 		<Unit filename="../CMakeLists.txt" />
 		<Unit filename="../Global.h" />
 		<Unit filename="../Version.h" />
+		<Unit filename="../include/vcmi/Artifact.h" />
+		<Unit filename="../include/vcmi/ArtifactService.h" />
+		<Unit filename="../include/vcmi/Creature.h" />
+		<Unit filename="../include/vcmi/CreatureService.h" />
+		<Unit filename="../include/vcmi/Entity.h" />
+		<Unit filename="../include/vcmi/EntityService.h" />
+		<Unit filename="../include/vcmi/Environment.h" />
+		<Unit filename="../include/vcmi/Faction.h" />
+		<Unit filename="../include/vcmi/FactionService.h" />
+		<Unit filename="../include/vcmi/HeroClass.h" />
+		<Unit filename="../include/vcmi/HeroClassService.h" />
+		<Unit filename="../include/vcmi/HeroType.h" />
+		<Unit filename="../include/vcmi/HeroTypeService.h" />
+		<Unit filename="../include/vcmi/Metatype.h" />
+		<Unit filename="../include/vcmi/Player.h" />
+		<Unit filename="../include/vcmi/ServerCallback.h" />
+		<Unit filename="../include/vcmi/Services.h" />
+		<Unit filename="../include/vcmi/Skill.h" />
+		<Unit filename="../include/vcmi/SkillService.h" />
+		<Unit filename="../include/vcmi/Team.h" />
+		<Unit filename="../include/vcmi/events/AdventureEvents.h" />
+		<Unit filename="../include/vcmi/events/ApplyDamage.h" />
+		<Unit filename="../include/vcmi/events/BattleEvents.h" />
+		<Unit filename="../include/vcmi/events/Event.h" />
+		<Unit filename="../include/vcmi/events/EventBus.h" />
+		<Unit filename="../include/vcmi/events/GameResumed.h" />
+		<Unit filename="../include/vcmi/events/GenericEvents.h" />
+		<Unit filename="../include/vcmi/events/ObjectVisitEnded.h" />
+		<Unit filename="../include/vcmi/events/ObjectVisitStarted.h" />
+		<Unit filename="../include/vcmi/events/PlayerGotTurn.h" />
+		<Unit filename="../include/vcmi/events/SubscriptionRegistry.h" />
+		<Unit filename="../include/vcmi/events/TurnStarted.h" />
+		<Unit filename="../include/vcmi/scripting/Service.h" />
+		<Unit filename="../include/vcmi/spells/Caster.h" />
+		<Unit filename="../include/vcmi/spells/Magic.h" />
+		<Unit filename="../include/vcmi/spells/Service.h" />
+		<Unit filename="../include/vcmi/spells/Spell.h" />
 		<Unit filename="../include/vstd/CLoggerBase.h" />
 		<Unit filename="../include/vstd/ContainerUtils.h" />
 		<Unit filename="../include/vstd/RNG.h" />
 		<Unit filename="../include/vstd/StringUtils.h" />
+		<Unit filename="../scripts/lib/Metatype.lua" />
+		<Unit filename="../scripts/lib/erm.lua" />
+		<Unit filename="../scripts/lib/erm/BM.lua" />
+		<Unit filename="../scripts/lib/erm/BU.lua" />
+		<Unit filename="../scripts/lib/erm/DO.lua" />
+		<Unit filename="../scripts/lib/erm/FU.lua" />
+		<Unit filename="../scripts/lib/erm/FU_T.lua" />
+		<Unit filename="../scripts/lib/erm/GM_T.lua" />
+		<Unit filename="../scripts/lib/erm/HE.lua" />
+		<Unit filename="../scripts/lib/erm/IF.lua" />
+		<Unit filename="../scripts/lib/erm/MA.lua" />
+		<Unit filename="../scripts/lib/erm/MF.lua" />
+		<Unit filename="../scripts/lib/erm/MF_T.lua" />
+		<Unit filename="../scripts/lib/erm/OW.lua" />
+		<Unit filename="../scripts/lib/erm/PI_T.lua" />
+		<Unit filename="../scripts/lib/erm/ReceiverBase.lua" />
+		<Unit filename="../scripts/lib/erm/TM.lua" />
+		<Unit filename="../scripts/lib/erm/TM_T.lua" />
+		<Unit filename="../scripts/lib/erm/TriggerBase.lua" />
+		<Unit filename="../scripts/lib/erm/UN.lua" />
+		<Unit filename="../scripts/lib/erm/VR.lua" />
+		<Unit filename="../scripts/lib/verm.lua" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
@@ -166,9 +222,11 @@
 		<Unit filename="CModHandler.h" />
 		<Unit filename="CPathfinder.cpp" />
 		<Unit filename="CPathfinder.h" />
+		<Unit filename="CPlayerState.cpp" />
 		<Unit filename="CPlayerState.h" />
 		<Unit filename="CRandomGenerator.cpp" />
 		<Unit filename="CRandomGenerator.h" />
+		<Unit filename="CScriptingModule.cpp" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSkillHandler.cpp" />
 		<Unit filename="CSkillHandler.h" />
@@ -208,6 +266,8 @@
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
+		<Unit filename="ScriptHandler.cpp" />
+		<Unit filename="ScriptHandler.h" />
 		<Unit filename="StartInfo.cpp" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
@@ -220,6 +280,7 @@
 		<Unit filename="VCMIDirs.h" />
 		<Unit filename="VCMI_Lib.cpp" />
 		<Unit filename="VCMI_Lib.h" />
+		<Unit filename="abilities/Ability.h" />
 		<Unit filename="battle/AccessibilityInfo.cpp" />
 		<Unit filename="battle/AccessibilityInfo.h" />
 		<Unit filename="battle/BattleAction.cpp" />
@@ -246,6 +307,7 @@
 		<Unit filename="battle/CUnitState.h" />
 		<Unit filename="battle/Destination.cpp" />
 		<Unit filename="battle/Destination.h" />
+		<Unit filename="battle/IBattleInfoCallback.h" />
 		<Unit filename="battle/IBattleState.cpp" />
 		<Unit filename="battle/IBattleState.h" />
 		<Unit filename="battle/IUnitInfo.h" />
@@ -257,6 +319,18 @@
 		<Unit filename="battle/SiegeInfo.h" />
 		<Unit filename="battle/Unit.cpp" />
 		<Unit filename="battle/Unit.h" />
+		<Unit filename="events/ApplyDamage.cpp" />
+		<Unit filename="events/ApplyDamage.h" />
+		<Unit filename="events/GameResumed.cpp" />
+		<Unit filename="events/GameResumed.h" />
+		<Unit filename="events/ObjectVisitEnded.cpp" />
+		<Unit filename="events/ObjectVisitEnded.h" />
+		<Unit filename="events/ObjectVisitStarted.cpp" />
+		<Unit filename="events/ObjectVisitStarted.h" />
+		<Unit filename="events/PlayerGotTurn.cpp" />
+		<Unit filename="events/PlayerGotTurn.h" />
+		<Unit filename="events/TurnStarted.cpp" />
+		<Unit filename="events/TurnStarted.h" />
 		<Unit filename="filesystem/AdapterLoaders.cpp" />
 		<Unit filename="filesystem/AdapterLoaders.h" />
 		<Unit filename="filesystem/CArchiveLoader.cpp" />
@@ -380,6 +454,7 @@
 		<Unit filename="serializer/CSerializer.h" />
 		<Unit filename="serializer/CTypeList.cpp" />
 		<Unit filename="serializer/CTypeList.h" />
+		<Unit filename="serializer/Cast.h" />
 		<Unit filename="serializer/Connection.cpp" />
 		<Unit filename="serializer/Connection.h" />
 		<Unit filename="serializer/JsonDeserializer.cpp" />
@@ -389,6 +464,8 @@
 		<Unit filename="serializer/JsonSerializer.cpp" />
 		<Unit filename="serializer/JsonSerializer.h" />
 		<Unit filename="serializer/JsonTreeSerializer.h" />
+		<Unit filename="serializer/JsonUpdater.cpp" />
+		<Unit filename="serializer/JsonUpdater.h" />
 		<Unit filename="spells/AbilityCaster.cpp" />
 		<Unit filename="spells/AbilityCaster.h" />
 		<Unit filename="spells/AdventureSpellMechanics.cpp" />
@@ -401,7 +478,6 @@
 		<Unit filename="spells/CSpellHandler.h" />
 		<Unit filename="spells/ISpellMechanics.cpp" />
 		<Unit filename="spells/ISpellMechanics.h" />
-		<Unit filename="spells/Magic.h" />
 		<Unit filename="spells/Problem.cpp" />
 		<Unit filename="spells/Problem.h" />
 		<Unit filename="spells/ProxyCaster.cpp" />
@@ -446,9 +522,6 @@
 		<Unit filename="vcmi_endian.h" />
 		<Unit filename="vstd/StringUtils.cpp" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

@@ -83,7 +83,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		TOWN_RANDOM = 38,  TOWN_NONE = 39, // Special frames in ITPA
 		HERO_RANDOM = 163, HERO_NONE = 164 // Special frames in PortraitsSmall
 	};
-	auto factionIndex = settings.castle >= CGI->townh->factions.size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
 
 	switch(type)
 	{
@@ -95,7 +95,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		case PlayerSettings::RANDOM:
 			return TOWN_RANDOM;
 		default:
-			return CGI->townh->factions[factionIndex]->town->clientInfo.icons[true][false] + 2;
+			return (*CGI->townh)[factionIndex]->town->clientInfo.icons[true][false] + 2;
 		}
 	case HERO:
 		switch(settings.hero)
@@ -108,11 +108,10 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		{
 			if(settings.heroPortrait >= 0)
 				return settings.heroPortrait;
-			auto index = settings.hero >= CGI->heroh->heroes.size() ? 0 : settings.hero;
-			return CGI->heroh->heroes[index]->imageIndex;
+			auto index = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+			return (*CGI->heroh)[index]->imageIndex;
 		}
 		}
-
 	case BONUS:
 	{
 		switch(settings.bonus)
@@ -125,7 +124,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 			return GOLD;
 		case PlayerSettings::RESOURCE:
 		{
-			switch(CGI->townh->factions[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes)
 			{
 			case Res::WOOD_AND_ORE:
 				return WOOD_ORE;
@@ -181,10 +180,10 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			return CGI->generaltexth->allTexts[522];
 		default:
 		{
-			auto factionIndex = settings.castle >= CGI->townh->factions.size() ? 0 : settings.castle;
-			return CGI->townh->factions[factionIndex]->name;
+			auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+			return (*CGI->townh)[factionIndex]->name;
 		}
-		}
+	}
 	}
 	case HERO:
 	{
@@ -198,8 +197,8 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 		{
 			if(!settings.heroName.empty())
 				return settings.heroName;
-			auto index = settings.hero >= CGI->heroh->heroes.size() ? 0 : settings.hero;
-			return CGI->heroh->heroes[index]->name;
+			auto index = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
+			return (*CGI->heroh)[index]->name;
 		}
 		}
 	}
@@ -245,8 +244,8 @@ std::string OptionsTab::CPlayerSettingsHelper::getTitle()
 }
 std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 {
-	auto factionIndex = settings.castle >= CGI->townh->factions.size() ? 0 : settings.castle;
-	auto heroIndex = settings.hero >= CGI->heroh->heroes.size() ? 0 : settings.hero;
+	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
+	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
 
 	switch(type)
 	{
@@ -255,7 +254,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 	case HERO:
 	{
 		if(settings.hero >= 0)
-			return getName() + " - " + CGI->heroh->heroes[heroIndex]->heroClass->name;
+			return getName() + " - " + (*CGI->heroh)[heroIndex]->heroClass->name;
 		return getName();
 	}
 
@@ -267,7 +266,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 			return CGI->generaltexth->allTexts[87]; //500-1000
 		case PlayerSettings::RESOURCE:
 		{
-			switch(CGI->townh->factions[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes)
 			{
 			case Res::MERCURY:
 				return CGI->generaltexth->allTexts[694];
@@ -289,7 +288,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 
 std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 {
-	auto factionIndex = settings.castle >= CGI->townh->factions.size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
 
 	switch(type)
 	{
@@ -309,7 +308,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 			return CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 		case PlayerSettings::RESOURCE:
 		{
-			switch(CGI->townh->factions[factionIndex]->town->primaryRes)
+			switch((*CGI->townh)[factionIndex]->town->primaryRes)
 			{
 			case Res::MERCURY:
 				return CGI->generaltexth->allTexts[690];
@@ -376,9 +375,9 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
-	auto factionIndex = settings.castle >= CGI->townh->factions.size() ? 0 : settings.castle;
+	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = CGI->townh->factions[factionIndex]->town;
+	const CTown * town = (*CGI->townh)[factionIndex]->town;
 
 	for(auto & elem : town->creatures)
 	{
@@ -393,10 +392,10 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
 	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
-	auto heroIndex = settings.hero >= CGI->heroh->heroes.size() ? 0 : settings.hero;
+	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
 
-	imageSpeciality = std::make_shared<CAnimImage>("UN44", CGI->heroh->heroes[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
-	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, CENTER, Colors::WHITE, CGI->heroh->heroes[heroIndex]->specName);
+	imageSpeciality = std::make_shared<CAnimImage>("UN44", (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
+	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->specName);
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()

@@ -29,7 +29,7 @@ matrix:
     env: VCMI_PLATFORM='mxe' MXE_TARGET=i686-w64-mingw32.shared VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
     sudo: required
   - os: osx
-    env: VCMI_PLATFORM='mac'
+    env: VCMI_PLATFORM='mac' VCMI_CMAKE_FLAGS='-DENABLE_TEST=0'
 
 addons:
   apt:

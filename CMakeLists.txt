@@ -44,7 +44,8 @@ set(VCMI_VERSION_MAJOR 0)
 set(VCMI_VERSION_MINOR 99)
 set(VCMI_VERSION_PATCH 0)
 
-option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
+option(ENABLE_ERM "Enable compilation of ERM scripting module" ON)
+option(ENABLE_LUA "Enable compilation of LUA scripting module" ON)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
@@ -122,7 +123,6 @@ if(APPLE)
 endif(APPLE)
 
 if(WIN32)
-	add_definitions(-DBOOST_THREAD_USE_LIB)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
 
@@ -231,6 +231,21 @@ if(ENABLE_LAUNCHER)
 	find_package(Qt5Network REQUIRED)
 endif()
 
+if(ENABLE_LUA)
+	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
+	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
+		set(LUA_INCLUDE_DIR "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
+		set(LUA_LIBRARY "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
+	endif()
+	find_package(LuaJIT)
+	if(LUAJIT_FOUND)
+		message(STATUS "Using LuaJIT provided by system")
+	else()
+		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
+		find_package(Lua REQUIRED)
+	endif()
+endif()
+
 ############################################
 #        Output directories                #
 ############################################
@@ -294,6 +309,9 @@ set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
 endif()
+if(ENABLE_LUA)
+	add_subdirectory(scripting/lua)
+endif()
 if(NOT MINIZIP_FOUND)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	set(MINIZIP_LIBRARIES minizip)
@@ -315,6 +333,7 @@ endif()
 #######################################
 
 install(DIRECTORY config DESTINATION ${DATA_DIR})
+install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 
 # that script is useless for Windows

@@ -458,7 +458,7 @@ std::vector<int3> CPathfinderHelper::getCastleGates(const PathNodeInfo & source)
 {
 	std::vector<int3> allowedExits;
 
-	auto towns = getPlayer(hero->tempOwner)->towns;
+	auto towns = getPlayerState(hero->tempOwner)->towns;
 	for(const auto & town : towns)
 	{
 		if(town->id != source.nodeObject->id && town->visitingHero == nullptr
@@ -917,7 +917,7 @@ bool CPathfinder::isDestinationGuardian() const
 void CPathfinder::initializePatrol()
 {
 	auto state = PATROL_NONE;
-	if(hero->patrol.patrolling && !getPlayer(hero->tempOwner)->human)
+	if(hero->patrol.patrolling && !getPlayerState(hero->tempOwner)->human)
 	{
 		if(hero->patrol.patrolRadius)
 		{

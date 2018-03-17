@@ -10,6 +10,14 @@
 #include "StdInc.h"
 #include "Graphics.h"
 
+#include <vcmi/Entity.h>
+#include <vcmi/ArtifactService.h>
+#include <vcmi/CreatureService.h>
+#include <vcmi/FactionService.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/SkillService.h>
+#include <vcmi/spells/Service.h>
+
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "gui/SDL_Extensions.h"
@@ -19,19 +27,15 @@
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
-#include "../lib/CSkillHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CObjectHandler.h"
+#include "../lib/CHeroHandler.h"
 
 using namespace CSDL_Ext;
 
@@ -163,9 +167,9 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(auto & elem : CGI->heroh->classes.heroClasses)
+	for(auto & elem : CGI->heroh->classes.objects)
 	{
-		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
+		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
 			if (!heroAnimations.count(templ.animationFile))
 				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
@@ -423,74 +427,36 @@ void Graphics::loadErmuToPicture()
 	assert (etp_idx == 44);
 }
 
-void Graphics::addImageListEntry(size_t index, std::string listName, std::string imageName)
+void Graphics::addImageListEntry(size_t index, const std::string & listName, const std::string & imageName)
 {
 	if (!imageName.empty())
 	{
 		JsonNode entry;
-		entry["frame"].Float() = static_cast<double>(index);
+		entry["frame"].Integer() = index;
 		entry["file"].String() = imageName;
 
 		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
 	}
 }
 
+void Graphics::addImageListEntries(const EntityService * service)
+{
+	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3);
+
+	auto loopCb = [&](const Entity * entity, bool & stop)
+	{
+		entity->registerIcons(cb);
+	};
+
+	service->forEachBase(loopCb);
+}
+
 void Graphics::initializeImageLists()
 {
-	for(const CCreature * creature : CGI->creh->creatures)
-	{
-		addImageListEntry(creature->iconIndex, "CPRSMALL", creature->smallIconName);
-		addImageListEntry(creature->iconIndex, "TWCRPORT", creature->largeIconName);
-	}
-
-	for(const CHero * hero : CGI->heroh->heroes)
-	{
-		addImageListEntry(hero->imageIndex, "UN32", hero->iconSpecSmall);
-		addImageListEntry(hero->imageIndex, "UN44", hero->iconSpecLarge);
-		addImageListEntry(hero->imageIndex, "PORTRAITSLARGE", hero->portraitLarge);
-		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
-	}
-
-	for(const CArtifact * art : CGI->arth->artifacts)
-	{
-		addImageListEntry(art->iconIndex, "ARTIFACT", art->image);
-		addImageListEntry(art->iconIndex, "ARTIFACTLARGE", art->large);
-	}
-
-	for(const CFaction * faction : CGI->townh->factions)
-	{
-		if (faction->town)
-		{
-			auto & info = faction->town->clientInfo;
-			addImageListEntry(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
-			addImageListEntry(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
-			addImageListEntry(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
-			addImageListEntry(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
-
-			addImageListEntry(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
-			addImageListEntry(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
-			addImageListEntry(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
-			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
-		}
-	}
-
-	for(const CSpell * spell : CGI->spellh->objects)
-	{
-		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
-		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
-		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
-		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
-	}
-
-	for(const CSkill * skill : CGI->skillh->objects)
-	{
-		for(int level = 1; level <= 3; level++)
-		{
-			int frame = 2 + level + 3 * skill->id;
-			const CSkill::LevelInfo & skillAtLevel = skill->at(level);
-			addImageListEntry(frame, "SECSK32", skillAtLevel.iconSmall);
-			addImageListEntry(frame, "SECSKILL", skillAtLevel.iconMedium);
-			addImageListEntry(frame, "SECSK82", skillAtLevel.iconLarge);
-		}
-	}
+	addImageListEntries(CGI->creatures());
+	addImageListEntries(CGI->heroTypes());
+	addImageListEntries(CGI->artifacts());
+	addImageListEntries(CGI->factions());
+	addImageListEntries(CGI->spells());
+	addImageListEntries(CGI->skills());
 }

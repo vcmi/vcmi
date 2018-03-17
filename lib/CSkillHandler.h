@@ -9,11 +9,16 @@
  */
 #pragma once
 
+#include <vcmi/Skill.h>
+#include <vcmi/SkillService.h>
+
 #include "../lib/HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
-class DLL_LINKAGE CSkill // secondary skill
+class JsonSerializeFormat;
+
+class DLL_LINKAGE CSkill : public Skill
 {
 public:
 	struct LevelInfo
@@ -48,6 +53,13 @@ public:
 	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default");
 	~CSkill();
 
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	SecondarySkill getId() const override;
+
 	const LevelInfo & at(int level) const;
 	LevelInfo & at(int level);
 
@@ -57,6 +69,9 @@ public:
 	std::string identifier;
 	std::string name; //as displayed in GUI
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
+
+	void updateFrom(const JsonNode & data);
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -75,7 +90,7 @@ public:
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 };
 
-class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>
+class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSkill, SkillService>
 {
 public:
 	CSkillHandler();
@@ -87,7 +102,6 @@ public:
 	void beforeValidate(JsonNode & object) override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-	const std::vector<std::string> & getTypeNames() const override;
 
 	const std::string & skillInfo(int skill, int level) const;
 	const std::string & skillName(int skill) const;
@@ -103,5 +117,6 @@ public:
 	}
 
 protected:
-	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) override;
+	const std::vector<std::string> & getTypeNames() const override;
+	CSkill * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };

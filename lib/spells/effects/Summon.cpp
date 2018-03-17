@@ -60,7 +60,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 	{
 		//check if there are summoned creatures of other type
 
-		auto otherSummoned = m->cb->battleGetUnitsIf([m, this](const battle::Unit * unit)
+		auto otherSummoned = m->battle()->battleGetUnitsIf([m, this](const battle::Unit * unit)
 		{
 			return (unit->unitOwner() == m->getCasterColor())
 				&& (unit->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
@@ -96,7 +96,7 @@ bool Summon::applicable(Problem & problem, const Mechanics * m) const
 	return true;
 }
 
-void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Summon::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	//new feature - percentage bonus
 	auto valueWithBonus = m->applySpecificSpellBonus(m->calculateRawEffectValue(0, m->getEffectPower()));//TODO: consider use base power too
@@ -120,8 +120,8 @@ void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * 
 
 			if(summonByHealth)
 			{
-				auto creatureType = creature.toCreature();
-				auto creatureMaxHealth = creatureType->MaxHealth();
+				auto creatureType = creature.toCreature(m->creatures());
+				auto creatureMaxHealth = creatureType->getMaxHealth();
 				amount = static_cast<int32_t>(valueWithBonus / creatureMaxHealth);
 			}
 			else
@@ -131,12 +131,12 @@ void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * 
 
 			if(amount < 1)
 			{
-				battleState->complain("Summoning didn't summon any!");
+				server->complain("Summoning didn't summon any!");
 				continue;
 			}
 
 			battle::UnitInfo info;
-			info.id = m->cb->battleNextUnitId();
+			info.id = m->battle()->battleNextUnitId();
 			info.count = amount;
 			info.type = creature;
 			info.side = m->casterSide;
@@ -149,7 +149,7 @@ void Summon::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * 
 	}
 
 	if(!pack.changedStacks.empty())
-		battleState->apply(&pack);
+		server->apply(&pack);
 }
 
 EffectTarget Summon::filterTarget(const Mechanics * m, const EffectTarget & target) const
@@ -168,7 +168,7 @@ void Summon::serializeJsonEffect(JsonSerializeFormat & handler)
 
 EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
-	auto sameSummoned = m->cb->battleGetUnitsIf([m, this](const battle::Unit * unit)
+	auto sameSummoned = m->battle()->battleGetUnitsIf([m, this](const battle::Unit * unit)
 	{
 		return (unit->unitOwner() == m->getCasterColor())
 			&& (unit->unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER)
@@ -181,7 +181,7 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 	if(sameSummoned.empty() || !summonSameUnit)
 	{
-		BattleHex hex = m->cb->getAvaliableHex(creature, m->casterSide);
+		BattleHex hex = m->battle()->getAvaliableHex(creature, m->casterSide);
 		if(!hex.isValid())
 			logGlobal->error("No free space to summon creature!");
 		else

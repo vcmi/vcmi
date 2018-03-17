@@ -93,7 +93,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			continue;
 		}
 
-		auto creature = VLC->creh->creatures[objid];
+		auto creature = VLC->creh->objects[objid];
 		if(t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
 		{
 			auto creatures = vstd::tryAt(t->town->creatures, creature->level - 1);
@@ -110,7 +110,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 				solutions.push_back(sptr(BuyArmy(t, creature->AIValue * this->value).setobjid(objid)));
 			}
 			/*else //disable random building requests for now - this code needs to know a lot of town/resource context to do more good than harm
-			{	
+			{
 				return sptr(BuildThis(bid, t).setpriority(priority));
 			}*/
 		}
@@ -129,7 +129,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ai->ah->freeResources().canAfford(VLC->creh->creatures[type]->cost))
+					if(type == objid && ai->ah->freeResources().canAfford(VLC->creh->objects[type]->cost))
 						vstd::concatenate(solutions, ai->ah->howToVisitObj(obj));
 				}
 			}

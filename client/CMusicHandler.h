@@ -12,7 +12,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
 
-class CSpell;
 struct _Mix_Music;
 struct SDL_RWops;
 typedef struct _Mix_Music Mix_Music;

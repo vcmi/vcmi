@@ -38,7 +38,7 @@ void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	VLC->modh->identifiers.requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
-		faction = VLC->townh->factions[index];
+		faction = (*VLC->townh)[index];
 	});
 
 	filtersJson = input["filters"];
@@ -92,7 +92,7 @@ CHeroInstanceConstructor::CHeroInstanceConstructor()
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	VLC->modh->identifiers.requestIdentifier("heroClass", input["heroClass"],
-			[&](si32 index) { heroClass = VLC->heroh->classes.heroClasses[index]; });
+			[&](si32 index) { heroClass = VLC->heroh->classes[index]; });
 
 	filtersJson = input["filters"];
 }
@@ -153,7 +153,7 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 		{
 			VLC->modh->identifiers.requestIdentifier("creature", creatures[j], [=] (si32 index)
 			{
-				availableCreatures[i][j] = VLC->creh->creatures[index];
+				availableCreatures[i][j] = VLC->creh->objects[index];
 			});
 		}
 		assert(!availableCreatures[i].empty());

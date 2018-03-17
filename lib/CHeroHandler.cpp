@@ -25,6 +25,53 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
+CHero::CHero() = default;
+CHero::~CHero() = default;
+
+int32_t CHero::getIndex() const
+{
+	return ID.getNum();
+}
+
+int32_t CHero::getIconIndex() const
+{
+	return imageIndex;
+}
+
+const std::string & CHero::getName() const
+{
+	return name;
+}
+
+const std::string & CHero::getJsonKey() const
+{
+	return identifier;
+}
+
+HeroTypeID CHero::getId() const
+{
+	return ID;
+}
+
+void CHero::registerIcons(const IconRegistar & cb) const
+{
+	cb(getIconIndex(), "UN32", iconSpecSmall);
+	cb(getIconIndex(), "UN44", iconSpecLarge);
+	cb(getIconIndex(), "PORTRAITSLARGE", portraitLarge);
+	cb(getIconIndex(), "PORTRAITSSMALL", portraitSmall);
+}
+
+void CHero::updateFrom(const JsonNode & data)
+{
+	//todo: CHero::updateFrom
+}
+
+void CHero::serializeJson(JsonSerializeFormat & handler)
+{
+
+}
+
+
 SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const //picks secondary skill out from given possibilities
 {
 	int totalProb = 0;
@@ -55,11 +102,52 @@ bool CHeroClass::isMagicHero() const
 
 EAlignment::EAlignment CHeroClass::getAlignment() const
 {
-	return EAlignment::EAlignment(VLC->townh->factions[faction]->alignment);
+	return EAlignment::EAlignment((*VLC->townh)[faction]->alignment);
 }
 
+int32_t CHeroClass::getIndex() const
+{
+	return id.getNum();
+}
+
+int32_t CHeroClass::getIconIndex() const
+{
+	return getIndex();
+}
+
+const std::string & CHeroClass::getName() const
+{
+	return name;
+}
+
+const std::string & CHeroClass::getJsonKey() const
+{
+	return identifier;
+}
+
+HeroClassID CHeroClass::getId() const
+{
+	return id;
+}
+
+void CHeroClass::registerIcons(const IconRegistar & cb) const
+{
+
+}
+
+void CHeroClass::updateFrom(const JsonNode & data)
+{
+	//TODO: CHeroClass::updateFrom
+}
+
+void CHeroClass::serializeJson(JsonSerializeFormat & handler)
+{
+
+}
+
+
 CHeroClass::CHeroClass()
- : faction(0), id(0), affinity(0), defaultTavernChance(0), commander(nullptr)
+ : faction(0), id(), affinity(0), defaultTavernChance(0), commander(nullptr)
 {
 }
 
@@ -114,11 +202,19 @@ void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass *
 	heroClass->primarySkillHighLevel.push_back((int)node["highLevelChance"][skillName].Float());
 }
 
-CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
+const std::vector<std::string> & CHeroClassHandler::getTypeNames() const
+{
+	static const std::vector<std::string> typeNames = { "heroClass" };
+	return typeNames;
+}
+
+CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	std::string affinityStr[2] = { "might", "magic" };
 
-	auto  heroClass = new CHeroClass();
+	auto heroClass = new CHeroClass();
+
+	heroClass->id = HeroClassID(index);
 	heroClass->identifier = identifier;
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
@@ -148,7 +244,7 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
 	[=](si32 commanderID)
 	{
-		heroClass->commander = VLC->creh->creatures[commanderID];
+		heroClass->commander = VLC->creh->objects[commanderID];
 	});
 
 	heroClass->defaultTavernChance = static_cast<ui32>(node["defaultTavern"].Float());
@@ -169,12 +265,20 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 		heroClass->faction = factionID;
 	});
 
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
+	{
+		JsonNode classConf = node["mapObject"];
+		classConf["heroClass"].String() = identifier;
+		classConf.setMeta(scope);
+		VLC->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
+	});
+
 	return heroClass;
 }
 
 std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 {
-	heroClasses.resize(dataSize);
+	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
@@ -212,49 +316,12 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 	return h3Data;
 }
 
-void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
-{
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = static_cast<ui8>(heroClasses.size());
-
-	heroClasses.push_back(object);
-
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
-	{
-		JsonNode classConf = data["mapObject"];
-		classConf["heroClass"].String() = name;
-		classConf.setMeta(scope);
-		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
-	});
-
-	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
-}
-
-void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
-{
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = static_cast<ui8>(index);
-
-	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
-	heroClasses[index] = object;
-
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "hero", [=](si32 index)
-	{
-		JsonNode classConf = data["mapObject"];
-		classConf["heroClass"].String() = name;
-		classConf.setMeta(scope);
-		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
-	});
-
-	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
-}
-
 void CHeroClassHandler::afterLoadFinalization()
 {
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
-	for (CHeroClass * heroClass : heroClasses)
+	for(CHeroClass * heroClass : objects)
 	{
-		for (CFaction * faction : VLC->townh->factions)
+		for(CFaction * faction : VLC->townh->objects)
 		{
 			if (!faction->town)
 				continue;
@@ -277,40 +344,28 @@ void CHeroClassHandler::afterLoadFinalization()
 		}
 	}
 
-	for (CHeroClass * hc : heroClasses)
+	for(CHeroClass * hc : objects)
 	{
 		if (!hc->imageMapMale.empty())
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->id)->addTemplate(templ);
+			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(templ);
 		}
 	}
 }
 
 std::vector<bool> CHeroClassHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>(heroClasses.size(), true);
+	return std::vector<bool>(size(), true);
 }
 
-CHeroClassHandler::~CHeroClassHandler()
-{
-	for(auto heroClass : heroClasses)
-	{
-		delete heroClass.get();
-	}
-}
+CHeroClassHandler::~CHeroClassHandler() = default;
 
-CHeroHandler::~CHeroHandler()
-{
-	for(auto hero : heroes)
-		delete hero.get();
-}
+CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	VLC->heroh = this;
-
 	loadObstacles();
 	loadTerrains();
 	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
@@ -321,9 +376,16 @@ CHeroHandler::CHeroHandler()
 	loadExperience();
 }
 
-CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
+const std::vector<std::string> & CHeroHandler::getTypeNames() const
+{
+	static const std::vector<std::string> typeNames = { "hero" };
+	return typeNames;
+}
+
+CHero * CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	auto hero = new CHero();
+	hero->ID = HeroTypeID(index);
 	hero->identifier = identifier;
 	hero->sex = node["female"].Bool();
 	hero->special = node["special"].Bool();
@@ -347,7 +409,7 @@ CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & id
 	VLC->modh->identifiers.requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
-		hero->heroClass = classes.heroClasses[classID];
+		hero->heroClass = classes[HeroClassID(classID)];
 	});
 
 	return hero;
@@ -412,7 +474,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 // add standard creature specialty to result
 void AddSpecialtyForCreature(int creatureID, std::shared_ptr<Bonus> bonus, std::vector<std::shared_ptr<Bonus>> &result)
 {
-	const CCreature &specBaseCreature = *VLC->creh->creatures[creatureID]; //base creature in which we have specialty
+	const CCreature &specBaseCreature = *VLC->creh->objects[creatureID]; //base creature in which we have specialty
 
 	bonus->limiter.reset(new CCreatureTypeLimiter(specBaseCreature, true));
 	bonus->type = Bonus::STACKS_SPEED;
@@ -427,7 +489,7 @@ void AddSpecialtyForCreature(int creatureID, std::shared_ptr<Bonus> bonus, std::
 
 	for(int cid : specTargets)
 	{
-		const CCreature &specCreature = *VLC->creh->creatures[cid];
+		const CCreature &specCreature = *VLC->creh->objects[cid];
 		bonus = std::make_shared<Bonus>(*bonus);
 		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
 		bonus->type = Bonus::PRIMARY_SKILL;
@@ -441,7 +503,7 @@ void AddSpecialtyForCreature(int creatureID, std::shared_ptr<Bonus> bonus, std::
 
 		bonus = std::make_shared<Bonus>(*bonus);
 		bonus->subtype = PrimarySkill::DEFENSE;
-		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefence(false), stepSize));
+		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
 		result.push_back(bonus);
 	}
 }
@@ -501,7 +563,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 			return result;
 		}
 		bonus->valType = Bonus::ADDITIVE_VALUE;
-		bonus->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->creatures[spec.additionalinfo], true));
+		bonus->limiter.reset(new CCreatureTypeLimiter(*VLC->creh->objects[spec.additionalinfo], true));
 		result.push_back(bonus);
 		break;
 	case 5: //spell damage bonus in percent
@@ -530,7 +592,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 		break;
 	case 9: //upgrade creatures
 		{
-			const auto &creatures = VLC->creh->creatures;
+			const auto &creatures = VLC->creh->objects;
 			bonus->type = Bonus::SPECIAL_UPGRADE;
 			bonus->subtype = spec.subtype; //base id
 			bonus->additionalInfo = spec.additionalinfo; //target id
@@ -612,7 +674,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 					if(creatureLimiter)
 					{
 						const CCreature * cre = creatureLimiter->creature;
-						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefence(false);
+						int creStat = newBonus->subtype == PrimarySkill::ATTACK ? cre->getAttack(false) : cre->getDefense(false);
 						int creLevel = cre->level ? cre->level : 5;
 						newBonus->updater = std::make_shared<GrowsWithLevelUpdater>(creStat, creLevel);
 					}
@@ -808,7 +870,7 @@ void CHeroHandler::loadBallistics()
 
 std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 {
-	heroes.resize(dataSize);
+	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
@@ -852,39 +914,38 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->ID = HeroTypeID((si32)heroes.size());
-	object->imageIndex = (si32)heroes.size() + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
+	size_t index = objects.size();
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	object->imageIndex = (si32)index + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
-	heroes.push_back(object);
+	objects.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID.getNum());
+	registerObject(scope, "hero", name, object->getIndex());
 }
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->ID = HeroTypeID((si32)index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
 	object->imageIndex = static_cast<si32>(index);
 
-	assert(heroes[index] == nullptr); // ensure that this id was not loaded before
-	heroes[index] = object;
+	assert(objects[index] == nullptr); // ensure that this id was not loaded before
+	objects[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID.getNum());
+	registerObject(scope, "hero", name, object->getIndex());
 }
 
 void CHeroHandler::afterLoadFinalization()
 {
-	for(ConstTransitivePtr<CHero> hero : heroes)
+	for(auto & hero : objects)
 	{
 		for(auto bonus : hero->specialty)
 		{
-			bonus->sid = hero->ID.getNum();
+			bonus->sid = hero->getIndex();
 		}
 
 		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
 		{
-			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
+			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, FactionID::encode(hero->heroClass->faction));
 			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
 			for(const SSpecialtyInfo & spec : hero->specDeprecated)
 			{
@@ -971,26 +1032,12 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 {
 	// Look Data/HOTRAITS.txt for reference
 	std::vector<bool> allowedHeroes;
-	allowedHeroes.reserve(heroes.size());
+	allowedHeroes.reserve(size());
 
-	for(const CHero * hero : heroes)
+	for(const CHero * hero : objects)
 	{
 		allowedHeroes.push_back(!hero->special);
 	}
 
 	return allowedHeroes;
-}
-
-si32 CHeroHandler::decodeHero(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CHeroHandler::encodeHero(const si32 index)
-{
-	return VLC->heroh->heroes.at(index)->identifier;
 }

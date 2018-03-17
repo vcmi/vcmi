@@ -21,6 +21,7 @@
 #include "CSkillHandler.h"
 #include "CStack.h"
 #include "CArtHandler.h"
+#include "CModHandler.h"
 #include "StringConstants.h"
 #include "battle/BattleInfo.h"
 
@@ -752,7 +753,7 @@ int IBonusBearer::getAttack(bool ranged) const
 	return getBonuses(selector, nullptr, cachingStr)->totalValue();
 }
 
-int IBonusBearer::getDefence(bool ranged) const
+int IBonusBearer::getDefense(bool ranged) const
 {
 	const std::string cachingStr = "type_PRIMARY_SKILLs_DEFENSE";
 
@@ -1328,7 +1329,12 @@ void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
 	nodeType = type;
 }
 
-BonusList& CBonusSystemNode::getExportedBonusList()
+BonusList & CBonusSystemNode::getExportedBonusList()
+{
+	return exportedBonuses;
+}
+
+const BonusList & CBonusSystemNode::getExportedBonusList() const
 {
 	return exportedBonuses;
 }
@@ -1421,19 +1427,19 @@ std::string Bonus::Description() const
 			switch(source)
 			{
 			case ARTIFACT:
-				str << VLC->arth->artifacts[sid]->Name();
+				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getName();
 				break;
 			case SPELL_EFFECT:
-				str << SpellID(sid).toSpell()->name;
+				str << SpellID(sid).toSpell(VLC->spells())->getName();
 				break;
 			case CREATURE_ABILITY:
-				str << VLC->creh->creatures[sid]->namePl;
+				str << VLC->creh->objects[sid]->namePl;
 				break;
 			case SECONDARY_SKILL:
 				str << VLC->skillh->skillName(sid);
 				break;
 			case HERO_SPECIAL:
-				str << VLC->heroh->heroes[sid]->name;
+				str << VLC->heroh->objects[sid]->name;
 				break;
 			default:
 				//todo: handle all possible sources
@@ -1470,10 +1476,10 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
 	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
-		return JsonUtils::stringNode("spell." + (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
+		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "spell", SpellID::encode(subtype)));
 	case Bonus::IMPROVED_NECROMANCY:
 	case Bonus::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode("creature." + CreatureID::encode(subtype));
+		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(subtype)));
 	case Bonus::GENERATE_RESOURCE:
 		return JsonUtils::stringNode("resource." + GameConstants::RESOURCE_NAMES[subtype]);
 	default:
@@ -1486,7 +1492,7 @@ JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
 	switch(type)
 	{
 	case Bonus::SPECIAL_UPGRADE:
-		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo[0]));
+		return JsonUtils::stringNode(CModHandler::makeFullIdentifier("", "creature", CreatureID::encode(addInfo[0])));
 	default:
 		return addInfo.toJsonNode();
 	}
@@ -1522,6 +1528,22 @@ JsonNode Bonus::toJsonNode() const
 		root["subtype"] = subtypeToJson(type, subtype);
 	if(additionalInfo != CAddInfo::NONE)
 		root["addInfo"] = additionalInfoToJson(type, additionalInfo);
+	if(duration != 0)
+	{
+		JsonNode durationVec(JsonNode::JsonType::DATA_VECTOR);
+		for(auto & kv : bonusDurationMap)
+		{
+			if(duration & kv.second)
+				durationVec.Vector().push_back(JsonUtils::stringNode(kv.first));
+		}
+		root["duration"] = durationVec;
+	}
+	if(turnsRemain != 0)
+		root["turns"].Integer() = turnsRemain;
+	if(source != OTHER)
+		root["source"].String() = vstd::findKey(bonusSourceMap, source);
+	if(sid != 0)
+		root["sourceID"].Integer() = sid;
 	if(val != 0)
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
@@ -1822,8 +1844,8 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
 
-CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades)
-	:creature(&Creature), includeUpgrades(IncludeUpgrades)
+CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades)
+	: creature(&creature_), includeUpgrades(IncludeUpgrades)
 {
 }
 
@@ -1835,7 +1857,7 @@ CCreatureTypeLimiter::CCreatureTypeLimiter()
 
 void CCreatureTypeLimiter::setCreature (CreatureID id)
 {
-	creature = VLC->creh->creatures[id];
+	creature = VLC->creh->objects[id];
 }
 
 std::string CCreatureTypeLimiter::toString() const
@@ -2011,7 +2033,7 @@ int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureFactionLimiter::toString() const
 {
 	boost::format fmt("CreatureFactionLimiter(faction=%s)");
-	fmt %  VLC->townh->factions[faction]->identifier;
+	fmt % VLC->factions()->getByIndex(faction)->getJsonKey();
 	return fmt.str();
 }
 
@@ -2020,7 +2042,7 @@ JsonNode CreatureFactionLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_FACTION_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->townh->factions[faction]->identifier));
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->factions()->getByIndex(faction)->getJsonKey()));
 
 	return root;
 }

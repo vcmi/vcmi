@@ -94,7 +94,7 @@ namespace JsonRandom
 
 		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
 		{
-			CArtifact * art = VLC->arth->artifacts[artID];
+			CArtifact * art = VLC->arth->objects[artID];
 
 			if (!vstd::iswithin(art->price, minValue, maxValue))
 				return false;
@@ -158,13 +158,13 @@ namespace JsonRandom
 	CStackBasicDescriptor loadCreature(const JsonNode & value, CRandomGenerator & rng)
 	{
 		CStackBasicDescriptor stack;
-		stack.type = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier("creature", value["type"]).get()];
+		stack.type = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", value["type"]).get()];
 		stack.count = loadValue(value, rng);
 		if (!value["upgradeChance"].isNull() && !stack.type->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
 			{
-				stack.type = VLC->creh->creatures[*RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)];
+				stack.type = VLC->creh->objects[*RandomGeneratorUtil::nextItem(stack.type->upgrades, rng)];
 			}
 		}
 		return stack;
@@ -194,12 +194,12 @@ namespace JsonRandom
 				info.minAmount = static_cast<si32>(node["min"].Float());
 				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
-			const CCreature * crea = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier("creature", node["type"]).get()];
+			const CCreature * crea = VLC->creh->objects[VLC->modh->identifiers.getIdentifier("creature", node["type"]).get()];
 			info.allowedCreatures.push_back(crea);
 			if (node["upgradeChance"].Float() > 0)
 			{
 				for (auto creaID : crea->upgrades)
-					info.allowedCreatures.push_back(VLC->creh->creatures[creaID]);
+					info.allowedCreatures.push_back(VLC->creh->objects[creaID]);
 			}
 			ret.push_back(info);
 		}

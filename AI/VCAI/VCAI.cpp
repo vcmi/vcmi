@@ -579,9 +579,10 @@ void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(std::shared_ptr<CCallback> CB)
+void VCAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
+	env = ENV;
 	myCb = CB;
 	cbc = CB;
 
@@ -868,7 +869,7 @@ void VCAI::mainLoop()
 		goalsToRemove.clear();
 		elementarGoals.clear();
 		ultimateGoalsFromBasic.clear();
-		
+
 		ah->updatePaths(getMyHeroes());
 
 		logAi->debug("Main loop: decomposing %i basic goals", basicGoals.size());
@@ -1082,7 +1083,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
 						auto weakest = ah->getWeakestCreature(bestArmy);
-						
+
 						if(weakest->creature == targetCreature)
 						{
 							if(1 == source->getStackCount(j))
@@ -1233,7 +1234,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, ah->freeResources() / VLC->creh->creatures[creID]->cost);
+		vstd::amin(count, ah->freeResources() / VLC->creh->objects[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}

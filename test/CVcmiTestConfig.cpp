@@ -36,6 +36,13 @@ void CVcmiTestConfig::SetUp()
 	if(boost::filesystem::exists(path)){
 		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+
+		loader = new CFilesystemLoader("scripts/test/erm/", TEST_DATA_DIR+"erm/");
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+
+		loader = new CFilesystemLoader("scripts/test/lua/", TEST_DATA_DIR+"lua/");
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get())->addLoader(loader, false);
+
 	}
 }
 

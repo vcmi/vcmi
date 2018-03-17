@@ -24,6 +24,9 @@
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "ScriptHandler.h"
+
+#include <vstd/StringUtils.h>
 
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)
@@ -420,7 +423,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
-
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 	//TODO: any other types of moddables?
 }
 
@@ -729,7 +732,7 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsT
 			{
 				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
 				res = false; //continue iterations, since we should show all errors for the current mod.
-			}
+		}
 		}
 		return res;
 	};
@@ -742,19 +745,19 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsT
 				brokenMods.push_back(mod);
 		}
 		if(!brokenMods.empty())
-		{
-			vstd::erase_if(modsToResolve, [&](TModID mid) 
+			{
+			vstd::erase_if(modsToResolve, [&](TModID mid)
 			{
 				return brokenMods.end() != std::find(brokenMods.begin(), brokenMods.end(), mid);
 			});
 			brokenMods.clear();
-			continue;
-		}
+				continue;
+			}
 		break;
-	}
+		}
 	boost::range::sort(modsToResolve);
 	return modsToResolve;
-}
+	}
 
 std::vector<std::string> CModHandler::getModList(std::string path)
 {
@@ -949,6 +952,8 @@ void CModHandler::load()
 	content->load(coreMod);
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
+
+	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
 
 	content->loadCustom();
 

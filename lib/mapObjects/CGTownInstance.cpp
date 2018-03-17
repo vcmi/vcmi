@@ -51,9 +51,9 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 	if(!asCastle)
 	{
 		std::vector<bool> standard;
-		standard.resize(VLC->townh->factions.size(), true);
+		standard.resize(VLC->townh->size(), true);
 
-		JsonSerializeFormat::LIC allowedLIC(standard, &CTownHandler::decodeFaction, &CTownHandler::encodeFaction);
+		JsonSerializeFormat::LIC allowedLIC(standard, &FactionID::decode, &FactionID::encode);
 		allowedLIC.any = allowedFactions;
 
 		handler.serializeLIC("allowedFactions", allowedLIC);
@@ -260,7 +260,7 @@ void CGDwelling::newTurn(CRandomGenerator & rand) const
 	{
 		if(creatures[i].second.size())
 		{
-			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
+			CCreature *cre = VLC->creh->objects[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
 			if (VLC->modh->settings.DWELLINGS_ACCUMULATE_CREATURES && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
@@ -285,7 +285,7 @@ void CGDwelling::updateGuards() const
 	//default condition - creatures are of level 5 or higher
 	for (auto creatureEntry : creatures)
 	{
-		if (VLC->creh->creatures[creatureEntry.second.at(0)]->level >= 5 && ID != Obj::REFUGEE_CAMP)
+		if (VLC->creh->objects[creatureEntry.second.at(0)]->level >= 5 && ID != Obj::REFUGEE_CAMP)
 		{
 			guarded = true;
 			break;
@@ -296,7 +296,7 @@ void CGDwelling::updateGuards() const
 	{
 		for (auto creatureEntry : creatures)
 		{
-			const CCreature * crea = VLC->creh->creatures[creatureEntry.second.at(0)];
+			const CCreature * crea = VLC->creh->objects[creatureEntry.second.at(0)];
 			SlotID slot = getSlotFor(crea->idNumber);
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
@@ -324,7 +324,7 @@ void CGDwelling::updateGuards() const
 void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 {
 	CreatureID crid = creatures[0].second[0];
-	CCreature *crs = VLC->creh->creatures[crid];
+	CCreature *crs = VLC->creh->objects[crid];
 	TQuantity count = creatures[0].first;
 
 	if(crs->level == 1  &&  ID != Obj::REFUGEE_CAMP) //first level - creatures are for free
@@ -447,8 +447,8 @@ int CGTownInstance::getSightRadius() const //returns sight distance
 			auto height = town->buildings.at(bid)->height;
 			if(ret < height)
 				ret = height;
-		}
 	}
+}
 	return ret;
 }
 
@@ -532,7 +532,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if (creatures[level].second.empty())
 		return ret; //no dwelling
 
-	const CCreature *creature = VLC->creh->creatures[creatures[level].second.back()];
+	const CCreature *creature = VLC->creh->objects[creatures[level].second.back()];
 	const int base = creature->growth;
 	int castleBonus = 0;
 
@@ -552,7 +552,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_2, creature->hordeGrowth));
 
 	int dwellingBonus = 0;
-	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
+	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
 	{
 		dwellingBonus = getDwellingBonus(creatures[level].second, p->dwellings);
 	}
@@ -852,16 +852,16 @@ void CGTownInstance::updateBonusingBuildings() //update to version 792
 		{
 			switch (this->town->faction->index)
 			{
-			case ETownType::CASTLE:
+		case ETownType::CASTLE:
 				building->setBuildingSubtype(BuildingSubID::STABLES);
-				break;
+			break;
 
-			case ETownType::DUNGEON:
+		case ETownType::DUNGEON:
 				if(building->getBuildingType() == BuildingID::SPECIAL_2)
 					building->setBuildingSubtype(BuildingSubID::MANA_VORTEX);
 				else if(building->getBuildingType() == BuildingID::SPECIAL_4)
 					building->setBuildingSubtype(BuildingSubID::EXPERIENCE_VISITING_BONUS);
-				break;
+			break;
 
 			case ETownType::TOWER:
 				building->setBuildingSubtype(BuildingSubID::KNOWLEDGE_VISITING_BONUS);
@@ -875,10 +875,10 @@ void CGTownInstance::updateBonusingBuildings() //update to version 792
 				building->setBuildingSubtype(BuildingSubID::SPELL_POWER_VISITING_BONUS);
 				break;
 
-			case ETownType::FORTRESS:
+		case ETownType::FORTRESS:
 				building->setBuildingSubtype(BuildingSubID::DEFENSE_VISITING_BONUS);
-				break;
-			}
+			break;
+	}
 		}
 	}
 	//secondly, supplement bonusing buildings list and active bonuses; subtypes for these objects are already set in update792
@@ -985,7 +985,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 					}
 					else //upgrade
 					{
-						cb->changeStackType(sl, VLC->creh->creatures[*c->upgrades.begin()]);
+						cb->changeStackType(sl, VLC->creh->objects[*c->upgrades.begin()]);
 					}
 				}
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand.nextInt(99) < 25) || Slots().empty()) //add new stack
@@ -998,7 +998,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 
 						TQuantity count = creatureGrowth(i);
 						if (!count) // no dwelling
-							count = VLC->creh->creatures[c]->growth;
+							count = VLC->creh->objects[c]->growth;
 
 						{//no lower tiers or above current month
 
@@ -1006,7 +1006,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 							{
 								StackLocation sl(this, n);
 								if (slotEmpty(n))
-									cb->insertNewStack(sl, VLC->creh->creatures[c], count);
+									cb->insertNewStack(sl, VLC->creh->objects[c], count);
 								else //add to existing
 									cb->changeStackCount(sl, count);
 							}
@@ -1095,7 +1095,7 @@ void CGTownInstance::removeCapitols (PlayerColor owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
-		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
+		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
 		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
 		{
 			if (*i != this && (*i)->hasCapitol())
@@ -1136,7 +1136,7 @@ int CGTownInstance::getMarketEfficiency() const
 	if(!hasBuiltSomeTradeBuilding())
 		return 0;
 
-	const PlayerState *p = cb->getPlayer(tempOwner);
+	const PlayerState *p = cb->getPlayerState(tempOwner);
 	assert(p);
 
 	int marketCount = 0;
@@ -1197,7 +1197,7 @@ void CGTownInstance::setType(si32 ID, si32 subID)
 {
 	assert(ID == Obj::TOWN); // just in case
 	CGObjectInstance::setType(ID, subID);
-	town = VLC->townh->factions[subID]->town;
+	town = (*VLC->townh)[subID]->town;
 	randomizeArmy(subID);
 	updateAppearance();
 }
@@ -1264,13 +1264,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 			continue;
 
 		for(auto bonus : building->buildingBonuses)
-		{
+{
 			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
 				VLC->creh->addBonusForAllCreatures(bonus);
 			else
 				addNewBonus(bonus);
-		}
 	}
+}
 }
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
@@ -1285,7 +1285,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayer(h->tempOwner);
+		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
 		h->detachFrom(p);
 		h->attachTo(&townAndVis);
@@ -1295,7 +1295,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	}
 	else
 	{
-		PlayerState *p = cb->gameState()->getPlayer(visitingHero->tempOwner);
+		PlayerState *p = cb->gameState()->getPlayerState(visitingHero->tempOwner);
 		visitingHero->visitedTown = nullptr;
 		visitingHero->detachFrom(&townAndVis);
 		visitingHero->attachTo(p);
@@ -1308,7 +1308,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	assert(!!garrisonHero == !h);
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayer(h->tempOwner);
+		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
 		h->detachFrom(p);
 		h->attachTo(this);
@@ -1318,7 +1318,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	}
 	else
 	{
-		PlayerState *p = cb->gameState()->getPlayer(garrisonHero->tempOwner);
+		PlayerState *p = cb->gameState()->getPlayerState(garrisonHero->tempOwner);
 		garrisonHero->visitedTown = nullptr;
 		garrisonHero->inTownGarrison = false;
 		garrisonHero->detachFrom(this);
@@ -1341,7 +1341,7 @@ const CTown * CGTownInstance::getTown() const
 	{
 		if(nullptr == town)
 		{
-			return VLC->townh->factions[subID]->town;
+			return (*VLC->townh)[subID]->town;
 		}
 		else
 			return town;
@@ -1357,7 +1357,7 @@ int CGTownInstance::getTownLevel() const
 	{
 		if(town->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
-	}
+}
 	return level;
 }
 
@@ -1417,7 +1417,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 }
 
 TResources CGTownInstance::getBuildingCost(BuildingID buildingID) const
-{ 
+{
 	if (vstd::contains(town->buildings, buildingID))
 		return town->buildings.at(buildingID)->resources;
 	else
@@ -1636,6 +1636,31 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+PlayerColor CGTownBuilding::getOwner() const
+{
+	return town->getOwner();
+}
+
+int32_t CGTownBuilding::getObjGroupIndex() const
+{
+	return -1;
+}
+
+int32_t CGTownBuilding::getObjTypeIndex() const
+{
+	return 0;
+}
+
+int3 CGTownBuilding::visitablePos() const
+{
+	return town->visitablePos();
+}
+
+int3 CGTownBuilding::getPosition() const
+{
+	return town->getPosition();
+}
+
 COPWBonus::COPWBonus(BuildingID bid, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
 {
 	bID = bid;
@@ -1657,7 +1682,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 	}
 }
 
-void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
+void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(bID))
@@ -1690,7 +1715,7 @@ void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
 				if (visitors.empty())
 				{
 					if (h->mana < h->manaLimit() * 2)
-						cb->setManaPoints(heroID, 2 * h->manaLimit());
+					cb->setManaPoints (heroID, 2 * h->manaLimit());
 					//TODO: investigate line below
 					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
 					iw.text << getVisitingBonusGreeting();
@@ -1716,7 +1741,7 @@ void CTownBonus::setProperty (ui8 what, ui32 val)
 		visitors.insert(ObjectInstanceID(val));
 }
 
-void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
+void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
 	if(town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
@@ -1728,34 +1753,34 @@ void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 		switch (bType)
 		{
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
-			what = PrimarySkill::KNOWLEDGE;
-			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 3, 1, 0));
-			break;
+						what = PrimarySkill::KNOWLEDGE;
+						val = 1;
+						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
+						break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
-			what = PrimarySkill::SPELL_POWER;
-			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 2, 1, 0));
-			break;
+						what = PrimarySkill::SPELL_POWER;
+						val = 1;
+						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
+						break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
-			what = PrimarySkill::ATTACK;
-			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 0, 1, 0));
-			break;
+						what = PrimarySkill::ATTACK;
+						val = 1;
+						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
+						break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
-			what = PrimarySkill::EXPERIENCE;
+						what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-			iw.components.push_back(Component(Component::EXPERIENCE, 0, val, 0));
-			break;
+						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
+						break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
-			what = PrimarySkill::DEFENSE;
-			val = 1;
-			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
-			break;
+						what = PrimarySkill::DEFENSE;
+						val = 1;
+						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
+						break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->town->buildings.at(bID);
@@ -1763,18 +1788,18 @@ void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
-			}
-			break;
+				}
+				break;
 		}
 		if(what != PrimarySkill::NONE)
 		{
-			iw.player = cb->getOwner(heroID);
+		iw.player = cb->getOwner(heroID);
 			iw.text << getVisitingBonusGreeting();
-			cb->showInfoDialog(&iw);
-			cb->changePrimSkill(cb->getHero(heroID), what, val);
+		cb->showInfoDialog(&iw);
+		cb->changePrimSkill (cb->getHero(heroID), what, val);
 			town->addHeroToStructureVisitors(h, indexOnTV);
-		}
 	}
+}
 }
 
 void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const
@@ -1810,7 +1835,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % VLC->townh->factions[subID]->town->buildings.at(building)->Name() % count);
+	description = boost::str(boost::format("%s %+d") % (*VLC->townh)[subID]->town->buildings.at(building)->Name() % count);
 }
 
 GrowthInfo::Entry::Entry(int _count, const std::string &fullDescription)

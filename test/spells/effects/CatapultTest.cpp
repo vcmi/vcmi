@@ -34,6 +34,7 @@ protected:
 	void SetUp() override
 	{
 		EffectFixture::setUp();
+		setupEffect(JsonNode());
 	}
 };
 
@@ -126,13 +127,13 @@ TEST_F(CatapultApplyTest, DamageToIntactPart)
 
 	EXPECT_CALL(*battleFake, getWallState(_)).WillRepeatedly(Return(EWallState::DESTROYED));
 	EXPECT_CALL(*battleFake, getWallState(Eq(int(targetPart)))).WillRepeatedly(Return(EWallState::INTACT));
-
 	EXPECT_CALL(*battleFake, setWallState(Eq(int(targetPart)), Eq(EWallState::DAMAGED))).Times(1);
+	EXPECT_CALL(serverMock, apply(Matcher<CatapultAttack *>(_))).Times(1);
 
     EffectTarget target;
     target.emplace_back();
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
 }

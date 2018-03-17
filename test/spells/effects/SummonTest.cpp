@@ -106,7 +106,7 @@ TEST_P(SummonTest, Transform)
 	if(otherSummoned != CreatureID())
 		addOtherSummoned(true);
 
-	setupEmptyBattlefield();
+	battleFake->setupEmptyBattlefield();
 	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(1));
 
 	EXPECT_CALL(mechanicsMock, getCasterColor()).WillRepeatedly(Return(PlayerColor(5)));
@@ -142,26 +142,34 @@ INSTANTIATE_TEST_CASE_P
 class SummonApplyTest : public TestWithParam<::testing::tuple<bool, bool>>, public EffectFixture
 {
 public:
-	CreatureID toSummon;
+	const CreatureID toSummon = CreatureID::AIR_ELEMENTAL;
 	bool permanent = false;
 	bool summonByHealth = false;
 
 	const uint32_t unitId = 42;
 	const int32_t unitAmount = 123;
-	const int32_t unitHealth;
-	const int64_t unitTotalHealth;
+	const int32_t unitHealth = 479;
+	const int64_t unitTotalHealth = unitAmount * unitHealth;
 
 	const BattleHex unitPosition = BattleHex(5,5);
 
 	std::shared_ptr<::battle::UnitInfo> unitAddInfo;
-	std::shared_ptr<UnitFake> acquired;
+	std::shared_ptr<battle::UnitFake> acquired;
+
+	StrictMock<CreatureMock> toSummonType;
 
 	SummonApplyTest()
-		: EffectFixture("core:summon"),
-		toSummon(creature1),
-		unitHealth(toSummon.toCreature()->MaxHealth()),
-		unitTotalHealth(unitAmount * unitHealth)
+		: EffectFixture("core:summon")
 	{
+	}
+
+	void setDefaultExpectaions()
+	{
+		EXPECT_CALL(mechanicsMock, creatures()).Times(AnyNumber());
+		EXPECT_CALL(creatureServiceMock, getById(Eq(toSummon))).WillRepeatedly(Return(&toSummonType));
+		EXPECT_CALL(toSummonType, getMaxHealth()).WillRepeatedly(Return(unitHealth));
+
+		expectAmountCalculation();
 	}
 
 	void expectAmountCalculation()
@@ -212,15 +220,16 @@ protected:
 
 TEST_P(SummonApplyTest, SpawnsNewUnit)
 {
-	expectAmountCalculation();
+	setDefaultExpectaions();
 
 	EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(unitId));
 	EXPECT_CALL(*battleFake, addUnit(Eq(unitId), _)).WillOnce(Invoke(this, &SummonApplyTest::onUnitAdded));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
 
 	EffectTarget target;
 	target.emplace_back(unitPosition);
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	EXPECT_EQ(unitAddInfo->count, unitAmount);
 	EXPECT_EQ(unitAddInfo->id, unitId);
@@ -232,9 +241,9 @@ TEST_P(SummonApplyTest, SpawnsNewUnit)
 
 TEST_P(SummonApplyTest, UpdatesOldUnit)
 {
-	expectAmountCalculation();
+	setDefaultExpectaions();
 
-	acquired = std::make_shared<UnitFake>();
+	acquired = std::make_shared<battle::UnitFake>();
 	acquired->addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::STACK_HEALTH, Bonus::CREATURE_ABILITY, unitHealth, 0));
 	acquired->redirectBonusesToFake();
 	acquired->expectAnyBonusSystemCall();
@@ -251,12 +260,14 @@ TEST_P(SummonApplyTest, UpdatesOldUnit)
 
 	EXPECT_CALL(unit, unitId()).WillOnce(Return(unitId));
 
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
+
 	unitsFake.setDefaultBonusExpectations();
 
 	EffectTarget target;
 	target.emplace_back(&unit, BattleHex());
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 }
 
 INSTANTIATE_TEST_CASE_P

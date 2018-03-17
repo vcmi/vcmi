@@ -34,7 +34,7 @@ Clone::Clone()
 
 Clone::~Clone() = default;
 
-void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Clone::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	for(const Destination & dest : target)
 	{
@@ -43,7 +43,7 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		//we shall have all targets to be stacks
 		if(!clonedStack)
 		{
-			battleState->complain("No target stack to clone! Invalid effect target transformation.");
+			server->complain("No target stack to clone! Invalid effect target transformation.");
 			continue;
 		}
 
@@ -51,15 +51,15 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		if(clonedStack->getCount() < 1)
 			continue;
 
-		auto hex = m->cb->getAvaliableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition());
+		auto hex = m->battle()->getAvaliableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition());
 
 		if(!hex.isValid())
 		{
-			battleState->complain("No place to put new clone!");
+			server->complain("No place to put new clone!");
 			break;
 		}
 
-		auto unitId = m->cb->battleNextUnitId();
+		auto unitId = m->battle()->battleNextUnitId();
 
 		battle::UnitInfo info;
 		info.id = unitId;
@@ -72,13 +72,20 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		battleState->apply(&pack);
+		server->apply(&pack);
 
 		//TODO: use BattleUnitsChanged with UPDATE operation
 
 		BattleUnitsChanged cloneFlags;
 
-		auto cloneUnit = m->cb->battleGetUnitByID(unitId);
+		auto cloneUnit = m->battle()->battleGetUnitByID(unitId);
+
+		if(!cloneUnit)
+		{
+			server->complain("[Internal error] Cloned unit missing.");
+			continue;
+		}
+
 		auto cloneState = cloneUnit->acquireState();
 		cloneState->cloned = true;
 		cloneFlags.changedStacks.emplace_back(cloneState->unitId(), UnitChanges::EOperation::RESET_STATE);
@@ -89,7 +96,7 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		cloneFlags.changedStacks.emplace_back(originalState->unitId(), UnitChanges::EOperation::RESET_STATE);
 		originalState->save(cloneFlags.changedStacks.back().data);
 
-		battleState->apply(&cloneFlags);
+		server->apply(&cloneFlags);
 
 		SetStackEffect sse;
 		Bonus lifeTimeMarker(Bonus::N_TURNS, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::CLONE); //TODO: use special bonus type
@@ -97,7 +104,7 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		std::vector<Bonus> buffer;
 		buffer.push_back(lifeTimeMarker);
 		sse.toAdd.push_back(std::make_pair(unitId, buffer));
-		battleState->apply(&sse);
+		server->apply(&sse);
 	}
 }
 

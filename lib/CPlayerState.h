@@ -9,13 +9,18 @@
  */
 #pragma once
 
+#include <vcmi/Player.h>
+#include <vcmi/Team.h>
+
 #include "HeroBonus.h"
+#include "ResourceSet.h"
 
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
+class QuestInfo;
 
-struct DLL_LINKAGE PlayerState : public CBonusSystemNode
+struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 {
 public:
 	PlayerColor color;
@@ -37,6 +42,12 @@ public:
 	PlayerState(PlayerState && other);
 
 	std::string nodeName() const override;
+
+	PlayerColor getColor() const override;
+	TeamID getTeam() const override;
+	bool isHuman() const override;
+	const IBonusBearer * accessBonuses() const override;
+	int getResourceAmount(int type) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

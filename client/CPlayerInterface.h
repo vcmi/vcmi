@@ -19,6 +19,8 @@
 #define sprintf_s snprintf
 #endif
 
+class Artifact;
+
 class CButton;
 class CToggleGroup;
 struct TryMoveHero;
@@ -62,7 +64,9 @@ namespace boost
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
+
 public:
+	std::shared_ptr<Environment> env;
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
 
@@ -183,21 +187,22 @@ public:
 	void battleEnd(const BattleResult *br) override; //end of battle
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleLogMessage(const std::vector<MetaString> & lines) override;
 	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
 	void battleSpellCast(const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog) override;
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
 	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog) override;
+	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
 	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;
 	void yourTacticPhase(int distance) override;
 
 	//-------------//
-	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo);
+	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
 	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
@@ -210,7 +215,7 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	void updateInfo(const CGObjectInstance * specific);
-	void init(std::shared_ptr<CCallback> CB) override;
+	void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB) override;
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void activateForSpectator(); // TODO: spectator probably need own player interface class
 

@@ -185,7 +185,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					zonesToPlace.push_back(zone);
 				else
 				{
-					switch (VLC->townh->factions[faction]->nativeTerrain)
+					switch ((*VLC->townh)[faction]->nativeTerrain)
 					{
 					case ETerrainType::GRASS:
 					case ETerrainType::SWAMP:

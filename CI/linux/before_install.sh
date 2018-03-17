@@ -20,6 +20,7 @@ sudo apt-get install -qq cmake ninja-build libboost1.54-all-dev zlib1g-dev
 sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 sudo apt-get install -qq libavformat-dev libswscale-dev
 sudo apt-get install -qq qt57declarative
+sudo apt-get install -qq libluajit-5.1-dev
 
 #setup compiler
 source /opt/qt57/bin/qt57-env.sh

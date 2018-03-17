@@ -284,7 +284,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<si32, std::vector<std::string>> customNames;
 
 	void loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj);
-	ObjectContainter * loadFromJson(const JsonNode & json, const std::string & name);
+	ObjectContainter * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name);
 public:
 	CObjectClassesHandler();
 	~CObjectClassesHandler();

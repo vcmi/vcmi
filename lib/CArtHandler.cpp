@@ -48,18 +48,59 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
-const std::string & CArtifact::Name() const
+int32_t CArtifact::getIndex() const
+{
+	return id.toEnum();
+}
+
+int32_t CArtifact::getIconIndex() const
+{
+	return iconIndex;
+}
+
+const std::string & CArtifact::getName() const
 {
 	return name;
 }
 
-const std::string & CArtifact::Description() const
+const std::string & CArtifact::getJsonKey() const
+{
+	return identifier;
+}
+
+void CArtifact::registerIcons(const IconRegistar & cb) const
+{
+	cb(getIconIndex(), "ARTIFACT", image);
+	cb(getIconIndex(), "ARTIFACTLARGE", large);
+}
+
+ArtifactID CArtifact::getId() const
+{
+	return id;
+}
+
+const IBonusBearer * CArtifact::accessBonuses() const
+{
+	return this;
+}
+
+const std::string & CArtifact::getDescription() const
 {
 	return description;
 }
-const std::string & CArtifact::EventText() const
+const std::string & CArtifact::getEventText() const
 {
 	return eventText;
+}
+
+uint32_t CArtifact::getPrice() const
+{
+	return price;
+}
+
+CreatureID CArtifact::getWarMachine() const
+{
+	return warMachine;
 }
 
 bool CArtifact::isBig() const
@@ -117,7 +158,7 @@ int CArtifact::getArtClassSerial() const
 
 std::string CArtifact::nodeName() const
 {
-	return "Artifact: " + Name();
+	return "Artifact: " + getName();
 }
 
 void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
@@ -126,6 +167,16 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 	b->duration = Bonus::PERMANENT;
 	b->description = name;
 	CBonusSystemNode::addNewBonus(b);
+}
+
+void CArtifact::updateFrom(const JsonNode& data)
+{
+	//TODO:CArtifact::updateFrom
+}
+
+void CArtifact::serializeJson(JsonSerializeFormat & handler)
+{
+
 }
 
 void CArtifact::fillWarMachine()
@@ -178,15 +229,11 @@ CArtHandler::CArtHandler()
 {
 }
 
-CArtHandler::~CArtHandler()
-{
-	for(CArtifact * art : artifacts)
-		delete art;
-}
+CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 {
-	artifacts.resize(dataSize);
+	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
@@ -231,82 +278,48 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = ArtifactID((si32)artifacts.size());
-	object->iconIndex = object->id + 5;
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
 
-	artifacts.push_back(object);
+	object->iconIndex = object->getIndex() + 5;
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
-	{
-		JsonNode conf;
-		conf.setMeta(scope);
-
-		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
-
-		if (!object->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ.setMeta(scope);
-			templ["animation"].String() = object->advMapDef;
-
-			// add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
-		}
-		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
-		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
-	});
+	objects.push_back(object);
 
 	registerObject(scope, "artifact", name, object->id);
 }
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = ArtifactID((si32)index);
-	object->iconIndex = object->id;
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
 
-	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
-	artifacts[index] = object;
+	object->iconIndex = object->getIndex();
 
-	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
-	{
-		JsonNode conf;
-		conf.setMeta(scope);
+	assert(objects[index] == nullptr); // ensure that this id was not loaded before
+	objects[index] = object;
 
-		VLC->objtypeh->loadSubObject(object->identifier, conf, Obj::ARTIFACT, object->id.num);
-
-		if (!object->advMapDef.empty())
-		{
-			JsonNode templ;
-			templ.setMeta(scope);
-			templ["animation"].String() = object->advMapDef;
-
-			// add new template.
-			// Necessary for objects added via mods that don't have any templates in H3
-			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->addTemplate(templ);
-		}
-		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
-		if (VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, object->id)->getTemplates().empty())
-			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, object->id);
-	});
 	registerObject(scope, "artifact", name, object->id);
 }
 
-CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
+const std::vector<std::string> & CArtHandler::getTypeNames() const
+{
+	static const std::vector<std::string> typeNames = { "artifact" };
+	return typeNames;
+}
+
+CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	CArtifact * art;
 
-	if (!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
+	if(!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
+	{
 		art = new CArtifact();
+	}
 	else
 	{
 		auto  growing = new CGrowingArtifact();
 		loadGrowingArt(growing, node);
 		art = growing;
 	}
+	art->id = ArtifactID(index);
 	art->identifier = identifier;
 	const JsonNode & text = node["text"];
 	art->name        = text["name"].String();
@@ -316,7 +329,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
 
-	if (!graphics["large"].isNull())
+	if(!graphics["large"].isNull())
 		art->large = graphics["large"].String();
 	else
 		art->large = art->image;
@@ -330,7 +343,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 	loadType(art, node);
 	loadComponents(art, node);
 
-	for (auto b : node["bonuses"].Vector())
+	for(auto b : node["bonuses"].Vector())
 	{
 		auto bonus = JsonUtils::parseBonus(b);
 		art->addNewBonus(bonus);
@@ -344,9 +357,31 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 			art->warMachine = CreatureID(id);
 
 			//this assumes that creature object is stored before registration
-			VLC->creh->creatures.at(id)->warMachine = art->id;
+			VLC->creh->objects.at(id)->warMachine = art->id;
 		});
 	}
+
+	VLC->modh->identifiers.requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	{
+		JsonNode conf;
+		conf.setMeta(scope);
+
+		VLC->objtypeh->loadSubObject(art->getJsonKey(), conf, Obj::ARTIFACT, art->getIndex());
+
+		if(!art->advMapDef.empty())
+		{
+			JsonNode templ;
+			templ.setMeta(scope);
+			templ["animation"].String() = art->advMapDef;
+
+			// add new template.
+			// Necessary for objects added via mods that don't have any templates in H3
+			VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
+		}
+		// object does not have any templates - this is not usable object (e.g. pseudo-art like lock)
+		if(VLC->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->getTemplates().empty())
+			VLC->objtypeh->removeSubObject(Obj::ARTIFACT, art->getIndex());
+	});
 
 	return art;
 }
@@ -470,8 +505,8 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents->push_back(VLC->arth->artifacts[id]);
-				VLC->arth->artifacts[id]->constituentOf.push_back(art);
+				art->constituents->push_back(objects[id]);
+				objects[id]->constituentOf.push_back(art);
 			});
 		}
 	}
@@ -528,7 +563,7 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags, s
 		if (!out.size()) //no arts are available at all
 		{
 			out.resize (64);
-			std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
+			std::fill_n (out.begin(), 64, objects[2]); //Give Grail - this can't be banned (hopefully)
 		}
 	};
 
@@ -549,44 +584,6 @@ ArtifactID CArtHandler::pickRandomArtifact(CRandomGenerator & rand, int flags)
 	return pickRandomArtifact(rand, flags, [](ArtifactID){ return true;});
 }
 
-std::shared_ptr<Bonus> createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter = std::shared_ptr<ILimiter>(), int additionalInfo = 0)
-{
-	auto added = std::make_shared<Bonus>(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
-	added->additionalInfo = additionalInfo;
-	added->valType = valType;
-	added->limiter = limiter;
-	return added;
-}
-
-std::shared_ptr<Bonus> createBonus(Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator = std::shared_ptr<IPropagator>(), int additionalInfo = 0)
-{
-	auto added = std::make_shared<Bonus>(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
-	added->additionalInfo = additionalInfo;
-	added->valType = Bonus::BASE_NUMBER;
-	added->propagator = propagator;
-	return added;
-}
-
-void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, std::shared_ptr<ILimiter> limiter, int additionalInfo)
-{
-	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
-}
-
-void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, std::shared_ptr<IPropagator> propagator, int additionalInfo)
-{
-	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
-}
-
-void CArtHandler::giveArtBonus(ArtifactID aid, std::shared_ptr<Bonus> bonus)
-{
-	bonus->sid = aid;
-	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
-		bonus->description = artifacts[aid]->Name()  + (bonus->val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(bonus->val);
-	else
-		bonus->description = artifacts[aid]->Name();
-
-	artifacts[aid]->addNewBonus(bonus);
-}
 void CArtHandler::makeItCreatureArt(CArtifact * a, bool onlyCreature)
 {
 	if (onlyCreature)
@@ -595,12 +592,6 @@ void CArtHandler::makeItCreatureArt(CArtifact * a, bool onlyCreature)
 		a->possibleSlots[ArtBearer::COMMANDER].clear();
 	}
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
-}
-
-void CArtHandler::makeItCreatureArt(ArtifactID aid, bool onlyCreature)
-{
-	CArtifact *a = artifacts[aid];
-	makeItCreatureArt (a, onlyCreature);
 }
 
 void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
@@ -614,15 +605,9 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(i));
 }
 
-void CArtHandler::makeItCommanderArt(ArtifactID aid, bool onlyCommander)
-{
-	CArtifact *a = artifacts[aid];
-	makeItCommanderArt (a, onlyCommander);
-}
-
 bool CArtHandler::legalArtifact(ArtifactID id)
 {
-	auto art = artifacts[id];
+	auto art = objects[id];
 	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 	return ((art->possibleSlots[ArtBearer::HERO].size() ||
 		(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
@@ -645,12 +630,12 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 		//check artifacts allowed on a map
 		//TODO: This line will be different when custom map format is implemented
 		if (allowed[i] && legalArtifact(i))
-			allowedArtifacts.push_back(artifacts[i]);
+			allowedArtifacts.push_back(objects[i]);
 	}
-	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID((si32)artifacts.size()); i.advance(1)) //try to allow all artifacts added by mods
+	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID((si32)objects.size()); i.advance(1)) //try to allow all artifacts added by mods
 	{
 		if (legalArtifact(ArtifactID(i)))
-			allowedArtifacts.push_back(artifacts[i]);
+			allowedArtifacts.push_back(objects[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
 	}
 }
@@ -660,13 +645,13 @@ std::vector<bool> CArtHandler::getDefaultAllowed() const
 	std::vector<bool> allowedArtifacts;
 	allowedArtifacts.resize(127, true);
 	allowedArtifacts.resize(141, false);
-	allowedArtifacts.resize(artifacts.size(), true);
+	allowedArtifacts.resize(size(), true);
 	return allowedArtifacts;
 }
 
 void CArtHandler::erasePickedArt(ArtifactID id)
 {
-	CArtifact *art = artifacts[id];
+	CArtifact *art = objects[id];
 
 	if(auto artifactList = listFromClass(art->aClass))
 	{
@@ -679,11 +664,11 @@ void CArtHandler::erasePickedArt(ArtifactID id)
 			artifactList->erase(itr);
 		}
 		else
-			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->Name());
+			logMod->warn("Problem: cannot erase artifact %s from list, it was not present", art->getName());
 
 	}
 	else
-		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->Name());
+		logMod->warn("Problem: cannot find list for artifact %s, strange class. (special?)", art->getName());
 }
 
 boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
@@ -716,11 +701,11 @@ void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::
 void CArtHandler::afterLoadFinalization()
 {
 	//All artifacts have their id, so we can properly update their bonuses' source ids.
-	for(auto &art : artifacts)
+	for(auto &art : objects)
 	{
 		for(auto &bonus : art->getExportedBonusList())
 		{
-			assert(art == artifacts[art->id]);
+			assert(art == objects[art->id]);
 			assert(bonus->source == Bonus::ARTIFACT);
 			bonus->sid = art->id;
 		}
@@ -747,17 +732,12 @@ void CArtifactInstance::setType( CArtifact *Art )
 
 std::string CArtifactInstance::nodeName() const
 {
-	return "Artifact instance of " + (artType ? artType->Name() : std::string("uninitialized")) + " type";
-}
-
-CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
-{
-	return createScroll(s->id);
+	return "Artifact instance of " + (artType ? artType->getName() : std::string("uninitialized")) + " type";
 }
 
 CArtifactInstance *CArtifactInstance::createScroll(SpellID sid)
 {
-	auto ret = new CArtifactInstance(VLC->arth->artifacts[ArtifactID::SPELL_SCROLL]);
+	auto ret = new CArtifactInstance(VLC->arth->objects[ArtifactID::SPELL_SCROLL]);
 	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT_INSTANCE, -1, ArtifactID::SPELL_SCROLL, sid);
 	ret->addNewBonus(b);
 	return ret;
@@ -770,19 +750,18 @@ void CArtifactInstance::init()
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
-std::string CArtifactInstance::getEffectiveDescription(
-	const CGHeroInstance *hero) const
+std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * hero) const
 {
-	std::string text = artType->Description();
+	std::string text = artType->getDescription();
 	if (!vstd::contains(text, '{'))
-		text = '{' + artType->Name() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
+		text = '{' + artType->getName() + "}\n\n" + text; //workaround for new artifacts with single name, turns it to H3-style
 
 	if(artType->id == ArtifactID::SPELL_SCROLL)
 	{
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 		// so we want to replace text in [...] with a spell name
 		// however other language versions don't have name placeholder at all, so we have to be careful
-		int spellID = getGivenSpellID();
+		int32_t spellID = getGivenSpellID();
 		size_t nameStart = text.find_first_of('[');
 		size_t nameEnd = text.find_first_of(']', nameStart);
 		if(spellID >= 0)
@@ -791,16 +770,16 @@ std::string CArtifactInstance::getEffectiveDescription(
 				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
 		}
 	}
-	else if (hero && artType->constituentOf.size()) //display info about set
+	else if(hero && artType->constituentOf.size()) //display info about set
 	{
 		std::string artList;
 		auto combinedArt = artType->constituentOf[0];
 		text += "\n\n";
-		text += "{" + combinedArt->Name() + "}";
+		text += "{" + combinedArt->getName() + "}";
 		int wornArtifacts = 0;
-		for (auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
+		for(auto a : *combinedArt->constituents) //TODO: can the artifact be a part of more than one set?
 		{
-			artList += "\n" + a->Name();
+			artList += "\n" + a->getName();
 			if (hero->hasArt(a->id, true))
 				wornArtifacts++;
 		}
@@ -855,7 +834,7 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-		logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->Name(), artSet->bearerType());
+		logMod->warn("Warning: artifact %s doesn't have defined allowed slots for bearer of type %s", artType->getName(), artSet->bearerType());
 		return false;
 	}
 
@@ -946,7 +925,7 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
 {
-	return createNewArtifactInstance(VLC->arth->artifacts[aid]);
+	return createNewArtifactInstance(VLC->arth->objects[aid]);
 }
 
 CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int spellID)
@@ -960,7 +939,7 @@ CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int s
 		}
 		else
 		{
-			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
+			a = CArtifactInstance::createScroll(SpellID(spellID));
 		}
 	}
 	else //FIXME: create combined artifact instance for random combined artifacts, just in case
@@ -1046,7 +1025,7 @@ bool CCombinedArtifactInstance::canBeDisassembled() const
 }
 
 CCombinedArtifactInstance::CCombinedArtifactInstance(CArtifact *Art)
-	: CArtifactInstance(Art) //TODO: seems unued, but need to be written
+	: CArtifactInstance(Art) //TODO: seems unused, but need to be written
 {
 }
 

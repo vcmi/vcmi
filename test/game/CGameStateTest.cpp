@@ -9,8 +9,10 @@
  */
 #include "StdInc.h"
 
+#include "mock/mock_Services.h"
 #include "mock/mock_MapService.h"
 #include "mock/mock_IGameCallback.h"
+#include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CGameState.h"
@@ -36,27 +38,77 @@ public:
 		mapService("test/MiniTest/", this),
 		map(nullptr)
 	{
-		IObjectInterface::cb = gameCallback.get();
+
 	}
 
-	virtual ~CGameStateTest()
+	void SetUp() override
 	{
+		IObjectInterface::cb = gameCallback.get();
+
+		gameState = std::make_shared<CGameState>();
+		gameCallback->setGameState(gameState.get());
+		gameState->preInit(&services);
+	}
+
+	void TearDown() override
+	{
+		gameState.reset();
 		IObjectInterface::cb = nullptr;
 	}
 
-	void sendAndApply(CPackForClient * pack) const override
+	bool describeChanges() const override
+	{
+		return true;
+	}
+
+	void apply(CPackForClient * pack) override
 	{
 		gameState->apply(pack);
 	}
 
-	void complain(const std::string & problem) const
+	void apply(BattleLogMessage * pack) override
 	{
-		FAIL() << "Server-side assertion:" << problem;
+		gameState->apply(pack);
+	}
+
+	void apply(BattleStackMoved * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void apply(BattleUnitsChanged * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void apply(SetStackEffect * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void apply(StacksInjured * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void apply(BattleObstaclesChanged * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void apply(CatapultAttack * pack) override
+	{
+		gameState->apply(pack);
+	}
+
+	void complain(const std::string & problem) override
+	{
+		FAIL() << "Server-side assertion: " << problem;
 	};
 
-	CRandomGenerator & getRandomGenerator() const override
+	vstd::RNG * getRNG() override
 	{
-		return gameState->getRandomGenerator();//todo: mock this
+		return &gameState->getRandomGenerator();//todo: mock this
 	}
 
 	const CMap * getMap() const override
@@ -68,12 +120,12 @@ public:
 		return gameState.get();
 	}
 
-	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) const override
+	bool moveHero(ObjectInstanceID hid, int3 dst, bool teleporting) override
 	{
 		return false;
 	}
 
-	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) const
+	void genericQuery(Query * request, PlayerColor color, std::function<void(const JsonNode &)> callback) override
 	{
 		//todo:
 	}
@@ -124,8 +176,7 @@ public:
 			pset.handicap = PlayerSettings::NO_HANDICAP;
 		}
 
-		gameState = std::make_shared<CGameState>();
-		gameCallback->setGameState(gameState.get());
+
 		gameState->init(&mapService, &si, false);
 
 		ASSERT_NE(map, nullptr);
@@ -161,6 +212,7 @@ public:
 	std::shared_ptr<GameCallbackMock> gameCallback;
 
 	MapServiceMock mapService;
+	ServicesMock services;
 
 	CMap * map;
 };
@@ -218,11 +270,20 @@ TEST_F(CGameStateTest, issue2765)
 	}
 	ASSERT_NE(att, nullptr);
 	ASSERT_NE(def, nullptr);
+	ASSERT_NE(att, def);
 
-	ASSERT_EQ(att->getMyHero(), attacker);
-	ASSERT_EQ(def->getMyHero(), defender);
+	EXPECT_NE(att->getMyHero(), defender);
+	EXPECT_NE(def->getMyHero(), attacker);
+
+	EXPECT_EQ(att->getMyHero(), attacker) << att->nodeName();
+	EXPECT_EQ(def->getMyHero(), defender) << def->nodeName();
 
 	{
+		using namespace ::testing;
+
+		spells::ProblemMock problemMock;
+//		EXPECT_CALL(problemMock, add(_));
+
 		const CSpell * age = SpellID(SpellID::AGE).toSpell();
 		ASSERT_NE(age, nullptr);
 
@@ -230,11 +291,15 @@ TEST_F(CGameStateTest, issue2765)
 
 		//here tested ballista, but this applied to all war machines
 		spells::BattleCast cast(gameState->curB, &caster, spells::Mode::PASSIVE, age);
-		cast.aimToUnit(def);
 
-		EXPECT_FALSE(age->canBeCastAt(gameState->curB, spells::Mode::PASSIVE, &caster, def->getPosition()));
+		spells::Target target;
+		target.emplace_back(def);
 
-		EXPECT_TRUE(cast.castIfPossible(this));//should be possible, but with no effect (change to aimed cast check?)
+		auto m = age->battleMechanics(&cast);
+
+		EXPECT_FALSE(m->canBeCastAt(problemMock, target));
+
+		EXPECT_TRUE(cast.castIfPossible(this, target));//should be possible, but with no effect (change to aimed cast check?)
 
 		EXPECT_TRUE(def->activeSpells().empty());
 	}
@@ -315,19 +380,44 @@ TEST_F(CGameStateTest, battleResurrection)
 	EXPECT_EQ(unit->getCount(), 9);
 
 	{
+		using namespace ::testing;
+
+		spells::ProblemMock problemMock;
+		EXPECT_CALL(problemMock, add(_)).Times(AnyNumber()); //todo: do smth with problems of optional effects
+
 		const CSpell * spell = SpellID(SpellID::RESURRECTION).toSpell();
 		ASSERT_NE(spell, nullptr);
 
-		spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
-		cast.aimToUnit(unit);
+			spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
 
-		EXPECT_TRUE(spell->canBeCast(gameState->curB, spells::Mode::HERO, attacker));
+		spells::Target target;
+		target.emplace_back(unit);
 
-		EXPECT_TRUE(spell->canBeCastAt(gameState->curB, spells::Mode::HERO, attacker, unit->getPosition()));
+		auto m = spell->battleMechanics(&cast);
 
-		cast.cast(this);
+		EXPECT_TRUE(m->canBeCast(problemMock));
+
+		EXPECT_TRUE(m->canBeCastAt(problemMock, target));
+
+		cast.cast(this, target);
+//
+//		std::vector<std::string> expLog;
+//
+//		EXPECT_THAT(problemMock.log, ContainerEq(expLog));
 	}
 
 	EXPECT_EQ(unit->health.getCount(), 10);
 	EXPECT_EQ(unit->health.getResurrected(), 0);
+}
+
+TEST_F(CGameStateTest, updateEntity)
+{
+	using ::testing::SaveArg;
+	using ::testing::Eq;
+	using ::testing::_;
+
+	JsonNode actual;
+	EXPECT_CALL(services, updateEntity(Eq(Metatype::CREATURE), Eq(424242), _)).WillOnce(SaveArg<2>(&actual));
+	gameState->updateEntity(Metatype::CREATURE, 424242, JsonUtils::stringNode("TEST"));
+	EXPECT_EQ(actual.String(), "TEST");
 }

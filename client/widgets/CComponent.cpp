@@ -112,7 +112,7 @@ const std::vector<std::string> CComponent::getFileName()
 	case spell:      return gen(spellsArr);
 	case morale:     return gen(moraleArr);
 	case luck:       return gen(luckArr);
-	case building:   return std::vector<std::string>(4, CGI->townh->factions[subtype]->town->clientInfo.buildingsIcons);
+	case building:   return std::vector<std::string>(4, (*CGI->townh)[subtype]->town->clientInfo.buildingsIcons);
 	case hero:       return gen(heroArr);
 	case flag:       return gen(flagArr);
 	}
@@ -127,8 +127,8 @@ size_t CComponent::getIndex()
 	case primskill:  return subtype;
 	case secskill:   return subtype*3 + 3 + val - 1;
 	case resource:   return subtype;
-	case creature:   return CGI->creh->creatures[subtype]->iconIndex;
-	case artifact:   return CGI->arth->artifacts[subtype]->iconIndex;
+	case creature:   return CGI->creatures()->getByIndex(subtype)->getIconIndex();
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getIconIndex();
 	case experience: return 4;
 	case spell:      return subtype;
 	case morale:     return val+3;
@@ -159,15 +159,15 @@ std::string CComponent::getDescription()
 		}
 		else
 		{
-			art.reset(CArtifactInstance::createScroll(static_cast<SpellID>(val)));
+			art.reset(CArtifactInstance::createScroll(SpellID(val)));
 		}
 		return art->getEffectiveDescription();
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return CGI->spellh->objects[subtype]->getLevelInfo(val).description;
+	case spell:      return CGI->spellh->objects[subtype]->getLevelDescription(val);
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Description();
+	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->Description();
 	case hero:       return "";
 	case flag:       return "";
 	}
@@ -193,8 +193,8 @@ std::string CComponent::getSubtitleInternal()
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
 	case resource:   return boost::lexical_cast<std::string>(val);
-	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
-	case artifact:   return CGI->arth->artifacts[subtype]->Name();
+	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->objects[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();
 	case experience:
 		{
 			if(subtype == 1) //+1 level - tree of knowledge
@@ -208,15 +208,15 @@ std::string CComponent::getSubtitleInternal()
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 			}
 		}
-	case spell:      return CGI->spellh->objects[subtype]->name;
+	case spell:      return CGI->spells()->getByIndex(subtype)->getName();
 	case morale:     return "";
 	case luck:       return "";
 	case building:
 		{
-			auto building = CGI->townh->factions[subtype]->town->buildings[BuildingID(val)];
+			auto building = (*CGI->townh)[subtype]->town->buildings[BuildingID(val)];
 			if(!building)
 			{
-				logGlobal->error("Town of faction %s has no building #%d", CGI->townh->factions[subtype]->town->faction->name, val);
+				logGlobal->error("Town of faction %s has no building #%d", (*CGI->townh)[subtype]->town->faction->name, val);
 				return (boost::format("Missing building #%d") % val).str();
 			}
 			return building->Name();
@@ -224,7 +224,7 @@ std::string CComponent::getSubtitleInternal()
 	case hero:       return "";
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
-	assert(0);
+	logGlobal->error("Invalid CComponent type: %d", (int)compType);
 	return "";
 }
 

@@ -56,7 +56,8 @@ namespace EResType
 		ERT,
 		ERS,
 		OTHER,
-		UNDEFINED
+		UNDEFINED,
+		LUA
 	};
 }
 

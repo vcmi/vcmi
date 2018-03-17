@@ -25,16 +25,18 @@ public:
 	MOCK_CONST_METHOD1(getAffectedStacks, std::vector<const CStack *>(const Target &));
 
 	MOCK_CONST_METHOD1(canBeCast, bool(Problem &));
-	MOCK_CONST_METHOD1(canBeCastAt, bool(const Target & target));
+	MOCK_CONST_METHOD2(canBeCastAt, bool(Problem &, const Target &));
 
-	MOCK_CONST_METHOD5(applyEffects, void(BattleStateProxy *, vstd::RNG &, const Target &, bool, bool));
+	MOCK_CONST_METHOD4(applyEffects, void(ServerCallback *, const Target &, bool, bool));
 
-	MOCK_METHOD3(cast, void(const PacketSender * , vstd::RNG &, const Target &));
-	MOCK_METHOD3(cast, void(IBattleState *, vstd::RNG &, const Target &));
+	MOCK_METHOD2(cast, void(ServerCallback *, const Target &));
+	MOCK_METHOD2(castEval, void(ServerCallback *, const Target &));
 
 	MOCK_CONST_METHOD1(isReceptive, bool(const battle::Unit * ));
 	MOCK_CONST_METHOD0(getTargetTypes, std::vector<AimType>());
 	MOCK_CONST_METHOD3(getPossibleDestinations, std::vector<Destination>(size_t, AimType, const Target &));
+
+	MOCK_CONST_METHOD0(getSpell, const Spell *());
 
 	MOCK_CONST_METHOD0(getEffectLevel, IBattleCast::Value());
 	MOCK_CONST_METHOD0(getRangeLevel, IBattleCast::Value());
@@ -65,6 +67,14 @@ public:
 
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
+
+	MOCK_CONST_METHOD0(creatures, const CreatureService *());
+	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
+	MOCK_CONST_METHOD0(spells, const Service *());
+
+	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());
+	MOCK_CONST_METHOD0(battle, const CBattleInfoCallback * ());
 };
 
 }
+

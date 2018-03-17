@@ -209,9 +209,9 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 
 	if (overrideForce) // DO NOT override mod handlers by default
 	{
-		obj->subObjects[id] = handler;
-		obj->subIds[convertedId] = id;
-	}
+	obj->subObjects[id] = handler;
+	obj->subIds[convertedId] = id;
+}
 	else
 	{
 		logGlobal->warn("Don't override handler %s in object %s(%d)::%s(%d) subTypeName : %s"
@@ -219,7 +219,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	}
 }
 
-CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)
+CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name)
 {
 	auto obj = new ObjectContainter();
 	obj->identifier = name;
@@ -242,14 +242,14 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name));
 	objects[object->id] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name));
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[(si32)index] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);

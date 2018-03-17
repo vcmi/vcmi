@@ -49,7 +49,7 @@ bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const Ef
 	return !getTargets(m, target, false).empty();
 }
 
-void RemoveObstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void RemoveObstacle::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	BattleObstaclesChanged pack;
 
@@ -57,7 +57,7 @@ void RemoveObstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mech
 		pack.changes.emplace_back(obstacle->uniqueID, BattleChanges::EOperation::REMOVE);
 
 	if(!pack.changes.empty())
-		battleState->apply(&pack);
+		server->apply(&pack);
 }
 
 void RemoveObstacle::serializeJsonEffect(JsonSerializeFormat & handler)
@@ -93,7 +93,7 @@ std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics *
 	std::set<const CObstacleInstance *> possibleTargets;
 	if(m->isMassive() || alwaysMassive)
 	{
-		for(const auto & obstacle : m->cb->battleGetAllObstacles())
+		for(const auto & obstacle : m->battle()->battleGetAllObstacles())
 			if(canRemove(obstacle.get()))
 				possibleTargets.insert(obstacle.get());
 	}
@@ -101,7 +101,7 @@ std::set<const CObstacleInstance *> RemoveObstacle::getTargets(const Mechanics *
 	{
 		for(const auto & destination : target)
 			if(destination.hexValue.isValid())
-				for(const auto & obstacle : m->cb->battleGetAllObstaclesOnPos(destination.hexValue, false))
+				for(const auto & obstacle : m->battle()->battleGetAllObstaclesOnPos(destination.hexValue, false))
 					if(canRemove(obstacle.get()))
 						possibleTargets.insert(obstacle.get());
 	}

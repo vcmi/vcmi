@@ -25,13 +25,13 @@ public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);
 	virtual ~BattleSpellMechanics();
 
-	void applyEffects(BattleStateProxy * battleState, vstd::RNG & rng, const Target & targets, bool indirect, bool ignoreImmunity) const override;
+	void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const override;
 
 	bool canBeCast(Problem & problem) const override;
-	bool canBeCastAt(const Target & target) const override;
+	bool canBeCastAt(Problem & problem, const Target & target) const override;
 
-	void cast(const PacketSender * server, vstd::RNG & rng, const Target & target) override final;
-	void cast(IBattleState * battleState, vstd::RNG & rng, const Target & target) override final;
+	void cast(ServerCallback * server, const Target & target) override final;
+	void castEval(ServerCallback * server, const Target & target) override final;
 
 	std::vector<const CStack *> getAffectedStacks(const Target & target) const override final;
 
@@ -41,6 +41,8 @@ public:
 	bool isReceptive(const battle::Unit * target) const override;
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, bool * outDroppedHexes = nullptr) const override;
+
+	const Spell * getSpell() const override;
 
 	bool counteringSelector(const Bonus * bonus) const;
 
@@ -58,7 +60,7 @@ private:
 
 	std::set<const battle::Unit *> collectTargets() const;
 
-	static void doRemoveEffects(const PacketSender * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
+	static void doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector);
 
 	std::set<BattleHex> spellRangeInHexes(BattleHex centralHex) const;
 

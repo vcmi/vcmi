@@ -176,17 +176,17 @@ public:
 
 	int32_t getCasterUnitId() const override;
 
-	ui8 getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool = nullptr) const override;
-	int getEffectLevel(const spells::Spell * spell) const override;
+	int32_t getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool = nullptr) const override;
+	int32_t getEffectLevel(const spells::Spell * spell) const override;
 
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const Unit * affectedStack) const override;
 	int64_t getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const override;
 
-	int getEffectPower(const spells::Spell * spell) const override;
-	int getEnchantPower(const spells::Spell * spell) const override;
+	int32_t getEffectPower(const spells::Spell * spell) const override;
+	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
 
-	const PlayerColor getOwner() const override;
+	PlayerColor getCasterOwner() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const spells::Spell * spell, const std::vector<const Unit *> & attacked, MetaString & text) const override;
 
@@ -230,7 +230,7 @@ public:
 	int getMaxDamage(bool ranged) const override;
 
 	int getAttack(bool ranged) const override;
-	int getDefence(bool ranged) const override;
+	int getDefense(bool ranged) const override;
 
 	void save(JsonNode & data) override;
 	void load(const JsonNode & data) override;
@@ -286,7 +286,7 @@ public:
 
 	int32_t unitBaseAmount() const override;
 
-	void spendMana(const spells::PacketSender * server, const int spellCost) const override;
+	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 private:
 	const IUnitInfo * unit;

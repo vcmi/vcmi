@@ -9,7 +9,9 @@
  */
 #pragma once
 
-#include "../../lib/ConstTransitivePtr.h" //may be reundant
+#include <vcmi/spells/Magic.h>
+
+#include "../../lib/ConstTransitivePtr.h" //may be redundant
 #include "../../lib/GameConstants.h"
 
 #include "CBattleAnimations.h"
@@ -50,6 +52,7 @@ class CBattleGameInterface;
 struct CustomEffectInfo;
 class CAnimation;
 class IImage;
+class CSpell;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -153,7 +156,7 @@ private:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
 		attackableHexes; //hexes attackable by active stack
-	bool stackCountOutsideHexes[GameConstants::BFIELD_SIZE]; // hexes that when in front of a unit cause it's amount box to move back
+	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes; // hexes that when in front of a unit cause it's amount box to move back
 	BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int attackingHex; //hex from which the stack would perform attack with current cursor
@@ -186,8 +189,6 @@ private:
 
 	//force active stack to cast a spell if possible
 	void enterCreatureCastingMode();
-
-	void printConsoleAttacked(const CStack *defender, int dmg, int killed, const CStack *attacker, bool Multiple);
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
@@ -340,7 +341,7 @@ public:
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void waitForAnims();
-	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos, const std::vector<MetaString> & battleLog); //called when a certain amount of stacks has been attacked
+	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
@@ -360,8 +361,6 @@ public:
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
-
-	void displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
