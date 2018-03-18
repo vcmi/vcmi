@@ -599,25 +599,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
 	value = &ability["stacking"];
-	switch(value->getType())
-	{
-	case JsonNode::JsonType::DATA_INTEGER:
-		b->stacking = value->Integer();
-		break;
-	case JsonNode::JsonType::DATA_STRING:
-		if(value->String() == "ALWAYS")
-			b->stacking = Bonus::STACKING_ALWAYS;
-		else if(value->String() == "OTHER")
-			b->stacking = Bonus::STACKING_OTHER;
-		else
-			VLC->modh->identifiers.requestIdentifier(*value, [b](si32 stacking_id)
-			{
-				b->stacking = stacking_id;
-			});
-		break;
-	default: // must be null
-		break;
-	}
+	if (!value->isNull())
+		b->stacking = value->String();
 
 	resolveAddInfo(b->additionalInfo, ability);
 

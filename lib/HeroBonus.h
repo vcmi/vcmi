@@ -345,12 +345,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 #undef BONUS_VALUE
 	};
 
-	enum Stacking
-	{
-		STACKING_OTHER = -1,
-		STACKING_ALWAYS = -2
-	};
-
 	ui16 duration; //uses BonusDuration values
 	si16 turnsRemain; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
@@ -361,7 +355,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	si32 val;
 	ui32 sid; //source id: id of object/artifact/spell
 	ValueType valType;
-	si32 stacking; //bonuses with the same (positive) stacking value don't stack (e.g. Angel/Archangel morale bonus)
+	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
 	CAddInfo additionalInfo;
 	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
