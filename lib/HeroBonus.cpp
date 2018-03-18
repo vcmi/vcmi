@@ -245,6 +245,39 @@ void BonusList::changed()
 		CBonusSystemNode::treeHasChanged();
 }
 
+BonusList BonusList::stackingBonuses() const
+{
+	BonusList result(*this);
+	boost::sort(result.bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
+	{
+		if(b1 == b2)
+			return false;
+		if(b1->stacking != b2->stacking)
+			return b1->stacking < b2->stacking;
+		if(b1->valType != b2->valType)
+			return b1->valType < b2->valType;
+		return b1->val > b2->val;
+	});
+	// remove non-stacking
+	int next = 1;
+	while(next < result.size())
+	{
+		bool remove;
+		if (result[next]->stacking.empty())
+			remove = result[next] == result[next-1];
+		else if (result[next]->stacking == "ALWAYS")
+			remove = false;
+		else
+			remove = result[next]->stacking == result[next-1]->stacking
+				&& result[next]->valType == result[next-1]->valType;
+		if(remove)
+			result.bonuses.erase(result.begin() + next);
+		else
+			next++;
+	}
+	return result;
+}
+
 int BonusList::totalValue() const
 {
 	int base = 0;
@@ -256,7 +289,7 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	for (auto& b : bonuses)
+	for (auto & b : stackingBonuses())
 	{
 		switch(b->valType)
 		{
@@ -1460,7 +1493,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);
 	printField(valType);
-	if(bonus.stacking != "")
+	if(!bonus.stacking.empty())
 		out << "\tstacking: \"" << bonus.stacking << "\"\n";
 	printField(effectRange);
 #undef printField
