@@ -139,7 +139,6 @@ TBonusListPtr CBonusProxy::get() const
 	{
 		//TODO: support limiters
 		data = target->getAllBonuses(selector, Selector::all);
-		data->eliminateDuplicates();
 		cachedLast = target->getTreeVersion();
 	}
 	return data;
@@ -375,14 +374,7 @@ int BonusList::valOfBonuses(const CSelector &select) const
 	BonusList ret;
 	CSelector limit = nullptr;
 	getBonuses(ret, select, limit);
-	ret.eliminateDuplicates();
 	return ret.totalValue();
-}
-
-void BonusList::eliminateDuplicates()
-{
-	sort( bonuses.begin(), bonuses.end() );
-	bonuses.erase( unique( bonuses.begin(), bonuses.end() ), bonuses.end() );
 }
 
 void BonusList::push_back(std::shared_ptr<Bonus> x)
@@ -688,7 +680,6 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 
 			BonusList allBonuses;
 			getAllBonusesRec(allBonuses);
-			allBonuses.eliminateDuplicates();
 			limitBonuses(allBonuses, cachedBonuses);
 
 			cachedLast = treeChanged;
@@ -730,7 +721,6 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 	// Get bonus results without caching enabled.
 	BonusList beforeLimiting, afterLimiting;
 	getAllBonusesRec(beforeLimiting);
-	beforeLimiting.eliminateDuplicates();
 
 	if(!root || root == this)
 	{
@@ -747,7 +737,6 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 		for(auto b : beforeLimiting)
 			rootBonuses.push_back(b);
 
-		rootBonuses.eliminateDuplicates();
 		root->limitBonuses(rootBonuses, limitedRootBonuses);
 
 		for(auto b : beforeLimiting)
@@ -944,11 +933,6 @@ void CBonusSystemNode::unpropagateBonus(std::shared_ptr<Bonus> b)
 	if(b->propagator->shouldBeAttached(this))
 	{
 		bonuses -= b;
-		while(vstd::contains(bonuses, b))
-		{
-			logBonus->error("Bonus was duplicated (%s) at %s", b->Description(), nodeName());
-			bonuses -= b;
-		}
 		logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
 	}
 
