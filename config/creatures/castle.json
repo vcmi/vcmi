@@ -309,7 +309,7 @@
 			},
 			"const_raises_morale" :
 			{
-				"stacking" : "angel"
+				"stacking" : "Angels"
 			}
 		},
 		"upgrades": ["archangel"],
@@ -364,7 +364,7 @@
 			},
 			"const_raises_morale" :
 			{
-				"stacking" : "angel"
+				"stacking" : "Angels"
 			}
 		},
 		"graphics" :

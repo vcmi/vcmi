@@ -245,10 +245,10 @@ void BonusList::changed()
 		CBonusSystemNode::treeHasChanged();
 }
 
-BonusList BonusList::stackingBonuses() const
+TBonusListPtr BonusList::stackingBonuses() const
 {
-	BonusList result(*this);
-	boost::sort(result.bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
+	TBonusListPtr result(new BonusList(*this));
+	boost::sort(result->bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
 	{
 		if(b1 == b2)
 			return false;
@@ -260,18 +260,20 @@ BonusList BonusList::stackingBonuses() const
 	});
 	// remove non-stacking
 	int next = 1;
-	while(next < result.size())
+	while(next < result->size())
 	{
 		bool remove;
-		if (result[next]->stacking.empty())
-			remove = result[next] == result[next-1];
-		else if (result[next]->stacking == "ALWAYS")
+		const std::shared_ptr<Bonus> last = result->bonuses[next-1];
+		const std::shared_ptr<Bonus> current = result->bonuses[next];
+		if(current->stacking.empty())
+			remove = current == last;
+		else if(current->stacking == "ALWAYS")
 			remove = false;
 		else
-			remove = result[next]->stacking == result[next-1]->stacking
-				&& result[next]->valType == result[next-1]->valType;
+			remove = current->stacking == last->stacking
+				&& current->valType == last->valType;
 		if(remove)
-			result.bonuses.erase(result.begin() + next);
+			result->bonuses.erase(result->bonuses.begin() + next);
 		else
 			next++;
 	}
@@ -289,7 +291,8 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	for (auto & b : stackingBonuses())
+	TBonusListPtr afterStacking = stackingBonuses();
+	for(std::shared_ptr<Bonus> & b : *afterStacking)
 	{
 		switch(b->valType)
 		{
@@ -1215,27 +1218,36 @@ std::string Bonus::Description() const
 	std::ostringstream str;
 
 	if(description.empty())
-		switch(source)
+	{
+		if(stacking.empty() || stacking == "ALWAYS")
 		{
-		case ARTIFACT:
-			str << VLC->arth->artifacts[sid]->Name();
-			break;
-		case SPELL_EFFECT:
-			str << SpellID(sid).toSpell()->name;
-			break;
-		case CREATURE_ABILITY:
-			str << VLC->creh->creatures[sid]->namePl;
-			break;
-		case SECONDARY_SKILL:
-			str << VLC->skillh->skillName(sid);
-			break;
-		default:
-			//todo: handle all possible sources
-			str << "Unknown";
-			break;
+			switch(source)
+			{
+			case ARTIFACT:
+				str << VLC->arth->artifacts[sid]->Name();
+				break;
+			case SPELL_EFFECT:
+				str << SpellID(sid).toSpell()->name;
+				break;
+			case CREATURE_ABILITY:
+				str << VLC->creh->creatures[sid]->namePl;
+				break;
+			case SECONDARY_SKILL:
+				str << VLC->skillh->skillName(sid);
+				break;
+			default:
+				//todo: handle all possible sources
+				str << "Unknown";
+				break;
+			}
 		}
+		else
+			str << stacking;
+	}
 	else
+	{
 		str << description;
+	}
 
 	if(val != 0)
 		str << " " << std::showpos << val;
