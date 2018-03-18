@@ -1283,6 +1283,13 @@ JsonNode Bonus::toJsonNode() const
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
 		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
+	if(stacking != STACKING_OTHER)
+	{
+		if(stacking == STACKING_ALWAYS)
+			root["stacking"].String() = "ALWAYS";
+		else
+			root["stacking"].Integer() = stacking;
+	}
 	if(limiter)
 		root["limiters"].Vector().push_back(limiter->toJsonNode());
 	if(updater)
@@ -1320,6 +1327,7 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::
 {
 	turnsRemain = 0;
 	valType = ADDITIVE_VALUE;
+	stacking = STACKING_OTHER;
 	effectRange = NO_LIMIT;
 	boost::algorithm::trim(description);
 }
@@ -1328,6 +1336,7 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	turnsRemain = 0;
+	stacking = STACKING_OTHER;
 	effectRange = NO_LIMIT;
 }
 
@@ -1339,6 +1348,7 @@ Bonus::Bonus()
 	subtype = -1;
 
 	valType = ADDITIVE_VALUE;
+	stacking = STACKING_OTHER;
 	effectRange = NO_LIMIT;
 	val = 0;
 	source = OTHER;
@@ -1474,6 +1484,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);
 	printField(valType);
+	printField(stacking);
 	printField(effectRange);
 #undef printField
 
