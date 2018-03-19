@@ -365,7 +365,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 
 	if (node)
 	{
-		modifierList = node->getBonuses(Selector::type(bonusType[morale]))->stackingBonuses();
+		modifierList = node->getBonuses(Selector::type(bonusType[morale]));
 		bonusValue = (node->*getValue[morale])();
 	}
 	else

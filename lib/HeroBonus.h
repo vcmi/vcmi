@@ -511,7 +511,7 @@ public:
 	TInternalContainer::size_type operator-=(std::shared_ptr<Bonus> const &i);
 
 	// BonusList functions
-	TBonusListPtr stackingBonuses() const;
+	void stackBonuses();
 	int totalValue() const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonuses(BonusList &out) const;

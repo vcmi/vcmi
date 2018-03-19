@@ -245,39 +245,43 @@ void BonusList::changed()
 		CBonusSystemNode::treeHasChanged();
 }
 
-TBonusListPtr BonusList::stackingBonuses() const
+void BonusList::stackBonuses()
 {
-	TBonusListPtr result(new BonusList(*this));
-	boost::sort(result->bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
+	boost::sort(bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
 	{
 		if(b1 == b2)
 			return false;
-		if(b1->stacking != b2->stacking)
-			return b1->stacking < b2->stacking;
-		if(b1->valType != b2->valType)
-			return b1->valType < b2->valType;
+#define COMPARE_ATT(ATT) if(b1->ATT != b2->ATT) return b1->ATT < b2->ATT
+		COMPARE_ATT(stacking);
+		COMPARE_ATT(type);
+		COMPARE_ATT(subtype);
+		COMPARE_ATT(valType);
+#undef COMPARE_ATT
 		return b1->val > b2->val;
 	});
 	// remove non-stacking
 	int next = 1;
-	while(next < result->size())
+	while(next < bonuses.size())
 	{
 		bool remove;
-		const std::shared_ptr<Bonus> last = result->bonuses[next-1];
-		const std::shared_ptr<Bonus> current = result->bonuses[next];
+		const std::shared_ptr<Bonus> last = bonuses[next-1];
+		const std::shared_ptr<Bonus> current = bonuses[next];
+
 		if(current->stacking.empty())
 			remove = current == last;
 		else if(current->stacking == "ALWAYS")
 			remove = false;
 		else
 			remove = current->stacking == last->stacking
+				&& current->type == last->type
+				&& current->subtype == last->subtype
 				&& current->valType == last->valType;
+
 		if(remove)
-			result->bonuses.erase(result->bonuses.begin() + next);
+			bonuses.erase(bonuses.begin() + next);
 		else
 			next++;
 	}
-	return result;
 }
 
 int BonusList::totalValue() const
@@ -291,8 +295,7 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	TBonusListPtr afterStacking = stackingBonuses();
-	for(std::shared_ptr<Bonus> & b : *afterStacking)
+	for(std::shared_ptr<Bonus> b : bonuses)
 	{
 		switch(b->valType)
 		{
@@ -717,6 +720,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 			BonusList allBonuses;
 			getAllBonusesRec(allBonuses);
 			limitBonuses(allBonuses, cachedBonuses);
+			cachedBonuses.stackBonuses();
 
 			cachedLast = treeChanged;
 		}
@@ -761,7 +765,6 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 	if(!root || root == this)
 	{
 		limitBonuses(beforeLimiting, afterLimiting);
-		afterLimiting.getBonuses(*ret, selector, limit);
 	}
 	else if(root)
 	{
@@ -779,8 +782,9 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 			if(vstd::contains(limitedRootBonuses, b))
 				afterLimiting.push_back(b);
 
-		afterLimiting.getBonuses(*ret, selector, limit);
 	}
+	afterLimiting.getBonuses(*ret, selector, limit);
+	ret->stackBonuses();
 	return ret;
 }
 
