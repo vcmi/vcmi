@@ -802,7 +802,7 @@ void processCommand(const std::string &message)
 		adventureInt->selection->getParents(parents);
 		for(const CBonusSystemNode *parent : parents)
 		{
-			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
+			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << *parent->getAllBonuses(Selector::all, Selector::all) << std::endl;
 		}
 	}
 	else if(cn == "not dialog")
