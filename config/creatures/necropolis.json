@@ -338,6 +338,10 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"const_lowers_morale" :
+			{
+				"stacking" : "Undead Dragons"
 			}
 		},
 		"upgrades": ["ghostDragon"],
@@ -364,6 +368,10 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"const_lowers_morale" :
+			{
+				"stacking" : "Undead Dragons"
 			},
 			"age" :
 			{
