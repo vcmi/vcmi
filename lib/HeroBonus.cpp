@@ -1273,6 +1273,7 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 		return JsonUtils::stringNode("spell." + (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
+	case Bonus::IMPROVED_NECROMANCY:
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode("creature." + CreatureID::encode(subtype));
 	case Bonus::GENERATE_RESOURCE:
@@ -1289,24 +1290,14 @@ JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo[0]));
 	default:
-		if(addInfo.size() <= 1)
-		{
-			return JsonUtils::intNode(addInfo[0]);
-		}
-		else
-		{
-			JsonNode vecNode(JsonNode::JsonType::DATA_VECTOR);
-			for(si32 value : addInfo)
-				vecNode.Vector().push_back(JsonUtils::intNode(value));
-			return vecNode;
-		}
+		return addInfo.toJsonNode();
 	}
 }
 
 JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
-
+	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != -1)
 		root["subtype"] = subtypeToJson(type, subtype);
@@ -1318,10 +1309,20 @@ JsonNode Bonus::toJsonNode() const
 		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
 	if(stacking != "")
 		root["stacking"].String() = stacking;
+	if(description != "")
+		root["description"].String() = description;
+	if(effectRange != NO_LIMIT)
+		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
+	if(duration != PERMANENT)
+		root["duration"].String() = vstd::findKey(bonusDurationMap, duration);
+	if(turnsRemain)
+		root["turns"].Integer() = turnsRemain;
 	if(limiter)
 		root["limiters"].Vector().push_back(limiter->toJsonNode());
 	if(updater)
 		root["updater"] = updater->toJsonNode();
+	if(propagator)
+		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
 	return root;
 }
 

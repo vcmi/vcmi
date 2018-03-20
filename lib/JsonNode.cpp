@@ -744,29 +744,6 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> & map)
 	return "";
 }
 
-void JsonUtils::unparseBonus( JsonNode &node, const std::shared_ptr<Bonus>& bonus )
-{
-	node["type"].String() = reverseMapFirst<std::string, Bonus::BonusType>(bonus->type, bonusNameMap);
-	node["subtype"].Float() = bonus->subtype;
-	node["val"].Float() = bonus->val;
-	node["valueType"].String() = reverseMapFirst<std::string, Bonus::ValueType>(bonus->valType, bonusValueMap);
-	node["additionalInfo"] = bonus->additionalInfo.toJsonNode();
-	node["turns"].Float() = bonus->turnsRemain;
-	node["sourceID"].Float() = bonus->source;
-	node["description"].String() = bonus->description;
-	node["effectRange"].String() = reverseMapFirst<std::string, Bonus::LimitEffect>(bonus->effectRange, bonusLimitEffect);
-	node["duration"].String() = reverseMapFirst<std::string, ui16>(bonus->duration, bonusDurationMap);
-	node["source"].String() = reverseMapFirst<std::string, Bonus::BonusSource>(bonus->source, bonusSourceMap);
-	if(bonus->limiter)
-	{
-		node["limiter"].String() = reverseMapFirst<std::string, TLimiterPtr>(bonus->limiter, bonusLimiterMap);
-	}
-	if(bonus->propagator)
-	{
-		node["propagator"].String() = reverseMapFirst<std::string, TPropagatorPtr>(bonus->propagator, bonusPropagatorMap);
-	}
-}
-
 void minimizeNode(JsonNode & node, const JsonNode & schema)
 {
 	if (schema["type"].String() == "object")

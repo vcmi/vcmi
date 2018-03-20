@@ -168,7 +168,6 @@ namespace JsonUtils
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector &ability_vec);
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode &ability);
 	DLL_LINKAGE bool parseBonus(const JsonNode &ability, Bonus *placement);
-	DLL_LINKAGE void unparseBonus (JsonNode &node, const std::shared_ptr<Bonus>& bonus);
 	DLL_LINKAGE void resolveIdentifier(si32 &var, const JsonNode &node, std::string name);
 	DLL_LINKAGE void resolveIdentifier(const JsonNode &node, si32 &var);
 	DLL_LINKAGE void resolveAddInfo(CAddInfo & var, const JsonNode & node);
