@@ -598,9 +598,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 	if (!value->isNull())
 		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
-	value = &ability["stacking"];
-	if (!value->isNull())
-		b->stacking = value->String();
+	b->stacking = ability["stacking"].String();
 
 	resolveAddInfo(b->additionalInfo, ability);
 

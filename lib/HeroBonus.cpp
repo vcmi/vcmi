@@ -260,7 +260,7 @@ void BonusList::stackBonuses()
 		return b1->val > b2->val;
 	});
 	// remove non-stacking
-	int next = 1;
+	size_t next = 1;
 	while(next < bonuses.size())
 	{
 		bool remove;

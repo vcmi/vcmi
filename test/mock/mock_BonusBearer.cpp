@@ -28,7 +28,10 @@ void BonusBearerMock::addNewBonus(const std::shared_ptr<Bonus> & b)
 const TBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	if(cachedLast != treeVersion)
+	{
+		bonuses.stackBonuses();
 		cachedLast = treeVersion;
+	}
 
 	auto ret = std::make_shared<BonusList>();
 	bonuses.getBonuses(*ret, selector, limit);
