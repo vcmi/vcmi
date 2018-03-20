@@ -47,7 +47,10 @@ public:
 	bool autoRedraw;  //whether control will redraw itself on setTxt
 
 	std::string getText();
+	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string &Txt);
+	virtual void setColor(const SDL_Color & Color);
+	size_t getWidth();
 
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
 	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");

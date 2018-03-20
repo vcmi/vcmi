@@ -63,6 +63,11 @@ std::string CLabel::getText()
 	return text;
 }
 
+void CLabel::setAutoRedraw(bool value)
+{
+	autoRedraw = value;
+}
+
 void CLabel::setText(const std::string &Txt)
 {
 	text = Txt;
@@ -73,6 +78,23 @@ void CLabel::setText(const std::string &Txt)
 		else
 			parent->redraw();
 	}
+}
+
+void CLabel::setColor(const SDL_Color & Color)
+{
+	color = Color;
+	if(autoRedraw)
+	{
+		if(bg || !parent)
+			redraw();
+		else
+			parent->redraw();
+	}
+}
+
+size_t CLabel::getWidth()
+{
+	return graphics->fonts[font]->getStringWidth(visibleText());;
 }
 
 CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
