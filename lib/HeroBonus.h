@@ -523,6 +523,9 @@ public:
 	const std::shared_ptr<Bonus> getFirst(const CSelector &select) const;
 	int valOfBonuses(const CSelector &select) const;
 
+	// conversion / output
+	JsonNode toJsonNode() const;
+
 	// remove_if implementation for STL vector types
 	template <class Predicate>
 	void remove_if(Predicate pred)

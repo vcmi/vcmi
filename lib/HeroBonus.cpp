@@ -416,6 +416,14 @@ int BonusList::valOfBonuses(const CSelector &select) const
 	return ret.totalValue();
 }
 
+JsonNode BonusList::toJsonNode() const
+{
+	JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+	for(std::shared_ptr<Bonus> b : bonuses)
+		node.Vector().push_back(b->toJsonNode());
+	return node;
+}
+
 void BonusList::push_back(std::shared_ptr<Bonus> x)
 {
 	bonuses.push_back(x);
@@ -1294,6 +1302,27 @@ JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
 	}
 }
 
+JsonNode durationToJson(ui16 duration)
+{
+	std::vector<std::string> durationNames;
+	for(ui16 durBit = 1; durBit; durBit = durBit << 1)
+	{
+		if(duration & durBit)
+			durationNames.push_back(vstd::findKey(bonusDurationMap, durBit));
+	}
+	if(durationNames.size() == 1)
+	{
+		return JsonUtils::stringNode(durationNames[0]);
+	}
+	else
+	{
+		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+		for(std::string dur : durationNames)
+			node.Vector().push_back(JsonUtils::stringNode(dur));
+		return node;
+	}
+}
+
 JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
@@ -1314,7 +1343,7 @@ JsonNode Bonus::toJsonNode() const
 	if(effectRange != NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
 	if(duration != PERMANENT)
-		root["duration"].String() = vstd::findKey(bonusDurationMap, duration);
+		root["duration"] = durationToJson(duration);
 	if(turnsRemain)
 		root["turns"].Integer() = turnsRemain;
 	if(limiter)
