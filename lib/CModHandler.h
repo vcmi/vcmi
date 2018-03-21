@@ -284,6 +284,7 @@ public:
 		int MAX_HEROES_ON_MAP_PER_PLAYER;
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
+		bool NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -312,6 +313,15 @@ public:
 			else if(!h.saving)
 			{
 				BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = true;
+			}
+			
+			if(version >= 782)
+			{
+				h & NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT;
+			}
+			else if(!h.saving)
+			{
+				NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT = false;
 			}
 		}
 	} settings;

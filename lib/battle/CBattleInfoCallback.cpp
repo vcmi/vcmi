@@ -14,6 +14,7 @@
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../CModHandler.h"
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
@@ -707,12 +708,12 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	//bonus from attack/defense skills
 	if(attackDefenceDifference < 0) //decreasing dmg
 	{
-		const double dec = std::min(0.025 * (-attackDefenceDifference), 0.7);
+		const double dec = !VLC->modh->settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT ? std::min(0.025 * (-attackDefenceDifference), 0.7) : 0.025 * (-attackDefenceDifference);
 		multBonus *= 1.0 - dec;
 	}
 	else //increasing dmg
 	{
-		const double inc = std::min(0.05 * attackDefenceDifference, 4.0);
+		const double inc = !VLC->modh->settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT ? std::min(0.05 * attackDefenceDifference, 4.0) : 0.05 * attackDefenceDifference;
 		additiveBonus += inc;
 	}
 

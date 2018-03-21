@@ -663,6 +663,8 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", static_cast<int>(settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS));
 	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
 	logMod->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
+	settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT = hardcodedFeatures["NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT"].Bool();
+	logMod->debug("\tNO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT\t%d", static_cast<int>(settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT));
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
