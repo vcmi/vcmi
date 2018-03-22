@@ -481,7 +481,9 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	if(townOrTavern->ID == Obj::TAVERN || (town && town->hasBuilt(BuildingID::TAVERN)))
 	{
 		range::copy(gs->players[*player].availableHeroes, std::back_inserter(ret));
-		vstd::erase_if(ret, [](const CGHeroInstance *h) { return h == nullptr; });
+		vstd::erase_if(ret, [](const CGHeroInstance * h) {
+			return h == nullptr;
+		});
 	}
 	return ret;
 }
