@@ -266,7 +266,12 @@ CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
 void CLabelGroup::add(int x, int y, const std::string &text)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CLabel(x, y, font, align, color, text);
+	labels.push_back(new CLabel(x, y, font, align, color, text));
+}
+
+size_t CLabelGroup::currentSize() const
+{
+	return labels.size();
 }
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color &Color):

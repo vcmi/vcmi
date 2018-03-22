@@ -67,6 +67,7 @@ class CLabelGroup : public CIntObject
 public:
 	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
 	void add(int x=0, int y=0, const std::string &text =  "");
+	size_t currentSize() const;
 };
 
 /// Multi-line label that can display multiple lines of text
