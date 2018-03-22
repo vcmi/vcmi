@@ -423,18 +423,31 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	sprite.topMargin = read_le_u32(&sd.topMargin);
 
 	ui32 currentOffset = sizeof(SSpriteDef);
-	ui32 BaseOffset =    sizeof(SSpriteDef);
+
+	//special case for some "old" format defs (SGTWMTA.DEF and SGTWMTB.DEF)
+
+	if(sprite.format == 1 && sprite.width > sprite.fullWidth && sprite.height > sprite.fullHeight)
+	{
+		sprite.leftMargin = 0;
+		sprite.topMargin = 0;
+		sprite.width = sprite.fullWidth;
+		sprite.height = sprite.fullHeight;
+
+		currentOffset -= 16;
+	}
+
+	const ui32 BaseOffset = currentOffset;
 
 	loader.init(Point(sprite.width, sprite.height),
 	            Point(sprite.leftMargin, sprite.topMargin),
 	            Point(sprite.fullWidth, sprite.fullHeight), palette.get());
 
-	switch (sprite.format)
+	switch(sprite.format)
 	{
 	case 0:
 		{
 			//pixel data is not compressed, copy data to surface
-			for (ui32 i=0; i<sprite.height; i++)
+			for(ui32 i=0; i<sprite.height; i++)
 			{
 				loader.Load(sprite.width, FDef + currentOffset);
 				currentOffset += sprite.width;
@@ -448,25 +461,25 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			const ui32 * RWEntriesLoc = reinterpret_cast<const ui32 *>(FDef+currentOffset);
 			currentOffset += sizeof(ui32) * sprite.height;
 
-			for (ui32 i=0; i<sprite.height; i++)
+			for(ui32 i=0; i<sprite.height; i++)
 			{
 				//get position of the line
 				currentOffset=BaseOffset + read_le_u32(RWEntriesLoc + i);
 				ui32 TotalRowLength = 0;
 
-				while (TotalRowLength<sprite.width)
+				while(TotalRowLength<sprite.width)
 				{
-					ui8 type=FDef[currentOffset++];
-					ui32 length=FDef[currentOffset++] + 1;
+					ui8 segmentType = FDef[currentOffset++];
+					ui32 length = FDef[currentOffset++] + 1;
 
-					if (type==0xFF)//Raw data
+					if(segmentType==0xFF)//Raw data
 					{
 						loader.Load(length, FDef + currentOffset);
 						currentOffset+=length;
 					}
 					else// RLE
 					{
-						loader.Load(length, type);
+						loader.Load(length, segmentType);
 					}
 					TotalRowLength += length;
 				}
@@ -479,17 +492,17 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		{
 			currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset);
 
-			for (ui32 i=0; i<sprite.height; i++)
+			for(ui32 i=0; i<sprite.height; i++)
 			{
 				ui32 TotalRowLength=0;
 
-				while (TotalRowLength<sprite.width)
+				while(TotalRowLength<sprite.width)
 				{
-					ui8 SegmentType=FDef[currentOffset++];
-					ui8 code = SegmentType / 32;
-					ui8 length = (SegmentType & 31) + 1;
+					ui8 segment=FDef[currentOffset++];
+					ui8 code = segment / 32;
+					ui8 length = (segment & 31) + 1;
 
-					if (code==7)//Raw data
+					if(code==7)//Raw data
 					{
 						loader.Load(length, FDef + currentOffset);
 						currentOffset += length;
@@ -506,18 +519,18 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		}
 	case 3:
 		{
-			for (ui32 i=0; i<sprite.height; i++)
+			for(ui32 i=0; i<sprite.height; i++)
 			{
 				currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset+i*2*(sprite.width/32));
 				ui32 TotalRowLength=0;
 
-				while (TotalRowLength<sprite.width)
+				while(TotalRowLength<sprite.width)
 				{
 					ui8 segment = FDef[currentOffset++];
 					ui8 code = segment / 32;
 					ui8 length = (segment & 31) + 1;
 
-					if (code==7)//Raw data
+					if(code==7)//Raw data
 					{
 						loader.Load(length, FDef + currentOffset);
 						currentOffset += length;
