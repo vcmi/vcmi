@@ -15,10 +15,13 @@
 
 class DLL_LINKAGE CSkill // secondary skill
 {
-protected:
+public:
 	struct LevelInfo
 	{
 		std::string description; //descriptions of spell for skill level
+		std::string iconSmall;
+		std::string iconMedium;
+		std::string iconLarge;
 		std::vector<std::shared_ptr<Bonus>> effects;
 
 		LevelInfo();
@@ -27,31 +30,43 @@ protected:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & description;
+			if(version >= 785)
+			{
+				h & iconSmall;
+				h & iconMedium;
+				h & iconLarge;
+			}
 			h & effects;
 		}
 	};
 
+private:
 	std::vector<LevelInfo> levels; // bonuses provided by basic, advanced and expert level
+	void addNewBonus(const std::shared_ptr<Bonus> & b, int level);
 
 public:
-	CSkill(SecondarySkill id = SecondarySkill::DEFAULT);
+	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default");
 	~CSkill();
 
-	void addNewBonus(const std::shared_ptr<Bonus> & b, int level);
-	void setDescription(const std::string & desc, int level);
-	const std::vector<std::shared_ptr<Bonus>> & getBonus(int level) const;
-	const std::string & getDescription(int level) const;
+	const LevelInfo & at(int level) const;
+	LevelInfo & at(int level);
+
 	std::string toString() const;
 
 	SecondarySkill id;
 	std::string identifier;
 	std::string name; //as displayed in GUI
+	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
 		h & identifier;
 		h & name;
+		if(version >= 785)
+		{
+			h & gainChance;
+		}
 		h & levels;
 	}
 
@@ -72,10 +87,15 @@ public:
 	void beforeValidate(JsonNode & object) override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-	const std::string getTypeName() const override;
+	const std::vector<std::string> & getTypeNames() const override;
 
 	const std::string & skillInfo(int skill, int level) const;
 	const std::string & skillName(int skill) const;
+
+	///json serialization helpers
+	static si32 decodeSkill(const std::string & identifier);
+	static std::string encodeSkill(const si32 index);
+	static std::string encodeSkillWithType(const si32 index);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

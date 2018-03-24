@@ -18,6 +18,7 @@
 #include "../CGameState.h"
 #include "CGTownInstance.h"
 #include "../CModHandler.h"
+#include "../CSkillHandler.h"
 
 ///helpers
 static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
@@ -299,7 +300,7 @@ void CGBlackMarket::newTurn(CRandomGenerator & rand) const
 void CGUniversity::initObj(CRandomGenerator & rand)
 {
 	std::vector<int> toChoose;
-	for(int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+	for(int i = 0; i < VLC->skillh->size(); ++i)
 	{
 		if(cb->isAllowed(2, i))
 		{

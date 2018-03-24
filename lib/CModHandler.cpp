@@ -240,7 +240,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		{
 			// allow only available to all core mod or dependencies
 			auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
-			if (request.remoteScope == "core" || myDeps.count(request.remoteScope))
+			if(request.remoteScope == "core" || request.remoteScope == request.localScope || myDeps.count(request.remoteScope))
 				allowedScopes.insert(request.remoteScope);
 		}
 	}

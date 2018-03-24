@@ -25,7 +25,7 @@ SPELLS:
 
 MODS:
 * Improve support for WoG commander artifacts and skill descriptions
-* Added basic support for secondary skill modding
+* Added support for modding of original secondary skills and creation of new ones.
 * Map object sounds can now be configured via json
 * Added bonus updaters for hero specialties
 

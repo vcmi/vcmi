@@ -560,7 +560,7 @@ void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & speci
 void CGHeroInstance::updateSkillBonus(SecondarySkill which, int val)
 {
 	removeBonuses(Selector::source(Bonus::SECONDARY_SKILL, which));
-	auto skillBonus = (*VLC->skillh)[which]->getBonus(val);
+	auto skillBonus = (*VLC->skillh)[which]->at(val).effects;
 	for (auto b : skillBonus)
 		addNewBonus(std::make_shared<Bonus>(*b));
 }
@@ -1107,7 +1107,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	std::vector<SecondarySkill> skills;
 	//picking sec. skills for choice
 	std::set<SecondarySkill> basicAndAdv, expert, none;
-	for(int i=0;i<GameConstants::SKILL_QUANTITY;i++)
+	for(int i = 0; i < VLC->skillh->size(); i++)
 		if (cb->isAllowed(2,i))
 			none.insert(SecondarySkill(i));
 
@@ -1450,10 +1450,10 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			{
 				const si32 rawId = p.first.num;
 
-				if(rawId < 0 || rawId >= GameConstants::SKILL_QUANTITY)
+				if(rawId < 0 || rawId >= VLC->skillh->size())
 					logGlobal->error("Invalid secondary skill %d", rawId);
 
-				handler.serializeEnum(NSecondarySkill::names[rawId], p.second, 0, NSecondarySkill::levels);
+				handler.serializeEnum((*VLC->skillh)[SecondarySkill(rawId)]->identifier, p.second, 0, NSecondarySkill::levels);
 			}
 		}
 	}
@@ -1474,7 +1474,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 				const std::string skillId = p.first;
 				const std::string levelId =  p.second.String();
 
-				const int rawId = vstd::find_pos(NSecondarySkill::names, skillId);
+				const int rawId = CSkillHandler::decodeSkill(skillId);
 				if(rawId < 0)
 				{
 					logGlobal->error("Invalid secondary skill %s", skillId);

@@ -31,16 +31,10 @@ CSkill::LevelInfo::~LevelInfo()
 {
 }
 
-CSkill::CSkill(SecondarySkill id) : id(id)
+CSkill::CSkill(SecondarySkill id, std::string identifier)
+	: id(id), identifier(identifier)
 {
-	if(id == SecondarySkill::DEFAULT)
-		identifier = "default";
-	else
-		identifier = NSecondarySkill::names[id];
-	// init levels
-	LevelInfo emptyLevel;
-	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
-		levels.push_back(emptyLevel);
+	levels.resize(NSecondarySkill::levels.size() - 1);
 }
 
 CSkill::~CSkill()
@@ -56,19 +50,16 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 	levels[level-1].effects.push_back(b);
 }
 
-void CSkill::setDescription(const std::string & desc, int level)
+const CSkill::LevelInfo & CSkill::at(int level) const
 {
-	levels[level-1].description = desc;
+	assert(1 <= level && level < NSecondarySkill::levels.size());
+	return levels[level - 1];
 }
 
-const std::vector<std::shared_ptr<Bonus>> & CSkill::getBonus(int level) const
+CSkill::LevelInfo & CSkill::at(int level)
 {
-	return levels[level-1].effects;
-}
-
-const std::string & CSkill::getDescription(int level) const
-{
-	return levels[level-1].description;
+	assert(1 <= level && level < NSecondarySkill::levels.size());
+	return levels[level - 1];
 }
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info)
@@ -139,14 +130,15 @@ std::vector<JsonNode> CSkillHandler::loadLegacyData(size_t dataSize)
 	return legacyData;
 }
 
-const std::string CSkillHandler::getTypeName() const
+const std::vector<std::string> & CSkillHandler::getTypeNames() const
 {
-	return "skill";
+	static const std::vector<std::string> typeNames = { "skill", "secondarySkill" };
+	return typeNames;
 }
 
 const std::string & CSkillHandler::skillInfo(int skill, int level) const
 {
-	return objects[skill]->getDescription(level);
+	return objects[skill]->at(level).description;
 }
 
 const std::string & CSkillHandler::skillName(int skill) const
@@ -156,24 +148,22 @@ const std::string & CSkillHandler::skillName(int skill) const
 
 CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
 {
-	CSkill * skill = nullptr;
-
-	for(int id = 0; id < GameConstants::SKILL_QUANTITY; id++)
-	{
-		if(NSecondarySkill::names[id].compare(identifier) == 0)
-		{
-			skill = new CSkill(SecondarySkill(id));
-			break;
-		}
-	}
-
-	if(!skill)
-	{
-		logMod->error("unknown secondary skill %s", identifier);
-		throw std::runtime_error("invalid skill");
-	}
+	CSkill * skill = new CSkill(SecondarySkill(index), identifier);
 
 	skill->name = json["name"].String();
+	switch(json["gainChance"].getType())
+	{
+	case JsonNode::JsonType::DATA_INTEGER:
+		skill->gainChance[0] = json["gainChance"].Integer();
+		skill->gainChance[1] = json["gainChance"].Integer();
+		break;
+	case JsonNode::JsonType::DATA_STRUCT:
+		skill->gainChance[0] = json["gainChance"]["might"].Integer();
+		skill->gainChance[1] = json["gainChance"]["magic"].Integer();
+		break;
+	default:
+		break;
+	}
 	for(int level = 1; level < NSecondarySkill::levels.size(); level++)
 	{
 		const std::string & levelName = NSecondarySkill::levels[level]; // basic, advanced, expert
@@ -182,10 +172,13 @@ CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & 
 		for(auto b : levelNode["effects"].Struct())
 		{
 			auto bonus = JsonUtils::parseBonus(b.second);
-			bonus->sid = skill->id;
 			skill->addNewBonus(bonus, level);
 		}
-		skill->setDescription(levelNode["description"].String(), level);
+		CSkill::LevelInfo & skillAtLevel = skill->at(level);
+		skillAtLevel.description = levelNode["description"].String();
+		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
+		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
+		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, (int)skill->id);
 	logMod->trace("%s", skill->toString());
@@ -219,4 +212,23 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedSkills(objects.size(), true);
 	return allowedSkills;
+}
+
+si32 CSkillHandler::decodeSkill(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string CSkillHandler::encodeSkill(const si32 index)
+{
+	return (*VLC->skillh)[SecondarySkill(index)]->identifier;
+}
+
+std::string CSkillHandler::encodeSkillWithType(const si32 index)
+{
+	return CModHandler::makeFullIdentifier("", "skill", encodeSkill(index));
 }

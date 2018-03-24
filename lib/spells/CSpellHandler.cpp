@@ -707,9 +707,10 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 	return legacyData;
 }
 
-const std::string CSpellHandler::getTypeName() const
+const std::vector<std::string> & CSpellHandler::getTypeNames() const
 {
-	return "spell";
+	static const std::vector<std::string> typeNames = { "spell" };
+	return typeNames;
 }
 
 CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
