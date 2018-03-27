@@ -794,15 +794,24 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "bonuses")
 	{
+		bool jsonFormat = (message == "bonuses json");
+		auto format = [jsonFormat](const BonusList & b) -> std::string
+		{
+			if(jsonFormat)
+				return b.toJsonNode().toJson(true);
+			std::ostringstream ss;
+			ss << b;
+			return ss.str();
+		};
 		std::cout << "Bonuses of " << adventureInt->selection->getObjectName() << std::endl
-			<< adventureInt->selection->getBonusList() << std::endl;
+			<< format(adventureInt->selection->getBonusList()) << std::endl;
 
 		std::cout << "\nInherited bonuses:\n";
 		TCNodes parents;
 		adventureInt->selection->getParents(parents);
 		for(const CBonusSystemNode *parent : parents)
 		{
-			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << parent->getBonusList() << std::endl;
+			std::cout << "\nBonuses from " << typeid(*parent).name() << std::endl << format(*parent->getAllBonuses(Selector::all, Selector::all)) << std::endl;
 		}
 	}
 	else if(cn == "not dialog")

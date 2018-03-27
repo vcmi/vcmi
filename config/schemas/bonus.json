@@ -111,6 +111,10 @@
 			"type":"string",
 			"description": "sourceType"
 		},
+		"stacking" : {
+			"type" : "string",
+			"description" : "stacking"
+		},
 		"subtype": {
 			"anyOf" : [
 				{ "type" : "string" },

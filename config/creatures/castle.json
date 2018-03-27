@@ -306,6 +306,10 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
+			},
+			"const_raises_morale" :
+			{
+				"stacking" : "Angels"
 			}
 		},
 		"upgrades": ["archangel"],
@@ -357,6 +361,10 @@
 				"type" : "HATE",
 				"subtype" : "creature.archDevil",
 				"val" : 50
+			},
+			"const_raises_morale" :
+			{
+				"stacking" : "Angels"
 			}
 		},
 		"graphics" :

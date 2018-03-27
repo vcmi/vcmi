@@ -29,7 +29,7 @@ const TBonusListPtr BonusBearerMock::getAllBonuses(const CSelector & selector, c
 {
 	if(cachedLast != treeVersion)
 	{
-		bonuses.eliminateDuplicates();
+		bonuses.stackBonuses();
 		cachedLast = treeVersion;
 	}
 

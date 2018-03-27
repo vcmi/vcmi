@@ -361,7 +361,8 @@
 			{
 				"type" : "LUCK",
 				"effectRange" : "ONLY_ENEMY_ARMY",
-				"val" : -1
+				"val" : -1,
+				"stacking" : "Devils"
 			},
 			"blockRetaliation" :
 			{
@@ -412,7 +413,8 @@
 			{
 				"type" : "LUCK",
 				"effectRange" : "ONLY_ENEMY_ARMY",
-				"val" : -1
+				"val" : -1,
+				"stacking" : "Devils"
 			},
 			"blockRetaliation" :
 			{

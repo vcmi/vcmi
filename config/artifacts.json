@@ -1549,7 +1549,8 @@
 				"subtype" : "resource.crystal",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 109,
@@ -1562,7 +1563,8 @@
 				"subtype" : "resource.gems",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 110,
@@ -1575,7 +1577,8 @@
 				"subtype" : "resource.mercury",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 111,
@@ -1588,7 +1591,8 @@
 				"subtype" : "resource.ore",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 112,
@@ -1601,7 +1605,8 @@
 				"subtype" : "resource.sulfur",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 113,
@@ -1614,7 +1619,8 @@
 				"subtype" : "resource.wood",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 114,
@@ -1627,7 +1633,8 @@
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1000,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 115,
@@ -1640,7 +1647,8 @@
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 750,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 116,
@@ -1653,7 +1661,8 @@
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 500,
-				"valueType" : "BASE_NUMBER"
+				"valueType" : "BASE_NUMBER",
+				"stacking" : "ALWAYS"
 			}
 		],
 		"index" : 117,

@@ -355,6 +355,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	si32 val;
 	ui32 sid; //source id: id of object/artifact/spell
 	ValueType valType;
+	std::string stacking; // bonuses with the same stacking value don't stack (e.g. Angel/Archangel morale bonus)
 
 	CAddInfo additionalInfo;
 	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
@@ -389,6 +390,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		}
 		h & turnsRemain;
 		h & valType;
+		if(version >= 784)
+		{
+			h & stacking;
+		}
 		h & effectRange;
 		h & limiter;
 		h & propagator;
@@ -506,6 +511,7 @@ public:
 	TInternalContainer::size_type operator-=(std::shared_ptr<Bonus> const &i);
 
 	// BonusList functions
+	void stackBonuses();
 	int totalValue() const;
 	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonuses(BonusList &out) const;
@@ -517,7 +523,8 @@ public:
 	const std::shared_ptr<Bonus> getFirst(const CSelector &select) const;
 	int valOfBonuses(const CSelector &select) const;
 
-	void eliminateDuplicates();
+	// conversion / output
+	JsonNode toJsonNode() const;
 
 	// remove_if implementation for STL vector types
 	template <class Predicate>

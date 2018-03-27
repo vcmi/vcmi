@@ -139,7 +139,6 @@ TBonusListPtr CBonusProxy::get() const
 	{
 		//TODO: support limiters
 		data = target->getAllBonuses(selector, Selector::all);
-		data->eliminateDuplicates();
 		cachedLast = target->getTreeVersion();
 	}
 	return data;
@@ -246,6 +245,45 @@ void BonusList::changed()
 		CBonusSystemNode::treeHasChanged();
 }
 
+void BonusList::stackBonuses()
+{
+	boost::sort(bonuses, [](std::shared_ptr<Bonus> b1, std::shared_ptr<Bonus> b2) -> bool
+	{
+		if(b1 == b2)
+			return false;
+#define COMPARE_ATT(ATT) if(b1->ATT != b2->ATT) return b1->ATT < b2->ATT
+		COMPARE_ATT(stacking);
+		COMPARE_ATT(type);
+		COMPARE_ATT(subtype);
+		COMPARE_ATT(valType);
+#undef COMPARE_ATT
+		return b1->val > b2->val;
+	});
+	// remove non-stacking
+	size_t next = 1;
+	while(next < bonuses.size())
+	{
+		bool remove;
+		const std::shared_ptr<Bonus> last = bonuses[next-1];
+		const std::shared_ptr<Bonus> current = bonuses[next];
+
+		if(current->stacking.empty())
+			remove = current == last;
+		else if(current->stacking == "ALWAYS")
+			remove = false;
+		else
+			remove = current->stacking == last->stacking
+				&& current->type == last->type
+				&& current->subtype == last->subtype
+				&& current->valType == last->valType;
+
+		if(remove)
+			bonuses.erase(bonuses.begin() + next);
+		else
+			next++;
+	}
+}
+
 int BonusList::totalValue() const
 {
 	int base = 0;
@@ -257,7 +295,7 @@ int BonusList::totalValue() const
 	int indepMin = 0;
 	bool hasIndepMin = false;
 
-	for (auto& b : bonuses)
+	for(std::shared_ptr<Bonus> b : bonuses)
 	{
 		switch(b->valType)
 		{
@@ -375,14 +413,15 @@ int BonusList::valOfBonuses(const CSelector &select) const
 	BonusList ret;
 	CSelector limit = nullptr;
 	getBonuses(ret, select, limit);
-	ret.eliminateDuplicates();
 	return ret.totalValue();
 }
 
-void BonusList::eliminateDuplicates()
+JsonNode BonusList::toJsonNode() const
 {
-	sort( bonuses.begin(), bonuses.end() );
-	bonuses.erase( unique( bonuses.begin(), bonuses.end() ), bonuses.end() );
+	JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+	for(std::shared_ptr<Bonus> b : bonuses)
+		node.Vector().push_back(b->toJsonNode());
+	return node;
 }
 
 void BonusList::push_back(std::shared_ptr<Bonus> x)
@@ -688,8 +727,8 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 
 			BonusList allBonuses;
 			getAllBonusesRec(allBonuses);
-			allBonuses.eliminateDuplicates();
 			limitBonuses(allBonuses, cachedBonuses);
+			cachedBonuses.stackBonuses();
 
 			cachedLast = treeChanged;
 		}
@@ -730,12 +769,10 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 	// Get bonus results without caching enabled.
 	BonusList beforeLimiting, afterLimiting;
 	getAllBonusesRec(beforeLimiting);
-	beforeLimiting.eliminateDuplicates();
 
 	if(!root || root == this)
 	{
 		limitBonuses(beforeLimiting, afterLimiting);
-		afterLimiting.getBonuses(*ret, selector, limit);
 	}
 	else if(root)
 	{
@@ -747,15 +784,15 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 		for(auto b : beforeLimiting)
 			rootBonuses.push_back(b);
 
-		rootBonuses.eliminateDuplicates();
 		root->limitBonuses(rootBonuses, limitedRootBonuses);
 
 		for(auto b : beforeLimiting)
 			if(vstd::contains(limitedRootBonuses, b))
 				afterLimiting.push_back(b);
 
-		afterLimiting.getBonuses(*ret, selector, limit);
 	}
+	afterLimiting.getBonuses(*ret, selector, limit);
+	ret->stackBonuses();
 	return ret;
 }
 
@@ -944,11 +981,6 @@ void CBonusSystemNode::unpropagateBonus(std::shared_ptr<Bonus> b)
 	if(b->propagator->shouldBeAttached(this))
 	{
 		bonuses -= b;
-		while(vstd::contains(bonuses, b))
-		{
-			logBonus->error("Bonus was duplicated (%s) at %s", b->Description(), nodeName());
-			bonuses -= b;
-		}
 		logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(), nodeName());
 	}
 
@@ -1198,27 +1230,36 @@ std::string Bonus::Description() const
 	std::ostringstream str;
 
 	if(description.empty())
-		switch(source)
+	{
+		if(stacking.empty() || stacking == "ALWAYS")
 		{
-		case ARTIFACT:
-			str << VLC->arth->artifacts[sid]->Name();
-			break;
-		case SPELL_EFFECT:
-			str << SpellID(sid).toSpell()->name;
-			break;
-		case CREATURE_ABILITY:
-			str << VLC->creh->creatures[sid]->namePl;
-			break;
-		case SECONDARY_SKILL:
-			str << VLC->skillh->skillName(sid);
-			break;
-		default:
-			//todo: handle all possible sources
-			str << "Unknown";
-			break;
+			switch(source)
+			{
+			case ARTIFACT:
+				str << VLC->arth->artifacts[sid]->Name();
+				break;
+			case SPELL_EFFECT:
+				str << SpellID(sid).toSpell()->name;
+				break;
+			case CREATURE_ABILITY:
+				str << VLC->creh->creatures[sid]->namePl;
+				break;
+			case SECONDARY_SKILL:
+				str << VLC->skillh->skillName(sid);
+				break;
+			default:
+				//todo: handle all possible sources
+				str << "Unknown";
+				break;
+			}
 		}
+		else
+			str << stacking;
+	}
 	else
+	{
 		str << description;
+	}
 
 	if(val != 0)
 		str << " " << std::showpos << val;
@@ -1240,6 +1281,7 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
 		return JsonUtils::stringNode("spell." + (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
+	case Bonus::IMPROVED_NECROMANCY:
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode("creature." + CreatureID::encode(subtype));
 	case Bonus::GENERATE_RESOURCE:
@@ -1256,24 +1298,35 @@ JsonNode additionalInfoToJson(Bonus::BonusType type, CAddInfo addInfo)
 	case Bonus::SPECIAL_UPGRADE:
 		return JsonUtils::stringNode("creature." + CreatureID::encode(addInfo[0]));
 	default:
-		if(addInfo.size() <= 1)
-		{
-			return JsonUtils::intNode(addInfo[0]);
-		}
-		else
-		{
-			JsonNode vecNode(JsonNode::JsonType::DATA_VECTOR);
-			for(si32 value : addInfo)
-				vecNode.Vector().push_back(JsonUtils::intNode(value));
-			return vecNode;
-		}
+		return addInfo.toJsonNode();
+	}
+}
+
+JsonNode durationToJson(ui16 duration)
+{
+	std::vector<std::string> durationNames;
+	for(ui16 durBit = 1; durBit; durBit = durBit << 1)
+	{
+		if(duration & durBit)
+			durationNames.push_back(vstd::findKey(bonusDurationMap, durBit));
+	}
+	if(durationNames.size() == 1)
+	{
+		return JsonUtils::stringNode(durationNames[0]);
+	}
+	else
+	{
+		JsonNode node(JsonNode::JsonType::DATA_VECTOR);
+		for(std::string dur : durationNames)
+			node.Vector().push_back(JsonUtils::stringNode(dur));
+		return node;
 	}
 }
 
 JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
-
+	// only add values that might reasonably be found in config files
 	root["type"].String() = vstd::findKey(bonusNameMap, type);
 	if(subtype != -1)
 		root["subtype"] = subtypeToJson(type, subtype);
@@ -1283,10 +1336,22 @@ JsonNode Bonus::toJsonNode() const
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
 		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
+	if(stacking != "")
+		root["stacking"].String() = stacking;
+	if(description != "")
+		root["description"].String() = description;
+	if(effectRange != NO_LIMIT)
+		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);
+	if(duration != PERMANENT)
+		root["duration"] = durationToJson(duration);
+	if(turnsRemain)
+		root["turns"].Integer() = turnsRemain;
 	if(limiter)
 		root["limiters"].Vector().push_back(limiter->toJsonNode());
 	if(updater)
 		root["updater"] = updater->toJsonNode();
+	if(propagator)
+		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
 	return root;
 }
 
@@ -1474,6 +1539,8 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 		out << "\taddInfo: " << bonus.additionalInfo.toString() << "\n";
 	printField(turnsRemain);
 	printField(valType);
+	if(!bonus.stacking.empty())
+		out << "\tstacking: \"" << bonus.stacking << "\"\n";
 	printField(effectRange);
 #undef printField
 
