@@ -149,11 +149,11 @@ if(WIN32)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 		endif()
 
-		# Workaround: Visual Studio 2015 has issues with exports of classes that inherit templates
+		# Workaround: Visual Studio has issues with exports of classes that inherit templates
 		# https://stackoverflow.com/questions/44960760/msvc-dll-exporting-class-that-inherits-from-template-cause-lnk2005-already-defin
-		if(MSVC_VERSION LESS 1910)
-			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
-		endif()
+		# Reported to Microsoft here:
+		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 	endif(MSVC)
 
 	if(MINGW)
