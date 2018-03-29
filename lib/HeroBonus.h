@@ -873,13 +873,30 @@ public:
 	}
 };
 
-//Stores multiple limiters. If any of them fails -> bonus is dropped.
-class DLL_LINKAGE LimiterList : public ILimiter
+class DLL_LINKAGE AllOfLimiter : public ILimiter
 {
 	std::vector<TLimiterPtr> limiters;
 
 public:
-	int limit(const BonusLimitationContext &context) const override;
+	int limit(const BonusLimitationContext & context) const override;
+	void add(TLimiterPtr limiter);
+};
+
+class DLL_LINKAGE AnyOfLimiter : public ILimiter
+{
+	std::vector<TLimiterPtr> limiters;
+
+public:
+	int limit(const BonusLimitationContext & context) const override;
+	void add(TLimiterPtr limiter);
+};
+
+class DLL_LINKAGE NoneOfLimiter : public ILimiter
+{
+	std::vector<TLimiterPtr> limiters;
+
+public:
+	int limit(const BonusLimitationContext & context) const override;
 	void add(TLimiterPtr limiter);
 };
 

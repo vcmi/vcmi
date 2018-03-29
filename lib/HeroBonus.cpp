@@ -1557,11 +1557,11 @@ std::shared_ptr<Bonus> Bonus::addLimiter(TLimiterPtr Limiter)
 	if (limiter)
 	{
 		//If we already have limiter list, retrieve it
-		auto limiterList = std::dynamic_pointer_cast<LimiterList>(limiter);
+		auto limiterList = std::dynamic_pointer_cast<AllOfLimiter>(limiter);
 		if(!limiterList)
 		{
 			//Create a new limiter list with old limiter and the new one will be pushed later
-			limiterList = std::make_shared<LimiterList>();
+			limiterList = std::make_shared<AllOfLimiter>();
 			limiterList->add(limiter);
 			limiter = limiterList;
 		}
@@ -1824,7 +1824,9 @@ StackOwnerLimiter::StackOwnerLimiter(PlayerColor Owner)
 {
 }
 
-int LimiterList::limit( const BonusLimitationContext &context ) const
+// Aggregate/Boolean Limiters
+
+int AllOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
 
@@ -1840,7 +1842,49 @@ int LimiterList::limit( const BonusLimitationContext &context ) const
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
 }
 
-void LimiterList::add( TLimiterPtr limiter )
+void AllOfLimiter::add(TLimiterPtr limiter)
+{
+	limiters.push_back(limiter);
+}
+
+int AnyOfLimiter::limit(const BonusLimitationContext & context) const
+{
+	bool wasntSure = false;
+
+	for(auto limiter : limiters)
+	{
+		auto result = limiter->limit(context);
+		if(result == ILimiter::ACCEPT)
+			return result;
+		if(result == ILimiter::NOT_SURE)
+			wasntSure = true;
+	}
+
+	return wasntSure ? ILimiter::NOT_SURE : ILimiter::DISCARD;
+}
+
+void AnyOfLimiter::add(TLimiterPtr limiter)
+{
+	limiters.push_back(limiter);
+}
+
+int NoneOfLimiter::limit(const BonusLimitationContext & context) const
+{
+	bool wasntSure = false;
+
+	for(auto limiter : limiters)
+	{
+		auto result = limiter->limit(context);
+		if(result == ILimiter::ACCEPT)
+			return ILimiter::DISCARD;
+		if(result == ILimiter::NOT_SURE)
+			wasntSure = true;
+	}
+
+	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
+}
+
+void NoneOfLimiter::add(TLimiterPtr limiter)
 {
 	limiters.push_back(limiter);
 }

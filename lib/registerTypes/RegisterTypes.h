@@ -139,6 +139,9 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<IUpdater, GrowsWithLevelUpdater>();
 	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
 	s.template registerType<IUpdater, TimesStackLevelUpdater>();
+
+	s.template registerType<ILimiter, AnyOfLimiter>();
+	s.template registerType<ILimiter, NoneOfLimiter>();
 	//new types (other than netpacks) must register here
 	//order of type registration is critical for loading old savegames
 }
@@ -178,7 +181,7 @@ void registerTypesMapObjects2(Serializer &s)
 
 	// Limiters
 	//s.template registerType<ILimiter>();
-	s.template registerType<ILimiter, LimiterList>();
+	s.template registerType<ILimiter, AllOfLimiter>();
 	s.template registerType<ILimiter, CCreatureTypeLimiter>();
 	s.template registerType<ILimiter, HasAnotherBonusLimiter>();
 	s.template registerType<ILimiter, CreatureNativeTerrainLimiter>();
