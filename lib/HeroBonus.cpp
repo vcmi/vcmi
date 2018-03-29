@@ -1826,6 +1826,12 @@ StackOwnerLimiter::StackOwnerLimiter(PlayerColor Owner)
 
 // Aggregate/Boolean Limiters
 
+void AggregateLimiter::add(TLimiterPtr limiter)
+{
+	if(limiter)
+		limiters.push_back(limiter);
+}
+
 int AllOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -1840,11 +1846,6 @@ int AllOfLimiter::limit(const BonusLimitationContext & context) const
 	}
 
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
-}
-
-void AllOfLimiter::add(TLimiterPtr limiter)
-{
-	limiters.push_back(limiter);
 }
 
 int AnyOfLimiter::limit(const BonusLimitationContext & context) const
@@ -1863,11 +1864,6 @@ int AnyOfLimiter::limit(const BonusLimitationContext & context) const
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::DISCARD;
 }
 
-void AnyOfLimiter::add(TLimiterPtr limiter)
-{
-	limiters.push_back(limiter);
-}
-
 int NoneOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -1882,11 +1878,6 @@ int NoneOfLimiter::limit(const BonusLimitationContext & context) const
 	}
 
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
-}
-
-void NoneOfLimiter::add(TLimiterPtr limiter)
-{
-	limiters.push_back(limiter);
 }
 
 // Updaters

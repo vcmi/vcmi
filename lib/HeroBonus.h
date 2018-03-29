@@ -873,31 +873,30 @@ public:
 	}
 };
 
-class DLL_LINKAGE AllOfLimiter : public ILimiter
+class DLL_LINKAGE AggregateLimiter : public ILimiter
 {
+protected:
 	std::vector<TLimiterPtr> limiters;
-
 public:
-	int limit(const BonusLimitationContext & context) const override;
 	void add(TLimiterPtr limiter);
 };
 
-class DLL_LINKAGE AnyOfLimiter : public ILimiter
+class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
 {
-	std::vector<TLimiterPtr> limiters;
-
 public:
 	int limit(const BonusLimitationContext & context) const override;
-	void add(TLimiterPtr limiter);
 };
 
-class DLL_LINKAGE NoneOfLimiter : public ILimiter
+class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
 {
-	std::vector<TLimiterPtr> limiters;
-
 public:
 	int limit(const BonusLimitationContext & context) const override;
-	void add(TLimiterPtr limiter);
+};
+
+class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
+{
+public:
+	int limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
