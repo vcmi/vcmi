@@ -615,8 +615,9 @@ public:
 struct BonusLimitationContext
 {
 	const std::shared_ptr<Bonus> b;
-	const CBonusSystemNode &node;
-	const BonusList &alreadyAccepted;
+	const CBonusSystemNode & node;
+	const BonusList & alreadyAccepted;
+	const BonusList & stillUndecided;
 };
 
 class DLL_LINKAGE ILimiter

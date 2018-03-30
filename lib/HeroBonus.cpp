@@ -1171,7 +1171,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		for(int i = 0; i < undecided.size(); i++)
 		{
 			auto b = undecided[i];
-			BonusLimitationContext context = {b, *this, out};
+			BonusLimitationContext context = {b, *this, out, undecided};
 			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
 			if(decision == ILimiter::DISCARD)
 			{
@@ -1660,6 +1660,10 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
 		return ACCEPT;
+
+	//if there are no matching bonuses pending, we can (and must) reject right away
+	if(!context.stillUndecided.getFirst(mySelector))
+		return DISCARD;
 
 	//do not accept for now but it may change if more bonuses gets included
 	return NOT_SURE;
