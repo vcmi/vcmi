@@ -267,13 +267,11 @@ void CAnimImage::showAll(SDL_Surface * to)
 	if(!visible)
 		return;
 
-	IImage *img;
-
-	if ( flags & CShowableAnim::BASE && frame != 0)
-		if ((img = anim->getImage(0, group)))
+	if(flags & CShowableAnim::BASE && frame != 0)
+		if(auto img = anim->getImage(0, group))
 			img->draw(to, pos.x, pos.y);
 
-	if ((img = anim->getImage(frame, group)))
+	if(auto img = anim->getImage(frame, group))
 		img->draw(to, pos.x, pos.y);
 }
 
@@ -287,8 +285,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
-		IImage *img = anim->getImage(frame, group);
-		if (img)
+		if(auto img = anim->getImage(frame, group))
 		{
 			if (flags & CShowableAnim::PLAYER_COLORED)
 				img->playerColored(player);
