@@ -199,7 +199,7 @@ void CMapHandler::initTerrainGraphics()
 
 				for(int j = 0; j < views; j++)
 				{
-					IImage * image = animation[i][rotation]->getImage(j);
+					auto image = animation[i][rotation]->getImage(j);
 
 					if(rotation == 2 || rotation == 3)
 						image->horizontalFlip();
@@ -307,7 +307,7 @@ void CMapHandler::initObjectRects()
 		if(animation->size(0) == 0)
 			continue;
 
-		IImage * image = animation->getImage(0,0);
+		auto image = animation->getImage(0,0);
 
 		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
@@ -538,7 +538,7 @@ void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
 
 void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
 {
-	IImage * scaled = parent->cache.requestWorldViewCacheOrCreate(cacheType, source);
+	auto scaled = parent->cache.requestWorldViewCacheOrCreate(cacheType, source);
 
 	if(scaled)
 		scaled->draw(targetSurf, destRect, sourceRect);
@@ -548,7 +548,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 {
 	auto drawIcon = [this,targetSurf](Obj id, si32 subId, PlayerColor owner)
 	{
-		IImage * wvIcon = this->objectToIcon(id, subId, owner);
+		auto wvIcon = this->objectToIcon(id, subId, owner);
 
 		if(nullptr != wvIcon)
 		{
@@ -593,7 +593,7 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 		realPos.x = initPos.x + (iconInfo.pos.x - topTile.x) * tileSize;
 		realPos.y = initPos.x + (iconInfo.pos.y - topTile.y) * tileSize;
 
-		IImage * wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);
+		auto wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);
 
 		if(nullptr != wvIcon)
 		{
@@ -679,7 +679,7 @@ void CMapHandler::CMapPuzzleViewBlitter::drawObjects(SDL_Surface * targetSurf, c
 	// grail X mark
 	if(pos.x == info->grailPos.x && pos.y == info->grailPos.y)
 	{
-		const IImage * mark = graphics->heroMoveArrows->getImage(0);
+		const auto mark = graphics->heroMoveArrows->getImage(0);
 		mark->draw(targetSurf,realTileRect.x,realTileRect.y);
 	}
 }
@@ -985,10 +985,10 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
         if(animation->size(group) > 0)
 		{
 			int frame = anim % animation->size(group);
-			IImage * heroImage = animation->getImage(frame, group);
+			auto heroImage = animation->getImage(frame, group);
 
 			//get flag overlay only if we have main image
-			IImage * flagImage = findFlagBitmap(hero, anim, &hero->tempOwner, group);
+			auto flagImage = findFlagBitmap(hero, anim, &hero->tempOwner, group);
 
 			return CMapHandler::AnimBitmapHolder(heroImage, flagImage, moving);
 		}
@@ -1070,7 +1070,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const C
     if(groupSize == 0)
 		return CMapHandler::AnimBitmapHolder();
 
-	IImage * bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
+	auto bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
 	if(!bitmap)
 		return CMapHandler::AnimBitmapHolder();
 
@@ -1200,7 +1200,7 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 	if(!animation)
 		return false;
 
-	IImage * bitmap = animation->getImage(0);
+	auto bitmap = animation->getImage(0);
 
 	if(!bitmap)
 		return false;
@@ -1322,13 +1322,13 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
 	for(auto & elem : terrainImages[7])
 	{
-		for(IImage * img : elem)
+		for(auto img : elem)
 			img->shiftPalette(246, 9);
 	}
 
 	for(auto & elem : terrainImages[8])
 	{
-		for(IImage * img : elem)
+		for(auto img : elem)
 		{
 			img->shiftPalette(229, 12);
 			img->shiftPalette(242, 14);
@@ -1337,7 +1337,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 
 	for(auto & elem : riverImages[0])
 	{
-		for(IImage * img : elem)
+		for(auto img : elem)
 		{
 			img->shiftPalette(183, 12);
 			img->shiftPalette(195, 6);
@@ -1346,7 +1346,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 
 	for(auto & elem : riverImages[2])
 	{
-		for(IImage * img : elem)
+		for(auto img : elem)
 		{
 			img->shiftPalette(228, 12);
 			img->shiftPalette(183, 6);
@@ -1356,7 +1356,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 
 	for(auto & elem : riverImages[3])
 	{
-		for(IImage * img : elem)
+		for(auto img : elem)
 			img->shiftPalette(240, 9);
 	}
 }

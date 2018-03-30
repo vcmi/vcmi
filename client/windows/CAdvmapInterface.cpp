@@ -308,7 +308,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			pn+=25;
 		if (pn>=0)
 		{
-			const IImage * arrow = graphics->heroMoveArrows->getImage(pn);
+			const auto arrow = graphics->heroMoveArrows->getImage(pn);
 
 			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
 				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;

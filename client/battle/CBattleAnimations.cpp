@@ -830,7 +830,7 @@ bool CShootingAnimation::init()
 		spi.dx = animSpeed;
 		spi.dy = 0;
 
-		IImage * img = owner->idToProjectile[spi.creID]->getImage(0);
+		auto img = owner->idToProjectile[spi.creID]->getImage(0);
 
 		// Add explosion anim
 		Point animPos(destPos.x - 126 + img->width() / 2,
@@ -1100,7 +1100,7 @@ bool CEffectAnimation::init()
 	if(Vflip)
 		animation->verticalFlip();
 
-	IImage * first = animation->getImage(0, 0, true);
+	auto first = animation->getImage(0, 0, true);
 	if(!first)
 	{
 		endAnim();

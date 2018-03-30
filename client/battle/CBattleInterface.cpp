@@ -269,7 +269,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 
 		attackingHero = new CBattleHero(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, this);
 
-		IImage * img = attackingHero->animation->getImage(0, 0, true);
+		auto img = attackingHero->animation->getImage(0, 0, true);
 		if(img)
 			attackingHero->pos = genRect(img->height(), img->width(), pos.x - 43, pos.y - 19);
 	}
@@ -287,7 +287,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 
 		defendingHero = new CBattleHero(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, this);
 
-		IImage * img = defendingHero->animation->getImage(0, 0, true);
+		auto img = defendingHero->animation->getImage(0, 0, true);
 		if(img)
 			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
@@ -1345,7 +1345,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 			//TODO: calculate inside CEffectAnimation
 			std::shared_ptr<CAnimation> tmp = std::make_shared<CAnimation>(animToDisplay);
 			tmp->load(0, 0);
-			IImage * first = tmp->getImage(0, 0);
+			auto first = tmp->getImage(0, 0);
 
 			//displaying animation
 			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
@@ -2773,7 +2773,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	auto animation = std::make_shared<CAnimation>(defname);
 	animation->preload();
 
-	IImage * first = animation->getImage(0, 0);
+	auto first = animation->getImage(0, 0);
 	if(!first)
 		return;
 
@@ -3101,7 +3101,7 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface * to)
 	{
 		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			IImage * img = getObstacleImage(*oi);
+			auto img = getObstacleImage(*oi);
 			if(img)
 				img->draw(to, pos.x + oi->getInfo().width, pos.y + oi->getInfo().height);
 		}
@@ -3226,7 +3226,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 		}
 
 		size_t group = it->reverse ? 1 : 0;
-		IImage * image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
+		auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
 
 		if(image)
 		{
@@ -3419,7 +3419,7 @@ void CBattleInterface::showObstacles(SDL_Surface * to, std::vector<std::shared_p
 {
 	for(auto & obstacle : obstacles)
 	{
-		IImage * img = getObstacleImage(*obstacle);
+		auto img = getObstacleImage(*obstacle);
 		if(img)
 		{
 			Point p = getObstaclePosition(img, *obstacle);
@@ -3435,7 +3435,7 @@ void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<cons
 		int currentFrame = floor(elem->currentFrame);
 		currentFrame %= elem->animation->size();
 
-		IImage * img = elem->animation->getImage(currentFrame);
+		auto img = elem->animation->getImage(currentFrame);
 
 		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem->x, elem->y);
 
@@ -3703,7 +3703,7 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
 	{
 		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			IImage * img = getObstacleImage(*oi);
+			auto img = getObstacleImage(*oi);
 			if(img)
 				img->draw(backgroundWithHexes, oi->getInfo().width, oi->getInfo().height);
 		}

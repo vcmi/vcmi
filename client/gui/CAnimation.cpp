@@ -1348,7 +1348,7 @@ IImage * CAnimation::getFromExtraDef(std::string filename)
 		frame = atoi(filename.c_str()+pos);
 	}
 	anim.load(frame ,group);
-	IImage * ret = anim.images[group][frame];
+	auto ret = anim.images[group][frame];
 	anim.images.clear();
 	return ret;
 }
@@ -1361,7 +1361,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 		return false;
 	}
 
-	IImage * image = getImage(frame, group, false);
+	auto image = getImage(frame, group, false);
 	if(image)
 	{
 		image->increaseRef();
@@ -1391,7 +1391,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		IImage * img = getFromExtraDef(source[group][frame]["file"].String());
+		auto img = getFromExtraDef(source[group][frame]["file"].String());
 		if(!img)
 			img = new SDLImage(source[group][frame]);
 
@@ -1403,7 +1403,7 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 
 bool CAnimation::unloadFrame(size_t frame, size_t group)
 {
-	IImage *image = getImage(frame, group, false);
+	auto image = getImage(frame, group, false);
 	if (image)
 	{
 		//decrease ref count for image and delete if needed
@@ -1478,7 +1478,7 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 		for(const auto & imagePair : groupPair.second)
 		{
 			size_t frame = imagePair.first;
-			const IImage * img = imagePair.second;
+			const auto img = imagePair.second;
 
 			boost::format fmt("%d_%d.bmp");
 			fmt % group % frame;
@@ -1696,7 +1696,7 @@ void CAnimation::createFlippedGroup(const size_t sourceGroup, const size_t targe
 	{
 		duplicateImage(sourceGroup, frame, targetGroup);
 
-		IImage * image = getImage(frame, targetGroup);
+		auto image = getImage(frame, targetGroup);
 		image->verticalFlip();
 	}
 }

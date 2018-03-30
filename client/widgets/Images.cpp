@@ -247,7 +247,7 @@ void CAnimImage::init()
 	if (flags & CShowableAnim::BASE)
 		anim->load(0,group);
 
-	IImage *img = anim->getImage(frame, group);
+	auto img = anim->getImage(frame, group);
 	if (img)
 	{
 		pos.w = img->width();
@@ -421,7 +421,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 {
 	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
-	IImage * img = anim->getImage(frame, group);
+	auto img = anim->getImage(frame, group);
 	if (img)
 		img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
 }

@@ -303,7 +303,7 @@ void Graphics::loadFogOfWar()
 	for(const int rotation : rotations)
 	{
 		fogOfWarPartialHide->duplicateImage(0, rotation, 0);
-		IImage * image = fogOfWarPartialHide->getImage(size, 0);
+		auto image = fogOfWarPartialHide->getImage(size, 0);
 		image->verticalFlip();
 		size++;
 	}

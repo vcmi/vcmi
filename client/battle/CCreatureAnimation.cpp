@@ -173,7 +173,7 @@ CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedControll
 	}
 
 	//TODO: get dimensions form CAnimation
-	IImage * first = forward->getImage(0, type, true);
+	auto first = forward->getImage(0, type, true);
 
 	if(!first)
 	{
