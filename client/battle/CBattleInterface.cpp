@@ -3637,7 +3637,7 @@ void CBattleInterface::updateBattleAnimations()
 	}
 }
 
-IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
+std::shared_ptr<IImage> CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 {
 	int frameIndex = (animCount+1) *25 / getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
@@ -3650,7 +3650,7 @@ IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 	{
 		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(&oi);
 		if(!spellObstacle)
-			return nullptr;
+			return std::shared_ptr<IImage>();
 
 		std::string animationName = spellObstacle->animation;
 
@@ -3679,7 +3679,7 @@ IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 	return nullptr;
 }
 
-Point CBattleInterface::getObstaclePosition(IImage * image, const CObstacleInstance & obstacle)
+Point CBattleInterface::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 

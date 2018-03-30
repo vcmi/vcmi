@@ -34,7 +34,7 @@ class CSpellWindow : public CWindowObject
 		int spellCost;
 		CSpellWindow * owner;
 		CAnimImage * image;
-		IImage * schoolBorder;
+		std::shared_ptr<IImage> schoolBorder;
 		CLabel * name, * level, * cost;
 	public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);

@@ -505,7 +505,6 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 	spellCost = whichSchool = schoolLevel = -1;
 	mySpell = nullptr;
-	schoolBorder = nullptr;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -636,7 +635,7 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 
 void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 {
-	schoolBorder = nullptr;
+	schoolBorder.reset();
 	image->visible = false;
 	name->setText("");
 	level->setText("");

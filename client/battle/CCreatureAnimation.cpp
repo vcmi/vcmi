@@ -286,7 +286,7 @@ void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
 {
 	size_t frame = floor(currentFrame);
 
-	IImage * image = nullptr;
+	std::shared_ptr<IImage> image;
 
 	if(attacker)
 		image = forward->getImage(frame, type);

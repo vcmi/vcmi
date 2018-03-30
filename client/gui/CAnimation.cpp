@@ -90,7 +90,7 @@ public:
 
 	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
-	std::unique_ptr<IImage> scaleFast(float scale) const override;
+	std::shared_ptr<IImage> scaleFast(float scale) const override;
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
@@ -148,7 +148,7 @@ public:
 	void draw(SDL_Surface  *where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 
-	std::unique_ptr<IImage> scaleFast(float scale) const override;
+	std::shared_ptr<IImage> scaleFast(float scale) const override;
 
 	void exportBitmap(const boost::filesystem::path & path) const override;
 
@@ -801,22 +801,9 @@ CompImageLoader::~CompImageLoader()
  *  Classes for images, support loading from file and drawing on surface *
  *************************************************************************/
 
-IImage::IImage():
-	refCount(1)
-{
+IImage::IImage() = default;
+IImage::~IImage() = default;
 
-}
-
-bool IImage::decreaseRef()
-{
-	refCount--;
-	return refCount <= 0;
-}
-
-void IImage::increaseRef()
-{
-	refCount++;
-}
 
 SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group, bool compressed)
 	: surf(nullptr),
@@ -957,7 +944,7 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 	}
 }
 
-std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
+std::shared_ptr<IImage> SDLImage::scaleFast(float scale) const
 {
 	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, surf->w * scale, surf->h * scale);
 
@@ -976,7 +963,7 @@ std::unique_ptr<IImage> SDLImage::scaleFast(float scale) const
 	ret->margins.x = (int) round((float)margins.x * scale);
 	ret->margins.y = (int) round((float)margins.y * scale);
 
-	return std::unique_ptr<IImage>(ret);
+	return std::shared_ptr<IImage>(ret);
 }
 
 void SDLImage::exportBitmap(const boost::filesystem::path& path) const
@@ -1156,7 +1143,7 @@ void CompImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alph
 }
 
 
-std::unique_ptr<IImage> CompImage::scaleFast(float scale) const
+std::shared_ptr<IImage> CompImage::scaleFast(float scale) const
 {
 	//todo: CompImage::scaleFast
 
@@ -1331,7 +1318,7 @@ void CompImage::exportBitmap(const boost::filesystem::path & path) const
  *  CAnimation for animations handling, can load part of file if needed  *
  *************************************************************************/
 
-IImage * CAnimation::getFromExtraDef(std::string filename)
+std::shared_ptr<IImage> CAnimation::getFromExtraDef(std::string filename)
 {
 	size_t pos = filename.find(':');
 	if (pos == -1)
@@ -1364,7 +1351,6 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 	auto image = getImage(frame, group, false);
 	if(image)
 	{
-		image->increaseRef();
 		return true;
 	}
 
@@ -1378,22 +1364,22 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 			if(vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
 			{
 				if(compressed)
-					images[group][frame] = new CompImage(defFile, frame, group);
+					images[group][frame] = std::make_shared<CompImage>(defFile, frame, group);
 				else
-					images[group][frame] = new SDLImage(defFile, frame, group);
+					images[group][frame] = std::make_shared<SDLImage>(defFile, frame, group);
 				return true;
 			}
 		}
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
-		images[group][frame] = new SDLImage("DEFAULT", compressed);
+		images[group][frame] = std::make_shared<SDLImage>("DEFAULT", compressed);
 	}
 	else //load from separate file
 	{
 		auto img = getFromExtraDef(source[group][frame]["file"].String());
 		if(!img)
-			img = new SDLImage(source[group][frame]);
+			img = std::make_shared<SDLImage>(source[group][frame]);
 
 		images[group][frame] = img;
 		return true;
@@ -1404,15 +1390,11 @@ bool CAnimation::loadFrame(size_t frame, size_t group)
 bool CAnimation::unloadFrame(size_t frame, size_t group)
 {
 	auto image = getImage(frame, group, false);
-	if (image)
+	if(image)
 	{
-		//decrease ref count for image and delete if needed
-		if (image->decreaseRef())
-		{
-			delete image;
-			images[group].erase(frame);
-		}
-		if (images[group].empty())
+		images[group].erase(frame);
+
+		if(images[group].empty())
 			images.erase(group);
 		return true;
 	}
@@ -1563,10 +1545,8 @@ CAnimation::~CAnimation()
 
 	if(!images.empty())
 	{
-		logGlobal->warn("Warning: not all frames were unloaded from %s", name);
-		for (auto & elem : images)
-			for (auto & _image : elem.second)
-				delete _image.second;
+		logGlobal->warn("Warning: not all frames were unloaded from %s", name); //TODO: consider removing
+		images.clear();
 	}
 	if(defFile)
 		delete defFile;
@@ -1599,7 +1579,7 @@ void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 	//FIXME: update image if already loaded
 }
 
-IImage * CAnimation::getImage(size_t frame, size_t group, bool verbose) const
+std::shared_ptr<IImage> CAnimation::getImage(size_t frame, size_t group, bool verbose) const
 {
 	auto groupIter = images.find(group);
 	if (groupIter != images.end())

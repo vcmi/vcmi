@@ -62,7 +62,7 @@ struct ComponentsToBlit
 namespace
 {
 	std::array<std::unique_ptr<CAnimation>, PlayerColor::PLAYER_LIMIT_I> dialogBorders;
-	std::array<std::vector<const IImage*>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
+	std::array<std::vector<std::shared_ptr<IImage>>, PlayerColor::PLAYER_LIMIT_I> piecesOfBox;
 
 	SDL_Surface * background = nullptr;//todo: should be CFilledTexture
 }
@@ -298,7 +298,7 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 {
 	if(playerColor.isSpectator())
 		playerColor = PlayerColor(1);
-	std::vector<const IImage*> &box = piecesOfBox.at(playerColor.getNum());
+	auto & box = piecesOfBox.at(playerColor.getNum());
 
 	// Note: this code assumes that the corner dimensions are all the same.
 

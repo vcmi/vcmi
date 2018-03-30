@@ -398,7 +398,7 @@ CMapHandler::CMapBlitter *CMapHandler::resolveBlitter(const MapDrawingInfo * inf
 	return normalBlitter;
 }
 
-void CMapHandler::CMapNormalBlitter::drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
+void CMapHandler::CMapNormalBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
 {
 	source->draw(targetSurf, destRect, sourceRect);
 }
@@ -470,7 +470,7 @@ CMapHandler::CMapNormalBlitter::CMapNormalBlitter(CMapHandler * parent)
 	defaultTileRect = Rect(0, 0, tileSize, tileSize);
 }
 
-IImage * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, PlayerColor owner) const
+std::shared_ptr<IImage> CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, PlayerColor owner) const
 {
 	int ownerIndex = 0;
 	if(owner < PlayerColor::PLAYER_LIMIT)
@@ -501,7 +501,7 @@ IImage * CMapHandler::CMapWorldViewBlitter::objectToIcon(Obj id, si32 subId, Pla
 	case Obj::RESOURCE:
 		return info->icons->getImage((int)EWorldViewIcon::RES_WOOD + subId + ownerIndex);
 	}
-	return nullptr;
+	return std::shared_ptr<IImage>();
 }
 
 void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
@@ -536,7 +536,7 @@ void CMapHandler::CMapWorldViewBlitter::calculateWorldViewCameraPos()
 		topTile.y = parent->sizes.y - tileCount.y;
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
+void CMapHandler::CMapWorldViewBlitter::drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const
 {
 	auto scaled = parent->cache.requestWorldViewCacheOrCreate(cacheType, source);
 
@@ -604,7 +604,7 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 	}
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
+void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
 {
 	if (moving)
 		return;
@@ -612,7 +612,7 @@ void CMapHandler::CMapWorldViewBlitter::drawHeroFlag(SDL_Surface * targetSurf, c
 	CMapBlitter::drawHeroFlag(targetSurf, source, sourceRect, destRect, false);
 }
 
-void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const
 {
 	if (moving)
 		return;
@@ -729,12 +729,12 @@ void CMapHandler::CMapBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 //nothing to do here
 }
 
-void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
+void CMapHandler::CMapBlitter::drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const
 {
 	drawElement(EMapCacheType::HERO_FLAGS, source, sourceRect, targetSurf, destRect);
 }
 
-void CMapHandler::CMapBlitter::drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const
+void CMapHandler::CMapBlitter::drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const
 {
 	Rect dstRect(realTileRect);
 	drawElement(EMapCacheType::OBJECTS, source, sourceRect, targetSurf, &dstRect);
@@ -830,7 +830,7 @@ void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 	if (retBitmapID < 0)
 		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
 
-	const IImage * image = nullptr;
+	std::shared_ptr<IImage> image;
 
 	if (retBitmapID >= 0)
 		image = parent->FoWpartialHide.at(retBitmapID);
@@ -1006,22 +1006,22 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findBoatBitmap(const CGB
 		return CMapHandler::AnimBitmapHolder();
 }
 
-IImage * CMapHandler::CMapBlitter::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
+std::shared_ptr<IImage> CMapHandler::CMapBlitter::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
 {
-	if (!hero)
-		return nullptr;
+	if(!hero)
+		return std::shared_ptr<IImage>();
 
-	if (hero->boat)
+	if(hero->boat)
 		return findBoatFlagBitmap(hero->boat, anim, color, group, hero->moveDir);
 	return findHeroFlagBitmap(hero, anim, color, group);
 }
 
-IImage * CMapHandler::CMapBlitter::findHeroFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
+std::shared_ptr<IImage> CMapHandler::CMapBlitter::findHeroFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
 {
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color->getNum()), anim, group, hero->moveDir, !hero->isStanding);
 }
 
-IImage * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int anim, const PlayerColor * color, int group, ui8 dir) const
+std::shared_ptr<IImage> CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int anim, const PlayerColor * color, int group, ui8 dir) const
 {
 	int boatType = boat->subID;
 	if(boatType < 0 || boatType >= graphics->boatFlagAnimations.size())
@@ -1043,7 +1043,7 @@ IImage * CMapHandler::CMapBlitter::findBoatFlagBitmap(const CGBoat * boat, int a
 	return findFlagBitmapInternal(subtypeFlags.at(colorIndex), anim, group, dir, false);
 }
 
-IImage * CMapHandler::CMapBlitter::findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const
+std::shared_ptr<IImage> CMapHandler::CMapBlitter::findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const
 {
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
@@ -1438,22 +1438,21 @@ void CMapHandler::CMapCache::updateWorldViewScale(float scale)
 	worldViewCachedScale = scale;
 }
 
-IImage * CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, const IImage * fullSurface)
+std::shared_ptr<IImage> CMapHandler::CMapCache::requestWorldViewCacheOrCreate(CMapHandler::EMapCacheType type, std::shared_ptr<IImage> fullSurface)
 {
-	intptr_t key = (intptr_t) fullSurface;
+	intptr_t key = (intptr_t) (fullSurface.get());
 	auto & cache = data[(ui8)type];
 
 	auto iter = cache.find(key);
 	if(iter == cache.end())
 	{
 		auto scaled = fullSurface->scaleFast(worldViewCachedScale);
-		IImage * ret = scaled.get();
-		cache[key] = std::move(scaled);
-		return ret;
+		cache[key] = scaled;
+		return scaled;
 	}
 	else
 	{
-		return (*iter).second.get();
+		return (*iter).second;
 	}
 }
 

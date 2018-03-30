@@ -254,9 +254,9 @@ private:
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
 
-	IImage * getObstacleImage(const CObstacleInstance & oi);
+	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 
-	Point getObstaclePosition(IImage * image, const CObstacleInstance & obstacle);
+	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
