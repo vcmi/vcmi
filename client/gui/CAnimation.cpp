@@ -1540,14 +1540,6 @@ CAnimation::CAnimation():
 
 CAnimation::~CAnimation()
 {
-	if(preloaded)
-		unload();
-
-	if(!images.empty())
-	{
-		logGlobal->warn("Warning: not all frames were unloaded from %s", name); //TODO: consider removing
-		images.clear();
-	}
 	if(defFile)
 		delete defFile;
 }

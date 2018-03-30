@@ -30,12 +30,12 @@ class CSpellWindow : public CWindowObject
 	{
 		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
-		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
-		int spellCost;
 		CSpellWindow * owner;
-		CAnimImage * image;
-		std::shared_ptr<IImage> schoolBorder;
-		CLabel * name, * level, * cost;
+		std::shared_ptr<CAnimImage> image;
+		std::shared_ptr<CAnimImage> schoolBorder;
+		std::shared_ptr<CLabel> name;
+		std::shared_ptr<CLabel> level;
+		std::shared_ptr<CLabel> cost;
 	public:
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 		~SpellArea();
@@ -44,7 +44,6 @@ class CSpellWindow : public CWindowObject
 		void clickLeft(tribool down, bool previousState) override;
 		void clickRight(tribool down, bool previousState) override;
 		void hover(bool on) override;
-		void showAll(SDL_Surface * to) override;
 	};
 
 	class InteractiveArea : public CIntObject
@@ -62,17 +61,20 @@ class CSpellWindow : public CWindowObject
 		InteractiveArea(const SDL_Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
 	};
 
-	CPicture * leftCorner, * rightCorner;
+	std::shared_ptr<CAnimation> spellIcons;
+	std::array<std::shared_ptr<CAnimation>, 4> schoolBorders; //[0]: air, [1]: fire, [2]: water, [3]: earth
 
-	std::shared_ptr<CAnimation> spells; //pictures of spells
+	std::shared_ptr<CPicture> leftCorner;
+	std::shared_ptr<CPicture> rightCorner;
 
-	CAnimImage * spellTab; //school select
-	CAnimImage * schools; //schools' pictures
-	std::array< std::shared_ptr<CAnimation>, 4> schoolBorders; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
+	std::shared_ptr<CAnimImage> schoolTab;
+	std::shared_ptr<CAnimImage> schoolPicture;
 
-	SpellArea * spellAreas[12];
-	CLabel * mana;
-	CGStatusBar * statusBar;
+	std::array<std::shared_ptr<SpellArea>, 12> spellAreas;
+	std::shared_ptr<CLabel> mana;
+	std::shared_ptr<CGStatusBar> statusBar;
+
+	std::vector<std::shared_ptr<InteractiveArea>> interactiveAreas;
 
 	int sitesPerTabAdv[5];
 	int sitesPerTabBattle[5];
