@@ -877,25 +877,36 @@ class DLL_LINKAGE AggregateLimiter : public ILimiter
 {
 protected:
 	std::vector<TLimiterPtr> limiters;
+	virtual const std::string & getAggregator() const = 0;
 public:
 	void add(TLimiterPtr limiter);
+	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
 {
+protected:
+	const std::string & getAggregator() const override;
 public:
+	static const std::string aggregator;
 	int limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
 {
+protected:
+	const std::string & getAggregator() const override;
 public:
+	static const std::string aggregator;
 	int limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
 {
+protected:
+	const std::string & getAggregator() const override;
 public:
+	static const std::string aggregator;
 	int limit(const BonusLimitationContext & context) const override;
 };
 

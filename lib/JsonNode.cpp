@@ -585,11 +585,11 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			if(subLimiters[0].getType() == JsonNode::JsonType::DATA_STRING)
 			{
 				const std::string & aggregator = subLimiters[0].String();
-				if(aggregator == "allOf")
+				if(aggregator == AllOfLimiter::aggregator)
 					result = std::make_shared<AllOfLimiter>();
-				else if(aggregator == "anyOf")
+				else if(aggregator == AnyOfLimiter::aggregator)
 					result = std::make_shared<AnyOfLimiter>();
-				else if(aggregator == "noneOf")
+				else if(aggregator == NoneOfLimiter::aggregator)
 					result = std::make_shared<NoneOfLimiter>();
 			}
 			if(!result)

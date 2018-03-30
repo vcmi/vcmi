@@ -1347,7 +1347,7 @@ JsonNode Bonus::toJsonNode() const
 	if(turnsRemain)
 		root["turns"].Integer() = turnsRemain;
 	if(limiter)
-		root["limiters"].Vector().push_back(limiter->toJsonNode());
+		root["limiters"] = limiter->toJsonNode();
 	if(updater)
 		root["updater"] = updater->toJsonNode();
 	if(propagator)
@@ -1832,6 +1832,21 @@ void AggregateLimiter::add(TLimiterPtr limiter)
 		limiters.push_back(limiter);
 }
 
+JsonNode AggregateLimiter::toJsonNode() const
+{
+	JsonNode result(JsonNode::JsonType::DATA_VECTOR);
+	result.Vector().push_back(JsonUtils::stringNode(getAggregator()));
+	for(auto l : limiters)
+		result.Vector().push_back(l->toJsonNode());
+	return result;
+}
+
+const std::string AllOfLimiter::aggregator = "allOf";
+const std::string & AllOfLimiter::getAggregator() const
+{
+	return aggregator;
+}
+
 int AllOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -1848,6 +1863,12 @@ int AllOfLimiter::limit(const BonusLimitationContext & context) const
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
 }
 
+const std::string AnyOfLimiter::aggregator = "anyOf";
+const std::string & AnyOfLimiter::getAggregator() const
+{
+	return aggregator;
+}
+
 int AnyOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
@@ -1862,6 +1883,12 @@ int AnyOfLimiter::limit(const BonusLimitationContext & context) const
 	}
 
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::DISCARD;
+}
+
+const std::string NoneOfLimiter::aggregator = "noneOf";
+const std::string & NoneOfLimiter::getAggregator() const
+{
+	return aggregator;
 }
 
 int NoneOfLimiter::limit(const BonusLimitationContext & context) const
