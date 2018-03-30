@@ -882,6 +882,12 @@ protected:
 public:
 	void add(TLimiterPtr limiter);
 	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & limiters;
+	}
 };
 
 class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
