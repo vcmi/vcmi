@@ -283,8 +283,8 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		return;
 	if (anim->size(Group) > Frame)
 	{
-		anim->load(Frame, Group);
 		anim->unload(frame, group);
+		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
 		IImage *img = anim->getImage(frame, group);
