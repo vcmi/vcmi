@@ -28,6 +28,7 @@ MODS:
 * Added basic support for secondary skill modding
 * Map object sounds can now be configured via json
 * Added bonus updaters for hero specialties
+* Added allOf, anyOf and noneOf qualifiers for bonus limiters
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
