@@ -886,7 +886,10 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & limiters;
+		if(version >= 786)
+		{
+			h & limiters;
+		}
 	}
 };
 
