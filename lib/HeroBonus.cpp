@@ -1274,7 +1274,7 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::PRIMARY_SKILL:
 		return JsonUtils::stringNode("primSkill." + PrimarySkill::names[subtype]);
 	case Bonus::SECONDARY_SKILL_PREMY:
-		return JsonUtils::stringNode("skill." + NSecondarySkill::names[subtype]);
+		return JsonUtils::stringNode(CSkillHandler::encodeSkillWithType(subtype));
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
 	case Bonus::SPECIAL_BLESS_DAMAGE:
@@ -1362,7 +1362,7 @@ std::string Bonus::nameForBonus() const
 	case Bonus::PRIMARY_SKILL:
 		return PrimarySkill::names[subtype];
 	case Bonus::SECONDARY_SKILL_PREMY:
-		return NSecondarySkill::names[subtype];
+		return CSkillHandler::encodeSkill(subtype);
 	case Bonus::SPECIAL_SPELL_LEV:
 	case Bonus::SPECIFIC_SPELL_DAMAGE:
 	case Bonus::SPECIAL_BLESS_DAMAGE:

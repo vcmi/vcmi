@@ -17,6 +17,7 @@
 #include "../CStopWatch.h"
 #include "../filesystem/Filesystem.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CGeneralTextHandler.h"
 #include "../CHeroHandler.h"
@@ -1144,14 +1145,18 @@ void CMapLoaderH3M::readObjects()
 							}
 						}
 					}
+					// enable new (modded) skills
+					if(wh->allowedAbilities.size() != 1)
+					{
+						for(int skillID = GameConstants::SKILL_QUANTITY; skillID < VLC->skillh->size(); ++skillID)
+							wh->allowedAbilities.push_back(skillID);
+					}
 				}
 				else
 				{
 					// RoE map
-					for(int gg = 0; gg < GameConstants::SKILL_QUANTITY; ++gg)
-					{
-						wh->allowedAbilities.push_back(gg);
-					}
+					for(int skillID = 0; skillID < VLC->skillh->size(); ++skillID)
+						wh->allowedAbilities.push_back(skillID);
 				}
 				break;
 			}

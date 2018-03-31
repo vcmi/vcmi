@@ -1439,7 +1439,7 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 {
 	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
 	{
-		for (int i = 0; i < GameConstants::SKILL_QUANTITY; i++)
+		for(int i = 0; i < VLC->skillh->size(); i++)
 			allowedAbilities.push_back(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
@@ -1496,23 +1496,24 @@ void CGWitchHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	//TODO: unify allowed abilities with others - make them std::vector<bool>
 
 	std::vector<bool> temp;
-	temp.resize(GameConstants::SKILL_QUANTITY, false);
+	size_t skillCount = VLC->skillh->size();
+	temp.resize(skillCount, false);
 
-	auto standard = VLC->heroh->getDefaultAllowedAbilities(); //todo: for WitchHut default is all except Leadership and Necromancy
+	auto standard = VLC->skillh->getDefaultAllowed(); //todo: for WitchHut default is all except Leadership and Necromancy
 
 	if(handler.saving)
 	{
-		for(si32 i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+		for(si32 i = 0; i < skillCount; ++i)
 			if(vstd::contains(allowedAbilities, i))
 				temp[i] = true;
 	}
 
-	handler.serializeLIC("allowedSkills", &CHeroHandler::decodeSkill, &CHeroHandler::encodeSkill, standard, temp);
+	handler.serializeLIC("allowedSkills", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, standard, temp);
 
 	if(!handler.saving)
 	{
 		allowedAbilities.clear();
-		for (si32 i=0; i<temp.size(); i++)
+		for(si32 i = 0; i < skillCount; ++i)
 			if(temp[i])
 				allowedAbilities.push_back(i);
 	}
@@ -1746,7 +1747,7 @@ void CGScholar::initObj(CRandomGenerator & rand)
 			bonusID = rand.nextInt(GameConstants::PRIMARY_SKILLS -1);
 			break;
 		case SECONDARY_SKILL:
-			bonusID = rand.nextInt(GameConstants::SKILL_QUANTITY -1);
+			bonusID = rand.nextInt(VLC->skillh->size() - 1);
 			break;
 		case SPELL:
 			std::vector<SpellID> possibilities;
@@ -1770,7 +1771,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			handler.serializeString("rewardPrimSkill", value);
 			break;
 		case SECONDARY_SKILL:
-			value = NSecondarySkill::names[bonusID];
+			value = CSkillHandler::encodeSkill(bonusID);
 			handler.serializeString("rewardSkill", value);
 			break;
 		case SPELL:

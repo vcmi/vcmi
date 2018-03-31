@@ -24,6 +24,7 @@
 #include "../GameConstants.h"
 #include "../StringConstants.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 
 
@@ -920,7 +921,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			identifier = PrimarySkill::names[rID];
 			break;
 		case SECONDARY_SKILL:
-			identifier = NSecondarySkill::names[rID];
+			identifier = CSkillHandler::encodeSkill(rID);
 			break;
 		case ARTIFACT:
 			identifier = ArtifactID(rID).toArtifact()->identifier;

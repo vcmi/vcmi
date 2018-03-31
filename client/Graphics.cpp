@@ -24,6 +24,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
@@ -442,5 +443,17 @@ void Graphics::initializeImageLists()
 		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
 		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
 		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
+	}
+
+	for(const CSkill * skill : CGI->skillh->objects)
+	{
+		for(int level = 1; level <= 3; level++)
+		{
+			int frame = 2 + level + 3 * skill->id;
+			const CSkill::LevelInfo & skillAtLevel = skill->at(level);
+			addImageListEntry(frame, "SECSK32", skillAtLevel.iconSmall);
+			addImageListEntry(frame, "SECSKILL", skillAtLevel.iconMedium);
+			addImageListEntry(frame, "SECSK82", skillAtLevel.iconLarge);
+		}
 	}
 }
