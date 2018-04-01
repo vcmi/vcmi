@@ -5,6 +5,40 @@
 	"description" : "Subsection of several formats, used to add generic bonuses to objects",
 	"required": ["type"],
 
+	"definitions" :
+	{
+		"nestedLimiter" : {
+			"anyOf" : [
+				{ 
+					"type" : "string",
+					"description" : "parameterless limiter or boolean operator at start of array"
+				},
+				{
+					"type" : "object",
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"description" : "type"
+						},
+						"parameters" : {
+							"type" : "array",
+							"description" : "parameters",
+							"additionalItems" : true
+						},
+					}
+				},
+				{
+					"type" : "array",
+					"additionalItems" : {
+						"$ref" : "#/definitions/nestedLimiter",
+						"description" : "nested limiters optionally prefixed with boolean operator"
+					}
+				}
+			]
+		}
+	},
+
 	"additionalProperties" : false,
 	"properties":{
 		"addInfo": {
@@ -38,31 +72,9 @@
 			"type":"string",
 			"description": "effectRange"
 		},
-		"limiters": {
-			"type":"array",
-			"description": "limiters",
-			"items": {
-				"oneOf" : [
-					{
-						"type":"object",
-						"additionalProperties" : false,
-						"properties" : {
-							"parameters": {
-								"type":"array",
-								"description" : "parameters",
-								"additionalItems": true
-							},
-							"type": {
-								"type":"string",
-								"description": "type"
-							}
-						}
-					},
-					{
-						"type" : "string"
-					}
-				]
-			}
+		"limiters" : {
+			"$ref" : "#/definitions/nestedLimiter",
+			"description" : "limiter"
 		},
 		"propagator": {
 			"description": "propagator",

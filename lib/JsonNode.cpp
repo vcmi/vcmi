@@ -567,6 +567,96 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 	}
 }
 
+std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
+{
+	switch(limiter.getType())
+	{
+	case JsonNode::JsonType::DATA_VECTOR:
+		{
+			const JsonVector & subLimiters = limiter.Vector();
+			if(subLimiters.size() == 0)
+			{
+				logMod->warn("Warning: empty limiter list");
+				return std::make_shared<AllOfLimiter>();
+			}
+			std::shared_ptr<AggregateLimiter> result;
+			int offset = 1;
+			// determine limiter type and offset for sub-limiters
+			if(subLimiters[0].getType() == JsonNode::JsonType::DATA_STRING)
+			{
+				const std::string & aggregator = subLimiters[0].String();
+				if(aggregator == AllOfLimiter::aggregator)
+					result = std::make_shared<AllOfLimiter>();
+				else if(aggregator == AnyOfLimiter::aggregator)
+					result = std::make_shared<AnyOfLimiter>();
+				else if(aggregator == NoneOfLimiter::aggregator)
+					result = std::make_shared<NoneOfLimiter>();
+			}
+			if(!result)
+			{
+				// collapse for single limiter without explicit aggregate operator
+				if(subLimiters.size() == 1)
+					return parseLimiter(subLimiters[0]);
+				// implicit aggregator must be allOf
+				result = std::make_shared<AllOfLimiter>();
+				offset = 0;
+			}
+			if(subLimiters.size() == offset)
+				logMod->warn("Warning: empty sub-limiter list");
+			for(int sl = offset; sl < subLimiters.size(); ++sl)
+				result->add(parseLimiter(subLimiters[sl]));
+			return result;
+		}
+		break;
+	case JsonNode::JsonType::DATA_STRING: //pre-defined limiters
+		return parseByMap(bonusLimiterMap, &limiter, "limiter type ");
+		break;
+	case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
+		{
+			std::string limiterType = limiter["type"].String();
+			const JsonVector & parameters = limiter["parameters"].Vector();
+			if(limiterType == "CREATURE_TYPE_LIMITER")
+			{
+				std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
+				VLC->modh->identifiers.requestIdentifier("creature", parameters[0], [=](si32 creature)
+				{
+					creatureLimiter->setCreature(CreatureID(creature));
+				});
+				creatureLimiter->includeUpgrades = parameters.size() > 1 ? parameters[1].Bool() : false;
+				return creatureLimiter;
+			}
+			else if(limiterType == "HAS_ANOTHER_BONUS_LIMITER")
+			{
+				std::string anotherBonusType = parameters[0].String();
+				auto it = bonusNameMap.find(anotherBonusType);
+				if(it == bonusNameMap.end())
+				{
+					logMod->error("Error: invalid ability type %s.", anotherBonusType);
+				}
+				else
+				{
+					std::shared_ptr<HasAnotherBonusLimiter> bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
+					bonusLimiter->type = it->second;
+					if(parameters.size() > 1)
+					{
+						resolveIdentifier(parameters[1], bonusLimiter->subtype);
+						bonusLimiter->isSubtypeRelevant = true;
+					}
+					return bonusLimiter;
+				}
+			}
+			else
+			{
+				logMod->error("Error: invalid customizable limiter type %s.", limiterType);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+	return nullptr;
+}
+
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 {
 	auto b = std::make_shared<Bonus>();
@@ -641,61 +731,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["limiters"];
 	if (!value->isNull())
-	{
-		for (const JsonNode & limiter : value->Vector())
-		{
-			switch (limiter.getType())
-			{
-				case JsonNode::JsonType::DATA_STRING: //pre-defined limiters
-					b->limiter = parseByMap(bonusLimiterMap, &limiter, "limiter type ");
-					break;
-				case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
-					{
-						std::shared_ptr<ILimiter> l;
-						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")
-						{
-							std::shared_ptr<CCreatureTypeLimiter> l2 = std::make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
-							const JsonVector vec = limiter["parameters"].Vector();
-							VLC->modh->identifiers.requestIdentifier("creature", vec[0], [=](si32 creature)
-							{
-								l2->setCreature(CreatureID(creature));
-							});
-							if (vec.size() > 1)
-							{
-								l2->includeUpgrades = vec[1].Bool();
-							}
-							else
-								l2->includeUpgrades = false;
-
-							l = l2;
-						}
-						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
-						{
-							std::shared_ptr<HasAnotherBonusLimiter> l2 = std::make_shared<HasAnotherBonusLimiter>();
-							const JsonVector vec = limiter["parameters"].Vector();
-							std::string anotherBonusType = vec[0].String();
-
-							auto it = bonusNameMap.find(anotherBonusType);
-							if (it == bonusNameMap.end())
-							{
-								logMod->error("Error: invalid ability type %s.", anotherBonusType);
-								continue;
-							}
-							l2->type = it->second;
-
-							if (vec.size() > 1 )
-							{
-								resolveIdentifier(vec[1], l2->subtype);
-								l2->isSubtypeRelevant = true;
-							}
-							l = l2;
-						}
-						b->addLimiter(l);
-					}
-					break;
-			}
-		}
-	}
+		b->limiter = parseLimiter(*value);
 
 	value = &ability["propagator"];
 	if (!value->isNull())

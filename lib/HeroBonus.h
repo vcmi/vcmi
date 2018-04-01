@@ -615,8 +615,9 @@ public:
 struct BonusLimitationContext
 {
 	const std::shared_ptr<Bonus> b;
-	const CBonusSystemNode &node;
-	const BonusList &alreadyAccepted;
+	const CBonusSystemNode & node;
+	const BonusList & alreadyAccepted;
+	const BonusList & stillUndecided;
 };
 
 class DLL_LINKAGE ILimiter
@@ -873,14 +874,50 @@ public:
 	}
 };
 
-//Stores multiple limiters. If any of them fails -> bonus is dropped.
-class DLL_LINKAGE LimiterList : public ILimiter
+class DLL_LINKAGE AggregateLimiter : public ILimiter
 {
+protected:
 	std::vector<TLimiterPtr> limiters;
-
+	virtual const std::string & getAggregator() const = 0;
 public:
-	int limit(const BonusLimitationContext &context) const override;
 	void add(TLimiterPtr limiter);
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		if(version >= 786)
+		{
+			h & limiters;
+		}
+	}
+};
+
+class DLL_LINKAGE AllOfLimiter : public AggregateLimiter
+{
+protected:
+	const std::string & getAggregator() const override;
+public:
+	static const std::string aggregator;
+	int limit(const BonusLimitationContext & context) const override;
+};
+
+class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
+{
+protected:
+	const std::string & getAggregator() const override;
+public:
+	static const std::string aggregator;
+	int limit(const BonusLimitationContext & context) const override;
+};
+
+class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
+{
+protected:
+	const std::string & getAggregator() const override;
+public:
+	static const std::string aggregator;
+	int limit(const BonusLimitationContext & context) const override;
 };
 
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)

@@ -1171,7 +1171,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		for(int i = 0; i < undecided.size(); i++)
 		{
 			auto b = undecided[i];
-			BonusLimitationContext context = {b, *this, out};
+			BonusLimitationContext context = {b, *this, out, undecided};
 			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
 			if(decision == ILimiter::DISCARD)
 			{
@@ -1347,7 +1347,7 @@ JsonNode Bonus::toJsonNode() const
 	if(turnsRemain)
 		root["turns"].Integer() = turnsRemain;
 	if(limiter)
-		root["limiters"].Vector().push_back(limiter->toJsonNode());
+		root["limiters"] = limiter->toJsonNode();
 	if(updater)
 		root["updater"] = updater->toJsonNode();
 	if(propagator)
@@ -1557,11 +1557,11 @@ std::shared_ptr<Bonus> Bonus::addLimiter(TLimiterPtr Limiter)
 	if (limiter)
 	{
 		//If we already have limiter list, retrieve it
-		auto limiterList = std::dynamic_pointer_cast<LimiterList>(limiter);
+		auto limiterList = std::dynamic_pointer_cast<AllOfLimiter>(limiter);
 		if(!limiterList)
 		{
 			//Create a new limiter list with old limiter and the new one will be pushed later
-			limiterList = std::make_shared<LimiterList>();
+			limiterList = std::make_shared<AllOfLimiter>();
 			limiterList->add(limiter);
 			limiter = limiterList;
 		}
@@ -1660,6 +1660,10 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
 		return ACCEPT;
+
+	//if there are no matching bonuses pending, we can (and must) reject right away
+	if(!context.stillUndecided.getFirst(mySelector))
+		return DISCARD;
 
 	//do not accept for now but it may change if more bonuses gets included
 	return NOT_SURE;
@@ -1824,7 +1828,30 @@ StackOwnerLimiter::StackOwnerLimiter(PlayerColor Owner)
 {
 }
 
-int LimiterList::limit( const BonusLimitationContext &context ) const
+// Aggregate/Boolean Limiters
+
+void AggregateLimiter::add(TLimiterPtr limiter)
+{
+	if(limiter)
+		limiters.push_back(limiter);
+}
+
+JsonNode AggregateLimiter::toJsonNode() const
+{
+	JsonNode result(JsonNode::JsonType::DATA_VECTOR);
+	result.Vector().push_back(JsonUtils::stringNode(getAggregator()));
+	for(auto l : limiters)
+		result.Vector().push_back(l->toJsonNode());
+	return result;
+}
+
+const std::string AllOfLimiter::aggregator = "allOf";
+const std::string & AllOfLimiter::getAggregator() const
+{
+	return aggregator;
+}
+
+int AllOfLimiter::limit(const BonusLimitationContext & context) const
 {
 	bool wasntSure = false;
 
@@ -1840,9 +1867,48 @@ int LimiterList::limit( const BonusLimitationContext &context ) const
 	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
 }
 
-void LimiterList::add( TLimiterPtr limiter )
+const std::string AnyOfLimiter::aggregator = "anyOf";
+const std::string & AnyOfLimiter::getAggregator() const
 {
-	limiters.push_back(limiter);
+	return aggregator;
+}
+
+int AnyOfLimiter::limit(const BonusLimitationContext & context) const
+{
+	bool wasntSure = false;
+
+	for(auto limiter : limiters)
+	{
+		auto result = limiter->limit(context);
+		if(result == ILimiter::ACCEPT)
+			return result;
+		if(result == ILimiter::NOT_SURE)
+			wasntSure = true;
+	}
+
+	return wasntSure ? ILimiter::NOT_SURE : ILimiter::DISCARD;
+}
+
+const std::string NoneOfLimiter::aggregator = "noneOf";
+const std::string & NoneOfLimiter::getAggregator() const
+{
+	return aggregator;
+}
+
+int NoneOfLimiter::limit(const BonusLimitationContext & context) const
+{
+	bool wasntSure = false;
+
+	for(auto limiter : limiters)
+	{
+		auto result = limiter->limit(context);
+		if(result == ILimiter::ACCEPT)
+			return ILimiter::DISCARD;
+		if(result == ILimiter::NOT_SURE)
+			wasntSure = true;
+	}
+
+	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
 }
 
 // Updaters
