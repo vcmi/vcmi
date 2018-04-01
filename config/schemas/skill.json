@@ -13,6 +13,27 @@
 			"description" : "Set of bonuses provided by skill at given level",
 			"required" : ["description", "effects"],
 			"properties" : {
+				"images" : {
+					"type" : "object",
+					"description" : "skill icons of varying size",
+					"properties" : {
+						"small" : {
+							"type" : "string",
+							"description" : "32x32 skill icon",
+							"format" : "imageFile"
+						},
+						"medium" : {
+							"type" : "string",
+							"description" : "44x44 skill icon",
+							"format" : "imageFile"
+						},
+						"large" : {
+							"type" : "string",
+							"description" : "82x93 skill icon",
+							"format" : "imageFile"
+						}
+					}
+				},
 				"description" : {
 					"type" : "string",
 					"description" : "localizable description"
@@ -38,6 +59,28 @@
 		"name" : {
 			"type": "string",
 			"description": "localizable skill name"
+		},
+		"gainChance" : {
+			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",
+			"anyOf" : [
+				{
+					"type" : "number"
+				},
+				{
+					"type" : "object",
+					"required" : ["might", "magic"],
+					"properties" : {
+						"might" : {
+							"type" : "number",
+							"description" : "Chance for hero classes with might affinity"
+						},
+						"magic" : {
+							"type" : "number",
+							"description" : "Chance for hero classes with magic affinity"
+						}
+					}
+				}
+			]
 		},
 		"base" : {
 			"type" : "object",

@@ -76,7 +76,7 @@ void CMessage::init()
 
         for(int j=0; j < dialogBorders[i]->size(0); j++)
 		{
-			IImage * image = dialogBorders[i]->getImage(j, 0);
+			auto image = dialogBorders[i]->getImage(j, 0);
 			//assume blue color initially
 			if(i != 1)
 				image->playerColored(PlayerColor(i));

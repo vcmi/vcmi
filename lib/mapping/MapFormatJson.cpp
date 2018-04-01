@@ -25,6 +25,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "../StringConstants.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
@@ -807,7 +808,7 @@ void CMapFormatJson::serializeOptions(JsonSerializeFormat & handler)
 
 	serializePredefinedHeroes(handler);
 
-	handler.serializeLIC("allowedAbilities", &CHeroHandler::decodeSkill, &CHeroHandler::encodeSkill, VLC->heroh->getDefaultAllowedAbilities(), map->allowedAbilities);
+	handler.serializeLIC("allowedAbilities", &CSkillHandler::decodeSkill, &CSkillHandler::encodeSkill, VLC->skillh->getDefaultAllowed(), map->allowedAbilities);
 
 	handler.serializeLIC("allowedArtifacts",  &ArtifactID::decode, &ArtifactID::encode, VLC->arth->getDefaultAllowed(), map->allowedArtifact);
 

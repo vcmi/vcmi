@@ -129,7 +129,7 @@ CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
 
 void CBattleHero::show(SDL_Surface * to)
 {
-	IImage * flagFrame = flagAnimation->getImage(flagAnim, 0, true);
+	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
 
 	if(!flagFrame)
 		return;
@@ -159,7 +159,7 @@ void CBattleHero::show(SDL_Surface * to)
 	//animation of hero
 	SDL_Rect rect = pos;
 
-	IImage * heroFrame = animation->getImage(currentFrame, phase, true);
+	auto heroFrame = animation->getImage(currentFrame, phase, true);
 	if(!heroFrame)
 		return;
 

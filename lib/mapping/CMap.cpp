@@ -19,6 +19,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CGeneralTextHandler.h"
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "CMapEditManager.h"
 #include "../serializer/JsonSerializeFormat.h"
 
@@ -240,7 +241,7 @@ CMap::CMap()
 	guardingCreaturePositions(nullptr)
 {
 	allHeroes.resize(allowedHeroes.size());
-	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
+	allowedAbilities = VLC->skillh->getDefaultAllowed();
 	allowedArtifact = VLC->arth->getDefaultAllowed();
 	allowedSpell = VLC->spellh->getDefaultAllowed();
 }

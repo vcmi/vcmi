@@ -1498,7 +1498,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				logGlobal->warn("Warning: %s has wrong version!", currentItem->fileURI);
 				continue;
 			}
-			IImage * icon = formatIcons->getImage(frame,group);
+			auto icon = formatIcons->getImage(frame,group);
 			if(icon)
 			{
 				icon->draw(to, pos.x + 88, pos.y + 117 + line * 25);
@@ -2189,7 +2189,7 @@ void InfoCard::showAll(SDL_Surface * to)
 			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
 				int *myx = ((i->first == playerColor  ||  SEL->current->mapHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
-				IImage * flag = sFlags->getImage(i->first.getNum(),0);
+				auto flag = sFlags->getImage(i->first.getNum(),0);
 				flag->draw(to, pos.x + *myx, pos.y + 399);
 				*myx += flag->width();
 				flag->decreaseRef();
@@ -2287,7 +2287,7 @@ void InfoCard::showTeamsPopup()
 		int curx = 128 - 9*flags.size();
 		for(auto & flag : flags)
 		{
-			IImage * icon = sFlags->getImage(flag,0);
+			auto icon = sFlags->getImage(flag,0);
 			icon->draw(bmp, curx, 75 + 50*i);
 			icon->decreaseRef();
 			curx += 18;
@@ -3517,7 +3517,7 @@ void CBonusSelection::show(SDL_Surface * to)
 	{
 		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
 
-		IImage * flag = sFlags->getImage(i->first.getNum(),0);
+		auto flag = sFlags->getImage(i->first.getNum(), 0);
 		flag->draw(to, pos.x + *myx, pos.y + 405);
 		*myx += flag->width();
 		flag->decreaseRef();

@@ -20,6 +20,7 @@
 #include "CModHandler.h"
 #include "CTownHandler.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
+#include "CSkillHandler.h"
 #include <math.h>
 
 #include "mapObjects/CObjectClassesHandler.h"
@@ -117,9 +118,15 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 		heroClass->primarySkillHighLevel.push_back(node["highLevelChance"][pSkill].Float());
 	}
 
-	for(const std::string & secSkill : NSecondarySkill::names)
+	for(auto skillPair : node["secondarySkills"].Struct())
 	{
-		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
+		int probability = skillPair.second.Integer();
+		VLC->modh->identifiers.requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
+		{
+			if(heroClass->secSkillProbability.size() <= skillID)
+				heroClass->secSkillProbability.resize(skillID + 1, -1); // -1 = override with default later
+			heroClass->secSkillProbability[skillID] = probability;
+		});
 	}
 
 	VLC->modh->identifiers.requestIdentifier ("creature", node["commander"],
@@ -241,6 +248,17 @@ void CHeroClassHandler::afterLoadFinalization()
 			float chance = heroClass->defaultTavernChance * faction->town->defaultTavernChance;
 			heroClass->selectionProbability[faction->index] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
+		// set default probabilities for gaining secondary skills where not loaded previously
+		heroClass->secSkillProbability.resize(VLC->skillh->size(), -1);
+		for(int skillID = 0; skillID < VLC->skillh->size(); skillID++)
+		{
+			if(heroClass->secSkillProbability[skillID] < 0)
+			{
+				const CSkill * skill = (*VLC->skillh)[SecondarySkill(skillID)];
+				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->identifier);
+				heroClass->secSkillProbability[skillID] = skill->gainChance[heroClass->affinity];
+			}
+		}
 	}
 
 	for (CHeroClass * hc : heroClasses)
@@ -277,11 +295,6 @@ CHeroHandler::CHeroHandler()
 {
 	VLC->heroh = this;
 
-	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
-	{
-		VLC->modh->identifiers.registerObject("core", "skill", NSecondarySkill::names[i], i);
-		VLC->modh->identifiers.registerObject("core", "secondarySkill", NSecondarySkill::names[i], i);
-	}
 	loadObstacles();
 	loadTerrains();
 	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
@@ -943,13 +956,6 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 	return allowedHeroes;
 }
 
-std::vector<bool> CHeroHandler::getDefaultAllowedAbilities() const
-{
-	std::vector<bool> allowedAbilities;
-	allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
-	return allowedAbilities;
-}
-
 si32 CHeroHandler::decodeHero(const std::string & identifier)
 {
 	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
@@ -962,18 +968,4 @@ si32 CHeroHandler::decodeHero(const std::string & identifier)
 std::string CHeroHandler::encodeHero(const si32 index)
 {
 	return VLC->heroh->heroes.at(index)->identifier;
-}
-
-si32 CHeroHandler::decodeSkill(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CHeroHandler::encodeSkill(const si32 index)
-{
-	return NSecondarySkill::names[index];
 }

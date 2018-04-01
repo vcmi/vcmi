@@ -247,7 +247,7 @@ void CAnimImage::init()
 	if (flags & CShowableAnim::BASE)
 		anim->load(0,group);
 
-	IImage *img = anim->getImage(frame, group);
+	auto img = anim->getImage(frame, group);
 	if (img)
 	{
 		pos.w = img->width();
@@ -267,13 +267,11 @@ void CAnimImage::showAll(SDL_Surface * to)
 	if(!visible)
 		return;
 
-	IImage *img;
-
-	if ( flags & CShowableAnim::BASE && frame != 0)
-		if ((img = anim->getImage(0, group)))
+	if(flags & CShowableAnim::BASE && frame != 0)
+		if(auto img = anim->getImage(0, group))
 			img->draw(to, pos.x, pos.y);
 
-	if ((img = anim->getImage(frame, group)))
+	if(auto img = anim->getImage(frame, group))
 		img->draw(to, pos.x, pos.y);
 }
 
@@ -283,12 +281,11 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		return;
 	if (anim->size(Group) > Frame)
 	{
-		anim->load(Frame, Group);
 		anim->unload(frame, group);
+		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
-		IImage *img = anim->getImage(frame, group);
-		if (img)
+		if(auto img = anim->getImage(frame, group))
 		{
 			if (flags & CShowableAnim::PLAYER_COLORED)
 				img->playerColored(player);
@@ -421,7 +418,7 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 {
 	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
-	IImage * img = anim->getImage(frame, group);
+	auto img = anim->getImage(frame, group);
 	if (img)
 		img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
 }

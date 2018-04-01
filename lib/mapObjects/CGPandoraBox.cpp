@@ -15,6 +15,7 @@
 #include "../CSoundBase.h"
 
 #include "../spells/CSpellHandler.h"
+#include "../CSkillHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
 #include "../StringConstants.h"
@@ -419,7 +420,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			for(size_t idx = 0; idx < abilities.size(); idx++)
 			{
-				handler.serializeEnum(NSecondarySkill::names[abilities[idx]], abilityLevels[idx], NSecondarySkill::levels);
+				handler.serializeEnum(CSkillHandler::encodeSkill(abilities[idx]), abilityLevels[idx], NSecondarySkill::levels);
 			}
 		}
 	}
@@ -437,7 +438,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			const std::string skillName = p.first;
 			const std::string levelId = p.second.String();
 
-			const int rawId = vstd::find_pos(NSecondarySkill::names, skillName);
+			const int rawId = CSkillHandler::decodeSkill(skillName);
 			if(rawId < 0)
 			{
 				logGlobal->error("Invalid secondary skill %s", skillName);

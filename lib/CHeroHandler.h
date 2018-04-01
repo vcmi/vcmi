@@ -311,24 +311,11 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
-	/**
-	 * Gets a list of default allowed abilities. OH3 abilities/skills are all allowed by default.
-	 *
-	 * @return a list of allowed abilities, the index is the ability id
-	 */
-	std::vector<bool> getDefaultAllowedAbilities() const;
-
 	///json serialization helper
 	static si32 decodeHero(const std::string & identifier);
 
 	///json serialization helper
 	static std::string encodeHero(const si32 index);
-
-	///json serialization helper
-	static si32 decodeSkill(const std::string & identifier);
-
-	///json serialization helper
-	static std::string encodeSkill(const si32 index);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
