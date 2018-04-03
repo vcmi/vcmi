@@ -271,7 +271,6 @@ set(lib_HEADERS
 		spells/CSpellHandler.h
 		spells/ISpellMechanics.h
 		spells/Magic.h
-		spells/SpellMechanics.h
 		spells/Problem.h
 		spells/ProxyCaster.h
 		spells/TargetCondition.h
