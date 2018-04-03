@@ -559,6 +559,7 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	}
 	if(cb->battleCanFlee())
 	{
+		return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
 	}
 	return boost::none;
 }
