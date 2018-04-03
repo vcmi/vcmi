@@ -94,6 +94,7 @@ void CSettingsView::loadSettings()
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
 	if (encodingIndex < ui->comboBoxEncoding->count())
 		ui->comboBoxEncoding->setCurrentIndex(encodingIndex);
+	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 }
 
 CSettingsView::CSettingsView(QWidget *parent) :
@@ -222,4 +223,10 @@ void CSettingsView::on_comboBoxShowIntro_currentIndexChanged(int index)
 void CSettingsView::on_changeGameDataDir_clicked()
 {
 
+}
+
+void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
+{
+	Settings node = settings.write["general"]["saveFrequency"];
+	node->Integer() = index;
 }

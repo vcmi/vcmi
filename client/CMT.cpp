@@ -61,6 +61,7 @@
 #include <boost/asio.hpp>
 
 #include "mainmenu/CPrologEpilogVideo.h"
+#include <vstd/StringUtils.h>
 
 #ifdef VCMI_WINDOWS
 #include "SDL_syswm.h"
@@ -259,7 +260,29 @@ int main(int argc, char * argv[])
 	preinitDLL(::console);
 	settings.init();
 	Settings session = settings.write["session"];
-	session["onlyai"].Bool() = vm.count("onlyAI");
+	auto setSettingBool = [](std::string key, std::string arg) {
+		Settings s = settings.write(vstd::split(key, "/"));
+		if(::vm.count(arg))
+			s->Bool() = true;
+		else if(s->isNull())
+			s->Bool() = false;
+	};
+	auto setSettingInteger = [](std::string key, std::string arg, si64 defaultValue) {
+		Settings s = settings.write(vstd::split(key, "/"));
+		if(::vm.count(arg))
+			s->Integer() = ::vm[arg].as<si64>();
+		else if(s->isNull())
+			s->Integer() = defaultValue;
+	};
+	auto setSettingString = [](std::string key, std::string arg, std::string defaultValue) {
+		Settings s = settings.write(vstd::split(key, "/"));
+		if(::vm.count(arg))
+			s->String() = ::vm[arg].as<std::string>();
+		else if(s->isNull())
+			s->String() = defaultValue;
+	};
+
+	setSettingBool("session/onlyai", "onlyAI");
 	if(vm.count("headless"))
 	{
 		session["headless"].Bool() = true;
@@ -277,19 +300,20 @@ int main(int argc, char * argv[])
 			session["spectate-battle-speed"].Float() = vm["spectate-battle-speed"].as<int>();
 	}
 	// Server settings
-	session["donotstartserver"].Bool() = vm.count("donotstartserver");
+	setSettingBool("session/donotstartserver", "donotstartserver");
 
 	// Shared memory options
-	session["disable-shm"].Bool() = vm.count("disable-shm");
-	session["enable-shm-uuid"].Bool() = vm.count("enable-shm-uuid");
+	setSettingBool("session/disable-shm", "disable-shm");
+	setSettingBool("session/enable-shm-uuid", "enable-shm-uuid");
 
 	// Init special testing settings
-	session["serverport"].Integer() = vm.count("serverport") ? vm["serverport"].as<si64>() : 0;
-	session["saveprefix"].String() = vm.count("saveprefix") ? vm["saveprefix"].as<std::string>() : "";
-	session["savefrequency"].Integer() = vm.count("savefrequency") ? vm["savefrequency"].as<si64>() : 1;
+	setSettingInteger("session/serverport", "serverport", 0);
+	setSettingString("session/saveprefix", "saveprefix", "");
+	setSettingInteger("general/saveFrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
 	logConfig.configure();
+	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool

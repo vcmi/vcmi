@@ -42,7 +42,7 @@ SettingsStorage::NodeAccessor<Accessor>::operator Accessor() const
 }
 
 template<typename Accessor>
-SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator () (std::vector<std::string> _path)
+SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator () (std::vector<std::string> _path) const
 {
 	std::vector<std::string> newPath = path;
 	newPath.insert( newPath.end(), _path.begin(), _path.end());
@@ -51,11 +51,12 @@ SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>:
 
 SettingsStorage::SettingsStorage():
 	write(NodeAccessor<Settings>(*this, std::vector<std::string>() )),
-	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() ))
+	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() )),
+	autoSaveConfig(false)
 {
 }
 
-void SettingsStorage::init()
+void SettingsStorage::init(bool autoSave)
 {
 	std::string confName = "config/settings.json";
 
@@ -67,6 +68,7 @@ void SettingsStorage::init()
 
 	JsonUtils::maximize(config, "vcmi:settings");
 	JsonUtils::validate(config, "vcmi:settings", "settings");
+	autoSaveConfig = autoSave;
 }
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
@@ -74,14 +76,14 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	for(SettingsListener * listener : listeners)
 		listener->nodeInvalidated(changedPath);
 
-	JsonNode savedConf = config;
-	JsonNode schema(ResourceID("config/schemas/settings.json"));
+	if(autoSaveConfig)
+	{
+		JsonNode savedConf = config;
+		JsonUtils::minimize(savedConf, "vcmi:settings");
 
-	savedConf.Struct().erase("session");
-	JsonUtils::minimize(savedConf, "vcmi:settings");
-
-	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
-	file << savedConf.toJson();
+		FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
+		file << savedConf.toJson();
+	}
 }
 
 JsonNode & SettingsStorage::getNode(std::vector<std::string> path)
@@ -98,9 +100,14 @@ Settings SettingsStorage::get(std::vector<std::string> path)
 	return Settings(*this, path);
 }
 
-const JsonNode& SettingsStorage::operator [](std::string value)
+const JsonNode & SettingsStorage::operator [](std::string value) const
 {
 	return config[value];
+}
+
+const JsonNode & SettingsStorage::toJsonNode() const
+{
+	return config;
 }
 
 SettingsListener::SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path):

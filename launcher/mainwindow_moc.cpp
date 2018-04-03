@@ -36,7 +36,7 @@ void MainWindow::load()
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
 
-	settings.init();
+	settings.init(true);
 }
 
 MainWindow::MainWindow(QWidget * parent) :
