@@ -26,12 +26,14 @@ class DLL_LINKAGE SettingsStorage
 
 		NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path);
 		NodeAccessor<Accessor> operator [] (std::string nextNode) const;
-		NodeAccessor<Accessor> operator () (std::vector<std::string> _path);
+		NodeAccessor<Accessor> operator () (std::vector<std::string> _path) const;
 		operator Accessor() const;
 	};
 
 	std::set<SettingsListener*> listeners;
 	JsonNode config;
+	bool autoSaveConfig;
+
 	JsonNode & getNode(std::vector<std::string> path);
 
 	// Calls all required listeners
@@ -41,7 +43,7 @@ class DLL_LINKAGE SettingsStorage
 public:
 	// Initialize config structure
 	SettingsStorage();
-	void init();
+	void init(bool autoSave=false);
 	
 	// Get write access to config node at path
 	const NodeAccessor<Settings> write;
@@ -50,7 +52,8 @@ public:
 	const NodeAccessor<SettingsListener> listen;
 
 	//Read access, see JsonNode::operator[]
-	const JsonNode& operator [](std::string value);
+	const JsonNode & operator [](std::string value) const;
+	const JsonNode & toJsonNode() const;
 
 	friend class SettingsListener;
 	friend class Settings;
