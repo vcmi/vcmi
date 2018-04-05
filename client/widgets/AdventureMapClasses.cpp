@@ -51,16 +51,13 @@
 CList::CListItem::CListItem(CList * Parent):
 	CIntObject(LCLICK | RCLICK | HOVER),
 	parent(Parent),
-	selection(nullptr)
+	selection()
 {
 	defActions = 255-DISPOSE;
 }
 
 CList::CListItem::~CListItem()
 {
-	// select() method in this was already destroyed so we can't safely call method in parent
-	if (parent->selected == this)
-		parent->selected = nullptr;
 }
 
 void CList::CListItem::clickRight(tribool down, bool previousState)
@@ -71,15 +68,17 @@ void CList::CListItem::clickRight(tribool down, bool previousState)
 
 void CList::CListItem::clickLeft(tribool down, bool previousState)
 {
-	if (down == true)
+	if(down == true)
 	{
 		//second click on already selected item
-		if (parent->selected == this)
+		if(parent->selected == this->shared_from_this())
+		{
 			open();
+		}
 		else
 		{
 			//first click - switch selection
-			parent->select(this);
+			parent->select(this->shared_from_this());
 		}
 	}
 }
@@ -133,7 +132,7 @@ void CList::update()
 	scrollDown->block(onBottom);
 }
 
-void CList::select(CListItem *which)
+void CList::select(std::shared_ptr<CListItem> which)
 {
 	if(selected == which)
 		return;
@@ -165,7 +164,7 @@ void CList::selectIndex(int which)
 	{
 		listBox->scrollTo(which);
 		update();
-		select(dynamic_cast<CListItem*>(listBox->getItem(which)));
+		select(std::dynamic_pointer_cast<CListItem>(listBox->getItem(which)));
 	}
 }
 
@@ -245,11 +244,11 @@ std::string CHeroList::CHeroItem::getHoverText()
 	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
 }
 
-CIntObject * CHeroList::createHeroItem(size_t index)
+std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
 {
 	if (LOCPLINT->wanderingHeroes.size() > index)
-		return new CHeroItem(this, LOCPLINT->wanderingHeroes[index]);
-	return new CEmptyHeroItem();
+		return std::make_shared<CHeroItem>(this, LOCPLINT->wanderingHeroes[index]);
+	return std::make_shared<CEmptyHeroItem>();
 }
 
 CHeroList::CHeroList(int size, Point position, std::string btnUp, std::string btnDown):
@@ -265,10 +264,10 @@ void CHeroList::select(const CGHeroInstance * hero)
 void CHeroList::update(const CGHeroInstance * hero)
 {
 	//this hero is already present, update its status
-	for (auto & elem : listBox->getItems())
+	for(auto & elem : listBox->getItems())
 	{
-		auto item = dynamic_cast<CHeroItem*>(elem);
-		if (item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
+		auto item = std::dynamic_pointer_cast<CHeroItem>(elem);
+		if(item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
 		{
 			item->update();
 			return;
@@ -286,11 +285,11 @@ void CHeroList::update(const CGHeroInstance * hero)
 	CList::update();
 }
 
-CIntObject * CTownList::createTownItem(size_t index)
+std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
 {
 	if (LOCPLINT->towns.size() > index)
-		return new CTownItem(this, LOCPLINT->towns[index]);
-	return new CAnimImage("ITPA", 0);
+		return std::make_shared<CTownItem>(this, LOCPLINT->towns[index]);
+	return std::make_shared<CAnimImage>("ITPA", 0);
 }
 
 CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):

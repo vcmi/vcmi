@@ -242,8 +242,8 @@ private:
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects);
 
-	CIntObject* createOwnedObject(size_t index);
-	CIntObject* createMainTab(size_t index);
+	std::shared_ptr<CIntObject> createOwnedObject(size_t index);
+	std::shared_ptr<CIntObject> createMainTab(size_t index);
 
 public:
 	CKingdomInterface();
@@ -306,8 +306,8 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 
 	void onArtChange(int tabIndex);
 
-	CIntObject * onTabSelected(size_t index);
-	void onTabDeselected(CIntObject * object);
+	std::shared_ptr<CIntObject> onTabSelected(size_t index);
+	void onTabDeselected(std::shared_ptr<CIntObject> object);
 
 public:
  	std::shared_ptr<CArtifactsOfHero> heroArts;
@@ -327,8 +327,8 @@ private:
 	std::shared_ptr<CLabel> heroLabel;
 	std::shared_ptr<CLabel> skillsLabel;
 
-	CIntObject * createHeroItem(size_t index);
-	void destroyHeroItem(CIntObject * item);
+	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	void destroyHeroItem(std::shared_ptr<CIntObject> item);
 public:
 	CKingdHeroList(size_t maxSize);
 
@@ -345,7 +345,7 @@ private:
 	std::shared_ptr<CLabel> garrHeroLabel;
 	std::shared_ptr<CLabel> visitHeroLabel;
 
-	CIntObject * createTownItem(size_t index);
+	std::shared_ptr<CIntObject> createTownItem(size_t index);
 public:
 	CKingdTownList(size_t maxSize);
 

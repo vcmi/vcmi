@@ -1810,11 +1810,11 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	list->type |= REDRAW_PARENT;
 }
 
-CIntObject * CObjectListWindow::genItem(size_t index)
+std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)
 {
-	if (index < items.size())
-		return new CItem(this, index, items[index].second);
-	return nullptr;
+	if(index < items.size())
+		return std::make_shared<CItem>(this, index, items[index].second);
+	return std::shared_ptr<CIntObject>();
 }
 
 void CObjectListWindow::elementSelected()
@@ -1836,18 +1836,18 @@ void CObjectListWindow::exitPressed()
 void CObjectListWindow::changeSelection(size_t which)
 {
 	ok->block(false);
-	if (selected == which)
+	if(selected == which)
 		return;
 
-	std::list< CIntObject * > elements = list->getItems();
-	for(CIntObject * element : elements)
+	for(std::shared_ptr<CIntObject> element : list->getItems())
 	{
-		CItem *item;
-		if ( (item = dynamic_cast<CItem*>(element)) )
+		CItem * item = dynamic_cast<CItem*>(element.get());
+		if(item)
 		{
-			if (item->index == selected)
+			if(item->index == selected)
 				item->select(false);
-			if (item->index == which)
+
+			if(item->index == which)
 				item->select(true);
 		}
 	}

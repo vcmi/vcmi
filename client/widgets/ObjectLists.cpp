@@ -14,37 +14,38 @@
 #include "Buttons.h"
 
 
-static void intDeleter(CIntObject* object)
+static void intDeleter(std::shared_ptr<CIntObject> object)
 {
-	delete object;
+//	if(object->active)
+//		object->deactivate();
 }
 
-CObjectList::CObjectList(CreateFunc create, DestroyFunc destroy):
-createObject(create),
-destroyObject(destroy)
+CObjectList::CObjectList(CreateFunc create, DestroyFunc destroy)
+	: createObject(create),
+	destroyObject(destroy)
 {
-	if (!destroyObject)
+	if(!destroyObject)
 		destroyObject = intDeleter;
 }
 
-void CObjectList::deleteItem(CIntObject* item)
+void CObjectList::deleteItem(std::shared_ptr<CIntObject> item)
 {
-	if (!item)
+	if(!item)
 		return;
-	removeChild(item);
+	removeChild(item.get());
 	destroyObject(item);
 }
 
-CIntObject * CObjectList::createItem(size_t index)
+std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	CIntObject * item = createObject(index);
-	if (item == nullptr)
-		item = new CIntObject();
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	std::shared_ptr<CIntObject> item = createObject(index);
+	if(!item)
+		item = std::make_shared<CIntObject>();
 
 	item->recActions = defActions;
 
-	addChild(item);
+	addChild(item.get());
 	return item;
 }
 
@@ -53,13 +54,14 @@ CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, s
 	activeTab(nullptr),
 	activeID(ActiveID)
 {
+	defActions = 255 | ~DISPOSE;
 	pos += position;
 	reset();
 }
 
 void CTabbedInt::setActive(size_t which)
 {
-	if (which != activeID)
+	if(which != activeID)
 	{
 		activeID = which;
 		reset();
@@ -76,26 +78,25 @@ void CTabbedInt::reset()
 		redraw();
 }
 
-CIntObject * CTabbedInt::getItem()
+std::shared_ptr<CIntObject> CTabbedInt::getItem()
 {
 	return activeTab;
 }
 
 CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
-				   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
-	CObjectList(create, destroy),
+		size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos)
+	: CObjectList(create, destroy),
 	first(InitialPos),
 	totalSize(TotalSize),
-	itemOffset(ItemOffset),
-    slider(nullptr)
+	itemOffset(ItemOffset)
 {
 	pos += Pos;
 	items.resize(VisibleSize, nullptr);
 
-	if (Slider & 1)
+	if(Slider & 1)
 	{
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
+		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+		slider = std::make_shared<CSlider>(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
 			VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
 	}
 	reset();
@@ -142,22 +143,22 @@ size_t CListBox::size()
 	return totalSize;
 }
 
-CIntObject * CListBox::getItem(size_t which)
+std::shared_ptr<CIntObject> CListBox::getItem(size_t which)
 {
-	if (which < first || which > first + items.size() || which > totalSize)
-		return nullptr;
+	if(which < first || which > first + items.size() || which > totalSize)
+		return std::shared_ptr<CIntObject>();
 
 	size_t i=first;
 	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
 		if( i == which)
 			return *iter;
-	return nullptr;
+	return std::shared_ptr<CIntObject>();
 }
 
-size_t CListBox::getIndexOf(CIntObject *item)
+size_t CListBox::getIndexOf(std::shared_ptr<CIntObject> item)
 {
 	size_t i=first;
-	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
+	for(auto iter = items.begin(); iter != items.end(); iter++, i++)
 		if(*iter == item)
 			return i;
 	return size_t(-1);
@@ -166,7 +167,7 @@ size_t CListBox::getIndexOf(CIntObject *item)
 void CListBox::scrollTo(size_t which)
 {
 	//scroll up
-	if (first > which)
+	if(first > which)
 		moveToPos(which);
 	//scroll down
 	else if (first + items.size() <= which && which < totalSize)
@@ -177,7 +178,7 @@ void CListBox::moveToPos(size_t which)
 {
 	//Calculate new position
 	size_t maxPossible;
-	if (totalSize > items.size())
+	if(totalSize > items.size())
 		maxPossible = totalSize - items.size();
 	else
 		maxPossible = 0;
@@ -185,11 +186,15 @@ void CListBox::moveToPos(size_t which)
 	size_t newPos = std::min(which, maxPossible);
 
 	//If move distance is 1 (most of calls from Slider) - use faster shifts instead of resetting all items
-	if (first - newPos == 1)
+	if(first - newPos == 1)
+	{
 		moveToPrev();
-	else if (newPos - first == 1)
+	}
+	else if(newPos - first == 1)
+	{
 		moveToNext();
-	else if (newPos != first)
+	}
+	else if(newPos != first)
 	{
 		first = newPos;
 		reset();
@@ -199,7 +204,7 @@ void CListBox::moveToPos(size_t which)
 void CListBox::moveToNext()
 {
 	//Remove front item and insert new one to end
-	if (first + items.size() < totalSize)
+	if(first + items.size() < totalSize)
 	{
 		first++;
 		deleteItem(items.front());
@@ -212,7 +217,7 @@ void CListBox::moveToNext()
 void CListBox::moveToPrev()
 {
 	//Remove last item and insert new one at start
-	if (first)
+	if(first)
 	{
 		first--;
 		deleteItem(items.back());
@@ -227,7 +232,7 @@ size_t CListBox::getPos()
 	return first;
 }
 
-const std::list<CIntObject *> &CListBox::getItems()
+const std::list<std::shared_ptr<CIntObject>> & CListBox::getItems()
 {
 	return items;
 }

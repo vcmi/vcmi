@@ -34,7 +34,7 @@ class CTextBox;
 class CList : public CIntObject
 {
 protected:
-	class CListItem : public CIntObject
+	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
 	{
 		CList * parent;
 		std::shared_ptr<CIntObject> selection;
@@ -79,8 +79,8 @@ protected:
 		  CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
 
 	//for selection\deselection
-	CListItem * selected;
-	void select(CListItem * which);
+	std::shared_ptr<CListItem> selected;
+	void select(std::shared_ptr<CListItem> which);
 	friend class CListItem;
 
 	std::shared_ptr<CButton> scrollUp;
@@ -133,7 +133,7 @@ class CHeroList	: public CList
 		std::string getHoverText() override;
 	};
 
-	CIntObject * createHeroItem(size_t index);
+	std::shared_ptr<CIntObject> createHeroItem(size_t index);
 public:
 	/**
 	 * @brief CHeroList
@@ -167,7 +167,7 @@ class CTownList	: public CList
 		std::string getHoverText() override;
 	};
 
-	CIntObject * createTownItem(size_t index);
+	std::shared_ptr<CIntObject> createTownItem(size_t index);
 public:
 	/**
 	 * @brief CTownList

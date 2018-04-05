@@ -167,7 +167,7 @@ class CStackWindow : public CWindowObject
 	si32 selectedSkill;
 
 	void setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon);
-	CIntObject * switchTab(size_t index);
+	std::shared_ptr<CIntObject> switchTab(size_t index);
 
 	void removeStackArtifact(ArtifactPosition pos);
 

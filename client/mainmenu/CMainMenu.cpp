@@ -98,12 +98,12 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	tabs->type |= REDRAW_PARENT;
 }
 
-CIntObject * CMenuScreen::createTab(size_t index)
+std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 {
 	if(config["items"].Vector().size() == index)
-		return new CreditsScreen();
-
-	return new CMenuEntry(this, config["items"].Vector()[index]);
+		return std::make_shared<CreditsScreen>();
+	else
+		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
 
 void CMenuScreen::show(SDL_Surface * to)

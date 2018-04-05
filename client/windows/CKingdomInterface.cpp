@@ -536,26 +536,29 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 		Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
-CIntObject * CKingdomInterface::createOwnedObject(size_t index)
+std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 {
 	if(index < objects.size())
 	{
 		OwnedObjectInfo & obj = objects[index];
 		std::string value = boost::lexical_cast<std::string>(obj.count);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
-		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
+		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
-	return nullptr;
+	return std::shared_ptr<CIntObject>();
 }
 
-CIntObject * CKingdomInterface::createMainTab(size_t index)
+std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 {
 	size_t size = conf.go()->ac.overviewSize;
-	switch (index)
+	switch(index)
 	{
-	case 0: return new CKingdHeroList(size);
-	case 1: return new CKingdTownList(size);
-	default:return nullptr;
+	case 0:
+		return std::make_shared<CKingdHeroList>(size);
+	case 1:
+		return std::make_shared<CKingdTownList>(size);
+	default:
+		return std::shared_ptr<CIntObject>();
 	}
 }
 
@@ -645,37 +648,37 @@ void CKingdomInterface::activateTab(size_t which)
 
 void CKingdomInterface::townChanged(const CGTownInstance *town)
 {
-	if (CKingdTownList * townList = dynamic_cast<CKingdTownList*>(tabArea->getItem()))
+	if(auto townList = std::dynamic_pointer_cast<CKingdTownList>(tabArea->getItem()))
 		townList->townChanged(town);
 }
 
 void CKingdomInterface::updateGarrisons()
 {
-	if (CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(tabArea->getItem()))
+	if(auto garrison = std::dynamic_pointer_cast<CGarrisonHolder>(tabArea->getItem()))
 		garrison->updateGarrisons();
 }
 
 void CKingdomInterface::artifactAssembled(const ArtifactLocation& artLoc)
 {
-	if (CArtifactHolder * arts = dynamic_cast<CArtifactHolder*>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
 		arts->artifactAssembled(artLoc);
 }
 
 void CKingdomInterface::artifactDisassembled(const ArtifactLocation& artLoc)
 {
-	if (CArtifactHolder * arts = dynamic_cast<CArtifactHolder*>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
 		arts->artifactDisassembled(artLoc);
 }
 
 void CKingdomInterface::artifactMoved(const ArtifactLocation& artLoc, const ArtifactLocation& destLoc)
 {
-	if (CArtifactHolder * arts = dynamic_cast<CArtifactHolder*>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
 		arts->artifactMoved(artLoc, destLoc);
 }
 
 void CKingdomInterface::artifactRemoved(const ArtifactLocation& artLoc)
 {
-	if (CArtifactHolder * arts = dynamic_cast<CArtifactHolder*>(tabArea->getItem()))
+	if(auto arts = std::dynamic_pointer_cast<CArtifactHolder>(tabArea->getItem()))
 		arts->artifactRemoved(artLoc);
 }
 
@@ -695,38 +698,36 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 void CKingdHeroList::updateGarrisons()
 {
-	std::list<CIntObject *> list = heroes->getItems();
-	for(CIntObject * object : list)
+	for(std::shared_ptr<CIntObject> object : heroes->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object))
+		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
 
-CIntObject * CKingdHeroList::createHeroItem(size_t index)
+std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 {
 	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
 
 	if(index < heroesCount)
 	{
-		auto hero = new CHeroItem(LOCPLINT->cb->getHeroBySerial(index, false));
+		auto hero = std::make_shared<CHeroItem>(LOCPLINT->cb->getHeroBySerial(index, false));
 		artSets.push_back(hero->heroArts.get());
 		return hero;
 	}
 	else
 	{
-		return new CAnimImage("OVSLOT", (index-2) % picCount );
+		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
 	}
 }
 
-void CKingdHeroList::destroyHeroItem(CIntObject * object)
+void CKingdHeroList::destroyHeroItem(std::shared_ptr<CIntObject> object)
 {
-	if(CHeroItem * hero = dynamic_cast<CHeroItem *>(object))
+	if(CHeroItem * hero = dynamic_cast<CHeroItem *>(object.get()))
 	{
 		artSets.erase(std::find(artSets.begin(), artSets.end(), hero->heroArts.get()));
 	}
-	delete object;
 }
 
 CKingdTownList::CKingdTownList(size_t maxSize)
@@ -746,10 +747,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 void CKingdTownList::townChanged(const CGTownInstance * town)
 {
-	std::list<CIntObject *> list = towns->getItems();
-	for(CIntObject * object : list)
+	for(std::shared_ptr<CIntObject> object : towns->getItems())
 	{
-		CTownItem * townItem = dynamic_cast<CTownItem *>(object);
+		CTownItem * townItem = dynamic_cast<CTownItem *>(object.get());
 		if(townItem && townItem->town == town)
 			townItem->update();
 	}
@@ -757,23 +757,22 @@ void CKingdTownList::townChanged(const CGTownInstance * town)
 
 void CKingdTownList::updateGarrisons()
 {
-	std::list<CIntObject *> list = towns->getItems();
-	for(CIntObject * object : list)
+	for(std::shared_ptr<CIntObject> object : towns->getItems())
 	{
-		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object))
+		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
 
-CIntObject * CKingdTownList::createTownItem(size_t index)
+std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 {
 	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t townsCount = LOCPLINT->cb->howManyTowns();
 
 	if(index < townsCount)
-		return new CTownItem(LOCPLINT->cb->getTownBySerial(index));
+		return std::make_shared<CTownItem>(LOCPLINT->cb->getTownBySerial(index));
 	else
-		return new CAnimImage("OVSLOT", (index-2) % picCount );
+		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
 }
 
 CTownItem::CTownItem(const CGTownInstance * Town)
@@ -978,14 +977,14 @@ void CHeroItem::updateGarrisons()
 	garr->recreateSlots();
 }
 
-CIntObject * CHeroItem::onTabSelected(size_t index)
+std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
 {
-	return artTabs[index].get();
+	return artTabs[index];
 }
 
-void CHeroItem::onTabDeselected(CIntObject * object)
+void CHeroItem::onTabDeselected(std::shared_ptr<CIntObject> object)
 {
-	addChild(object, false);
+	addChild(object.get(), false);
 	object->deactivate();
 	object->recActions = SHARE_POS;
 }

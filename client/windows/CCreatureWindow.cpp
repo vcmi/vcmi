@@ -257,13 +257,12 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	pos.w = owner->pos.w;
 	pos.h = itemHeight * visibleSize;
 
-	auto onCreate = [=](size_t index) -> CIntObject *
+	auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
 	{
-		return new BonusLineSection(owner, index);
+		return std::make_shared<BonusLineSection>(owner, index);
 	};
-	auto onDestroy = [=](CIntObject * obj)
+	auto onDestroy = [=](std::shared_ptr<CIntObject> obj)
 	{
-		delete obj;
 	};
 	lines = std::make_shared<CListBox>(onCreate, onDestroy, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, 1, Rect(pos.w - 15, 0, pos.h, pos.h));
 }
@@ -427,7 +426,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return skillID >= 100;
 		});
 
-		auto onCreate = [=](int index)->CIntObject *
+		auto onCreate = [=](int index)->std::shared_ptr<CIntObject>
 		{
 			for(auto skillID : parent->info->levelupInfo->skills)
 			{
@@ -445,7 +444,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 					abilityIcons[skillID] = icon;
 
-					return icon.get();
+					return icon;
 				}
 				if(skillID >= 100)
 					index--;
@@ -453,7 +452,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return nullptr;
 		};
 
-		auto onRemove = [=](CIntObject * elem)
+		auto onRemove = [=](std::shared_ptr<CIntObject> elem)
 		{
 			//todo:deactivate?
 		};
@@ -815,7 +814,7 @@ void CStackWindow::initSections()
 
 	if(info->commander)
 	{
-		auto onCreate = [=](size_t index) -> CIntObject *
+		auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
 		{
 			auto obj = switchTab(index);
 
@@ -827,18 +826,17 @@ void CStackWindow::initSections()
 			return obj;
 		};
 
-		auto deactivateObj = [=](CIntObject * obj)
+		auto deactivateObj = [=](std::shared_ptr<CIntObject> obj)
 		{
 			obj->deactivate();
 			obj->recActions &= ~(UPDATE | SHOWALL);
 		};
 
 		commanderMainSection = std::make_shared<CommanderMainSection>(this, 0);
-//		deactivateObj(commanderMainSection.get());
 
 		auto size = boost::make_optional<size_t>((info->levelupInfo) ? 4 : 3);
 		commanderBonusesSection = std::make_shared<BonusesSection>(this, 0, size);
-		deactivateObj(commanderBonusesSection.get());
+		deactivateObj(commanderBonusesSection);
 
 		commanderTab = std::make_shared<CTabbedInt>(onCreate, deactivateObj, Point(0, pos.h), 0);
 
@@ -941,21 +939,21 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 	}
 }
 
-CIntObject * CStackWindow::switchTab(size_t index)
+std::shared_ptr<CIntObject> CStackWindow::switchTab(size_t index)
 {
-	CIntObject * ret = nullptr;
+	std::shared_ptr<CIntObject> ret;
 	switch(index)
 	{
 	case 0:
 		{
 			activeTab = 0;
-			ret = commanderMainSection.get();
+			ret = commanderMainSection;
 		}
 		break;
 	case 1:
 		{
 			activeTab = 1;
-			ret = commanderBonusesSection.get();
+			ret = commanderBonusesSection;
 		}
 		break;
 	default:
