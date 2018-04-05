@@ -89,6 +89,12 @@ public:
 	/** green color used for in-game console */
 	static const SDL_Color GREEN;
 
+	/** the h3 orange color, used for blocked buttons */
+	static const SDL_Color ORANGE;
+
+	/** the h3 bright yellow color, used for selection border */
+	static const SDL_Color BRIGHT_YELLOW;
+
 	/** default key color for all 8 & 24 bit graphics */
 	static const SDL_Color DEFAULT_KEY_COLOR;
 };

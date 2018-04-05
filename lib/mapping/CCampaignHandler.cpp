@@ -23,8 +23,12 @@
 #include "../CHeroHandler.h"
 #include "CMapService.h"
 #include "CMap.h"
+#include "CMapInfo.h"
 
-namespace fs = boost::filesystem;
+// For hero crossover
+#include "serializer/CSerializer.h"
+#include "serializer/JsonDeserializer.h"
+#include "serializer/JsonSerializer.h"
 
 CCampaignHeader::CCampaignHeader()
 	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
@@ -373,25 +377,42 @@ bool CCampaignScenario::isNotVoid() const
 	return mapName.size() > 0;
 }
 
-const CGHeroInstance * CCampaignScenario::strongestHero( PlayerColor owner ) const
+const CGHeroInstance * CCampaignScenario::strongestHero(PlayerColor owner)
 {
-	using boost::adaptors::filtered;
-	std::function<bool(CGHeroInstance*)> isOwned =  [=](const CGHeroInstance *h){ return h->tempOwner == owner; };
-	auto ownedHeroes = crossoverHeroes | filtered(isOwned);
+	std::function<bool(JsonNode & node)> isOwned = [owner](JsonNode & node)
+	{
+		auto h = CCampaignState::crossoverDeserialize(node);
+		bool result = h->tempOwner == owner;
+		vstd::clear_pointer(h);
+		return result;
+	};
+	auto ownedHeroes = crossoverHeroes | boost::adaptors::filtered(isOwned);
 
-	auto i = vstd::maxElementByFun(ownedHeroes,
-									[](const CGHeroInstance * h) {return h->getHeroStrength();});
-	return i == ownedHeroes.end() ? nullptr : *i;
+	auto i = vstd::maxElementByFun(ownedHeroes, [](JsonNode & node)
+	{
+		auto h = CCampaignState::crossoverDeserialize(node);
+		double result = h->getHeroStrength();
+		vstd::clear_pointer(h);
+		return result;
+	});
+	return i == ownedHeroes.end() ? nullptr : CCampaignState::crossoverDeserialize(*i);
 }
 
-std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
+std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 {
 	std::vector<CGHeroInstance *> lostCrossoverHeroes;
 	if(conquered)
 	{
-		for(auto hero : placedCrossoverHeroes)
+		for(auto node2 : placedCrossoverHeroes)
 		{
-			auto it = range::find_if(crossoverHeroes, CGObjectInstanceBySubIdFinder(hero));
+			auto hero = CCampaignState::crossoverDeserialize(node2);
+			auto it = range::find_if(crossoverHeroes, [hero](JsonNode node)
+			{
+				auto h = CCampaignState::crossoverDeserialize(node);
+				bool result = hero->subID == h->subID;
+				vstd::clear_pointer(h);
+				return result;
+			});
 			if(it == crossoverHeroes.end())
 			{
 				lostCrossoverHeroes.push_back(hero);
@@ -401,9 +422,25 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes() const
 	return lostCrossoverHeroes;
 }
 
-void CCampaignState::setCurrentMapAsConquered( const std::vector<CGHeroInstance*> & heroes )
+std::vector<JsonNode> CCampaignScenario::update787(std::vector<CGHeroInstance *> & heroes)
 {
-	camp->scenarios[*currentMap].crossoverHeroes = heroes;
+	static_assert(MINIMAL_SERIALIZATION_VERSION < 787, "No longer needed CCampaignScenario::update787");
+	std::vector<JsonNode> heroesNew;
+	for(auto hero : heroes)
+	{
+		heroesNew.push_back(CCampaignState::crossoverSerialize(hero));
+	}
+	return heroesNew;
+}
+
+void CCampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
+{
+	camp->scenarios[*currentMap].crossoverHeroes.clear();
+	for(CGHeroInstance * hero : heroes)
+	{
+		camp->scenarios[*currentMap].crossoverHeroes.push_back(crossoverSerialize(hero));
+	}
+
 	mapsConquered.push_back(*currentMap);
 	mapsRemaining -= *currentMap;
 	camp->scenarios[*currentMap].conquered = true;
@@ -447,6 +484,63 @@ CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::m
 		if(vstd::contains(camp->mapPieces, i)) //not all maps must be present in a campaign
 			mapsRemaining.push_back(i);
 	}
+}
+
+CMap * CCampaignState::getMap(int scenarioId) const
+{
+	// FIXME: there is certainly better way to handle maps inside campaigns
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	boost::to_lower(scenarioName);
+	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	CMapService mapService;
+	return mapService.loadMap(buffer, mapContent.size(), scenarioName).release();
+}
+
+std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
+{
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+
+	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	boost::to_lower(scenarioName);
+	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	CMapService mapService;
+	return mapService.loadMapHeader(buffer, mapContent.size(), scenarioName);
+}
+
+std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
+{
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+
+	auto mapInfo = std::make_shared<CMapInfo>();
+	mapInfo->fileURI = camp->header.filename;
+	mapInfo->mapHeader = getHeader(scenarioId);
+	mapInfo->countPlayers();
+	return mapInfo;
+}
+
+JsonNode CCampaignState::crossoverSerialize(CGHeroInstance * hero)
+{
+	JsonNode node;
+	JsonSerializer handler(nullptr, node);
+	hero->serializeJsonOptions(handler);
+	return node;
+}
+
+CGHeroInstance * CCampaignState::crossoverDeserialize(JsonNode & node)
+{
+	JsonDeserializer handler(nullptr, node);
+	auto hero = new CGHeroInstance();
+	hero->ID = Obj::HERO;
+	hero->serializeJsonOptions(handler);
+	return hero;
 }
 
 std::string CCampaignHandler::prologVideoName(ui8 index)

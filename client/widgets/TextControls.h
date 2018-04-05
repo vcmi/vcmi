@@ -47,7 +47,10 @@ public:
 	bool autoRedraw;  //whether control will redraw itself on setTxt
 
 	std::string getText();
+	virtual void setAutoRedraw(bool option);
 	virtual void setText(const std::string &Txt);
+	virtual void setColor(const SDL_Color & Color);
+	size_t getWidth();
 
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
 	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
@@ -64,6 +67,7 @@ class CLabelGroup : public CIntObject
 public:
 	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
 	void add(int x=0, int y=0, const std::string &text =  "");
+	size_t currentSize() const;
 };
 
 /// Multi-line label that can display multiple lines of text

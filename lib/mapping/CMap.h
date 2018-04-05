@@ -288,10 +288,11 @@ class DLL_LINKAGE CMapHeader
 {
 	void setupEvents();
 public:
-	static const int MAP_SIZE_SMALL;
-	static const int MAP_SIZE_MIDDLE;
-	static const int MAP_SIZE_LARGE;
-	static const int MAP_SIZE_XLARGE;
+
+	static const int MAP_SIZE_SMALL = 36;
+	static const int MAP_SIZE_MIDDLE = 72;
+	static const int MAP_SIZE_LARGE = 108;
+	static const int MAP_SIZE_XLARGE = 144;
 
 	CMapHeader();
 	virtual ~CMapHeader();
@@ -381,6 +382,8 @@ public:
 
 	/// Sets the victory/loss condition objectives ??
 	void checkForObjectives();
+
+	void resetStaticData();
 
 	ui32 checksum;
 	std::vector<Rumor> rumors;

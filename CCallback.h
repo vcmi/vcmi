@@ -78,12 +78,12 @@ public:
 	virtual void buildBoat(const IShipyard *obj) = 0;
 };
 
-struct CPack;
+struct CPackForServer;
 
 class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
 {
 protected:
-	int sendRequest(const CPack *request); //returns requestID (that'll be matched to requestID in PackageApplied)
+	int sendRequest(const CPackForServer * request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 
 public:
@@ -95,6 +95,7 @@ public:
 	friend class CClient;
 };
 
+class CPlayerInterface;
 class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
 {
 public:
@@ -113,8 +114,6 @@ public:
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 	void unregisterGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents);
 	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
-
-	void unregisterAllInterfaces(); //stops delivering information about game events to player interfaces -> can be called ONLY after victory/loss
 
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst, bool transit = false) override; //dst must be free, neighbouring tile (this function can move hero only by one tile)

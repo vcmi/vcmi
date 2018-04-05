@@ -44,9 +44,9 @@ public:
 		IObjectInterface::cb = nullptr;
 	}
 
-	void sendAndApply(CPackForClient * info) const override
+	void sendAndApply(CPackForClient * pack) const override
 	{
-		gameState->apply(info);
+		gameState->apply(pack);
 	}
 
 	void complain(const std::string & problem) const
@@ -108,7 +108,7 @@ public:
 
 			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
 			pset.color = PlayerColor(i);
-			pset.playerID = i;
+			pset.connectedPlayerIDs.insert(i);
 			pset.name = "Player";
 
 			pset.castle = pinfo.defaultCastle();

@@ -20,6 +20,11 @@ GENERAL:
 - BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
 - DESTRUCTION - creature ability for killing extra units after hit, configurable
 
+MULTIPLAYER:
+* Loading support. Save from single client could be used to load all clients.
+* Restart support. All clients will restart together on same server.
+* Hotseat mixed with network game. Multiple colors can be controlled by each client.
+
 SPELLS:
 * Implemented cumulative effects for spells
 

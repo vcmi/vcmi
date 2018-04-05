@@ -21,10 +21,10 @@
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CPreGame.h"
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 #include "../mapHandler.h"
+#include "../CServerHandler.h"
 
 #include "../battle/CBattleInterfaceClasses.h"
 #include "../battle/CBattleInterface.h"
@@ -37,6 +37,8 @@
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 #include "../windows/InfoWindows.h"
+
+#include "../lobby/CSavingScreen.h"
 
 #include "../../CCallback.h"
 
@@ -487,6 +489,13 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	restart = new CButton (Point(246, 357), "SORSTRT", CGI->generaltexth->zelp[323], [&](){ brestartf(); }, SDLK_r);
 	restart->setImageOrder(1, 0, 2, 3);
 
+	if(CSH->isGuest())
+	{
+		load->block(true);
+		save->block(true);
+		restart->block(true);
+	}
+
 	mainMenu = new CButton (Point(357, 357), "SOMAIN.DEF", CGI->generaltexth->zelp[320], [&](){ bmainmenuf(); }, SDLK_m);
 	mainMenu->setImageOrder(1, 0, 2, 3);
 
@@ -593,7 +602,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -603,7 +612,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -615,12 +624,12 @@ void CSystemOptionsWindow::bloadf()
 void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
-	GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
+	GH.pushInt(new CSavingScreen());
 }
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
 }
 
 void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)

@@ -184,11 +184,6 @@ bool TerrainTile::isWater() const
 	return terType == ETerrainType::WATER;
 }
 
-const int CMapHeader::MAP_SIZE_SMALL = 36;
-const int CMapHeader::MAP_SIZE_MIDDLE = 72;
-const int CMapHeader::MAP_SIZE_LARGE = 108;
-const int CMapHeader::MAP_SIZE_XLARGE = 144;
-
 void CMapHeader::setupEvents()
 {
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
@@ -269,6 +264,8 @@ CMap::~CMap()
 
 	for(auto quest : quests)
 		quest.dellNull();
+
+	resetStaticData();
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
@@ -646,4 +643,12 @@ CMapEditManager * CMap::getEditManager()
 {
 	if(!editManager) editManager = make_unique<CMapEditManager>(this);
 	return editManager.get();
+}
+
+void CMap::resetStaticData()
+{
+	CGKeys::reset();
+	CGMagi::reset();
+	CGObelisk::reset();
+	CGTownInstance::reset();
 }

@@ -46,6 +46,18 @@
 				"saveRandomMaps" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"lastMap" : {
+					"type":"string",
+					"default" : "Maps/Arrogance"
+				},
+				"lastSave" : {
+					"type":"string",
+					"default" : "NEWGAME"
+				},
+				"lastCampaign" : {
+					"type":"string",
+					"default" : ""
 				}
 			}
 		},

@@ -86,7 +86,7 @@ public:
 
 	///useful callback methods
 	void commitPackage(CPackForClient * pack) override;
-	void sendAndApply(CPackForClient * info) override;
+	void sendAndApply(CPackForClient * pack) override;
 private:
 	const UpperCallback * upperCallback;
 };

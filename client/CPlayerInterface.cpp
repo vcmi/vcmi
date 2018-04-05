@@ -49,13 +49,16 @@
 #include "mapHandler.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/StartInfo.h"
-#include "../lib/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
+#include "../lib/CPathfinder.h"
 #include <SDL.h>
+#include "CServerHandler.h"
+// FIXME: only needed for CGameState::mutex
+#include "../lib/CGameState.h"
 
 
 // The macro below is used to mark functions that are called by client when game state changes.
@@ -90,8 +93,6 @@ CBattleInterface * CPlayerInterface::battleInt;
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
 
-int CPlayerInterface::howManyPeople = 0;
-
 static bool objectBlitOrderSorter(const TerrainTileObject  & a, const TerrainTileObject & b)
 {
 	return CMapHandler::compareObjectBlitOrder(a.obj, b.obj);
@@ -114,7 +115,6 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 	logGlobal->trace("\tHuman player interface for player %s being constructed", Player.getStr());
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
-	howManyPeople++;
 	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	curAction = nullptr;
@@ -139,7 +139,6 @@ CPlayerInterface::~CPlayerInterface()
 {
 	CCS->soundh->ambientStopAllChannels();
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
-	//howManyPeople--;
 	delete showingDialog;
 	delete cingconsole;
 	if (LOCPLINT == this)
@@ -148,9 +147,7 @@ CPlayerInterface::~CPlayerInterface()
 void CPlayerInterface::init(std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
-
-	if (!towns.size() && !wanderingHeroes.size())
-		initializeHeroTownList();
+	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
 	if (adventureInt)
@@ -170,7 +167,7 @@ void CPlayerInterface::yourTurn()
 		std::string prefix = settings["session"]["saveprefix"].String();
 		if (firstCall)
 		{
-			if (howManyPeople == 1)
+			if(CSH->howManyPlayerInterfaces() == 1)
 				adventureInt->setPlayer(playerID);
 
 			autosaveCount = getLastIndex(prefix + "Autosave_");
@@ -192,7 +189,7 @@ void CPlayerInterface::yourTurn()
 		if (adventureInt->player != playerID)
 			adventureInt->setPlayer(playerID);
 
-		if (howManyPeople > 1) //hot seat message
+		if (CSH->howManyPlayerInterfaces() > 1) //hot seat message
 		{
 			adventureInt->startHotSeatWait(playerID);
 
@@ -1581,45 +1578,20 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 void CPlayerInterface::initializeHeroTownList()
 {
-	std::vector<const CGHeroInstance*> allHeroes = cb->getHeroesInfo();
-	/*
-	std::vector <const CGHeroInstance *> newWanderingHeroes;
-
-	//applying current heroes order to new heroes info
-	int j;
-	for (int i = 0; i < wanderingHeroes.size(); i++)
-		if ((j = vstd::find_pos(allHeroes, wanderingHeroes[i])) >= 0)
-			if (!allHeroes[j]->inTownGarrison)
-			{
-				newWanderingHeroes += allHeroes[j];
-				allHeroes -= allHeroes[j];
-			}
-	//all the rest of new heroes go the end of the list
-	wanderingHeroes.clear();
-	wanderingHeroes = newWanderingHeroes;
-	newWanderingHeroes.clear();*/
-
-	for (auto & allHeroe : allHeroes)
-		if (!allHeroe->inTownGarrison)
-			wanderingHeroes.push_back(allHeroe);
-
-	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
-	/*
-	std::vector<const CGTownInstance*> newTowns;
-	for (int i = 0; i < towns.size(); i++)
-		if ((j = vstd::find_pos(allTowns, towns[i])) >= 0)
+	if(!wanderingHeroes.size())
+	{
+		std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
+		for(auto & hero : heroes)
 		{
-			newTowns += allTowns[j];
-			allTowns -= allTowns[j];
+			if(!hero->inTownGarrison)
+				wanderingHeroes.push_back(hero);
 		}
+	}
 
-	towns.clear();
-	towns = newTowns;
-	newTowns.clear();*/
-	for (auto & allTown : allTowns)
-		towns.push_back(allTown);
+	if(!towns.size())
+		towns = cb->getTownsInfo();
 
-	if (adventureInt)
+	if(adventureInt)
 		adventureInt->updateNextHero(nullptr);
 }
 
@@ -1728,7 +1700,7 @@ void CPlayerInterface::update()
 		return;
 
 	//if there are any waiting dialogs, show them
-	if ((howManyPeople <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
+	if ((CSH->howManyPlayerInterfaces() <= 1 || makingTurn) && !dialogs.empty() && !showingDialog->get())
 	{
 		showingDialog->set(true);
 		GH.pushInt(dialogs.front());
@@ -2227,37 +2199,27 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 			waitForAllDialogs(); //wait till all dialogs are displayed and closed
 		}
 
-		--howManyPeople;
-
-		if(howManyPeople == 0 && !settings["session"]["spectate"].Bool()) //all human players eliminated
+		if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool()) //all human players eliminated
 		{
-			if (adventureInt)
+			if(adventureInt)
 			{
 				GH.terminate_cond->setn(true);
 				adventureInt->deactivate();
 				if (GH.topInt() == adventureInt)
 					GH.popInt(adventureInt);
-				delete adventureInt;
-				adventureInt = nullptr;
+				vstd::clear_pointer(adventureInt);
 			}
 		}
 
-		if (cb->getStartInfo()->mode == StartInfo::CAMPAIGN)
+		if (victoryLossCheckResult.victory() && LOCPLINT == this)
 		{
-			// if you lose the campaign go back to the main menu
-			// campaign wins are handled in proposeNextMission
-			if (victoryLossCheckResult.loss()) requestReturningToMainMenu();
+			// end game if current human player has won
+			requestReturningToMainMenu(true);
 		}
-		else
+		else if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool())
 		{
-			if(howManyPeople == 0 && !settings["session"]["spectate"].Bool()) //all human players eliminated
-			{
-				requestReturningToMainMenu();
-			}
-			else if (victoryLossCheckResult.victory() && LOCPLINT == this) // end game if current human player has won
-			{
-				requestReturningToMainMenu();
-			}
+			//all human players eliminated
+			requestReturningToMainMenu(false);
 		}
 
 		if (GH.curInt == this) GH.curInt = nullptr;
@@ -2378,7 +2340,7 @@ void CPlayerInterface::acceptTurn()
 	}
 	waitWhileDialog();
 
-	if (howManyPeople > 1)
+	if(CSH->howManyPlayerInterfaces() > 1)
 		adventureInt->startTurn();
 
 	adventureInt->heroList.update();
@@ -2573,11 +2535,14 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 		showShipyardDialog(obj);
 }
 
-void CPlayerInterface::requestReturningToMainMenu()
+void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
-	sendCustomEvent(RETURN_TO_MAIN_MENU);
+	CSH->state = EClientState::DISCONNECTING;
 	CCS->soundh->ambientStopAllChannels();
-	cb->unregisterAllInterfaces();
+	if(won && cb->getStartInfo()->campState)
+		CSH->startCampaignScenario(cb->getStartInfo()->campState);
+	else
+		sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 }
 
 void CPlayerInterface::sendCustomEvent( int code )
@@ -2672,7 +2637,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 			GH.popInts(1);
 	}
 
-	if (howManyPeople == 1)
+	if(CSH->howManyPlayerInterfaces() == 1)
 	{
 		GH.curInt = this;
 		adventureInt->startTurn();
@@ -2696,7 +2661,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, 0, false);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
