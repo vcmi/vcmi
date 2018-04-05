@@ -9,9 +9,6 @@
  */
 #include "StdInc.h"
 
-#if BOOST_VERSION >= 106600
-#define BOOST_ASIO_ENABLE_OLD_SERVICES
-#endif
 #include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"

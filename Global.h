@@ -172,6 +172,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #if defined(_MSC_VER) && (_MSC_VER == 1900 || _MSC_VER == 1910 || _MSC_VER == 1911)
 #define BOOST_NO_CXX11_VARIADIC_TEMPLATES //Variadic templates are buggy in VS2015 and VS2017, so turn this off to avoid compile errors
 #endif
+#if BOOST_VERSION >= 106600
+#define BOOST_ASIO_ENABLE_OLD_SERVICES
+#endif
 
 #include <boost/algorithm/string.hpp>
 #include <boost/any.hpp>
