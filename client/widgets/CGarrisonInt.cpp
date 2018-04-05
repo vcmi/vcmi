@@ -172,8 +172,12 @@ bool CGarrisonSlot::highlightOrDropArtifact()
 	bool artSelected = false;
 	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt())) //dirty solution
 	{
-		const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = chw->artSets.front()->commonInfo;
-		if (const CArtifactInstance *art = commonInfo->src.art)
+		const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = chw->getCommonPart();
+		const CArtifactInstance * art = nullptr;
+		if(commonInfo)
+			art = commonInfo->src.art;
+
+		if(art)
 		{
 			const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 			artSelected = true;

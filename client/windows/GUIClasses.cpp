@@ -858,8 +858,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	artifs[1]->commonInfo->participants.insert(artifs[1].get());
 	artifs[1]->setHero(heroInst[1]);
 
-	artSets.push_back(artifs[0].get());
-	artSets.push_back(artifs[1].get());
+	addSet(artifs[0]);
+	addSet(artifs[1]);
 
 	for(int g=0; g<4; ++g)
 	{
@@ -1805,7 +1805,7 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		titleWidget->pos.x = pos.w/2 + pos.x - titleWidget->pos.w/2;
 		titleWidget->pos.y =75 + pos.y - titleWidget->pos.h/2;
 	}
-	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
+	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
 		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->type |= REDRAW_PARENT;
 }

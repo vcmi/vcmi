@@ -46,7 +46,7 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
-	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->artSets.size() ? cww->artSets.front()->commonInfo : nullptr;
+	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
 	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
 		bonusesFromPickedUpArtifact = cp->src.art->getAllBonuses(selector, limit, hero);
 	else
@@ -245,7 +245,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 		{
 			arts = std::make_shared<CArtifactsOfHero>(Point(-65, -8), true);
 			arts->setHero(curHero);
-			artSets.push_back(arts.get());
+			addSet(arts);
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
@@ -351,9 +351,8 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::commanderWindow()
 {
-	//TODO: allow equipping commander artifacts by drag / drop
 	//bool artSelected = false;
-	const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = artSets.front()->commonInfo;
+	const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = getCommonPart();
 
 	if(const CArtifactInstance *art = commonInfo->src.art)
 	{

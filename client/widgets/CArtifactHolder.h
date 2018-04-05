@@ -28,17 +28,6 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &artLoc)=0;
 };
 
-class CWindowWithArtifacts : public CArtifactHolder
-{
-public:
-	std::vector<CArtifactsOfHero *> artSets;
-
-	void artifactRemoved(const ArtifactLocation &artLoc) override;
-	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
-	void artifactDisassembled(const ArtifactLocation &artLoc) override;
-	void artifactAssembled(const ArtifactLocation &artLoc) override;
-};
-
 class CArtPlace : public LRClickableAreaWTextComp
 {
 protected:
@@ -183,4 +172,18 @@ private:
 
 	void eraseSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
 	void setSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
+};
+
+class CWindowWithArtifacts : public CArtifactHolder
+{
+	std::vector<std::weak_ptr<CArtifactsOfHero>> artSets;
+public:
+	void addSet(std::shared_ptr<CArtifactsOfHero> artSet);
+
+	std::shared_ptr<CArtifactsOfHero::SCommonPart> getCommonPart();
+
+	void artifactRemoved(const ArtifactLocation &artLoc) override;
+	void artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc) override;
+	void artifactDisassembled(const ArtifactLocation &artLoc) override;
+	void artifactAssembled(const ArtifactLocation &artLoc) override;
 };

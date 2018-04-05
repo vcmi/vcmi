@@ -473,7 +473,7 @@ CKingdomInterface::CKingdomInterface()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
-	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
+	tabArea = std::make_shared<CTabbedInt>(std::bind(&CKingdomInterface::createMainTab, this, _1), Point(4,4));
 
 	std::vector<const CGObjectInstance * > ownedObjects = LOCPLINT->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
@@ -532,7 +532,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	{
 		objects.push_back(element.second);
 	}
-	dwellingsList = std::make_shared<CListBox>(std::bind(&CKingdomInterface::createOwnedObject, this, _1), CListBox::DestroyFunc(),
+	dwellingsList = std::make_shared<CListBox>(std::bind(&CKingdomInterface::createOwnedObject, this, _1),
 		Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
@@ -692,7 +692,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	heroes = std::make_shared<CListBox>(std::bind(&CKingdHeroList::createHeroItem, this, _1), std::bind(&CKingdHeroList::destroyHeroItem, this, _1),
+	heroes = std::make_shared<CListBox>(std::bind(&CKingdHeroList::createHeroItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
 
@@ -713,20 +713,12 @@ std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 	if(index < heroesCount)
 	{
 		auto hero = std::make_shared<CHeroItem>(LOCPLINT->cb->getHeroBySerial(index, false));
-		artSets.push_back(hero->heroArts.get());
+		addSet(hero->heroArts);
 		return hero;
 	}
 	else
 	{
 		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
-	}
-}
-
-void CKingdHeroList::destroyHeroItem(std::shared_ptr<CIntObject> object)
-{
-	if(CHeroItem * hero = dynamic_cast<CHeroItem *>(object.get()))
-	{
-		artSets.erase(std::find(artSets.begin(), artSets.end(), hero->heroArts.get()));
 	}
 }
 
@@ -741,7 +733,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
-	towns = std::make_shared<CListBox>(std::bind(&CKingdTownList::createTownItem, this, _1), CListBox::DestroyFunc(),
+	towns = std::make_shared<CListBox>(std::bind(&CKingdTownList::createTownItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
 }
 
@@ -909,7 +901,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	heroArts = std::make_shared<CArtifactsOfHero>(arts, backpack->arts, backpack->btnLeft, backpack->btnRight, true);
 	heroArts->setHero(hero);
 
-	artsTabs = std::make_shared<CTabbedInt>(std::bind(&CHeroItem::onTabSelected, this, _1), std::bind(&CHeroItem::onTabDeselected, this, _1));
+	artsTabs = std::make_shared<CTabbedInt>(std::bind(&CHeroItem::onTabSelected, this, _1));
 
 	artButtons = std::make_shared<CToggleGroup>(0);
 	for(size_t it = 0; it<3; it++)
@@ -967,10 +959,6 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	luck->set(hero);
 }
 
-CHeroItem::~CHeroItem()
-{
-	artTabs.clear(); //TODO: remove this hack
-}
 
 void CHeroItem::updateGarrisons()
 {
@@ -979,14 +967,7 @@ void CHeroItem::updateGarrisons()
 
 std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
 {
-	return artTabs[index];
-}
-
-void CHeroItem::onTabDeselected(std::shared_ptr<CIntObject> object)
-{
-	addChild(object.get(), false);
-	object->deactivate();
-	object->recActions = SHARE_POS;
+	return artTabs.at(index);
 }
 
 void CHeroItem::onArtChange(int tabIndex)

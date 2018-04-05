@@ -307,7 +307,6 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 	void onArtChange(int tabIndex);
 
 	std::shared_ptr<CIntObject> onTabSelected(size_t index);
-	void onTabDeselected(std::shared_ptr<CIntObject> object);
 
 public:
  	std::shared_ptr<CArtifactsOfHero> heroArts;
@@ -315,7 +314,6 @@ public:
 	void updateGarrisons() override;
 
 	CHeroItem(const CGHeroInstance * hero);
-	~CHeroItem();
 };
 
 /// Tab with all hero-specific data
@@ -328,7 +326,6 @@ private:
 	std::shared_ptr<CLabel> skillsLabel;
 
 	std::shared_ptr<CIntObject> createHeroItem(size_t index);
-	void destroyHeroItem(std::shared_ptr<CIntObject> item);
 public:
 	CKingdHeroList(size_t maxSize);
 

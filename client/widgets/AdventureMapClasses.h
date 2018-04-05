@@ -75,8 +75,7 @@ protected:
 	 * @param create - function for creating items in listbox
 	 * @param destroy - function for deleting items in listbox
 	 */
-	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown,
-		  CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
+	CList(int size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create);
 
 	//for selection\deselection
 	std::shared_ptr<CListItem> selected;

@@ -48,8 +48,8 @@
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/StringConstants.h"
 
-CList::CListItem::CListItem(CList * Parent):
-	CIntObject(LCLICK | RCLICK | HOVER),
+CList::CListItem::CListItem(CList * Parent)
+	: CIntObject(LCLICK | RCLICK | HOVER),
 	parent(Parent),
 	selection()
 {
@@ -101,9 +101,8 @@ void CList::CListItem::onSelect(bool on)
 	GH.totalRedraw();
 }
 
-CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount,
-			 int helpUp, int helpDown, CListBox::CreateFunc create, CListBox::DestroyFunc destroy):
-	CIntObject(0, position),
+CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create)
+	: CIntObject(0, position),
 	size(Size),
 	selected(nullptr)
 {
@@ -111,7 +110,7 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
 	scrollUp = std::make_shared<CButton>(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
 	scrollDown = std::make_shared<CButton>(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown]);
 
-	listBox = std::make_shared<CListBox>(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
+	listBox = std::make_shared<CListBox>(create, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
 	//assign callback only after list was created
 	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));

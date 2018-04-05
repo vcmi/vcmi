@@ -23,18 +23,16 @@ class CObjectList : public CIntObject
 {
 public:
 	typedef std::function<std::shared_ptr<CIntObject>(size_t)> CreateFunc;
-	typedef std::function<void(std::shared_ptr<CIntObject>)> DestroyFunc;
 
 private:
 	CreateFunc createObject;
-	DestroyFunc destroyObject;
 
 protected:
 	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
 	void deleteItem(std::shared_ptr<CIntObject> item);
 	std::shared_ptr<CIntObject> createItem(size_t index);
 
-	CObjectList(CreateFunc create, DestroyFunc destroy = DestroyFunc());//Protected constructor
+	CObjectList(CreateFunc create);
 };
 
 /// Window element with multiple tabs
@@ -48,7 +46,7 @@ public:
 	//CreateFunc, DestroyFunc - see CObjectList
 	//Pos - position of object, all tabs will be moved to this position
 	//ActiveID - ID of initially active tab
-	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
+	CTabbedInt(CreateFunc create, Point position=Point(), size_t ActiveID=0);
 
 	void setActive(size_t which);
 	//recreate active tab
@@ -78,7 +76,7 @@ public:
 	//TotalSize
 	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
 	//SliderPos - position of slider, if present
-	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
+	CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t VisibleSize,
 		size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
 
 	//recreate all visible items

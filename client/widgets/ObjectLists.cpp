@@ -13,27 +13,17 @@
 #include "../gui/CGuiHandler.h"
 #include "Buttons.h"
 
-
-static void intDeleter(std::shared_ptr<CIntObject> object)
+CObjectList::CObjectList(CreateFunc create)
+	: createObject(create)
 {
-//	if(object->active)
-//		object->deactivate();
-}
-
-CObjectList::CObjectList(CreateFunc create, DestroyFunc destroy)
-	: createObject(create),
-	destroyObject(destroy)
-{
-	if(!destroyObject)
-		destroyObject = intDeleter;
 }
 
 void CObjectList::deleteItem(std::shared_ptr<CIntObject> item)
 {
 	if(!item)
 		return;
+	item->deactivate();
 	removeChild(item.get());
-	destroyObject(item);
 }
 
 std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
@@ -44,17 +34,17 @@ std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
 		item = std::make_shared<CIntObject>();
 
 	item->recActions = defActions;
-
 	addChild(item.get());
+	item->activate();
 	return item;
 }
 
-CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID)
-	: CObjectList(create, destroy),
+CTabbedInt::CTabbedInt(CreateFunc create, Point position, size_t ActiveID)
+	: CObjectList(create),
 	activeTab(nullptr),
 	activeID(ActiveID)
 {
-	defActions = 255 | ~DISPOSE;
+	defActions &= ~DISPOSE;
 	pos += position;
 	reset();
 }
@@ -83,9 +73,9 @@ std::shared_ptr<CIntObject> CTabbedInt::getItem()
 	return activeTab;
 }
 
-CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
+CListBox::CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t VisibleSize,
 		size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos)
-	: CObjectList(create, destroy),
+	: CObjectList(create),
 	first(InitialPos),
 	totalSize(TotalSize),
 	itemOffset(ItemOffset)

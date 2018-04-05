@@ -396,7 +396,7 @@ void CTradeWindow::initItems(bool Left)
 		arts->setHero(hero);
 		arts->allowedAssembling = false;
 		addChild(arts.get());
-		artSets.push_back(arts.get());
+		addSet(arts);
 
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 			arts->highlightModeCallback = std::bind(&CTradeWindow::artifactSelected, this, _1);

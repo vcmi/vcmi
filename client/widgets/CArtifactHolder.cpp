@@ -870,21 +870,47 @@ CArtifactHolder::CArtifactHolder()
 {
 }
 
+void CWindowWithArtifacts::addSet(std::shared_ptr<CArtifactsOfHero> artSet)
+{
+	artSets.emplace_back(artSet);
+}
+
+std::shared_ptr<CArtifactsOfHero::SCommonPart> CWindowWithArtifacts::getCommonPart()
+{
+	for(auto artSetWeak : artSets)
+	{
+		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
+		if(realPtr)
+			return realPtr->commonInfo;
+	}
+
+	return std::shared_ptr<CArtifactsOfHero::SCommonPart>();
+}
+
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 {
-	for(CArtifactsOfHero *aoh : artSets)
-		aoh->artifactRemoved(artLoc);
+	for(auto artSetWeak : artSets)
+	{
+		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
+		if(realPtr)
+			realPtr->artifactRemoved(artLoc);
+	}
 }
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
 {
-	CArtifactsOfHero *destaoh = nullptr;
-	for(CArtifactsOfHero *aoh : artSets)
+	CArtifactsOfHero * destaoh = nullptr;
+
+	for(auto artSetWeak : artSets)
 	{
-		aoh->artifactMoved(artLoc, destLoc);
-		aoh->redraw();
-		if(destLoc.isHolder(aoh->getHero()))
-			destaoh = aoh;
+		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
+		if(realPtr)
+		{
+			realPtr->artifactMoved(artLoc, destLoc);
+			realPtr->redraw();
+			if(destLoc.isHolder(realPtr->getHero()))
+				destaoh = realPtr.get();
+		}
 	}
 
 	//Make sure the status bar is updated so it does not display old text
@@ -896,14 +922,22 @@ void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const A
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 {
-	for(CArtifactsOfHero *aoh : artSets)
-		aoh->artifactDisassembled(artLoc);
+	for(auto artSetWeak : artSets)
+	{
+		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
+		if(realPtr)
+			realPtr->artifactDisassembled(artLoc);
+	}
 }
 
 void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 {
-	for(CArtifactsOfHero *aoh : artSets)
-		aoh->artifactAssembled(artLoc);
+	for(auto artSetWeak : artSets)
+	{
+		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
+		if(realPtr)
+			realPtr->artifactAssembled(artLoc);
+	}
 }
 
 void CArtifactsOfHero::SCommonPart::Artpos::clear()

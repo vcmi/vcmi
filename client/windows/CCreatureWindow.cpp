@@ -261,10 +261,8 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	{
 		return std::make_shared<BonusLineSection>(owner, index);
 	};
-	auto onDestroy = [=](std::shared_ptr<CIntObject> obj)
-	{
-	};
-	lines = std::make_shared<CListBox>(onCreate, onDestroy, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, 1, Rect(pos.w - 15, 0, pos.h, pos.h));
+
+	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, 1, Rect(pos.w - 15, 0, pos.h, pos.h));
 }
 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
@@ -442,8 +440,6 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					icon->text = stack->bonusToString(bonus, true);
 					icon->hoverText = stack->bonusToString(bonus, false);
 
-					abilityIcons[skillID] = icon;
-
 					return icon;
 				}
 				if(skillID >= 100)
@@ -452,12 +448,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return nullptr;
 		};
 
-		auto onRemove = [=](std::shared_ptr<CIntObject> elem)
-		{
-			//todo:deactivate?
-		};
-
-		abilities = std::make_shared<CListBox>(onCreate, onRemove, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
+		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
 
 		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), "hsbtns3.def", CButton::tooltip(), [=](){ abilities->moveToPrev(); }, SDLK_LEFT);
 		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), "hsbtns5.def", CButton::tooltip(), [=](){ abilities->moveToNext(); }, SDLK_RIGHT);
@@ -838,7 +829,7 @@ void CStackWindow::initSections()
 		commanderBonusesSection = std::make_shared<BonusesSection>(this, 0, size);
 		deactivateObj(commanderBonusesSection);
 
-		commanderTab = std::make_shared<CTabbedInt>(onCreate, deactivateObj, Point(0, pos.h), 0);
+		commanderTab = std::make_shared<CTabbedInt>(onCreate, Point(0, pos.h), 0);
 
 		pos.h += commanderMainSection->pos.h;
 	}

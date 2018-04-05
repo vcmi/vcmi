@@ -98,8 +98,6 @@ class CStackWindow : public CWindowObject
 		std::shared_ptr<CPicture> abilitiesBackground;
 		std::shared_ptr<CListBox> abilities;
 
-		std::map<int32_t, std::shared_ptr<CCommanderSkillIcon>> abilityIcons;
-
 		std::shared_ptr<CButton> leftBtn;
 		std::shared_ptr<CButton> rightBtn;
 	public:
