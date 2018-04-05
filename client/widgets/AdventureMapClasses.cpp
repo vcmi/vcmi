@@ -675,11 +675,9 @@ void CMinimap::showTile(const int3 &pos)
 		minimap->refreshTile(pos);
 }
 
-CInfoBar::CVisibleInfo::CVisibleInfo(Point position):
-	CIntObject(0, position),
-	aiProgress(nullptr)
+CInfoBar::CVisibleInfo::CVisibleInfo()
+	: CIntObject(0, Point(8, 12))
 {
-
 }
 
 void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
@@ -689,99 +687,76 @@ void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 		object->showAll(to);
 }
 
-void CInfoBar::CVisibleInfo::loadHero(const CGHeroInstance * hero)
+CInfoBar::EmptyVisibleInfo::EmptyVisibleInfo()
 {
-	assert(children.empty()); // visible info should be re-created to change type
-
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CPicture("ADSTATHR");
-	new CHeroTooltip(Point(0,0), hero);
 }
 
-void CInfoBar::CVisibleInfo::loadTown(const CGTownInstance *town)
+CInfoBar::VisibleHeroInfo::VisibleHeroInfo(const CGHeroInstance * hero)
 {
-	assert(children.empty()); // visible info should be re-created to change type
-
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CPicture("ADSTATCS");
-	new CTownTooltip(Point(0,0), town);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CPicture>("ADSTATHR");
+	heroTooltip = std::make_shared<CHeroTooltip>(Point(0,0), hero);
 }
 
-void CInfoBar::CVisibleInfo::playNewDaySound()
+CInfoBar::VisibleTownInfo::VisibleTownInfo(const CGTownInstance * town)
 {
-	if (LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
-		CCS->soundh->playSound(soundBase::newDay);
-	else
-	if (LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
-		CCS->soundh->playSound(soundBase::newWeek);
-	else
-	if (LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
-		CCS->soundh->playSound(soundBase::newMonth);
-	else
-		CCS->soundh->playSound(soundBase::newDay);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CPicture>("ADSTATCS");
+	townTooltip = std::make_shared<CTownTooltip>(Point(0,0), town);
 }
 
-std::string CInfoBar::CVisibleInfo::getNewDayName()
+CInfoBar::VisibleDateInfo::VisibleDateInfo()
 {
-	if (LOCPLINT->cb->getDate(Date::DAY) == 1)
-		return "NEWDAY";
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	if (LOCPLINT->cb->getDate(Date::DAY) != 1)
-		return "NEWDAY";
-
-	switch(LOCPLINT->cb->getDate(Date::WEEK))
-	{
-	case 1:  return "NEWWEEK1";
-	case 2:  return "NEWWEEK2";
-	case 3:  return "NEWWEEK3";
-	case 4:  return "NEWWEEK4";
-	default: assert(0); return "";
-	}
-}
-
-void CInfoBar::CVisibleInfo::loadDay()
-{
-	assert(children.empty()); // visible info should be re-created first to change type
-
-	playNewDaySound();
-
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CShowableAnim(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE);
+	animation = std::make_shared<CShowableAnim>(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE);
 
 	std::string labelText;
-	if (LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
+	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
 		labelText = CGI->generaltexth->allTexts[63] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK));
 	else
 		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
 
-	forceRefresh.push_back(new CLabel(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText));
+	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText);
+
+	forceRefresh.push_back(label);
 }
 
-void CInfoBar::CVisibleInfo::loadEnemyTurn(PlayerColor player)
+std::string CInfoBar::VisibleDateInfo::getNewDayName()
 {
-	assert(children.empty()); // visible info should be re-created to change type
+	if(LOCPLINT->cb->getDate(Date::DAY) == 1)
+		return "NEWDAY";
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CPicture("ADSTATNX");
-	new CAnimImage("CREST58", player.getNum(), 0, 20, 51);
-	new CShowableAnim(99, 51, "HOURSAND");
+	if(LOCPLINT->cb->getDate(Date::DAY) != 1)
+		return "NEWDAY";
 
-	// FIXME: currently there is no way to get progress from VCAI
-	// if this will change at some point switch this ifdef to enable correct code
-#if 0
-	//prepare hourglass for updating AI turn
-	aiProgress = new CAnimImage("HOURGLAS", 0, 0, 99, 51);
-	forceRefresh.push_back(aiProgress);
-#else
-	//create hourglass that will be always animated ignoring AI status
-	new CShowableAnim(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 40);
-#endif
+	switch(LOCPLINT->cb->getDate(Date::WEEK))
+	{
+	case 1:
+		return "NEWWEEK1";
+	case 2:
+		return "NEWWEEK2";
+	case 3:
+		return "NEWWEEK3";
+	case 4:
+		return "NEWWEEK4";
+	default:
+		return "";
+	}
 }
 
-void CInfoBar::CVisibleInfo::loadGameStatus()
+CInfoBar::VisibleEnemyTurnInfo::VisibleEnemyTurnInfo(PlayerColor player)
 {
-	assert(children.empty()); // visible info should be re-created to change type
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CPicture>("ADSTATNX");
+	banner = std::make_shared<CAnimImage>("CREST58", player.getNum(), 0, 20, 51);
+	sand = std::make_shared<CShowableAnim>(99, 51, "HOURSAND");
+	glass = std::make_shared<CShowableAnim>(99, 51, "HOURGLAS", CShowableAnim::PLAY_ONCE, 40);
+}
 
+CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	//get amount of halls of each level
 	std::vector<int> halls(4, 0);
 	for(auto town : LOCPLINT->towns)
@@ -799,83 +774,84 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	{
 		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
 		{
-			if (LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
+			if(LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
 				allies.push_back(PlayerColor(i));
 			else
 				enemies.push_back(PlayerColor(i));
 		}
 	}
 
-	//generate component
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CPicture("ADSTATIN");
-	auto allyLabel  = new CLabel(10, 106, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	auto enemyLabel = new CLabel(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	//generate widgets
+	background = std::make_shared<CPicture>("ADSTATIN");
+	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
+	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
 	{
-		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 102);
+		auto image = std::make_shared<CAnimImage>("ITGFLAGS", player.getNum(), 0, posx, 102);
 		posx += image->pos.w;
+		flags.push_back(image);
 	}
 
 	posx = enemyLabel->pos.w + enemyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : enemies)
 	{
-		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 132);
+		auto image = std::make_shared<CAnimImage>("ITGFLAGS", player.getNum(), 0, posx, 132);
 		posx += image->pos.w;
+		flags.push_back(image);
 	}
 
-	for (size_t i=0; i<halls.size(); i++)
+	for(size_t i=0; i<halls.size(); i++)
 	{
-		new CAnimImage("itmtl", i, 0, 6 + 42 * i , 11);
-		if (halls[i])
-			new CLabel( 26 + 42 * i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i]));
+		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * i , 11));
+		if(halls[i])
+			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
 	}
 }
 
-void CInfoBar::CVisibleInfo::loadComponent(const Component & compToDisplay, std::string message)
+CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDisplay, std::string message)
 {
-	assert(children.empty()); // visible info should be re-created to change type
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	background = std::make_shared<CPicture>("ADSTATOT", 1);
 
-	new CPicture("ADSTATOT", 1);
-
-	auto   comp = new CComponent(compToDisplay);
+	comp = std::make_shared<CComponent>(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
 
-	new CTextBox(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);
 }
 
-void CInfoBar::CVisibleInfo::updateEnemyTurn(double progress)
+void CInfoBar::playNewDaySound()
 {
-	if (aiProgress)
-	aiProgress->setFrame((aiProgress->size() - 1) * progress);
+	if(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
+		CCS->soundh->playSound(soundBase::newDay);
+	else if(LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
+		CCS->soundh->playSound(soundBase::newWeek);
+	else if(LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
+		CCS->soundh->playSound(soundBase::newMonth);
+	else
+		CCS->soundh->playSound(soundBase::newDay);
 }
 
-void CInfoBar::reset(EState newState = EMPTY)
+void CInfoBar::reset()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	vstd::clear_pointer(visibleInfo);
-	currentObject = nullptr;
-	state = newState;
-	visibleInfo = new CVisibleInfo(Point(8, 12));
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	state = EMPTY;
+	visibleInfo = std::make_shared<EmptyVisibleInfo>();
 }
 
 void CInfoBar::showSelection()
 {
-	if (adventureInt->selection)
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	if(adventureInt->selection)
 	{
-		auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
-		if (hero)
+		if(auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection))
 		{
 			showHeroSelection(hero);
 			return;
 		}
-		auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection);
-		if (town)
+		else if(auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection))
 		{
 			showTownSelection(town);
 			return;
@@ -893,11 +869,11 @@ void CInfoBar::tick()
 
 void CInfoBar::clickLeft(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 	{
-		if (state == HERO || state == TOWN)
+		if(state == HERO || state == TOWN)
 			showGameStatus();
-		else if (state == GAME)
+		else if(state == GAME)
 			showDate();
 		else
 			showSelection();
@@ -911,81 +887,94 @@ void CInfoBar::clickRight(tribool down, bool previousState)
 
 void CInfoBar::hover(bool on)
 {
-	if (on)
+	if(on)
 		GH.statusbar->setText(CGI->generaltexth->zelp[292].first);
 	else
 		GH.statusbar->clear();
 }
 
-CInfoBar::CInfoBar(const Rect &position):
-	CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
-	visibleInfo(nullptr),
-	state(EMPTY),
-	currentObject(nullptr)
+CInfoBar::CInfoBar(const Rect & position)
+	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	state(EMPTY)
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
 	pos.h = position.h;
-	//FIXME: enable some mode? Should be done by advMap::select() when game starts but just in case?
+	reset();
 }
 
 void CInfoBar::showDate()
 {
-	reset(DATE);
-	visibleInfo->loadDay();
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	playNewDaySound();
+	state = DATE;
+	visibleInfo = std::make_shared<VisibleDateInfo>();
 	setTimer(3000);
 	redraw();
 }
 
 void CInfoBar::showComponent(const Component & comp, std::string message)
 {
-	reset(COMPONENT);
-	visibleInfo->loadComponent(comp, message);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	state = COMPONENT;
+	visibleInfo = std::make_shared<VisibleComponentInfo>(comp, message);
 	setTimer(3000);
 	redraw();
 }
 
 void CInfoBar::startEnemyTurn(PlayerColor color)
 {
-	reset(AITURN);
-	visibleInfo->loadEnemyTurn(color);
-	redraw();
-}
-
-void CInfoBar::updateEnemyTurn(double progress)
-{
-	assert(state == AITURN);
-	visibleInfo->updateEnemyTurn(progress);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	state = AITURN;
+	visibleInfo = std::make_shared<VisibleEnemyTurnInfo>(color);
 	redraw();
 }
 
 void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 {
-	if (!hero)
-		return;
-
-	reset(HERO);
-	currentObject = hero;
-	visibleInfo->loadHero(hero);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	if(!hero)
+	{
+		reset();
+	}
+	else
+	{
+		state = HERO;
+		visibleInfo = std::make_shared<VisibleHeroInfo>(hero);
+	}
 	redraw();
 }
 
 void CInfoBar::showTownSelection(const CGTownInstance * town)
 {
-	if (!town)
-		return;
-
-	reset(TOWN);
-	currentObject = town;
-	visibleInfo->loadTown(town);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	if(!town)
+	{
+		reset();
+	}
+	else
+	{
+		state = TOWN;
+		visibleInfo = std::make_shared<VisibleTownInfo>(town);
+	}
 	redraw();
 }
 
 void CInfoBar::showGameStatus()
 {
-	reset(GAME);
-	visibleInfo->loadGameStatus();
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	state = GAME;
+	visibleInfo = std::make_shared<VisibleGameStatusInfo>();
 	setTimer(3000);
 	redraw();
+}
+
+CInGameConsole::CInGameConsole()
+	: CIntObject(KEYBOARD | TEXTINPUT),
+	prevEntDisp(-1),
+	defaultTimeout(10000),
+	maxDisplayedTexts(10)
+{
 }
 
 void CInGameConsole::show(SDL_Surface * to)
@@ -1207,11 +1196,6 @@ void CInGameConsole::refreshEnteredText()
 	{
 		LOCPLINT->battleInt->console->ingcAlter = enteredText;
 	}
-}
-
-CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
-{
-	addUsedEvents(KEYBOARD | TEXTINPUT);
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)

@@ -22,9 +22,13 @@ class CGHeroInstance;
 class CGTownInstance;
 class CButton;
 struct Component;
+class CComponent;
 struct InfoAboutArmy;
 struct InfoAboutHero;
 struct InfoAboutTown;
+class CHeroTooltip;
+class CTownTooltip;
+class CTextBox;
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject
@@ -245,30 +249,73 @@ class CInfoBar : public CIntObject
 	//all visible information located in one object - for ease of replacing
 	class CVisibleInfo : public CIntObject
 	{
-		//list of objects that must be redrawed on each frame on a top of animation
-		std::list<CIntObject *> forceRefresh;
+	public:
+		void show(SDL_Surface * to) override;
 
-		//the only part of gui we need to know about for updating - AI progress
-		CAnimImage *aiProgress;
+	protected:
+		std::shared_ptr<CPicture> background;
+		std::list<std::shared_ptr<CIntObject>> forceRefresh;
+
+		CVisibleInfo();
+	};
+
+	class EmptyVisibleInfo : public CVisibleInfo
+	{
+	public:
+		EmptyVisibleInfo();
+	};
+
+	class VisibleHeroInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CHeroTooltip> heroTooltip;
+	public:
+		VisibleHeroInfo(const CGHeroInstance * hero);
+	};
+
+	class VisibleTownInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CTownTooltip> townTooltip;
+	public:
+		VisibleTownInfo(const CGTownInstance * town);
+	};
+
+	class VisibleDateInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CShowableAnim> animation;
+		std::shared_ptr<CLabel> label;
 
 		std::string getNewDayName();
-		void playNewDaySound();
-
 	public:
-		CVisibleInfo(Point position);
+		VisibleDateInfo();
+	};
 
-		void show(SDL_Surface *to) override;
+	class VisibleEnemyTurnInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CAnimImage> banner;
+		std::shared_ptr<CShowableAnim> glass;
+		std::shared_ptr<CShowableAnim> sand;
+	public:
+		VisibleEnemyTurnInfo(PlayerColor player);
+	};
 
-		//functions that must be called only once
-		void loadHero(const CGHeroInstance * hero);
-		void loadTown(const CGTownInstance * town);
-		void loadDay();
-		void loadEnemyTurn(PlayerColor player);
-		void loadGameStatus();
-		void loadComponent(const Component &comp, std::string message);
+	class VisibleGameStatusInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CLabel> allyLabel;
+		std::shared_ptr<CLabel> enemyLabel;
 
-		//can be called multiple times
-		void updateEnemyTurn(double progress);
+		std::vector<std::shared_ptr<CAnimImage>> flags;
+		std::vector<std::shared_ptr<CAnimImage>> hallIcons;
+		std::vector<std::shared_ptr<CLabel>> hallLabels;
+	public:
+		VisibleGameStatusInfo();
+	};
+
+	class VisibleComponentInfo : public CVisibleInfo
+	{
+		std::shared_ptr<CComponent> comp;
+		std::shared_ptr<CTextBox> text;
+	public:
+		VisibleComponentInfo(const Component & compToDisplay, std::string message);
 	};
 
 	enum EState
@@ -276,13 +323,11 @@ class CInfoBar : public CIntObject
 		EMPTY, HERO, TOWN, DATE, GAME, AITURN, COMPONENT
 	};
 
-	CVisibleInfo * visibleInfo;
+	std::shared_ptr<CVisibleInfo> visibleInfo;
 	EState state;
-	//currently displayed object. May be null if state is not hero or town
-	const CGObjectInstance * currentObject;
 
 	//removes all information about current state, deactivates timer (if any)
-	void reset(EState newState);
+	void reset();
 
 	void tick() override;
 
@@ -290,6 +335,7 @@ class CInfoBar : public CIntObject
 	void clickRight(tribool down, bool previousState) override;
 	void hover(bool on) override;
 
+	void playNewDaySound();
 public:
 	CInfoBar(const Rect & pos);
 
@@ -301,9 +347,6 @@ public:
 
 	/// print enemy turn progress
 	void startEnemyTurn(PlayerColor color);
-	/// updates enemy turn.
-	/// NOTE: currently DISABLED. Check comments in CInfoBar::CVisibleInfo::loadEnemyTurn()
-	void updateEnemyTurn(double progress);
 
 	/// reset to default view - selected object
 	void showSelection();
