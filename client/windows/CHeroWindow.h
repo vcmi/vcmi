@@ -26,71 +26,95 @@ class MoraleLuckBox;
 class CToggleButton;
 class CToggleGroup;
 class CGStatusBar;
+class CTextBox;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
 {
 	const CGHeroInstance * hero;
-	CAnimImage *image;
+	std::shared_ptr<CAnimImage> image;
+	CHeroWindow * owner;
 public:
-	virtual void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(tribool down, bool previousState) override;
 
-	CHeroSwitcher(Point pos, const CGHeroInstance * hero);
+	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
 class CHeroWithMaybePickedArtifact : public virtual IBonusBearer
 {
 public:
-	const CGHeroInstance *hero;
-	CWindowWithArtifacts *cww;
+	const CGHeroInstance * hero;
+	CWindowWithArtifacts * cww;
 
-	CHeroWithMaybePickedArtifact(CWindowWithArtifacts *Cww, const CGHeroInstance *Hero);
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+	CHeroWithMaybePickedArtifact(CWindowWithArtifacts * Cww, const CGHeroInstance * Hero);
+	const TBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root = nullptr, const std::string & cachingStr = "") const override;
 
 	int64_t getTreeVersion() const override;
 };
 
-class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
+class CHeroWindow : public CWindowObject, public CGarrisonHolder, public CWindowWithArtifacts
 {
-	CGStatusBar * ourBar; //heroWindow's statusBar
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CLabel> title;
 
-	//buttons
-	//CButton * gar4button; //splitting
-	std::vector<CHeroSwitcher *> heroList; //list of heroes
-	CPicture * listSelection; //selection border
+	std::shared_ptr<CAnimImage> banner;
+	std::shared_ptr<CGStatusBar> statusBar;
 
-	//clickable areas
-	LRClickableAreaWText * portraitArea;
-	CAnimImage * portraitImage;
+	std::vector<std::shared_ptr<CHeroSwitcher>> heroList;
+	std::shared_ptr<CPicture> listSelection;
 
-	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
-	LRClickableAreaWText * expArea;
-	LRClickableAreaWText * spellPointsArea;
-	LRClickableAreaWText * specArea;//specialty
-	CAnimImage *specImage;
-	MoraleLuckBox * morale, * luck;
-	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
-	std::vector<CAnimImage *> secSkillImages;
+	std::shared_ptr<LRClickableAreaWText> portraitArea;
+	std::shared_ptr<CAnimImage> portraitImage;
+
+	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
+	std::vector<std::shared_ptr<CAnimImage>> primSkillImages;
+	std::vector<std::shared_ptr<CLabel>> primSkillValues;
+
+	std::shared_ptr<CLabel> expValue;
+	std::shared_ptr<LRClickableAreaWText> expArea;
+
+	std::shared_ptr<CLabel> manaValue;
+	std::shared_ptr<LRClickableAreaWText> spellPointsArea;
+
+	std::shared_ptr<LRClickableAreaWText> specArea;
+	std::shared_ptr<CAnimImage> specImage;
+	std::shared_ptr<CLabel> specName;
+	std::shared_ptr<MoraleLuckBox> morale;
+	std::shared_ptr<MoraleLuckBox> luck;
+	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> secSkillAreas;
+	std::vector<std::shared_ptr<CAnimImage>> secSkillImages;
+	std::vector<std::shared_ptr<CLabel>> secSkillNames;
+	std::vector<std::shared_ptr<CLabel>> secSkillValues;
+
 	CHeroWithMaybePickedArtifact heroWArt;
 
-	CButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
+	std::shared_ptr<CButton> quitButton;
+	std::shared_ptr<CTextBox> dismissLabel;
+	std::shared_ptr<CButton> dismissButton;
+	std::shared_ptr<CTextBox> questlogLabel;
+	std::shared_ptr<CButton> questlogButton;
+	std::shared_ptr<CButton> commanderButton;
 
-	CToggleButton *tacticsButton; //garrison / formation handling;
-	CToggleGroup *formations;
+	std::shared_ptr<CToggleButton> tacticsButton;
+	std::shared_ptr<CToggleGroup> formations;
+
+	std::shared_ptr<CGarrisonInt> garr;
+	std::shared_ptr<CArtifactsOfHero> arts;
+
+	std::vector<std::shared_ptr<CLabel>> labels;
 
 public:
 	const CGHeroInstance * curHero;
 
-	CHeroWindow(const CGHeroInstance *hero);
+	CHeroWindow(const CGHeroInstance * hero);
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
-	void showAll(SDL_Surface * to) override;
 
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void commanderWindow();
 	void switchHero(); //changes displayed hero
-	virtual void updateGarrisons() override;  //updates the morale widget and calls the parent
+	void updateGarrisons() override;
 
 	//friends
 	friend void CHeroArtPlace::clickLeft(tribool down, bool previousState);

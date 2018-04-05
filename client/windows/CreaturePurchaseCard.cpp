@@ -75,7 +75,6 @@ void CreaturePurchaseCard::initCostBox()
 	cost->createItems(creatureOnTheCard->cost);
 }
 
-
 void CreaturePurchaseCard::sliderMoved(int to)
 {
 	updateAmountInfo(to);

@@ -438,15 +438,6 @@ void CComponentBox::placeComponents(bool selectable)
 	}
 }
 
-CComponentBox::CComponentBox(CComponent * _components, Rect position):
-	components(1, _components),
-	selected(nullptr)
-{
-	type |= REDRAW_PARENT;
-	pos = position + pos;
-	placeComponents(false);
-}
-
 CComponentBox::CComponentBox(std::vector<CComponent *> _components, Rect position):
 	components(_components),
 	selected(nullptr)

@@ -50,7 +50,6 @@ public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void convertToScreenBPP();
-	void colorizeAndConvert(PlayerColor player);
 	void colorize(PlayerColor player);
 };
 

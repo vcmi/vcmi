@@ -179,13 +179,6 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	freeSurf = true;
 }
 
-void CPicture::colorizeAndConvert(PlayerColor player)
-{
-	assert(bg);
-	colorize(player);
-	convertToScreenBPP();
-}
-
 void CPicture::colorize(PlayerColor player)
 {
 	assert(bg);

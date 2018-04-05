@@ -33,7 +33,7 @@ protected:
 	class CListItem : public CIntObject
 	{
 		CList * parent;
-		CIntObject * selection;
+		std::shared_ptr<CIntObject> selection;
 	public:
 		CListItem(CList * parent);
 		~CListItem();
@@ -44,7 +44,7 @@ protected:
 		void onSelect(bool on);
 
 		/// create object with selection rectangle
-		virtual CIntObject * genSelection()=0;
+		virtual std::shared_ptr<CIntObject> genSelection()=0;
 		/// reaction on item selection (e.g. enable selection border)
 		/// NOTE: item may be deleted in selected state
 		virtual void select(bool on)=0;
@@ -56,7 +56,7 @@ protected:
 		virtual std::string getHoverText()=0;
 	};
 
-	CListBox * list;
+	std::shared_ptr<CListBox> listBox;
 	const size_t size;
 
 	/**
@@ -75,18 +75,17 @@ protected:
 		  CListBox::CreateFunc create, CListBox::DestroyFunc destroy = CListBox::DestroyFunc());
 
 	//for selection\deselection
-	CListItem *selected;
+	CListItem * selected;
 	void select(CListItem * which);
 	friend class CListItem;
+
+	std::shared_ptr<CButton> scrollUp;
+	std::shared_ptr<CButton> scrollDown;
 
 	/// should be called when list is invalidated
 	void update();
 
 public:
-
-	CButton * scrollUp;
-	CButton * scrollDown;
-
 	/// functions that will be called when selection changes
 	CFunctionList<void()> onSelect;
 
@@ -105,21 +104,24 @@ class CHeroList	: public CList
 	/// Empty hero item used as placeholder for unused entries in list
 	class CEmptyHeroItem : public CIntObject
 	{
+		std::shared_ptr<CAnimImage> movement;
+		std::shared_ptr<CAnimImage> mana;
+		std::shared_ptr<CPicture> portrait;
 	public:
 		CEmptyHeroItem();
 	};
 
 	class CHeroItem : public CListItem
 	{
-		CAnimImage * movement;
-		CAnimImage * mana;
-		CAnimImage * portrait;
+		std::shared_ptr<CAnimImage> movement;
+		std::shared_ptr<CAnimImage> mana;
+		std::shared_ptr<CAnimImage> portrait;
 	public:
 		const CGHeroInstance * const hero;
 
-		CHeroItem(CHeroList *parent, const CGHeroInstance * hero);
+		CHeroItem(CHeroList * parent, const CGHeroInstance * hero);
 
-		CIntObject * genSelection() override;
+		std::shared_ptr<CIntObject> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
@@ -147,13 +149,13 @@ class CTownList	: public CList
 {
 	class CTownItem : public CListItem
 	{
-		CAnimImage * picture;
+		std::shared_ptr<CAnimImage> picture;
 	public:
 		const CGTownInstance * const town;
 
 		CTownItem(CTownList *parent, const CGTownInstance * town);
 
-		CIntObject * genSelection() override;
+		std::shared_ptr<CIntObject> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
@@ -180,14 +182,14 @@ class CMinimap;
 
 class CMinimapInstance : public CIntObject
 {
-	CMinimap *parent;
+	CMinimap * parent;
 	SDL_Surface * minimap;
 	int level;
 
 	//get color of selected tile on minimap
 	const SDL_Color & getTileColor(const int3 & pos);
 
-	void blitTileWithColor(const SDL_Color & color, const int3 & pos, SDL_Surface *to, int x, int y);
+	void blitTileWithColor(const SDL_Color & color, const int3 & pos, SDL_Surface * to, int x, int y);
 
 	//draw minimap already scaled.
 	//result is not antialiased. Will result in "missing" pixels on huge maps (>144)
@@ -196,19 +198,17 @@ public:
 	CMinimapInstance(CMinimap * parent, int level);
 	~CMinimapInstance();
 
-	void showAll(SDL_Surface *to) override;
-	void tileToPixels (const int3 &tile, int &x, int &y,int toX = 0, int toY = 0);
-
-	void refreshTile(const int3 &pos);
+	void showAll(SDL_Surface * to) override;
+	void tileToPixels (const int3 & tile, int & x, int & y, int toX = 0, int toY = 0);
+	void refreshTile(const int3 & pos);
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map
 class CMinimap : public CIntObject
 {
 protected:
-
-	CPicture *aiShield; //the graphic displayed during AI turn
-	CMinimapInstance * minimap;
+	std::shared_ptr<CPicture> aiShield; //the graphic displayed during AI turn
+	std::shared_ptr<CMinimapInstance> minimap;
 	int level;
 
 	//to initialize colors
@@ -319,16 +319,16 @@ public:
 /// simple panel that contains other displayable elements; used to separate groups of controls
 class CAdvMapPanel : public CIntObject
 {
-	/// ptrs to child-buttons that can be recolored with setPlayerColor()
-	std::vector<CButton *> buttons;
+	std::vector<std::shared_ptr<CButton>> colorableButtons;
+	std::vector<std::shared_ptr<CIntObject>> otherObjects;
 	/// the surface passed to this obj will be freed in dtor
 	SDL_Surface * background;
 public:
 	CAdvMapPanel(SDL_Surface * bg, Point position);
 	virtual ~CAdvMapPanel();
 
-	void addChildToPanel(CIntObject * obj, ui8 actions = 0);
-	void addChildColorableButton(CButton * btn);
+	void addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions = 0);
+	void addChildColorableButton(std::shared_ptr<CButton> button);
 	/// recolors all buttons to given player color
 	void setPlayerColor(const PlayerColor & clr);
 
@@ -341,7 +341,7 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	/// data that allows reconstruction of panel info icons
 	std::vector<std::pair<int, Point>> iconsData;
 	/// ptrs to child-pictures constructed from iconsData
-	std::vector<CAnimImage *> currentIcons;
+	std::vector<std::shared_ptr<CAnimImage>> currentIcons;
 	/// temporary surface drawn below world view panel on higher resolutions (won't be needed when world view panel is configured for extraResolutions mod)
 	SDL_Surface * tmpBackgroundFiller;
 	int fillerHeight;
@@ -352,7 +352,7 @@ public:
 
 	void addChildIcon(std::pair<int, Point> data, int indexOffset);
 	/// recreates all pictures from given def to recolor them according to current player color
-	void recolorIcons(const PlayerColor &color, int indexOffset);
+	void recolorIcons(const PlayerColor & color, int indexOffset);
 	void showAll(SDL_Surface * to) override;
 };
 

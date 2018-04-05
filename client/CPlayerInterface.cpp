@@ -363,9 +363,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			GH.mainFPSmng->framerateDelay(); //for animation purposes
 			logGlobal->trace("after [un]locks in %s", __FUNCTION__);
 		}
-		//CSDL_Ext::update(screen);
 
-	} //for (int i=1; i<32; i+=4)
+	}
 	//main moving done
 
 	//finishing move
@@ -905,8 +904,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if (!battleInt)
 		{
-			SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-			auto   resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+			auto resWindow = new CBattleResultWindow(*br, *this);
 			GH.pushInt(resWindow);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
@@ -1273,7 +1271,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	localIconC->removeChild(localIcon, false);
 	delete localIconC;
 
-	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
+	CObjectListWindow * wnd = new CObjectListWindow(tempList, std::shared_ptr<CIntObject>(localIcon), localTitle, localDescription, selectCallback);
 	wnd->onExit = cancelCallback;
 	GH.pushInt(wnd);
 }
@@ -1302,46 +1300,6 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.pushInt(new CHeroWindow(hero));
 }
-/*
-void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
-{
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if (adventureInt->heroWindow->curHero && adventureInt->heroWindow->curHero->id == hero->id) //hero window is opened
-	{
-		adventureInt->heroWindow->deactivate();
-		adventureInt->heroWindow->setHero(hero);
-		adventureInt->heroWindow->activate();
-	}
-	else if (CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt())) //exchange window is open
-	{
-		cew->deactivate();
-		for (int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
-		{
-			if (cew->heroInst[g]->id == hero->id)
-			{
-				cew->heroInst[g] = hero;
-				cew->artifs[g]->updateState = true;
-				cew->artifs[g]->setHero(hero);
-				cew->artifs[g]->updateState = false;
-			}
-		}
-		cew->prepareBackground();
-		cew->activate();
-	}
-	else if (CTradeWindow *caw = dynamic_cast<CTradeWindow*>(GH.topInt()))
-	{
-		if (caw->arts)
-		{
-			caw->deactivate();
-			caw->arts->updateState = true;
-			caw->arts->setHero(hero);
-			caw->arts->updateState = false;
-			caw->activate();
-		}
-	}
-
-	updateInfo(hero);
-}*/
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {

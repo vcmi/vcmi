@@ -442,13 +442,13 @@ CIntObject * CRClickPopup::createInfoWin(Point position, const CGObjectInstance 
 {
 	if(nullptr == specific)
 		specific = adventureInt->selection;
-	
+
 	if(nullptr == specific)
 	{
 		logGlobal->error("createInfoWin: no object to describe");
 		return nullptr;
-	}	
-	
+	}
+
 	switch(specific->ID)
 	{
 	case Obj::HERO:

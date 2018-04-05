@@ -60,7 +60,7 @@ public:
 /// Small helper class to manage group of similar labels
 class CLabelGroup : public CIntObject
 {
-	std::list<CLabel*> labels;
+	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
 	EAlignment align;
 	SDL_Color color;
@@ -103,13 +103,13 @@ class CTextBox : public CIntObject
 {
 	int sliderStyle;
 public:
-	CMultiLineLabel * label;
-	CSlider *slider;
+	std::shared_ptr<CMultiLineLabel> label;
+	std::shared_ptr<CSlider> slider;
 
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
 
 	void resize(Point newSize);
-	void setText(const std::string &Txt);
+	void setText(const std::string & Txt);
 	void sliderMoved(int to);
 };
 
@@ -180,7 +180,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
-	
+
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;
 

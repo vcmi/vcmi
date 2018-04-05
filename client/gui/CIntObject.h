@@ -66,7 +66,6 @@ enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
-
 	ui16 used;//change via addUsed() or delUsed
 
 	//time handling
@@ -80,6 +79,7 @@ class CIntObject : public IShowActivatable //interface object
 	//non-const versions of fields to allow changing them in CIntObject
 	CIntObject *parent_m; //parent object
 	ui16 active_m;
+
 protected:
 	//activate or deactivate specific action (LCLICK, RCLICK...)
 	void activate(ui16 what);

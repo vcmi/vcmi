@@ -14,26 +14,24 @@
 /// Basic class for windows
 class CWindowObject : public CIntObject
 {
-	CPicture * createBg(std::string imageName, bool playerColored);
+	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
 	int getUsedEvents(int options);
 
-	CIntObject *shadow;
+	std::shared_ptr<CIntObject> shadow;
 	void setShadow(bool on);
 
 	int options;
 
 protected:
-	CPicture * background;
+	std::shared_ptr<CPicture> background;
 
 	//Simple function with call to GH.popInt
 	void close();
 	//Used only if RCLICK_POPUP was set
 	void clickRight(tribool down, bool previousState) override;
 	//To display border
-	void showAll(SDL_Surface *to) override;
-	//change or set background image
-	void setBackground(std::string filename);
 	void updateShadow();
+	void setBackground(std::string filename);
 public:
 	enum EOptions
 	{
@@ -51,4 +49,6 @@ public:
 	CWindowObject(int options, std::string imageName, Point centerAt);
 	CWindowObject(int options, std::string imageName = "");
 	~CWindowObject();
+
+	void showAll(SDL_Surface * to) override;
 };

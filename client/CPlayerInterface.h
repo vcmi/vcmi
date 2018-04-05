@@ -39,7 +39,6 @@ class CSlider;
 struct UpgradeInfo;
 template <typename T> struct CondSh;
 class CInGameConsole;
-class CGarrisonInt;
 class CInGameConsole;
 union SDL_Event;
 class CInfoWindow;

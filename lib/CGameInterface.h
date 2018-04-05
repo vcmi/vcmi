@@ -23,7 +23,6 @@ class CBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
-class CSelectableComponent;
 struct TryMoveHero;
 class CGHeroInstance;
 class CGTownInstance;

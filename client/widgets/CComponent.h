@@ -98,9 +98,6 @@ public:
 	/// return index of selected item
 	int selectedIndex();
 
-	/// constructor for quite common 1-components popups
-	/// if position width or height are 0 then it will be determined automatically
-	CComponentBox(CComponent * components, Rect position);
 	/// constructor for non-selectable components
 	CComponentBox(std::vector<CComponent *> components, Rect position);
 

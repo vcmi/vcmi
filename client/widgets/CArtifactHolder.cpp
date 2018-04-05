@@ -30,27 +30,31 @@
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art): CArtPlace(position, Art),
-	locked(false), picked(false), marked(false), ourOwner(nullptr)
+CHeroArtPlace::CHeroArtPlace(Point position, const CArtifactInstance * Art)
+	: CArtPlace(position, Art),
+	locked(false),
+	picked(false),
+	marked(false),
+	ourOwner(nullptr)
 {
 	createImage();
 }
 
 void CHeroArtPlace::createImage()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	int imageIndex = 0;
-	if (ourArt)
+	si32 imageIndex = 0;
+	if(ourArt)
 		imageIndex = ourArt->artType->iconIndex;
-	if (locked)
+	if(locked)
 		imageIndex = ArtifactID::ART_LOCK;
 
-	image = new CAnimImage("artifact", imageIndex);
-	if (!ourArt)
+	image = std::make_shared<CAnimImage>("artifact", imageIndex);
+	if(!ourArt)
 		image->disable();
 
-	selection = new CAnimImage("artifact", ArtifactID::ART_SELECTION);
+	selection = std::make_shared<CAnimImage>("artifact", ArtifactID::ART_SELECTION);
 	selection->disable();
 }
 
@@ -284,8 +288,8 @@ void CHeroArtPlace::select ()
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
-			CHeroArtPlace * ap = ourOwner->getArtPlace(i);
-			if(nullptr != ap)//getArtPlace may return null
+			auto ap = ourOwner->getArtPlace(i);
+			if(ap)//getArtPlace may return null
 				ap->pickSlot(ourArt->isPart(ap->ourArt));
 		}
 	}
@@ -492,7 +496,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 		{
 			if(elem->marked)
 			{
-				highlightModeCallback(elem);
+				highlightModeCallback(elem.get());
 				break;
 			}
 		}
@@ -504,7 +508,6 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	rightArtRoll->block(!scrollingPossible);
 
 	safeRedraw();
-
 }
 
 /**
@@ -538,9 +541,10 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw)
 
 void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw)
 {
-	for(auto p : artWorn)
+	for(auto & p : artWorn)
 		p.second->selectSlot(false);
-	for(CHeroArtPlace *place : backpack)
+
+	for(auto & place : backpack)
 		place->selectSlot(false);
 
 	if(withRedraw)
@@ -550,7 +554,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw)
 /**
  * Assigns an artifacts to an artifact place depending on it's new slot ID.
  */
-void CArtifactsOfHero::setSlotData(CHeroArtPlace* artPlace, ArtifactPosition slotID)
+void CArtifactsOfHero::setSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID)
 {
 	if(!artPlace && slotID >= GameConstants::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
@@ -572,21 +576,25 @@ void CArtifactsOfHero::setSlotData(CHeroArtPlace* artPlace, ArtifactPosition slo
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
  */
-void CArtifactsOfHero::eraseSlotData (CHeroArtPlace* artPlace, ArtifactPosition slotID)
+void CArtifactsOfHero::eraseSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID)
 {
 	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
 	artPlace->setArtifact(nullptr);
 }
 
-CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> ArtWorn, std::vector<CHeroArtPlace *> Backpack,
-	CButton *leftScroll, CButton *rightScroll, bool createCommonPart):
-
-	curHero(nullptr),
-	artWorn(ArtWorn), backpack(Backpack),
-	backpackPos(0), commonInfo(nullptr), updateState(false),
-	leftArtRoll(leftScroll), rightArtRoll(rightScroll),
-	allowedAssembling(true), highlightModeCallback(nullptr)
+CArtifactsOfHero::CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
+		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll, bool createCommonPart)
+	: curHero(nullptr),
+	artWorn(ArtWorn),
+	backpack(Backpack),
+	backpackPos(0),
+	commonInfo(nullptr),
+	updateState(false),
+	leftArtRoll(leftScroll),
+	rightArtRoll(rightScroll),
+	allowedAssembling(true),
+	highlightModeCallback(nullptr)
 {
 	if(createCommonPart)
 	{
@@ -595,7 +603,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> A
 	}
 
 	// Init slots for worn artifacts.
-	for (auto p : artWorn)
+	for(auto p : artWorn)
 	{
 		p.second->ourOwner = this;
 		eraseSlotData(p.second, p.first);
@@ -608,12 +616,17 @@ CArtifactsOfHero::CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> A
 		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + s));
 	}
 
-	leftArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack,this,-1));
-	rightArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack,this,+1));
+	leftArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack, this,-1));
+	rightArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack, this,+1));
 }
 
-CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
- : curHero(nullptr), backpackPos(0), commonInfo(nullptr), updateState(false), allowedAssembling(true), highlightModeCallback(nullptr)
+CArtifactsOfHero::CArtifactsOfHero(const Point & position, bool createCommonPart)
+	: curHero(nullptr),
+	backpackPos(0),
+	commonInfo(nullptr),
+	updateState(false),
+	allowedAssembling(true),
+	highlightModeCallback(nullptr)
 {
 	if(createCommonPart)
 	{
@@ -621,7 +634,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
 		commonInfo->participants.insert(this);
 	}
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos += position;
 
 	std::vector<Point> slotPos =
@@ -636,9 +649,9 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
 	};
 
 	// Create slots for worn artifacts.
-	for (size_t g = 0; g < GameConstants::BACKPACK_START ; g++)
+	for(size_t g = 0; g < GameConstants::BACKPACK_START; g++)
 	{
-		artWorn[ArtifactPosition(g)] = new CHeroArtPlace(slotPos[g]);
+		artWorn[ArtifactPosition(g)] = std::make_shared<CHeroArtPlace>(slotPos[g]);
 		artWorn[ArtifactPosition(g)]->ourOwner = this;
 		eraseSlotData(artWorn[ArtifactPosition(g)], ArtifactPosition(g));
 	}
@@ -646,7 +659,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		auto add = new CHeroArtPlace(Point(403 + 46 * s, 365));
+		auto add = std::make_shared<CHeroArtPlace>(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
 		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
@@ -654,8 +667,8 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart)
 		backpack.push_back(add);
 	}
 
-	leftArtRoll =  new CButton(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [&](){ scrollBackpack(-1);}, SDLK_LEFT);
-	rightArtRoll = new CButton(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [&](){ scrollBackpack(+1);}, SDLK_RIGHT);
+	leftArtRoll = std::make_shared<CButton>(Point(379, 364), "hsbtns3.def", CButton::tooltip(), [&](){ scrollBackpack(-1);}, SDLK_LEFT);
+	rightArtRoll = std::make_shared<CButton>(Point(632, 364), "hsbtns5.def", CButton::tooltip(), [&](){ scrollBackpack(+1);}, SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()
@@ -674,7 +687,6 @@ void CArtifactsOfHero::updateParentWindow()
 	}
 	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
 	{
-
 		//use our copy of hero to draw window
 		if(cew->heroInst[0]->id == curHero->id)
 			cew->heroInst[0] = curHero;
@@ -684,16 +696,7 @@ void CArtifactsOfHero::updateParentWindow()
 		if(!updateState)
 		{
 			cew->deactivate();
-// 			for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
-// 			{
-// 				if(cew->heroInst[g] == curHero)
-// 				{
-// 					cew->artifs[g]->setHero(curHero);
-// 				}
-// 			}
-
-
-			cew->prepareBackground();
+			cew->updateWidgets();
 			cew->redraw();
 			cew->activate();
 		}
@@ -746,7 +749,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		assert(dst.slot >= GameConstants::BACKPACK_START);
 		commonInfo->reset();
 
-		CHeroArtPlace *ap = nullptr;
+		CArtifactsOfHero::ArtPlacePtr ap;
 		for(CArtifactsOfHero *aoh : commonInfo->participants)
 		{
 			if(dst.isHolder(aoh->curHero))
@@ -811,7 +814,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 	}
 }
 
-CHeroArtPlace * CArtifactsOfHero::getArtPlace(int slot)
+CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(int slot)
 {
 	if(slot < GameConstants::BACKPACK_START)
 	{
@@ -825,7 +828,7 @@ CHeroArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 	}
 	else
 	{
-		for(CHeroArtPlace *ap : backpack)
+		for(ArtPlacePtr ap : backpack)
 			if(ap->slotID == slot)
 				return ap;
 		return nullptr;
@@ -979,14 +982,14 @@ void CCommanderArtPlace::clickRight(tribool down, bool previousState)
 
 void CCommanderArtPlace::createImage()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	int imageIndex = 0;
-	if (ourArt)
+	if(ourArt)
 		imageIndex = ourArt->artType->iconIndex;
 
-	image = new CAnimImage("artifact", imageIndex);
-	if (!ourArt)
+	image = std::make_shared<CAnimImage>("artifact", imageIndex);
+	if(!ourArt)
 		image->disable();
 }
 

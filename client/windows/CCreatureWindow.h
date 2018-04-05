@@ -13,26 +13,29 @@
 #include "../widgets/MiscWidgets.h"
 #include "CWindowObject.h"
 
-struct StackWindowInfo;
+class UnitView;
 class CCommanderInstance;
 class CStackInstance;
 class CStack;
 struct UpgradeInfo;
 class CTabbedInt;
 class CButton;
+class CMultiLineLabel;
+class CListBox;
+class CCommanderArtPlace;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
-	CIntObject * object; // passive object that will be used to determine clickable area
+	std::shared_ptr<CIntObject> object; // passive object that will be used to determine clickable area
 public:
-	CCommanderSkillIcon(CIntObject * object, std::function<void()> callback);
+	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback);
 
 	std::function<void()> callback;
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 
-	void setObject(CIntObject * object);
+	void setObject(std::shared_ptr<CIntObject> object);
 };
 
 class CStackWindow : public CWindowObject
@@ -46,47 +49,124 @@ class CStackWindow : public CWindowObject
 
 	class CWindowSection : public CIntObject
 	{
-		CStackWindow *parent;
-
-		void createBackground(std::string path);
-		void createBonusItem(size_t index, Point position);
-
-		void printStatString(int index, std::string name, std::string value);
-		void printStatRange(int index, std::string name, int min, int max);
-		void printStatBase(int index, std::string name, int base, int current);
-		void printStat(int index, std::string name, int value);
+	private:
+		std::shared_ptr<CPicture> background;
+	protected:
+		CStackWindow * parent;
 	public:
-		void createStackInfo(bool showExp, bool showArt);
-		void createActiveSpells();
-		void createCommanderSection();
-		void createCommander();
-		void createCommanderAbilities();
-		void createBonuses(boost::optional<size_t> size = boost::optional<size_t>());
-		void createBonusEntry(size_t index);
-		void createButtonPanel();
-
-		CWindowSection(CStackWindow * parent);
+		CWindowSection(CStackWindow * parent, std::string backgroundPath, int yOffset);
 	};
 
-	std::unique_ptr<CAnimImage> stackArtifactIcon;
-	std::unique_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
-	std::unique_ptr<CButton> stackArtifactButton;
-	CAnimImage *expRankIcon;
-	LRClickableAreaWText *expArea;
-	CLabel *expLabel;
+	class ActiveSpellsSection : public CWindowSection
+	{
+		std::vector<std::shared_ptr<CAnimImage>> spellIcons;
+		std::vector<std::shared_ptr<LRClickableAreaWText>> clickableAreas;
+	public:
+		ActiveSpellsSection(CStackWindow * owner, int yOffset);
+	};
 
-	std::unique_ptr<StackWindowInfo> info;
+	class BonusLineSection : public CWindowSection
+	{
+		std::array<std::shared_ptr<CPicture>, 2> icon;
+		std::array<std::shared_ptr<CLabel>, 2> name;
+		std::array<std::shared_ptr<CMultiLineLabel>, 2> description;
+	public:
+		BonusLineSection(CStackWindow * owner, size_t lineIndex);
+	};
+
+	class BonusesSection : public CWindowSection
+	{
+		std::shared_ptr<CListBox> lines;
+	public:
+		BonusesSection(CStackWindow * owner, int yOffset, boost::optional<size_t> preferredSize = boost::optional<size_t>());
+	};
+
+	class ButtonsSection : public CWindowSection
+	{
+		std::shared_ptr<CButton> dismiss;
+		std::array<std::shared_ptr<CButton>, 3> upgrade;// no more than 3 buttons - space limit
+		std::shared_ptr<CButton> exit;
+	public:
+		ButtonsSection(CStackWindow * owner, int yOffset);
+	};
+
+	class CommanderMainSection : public CWindowSection
+	{
+		std::vector<std::shared_ptr<CCommanderSkillIcon>> skillIcons;
+		std::vector<std::shared_ptr<CCommanderArtPlace>> artifacts;
+
+		std::shared_ptr<CPicture> abilitiesBackground;
+		std::shared_ptr<CListBox> abilities;
+
+		std::map<int32_t, std::shared_ptr<CCommanderSkillIcon>> abilityIcons;
+
+		std::shared_ptr<CButton> leftBtn;
+		std::shared_ptr<CButton> rightBtn;
+	public:
+		CommanderMainSection(CStackWindow * owner, int yOffset);
+	};
+
+	class MainSection : public CWindowSection
+	{
+		enum class EStat : size_t
+		{
+			ATTACK,
+			DEFENCE,
+			SHOTS,
+			DAMAGE,
+			HEALTH,
+			HEALTH_LEFT,
+			SPEED,
+			MANA,
+			AFTER_LAST
+		};
+
+		std::shared_ptr<CCreaturePic> animation;
+		std::shared_ptr<CLabel> name;
+		std::shared_ptr<CPicture> icons;
+		std::shared_ptr<MoraleLuckBox> morale;
+		std::shared_ptr<MoraleLuckBox> luck;
+
+		std::vector<std::shared_ptr<CLabel>> stats;
+
+		std::shared_ptr<CAnimImage> expRankIcon;
+		std::shared_ptr<LRClickableAreaWText> expArea;
+		std::shared_ptr<CLabel> expLabel;
+
+		void addStatLabel(EStat index, int64_t value1, int64_t value2);
+		void addStatLabel(EStat index, int64_t value);
+
+		static std::string getBackgroundName(bool showExp, bool showArt);
+
+		std::array<std::string, 8> statNames;
+		std::array<std::string, 8> statFormats;
+	public:
+		MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt);
+	};
+
+	std::shared_ptr<CAnimImage> stackArtifactIcon;
+	std::shared_ptr<LRClickableAreaWTextComp> stackArtifactHelp;
+	std::shared_ptr<CButton> stackArtifactButton;
+
+
+	std::shared_ptr<UnitView> info;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
-	CTabbedInt *commanderTab;
+	std::shared_ptr<CTabbedInt> commanderTab;
 
-	std::map<int, CButton *> switchButtons;
+	std::map<size_t, std::shared_ptr<CButton>> switchButtons;
 
-	void setSelection(si32 newSkill, CCommanderSkillIcon * newIcon);
-	CCommanderSkillIcon * selectedIcon;
+	std::shared_ptr<CWindowSection> mainSection;
+	std::shared_ptr<CWindowSection> activeSpellsSection;
+	std::shared_ptr<CWindowSection> commanderMainSection;
+	std::shared_ptr<CWindowSection> commanderBonusesSection;
+	std::shared_ptr<CWindowSection> bonusesSection;
+	std::shared_ptr<CWindowSection> buttonsSection;
+
+	std::shared_ptr<CCommanderSkillIcon> selectedIcon;
 	si32 selectedSkill;
 
-	CIntObject * createBonusEntry(size_t index);
+	void setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon);
 	CIntObject * switchTab(size_t index);
 
 	void removeStackArtifact(ArtifactPosition pos);
@@ -97,8 +177,6 @@ class CStackWindow : public CWindowObject
 	void init();
 
 	std::string generateStackExpDescription();
-
-	CIntObject * createSkillEntry(int index);
 
 public:
 	// for battles

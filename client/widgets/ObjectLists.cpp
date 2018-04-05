@@ -35,7 +35,7 @@ void CObjectList::deleteItem(CIntObject* item)
 	destroyObject(item);
 }
 
-CIntObject* CObjectList::createItem(size_t index)
+CIntObject * CObjectList::createItem(size_t index)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	CIntObject * item = createObject(index);
@@ -48,10 +48,10 @@ CIntObject* CObjectList::createItem(size_t index)
 	return item;
 }
 
-CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID):
-CObjectList(create, destroy),
-activeTab(nullptr),
-activeID(ActiveID)
+CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID)
+	: CObjectList(create, destroy),
+	activeTab(nullptr),
+	activeID(ActiveID)
 {
 	pos += position;
 	reset();
@@ -72,7 +72,7 @@ void CTabbedInt::reset()
 	activeTab = createItem(activeID);
 	activeTab->moveTo(pos.topLeft());
 
-	if (active)
+	if(active)
 		redraw();
 }
 

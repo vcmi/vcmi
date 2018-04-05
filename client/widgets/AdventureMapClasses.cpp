@@ -53,6 +53,7 @@ CList::CListItem::CListItem(CList * Parent):
 	parent(Parent),
 	selection(nullptr)
 {
+	defActions = 255-DISPOSE;
 }
 
 CList::CListItem::~CListItem()
@@ -93,9 +94,9 @@ void CList::CListItem::hover(bool on)
 
 void CList::CListItem::onSelect(bool on)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	vstd::clear_pointer(selection);
-	if (on)
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	selection.reset();
+	if(on)
 		selection = genSelection();
 	select(on);
 	GH.totalRedraw();
@@ -107,24 +108,26 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
 	size(Size),
 	selected(nullptr)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	scrollUp = new CButton(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
-	list = new CListBox(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	scrollUp = std::make_shared<CButton>(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
+	scrollDown = std::make_shared<CButton>(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown]);
+
+	listBox = std::make_shared<CListBox>(create, destroy, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
 	//assign callback only after list was created
-	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, list));
-	scrollDown = new CButton(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown], std::bind(&CListBox::moveToNext, list));
+	scrollUp->addCallback(std::bind(&CListBox::moveToPrev, listBox));
+	scrollDown->addCallback(std::bind(&CListBox::moveToNext, listBox));
 
-	scrollDown->addCallback(std::bind(&CList::update, this));
 	scrollUp->addCallback(std::bind(&CList::update, this));
+	scrollDown->addCallback(std::bind(&CList::update, this));
 
 	update();
 }
 
 void CList::update()
 {
-	bool onTop = list->getPos() == 0;
-	bool onBottom = list->getPos() + size >= list->size();
+	bool onTop = listBox->getPos() == 0;
+	bool onBottom = listBox->getPos() + size >= listBox->size();
 
 	scrollUp->block(onTop);
 	scrollDown->block(onBottom);
@@ -132,14 +135,14 @@ void CList::update()
 
 void CList::select(CListItem *which)
 {
-	if (selected == which)
+	if(selected == which)
 		return;
 
-	if (selected)
+	if(selected)
 		selected->onSelect(false);
 
 	selected = which;
-	if (which)
+	if(which)
 	{
 		which->onSelect(true);
 		onSelect();
@@ -148,28 +151,28 @@ void CList::select(CListItem *which)
 
 int CList::getSelectedIndex()
 {
-	return list->getIndexOf(selected);
+	return listBox->getIndexOf(selected);
 }
 
 void CList::selectIndex(int which)
 {
-	if (which < 0)
+	if(which < 0)
 	{
-		if (selected)
+		if(selected)
 			select(nullptr);
 	}
 	else
 	{
-		list->scrollTo(which);
+		listBox->scrollTo(which);
 		update();
-		select(dynamic_cast<CListItem*>(list->getItem(which)));
+		select(dynamic_cast<CListItem*>(listBox->getItem(which)));
 	}
 }
 
 void CList::selectNext()
 {
 	int index = getSelectedIndex() + 1;
-	if (index >= list->size())
+	if(index >= listBox->size())
 		index = 0;
 	selectIndex(index);
 }
@@ -177,7 +180,7 @@ void CList::selectNext()
 void CList::selectPrev()
 {
 	int index = getSelectedIndex();
-	if (index <= 0)
+	if(index <= 0)
 		selectIndex(0);
 	else
 		selectIndex(index-1);
@@ -185,23 +188,23 @@ void CList::selectPrev()
 
 CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	auto move = new CAnimImage("IMOBIL", 0, 0, 0, 1);
-	auto img  = new CPicture("HPSXXX", move->pos.w + 1);
-	auto mana = new CAnimImage("IMANA", 0, 0, move->pos.w + img->pos.w + 2, 1 );
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
+	portrait = std::make_shared<CPicture>("HPSXXX", movement->pos.w + 1);
+	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<SDLX_Size>(move->pos.h + 1, mana->pos.h + 1), img->pos.h);
+	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 }
 
-CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
-	CListItem(parent),
+CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero)
+	: CListItem(parent),
 	hero(Hero)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	movement = new CAnimImage("IMOBIL", 0, 0, 0, 1);
-	portrait = new CAnimImage("PortraitsSmall", hero->portrait, 0, movement->pos.w + 1);
-	mana     = new CAnimImage("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	movement = std::make_shared<CAnimImage>("IMOBIL", 0, 0, 0, 1);
+	portrait = std::make_shared<CAnimImage>("PortraitsSmall", hero->portrait, 0, movement->pos.w + 1);
+	mana = std::make_shared<CAnimImage>("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1);
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
 	pos.h = std::max(std::max<SDLX_Size>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
@@ -216,15 +219,15 @@ void CHeroList::CHeroItem::update()
 	redraw();
 }
 
-CIntObject * CHeroList::CHeroItem::genSelection()
+std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
 {
-	return new CPicture("HPSYYY", movement->pos.w + 1);
+	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1);
 }
 
 void CHeroList::CHeroItem::select(bool on)
 {
-	if (on && adventureInt->selection != hero)
-			adventureInt->select(hero);
+	if(on && adventureInt->selection != hero)
+		adventureInt->select(hero);
 }
 
 void CHeroList::CHeroItem::open()
@@ -262,7 +265,7 @@ void CHeroList::select(const CGHeroInstance * hero)
 void CHeroList::update(const CGHeroInstance * hero)
 {
 	//this hero is already present, update its status
-	for (auto & elem : list->getItems())
+	for (auto & elem : listBox->getItems())
 	{
 		auto item = dynamic_cast<CHeroItem*>(elem);
 		if (item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
@@ -273,7 +276,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	}
 	//simplest solution for now: reset list and restore selection
 
-	list->resize(LOCPLINT->wanderingHeroes.size());
+	listBox->resize(LOCPLINT->wanderingHeroes.size());
 	if (adventureInt->selection)
 	{
 		auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
@@ -294,15 +297,15 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	CListItem(parent),
 	town(Town)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	picture = new CAnimImage("ITPA", 0);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	picture = std::make_shared<CAnimImage>("ITPA", 0);
 	pos = picture->pos;
 	update();
 }
 
-CIntObject * CTownList::CTownItem::genSelection()
+std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
 {
-	return new CAnimImage("ITPA", 1);
+	return std::make_shared<CAnimImage>("ITPA", 1);
 }
 
 void CTownList::CTownItem::update()
@@ -348,7 +351,7 @@ void CTownList::update(const CGTownInstance *)
 {
 	//simplest solution for now: reset list and restore selection
 
-	list->resize(LOCPLINT->towns.size());
+	listBox->resize(LOCPLINT->towns.size());
 	if (adventureInt->selection)
 	{
 		auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection);
@@ -475,7 +478,7 @@ CMinimapInstance::~CMinimapInstance()
 	SDL_FreeSurface(minimap);
 }
 
-void CMinimapInstance::showAll(SDL_Surface *to)
+void CMinimapInstance::showAll(SDL_Surface * to)
 {
 	blitAtLoc(minimap, 0, 0, to);
 
@@ -484,7 +487,7 @@ void CMinimapInstance::showAll(SDL_Surface *to)
 	for(auto & hero : heroes)
 	{
 		int3 position = hero->getPosition(false);
-		if (position.z == level)
+		if(position.z == level)
 		{
 			const SDL_Color & color = graphics->playerColors[hero->getOwner().getNum()];
 			blitTileWithColor(color, position, to, pos.x, pos.y);
@@ -531,15 +534,17 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 	return ret;
 }
 
-CMinimap::CMinimap(const Rect &position):
-	CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
-	aiShield(nullptr),
-	minimap(nullptr),
+CMinimap::CMinimap(const Rect & position)
+	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
 	level(0),
 	colors(loadColors("config/terrains.json"))
 {
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
 	pos.h = position.h;
+
+	aiShield = std::make_shared<CPicture>("AIShield");
+	aiShield->disable();
 }
 
 int3 CMinimap::translateMousePosition()
@@ -567,7 +572,7 @@ void CMinimap::moveAdvMapSelection()
 
 void CMinimap::clickLeft(tribool down, bool previousState)
 {
-	if (down)
+	if(down)
 		moveAdvMapSelection();
 }
 
@@ -578,7 +583,7 @@ void CMinimap::clickRight(tribool down, bool previousState)
 
 void CMinimap::hover(bool on)
 {
-	if (on)
+	if(on)
 		GH.statusbar->setText(CGI->generaltexth->zelp[291].first);
 	else
 		GH.statusbar->clear();
@@ -593,7 +598,7 @@ void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 void CMinimap::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	if (minimap)
+	if(minimap)
 	{
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
 		int3 tileCountOnScreen = adventureInt->terrain.tileCountOnScreen();
@@ -608,13 +613,13 @@ void CMinimap::showAll(SDL_Surface * to)
 			ui16(tileCountOnScreen.y * pos.h / mapSizes.y)
 		};
 
-		if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
+		if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		{
 			// adjusts radar so that it doesn't go out of map in world view mode (since there's no frame)
 			radar.x = std::min<int>(std::max(pos.x, radar.x), pos.x + pos.w - radar.w);
 			radar.y = std::min<int>(std::max(pos.y, radar.y), pos.y + pos.h - radar.h);
 
-			if (radar.x < pos.x && radar.y < pos.y)
+			if(radar.x < pos.x && radar.y < pos.y)
 				return; // whole map is visible at once, no point in redrawing border
 		}
 
@@ -627,12 +632,11 @@ void CMinimap::showAll(SDL_Surface * to)
 
 void CMinimap::update()
 {
-	if (aiShield) //AI turn is going on. There is no need to update minimap
+	if(aiShield->recActions & UPDATE) //AI turn is going on. There is no need to update minimap
 		return;
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	vstd::clear_pointer(minimap);
-	minimap = new CMinimapInstance(this, level);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	minimap = std::make_shared<CMinimapInstance>(this, level);
 	redraw();
 }
 
@@ -644,16 +648,14 @@ void CMinimap::setLevel(int newLevel)
 
 void CMinimap::setAIRadar(bool on)
 {
-	if (on)
+	if(on)
 	{
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		vstd::clear_pointer(minimap);
-		if (!aiShield)
-			aiShield = new CPicture("AIShield");
+		aiShield->enable();
+		minimap.reset();
 	}
 	else
 	{
-		vstd::clear_pointer(aiShield);
+		aiShield->disable();
 		update();
 	}
 	// this my happen during AI turn when this interface is inactive
@@ -663,13 +665,13 @@ void CMinimap::setAIRadar(bool on)
 
 void CMinimap::hideTile(const int3 &pos)
 {
-	if (minimap)
+	if(minimap)
 		minimap->refreshTile(pos);
 }
 
 void CMinimap::showTile(const int3 &pos)
 {
-	if (minimap)
+	if(minimap)
 		minimap->refreshTile(pos);
 }
 
@@ -680,7 +682,7 @@ CInfoBar::CVisibleInfo::CVisibleInfo(Point position):
 
 }
 
-void CInfoBar::CVisibleInfo::show(SDL_Surface *to)
+void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 	for(auto object : forceRefresh)
@@ -1233,32 +1235,34 @@ CAdvMapPanel::~CAdvMapPanel()
 		SDL_FreeSurface(background);
 }
 
-void CAdvMapPanel::addChildColorableButton(CButton * btn)
+void CAdvMapPanel::addChildColorableButton(std::shared_ptr<CButton> button)
 {
-	buttons.push_back(btn);
-	addChildToPanel(btn, ACTIVATE | DEACTIVATE);
+	colorableButtons.push_back(button);
+	addChildToPanel(button, ACTIVATE | DEACTIVATE);
 }
 
 void CAdvMapPanel::setPlayerColor(const PlayerColor & clr)
 {
-	for (auto &btn : buttons)
+	for(auto & button : colorableButtons)
 	{
-		btn->setPlayerColor(clr);
+		button->setPlayerColor(clr);
 	}
 }
 
 void CAdvMapPanel::showAll(SDL_Surface * to)
 {
-	if (background)
+	if(background)
 		blitAt(background, pos.x, pos.y, to);
 
 	CIntObject::showAll(to);
 }
 
-void CAdvMapPanel::addChildToPanel(CIntObject * obj, ui8 actions)
+void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
 {
+	otherObjects.push_back(obj);
 	obj->recActions |= actions | SHOWALL;
-	addChild(obj, false);
+	obj->recActions &= ~DISPOSE;
+	addChild(obj.get(), false);
 }
 
 CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
@@ -1280,7 +1284,7 @@ CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
 		SDL_FreeSurface(tmpBackgroundFiller);
 }
 
-void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, int indexOffset)
+void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor & color, int indexOffset)
 {
 	assert(iconsData.size() == currentIcons.size());
 
@@ -1290,9 +1294,9 @@ void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, int indexOffs
 		currentIcons[idx]->setFrame(data.first + indexOffset);
 	}
 
-	if (fillerHeight > 0)
+	if(fillerHeight > 0)
 	{
-		if (tmpBackgroundFiller)
+		if(tmpBackgroundFiller)
 			SDL_FreeSurface(tmpBackgroundFiller);
 		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
 	}
@@ -1300,9 +1304,9 @@ void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor &color, int indexOffs
 
 void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, int indexOffset)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	iconsData.push_back(data);
-	currentIcons.push_back(new CAnimImage(icons, data.first + indexOffset, 0, data.second.x, data.second.y));
+	currentIcons.push_back(std::make_shared<CAnimImage>(icons, data.first + indexOffset, 0, data.second.x, data.second.y));
 }
 
 void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)

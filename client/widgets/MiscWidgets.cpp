@@ -120,16 +120,19 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occurred
 }
 
-CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
+CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
+	: CIntObject(LCLICK | RCLICK | HOVER),
+	hero(_hero)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	addUsedEvents(LCLICK | RCLICK | HOVER);
-	pos.x += x;	pos.w = 58;
-	pos.y += y;	pos.h = 64;
+	pos.x += x;
+	pos.w = 58;
+	pos.y += y;
+	pos.h = 64;
 
-	if (hero)
-		new CAnimImage("PortraitsLarge", hero->portrait);
+	if(hero)
+		portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait);
 }
 
 void CHeroArea::clickLeft(tribool down, bool previousState)
@@ -181,7 +184,8 @@ void CMinorResDataBar::show(SDL_Surface * to)
 
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y,to);
+	CIntObject::showAll(to);
+
 	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
 		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
@@ -202,34 +206,34 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 
 CMinorResDataBar::CMinorResDataBar()
 {
-	bg = BitmapHandler::loadBitmap("KRESBAR.bmp");
-	CSDL_Ext::setDefaultColorKey(bg);
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
 	pos.x = 7;
 	pos.y = 575;
-	pos.w = bg->w;
-	pos.h = bg->h;
+
+	background = std::make_shared<CPicture>("KRESBAR.bmp");
+	background->colorize(LOCPLINT->playerID);
+
+	pos.w = background->pos.w;
+	pos.h = background->pos.h;
 }
 
-CMinorResDataBar::~CMinorResDataBar()
-{
-	SDL_FreeSurface(bg);
-}
+CMinorResDataBar::~CMinorResDataBar() = default;
 
 void CArmyTooltip::init(const InfoAboutArmy &army)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	new CLabel(66, 2, FONT_SMALL, TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
-	slotsPos.push_back(Point(36,73));
-	slotsPos.push_back(Point(72,73));
-	slotsPos.push_back(Point(108,73));
-	slotsPos.push_back(Point(18,122));
-	slotsPos.push_back(Point(54,122));
-	slotsPos.push_back(Point(90,122));
-	slotsPos.push_back(Point(126,122));
+	slotsPos.push_back(Point(36, 73));
+	slotsPos.push_back(Point(72, 73));
+	slotsPos.push_back(Point(108, 73));
+	slotsPos.push_back(Point(18, 122));
+	slotsPos.push_back(Point(54, 122));
+	slotsPos.push_back(Point(90, 122));
+	slotsPos.push_back(Point(126, 122));
 
 	for(auto & slot : army.army)
 	{
@@ -239,24 +243,26 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			continue;
 		}
 
-		new CAnimImage("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y);
+		icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
 
 		std::string subtitle;
 		if(army.army.isDetailed)
+		{
 			subtitle = boost::lexical_cast<std::string>(slot.second.count);
+		}
 		else
 		{
 			//if =0 - we have no information about stack size at all
-			if (slot.second.count)
+			if(slot.second.count)
 				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 		}
 
-		new CLabel(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle);
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle));
 	}
 
 }
 
-CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy &army):
+CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
 	CIntObject(0, pos)
 {
 	init(army);
@@ -268,22 +274,21 @@ CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
 	init(InfoAboutArmy(army, true));
 }
 
-void CHeroTooltip::init(const InfoAboutHero &hero)
+void CHeroTooltip::init(const InfoAboutHero & hero)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CAnimImage("PortraitsLarge", hero.portrait, 0, 3, 2);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 3, 2);
 
 	if(hero.details)
 	{
-		for (size_t i = 0; i < hero.details->primskills.size(); i++)
-			new CLabel(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::WHITE,
-					   boost::lexical_cast<std::string>(hero.details->primskills[i]));
+		for(size_t i = 0; i < hero.details->primskills.size(); i++)
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::WHITE,
+					   boost::lexical_cast<std::string>(hero.details->primskills[i])));
 
-		new CLabel(158, 98, FONT_TINY, CENTER, Colors::WHITE,
-				   boost::lexical_cast<std::string>(hero.details->mana));
+		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));
 
-		new CAnimImage("IMRL22", hero.details->morale + 3, 0, 5, 74);
-		new CAnimImage("ILCK22", hero.details->luck + 3, 0, 5, 91);
+		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74);
+		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91);
 	}
 }
 
@@ -299,61 +304,64 @@ CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
 	init(InfoAboutHero(hero, InfoAboutHero::EInfoLevel::DETAILED));
 }
 
-void CTownTooltip::init(const InfoAboutTown &town)
+void CTownTooltip::init(const InfoAboutTown & town)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	//order of icons in def: fort, citadel, castle, no fort
 	size_t fortIndex = town.fortLevel ? town.fortLevel - 1 : 3;
 
-	new CAnimImage("ITMCLS", fortIndex, 0, 105, 31);
+	fort = std::make_shared<CAnimImage>("ITMCLS", fortIndex, 0, 105, 31);
 
 	assert(town.tType);
 
 	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
-	new CAnimImage("itpt", iconIndex, 0, 3, 2);
+	build = std::make_shared<CAnimImage>("itpt", iconIndex, 0, 3, 2);
 
 	if(town.details)
 	{
-		new CAnimImage("ITMTLS", town.details->hallLevel, 0, 67, 31);
+		fort = std::make_shared<CAnimImage>("ITMTLS", town.details->hallLevel, 0, 67, 31);
 
-		if (town.details->goldIncome)
-			new CLabel(157, 58, FONT_TINY, CENTER, Colors::WHITE,
+		if(town.details->goldIncome)
+		{
+			income = std::make_shared<CLabel>(157, 58, FONT_TINY, CENTER, Colors::WHITE,
 					   boost::lexical_cast<std::string>(town.details->goldIncome));
-
+		}
 		if(town.details->garrisonedHero) //garrisoned hero icon
-			new CPicture("TOWNQKGH", 149, 76);
+			garrisonedHero = std::make_shared<CPicture>("TOWNQKGH", 149, 76);
 
 		if(town.details->customRes)//silo is built
 		{
-			if (town.tType->primaryRes == Res::WOOD_AND_ORE )// wood & ore
+			if(town.tType->primaryRes == Res::WOOD_AND_ORE )// wood & ore
 			{
-				new CAnimImage("SMALRES", Res::WOOD, 0, 7, 75);
-				new CAnimImage("SMALRES", Res::ORE , 0, 7, 88);
+				res1 = std::make_shared<CAnimImage>("SMALRES", Res::WOOD, 0, 7, 75);
+				res2 = std::make_shared<CAnimImage>("SMALRES", Res::ORE , 0, 7, 88);
 			}
 			else
-				new CAnimImage("SMALRES", town.tType->primaryRes, 0, 7, 81);
+			{
+				res1 = std::make_shared<CAnimImage>("SMALRES", town.tType->primaryRes, 0, 7, 81);
+			}
 		}
 	}
 }
 
-CTownTooltip::CTownTooltip(Point pos, const InfoAboutTown &town):
-	CArmyTooltip(pos, town)
+CTownTooltip::CTownTooltip(Point pos, const InfoAboutTown & town)
+	: CArmyTooltip(pos, town)
 {
 	init(town);
 }
 
-CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town):
-	CArmyTooltip(pos, InfoAboutTown(town, true))
+CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town)
+	: CArmyTooltip(pos, InfoAboutTown(town, true))
 {
 	init(InfoAboutTown(town, true));
 }
 
-
-void MoraleLuckBox::set(const IBonusBearer *node)
+void MoraleLuckBox::set(const IBonusBearer * node)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
 	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
@@ -363,13 +371,15 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
 	TBonusListPtr modifierList(new BonusList());
 
-	if (node)
+	if(node)
 	{
 		modifierList = node->getBonuses(Selector::type(bonusType[morale]));
 		bonusValue = (node->*getValue[morale])();
 	}
 	else
+	{
 		bonusValue = 0;
+	}
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
@@ -420,23 +430,22 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
 
-	delete image;
-	image = new CAnimImage(imageName, bonusValue + 3);
+	image = std::make_shared<CAnimImage>(imageName, bonusValue + 3);
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small):
-	image(nullptr),
-	morale(Morale),
+MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
+	: morale(Morale),
 	small(Small)
 {
 	bonusValue = 0;
 	pos = r + pos;
+	defActions = 255-DISPOSE;
 }
 
-CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
+CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool Animated)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.x+=x;
 	pos.y+=y;
 
@@ -445,20 +454,20 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	assert(CGI->townh->factions.size() > faction);
 
 	if(Big)
-		bg = new CPicture(CGI->townh->factions[faction]->creatureBg130);
+		bg = std::make_shared<CPicture>(CGI->townh->factions[faction]->creatureBg130);
 	else
-		bg = new CPicture(CGI->townh->factions[faction]->creatureBg120);
-	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
+		bg = std::make_shared<CPicture>(CGI->townh->factions[faction]->creatureBg120);
+	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
 
-	amount = new CLabel(bg->pos.w, bg->pos.h, FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
 
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 }
 
-void CCreaturePic::show(SDL_Surface *to)
+void CCreaturePic::show(SDL_Surface * to)
 {
 	// redraw everything in a proper order
 	bg->showAll(to);
@@ -468,7 +477,7 @@ void CCreaturePic::show(SDL_Surface *to)
 
 void CCreaturePic::setAmount(int newAmount)
 {
-	if (newAmount != 0)
+	if(newAmount != 0)
 		amount->setText(boost::lexical_cast<std::string>(newAmount));
 	else
 		amount->setText("");

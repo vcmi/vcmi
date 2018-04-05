@@ -15,7 +15,6 @@ class CLabel;
 class CCreatureAnim;
 class CComponent;
 class CGGarrison;
-class CSelectableComponent;
 struct InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
@@ -40,7 +39,7 @@ public:
 	std::string text;
 
 	LRClickableAreaWText();
-	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
+	LRClickableAreaWText(const Rect & Pos, const std::string & HoverText = "", const std::string & ClickText = "");
 	virtual ~LRClickableAreaWText();
 	void init();
 
@@ -51,9 +50,12 @@ public:
 /// base class for hero/town/garrison tooltips
 class CArmyTooltip : public CIntObject
 {
-	void init(const InfoAboutArmy &army);
+	std::shared_ptr<CLabel> title;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+	std::vector<std::shared_ptr<CLabel>> subtitles;
+	void init(const InfoAboutArmy & army);
 public:
-	CArmyTooltip(Point pos, const InfoAboutArmy &army);
+	CArmyTooltip(Point pos, const InfoAboutArmy & army);
 	CArmyTooltip(Point pos, const CArmedInstance * army);
 };
 
@@ -62,9 +64,14 @@ public:
 /// background for tooltip: HEROQVBK
 class CHeroTooltip : public CArmyTooltip
 {
-	void init(const InfoAboutHero &hero);
+	std::shared_ptr<CAnimImage> portrait;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::shared_ptr<CAnimImage> morale;
+	std::shared_ptr<CAnimImage> luck;
+
+	void init(const InfoAboutHero & hero);
 public:
-	CHeroTooltip(Point pos, const InfoAboutHero &hero);
+	CHeroTooltip(Point pos, const InfoAboutHero & hero);
 	CHeroTooltip(Point pos, const CGHeroInstance * hero);
 };
 
@@ -73,9 +80,17 @@ public:
 /// background for tooltip: TOWNQVBK
 class CTownTooltip : public CArmyTooltip
 {
-	void init(const InfoAboutTown &town);
+	std::shared_ptr<CAnimImage> fort;
+	std::shared_ptr<CAnimImage> hall;
+	std::shared_ptr<CAnimImage> build;
+	std::shared_ptr<CLabel> income;
+	std::shared_ptr<CPicture> garrisonedHero;
+	std::shared_ptr<CAnimImage> res1;
+	std::shared_ptr<CAnimImage> res2;
+
+	void init(const InfoAboutTown & town);
 public:
-	CTownTooltip(Point pos, const InfoAboutTown &town);
+	CTownTooltip(Point pos, const InfoAboutTown & town);
 	CTownTooltip(Point pos, const CGTownInstance * town);
 };
 
@@ -83,22 +98,21 @@ public:
 class CCreaturePic : public CIntObject
 {
 private:
-	CPicture *bg;
-	CCreatureAnim *anim; //displayed animation
-	CLabel * amount;
+	std::shared_ptr<CPicture> bg;
+	std::shared_ptr<CCreatureAnim> anim; //displayed animation
+	std::shared_ptr<CLabel> amount;
 
-	void show(SDL_Surface *to) override;
+	void show(SDL_Surface * to) override;
 public:
-	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true);
-
+	CCreaturePic(int x, int y, const CCreature * cre, bool Big=true, bool Animated=true);
 	void setAmount(int newAmount);
 };
 
 /// Resource bar like that at the bottom of the adventure map screen
 class CMinorResDataBar : public CIntObject
 {
+	std::shared_ptr<CPicture> background;
 public:
-	SDL_Surface *bg; //background bitmap
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	CMinorResDataBar();
@@ -109,8 +123,9 @@ public:
 class CHeroArea: public CIntObject
 {
 	const CGHeroInstance * hero;
-public:
+	std::shared_ptr<CAnimImage> portrait;
 
+public:
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
 	void clickLeft(tribool down, bool previousState) override;
@@ -143,7 +158,7 @@ public:
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
-	CAnimImage *image;
+	std::shared_ptr<CAnimImage> image;
 public:
 	bool morale; //true if morale, false if luck
 	bool small;

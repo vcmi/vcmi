@@ -50,8 +50,8 @@ private:
 	std::array<boost::optional<SDL_Color>, 4> stateToBorderColor; // mapping of button state to border color
 	std::string helpBox; //for right-click help
 
-	CAnimImage * image; //image for this button
-	CIntObject * overlay;//object-overlay, can be null
+	std::shared_ptr<CAnimImage> image; //image for this button
+	std::shared_ptr<CIntObject> overlay;//object-overlay, can be null
 	bool animateLonelyFrame = false;
 protected:
 	void onButtonClicked(); // calls callback
@@ -80,8 +80,8 @@ public:
 	void addCallback(std::function<void()> callback);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
-	void addOverlay(CIntObject * newOverlay);
-	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
+	void addOverlay(std::shared_ptr<CIntObject> newOverlay);
+	void addTextOverlay(const std::string & Text, EFonts font, SDL_Color color = Colors::WHITE);
 
 	void addImage(std::string filename);
 	void addHoverText(ButtonState state, std::string text);
@@ -95,7 +95,7 @@ public:
 	bool isHighlighted();
 
 	/// Constructor
-	CButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
+	CButton(Point position, const std::string & defName, const std::pair<std::string, std::string> & help,
 	        CFunctionList<void()> Callback = 0, int key=0, bool playerColoredButton = false );
 
 	/// Appearance modifiers
@@ -179,7 +179,7 @@ class CVolumeSlider : public CIntObject
 {
 	int value;
 	CFunctionList<void(int)> onChange;
-	CAnimImage * animImage;
+	std::shared_ptr<CAnimImage> animImage;
 	const std::pair<std::string, std::string> * const helpHandlers;
 	void setVolume(const int v);
 public:
@@ -188,7 +188,7 @@ public:
 	/// @param defName name of def animation for slider
 	/// @param value initial value for volume
 	/// @param help pointer to first helptext of slider
-	CVolumeSlider(const Point &position, const std::string &defName, const int value,
+	CVolumeSlider(const Point & position, const std::string & defName, const int value,
 	              const std::pair<std::string, std::string> * const help);
 
 	void moveTo(int id);
@@ -203,7 +203,11 @@ public:
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public CIntObject
 {
-	CButton *left, *right, *slider; //if vertical then left=up
+	//if vertical then left=up
+	std::shared_ptr<CButton> left;
+	std::shared_ptr<CButton> right;
+	std::shared_ptr<CButton> slider;
+
 	int capacity;//how many elements can be active at same time (e.g. hero list = 5)
 	int positions; //number of highest position (0 if there is only one)
 	bool horizontal;
@@ -216,7 +220,8 @@ class CSlider : public CIntObject
 	void sliderClicked();
 
 public:
-	enum EStyle {
+	enum EStyle
+	{
 		BROWN,
 		BLUE
 	};

@@ -259,14 +259,16 @@ Rect CMultiLineLabel::getTextLocation()
 	return Rect();
 }
 
-CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
-	font(Font), align(Align), color(Color)
-{}
+CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: font(Font), align(Align), color(Color)
+{
+	defActions = 255-DISPOSE;
+}
 
 void CLabelGroup::add(int x, int y, const std::string &text)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	labels.push_back(new CLabel(x, y, font, align, color, text));
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	labels.push_back(std::make_shared<CLabel>(x, y, font, align, color, text));
 }
 
 size_t CLabelGroup::currentSize() const
@@ -278,8 +280,8 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	label = new CMultiLineLabel(rect, Font, Align, Color);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
 	type |= REDRAW_PARENT;
 	pos.x += rect.x;
@@ -302,9 +304,8 @@ void CTextBox::resize(Point newSize)
 	pos.h = newSize.y;
 	label->pos.w = pos.w;
 	label->pos.h = pos.h;
-	if (slider)
-		vstd::clear_pointer(slider); // will be recreated if needed later
 
+	slider.reset();
 	setText(label->getText()); // force refresh
 }
 
@@ -315,7 +316,7 @@ void CTextBox::setText(const std::string &text)
 	if(label->textSize.y <= label->pos.h && slider)
 	{
 		// slider is no longer needed
-		vstd::clear_pointer(slider);
+		slider.reset();
 	}
 	else if(slider)
 	{
@@ -330,8 +331,8 @@ void CTextBox::setText(const std::string &text)
 		label->pos.w = pos.w - 32;
 		label->setText(text);
 
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
 		                     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep(graphics->fonts[label->font]->getLineHeight());
 	}
@@ -348,19 +349,20 @@ void CGStatusBar::clear()
 	setText("");
 }
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font, EAlignment Align, const SDL_Color &Color)
-: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
+CGStatusBar::CGStatusBar(CPicture * BG, EFonts Font, EAlignment Align, const SDL_Color & Color)
+	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();
 	bg = BG;
 	addChild(bg);
+	bg->recActions |= DISPOSE;
 	pos = bg->pos;
 	getBorderSize();
 	textLock = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
-: CLabel(x, y, FONT_SMALL, CENTER)
+	: CLabel(x, y, FONT_SMALL, CENTER)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	init();

@@ -90,7 +90,7 @@ static void setScrollingCursor(ui8 direction)
 CTerrainRect::CTerrainRect()
 	: fadeSurface(nullptr),
 	  lastRedrawStatus(EMapAnimRedrawStatus::OK),
-	  fadeAnim(new CFadeAnimation()),
+	  fadeAnim(std::make_shared<CFadeAnimation>()),
 	  curHoveredTile(-1,-1,-1),
 	  currentPath(nullptr)
 {
@@ -106,9 +106,8 @@ CTerrainRect::CTerrainRect()
 
 CTerrainRect::~CTerrainRect()
 {
-	if (fadeSurface)
+	if(fadeSurface)
 		SDL_FreeSurface(fadeSurface);
-	delete fadeAnim;
 }
 
 void CTerrainRect::deactivate()
@@ -475,12 +474,16 @@ void CResDataBar::clickRight(tribool down, bool previousState)
 {
 }
 
-CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
+CResDataBar::CResDataBar(const std::string & defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
-	bg = BitmapHandler::loadBitmap(defname);
-	CSDL_Ext::setDefaultColorKey(bg);
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos = genRect(bg->h, bg->w, pos.x+x, pos.y+y);
+	pos.x += x;
+	pos.y += y;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CPicture>(defname, 0, 0);
+	background->colorize(LOCPLINT->playerID);
+
+	pos.w = background->bg->w;
+	pos.h = background->bg->h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -496,10 +499,15 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 
 CResDataBar::CResDataBar()
 {
-	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
-	CSDL_Ext::setDefaultColorKey(bg);
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
+	pos.x += ADVOPT.resdatabarX;
+	pos.y += ADVOPT.resdatabarY;
+
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	background = std::make_shared<CPicture>(ADVOPT.resdatabarG, 0, 0);
+	background->colorize(LOCPLINT->playerID);
+
+	pos.w = background->bg->w;
+	pos.h = background->bg->h;
 
 	txtpos.resize(8);
 	for (int i = 0; i < 8 ; i++)
@@ -512,13 +520,11 @@ CResDataBar::CResDataBar()
 				+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
 }
 
-CResDataBar::~CResDataBar()
-{
-	SDL_FreeSurface(bg);
-}
+CResDataBar::~CResDataBar() = default;
+
 void CResDataBar::draw(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y,to);
+	//TODO: all this should be labels, but they require proper text update on change
 	for (auto i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
 		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
@@ -541,6 +547,7 @@ void CResDataBar::show(SDL_Surface * to)
 
 void CResDataBar::showAll(SDL_Surface * to)
 {
+	CIntObject::showAll(to);
 	draw(to);
 }
 
@@ -552,13 +559,13 @@ CAdvMapInt::CAdvMapInt():
 	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
 	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
 	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
-  spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
-  updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
+	spellBeingCasted(nullptr), position(int3(0, 0, 0)), selection(nullptr),
+	updateScreen(false), anim(0), animValHitCount(0), heroAnim(0), heroAnimValHitCount(0),
 	activeMapPanel(nullptr), duringAITurn(false), scrollingDir(0), scrollingState(false),
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(int3(-1, -1, -1))
 {
-  adventureInt = this;
+	adventureInt = this;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
@@ -580,18 +587,17 @@ CAdvMapInt::CAdvMapInt():
 	}
 
 	worldViewIcons = std::make_shared<CAnimation>("VwSymbol");//todo: customize with ADVOPT
-	//preload all for faster map drawing
-	worldViewIcons->load();//TODO: make special method in CAnimation fro that
+	worldViewIcons->preload();
 
-	for (int g=0; g<ADVOPT.gemG.size(); ++g)
+	for(int g = 0; g < ADVOPT.gemG.size(); ++g)
 	{
-		gems.push_back(new CAnimImage(ADVOPT.gemG[g], 0, 0, ADVOPT.gemX[g], ADVOPT.gemY[g]));
+		gems.push_back(std::make_shared<CAnimImage>(ADVOPT.gemG[g], 0, 0, ADVOPT.gemX[g], ADVOPT.gemY[g]));
 	}
 
-	auto makeButton = [&] (int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> CButton *
+	auto makeButton = [&](int textID, std::function<void()> callback, config::ButtonInfo info, int key) -> std::shared_ptr<CButton>
 	{
-		auto button = new CButton(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
-		for (auto image : info.additionalDefs)
+		auto button = std::make_shared<CButton>(Point(info.x, info.y), info.defName, CGI->generaltexth->zelp[textID], callback, key, info.playerColoured);
+		for(auto image : info.additionalDefs)
 			button->addImage(image);
 		return button;
 	};
@@ -609,9 +615,9 @@ CAdvMapInt::CAdvMapInt():
 
 	int panelSpaceBottom = screen->h - resdatabar.pos.h - 4;
 
-	panelMain = new CAdvMapPanel(nullptr, Point(0, 0));
+	panelMain = std::make_shared<CAdvMapPanel>(nullptr, Point(0, 0));
 	// TODO correct drawing position
-	panelWorldView = new CAdvMapWorldViewPanel(worldViewIcons, bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
+	panelWorldView = std::make_shared<CAdvMapWorldViewPanel>(worldViewIcons, bgWorldView, Point(heroList.pos.x - 2, 195), panelSpaceBottom, LOCPLINT->playerID);
 
 	panelMain->addChildColorableButton(kingOverview);
 	panelMain->addChildColorableButton(underground);
@@ -640,7 +646,7 @@ CAdvMapInt::CAdvMapInt():
 	worldViewPuzzleConfig.y = 343 + 195;
 	worldViewPuzzleConfig.playerColoured = false;
 	panelWorldView->addChildToPanel( // no help text for this one
-		new CButton(Point(worldViewPuzzleConfig.x, worldViewPuzzleConfig.y), worldViewPuzzleConfig.defName, std::pair<std::string, std::string>(),
+		std::make_shared<CButton>(Point(worldViewPuzzleConfig.x, worldViewPuzzleConfig.y), worldViewPuzzleConfig.defName, std::pair<std::string, std::string>(),
 				std::bind(&CPlayerInterface::showPuzzleMap,LOCPLINT), SDLK_p, worldViewPuzzleConfig.playerColoured), ACTIVATE | DEACTIVATE);
 
 	config::ButtonInfo worldViewScale1xConfig = config::ButtonInfo();
@@ -684,19 +690,19 @@ CAdvMapInt::CAdvMapInt():
 	for (int i = 0; i < 5; ++i)
 	{
 		panelWorldView->addChildIcon(std::pair<int, Point>(i, Point(5, 58 + i * 20)), iconColorMultiplier);
-		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 263 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[612 + i]));
 	}
 	for (int i = 0; i < 7; ++i)
 	{
 		panelWorldView->addChildIcon(std::pair<int, Point>(i +  5, Point(5, 182 + i * 20)), iconColorMultiplier);
 		panelWorldView->addChildIcon(std::pair<int, Point>(i + 12, Point(160, 182 + i * 20)), iconColorMultiplier);
-		panelWorldView->addChildToPanel(new CLabel(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+		panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 387 + i * 20, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 												Colors::WHITE, CGI->generaltexth->allTexts[619 + i]));
 	}
-	panelWorldView->addChildToPanel(new CLabel(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
+	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft +   5, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 											Colors::WHITE, CGI->generaltexth->allTexts[617]));
-	panelWorldView->addChildToPanel(new CLabel(wvLeft + 185, 387, EFonts::FONT_SMALL, EAlignment::BOTTOMRIGHT,
+	panelWorldView->addChildToPanel(std::make_shared<CLabel>(wvLeft + 45, 367, EFonts::FONT_SMALL, EAlignment::TOPLEFT,
 											Colors::WHITE, CGI->generaltexth->allTexts[618]));
 
 	activeMapPanel = panelMain;
@@ -713,8 +719,6 @@ CAdvMapInt::CAdvMapInt():
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
-
-	worldViewIcons->unload();
 }
 
 void CAdvMapInt::fshowOverview()
@@ -996,7 +1000,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	show(to);
 
 
-	resdatabar.draw(to);
+	resdatabar.showAll(to);
 
 	statusbar.show(to);
 
@@ -1503,7 +1507,7 @@ void CAdvMapInt::setPlayer(PlayerColor Player)
 	panelMain->setPlayerColor(player);
 	panelWorldView->setPlayerColor(player);
 	panelWorldView->recolorIcons(player, player.getNum() * 19);
-	graphics->blueToPlayersAdv(resdatabar.bg,player);
+	resdatabar.background->colorize(player);
 }
 
 void CAdvMapInt::startTurn()
@@ -1926,24 +1930,24 @@ void CAdvMapInt::changeMode(EAdvMapMode newMode, float newScale)
 	}
 }
 
-CAdventureOptions::CAdventureOptions():
-	CWindowObject(PLAYER_COLORED, "ADVOPTS")
+CAdventureOptions::CAdventureOptions()
+	: CWindowObject(PLAYER_COLORED, "ADVOPTS")
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	viewWorld = new CButton(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_v);
+	viewWorld = std::make_shared<CButton>(Point(24, 23), "ADVVIEW.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_v);
 	viewWorld->addCallback(std::bind(&CPlayerInterface::viewWorldMap, LOCPLINT));
 
-	exit = new CButton(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
+	exit = std::make_shared<CButton>(Point(204, 313), "IOK6432.DEF", CButton::tooltip(), std::bind(&CAdventureOptions::close, this), SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	scenInfo = new CButton(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_i);
+	scenInfo = std::make_shared<CButton>(Point(24, 198), "ADVINFO.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_i);
 	scenInfo->addCallback(CAdventureOptions::showScenarioInfo);
 
-	puzzle = new CButton(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_p);
+	puzzle = std::make_shared<CButton>(Point(24, 81), "ADVPUZ.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_p);
 	puzzle->addCallback(std::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT));
 
-	dig = new CButton(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_d);
+	dig = std::make_shared<CButton>(Point(24, 139), "ADVDIG.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_d);
 	if(const CGHeroInstance *h = adventureInt->curHero())
 		dig->addCallback(std::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h));
 	else

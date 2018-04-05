@@ -9,7 +9,6 @@
  */
 #pragma once
 
-//#include "CComponent.h"
 #include "MiscWidgets.h"
 
 class CArtifactsOfHero;
@@ -43,7 +42,7 @@ public:
 class CArtPlace : public LRClickableAreaWTextComp
 {
 protected:
-	CAnimImage *image;
+	std::shared_ptr<CAnimImage> image;
 	virtual void createImage()=0;
 public:
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
@@ -75,7 +74,7 @@ public:
 /// Artifacts can be placed there. Gets shown at the hero window
 class CHeroArtPlace: public CArtPlace
 {
-	CAnimImage *selection;
+	std::shared_ptr<CAnimImage> selection;
 
 	void createImage() override;
 
@@ -111,14 +110,10 @@ public:
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
 class CArtifactsOfHero : public CIntObject
 {
-	const CGHeroInstance * curHero;
-
-	std::map<ArtifactPosition, CHeroArtPlace *> artWorn;
-
-	std::vector<CHeroArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
-	int backpackPos; //number of first art visible in backpack (in hero's vector)
-
 public:
+	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;
+	using ArtPlaceMap = std::map<ArtifactPosition, ArtPlacePtr>;
+
 	struct SCommonPart
 	{
 		struct Artpos
@@ -142,8 +137,10 @@ public:
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
-	CButton * leftArtRoll, * rightArtRoll;
+	std::shared_ptr<CButton> leftArtRoll;
+	std::shared_ptr<CButton> rightArtRoll;
 	bool allowedAssembling;
+
 	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
 	std::function<void(CHeroArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
 
@@ -152,7 +149,7 @@ public:
 	void artifactRemoved(const ArtifactLocation &al);
 	void artifactAssembled(const ArtifactLocation &al);
 	void artifactDisassembled(const ArtifactLocation &al);
-	CHeroArtPlace *getArtPlace(int slot);//may return null
+	ArtPlacePtr getArtPlace(int slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);
 	const CGHeroInstance *getHero() const;
@@ -163,17 +160,27 @@ public:
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
 	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
-	void setSlotData (CHeroArtPlace* artPlace, ArtifactPosition slotID);
 	void updateWornSlots (bool redrawParent = true);
 
 	void updateSlot(ArtifactPosition i);
-	void eraseSlotData (CHeroArtPlace* artPlace, ArtifactPosition slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
-	CArtifactsOfHero(std::map<ArtifactPosition, CHeroArtPlace *> ArtWorn, std::vector<CHeroArtPlace *> Backpack,
-		CButton *leftScroll, CButton *rightScroll, bool createCommonPart = false);
+	CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,
+		std::shared_ptr<CButton> leftScroll, std::shared_ptr<CButton> rightScroll, bool createCommonPart = false);
 	~CArtifactsOfHero();
 	void updateParentWindow();
 	friend class CHeroArtPlace;
+
+private:
+
+	const CGHeroInstance * curHero;
+
+	ArtPlaceMap artWorn;
+
+	std::vector<ArtPlacePtr> backpack; //hero's visible backpack (only 5 elements!)
+	int backpackPos; //number of first art visible in backpack (in hero's vector)
+
+	void eraseSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
+	void setSlotData(ArtPlacePtr artPlace, ArtifactPosition slotID);
 };
