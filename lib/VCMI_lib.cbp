@@ -200,9 +200,11 @@
 		<Unit filename="NetPacks.h" />
 		<Unit filename="NetPacksBase.h" />
 		<Unit filename="NetPacksLib.cpp" />
+		<Unit filename="NetPacksLobby.h" />
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
+		<Unit filename="StartInfo.cpp" />
 		<Unit filename="StartInfo.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
@@ -342,10 +344,10 @@
 		<Unit filename="registerTypes/RegisterTypes.h" />
 		<Unit filename="registerTypes/TypesClientPacks1.cpp" />
 		<Unit filename="registerTypes/TypesClientPacks2.cpp" />
+		<Unit filename="registerTypes/TypesLobbyPacks.cpp" />
 		<Unit filename="registerTypes/TypesMapObjects1.cpp" />
 		<Unit filename="registerTypes/TypesMapObjects2.cpp" />
 		<Unit filename="registerTypes/TypesMapObjects3.cpp" />
-		<Unit filename="registerTypes/TypesPregamePacks.cpp" />
 		<Unit filename="registerTypes/TypesServerPacks.cpp" />
 		<Unit filename="rmg/CMapGenOptions.cpp" />
 		<Unit filename="rmg/CMapGenOptions.h" />

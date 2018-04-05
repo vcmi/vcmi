@@ -95,6 +95,7 @@
 		<Unit filename="CQuery.h" />
 		<Unit filename="CVCMIServer.cpp" />
 		<Unit filename="CVCMIServer.h" />
+		<Unit filename="NetPacksLobbyServer.cpp" />
 		<Unit filename="NetPacksServer.cpp" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
