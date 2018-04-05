@@ -480,7 +480,7 @@ CKingdomInterface::CKingdomInterface()
 	generateMinesList(ownedObjects);
 	generateButtons();
 
-	statusbar = std::make_shared<CGStatusBar>(new CPicture("KSTATBAR", 10,pos.h - 45));
+	statusbar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>("KSTATBAR", 10,pos.h - 45));
 	resdatabar = std::make_shared<CResDataBar>("KRESBAR", 3, 111+footerPos, 32, 2, 76, 76);
 }
 

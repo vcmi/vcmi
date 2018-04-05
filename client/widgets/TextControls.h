@@ -40,7 +40,7 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	CPicture *bg;
+	std::shared_ptr<CPicture> background;
 public:
 
 	std::string text;
@@ -119,19 +119,18 @@ class CGStatusBar : public CLabel
 	bool textLock; //Used for blocking changes to the text
 	void init();
 
-	CGStatusBar *oldStatusBar;
+	CGStatusBar * oldStatusBar;
 protected:
 	Point getBorderSize() override;
 
 public:
-
 	void clear();//clears statusbar and refreshes
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
-	CGStatusBar(int x, int y, std::string name, int maxw=-1);
+	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 	~CGStatusBar();
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called

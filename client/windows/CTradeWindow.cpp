@@ -666,7 +666,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	madeTransaction = false;
 	bool sliderNeeded = true;
 
-	statusBar = std::make_shared<CGStatusBar>(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	std::string title;
 
@@ -1142,7 +1142,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	//Total experience on the Altar
 	texts.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW));
 
-	statusBar = std::make_shared<CGStatusBar>(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
