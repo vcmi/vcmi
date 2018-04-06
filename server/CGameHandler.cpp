@@ -50,6 +50,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
+#include <chrono>
 
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
@@ -1930,6 +1931,7 @@ void CGameHandler::run(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
 
+	boost::thread(&CGameHandler::threadEnforceTimeLimit, this);
 	using namespace boost::posix_time;
 	for (auto cc : lobby->connections)
 	{
@@ -2009,6 +2011,74 @@ void CGameHandler::run(bool resume)
 		}
 		if(!activePlayer)
 			lobby->state = EServerState::GAMEPLAY_ENDED;
+	}
+}
+
+void CGameHandler::threadEnforceTimeLimit()
+{
+	setThreadName("CGameHandler::threadEnforceTimeLimit");
+	// TODO: Implement turn time limit for AI players based of gs->players[player].human
+	// Will help to workaround freezes inside AI.
+	if(!gs->scenarioOps->turnTime)
+		return;
+
+	std::map<int, bool> turnTimeNotifications;
+	if(turnTimeNotifications.empty())
+	{
+		for(ui8 i = 0; i < gs->scenarioOps->turnTime; i++)
+			turnTimeNotifications.insert(std::make_pair(i * 60, false));
+
+		turnTimeNotifications.insert(std::make_pair(30, false));
+		for(ui8 i = 15; i > 0; i--)
+			turnTimeNotifications.insert(std::make_pair(i, false));
+	}
+
+	while(lobby->state == EServerState::GAMEPLAY)
+	{
+		for(auto & notification : turnTimeNotifications)
+			notification.second = false;
+
+		auto turnStartTime = std::chrono::high_resolution_clock::now();
+		auto currentPlayer = gs->currentPlayer;
+		while(currentPlayer == gs->currentPlayer && lobby->state == EServerState::GAMEPLAY)
+		{
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			int secondsRemaining = gs->scenarioOps->turnTime * 60 - std::chrono::duration_cast<std::chrono::seconds>(currentTime - turnStartTime).count();
+			if(secondsRemaining <= 0)
+			{
+				if(!gs->curB)
+				{
+					states.setFlag(currentPlayer, &PlayerStatus::makingTurn, false);
+				}
+			}
+			else if(vstd::contains(turnTimeNotifications, secondsRemaining) && !turnTimeNotifications[secondsRemaining])
+			{
+				turnTimeNotifications[secondsRemaining] = true;
+				MetaString text;
+				if(secondsRemaining == 1)
+				{
+					//You have 1 second remaining in your turn
+					text.addTxt(MetaString::GENERAL_TXT, 626);
+				}
+				else if(secondsRemaining == 60)
+				{
+					//You have 1 minute remaining in your turn.
+					text.addTxt(MetaString::GENERAL_TXT, 628);
+				}
+				else if(secondsRemaining > 60)
+				{
+					text.addTxt(MetaString::GENERAL_TXT, 629);
+					text.addReplacement(secondsRemaining / 60);
+				}
+				else
+				{
+					text.addTxt(MetaString::GENERAL_TXT, 627);
+					text.addReplacement(secondsRemaining);
+				}
+				sendMessageTo(currentPlayer, text.toString());
+			}
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		}
 	}
 }
 
@@ -2546,6 +2616,12 @@ void CGameHandler::sendMessageTo(std::shared_ptr<CConnection> c, const std::stri
 	sm.text = message;
 	boost::unique_lock<boost::mutex> lock(*c->mutexWrite);
 	*(c.get()) << &sm;
+}
+
+void CGameHandler::sendMessageTo(PlayerColor & color, const std::string & message)
+{
+	for(auto conn : connections[color])
+		sendMessageTo(conn, message);
 }
 
 void CGameHandler::giveHeroBonus(GiveBonus * bonus)

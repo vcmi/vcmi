@@ -254,6 +254,7 @@ public:
 
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(std::shared_ptr<CConnection> c, const std::string &message);
+	void sendMessageTo(PlayerColor & color, const std::string &message);
 	void sendToAllClients(CPackForClient * pack);
 	void sendAndApply(CPackForClient * pack) override;
 	void applyAndSend(CPackForClient * pack);
@@ -291,6 +292,7 @@ public:
 	void battleAfterLevelUp(const BattleResult &result);
 
 	void run(bool resume);
+	void threadEnforceTimeLimit();
 	void newTurn();
 	void handleAttackBeforeCasting(bool ranged, const CStack * attacker, const CStack * defender);
 	void handleAfterAttackCasting(bool ranged, const CStack * attacker, const CStack * defender);
