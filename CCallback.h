@@ -38,6 +38,7 @@ public:
 	//battle
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
+	virtual int getSurrenderRetreatDecision() =0;
 };
 
 class IGameActionCallback
@@ -88,6 +89,7 @@ protected:
 
 public:
 	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
+	int getSurrenderRetreatDecision() override;
 	int battleMakeAction(BattleAction* action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
 

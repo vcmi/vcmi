@@ -2936,3 +2936,17 @@ void CPlayerInterface::updateAmbientSounds(bool resetAll)
 	}
 	CCS->soundh->ambientUpdateChannels(currentSounds);
 }
+
+int CPlayerInterface::makeSurrenderRetreatDecision()
+{
+	int action = 0;
+	logGlobal->error("CPlayerInterface::makeSurrenderRetreatDecision START");
+	MetaString text;
+	text.addTxt(MetaString::GENERAL_TXT, 413);
+	text.addReplacement("Hero Name!");
+
+	LOCPLINT->showYesNoDialog(text.toString(), [&action](){action = 1;}, 0, false);
+	waitWhileDialog(false); // Wait for dialog, but DO NOT try to LOCK PIM
+	logGlobal->error("CPlayerInterface::makeSurrenderRetreatDecision END");
+	return action;
+}

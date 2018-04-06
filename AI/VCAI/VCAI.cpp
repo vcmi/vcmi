@@ -3558,3 +3558,9 @@ std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool s
 	}
 	return heroSector->visitableObjs;
 }
+
+int VCAI::makeSurrenderRetreatDecision()
+{
+	logGlobal->error("VCAI::makeSurrenderRetreatDecision");
+	return 1;
+}

@@ -668,8 +668,11 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 		if(lastTurn && cb->battleCanFlee())
 		{
-			LOGL("We should flee!");
-			return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
+			if(cb->getSurrenderRetreatDecision() == 1)
+			{
+				LOGL("We should flee!");
+				return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
+			}
 		}
 		LOGL("We will have another chance!");
 		

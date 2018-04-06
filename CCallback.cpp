@@ -369,6 +369,11 @@ CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C
 	cl = C;
 }
 
+int CBattleCallback::getSurrenderRetreatDecision()
+{
+	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision();
+}
+
 bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 {
 	assert(cl->gs->curB->tacticDistance);

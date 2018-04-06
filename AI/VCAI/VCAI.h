@@ -124,6 +124,8 @@ struct SectorMap
 class VCAI : public CAdventureAI
 {
 public:
+
+	virtual int makeSurrenderRetreatDecision() override;
 	//internal methods for town development
 
 	//try build an unbuilt structure in maxDays at most (0 = indefinite)
