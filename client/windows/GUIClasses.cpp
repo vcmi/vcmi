@@ -497,32 +497,25 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	enemyMoveSpeed = std::make_shared<CToggleGroup>(0);
 	mapScrollSpeed = std::make_shared<CToggleGroup>(0);
 
-	{
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255);
+	heroMoveSpeed->addToggle(1, std::make_shared<CToggleButton>(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
+	heroMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
+	heroMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
+	heroMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
+	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
+	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 
-		heroMoveSpeed->addToggle(1, new CToggleButton(Point( 28, 77), "sysopb1.def", CGI->generaltexth->zelp[349]));
-		heroMoveSpeed->addToggle(2, new CToggleButton(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
-		heroMoveSpeed->addToggle(4, new CToggleButton(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
-		heroMoveSpeed->addToggle(8, new CToggleButton(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
-		heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
-		heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
+	enemyMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
+	enemyMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
+	enemyMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
+	enemyMoveSpeed->addToggle(0, std::make_shared<CToggleButton>(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
+	enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
+	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 
-
-		enemyMoveSpeed->addToggle(2, new CToggleButton(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
-		enemyMoveSpeed->addToggle(4, new CToggleButton(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
-		enemyMoveSpeed->addToggle(8, new CToggleButton(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
-		enemyMoveSpeed->addToggle(0, new CToggleButton(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
-		enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
-		enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
-
-
-		mapScrollSpeed->addToggle(1, new CToggleButton(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
-		mapScrollSpeed->addToggle(2, new CToggleButton(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
-		mapScrollSpeed->addToggle(4, new CToggleButton(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
-		mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
-		mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
-	}
-
+	mapScrollSpeed->addToggle(1, std::make_shared<CToggleButton>(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
+	mapScrollSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
+	mapScrollSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
+	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
+	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
 	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
 	musicVolume->addCallback(std::bind(&setIntSetting, "general", "music", _1));

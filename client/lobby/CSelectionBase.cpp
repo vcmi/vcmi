@@ -148,7 +148,7 @@ InfoCard::InfoCard()
 
 			for(int i = 0; i < 5; i++)
 			{
-				auto button = new CToggleButton(Point(110 + i * 32, 450), difButns[i], CGI->generaltexth->zelp[24 + i]);
+				auto button = std::make_shared<CToggleButton>(Point(110 + i * 32, 450), difButns[i], CGI->generaltexth->zelp[24 + i]);
 
 				iconDifficulty->addToggle(i, button);
 				if(SEL->screenType != ESelectionScreen::newGame)

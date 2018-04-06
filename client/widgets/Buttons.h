@@ -162,14 +162,14 @@ class CToggleGroup : public CIntObject
 	int selectedID;
 	void selectionChanged(int to);
 public:
-	std::map<int, CToggleBase*> buttons;
+	std::map<int, std::shared_ptr<CToggleBase>> buttons;
 
 	CToggleGroup(const CFunctionList<void(int)> & OnChange);
 
 	void addCallback(std::function<void(int)> callback);
 
 	/// add one toggle/button into group
-	void addToggle(int index, CToggleBase * button);
+	void addToggle(int index, std::shared_ptr<CToggleBase> button);
 	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
 };

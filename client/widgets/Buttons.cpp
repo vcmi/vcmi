@@ -315,9 +315,7 @@ CToggleBase::CToggleBase(CFunctionList<void (bool)> callback):
 {
 }
 
-CToggleBase::~CToggleBase()
-{
-}
+CToggleBase::~CToggleBase() = default;
 
 void CToggleBase::doSelect(bool on)
 {
@@ -397,23 +395,25 @@ void CToggleGroup::addCallback(std::function<void(int)> callback)
 	onChange += callback;
 }
 
-void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
+void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
 {
-	if (auto intObj = dynamic_cast<CIntObject*>(bt)) // hack-ish workagound to avoid diamond problem with inheritance
+	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
-		addChild(intObj);
+		addChild(intObj.get());
 	}
 
-	bt->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
-	bt->allowDeselection = false;
+	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
+	button->allowDeselection = false;
 
-	assert(buttons[identifier] == nullptr);
-	buttons[identifier] = bt;
+	if(buttons.count(identifier)>0)
+		logAnim->error("Duplicated toggle button id %d", identifier);
+	buttons[identifier] = button;
 }
 
 CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange)
-: onChange(OnChange), selectedID(-2)
-{}
+	: onChange(OnChange), selectedID(-2)
+{
+}
 
 void CToggleGroup::setSelected(int id)
 {

@@ -340,18 +340,16 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	toggles.push_back(mouseShadow);
 
 	animSpeeds = std::make_shared<CToggleGroup>([=](int value){ owner->setAnimSpeed(value);});
+
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
-	toggles.push_back(toggle);
-	animSpeeds->addToggle(40, toggle.get());
+	animSpeeds->addToggle(40, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point( 92, 225), "sysob10.def", CGI->generaltexth->zelp[423]);
-	toggles.push_back(toggle);
-	animSpeeds->addToggle(63, toggle.get());
+	animSpeeds->addToggle(63, toggle);
 
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
-	toggles.push_back(toggle);
-	animSpeeds->addToggle(100, toggle.get());
+	animSpeeds->addToggle(100, toggle);
 
 	animSpeeds->setSelected(owner->getAnimSpeed());
 

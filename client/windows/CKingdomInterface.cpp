@@ -911,9 +911,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		std::string hover = CGI->generaltexth->overview[13+it];
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255);
-
-		auto button = new CToggleButton(Point(364+it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
+		auto button = std::make_shared<CToggleButton>(Point(364+it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
 		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 		artButtons->addToggle(it, button);
 	}
