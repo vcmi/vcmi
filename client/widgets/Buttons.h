@@ -167,6 +167,7 @@ public:
 	CToggleGroup(const CFunctionList<void(int)> & OnChange);
 
 	void addCallback(std::function<void(int)> callback);
+	void resetCallback();
 
 	/// add one toggle/button into group
 	void addToggle(int index, std::shared_ptr<CToggleBase> button);

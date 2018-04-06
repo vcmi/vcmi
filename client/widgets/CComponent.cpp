@@ -28,15 +28,13 @@
 #include "../../lib/NetPacksBase.h"
 
 CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize)
-	: CIntObject(RCLICK),
-	perDay(false)
+	: perDay(false)
 {
 	init(Type, Subtype, Val, imageSize);
 }
 
 CComponent::CComponent(const Component & c, ESize imageSize)
-	: CIntObject(RCLICK),
-	perDay(false)
+	: perDay(false)
 {
 	if(c.id == Component::RESOURCE && c.when==-1)
 		perDay = true;
@@ -47,6 +45,8 @@ CComponent::CComponent(const Component & c, ESize imageSize)
 void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	addUsedEvents(RCLICK);
 
 	compType = Type;
 	subtype = Subtype;

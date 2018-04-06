@@ -381,8 +381,8 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback):
-	CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
+CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
+	: CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
 	cb(callback)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);

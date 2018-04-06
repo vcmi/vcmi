@@ -75,7 +75,7 @@ public:
 
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
-	CSelectableComponent(const Component &c, std::function<void()> OnSelect = nullptr);
+	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };
 
 /// box with multiple components (up to 8?)

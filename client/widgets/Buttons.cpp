@@ -395,6 +395,11 @@ void CToggleGroup::addCallback(std::function<void(int)> callback)
 	onChange += callback;
 }
 
+void CToggleGroup::resetCallback()
+{
+	onChange.clear();
+}
+
 void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
 {
 	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance

@@ -124,7 +124,6 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	formations = std::make_shared<CToggleGroup>(0);
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), "hsbtns6.def", std::make_pair(heroscrn[23], heroscrn[29]), 0, SDLK_t));
 	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), "hsbtns7.def", std::make_pair(heroscrn[24], heroscrn[30]), 0, SDLK_l));
-	formations->addCallback([&] (int value) { LOCPLINT->cb->setFormation(curHero, value); });
 
 	if(hero->commander)
 	{
@@ -326,11 +325,13 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 	else
 	{
 		tacticsButton->block(false);
-		tacticsButton->addCallback( [&](bool on) {curHero->tacticFormationEnabled = on;});
+		tacticsButton->addCallback([&](bool on){curHero->tacticFormationEnabled = on;});
 	}
 
+	formations->resetCallback();
 	//setting formations
 	formations->setSelected(curHero->formation);
+	formations->addCallback([=](int value){ LOCPLINT->cb->setFormation(curHero, value);});
 
 	morale->set(&heroWArt);
 	luck->set(&heroWArt);
