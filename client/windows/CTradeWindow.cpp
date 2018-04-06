@@ -388,14 +388,10 @@ void CTradeWindow::initItems(bool Left)
 			yOffset = -12;
 		}
 
-		BLOCK_CAPTURING;
-		arts = std::make_shared<CArtifactsOfHero>(Point(pos.x+xOffset, pos.y+yOffset));
-		arts->commonInfo = std::make_shared<CArtifactsOfHero::SCommonPart>();
-		arts->commonInfo->participants.insert(arts.get());
-		arts->recActions = 255;
+		arts = std::make_shared<CArtifactsOfHero>(Point(xOffset, yOffset), true);
+		arts->recActions = 255-DISPOSE;
 		arts->setHero(hero);
 		arts->allowedAssembling = false;
-		addChild(arts.get());
 		addSet(arts);
 
 		if(mode == EMarketMode::ARTIFACT_RESOURCE)
