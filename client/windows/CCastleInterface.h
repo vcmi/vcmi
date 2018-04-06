@@ -285,7 +285,6 @@ class CBuildWindow: public CWindowObject
 	std::shared_ptr<CLabel> name;
 	std::shared_ptr<CTextBox> description;
 	std::shared_ptr<CTextBox> stateText;
-	std::vector<std::shared_ptr<CComponent>> costParts;
 	std::shared_ptr<CComponentBox> cost;
 
 	std::shared_ptr<CButton> buy;

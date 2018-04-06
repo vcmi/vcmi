@@ -106,7 +106,7 @@ public:
 	virtual size_t getImageIndex()=0;
 
 	//TODO: replace with something better
-	virtual void prepareMessage(std::string &text, CComponent **comp)=0;
+	virtual void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp)=0;
 
 	virtual ~IInfoBoxData(){};
 };
@@ -126,7 +126,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	void prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 class InfoBoxHeroData : public InfoBoxAbstractHeroData
@@ -144,7 +144,7 @@ public:
 	std::string getHoverText() override;
 	std::string getValueText() override;
 
-	void prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
@@ -176,7 +176,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	void prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 //TODO!!!

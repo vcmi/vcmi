@@ -39,23 +39,23 @@ template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, co
 class ComponentResolved : public CIntObject
 {
 public:
-	CComponent *comp;
+	std::shared_ptr<CComponent> comp;
 
 	//blit component with image centered at this position
 	void showAll(SDL_Surface * to) override;
 
 	//ComponentResolved();
-	ComponentResolved(CComponent *Comp);
+	ComponentResolved(std::shared_ptr<CComponent> Comp);
 	~ComponentResolved();
 };
 // Full set of components for blitting on dialog box
 struct ComponentsToBlit
 {
-	std::vector< std::vector<ComponentResolved*> > comps;
+	std::vector< std::vector<std::shared_ptr<ComponentResolved>>> comps;
 	int w, h;
 
 	void blitCompsOnSur(bool blitOr, int inter, int &curh, SDL_Surface *ret);
-	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr);
+	ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SComps, int maxw, bool blitOr);
 	~ComponentsToBlit();
 };
 
@@ -358,7 +358,7 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 	box[3]->draw(ret, &dstR, nullptr);
 }
 
-ComponentResolved::ComponentResolved( CComponent *Comp ):
+ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
 	comp(Comp)
 {
 	//Temporary assign ownership on comp
@@ -367,10 +367,10 @@ ComponentResolved::ComponentResolved( CComponent *Comp ):
 	if (comp->parent)
 	{
 		comp->parent->addChild(this);
-		comp->parent->removeChild(comp);
+		comp->parent->removeChild(comp.get());
 	}
 
-	addChild(comp);
+	addChild(comp.get());
 	defActions = 255 - DISPOSE;
 	pos.x = pos.y = 0;
 
@@ -382,8 +382,8 @@ ComponentResolved::~ComponentResolved()
 {
 	if (parent)
 	{
-		removeChild(comp);
-		parent->addChild(comp);
+		removeChild(comp.get());
+		parent->addChild(comp.get());
 	}
 }
 
@@ -393,15 +393,9 @@ void ComponentResolved::showAll(SDL_Surface *to)
 	comp->showAll(to);
 }
 
-ComponentsToBlit::~ComponentsToBlit()
-{
-	for(auto & elem : comps)
-		for(size_t j = 0; j < elem.size(); j++)
-			delete elem[j];
+ComponentsToBlit::~ComponentsToBlit() = default;
 
-}
-
-ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr)
+ComponentsToBlit::ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SComps, int maxw, bool blitOr)
 {
 	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
 
@@ -415,7 +409,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 
 	for(auto & SComp : SComps)
 	{
-		auto  cur = new ComponentResolved(SComp);
+		auto cur = std::make_shared<ComponentResolved>(SComp);
 
 		int toadd = (cur->pos.w + BETWEEN_COMPS + (blitOr ? orWidth : 0));
 		if (curw + toadd > maxw)
@@ -453,7 +447,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 		int totalw=0, maxHeight=0;
 		for(size_t j=0;j<elem.size();j++)//find max height & total width in this row
 		{
-			ComponentResolved *cur = elem[j];
+			auto cur = elem[j];
 			totalw += cur->pos.w;
 			vstd::amax(maxHeight, cur->pos.h);
 		}
@@ -469,7 +463,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 
 		for(size_t j=0;j<elem.size();j++)
 		{
-			ComponentResolved *cur = elem[j];
+			auto cur = elem[j];
 			cur->moveTo(Point(curw, curh));
 
 			//blit component

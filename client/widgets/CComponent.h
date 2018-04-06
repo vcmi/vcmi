@@ -13,6 +13,7 @@
 
 struct Component;
 class CAnimImage;
+class CLabel;
 
 /// common popup window component
 class CComponent : public virtual CIntObject
@@ -34,6 +35,8 @@ public:
 	};
 
 private:
+	std::vector<std::shared_ptr<CLabel>> lines;
+
 	size_t getIndex();
 	const std::vector<std::string> getFileName();
 	void setSurface(std::string defName, int imgPos);
@@ -42,7 +45,7 @@ private:
 	void init(Etype Type, int Subtype, int Val, ESize imageSize);
 
 public:
-	CAnimImage *image; //our image
+	std::shared_ptr<CAnimImage> image;
 
 	Etype compType; //component type
 	ESize size; //component size.
@@ -79,12 +82,14 @@ public:
 /// will take ownership on components and delete them afterwards
 class CComponentBox : public CIntObject
 {
-	std::vector<CComponent *> components;
+	std::vector<std::shared_ptr<CComponent>> components;
 
-	CSelectableComponent * selected;
+	std::vector<std::shared_ptr<CLabel>> orLabels;
+
+	std::shared_ptr<CSelectableComponent> selected;
 	std::function<void(int newID)> onSelect;
 
-	void selectionChanged(CSelectableComponent * newSelection);
+	void selectionChanged(std::shared_ptr<CSelectableComponent> newSelection);
 
 	//get position of "or" text between these comps
 	//it will place "or" equidistant to both images
@@ -99,10 +104,10 @@ public:
 	int selectedIndex();
 
 	/// constructor for non-selectable components
-	CComponentBox(std::vector<CComponent *> components, Rect position);
+	CComponentBox(std::vector<std::shared_ptr<CComponent>> components, Rect position);
 
 	/// constructor for selectable components
 	/// will also create "or" labels between components
 	/// onSelect - optional function that will be called every time on selection change
-	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
+	CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> components, Rect position, std::function<void(int newID)> onSelect = nullptr);
 };

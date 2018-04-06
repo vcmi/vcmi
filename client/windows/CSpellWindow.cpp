@@ -544,7 +544,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//battle spell on adv map or adventure map spell during combat => display infowindow, not cast
 		if((combatSpell ^ inCombat) || inCastle)
 		{
-			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell->id, 0));
+			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
 			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
 		}
 		else if(combatSpell)
@@ -600,8 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo,
-		                            new CComponent(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 

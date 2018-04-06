@@ -850,7 +850,7 @@ void CAdvMapInt::fendTurn()
 				auto path = LOCPLINT->getAndVerifyPath(hero);
 				if(!path || path->nodes.size() < 2 || !path->nodes[path->nodes.size()-2].turns)
 				{
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), 0, false);
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::bind(&CAdvMapInt::endingTurn, this), nullptr);
 					return;
 				}
 			}
@@ -1244,8 +1244,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
 			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
-				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); },
-				[](){}, true);
+				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero

@@ -240,7 +240,6 @@ void CQuestLog::selectQuest(int which, int labelId)
 	description->setText(text.toString()); //TODO: use special log entry text
 
 	componentsBox.reset();
-	componentsBoxParts.clear();
 
 	int componentsSize = components.size();
 	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
@@ -288,12 +287,11 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-		std::vector<CComponent *> comps;
-		for (auto & component : components)
+		std::vector<std::shared_ptr<CComponent>> comps;
+		for(auto & component : components)
 		{
 			auto c = std::make_shared<CComponent>(component, imageSize);
-			componentsBoxParts.push_back(c);
-			comps.push_back(c.get());
+			comps.push_back(c);
 		}
 
 		componentsBox = std::make_shared<CComponentBox>(comps, Rect(202, 20+descriptionHeight+15, 391, DESCRIPTION_HEIGHT_MAX-(20+descriptionHeight)));

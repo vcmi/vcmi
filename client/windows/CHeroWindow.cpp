@@ -343,7 +343,7 @@ void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = [=](){ close(); };
 	ony += [=](){ LOCPLINT->cb->dismissHero(curHero); };
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, nullptr);
 }
 
 void CHeroWindow::commanderWindow()

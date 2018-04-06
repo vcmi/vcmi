@@ -447,7 +447,7 @@ void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
+void VCAI::showInfoDialog(const std::string &text, const std::vector<Component> &components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;

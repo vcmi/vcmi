@@ -87,7 +87,7 @@ void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		std::vector<CComponent*> comp(1, createComponent());
+		std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
 		LOCPLINT->showInfoDialog(text, comp);
 	}
 }
@@ -98,19 +98,19 @@ LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType
 	type = -1;
 }
 
-CComponent * LRClickableAreaWTextComp::createComponent() const
+std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 {
 	if(baseType >= 0)
-		return new CComponent(CComponent::Etype(baseType), type, bonusValue);
+		return std::make_shared<CComponent>(CComponent::Etype(baseType), type, bonusValue);
 	else
-		return nullptr;
+		return std::shared_ptr<CComponent>();
 }
 
 void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		if(CComponent *comp = createComponent())
+		if(auto comp = createComponent())
 		{
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 			return;

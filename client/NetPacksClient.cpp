@@ -534,15 +534,10 @@ void GiveHero::applyFirstCl(CClient *cl)
 
 void InfoWindow::applyCl(CClient *cl)
 {
-	std::vector<Component*> comps;
-	for(auto & elem : components)
-	{
-		comps.push_back(&elem);
-	}
 	std::string str;
 	text.toString(str);
 
-	if(!callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, str,comps,(soundBase::soundID)soundID))
+	if(!callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, str,components,(soundBase::soundID)soundID))
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 

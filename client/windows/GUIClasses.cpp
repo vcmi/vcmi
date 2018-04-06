@@ -391,11 +391,10 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill::PrimarySki
 
 	if(!skills.empty())
 	{
-		std::vector<CSelectableComponent *> comps;
+		std::vector<std::shared_ptr<CSelectableComponent>> comps;
 		for(auto & skill : skills)
 		{
-			auto comp = new CSelectableComponent(CComponent::secskill, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
-			comp->recActions |= DISPOSE;
+			auto comp = std::make_shared<CSelectableComponent>(CComponent::secskill, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
 			comps.push_back(comp);
 		}
 
@@ -1227,7 +1226,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), new CComponent(CComponent::secskill, ID, 1));
+		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 	}
 }
 
@@ -1533,10 +1532,10 @@ void CHillFortWindow::makeDeal(SlotID slot)
 	switch(currState[slot.getNum()])
 	{
 		case 0:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<CComponent*>(), soundBase::sound_todo);
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case 1:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], std::vector<CComponent*>(), soundBase::sound_todo);
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			break;
 		case 2:
 			for(int i=0; i<slotsCount; i++)

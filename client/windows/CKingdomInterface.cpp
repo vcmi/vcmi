@@ -87,9 +87,9 @@ void InfoBox::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
-		CComponent *comp = nullptr;
+		std::shared_ptr<CComponent> comp;
 		std::string text;
-		data->prepareMessage(text, &comp);
+		data->prepareMessage(text, comp);
 		if (comp)
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 		else if (!text.empty())
@@ -101,16 +101,12 @@ void InfoBox::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		CComponent *comp = nullptr;
+		std::shared_ptr<CComponent> comp;
 		std::string text;
-		data->prepareMessage(text, &comp);
+		data->prepareMessage(text, comp);
 
-		std::vector<CComponent*> compVector;
-		if (comp)
-		{
-			compVector.push_back(comp);
-			LOCPLINT->showInfoDialog(text, compVector);
-		}
+		if(comp)
+			LOCPLINT->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
 	}
 }
 
@@ -254,25 +250,23 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	}
 }
 
-void InfoBoxAbstractHeroData::prepareMessage(std::string & text, CComponent ** comp)
+void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp)
 {
+	comp.reset();
 	switch (type)
 	{
 	case HERO_SPECIAL:
 		text = CGI->heroh->heroes[getSubID()]->specDescr;
-		*comp = nullptr;
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
-		*comp =new CComponent(CComponent::primskill, getSubID(), getValue());
+		comp = std::make_shared<CComponent>(CComponent::primskill, getSubID(), getValue());
 		break;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
-		*comp = nullptr;
 		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[241];
-		*comp = nullptr;
 		break;
 	case HERO_SECONDARY_SKILL:
 		{
@@ -281,7 +275,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, CComponent ** c
 			if(value)
 			{
 				text = CGI->skillh->skillInfo(subID, value);
-				*comp = new CComponent(CComponent::secskill, subID, value);
+				comp = std::make_shared<CComponent>(CComponent::secskill, subID, value);
 			}
 			break;
 		}
@@ -386,8 +380,9 @@ std::string InfoBoxHeroData::getValueText()
 	return InfoBoxAbstractHeroData::getValueText();
 }
 
-void InfoBoxHeroData::prepareMessage(std::string & text, CComponent ** comp)
+void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp)
 {
+	comp.reset();
 	switch(type)
 	{
 	case HERO_MANA:
@@ -395,16 +390,13 @@ void InfoBoxHeroData::prepareMessage(std::string & text, CComponent ** comp)
 		boost::replace_first(text, "%s", boost::lexical_cast<std::string>(hero->name));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->mana));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->manaLimit()));
-		*comp = nullptr;
 		break;
 	case HERO_EXPERIENCE:
 		text = CGI->generaltexth->allTexts[2];
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->level));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(CGI->heroh->reqExp(hero->level+1)));
 		boost::replace_first(text, "%d", boost::lexical_cast<std::string>(hero->exp));
-		*comp = nullptr;
 		break;
-
 	default:
 		InfoBoxAbstractHeroData::prepareMessage(text, comp);
 		break;
@@ -463,7 +455,7 @@ std::string InfoBoxCustom::getValueText()
 	return valueText;
 }
 
-void InfoBoxCustom::prepareMessage(std::string & text, CComponent ** comp)
+void InfoBoxCustom::prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp)
 {
 }
 

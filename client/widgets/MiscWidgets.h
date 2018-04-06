@@ -143,7 +143,7 @@ public:
 	virtual void clickRight(tribool down, bool previousState) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
-	CComponent * createComponent() const;
+	std::shared_ptr<CComponent> createComponent() const;
 };
 
 /// Opens town screen by left-clicking on it

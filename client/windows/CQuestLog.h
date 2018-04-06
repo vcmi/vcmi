@@ -79,7 +79,6 @@ class CQuestLog : public CWindowObject
 	int questIndex;
 	const QuestInfo * currentQuest;
 	std::shared_ptr<CComponentBox> componentsBox;
-	std::vector<std::shared_ptr<CComponent>> componentsBoxParts;
 	bool hideComplete;
 	std::shared_ptr<CToggleButton> hideCompleteButton;
 	std::shared_ptr<CLabel> hideCompleteLabel;

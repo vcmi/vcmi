@@ -141,7 +141,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 			{
 				if(ourArt->artType->id == ArtifactID::CATAPULT) //catapult cannot be highlighted
 				{
-					std::vector<CComponent *> catapult(1, new CComponent(CComponent::artifact, 3, 0));
+					std::vector<std::shared_ptr<CComponent>> catapult(1, std::make_shared<CComponent>(CComponent::artifact, 3, 0));
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
 					return;
 				}

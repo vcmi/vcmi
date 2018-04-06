@@ -126,7 +126,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		if (bid < BuildingID::DWELL_FIRST)
 		{
 			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
-			                            new CComponent(CComponent::building, bld->town->faction->index, bld->bid));
+				std::make_shared<CComponent>(CComponent::building, bld->town->faction->index, bld->bid));
 		}
 		else
 		{
@@ -398,12 +398,12 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
-					LOCPLINT->showInfoDialog(tmp,std::vector<CComponent*>(), soundBase::sound_todo);
+					LOCPLINT->showInfoDialog(tmp, std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 					allow = false;
 				}
 				else if(!other->hero->stacksCount()) //hero has no creatures - strange, but if we have appropriate error message...
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<CComponent*>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
 					allow = false;
 				}
 			}
@@ -514,7 +514,7 @@ void HeroSlots::swapArmies()
 	{
 		if(!town->visitingHero->canBeMergedWith(*town))
 		{
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[275], std::vector<CComponent*>(), soundBase::sound_todo);
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[275], std::vector<std::shared_ptr<CComponent>>(), soundBase::sound_todo);
 			return;
 		}
 	}
@@ -815,10 +815,8 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 
 void CCastleBuildings::enterBuilding(BuildingID building)
 {
-	std::vector<CComponent*> comps(1, new CComponent(CComponent::building, town->subID, building));
-
-	LOCPLINT->showInfoDialog(
-		town->town->buildings.find(building)->second->Description(),comps);
+	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building, town->subID, building));
+	LOCPLINT->showInfoDialog( town->town->buildings.find(building)->second->Description(), comps);
 }
 
 void CCastleBuildings::enterCastleGate()
@@ -858,7 +856,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 
 void CCastleBuildings::enterFountain(BuildingID building)
 {
-	std::vector<CComponent*> comps(1, new CComponent(CComponent::building,town->subID,building));
+	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
 
 	std::string descr = town->town->buildings.find(building)->second->Description();
 
@@ -892,9 +890,9 @@ void CCastleBuildings::enterMagesGuild()
 			CFunctionList<void()> onYes = [this](){ openMagesGuild(); };
 			CFunctionList<void()> onNo = onYes;
 			onYes += [hero](){ LOCPLINT->cb->buyArtifact(hero, ArtifactID::SPELLBOOK); };
-			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,ArtifactID::SPELLBOOK,0));
+			std::vector<std::shared_ptr<CComponent>> components(1, std::make_shared<CComponent>(CComponent::artifact,ArtifactID::SPELLBOOK,0));
 
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, components);
 		}
 	}
 	else
@@ -912,8 +910,7 @@ void CCastleBuildings::enterTownHall()
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
 										[&](){ LOCPLINT->cb->buildBuilding(town, BuildingID::GRAIL); },
-										[&](){ openTownHall(); },
-										true);
+										[&](){ openTownHall(); });
 		}
 		else
 		{
@@ -1041,7 +1038,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 		if (showAvailable)
 			GH.pushInt(new CDwellingInfoBox(screen->w/2, screen->h/2, town, level));
 		else
-			CRClickPopup::createAndPush(genGrowthText(), new CComponent(CComponent::creature, creature->idNumber));
+			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
 	}
 }
 
@@ -1088,7 +1085,7 @@ void CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(building && down)
 	{
-		auto c = new CComponent(CComponent::building, building->town->faction->index, building->bid);
+		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->index, building->bid);
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()), c);
 	}
 }
@@ -1376,15 +1373,13 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, CENTER);
 
 	//Create components for all required resources
+	std::vector<std::shared_ptr<CComponent>> components;
+
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(building->resources[i])
-			costParts.push_back(std::make_shared<CComponent>(CComponent::resource, i, building->resources[i], CComponent::small));
+			components.push_back(std::make_shared<CComponent>(CComponent::resource, i, building->resources[i], CComponent::small));
 	}
-
-	std::vector<CComponent *> components;
-	for(auto part : costParts)
-		components.push_back(part.get());
 
 	cost = std::make_shared<CComponentBox>(components, Rect(25, 300, pos.w - 50, 130));
 
@@ -1729,13 +1724,13 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-		LOCPLINT->showInfoDialog(spell->getLevelInfo(0).description, new CComponent(CComponent::spell, spell->id));
+		LOCPLINT->showInfoDialog(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		CRClickPopup::createAndPush(spell->getLevelInfo(0).description, new CComponent(CComponent::spell, spell->id));
+		CRClickPopup::createAndPush(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)

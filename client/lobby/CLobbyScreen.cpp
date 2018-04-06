@@ -134,7 +134,7 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	catch(ExceptionNoHuman & e)
 	{
 		// You must position yourself prior to starting the game.
-		CInfoWindow::showYesNoDialog(std::ref(CGI->generaltexth->allTexts[530]), nullptr, 0, std::bind(&CLobbyScreen::startScenario, this, true), false, PlayerColor(1));
+		CInfoWindow::showYesNoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), 0, std::bind(&CLobbyScreen::startScenario, this, true), PlayerColor(1));
 	}
 	catch(ExceptionNoTemplate & e)
 	{

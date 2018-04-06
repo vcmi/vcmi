@@ -279,7 +279,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 		};
 		auto onClick = [=] ()
 		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, 0, false, std::vector<CComponent*>());
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[12], onDismiss, nullptr);
 		};
 		dismiss = std::make_shared<CButton>(Point(5, 5),"IVIEWCR2.DEF", CGI->generaltexth->zelp[445], onClick, SDLK_d);
 	}
@@ -303,18 +303,20 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto onClick = [=]()
 			{
-				std::vector<CComponent*> resComps;
+				std::vector<std::shared_ptr<CComponent>> resComps;
 				for(TResources::nziterator i(totalCost); i.valid(); i++)
 				{
-					resComps.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
+					resComps.push_back(std::make_shared<CComponent>(CComponent::resource, i->resType, i->resVal));
 				}
 
 				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
 				{
-					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, true, resComps);
+					LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[207], onUpgrade, nullptr, resComps);
 				}
 				else
+				{
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314], resComps);
+				}
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
