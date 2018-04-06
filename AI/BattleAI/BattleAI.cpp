@@ -276,6 +276,9 @@ void CBattleAI::attemptCastingSpell()
 
 	using ValueMap = PossibleSpellcast::ValueMap;
 
+	//Lambda below calculates action values until the enemy has the first possibility to cast spells
+	//It also calculates our turns until first turn of the enemy
+	//If there's no enemy turn in the @queue (all enemy's creatures from the queue will die before they move) @enemyHadTurnOut points to false. That basically means we won.
 	auto evaluateQueue = [&](ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state, size_t minTurnSpan, bool * enemyHadTurnOut) -> bool
 	{
 		bool firstRound = true;
@@ -395,6 +398,7 @@ void CBattleAI::attemptCastingSpell()
 
 	cb->battleGetTurnOrder(turnOrder, amount, 2); //no more than 1 turn after current, each unit at least once
 
+	// I think here we're predicting what happens without any spells.
 	{
 		bool enemyHadTurn = false;
 
@@ -554,12 +558,127 @@ void CBattleAI::print(const std::string &text) const
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
+	LOGL("Retreat sounds like fun. Let's see...");
+	using ValueMap = PossibleSpellcast::ValueMap;
+	auto isItOurLastTurn = [&](ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state) -> bool
+	{
+		bool firstRound = true;
+		bool ourFirstTurn = true;
+		bool enemyHadTurn = false;
+
+		for(auto & round : queue)
+		{
+			if (!firstRound)
+			{
+				state->nextRound(0);//todo: set actual value?
+				firstRound = false;
+			}
+			for(auto unit : round)
+			{
+				LOGL("---------------> consider turn of " + unit->unitType()->namePl);
+				if (!state->getForUpdate(unit->unitId())->alive())
+				{
+					LOGL("It will be dead...");
+					continue;
+				}
+
+				if(state->battleGetOwner(unit) == playerID)
+				{
+					if (!ourFirstTurn)
+					{
+						LOGL("Our unit will have turn!");
+						return false;
+					}
+					else 
+					{
+						LOGL("this is this turn!");
+					}
+					ourFirstTurn = false;
+				}
+				else
+				{
+					LOGL("Enemy will have turn!");
+					enemyHadTurn = true;
+				}
+				state->nextTurn(unit->unitId());
+
+				PotentialTargets pt(unit, state);
+
+				LOGL("I predict:");
+				if(!pt.possibleAttacks.empty())
+				{
+					AttackPossibility ap = pt.bestAction();
+
+					auto swb = state->getForUpdate(unit->unitId());
+					*swb = *ap.attackerState;
+
+					if(ap.damageDealt > 0)
+						swb->removeUnitBonus(Bonus::UntilAttack);
+					if(ap.damageReceived > 0)
+						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+
+					LOGL(unit->unitType()->namePl + " will attack:");
+					for(auto affected : ap.affectedUnits)
+					{
+						LOGL("->"+affected->unitType()->namePl);
+						swb = state->getForUpdate(affected->unitId());
+						*swb = *affected;
+
+						if (ap.damageDealt > 0)
+						{
+							swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+						}
+						if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
+							swb->removeUnitBonus(Bonus::UntilAttack);
+					}
+				}
+				else
+				{
+					LOGL(unit->unitType()->namePl +" won't attack");
+				}
+			}
+
+		}
+		return enemyHadTurn; // If enemyHadTurn is false, this mean we're about to win, so we shouldn't flee.
+
+	};
+
+	RNGStub rngStub;
+
+	ValueMap valueOfStack;
+	ValueMap healthOfStack;
+
+	TStacks all = cb->battleGetAllStacks(false);
+
+	for(auto unit : all)
+	{
+		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
+		valueOfStack[unit->unitId()] = 0;
+	}
+
+	auto amount = all.size();
+
+	std::vector<battle::Units> turnOrder;
+
+	cb->battleGetTurnOrder(turnOrder, 2*amount, 2); // predicting next two turns. One is to little, we want to know if our current stack will be alive
+
+	{
+		HypotheticBattle state(cb);
+		bool lastTurn = isItOurLastTurn(valueOfStack, turnOrder, &state);
+
+		if(lastTurn && cb->battleCanFlee())
+		{
+			LOGL("We should flee!");
+			return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
+		}
+		LOGL("We will have another chance!");
+		
+	}
+
+
+	//TODO move checking of this condition to the begining
 	if(cb->battleCanSurrender(playerID))
 	{
-	}
-	if(cb->battleCanFlee())
-	{
-		return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
 	}
 	return boost::none;
 }
