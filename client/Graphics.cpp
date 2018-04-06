@@ -264,7 +264,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 	if(sur->format->palette)
 	{
-		SDL_Color *palette = nullptr;
+		SDL_Color * palette = nullptr;
 		if(player < PlayerColor::PLAYER_LIMIT)
 		{
 			palette = playerColorPalette + 32*player.getNum();
@@ -278,7 +278,44 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 			logGlobal->error("Wrong player id in blueToPlayersAdv (%s)!", player.getStr());
 			return;
 		}
+//FIXME: not all player colored images have player palette at last 32 indexes
+//NOTE: following code is much more correct but still not perfect (bugged with status bar)
+
 		SDL_SetColors(sur, palette, 224, 32);
+
+
+#if 0
+
+		SDL_Color * bluePalette = playerColorPalette + 32;
+
+		SDL_Palette * oldPalette = sur->format->palette;
+
+		SDL_Palette * newPalette = SDL_AllocPalette(256);
+
+		for(size_t destIndex = 0; destIndex < 256; destIndex++)
+		{
+			SDL_Color old = oldPalette->colors[destIndex];
+
+			bool found = false;
+
+			for(size_t srcIndex = 0; srcIndex < 32; srcIndex++)
+			{
+				if(old.b == bluePalette[srcIndex].b && old.g == bluePalette[srcIndex].g && old.r == bluePalette[srcIndex].r)
+				{
+					found = true;
+					newPalette->colors[destIndex] = palette[srcIndex];
+					break;
+				}
+			}
+			if(!found)
+				newPalette->colors[destIndex] = old;
+		}
+
+		SDL_SetSurfacePalette(sur, newPalette);
+
+		SDL_FreePalette(newPalette);
+
+#endif // 0
 	}
 	else
 	{
