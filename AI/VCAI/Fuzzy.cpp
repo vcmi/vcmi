@@ -29,9 +29,7 @@ class Engine;
 class InputVariable;
 class CGTownInstance;
 
-//using namespace Goals;
-
-FuzzyHelper *fh;
+FuzzyHelper * fh;
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -47,7 +45,7 @@ void engineBase::configure()
 	logAi->info(engine.toString());
 }
 
-void engineBase::addRule(const std::string &txt)
+void engineBase::addRule(const std::string & txt)
 {
 	rules.addRule(fl::Rule::parse(txt, &engine));
 }
@@ -58,7 +56,7 @@ struct armyStructure
 	ui32 maxSpeed;
 };
 
-armyStructure evaluateArmyStructure (const CArmedInstance * army)
+armyStructure evaluateArmyStructure(const CArmedInstance * army)
 {
 	ui64 totalStrenght = army->getArmyStrength();
 	double walkersStrenght = 0;
@@ -69,17 +67,17 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 	for(auto s : army->Slots())
 	{
 		bool walker = true;
-		if (s.second->type->hasBonusOfType(Bonus::SHOOTER))
+		if(s.second->type->hasBonusOfType(Bonus::SHOOTER))
 		{
 			shootersStrenght += s.second->getPower();
 			walker = false;
 		}
-		if (s.second->type->hasBonusOfType(Bonus::FLYING))
+		if(s.second->type->hasBonusOfType(Bonus::FLYING))
 		{
 			flyersStrenght += s.second->getPower();
 			walker = false;
 		}
-		if (walker)
+		if(walker)
 			walkersStrenght += s.second->getPower();
 
 		vstd::amax(maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
@@ -106,7 +104,6 @@ void FuzzyHelper::initTacticalAdvantage()
 {
 	try
 	{
-
 		ta.ourShooters = new fl::InputVariable("OurShooters");
 		ta.ourWalkers = new fl::InputVariable("OurWalkers");
 		ta.ourFlyers = new fl::InputVariable("OurFlyers");
@@ -115,12 +112,12 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.enemyFlyers = new fl::InputVariable("EnemyFlyers");
 
 		//Tactical advantage calculation
-		std::vector<fl::InputVariable*> helper =
+		std::vector<fl::InputVariable *> helper =
 		{
 			ta.ourShooters, ta.ourWalkers, ta.ourFlyers, ta.enemyShooters, ta.enemyWalkers, ta.enemyFlyers
 		};
 
-		for (auto val : helper)
+		for(auto val : helper)
 		{
 			ta.engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
@@ -133,7 +130,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		helper = {ta.ourSpeed, ta.enemySpeed};
 
-		for (auto val : helper)
+		for(auto val : helper)
 		{
 			ta.engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
@@ -145,27 +142,26 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.castleWalls = new fl::InputVariable("CastleWalls");
 		ta.engine.addInputVariable(ta.castleWalls);
 		{
-			fl::Rectangle* none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
+			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			ta.castleWalls->addTerm(none);
 
-			fl::Trapezoid* medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
-				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
+			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
+								   CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
 			ta.castleWalls->addTerm(medium);
 
-			fl::Ramp* high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
+			fl::Ramp * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
 			ta.castleWalls->addTerm(high);
 
 			ta.castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
 		}
 
 
-
 		ta.bankPresent = new fl::InputVariable("Bank");
 		ta.engine.addInputVariable(ta.bankPresent);
 		{
-			fl::Rectangle* termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
+			fl::Rectangle * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
 			ta.bankPresent->addTerm(termFalse);
-			fl::Rectangle* termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
+			fl::Rectangle * termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
 			ta.bankPresent->addTerm(termTrue);
 			ta.bankPresent->setRange(0, 1);
 		}
@@ -197,23 +193,23 @@ void FuzzyHelper::initTacticalAdvantage()
 		ta.addRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW");
 
 	}
-	catch (fl::Exception & pe)
+	catch(fl::Exception & pe)
 	{
 		logAi->error("initTacticalAdvantage: %s", pe.getWhat());
 	}
 }
 
-ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
+ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
 
 	auto objectInfo = VLC->objtypeh->getHandlerFor(bank->ID, bank->subID)->getObjectInfo(bank->appearance);
 
-	CBankInfo * bankInfo = dynamic_cast<CBankInfo *> (objectInfo.get());
+	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 
 	ui64 totalStrength = 0;
 	ui8 totalChance = 0;
-	for (auto config : bankInfo->getPossibleGuards())
+	for(auto config : bankInfo->getPossibleGuards())
 	{
 		totalStrength += config.second.totalStrength * config.first;
 		totalChance += config.first;
@@ -222,7 +218,7 @@ ui64 FuzzyHelper::estimateBankDanger (const CBank * bank)
 
 }
 
-float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy)
+float FuzzyHelper::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
 {
 	float output = 1;
 	try
@@ -240,17 +236,15 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 		ta.enemyFlyers->setValue(enemyStructure.flyers);
 		ta.enemySpeed->setValue(enemyStructure.maxSpeed);
 
-		bool bank = dynamic_cast<const CBank*> (enemy);
-		if (bank)
+		bool bank = dynamic_cast<const CBank *>(enemy);
+		if(bank)
 			ta.bankPresent->setValue(1);
 		else
 			ta.bankPresent->setValue(0);
 
-		const CGTownInstance * fort = dynamic_cast<const CGTownInstance*> (enemy);
-		if (fort)
-		{
+		const CGTownInstance * fort = dynamic_cast<const CGTownInstance *>(enemy);
+		if(fort)
 			ta.castleWalls->setValue(fort->fortLevel());
-		}
 		else
 			ta.castleWalls->setValue(0);
 
@@ -258,18 +252,18 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 		ta.engine.process();
 		output = ta.threat->getValue();
 	}
-	catch (fl::Exception & fe)
+	catch(fl::Exception & fe)
 	{
-		logAi->error("getTacticalAdvantage: %s ",fe.getWhat());
+		logAi->error("getTacticalAdvantage: %s ", fe.getWhat());
 	}
 
-	if (output < 0 || (output != output))
+	if(output < 0 || (output != output))
 	{
-		fl::InputVariable* tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
+		fl::InputVariable * tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
 		std::string names[] = {"bankPresent", "castleWalls", "ourWalkers", "ourShooters", "ourFlyers", "ourSpeed", "enemyWalkers", "enemyShooters", "enemyFlyers", "enemySpeed" };
 		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
 
-		for (int i = 0; i < boost::size(tab); i++)
+		for(int i = 0; i < boost::size(tab); i++)
 			log << names[i] << ": " << tab[i]->getValue() << " ";
 		logAi->error(log.str());
 		assert(false);
@@ -296,9 +290,9 @@ FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
 
 //std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
-Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
+Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {
-	if (vec.empty()) //no possibilities found
+	if(vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
 
 	ai->cachedSectorMaps.clear();
@@ -308,9 +302,9 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	{
 		return lhs->hero.h < rhs->hero.h;
 	};
-	boost::sort (vec, sortByHeroes);
+	boost::sort(vec, sortByHeroes);
 
-	for (auto g : vec)
+	for(auto g : vec)
 	{
 		setPriority(g);
 	}
@@ -319,16 +313,16 @@ Goals::TSubgoal FuzzyHelper::chooseSolution (Goals::TGoalVec vec)
 	{
 		return lhs->priority < rhs->priority;
 	};
-	boost::sort (vec, compareGoals);
+	boost::sort(vec, compareGoals);
 
 	return vec.back();
 }
 
-float FuzzyHelper::evaluate (Goals::Explore & g)
+float FuzzyHelper::evaluate(Goals::Explore & g)
 {
 	return 1;
 }
-float FuzzyHelper::evaluate (Goals::RecruitHero & g)
+float FuzzyHelper::evaluate(Goals::RecruitHero & g)
 {
 	return 1; //just try to recruit hero as one of options
 }
@@ -354,8 +348,8 @@ void FuzzyHelper::initVisitTile()
 		vt.value->setMinimum(0);
 		vt.value->setMaximum(5);
 
-		std::vector<fl::InputVariable*> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance, vt.estimatedReward};
-		for (auto val : helper)
+		std::vector<fl::InputVariable *> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance, vt.estimatedReward};
+		for(auto val : helper)
 		{
 			vt.engine.addInputVariable(val);
 		}
@@ -363,7 +357,7 @@ void FuzzyHelper::initVisitTile()
 
 		vt.strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
 		vt.strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
-		vt.strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3 );
+		vt.strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
 
 		//strength compared to our main hero
 		vt.heroStrength->addTerm(new fl::Ramp("LOW", 0.2, 0));
@@ -386,11 +380,11 @@ void FuzzyHelper::initVisitTile()
 		vt.estimatedReward->setRange(0.0, 5.0);
 
 		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
-		 //should be same as "mission Importance" to keep consistency
+		//should be same as "mission Importance" to keep consistency
 		vt.value->addTerm(new fl::Ramp("LOW", 2.5, 0));
 		vt.value->addTerm(new fl::Triangle("MEDIUM", 2, 3)); //can't be center of mass :/
 		vt.value->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-		vt.value->setRange(0.0,5.0);
+		vt.value->setRange(0.0, 5.0);
 
 		//use unarmed scouts if possible
 		vt.addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH");
@@ -415,49 +409,53 @@ void FuzzyHelper::initVisitTile()
 		vt.addRule("if estimatedReward is HIGH then Value is very HIGH");
 		vt.addRule("if estimatedReward is LOW then Value is somewhat LOW");
 	}
-	catch (fl::Exception & fe)
+	catch(fl::Exception & fe)
 	{
-		logAi->error("visitTile: %s",fe.getWhat());
+		logAi->error("visitTile: %s", fe.getWhat());
 	}
 }
 
-float FuzzyHelper::evaluate (Goals::VisitTile & g)
+float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	//we assume that hero is already set and we want to choose most suitable one for the mission
-	if (!g.hero)
+	if(!g.hero)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
 	float turns = 0;
 	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
-	if (!distance) //we stand on that tile
+	if(!distance) //we stand on that tile
+	{
 		turns = 0;
+	}
 	else
 	{
-		if (distance < g.hero->movement) //we can move there within one turn
+		if(distance < g.hero->movement) //we can move there within one turn
 			turns = (fl::scalar)distance / g.hero->movement;
 		else
 			turns = 1 + (fl::scalar)(distance - g.hero->movement) / g.hero->maxMovePoints(true); //bool on land?
 	}
 
 	float missionImportance = 0;
-	if (vstd::contains(ai->lockedHeroes, g.hero))
+	if(vstd::contains(ai->lockedHeroes, g.hero))
 		missionImportance = ai->lockedHeroes[g.hero]->priority;
 
 	float strengthRatio = 10.0f; //we are much stronger than enemy
-	ui64 danger = evaluateDanger (g.tile, g.hero.h);
-	if (danger)
+	ui64 danger = evaluateDanger(g.tile, g.hero.h);
+	if(danger)
 		strengthRatio = (fl::scalar)g.hero.h->getTotalStrength() / danger;
 
 	float tilePriority = 0;
 	if(g.objid == -1)
+	{
 		vt.estimatedReward->setEnabled(false);
+	}
 	else if(g.objid == Obj::TOWN) //TODO: move to getObj eventually and add appropiate logic there
 	{
 		vt.estimatedReward->setEnabled(true);
 		tilePriority = 5;
 	}
-		
+
 	try
 	{
 		vt.strengthRatio->setValue(strengthRatio);
@@ -470,41 +468,41 @@ float FuzzyHelper::evaluate (Goals::VisitTile & g)
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
 		g.priority = vt.value->getValue();
 	}
-	catch (fl::Exception & fe)
+	catch(fl::Exception & fe)
 	{
-		logAi->error("evaluate VisitTile: %s",fe.getWhat());
+		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
-	assert (g.priority >= 0);
+	assert(g.priority >= 0);
 	return g.priority;
 }
-float FuzzyHelper::evaluate (Goals::VisitHero & g)
+float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {
 	auto obj = cb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similar
-	if (!obj)
+	if(!obj)
 		return -100; //hero died in the meantime
 	//TODO: consider direct copy (constructor?)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
 	return g.priority;
 }
-float FuzzyHelper::evaluate (Goals::GatherArmy & g)
+float FuzzyHelper::evaluate(Goals::GatherArmy & g)
 {
 	//the more army we need, the more important goal
 	//the more army we lack, the less important goal
 	float army = g.hero->getArmyStrength();
-	float ratio =  g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
+	float ratio = g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
 	return 5 * (ratio / (ratio + 2)); //so 50% army gives 2.5, asymptotic 5
 }
 
-float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
+float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 {
-	if (!g.hero.h)
+	if(!g.hero.h)
 		throw cannotFulfillGoalException("ClearWayTo called without hero!");
 
 	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
 
-	if (t.valid())
+	if(t.valid())
 	{
-		if (isSafeToVisit(g.hero, t))
+		if(isSafeToVisit(g.hero, t))
 		{
 			g.setpriority(Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
 		}
@@ -520,32 +518,32 @@ float FuzzyHelper::evaluate (Goals::ClearWayTo & g)
 
 }
 
-float FuzzyHelper::evaluate (Goals::BuildThis & g)
+float FuzzyHelper::evaluate(Goals::BuildThis & g)
 {
 	return 1;
 }
-float FuzzyHelper::evaluate (Goals::DigAtTile & g)
+float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 {
 	return 0;
 }
-float FuzzyHelper::evaluate (Goals::CollectRes & g)
+float FuzzyHelper::evaluate(Goals::CollectRes & g)
 {
 	return 0;
 }
-float FuzzyHelper::evaluate (Goals::Build & g)
+float FuzzyHelper::evaluate(Goals::Build & g)
 {
 	return 0;
 }
-float FuzzyHelper::evaluate (Goals::Invalid & g)
+float FuzzyHelper::evaluate(Goals::Invalid & g)
 {
 	return -1e10;
 }
-float FuzzyHelper::evaluate (Goals::AbstractGoal & g)
+float FuzzyHelper::evaluate(Goals::AbstractGoal & g)
 {
 	logAi->warn("Cannot evaluate goal %s", g.name());
 	return g.priority;
 }
-void FuzzyHelper::setPriority (Goals::TSubgoal & g)
+void FuzzyHelper::setPriority(Goals::TSubgoal & g)
 {
 	g->setpriority(g->accept(this)); //this enforces returned value is set
 }

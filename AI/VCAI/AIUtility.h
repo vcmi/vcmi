@@ -20,8 +20,8 @@
 
 class CCallback;
 
-typedef const int3& crint3;
-typedef const std::string& crstring;
+typedef const int3 & crint3;
+typedef const std::string & crstring;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
@@ -36,7 +36,7 @@ extern const int GOLD_RESERVE;
 
 struct HeroPtr
 {
-	const CGHeroInstance *h;
+	const CGHeroInstance * h;
 	ObjectInstanceID hid;
 
 public:
@@ -44,7 +44,7 @@ public:
 
 
 	HeroPtr();
-	HeroPtr(const CGHeroInstance *H);
+	HeroPtr(const CGHeroInstance * H);
 	~HeroPtr();
 
 	operator bool() const
@@ -52,15 +52,15 @@ public:
 		return validAndSet();
 	}
 
-	bool operator<(const HeroPtr &rhs) const;
-	const CGHeroInstance *operator->() const;
-	const CGHeroInstance *operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
+	bool operator<(const HeroPtr & rhs) const;
+	const CGHeroInstance * operator->() const;
+	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
 
-	const CGHeroInstance *get(bool doWeExpectNull = false) const;
+	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & this->h;
 		h & hid;
@@ -82,16 +82,16 @@ struct ObjectIdRef
 {
 	ObjectInstanceID id;
 
-	const CGObjectInstance *operator->() const;
+	const CGObjectInstance * operator->() const;
 	operator const CGObjectInstance *() const;
 
 	ObjectIdRef(ObjectInstanceID _id);
-	ObjectIdRef(const CGObjectInstance *obj);
+	ObjectIdRef(const CGObjectInstance * obj);
 
-	bool operator<(const ObjectIdRef &rhs) const;
+	bool operator<(const ObjectIdRef & rhs) const;
 
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template<typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
 	}
@@ -101,13 +101,14 @@ struct TimeCheck
 {
 	CStopWatch time;
 	std::string txt;
-	TimeCheck(crstring TXT) : txt(TXT)
+	TimeCheck(crstring TXT)
+		: txt(TXT)
 	{
 	}
 
 	~TimeCheck()
 	{
-		logAi->trace("Time of %s was %d ms.",txt,time.getDiff());
+		logAi->trace("Time of %s was %d ms.", txt, time.getDiff());
 	}
 };
 
@@ -115,7 +116,8 @@ struct TimeCheck
 struct AtScopeExit
 {
 	std::function<void()> foo;
-	AtScopeExit(const std::function<void()> &FOO) : foo(FOO)
+	AtScopeExit(const std::function<void()> & FOO)
+		: foo(FOO)
 	{}
 	~AtScopeExit()
 	{
@@ -126,48 +128,50 @@ struct AtScopeExit
 
 class ObjsVector : public std::vector<ObjectIdRef>
 {
-private:
 };
 
 template<int id>
-bool objWithID(const CGObjectInstance *obj)
+bool objWithID(const CGObjectInstance * obj)
 {
 	return obj->ID == id;
 }
 
-void foreach_tile_pos(std::function<void(const int3& pos)> foo);
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
-void foreach_neighbour(const int3 &pos, std::function<void(const int3& pos)> foo);
-void foreach_neighbour(CCallback * cbp, const int3 &pos, std::function<void(CCallback * cbp, const int3& pos)> foo); // avoid costly retrieval of thread-specific pointer
+void foreach_tile_pos(std::function<void(const int3 & pos)> foo);
+void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
+void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
+void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 &pos, int radious, CCallback * cbp);
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp);
 int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir);
-void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out);
+void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out);
 
-bool canBeEmbarkmentPoint(const TerrainTile *t, bool fromWater);
+bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);
-bool isBlockVisitObj(const int3 &pos);
+bool isBlockVisitObj(const int3 & pos);
 
-bool isWeeklyRevisitable (const CGObjectInstance * obj);
-bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
+bool isWeeklyRevisitable(const CGObjectInstance * obj);
+bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 
-ui64 evaluateDanger(const CGObjectInstance *obj);
-ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor);
+ui64 evaluateDanger(const CGObjectInstance * obj);
+ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 bool isSafeToVisit(HeroPtr h, crint3 tile);
-bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2, CCallback * cbp);
+bool boundaryBetweenTwoPoints(int3 pos1, int3 pos2, CCallback * cbp);
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
-bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2);
-bool compareArtifacts(const CArtifactInstance *a1, const CArtifactInstance *a2);
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t);
+bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
+bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
+ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
 int3 whereToExplore(HeroPtr h);
 
 class CDistanceSorter
 {
 	const CGHeroInstance * hero;
-public:
-	CDistanceSorter(const CGHeroInstance * hero): hero(hero) {}
 
-	bool operator ()(const CGObjectInstance *lhs, const CGObjectInstance *rhs);
+public:
+	CDistanceSorter(const CGHeroInstance * hero)
+		: hero(hero)
+	{
+	}
+	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs);
 };
