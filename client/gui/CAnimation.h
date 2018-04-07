@@ -22,7 +22,6 @@ class CDefFile;
  */
 class IImage
 {
-	int refCount;
 public:
 	using BorderPallete = std::array<SDL_Color, 3>;
 
@@ -30,13 +29,9 @@ public:
 	virtual void draw(SDL_Surface * where, int posX = 0, int posY = 0, Rect * src = nullptr, ui8 alpha = 255) const=0;
 	virtual void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha = 255) const = 0;
 
-	virtual std::unique_ptr<IImage> scaleFast(float scale) const = 0;
+	virtual std::shared_ptr<IImage> scaleFast(float scale) const = 0;
 
 	virtual void exportBitmap(const boost::filesystem::path & path) const = 0;
-
-	//decrease ref count, returns true if image can be deleted (refCount <= 0)
-	bool decreaseRef();
-	void increaseRef();
 
 	//Change palette to specific player
 	virtual void playerColored(PlayerColor player)=0;
@@ -57,7 +52,7 @@ public:
 	virtual void verticalFlip() = 0;
 
 	IImage();
-	virtual ~IImage() {};
+	virtual ~IImage();
 };
 
 /// Class for handling animation
@@ -68,7 +63,7 @@ private:
 	std::map<size_t, std::vector <JsonNode> > source;
 
 	//bitmap[group][position], store objects with loaded bitmaps
-	std::map<size_t, std::map<size_t, IImage* > > images;
+	std::map<size_t, std::map<size_t, std::shared_ptr<IImage> > > images;
 
 	//animation file name
 	std::string name;
@@ -95,7 +90,7 @@ private:
 
 	//not a very nice method to get image from another def file
 	//TODO: remove after implementing resource manager
-	IImage * getFromExtraDef(std::string filename);
+	std::shared_ptr<IImage> getFromExtraDef(std::string filename);
 
 public:
 	CAnimation(std::string Name, bool Compressed = false);
@@ -109,8 +104,7 @@ public:
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 
-	//get pointer to image from specific group, nullptr if not found
-	IImage * getImage(size_t frame, size_t group=0, bool verbose=true) const;
+	std::shared_ptr<IImage> getImage(size_t frame, size_t group=0, bool verbose=true) const;
 
 	void exportBitmaps(const boost::filesystem::path & path) const;
 

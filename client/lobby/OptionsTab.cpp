@@ -367,12 +367,12 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
 
-	std::vector<CComponent *> components;
+	std::vector<std::shared_ptr<CComponent>> components;
 	const CTown * town = CGI->townh->factions[settings.castle]->town;
 	for(auto & elem : town->creatures)
 	{
 		if(!elem.empty())
-			components.push_back(new CComponent(CComponent::creature, elem.front(), 0, CComponent::tiny));
+			components.push_back(std::make_shared<CComponent>(CComponent::creature, elem.front(), 0, CComponent::tiny));
 	}
 	boxAssociatedCreatures = std::make_shared<CComponentBox>(components, Rect(10, 140, pos.w - 20, 140));
 }

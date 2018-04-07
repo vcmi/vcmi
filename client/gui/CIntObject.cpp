@@ -40,6 +40,23 @@ CIntObject::CIntObject(int used_, Point pos_):
 		GH.createdObj.front()->addChild(this, true);
 }
 
+CIntObject::~CIntObject()
+{
+	if(active_m)
+		deactivate();
+
+	while(!children.empty())
+	{
+		if((defActions & DISPOSE) && (children.front()->recActions & DISPOSE))
+			delete children.front();
+		else
+			removeChild(children.front());
+	}
+
+	if(parent_m)
+		parent_m->removeChild(this);
+}
+
 void CIntObject::setTimer(int msToTrigger)
 {
 	if (!(active & TIME))
@@ -123,24 +140,6 @@ void CIntObject::deactivate()
 void CIntObject::deactivate(ui16 what)
 {
 	GH.handleElementDeActivate(this, what);
-}
-
-CIntObject::~CIntObject()
-{
-	if (active_m)
-		deactivate();
-
-	if(defActions & DISPOSE)
-	{
-		while (!children.empty())
-			if(children.front()->recActions & DISPOSE)
-				delete children.front();
-			else
-				removeChild(children.front());
-	}
-
-	if(parent_m)
-		parent_m->removeChild(this);
 }
 
 void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState)
@@ -291,8 +290,12 @@ void CIntObject::removeChild(CIntObject * child, bool adjustPosition)
 	if (!child)
 		return;
 
-	assert(vstd::contains(children, child));
-	assert(child->parent_m == this);
+	if(!vstd::contains(children, child))
+		throw std::runtime_error("Wrong child object");
+
+	if(child->parent_m != this)
+		throw std::runtime_error("Wrong child object");
+
 	children -= child;
 	child->parent_m = nullptr;
 	if(adjustPosition)

@@ -94,16 +94,16 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	//Hardcoded entry
 	menuNameToEntry.push_back("credits");
 
-	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1), CTabbedInt::DestroyFunc());
+	tabs = std::make_shared<CTabbedInt>(std::bind(&CMenuScreen::createTab, this, _1));
 	tabs->type |= REDRAW_PARENT;
 }
 
-CIntObject * CMenuScreen::createTab(size_t index)
+std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 {
 	if(config["items"].Vector().size() == index)
-		return new CreditsScreen();
-
-	return new CMenuEntry(this, config["items"].Vector()[index]);
+		return std::make_shared<CreditsScreen>();
+	else
+		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
 
 void CMenuScreen::show(SDL_Surface * to)
@@ -175,7 +175,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent *> *)nullptr, false, PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 				break;
 			}
@@ -190,18 +190,18 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
-					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", (const std::vector<CComponent *> *)nullptr, false, PlayerColor(1));
+					return std::bind(CInfoWindow::showInfoDialog, "Sorry, tutorial is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 				}
 			}
 			break;
 			case 4: //exit
 			{
-				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), (const std::vector<CComponent *> *)nullptr, do_quit, 0, false, PlayerColor(1));
+				return std::bind(CInfoWindow::showYesNoDialog, std::ref(CGI->generaltexth->allTexts[69]), std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1));
 			}
 			break;
 			case 5: //highscores
 			{
-				return std::bind(CInfoWindow::showInfoDialog, "Sorry, high scores menu is not implemented yet\n", (const std::vector<CComponent *> *)nullptr, false, PlayerColor(1));
+				return std::bind(CInfoWindow::showInfoDialog, "Sorry, high scores menu is not implemented yet\n", std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 			}
 			}
 		}
@@ -383,7 +383,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	blitAt(CPicture("MUMAP.bmp"), 16, 77, *background);
 	pos = background->center(); //center, window has size of bg graphic
 
-	statusBar = std::make_shared<CGStatusBar>(new CPicture(Rect(7, 465, 440, 18), 0)); //226, 472
+	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 465, 440, 18), 0)); //226, 472
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), *background);
 	playerName->setText(settings["general"]["playerName"].String());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
@@ -431,7 +431,7 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
-	statusBar = std::make_shared<CGStatusBar>(new CPicture(Rect(7, 381, 348, 18), 0)); //226, 472
+	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
 
 	inputNames[0]->setText(firstPlayer, true);
 	inputNames[0]->giveFocus();
@@ -489,7 +489,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort->setText(CServerHandler::getDefaultPortStr(), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
-	statusBar = std::make_shared<CGStatusBar>(new CPicture(Rect(7, 186, 218, 18), 0));
+	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
 }
 
 void CSimpleJoinScreen::connectToServer()

@@ -1341,7 +1341,7 @@ void handleQuit(bool ask)
 	if(CSH->client && LOCPLINT && ask)
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, 0);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
 	}
 	else
 	{

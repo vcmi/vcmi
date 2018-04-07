@@ -9,15 +9,22 @@
  */
 #pragma once
 
-#include "widgets/Images.h"
 #include "../lib/ResourceSet.h"
+#include "gui/CIntObject.h"
+
+class CLabel;
+class CAnimImage;
 
 class CreatureCostBox : public CIntObject
 {
 public:
 	void set(TResources res);
-	CreatureCostBox(Rect position, std::string title);
+	CreatureCostBox(Rect position, std::string titleText);
 	void createItems(TResources res);
 private:
-	std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
+	using LabelPtr = std::shared_ptr<CLabel>;
+	using ImagePtr = std::shared_ptr<CAnimImage>;
+
+	LabelPtr title;
+	std::map<int, std::pair<LabelPtr, ImagePtr>> resources;
 };

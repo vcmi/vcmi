@@ -17,10 +17,12 @@ struct SDL_Surface;
 class CGHeroInstance;
 class CBattleInterface;
 class CPicture;
+class CFilledTexture;
 class CButton;
 class CToggleButton;
 class CToggleGroup;
 class CLabel;
+class CTextBox;
 struct BattleResult;
 class CStack;
 namespace battle
@@ -79,22 +81,25 @@ public:
 
 class CHeroInfoWindow : public CWindowObject
 {
+private:
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
-	CHeroInfoWindow(const InfoAboutHero &hero, Point *position);
+	CHeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };
 
 /// Class which manages the battle options window
 class CBattleOptionsWindow : public CIntObject
 {
 private:
-	CPicture * background;
-	CButton * setToDefault, * exit;
-	CToggleButton * viewGrid, * movementShadow, * mouseShadow;
-	CToggleGroup * animSpeeds;
-
-	std::vector<CLabel*> labels;
+	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CButton> setToDefault;
+	std::shared_ptr<CButton> exit;
+	std::shared_ptr<CToggleGroup> animSpeeds;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::vector<std::shared_ptr<CToggleButton>> toggles;
 public:
-	CBattleOptionsWindow(const SDL_Rect &position, CBattleInterface *owner);
+	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -104,10 +109,14 @@ public:
 class CBattleResultWindow : public CIntObject
 {
 private:
-	CButton *exit;
-	CPlayerInterface &owner;
+	std::shared_ptr<CPicture> background;
+	std::vector<std::shared_ptr<CLabel>> labels;
+	std::shared_ptr<CButton> exit;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+	std::shared_ptr<CTextBox> description;
+	CPlayerInterface & owner;
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CPlayerInterface &_owner);
+	CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner);
 	~CBattleResultWindow();
 
 	void bExitf(); //exit button callback
@@ -143,23 +152,25 @@ class CStackQueue : public CIntObject
 	class StackBox : public CIntObject
 	{
 	public:
-		CPicture * bg;
-		CAnimImage * icon;
-		CLabel * amount;
-		CAnimImage * stateIcon;
+		std::shared_ptr<CPicture> background;
+		std::shared_ptr<CAnimImage> icon;
+		std::shared_ptr<CLabel> amount;
+		std::shared_ptr<CAnimImage> stateIcon;
 
-		void setStack(const battle::Unit * nStack, size_t turn = 0);
+		void setUnit(const battle::Unit * unit, size_t turn = 0);
 		StackBox(CStackQueue * owner);
 	};
 
-public:
 	static const int QUEUE_SIZE = 10;
-	const bool embedded;
-	std::vector<StackBox *> stackBoxes;
+	std::shared_ptr<CFilledTexture> background;
+	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	CBattleInterface * owner;
 
 	std::shared_ptr<CAnimation> icons;
 	std::shared_ptr<CAnimation> stateIcons;
+
+public:
+	const bool embedded;
 
 	CStackQueue(bool Embedded, CBattleInterface * _owner);
 	~CStackQueue();

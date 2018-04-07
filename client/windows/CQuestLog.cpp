@@ -62,15 +62,15 @@ void CQuestIcon::showAll(SDL_Surface * to)
 	CAnimImage::showAll(to);
 }
 
-CQuestMinimap::CQuestMinimap (const Rect & position) :
-CMinimap (position),
-	currentQuest (nullptr)
+CQuestMinimap::CQuestMinimap(const Rect & position)
+	: CMinimap(position),
+	currentQuest(nullptr)
 {
 }
 
 void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	icons.clear();
 
 	int3 tile;
@@ -96,13 +96,13 @@ void CQuestMinimap::addQuestMarks (const QuestInfo * q)
 void CQuestMinimap::update()
 {
 	CMinimap::update();
-	if (currentQuest)
-		addQuestMarks (currentQuest);
+	if(currentQuest)
+		addQuestMarks(currentQuest);
 }
 
 void CQuestMinimap::iconClicked()
 {
-	if (currentQuest->obj)
+	if(currentQuest->obj)
 		adventureInt->centerOn (currentQuest->obj->pos);
 	//moveAdvMapSelection();
 }
@@ -110,44 +110,38 @@ void CQuestMinimap::iconClicked()
 void CQuestMinimap::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to); // blitting IntObject directly to hide radar
-	for (auto pic : icons)
-		pic->showAll(to);
+//	for (auto pic : icons)
+//		pic->showAll(to);
 }
 
-CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
-	CWindowObject(PLAYER_COLORED | BORDERED, "questDialog"),
+CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
+	: CWindowObject(PLAYER_COLORED | BORDERED, "questDialog"),
 	questIndex(0),
 	currentQuest(nullptr),
-	componentsBox(nullptr),
 	hideComplete(false),
-	quests(Quests),
-	slider(nullptr)
+	quests(Quests)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init();
-}
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-void CQuestLog::init()
-{
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["questLog"];
 
-	minimap = new CQuestMinimap (Rect (12, 12, 169, 169));
+	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
-	description = new CTextBox ("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
-	ok = new CButton(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close,this), SDLK_RETURN);
+	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), SDLK_RETURN);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
-	hideCompleteButton = new CToggleButton(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
-	hideCompleteLabel = new CLabel(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
-	slider = new CSlider(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
+	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
+	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
+	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
 
 	recreateLabelList();
-	recreateQuestList (0);
+	recreateQuestList(0);
 }
 
 void CQuestLog::recreateLabelList()
 {
-	if (labels.size())
-		labels.clear();
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	labels.clear();
 
 	bool completeMissing = true;
 	int currentLabel = 0;
@@ -209,8 +203,8 @@ void CQuestLog::recreateLabelList()
 
 void CQuestLog::showAll(SDL_Surface * to)
 {
-	CWindowObject::showAll (to);
-	if (labels.size() && labels[questIndex]->active)
+	CWindowObject::showAll(to);
+	if(labels.size() && labels[questIndex]->active)
 	{
 		Rect rect = Rect::around(labels[questIndex]->pos);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
@@ -232,7 +226,7 @@ void CQuestLog::recreateQuestList (int newpos)
 	minimap->update();
 }
 
-void CQuestLog::selectQuest (int which, int labelId)
+void CQuestLog::selectQuest(int which, int labelId)
 {
 	questIndex = labelId;
 	currentQuest = &quests[which];
@@ -241,14 +235,15 @@ void CQuestLog::selectQuest (int which, int labelId)
 	MetaString text;
 	std::vector<Component> components;
 	currentQuest->quest->getVisitText (text, components, currentQuest->quest->isCustomFirst, true);
-	if (description->slider)
+	if(description->slider)
 		description->slider->moveToMin(); // scroll text to start position
-	description->setText (text.toString()); //TODO: use special log entry text
+	description->setText(text.toString()); //TODO: use special log entry text
 
-	vstd::clear_pointer(componentsBox);
+	componentsBox.reset();
+
 	int componentsSize = components.size();
 	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
-	if (componentsSize)
+	if(componentsSize)
 	{
 		descriptionHeight -= 15;
 		CComponent::ESize imageSize = CComponent::large;
@@ -290,12 +285,16 @@ void CQuestLog::selectQuest (int which, int labelId)
 				break;
 		}
 
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		std::vector<CComponent *> comps;
-		for (auto & component : components)
-			comps.push_back(new CComponent(component, imageSize));
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-		componentsBox = new CComponentBox(comps, Rect(202, 20+descriptionHeight+15, 391, DESCRIPTION_HEIGHT_MAX-(20+descriptionHeight)));
+		std::vector<std::shared_ptr<CComponent>> comps;
+		for(auto & component : components)
+		{
+			auto c = std::make_shared<CComponent>(component, imageSize);
+			comps.push_back(c);
+		}
+
+		componentsBox = std::make_shared<CComponentBox>(comps, Rect(202, 20+descriptionHeight+15, 391, DESCRIPTION_HEIGHT_MAX-(20+descriptionHeight)));
 	}
 	description->resize(Point(385, descriptionHeight));
 
@@ -303,15 +302,14 @@ void CQuestLog::selectQuest (int which, int labelId)
 	redraw();
 }
 
-void CQuestLog::sliderMoved (int newpos)
+void CQuestLog::sliderMoved(int newpos)
 {
-	recreateQuestList (newpos); //move components
+	recreateQuestList(newpos); //move components
 	redraw();
 }
 
 void CQuestLog::toggleComplete(bool on)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	hideComplete = on;
 	recreateLabelList();
 	recreateQuestList(0);

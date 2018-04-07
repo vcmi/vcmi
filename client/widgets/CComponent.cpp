@@ -27,29 +27,26 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 
-CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize):
-	image(nullptr),
-	perDay(false)
+CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize)
+	: perDay(false)
 {
-	addUsedEvents(RCLICK);
 	init(Type, Subtype, Val, imageSize);
 }
 
-CComponent::CComponent(const Component &c, ESize imageSize):
-	image(nullptr),
-	perDay(false)
+CComponent::CComponent(const Component & c, ESize imageSize)
+	: perDay(false)
 {
-	addUsedEvents(RCLICK);
-
 	if(c.id == Component::RESOURCE && c.when==-1)
 		perDay = true;
 
-	init((Etype)c.id,c.subtype,c.val, imageSize);
+	init((Etype)c.id, c.subtype, c.val, imageSize);
 }
 
 void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	addUsedEvents(RCLICK);
 
 	compType = Type;
 	subtype = Subtype;
@@ -74,14 +71,15 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	for(auto & line : textLines)
 	{
 		int height = graphics->fonts[font]->getLineHeight();
-		auto   label = new CLabel(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
+		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
-		if (label->pos.w > pos.w)
+		if(label->pos.w > pos.w)
 		{
 			pos.x -= (label->pos.w - pos.w)/2;
 			pos.w = label->pos.w;
 		}
+		lines.push_back(label);
 	}
 }
 
@@ -232,9 +230,8 @@ std::string CComponent::getSubtitleInternal()
 
 void CComponent::setSurface(std::string defName, int imgPos)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	vstd::clear_pointer(image);
-	image = new CAnimImage(defName, imgPos);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
 void CComponent::clickRight(tribool down, bool previousState)
@@ -291,7 +288,7 @@ void CSelectableComponent::showAll(SDL_Surface * to)
 	}
 }
 
-void CComponentBox::selectionChanged(CSelectableComponent * newSelection)
+void CComponentBox::selectionChanged(std::shared_ptr<CSelectableComponent> newSelection)
 {
 	if (newSelection == selected)
 		return;
@@ -339,14 +336,14 @@ void CComponentBox::placeComponents(bool selectable)
 {
 	static const int betweenRows = 22;
 
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if (components.empty())
 		return;
 
 	//prepare components
 	for(auto & comp : components)
 	{
-		addChild(comp);
+		addChild(comp.get());
 		comp->moveTo(Point(pos.x, pos.y));
 	}
 
@@ -362,14 +359,14 @@ void CComponentBox::placeComponents(bool selectable)
 	rows.push_back (RowData (0,0,0));
 
 	//split components in rows
-	CComponent * prevComp = nullptr;
+	std::shared_ptr<CComponent> prevComp;
 
-	for(CComponent * comp : components)
+	for(std::shared_ptr<CComponent> comp : components)
 	{
 		//make sure that components are smaller than our width
 		//assert(pos.w == 0 || pos.w < comp->pos.w);
 
-		const int distance = prevComp ? getDistance(prevComp, comp) : 0;
+		const int distance = prevComp ? getDistance(prevComp.get(), comp.get()) : 0;
 
 		//start next row
 		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
@@ -421,11 +418,11 @@ void CComponentBox::placeComponents(bool selectable)
 			{
 				if (selectable)
 				{
-					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp, *iter);
+					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp.get(), iter->get());
 
-					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]);
+					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
 				}
-				currentX += getDistance(prevComp, *iter);
+				currentX += getDistance(prevComp.get(), iter->get());
 			}
 
 			(*iter)->moveBy(Point(currentX, currentY));
@@ -438,27 +435,16 @@ void CComponentBox::placeComponents(bool selectable)
 	}
 }
 
-CComponentBox::CComponentBox(CComponent * _components, Rect position):
-	components(1, _components),
-	selected(nullptr)
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CComponent>> _components, Rect position):
+	components(_components)
 {
 	type |= REDRAW_PARENT;
 	pos = position + pos;
 	placeComponents(false);
 }
 
-CComponentBox::CComponentBox(std::vector<CComponent *> _components, Rect position):
-	components(_components),
-	selected(nullptr)
-{
-	type |= REDRAW_PARENT;
-	pos = position + pos;
-	placeComponents(false);
-}
-
-CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Rect position, std::function<void(int newID)> _onSelect):
+CComponentBox::CComponentBox(std::vector<std::shared_ptr<CSelectableComponent>> _components, Rect position, std::function<void(int newID)> _onSelect):
 	components(_components.begin(), _components.end()),
-	selected(nullptr),
 	onSelect(_onSelect)
 {
 	type |= REDRAW_PARENT;

@@ -40,7 +40,7 @@ protected:
 	Point getBorderSize() override;
 	virtual std::string visibleText();
 
-	CPicture *bg;
+	std::shared_ptr<CPicture> background;
 public:
 
 	std::string text;
@@ -60,7 +60,7 @@ public:
 /// Small helper class to manage group of similar labels
 class CLabelGroup : public CIntObject
 {
-	std::list<CLabel*> labels;
+	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
 	EAlignment align;
 	SDL_Color color;
@@ -103,13 +103,13 @@ class CTextBox : public CIntObject
 {
 	int sliderStyle;
 public:
-	CMultiLineLabel * label;
-	CSlider *slider;
+	std::shared_ptr<CMultiLineLabel> label;
+	std::shared_ptr<CSlider> slider;
 
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
 
 	void resize(Point newSize);
-	void setText(const std::string &Txt);
+	void setText(const std::string & Txt);
 	void sliderMoved(int to);
 };
 
@@ -119,19 +119,18 @@ class CGStatusBar : public CLabel
 	bool textLock; //Used for blocking changes to the text
 	void init();
 
-	CGStatusBar *oldStatusBar;
+	CGStatusBar * oldStatusBar;
 protected:
 	Point getBorderSize() override;
 
 public:
-
 	void clear();//clears statusbar and refreshes
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
-	CGStatusBar(int x, int y, std::string name, int maxw=-1);
+	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 	~CGStatusBar();
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
@@ -180,7 +179,7 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
-	
+
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;
 

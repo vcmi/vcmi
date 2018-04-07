@@ -803,7 +803,7 @@ void CBattleInterface::bSurrenderf()
 			enemyHeroName = "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
 
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, 0, false);
+		curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
 	}
 }
 
@@ -815,11 +815,11 @@ void CBattleInterface::bFleef()
 	if ( curInt->cb->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = std::bind(&CBattleInterface::reallyFlee,this);
-		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, 0, false); //Are you sure you want to retreat?
+		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
 	{
-		std::vector<CComponent*> comps;
+		std::vector<std::shared_ptr<CComponent>> comps;
 		std::string heroName;
 		//calculating fleeing hero's name
 		if (attackingHeroInstance)
@@ -1280,8 +1280,7 @@ void CBattleInterface::displayBattleFinished()
 		return;
 	}
 
-	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-	resWindow = new CBattleResultWindow(*bresult, temp_rect, *this->curInt);
+	resWindow = new CBattleResultWindow(*bresult, *this->curInt);
 	GH.pushInt(resWindow);
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 }
@@ -3637,7 +3636,7 @@ void CBattleInterface::updateBattleAnimations()
 	}
 }
 
-IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
+std::shared_ptr<IImage> CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 {
 	int frameIndex = (animCount+1) *25 / getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
@@ -3650,7 +3649,7 @@ IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 	{
 		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(&oi);
 		if(!spellObstacle)
-			return nullptr;
+			return std::shared_ptr<IImage>();
 
 		std::string animationName = spellObstacle->animation;
 
@@ -3679,7 +3678,7 @@ IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 	return nullptr;
 }
 
-Point CBattleInterface::getObstaclePosition(IImage * image, const CObstacleInstance & obstacle)
+Point CBattleInterface::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 

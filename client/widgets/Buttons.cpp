@@ -74,18 +74,17 @@ void CButton::addCallback(std::function<void()> callback)
 	this->callback += callback;
 }
 
-void CButton::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
+void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	addOverlay(new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, CENTER, color, Text));
 	update();
 }
 
-void CButton::addOverlay(CIntObject *newOverlay)
+void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
-	delete overlay;
 	overlay = newOverlay;
-	addChild(newOverlay);
+	addChild(newOverlay.get());
 	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
 	update();
 }
@@ -235,6 +234,7 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
     CKeyShortcut(key),
     callback(Callback)
 {
+	defActions = 255-DISPOSE;
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 
 	stateToIndex[0] = 0;
@@ -243,8 +243,6 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
 	stateToIndex[3] = 3;
 
 	state=NORMAL;
-	image = nullptr;
-	overlay = nullptr;
 
 	currentImage = -1;
 	hoverable = actOnDown = soundDisabled = false;
@@ -272,9 +270,9 @@ void CButton::setIndex(size_t index, bool playerColoredButton)
 
 void CButton::setImage(std::shared_ptr<CAnimation> anim, bool playerColoredButton, int animFlags)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
+	image = std::make_shared<CAnimImage>(anim, getState(), 0, 0, 0, animFlags);
 	if (playerColoredButton)
 		image->playerColored(LOCPLINT->playerID);
 	pos = image->pos;
@@ -317,9 +315,7 @@ CToggleBase::CToggleBase(CFunctionList<void (bool)> callback):
 {
 }
 
-CToggleBase::~CToggleBase()
-{
-}
+CToggleBase::~CToggleBase() = default;
 
 void CToggleBase::doSelect(bool on)
 {
@@ -399,25 +395,30 @@ void CToggleGroup::addCallback(std::function<void(int)> callback)
 	onChange += callback;
 }
 
-void CToggleGroup::addToggle(int identifier, CToggleBase* bt)
+void CToggleGroup::resetCallback()
 {
-	if (auto intObj = dynamic_cast<CIntObject*>(bt)) // hack-ish workagound to avoid diamond problem with inheritance
+	onChange.clear();
+}
+
+void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
+{
+	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
-		if (intObj->parent)
-			intObj->parent->removeChild(intObj);
-		addChild(intObj);
+		addChild(intObj.get());
 	}
 
-	bt->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
-	bt->allowDeselection = false;
+	button->addCallback([=] (bool on) { if (on) selectionChanged(identifier);});
+	button->allowDeselection = false;
 
-	assert(buttons[identifier] == nullptr);
-	buttons[identifier] = bt;
+	if(buttons.count(identifier)>0)
+		logAnim->error("Duplicated toggle button id %d", identifier);
+	buttons[identifier] = button;
 }
 
 CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange)
-: onChange(OnChange), selectedID(-2)
-{}
+	: onChange(OnChange), selectedID(-2)
+{
+}
 
 void CToggleGroup::setSelected(int id)
 {
@@ -443,15 +444,13 @@ void CToggleGroup::selectionChanged(int to)
 		parent->redraw();
 }
 
-CVolumeSlider::CVolumeSlider(const Point &position, const std::string &defName, const int value,
-                             const std::pair<std::string, std::string> * const help) :
+CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
+	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),
 	helpHandlers(help)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	animImage = new CAnimImage(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
-	assert(!defName.empty());
-	addUsedEvents(LCLICK | RCLICK | WHEEL);
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	animImage = std::make_shared<CAnimImage>(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
 	pos.x += position.x;
 	pos.y += position.y;
 	pos.w = (animImage->pos.w + 1) * animImage->size();
@@ -658,25 +657,20 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		removeUsedEvents(MOVE);
 }
 
-CSlider::~CSlider()
+CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
+	: CIntObject(LCLICK | RCLICK | WHEEL),
+	capacity(Capacity),
+	horizontal(Horizontal),
+	amount(Amount),
+	value(Value),
+	scrollStep(1),
+	moved(Moved)
 {
-
-}
-
-CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style):
-    capacity(Capacity),
-    horizontal(Horizontal),
-    amount(Amount),
-    value(Value),
-    scrollStep(1),
-    moved(Moved)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	setAmount(amount);
 	vstd::amax(value, 0);
 	vstd::amin(value, positions);
 
-	addUsedEvents(LCLICK | KEYBOARD | WHEEL);
 	strongInterest = true;
 
 	pos.x += position.x;
@@ -684,12 +678,12 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 
 	if(style == BROWN)
 	{
-		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
+		std::string name = horizontal ? "IGPCRDIV.DEF" : "OVBUTN2.DEF";
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
-		left =   new CButton(Point(), name, CButton::tooltip());
-		right =  new CButton(Point(), name, CButton::tooltip());
-		slider = new CButton(Point(), name, CButton::tooltip());
+		left = std::make_shared<CButton>(Point(), name, CButton::tooltip());
+		right = std::make_shared<CButton>(Point(), name, CButton::tooltip());
+		slider = std::make_shared<CButton>(Point(), name, CButton::tooltip());
 
 		left->setImageOrder(0, 1, 1, 1);
 		right->setImageOrder(2, 3, 3, 3);
@@ -697,9 +691,9 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 	}
 	else
 	{
-		left = new CButton(Point(), horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
-		right = new CButton(Point(), horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
-		slider = new CButton(Point(), "SCNRBSL.DEF", CButton::tooltip());
+		left = std::make_shared<CButton>(Point(), horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF", CButton::tooltip());
+		right = std::make_shared<CButton>(Point(), horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF", CButton::tooltip());
+		slider = std::make_shared<CButton>(Point(), "SCNRBSL.DEF", CButton::tooltip());
 	}
 	slider->actOnDown = true;
 	slider->soundDisabled = true;
@@ -728,6 +722,8 @@ CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int
 
 	updateSliderPos();
 }
+
+CSlider::~CSlider() = default;
 
 void CSlider::block( bool on )
 {

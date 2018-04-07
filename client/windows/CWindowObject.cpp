@@ -34,12 +34,14 @@
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-    CIntObject(getUsedEvents(options_), Point()),
-    shadow(nullptr),
-    options(options_),
-    background(createBg(imageName, options & PLAYER_COLORED))
+	CIntObject(getUsedEvents(options_), Point()),
+	shadow(nullptr),
+	options(options_),
+	background(createBg(imageName, options & PLAYER_COLORED))
 {
 	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+
+	defActions = 255-DISPOSE;
 
 	if (options & RCLICK_POPUP)
 		CCS->curh->hide();
@@ -54,51 +56,48 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName):
-    CIntObject(getUsedEvents(options_), Point()),
-    shadow(nullptr),
-    options(options_),
-    background(createBg(imageName, options & PLAYER_COLORED))
+	CIntObject(getUsedEvents(options_), Point()),
+	options(options_),
+	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
 	assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
-	if (options & RCLICK_POPUP)
+	defActions = 255-DISPOSE;
+
+	if(options & RCLICK_POPUP)
 		CCS->curh->hide();
 
-	if (background)
+	if(background)
 		pos = background->center();
 	else
 		center(Point(screen->w/2, screen->h/2));
 
-	if (!(options & SHADOW_DISABLED))
+	if(!(options & SHADOW_DISABLED))
 		setShadow(true);
 }
 
-CWindowObject::~CWindowObject()
-{
-	setShadow(false);
-}
+CWindowObject::~CWindowObject() = default;
 
-CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
+std::shared_ptr<CPicture> CWindowObject::createBg(std::string imageName, bool playerColored)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	if (imageName.empty())
+	if(imageName.empty())
 		return nullptr;
 
-	auto  image = new CPicture(imageName);
-	if (playerColored)
+	auto image = std::make_shared<CPicture>(imageName);
+	if(playerColored)
 		image->colorize(LOCPLINT->playerID);
 	return image;
 }
 
 void CWindowObject::setBackground(std::string filename)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 
-	delete background;
 	background = createBg(filename, options & PLAYER_COLORED);
 
-	if (background)
+	if(background)
 		pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 
 	updateShadow();
@@ -123,16 +122,16 @@ void CWindowObject::setShadow(bool on)
 	//size of shadow
 	static const int size = 8;
 
-	if (on == bool(shadow))
+	if(on == bool(shadow))
 		return;
 
-	vstd::clear_pointer(shadow);
+	shadow.reset();
 
 	//object too small to cast shadow
-	if (pos.h <= size || pos.w <= size)
+	if(pos.h <= size || pos.w <= size)
 		return;
 
-	if (on)
+	if(on)
 	{
 
 		//helper to set last row
@@ -164,7 +163,7 @@ void CWindowObject::setShadow(bool on)
 		static SDL_Surface * shadowRightTempl = nullptr;
 
 		//one-time initialization
-		if (!shadowCornerTempl)
+		if(!shadowCornerTempl)
 		{
 			//create "template" surfaces
 			shadowCornerTempl = CSDL_Ext::createSurfaceWithBpp<4>(size, size);
@@ -184,8 +183,6 @@ void CWindowObject::setShadow(bool on)
 			blitAlphaRow(shadowBottomTempl, size-1);
 			blitAlphaRow(shadowCornerTempl, size-1);
 		}
-
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 		//FIXME: do something with this points
 		Point shadowStart;
@@ -215,10 +212,18 @@ void CWindowObject::setShadow(bool on)
 		blitAlphaRow(shadowRight, 0);
 
 		//generate "shadow" object with these 3 pieces in it
-		shadow = new CIntObject();
-		shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
-		shadow->addChild(new CPicture(shadowRight,  shadowPos.x, shadowStart.y));
-		shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));
+		{
+			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+			shadow = std::make_shared<CIntObject>();
+		}
+
+		{
+			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255);
+
+			shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
+			shadow->addChild(new CPicture(shadowRight, shadowPos.x, shadowStart.y));
+			shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));
+		}
 	}
 }
 

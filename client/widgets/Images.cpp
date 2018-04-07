@@ -179,13 +179,6 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	freeSurf = true;
 }
 
-void CPicture::colorizeAndConvert(PlayerColor player)
-{
-	assert(bg);
-	colorize(player);
-	convertToScreenBPP();
-}
-
 void CPicture::colorize(PlayerColor player)
 {
 	assert(bg);
@@ -257,9 +250,6 @@ void CAnimImage::init()
 
 CAnimImage::~CAnimImage()
 {
-	anim->unload(frame, group);
-	if (flags & CShowableAnim::BASE)
-		anim->unload(0,group);
 }
 
 void CAnimImage::showAll(SDL_Surface * to)
@@ -281,7 +271,6 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		return;
 	if (anim->size(Group) > Frame)
 	{
-		anim->unload(frame, group);
 		anim->load(Frame, Group);
 		frame = Frame;
 		group = Group;
@@ -348,8 +337,9 @@ bool CShowableAnim::set(size_t Group, size_t from, size_t to)
 	if (max < from || max == 0)
 		return false;
 
-	anim->load(Group);
-	anim->unload(group);
+	anim->unloadGroup(group);
+	anim->loadGroup(Group);
+
 	group = Group;
 	frame = first = from;
 	last = max;
@@ -363,8 +353,9 @@ bool CShowableAnim::set(size_t Group)
 		return false;
 	if (group != Group)
 	{
-		anim->loadGroup(Group);
 		anim->unloadGroup(group);
+		anim->loadGroup(Group);
+
 		first = 0;
 		group = Group;
 		last = anim->size(Group);

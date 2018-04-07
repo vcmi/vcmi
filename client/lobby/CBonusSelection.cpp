@@ -323,7 +323,7 @@ void CBonusSelection::createBonusesIcons()
 			break;
 		}
 
-		CToggleButton * bonusButton = new CToggleButton(Point(475 + i * 68, 455), "", CButton::tooltip(desc, desc));
+		std::shared_ptr<CToggleButton> bonusButton = std::make_shared<CToggleButton>(Point(475 + i * 68, 455), "", CButton::tooltip(desc, desc));
 
 		if(picNumber != -1)
 			picName += ":" + boost::lexical_cast<std::string>(picNumber);

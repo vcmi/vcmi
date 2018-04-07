@@ -22,52 +22,50 @@ class CAnimation;
 class CObjectList : public CIntObject
 {
 public:
-	typedef std::function<CIntObject* (size_t)> CreateFunc;
-	typedef std::function<void(CIntObject *)> DestroyFunc;
+	typedef std::function<std::shared_ptr<CIntObject>(size_t)> CreateFunc;
 
 private:
 	CreateFunc createObject;
-	DestroyFunc destroyObject;
 
 protected:
 	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
-	void deleteItem(CIntObject* item);
-	CIntObject* createItem(size_t index);
+	void deleteItem(std::shared_ptr<CIntObject> item);
+	std::shared_ptr<CIntObject> createItem(size_t index);
 
-	CObjectList(CreateFunc create, DestroyFunc destroy = DestroyFunc());//Protected constructor
+	CObjectList(CreateFunc create);
 };
 
 /// Window element with multiple tabs
 class CTabbedInt : public CObjectList
 {
 private:
-	CIntObject * activeTab;
+	std::shared_ptr<CIntObject> activeTab;
 	size_t activeID;
 
 public:
 	//CreateFunc, DestroyFunc - see CObjectList
 	//Pos - position of object, all tabs will be moved to this position
 	//ActiveID - ID of initially active tab
-	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
+	CTabbedInt(CreateFunc create, Point position=Point(), size_t ActiveID=0);
 
 	void setActive(size_t which);
 	//recreate active tab
 	void reset();
 
 	//return currently active item
-	CIntObject * getItem();
+	std::shared_ptr<CIntObject> getItem();
 };
 
 /// List of IntObjects with optional slider
 class CListBox : public CObjectList
 {
 private:
-	std::list< CIntObject* > items;
+	std::list<std::shared_ptr<CIntObject>> items;
 	size_t first;
 	size_t totalSize;
 
 	Point itemOffset;
-	CSlider * slider;
+	std::shared_ptr<CSlider> slider;
 
 	void updatePositions();
 public:
@@ -78,7 +76,7 @@ public:
 	//TotalSize
 	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
 	//SliderPos - position of slider, if present
-	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
+	CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t VisibleSize,
 		size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
 
 	//recreate all visible items
@@ -89,13 +87,13 @@ public:
 	size_t size();
 
 	//return item with index which or null if not present
-	CIntObject * getItem(size_t which);
+	std::shared_ptr<CIntObject> getItem(size_t which);
 
 	//return currently active items
-	const std::list< CIntObject * > & getItems();
+	const std::list<std::shared_ptr<CIntObject>> & getItems();
 
 	//get index of this item. -1 if not found
-	size_t getIndexOf(CIntObject * item);
+	size_t getIndexOf(std::shared_ptr<CIntObject> item);
 
 	//scroll list to make item which visible
 	void scrollTo(size_t which);

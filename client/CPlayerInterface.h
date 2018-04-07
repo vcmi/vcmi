@@ -39,7 +39,6 @@ class CSlider;
 struct UpgradeInfo;
 template <typename T> struct CondSh;
 class CInGameConsole;
-class CGarrisonInt;
 class CInGameConsole;
 union SDL_Event;
 class CInfoWindow;
@@ -139,7 +138,7 @@ public:
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) override;
 	void receivedResource() override;
-	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
+	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) override;
 	void showShipyardDialog(const IShipyard *obj) override; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
@@ -215,11 +214,11 @@ public:
 	void activateForSpectator(); // TODO: spectator probably need own player interface class
 
 	// show dialogs
-	void showInfoDialog(const std::string &text, CComponent * component);
-	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
+	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
+	void showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>(), int soundID = 0);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
 	void showOkDialog(std::vector<Component> & components, const MetaString & text, const std::function<void()> & onOk);
-	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
 	void stopMovement();
 	void moveHero(const CGHeroInstance *h, CGPath path);

@@ -196,8 +196,8 @@ void CPlayerInterface::yourTurn()
 			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
-			std::vector<CComponent*> cmp;
-			cmp.push_back(new CComponent(CComponent::flag, playerID.getNum(), 0));
+			std::vector<std::shared_ptr<CComponent>> cmp;
+			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -363,9 +363,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			GH.mainFPSmng->framerateDelay(); //for animation purposes
 			logGlobal->trace("after [un]locks in %s", __FUNCTION__);
 		}
-		//CSDL_Ext::update(screen);
 
-	} //for (int i=1; i<32; i+=4)
+	}
 	//main moving done
 
 	//finishing move
@@ -905,8 +904,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if (!battleInt)
 		{
-			SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-			auto   resWindow = new CBattleResultWindow(*br, temp_rect, *this);
+			auto resWindow = new CBattleResultWindow(*br, *this);
 			GH.pushInt(resWindow);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
@@ -1100,29 +1098,29 @@ void CPlayerInterface::showComp(const Component &comp, std::string message)
 	adventureInt->infoBar.showComponent(comp, message);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component> & components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{
 		return;
 	}
-	std::vector<CComponent*> intComps;
+	std::vector<std::shared_ptr<CComponent>> intComps;
 	for (auto & component : components)
-		intComps.push_back(new CComponent(*component));
+		intComps.push_back(std::make_shared<CComponent>(component));
 	showInfoDialog(text,intComps,soundID);
 
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, CComponent * component)
+void CPlayerInterface::showInfoDialog(const std::string & text, std::shared_ptr<CComponent> component)
 {
-	std::vector<CComponent*> intComps;
+	std::vector<std::shared_ptr<CComponent>> intComps;
 	intComps.push_back(component);
 
-	showInfoDialog(text, intComps, soundBase::sound_todo, true);
+	showInfoDialog(text, intComps, soundBase::sound_todo);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logGlobal, "player=%s, text=%s, is LOCPLINT=%d", playerID % text % (this==LOCPLINT));
 	waitWhileDialog();
@@ -1131,8 +1129,8 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	{
 		return;
 	}
-	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
-	temp->setDelComps(delComps);
+	CInfoWindow *temp = CInfoWindow::create(text, playerID, components);
+
 	if (makingTurn && GH.listInt.size() && LOCPLINT == this)
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
@@ -1149,46 +1147,37 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	std::vector<Component*> comps;
-	for (auto & elem : components)
-	{
-		comps.push_back(&elem);
-	}
+
 	std::string str;
 	text.toString(str);
 
-	showInfoDialog(str,comps, 0);
+	showInfoDialog(str, components, 0);
 	waitWhileDialog();
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps, const std::vector<CComponent*> & components)
+void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	stopMovement();
 	LOCPLINT->showingDialog->setn(true);
-	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
+	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
 }
 
 void CPlayerInterface::showOkDialog(std::vector<Component> & components, const MetaString & text, const std::function<void()> & onOk)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	std::vector<Component*> comps;
-	for (auto & elem : components)
-	{
-		comps.push_back(&elem);
-	}
 	std::string str;
 	text.toString(str);
 
 	stopMovement();
 	showingDialog->setn(true);
 
-	std::vector<CComponent*> intComps;
-	for (auto & component : comps)
-		intComps.push_back(new CComponent(*component));
-	CInfoWindow::showOkDialog(str, &intComps, onOk, true, playerID);
+	std::vector<std::shared_ptr<CComponent>> intComps;
+	for (auto & component : components)
+		intComps.push_back(std::make_shared<CComponent>(component));
+	CInfoWindow::showOkDialog(str, intComps, onOk, playerID);
 }
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel )
@@ -1201,17 +1190,17 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 	if (!selection && cancel) //simple yes/no dialog
 	{
-		std::vector<CComponent*> intComps;
+		std::vector<std::shared_ptr<CComponent>> intComps;
 		for (auto & component : components)
-			intComps.push_back(new CComponent(component)); //will be deleted by close in window
+			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
 
-		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, true, intComps);
+		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, intComps);
 	}
 	else if (selection)
 	{
-		std::vector<CSelectableComponent*> intComps;
+		std::vector<std::shared_ptr<CSelectableComponent>> intComps;
 		for (auto & component : components)
-			intComps.push_back(new CSelectableComponent(component)); //will be deleted by CSelWindow::close
+			intComps.push_back(std::make_shared<CSelectableComponent>(component)); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
@@ -1269,8 +1258,8 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	CComponent * localIconC = new CComponent(icon);
 
-	CIntObject * localIcon = localIconC->image;
-	localIconC->removeChild(localIcon, false);
+	std::shared_ptr<CIntObject> localIcon = localIconC->image;
+	localIconC->removeChild(localIcon.get(), false);
 	delete localIconC;
 
 	CObjectListWindow * wnd = new CObjectListWindow(tempList, localIcon, localTitle, localDescription, selectCallback);
@@ -1302,46 +1291,6 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.pushInt(new CHeroWindow(hero));
 }
-/*
-void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
-{
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if (adventureInt->heroWindow->curHero && adventureInt->heroWindow->curHero->id == hero->id) //hero window is opened
-	{
-		adventureInt->heroWindow->deactivate();
-		adventureInt->heroWindow->setHero(hero);
-		adventureInt->heroWindow->activate();
-	}
-	else if (CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt())) //exchange window is open
-	{
-		cew->deactivate();
-		for (int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
-		{
-			if (cew->heroInst[g]->id == hero->id)
-			{
-				cew->heroInst[g] = hero;
-				cew->artifs[g]->updateState = true;
-				cew->artifs[g]->setHero(hero);
-				cew->artifs[g]->updateState = false;
-			}
-		}
-		cew->prepareBackground();
-		cew->activate();
-	}
-	else if (CTradeWindow *caw = dynamic_cast<CTradeWindow*>(GH.topInt()))
-	{
-		if (caw->arts)
-		{
-			caw->deactivate();
-			caw->arts->updateState = true;
-			caw->arts->setHero(hero);
-			caw->arts->updateState = false;
-			caw->activate();
-		}
-	}
-
-	updateInfo(hero);
-}*/
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
@@ -1504,25 +1453,28 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
 	std::string text = artifact.Description();
 	text += "\n\n";
-	std::vector<CComponent*> scs;
+	std::vector<std::shared_ptr<CComponent>> scs;
 
-	if (assemble) {
+	if(assemble)
+	{
 		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
 
 		// You possess all of the components to...
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
 
 		// Picture of assembled artifact at bottom.
-		auto   sc = new CComponent(CComponent::artifact, assembledArtifact.id, 0);
+		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact.id, 0);
 		//sc->description = assembledArtifact.Description();
 		//sc->subtitle = assembledArtifact.Name();
 		scs.push_back(sc);
-	} else {
+	}
+	else
+	{
 		// Do you wish to disassemble this artifact?
 		text += CGI->generaltexth->allTexts[733];
 	}
 
-	showYesNoDialog(text, onYes, onNo, true, scs);
+	showYesNoDialog(text, onYes, onNo, scs);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -2230,7 +2182,7 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		{
 			std::string str = victoryLossCheckResult.messageToSelf;
 			boost::algorithm::replace_first(str, "%s", CGI->generaltexth->capColors[player.getNum()]);
-			showInfoDialog(str, std::vector<CComponent*>(1, new CComponent(CComponent::flag, player.getNum(), 0)));
+			showInfoDialog(str, std::vector<std::shared_ptr<CComponent>>(1, std::make_shared<CComponent>(CComponent::flag, player.getNum(), 0)));
 		}
 	}
 }
@@ -2661,7 +2613,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, 0, false);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, nullptr);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

@@ -42,7 +42,7 @@ class CMenuScreen : public CWindowObject
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CPicture>> images;
 
-	CIntObject * createTab(size_t index);
+	std::shared_ptr<CIntObject> createTab(size_t index);
 
 public:
 	std::vector<std::string> menuNameToEntry;

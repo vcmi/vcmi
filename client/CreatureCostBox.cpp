@@ -9,9 +9,19 @@
  */
 #include "StdInc.h"
 #include "CreatureCostBox.h"
-#include "windows/CAdvmapInterface.h"
+#include "widgets/Images.h"
+#include "widgets/TextControls.h"
 #include "gui/CGuiHandler.h"
 
+CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
+{
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
+	type |= REDRAW_PARENT;
+	pos = position + pos;
+
+	title = std::make_shared<CLabel>(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, titleText);
+}
 
 void CreatureCostBox::set(TResources res)
 {
@@ -19,40 +29,27 @@ void CreatureCostBox::set(TResources res)
 		item.second.first->setText(boost::lexical_cast<std::string>(res[item.first]));
 }
 
-CreatureCostBox::CreatureCostBox(Rect position, std::string title)
-{
-	type |= REDRAW_PARENT;
-	pos = position + pos;
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
-}
-
 void CreatureCostBox::createItems(TResources res)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-
-	for(auto & curr : resources)
-	{
-		delete curr.second.first;
-		delete curr.second.second;
-	}
 	resources.clear();
 
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+
 	TResources::nziterator iter(res);
-	while (iter.valid())
+	while(iter.valid())
 	{
-		CAnimImage * image = new CAnimImage("RESOURCE", iter->resType);
-		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
+		ImagePtr image = std::make_shared<CAnimImage>("RESOURCE", iter->resType);
+		LabelPtr text = std::make_shared<CLabel>(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
 
 		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
 		iter++;
 	}
 
-	if (!resources.empty())
+	if(!resources.empty())
 	{
 		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
 		//reverse to display gold as first resource
-		for (auto & res : boost::adaptors::reverse(resources))
+		for(auto & res : boost::adaptors::reverse(resources))
 		{
 			res.second.first->moveBy(Point(curx, 22));
 			res.second.second->moveBy(Point(curx, 22));

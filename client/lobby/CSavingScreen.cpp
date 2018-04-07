@@ -88,7 +88,7 @@ void CSavingScreen::saveGame()
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->text);
-		LOCPLINT->showYesNoDialog(hlp, overWrite, 0, false);
+		LOCPLINT->showYesNoDialog(hlp, overWrite, nullptr);
 	}
 	else
 	{

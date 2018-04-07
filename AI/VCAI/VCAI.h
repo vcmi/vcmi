@@ -231,7 +231,7 @@ public:
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain) override;
 	virtual void heroCreated(const CGHeroInstance*) override;
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
-	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) override;
+	virtual void showInfoDialog(const std::string &text, const std::vector<Component> &components, int soundID) override;
 	virtual void requestRealized(PackageApplied *pa) override;
 	virtual void receivedResource() override;
 	virtual void objectRemoved(const CGObjectInstance *obj) override;

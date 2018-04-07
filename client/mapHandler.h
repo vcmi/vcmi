@@ -159,7 +159,7 @@ class CMapHandler
 	/// temporarily caches rescaled frames for map world view redrawing
 	class CMapCache
 	{
-		std::array< std::map<intptr_t, std::unique_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
+		std::array< std::map<intptr_t, std::shared_ptr<IImage>>, (ui8)EMapCacheType::AFTER_LAST> data;
 		float worldViewCachedScale;
 	public:
 		CMapCache();
@@ -168,17 +168,17 @@ class CMapHandler
 		/// updates scale and determines if currently cached data is still valid
 		void updateWorldViewScale(float scale);
 		/// asks for cached data; @returns cached data if found, new scaled surface otherwise, may return nullptr in case of scaling error
-		IImage * requestWorldViewCacheOrCreate(EMapCacheType type, const IImage * fullSurface);
+		std::shared_ptr<IImage> requestWorldViewCacheOrCreate(EMapCacheType type, std::shared_ptr<IImage> fullSurface);
 	};
 
 	/// helper struct to pass around resolved bitmaps of an object; images can be nullptr if object doesn't have bitmap of that type
 	struct AnimBitmapHolder
 	{
-		IImage * objBitmap; // main object bitmap
-		IImage * flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
+		std::shared_ptr<IImage> objBitmap; // main object bitmap
+		std::shared_ptr<IImage> flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
 		bool isMoving; // indicates if the object is moving (again, heroes/boats only)
 
-		AnimBitmapHolder(IImage * objBitmap_ = nullptr, IImage * flagBitmap_ = nullptr, bool moving = false)
+		AnimBitmapHolder(std::shared_ptr<IImage> objBitmap_ = nullptr, std::shared_ptr<IImage> flagBitmap_ = nullptr, bool moving = false)
 			: objBitmap(objBitmap_),
 			  flagBitmap(flagBitmap_),
 			  isMoving(moving)
@@ -202,7 +202,7 @@ class CMapHandler
 		const MapDrawingInfo * info; // data for drawing passed from outside
 
 		/// general drawing method, called internally by more specialized ones
-		virtual void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const = 0;
+		virtual void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const = 0;
 
 		// first drawing pass
 
@@ -214,8 +214,8 @@ class CMapHandler
 		virtual void drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
 		/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 		virtual void drawObjects(SDL_Surface * targetSurf, const TerrainTile2 & tile) const;
-		virtual void drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const;
-		virtual void drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
+		virtual void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
+		virtual void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
 
 		// second drawing pass
 
@@ -249,10 +249,10 @@ class CMapHandler
 		// internal helper methods to choose correct bitmap(s) for object; called internally by findObjectBitmap
 		AnimBitmapHolder findHeroBitmap(const CGHeroInstance * hero, int anim) const;
 		AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;
-		IImage * findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
-		IImage * findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
-		IImage * findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int group, ui8 dir) const;
-		IImage * findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const;
+		std::shared_ptr<IImage> findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+		std::shared_ptr<IImage> findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+		std::shared_ptr<IImage> findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int group, ui8 dir) const;
+		std::shared_ptr<IImage> findFlagBitmapInternal(std::shared_ptr<CAnimation> animation, int anim, int group, ui8 dir, bool moving) const;
 
 	public:
 		CMapBlitter(CMapHandler * p);
@@ -265,7 +265,7 @@ class CMapHandler
 	class CMapNormalBlitter : public CMapBlitter
 	{
 	protected:
-		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
+		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
 		void drawTileOverlay(SDL_Surface * targetSurf,const TerrainTile2 & tile) const override {}
 		void init(const MapDrawingInfo * info) override;
 		SDL_Rect clip(SDL_Surface * targetSurf) const override;
@@ -277,12 +277,12 @@ class CMapHandler
 	class CMapWorldViewBlitter : public CMapBlitter
 	{
 	private:
-		IImage * objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
+		std::shared_ptr<IImage> objectToIcon(Obj id, si32 subId, PlayerColor owner) const;
 	protected:
-		void drawElement(EMapCacheType cacheType, const IImage * source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
+		void drawElement(EMapCacheType cacheType, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Surface * targetSurf, SDL_Rect * destRect) const override;
 		void drawTileOverlay(SDL_Surface * targetSurf, const TerrainTile2 & tile) const override;
-		void drawHeroFlag(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
-		void drawObject(SDL_Surface * targetSurf, const IImage * source, SDL_Rect * sourceRect, bool moving) const override;
+		void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const override;
+		void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const override;
 		void drawFrame(SDL_Surface * targetSurf) const override {}
 		void drawOverlayEx(SDL_Surface * targetSurf) override;
 		void init(const MapDrawingInfo * info) override;
@@ -347,7 +347,7 @@ public:
 
 	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
 	typedef std::vector<std::array<std::shared_ptr<CAnimation>, 4>> TFlippedAnimations; //[type, rotation]
-	typedef std::vector<std::vector<std::array<IImage *, 4>>> TFlippedCache;//[type, view type, rotation]
+	typedef std::vector<std::vector<std::array<std::shared_ptr<IImage>, 4>>> TFlippedCache;//[type, view type, rotation]
 
 	TFlippedAnimations terrainAnimations;//[terrain type, rotation]
 	TFlippedCache terrainImages;//[terrain type, view type, rotation]
@@ -359,14 +359,14 @@ public:
 	TFlippedCache riverImages;//[river type, view type, rotation]
 
 	//Fog of War cache (not owned)
-	std::vector<const IImage *> FoWfullHide;
+	std::vector<std::shared_ptr<IImage>> FoWfullHide;
 	std::vector<std::vector<std::vector<ui8> > > hideBitmap; //frame indexes (in FoWfullHide) of graphic that should be used to fully hide a tile
 
-	std::vector<const IImage *> FoWpartialHide;
+	std::vector<std::shared_ptr<IImage>> FoWpartialHide;
 
 	//edge graphics
 	std::unique_ptr<CAnimation> egdeAnimation;
-	std::vector<const IImage *> egdeImages;//cache of links to egdeAnimation (for faster access)
+	std::vector<std::shared_ptr<IImage>> egdeImages;//cache of links to egdeAnimation (for faster access)
 	PseudoV< PseudoV< PseudoV <ui8> > > edgeFrames; //frame indexes (in egdeImages) of tile outside of map
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;

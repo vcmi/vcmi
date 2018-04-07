@@ -219,7 +219,7 @@ void RandomMapTab::addButtonsWithRandToGroup(CToggleGroup * group, const std::ve
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
 	const std::string RANDOM_DEF = "RANRAND";
-	group->addToggle(CMapGenOptions::RANDOM_SIZE, new CToggleButton(Point(256, 0), RANDOM_DEF, CGI->generaltexth->zelp[helpRandIndex]));
+	group->addToggle(CMapGenOptions::RANDOM_SIZE, std::make_shared<CToggleButton>(Point(256, 0), RANDOM_DEF, CGI->generaltexth->zelp[helpRandIndex]));
 	group->setSelected(CMapGenOptions::RANDOM_SIZE);
 }
 
@@ -230,10 +230,9 @@ void RandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<std
 	int cnt = nEnd - nStart + 1;
 	for(int i = 0; i < cnt; ++i)
 	{
-		auto button = new CToggleButton(Point(i * btnWidth, 0), defs[i + nStart], CGI->generaltexth->zelp[helpStartIndex + i]);
+		auto button = std::make_shared<CToggleButton>(Point(i * btnWidth, 0), defs[i + nStart], CGI->generaltexth->zelp[helpStartIndex + i]);
 		// For blocked state we should use pressed image actually
 		button->setImageOrder(0, 1, 1, 3);
-
 		group->addToggle(i + nStart, button);
 	}
 }
@@ -243,7 +242,7 @@ void RandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
 	logGlobal->debug("Blocking buttons from %d", startId);
 	for(auto toggle : group->buttons)
 	{
-		if(auto button = dynamic_cast<CToggleButton *>(toggle.second))
+		if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 		{
 			if(startId == CMapGenOptions::RANDOM_SIZE || toggle.first < startId)
 			{

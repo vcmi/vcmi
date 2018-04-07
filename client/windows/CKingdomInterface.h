@@ -61,16 +61,16 @@ public:
 
 private:
 	InfoSize size;
-	InfoPos  infoPos;
-	IInfoBoxData *data;
+	InfoPos infoPos;
+	std::shared_ptr<IInfoBoxData> data;
 
-	CLabel * value;
-	CLabel * name;
-	CAnimImage * image;
-	CHoverableArea *hover;
+	std::shared_ptr<CLabel> value;
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CAnimImage> image;
+	std::shared_ptr<CHoverableArea> hover;
 
 public:
-	InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
+	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
 	void clickRight(tribool down, bool previousState) override;
@@ -106,7 +106,7 @@ public:
 	virtual size_t getImageIndex()=0;
 
 	//TODO: replace with something better
-	virtual bool prepareMessage(std::string &text, CComponent **comp)=0;
+	virtual void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp)=0;
 
 	virtual ~IInfoBoxData(){};
 };
@@ -126,7 +126,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 class InfoBoxHeroData : public InfoBoxAbstractHeroData
@@ -144,7 +144,7 @@ public:
 	std::string getHoverText() override;
 	std::string getValueText() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
@@ -176,7 +176,7 @@ public:
 	std::string getHoverText() override;
 	size_t getImageIndex() override;
 
-	bool prepareMessage(std::string &text, CComponent **comp) override;
+	void prepareMessage(std::string & text, std::shared_ptr<CComponent> & comp) override;
 };
 
 //TODO!!!
@@ -197,8 +197,6 @@ public:
 	size_t getImageIndex() override;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-
 /// Class which holds all parts of kingdom overview window
 class CKingdomInterface : public CWindowObject, public CGarrisonHolder, public CArtifactHolder
 {
@@ -215,25 +213,27 @@ private:
 	};
 	std::vector<OwnedObjectInfo> objects;
 
-	CListBox * dwellingsList;
-	CTabbedInt * tabArea;
+	std::shared_ptr<CListBox> dwellingsList;
+	std::shared_ptr<CTabbedInt> tabArea;
 
 	//Main buttons
-	CButton *btnTowns;
-	CButton *btnHeroes;
-	CButton *btnExit;
+	std::shared_ptr<CButton> btnTowns;
+	std::shared_ptr<CButton> btnHeroes;
+	std::shared_ptr<CButton> btnExit;
 
 	//Buttons for scrolling dwellings list
-	CButton *dwellUp, *dwellDown;
-	CButton *dwellTop, *dwellBottom;
+	std::shared_ptr<CButton> dwellUp;
+	std::shared_ptr<CButton> dwellDown;
+	std::shared_ptr<CButton> dwellTop;
+	std::shared_ptr<CButton> dwellBottom;
 
-	InfoBox * minesBox[7];
+	std::array<std::shared_ptr<InfoBox>, 7> minesBox;
 
-	CHoverableArea * incomeArea;
-	CLabel * incomeAmount;
+	std::shared_ptr<CHoverableArea> incomeArea;
+	std::shared_ptr<CLabel> incomeAmount;
 
-	CGStatusBar * statusbar;
-	CResDataBar *resdatabar;
+	std::shared_ptr<CGStatusBar> statusbar;
+	std::shared_ptr<CResDataBar> resdatabar;
 
 	void activateTab(size_t which);
 
@@ -242,8 +242,8 @@ private:
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects);
 
-	CIntObject* createOwnedObject(size_t index);
-	CIntObject* createMainTab(size_t index);
+	std::shared_ptr<CIntObject> createOwnedObject(size_t index);
+	std::shared_ptr<CIntObject> createMainTab(size_t index);
 
 public:
 	CKingdomInterface();
@@ -259,67 +259,73 @@ public:
 /// List item with town
 class CTownItem : public CIntObject, public CGarrisonHolder
 {
-	CAnimImage *background;
-	CAnimImage *picture;
-	CLabel *name;
-	CLabel *income;
-	CGarrisonInt *garr;
+	std::shared_ptr<CAnimImage> background;
+	std::shared_ptr<CAnimImage> picture;
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CLabel> income;
+	std::shared_ptr<CGarrisonInt> garr;
 
-	HeroSlots *heroes;
-	CTownInfo *hall, *fort;
-	std::vector<CCreaInfo*> available;
-	std::vector<CCreaInfo*> growth;
+	std::shared_ptr<HeroSlots> heroes;
+	std::shared_ptr<CTownInfo> hall;
+	std::shared_ptr<CTownInfo> fort;
+
+	std::vector<std::shared_ptr<CCreaInfo>> available;
+	std::vector<std::shared_ptr<CCreaInfo>> growth;
+
+	std::shared_ptr<LRClickableAreaOpenTown> openTown;
 
 public:
 	const CGTownInstance * town;
 
-	CTownItem(const CGTownInstance* town);
+	CTownItem(const CGTownInstance * Town);
 
 	void updateGarrisons() override;
 	void update();
 };
 
 /// List item with hero
-class CHeroItem : public CIntObject, public CWindowWithGarrison
+class CHeroItem : public CIntObject, public CGarrisonHolder
 {
 	const CGHeroInstance * hero;
 
-	std::vector<CIntObject *> artTabs;
+	std::vector<std::shared_ptr<CIntObject>> artTabs;
 
-	CAnimImage *portrait;
-	CLabel *name;
-	CHeroArea *heroArea;
+	std::shared_ptr<CAnimImage> portrait;
+	std::shared_ptr<CLabel> name;
+	std::shared_ptr<CHeroArea> heroArea;
 
-	CLabel *artsText;
-	CTabbedInt *artsTabs;
+	std::shared_ptr<CLabel> artsText;
+	std::shared_ptr<CTabbedInt> artsTabs;
 
-	CToggleGroup *artButtons;
-	std::vector<InfoBox*> heroInfo;
-	MoraleLuckBox * morale, * luck;
+	std::shared_ptr<CToggleGroup> artButtons;
+	std::vector<std::shared_ptr<InfoBox>> heroInfo;
+	std::shared_ptr<MoraleLuckBox> morale;
+	std::shared_ptr<MoraleLuckBox> luck;
+
+	std::shared_ptr<CGarrisonInt> garr;
 
 	void onArtChange(int tabIndex);
 
-	CIntObject * onTabSelected(size_t index);
-	void onTabDeselected(CIntObject *object);
+	std::shared_ptr<CIntObject> onTabSelected(size_t index);
 
 public:
-	CArtifactsOfHero *heroArts;
+ 	std::shared_ptr<CArtifactsOfHero> heroArts;
 
-	CHeroItem(const CGHeroInstance* hero);
+	void updateGarrisons() override;
+
+	CHeroItem(const CGHeroInstance * hero);
 };
 
 /// Tab with all hero-specific data
 class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
 {
 private:
-	std::vector<CHeroItem*> heroItems;
-	CListBox * heroes;
-	CPicture * title;
-	CLabel * heroLabel;
-	CLabel * skillsLabel;
+	std::shared_ptr<CListBox> heroes;
+	std::shared_ptr<CPicture> title;
+	std::shared_ptr<CLabel> heroLabel;
+	std::shared_ptr<CLabel> skillsLabel;
 
-	CIntObject* createHeroItem(size_t index);
-	void destroyHeroItem(CIntObject *item);
+	std::shared_ptr<CIntObject> createHeroItem(size_t index);
 public:
 	CKingdHeroList(size_t maxSize);
 
@@ -330,17 +336,16 @@ public:
 class CKingdTownList : public CIntObject, public CGarrisonHolder
 {
 private:
-	std::vector<CTownItem*> townItems;
-	CListBox * towns;
-	CPicture * title;
-	CLabel * townLabel;
-	CLabel * garrHeroLabel;
-	CLabel * visitHeroLabel;
+	std::shared_ptr<CListBox> towns;
+	std::shared_ptr<CPicture> title;
+	std::shared_ptr<CLabel> townLabel;
+	std::shared_ptr<CLabel> garrHeroLabel;
+	std::shared_ptr<CLabel> visitHeroLabel;
 
-	CIntObject* createTownItem(size_t index);
+	std::shared_ptr<CIntObject> createTownItem(size_t index);
 public:
 	CKingdTownList(size_t maxSize);
 
-	void townChanged(const CGTownInstance *town);
+	void townChanged(const CGTownInstance * town);
 	void updateGarrisons() override;
 };
