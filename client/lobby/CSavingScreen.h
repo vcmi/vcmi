@@ -19,7 +19,7 @@ class CSavingScreen : public CSelectionBase
 {
 public:
 	const StartInfo * localSi;
-	CMapInfo * localMi;
+	std::shared_ptr<CMapInfo> localMi;
 
 	CSavingScreen();
 	~CSavingScreen();

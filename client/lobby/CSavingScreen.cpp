@@ -32,7 +32,7 @@ CSavingScreen::CSavingScreen()
 	center(pos);
 	// TODO: we should really use std::shared_ptr for passing StartInfo around.
 	localSi = new StartInfo(*LOCPLINT->cb->getStartInfo());
-	localMi = new CMapInfo();
+	localMi = std::make_shared<CMapInfo>();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 
 	tabSel = std::make_shared<SelectionTab>(screenType);
@@ -46,12 +46,11 @@ CSavingScreen::CSavingScreen()
 
 CSavingScreen::~CSavingScreen()
 {
-	vstd::clear_pointer(localMi);
 }
 
 const CMapInfo * CSavingScreen::getMapInfo()
 {
-	return localMi;
+	return localMi.get();
 }
 
 const StartInfo * CSavingScreen::getStartInfo()
@@ -61,10 +60,10 @@ const StartInfo * CSavingScreen::getStartInfo()
 
 void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 {
-	if(localMi == to.get())
+	if(localMi == to)
 		return;
 
-	localMi = to.get();
+	localMi = to;
 	localSi = localMi->scenarioOptionsOfSave;
 	card->changeSelection();
 }
@@ -76,7 +75,7 @@ void CSavingScreen::saveGame()
 
 	std::string path = "Saves/" + tabSel->inputName->text;
 
-	auto overWrite = [&]() -> void
+	auto overWrite = [this, path]() -> void
 	{
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
