@@ -1225,7 +1225,6 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::RETURN_TO_MAIN_MENU:
 			{
 				CSH->endGameplay();
-				GH.curInt = CMainMenu::create();
 				GH.defActionsDef = 63;
 			}
 			break;
@@ -1237,7 +1236,6 @@ static void handleEvent(SDL_Event & ev)
 		case EUserEvent::CAMPAIGN_START_SCENARIO:
 			{
 				CSH->endGameplay();
-				GH.curInt = CMainMenu::create();
 				auto ourCampaign = std::shared_ptr<CCampaignState>(reinterpret_cast<CCampaignState *>(ev.user.data1));
 				auto & epilogue = ourCampaign->camp->scenarios[ourCampaign->mapsConquered.back()].epilog;
 				auto finisher = [=]()
@@ -1259,11 +1257,8 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::RETURN_TO_MENU_LOAD:
 			CSH->endGameplay();
-			CMainMenu::create();
 			GH.defActionsDef = 63;
-			CMM->update();
-			CMM->menu->switchToTab(vstd::find_pos(CMM->menu->menuNameToEntry, "load"));
-			GH.curInt = CMM;
+			CMM->menu->switchToTab("load");
 			break;
 		case EUserEvent::FULLSCREEN_TOGGLED:
 			fullScreenChanged();

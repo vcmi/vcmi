@@ -18,14 +18,13 @@
 
 #include "../../lib/filesystem/Filesystem.h"
 
-CreditsScreen::CreditsScreen()
-	: positionCounter(0)
+CreditsScreen::CreditsScreen(Rect rect)
+	: CIntObject(LCLICK | RCLICK), positionCounter(0)
 {
-	addUsedEvents(LCLICK | RCLICK);
+	pos.w = rect.w;
+	pos.h = rect.h;
 	type |= REDRAW_PARENT;
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos.w = CMM->menu->pos.w;
-	pos.h = CMM->menu->pos.h;
 	auto textFile = CResourceHandler::get()->load(ResourceID("DATA/CREDITS.TXT"))->readAll();
 	std::string text((char *)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"') + 1;

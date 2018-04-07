@@ -447,6 +447,8 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 
 void CServerHandler::startGameplay()
 {
+	if(CMM)
+		CMM->disable();
 	client = new CClient();
 
 	switch(si->mode)
@@ -477,6 +479,16 @@ void CServerHandler::endGameplay(bool closeConnection)
 	// Tell the network thread to reach a stable state
 	CSH->sendClientDisconnecting();
 	logNetwork->info("Closed connection.");
+
+	if(CMM)
+	{
+		GH.curInt = CMM;
+		CMM->enable();
+	}
+	else
+	{
+		GH.curInt = CMainMenu::create();
+	}
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)

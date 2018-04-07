@@ -433,7 +433,6 @@ void CBonusSelection::startMap()
 		GH.popInt(this);
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 		{
-			GH.curInt = CMainMenu::create();
 			showPrologVideo();
 		}, 0);
 	}

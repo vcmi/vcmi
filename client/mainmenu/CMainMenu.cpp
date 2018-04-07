@@ -101,7 +101,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 {
 	if(config["items"].Vector().size() == index)
-		return std::make_shared<CreditsScreen>();
+		return std::make_shared<CreditsScreen>(this->pos);
 	else
 		return std::make_shared<CMenuEntry>(this, config["items"].Vector()[index]);
 }
@@ -134,6 +134,11 @@ void CMenuScreen::switchToTab(size_t index)
 	tabs->setActive(index);
 }
 
+void CMenuScreen::switchToTab(std::string name)
+{
+	switchToTab(vstd::find_pos(menuNameToEntry, name));
+}
+
 //funciton for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::string> menuType, const std::string & string)
 {
@@ -156,7 +161,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			{
 				size_t index2 = std::find(menuType.begin(), menuType.end(), commands.front()) - menuType.begin();
 				if(index2 != menuType.size())
-					return std::bind(&CMenuScreen::switchToTab, menu, index2);
+					return std::bind((void(CMenuScreen::*)(size_t))&CMenuScreen::switchToTab, menu, index2);
 				break;
 			}
 			case 1: //open campaign selection window
@@ -352,21 +357,6 @@ CMainMenu * CMainMenu::create()
 
 	GH.terminate_cond->set(false);
 	return CMM;
-}
-
-void CMainMenu::removeFromGui()
-{
-	//remove everything but main menu and background
-	GH.popInts(GH.listInt.size() - 2);
-	GH.popInt(GH.topInt()); //remove main menu
-	GH.popInt(GH.topInt()); //remove background
-}
-
-void CMainMenu::showLoadingScreen(std::function<void()> loader)
-{
-	if(GH.listInt.size() && GH.listInt.front() == CMM)
-		CMM->removeFromGui();
-	GH.pushInt(new CLoadingScreen(loader));
 }
 
 std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)

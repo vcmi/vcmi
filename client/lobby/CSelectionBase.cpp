@@ -71,8 +71,6 @@ PlayerInfo ISelectionScreenInfo::getPlayerInfo(int color)
 CSelectionBase::CSelectionBase(ESelectionScreen type)
 	: CWindowObject(BORDERED | SHADOW_DISABLED), ISelectionScreenInfo(type)
 {
-	CMainMenu::create(); //we depend on its graphics
-
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	IShowActivatable::type = BLOCK_ADV_HOTKEYS;
 	pos.w = 762;

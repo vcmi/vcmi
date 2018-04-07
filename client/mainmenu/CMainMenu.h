@@ -54,6 +54,7 @@ public:
 	void deactivate() override;
 
 	void switchToTab(size_t index);
+	void switchToTab(std::string name);
 };
 
 class CMenuEntry : public CIntObject
@@ -140,8 +141,6 @@ public:
 	void openCampaignScreen(std::string name);
 
 	static CMainMenu * create();
-	void removeFromGui();
-	static void showLoadingScreen(std::function<void()> loader);
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
