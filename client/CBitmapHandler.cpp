@@ -57,7 +57,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 
 	if (format==PCX8B)
 	{
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0, 0);
+		ret = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
 
 		it = 0xC;
 		for (int i=0; i<height; i++)
@@ -89,7 +89,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 		int gmask = 0x00ff00;
 		int rmask = 0xff0000;
 #endif
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, rmask, gmask, bmask, 0);
+		ret = SDL_CreateRGBSurface(0, width, height, 24, rmask, gmask, bmask, 0);
 
 		//it == 0xC;
 		for (int i=0; i<height; i++)

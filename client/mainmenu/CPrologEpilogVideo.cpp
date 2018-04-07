@@ -58,7 +58,7 @@ void CPrologEpilogVideo::show(SDL_Surface * to)
 
 void CPrologEpilogVideo::clickLeft(tribool down, bool previousState)
 {
-	GH.popInt(this);
+	close();
 	CCS->soundh->stopSound(voiceSoundHandle);
 	exitCb();
 }

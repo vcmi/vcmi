@@ -491,14 +491,11 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	if(!settings["session"]["headless"].Bool())
 	{
+		Rect battleIntRect((screen->w - 800)/2, (screen->h - 600)/2, 800, 600);
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
-				Rect((screen->w - 800)/2,
-					 (screen->h - 600)/2, 800, 600), att, def);
-
-			GH.pushInt(bi);
+			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
@@ -506,11 +503,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			auto bi = new CBattleInterface(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero,
-						       Rect((screen->w - 800) / 2,
-							    (screen->h - 600) / 2, 800, 600), att, def, spectratorInt);
-
-			GH.pushInt(bi);
+			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
 		}
 	}
 

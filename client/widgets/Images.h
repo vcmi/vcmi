@@ -105,12 +105,11 @@ public:
 		BASE=1,            //base frame will be blitted before current one
 		HORIZONTAL_FLIP=2, //TODO: will be displayed rotated
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
-		USE_RLE=8,         //RLE-d version, support full alpha-channel for 8-bit images
 		PLAYER_COLORED=16, //TODO: all loaded images will be player-colored
 		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:
-	CAnimation * anim;
+	std::shared_ptr<CAnimation> anim;
 
 	size_t group, frame;//current frame
 
@@ -227,7 +226,6 @@ public:
 	//clear queue and set animation to this sequence
 	void clearAndSet(EAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, Rect picPos,
-				  ui8 flags= USE_RLE, EAnimType = HOLDING );
+	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, EAnimType = HOLDING);
 
 };

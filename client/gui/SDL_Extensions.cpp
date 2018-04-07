@@ -39,7 +39,7 @@ void SDL_UpdateRect(SDL_Surface *surface, int x, int y, int w, int h)
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	SDL_Surface * ret = SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(0,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
 	if (mod->format->palette)
 	{
 		assert(ret->format->palette);
@@ -65,7 +65,7 @@ SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 	Channels::px<bpp>::b.set((Uint8*)&bMask, 255);
 	Channels::px<bpp>::a.set((Uint8*)&aMask, 255);
 
-	return SDL_CreateRGBSurface( SDL_SWSURFACE, width, height, bpp * 8, rMask, gMask, bMask, aMask);
+	return SDL_CreateRGBSurface(0, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
 
 bool isItIn(const SDL_Rect * rect, int x, int y)

@@ -82,7 +82,7 @@ public:
 	std::shared_ptr<CCallback> cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or nullptr)
 
-	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
+	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
@@ -217,7 +217,6 @@ public:
 	void showInfoDialog(const std::string &text, std::shared_ptr<CComponent> component);
 	void showInfoDialog(const std::string &text, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>(), int soundID = 0);
 	void showInfoDialogAndWait(std::vector<Component> & components, const MetaString & text);
-	void showOkDialog(std::vector<Component> & components, const MetaString & text, const std::function<void()> & onOk);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components = std::vector<std::shared_ptr<CComponent>>());
 
 	void stopMovement();

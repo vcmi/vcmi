@@ -31,5 +31,5 @@ public:
 	const CMapInfo * getMapInfo() override;
 	const StartInfo * getStartInfo() override;
 
-	CBonusSelection * bonusSel;
+	std::shared_ptr<CBonusSelection> bonusSel;
 };
