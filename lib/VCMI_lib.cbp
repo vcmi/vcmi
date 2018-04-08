@@ -132,6 +132,7 @@
 		<Unit filename="../include/vstd/CLoggerBase.h" />
 		<Unit filename="../include/vstd/ContainerUtils.h" />
 		<Unit filename="../include/vstd/RNG.h" />
+		<Unit filename="../include/vstd/StringUtils.h" />
 		<Unit filename="AI_Base.h" />
 		<Unit filename="CArtHandler.cpp" />
 		<Unit filename="CArtHandler.h" />
@@ -439,6 +440,7 @@
 		<Unit filename="spells/effects/UnitEffect.cpp" />
 		<Unit filename="spells/effects/UnitEffect.h" />
 		<Unit filename="vcmi_endian.h" />
+		<Unit filename="vstd/StringUtils.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
