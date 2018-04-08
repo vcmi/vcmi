@@ -989,6 +989,8 @@ public:
 	CreatureFactionLimiter(int TerrainType);
 
 	int limit(const BonusLimitationContext &context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1005,6 +1007,8 @@ public:
 	CreatureAlignmentLimiter(si8 Alignment);
 
 	int limit(const BonusLimitationContext &context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

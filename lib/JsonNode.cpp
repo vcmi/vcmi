@@ -19,6 +19,7 @@
 #include "CModHandler.h"
 #include "CGeneralTextHandler.h"
 #include "JsonDetail.h"
+#include "StringConstants.h"
 
 using namespace JsonDetail;
 
@@ -644,6 +645,23 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 					}
 					return bonusLimiter;
 				}
+			}
+			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
+			{
+				int alignment = vstd::find_pos(EAlignment::names, parameters[0].String());
+				if(alignment == -1)
+					logMod->error("Error: invalid alignment %s.", parameters[0].String());
+				else
+					return std::make_shared<CreatureAlignmentLimiter>(alignment);
+			}
+			else if(limiterType == "CREATURE_FACTION_LIMITER")
+			{
+				std::shared_ptr<CreatureFactionLimiter> factionLimiter = std::make_shared<CreatureFactionLimiter>();
+				VLC->modh->identifiers.requestIdentifier("faction", parameters[0], [=](si32 faction)
+				{
+					factionLimiter->faction = faction;
+				});
+				return factionLimiter;
 			}
 			else
 			{

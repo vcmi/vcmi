@@ -16,6 +16,7 @@
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
 #include "CHeroHandler.h"
+#include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "CStack.h"
@@ -1755,6 +1756,23 @@ int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 	return !c || c->faction != faction; //drop bonus for non-creatures or non-native residents
 }
 
+std::string CreatureFactionLimiter::toString() const
+{
+	char buf[100];
+	sprintf(buf, "CreatureFactionLimiter(faction=%s)", VLC->townh->factions[faction]->identifier.c_str());
+	return std::string(buf);
+}
+
+JsonNode CreatureFactionLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_FACTION_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->townh->factions[faction]->identifier));
+
+	return root;
+}
+
 CreatureAlignmentLimiter::CreatureAlignmentLimiter()
 	: alignment(-1)
 {
@@ -1782,6 +1800,23 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 		logBonus->warn("Warning: illegal alignment in limiter!");
 		return true;
 	}
+}
+
+std::string CreatureAlignmentLimiter::toString() const
+{
+	char buf[100];
+	sprintf(buf, "CreatureAlignmentLimiter(alignment=%s)", EAlignment::names[alignment].c_str());
+	return std::string(buf);
+}
+
+JsonNode CreatureAlignmentLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(EAlignment::names[alignment]));
+
+	return root;
 }
 
 RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
