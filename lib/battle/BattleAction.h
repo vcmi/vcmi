@@ -37,6 +37,8 @@ public:
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
+	static BattleAction makeRetreat(ui8 side);
+	static BattleAction makeSurrender(ui8 side);
 
 	std::string toString() const;
 
