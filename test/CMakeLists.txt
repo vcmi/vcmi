@@ -105,19 +105,18 @@ vcmi_set_output_dir(vcmitest "")
 set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmitest)
 
-# Files to copy to the build directory
-set(vcmitest_FILES
-		testdata/TerrainViewTest.h3m
-		testdata/terrainViewMappings.json
-		testdata/ObjectPropertyTest/header.json
-		testdata/ObjectPropertyTest/objects.json
-		testdata/ObjectPropertyTest/surface_terrain.json
-		testdata/ObjectPropertyTest/underground_terrain.json
-)
-
-foreach(file ${vcmitest_FILES})
-	add_custom_command(TARGET vcmitest POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
-	)
+file (GLOB_RECURSE testdata "testdata/*.*")
+foreach(resource ${testdata})
+	get_filename_component(filename ${resource} NAME)
+	get_filename_component(dir ${resource} DIRECTORY)
+	get_filename_component(dirname ${dir} NAME)
+	set (output "")
+	while(NOT ${dirname} STREQUAL testdata)
+		get_filename_component(path_component ${dir} NAME)
+		set (output "${path_component}/${output}")
+		get_filename_component(dir ${dir} DIRECTORY)
+		get_filename_component(dirname ${dir} NAME)
+	endwhile()
+	set(output "${CMAKE_BINARY_DIR}/bin/test/testdata/${output}/${filename}")
+	configure_file(${resource} ${output} COPYONLY)
 endforeach()
-
