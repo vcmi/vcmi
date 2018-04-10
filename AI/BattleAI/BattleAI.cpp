@@ -635,7 +635,8 @@ bool CBattleAI::isItOurLastTurn(PossibleSpellcast::ValueMap & values, const std:
 					}
 					if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
 						swb->removeUnitBonus(Bonus::UntilAttack);
-				}
+				} //TODO after each modification of the battle state, we need to evaluate turn order again.
+				//TODO add some simulation of opponent (and us) casting spells. Oponnent can, for example, kill our last remaining unit with a spell
 			}
 			else
 			{
@@ -676,20 +677,20 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 		if(lastTurn)
 		{
-			auto decision = cb->getSurrenderRetreatDecision(cb->battleGetArmyObject(side));
+			auto decision = cb->getSurrenderRetreatDecision();
 			if(cb->battleCanSurrender(playerID) && decision == 2)
 			{
 				LOGL("We should surrender!");
 				return boost::optional<BattleAction>(BattleAction::makeSurrender(side));
 			}
-			else if (cb->battleCanFlee() && decision == 1)
+			if (cb->battleCanFlee() && decision == 1)
 			{
 				LOGL("We should flee!");
 				return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
 			}
 			else
 			{
-				LOGL("Can't execute player decision! Will do nothing."); //TODO fix this.
+				LOGL("Can't execute player decision! Will do nothing.");
 			}
 		}
 		LOGL("We will have another chance!");

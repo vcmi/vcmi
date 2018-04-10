@@ -306,7 +306,7 @@ public:
 	//optimization - use one SM for every hero call
 	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
 
-	virtual int makeSurrenderRetreatDecision(const CArmedInstance * army) override;
+	virtual int makeSurrenderRetreatDecision() override;
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

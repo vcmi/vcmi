@@ -3559,14 +3559,40 @@ std::vector<const CGObjectInstance *> SectorMap::getNearbyObjs(HeroPtr h, bool s
 	return heroSector->visitableObjs;
 }
 
-int VCAI::makeSurrenderRetreatDecision(const CArmedInstance * army)
+int VCAI::makeSurrenderRetreatDecision()
 {
-	int surrenderCost = cbc->battleGetSurrenderCost();
+	NET_EVENT_HANDLER;
+	//TODO add "desperate" mode. Don't flee, surrender, if you're about to lose (or win...?)
+	auto surrenderCost = cbc->battleGetSurrenderCost();
+	auto side = cbc->battleGetMySide();
+
+	auto powerToLose = cbc->battleGetArmyObject(side)->getArmyStrength();
+	//TODO make sure it get's the current state of army in the battle, not only the initial army
+	ui64 fullpower = 0;
+	for (const CGHeroInstance * hero : cb->getHeroesInfo())
+	{
+		if(hero != cb->battleGetMyHero())
+			fullpower += hero->getArmyStrength();
+	}
+	for (const CGTownInstance * town : cb->getTownsInfo())
+	{
+		if(town != cbc->battleGetDefendedTown())
+			fullpower += town->getArmyStrength();
+	}
 	logGlobal->error("VCAI::makeSurrenderRetreatDecision");
 	auto myResources = freeResources();
 	logGlobal->error("VCAI::created resources");
-	if(surrenderCost >= 0.25* myResources[Res::GOLD])
+
+	logGlobal->error("surrender cost: %d", surrenderCost);
+	logGlobal->error("my money: %d", myResources[Res::GOLD]);
+	logGlobal->error("total power : %d", fullpower);
+	logGlobal->error("battle power : %d", powerToLose);
+	if (cbc->battleCanSurrender(playerID) && 4 * surrenderCost <= myResources[Res::GOLD] && 3 * powerToLose >= fullpower)
+	{
 		return 2; //surrender
-	return 1; //flee
+	}
+	if(cbc->battleCanFlee())
+		return 1; //flee
+	return 0;
 	
 }

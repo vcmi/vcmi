@@ -369,9 +369,9 @@ CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C
 	cl = C;
 }
 
-int CBattleCallback::getSurrenderRetreatDecision(const CArmedInstance * army)
+int CBattleCallback::getSurrenderRetreatDecision()
 {
-	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision(army);
+	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision();
 }
 
 bool CBattleCallback::battleMakeTacticAction( BattleAction * action )

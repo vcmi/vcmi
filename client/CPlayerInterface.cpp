@@ -2937,7 +2937,7 @@ void CPlayerInterface::updateAmbientSounds(bool resetAll)
 	CCS->soundh->ambientUpdateChannels(currentSounds);
 }
 
-int CPlayerInterface::makeSurrenderRetreatDecision(const CArmedInstance * army)
+int CPlayerInterface::makeSurrenderRetreatDecision()
 {
 	int action = 0;
 	logGlobal->error("CPlayerInterface::makeSurrenderRetreatDecision START");
