@@ -3563,5 +3563,10 @@ int VCAI::makeSurrenderRetreatDecision(const CArmedInstance * army)
 {
 	int surrenderCost = cbc->battleGetSurrenderCost();
 	logGlobal->error("VCAI::makeSurrenderRetreatDecision");
-	return 1;
+	auto myResources = freeResources();
+	logGlobal->error("VCAI::created resources");
+	if(surrenderCost >= 0.25* myResources[Res::GOLD])
+		return 2; //surrender
+	return 1; //flee
+	
 }

@@ -674,23 +674,28 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 		HypotheticBattle state(cb);
 		bool lastTurn = isItOurLastTurn(valueOfStack, turnOrder, &state);
 
-		if(lastTurn && cb->battleCanFlee())
+		if(lastTurn)
 		{
-			if(cb->getSurrenderRetreatDecision(cb->battleGetArmyObject(side)) == 1)
+			auto decision = cb->getSurrenderRetreatDecision(cb->battleGetArmyObject(side));
+			if(cb->battleCanSurrender(playerID) && decision == 2)
+			{
+				LOGL("We should surrender!");
+				return boost::optional<BattleAction>(BattleAction::makeSurrender(side));
+			}
+			else if (cb->battleCanFlee() && decision == 1)
 			{
 				LOGL("We should flee!");
 				return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
+			}
+			else
+			{
+				LOGL("Can't execute player decision! Will do nothing."); //TODO fix this.
 			}
 		}
 		LOGL("We will have another chance!");
 		
 	}
 
-
-	//TODO move checking of this condition to the begining
-	if(cb->battleCanSurrender(playerID))
-	{
-	}
 	return boost::none;
 }
 
