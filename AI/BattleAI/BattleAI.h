@@ -10,6 +10,7 @@
 #pragma once
 #include "../../lib/AI_Base.h"
 #include "PotentialTargets.h"
+#include "PossibleSpellcast.h"
 
 class CSpell;
 class EnemyInfo;
@@ -71,6 +72,7 @@ public:
 	void print(const std::string &text) const;
 	BattleAction useCatapult(const CStack *stack);
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool Side) override;
+	bool isItOurLastTurn(PossibleSpellcast::ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state);
 	//void actionFinished(const BattleAction &action) override;//occurs AFTER every action taken by any stack or by the hero
 	//void actionStarted(const BattleAction &action) override;//occurs BEFORE every action taken by any stack or by the hero
 	//void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack

@@ -78,7 +78,7 @@ class CPlayerInterface : public CGameInterface, public IUpdateable
 	const CArmedInstance * currentSelection;
 public:
 
-	virtual int makeSurrenderRetreatDecision() override;
+	virtual int makeSurrenderRetreatDecision(const CArmedInstance * army) override;
 	ObjectInstanceID destinationTeleport; //contain -1 or object id if teleportation
 	int3 destinationTeleportPos;
 

@@ -125,7 +125,6 @@ class VCAI : public CAdventureAI
 {
 public:
 
-	virtual int makeSurrenderRetreatDecision() override;
 	//internal methods for town development
 
 	//try build an unbuilt structure in maxDays at most (0 = indefinite)
@@ -306,6 +305,8 @@ public:
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 	//optimization - use one SM for every hero call
 	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
+
+	virtual int makeSurrenderRetreatDecision(const CArmedInstance * army) override;
 
 	const CGTownInstance *findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

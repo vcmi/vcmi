@@ -556,95 +556,103 @@ void CBattleAI::print(const std::string &text) const
 	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }
 
+bool CBattleAI::isItOurLastTurn(PossibleSpellcast::ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state)
+{
+	bool firstRound = true;
+	bool ourFirstTurn = true;
+	bool enemyHadTurn = false;
+
+	for(auto & round : queue)
+	{
+		if (!firstRound)
+		{
+			state->nextRound(0);//todo: set actual value?
+			firstRound = false;
+		}
+		for(auto unit : round)
+		{
+			LOGL("---------------> consider turn of " + unit->unitType()->namePl);
+			if (!state->getForUpdate(unit->unitId())->alive())
+			{
+				LOGL("It will be dead...");
+				if (unit->alive())
+				{
+					LOGL("but it's alive according to simple method");
+				}
+				else
+				{
+					LOGL("It's also dead according to simple method");
+				}
+				
+				continue;
+			}
+
+			if(state->battleGetOwner(unit) == playerID)
+			{
+				if (!ourFirstTurn)
+				{
+					LOGL("Our unit will have turn!");
+					return false;
+				}
+				else 
+				{
+					LOGL("this is this turn!");
+				}
+				ourFirstTurn = false;
+			}
+			else
+			{
+				LOGL("Enemy will have turn!");
+				enemyHadTurn = true;
+			}
+			state->nextTurn(unit->unitId());
+
+			PotentialTargets pt(unit, state);
+
+			LOGL("I predict:");
+			if(!pt.possibleAttacks.empty())
+			{
+				AttackPossibility ap = pt.bestAction();
+
+				auto swb = state->getForUpdate(unit->unitId());
+				*swb = *ap.attackerState;
+
+				if(ap.damageDealt > 0)
+					swb->removeUnitBonus(Bonus::UntilAttack);
+				if(ap.damageReceived > 0)
+					swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+
+				LOGL(unit->unitType()->namePl + " will attack:");
+				for(auto affected : ap.affectedUnits)
+				{
+					LOGL("->"+affected->unitType()->namePl);
+					swb = state->getForUpdate(affected->unitId());
+					*swb = *affected;
+
+					if (ap.damageDealt > 0)
+					{
+						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+					}
+					if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
+						swb->removeUnitBonus(Bonus::UntilAttack);
+				}
+			}
+			else
+			{
+				LOGL(unit->unitType()->namePl +" won't attack");
+			}
+		}
+
+	}
+	return enemyHadTurn; // If enemyHadTurn is false, this mean we're about to win, so we shouldn't flee.
+
+};
+
+
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
 	LOGL("Retreat sounds like fun. Let's see...");
 	using ValueMap = PossibleSpellcast::ValueMap;
-	auto isItOurLastTurn = [&](ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state) -> bool
-	{
-		bool firstRound = true;
-		bool ourFirstTurn = true;
-		bool enemyHadTurn = false;
-
-		for(auto & round : queue)
-		{
-			if (!firstRound)
-			{
-				state->nextRound(0);//todo: set actual value?
-				firstRound = false;
-			}
-			for(auto unit : round)
-			{
-				LOGL("---------------> consider turn of " + unit->unitType()->namePl);
-				if (!state->getForUpdate(unit->unitId())->alive())
-				{
-					LOGL("It will be dead...");
-					continue;
-				}
-
-				if(state->battleGetOwner(unit) == playerID)
-				{
-					if (!ourFirstTurn)
-					{
-						LOGL("Our unit will have turn!");
-						return false;
-					}
-					else 
-					{
-						LOGL("this is this turn!");
-					}
-					ourFirstTurn = false;
-				}
-				else
-				{
-					LOGL("Enemy will have turn!");
-					enemyHadTurn = true;
-				}
-				state->nextTurn(unit->unitId());
-
-				PotentialTargets pt(unit, state);
-
-				LOGL("I predict:");
-				if(!pt.possibleAttacks.empty())
-				{
-					AttackPossibility ap = pt.bestAction();
-
-					auto swb = state->getForUpdate(unit->unitId());
-					*swb = *ap.attackerState;
-
-					if(ap.damageDealt > 0)
-						swb->removeUnitBonus(Bonus::UntilAttack);
-					if(ap.damageReceived > 0)
-						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-
-					LOGL(unit->unitType()->namePl + " will attack:");
-					for(auto affected : ap.affectedUnits)
-					{
-						LOGL("->"+affected->unitType()->namePl);
-						swb = state->getForUpdate(affected->unitId());
-						*swb = *affected;
-
-						if (ap.damageDealt > 0)
-						{
-							swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-						}
-						if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
-							swb->removeUnitBonus(Bonus::UntilAttack);
-					}
-				}
-				else
-				{
-					LOGL(unit->unitType()->namePl +" won't attack");
-				}
-			}
-
-		}
-		return enemyHadTurn; // If enemyHadTurn is false, this mean we're about to win, so we shouldn't flee.
-
-	};
-
-	RNGStub rngStub;
-
 	ValueMap valueOfStack;
 	ValueMap healthOfStack;
 
@@ -668,7 +676,7 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 		if(lastTurn && cb->battleCanFlee())
 		{
-			if(cb->getSurrenderRetreatDecision() == 1)
+			if(cb->getSurrenderRetreatDecision(cb->battleGetArmyObject(side)) == 1)
 			{
 				LOGL("We should flee!");
 				return boost::optional<BattleAction>(BattleAction::makeRetreat(side));
