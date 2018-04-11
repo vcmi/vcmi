@@ -181,7 +181,7 @@ public:
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::CollectRes & g);
-	void tryRealize(Goals::Build & g);
+	virtual void tryRealize(Goals::Build & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
 
