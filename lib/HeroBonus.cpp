@@ -22,6 +22,7 @@
 #include "CStack.h"
 #include "CArtHandler.h"
 #include "StringConstants.h"
+#include "battle/BattleInfo.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)
@@ -69,7 +70,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 {
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER)},
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
-	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)}
+	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
+	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
@@ -1722,22 +1724,47 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 	return nodeType == dest->getNodeType();
 }
 
-CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType)
+CreatureTerrainLimiter::CreatureTerrainLimiter(int TerrainType)
 	: terrainType(TerrainType)
 {
 }
 
-CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
+CreatureTerrainLimiter::CreatureTerrainLimiter()
 	: terrainType(-1)
 {
 
 }
 
-int CreatureNativeTerrainLimiter::limit(const BonusLimitationContext &context) const
+int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&context.node);
-	return !c || !c->isItNativeTerrain(terrainType); //drop bonus for non-creatures or non-native residents
+	const CStack *stack = retrieveStackBattle(&context.node);
+	if(stack && stack->base)
+	{
+		if(terrainType == -1)//terrainType not specified = native
+			return !stack->isOnNativeTerrain();
+		return stack->base->armyObj->battle->terrainType != terrainType;
+	}
+	return true;
 	//TODO neutral creatues
+}
+
+std::string CreatureTerrainLimiter::toString() const
+{
+	char buf[100];
+	sprintf(buf, "CreatureTerrainLimiter(terrainType=%s)",
+		terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType].c_str() : "native");
+	return std::string(buf);
+}
+
+JsonNode CreatureTerrainLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
+	if(terrainType >= 0)
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::TERRAIN_NAMES[terrainType]));
+
+	return root;
 }
 
 CreatureFactionLimiter::CreatureFactionLimiter(int Faction)

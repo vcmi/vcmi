@@ -965,14 +965,16 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain
+class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
 	int terrainType;
-	CreatureNativeTerrainLimiter();
-	CreatureNativeTerrainLimiter(int TerrainType);
+	CreatureTerrainLimiter();
+	CreatureTerrainLimiter(int TerrainType);
 
 	int limit(const BonusLimitationContext &context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

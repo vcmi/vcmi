@@ -47,6 +47,7 @@ public:
 	std::string getName() const; //plural or singular
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
+	bool isOnNativeTerrain() const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance

@@ -663,6 +663,18 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				});
 				return factionLimiter;
 			}
+			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
+			{
+				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
+				if(parameters.size())
+				{
+					int terrain = vstd::find_pos(GameConstants::TERRAIN_NAMES, parameters[0].String());
+					if(terrain == -1)
+						logMod->error("Error: invalid terrain %s. Fallback to native terrain", parameters[0].String());
+					terrainLimiter->terrainType = terrain;
+				}
+				return terrainLimiter;
+			}
 			else
 			{
 				logMod->error("Error: invalid customizable limiter type %s.", limiterType);
