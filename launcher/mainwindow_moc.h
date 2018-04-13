@@ -11,8 +11,9 @@
 #include <QMainWindow>
 #include <QStringList>
 
-namespace Ui {
-	class MainWindow;
+namespace Ui
+{
+class MainWindow;
 }
 
 class QTableWidgetItem;
@@ -20,10 +21,12 @@ class QTableWidgetItem;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
+
 private:
-	Ui::MainWindow *ui;
+	Ui::MainWindow * ui;
 	void load();
 	void startExecutable(QString name);
+
 public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();

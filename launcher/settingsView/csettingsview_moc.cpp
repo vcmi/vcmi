@@ -20,13 +20,13 @@
 /// Note that it is possible to specify enconding manually in settings.json
 static const std::string knownEncodingsList[] = //TODO: remove hardcode
 {
-    // European Windows-125X encodings
-    "CP1250", // West European, covers mostly Slavic languages that use latin script
-    "CP1251", // Covers languages that use cyrillic scrypt
-    "CP1252", // Latin/East European, covers most of latin languages
-    // Chinese encodings
-    "GBK",    // extension of GB2312, also known as CP936
-    "GB2312"  // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
+	// European Windows-125X encodings
+	"CP1250", // West European, covers mostly Slavic languages that use latin script
+	"CP1251", // Covers languages that use cyrillic scrypt
+	"CP1252", // Latin/East European, covers most of latin languages
+	// Chinese encodings
+	"GBK", // extension of GB2312, also known as CP936
+	"GB2312" // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
 };
 
 void CSettingsView::setDisplayList()
@@ -83,7 +83,7 @@ void CSettingsView::loadSettings()
 	JsonNode urls = settings["launcher"]["repositoryURL"];
 
 	ui->plainTextEditRepos->clear();
-	for (auto entry : urls.Vector())
+	for(auto entry : urls.Vector())
 		ui->plainTextEditRepos->appendPlainText(QString::fromUtf8(entry.String().c_str()));
 
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
@@ -92,14 +92,13 @@ void CSettingsView::loadSettings()
 
 	std::string encoding = settings["general"]["encoding"].String();
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
-	if (encodingIndex < ui->comboBoxEncoding->count())
+	if(encodingIndex < ui->comboBoxEncoding->count())
 		ui->comboBoxEncoding->setCurrentIndex(encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 }
 
-CSettingsView::CSettingsView(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::CSettingsView)
+CSettingsView::CSettingsView(QWidget * parent)
+	: QWidget(parent), ui(new Ui::CSettingsView)
 {
 	ui->setupUi(this);
 
@@ -112,7 +111,7 @@ CSettingsView::~CSettingsView()
 }
 
 
-void CSettingsView::on_comboBoxResolution_currentIndexChanged(const QString &arg1)
+void CSettingsView::on_comboBoxResolution_currentIndexChanged(const QString & arg1)
 {
 	QStringList list = arg1.split("x");
 
@@ -145,7 +144,7 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 	node["displayIndex"].Float() = index;
 }
 
-void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString &arg1)
+void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["playerAI"];
 	node->String() = arg1.toUtf8().data();
@@ -157,7 +156,7 @@ void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(const QString & ar
 	node->String() = arg1.toUtf8().data();
 }
 
-void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(const QString &arg1)
+void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(const QString & arg1)
 {
 	Settings node = settings.write["server"]["neutralAI"];
 	node->String() = arg1.toUtf8().data();
@@ -182,9 +181,9 @@ void CSettingsView::on_plainTextEditRepos_textChanged()
 	QStringList list = ui->plainTextEditRepos->toPlainText().split('\n');
 
 	node->Vector().clear();
-	for (QString line : list)
+	for(QString line : list)
 	{
-		if (line.trimmed().size() > 0)
+		if(line.trimmed().size() > 0)
 		{
 			JsonNode entry;
 			entry.String() = line.trimmed().toUtf8().data();
