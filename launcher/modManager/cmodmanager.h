@@ -28,6 +28,7 @@ class CModManager
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);
 	bool removeModDir(QString mod);
+
 public:
 	CModManager(CModList * modList);
 
