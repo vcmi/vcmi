@@ -1,5 +1,23 @@
 // This file contains all translateable strings added in VCMI
 {
+	"lobby" :
+	{
+		"windowMods" :
+		{
+			"title" : "Mods status",
+			"groups" :
+			{
+				"working" : "Available",
+				"missing" : "Missing",
+				"incompatible" : "Wrong version"
+			}
+		},
+		"buttonMods" :
+		{
+			"default" : "Show mods",
+			"error" : "Mods error!"
+		}
+	},
 	"adventureMap":
 	{
 		"monsterThreat" :

@@ -17,6 +17,7 @@ class CLobbyScreen : public CSelectionBase
 {
 public:
 	std::shared_ptr<CButton> buttonChat;
+	std::shared_ptr<CButton> buttonMods;
 
 	CLobbyScreen(ESelectionScreen type);
 	~CLobbyScreen();
@@ -32,4 +33,14 @@ public:
 	const StartInfo * getStartInfo() override;
 
 	CBonusSelection * bonusSel;
+};
+
+class CModsBox : public CWindowObject
+{
+	std::shared_ptr<CLabel> labelTitle;
+	std::shared_ptr<CLabelGroup> labelGroupStatus;
+	std::shared_ptr<CLabelGroup> labelGroupMods;
+	std::shared_ptr<CButton> buttonCancel;
+public:
+	CModsBox();
 };

@@ -224,6 +224,8 @@ void CVCMIServer::prepareToStartGame()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
+	for(auto modId: VLC->modh->getActiveMods())
+		si->mods.push_back(VLC->modh->getModData(modId));
 
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)

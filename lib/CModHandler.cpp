@@ -861,7 +861,7 @@ void CModHandler::loadMods(bool onlyEssential)
 	coreMod.name = "Original game files";
 }
 
-std::vector<std::string> CModHandler::getAllMods()
+std::vector<std::string> CModHandler::getAllMods() const
 {
 	std::vector<std::string> modlist;
 	for (auto & entry : allMods)
@@ -869,9 +869,23 @@ std::vector<std::string> CModHandler::getAllMods()
 	return modlist;
 }
 
-std::vector<std::string> CModHandler::getActiveMods()
+std::vector<std::string> CModHandler::getActiveMods() const
 {
 	return activeMods;
+}
+
+std::map<TModID, CModInfo::EModCheckError> CModHandler::checkModsPresent(const std::vector<CModInfo> & mods) const
+{
+	std::map<TModID, CModInfo::EModCheckError> erroredMods;
+	for(auto & mod : mods)
+	{
+		if(!vstd::contains(allMods, mod.identifier))
+			erroredMods.insert(std::make_pair(mod.identifier, CModInfo::MISSING));
+		else if(allMods.at(mod.identifier).config["version"].String() != mod.config["version"].String())
+			erroredMods.insert(std::make_pair(mod.identifier, CModInfo::INCOMPATIBLE));
+	}
+
+	return erroredMods;
 }
 
 static JsonNode genDefaultFS()
@@ -939,7 +953,7 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-CModInfo & CModHandler::getModData(TModID modId)
+const CModInfo & CModHandler::getModData(TModID modId) const
 {
 	auto it = allMods.find(modId);
 

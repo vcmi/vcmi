@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "CModHandler.h"
 
 class CMapGenOptions;
 class CCampaignState;
@@ -99,6 +100,8 @@ struct DLL_LINKAGE StartInfo
 
 	std::shared_ptr<CCampaignState> campState;
 
+	std::vector<CModInfo> mods;
+
 	PlayerSettings & getIthPlayersSettings(PlayerColor no);
 	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const;
 	PlayerSettings * getPlayersSettings(const ui8 connectedPlayerId);
@@ -119,6 +122,10 @@ struct DLL_LINKAGE StartInfo
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
+		if(version >= 788)
+		{
+			h & mods;
+		}
 	}
 
 	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),

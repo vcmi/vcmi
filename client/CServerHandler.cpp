@@ -25,6 +25,7 @@
 #endif
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/NetPacks.h"
 #include "../lib/StartInfo.h"
@@ -110,6 +111,8 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	c.reset();
 	si.reset(new StartInfo());
 	playerNames.clear();
+	si->mods.clear();
+
 	si->difficulty = 1;
 	si->mode = mode;
 	myNames.clear();
