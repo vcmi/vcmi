@@ -101,14 +101,17 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS} ${GTestSrc}/src/gtest-all.cc ${GMockSrc}/src/gmock-all.cc)
 target_link_libraries(vcmitest vcmi ${RT_LIB} ${DL_LIB})
 
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
+if(FALSE AND NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
+	# Running tests one by one using ctest not recommended due to vcmi having
+	# slow global initialization.
 	gtest_discover_tests(vcmitest
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
+else()
+	add_test(NAME tests
+		COMMAND vcmitest
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 endif()
 
-add_test(NAME tests
-	COMMAND vcmitest
-	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 
 vcmi_set_output_dir(vcmitest "")
 
