@@ -5,11 +5,12 @@
 		"windowMods" :
 		{
 			"title" : "Mods status",
+			"errorMessage" : "Missing or changed mods might cause crashes. Would you like to continue?"
 			"groups" :
 			{
-				"working" : "Available",
-				"missing" : "Missing",
-				"incompatible" : "Wrong version"
+				"compatible" : "Same version",
+				"incompatible" : "Wrong version",
+				"missing" : "Not installed"
 			}
 		},
 		"buttonMods" :

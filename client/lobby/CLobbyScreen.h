@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 class CBonusSelection;
+class CMultiLineLabel;
 
 class CLobbyScreen : public CSelectionBase
 {
@@ -23,7 +24,7 @@ public:
 	~CLobbyScreen();
 	void toggleTab(std::shared_ptr<CIntObject> tab) override;
 	void startCampaign();
-	void startScenario(bool allowOnlyAI = false);
+	void startScenario(ui8 startOptions = 0);
 	void toggleMode(bool host);
 	void toggleChat();
 
@@ -35,12 +36,16 @@ public:
 	CBonusSelection * bonusSel;
 };
 
-class CModsBox : public CWindowObject
+class CModStatusBox : public CWindowObject
 {
 	std::shared_ptr<CLabel> labelTitle;
-	std::shared_ptr<CLabelGroup> labelGroupStatus;
 	std::shared_ptr<CLabelGroup> labelGroupMods;
+	std::shared_ptr<CLabelGroup> labelGroupStatusWorking;
+	std::shared_ptr<CLabelGroup> labelGroupStatusMissing;
+	std::shared_ptr<CLabelGroup> labelGroupStatusIncompatible;
+	std::shared_ptr<CMultiLineLabel> labelErrorMessage;
+	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CButton> buttonCancel;
 public:
-	CModsBox();
+	CModStatusBox(bool showError = false, ui8 startOptions = 0);
 };

@@ -441,9 +441,9 @@ void CServerHandler::sendGuiAction(ui8 action) const
 	sendLobbyPack(lga);
 }
 
-void CServerHandler::sendStartGame(bool allowOnlyAI) const
+void CServerHandler::sendStartGame(ui8 startOptions) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	verifyStateBeforeStart(settings["session"]["onlyai"].Bool() ? startOptions | StartInfo::IGNORE_ONLY_AI : startOptions);
 	LobbyStartGame lsg;
 	sendLobbyPack(lsg);
 }

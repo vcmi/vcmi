@@ -165,7 +165,7 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 {
 	try
 	{
-		srv->verifyStateBeforeStart(true);
+		srv->verifyStateBeforeStart(StartInfo::IGNORE_ONLY_AI | StartInfo::IGNORE_WRONG_MODS);
 	}
 	catch(...)
 	{
