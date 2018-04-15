@@ -21,7 +21,7 @@
 #include "../lib/filesystem/CFilesystemLoader.h"
 #include "../lib/filesystem/AdapterLoaders.h"
 
-CVcmiTestConfig::CVcmiTestConfig()
+void CVcmiTestConfig::SetUp()
 {
 	console = new CConsoleHandler();
 	preinitDLL(console, true);
@@ -39,7 +39,7 @@ CVcmiTestConfig::CVcmiTestConfig()
 	}
 }
 
-CVcmiTestConfig::~CVcmiTestConfig()
+void CVcmiTestConfig::TearDown()
 {
 	std::cout << "Ending global test tear-down." << std::endl;
 }

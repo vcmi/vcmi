@@ -1,4 +1,6 @@
-enable_testing()
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
+	include(GoogleTest)
+endif()
 
 set(googleTest_Dir ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 if(EXISTS ${googleTest_Dir})
@@ -98,26 +100,36 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS} ${GTestSrc}/src/gtest-all.cc ${GMockSrc}/src/gmock-all.cc)
 target_link_libraries(vcmitest vcmi ${RT_LIB} ${DL_LIB})
-add_test(vcmitest vcmitest)
+
+if(FALSE AND NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
+	# Running tests one by one using ctest not recommended due to vcmi having
+	# slow global initialization.
+	gtest_discover_tests(vcmitest
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
+else()
+	add_test(NAME tests
+		COMMAND vcmitest
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
+endif()
+
 
 vcmi_set_output_dir(vcmitest "")
 
 set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
 cotire(vcmitest)
 
-# Files to copy to the build directory
-set(vcmitest_FILES
-		testdata/TerrainViewTest.h3m
-		testdata/terrainViewMappings.json
-		testdata/ObjectPropertyTest/header.json
-		testdata/ObjectPropertyTest/objects.json
-		testdata/ObjectPropertyTest/surface_terrain.json
-		testdata/ObjectPropertyTest/underground_terrain.json
-)
-
-foreach(file ${vcmitest_FILES})
-	add_custom_command(TARGET vcmitest POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
-	)
+file (GLOB_RECURSE testdata "testdata/*.*")
+foreach(resource ${testdata})
+	get_filename_component(filename ${resource} NAME)
+	get_filename_component(dir ${resource} DIRECTORY)
+	get_filename_component(dirname ${dir} NAME)
+	set (output "")
+	while(NOT ${dirname} STREQUAL testdata)
+		get_filename_component(path_component ${dir} NAME)
+		set (output "${path_component}/${output}")
+		get_filename_component(dir ${dir} DIRECTORY)
+		get_filename_component(dirname ${dir} NAME)
+	endwhile()
+	set(output "${CMAKE_BINARY_DIR}/bin/test/testdata/${output}/${filename}")
+	configure_file(${resource} ${output} COPYONLY)
 endforeach()
-

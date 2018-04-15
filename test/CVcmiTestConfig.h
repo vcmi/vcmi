@@ -9,10 +9,12 @@
  */
 #pragma once
 
+#include "StdInc.h"
+
 /// Global setup/tear down class for unit tests.
-class CVcmiTestConfig
+class CVcmiTestConfig : public ::testing::Environment
 {
 public:
-	CVcmiTestConfig();
-	~CVcmiTestConfig();
+	virtual void SetUp() override;
+	virtual void TearDown() override;
 };

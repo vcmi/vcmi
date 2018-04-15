@@ -15,6 +15,6 @@
 int main(int argc, char * argv[])
 {
 	::testing::InitGoogleTest(&argc, argv);
-	CVcmiTestConfig test;
+	::testing::AddGlobalTestEnvironment(new CVcmiTestConfig());
 	return RUN_ALL_TESTS();
 }

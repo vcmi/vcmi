@@ -302,6 +302,7 @@ if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
 if(ENABLE_TEST)
+	enable_testing()
 	add_subdirectory(test)
 endif()
 
