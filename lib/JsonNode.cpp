@@ -668,10 +668,10 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				std::shared_ptr<CreatureTerrainLimiter> terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
 				if(parameters.size())
 				{
-					int terrain = vstd::find_pos(GameConstants::TERRAIN_NAMES, parameters[0].String());
-					if(terrain == -1)
-						logMod->error("Error: invalid terrain %s. Fallback to native terrain", parameters[0].String());
-					terrainLimiter->terrainType = terrain;
+					VLC->modh->identifiers.requestIdentifier("terrain", parameters[0], [=](si32 terrain)
+					{
+						terrainLimiter->terrainType = terrain;
+					});
 				}
 				return terrainLimiter;
 			}

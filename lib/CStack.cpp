@@ -284,9 +284,12 @@ bool CStack::canBeHealed() const
 
 bool CStack::isOnNativeTerrain() const
 {
-	if(base)
-		return type->isItNativeTerrain(base->armyObj->battle->terrainType);
-	return false;
+	return type->isItNativeTerrain(battle->getTerrainType());
+}
+
+bool CStack::isOnTerrain(int terrain) const
+{
+	return battle->getTerrainType() == terrain;
 }
 
 const CCreature * CStack::unitType() const

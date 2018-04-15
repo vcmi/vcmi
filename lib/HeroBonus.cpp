@@ -1738,11 +1738,11 @@ CreatureTerrainLimiter::CreatureTerrainLimiter()
 int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CStack *stack = retrieveStackBattle(&context.node);
-	if(stack && stack->base)
+	if(stack)
 	{
 		if(terrainType == -1)//terrainType not specified = native
 			return !stack->isOnNativeTerrain();
-		return stack->base->armyObj->battle->terrainType != terrainType;
+		return !stack->isOnTerrain(terrainType);
 	}
 	return true;
 	//TODO neutral creatues

@@ -48,6 +48,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
+	bool isOnTerrain(int terrain) const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
