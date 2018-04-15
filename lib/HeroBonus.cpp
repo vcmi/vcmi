@@ -1626,11 +1626,9 @@ void CCreatureTypeLimiter::setCreature (CreatureID id)
 
 std::string CCreatureTypeLimiter::toString() const
 {
-	char buf[100];
-	sprintf(buf, "CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)",
-		creature->identifier.c_str(),
-		(includeUpgrades ? "true" : "false"));
-	return std::string(buf);
+	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
+	fmt % creature->identifier % (includeUpgrades ? "true" : "false");
+	return fmt.str();
 }
 
 JsonNode CCreatureTypeLimiter::toJsonNode() const
@@ -1674,15 +1672,19 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 
 std::string HasAnotherBonusLimiter::toString() const
 {
-	char buf[100];
-
 	std::string typeName = vstd::findKey(bonusNameMap, type);
 	if(isSubtypeRelevant)
-		sprintf(buf, "HasAnotherBonusLimiter(type=%s, subtype=%d)",	typeName.c_str(), subtype);
+	{
+		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%d)");
+		fmt % typeName % subtype;
+		return fmt.str();
+	}
 	else
-		sprintf(buf, "HasAnotherBonusLimiter(type=%s)",	typeName.c_str());
-
-	return std::string(buf);
+	{
+		boost::format fmt("HasAnotherBonusLimiter(type=%s)");
+		fmt % typeName;
+		return fmt.str();
+	}
 }
 
 JsonNode HasAnotherBonusLimiter::toJsonNode() const
@@ -1750,10 +1752,9 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 
 std::string CreatureTerrainLimiter::toString() const
 {
-	char buf[100];
-	sprintf(buf, "CreatureTerrainLimiter(terrainType=%s)",
-		terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType].c_str() : "native");
-	return std::string(buf);
+	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
+	fmt % (terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType] : "native");
+	return fmt.str();
 }
 
 JsonNode CreatureTerrainLimiter::toJsonNode() const
@@ -1785,9 +1786,9 @@ int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 
 std::string CreatureFactionLimiter::toString() const
 {
-	char buf[100];
-	sprintf(buf, "CreatureFactionLimiter(faction=%s)", VLC->townh->factions[faction]->identifier.c_str());
-	return std::string(buf);
+	boost::format fmt("CreatureFactionLimiter(faction=%s)");
+	fmt %  VLC->townh->factions[faction]->identifier;
+	return fmt.str();
 }
 
 JsonNode CreatureFactionLimiter::toJsonNode() const
@@ -1831,9 +1832,9 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 
 std::string CreatureAlignmentLimiter::toString() const
 {
-	char buf[100];
-	sprintf(buf, "CreatureAlignmentLimiter(alignment=%s)", EAlignment::names[alignment].c_str());
-	return std::string(buf);
+	boost::format fmt("CreatureAlignmentLimiter(alignment=%s)");
+	fmt % EAlignment::names[alignment];
+	return fmt.str();
 }
 
 JsonNode CreatureAlignmentLimiter::toJsonNode() const
