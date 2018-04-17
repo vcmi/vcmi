@@ -282,6 +282,16 @@ bool CStack::canBeHealed() const
 		   && !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
+bool CStack::isOnNativeTerrain() const
+{
+	return type->isItNativeTerrain(battle->getTerrainType());
+}
+
+bool CStack::isOnTerrain(int terrain) const
+{
+	return battle->getTerrainType() == terrain;
+}
+
 const CCreature * CStack::unitType() const
 {
 	return type;

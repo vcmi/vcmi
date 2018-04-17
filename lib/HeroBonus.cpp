@@ -16,11 +16,13 @@
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
 #include "CHeroHandler.h"
+#include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "CStack.h"
 #include "CArtHandler.h"
 #include "StringConstants.h"
+#include "battle/BattleInfo.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)
@@ -68,7 +70,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 {
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER)},
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
-	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)}
+	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
+	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
@@ -1623,11 +1626,9 @@ void CCreatureTypeLimiter::setCreature (CreatureID id)
 
 std::string CCreatureTypeLimiter::toString() const
 {
-	char buf[100];
-	sprintf(buf, "CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)",
-		creature->identifier.c_str(),
-		(includeUpgrades ? "true" : "false"));
-	return std::string(buf);
+	boost::format fmt("CCreatureTypeLimiter(creature=%s, includeUpgrades=%s)");
+	fmt % creature->identifier % (includeUpgrades ? "true" : "false");
+	return fmt.str();
 }
 
 JsonNode CCreatureTypeLimiter::toJsonNode() const
@@ -1671,15 +1672,19 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 
 std::string HasAnotherBonusLimiter::toString() const
 {
-	char buf[100];
-
 	std::string typeName = vstd::findKey(bonusNameMap, type);
 	if(isSubtypeRelevant)
-		sprintf(buf, "HasAnotherBonusLimiter(type=%s, subtype=%d)",	typeName.c_str(), subtype);
+	{
+		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%d)");
+		fmt % typeName % subtype;
+		return fmt.str();
+	}
 	else
-		sprintf(buf, "HasAnotherBonusLimiter(type=%s)",	typeName.c_str());
-
-	return std::string(buf);
+	{
+		boost::format fmt("HasAnotherBonusLimiter(type=%s)");
+		fmt % typeName;
+		return fmt.str();
+	}
 }
 
 JsonNode HasAnotherBonusLimiter::toJsonNode() const
@@ -1721,22 +1726,46 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 	return nodeType == dest->getNodeType();
 }
 
-CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType)
+CreatureTerrainLimiter::CreatureTerrainLimiter(int TerrainType)
 	: terrainType(TerrainType)
 {
 }
 
-CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
+CreatureTerrainLimiter::CreatureTerrainLimiter()
 	: terrainType(-1)
 {
 
 }
 
-int CreatureNativeTerrainLimiter::limit(const BonusLimitationContext &context) const
+int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&context.node);
-	return !c || !c->isItNativeTerrain(terrainType); //drop bonus for non-creatures or non-native residents
+	const CStack *stack = retrieveStackBattle(&context.node);
+	if(stack)
+	{
+		if(terrainType == -1)//terrainType not specified = native
+			return !stack->isOnNativeTerrain();
+		return !stack->isOnTerrain(terrainType);
+	}
+	return true;
 	//TODO neutral creatues
+}
+
+std::string CreatureTerrainLimiter::toString() const
+{
+	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
+	fmt % (terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType] : "native");
+	return fmt.str();
+}
+
+JsonNode CreatureTerrainLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
+	if(terrainType >= 0)
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::TERRAIN_NAMES[terrainType]));
+
+	return root;
 }
 
 CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
@@ -1753,6 +1782,23 @@ int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
 	return !c || c->faction != faction; //drop bonus for non-creatures or non-native residents
+}
+
+std::string CreatureFactionLimiter::toString() const
+{
+	boost::format fmt("CreatureFactionLimiter(faction=%s)");
+	fmt %  VLC->townh->factions[faction]->identifier;
+	return fmt.str();
+}
+
+JsonNode CreatureFactionLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_FACTION_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(VLC->townh->factions[faction]->identifier));
+
+	return root;
 }
 
 CreatureAlignmentLimiter::CreatureAlignmentLimiter()
@@ -1782,6 +1828,23 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 		logBonus->warn("Warning: illegal alignment in limiter!");
 		return true;
 	}
+}
+
+std::string CreatureAlignmentLimiter::toString() const
+{
+	boost::format fmt("CreatureAlignmentLimiter(alignment=%s)");
+	fmt % EAlignment::names[alignment];
+	return fmt.str();
+}
+
+JsonNode CreatureAlignmentLimiter::toJsonNode() const
+{
+	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
+
+	root["type"].String() = "CREATURE_ALIGNMENT_LIMITER";
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(EAlignment::names[alignment]));
+
+	return root;
 }
 
 RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)

@@ -525,7 +525,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
+	auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
 
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));

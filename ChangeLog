@@ -34,6 +34,7 @@ MODS:
 * Map object sounds can now be configured via json
 * Added bonus updaters for hero specialties
 * Added allOf, anyOf and noneOf qualifiers for bonus limiters
+* Added bonus limiters: alignment, faction and terrain
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
