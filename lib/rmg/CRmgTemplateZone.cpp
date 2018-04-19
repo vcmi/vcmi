@@ -597,7 +597,6 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 				if (distance < bestDistanceSoFar)
 				{
 					auto tile = &gen->map->getTile(pos);
-					auto obj = tile->topVisitableObj();
 					bool canMoveBetween = gen->map->canMoveBetween(currentNode, pos);
 
 					if ((gen->isFree(pos) && gen->isFree(currentNode)) //empty path
