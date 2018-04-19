@@ -1042,7 +1042,6 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 	}
 	else
 	{
-		auto attackFrom = actionTarget.at(0).hexValue;
 		auto attackTarget = actionTarget.at(1).hexValue;
 
 		//TODO: use information from BattleAttack but not curAction
