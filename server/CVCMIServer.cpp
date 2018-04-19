@@ -580,7 +580,6 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 
 
 	PlayerSettings & clicked = si->playerInfos[clickedColor];
-	PlayerSettings * old = nullptr;
 
 	//identify clicked player
 	int clickedNameID = 0; //number of player - zero means AI, assume it initially
@@ -628,7 +627,6 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 				playerToRestore.color = i->first;
 				playerToRestore.id = newPlayer;
 				setPlayerConnectedId(i->second, PlayerSettings::PLAYER_AI); //set computer
-				old = &i->second;
 				break;
 			}
 		}
