@@ -1369,7 +1369,6 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//below algorithm focuses on economy growth at start of the game.
 	TResources currentRes = cb->getResourceAmount();
 	TResources currentIncome = t->dailyIncome();
-	int townIncome = currentIncome[Res::GOLD];
 
 	if(tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
