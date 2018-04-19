@@ -1335,7 +1335,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 {
 	if(version < 774 && !h.saving)
 	{
-		bool observerInDuelMode;
+		bool observerInDuelMode = false;
 		h & observerInDuelMode;
 	}
 
