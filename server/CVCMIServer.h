@@ -32,6 +32,7 @@ class CBaseForGHApply;
 enum class EServerState : ui8
 {
 	LOBBY,
+	GAMEPLAY_STARTING,
 	GAMEPLAY,
 	GAMEPLAY_ENDED,
 	SHUTDOWN
