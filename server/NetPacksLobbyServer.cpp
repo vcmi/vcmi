@@ -115,6 +115,8 @@ bool LobbyChatMessage::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbySetMap::applyOnServer(CVCMIServer * srv)
 {
+	if (srv->state != EServerState::LOBBY)
+		return false;
 	srv->updateStartInfoOnMapChange(mapInfo, mapGenOpts);
 	return true;
 }
@@ -172,6 +174,7 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 		return false;
 	}
 	// Server will prepare gamestate and we announce StartInfo to clients
+	srv->state = EServerState::GAMEPLAY_STARTING;
 	srv->prepareToStartGame();
 	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
 	return true;

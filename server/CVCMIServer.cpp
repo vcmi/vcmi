@@ -176,7 +176,7 @@ void CVCMIServer::run()
 		}
 	}
 
-	while(state == EServerState::LOBBY)
+	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 
 	logNetwork->info("Thread handling connections ended");
