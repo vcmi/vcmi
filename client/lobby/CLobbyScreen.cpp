@@ -18,6 +18,8 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+#include "../widgets/TextControls.h"
 #include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
@@ -69,14 +71,16 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), SDLK_b);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRBEG.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, StartInfo::NO_OPTIONS), SDLK_b);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::loadGame:
 	{
+		buttonMods = std::make_shared<CButton>(Point(619, 105), "GSPBUT2.DEF", std::make_pair<std::string, std::string>("", ""), [](){ GH.pushInt(new CModStatusBox()); }, SDLK_h);
+		buttonMods->addTextOverlay(CGI->generaltexth->localizedTexts["lobby"]["buttonMods"]["default"].String(), EFonts::FONT_SMALL, Colors::WHITE);
 		tabOpt = std::make_shared<OptionsTab>();
-		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), SDLK_l);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), "SCNRLOD.DEF", CGI->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, StartInfo::NO_OPTIONS), SDLK_l);
 		initLobby();
 		break;
 	}
@@ -120,11 +124,11 @@ void CLobbyScreen::startCampaign()
 	}
 }
 
-void CLobbyScreen::startScenario(bool allowOnlyAI)
+void CLobbyScreen::startScenario(ui8 startOptions)
 {
 	try
 	{
-		CSH->sendStartGame(allowOnlyAI);
+		CSH->sendStartGame(startOptions);
 		buttonStart->block(true);
 	}
 	catch(ExceptionMapMissing & e)
@@ -134,7 +138,11 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	catch(ExceptionNoHuman & e)
 	{
 		// You must position yourself prior to starting the game.
-		CInfoWindow::showYesNoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), 0, std::bind(&CLobbyScreen::startScenario, this, true), PlayerColor(1));
+		CInfoWindow::showYesNoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), std::bind(&CLobbyScreen::startScenario, this, startOptions | StartInfo::IGNORE_ONLY_AI), 0, PlayerColor(1));
+	}
+	catch(ExceptionWrongMods & e)
+	{
+		GH.pushInt(new CModStatusBox(true, startOptions));
 	}
 	catch(ExceptionNoTemplate & e)
 	{
@@ -179,8 +187,29 @@ void CLobbyScreen::toggleChat()
 
 void CLobbyScreen::updateAfterStateChange()
 {
-	if(CSH->mi && tabOpt)
-		tabOpt->recreate();
+	if(CSH->mi)
+	{
+		if(tabOpt)
+			tabOpt->recreate();
+
+		if(CSH->mi->scenarioOptionsOfSave && CSH->mi->scenarioOptionsOfSave->mods.size())
+		{
+			buttonMods->enable();
+			auto erroredMods = CGI->modh->checkModsPresent(CSH->mi->scenarioOptionsOfSave->mods);
+			if(erroredMods.size())
+			{
+				buttonMods->addTextOverlay(CGI->generaltexth->localizedTexts["lobby"]["buttonMods"]["error"].String(), EFonts::FONT_SMALL, Colors::ORANGE);
+			}
+			else
+			{
+				buttonMods->addTextOverlay(CGI->generaltexth->localizedTexts["lobby"]["buttonMods"]["default"].String(), EFonts::FONT_SMALL, Colors::WHITE);
+			}
+		}
+		else if(buttonMods)
+		{
+			buttonMods->disable();
+		}
+	}
 
 	card->changeSelection();
 	if(card->iconDifficulty)
@@ -198,4 +227,52 @@ const StartInfo * CLobbyScreen::getStartInfo()
 const CMapInfo * CLobbyScreen::getMapInfo()
 {
 	return CSH->mi.get();
+}
+
+CModStatusBox::CModStatusBox(bool showError, ui8 startOptions)
+	: CWindowObject(BORDERED | SHADOW_DISABLED, "DIBOXBCK")
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos.w = 360;
+	int lineHeight = graphics->fonts[FONT_SMALL]->getLineHeight();
+	pos.h = 110 + lineHeight * CSH->mi->scenarioOptionsOfSave->mods.size();
+
+	labelTitle = std::make_shared<CLabel>(180, 30, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->localizedTexts["lobby"]["windowMods"]["title"].String());
+	labelGroupMods = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE);
+	labelGroupStatusWorking = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::TOPLEFT, Colors::GREEN);
+	labelGroupStatusMissing = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::TOPLEFT, Colors::ORANGE);
+	labelGroupStatusIncompatible = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE);
+
+	auto erroredMods = CGI->modh->checkModsPresent(CSH->mi->scenarioOptionsOfSave->mods);
+	for(auto & mod : CSH->mi->scenarioOptionsOfSave->mods)
+	{
+		int positionY = 50 + lineHeight * labelGroupMods->currentSize();
+		labelGroupMods->add(20, positionY, mod.name.substr(0, 30));
+		if(!vstd::contains(erroredMods, mod.identifier))
+		{
+			labelGroupStatusWorking->add(258, positionY, CGI->generaltexth->localizedTexts["lobby"]["windowMods"]["groups"]["compatible"].String());
+		}
+		else if(erroredMods[mod.identifier] == CModInfo::INCOMPATIBLE)
+		{
+			labelGroupStatusIncompatible->add(258, positionY, CGI->generaltexth->localizedTexts["lobby"]["windowMods"]["groups"]["incompatible"].String());
+		}
+		else if(erroredMods[mod.identifier] == CModInfo::MISSING)
+		{
+			labelGroupStatusMissing->add(258, positionY, CGI->generaltexth->localizedTexts["lobby"]["windowMods"]["groups"]["missing"].String());
+		}
+	}
+	if(showError)
+	{
+		pos.h += 40;
+		labelErrorMessage = std::make_shared<CMultiLineLabel>(Rect(20, pos.h-90, 320, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->localizedTexts["lobby"]["windowMods"]["errorMessage"].String());
+		buttonOk = std::make_shared<CButton>(Point(110, pos.h-50), "MUBCHCK.DEF", CGI->generaltexth->zelp[561], std::bind(&IServerAPI::sendStartGame, CSH, startOptions | StartInfo::IGNORE_WRONG_MODS), SDLK_RETURN);
+		buttonCancel = std::make_shared<CButton>(Point(196, pos.h-50), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	}
+	else
+	{
+		buttonCancel = std::make_shared<CButton>(Point(154, pos.h-50), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	}
+
+	background->scaleTo(Point(pos.w, pos.h));
+	center();
 }

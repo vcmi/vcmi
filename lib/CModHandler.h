@@ -178,6 +178,12 @@ public:
 		PASSED
 	};
 
+	enum EModCheckError
+	{
+		MISSING,
+		INCOMPATIBLE
+	};
+
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
 
@@ -260,11 +266,13 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	CModInfo & getModData(TModID modId);
+	const CModInfo & getModData(TModID modId) const;
 
 	/// returns list of all (active) mods
-	std::vector<std::string> getAllMods();
-	std::vector<std::string> getActiveMods();
+	std::vector<std::string> getAllMods() const;
+	std::vector<std::string> getActiveMods() const;
+
+	std::map<TModID, CModInfo::EModCheckError> checkModsPresent(const std::vector<CModInfo> & mods) const;
 
 	/// load content from all available mods
 	void load();

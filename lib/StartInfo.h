@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GameConstants.h"
+#include "CModHandler.h"
 
 class CMapGenOptions;
 class CCampaignState;
@@ -81,6 +82,13 @@ struct DLL_LINKAGE PlayerSettings
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct DLL_LINKAGE StartInfo
 {
+	enum EStartOptions : ui8
+	{
+		NO_OPTIONS = 0,
+		IGNORE_ONLY_AI = 1,
+		IGNORE_WRONG_MODS = 2
+	};
+
 	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, INVALID = 255};
 
 	EMode mode;
@@ -98,6 +106,8 @@ struct DLL_LINKAGE StartInfo
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 
 	std::shared_ptr<CCampaignState> campState;
+
+	std::vector<CModInfo> mods;
 
 	PlayerSettings & getIthPlayersSettings(PlayerColor no);
 	const PlayerSettings & getIthPlayersSettings(PlayerColor no) const;
@@ -119,6 +129,10 @@ struct DLL_LINKAGE StartInfo
 		h & mapname;
 		h & mapGenOptions;
 		h & campState;
+		if(version >= 788)
+		{
+			h & mods;
+		}
 	}
 
 	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),
@@ -172,7 +186,7 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 
 	LobbyInfo() {}
 
-	void verifyStateBeforeStart(bool ignoreNoHuman = false) const;
+	void verifyStateBeforeStart(ui8 startOptions = StartInfo::NO_OPTIONS) const;
 
 	bool isClientHost(int clientId) const;
 	std::set<PlayerColor> getAllClientPlayers(int clientId);
@@ -189,4 +203,5 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 
 class ExceptionMapMissing : public std::exception {};
 class ExceptionNoHuman : public std::exception {};
+class ExceptionWrongMods : public std::exception {};
 class ExceptionNoTemplate : public std::exception {};

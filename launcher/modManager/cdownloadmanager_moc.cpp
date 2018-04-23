@@ -21,6 +21,8 @@ CDownloadManager::CDownloadManager()
 void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
 {
 	QNetworkRequest request(url);
+	// TODO: Workaround lack of redirect support for Qt older than 5.6
+	request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 	FileEntry entry;
 	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
 	entry.bytesReceived = 0;

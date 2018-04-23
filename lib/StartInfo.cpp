@@ -61,7 +61,7 @@ std::string StartInfo::getCampaignName() const
 		return VLC->generaltexth->allTexts[508];
 }
 
-void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
+void LobbyInfo::verifyStateBeforeStart(ui8 startOptions) const
 {
 	if(!mi)
 		throw ExceptionMapMissing();
@@ -72,8 +72,15 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 		if(i->second.isControlledByHuman())
 			break;
 
-	if(i == si->playerInfos.cend() && !ignoreNoHuman)
+	if(i == si->playerInfos.cend() && !(startOptions & StartInfo::IGNORE_ONLY_AI))
 		throw ExceptionNoHuman();
+
+	if(mi->scenarioOptionsOfSave)
+	{
+		auto erroredMods = VLC->modh->checkModsPresent(mi->scenarioOptionsOfSave->mods);
+		if(erroredMods.size() && !(startOptions & StartInfo::IGNORE_WRONG_MODS))
+			throw ExceptionWrongMods();
+	}
 
 	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
 	{

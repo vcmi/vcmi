@@ -1,5 +1,24 @@
 // This file contains all translateable strings added in VCMI
 {
+	"lobby" :
+	{
+		"windowMods" :
+		{
+			"title" : "Mods status",
+			"errorMessage" : "Missing or changed mods might cause crashes. Would you like to continue?"
+			"groups" :
+			{
+				"compatible" : "Same version",
+				"incompatible" : "Wrong version",
+				"missing" : "Not installed"
+			}
+		},
+		"buttonMods" :
+		{
+			"default" : "Show mods",
+			"error" : "Mods error!"
+		}
+	},
 	"adventureMap":
 	{
 		"monsterThreat" :
