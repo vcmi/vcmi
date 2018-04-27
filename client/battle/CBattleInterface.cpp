@@ -2747,7 +2747,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//so when multiple obstacles are added, they show up one after another
 	waitForAnims();
 
-	soundBase::soundID sound; // FIXME(v.markovtsev): soundh->playSound() is commented in the end => warning
+	//soundBase::soundID sound; // FIXME(v.markovtsev): soundh->playSound() is commented in the end => warning
 
 	std::string defname;
 

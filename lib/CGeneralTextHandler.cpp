@@ -250,7 +250,7 @@ std::string CLegacyConfigParser::readRawString()
 	else
 		ret = extractNormalString();//string without quotes - copy till \t or \r
 
-		curr++;
+	curr++;
 	return ret;
 }
 
@@ -292,7 +292,7 @@ bool CLegacyConfigParser::endLine()
 	while (curr < end && *curr !=  '\n')
 		readString();
 
-		curr++;
+	curr++;
 
 	return curr < end;
 }

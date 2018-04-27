@@ -1042,7 +1042,6 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 	}
 	else
 	{
-		auto attackFrom = actionTarget.at(0).hexValue;
 		auto attackTarget = actionTarget.at(1).hexValue;
 
 		//TODO: use information from BattleAttack but not curAction
@@ -1336,7 +1335,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 {
 	if(version < 774 && !h.saving)
 	{
-		bool observerInDuelMode;
+		bool observerInDuelMode = false;
 		h & observerInDuelMode;
 	}
 
