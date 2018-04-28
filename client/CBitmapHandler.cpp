@@ -25,9 +25,9 @@ namespace BitmapHandler
 
 bool isPCX(const ui8 *header)//check whether file can be PCX according to header
 {
-	int fSize  = read_le_u32(header + 0);
-	int width  = read_le_u32(header + 4);
-	int height = read_le_u32(header + 8);
+	ui32 fSize  = read_le_u32(header + 0);
+	ui32 width  = read_le_u32(header + 4);
+	ui32 height = read_le_u32(header + 8);
 	return fSize == width*height || fSize == width*height*3;
 }
 

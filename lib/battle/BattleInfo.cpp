@@ -105,15 +105,15 @@ namespace CGH
 //RNG that works like H3 one
 struct RandGen
 {
-	int seed;
+	ui32 seed;
 
-	void srand(int s)
+	void srand(ui32 s)
 	{
 		seed = s;
 	}
 	void srand(int3 pos)
 	{
-		srand(110291 * pos.x + 167801 * pos.y + 81569);
+		srand(110291 * ui32(pos.x) + 167801 * ui32(pos.y) + 81569);
 	}
 	int rand()
 	{
