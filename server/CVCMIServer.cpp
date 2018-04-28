@@ -945,7 +945,6 @@ int main(int argc, char * argv[])
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	vstd::clear_pointer(VLC);
-	CResourceHandler::clear();
 	return 0;
 }
 

@@ -22,6 +22,7 @@
 #include "../CStopWatch.h"
 
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
+CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
 	filesystem(new CFilesystemList()),
@@ -117,11 +118,6 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	}
 }
 
-void CResourceHandler::clear()
-{
-	delete knownLoaders["root"];
-}
-
 ISimpleResourceLoader * CResourceHandler::createInitial()
 {
 	//temporary filesystem that will be used to initialize main one.
@@ -174,7 +170,8 @@ void CResourceHandler::initialize()
 	//    |-saves
 	//    |-config
 
-	knownLoaders["root"] = new CFilesystemList();
+	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
+	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
 
