@@ -10,6 +10,5 @@ public:
 	virtual ~DoomAI();
 
 	virtual void init(std::shared_ptr<CCallback> CB) override;
-	virtual void tryRealize(Goals::Build & g) override;
 };
 

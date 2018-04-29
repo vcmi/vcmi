@@ -502,15 +502,20 @@ float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 
 	if(t.valid())
 	{
+		auto tilePriority = Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this);
+		
 		if(isSafeToVisit(g.hero, t))
 		{
-			g.setpriority(Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
+			g.setpriority(tilePriority);
 		}
 		else
 		{
-			g.setpriority (Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
-				sethero(g.hero).setisAbstract(true).accept(this));
+			auto gatherArmyPriority = Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
+				sethero(g.hero).setisAbstract(true).accept(this);
+
+			g.setpriority (std::max(tilePriority, gatherArmyPriority));
 		}
+
 		return g.priority;
 	}
 	else
@@ -526,7 +531,7 @@ float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 {
 	return 0;
 }
-float FuzzyHelper::evaluate(Goals::CollectRes & g)
+float FuzzyHelper::evaluate(Goals::BuyResources & g)
 {
 	return 0;
 }
@@ -540,7 +545,7 @@ float FuzzyHelper::evaluate(Goals::Invalid & g)
 }
 float FuzzyHelper::evaluate(Goals::AbstractGoal & g)
 {
-	logAi->warn("Cannot evaluate goal %s", g.name());
+	logAi->warn("Cannot evaluate goal %s", g.toString());
 	return g.priority;
 }
 void FuzzyHelper::setPriority(Goals::TSubgoal & g)

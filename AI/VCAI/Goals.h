@@ -19,6 +19,121 @@ struct HeroPtr;
 class VCAI;
 class FuzzyHelper;
 
+
+struct SectorMap
+{
+	//a sector is set of tiles that would be mutually reachable if all visitable objs would be passable (incl monsters)
+	struct Sector
+	{
+		int id;
+		std::vector<int3> tiles;
+		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
+		std::vector<const CGObjectInstance *> visitableObjs;
+		bool water; //all tiles of sector are land or water
+		Sector()
+		{
+			id = -1;
+			water = false;
+		}
+	};
+
+	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
+	typedef boost::multi_array<TSectorID, 3> TSectorArray;
+
+	bool valid; //some kind of lazy eval
+	std::map<int3, int3> parent;
+	TSectorArray sector;
+	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
+
+	std::map<int, Sector> infoOnSectors;
+	std::shared_ptr<boost::multi_array<TerrainTile *, 3>> visibleTiles;
+
+	SectorMap();
+	SectorMap(HeroPtr h);
+	void update();
+	void clear();
+	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
+	void write(crstring fname);
+
+	bool markIfBlocked(TSectorID & sec, crint3 pos, const TerrainTile * t);
+	bool markIfBlocked(TSectorID & sec, crint3 pos);
+	TSectorID & retrieveTile(crint3 pos);
+	TSectorID & retrieveTileN(TSectorArray & vectors, const int3 & pos);
+	const TSectorID & retrieveTileN(const TSectorArray & vectors, const int3 & pos);
+	TerrainTile * getTile(crint3 pos) const;
+	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
+
+	void makeParentBFS(crint3 source);
+
+	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
+	int3 findFirstVisitableTile(HeroPtr h, crint3 dst);
+};
+
+namespace Tasks
+{
+	class CTask;
+
+	typedef std::shared_ptr<CTask> Task;
+	typedef std::set<Task> TaskSet;
+
+	class CTask {
+	protected:
+		int priority;
+		int3 tile;
+		HeroPtr hero;
+
+	public:
+		virtual void execute() {}
+		virtual CTask* clone() const {
+			return const_cast<CTask*>(this);
+		}
+		virtual std::string toString() {
+			return "CTask";
+		}
+		int3 getTile() {
+			return tile;
+		}
+		HeroPtr getHero() {
+			return hero;
+		}
+	};
+
+	template<typename T> class TemplateTask : public CTask {
+	public:
+		TemplateTask<T> * clone() const override
+		{
+			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
+		}
+	};
+
+	Task sptr(const CTask & tmp);
+
+	class VisitTile : public TemplateTask<VisitTile> {
+	public:
+		VisitTile(int3 tile, HeroPtr hero) {
+			this->tile =tile;
+			this->hero = hero;
+		}
+
+		virtual void execute() override;
+		virtual std::string toString() override;
+	};
+
+	class BuildStructure : public TemplateTask<BuildStructure> {
+	public:
+		BuildingID buildingID;
+		const CGTownInstance* town;
+
+		BuildStructure(BuildingID buildingID, const CGTownInstance* town) {
+			this->town = town;
+			this->buildingID = buildingID;
+		}
+
+		virtual void execute() override;
+		virtual std::string toString() override;
+	};
+}
+
 namespace Goals
 {
 class AbstractGoal;
@@ -33,7 +148,8 @@ enum EGoals
 	EXPLORE, GATHER_ARMY, BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
-	COLLECT_RES,
+	BUY_RESOURCES,
+	CAPTURE_OBJECTS,
 	GATHER_TROOPS, // val of creatures with objid
 
 	OBJECT_GOALS_BEGIN,
@@ -102,6 +218,10 @@ public:
 	{
 		return TGoalVec();
 	}
+	virtual Tasks::TaskSet getTasks()
+	{
+		return Tasks::TaskSet();
+	}
 	virtual TSubgoal whatToDoToAchieve()
 	{
 		return sptr(AbstractGoal());
@@ -109,7 +229,7 @@ public:
 
 	EGoals goalType;
 
-	std::string name() const;
+	virtual std::string toString() const;
 	virtual std::string completeMessage() const
 	{
 		return "This goal is unspecified!";
@@ -147,6 +267,9 @@ public:
 		h & town;
 		h & bid;
 	}
+
+protected:
+	void addTasks(Tasks::TaskSet &target, TSubgoal subgoal);
 };
 
 template<typename T> class CGoal : public AbstractGoal
@@ -254,11 +377,15 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	Tasks::TaskSet getTasks() override;
 };
+
+class BuildingInfo;
 
 class Build : public CGoal<Build>
 {
 public:
+	TResources resourcesNeeded;
 	Build()
 		: CGoal(Goals::BUILD)
 	{
@@ -268,7 +395,16 @@ public:
 	{
 		return TGoalVec();
 	}
+	Tasks::TaskSet getTasks() override;
 	TSubgoal whatToDoToAchieve() override;
+
+private:
+	BuildingInfo getBuildingOrPrerequisite(
+		const CGTownInstance * town, 
+		BuildingID toBuild, 
+		TResources & requiredResourcesAccumulator, 
+		TResources & totalDevelopmentCostAccumulator, 
+		bool excludeDwellingDependencies = true);
 };
 
 class Explore : public CGoal<Explore>
@@ -287,8 +423,11 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	Tasks::TaskSet getTasks() override;
 	std::string completeMessage() const override;
 	bool fulfillsMe(TSubgoal goal) override;
+private:
+	std::vector<const CGObjectInstance *> getExplorationHelperObjects();
 };
 
 class GatherArmy : public CGoal<GatherArmy>
@@ -306,6 +445,7 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	Tasks::TaskSet getTasks() override;
 	std::string completeMessage() const override;
 };
 
@@ -367,15 +507,28 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class CollectRes : public CGoal<CollectRes>
+class CaptureObjects : public CGoal<CaptureObjects> {
+public:
+	CaptureObjects()
+		: CGoal(Goals::CAPTURE_OBJECTS) {
+	}
+
+	virtual Tasks::TaskSet getTasks() override;
+	virtual std::string toString() const override;
+
+protected:
+	virtual bool shouldVisitObject(ObjectIdRef obj, HeroPtr hero, SectorMap& sm);
+};
+
+class BuyResources : public CGoal<BuyResources>
 {
 public:
-	CollectRes()
-		: CGoal(Goals::COLLECT_RES)
+	BuyResources()
+		: CGoal(Goals::BUY_RESOURCES)
 	{
 	}
-	CollectRes(int rid, int val)
-		: CGoal(Goals::COLLECT_RES)
+	BuyResources(int rid, int val)
+		: CGoal(Goals::BUY_RESOURCES)
 	{
 		resID = rid;
 		value = val;
@@ -601,3 +754,4 @@ public:
 };
 
 }
+

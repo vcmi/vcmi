@@ -764,7 +764,7 @@ void VCAI::makeTurn()
 		break;
 	}
 	}
-	markHeroAbleToExplore(primaryHero());
+	//markHeroAbleToExplore(primaryHero());
 
 	makeTurnInternal();
 }
@@ -774,11 +774,12 @@ void VCAI::makeTurnInternal()
 	saving = 0;
 
 	//it looks messy here, but it's better to have armed heroes before attempting realizing goals
-	for(const CGTownInstance * t : cb->getTownsInfo())
-		moveCreaturesToHero(t);
+	/*for(const CGTownInstance * t : cb->getTownsInfo())
+		moveCreaturesToHero(t);*/
 
 	try
 	{
+		/*
 		//Pick objects reserved in previous turn - we expect only nerby objects there
 		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
 		for(auto hero : reservedHeroesCopy)
@@ -802,12 +803,13 @@ void VCAI::makeTurnInternal()
 				}
 				striveToGoal(sptr(Goals::VisitTile(obj->visitablePos()).sethero(hero.first)));
 			}
-		}
+		}*/
 
 		//now try to win
 		striveToGoal(sptr(Goals::Win()));
 
 		//finally, continue our abstract long-term goals
+		/*
 		int oldMovement = 0;
 		int newMovement = 0;
 		while(true)
@@ -851,9 +853,9 @@ void VCAI::makeTurnInternal()
 		{
 			striveToQuest(quest);
 		}
-
-		striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
-		performTypicalActions();
+		*/
+		//striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
+		//performTypicalActions();
 
 		//for debug purpose
 		for(auto h : cb->getHeroesInfo())
@@ -1143,11 +1145,13 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
-//		const CCreature *c = VLC->creh->creatures[creID];
+		const CCreature *c = creID.toCreature();
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		vstd::amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
+		logAi->trace("Dwelling %s has creatures %s x %i", d->getObjectName(), c->namePl, count);
+
+		vstd::amin(count, freeResources() / c->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1160,6 +1164,8 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
 		return false;
 	}
+
+	logAi->trace("Try build %d", building.toEnum());
 
 	if(!vstd::contains(t->town->buildings, building))
 		return false; // no such building in town
@@ -1200,6 +1206,9 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
 				cb->buildBuilding(t, buildID);
 				return true;
+			}
+			else {
+				logAi->debug("Player %d can't build %s in town of %s at %s, not enough res", playerID, b->Name(), t->name, t->pos.toString());
 			}
 			continue;
 		}
@@ -1491,7 +1500,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		t = findTownWithTavern();
 	if(!t)
 		return false;
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST * 3)
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
@@ -1674,7 +1683,7 @@ void VCAI::evaluateGoal(HeroPtr h)
 
 void VCAI::completeGoal(Goals::TSubgoal goal)
 {
-	logAi->trace("Completing goal: %s", goal->name());
+	logAi->trace("Completing goal: %s", goal->toString());
 	if(const CGHeroInstance * h = goal->hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
@@ -2184,9 +2193,11 @@ void VCAI::tryRealize(Goals::BuildThis & g)
 	}
 	else if(cb->canBuildStructure(t, BuildingID(g.bid)) == EBuildingState::ALLOWED)
 	{
-		cb->buildBuilding(t, BuildingID(g.bid));
+		cb->buildBuilding(g.town, BuildingID(g.bid));
+
 		return;
 	}
+
 	throw cannotFulfillGoalException("Cannot build a given structure!");
 }
 
@@ -2205,7 +2216,7 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 	}
 }
 
-void VCAI::tryRealize(Goals::CollectRes & g)
+void VCAI::tryRealize(Goals::BuyResources & g)
 {
 	if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 		throw cannotFulfillGoalException("Goal is already fulfilled!");
@@ -2265,7 +2276,7 @@ void VCAI::tryRealize(Goals::Invalid & g)
 
 void VCAI::tryRealize(Goals::AbstractGoal & g)
 {
-	logAi->debug("Attempting realizing goal with code %s", g.name());
+	logAi->debug("Attempting realizing goal with code %s", g.toString());
 	throw cannotFulfillGoalException("Unknown type of goal !");
 }
 
@@ -2368,14 +2379,63 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 	while(1)
 	{
 		Goals::TSubgoal goal = ultimateGoal;
-		logAi->debug("Striving to goal of type %s", ultimateGoal->name());
+		logAi->debug("Striving to goal of type %s", ultimateGoal->toString());
 		int maxGoals = searchDepth; //preventing deadlock for mutually dependent goals
 		while(!goal->isElementar && maxGoals && (onlyAbstract || !goal->isAbstract))
 		{
-			logAi->debug("Considering goal %s", goal->name());
+			logAi->debug("Considering goal %s", goal->toString());
 			try
 			{
 				boost::this_thread::interruption_point();
+
+				auto tasks = goal->getTasks();
+				
+				if (!tasks.empty()) {
+					std::set<int3> reservedTiles;
+
+					while (!tasks.empty()) {
+						logAi->debug("Has some tasks");
+
+						std::set<HeroPtr> processedHeroes;
+
+						for (Tasks::Task task : tasks) {
+							try
+							{
+								int3 targetTile = task->getTile();
+								HeroPtr hero = task->getHero();
+
+								if (reservedTiles.count(targetTile) != 0) {
+									logAi->debug("Skipping task %s because tile is reserved", task->toString());
+									continue;
+								}
+								if (processedHeroes.count(hero) != 0) {
+									logAi->debug("Skipping task %s because hero has already done a task in this turn", task->toString());
+									continue;
+								}
+									
+								logAi->debug("Executing task %s", task->toString());
+								processedHeroes.insert(hero);
+								reservedTiles.insert(targetTile);
+								task->execute();
+							}
+							catch (goalFulfilledException & e)
+							{
+								//it is impossible to continue some goals (like exploration, for example)
+								logAi->debug("Task completed %s", task->toString());
+							}
+							catch (cannotFulfillGoalException & e)
+							{
+								//it is impossible to continue some goals (like exploration, for example)
+								logAi->debug("Task not completed %s : %s", task->toString(), e.what());
+							}
+						}
+
+						tasks = goal->getTasks();
+					}
+
+					return sptr(Goals::Invalid());
+				}
+
 				goal = goal->whatToDoToAchieve();
 				--maxGoals;
 				if(*goal == *ultimateGoal) //compare objects by value
@@ -2385,12 +2445,12 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				//it is impossible to continue some goals (like exploration, for example)
 				completeGoal(goal);
-				logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", goal->name());
+				logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", goal->toString());
 				return sptr(Goals::Invalid());
 			}
 			catch(std::exception & e)
 			{
-				logAi->debug("Goal %s decomposition failed: %s", goal->name(), e.what());
+				logAi->debug("Goal %s decomposition failed: %s", goal->toString(), e.what());
 				return sptr(Goals::Invalid());
 			}
 		}
@@ -2417,12 +2477,12 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			if(goal->isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-				logAi->debug("Choosing abstract goal %s", goal->name());
+				logAi->debug("Choosing abstract goal %s", goal->toString());
 				break;
 			}
 			else
 			{
-				logAi->debug("Trying to realize %s (value %2.3f)", goal->name(), goal->priority);
+				logAi->debug("Trying to realize %s (value %2.3f)", goal->toString(), goal->priority);
 				goal->accept(this);
 			}
 
@@ -2443,7 +2503,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 		}
 		catch(std::exception & e)
 		{
-			logAi->debug("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal->name(), ultimateGoal->name());
+			logAi->debug("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal->toString(), ultimateGoal->toString());
 			logAi->debug("The error message was: %s", e.what());
 			break;
 		}
@@ -2524,7 +2584,7 @@ void VCAI::striveToQuest(const QuestInfo & q)
 					for(int i = 0; i < q.quest->m7resources.size(); ++i)
 					{
 						if(q.quest->m7resources[i])
-							striveToGoal(sptr(Goals::CollectRes(i, q.quest->m7resources[i])));
+							striveToGoal(sptr(Goals::BuyResources(i, q.quest->m7resources[i])));
 					}
 				}
 			}
@@ -2929,6 +2989,8 @@ void VCAI::validateObject(ObjectIdRef obj)
 TResources VCAI::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
+	return myRes;
+
 	auto iterator = cb->getTownsInfo();
 	if(std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool
 	{
