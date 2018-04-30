@@ -108,7 +108,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	th = make_unique<CStopWatch>();
 	packsForLobbyScreen.clear();
 	c.reset();
-	si.reset(new StartInfo());
+	si = std::make_shared<StartInfo>();
 	playerNames.clear();
 	si->difficulty = 1;
 	si->mode = mode;
@@ -475,11 +475,13 @@ void CServerHandler::endGameplay(bool closeConnection)
 	client->endGame();
 	vstd::clear_pointer(client);
 
-	// Game is ending
-	// Tell the network thread to reach a stable state
-	CSH->sendClientDisconnecting();
-	logNetwork->info("Closed connection.");
-
+	if(closeConnection)
+	{
+		// Game is ending
+		// Tell the network thread to reach a stable state
+		CSH->sendClientDisconnecting();
+		logNetwork->info("Closed connection.");
+	}
 	if(CMM)
 	{
 		GH.curInt = CMM;

@@ -49,13 +49,13 @@ typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::so
 class DLL_LINKAGE CConnection
 	: public IBinaryReader, public IBinaryWriter, public std::enable_shared_from_this<CConnection>
 {
-	CConnection();
-
 	void init();
 	void reportState(vstd::CLoggerBase * out) override;
 
 	int write(const void * data, unsigned size) override;
 	int read(void * data, unsigned size) override;
+
+	std::shared_ptr<boost::asio::io_service> io_service; //can be empty if connection made from socket
 public:
 	BinaryDeserializer iser;
 	BinarySerializer oser;
@@ -66,7 +66,6 @@ public:
 	bool connected;
 	bool myEndianess, contactEndianess; //true if little endian, if endianness is different we'll have to revert received multi-byte vars
 	std::string contactUuid;
-	std::shared_ptr<boost::asio::io_service> io_service;
 	std::string name; //who uses this connection
 	std::string uuid;
 
