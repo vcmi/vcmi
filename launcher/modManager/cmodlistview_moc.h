@@ -29,7 +29,7 @@ class CModListView : public QWidget
 {
 	Q_OBJECT
 
-	CModManager * manager;
+	std::unique_ptr<CModManager> manager;
 	CModListModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;

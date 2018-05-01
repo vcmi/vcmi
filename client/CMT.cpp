@@ -985,7 +985,6 @@ void dispose()
 	}
 
 	// cleanup, mostly to remove false leaks from analyzer
-	CResourceHandler::clear();
 	if(CCS)
 	{
 		CCS->musich->release();

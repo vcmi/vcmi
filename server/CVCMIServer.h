@@ -44,9 +44,10 @@ class CVCMIServer : public LobbyInfo
 	std::shared_ptr<boost::asio::io_service> io;
 	std::shared_ptr<TAcceptor> acceptor;
 	std::shared_ptr<TSocket> upcomingConnection;
-	std::list<CPackForLobby *> announceQueue;
+	std::list<std::unique_ptr<CPackForLobby>> announceQueue;
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
+	std::unique_ptr<boost::thread> announceLobbyThread;
 
 public:
 	std::shared_ptr<CGameHandler> gh;
@@ -69,13 +70,13 @@ public:
 	void connectionAccepted(const boost::system::error_code & ec);
 	void threadHandleClient(std::shared_ptr<CConnection> c);
 	void threadAnnounceLobby();
-	void handleReceivedPack(CPackForLobby * pack);
+	void handleReceivedPack(std::unique_ptr<CPackForLobby> pack);
 
-	void announcePack(CPackForLobby * pack);
+	void announcePack(std::unique_ptr<CPackForLobby> pack);
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
-	void addToAnnounceQueue(CPackForLobby * pack);
+	void addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});

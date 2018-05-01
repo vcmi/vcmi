@@ -24,13 +24,13 @@
 
 void CModListView::setupModModel()
 {
-	modModel = new CModListModel();
-	manager = new CModManager(modModel);
+	modModel = new CModListModel(this);
+	manager = vstd::make_unique<CModManager>(modModel);
 }
 
 void CModListView::setupFilterModel()
 {
-	filterModel = new CModFilterModel(modModel);
+	filterModel = new CModFilterModel(modModel, this);
 
 	filterModel->setFilterKeyColumn(-1); // filter across all columns
 	filterModel->setSortCaseSensitivity(Qt::CaseInsensitive); // to make it more user-friendly

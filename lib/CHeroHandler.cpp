@@ -718,8 +718,10 @@ void CHeroHandler::loadExperience()
 	expPerLevel.push_back(34140);
 	while (expPerLevel[expPerLevel.size() - 1] > expPerLevel[expPerLevel.size() - 2])
 	{
-		int i = expPerLevel.size() - 1;
-		expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
+		auto i = expPerLevel.size() - 1;
+		auto diff = expPerLevel[i] - expPerLevel[i-1];
+		diff += diff / 5;
+		expPerLevel.push_back (expPerLevel[i] + diff);
 	}
 	expPerLevel.pop_back();//last value is broken
 }

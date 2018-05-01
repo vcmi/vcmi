@@ -58,7 +58,7 @@ void CConnection::init()
 }
 
 CConnection::CConnection(std::string host, ui16 port, std::string Name, std::string UUID)
-	: iser(this), oser(this), io_service(std::make_shared<asio::io_service>()), connectionID(0), name(Name), uuid(UUID)
+	: io_service(std::make_shared<asio::io_service>()), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
@@ -111,12 +111,12 @@ connerror1:
 	throw std::runtime_error("Can't establish connection :(");
 }
 CConnection::CConnection(std::shared_ptr<TSocket> Socket, std::string Name, std::string UUID)
-	: iser(this), oser(this), socket(Socket), io_service(&Socket->get_io_service()), connectionID(0), name(Name), uuid(UUID)
+	: iser(this), oser(this), socket(Socket), name(Name), uuid(UUID), connectionID(0)
 {
 	init();
 }
-CConnection::CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> Io_service, std::string Name, std::string UUID)
-	: iser(this), oser(this), connectionID(0), name(Name), uuid(UUID)
+CConnection::CConnection(std::shared_ptr<TAcceptor> acceptor, std::shared_ptr<boost::asio::io_service> io_service, std::string Name, std::string UUID)
+	: io_service(io_service), iser(this), oser(this), name(Name), uuid(UUID), connectionID(0)
 {
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);

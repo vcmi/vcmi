@@ -544,17 +544,15 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	else
 		split = 2;
 
-	int a = 1550811371;
-	int b = -935900487;
-	int c = 1943276003;
-	int d = -1120346418;
+	ui32 a = 1550811371u;
+	ui32 b = 3359066809u;
+	ui32 c = 1943276003u;
+	ui32 d = 3174620878u;
 
-	int R1 = a * pos.x + b * pos.y + c * pos.z + d;
-	int R2 = R1 / 65536;
-	int R3 = R2 % 32768;
-	if (R3 < 0)
-		R3 += 32767; //is it ever needed if we do modulo calculus?
-	int R4 = R3 % 100 + 1;
+	ui32 R1 = a * ui32(pos.x) + b * ui32(pos.y) + c * ui32(pos.z) + d;
+	ui32 R2 = (R1 >> 16) & 0x7fff;
+
+	int R4 = R2 % 100 + 1;
 
 	if (R4 <= 20)
 		split -= 1;

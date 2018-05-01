@@ -41,6 +41,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/ScopeGuard.h"
+#include "../lib/serializer/CMemorySerializer.h"
 
 #include "../lib/UnlockGuard.h"
 
@@ -145,18 +146,17 @@ CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 
 CVCMIServer::~CVCMIServer()
 {
-
-	for(CPackForLobby * pack : announceQueue)
-		delete pack;
-
 	announceQueue.clear();
+
+	if(announceLobbyThread)
+		announceLobbyThread->join();
 }
 
 void CVCMIServer::run()
 {
 	if(!restartGameplay)
 	{
-		boost::thread(&CVCMIServer::threadAnnounceLobby, this);
+		this->announceLobbyThread = vstd::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
 #ifndef VCMI_ANDROID
 		if(cmdLineOptions.count("enable-shm"))
 		{
@@ -195,7 +195,7 @@ void CVCMIServer::threadAnnounceLobby()
 			boost::unique_lock<boost::recursive_mutex> myLock(mx);
 			while(!announceQueue.empty())
 			{
-				announcePack(announceQueue.front());
+				announcePack(std::move(announceQueue.front()));
 				announceQueue.pop_front();
 			}
 			if(state != EServerState::LOBBY)
@@ -224,7 +224,7 @@ void CVCMIServer::prepareToStartGame()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
-
+	state = EServerState::GAMEPLAY_STARTING;
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -306,7 +306,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			CPack * pack = c->retrievePack();
 			if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
 			{
-				handleReceivedPack(lobbyPack);
+				handleReceivedPack(std::unique_ptr<CPackForLobby>(lobbyPack));
 			}
 			else if(auto serverPack = dynamic_ptr_cast<CPackForServer>(pack))
 			{
@@ -333,56 +333,53 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)
+	if(c->connected)
 	{
-		auto lcd = new LobbyClientDisconnected();
+		auto lcd = vstd::make_unique<LobbyClientDisconnected>();
 		lcd->c = c;
 		lcd->clientId = c->connectionID;
-		handleReceivedPack(lcd);
+		handleReceivedPack(std::move(lcd));
 	}
 
 	logNetwork->info("Thread listening for %s ended", c->toString());
 	c->handler.reset();
 }
 
-void CVCMIServer::handleReceivedPack(CPackForLobby * pack)
+void CVCMIServer::handleReceivedPack(std::unique_ptr<CPackForLobby> pack)
 {
-	CBaseForServerApply * apply = applier->getApplier(typeList.getTypeID(pack));
-	if(apply->applyOnServerBefore(this, pack))
-		addToAnnounceQueue(pack);
-	else
-		delete pack;
+	CBaseForServerApply * apply = applier->getApplier(typeList.getTypeID(pack.get()));
+	if(apply->applyOnServerBefore(this, pack.get()))
+		addToAnnounceQueue(std::move(pack));
 }
 
-void CVCMIServer::announcePack(CPackForLobby * pack)
+void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
 	for(auto c : connections)
 	{
 		// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
-		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack))
+		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 			continue;
 
-		c->sendPack(pack);
+		c->sendPack(pack.get());
 	}
 
-	applier->getApplier(typeList.getTypeID(pack))->applyOnServerAfter(this, pack);
-
-	delete pack;
+	applier->getApplier(typeList.getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
 {
 	logNetwork->info("%s says: %s", playerName, txt);
-	auto cm = new LobbyChatMessage();
+	auto cm = vstd::make_unique<LobbyChatMessage>();
 	cm->playerName = playerName;
 	cm->message = txt;
-	addToAnnounceQueue(cm);
+	addToAnnounceQueue(std::move(cm));
 }
 
-void CVCMIServer::addToAnnounceQueue(CPackForLobby * pack)
+void CVCMIServer::addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack)
 {
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-	announceQueue.push_back(pack);
+	announceQueue.push_back(std::move(pack));
 }
 
 bool CVCMIServer::passHost(int toConnectionId)
@@ -479,7 +476,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 	si->playerInfos.clear();
 	if(mi->scenarioOptionsOfSave)
 	{
-		si = std::shared_ptr<StartInfo>(mi->scenarioOptionsOfSave);
+		si = CMemorySerializer::deepCopy(*mi->scenarioOptionsOfSave);
 		si->mode = StartInfo::LOAD_GAME;
 		if(si->campState)
 			campaignMap = si->campState->currentMap.get();
@@ -563,9 +560,9 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
-	auto lus = new LobbyUpdateState();
+	auto lus = vstd::make_unique<LobbyUpdateState>();
 	lus->state = *this;
-	addToAnnounceQueue(lus);
+	addToAnnounceQueue(std::move(lus));
 }
 
 void CVCMIServer::setPlayer(PlayerColor clickedColor)
@@ -945,7 +942,6 @@ int main(int argc, char * argv[])
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "killServer");
 #endif
 	vstd::clear_pointer(VLC);
-	CResourceHandler::clear();
 	return 0;
 }
 

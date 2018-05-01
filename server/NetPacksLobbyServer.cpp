@@ -75,6 +75,8 @@ bool LobbyClientDisconnected::checkClientPermissions(CVCMIServer * srv) const
 bool LobbyClientDisconnected::applyOnServer(CVCMIServer * srv)
 {
 	srv->clientDisconnected(c);
+	c->close();
+	c->connected = false;
 	return true;
 }
 
@@ -100,10 +102,10 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	}
 	else if(c == srv->hostClient)
 	{
-		auto ph = new LobbyChangeHost();
+		auto ph = vstd::make_unique<LobbyChangeHost>();
 		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
 		ph->newHostConnectionId = newHost->connectionID;
-		srv->addToAnnounceQueue(ph);
+		srv->addToAnnounceQueue(std::move(ph));
 	}
 	srv->updateAndPropagateLobbyState();
 }
@@ -175,7 +177,6 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 		return false;
 	}
 	// Server will prepare gamestate and we announce StartInfo to clients
-	srv->state = EServerState::GAMEPLAY_STARTING;
 	srv->prepareToStartGame();
 	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
 	return true;

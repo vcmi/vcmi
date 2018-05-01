@@ -1129,7 +1129,6 @@ bool CEffectAnimation::init()
 	else // Effects targeted at a specific creature/hex.
 	{
 		const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(destTile, false);
-		Rect & tilePos = owner->bfield[destTile]->pos;
 		BattleEffect be;
 		be.effectID = ID;
 		be.animation = animation;
@@ -1141,30 +1140,27 @@ bool CEffectAnimation::init()
 //			if(effect == 1)
 //				be.maxFrame = 3;
 
-		if(x == -1)
+		be.x = x;
+		be.y = y;
+		if(destTile.isValid())
 		{
-			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
-		}
-		else
-		{
-			be.x = x;
+			Rect & tilePos = owner->bfield[destTile]->pos;
+			if(x == -1)
+				be.x = tilePos.x + tilePos.w/2 - first->width()/2;
+			if(y == -1)
+			{
+				if(alignToBottom)
+					be.y = tilePos.y + tilePos.h - first->height();
+				else
+					be.y = tilePos.y - first->height()/2;
+			}
+
+			// Correction for 2-hex creatures.
+			if(destStack != nullptr && destStack->doubleWide())
+				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
 		}
 
-		if(y == -1)
-		{
-			if(alignToBottom)
-				be.y = tilePos.y + tilePos.h - first->height();
-			else
-				be.y = tilePos.y - first->height()/2;
-		}
-		else
-		{
-			be.y = y;
-		}
-
-		// Correction for 2-hex creatures.
-		if(destStack != nullptr && destStack->doubleWide())
-			be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+		assert(be.x != -1 && be.y != -1);
 
 		//Indicate if effect should be drawn on top of everything or just on top of the hex
 		be.position = destTile;
