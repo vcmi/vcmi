@@ -296,7 +296,7 @@ void CBattleAI::attemptCastingSpell()
 				if(!vstd::contains(values, unit->unitId()))
 					values[unit->unitId()] = 0;
 
-				if(!unit->alive())
+				if(!state->getForUpdate(unit->unitId())->alive())
 					continue;
 
 				if(state->battleGetOwner(unit) != playerID)
@@ -556,95 +556,120 @@ void CBattleAI::print(const std::string &text) const
 	logAi->trace("%s Battle AI[%p]: %s", playerID.getStr(), this, text);
 }
 
-bool CBattleAI::isItOurLastTurn(PossibleSpellcast::ValueMap & values, const std::vector<battle::Units> & queue, HypotheticBattle * state)
+bool CBattleAI::isItOurLastTurn(PossibleSpellcast::ValueMap & values,  HypotheticBattle * state)
 {
-	bool firstRound = true;
 	bool ourFirstTurn = true;
 	bool enemyHadTurn = false;
 
-	for(auto & round : queue)
+	bool stop = false;
+	int counter = 10;
+	const battle::Unit* unit;
+	while(!stop && counter != 0)
 	{
-		if (!firstRound)
+		--counter;
+		std::vector<battle::Units> new_queue{};
+		state->battleGetTurnOrder(new_queue, 0, 3); //this should give us the next unit
+		LOGFL("Got new turn order %d, %d",new_queue.size() % new_queue[0].size());
+		LOGL("Full queue:");
+		for (int i = 0; i < new_queue.size(); ++i)
 		{
-			state->nextRound(0);//todo: set actual value?
-			firstRound = false;
-		}
-		for(auto unit : round)
-		{
-			LOGL("---------------> consider turn of " + unit->unitType()->namePl);
-			if (!state->getForUpdate(unit->unitId())->alive())
+			for (int j = 0; j < new_queue[i].size(); ++j)
 			{
-				LOGL("It will be dead...");
-				if (unit->alive())
-				{
-					LOGL("but it's alive according to simple method");
-				}
-				else
-				{
-					LOGL("It's also dead according to simple method");
-				}
-				
-				continue;
+				LOGFL("-> %s, %d",new_queue[i][j]->unitType()->namePl % new_queue[i][j]->unitId());
 			}
-
-			if(state->battleGetOwner(unit) == playerID)
+			LOGL("------------------------");
+		}
+		if (ourFirstTurn)
+		{
+			LOGL("First turn: taking the first unit");
+			unit = new_queue.front().front();
+		}
+		else
+		{
+			auto previous_unit = std::find_if(
+				new_queue[0].begin(),
+				new_queue[0].end(),
+				[unit](const battle::Unit* u) {return u->unitId() == unit->unitId(); });
+			if (previous_unit == new_queue[0].end() - 1) //our unit is last in the turn
 			{
-				if (!ourFirstTurn)
-				{
-					LOGL("Our unit will have turn!");
-					return false;
-				}
-				else 
-				{
-					LOGL("this is this turn!");
-				}
-				ourFirstTurn = false;
+				LOGL("previous unit was last in the turn. Taking the first one from the next turn");
+				unit = new_queue[1].front();
+			}
+			else if(previous_unit == new_queue[0].end())
+			{
+				LOGL("ERROR! previous unit could not be found in the queue");
+				//TODO Throw something
 			}
 			else
 			{
-				LOGL("Enemy will have turn!");
-				enemyHadTurn = true;
+				LOGL("Taking unit after the previous one:");
+				unit = new_queue[0][previous_unit - new_queue[0].begin() + 1];
 			}
-			state->nextTurn(unit->unitId());
+		}
+		LOGFL("---------------> consider turn of %s %d",unit->unitType()->namePl % unit->unitId());
+		if (state->getForUpdate(unit->unitId())->alive() == false)
+		{
+			LOGL("It will be dead...");
+			continue;
+		}
 
-			PotentialTargets pt(unit, state);
-
-			LOGL("I predict:");
-			if(!pt.possibleAttacks.empty())
+		if(state->battleGetOwner(unit) == playerID)
+		{
+			if (!ourFirstTurn)
 			{
-				AttackPossibility ap = pt.bestAction();
+				LOGL("Our unit will have turn!");
+				return false;
+			}
+			else 
+			{
+				LOGL("this is this turn!");
+			}
+			ourFirstTurn = false;
+		}
+		else
+		{
+			LOGL("Enemy will have turn!");
+			enemyHadTurn = true;
+		}
+		state->nextTurn(unit->unitId());
 
-				auto swb = state->getForUpdate(unit->unitId());
-				*swb = *ap.attackerState;
+		PotentialTargets pt(unit, state);
 
-				if(ap.damageDealt > 0)
-					swb->removeUnitBonus(Bonus::UntilAttack);
-				if(ap.damageReceived > 0)
+		LOGL("I predict:");
+		if(!pt.possibleAttacks.empty())
+		{
+			AttackPossibility ap = pt.bestAction();
+
+			auto swb = state->getForUpdate(unit->unitId());
+			*swb = *ap.attackerState;
+
+			if(ap.damageDealt > 0)
+				swb->removeUnitBonus(Bonus::UntilAttack);
+			if(ap.damageReceived > 0)
+				swb->removeUnitBonus(Bonus::UntilBeingAttacked);
+
+			LOGL(unit->unitType()->namePl + " will attack:");
+			for(auto affected : ap.affectedUnits)
+			{
+				LOGL("->"+affected->unitType()->namePl);
+				swb = state->getForUpdate(affected->unitId());
+				*swb = *affected;
+
+				if (ap.damageDealt > 0)
+				{
 					swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-
-				LOGL(unit->unitType()->namePl + " will attack:");
-				for(auto affected : ap.affectedUnits)
-				{
-					LOGL("->"+affected->unitType()->namePl);
-					swb = state->getForUpdate(affected->unitId());
-					*swb = *affected;
-
-					if (ap.damageDealt > 0)
-					{
-						swb->removeUnitBonus(Bonus::UntilBeingAttacked);
-					}
-					if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
-						swb->removeUnitBonus(Bonus::UntilAttack);
-				} //TODO after each modification of the battle state, we need to evaluate turn order again.
-				//TODO add some simulation of opponent (and us) casting spells. Oponnent can, for example, kill our last remaining unit with a spell
-			}
-			else
-			{
-				LOGL(unit->unitType()->namePl +" won't attack");
-			}
+				}
+				if(ap.damageReceived > 0 && ap.attack.defender->unitId() == affected->unitId())
+					swb->removeUnitBonus(Bonus::UntilAttack);
+			} 
+			//TODO add some simulation of opponent (and us) casting spells. Oponnent can, for example, kill our last remaining unit with a spell
 		}
-
+		else
+		{
+			LOGL(unit->unitType()->namePl +" won't attack");
+		}
 	}
+
 	return enemyHadTurn; // If enemyHadTurn is false, this mean we're about to win, so we shouldn't flee.
 
 };
@@ -667,13 +692,9 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 
 	auto amount = all.size();
 
-	std::vector<battle::Units> turnOrder;
-
-	cb->battleGetTurnOrder(turnOrder, 2*amount, 2); // predicting next two turns. One is to little, we want to know if our current stack will be alive
-
 	{
 		HypotheticBattle state(cb);
-		bool lastTurn = isItOurLastTurn(valueOfStack, turnOrder, &state);
+		bool lastTurn = isItOurLastTurn(valueOfStack, &state);
 
 		if(lastTurn)
 		{
