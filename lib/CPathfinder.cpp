@@ -1216,7 +1216,7 @@ bool CPathsInfo::getPath(CGPath & out, const int3 & dst) const
 
 int CPathsInfo::getDistance(const int3 & tile) const
 {
-	boost::unique_lock<boost::mutex> pathLock(pathMx);
+	//boost::unique_lock<boost::mutex> pathLock(pathMx);
 
 	CGPath ret;
 	if(getPath(ret, tile))

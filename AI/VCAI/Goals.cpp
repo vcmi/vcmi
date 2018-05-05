@@ -20,9 +20,18 @@ extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
 
 using namespace Goals;
 
-void Tasks::VisitTile::execute() 
+bool Tasks::VisitTile::execute() 
 {
-	Goals::VisitTile(this->tile).sethero(this->hero).accept(ai.get());
+	if (!hero->movement)
+		return false;
+
+	if (tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
+	{
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
+		return false;
+	}
+
+	return ai->moveHeroToTile(tile, hero.get());
 }
 
 std::string Tasks::VisitTile::toString()
@@ -30,15 +39,26 @@ std::string Tasks::VisitTile::toString()
 	return "VisitTile " + hero->name + " => " + tile.toString();
 }
 
-void Tasks::BuildStructure::execute()
+bool Tasks::BuildStructure::execute()
 {
-	logAi->trace("Executing BuildStructure %d in %s", buildingID.toEnum(), town->name);
 	Goals::BuildThis(this->buildingID, this->town).accept(ai.get());
+	return false;
 }
 
 std::string Tasks::BuildStructure::toString()
 {
 	return "BuildStructure " + std::to_string(buildingID) + " in " + town->name;
+}
+
+bool Tasks::RecruitHero::execute()
+{
+	Goals::RecruitHero().accept(ai.get());
+	return false;
+}
+
+std::string Tasks::RecruitHero::toString()
+{
+	return "RecruitHero";
 }
 
 TSubgoal Goals::sptr(const AbstractGoal & tmp)
@@ -592,44 +612,56 @@ std::string CaptureObjects::toString() const {
 }
 
 Tasks::TaskSet CaptureObjects::getTasks() {
-	auto heroes = cb->getHeroesInfo();
 	Tasks::TaskSet tasks;
 
-	for (auto hero : heroes) {
-		if (!hero->movement) {
-			continue;
-		}
+	if (!hero->movement) {
+		return tasks;
+	}
 
-		std::vector<ObjectIdRef> objs;
+	auto sm = ai->getCachedSectorMap(hero);
+	std::vector<const CGObjectInstance*> objs = objectsToCapture;
+
+	if (objs.empty()) {
 		auto sm = ai->getCachedSectorMap(hero);
 
 		auto nearbyObjects = sm->getNearbyObjs(hero, 1);
 
-		vstd::copy_if(nearbyObjects, std::back_inserter(objs), [&](ObjectIdRef obj) -> bool
+		vstd::copy_if(nearbyObjects, std::back_inserter(objs), [&](const CGObjectInstance* obj) -> bool
 		{
 			return this->shouldVisitObject(obj, hero, *sm);
 		});
+	}
 
-		if (objs.empty()) {
-			vstd::copy_if(ai->visitableObjs, std::back_inserter(objs), [&](ObjectIdRef obj) -> bool
-			{
-				return this->shouldVisitObject(obj, hero, *sm);
-			});
+	if (objs.empty()) {
+		vstd::copy_if(ai->visitableObjs, std::back_inserter(objs), [&](const CGObjectInstance* obj) -> bool
+		{
+			return this->shouldVisitObject(obj, hero, *sm);
+		});
+	}
+
+	if (!objs.empty()) {
+		boost::sort(objs, CDistanceSorter(hero.get()));
+
+		auto objToVisit = objs.front();
+		const int3 pos = objToVisit->visitablePos();
+		const int3 targetPos = sm->firstTileToGet(hero, pos);
+
+		if (targetPos.x == -1) {
+			return tasks;
 		}
 
-		if (!objs.empty()) {
-			boost::sort(objs, CDistanceSorter(hero));
+		auto pathInfo = cb->getPathsInfo(hero.get())->getPathInfo(targetPos);
+		double priority = 0;
 
-			auto objToVisit = objs.front();
-			const int3 pos = objToVisit->visitablePos();
-			const int3 targetPos = sm->firstTileToGet(hero, pos);
+		if (pathInfo->turns <= 1) {
+			priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
+		}
 
-			if (isSafeToVisit(hero, pos)) {
-				tasks.insert(Tasks::sptr(Tasks::VisitTile(pos, hero)));
-			}
-			else {
-				addTasks(tasks, sptr(GatherArmy().sethero(hero)));
-			}
+		if (isSafeToVisit(hero, targetPos)) {
+			addTask(tasks, Tasks::VisitTile(targetPos, hero), priority);
+		}
+		else {
+			addTasks(tasks, sptr(GatherArmy().sethero(hero)), priority);
 		}
 	}
 
@@ -637,14 +669,20 @@ Tasks::TaskSet CaptureObjects::getTasks() {
 }
 
 bool CaptureObjects::shouldVisitObject(ObjectIdRef obj, HeroPtr hero, SectorMap& sm) {
-	const int3 pos = obj->visitablePos();
+	const CGObjectInstance* objInstance = obj;
+
+	if (!objInstance || objectTypes.size() && !vstd::contains(objectTypes, objInstance->ID.num)) {
+		return false;
+	}
+
+	const int3 pos = objInstance->visitablePos();
 	const int3 targetPos = sm.firstTileToGet(hero, pos);
 
 	if (!targetPos.valid()
-		|| vstd::contains(ai->alreadyVisited, obj)
-		|| obj->wasVisited(hero.get())
-		|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj)
-		|| !shouldVisit(hero, obj)
+		|| vstd::contains(ai->alreadyVisited, objInstance)
+		|| objInstance->wasVisited(hero.get())
+		|| cb->getPlayerRelations(ai->playerID, objInstance->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(objInstance)
+		|| !shouldVisit(hero, objInstance)
 		|| !ai->isAccessibleForHero(targetPos, hero)) 
 	{
 		return false;
@@ -682,49 +720,30 @@ TSubgoal Explore::whatToDoToAchieve()
 	}
 }
 Tasks::TaskSet Explore::getTasks() {
-	logAi->trace("Searching tasks for goal EXPLORE");
-
 	Tasks::TaskSet tasks = Tasks::TaskSet();
 
-	std::vector<const CGHeroInstance *> heroes = cb->getHeroesInfo();
-	std::vector<const CGObjectInstance *> exploreHelperObjects = getExplorationHelperObjects();
+	if (!hero->movement) {
+		return tasks;
+	}
 
-	vstd::erase_if(heroes, [](const HeroPtr h)
+	addTasks(tasks, sptr(CaptureObjects(this->getExplorationHelperObjects()).sethero(hero)), 0.8);
+
+	int3 t = whereToExplore(hero);
+	if (t.valid())
 	{
-		return !h->movement; //saves time, immobile heroes are useless anyway
-	});
-	
-	for (auto h : heroes)
+		addTask(tasks, Tasks::VisitTile(t, hero), 0.5);
+	}
+	else
 	{
-		logAi->debug("Considering hero %s", h->name);
+		t = ai->explorationDesperate(hero);
 
-		auto sm = ai->getCachedSectorMap(h);
-
-		for (auto obj : exploreHelperObjects) //double loop, performance risk?
-		{
-			auto t = sm->firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if (ai->isTileNotReserved(h, t))
-				addTasks(tasks, sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
-		}
-
-		int3 t = whereToExplore(h);
-		if (t.valid())
-		{
-			tasks.insert(sptr(Tasks::VisitTile(t, h)));
-		}
-		else
-		{
-			if (hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
-			{
-				t = ai->explorationDesperate(h);
-				if (t.valid()) //don't waste time if we are completely blocked
-					addTasks(tasks, sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
-			}
-		}
+		if (t.valid()) //don't waste time if we are completely blocked
+			addTasks(tasks, sptr(Goals::ClearWayTo(t, hero)), 1);
 	}
 
 	return tasks;
 }
+
 TGoalVec Explore::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
@@ -866,6 +885,19 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 		return sptr(Goals::BuyResources(Res::GOLD, GameConstants::HERO_GOLD_COST));
 
 	return iAmElementar();
+}
+
+Tasks::TaskSet RecruitHero::getTasks() {
+	Tasks::TaskSet tasks;
+	auto heroes = cb->getHeroesInfo();
+	auto towns = cb->getTownsInfo();
+
+	if (cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST * 3
+		&& heroes.size() < towns.size() + 2) {
+		tasks.push_back(Tasks::sptr(Tasks::RecruitHero()));
+	}
+
+	return tasks;
 }
 
 std::string VisitTile::completeMessage() const
@@ -1117,11 +1149,39 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 
 Tasks::TaskSet Conquer::getTasks() {
 	auto tasks = Tasks::TaskSet();
+	auto heroes = cb->getHeroesInfo();
+	
+	auto nextHero = vstd::tryFindIf(heroes, [](const CGHeroInstance* h) -> bool { return h->movement > 0; });
 
-	addTasks(tasks, sptr(Build()));
+	addTasks(tasks, sptr(Build()), 0.9);
 	addTasks(tasks, sptr(RecruitHero()));
-	addTasks(tasks, sptr(CaptureObjects()));
-	addTasks(tasks, sptr(Explore()));
+	addTasks(tasks, sptr(GatherArmy()), 0.9); // no hero - just pickup existing army, no buy
+
+	if (nextHero) {
+		auto heroPtr = HeroPtr(nextHero.get());
+		auto heroTasks = Tasks::TaskSet();
+
+		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::TOWN).sethero(heroPtr)), 1);
+		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::HERO).sethero(heroPtr)), 0.95);
+		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::MINE).sethero(heroPtr)), 0.7);
+		addTasks(heroTasks, sptr(CaptureObjects().sethero(HeroPtr(heroPtr))), 0.5);
+
+		auto strongestHero = vstd::maxElementByFun(heroes, [](const CGHeroInstance* h) -> bool { return h->getArmyStrength(); });
+
+		if (cb->getDate(Date::MONTH) > 1 && nextHero.get() == strongestHero[0]) {
+			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.7);
+		}
+		else {
+			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.5);
+		}
+
+		if (heroTasks.size()) {
+			sortByPriority(heroTasks);
+			tasks.push_back(heroTasks.front());
+		}
+	}
+
+	sortByPriority(tasks);
 
 	return tasks;
 }
@@ -1427,7 +1487,7 @@ namespace Goals {
 				}
 			}
 			/**/
-			std::sort(toBuild.begin(), toBuild.end(), [&](BuildingInfo& b1, BuildingInfo& b2) -> bool {
+			std::sort(toBuild.begin(), toBuild.end(), [](BuildingInfo& b1, BuildingInfo& b2) -> bool {
 				return b1.costPerScore() > b2.costPerScore();
 			});
 
@@ -1435,7 +1495,7 @@ namespace Goals {
 				auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::TOWN_HALL, requiredResources, TResources());
 
 				if (buildingInfo.canBuild) {
-					tasks.insert(Tasks::sptr(Tasks::BuildStructure(BuildingID::TOWN_HALL, town)));
+					tasks.push_back(Tasks::sptr(Tasks::BuildStructure(BuildingID::TOWN_HALL, town)));
 					continue;
 				}
 			}
@@ -1514,7 +1574,7 @@ namespace Goals {
 				auto toBuild = developmentInfos[i].nextDwelling;
 
 				if (toBuild != BuildingID::NONE) {
-					tasks.insert(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
+					tasks.push_back(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
 				}
 			}
 		}
@@ -1523,7 +1583,7 @@ namespace Goals {
 			auto toBuild = developmentInfos[i].nextGoldSource;
 
 			if (toBuild != BuildingID::NONE) {
-				tasks.insert(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
+				tasks.push_back(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
 			}
 		}
 
@@ -1558,24 +1618,65 @@ Tasks::TaskSet GatherArmy::getTasks() {
 	Tasks::TaskSet tasks;
 
 	auto heroes = cb->getHeroesInfo();
+	auto towns = cb->getTownsInfo();
+
+	if (!this->hero) {
+		if (heroes.empty()) {
+			return tasks;
+		}
+
+		for (auto town : towns) {
+			if (!town->getArmyStrength()) {
+				continue;
+			}
+
+			HeroPtr carrier = heroes.front();
+			int3 pos = town->visitablePos();
+			auto pathInfo = cb->getPathsInfo(carrier.get())->getPathInfo(pos);
+			int optimalDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
+
+			for (auto hero : heroes) {
+				pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
+				int newDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
+
+				if (howManyReinforcementsCanGet(hero, town) && newDistance < optimalDistance) {
+					carrier = hero;
+					optimalDistance = newDistance;
+				}
+			}
+
+			if (howManyReinforcementsCanGet(carrier, town) > carrier->getArmyStrength() / 10 && carrier->movement) {
+				tasks.push_back(Tasks::sptr(Tasks::VisitTile(pos, carrier)));
+			}
+		}
+
+		return tasks;
+	}
+
+
 	auto targetHeroPosition = this->hero->visitablePos();
 
 	for (HeroPtr hero : heroes) {
-		if (hero == this->hero
-			|| !ai->isAccessibleForHero(targetHeroPosition, hero, true)
+		auto isStronger = hero->getFightingStrength() > this->hero->getFightingStrength();
+		auto isAccessible = ai->isAccessibleForHero(targetHeroPosition, hero, true);
+
+		if (hero.h == this->hero.h
+			|| isStronger
+			|| !isAccessible
 			|| !ai->canGetArmy(this->hero.get(), hero.get())) {
 			continue;
 		}
 
-		tasks.insert(Tasks::sptr(Tasks::VisitTile(targetHeroPosition, hero)));
+		if (hero->movement) {
+			tasks.push_back(Tasks::sptr(Tasks::VisitTile(targetHeroPosition, hero)));
+		}
+
 		break;
 	}
 	//TODO take town if it is closer than hero
-	auto towns = cb->getTownsInfo();
 	boost::sort(towns, CDistanceSorter(this->hero.get()));
 
 	for (auto town : towns) {
-
 		auto pos = town->visitablePos();
 		auto pathInfo = cb->getPathsInfo(this->hero.get())->getPathInfo(pos);
 
@@ -1598,7 +1699,10 @@ Tasks::TaskSet GatherArmy::getTasks() {
 				}
 			}
 
-			tasks.insert(Tasks::sptr(Tasks::VisitTile(pos, hero)));
+			if (hero->movement) {
+				tasks.push_back(Tasks::sptr(Tasks::VisitTile(pos, carrier)));
+			}
+
 			break;
 		}
 	}
@@ -1756,10 +1860,24 @@ void AbstractGoal::accept(VCAI * ai)
 	ai->tryRealize(*this);
 }
 
-void AbstractGoal::addTasks(Tasks::TaskSet &target, TSubgoal subgoal) {
+void AbstractGoal::addTasks(Tasks::TaskSet &target, TSubgoal subgoal, double priority) {
 	auto tasks = subgoal->getTasks();
 
-	target.insert(tasks.begin(), tasks.end());
+	for (Tasks::Task t : tasks) {
+		t->addAncestorPriority(priority);
+		target.push_back(t);
+	}
+}
+
+void AbstractGoal::addTask(Tasks::TaskSet &target, Tasks::CTask &task, double priority) {
+	task.addAncestorPriority(priority);
+	target.push_back(Tasks::sptr(task));
+}
+
+void AbstractGoal::sortByPriority(Tasks::TaskSet &tasks) {
+	std::sort(tasks.begin(), tasks.end(), [](Tasks::Task t1, Tasks::Task t2) -> bool {
+		return t1->getPriority() > t2->getPriority();
+	});
 }
 
 template<typename T>

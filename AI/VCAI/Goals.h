@@ -74,16 +74,16 @@ namespace Tasks
 	class CTask;
 
 	typedef std::shared_ptr<CTask> Task;
-	typedef std::set<Task> TaskSet;
+	typedef std::vector<Task> TaskSet;
 
 	class CTask {
 	protected:
-		int priority;
+		double priority;
 		int3 tile;
 		HeroPtr hero;
 
 	public:
-		virtual void execute() {}
+		virtual bool execute() { return false; }
 		virtual CTask* clone() const {
 			return const_cast<CTask*>(this);
 		}
@@ -95,6 +95,12 @@ namespace Tasks
 		}
 		HeroPtr getHero() {
 			return hero;
+		}
+		double getPriority() {
+			return priority;
+		}
+		void addAncestorPriority(double ancestorPriority) {
+			priority = ancestorPriority + priority / 10.0;
 		}
 	};
 
@@ -111,11 +117,19 @@ namespace Tasks
 	class VisitTile : public TemplateTask<VisitTile> {
 	public:
 		VisitTile(int3 tile, HeroPtr hero) {
+			if (!hero.h) {
+				throw std::exception("VisitTile: Hero is empty.");
+			}
+
+			if (!hero->movement) {
+				throw std::exception("VisitTile: Hero is out of mp.");
+			}
+
 			this->tile =tile;
 			this->hero = hero;
 		}
 
-		virtual void execute() override;
+		virtual bool execute() override;
 		virtual std::string toString() override;
 	};
 
@@ -129,7 +143,16 @@ namespace Tasks
 			this->buildingID = buildingID;
 		}
 
-		virtual void execute() override;
+		virtual bool execute() override;
+		virtual std::string toString() override;
+	};
+
+	class RecruitHero : public TemplateTask<RecruitHero> {
+	public:
+		RecruitHero() {
+		}
+
+		virtual bool execute() override;
 		virtual std::string toString() override;
 	};
 }
@@ -269,7 +292,9 @@ public:
 	}
 
 protected:
-	void addTasks(Tasks::TaskSet &target, TSubgoal subgoal);
+	void addTasks(Tasks::TaskSet &target,TSubgoal subgoal, double priority = 0);
+	void addTask(Tasks::TaskSet &target, Tasks::CTask &task, double priority = 0);
+	void sortByPriority(Tasks::TaskSet &target);
 };
 
 template<typename T> class CGoal : public AbstractGoal
@@ -443,6 +468,7 @@ public:
 		value = val;
 		priority = 2.5;
 	}
+
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	Tasks::TaskSet getTasks() override;
@@ -477,6 +503,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	Tasks::TaskSet getTasks() override;
 };
 
 class BuildThis : public CGoal<BuildThis>
@@ -508,13 +535,26 @@ public:
 };
 
 class CaptureObjects : public CGoal<CaptureObjects> {
+private:
+	std::vector<int> objectTypes;
+	std::vector<const CGObjectInstance*> objectsToCapture;
 public:
 	CaptureObjects()
 		: CGoal(Goals::CAPTURE_OBJECTS) {
+		objectTypes = std::vector<int>();
+	}
+	CaptureObjects(std::vector<const CGObjectInstance*> objectsToCapture)
+		: CGoal(Goals::CAPTURE_OBJECTS) {
+		this->objectsToCapture = objectsToCapture;
 	}
 
 	virtual Tasks::TaskSet getTasks() override;
 	virtual std::string toString() const override;
+	CaptureObjects& ofType(int type) {
+		objectTypes.push_back(type);
+
+		return *this;
+	}
 
 protected:
 	virtual bool shouldVisitObject(ObjectIdRef obj, HeroPtr hero, SectorMap& sm);

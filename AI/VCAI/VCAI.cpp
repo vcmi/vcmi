@@ -334,14 +334,6 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		{
 			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
 		}
-		else if(goalpriority1 > goalpriority2)
-		{
-			transferFrom2to1(firstHero, secondHero);
-		}
-		else if(goalpriority1 < goalpriority2)
-		{
-			transferFrom2to1(secondHero, firstHero);
-		}
 		else //regular criteria
 		{
 			if(firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy(firstHero, secondHero))
@@ -1930,7 +1922,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
 
-	auto afterMovementCheck = [&]() -> void
+	auto afterMovementCheck = [&]() -> bool
 	{
 		waitTillFree(); //movement may cause battle or blocking dialog
 		if(!h)
@@ -1939,21 +1931,27 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			teleportChannelProbingList.clear();
 			if(status.channelProbing()) // if hero lost during channel probing we need to switch this mode off
 				status.setChannelProbing(false);
-			throw cannotFulfillGoalException("Hero was lost!");
+			
+			return false;
 		}
+
+		return true;
 	};
 
 	logAi->debug("Moving hero %s to tile %s", h->name, dst.toString());
 	int3 startHpos = h->visitablePos();
-	bool ret = false;
+
 	if(startHpos == dst)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
-		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+
+		if (!afterMovementCheck()) {
+			return false;
+		}
+		// TODO: is it feasible to hero get killed there if game work properly?
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
-		ret = true;
 	}
 	else
 	{
@@ -1962,8 +1960,13 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
-			throw goalFulfilledException(sptr(Goals::VisitTile(dst).sethero(h)));
+			return false;
 		}
+		else if (path.nodes.back().turns > 0) {
+			logAi->trace("Hero %s has not enough mp to move: %d", h->name, h->movement);
+			return false;
+		}
+
 		int i = path.nodes.size() - 1;
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
@@ -2005,7 +2008,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true), transit);
 		};
 
-		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
+		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos) -> bool
 		{
 			destinationTeleport = exitId;
 			if(exitPos.valid())
@@ -2013,10 +2016,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
-			afterMovementCheck();
+
+			return afterMovementCheck();
 		};
 
-		auto doChannelProbing = [&]() -> void
+		auto doChannelProbing = [&]() -> bool
 		{
 			auto currentPos = CGHeroInstance::convertPosition(h->pos, false);
 			auto currentExit = getObj(currentPos, true)->id;
@@ -2027,7 +2031,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			teleportChannelProbingList.clear();
 			status.setChannelProbing(false);
 
-			doTeleportMovement(currentExit, currentPos);
+			return doTeleportMovement(currentExit, currentPos);
 		};
 
 		for(; i > 0; i--)
@@ -2043,8 +2047,10 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			{
 				//we use special login if hero standing on teleporter it's mean we need
 				doTeleportMovement(destTeleportObj->id, nextCoord);
-				if(teleportChannelProbingList.size())
-					doChannelProbing();
+				if (teleportChannelProbingList.size() && !doChannelProbing()) {
+					return false;
+				}
+				
 				markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
 
 				continue;
@@ -2083,42 +2089,34 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doMovement(endpos, false);
 			}
 
-			afterMovementCheck();
+			if (!afterMovementCheck()) {
+				return false;
+			}
 
-			if(teleportChannelProbingList.size())
-				doChannelProbing();
+			if (teleportChannelProbingList.size() && !doChannelProbing()) {
+				return false;
+			}
 		}
 	}
-	if(h)
+
+	if (!h) //we could have lost hero after last move
 	{
+		return false;
+	}
+	else {
 		if(auto visitedObject = vstd::frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 		{
 			if(visitedObject != *h)
 				performObjectInteraction(visitedObject, h);
 		}
 	}
-	if(h) //we could have lost hero after last move
-	{
-		completeGoal(sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
-		completeGoal(sptr(Goals::ClearWayTo(dst).sethero(h)));
 
-		ret = (dst == h->visitablePos());
+	auto alreadyAtDestenation = dst == h->visitablePos();
+	auto moved = startHpos != h->visitablePos();
+	auto ret = alreadyAtDestenation || moved;
 
-		if(!ret) //reserve object we are heading towards
-		{
-			auto obj = vstd::frontOrNull(cb->getVisitableObjs(dst));
-			if(obj && obj != *h)
-				reserveObject(h, obj);
-		}
+	logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
 
-		if(startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
-		{
-			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused
-			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
-		}
-		evaluateGoal(h); //new hero position means new game situation
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
-	}
 	return ret;
 }
 void VCAI::tryRealize(Goals::Explore & g)
@@ -2388,35 +2386,19 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				boost::this_thread::interruption_point();
 
-				auto tasks = goal->getTasks();
+				Tasks::TaskSet tasks = goal->getTasks();
 				
 				if (!tasks.empty()) {
-					std::set<int3> reservedTiles;
-
 					while (!tasks.empty()) {
 						logAi->debug("Has some tasks");
-
-						std::set<HeroPtr> processedHeroes;
+						bool somethingProcessed = false;
 
 						for (Tasks::Task task : tasks) {
 							try
 							{
-								int3 targetTile = task->getTile();
-								HeroPtr hero = task->getHero();
-
-								if (reservedTiles.count(targetTile) != 0) {
-									logAi->debug("Skipping task %s because tile is reserved", task->toString());
-									continue;
-								}
-								if (processedHeroes.count(hero) != 0) {
-									logAi->debug("Skipping task %s because hero has already done a task in this turn", task->toString());
-									continue;
-								}
-									
 								logAi->debug("Executing task %s", task->toString());
-								processedHeroes.insert(hero);
-								reservedTiles.insert(targetTile);
-								task->execute();
+									
+								somethingProcessed |= task->execute();
 							}
 							catch (goalFulfilledException & e)
 							{
@@ -2428,6 +2410,13 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 								//it is impossible to continue some goals (like exploration, for example)
 								logAi->debug("Task not completed %s : %s", task->toString(), e.what());
 							}
+						}
+
+						validateVisitableObjs();
+						clearPathsInfo();
+
+						if (!somethingProcessed) {
+							break;
 						}
 
 						tasks = goal->getTasks();
