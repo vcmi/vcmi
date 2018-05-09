@@ -13,7 +13,6 @@ set(VCAI_SRCS
 		Goals.cpp
 		main.cpp
 		VCAI.cpp
-		DoomAI.cpp
 )
 
 set(VCAI_HEADERS
@@ -23,7 +22,6 @@ set(VCAI_HEADERS
 		Fuzzy.h
 		Goals.h
 		VCAI.h
-		DoomAI.h
 )
 
 assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})
