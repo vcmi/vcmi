@@ -19,7 +19,7 @@ struct HeroPtr;
 class VCAI;
 class FuzzyHelper;
 
-
+// TODO: move to a separate file
 struct SectorMap
 {
 	//a sector is set of tiles that would be mutually reachable if all visitable objs would be passable (incl monsters)
@@ -73,17 +73,21 @@ namespace Tasks
 {
 	class CTask;
 
-	typedef std::shared_ptr<CTask> Task;
-	typedef std::vector<Task> TaskSet;
+	typedef std::shared_ptr<CTask> TaskPtr;
+	typedef std::vector<TaskPtr> TaskList;
 
+	/// Represents a simple command like visiting tile which needs to be executed in order to achieve some Goal
+	/// In general should be added to TaskList only if we are 100% sure we can do it
+	/// Replaces elementar Goal
 	class CTask {
 	protected:
-		double priority;
+		double priority = 0;
 		int3 tile;
 		HeroPtr hero;
 
 	public:
-		virtual bool execute() { return false; }
+		virtual void execute() { }
+		virtual bool canExecute() { return true; }
 		virtual CTask* clone() const {
 			return const_cast<CTask*>(this);
 		}
@@ -112,24 +116,19 @@ namespace Tasks
 		}
 	};
 
-	Task sptr(const CTask & tmp);
+	TaskPtr sptr(const CTask & tmp);
 
 	class VisitTile : public TemplateTask<VisitTile> {
 	public:
 		VisitTile(int3 tile, HeroPtr hero) {
-			if (!hero.h) {
-				throw std::exception("VisitTile: Hero is empty.");
-			}
-
-			if (!hero->movement) {
-				throw std::exception("VisitTile: Hero is out of mp.");
-			}
-
+			assert(hero, "VisitTile: Hero is empty.");
+			
 			this->tile =tile;
 			this->hero = hero;
 		}
 
-		virtual bool execute() override;
+		virtual void execute() override;
+		virtual bool canExecute() override;
 		virtual std::string toString() override;
 	};
 
@@ -143,7 +142,7 @@ namespace Tasks
 			this->buildingID = buildingID;
 		}
 
-		virtual bool execute() override;
+		virtual void execute() override;
 		virtual std::string toString() override;
 	};
 
@@ -152,7 +151,7 @@ namespace Tasks
 		RecruitHero() {
 		}
 
-		virtual bool execute() override;
+		virtual void execute() override;
 		virtual std::string toString() override;
 	};
 }
@@ -202,6 +201,10 @@ enum {LOW_PR = -1};
 
 TSubgoal sptr(const AbstractGoal & tmp);
 
+/// Represents algorithm how to win. On top we have winning conditions and each condition is decomposed to smaller goals so they form kind of tree.
+/// Leaf goals produce tasks
+/// Gaols should always be abstract and generate Tasks which helps to achieve them
+/// Goals should never act only analize
 class AbstractGoal
 {
 public:
@@ -233,6 +236,7 @@ public:
 	}
 	virtual ~AbstractGoal(){}
 	//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case
+	//TODO: probably we do not need to serialize them?
 	virtual AbstractGoal * clone() const
 	{
 		return const_cast<AbstractGoal *>(this);
@@ -241,9 +245,9 @@ public:
 	{
 		return TGoalVec();
 	}
-	virtual Tasks::TaskSet getTasks()
+	virtual Tasks::TaskList getTasks()
 	{
-		return Tasks::TaskSet();
+		return Tasks::TaskList();
 	}
 	virtual TSubgoal whatToDoToAchieve()
 	{
@@ -266,6 +270,8 @@ public:
 
 	///Visitor pattern
 	//TODO: make accept work for std::shared_ptr... somehow
+	//TODO: VCAI.cpp is too big now. Goals should be self-executing so should tasks. Move code from VCAI to apropriate tasks/goals
+	//TODO: Also this method could be completely removed as soon as we replace all elementar goals with tasks
 	virtual void accept(VCAI * ai); //unhandled goal will report standard error
 	virtual float accept(FuzzyHelper * f);
 
@@ -292,9 +298,10 @@ public:
 	}
 
 protected:
-	void addTasks(Tasks::TaskSet &target,TSubgoal subgoal, double priority = 0);
-	void addTask(Tasks::TaskSet &target, Tasks::CTask &task, double priority = 0);
-	void sortByPriority(Tasks::TaskSet &target);
+	//TODO: consider making TaskList a class and move these methods there
+	void addTasks(Tasks::TaskList &target,TSubgoal subgoal, double priority = 0);
+	void addTask(Tasks::TaskList &target, Tasks::CTask &task, double priority = 0);
+	void sortByPriority(Tasks::TaskList &target);
 };
 
 template<typename T> class CGoal : public AbstractGoal
@@ -402,9 +409,10 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	Tasks::TaskSet getTasks() override;
+	Tasks::TaskList getTasks() override;
 };
 
+/// Helper class for Build goal
 class BuildingInfo;
 
 class Build : public CGoal<Build>
@@ -420,7 +428,7 @@ public:
 	{
 		return TGoalVec();
 	}
-	Tasks::TaskSet getTasks() override;
+	Tasks::TaskList getTasks() override;
 	TSubgoal whatToDoToAchieve() override;
 
 private:
@@ -448,7 +456,7 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	Tasks::TaskSet getTasks() override;
+	Tasks::TaskList getTasks() override;
 	std::string completeMessage() const override;
 	bool fulfillsMe(TSubgoal goal) override;
 private:
@@ -471,7 +479,7 @@ public:
 
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	Tasks::TaskSet getTasks() override;
+	Tasks::TaskList getTasks() override;
 	std::string completeMessage() const override;
 };
 
@@ -503,7 +511,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
-	Tasks::TaskSet getTasks() override;
+	Tasks::TaskList getTasks() override;
 };
 
 class BuildThis : public CGoal<BuildThis>
@@ -548,7 +556,7 @@ public:
 		this->objectsToCapture = objectsToCapture;
 	}
 
-	virtual Tasks::TaskSet getTasks() override;
+	virtual Tasks::TaskList getTasks() override;
 	virtual std::string toString() const override;
 	CaptureObjects& ofType(int type) {
 		objectTypes.push_back(type);

@@ -336,7 +336,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		}
 		else //regular criteria
 		{
-			if(firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy(firstHero, secondHero))
+			if(isLevelHigher(firstHero, secondHero) && canGetArmy(firstHero, secondHero))
 				transferFrom2to1(firstHero, secondHero);
 			else if(canGetArmy(secondHero, firstHero))
 				transferFrom2to1(secondHero, firstHero);
@@ -598,12 +598,16 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	int sel = 0;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
-
 	if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
 		sel = components.size();
 
 	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
 		sel = 1;
+
+	// TODO: Find better way to understand it is Chest of Treasures
+	if (components.size() == 2 && components.front().id == Component::RESOURCE) {
+		sel = 1; // for now lets pick gold from a chest.
+	}
 
 	requestActionASAP([=]()
 	{
@@ -2386,19 +2390,26 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 			{
 				boost::this_thread::interruption_point();
 
-				Tasks::TaskSet tasks = goal->getTasks();
+				Tasks::TaskList tasks = goal->getTasks();
 				
 				if (!tasks.empty()) {
+					//TODO: tasks should fully replace method's outer logic in future. Goals now form kind of tree and all of them can produce tasks if needed
+					//TODO:probably restrict the number of iterations in Release mode. Already got a few endless loops
 					while (!tasks.empty()) {
 						logAi->debug("Has some tasks");
-						bool somethingProcessed = false;
+						//TODO: should we have it here? Why do we need it at all?
+						//boost::this_thread::interruption_point();
 
-						for (Tasks::Task task : tasks) {
+						for (Tasks::TaskPtr task : tasks) {
+							//TODO: Goals and tasks should not rise exceptions. At least it might be expensive. We should not store them somehow.
+							//TODO: It should be possible to reevaluate current game state and continue tasks not completed during previous turn
 							try
 							{
 								logAi->debug("Executing task %s", task->toString());
 									
-								somethingProcessed |= task->execute();
+								task->execute();
+								//TODO: should we have it here? Why do we need it at all?
+								//boost::this_thread::interruption_point();
 							}
 							catch (goalFulfilledException & e)
 							{
@@ -2414,10 +2425,6 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 
 						validateVisitableObjs();
 						clearPathsInfo();
-
-						if (!somethingProcessed) {
-							break;
-						}
 
 						tasks = goal->getTasks();
 					}
@@ -2674,12 +2681,15 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 
 int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
-	int3 ourPos = h->convertPosition(h->pos, false);
+	auto cbp = cb.get();
+	int3 ourPos = h->visitablePos();
+	const CPathsInfo* pathsInfo = cbp->getPathsInfo(h.get());
+
 	std::map<int3, int> dstToRevealedTiles;
 	for(crint3 dir : int3::getDirs())
 	{
 		int3 tile = hpos + dir;
-		if(cb->isInTheMap(tile))
+		if(cbp->isInTheMap(tile))
 		{
 			if(ourPos != dir) //don't stand in place
 			{
@@ -2688,7 +2698,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 					if(isBlockVisitObj(tile))
 						continue;
 					else
-						dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(radius, hpos, dir);
+						dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(tile, radius, cbp, pathsInfo);
 				}
 			}
 		}
@@ -2700,7 +2710,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 	auto best = dstToRevealedTiles.begin();
 	for(auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
 	{
-		const CGPathNode * pn = cb->getPathsInfo(h.get())->getPathInfo(i->first);
+		const CGPathNode * pn = pathsInfo->getPathInfo(i->first);
 		//const TerrainTile *t = cb->getTile(i->first);
 		if(best->second < i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
 			best = i;
@@ -2730,6 +2740,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 	float bestValue = 0; //discovered tile to node distance ratio
 	int3 bestTile(-1, -1, -1);
 	int3 ourPos = h->convertPosition(h->pos, false);
+	const CPathsInfo* pathsInfo = cbp->getPathsInfo(hero);
 
 	for(int i = 1; i < radius; i++)
 	{
@@ -2740,12 +2751,12 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 		{
 			if(tile == ourPos) //shouldn't happen, but it does
 				continue;
-			if(!cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
+			if(!pathsInfo->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
 				continue;
 
 			CGPath path;
-			cb->getPathsInfo(hero)->getPath(path, tile);
-			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
+			pathsInfo->getPath(path, tile);
+			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp, pathsInfo) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
@@ -2771,6 +2782,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 	tiles.resize(radius);
 
 	CCallback * cbp = cb.get();
+	const CPathsInfo* paths = cbp->getPathsInfo(h.get());
 
 	foreach_tile_pos([&](const int3 & pos)
 	{
@@ -2790,7 +2802,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 		{
 			if(cbp->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if(!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
+			if(!howManyTilesWillBeDiscovered(tile, radius, cbp, paths)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
 			auto t = sm->firstTileToGet(h, tile);

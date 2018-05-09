@@ -375,33 +375,6 @@ int3 whereToExplore(HeroPtr h)
 	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
 
-	auto sm = ai->getCachedSectorMap(h);
-
-	//look for nearby objs -> visit them if they're close enouh
-	const int DIST_LIMIT = 3;
-	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
-	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
-	{
-		for(int y = hpos.y - DIST_LIMIT; y <= hpos.y + DIST_LIMIT; ++y)
-		{
-			for(auto obj : cb->getVisitableObjs(int3(x, y, hpos.z), false))
-			{
-				int3 op = obj->visitablePos();
-				CGPath p;
-				ai->myCb->getPathsInfo(h.get())->getPath(p, op);
-				if(p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
-				{
-					if(ai->isGoodForVisit(obj, h, *sm))
-						nearbyVisitableObjs.push_back(obj);
-				}
-			}
-		}
-	}
-	vstd::removeDuplicates(nearbyVisitableObjs); //one object may occupy multiple tiles
-	boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
-	if(nearbyVisitableObjs.size())
-		return nearbyVisitableObjs.back()->visitablePos();
-
 	try //check if nearby tiles allow us to reveal anything - this is quick
 	{
 		return ai->explorationBestNeighbour(hpos, radius, h);
@@ -431,7 +404,20 @@ bool isBlockVisitObj(const int3 & pos)
 	return false;
 }
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp)
+bool hasReachableNeighbor(int3 pos, const CPathsInfo* paths, CCallback * cbp) {
+	for (crint3 dir : int3::getDirs())
+	{
+		int3 tile = pos + dir;
+		if (cbp->isInTheMap(tile) && paths->getPathInfo(tile)->reachable())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, const CPathsInfo* pathsInfo)
 {
 	//TODO: do not explore dead-end boundaries
 	int ret = 0;
@@ -442,7 +428,7 @@ int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp)
 			int3 npos = int3(x, y, pos.z);
 			if(cbp->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious && !cbp->isVisible(npos))
 			{
-				if(!boundaryBetweenTwoPoints(pos, npos, cbp))
+				if(hasReachableNeighbor(npos, pathsInfo, cbp))
 					ret++;
 			}
 		}
@@ -471,11 +457,6 @@ bool boundaryBetweenTwoPoints(int3 pos1, int3 pos2, CCallback * cbp) //determine
 		}
 	}
 	return true; //if all are visible and blocked, we're at dead end
-}
-
-int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir)
-{
-	return howManyTilesWillBeDiscovered(pos + dir, radious, cb.get());
 }
 
 void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out)
@@ -526,6 +507,11 @@ bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
 	return h1->getTotalStrength() < h2->getTotalStrength();
 }
 
+bool isLevelHigher(HeroPtr h1, HeroPtr h2)
+{
+	return h1->level > h2->level;
+}
+
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 {
 	return a1->getArmyStrength() < a2->getArmyStrength();
@@ -542,4 +528,26 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 		return true;
 	else
 		return false;
+}
+
+ui32 distanceToTile(const CGHeroInstance* hero, int3 pos) {
+	auto pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
+
+	return std::max(pathInfo->turns - 1, 0) * hero->maxMovePoints(true) + hero->movement - pathInfo->moveRemains;
+}
+
+const CGHeroInstance* nearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos) {
+	const CGHeroInstance* carrier = heroes.front();
+	ui32 optimalDistance = distanceToTile(carrier, pos);
+
+	for (auto hero : heroes) {
+		int newDistance = distanceToTile(hero, pos);
+
+		if (newDistance < optimalDistance) {
+			carrier = hero;
+			optimalDistance = newDistance;
+		}
+	}
+
+	return carrier;
 }

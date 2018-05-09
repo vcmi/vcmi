@@ -20,18 +20,30 @@ extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
 
 using namespace Goals;
 
-bool Tasks::VisitTile::execute() 
+void Tasks::VisitTile::execute() 
 {
 	if (!hero->movement)
-		return false;
+		return;
 
 	if (tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
-		return false;
+		return;
 	}
 
-	return ai->moveHeroToTile(tile, hero.get());
+	ai->moveHeroToTile(tile, hero.get());
+}
+
+bool Tasks::VisitTile::canExecute()
+{
+	if (!hero->movement)
+		return false;
+
+	CGPath path;
+
+	cb->getPathsInfo(hero.get())->getPath(path, tile);
+
+	return path.nodes.size() && path.nodes.back().turns == 0; // can move at least one tile
 }
 
 std::string Tasks::VisitTile::toString()
@@ -39,10 +51,9 @@ std::string Tasks::VisitTile::toString()
 	return "VisitTile " + hero->name + " => " + tile.toString();
 }
 
-bool Tasks::BuildStructure::execute()
+void Tasks::BuildStructure::execute()
 {
 	Goals::BuildThis(this->buildingID, this->town).accept(ai.get());
-	return false;
 }
 
 std::string Tasks::BuildStructure::toString()
@@ -50,10 +61,9 @@ std::string Tasks::BuildStructure::toString()
 	return "BuildStructure " + std::to_string(buildingID) + " in " + town->name;
 }
 
-bool Tasks::RecruitHero::execute()
+void Tasks::RecruitHero::execute()
 {
 	Goals::RecruitHero().accept(ai.get());
-	return false;
 }
 
 std::string Tasks::RecruitHero::toString()
@@ -69,9 +79,9 @@ TSubgoal Goals::sptr(const AbstractGoal & tmp)
 	return ptr;
 }
 
-Tasks::Task Tasks::sptr(const Tasks::CTask & tmp)
+Tasks::TaskPtr Tasks::sptr(const Tasks::CTask & tmp)
 {
-	Tasks::Task ptr;
+	Tasks::TaskPtr ptr;
 	ptr.reset(tmp.clone());
 
 	return ptr;
@@ -611,58 +621,69 @@ std::string CaptureObjects::toString() const {
 	return "Capture objects";
 }
 
-Tasks::TaskSet CaptureObjects::getTasks() {
-	Tasks::TaskSet tasks;
+Tasks::TaskList CaptureObjects::getTasks() {
+	Tasks::TaskList tasks;
 
 	if (!hero->movement) {
 		return tasks;
 	}
 
 	auto sm = ai->getCachedSectorMap(hero);
-	std::vector<const CGObjectInstance*> objs = objectsToCapture;
+	auto needArmy = false;
+	auto pathsInfo = cb->getPathsInfo(hero.get());
+	
+	auto captureObjects = [&](std::vector<const CGObjectInstance*> objs) -> bool {
+		if (objs.empty()) {
+			return false;
+		}
 
-	if (objs.empty()) {
-		auto sm = ai->getCachedSectorMap(hero);
-
-		auto nearbyObjects = sm->getNearbyObjs(hero, 1);
-
-		vstd::copy_if(nearbyObjects, std::back_inserter(objs), [&](const CGObjectInstance* obj) -> bool
-		{
-			return this->shouldVisitObject(obj, hero, *sm);
-		});
-	}
-
-	if (objs.empty()) {
-		vstd::copy_if(ai->visitableObjs, std::back_inserter(objs), [&](const CGObjectInstance* obj) -> bool
-		{
-			return this->shouldVisitObject(obj, hero, *sm);
-		});
-	}
-
-	if (!objs.empty()) {
 		boost::sort(objs, CDistanceSorter(hero.get()));
 
-		auto objToVisit = objs.front();
-		const int3 pos = objToVisit->visitablePos();
-		const int3 targetPos = sm->firstTileToGet(hero, pos);
+		for (auto objToVisit : objs) {
+			const int3 pos = objToVisit->visitablePos();
+			const int3 targetPos = sm->firstTileToGet(hero, pos);
 
-		if (targetPos.x == -1) {
-			return tasks;
+			if (!this->shouldVisitObject(objToVisit, hero, *sm)) {
+				continue;
+			}
+
+			if (targetPos.x == -1) {
+				return false;
+			}
+
+			auto pathInfo = pathsInfo->getPathInfo(targetPos);
+			double priority = 0;
+
+			if (pathInfo->turns == 0) {
+				priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
+			}
+
+			if (isSafeToVisit(hero, targetPos)) {
+				//TODO: check hero is the nearest one
+				addTask(tasks, Tasks::VisitTile(targetPos, hero), priority);
+
+				return true;
+			}
+			else {
+				needArmy = true;
+			}
 		}
 
-		auto pathInfo = cb->getPathsInfo(hero.get())->getPathInfo(targetPos);
-		double priority = 0;
+		return false;
+	};
 
-		if (pathInfo->turns <= 1) {
-			priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
-		}
+	if (captureObjects(objectsToCapture)) {
+		return tasks;
+	}
 
-		if (isSafeToVisit(hero, targetPos)) {
-			addTask(tasks, Tasks::VisitTile(targetPos, hero), priority);
-		}
-		else {
-			addTasks(tasks, sptr(GatherArmy().sethero(hero)), priority);
-		}
+	if (captureObjects(sm->getNearbyObjs(hero, 1))) {
+		return tasks;
+	}
+
+	captureObjects(std::vector<const CGObjectInstance*>(ai->visitableObjs.begin(), ai->visitableObjs.end()));
+
+	if (needArmy) {
+		addTasks(tasks, sptr(GatherArmy().sethero(hero)));
 	}
 
 	return tasks;
@@ -679,11 +700,24 @@ bool CaptureObjects::shouldVisitObject(ObjectIdRef obj, HeroPtr hero, SectorMap&
 	const int3 targetPos = sm.firstTileToGet(hero, pos);
 
 	if (!targetPos.valid()
-		|| vstd::contains(ai->alreadyVisited, objInstance)
-		|| objInstance->wasVisited(hero.get())
-		|| cb->getPlayerRelations(ai->playerID, objInstance->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(objInstance)
-		|| !shouldVisit(hero, objInstance)
-		|| !ai->isAccessibleForHero(targetPos, hero)) 
+		|| vstd::contains(ai->alreadyVisited, objInstance)) {
+		return false;
+	}
+
+	if (objInstance->wasVisited(hero.get())) {
+		return false;
+	}
+
+	auto playerRelations = cb->getPlayerRelations(ai->playerID, objInstance->tempOwner);
+	if (playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(objInstance)) {
+		return false;
+	}
+
+	if (!shouldVisit(hero, objInstance)) {
+		return false;
+	}
+	
+	if(!ai->isAccessibleForHero(targetPos, hero)) 
 	{
 		return false;
 	}
@@ -719,8 +753,8 @@ TSubgoal Explore::whatToDoToAchieve()
 			return ret; //other solutions, like buying hero from tavern
 	}
 }
-Tasks::TaskSet Explore::getTasks() {
-	Tasks::TaskSet tasks = Tasks::TaskSet();
+Tasks::TaskList Explore::getTasks() {
+	Tasks::TaskList tasks = Tasks::TaskList();
 
 	if (!hero->movement) {
 		return tasks;
@@ -738,7 +772,7 @@ Tasks::TaskSet Explore::getTasks() {
 		t = ai->explorationDesperate(hero);
 
 		if (t.valid()) //don't waste time if we are completely blocked
-			addTasks(tasks, sptr(Goals::ClearWayTo(t, hero)), 1);
+			addTasks(tasks, sptr(Goals::ClearWayTo(t, hero)), 0); // TODO: Implement ClearWayTo.getTasks
 	}
 
 	return tasks;
@@ -887,8 +921,8 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	return iAmElementar();
 }
 
-Tasks::TaskSet RecruitHero::getTasks() {
-	Tasks::TaskSet tasks;
+Tasks::TaskList RecruitHero::getTasks() {
+	Tasks::TaskList tasks;
 	auto heroes = cb->getHeroesInfo();
 	auto towns = cb->getTownsInfo();
 
@@ -1147,10 +1181,12 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	//TODO: exchange troops between heroes
 }
 
-Tasks::TaskSet Conquer::getTasks() {
-	auto tasks = Tasks::TaskSet();
+Tasks::TaskList Conquer::getTasks() {
+	auto tasks = Tasks::TaskList();
 	auto heroes = cb->getHeroesInfo();
 	
+	// lets process heroes according their army strength in descending order
+	std::sort(heroes.rbegin(), heroes.rend(), isLevelHigher);
 	auto nextHero = vstd::tryFindIf(heroes, [](const CGHeroInstance* h) -> bool { return h->movement > 0; });
 
 	addTasks(tasks, sptr(Build()), 0.9);
@@ -1159,7 +1195,7 @@ Tasks::TaskSet Conquer::getTasks() {
 
 	if (nextHero) {
 		auto heroPtr = HeroPtr(nextHero.get());
-		auto heroTasks = Tasks::TaskSet();
+		auto heroTasks = Tasks::TaskList();
 
 		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::TOWN).sethero(heroPtr)), 1);
 		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::HERO).sethero(heroPtr)), 0.95);
@@ -1421,9 +1457,9 @@ namespace Goals {
 		return BuildingInfo();
 	}
 
-	Tasks::TaskSet Build::getTasks()
+	Tasks::TaskList Build::getTasks()
 	{
-		Tasks::TaskSet tasks = Tasks::TaskSet();
+		Tasks::TaskList tasks = Tasks::TaskList();
 		TResources availableResources = cb->getResourceAmount();
 
 		logAi->trace("Searching tasks for BUILD");
@@ -1441,9 +1477,8 @@ namespace Goals {
 		}
 
 		auto towns = cb->getTownsInfo();
-		auto existingBuildings = std::vector<BuildingInfo>();
-		auto toBuild = std::vector<BuildingInfo>();
 		TResources requiredResources = TResources();
+		TResources totalDevelopmentCost = TResources();
 		auto developmentInfos = std::vector<TownDevelopmentInfo>();
 
 		TResources armyCost = TResources();
@@ -1465,9 +1500,9 @@ namespace Goals {
 				}
 			}
 
-			auto toBuild = std::vector<BuildingInfo>();
-			auto existingDwellings = std::vector<BuildingInfo>();
-			TResources totalDevelopmentCost = TResources();
+			std::vector<BuildingInfo> existingDwellings;
+			std::vector<BuildingInfo> toBuild;
+			TResources townDevelopmentCost;
 
 			for (int level = 0; level < GameConstants::CREATURES_PER_TOWN; level++)
 			{
@@ -1476,7 +1511,7 @@ namespace Goals {
 				if (!vstd::contains(buildings, building))
 					continue; // no such building in town
 
-				BuildingInfo info = getBuildingOrPrerequisite(town, building, requiredResources, totalDevelopmentCost);
+				BuildingInfo info = getBuildingOrPrerequisite(town, building, requiredResources, townDevelopmentCost);
 
 				if (info.exists) {
 					existingDwellings.push_back(info);
@@ -1486,7 +1521,7 @@ namespace Goals {
 					toBuild.push_back(info);
 				}
 			}
-			/**/
+			
 			std::sort(toBuild.begin(), toBuild.end(), [](BuildingInfo& b1, BuildingInfo& b2) -> bool {
 				return b1.costPerScore() > b2.costPerScore();
 			});
@@ -1504,7 +1539,7 @@ namespace Goals {
 				developmentInfo.nextDwelling = toBuild[0].id;
 			}
 
-			if (existingBuildings.size() >= 2 && cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday) {
+			if (existingDwellings.size() >= 2 && cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday) {
 				if (!town->hasBuilt(BuildingID::CITADEL)) {
 					if (cb->canBuildStructure(town, BuildingID::CITADEL) == EBuildingState::ALLOWED) {
 						developmentInfo.nextDwelling = BuildingID::CITADEL;
@@ -1512,7 +1547,7 @@ namespace Goals {
 					}
 				}
 
-				else if (existingBuildings.size() >= 3 && !town->hasBuilt(BuildingID::CASTLE)) {
+				else if (existingDwellings.size() >= 3 && !town->hasBuilt(BuildingID::CASTLE)) {
 					if (cb->canBuildStructure(town, BuildingID::CASTLE) == EBuildingState::ALLOWED) {
 						developmentInfo.nextDwelling = BuildingID::CASTLE;
 						logAi->trace("Building preferences CASTLE");
@@ -1543,23 +1578,31 @@ namespace Goals {
 
 				developmentInfo.armyScore = 1000; // nothing to build for army here
 			}
-			/*else {
-				developmentInfo.armyScore = totalDevelopmentCost[Res::GOLD] / 10000
-					+ totalDevelopmentCost[Res::WOOD] / 40
-					+ totalDevelopmentCost[Res::ORE] / 40
-					+ totalDevelopmentCost[Res::GEMS] / 20
-					+ totalDevelopmentCost[Res::SULFUR] / 20
-					+ totalDevelopmentCost[Res::CRYSTAL] / 20
-					+ totalDevelopmentCost[Res::MERCURY] / 20;
-			}*/
+			else {
+				const int resourceMultiplier = 200;
+				developmentInfo.armyScore = townDevelopmentCost[Res::GOLD]
+					+ townDevelopmentCost[Res::WOOD] * resourceMultiplier
+					+ townDevelopmentCost[Res::ORE] * resourceMultiplier
+					+ townDevelopmentCost[Res::GEMS] * 2 * resourceMultiplier
+					+ townDevelopmentCost[Res::SULFUR] * 2 * resourceMultiplier
+					+ townDevelopmentCost[Res::CRYSTAL] * 2 * resourceMultiplier
+					+ townDevelopmentCost[Res::MERCURY] * 2 * resourceMultiplier;
+
+				totalDevelopmentCost += townDevelopmentCost;
+			}
 
 			developmentInfos.push_back(developmentInfo);
 		}
 
 		logAi->trace("daily income: %s", dailyIncome.toString());
+		logAi->trace("resources required to develop towns now: %s, total: %s",
+			requiredResources.toString(),
+			totalDevelopmentCost.toString());
+
+		//TODO: we need to try enforce capturing resources of particular type if we need them.
 
 		TResources weeklyIncome = dailyIncome * 7;
-		std::vector<BuildingID> result = std::vector<BuildingID>();
+		std::vector<BuildingID> result;
 
 		armyCost *= 3; // multiply a few times to have gold for town development
 
@@ -1614,8 +1657,8 @@ TSubgoal GatherArmy::whatToDoToAchieve()
 	return fh->chooseSolution(getAllPossibleSubgoals()); //find dwelling. use current hero to prevent him from doing nothing.
 }
 
-Tasks::TaskSet GatherArmy::getTasks() {
-	Tasks::TaskSet tasks;
+Tasks::TaskList GatherArmy::getTasks() {
+	Tasks::TaskList tasks;
 
 	auto heroes = cb->getHeroesInfo();
 	auto towns = cb->getTownsInfo();
@@ -1630,24 +1673,20 @@ Tasks::TaskSet GatherArmy::getTasks() {
 				continue;
 			}
 
-			HeroPtr carrier = heroes.front();
 			int3 pos = town->visitablePos();
-			auto pathInfo = cb->getPathsInfo(carrier.get())->getPathInfo(pos);
-			int optimalDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
+			std::vector<const CGHeroInstance*> copy = heroes;
 
-			for (auto hero : heroes) {
-				pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
-				int newDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
+			vstd::erase_if(copy, [town](const CGHeroInstance* h) -> bool {
+				return howManyReinforcementsCanGet(h, town) < h->getArmyStrength() / 10;
+			});
 
-				if (howManyReinforcementsCanGet(hero, town) && newDistance < optimalDistance) {
-					carrier = hero;
-					optimalDistance = newDistance;
-				}
+			if (copy.empty()) {
+				continue;
 			}
-
-			if (howManyReinforcementsCanGet(carrier, town) > carrier->getArmyStrength() / 10 && carrier->movement) {
-				tasks.push_back(Tasks::sptr(Tasks::VisitTile(pos, carrier)));
-			}
+			
+			auto carrier = nearestHero(copy, pos);
+			
+			addTask(tasks, Tasks::VisitTile(pos, carrier), 1);
 		}
 
 		return tasks;
@@ -1667,9 +1706,7 @@ Tasks::TaskSet GatherArmy::getTasks() {
 			continue;
 		}
 
-		if (hero->movement) {
-			tasks.push_back(Tasks::sptr(Tasks::VisitTile(targetHeroPosition, hero)));
-		}
+		addTask(tasks, Tasks::VisitTile(targetHeroPosition, hero), 1);
 
 		break;
 	}
@@ -1686,23 +1723,7 @@ Tasks::TaskSet GatherArmy::getTasks() {
 
 		if (howManyReinforcementsCanGet(hero, town))
 		{
-			HeroPtr carrier = this->hero;
-			int optimalDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
-
-			for (auto hero : heroes) {
-				pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
-				int newDistance = pathInfo->turns > 1 ? pathInfo->turns : pathInfo->moveRemains;
-
-				if (howManyReinforcementsCanGet(hero, town) && newDistance < optimalDistance) {
-					carrier = hero;
-					optimalDistance = newDistance;
-				}
-			}
-
-			if (hero->movement) {
-				tasks.push_back(Tasks::sptr(Tasks::VisitTile(pos, carrier)));
-			}
-
+			// TODO: invoke army pickup logic from above
 			break;
 		}
 	}
@@ -1860,22 +1881,24 @@ void AbstractGoal::accept(VCAI * ai)
 	ai->tryRealize(*this);
 }
 
-void AbstractGoal::addTasks(Tasks::TaskSet &target, TSubgoal subgoal, double priority) {
+void AbstractGoal::addTasks(Tasks::TaskList &target, TSubgoal subgoal, double priority) {
 	auto tasks = subgoal->getTasks();
 
-	for (Tasks::Task t : tasks) {
+	for (Tasks::TaskPtr t : tasks) {
 		t->addAncestorPriority(priority);
 		target.push_back(t);
 	}
 }
 
-void AbstractGoal::addTask(Tasks::TaskSet &target, Tasks::CTask &task, double priority) {
-	task.addAncestorPriority(priority);
-	target.push_back(Tasks::sptr(task));
+void AbstractGoal::addTask(Tasks::TaskList &target, Tasks::CTask &task, double priority) {
+	if (task.canExecute()) {
+		task.addAncestorPriority(priority);
+		target.push_back(Tasks::sptr(task));
+	}
 }
 
-void AbstractGoal::sortByPriority(Tasks::TaskSet &tasks) {
-	std::sort(tasks.begin(), tasks.end(), [](Tasks::Task t1, Tasks::Task t2) -> bool {
+void AbstractGoal::sortByPriority(Tasks::TaskList &tasks) {
+	std::sort(tasks.begin(), tasks.end(), [](Tasks::TaskPtr t1, Tasks::TaskPtr t2) -> bool {
 		return t1->getPriority() > t2->getPriority();
 	});
 }
