@@ -122,6 +122,12 @@ void CPathfinder::calculatePaths()
 		}
 		ct = &gs->map->getTile(cp->coord);
 		ctObj = ct->topVisitableObj(isSourceInitialPosition());
+		/* we can't pass through our own or allied hero?
+		auto ctObj1 = gs->getTopObj(cp->coord);
+
+		if (ctObj1 && ctObj1->ID == Obj::HERO && gs->getPlayerRelations(hero->getOwner(), ctObj1->getOwner()) != PlayerRelations::ENEMIES) {
+			continue; 
+		}*/
 
 		//add accessible neighbouring nodes to the queue
 		addNeighbours();

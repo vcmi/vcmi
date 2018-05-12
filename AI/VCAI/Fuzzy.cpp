@@ -19,6 +19,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"
+#include "SectorMap.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us

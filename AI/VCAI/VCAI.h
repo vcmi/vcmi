@@ -70,13 +70,6 @@ public:
 	}
 };
 
-enum
-{
-	NOT_VISIBLE = 0,
-	NOT_CHECKED = 1,
-	NOT_AVAILABLE
-};
-
 class VCAI : public CAdventureAI
 {
 public:

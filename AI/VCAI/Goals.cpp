@@ -11,8 +11,12 @@
 #include "Goals.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
+#include "SectorMap.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
+#include "Tasks/VisitTile.h"
+#include "Tasks/BuildStructure.h"
+#include "Tasks/RecruitHero.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -20,68 +24,9 @@ extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
 
 using namespace Goals;
 
-void Tasks::VisitTile::execute() 
-{
-	if (!hero->movement)
-		return;
-
-	if (tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
-	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
-		return;
-	}
-
-	ai->moveHeroToTile(tile, hero.get());
-}
-
-bool Tasks::VisitTile::canExecute()
-{
-	if (!hero->movement)
-		return false;
-
-	CGPath path;
-
-	cb->getPathsInfo(hero.get())->getPath(path, tile);
-
-	return path.nodes.size() && path.nodes.back().turns == 0; // can move at least one tile
-}
-
-std::string Tasks::VisitTile::toString()
-{
-	return "VisitTile " + hero->name + " => " + tile.toString();
-}
-
-void Tasks::BuildStructure::execute()
-{
-	Goals::BuildThis(this->buildingID, this->town).accept(ai.get());
-}
-
-std::string Tasks::BuildStructure::toString()
-{
-	return "BuildStructure " + std::to_string(buildingID) + " in " + town->name;
-}
-
-void Tasks::RecruitHero::execute()
-{
-	Goals::RecruitHero().accept(ai.get());
-}
-
-std::string Tasks::RecruitHero::toString()
-{
-	return "RecruitHero";
-}
-
 TSubgoal Goals::sptr(const AbstractGoal & tmp)
 {
 	std::shared_ptr<AbstractGoal> ptr;
-	ptr.reset(tmp.clone());
-
-	return ptr;
-}
-
-Tasks::TaskPtr Tasks::sptr(const Tasks::CTask & tmp)
-{
-	Tasks::TaskPtr ptr;
 	ptr.reset(tmp.clone());
 
 	return ptr;
