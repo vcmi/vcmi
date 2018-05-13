@@ -11,13 +11,18 @@ set(VCAI_SRCS
 		AIUtility.cpp
 		Fuzzy.cpp
 		SectorMap.cpp
-		Goals.cpp
-		main.cpp
-		VCAI.cpp
+		Goals/Goal.cpp
+		Goals/Build.cpp
+		Goals/Explore.cpp
+		Goals/Conquer.cpp
+		Goals/CaptureObjects.cpp
+		Goals/GatherArmy.cpp
 		Tasks/Task.cpp
 		Tasks/RecruitHero.cpp
 		Tasks/BuildStructure.cpp
 		Tasks/VisitTile.cpp
+		VCAI.cpp
+		main.cpp
 )
 
 set(VCAI_HEADERS
@@ -26,12 +31,17 @@ set(VCAI_HEADERS
 		AIUtility.h
 		Fuzzy.h
 		SectorMap.h
-		Goals.h
-		VCAI.h
+		Goals/Goal.h
+		Goals/Build.h
+		Goals/Explore.h
+		Goals/Conquer.h
+		Goals/CaptureObjects.h
+		Goals/GatherArmy.h
 		Tasks/Task.h
 		Tasks/RecruitHero.h
 		Tasks/BuildStructure.h
 		Tasks/VisitTile.h
+		VCAI.h
 )
 
 assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})

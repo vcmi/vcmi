@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "Goals.h"
+#include "Goals/Goal.h"
 #include "VCAI.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"

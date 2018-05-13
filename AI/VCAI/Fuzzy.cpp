@@ -319,10 +319,6 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	return vec.back();
 }
 
-float FuzzyHelper::evaluate(Goals::Explore & g)
-{
-	return 1;
-}
 float FuzzyHelper::evaluate(Goals::RecruitHero & g)
 {
 	return 1; //just try to recruit hero as one of options
@@ -438,8 +434,6 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 	}
 
 	float missionImportance = 0;
-	if(vstd::contains(ai->lockedHeroes, g.hero))
-		missionImportance = ai->lockedHeroes[g.hero]->priority;
 
 	float strengthRatio = 10.0f; //we are much stronger than enemy
 	ui64 danger = evaluateDanger(g.tile, g.hero.h);
@@ -485,44 +479,6 @@ float FuzzyHelper::evaluate(Goals::VisitHero & g)
 	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
 	return g.priority;
 }
-float FuzzyHelper::evaluate(Goals::GatherArmy & g)
-{
-	//the more army we need, the more important goal
-	//the more army we lack, the less important goal
-	float army = g.hero->getArmyStrength();
-	float ratio = g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
-	return 5 * (ratio / (ratio + 2)); //so 50% army gives 2.5, asymptotic 5
-}
-
-float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
-{
-	if(!g.hero.h)
-		throw cannotFulfillGoalException("ClearWayTo called without hero!");
-
-	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
-
-	if(t.valid())
-	{
-		auto tilePriority = Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this);
-		
-		if(isSafeToVisit(g.hero, t))
-		{
-			g.setpriority(tilePriority);
-		}
-		else
-		{
-			auto gatherArmyPriority = Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
-				sethero(g.hero).setisAbstract(true).accept(this);
-
-			g.setpriority (std::max(tilePriority, gatherArmyPriority));
-		}
-
-		return g.priority;
-	}
-	else
-		return -1;
-
-}
 
 float FuzzyHelper::evaluate(Goals::BuildThis & g)
 {
@@ -533,10 +489,6 @@ float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 	return 0;
 }
 float FuzzyHelper::evaluate(Goals::BuyResources & g)
-{
-	return 0;
-}
-float FuzzyHelper::evaluate(Goals::Build & g)
 {
 	return 0;
 }

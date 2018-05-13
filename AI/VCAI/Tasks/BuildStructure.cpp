@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "Goals.h"
+#include "Goals/Goal.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
@@ -22,7 +22,7 @@ using namespace Tasks;
 
 void BuildStructure::execute()
 {
-	Goals::BuildThis(this->buildingID, this->town).accept(ai.get());
+	cb->buildBuilding(town, BuildingID(buildingID));
 }
 
 std::string BuildStructure::toString()
