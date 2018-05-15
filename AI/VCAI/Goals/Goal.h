@@ -230,21 +230,6 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Win : public CGoal<Win>
-{
-public:
-	Win()
-		: CGoal(Goals::WIN)
-	{
-		priority = 100;
-	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
-	TSubgoal whatToDoToAchieve() override;
-};
-
 class NotLose : public CGoal<NotLose>
 {
 public:
@@ -283,11 +268,6 @@ public:
 	{
 		priority = 1;
 	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
-	TSubgoal whatToDoToAchieve() override;
 	Tasks::TaskList getTasks() override;
 };
 
@@ -319,14 +299,14 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class BuyResources : public CGoal<BuyResources>
+class GetResources : public CGoal<GetResources>
 {
 public:
-	BuyResources()
+	GetResources()
 		: CGoal(Goals::BUY_RESOURCES)
 	{
 	}
-	BuyResources(int rid, int val)
+	GetResources(int rid, int val)
 		: CGoal(Goals::BUY_RESOURCES)
 	{
 		resID = rid;

@@ -488,7 +488,7 @@ float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 {
 	return 0;
 }
-float FuzzyHelper::evaluate(Goals::BuyResources & g)
+float FuzzyHelper::evaluate(Goals::GetResources & g)
 {
 	return 0;
 }

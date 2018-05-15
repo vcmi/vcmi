@@ -17,6 +17,7 @@ set(VCAI_SRCS
 		Goals/Conquer.cpp
 		Goals/CaptureObjects.cpp
 		Goals/GatherArmy.cpp
+		Goals/Win.cpp
 		Tasks/Task.cpp
 		Tasks/RecruitHero.cpp
 		Tasks/BuildStructure.cpp
@@ -37,6 +38,7 @@ set(VCAI_HEADERS
 		Goals/Conquer.h
 		Goals/CaptureObjects.h
 		Goals/GatherArmy.h
+		Goals/Win.h
 		Tasks/Task.h
 		Tasks/RecruitHero.h
 		Tasks/BuildStructure.h

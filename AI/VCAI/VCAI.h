@@ -122,7 +122,7 @@ public:
 	void tryRealize(Goals::VisitHero & g);
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
-	void tryRealize(Goals::BuyResources & g);
+	void tryRealize(Goals::GetResources & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
 
@@ -196,12 +196,9 @@ public:
 	void makeTurnInternal();
 
 	void buildArmyIn(const CGTownInstance * t);
-	void striveToGoal(Goals::TSubgoal ultimateGoal);
-	Goals::TSubgoal striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract);
 	void endTurn();
 	void striveToQuest(const QuestInfo & q);
 
-	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
@@ -237,9 +234,6 @@ public:
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 	//optimization - use one SM for every hero call
 	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
-
-	const CGTownInstance * findTownWithTavern() const;
-	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
 
 	HeroPtr primaryHero() const;
 	TResources freeResources() const; //owned resources minus gold reserve

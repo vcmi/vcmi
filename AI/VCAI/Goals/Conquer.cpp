@@ -37,7 +37,7 @@ Tasks::TaskList Conquer::getTasks() {
 
 	addTasks(tasks, sptr(Build()), 0.9);
 	addTasks(tasks, sptr(RecruitHero()));
-	addTasks(tasks, sptr(GatherArmy()), 0.9); // no hero - just pickup existing army, no buy
+	addTasks(tasks, sptr(GatherArmy()), 0.6); // no hero - just pickup existing army, no buy
 
 	if (nextHero) {
 		auto heroPtr = HeroPtr(nextHero.get());

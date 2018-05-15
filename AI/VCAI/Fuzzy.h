@@ -70,7 +70,7 @@ public:
 	float evaluate(Goals::VisitHero & g);
 	float evaluate(Goals::BuildThis & g);
 	float evaluate(Goals::DigAtTile & g);
-	float evaluate(Goals::BuyResources & g);
+	float evaluate(Goals::GetResources & g);
 	float evaluate(Goals::Invalid & g);
 	float evaluate(Goals::AbstractGoal & g);
 	void setPriority(Goals::TSubgoal & g);

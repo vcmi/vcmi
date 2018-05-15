@@ -43,7 +43,7 @@ Tasks::TaskList GatherArmy::getTasks() {
 			std::vector<const CGHeroInstance*> copy = heroes;
 
 			vstd::erase_if(copy, [town](const CGHeroInstance* h) -> bool {
-				return howManyReinforcementsCanGet(h, town) < h->getArmyStrength() / 10;
+				return howManyReinforcementsCanGet(h, town) < h->getArmyStrength() / 3;
 			});
 
 			if (copy.empty()) {
