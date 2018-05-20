@@ -107,7 +107,7 @@ Tasks::TaskList Win::getTasks() {
 						boost::sort(towns, CDistanceSorter(h.get()));
 						if (towns.size())
 						{
-							addTask(tasks, Tasks::VisitTile(towns.front()->visitablePos(), h), 1);
+							addTask(tasks, Tasks::VisitTile(towns.front()->visitablePos(), h, town), 1);
 						}
 					}
 				}

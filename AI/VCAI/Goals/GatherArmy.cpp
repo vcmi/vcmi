@@ -17,11 +17,98 @@
 #include "Tasks/VisitTile.h"
 #include "Tasks/BuildStructure.h"
 #include "Tasks/RecruitHero.h"
+#include "Tasks/BuyArmyInTown.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
 using namespace Goals;
+
+ui64 howManyReinforcementsCanGet(HeroPtr h, const CArmedInstance * t)
+{
+	ui64 ret = 0;
+	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+	std::vector<ui64> toMove;
+	for (auto const slot : t->Slots())
+	{
+		//can be merged woth another stack?
+		SlotID dst = h->getSlotFor(slot.second->getCreatureID());
+		ui64 power = t->getPower(slot.first);
+
+		if (h->hasStackAtSlot(dst))
+			ret += power;
+		else
+			toMove.push_back(power);
+	}
+
+	boost::sort(toMove);
+
+	for (auto & stack : boost::adaptors::reverse(toMove))
+	{
+		if (freeHeroSlots)
+		{
+			ret += stack;
+			freeHeroSlots--;
+		}
+		else
+			break;
+	}
+	return ret;
+}
+
+ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t)
+{
+	ui64 ret = 0;
+	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+	std::vector<ui64> toMove;
+	auto resources = cb->getResourceAmount();
+
+	for (int i = t->creatures.size() - 1; i >= 0; i--)
+	{
+		if (!t->creatures[i].second.size())
+			continue;
+
+		int count = t->creatures[i].first;
+
+		if (!count) {
+			continue;
+		}
+
+		CreatureID creID = t->creatures[i].second.back();
+		const CCreature *c = creID.toCreature();
+		ui64 power = c->AIValue * count;
+		TResources cost = c->cost * count;
+
+		if (!resources.canAfford(cost)) {
+			logAi->trace("Dwelling %s has creatures %s x %i, not enugh resources", t->getObjectName(), c->namePl, count);
+			break;
+		}
+
+		resources -= cost;
+
+		SlotID dst = h->getSlotFor(creID);
+		if (h->hasStackAtSlot(dst))
+			ret += power;
+		else
+			toMove.push_back(power);
+
+		logAi->trace("Dwelling %s has creatures %s x %i", t->getObjectName(), c->namePl, count);
+	}
+
+	boost::sort(toMove);
+
+	for (auto & stack : boost::adaptors::reverse(toMove))
+	{
+		if (freeHeroSlots)
+		{
+			ret += stack;
+			freeHeroSlots--;
+		}
+		else
+			break;
+	}
+	return ret;
+}
 
 Tasks::TaskList GatherArmy::getTasks() {
 	Tasks::TaskList tasks;
@@ -50,9 +137,9 @@ Tasks::TaskList GatherArmy::getTasks() {
 				continue;
 			}
 
-			auto carrier = nearestHero(copy, pos);
+			auto carrier = getNearestHero(copy, pos);
 
-			addTask(tasks, Tasks::VisitTile(pos, carrier), 1);
+			addTask(tasks, Tasks::VisitTile(pos, carrier, town), 1);
 		}
 
 		return tasks;
@@ -60,19 +147,22 @@ Tasks::TaskList GatherArmy::getTasks() {
 
 
 	auto targetHeroPosition = this->hero->visitablePos();
+	auto pathsInfo = cb->getPathsInfo(this->hero.get());
 
 	for (HeroPtr hero : heroes) {
-		auto isStronger = hero->getFightingStrength() > this->hero->getFightingStrength();
+		auto isStronger = hero->level > this->hero->level;
 		auto isAccessible = ai->isAccessibleForHero(targetHeroPosition, hero, true);
 
 		if (hero.h == this->hero.h
 			|| isStronger
 			|| !isAccessible
-			|| !ai->canGetArmy(this->hero.get(), hero.get())) {
+			|| howManyReinforcementsCanGet(this->hero, hero.get()) < this->hero->getArmyStrength() / 4) {
 			continue;
 		}
 
-		addTask(tasks, Tasks::VisitTile(targetHeroPosition, hero), 1);
+		auto priority = std::min(0.0, 1 - (double)distanceToTile(pathsInfo, hero->visitablePos()) / hero->maxMovePoints(true));
+
+		addTask(tasks, Tasks::VisitTile(targetHeroPosition, hero, this->hero.get()), 0.8 * priority);
 
 		break;
 	}
@@ -83,13 +173,11 @@ Tasks::TaskList GatherArmy::getTasks() {
 		auto pos = town->visitablePos();
 		auto pathInfo = cb->getPathsInfo(this->hero.get())->getPathInfo(pos);
 
-		if (pathInfo->reachable()) {
-			ai->buildArmyIn(town);
-		}
-
-		if (howManyReinforcementsCanGet(hero, town))
+		if (pathInfo->reachable() && howManyReinforcementsCanBuy(hero, town) > this->hero->getArmyStrength() / 3)
 		{
-			// TODO: invoke army pickup logic from above
+			auto priority = std::min(0.0, 1 - (double)distanceToTile(pathsInfo, town->visitablePos()) / hero->maxMovePoints(true));
+
+			addTask(tasks, Tasks::BuyArmyInTown(town), priority);
 			break;
 		}
 	}

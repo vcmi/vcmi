@@ -395,7 +395,7 @@ Tasks::TaskList RecruitHero::getTasks() {
 	auto towns = cb->getTownsInfo();
 
 	if (cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST * 3
-		&& heroes.size() < towns.size() + 2) {
+		&& heroes.size() < towns.size() + 1) {
 		tasks.push_back(Tasks::sptr(Tasks::RecruitHero()));
 	}
 

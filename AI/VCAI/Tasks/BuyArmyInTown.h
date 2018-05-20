@@ -23,16 +23,12 @@ struct SectorMap;
 
 namespace Tasks
 {
-	class VisitTile : public TemplateTask<VisitTile> {
-	private:
-		const CGObjectInstance* obj;
+	class BuyArmyInTown : public TemplateTask<BuyArmyInTown> {
 	public:
-		VisitTile(int3 tile, HeroPtr hero, const CGObjectInstance* obj = NULL) {
-			assert(hero, "VisitTile: Hero is empty.");
+		const CGTownInstance* town;
 
-			this->tile = tile;
-			this->hero = hero;
-			this->obj = obj;
+		BuyArmyInTown(const CGTownInstance* town) {
+			this->town = town;
 		}
 
 		virtual void execute() override;

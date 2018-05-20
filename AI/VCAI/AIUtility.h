@@ -163,8 +163,8 @@ bool isLevelHigher(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 ui32 distanceToTile(const CGHeroInstance* hero, int3 pos);
-const CGHeroInstance* nearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos);
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
+ui32 distanceToTile(const CPathsInfo* pathsInfo, int3 pos);
+const CGHeroInstance* getNearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos);
 int3 whereToExplore(HeroPtr h);
 
 class CDistanceSorter

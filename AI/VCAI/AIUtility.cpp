@@ -471,37 +471,6 @@ void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & o
 	}
 }
 
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t)
-{
-	ui64 ret = 0;
-	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
-	std::vector<const CStackInstance *> toMove;
-	for(auto const slot : t->Slots())
-	{
-		//can be merged woth another stack?
-		SlotID dst = h->getSlotFor(slot.second->getCreatureID());
-		if(h->hasStackAtSlot(dst))
-			ret += t->getPower(slot.first);
-		else
-			toMove.push_back(slot.second);
-	}
-	boost::sort(toMove, [](const CStackInstance * lhs, const CStackInstance * rhs)
-	{
-		return lhs->getPower() < rhs->getPower();
-	});
-	for(auto & stack : boost::adaptors::reverse(toMove))
-	{
-		if(freeHeroSlots)
-		{
-			ret += stack->getPower();
-			freeHeroSlots--;
-		}
-		else
-			break;
-	}
-	return ret;
-}
-
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
 {
 	return h1->getTotalStrength() < h2->getTotalStrength();
@@ -531,12 +500,20 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 }
 
 ui32 distanceToTile(const CGHeroInstance* hero, int3 pos) {
-	auto pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
+	auto pathsInfo = cb->getPathsInfo(hero);
 
-	return std::max(pathInfo->turns - 1, 0) * hero->maxMovePoints(true) + hero->movement - pathInfo->moveRemains;
+	return distanceToTile(pathsInfo, pos);
 }
 
-const CGHeroInstance* nearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos) {
+ui32 distanceToTile(const CPathsInfo* pathsInfo, int3 pos) {
+	auto pathInfo = pathsInfo->getPathInfo(pos);
+	auto hero = pathsInfo->hero;
+	int result = (int)(pathInfo->turns * hero->maxMovePoints(true) + hero->movement) - (int)pathInfo->moveRemains;
+
+	return std::max(result, 0);
+}
+
+const CGHeroInstance* getNearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos) {
 	const CGHeroInstance* carrier = heroes.front();
 	ui32 optimalDistance = distanceToTile(carrier, pos);
 

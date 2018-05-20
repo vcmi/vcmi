@@ -826,7 +826,6 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		recruitCreatures(dynamic_cast<const CGDwelling *>(obj), h.get());
 		break;
 	case Obj::TOWN:
-		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			if(!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD])
@@ -834,7 +833,9 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
+			buildArmyIn(h->visitedTown);
 		}
+		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		break;
 	}
 }
@@ -1060,7 +1061,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 
 void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
-	for(int i = 0; i < d->creatures.size(); i++)
+	for(int i = d->creatures.size() - 1; i >= 0; i--)
 	{
 		if(!d->creatures[i].second.size())
 			continue;

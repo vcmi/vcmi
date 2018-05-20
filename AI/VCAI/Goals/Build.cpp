@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "Goals/Build.h"
+#include "Goals/CaptureObjects.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
 #include "SectorMap.h"
@@ -236,11 +237,11 @@ Tasks::TaskList Build::getTasks()
 			return b1.costPerScore() > b2.costPerScore();
 		});
 
-		if (!town->hasBuilt(BuildingID::TOWN_HALL) && cb->canBuildStructure(town, BuildingID::TOWN_HALL) == EBuildingState::ALLOWED) {
+		if (!town->hasBuilt(BuildingID::TOWN_HALL)) {
 			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::TOWN_HALL, requiredResources, TResources());
 
 			if (buildingInfo.canBuild) {
-				tasks.push_back(Tasks::sptr(Tasks::BuildStructure(BuildingID::TOWN_HALL, town)));
+				addTask(tasks, Tasks::BuildStructure(buildingInfo.id, town), 1);
 				continue;
 			}
 		}
@@ -272,7 +273,12 @@ Tasks::TaskList Build::getTasks()
 		if (!town->hasBuilt(BuildingID::CITY_HALL)) {
 			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::CITY_HALL, requiredResources, TResources());
 
-			developmentInfo.nextGoldSource = buildingInfo.id;
+			if (buildingInfo.canBuild) {
+				developmentInfo.nextGoldSource = buildingInfo.id;
+			}
+			else if (buildingInfo.id == BuildingID::CITY_HALL) {
+				ai->saving += buildingInfo.buildCost;
+			}
 		}
 		else {
 			if (cb->canBuildStructure(town, BuildingID::CAPITOL) == EBuildingState::ALLOWED) {
@@ -304,13 +310,48 @@ Tasks::TaskList Build::getTasks()
 		developmentInfos.push_back(developmentInfo);
 	}
 
+	requiredResources -= availableResources;
+	requiredResources.positive();
+
 	logAi->trace("daily income: %s", dailyIncome.toString());
 	logAi->trace("resources required to develop towns now: %s, total: %s",
 		requiredResources.toString(),
 		totalDevelopmentCost.toString());
 
 	//TODO: we need to try enforce capturing resources of particular type if we need them.
+	Tasks::TaskList resourceCapture;
 
+	for (int resType = Res::ERes::WOOD; resType <= Res::ERes::MITHRIL; resType++) {
+		if (resType == Res::ERes::GOLD) {
+			continue;
+		}
+
+		double daysToGetResource = requiredResources[resType] / (dailyIncome[resType] + 0.001); // avoid zero divide
+		double priority = resType == std::max(1.0, daysToGetResource / 10);
+
+		if (priority < 0.5) {
+			continue;
+		}
+
+		std::vector<const CGObjectInstance*> interestingObjects;
+
+		vstd::copy_if(ai->visitableObjs, std::back_inserter(interestingObjects), [&](const CGObjectInstance* obj) -> bool {
+			auto id = obj->ID;
+			auto mineOrResource = id == Obj::MINE || id == Obj::ABANDONED_MINE || id == Obj::RESOURCE;
+
+			return mineOrResource && obj->subID == resType;
+		});
+
+		if (interestingObjects.size()) {
+			addTasks(resourceCapture, sptr(CaptureObjects(interestingObjects)), priority);
+		}
+	}
+
+	if (resourceCapture.size()) {
+		sortByPriority(resourceCapture);
+		tasks.push_back(resourceCapture.front());
+	}
+	
 	TResources weeklyIncome = dailyIncome * 7;
 	std::vector<BuildingID> result;
 
@@ -322,21 +363,35 @@ Tasks::TaskList Build::getTasks()
 
 	int i = 0;
 
-	if (weeklyIncome.canAfford(armyCost)) {
+	if (weeklyIncome.canAfford(armyCost) && !ai->saving.nonZero()) {
 		for (; i < (developmentInfos.size() + 1) / 2; ++i) {
 			auto toBuild = developmentInfos[i].nextDwelling;
+			auto town = developmentInfos[i].town;
 
 			if (toBuild != BuildingID::NONE) {
-				tasks.push_back(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
+				addTask(tasks, Tasks::BuildStructure(toBuild, town), 0.5);
 			}
 		}
 	}
 
 	for (; i < developmentInfos.size(); ++i) {
 		auto toBuild = developmentInfos[i].nextGoldSource;
+		auto town = developmentInfos[i].town;
 
 		if (toBuild != BuildingID::NONE) {
-			tasks.push_back(Tasks::sptr(Tasks::BuildStructure(toBuild, developmentInfos[i].town)));
+			auto priority = 0.6;
+
+			switch (toBuild)
+			{
+			case BuildingID::CITY_HALL: 
+				priority = 0.7;
+				break;
+			case BuildingID::CAPITOL:
+				priority = 0.8;
+				break;
+			}
+
+			addTask(tasks, Tasks::BuildStructure(toBuild, town), priority);
 		}
 	}
 

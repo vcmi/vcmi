@@ -47,5 +47,7 @@ bool VisitTile::canExecute()
 
 std::string Tasks::VisitTile::toString()
 {
-	return "VisitTile " + hero->name + " => " + tile.toString();
+	auto baseInfo = "VisitTile " + hero->name + " => " + tile.toString();
+
+	return this->obj ? baseInfo + " [" + obj->getObjectName() + "]" : baseInfo;
 }

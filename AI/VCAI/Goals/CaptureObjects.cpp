@@ -11,6 +11,7 @@
 #include "Goals/CaptureObjects.h"
 #include "Goals/GatherArmy.h"
 #include "VCAI.h"
+#include "AIUtility.h"
 #include "SectorMap.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
@@ -30,18 +31,16 @@ std::string CaptureObjects::toString() const {
 Tasks::TaskList CaptureObjects::getTasks() {
 	Tasks::TaskList tasks;
 
-	if (!hero->movement) {
-		return tasks;
-	}
-
-	auto sm = ai->getCachedSectorMap(hero);
 	auto needArmy = false;
-	auto pathsInfo = cb->getPathsInfo(hero.get());
+	auto heroes = cb->getHeroesInfo();
 	
-	auto captureObjects = [&](std::vector<const CGObjectInstance*> objs) -> bool {
+	auto captureObjects = [&](std::vector<const CGObjectInstance*> objs, HeroPtr hero) -> bool {
 		if (objs.empty()) {
 			return false;
 		}
+
+		auto sm = ai->getCachedSectorMap(hero);
+		auto pathsInfo = cb->getPathsInfo(hero.get());
 
 		boost::sort(objs, CDistanceSorter(hero.get()));
 
@@ -57,16 +56,21 @@ Tasks::TaskList CaptureObjects::getTasks() {
 				return false;
 			}
 
-			auto pathInfo = pathsInfo->getPathInfo(targetPos);
-			double priority = 0;
-
-			if (pathInfo->turns == 0) {
-				priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
-			}
-
 			if (isSafeToVisit(hero, targetPos)) {
-				//TODO: check hero is the nearest one
-				addTask(tasks, Tasks::VisitTile(targetPos, hero), priority);
+				auto nearestHero = getNearestHero(heroes, targetPos);
+
+				if (nearestHero != hero.get() && isSafeToVisit(nearestHero, targetPos)) {
+					continue;
+				}
+
+				auto pathInfo = pathsInfo->getPathInfo(targetPos);
+				double priority = 0;
+
+				if (pathInfo->turns == 0) {
+					priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
+				}
+
+				addTask(tasks, Tasks::VisitTile(targetPos, hero, objToVisit), priority);
 
 				return true;
 			}
@@ -79,16 +83,25 @@ Tasks::TaskList CaptureObjects::getTasks() {
 	};
 
 	if (specificObjects) {
-		captureObjects(objectsToCapture);
+		if (this->hero) {
+			captureObjects(objectsToCapture, this->hero);
+		}
+		else {
+			for (auto hero : heroes) {
+				captureObjects(objectsToCapture, hero);
+			}
+		}
 	}
 	else {
-		if (!captureObjects(sm->getNearbyObjs(hero, 1))) {
-			captureObjects(std::vector<const CGObjectInstance*>(ai->visitableObjs.begin(), ai->visitableObjs.end()));
+		auto sm = ai->getCachedSectorMap(hero);
+
+		if (!captureObjects(sm->getNearbyObjs(hero, 1), this->hero)) {
+			captureObjects(std::vector<const CGObjectInstance*>(ai->visitableObjs.begin(), ai->visitableObjs.end()), this->hero);
 		}
 	}
 
-	if (!tasks.size() && needArmy) {
-		addTasks(tasks, sptr(GatherArmy().sethero(hero)));
+	if (!tasks.size() && this->hero && needArmy) {
+		addTasks(tasks, sptr(GatherArmy().sethero(this->hero)));
 	}
 
 	return tasks;

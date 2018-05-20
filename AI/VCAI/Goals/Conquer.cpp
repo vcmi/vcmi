@@ -33,25 +33,36 @@ Tasks::TaskList Conquer::getTasks() {
 
 	// lets process heroes according their army strength in descending order
 	std::sort(heroes.rbegin(), heroes.rend(), isLevelHigher);
-	auto nextHero = vstd::tryFindIf(heroes, [](const CGHeroInstance* h) -> bool { return h->movement > 0; });
 
-	addTasks(tasks, sptr(Build()), 0.9);
+	addTasks(tasks, sptr(Build()), 0.8);
 	addTasks(tasks, sptr(RecruitHero()));
 	addTasks(tasks, sptr(GatherArmy()), 0.6); // no hero - just pickup existing army, no buy
 
-	if (nextHero) {
-		auto heroPtr = HeroPtr(nextHero.get());
+	if (tasks.size()) {
+		sortByPriority(tasks);
+
+		return tasks;
+	}
+
+	for(auto nextHero : heroes) {
+		if (!nextHero->movement) {
+			continue;
+		}
+
+		auto heroPtr = HeroPtr(nextHero);
 		auto heroTasks = Tasks::TaskList();
+
+		logAi->trace("Considering tasks for hero %s", nextHero->name);
 
 		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::TOWN).sethero(heroPtr)), 1);
 		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::HERO).sethero(heroPtr)), 0.95);
-		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::MINE).sethero(heroPtr)), 0.7);
+		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::MINE).sethero(heroPtr)), 0.56);
 		addTasks(heroTasks, sptr(CaptureObjects().sethero(HeroPtr(heroPtr))), 0.5);
 
-		auto strongestHero = vstd::maxElementByFun(heroes, [](const CGHeroInstance* h) -> bool { return h->getArmyStrength(); });
+		auto strongestHero = vstd::maxElementByFun(heroes, [](const CGHeroInstance* h) -> bool { return h->level; });
 
-		if (cb->getDate(Date::MONTH) > 1 && nextHero.get() == strongestHero[0]) {
-			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.7);
+		if (cb->getDate(Date::MONTH) > 1 && nextHero == strongestHero[0]) {
+			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.57);
 		}
 		else {
 			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.5);
@@ -59,11 +70,16 @@ Tasks::TaskList Conquer::getTasks() {
 
 		if (heroTasks.size()) {
 			sortByPriority(heroTasks);
+
+			for (auto task : tasks) {
+				logAi->trace("found task %s, priority %.3f", task->toString(), task->getPriority());
+			}
+
 			tasks.push_back(heroTasks.front());
+
+			break;
 		}
 	}
-
-	sortByPriority(tasks);
 
 	return tasks;
 }
