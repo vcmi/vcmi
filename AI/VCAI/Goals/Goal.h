@@ -9,11 +9,11 @@
  */
 #pragma once
 
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "AIUtility.h"
+#include "lib/VCMI_Lib.h"
+#include "lib/CBuildingHandler.h"
+#include "lib/CCreatureHandler.h"
+#include "lib/CTownHandler.h"
+#include "../AIUtility.h"
 #include "../Tasks/Task.h"
 
 struct HeroPtr;
@@ -164,7 +164,7 @@ public:
 protected:
 	//TODO: consider making TaskList a class and move these methods there
 	void addTasks(Tasks::TaskList &target,TSubgoal subgoal, double priority = 0);
-	void addTask(Tasks::TaskList &target, Tasks::CTask &task, double priority = 0);
+	void addTask(Tasks::TaskList &target, const Tasks::CTask &task, double priority = 0);
 	void sortByPriority(Tasks::TaskList &target);
 };
 

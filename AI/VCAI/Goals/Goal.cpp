@@ -9,19 +9,19 @@
  */
 #include "StdInc.h"
 #include "Goal.h"
-#include "VCAI.h"
-#include "Fuzzy.h"
-#include "SectorMap.h"
-#include "../../lib/mapping/CMap.h" //for victory conditions
-#include "../../lib/CPathfinder.h"
-#include "Tasks/VisitTile.h"
-#include "Tasks/BuildStructure.h"
-#include "Tasks/RecruitHero.h"
-#include "Goals/CaptureObjects.h"
-#include "Goals/Conquer.h"
-#include "Goals/Explore.h"
-#include "Goals/Build.h"
-#include "Goals/GatherArmy.h"
+#include "../VCAI.h"
+#include "../Fuzzy.h"
+#include "../SectorMap.h"
+#include "lib/mapping/CMap.h" //for victory conditions
+#include "lib/CPathfinder.h"
+#include "../Tasks/VisitTile.h"
+#include "../Tasks/BuildStructure.h"
+#include "../Tasks/RecruitHero.h"
+#include "CaptureObjects.h"
+#include "Conquer.h"
+#include "Explore.h"
+#include "Build.h"
+#include "GatherArmy.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -619,10 +619,11 @@ void AbstractGoal::addTasks(Tasks::TaskList &target, TSubgoal subgoal, double pr
 	}
 }
 
-void AbstractGoal::addTask(Tasks::TaskList &target, Tasks::CTask &task, double priority) {
-	if (task.canExecute()) {
-		task.addAncestorPriority(priority);
-		target.push_back(Tasks::sptr(task));
+void AbstractGoal::addTask(Tasks::TaskList &target, const Tasks::CTask &task, double priority) {
+	auto taskPtr = Tasks::sptr(task);
+	if (taskPtr->canExecute()) {
+		taskPtr->addAncestorPriority(priority);
+		target.push_back(taskPtr);
 	}
 }
 

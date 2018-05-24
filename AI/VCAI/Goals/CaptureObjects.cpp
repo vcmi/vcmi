@@ -8,16 +8,16 @@
  *
  */
 #include "StdInc.h"
-#include "Goals/CaptureObjects.h"
-#include "Goals/GatherArmy.h"
-#include "VCAI.h"
-#include "AIUtility.h"
-#include "SectorMap.h"
-#include "../../lib/mapping/CMap.h" //for victory conditions
-#include "../../lib/CPathfinder.h"
-#include "Tasks/VisitTile.h"
-#include "Tasks/BuildStructure.h"
-#include "Tasks/RecruitHero.h"
+#include "CaptureObjects.h"
+#include "GatherArmy.h"
+#include "../VCAI.h"
+#include "../AIUtility.h"
+#include "../SectorMap.h"
+#include "lib/mapping/CMap.h" //for victory conditions
+#include "lib/CPathfinder.h"
+#include "../Tasks/VisitTile.h"
+#include "../Tasks/BuildStructure.h"
+#include "../Tasks/RecruitHero.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;

@@ -8,16 +8,15 @@
  *
  */
 #include "StdInc.h"
-#include "Goals/Build.h"
-#include "Goals/CaptureObjects.h"
-#include "VCAI.h"
-#include "Fuzzy.h"
-#include "SectorMap.h"
-#include "../../lib/mapping/CMap.h" //for victory conditions
-#include "../../lib/CPathfinder.h"
-#include "Tasks/VisitTile.h"
-#include "Tasks/BuildStructure.h"
-#include "Tasks/RecruitHero.h"
+#include "Build.h"
+#include "CaptureObjects.h"
+#include "../VCAI.h"
+#include "../SectorMap.h"
+#include "lib/mapping/CMap.h" //for victory conditions
+#include "lib/CPathfinder.h"
+#include "../Tasks/VisitTile.h"
+#include "../Tasks/BuildStructure.h"
+#include "../Tasks/RecruitHero.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -29,6 +28,7 @@ class Goals::BuildingInfo {
 public:
 	BuildingID id;
 	TResources buildCost;
+	TResources buildCostWithPrerequisits;
 	int creatureScore;
 	int creatureGrows;
 	TResources creatureCost;
@@ -36,16 +36,20 @@ public:
 	CBuilding::TRequired requirements;
 	bool exists = false;
 	bool canBuild = false;
+	bool notEnoughRes = false;
 
 	BuildingInfo() {
 		id = BuildingID::NONE;
 		creatureGrows = 0;
 		creatureScore = 0;
+		buildCost = 0;
+		buildCostWithPrerequisits = 0;
 	}
 
 	BuildingInfo(const CBuilding* building, const CCreature* creature) {
 		id = building->bid;
 		buildCost = building->resources;
+		buildCostWithPrerequisits = building->resources;
 		dailyIncome = building->produce;
 		requirements = building->requirements;
 		exists = false;
@@ -99,8 +103,6 @@ public:
 BuildingInfo Build::getBuildingOrPrerequisite(
 	const CGTownInstance* town,
 	BuildingID toBuild,
-	TResources &requiredResourcesAccumulator,
-	TResources &totalDevelopmentCostAccumulator,
 	bool excludeDwellingDependencies)
 {
 	BuildingID building = toBuild;
@@ -114,58 +116,59 @@ BuildingInfo Build::getBuildingOrPrerequisite(
 		auto creatureID = townInfo->creatures.at(level % GameConstants::CREATURES_PER_TOWN).at(level / GameConstants::CREATURES_PER_TOWN);
 		creature = creatureID.toCreature();
 	}
+	
+	auto info = BuildingInfo(buildPtr, creature);
 
-	while (buildPtr) {
-		auto info = BuildingInfo(buildPtr, creature);
+	logAi->trace("checking %s", buildPtr->Name());
+	logAi->trace("buildInfo %s", info.toString());
 
-		logAi->trace("checking %s", buildPtr->Name());
-		logAi->trace("buildInfo %s", info.toString());
+	buildPtr = NULL;
 
-		buildPtr = NULL;
+	if (!town->hasBuilt(building)) {
+		auto canBuild = cb->canBuildStructure(town, building);
 
-		if (!town->hasBuilt(building)) {
-			auto canBuild = cb->canBuildStructure(town, building);
-
-			totalDevelopmentCostAccumulator += info.buildCost;
-
-			if (canBuild == EBuildingState::ALLOWED) {
-				info.canBuild = true;
-
-				return info;
-			}
-			else if (canBuild == EBuildingState::NO_RESOURCES) {
-				logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
-				requiredResourcesAccumulator += info.buildCost;
-			}
-			else if (canBuild == EBuildingState::PREREQUIRES) {
-				auto buildExpression = town->genBuildingRequirements(building, false);
-				auto alreadyBuiltOrOtherDwelling = [&](const BuildingID & id) -> bool {
-					return BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_LAST || town->hasBuilt(id);
-				};
-
-				auto missingBuildings = buildExpression.getFulfillmentCandidates(alreadyBuiltOrOtherDwelling);
-
-				if (missingBuildings.empty()) {
-					logAi->trace("cant build. Need other dwelling");
-				}
-				else {
-					building = missingBuildings[0];
-					buildPtr = townInfo->buildings.at(building);
-					creature = NULL;
-
-					logAi->trace("cant build. Need %s", buildPtr->Name());
-				}
-			}
-		}
-		else {
-			logAi->trace("exists");
-			info.exists = true;
+		if (canBuild == EBuildingState::ALLOWED) {
+			info.canBuild = true;
 
 			return info;
 		}
-	}
+		else if (canBuild == EBuildingState::NO_RESOURCES) {
+			logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
+			info.notEnoughRes = true;
+			
+			return info;
+		}
+		else if (canBuild == EBuildingState::PREREQUIRES) {
+			auto buildExpression = town->genBuildingRequirements(building, false);
+			auto alreadyBuiltOrOtherDwelling = [&](const BuildingID & id) -> bool {
+				return BuildingID::DWELL_FIRST <= id && id <= BuildingID::DWELL_LAST || town->hasBuilt(id);
+			};
 
-	return BuildingInfo();
+			auto missingBuildings = buildExpression.getFulfillmentCandidates(alreadyBuiltOrOtherDwelling);
+
+			if (missingBuildings.empty()) {
+				logAi->trace("cant build. Need other dwelling");
+				
+				return info;
+			}
+			else {
+				buildPtr = townInfo->buildings.at(building);
+				logAi->trace("cant build. Need %s", buildPtr->Name());
+				
+				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);
+				
+				prerequisite.buildCostWithPrerequisits += info.buildCost;
+				
+				return prerequisite;
+			}
+		}
+	}
+	else {
+		logAi->trace("exists");
+		info.exists = true;
+
+		return info;
+	}
 }
 
 Tasks::TaskList Build::getTasks()
@@ -222,14 +225,21 @@ Tasks::TaskList Build::getTasks()
 			if (!vstd::contains(buildings, building))
 				continue; // no such building in town
 
-			BuildingInfo info = getBuildingOrPrerequisite(town, building, requiredResources, townDevelopmentCost);
+			BuildingInfo info = getBuildingOrPrerequisite(town, building);
 
 			if (info.exists) {
 				existingDwellings.push_back(info);
 				armyCost += info.creatureCost * info.creatureGrows;
 			}
-			else if (info.canBuild) {
-				toBuild.push_back(info);
+			else {
+				totalDevelopmentCost += info.buildCostWithPrerequisits;
+				
+				if (info.canBuild) {
+					toBuild.push_back(info);
+				}
+				else if(info.notEnoughRes){
+					requiredResources += info.buildCost;
+				}
 			}
 		}
 
@@ -238,11 +248,14 @@ Tasks::TaskList Build::getTasks()
 		});
 
 		if (!town->hasBuilt(BuildingID::TOWN_HALL)) {
-			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::TOWN_HALL, requiredResources, TResources());
+			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::TOWN_HALL);
 
 			if (buildingInfo.canBuild) {
 				addTask(tasks, Tasks::BuildStructure(buildingInfo.id, town), 1);
 				continue;
+			}
+			else if(buildingInfo.notEnoughRes){
+				requiredResources += buildingInfo.buildCost;
 			}
 		}
 
@@ -271,13 +284,16 @@ Tasks::TaskList Build::getTasks()
 		}
 
 		if (!town->hasBuilt(BuildingID::CITY_HALL)) {
-			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::CITY_HALL, requiredResources, TResources());
+			auto buildingInfo = getBuildingOrPrerequisite(town, BuildingID::CITY_HALL);
 
 			if (buildingInfo.canBuild) {
 				developmentInfo.nextGoldSource = buildingInfo.id;
 			}
 			else if (buildingInfo.id == BuildingID::CITY_HALL) {
 				ai->saving += buildingInfo.buildCost;
+			}
+			else if(buildingInfo.notEnoughRes){
+				requiredResources += buildingInfo.buildCost;
 			}
 		}
 		else {

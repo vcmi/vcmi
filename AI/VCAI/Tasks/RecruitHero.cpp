@@ -8,10 +8,9 @@
 *
 */
 #include "StdInc.h"
-#include "Goals/Goal.h"
-#include "VCAI.h"
-#include "../../lib/mapping/CMap.h" //for victory conditions
-#include "../../lib/CPathfinder.h"
+#include "../VCAI.h"
+#include "lib/mapping/CMap.h" //for victory conditions
+#include "lib/CPathfinder.h"
 #include "RecruitHero.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;

@@ -9,11 +9,12 @@
 */
 #pragma once
 
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/CBuildingHandler.h"
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/CTownHandler.h"
-#include "AIUtility.h"
+#include "lib/VCMI_Lib.h"
+#include "lib/CBuildingHandler.h"
+#include "lib/CCreatureHandler.h"
+#include "lib/CTownHandler.h"
+#include "../AIUtility.h"
+#include "../VCAI.h"
 #include "Task.h"
 
 struct HeroPtr;
@@ -28,8 +29,6 @@ namespace Tasks
 		const CGObjectInstance* obj;
 	public:
 		VisitTile(int3 tile, HeroPtr hero, const CGObjectInstance* obj = NULL) {
-			assert(hero, "VisitTile: Hero is empty.");
-
 			this->tile = tile;
 			this->hero = hero;
 			this->obj = obj;
