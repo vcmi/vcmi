@@ -327,7 +327,7 @@ Tasks::TaskList Build::getTasks()
 		}
 
 		double daysToGetResource = requiredResources[resType] / (dailyIncome[resType] + 0.001); // avoid zero divide
-		double priority = resType == std::max(1.0, daysToGetResource / 10);
+		double priority = resType == std::min(1.0, daysToGetResource / 10);
 
 		if (priority < 0.5) {
 			continue;

@@ -32,17 +32,11 @@ Tasks::TaskList Conquer::getTasks() {
 	auto heroes = cb->getHeroesInfo();
 
 	// lets process heroes according their army strength in descending order
-	std::sort(heroes.rbegin(), heroes.rend(), isLevelHigher);
+	std::sort(heroes.begin(), heroes.end(), isLevelHigher);
 
 	addTasks(tasks, sptr(Build()), 0.8);
 	addTasks(tasks, sptr(RecruitHero()));
 	addTasks(tasks, sptr(GatherArmy()), 0.6); // no hero - just pickup existing army, no buy
-
-	if (tasks.size()) {
-		sortByPriority(tasks);
-
-		return tasks;
-	}
 
 	for(auto nextHero : heroes) {
 		if (!nextHero->movement) {
