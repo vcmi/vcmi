@@ -22,6 +22,8 @@
 
 #ifndef VCMI_ANDROID
 #include "../lib/Interprocess.h"
+#else
+#include "../lib/CAndroidVMHelper.h"
 #endif
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -43,6 +45,10 @@
 #include <boost/uuid/uuid_generators.hpp>
 
 template<typename T> class CApplyOnLobby;
+
+#ifdef VCMI_ANDROID
+extern std::atomic_bool androidTestServerReadyFlag;
+#endif
 
 class CBaseForLobbyApply
 {
@@ -151,6 +157,7 @@ void CServerHandler::startLocalServerAndConnect()
 #ifdef VCMI_ANDROID
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+	envHelper.Detach();
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif

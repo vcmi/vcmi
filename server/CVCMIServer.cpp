@@ -170,10 +170,17 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
+		
+#ifndef VCMI_ANDROID
 		if(shm)
 		{
 			shm->sr->setToReadyAndNotify(port);
 		}
+#else
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+		vmHelper.Detach();
+#endif
 	}
 
 	while(state == EServerState::LOBBY || state == EServerState::GAMEPLAY_STARTING)

@@ -633,12 +633,12 @@ void CTextInput::notifyAndroidTextInputChanged(std::string & text)
 	auto fun = [&text](JNIEnv * env, jclass cls, jmethodID method)
 	{
 		auto jtext = env->NewStringUTF(text.c_str());
-		env->CallStaticObjectMethod(cls, method, jtext);
+		env->CallStaticVoidMethod(cls, method, jtext);
 		env->DeleteLocalRef(jtext);
 	};
 	CAndroidVMHelper vmHelper;
 	vmHelper.callCustomMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "notifyTextInputChanged",
-		"(Ljava/lang/String;)V", fun);
+		"(Ljava/lang/String;)V", fun, true);
 }
 #endif //VCMI_ANDROID
 
