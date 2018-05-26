@@ -42,7 +42,6 @@ CAndroidVMHelper::CAndroidVMHelper()
 		detachInDestructor = false;
 	}
 }
-
 CAndroidVMHelper::~CAndroidVMHelper()
 {
 	if(envPtr && detachInDestructor)
