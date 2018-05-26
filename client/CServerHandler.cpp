@@ -155,9 +155,10 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 #ifdef VCMI_ANDROID
-	CAndroidVMHelper envHelper;
-	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
-	envHelper.Detach();
+	{
+		CAndroidVMHelper envHelper;
+		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
+	}
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif

@@ -179,7 +179,6 @@ void CVCMIServer::run()
 #else
 		CAndroidVMHelper vmHelper;
 		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
-		vmHelper.Detach();
 #endif
 	}
 

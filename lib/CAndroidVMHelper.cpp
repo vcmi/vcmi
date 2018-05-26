@@ -44,11 +44,6 @@ CAndroidVMHelper::CAndroidVMHelper()
 }
 CAndroidVMHelper::~CAndroidVMHelper()
 {
-	Detach();
-}
-
-void CAndroidVMHelper::Detach()
-{
 	if(envPtr && detachInDestructor)
 	{
 		vmCache->DetachCurrentThread();

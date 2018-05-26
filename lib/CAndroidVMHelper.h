@@ -29,8 +29,6 @@ public:
 
 	~CAndroidVMHelper();
 
-	void Detach();
-
 	JNIEnv * get();
 
 	jclass findClassloadedClass(const std::string & name);
