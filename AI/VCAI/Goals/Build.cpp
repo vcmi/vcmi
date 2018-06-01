@@ -129,14 +129,10 @@ BuildingInfo Build::getBuildingOrPrerequisite(
 
 		if (canBuild == EBuildingState::ALLOWED) {
 			info.canBuild = true;
-
-			return info;
 		}
 		else if (canBuild == EBuildingState::NO_RESOURCES) {
 			logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
 			info.notEnoughRes = true;
-			
-			return info;
 		}
 		else if (canBuild == EBuildingState::PREREQUIRES) {
 			auto buildExpression = town->genBuildingRequirements(building, false);
@@ -148,8 +144,6 @@ BuildingInfo Build::getBuildingOrPrerequisite(
 
 			if (missingBuildings.empty()) {
 				logAi->trace("cant build. Need other dwelling");
-				
-				return info;
 			}
 			else {
 				buildPtr = townInfo->buildings.at(building);
@@ -166,9 +160,9 @@ BuildingInfo Build::getBuildingOrPrerequisite(
 	else {
 		logAi->trace("exists");
 		info.exists = true;
-
-		return info;
 	}
+
+	return info;
 }
 
 Tasks::TaskList Build::getTasks()
@@ -176,7 +170,6 @@ Tasks::TaskList Build::getTasks()
 	Tasks::TaskList tasks = Tasks::TaskList();
 	TResources availableResources = cb->getResourceAmount();
 
-	logAi->trace("Searching tasks for BUILD");
 	logAi->trace("Resources amount: %s", availableResources.toString());
 
 	auto objects = cb->getMyObjects();
@@ -343,9 +336,9 @@ Tasks::TaskList Build::getTasks()
 		}
 
 		double daysToGetResource = requiredResources[resType] / (dailyIncome[resType] + 0.001); // avoid zero divide
-		double priority = resType == std::min(1.0, daysToGetResource / 10);
+		double priority = std::min(1.0, daysToGetResource / 20);
 
-		if (priority < 0.5) {
+		if (priority < 0.25) {
 			continue;
 		}
 
@@ -359,6 +352,9 @@ Tasks::TaskList Build::getTasks()
 		});
 
 		if (interestingObjects.size()) {
+			for (auto obj : interestingObjects) {
+				logAi->trace("Consider capturing object required by build %s/%d", obj->getObjectName(), priority);
+			}
 			addTasks(resourceCapture, sptr(CaptureObjects(interestingObjects)), priority);
 		}
 	}

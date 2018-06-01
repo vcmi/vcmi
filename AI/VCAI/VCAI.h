@@ -202,7 +202,7 @@ public:
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
-	bool canGetArmy(const CGHeroInstance * h, const CGHeroInstance * source); //can we get any better stacks from other hero?
+	ui32 howManyArmyCanGet(const CGHeroInstance * h, const CArmedInstance * source); //can we get any better stacks from other hero?
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 	void moveCreaturesToHero(const CGTownInstance * t);

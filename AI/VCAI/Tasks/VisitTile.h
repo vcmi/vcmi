@@ -26,12 +26,15 @@ namespace Tasks
 {
 	class VisitTile : public TemplateTask<VisitTile> {
 	private:
-		const CGObjectInstance* obj;
+		std::string objInfo;
 	public:
 		VisitTile(int3 tile, HeroPtr hero, const CGObjectInstance* obj = NULL) {
 			this->tile = tile;
 			this->hero = hero;
-			this->obj = obj;
+
+			if (obj) {
+				objInfo = obj->getObjectName();
+			}
 		}
 
 		virtual void execute() override;

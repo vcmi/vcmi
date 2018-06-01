@@ -36,7 +36,6 @@ enum EGoals
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	BUY_RESOURCES,
-	CAPTURE_OBJECTS,
 	GATHER_TROOPS, // val of creatures with objid
 
 	OBJECT_GOALS_BEGIN,
@@ -51,7 +50,9 @@ enum EGoals
 
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
 	CLEAR_WAY_TO,
-	DIG_AT_TILE //elementar with hero on tile
+	DIG_AT_TILE, //elementar with hero on tile
+	CAPTURE_OBJECTS,
+	VISIT_TOWN
 };
 
 	//method chaining + clone pattern

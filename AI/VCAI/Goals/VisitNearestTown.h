@@ -24,20 +24,13 @@ struct SectorMap;
 
 namespace Goals
 {
-	class GatherArmy : public CGoal<GatherArmy>
-	{
-	private:
-		ui64 requiredAmmount;
 
+	class VisitNearestTown : public CGoal<VisitNearestTown>
+	{
 	public:
-		GatherArmy()
-			: CGoal(Goals::GATHER_ARMY)
+		VisitNearestTown()
+			: CGoal(Goals::VISIT_TOWN)
 		{
-		}
-		GatherArmy(ui64 requiredAmmount)
-			: CGoal(Goals::GATHER_ARMY)
-		{
-			this->requiredAmmount = requiredAmmount;
 		}
 
 		Tasks::TaskList getTasks() override;

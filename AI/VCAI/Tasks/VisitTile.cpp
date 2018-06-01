@@ -41,12 +41,19 @@ bool VisitTile::canExecute()
 
 	cb->getPathsInfo(hero.get())->getPath(path, tile);
 
-	return path.nodes.size() && path.nodes.back().turns == 0; // can move at least one tile
+	if (path.nodes.size() <= 1) {
+		return false;
+	}
+
+	// path is reversed. The last node is where hero stands
+	auto nextNode = path.nodes.at(path.nodes.size() - 2);
+
+	return nextNode.turns == 0;
 }
 
 std::string Tasks::VisitTile::toString()
 {
 	auto baseInfo = "VisitTile " + hero->name + " => " + tile.toString();
 
-	return this->obj ? baseInfo + " [" + obj->getObjectName() + "]" : baseInfo;
+	return objInfo.size() ? baseInfo + " [" + objInfo + "]" : baseInfo;
 }

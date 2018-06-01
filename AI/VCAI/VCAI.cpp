@@ -324,9 +324,9 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		}
 		else //regular criteria
 		{
-			if(isLevelHigher(firstHero, secondHero) && canGetArmy(firstHero, secondHero))
+			if(isLevelHigher(firstHero, secondHero) && howManyArmyCanGet(firstHero, secondHero))
 				transferFrom2to1(firstHero, secondHero);
-			else if(canGetArmy(secondHero, firstHero))
+			else if(howManyArmyCanGet(secondHero, firstHero))
 				transferFrom2to1(secondHero, firstHero);
 		}
 
@@ -719,7 +719,12 @@ void VCAI::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
 
-	if (cb->getDate(Date::DAY_OF_WEEK) == boost::date_time::Monday)
+	int dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+	int day = cb->getDate(Date::DAY);
+
+	logAi->trace("Player %d (%s) starting turn. Day %d[%d]", playerID, playerID.getStr(), day, dayOfWeek);
+
+	if (dayOfWeek == boost::date_time::Monday)
 	{
 		std::vector<const CGObjectInstance *> objs;
 		retrieveVisitableObjs(objs, true);
@@ -848,17 +853,23 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
-bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source)
+ui32 VCAI::howManyArmyCanGet(const CGHeroInstance * targetArmy, const CArmedInstance * source)
 {
 	//TODO: merge with pickBestCreatures
 	//if (ai->primaryHero().h == source)
-	if(army->tempOwner != source->tempOwner)
+	if(targetArmy->tempOwner != source->tempOwner)
 	{
 		logAi->error("Why are we even considering exchange between heroes from different players?");
-		return false;
+		return 0;
+	}
+					
+	//TODO: might be still a problem if target army has 4 stacks and source 2 stacks but weekest stack is in a target army
+	if (source->needsLastStack() && source->stacksCount() == 1) //can't take away last creature
+	{
+		return 0;
 	}
 
-	const CArmedInstance * armies[] = {army, source};
+	const CArmedInstance * armies[] = {targetArmy, source};
 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature *, int> creToPower;
@@ -888,24 +899,22 @@ bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source
 	}
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
+	ui32 result = 0;
 	for(int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
 	{
 		for(auto armyPtr : armies)
 		{
 			for(int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && armyPtr != army) //it's a searched creature not in dst ARMY
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && armyPtr != targetArmy) //it's a searched creature not in dst ARMY
 				{
-					//FIXME: line below is useless when simulating exchange between two non-singular armies
-					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
-						return true; //at least one exchange will be performed
-					else
-						return false; //no further exchange possible
+					result += armyPtr->getPower(SlotID(j));
 				}
 			}
 		}
 	}
-	return false;
+
+	return result;
 }
 
 void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)

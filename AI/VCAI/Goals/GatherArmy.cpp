@@ -114,22 +114,27 @@ Tasks::TaskList GatherArmy::getTasks() {
 
 	auto heroes = cb->getHeroesInfo();
 	auto towns = cb->getTownsInfo();
-
+	
 	if (!this->hero) {
 		if (heroes.empty()) {
 			return tasks;
 		}
 
 		for (auto town : towns) {
-			if (!town->getArmyStrength()) {
-				continue;
-			}
-
+			bool allowBuyArmy = town->hasBuilt(BuildingID::CITY_HALL);
+			
 			int3 pos = town->visitablePos();
 			std::vector<const CGHeroInstance*> copy = heroes;
 
-			vstd::erase_if(copy, [town](const CGHeroInstance* h) -> bool {
-				return howManyReinforcementsCanGet(h, town) < h->getArmyStrength() / 3;
+			vstd::erase_if(copy, [town, allowBuyArmy](const CGHeroInstance* h) -> bool {
+				auto minimalQuote = h->getArmyStrength() / 4;
+				bool army = ai->howManyArmyCanGet(h, town->getUpperArmy());
+
+				if (allowBuyArmy) {
+					army += howManyReinforcementsCanBuy(h, town);
+				}
+
+				return army < minimalQuote;
 			});
 
 			if (copy.empty()) {
@@ -139,6 +144,10 @@ Tasks::TaskList GatherArmy::getTasks() {
 			auto carrier = getNearestHero(copy, pos);
 
 			addTask(tasks, Tasks::VisitTile(pos, carrier, town), 1);
+
+			if (allowBuyArmy && howManyReinforcementsCanBuy(carrier, town)) {
+				addTask(tasks, Tasks::BuyArmyInTown(town));
+			}
 		}
 
 		return tasks;
@@ -149,13 +158,19 @@ Tasks::TaskList GatherArmy::getTasks() {
 	auto pathsInfo = cb->getPathsInfo(this->hero.get());
 
 	for (HeroPtr hero : heroes) {
-		auto isStronger = hero->level > this->hero->level;
+		auto isStronger = isLevelHigher(hero, this->hero);
 		auto isAccessible = ai->isAccessibleForHero(targetHeroPosition, hero, true);
 
 		if (hero.h == this->hero.h
 			|| isStronger
-			|| !isAccessible
-			|| howManyReinforcementsCanGet(this->hero, hero.get()) < this->hero->getArmyStrength() / 4) {
+			|| !isAccessible) {
+			continue;
+		}
+
+		auto additionalArmy = ai->howManyArmyCanGet(this->hero.get(), hero.get());
+
+		if (additionalArmy < this->hero->getArmyStrength() / 4
+			|| additionalArmy < requiredAmmount / 4) {
 			continue;
 		}
 
@@ -171,12 +186,15 @@ Tasks::TaskList GatherArmy::getTasks() {
 	for (auto town : towns) {
 		auto pos = town->visitablePos();
 		auto pathInfo = cb->getPathsInfo(this->hero.get())->getPathInfo(pos);
+		auto additionalArmy = howManyReinforcementsCanBuy(hero, town);
 
-		if (pathInfo->reachable() && howManyReinforcementsCanBuy(hero, town) > this->hero->getArmyStrength() / 3)
+		if (pathInfo->reachable() && additionalArmy > this->hero->getArmyStrength() / 4
+			&& additionalArmy > requiredAmmount / 4)
 		{
 			auto priority = std::min(0.0, 1 - (double)distanceToTile(pathsInfo, town->visitablePos()) / hero->maxMovePoints(true));
 
 			addTask(tasks, Tasks::BuyArmyInTown(town), priority);
+
 			break;
 		}
 	}

@@ -265,7 +265,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 		return sptr(Goals::Explore());
 	int3 pos = obj->visitablePos();
 
-	if(hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
+	if(hero && ai->isAccessibleForHero(pos, hero, true) && analyzeDanger(hero, pos)) //enemy heroes can get reinforcements
 	{
 		if(hero->pos == pos)
 			logAi->error("Hero %s tries to visit himself.", hero.name);
@@ -369,7 +369,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				}
 			}
 		}
-		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
+		if(analyzeDanger(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
 		{
 			ret.push_back(sptr(Goals::VisitTile(tileToHit).sethero(h)));
 		}
@@ -611,10 +611,12 @@ bool AbstractGoal::invalid() const
 }
 
 void AbstractGoal::addTasks(Tasks::TaskList &target, TSubgoal subgoal, double priority) {
+	logAi->trace("Searching tasks for %s", subgoal->toString());
 	auto tasks = subgoal->getTasks();
 
 	for (Tasks::TaskPtr t : tasks) {
 		t->addAncestorPriority(priority);
+		logAi->trace("Task found %s", t->toString());
 		target.push_back(t);
 	}
 }
@@ -623,6 +625,7 @@ void AbstractGoal::addTask(Tasks::TaskList &target, const Tasks::CTask &task, do
 	auto taskPtr = Tasks::sptr(task);
 	if (taskPtr->canExecute()) {
 		taskPtr->addAncestorPriority(priority);
+		logAi->trace("Task found %s", taskPtr->toString());
 		target.push_back(taskPtr);
 	}
 }

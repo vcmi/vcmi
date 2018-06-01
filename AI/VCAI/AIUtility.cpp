@@ -333,24 +333,13 @@ bool compareDanger(const CGObjectInstance * lhs, const CGObjectInstance * rhs)
 	return evaluateDanger(lhs) < evaluateDanger(rhs);
 }
 
-bool isSafeToVisit(HeroPtr h, crint3 tile)
+ui64 analyzeDanger(HeroPtr h, crint3 tile)
 {
-	const ui64 heroStrength = h->getTotalStrength();
-	const ui64 dangerStrength = evaluateDanger(tile, *h);
-	if(dangerStrength)
-	{
-		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
-		{
-			logAi->trace("It's safe for %s to visit tile %s", h->name, tile.toString());
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	si64 heroStrength = h->getTotalStrength();
+	si64 dangerStrength = evaluateDanger(tile, *h);
+	si64 dif = dangerStrength - heroStrength / SAFE_ATTACK_CONSTANT;
 
-	return true; //there's no danger
+	return std::max((si64)0, dif);
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
@@ -478,7 +467,7 @@ bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
 
 bool isLevelHigher(HeroPtr h1, HeroPtr h2)
 {
-	return h1->level > h2->level;
+	return h1->exp > h2->exp;
 }
 
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)

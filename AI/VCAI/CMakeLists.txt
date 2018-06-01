@@ -18,6 +18,7 @@ set(VCAI_SRCS
 		Goals/CaptureObjects.cpp
 		Goals/GatherArmy.cpp
 		Goals/Win.cpp
+		Goals/VisitNearestTown.cpp
 		Tasks/Task.cpp
 		Tasks/RecruitHero.cpp
 		Tasks/BuildStructure.cpp
@@ -35,6 +36,7 @@ set(VCAI_HEADERS
 		SectorMap.h
 		Goals/Goal.h
 		Goals/Build.h
+		Goals/VisitNearestTown.h
 		Goals/Explore.h
 		Goals/Conquer.h
 		Goals/CaptureObjects.h

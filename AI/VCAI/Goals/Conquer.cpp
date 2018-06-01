@@ -13,6 +13,7 @@
 #include "Explore.h"
 #include "CaptureObjects.h"
 #include "GatherArmy.h"
+#include "VisitNearestTown.h"
 #include "../VCAI.h"
 #include "../SectorMap.h"
 #include "lib/mapping/CMap.h" //for victory conditions
@@ -26,6 +27,30 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 using namespace Goals;
 
+std::map<const CGHeroInstance*, const CGTownInstance*> getHeroTownMap(std::vector<const CGHeroInstance*> heroes) {
+	auto towns = cb->getTownsInfo();
+	std::map<const CGHeroInstance*, const CGTownInstance*> result;
+
+	if (heroes.size() <= 1 || towns.empty()) {
+		return result;
+	}
+
+	vstd::erase_if_present(heroes, heroes.at(0));
+
+	for (const CGTownInstance* town : towns) {
+		auto hero = getNearestHero(heroes, town->visitablePos());
+		vstd::erase_if_present(heroes, hero);
+
+		result[hero] = town;
+
+		if (heroes.empty()) {
+			break;
+		}
+	}
+
+	return result;
+}
+
 Tasks::TaskList Conquer::getTasks() {
 	auto tasks = Tasks::TaskList();
 	auto heroes = cb->getHeroesInfo();
@@ -33,9 +58,20 @@ Tasks::TaskList Conquer::getTasks() {
 	// lets process heroes according their army strength in descending order
 	std::sort(heroes.begin(), heroes.end(), isLevelHigher);
 
+	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::TOWN)), 1);
+	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::HERO)), 0.95);
+
+	if (tasks.size()) {
+		sortByPriority(tasks);
+
+		return tasks;
+	}
+
 	addTasks(tasks, sptr(Build()), 0.8);
 	addTasks(tasks, sptr(RecruitHero()));
-	addTasks(tasks, sptr(GatherArmy()), 0.6); // no hero - just pickup existing army, no buy
+	addTasks(tasks, sptr(GatherArmy()), 0.7); // no hero - just pickup existing army, no buy
+
+	auto heroTownMap = getHeroTownMap(heroes);
 
 	for(auto nextHero : heroes) {
 		if (!nextHero->movement) {
@@ -47,18 +83,29 @@ Tasks::TaskList Conquer::getTasks() {
 
 		logAi->trace("Considering tasks for hero %s", nextHero->name);
 
-		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::TOWN).sethero(heroPtr)), 1);
-		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::HERO).sethero(heroPtr)), 0.95);
-		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::MINE).sethero(heroPtr)), 0.56);
+		addTasks(heroTasks, sptr(CaptureObjects().ofType(Obj::MINE).sethero(heroPtr)), 0.58);
 		addTasks(heroTasks, sptr(CaptureObjects().sethero(HeroPtr(heroPtr))), 0.5);
 
-		auto strongestHero = vstd::maxElementByFun(heroes, [](const CGHeroInstance* h) -> bool { return h->level; });
+		const CGHeroInstance* strongestHero = heroes.at(0);
 
-		if (cb->getDate(Date::MONTH) > 1 && nextHero == strongestHero[0]) {
-			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.57);
+		if (cb->getDate(Date::DAY) > 21 && nextHero == strongestHero) {
+			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.65);
 		}
 		else {
-			addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.5);
+			if (vstd::contains(heroTownMap, nextHero)) {
+				auto assignedTown = heroTownMap.at(nextHero);
+				if (assignedTown->hasBuilt(BuildingID::CITY_HALL) && !assignedTown->visitingHero) {
+					addTask(heroTasks, Tasks::VisitTile(assignedTown->visitablePos(), nextHero, assignedTown), 0.3);
+				}
+			}
+			else {
+				addTasks(heroTasks, sptr(Explore().sethero(HeroPtr(heroPtr))), 0.5);
+			}
+		}
+
+		if (heroTasks.empty() && nextHero->movement > 0) {
+			// sometimes there is nothing better than go to the nearest town
+			addTasks(heroTasks, sptr(VisitNearestTown().sethero(heroPtr)), 0);
 		}
 
 		if (heroTasks.size()) {
@@ -74,5 +121,7 @@ Tasks::TaskList Conquer::getTasks() {
 		}
 	}
 
+	sortByPriority(tasks);
+	
 	return tasks;
 }
