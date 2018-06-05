@@ -10,9 +10,23 @@ set(VCAI_SRCS
 
 		AIUtility.cpp
 		Fuzzy.cpp
-		Goals.cpp
-		main.cpp
+		SectorMap.cpp
+		Goals/Goal.cpp
+		Goals/Build.cpp
+		Goals/Defence.cpp
+		Goals/Explore.cpp
+		Goals/Conquer.cpp
+		Goals/CaptureObjects.cpp
+		Goals/GatherArmy.cpp
+		Goals/Win.cpp
+		Goals/VisitNearestTown.cpp
+		Tasks/Task.cpp
+		Tasks/RecruitHero.cpp
+		Tasks/BuildStructure.cpp
+		Tasks/VisitTile.cpp
+		Tasks/BuyArmyInTown.cpp
 		VCAI.cpp
+		main.cpp
 )
 
 set(VCAI_HEADERS
@@ -20,7 +34,21 @@ set(VCAI_HEADERS
 
 		AIUtility.h
 		Fuzzy.h
-		Goals.h
+		SectorMap.h
+		Goals/Goal.h
+		Goals/Build.h
+		Goals/Defence.h
+		Goals/VisitNearestTown.h
+		Goals/Explore.h
+		Goals/Conquer.h
+		Goals/CaptureObjects.h
+		Goals/GatherArmy.h
+		Goals/Win.h
+		Tasks/Task.h
+		Tasks/RecruitHero.h
+		Tasks/BuildStructure.h
+		Tasks/VisitTile.h
+		Tasks/BuyArmyInTown.h
 		VCAI.h
 )
 

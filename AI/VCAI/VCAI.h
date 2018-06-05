@@ -10,7 +10,7 @@
 #pragma once
 
 #include "AIUtility.h"
-#include "Goals.h"
+#include "Goals/Goal.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
 
@@ -70,62 +70,6 @@ public:
 	}
 };
 
-enum
-{
-	NOT_VISIBLE = 0,
-	NOT_CHECKED = 1,
-	NOT_AVAILABLE
-};
-
-struct SectorMap
-{
-	//a sector is set of tiles that would be mutually reachable if all visitable objs would be passable (incl monsters)
-	struct Sector
-	{
-		int id;
-		std::vector<int3> tiles;
-		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
-		std::vector<const CGObjectInstance *> visitableObjs;
-		bool water; //all tiles of sector are land or water
-		Sector()
-		{
-			id = -1;
-			water = false;
-		}
-	};
-
-	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
-	typedef boost::multi_array<TSectorID, 3> TSectorArray;
-
-	bool valid; //some kind of lazy eval
-	std::map<int3, int3> parent;
-	TSectorArray sector;
-	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
-
-	std::map<int, Sector> infoOnSectors;
-	std::shared_ptr<boost::multi_array<TerrainTile *, 3>> visibleTiles;
-
-	SectorMap();
-	SectorMap(HeroPtr h);
-	void update();
-	void clear();
-	void exploreNewSector(crint3 pos, int num, CCallback * cbp);
-	void write(crstring fname);
-
-	bool markIfBlocked(TSectorID & sec, crint3 pos, const TerrainTile * t);
-	bool markIfBlocked(TSectorID & sec, crint3 pos);
-	TSectorID & retrieveTile(crint3 pos);
-	TSectorID & retrieveTileN(TSectorArray & vectors, const int3 & pos);
-	const TSectorID & retrieveTileN(const TSectorArray & vectors, const int3 & pos);
-	TerrainTile * getTile(crint3 pos) const;
-	std::vector<const CGObjectInstance *> getNearbyObjs(HeroPtr h, bool sectorsAround);
-
-	void makeParentBFS(crint3 source);
-
-	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
-	int3 findFirstVisitableTile(HeroPtr h, crint3 dst);
-};
-
 class VCAI : public CAdventureAI
 {
 public:
@@ -148,16 +92,16 @@ public:
 	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
-	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
+	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek; //TODO: remove it and fix serialization
 
-	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
-	std::map<HeroPtr, std::set<const CGObjectInstance *>> reservedHeroesMap; //objects reserved by specific heroes
-	std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
+	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: remove it and fix serialization
+	std::map<HeroPtr, std::set<const CGObjectInstance *>> reservedHeroesMap; //TODO: remove it and fix serialization
+	std::set<HeroPtr> heroesUnableToExplore; //TODO: remove it and fix serialization
 
 	//sets are faster to search, also do not contain duplicates
 	std::set<const CGObjectInstance *> visitableObjs;
 	std::set<const CGObjectInstance *> alreadyVisited;
-	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
+	std::set<const CGObjectInstance *> reservedObjs; //TODO: remove it and fix serialization
 
 	std::map<HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
 
@@ -174,22 +118,17 @@ public:
 	virtual ~VCAI();
 
 	//TODO: use only smart pointers?
-	void tryRealize(Goals::Explore & g);
 	void tryRealize(Goals::RecruitHero & g);
-	void tryRealize(Goals::VisitTile & g);
 	void tryRealize(Goals::VisitHero & g);
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
-	void tryRealize(Goals::CollectRes & g);
-	void tryRealize(Goals::Build & g);
+	void tryRealize(Goals::GetResources & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
 
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(HeroPtr h);
 	int3 explorationDesperate(HeroPtr h);
-	bool isTileNotReserved(const CGHeroInstance * h, int3 t); //the tile is not occupied by allied hero and the object is not reserved
-	void recruitHero();
 
 	virtual std::string getBattleAIName() const override;
 
@@ -255,24 +194,15 @@ public:
 	void makeTurn();
 
 	void makeTurnInternal();
-	void performTypicalActions();
 
 	void buildArmyIn(const CGTownInstance * t);
-	void striveToGoal(Goals::TSubgoal ultimateGoal);
-	Goals::TSubgoal striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract);
 	void endTurn();
-	void wander(HeroPtr h);
-	void setGoal(HeroPtr h, Goals::TSubgoal goal);
-	void evaluateGoal(HeroPtr h); //evaluates goal assigned to hero, if any
-	void completeGoal(Goals::TSubgoal goal); //safely removes goal from reserved hero
 	void striveToQuest(const QuestInfo & q);
 
-	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
-	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
-	bool canGetArmy(const CGHeroInstance * h, const CGHeroInstance * source); //can we get any better stacks from other hero?
+	ui32 howManyArmyCanGet(const CGHeroInstance * h, const CArmedInstance * source); //can we get any better stacks from other hero?
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 	void moveCreaturesToHero(const CGTownInstance * t);
@@ -286,12 +216,7 @@ public:
 
 	void addVisitableObj(const CGObjectInstance * obj);
 	void markObjectVisited(const CGObjectInstance * obj);
-	void reserveObject(HeroPtr h, const CGObjectInstance * obj); //TODO: reserve all objects that heroes attempt to visit
-	void unreserveObject(HeroPtr h, const CGObjectInstance * obj);
-
-	void markHeroUnableToExplore(HeroPtr h);
-	void markHeroAbleToExplore(HeroPtr h);
-	bool isAbleToExplore(HeroPtr h);
+	
 	void clearPathsInfo();
 
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
@@ -310,17 +235,10 @@ public:
 	//optimization - use one SM for every hero call
 	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
 
-	const CGTownInstance * findTownWithTavern() const;
-	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
-
-	Goals::TSubgoal getGoal(HeroPtr h) const;
-	bool canAct(HeroPtr h) const;
-	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;
 	TResources freeResources() const; //owned resources minus gold reserve
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources & cost) const;
-	void checkHeroArmy(HeroPtr h);
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
@@ -445,7 +363,7 @@ public:
 	explicit goalFulfilledException(Goals::TSubgoal Goal)
 		: goal(Goal)
 	{
-		msg = goal->name();
+		msg = goal->toString();
 	}
 
 	virtual ~goalFulfilledException() throw ()

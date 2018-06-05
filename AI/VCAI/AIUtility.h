@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 class CCallback;
+class CPathsInfo;
 
 typedef const int3 & crint3;
 typedef const std::string & crstring;
@@ -141,8 +142,7 @@ void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const
 void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp);
-int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir);
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, const CPathsInfo* pathsInfo);
 void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out);
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
@@ -154,14 +154,18 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 
 ui64 evaluateDanger(const CGObjectInstance * obj);
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
-bool isSafeToVisit(HeroPtr h, crint3 tile);
+ui64 analyzeDanger(HeroPtr h, crint3 tile);
+inline bool isSafeToVisit(HeroPtr h, crint3 tile) { return !analyzeDanger(h, tile); }
 bool boundaryBetweenTwoPoints(int3 pos1, int3 pos2, CCallback * cbp);
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
+bool isLevelHigher(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
+ui32 distanceToTile(const CGHeroInstance* hero, int3 pos);
+ui32 distanceToTile(const CPathsInfo* pathsInfo, int3 pos);
+const CGHeroInstance* getNearestHero(std::vector<const CGHeroInstance*> heroes, int3 pos);
 int3 whereToExplore(HeroPtr h);
 
 class CDistanceSorter

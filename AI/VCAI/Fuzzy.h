@@ -9,7 +9,7 @@
 */
 #pragma once
 #include "fl/Headers.h"
-#include "Goals.h"
+#include "Goals/Goal.h"
 
 class VCAI;
 class CArmedInstance;
@@ -65,16 +65,12 @@ public:
 	void initTacticalAdvantage();
 	void initVisitTile();
 
-	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
 	float evaluate(Goals::VisitTile & g);
 	float evaluate(Goals::VisitHero & g);
 	float evaluate(Goals::BuildThis & g);
 	float evaluate(Goals::DigAtTile & g);
-	float evaluate(Goals::CollectRes & g);
-	float evaluate(Goals::Build & g);
-	float evaluate(Goals::GatherArmy & g);
-	float evaluate(Goals::ClearWayTo & g);
+	float evaluate(Goals::GetResources & g);
 	float evaluate(Goals::Invalid & g);
 	float evaluate(Goals::AbstractGoal & g);
 	void setPriority(Goals::TSubgoal & g);
