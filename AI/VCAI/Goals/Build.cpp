@@ -328,42 +328,44 @@ Tasks::TaskList Build::getTasks()
 		totalDevelopmentCost.toString());
 
 	//TODO: we need to try enforce capturing resources of particular type if we need them.
-	Tasks::TaskList resourceCapture;
+	if (this->allowResourceCapture) {
+		Tasks::TaskList resourceCapture;
 
-	for (int resType = Res::ERes::WOOD; resType <= Res::ERes::MITHRIL; resType++) {
-		if (resType == Res::ERes::GOLD) {
-			continue;
-		}
-
-		double daysToGetResource = requiredResources[resType] / (dailyIncome[resType] + 0.001); // avoid zero divide
-		double priority = std::min(1.0, daysToGetResource / 20);
-
-		if (priority < 0.25) {
-			continue;
-		}
-
-		std::vector<const CGObjectInstance*> interestingObjects;
-
-		vstd::copy_if(ai->visitableObjs, std::back_inserter(interestingObjects), [&](const CGObjectInstance* obj) -> bool {
-			auto id = obj->ID;
-			auto mineOrResource = id == Obj::MINE || id == Obj::ABANDONED_MINE || id == Obj::RESOURCE;
-
-			return mineOrResource && obj->subID == resType;
-		});
-
-		if (interestingObjects.size()) {
-			for (auto obj : interestingObjects) {
-				logAi->trace("Consider capturing object required by build %s/%d", obj->getObjectName(), priority);
+		for (int resType = Res::ERes::WOOD; resType <= Res::ERes::MITHRIL; resType++) {
+			if (resType == Res::ERes::GOLD) {
+				continue;
 			}
-			addTasks(resourceCapture, sptr(CaptureObjects(interestingObjects)), priority);
+
+			double daysToGetResource = requiredResources[resType] / (dailyIncome[resType] + 0.001); // avoid zero divide
+			double priority = std::min(1.0, daysToGetResource / 20);
+
+			if (priority < 0.25) {
+				continue;
+			}
+
+			std::vector<const CGObjectInstance*> interestingObjects;
+
+			vstd::copy_if(ai->visitableObjs, std::back_inserter(interestingObjects), [&](const CGObjectInstance* obj) -> bool {
+				auto id = obj->ID;
+				auto mineOrResource = id == Obj::MINE || id == Obj::ABANDONED_MINE || id == Obj::RESOURCE;
+
+				return mineOrResource && obj->subID == resType;
+			});
+
+			if (interestingObjects.size()) {
+				for (auto obj : interestingObjects) {
+					logAi->trace("Consider capturing object required by build %s/%d", obj->getObjectName(), priority);
+				}
+				addTasks(resourceCapture, sptr(CaptureObjects(interestingObjects)), priority);
+			}
+		}
+
+		if (resourceCapture.size()) {
+			sortByPriority(resourceCapture);
+			tasks.push_back(resourceCapture.front());
 		}
 	}
 
-	if (resourceCapture.size()) {
-		sortByPriority(resourceCapture);
-		tasks.push_back(resourceCapture.front());
-	}
-	
 	TResources weeklyIncome = dailyIncome * 7;
 	std::vector<BuildingID> result;
 

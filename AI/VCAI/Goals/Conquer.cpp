@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "Conquer.h"
 #include "Build.h"
+#include "Defence.h"
 #include "Explore.h"
 #include "CaptureObjects.h"
 #include "GatherArmy.h"
@@ -58,8 +59,14 @@ Tasks::TaskList Conquer::getTasks() {
 	// lets process heroes according their army strength in descending order
 	std::sort(heroes.begin(), heroes.end(), isLevelHigher);
 
-	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::TOWN)), 1);
-	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::HERO)), 0.95);
+	addTasks(tasks, sptr(Defence()), 1);
+
+	if (tasks.size()) {
+		return tasks;
+	}
+
+	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::HERO)), 1);
+	addTasks(tasks, sptr(CaptureObjects().ofType(Obj::TOWN)), 0.95);
 
 	if (tasks.size()) {
 		sortByPriority(tasks);
@@ -69,11 +76,18 @@ Tasks::TaskList Conquer::getTasks() {
 
 	addTasks(tasks, sptr(Build()), 0.8);
 	addTasks(tasks, sptr(RecruitHero()));
+
+	if (tasks.size()) {
+		sortByPriority(tasks);
+
+		return tasks;
+	}
+
 	addTasks(tasks, sptr(GatherArmy()), 0.7); // no hero - just pickup existing army, no buy
 
 	auto heroTownMap = getHeroTownMap(heroes);
 
-	for(auto nextHero : heroes) {
+	for (auto nextHero : heroes) {
 		if (!nextHero->movement) {
 			continue;
 		}

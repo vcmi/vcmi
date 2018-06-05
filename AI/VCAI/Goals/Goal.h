@@ -52,7 +52,8 @@ enum EGoals
 	CLEAR_WAY_TO,
 	DIG_AT_TILE, //elementar with hero on tile
 	CAPTURE_OBJECTS,
-	VISIT_TOWN
+	VISIT_TOWN,
+	DEFENCE
 };
 
 	//method chaining + clone pattern

@@ -24,29 +24,15 @@ struct SectorMap;
 
 namespace Goals
 {
-	/// Helper class for Build goal
-	class BuildingInfo;
-
-	class Build : public CGoal<Build>
+	class Defence : public CGoal<Defence>
 	{
-	private:
-		bool allowResourceCapture;
-
 	public:
-		TResources resourcesNeeded;
-		Build(bool allowResourceCapture = true)
-			: CGoal(Goals::BUILD)
+		Defence()
+			: CGoal(Goals::DEFENCE)
 		{
-			priority = 1;
-			this->allowResourceCapture = allowResourceCapture;
+			priority = 10;
 		}
 		Tasks::TaskList getTasks() override;
-
-	private:
-		BuildingInfo getBuildingOrPrerequisite(
-			const CGTownInstance * town,
-			BuildingID toBuild,
-			bool excludeDwellingDependencies = true);
 	};
 }
 

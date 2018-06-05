@@ -23,6 +23,13 @@ Tasks::TaskList VisitNearestTown::getTasks() {
 	Tasks::TaskList tasks;
 
 	auto towns = cb->getTownsInfo();
+	auto alreadyInTown = vstd::contains_if(towns, [this](const CGTownInstance* town) -> bool {
+		return town->visitingHero.get() == hero.get();
+	});
+
+	if (alreadyInTown) {
+		return tasks;
+	}
 
 	vstd::erase_if(towns, [](const CGTownInstance* t) -> bool {return t->visitingHero.get(); });
 

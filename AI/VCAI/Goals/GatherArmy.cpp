@@ -170,7 +170,7 @@ Tasks::TaskList GatherArmy::getTasks() {
 		auto additionalArmy = ai->howManyArmyCanGet(this->hero.get(), hero.get());
 
 		if (additionalArmy < this->hero->getArmyStrength() / 4
-			|| additionalArmy < requiredAmmount / 4) {
+			|| !force && additionalArmy < requiredAmmount / 4) {
 			continue;
 		}
 
@@ -178,7 +178,9 @@ Tasks::TaskList GatherArmy::getTasks() {
 
 		addTask(tasks, Tasks::VisitTile(targetHeroPosition, hero, this->hero.get()), 0.8 * priority);
 
-		break;
+		if (!force) {
+			break;
+		}
 	}
 	//TODO take town if it is closer than hero
 	boost::sort(towns, CDistanceSorter(this->hero.get()));
@@ -189,13 +191,15 @@ Tasks::TaskList GatherArmy::getTasks() {
 		auto additionalArmy = howManyReinforcementsCanBuy(hero, town);
 
 		if (pathInfo->reachable() && additionalArmy > this->hero->getArmyStrength() / 4
-			&& additionalArmy > requiredAmmount / 4)
+			&& (force || additionalArmy > requiredAmmount / 4))
 		{
 			auto priority = std::min(0.0, 1 - (double)distanceToTile(pathsInfo, town->visitablePos()) / hero->maxMovePoints(true));
 
 			addTask(tasks, Tasks::BuyArmyInTown(town), priority);
 
-			break;
+			if (!force) {
+				break;
+			}
 		}
 	}
 

@@ -29,6 +29,7 @@ private:
 	std::vector<int> objectTypes;
 	std::vector<const CGObjectInstance*> objectsToCapture;
 	bool specificObjects;
+	bool forceGatherArmy;
 public:
 	CaptureObjects()
 		: CGoal(Goals::CAPTURE_OBJECTS) {
@@ -40,11 +41,22 @@ public:
 		this->objectsToCapture = objectsToCapture;
 		specificObjects = true;
 	}
+	CaptureObjects(const CGObjectInstance* objectToCapture)
+		: CGoal(Goals::CAPTURE_OBJECTS) {
+		objectsToCapture = std::vector<const CGObjectInstance*>();
+		objectsToCapture.push_back(objectToCapture);
+		specificObjects = true;
+	}
 
 	virtual Tasks::TaskList getTasks() override;
 	virtual std::string toString() const override;
 	CaptureObjects& ofType(int type) {
 		objectTypes.push_back(type);
+
+		return *this;
+	}
+	CaptureObjects& withForce() {
+		forceGatherArmy = true;
 
 		return *this;
 	}

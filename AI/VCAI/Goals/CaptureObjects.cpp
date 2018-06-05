@@ -56,17 +56,23 @@ Tasks::TaskList CaptureObjects::getTasks() {
 				return false;
 			}
 
+			auto pathInfo = pathsInfo->getPathInfo(targetPos);
+			auto checkPos = targetPos;
+
+			if (pathInfo->action == CGPathNode::BLOCKVIS && pathInfo->theNodeBefore) {
+				checkPos = pathInfo->theNodeBefore->coord;
+			}
+
 			auto nearestHero = getNearestHero(heroes, targetPos);
-			if (nearestHero != hero.get() && isSafeToVisit(nearestHero, targetPos)) {
+			if (nearestHero != hero.get() && isSafeToVisit(nearestHero, checkPos)) {
 				logAi->trace("There is %s who is closer to %s. Skipping it.", nearestHero->name, objToVisit->getObjectName());
 				continue;
 			}
 
-			auto missingArmy = analyzeDanger(hero, targetPos);
+			auto missingArmy = analyzeDanger(hero, checkPos);
 
 			if (!missingArmy) {
 				double priority = 0;
-				auto pathInfo = pathsInfo->getPathInfo(targetPos);
 
 				if (pathInfo->turns == 0) {
 					priority = 1 - (hero->movement - pathInfo->moveRemains) / (double)hero->maxMovePoints(true);
@@ -107,7 +113,7 @@ Tasks::TaskList CaptureObjects::getTasks() {
 	}
 
 	if (!tasks.size() && this->hero && neededArmy) {
-		addTasks(tasks, sptr(GatherArmy(neededArmy).sethero(this->hero)));
+		addTasks(tasks, sptr(GatherArmy(neededArmy, forceGatherArmy).sethero(this->hero)));
 	}
 
 	return tasks;

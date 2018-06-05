@@ -13,6 +13,7 @@ set(VCAI_SRCS
 		SectorMap.cpp
 		Goals/Goal.cpp
 		Goals/Build.cpp
+		Goals/Defence.cpp
 		Goals/Explore.cpp
 		Goals/Conquer.cpp
 		Goals/CaptureObjects.cpp
@@ -36,6 +37,7 @@ set(VCAI_HEADERS
 		SectorMap.h
 		Goals/Goal.h
 		Goals/Build.h
+		Goals/Defence.h
 		Goals/VisitNearestTown.h
 		Goals/Explore.h
 		Goals/Conquer.h

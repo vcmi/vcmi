@@ -28,16 +28,18 @@ namespace Goals
 	{
 	private:
 		ui64 requiredAmmount;
+		bool force;
 
 	public:
 		GatherArmy()
 			: CGoal(Goals::GATHER_ARMY)
 		{
 		}
-		GatherArmy(ui64 requiredAmmount)
+		GatherArmy(ui64 requiredAmmount, bool force = false)
 			: CGoal(Goals::GATHER_ARMY)
 		{
 			this->requiredAmmount = requiredAmmount;
+			this->force = force;
 		}
 
 		Tasks::TaskList getTasks() override;
