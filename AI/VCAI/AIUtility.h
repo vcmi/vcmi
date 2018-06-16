@@ -17,6 +17,7 @@
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/CPathfinder.h"
 
 class CCallback;
 
@@ -141,8 +142,7 @@ void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const
 void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp);
-int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir);
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, const CPathsInfo * pathsInfo);
 void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out);
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
@@ -155,7 +155,6 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 ui64 evaluateDanger(const CGObjectInstance * obj);
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 bool isSafeToVisit(HeroPtr h, crint3 tile);
-bool boundaryBetweenTwoPoints(int3 pos1, int3 pos2, CCallback * cbp);
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
