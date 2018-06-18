@@ -2041,6 +2041,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
 		}
+
+		if(path.nodes[0].action == CGPathNode::BLOCKING_VISIT)
+		{
+			ret = h && i == 0; // when we take resource we do not reach its position. We even might not move
+		}
 	}
 	if(h)
 	{
@@ -2055,7 +2060,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		completeGoal(sptr(Goals::VisitTile(dst).sethero(h))); //we stepped on some tile, anyway
 		completeGoal(sptr(Goals::ClearWayTo(dst).sethero(h)));
 
-		ret = (dst == h->visitablePos());
+		ret = ret || (dst == h->visitablePos());
 
 		if(!ret) //reserve object we are heading towards
 		{
@@ -2066,8 +2071,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		if(startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
-			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused
-			throw cannotFulfillGoalException("Invalid path found!"); //FIXME: should never happen
+			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused or has only 95mp which is not enough to move
+			throw cannotFulfillGoalException("Invalid path found!");
 		}
 		evaluateGoal(h); //new hero position means new game situation
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->name, startHpos.toString(), h->visitablePos().toString(), ret);
