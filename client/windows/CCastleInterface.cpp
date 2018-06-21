@@ -1135,7 +1135,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 CCastleInterface::~CCastleInterface()
 {
-	LOCPLINT->castleInt = nullptr;
+	if(LOCPLINT->castleInt == this)
+		LOCPLINT->castleInt = nullptr;
 }
 
 void CCastleInterface::updateGarrisons()
