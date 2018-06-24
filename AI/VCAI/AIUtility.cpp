@@ -430,12 +430,12 @@ bool isBlockVisitObj(const int3 & pos)
 	return false;
 }
 
-bool hasReachableNeighbor(const int3 &pos, const CPathsInfo* paths, CCallback * cbp)
+bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp)
 {
-	for (crint3 dir : int3::getDirs())
+	for(crint3 dir : int3::getDirs())
 	{
 		int3 tile = pos + dir;
-		if (cbp->isInTheMap(tile) && paths->getPathInfo(tile)->reachable())
+		if(cbp->isInTheMap(tile) && cbp->getPathsInfo(hero.get())->getPathInfo(tile)->reachable())
 		{
 			return true;
 		}
@@ -444,45 +444,23 @@ bool hasReachableNeighbor(const int3 &pos, const CPathsInfo* paths, CCallback * 
 	return false;
 }
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, const CPathsInfo* pathsInfo)
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, HeroPtr hero)
 {
 	int ret = 0;
-	for (int x = pos.x - radious; x <= pos.x + radious; x++)
+	for(int x = pos.x - radious; x <= pos.x + radious; x++)
 	{
-		for (int y = pos.y - radious; y <= pos.y + radious; y++)
+		for(int y = pos.y - radious; y <= pos.y + radious; y++)
 		{
 			int3 npos = int3(x, y, pos.z);
-			if (cbp->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious && !cbp->isVisible(npos))
+			if(cbp->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious && !cbp->isVisible(npos))
 			{
-				if (hasReachableNeighbor(npos, pathsInfo, cbp))
+				if(hasReachableNeighbor(npos, hero, cbp))
 					ret++;
 			}
 		}
 	}
 
 	return ret;
-}
-
-bool boundaryBetweenTwoPoints(int3 pos1, int3 pos2, CCallback * cbp) //determines if two points are separated by known barrier
-{
-	int xMin = std::min(pos1.x, pos2.x);
-	int xMax = std::max(pos1.x, pos2.x);
-	int yMin = std::min(pos1.y, pos2.y);
-	int yMax = std::max(pos1.y, pos2.y);
-
-	for (int x = xMin; x <= xMax; ++x)
-	{
-		for (int y = yMin; y <= yMax; ++y)
-		{
-			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
-			if (std::abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
-			{
-				if (!(cbp->isVisible(tile) && cbp->getTile(tile)->blocked)) //if there's invisible or unblocked tile between, it's good
-					return false;
-			}
-		}
-	}
-	return true; //if all are visible and blocked, we're at dead end
 }
 
 void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out)

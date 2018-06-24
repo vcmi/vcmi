@@ -142,7 +142,7 @@ void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const
 void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, const CPathsInfo * pathsInfo);
+int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, HeroPtr hero);
 void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out);
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
