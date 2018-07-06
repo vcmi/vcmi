@@ -319,7 +319,7 @@ public:
 				BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = true;
 			}
 			
-			if(version >= 782)
+			if(version >= 788)
 			{
 				h & ATTACK_POINT_DMG_MULTIPLIER;
 				h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
