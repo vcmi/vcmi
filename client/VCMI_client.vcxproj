@@ -156,6 +156,7 @@
       <AdditionalLibraryDirectories>$(VCMI_Out)</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <OptimizeReferences>true</OptimizeReferences>
+      <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
       <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CustomBuildStep>
@@ -190,8 +191,8 @@
     <ClCompile Include="CMT.cpp" />
     <ClCompile Include="CMusicHandler.cpp" />
     <ClCompile Include="CPlayerInterface.cpp" />
-    <ClCompile Include="CPreGame.cpp" />
     <ClCompile Include="CreatureCostBox.cpp" />
+    <ClCompile Include="CServerHandler.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="gui\CAnimation.cpp" />
@@ -201,8 +202,21 @@
     <ClCompile Include="gui\Fonts.cpp" />
     <ClCompile Include="gui\Geometries.cpp" />
     <ClCompile Include="gui\SDL_Extensions.cpp" />
+    <ClCompile Include="lobby\CBonusSelection.cpp" />
+    <ClCompile Include="lobby\CLobbyScreen.cpp" />
+    <ClCompile Include="lobby\CSavingScreen.cpp" />
+    <ClCompile Include="lobby\CScenarioInfoScreen.cpp" />
+    <ClCompile Include="lobby\CSelectionBase.cpp" />
+    <ClCompile Include="lobby\OptionsTab.cpp" />
+    <ClCompile Include="lobby\RandomMapTab.cpp" />
+    <ClCompile Include="lobby\SelectionTab.cpp" />
+    <ClCompile Include="mainmenu\CCampaignScreen.cpp" />
+    <ClCompile Include="mainmenu\CMainMenu.cpp" />
+    <ClCompile Include="mainmenu\CPrologEpilogVideo.cpp" />
+    <ClCompile Include="mainmenu\CreditsScreen.cpp" />
     <ClCompile Include="mapHandler.cpp" />
     <ClCompile Include="NetPacksClient.cpp" />
+    <ClCompile Include="NetPacksLobbyClient.cpp" />
     <ClCompile Include="SDLRWwrapper.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Create</PrecompiledHeader>
@@ -243,8 +257,8 @@
     <ClInclude Include="CMT.h" />
     <ClInclude Include="CMusicHandler.h" />
     <ClInclude Include="CPlayerInterface.h" />
-    <ClInclude Include="CPreGame.h" />
     <ClInclude Include="CreatureCostBox.h" />
+    <ClInclude Include="CServerHandler.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="gui\CAnimation.h" />
@@ -256,6 +270,18 @@
     <ClInclude Include="gui\SDL_Compat.h" />
     <ClInclude Include="gui\SDL_Extensions.h" />
     <ClInclude Include="gui\SDL_Pixels.h" />
+    <ClInclude Include="lobby\CBonusSelection.h" />
+    <ClInclude Include="lobby\CLobbyScreen.h" />
+    <ClInclude Include="lobby\CSavingScreen.h" />
+    <ClInclude Include="lobby\CScenarioInfoScreen.h" />
+    <ClInclude Include="lobby\CSelectionBase.h" />
+    <ClInclude Include="lobby\OptionsTab.h" />
+    <ClInclude Include="lobby\RandomMapTab.h" />
+    <ClInclude Include="lobby\SelectionTab.h" />
+    <ClInclude Include="mainmenu\CCampaignScreen.h" />
+    <ClInclude Include="mainmenu\CMainMenu.h" />
+    <ClInclude Include="mainmenu\CPrologEpilogVideo.h" />
+    <ClInclude Include="mainmenu\CreditsScreen.h" />
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SDLRWwrapper.h" />

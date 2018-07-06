@@ -151,6 +151,7 @@
       </LinkTimeCodeGeneration>
       <AdditionalLibraryDirectories>..\..\libs</AdditionalLibraryDirectories>
       <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
+      <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
@@ -209,6 +210,7 @@
     <ClCompile Include="filesystem\FileInfo.cpp" />
     <ClCompile Include="filesystem\FileStream.cpp" />
     <ClCompile Include="filesystem\MinizipExtensions.cpp" />
+    <ClCompile Include="registerTypes\TypesLobbyPacks.cpp" />
     <ClCompile Include="serializer\BinaryDeserializer.cpp" />
     <ClCompile Include="serializer\BinarySerializer.cpp" />
     <ClCompile Include="serializer\CLoadIntegrityValidator.cpp" />
@@ -290,7 +292,6 @@
     <ClCompile Include="registerTypes\TypesMapObjects1.cpp" />
     <ClCompile Include="registerTypes\TypesMapObjects2.cpp" />
     <ClCompile Include="registerTypes\TypesMapObjects3.cpp" />
-    <ClCompile Include="registerTypes\TypesPregamePacks.cpp" />
     <ClCompile Include="registerTypes\TypesServerPacks.cpp" />
     <ClCompile Include="rmg\CMapGenerator.cpp" />
     <ClCompile Include="logging\CLogger.cpp" />
@@ -307,6 +308,7 @@
     <ClCompile Include="rmg\CRmgTemplateZone.cpp" />
     <ClCompile Include="rmg\CZoneGraphGenerator.cpp" />
     <ClCompile Include="rmg\CZonePlacer.cpp" />
+    <ClCompile Include="StartInfo.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -318,6 +320,7 @@
     </ClCompile>
     <ClCompile Include="VCMIDirs.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
+    <ClCompile Include="vstd\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
@@ -417,6 +420,7 @@
     <ClInclude Include="mapping\MapFormatH3M.h" />
     <ClInclude Include="mapping\MapFormatJson.h" />
     <ClInclude Include="NetPacksBase.h" />
+    <ClInclude Include="NetPacksLobby.h" />
     <ClInclude Include="registerTypes\RegisterTypes.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
     <ClInclude Include="logging\CLogger.h" />
