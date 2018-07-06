@@ -663,8 +663,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("\tWINNING_HERO_WITH_NO_TROOPS_RETREATS\t%d", static_cast<int>(settings.WINNING_HERO_WITH_NO_TROOPS_RETREATS));
 	settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = hardcodedFeatures["BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE"].Bool();
 	logMod->debug("\tBLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE\t%d", static_cast<int>(settings.BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE));
-	settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT = hardcodedFeatures["NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT"].Bool();
-	logMod->debug("\tNO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT\t%d", static_cast<int>(settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT));
+	settings.ATTACK_POINT_DMG_MULTIPLIER = hardcodedFeatures["ATTACK_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tATTACK_POINT_DMG_MULTIPLIER\t%d", static_cast<float>(settings.ATTACK_POINT_DMG_MULTIPLIER));
+	settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["ATTACK_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tATTACK_POINTS_DMG_MULTIPLIER_CAP\t%d", static_cast<float>(settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP));
+	settings.DEFENSE_POINT_DMG_MULTIPLIER = hardcodedFeatures["DEFENSE_POINT_DMG_MULTIPLIER"].Float();
+	logMod->debug("\tDEFENSE_POINT_DMG_MULTIPLIER\t%d", static_cast<float>(settings.DEFENSE_POINT_DMG_MULTIPLIER));
+	settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP = hardcodedFeatures["DEFENSE_POINTS_DMG_MULTIPLIER_CAP"].Float();
+	logMod->debug("\tDEFENSE_POINTS_DMG_MULTIPLIER_CAP\t%d", static_cast<float>(settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP));
 
 	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();

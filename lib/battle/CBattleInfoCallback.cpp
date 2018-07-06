@@ -708,12 +708,12 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	//bonus from attack/defense skills
 	if(attackDefenceDifference < 0) //decreasing dmg
 	{
-		const double dec = !VLC->modh->settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT ? std::min(0.025 * (-attackDefenceDifference), 0.7) : 0.025 * (-attackDefenceDifference);
+		const double dec = std::min(VLC->modh->settings.DEFENSE_POINT_DMG_MULTIPLIER * (-attackDefenceDifference), VLC->modh->settings.DEFENSE_POINTS_DMG_MULTIPLIER_CAP);
 		multBonus *= 1.0 - dec;
 	}
 	else //increasing dmg
 	{
-		const double inc = !VLC->modh->settings.NO_ATT_AND_DEF_DAMAGE_INFLUENCE_LIMIT ? std::min(0.05 * attackDefenceDifference, 4.0) : 0.05 * attackDefenceDifference;
+		const double inc = std::min(VLC->modh->settings.ATTACK_POINT_DMG_MULTIPLIER * attackDefenceDifference, VLC->modh->settings.ATTACK_POINTS_DMG_MULTIPLIER_CAP);
 		additiveBonus += inc;
 	}
 
