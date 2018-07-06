@@ -35,6 +35,9 @@
     <Filter Include="spells\effects">
       <UniqueIdentifier>{a3de4952-3c98-4c1a-bc4b-bd3eeaa82ba7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vstd">
+      <UniqueIdentifier>{91722359-2231-4596-8e73-dbdcd14bd4f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CArtHandler.cpp" />
@@ -141,9 +144,6 @@
     </ClCompile>
     <ClCompile Include="LogicalExpression.cpp" />
     <ClCompile Include="registerTypes\TypesClientPacks2.cpp">
-      <Filter>registerTypes</Filter>
-    </ClCompile>
-    <ClCompile Include="registerTypes\TypesPregamePacks.cpp">
       <Filter>registerTypes</Filter>
     </ClCompile>
     <ClCompile Include="registerTypes\TypesServerPacks.cpp">
@@ -388,6 +388,13 @@
     </ClCompile>
     <ClCompile Include="spells\ProxyCaster.cpp">
       <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="StartInfo.cpp" />
+    <ClCompile Include="registerTypes\TypesLobbyPacks.cpp">
+      <Filter>registerTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="vstd\StringUtils.cpp">
+      <Filter>vstd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -900,6 +907,9 @@
     </ClInclude>
     <ClInclude Include="spells\ProxyCaster.h">
       <Filter>spells</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPacksLobby.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
