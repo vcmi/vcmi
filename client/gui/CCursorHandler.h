@@ -27,6 +27,7 @@ namespace ECursor
 /// handles mouse cursor
 class CCursorHandler final
 {
+	bool needUpdate;
 	SDL_Texture * cursorLayer;
 
 	SDL_Surface * buffer;
@@ -43,6 +44,7 @@ class CCursorHandler final
 	void replaceBuffer(CIntObject * payload);
 	void shiftPos( int &x, int &y );
 
+	void updateTexture();
 public:
 	/// position of cursor
 	int xpos, ypos;

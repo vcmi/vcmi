@@ -29,7 +29,7 @@ void CCursorHandler::updateBuffer(CIntObject * payload)
 	payload->moveTo(Point(0,0));
 	payload->showAll(buffer);
 
-	SDL_UpdateTexture(cursorLayer, nullptr, buffer->pixels, buffer->pitch);
+	needUpdate = true;
 }
 
 void CCursorHandler::replaceBuffer(CIntObject * payload)
@@ -219,6 +219,9 @@ void CCursorHandler::render()
 	if(!showing)
 		return;
 
+	//the must update texture in the main (renderer) thread, but changes to cursor type may come from other threads
+	updateTexture();
+
 	int x = xpos;
 	int y = ypos;
 	shiftPos(x, y);
@@ -238,8 +241,18 @@ void CCursorHandler::render()
 	SDL_RenderCopy(mainRenderer, cursorLayer, nullptr, &destRect);
 }
 
+void CCursorHandler::updateTexture()
+{
+	if(needUpdate)
+	{
+		SDL_UpdateTexture(cursorLayer, nullptr, buffer->pixels, buffer->pitch);
+		needUpdate = false;
+	}
+}
+
 CCursorHandler::CCursorHandler()
-	: buffer(nullptr),
+	: needUpdate(true),
+	buffer(nullptr),
 	cursorLayer(nullptr),
 	showing(false)
 {
