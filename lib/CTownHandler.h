@@ -296,8 +296,10 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 		CTown * town;
 	};
 
+	std::map<CTown *, JsonNode> warMachinesToLoad;
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	void initializeRequirements();
+	void initializeWarMachines();
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source);
@@ -314,7 +316,7 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	void loadClientData(CTown &town, const JsonNode & source);
 
-	void loadTown(CTown &town, const JsonNode & source);
+	void loadTown(CTown * town, const JsonNode & source);
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 

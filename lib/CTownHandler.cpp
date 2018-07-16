@@ -601,70 +601,64 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	loadSiegeScreen(town, source["siege"]);
 }
 
-void CTownHandler::loadTown(CTown &town, const JsonNode & source)
+void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 {
 	auto resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
-	if (resIter == std::end(GameConstants::RESOURCE_NAMES))
-		town.primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
+	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
+		town->primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
 	else
-		town.primaryRes = resIter - std::begin(GameConstants::RESOURCE_NAMES);
+		town->primaryRes = resIter - std::begin(GameConstants::RESOURCE_NAMES);
 
-	VLC->modh->identifiers.requestIdentifier("creature", source["warMachine"],
-	[&town](si32 creature)
-	{
-		town.warMachine = CreatureID(creature).toCreature()->warMachine;
-	});
+	warMachinesToLoad[town] = source["warMachine"];
 
-	town.moatDamage = source["moatDamage"].Float();
+	town->moatDamage = source["moatDamage"].Float();
 
 	// Compatability for <= 0.98f mods
 	if(source["moatHexes"].isNull())
-	{
-		town.moatHexes = CTown::defaultMoatHexes();
-	}
+		town->moatHexes = CTown::defaultMoatHexes();
 	else
-		town.moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
+		town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
-	town.mageLevel = source["mageGuild"].Float();
-	town.names = source["names"].convertTo<std::vector<std::string> >();
+	town->mageLevel = source["mageGuild"].Float();
+	town->names = source["names"].convertTo<std::vector<std::string> >();
 
 	//  Horde building creature level
 	for(const JsonNode &node : source["horde"].Vector())
-		town.hordeLvl[town.hordeLvl.size()] = node.Float();
+		town->hordeLvl[town->hordeLvl.size()] = node.Float();
 
 	// town needs to have exactly 2 horde entries. Validation will take care of 2+ entries
 	// but anything below 2 must be handled here
 	for (size_t i=source["horde"].Vector().size(); i<2; i++)
-		town.hordeLvl[i] = -1;
+		town->hordeLvl[i] = -1;
 
 	const JsonVector & creatures = source["creatures"].Vector();
 
-	town.creatures.resize(creatures.size());
+	town->creatures.resize(creatures.size());
 
 	for (size_t i=0; i< creatures.size(); i++)
 	{
 		const JsonVector & level = creatures[i].Vector();
 
-		town.creatures[i].resize(level.size());
+		town->creatures[i].resize(level.size());
 
 		for (size_t j=0; j<level.size(); j++)
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", level[j], [=, &town](si32 creature)
+			VLC->modh->identifiers.requestIdentifier("creature", level[j], [=](si32 creature)
 			{
-				town.creatures[i][j] = CreatureID(creature);
+				town->creatures[i][j] = CreatureID(creature);
 			});
 		}
 	}
 
-	town.defaultTavernChance = source["defaultTavern"].Float();
+	town->defaultTavernChance = source["defaultTavern"].Float();
 	/// set chance of specific hero class to appear in this town
 	for(auto &node : source["tavern"].Struct())
 	{
 		int chance = node.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=, &town](si32 classID)
+		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
 		{
-			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.faction->index] = chance;
+			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town->faction->index] = chance;
 		});
 	}
 
@@ -672,20 +666,20 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	{
 		int chance = node.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=, &town](si32 spellID)
+		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
 		{
-			VLC->spellh->objects.at(spellID)->probabilities[town.faction->index] = chance;
+			VLC->spellh->objects.at(spellID)->probabilities[town->faction->index] = chance;
 		});
 	}
 
-	for (const JsonNode &d : source["adventureMap"]["dwellings"].Vector())
+	for(const JsonNode & d : source["adventureMap"]["dwellings"].Vector())
 	{
-		town.dwellings.push_back (d["graphics"].String());
-		town.dwellingNames.push_back (d["name"].String());
+		town->dwellings.push_back(d["graphics"].String());
+		town->dwellingNames.push_back(d["name"].String());
 	}
 
-	loadBuildings(&town, source["buildings"]);
-	loadClientData(town,source);
+	loadBuildings(town, source["buildings"]);
+	loadClientData(*town, source);
 }
 
 void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
@@ -737,7 +731,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string 
 	{
 		faction->town = new CTown();
 		faction->town->faction = faction;
-		loadTown(*faction->town, source["town"]);
+		loadTown(faction->town, source["town"]);
 	}
 	else
 		faction->town = nullptr;
@@ -836,6 +830,7 @@ void CTownHandler::loadCustom()
 void CTownHandler::afterLoadFinalization()
 {
 	initializeRequirements();
+	initializeWarMachines();
 }
 
 void CTownHandler::initializeRequirements()
@@ -855,6 +850,27 @@ void CTownHandler::initializeRequirements()
 		});
 	}
 	requirementsToLoad.clear();
+}
+
+void CTownHandler::initializeWarMachines()
+{
+	// must be done separately after all objects are loaded
+	for(auto & p : warMachinesToLoad)
+	{
+		CTown * t = p.first;
+		JsonNode creatureKey = p.second;
+
+		auto ret = VLC->modh->identifiers.getIdentifier("creature", creatureKey, false);
+
+		if(ret)
+		{
+			const CCreature * creature = CreatureID(*ret).toCreature();
+
+			t->warMachine = creature->warMachine;
+		}
+	}
+
+	warMachinesToLoad.clear();
 }
 
 std::vector<bool> CTownHandler::getDefaultAllowed() const
