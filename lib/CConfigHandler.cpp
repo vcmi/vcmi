@@ -51,12 +51,11 @@ SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>:
 
 SettingsStorage::SettingsStorage():
 	write(NodeAccessor<Settings>(*this, std::vector<std::string>() )),
-	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() )),
-	autoSaveConfig(false)
+	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() ))
 {
 }
 
-void SettingsStorage::init(bool autoSave)
+void SettingsStorage::init()
 {
 	std::string confName = "config/settings.json";
 
@@ -68,7 +67,6 @@ void SettingsStorage::init(bool autoSave)
 
 	JsonUtils::maximize(config, "vcmi:settings");
 	JsonUtils::validate(config, "vcmi:settings", "settings");
-	autoSaveConfig = autoSave;
 }
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
@@ -76,14 +74,12 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	for(SettingsListener * listener : listeners)
 		listener->nodeInvalidated(changedPath);
 
-	if(autoSaveConfig)
-	{
-		JsonNode savedConf = config;
-		JsonUtils::minimize(savedConf, "vcmi:settings");
+	JsonNode savedConf = config;
+	savedConf.Struct().erase("session");
+	JsonUtils::minimize(savedConf, "vcmi:settings");
 
-		FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
-		file << savedConf.toJson();
-	}
+	FileStream file(*CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::out | std::ofstream::trunc);
+	file << savedConf.toJson();
 }
 
 JsonNode & SettingsStorage::getNode(std::vector<std::string> path)

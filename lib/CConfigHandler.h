@@ -32,7 +32,6 @@ class DLL_LINKAGE SettingsStorage
 
 	std::set<SettingsListener*> listeners;
 	JsonNode config;
-	bool autoSaveConfig;
 
 	JsonNode & getNode(std::vector<std::string> path);
 
@@ -43,7 +42,7 @@ class DLL_LINKAGE SettingsStorage
 public:
 	// Initialize config structure
 	SettingsStorage();
-	void init(bool autoSave=false);
+	void init();
 	
 	// Get write access to config node at path
 	const NodeAccessor<Settings> write;
