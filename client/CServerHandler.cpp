@@ -478,7 +478,7 @@ void CServerHandler::startGameplay()
 	state = EClientState::GAMEPLAY;
 }
 
-void CServerHandler::endGameplay(bool closeConnection)
+void CServerHandler::endGameplay(bool closeConnection, bool restart)
 {
 	client->endGame();
 	vstd::clear_pointer(client);
@@ -490,14 +490,17 @@ void CServerHandler::endGameplay(bool closeConnection)
 		CSH->sendClientDisconnecting();
 		logNetwork->info("Closed connection.");
 	}
-	if(CMM)
+	if(!restart)
 	{
-		GH.curInt = CMM;
-		CMM->enable();
-	}
-	else
-	{
-		GH.curInt = CMainMenu::create();
+		if(CMM)
+		{
+			GH.curInt = CMM;
+			CMM->enable();
+		}
+		else
+		{
+			GH.curInt = CMainMenu::create();
+		}
 	}
 }
 

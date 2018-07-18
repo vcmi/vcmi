@@ -132,7 +132,7 @@ public:
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
 	void startGameplay();
-	void endGameplay(bool closeConnection = true);
+	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
