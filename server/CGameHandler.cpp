@@ -3668,7 +3668,8 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	//resulting creature - bone dragons or skeletons
 	CreatureID resCreature = CreatureID::SKELETON;
 
-	if (s.hasBonusOfType(Bonus::DRAGON_NATURE)
+	if ((s.hasBonusOfType(Bonus::DRAGON_NATURE)
+			&& !(s.hasBonusOfType(Bonus::UNDEAD)))
 			|| (s.getCreatureID() == CreatureID::HYDRA)
 			|| (s.getCreatureID() == CreatureID::CHAOS_HYDRA))
 		resCreature = CreatureID::BONE_DRAGON;
