@@ -4054,17 +4054,17 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			//attack
 			int totalAttacks = stack->totalAttacks.getMeleeValue();
 
+			const bool firstStrike = destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE);
+			const bool retaliation = destinationStack->ableToRetaliate();
 			for (int i = 0; i < totalAttacks; ++i)
 			{
-				const bool firstStrike = destinationStack->hasBonusOfType(Bonus::FIRST_STRIKE);
-				const bool retaliation = destinationStack->ableToRetaliate();
 				//first strike
 				if(i == 0 && firstStrike && retaliation)
 				{
 					makeAttack(destinationStack, stack, 0, stack->getPosition(), true, false, true);
 				}
 
-				//move can cause death, eg. by walking into the moat
+				//move can cause death, eg. by walking into the moat, first strike can cause death as well
 				if(stack->alive() && destinationStack->alive())
 				{
 					makeAttack(stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
@@ -4074,10 +4074,10 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				//we check retaliation twice, so if it unblocked during attack it will work only on next attack
 				if(stack->alive()
 					&& !stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
-					&& (i > 0 || !firstStrike)
+					&& (i == 0 && !firstStrike)
 					&& retaliation && destinationStack->ableToRetaliate())
 				{
-					makeAttack(destinationStack, stack, 0, stack->getPosition(), i==0, false, true);
+					makeAttack(destinationStack, stack, 0, stack->getPosition(), true, false, true);
 				}
 			}
 
