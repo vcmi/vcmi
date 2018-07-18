@@ -100,7 +100,7 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 {
 	if(handler->state == EClientState::GAMEPLAY)
 	{
-		handler->endGameplay(false);
+		handler->endGameplay(false, true);
 	}
 	handler->state = EClientState::STARTING;
 	if(handler->si->mode != StartInfo::LOAD_GAME)
