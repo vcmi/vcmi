@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
+#include "ResourceManager.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -23,11 +24,11 @@
 #include "../../lib/serializer/BinaryDeserializer.h"
 
 extern FuzzyHelper * fh;
+extern ResourceManager * rm;
 
 class CGVisitableOPW;
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
-const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least this much gold (10000 so at least we'll be able to reach capitol)
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -571,6 +572,8 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 
 	if(!fh)
 		fh = new FuzzyHelper();
+	if (!rm)
+		rm = new ResourceManager();
 
 	retrieveVisitableObjs();
 }
@@ -771,8 +774,6 @@ void VCAI::makeTurn()
 
 void VCAI::makeTurnInternal()
 {
-	saving = 0;
-
 	//it looks messy here, but it's better to have armed heroes before attempting realizing goals
 	for(const CGTownInstance * t : cb->getTownsInfo())
 		moveCreaturesToHero(t);
@@ -899,7 +900,8 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			townVisitsThisWeek[h].insert(h->visitedTown);
-			if(!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD])
+			if(!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >=
+				GameConstants::SPELLBOOK_GOLD_COST + rm->freeResources()[Res::GOLD])
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -1146,7 +1148,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		vstd::amin(count, freeResources() / VLC->creh->creatures[creID]->cost);
+		vstd::amin(count, rm->freeResources() / VLC->creh->creatures[creID]->cost); //TODO: use ResourceManager
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1194,7 +1196,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if(canBuild == EBuildingState::ALLOWED)
 		{
-			if(!containsSavedRes(b->resources))
+			if(!rm->containsSavedRes(b->resources))
 			{
 				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
 				cb->buildBuilding(t, buildID);
@@ -2148,7 +2150,6 @@ void VCAI::tryRealize(Goals::CollectRes & g)
 	}
 	else
 	{
-		saving[g.resID] = 1;
 		throw cannotFulfillGoalException("No object that could be used to raise resources!");
 	}
 }
@@ -2673,49 +2674,6 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 	return bestTile;
 }
 
-TResources VCAI::estimateIncome() const
-{
-	TResources ret;
-	for(const CGTownInstance * t : cb->getTownsInfo())
-	{
-		ret += t->dailyIncome();
-	}
-
-	for(const CGObjectInstance * obj : getFlaggedObjects())
-	{
-		if(obj->ID == Obj::MINE)
-		{
-			switch(obj->subID)
-			{
-			case Res::WOOD:
-			case Res::ORE:
-				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
-				break;
-			case Res::GOLD:
-			case 7: //abandoned mine -> also gold
-				ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
-				break;
-			default:
-				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
-				break;
-			}
-		}
-	}
-
-	return ret;
-}
-
-bool VCAI::containsSavedRes(const TResources & cost) const
-{
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-	{
-		if(saving[i] && cost[i])
-			return true;
-	}
-
-	return false;
-}
-
 void VCAI::checkHeroArmy(HeroPtr h)
 {
 	auto it = lockedHeroes.find(h);
@@ -2832,20 +2790,6 @@ void VCAI::validateObject(ObjectIdRef obj)
 
 		vstd::erase_if(reservedObjs, matchesId);
 	}
-}
-
-TResources VCAI::freeResources() const
-{
-	TResources myRes = cb->getResourceAmount();
-	auto iterator = cb->getTownsInfo();
-	if(std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool
-	{
-		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
-	})
-		/*|| std::all_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool { return x->forbiddenBuildings.find(BuildingID::CAPITOL) != x->forbiddenBuildings.end(); })*/ )
-	myRes[Res::GOLD] -= GOLD_RESERVE; //what if capitol is blocked from building in all possessed towns (set in map editor)? What about reserve for city hall or something similar in that case?
-	vstd::amax(myRes[Res::GOLD], 0);
-	return myRes;
 }
 
 std::shared_ptr<SectorMap> VCAI::getCachedSectorMap(HeroPtr h)
@@ -3256,8 +3200,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		TResources myRes = ai->myCb->getResourceAmount();
-		if(myRes[Res::GOLD] - GOLD_RESERVE < 1000)
+		TResources myRes = rm->freeResources();
+		if(myRes[Res::GOLD] < 1000)
 			return false;
 		break;
 	}
@@ -3267,8 +3211,8 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		TResources myRes = ai->myCb->getResourceAmount();
-		if(myRes[Res::GOLD] - GOLD_RESERVE < 2000 || myRes[Res::GEMS] < 10)
+		TResources myRes = rm->freeResources();
+		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;
 		break;
 	}
@@ -3282,7 +3226,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		//TODO: only on request
 		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(ai->myCb->getResourceAmount()[Res::GOLD] - GOLD_RESERVE < GameConstants::HERO_GOLD_COST)
+		else if(rm->freeResources()[Res::GOLD] < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}

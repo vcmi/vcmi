@@ -141,6 +141,7 @@ public:
 	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
 
 	friend class FuzzyHelper;
+	friend class ResourceManager;
 
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel>> knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
@@ -160,8 +161,6 @@ public:
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 
 	std::map<HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
-
-	TResources saving;
 
 	AIStatus status;
 	std::string battlename;
@@ -317,9 +316,6 @@ public:
 	bool canAct(HeroPtr h) const;
 	std::vector<HeroPtr> getUnblockedHeroes() const;
 	HeroPtr primaryHero() const;
-	TResources freeResources() const; //owned resources minus gold reserve
-	TResources estimateIncome() const;
-	bool containsSavedRes(const TResources & cost) const;
 	void checkHeroArmy(HeroPtr h);
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
@@ -406,7 +402,6 @@ public:
 		h & visitableObjs;
 		h & alreadyVisited;
 		h & reservedObjs;
-		h & saving;
 		h & status;
 		h & battlename;
 		h & heroesUnableToExplore;

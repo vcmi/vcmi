@@ -11,12 +11,14 @@
 #include "Goals.h"
 #include "VCAI.h"
 #include "Fuzzy.h"
+#include "ResourceManager.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh; //TODO: this logic should be moved inside VCAI
+extern FuzzyHelper * fh;
+extern ResourceManager * rm;
 
 using namespace Goals;
 
@@ -915,7 +917,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ai->freeResources().canAfford(VLC->creh->creatures[type]->cost))
+					if(type == objid && rm->freeResources().canAfford(VLC->creh->creatures[type]->cost))
 						dwellings.push_back(d);
 				}
 			}
@@ -1134,7 +1136,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 						for(auto & creatureID : creLevel.second)
 						{
 							auto creature = VLC->creh->creatures[creatureID];
-							if(ai->freeResources().canAfford(creature->cost))
+							if(rm->freeResources().canAfford(creature->cost))
 								objs.push_back(obj);
 						}
 					}
@@ -1154,7 +1156,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	if(ai->canRecruitAnyHero() && ai->freeResources()[Res::GOLD] > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
+	if(ai->canRecruitAnyHero() && rm->freeResources()[Res::GOLD] > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
 		if(auto t = ai->findTownWithTavern())
 		{
