@@ -2625,22 +2625,20 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 
 int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
-	int3 ourPos = h->convertPosition(h->pos, false);
 	std::map<int3, int> dstToRevealedTiles;
+
 	for(crint3 dir : int3::getDirs())
 	{
 		int3 tile = hpos + dir;
 		if(cb->isInTheMap(tile))
 		{
-			if(ourPos != dir) //don't stand in place
+			if(isBlockVisitObj(tile))
+				continue;
+
+			if(isSafeToVisit(h, tile) && isAccessibleForHero(tile, h))
 			{
-				if(isSafeToVisit(h, tile) && isAccessibleForHero(tile, h))
-				{
-					if(isBlockVisitObj(tile))
-						continue;
-					else
-						dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(radius, hpos, dir);
-				}
+				auto distance = hpos.dist2d(tile); // diagonal movement opens more tiles but spends more mp
+				dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(tile, radius, cb.get(), h) / distance;
 			}
 		}
 	}
@@ -2696,7 +2694,7 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 			CGPath path;
 			cb->getPathsInfo(hero)->getPath(path, tile);
-			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp) / (path.nodes.size() + 1); //+1 prevents erratic jumps
+			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp, h) / (path.nodes.size() + 1); //+1 prevents erratic jumps
 
 			if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
@@ -2741,7 +2739,7 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 		{
 			if(cbp->getTile(tile)->blocked) //does it shorten the time?
 				continue;
-			if(!howManyTilesWillBeDiscovered(tile, radius, cbp)) //avoid costly checks of tiles that don't reveal much
+			if(!howManyTilesWillBeDiscovered(tile, radius, cbp, h)) //avoid costly checks of tiles that don't reveal much
 				continue;
 
 			auto t = sm->firstTileToGet(h, tile);
