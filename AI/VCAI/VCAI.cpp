@@ -841,8 +841,7 @@ void VCAI::makeTurnInternal()
 				{
 					return m1.second->priority < m2.second->priority;
 				};
-				boost::sort(safeCopy, lockedHeroesSorter);
-				striveToGoal(safeCopy.back().second);
+				striveToGoal(boost::max_element(safeCopy, lockedHeroesSorter)->second);
 			}
 		}
 
@@ -1584,10 +1583,9 @@ void VCAI::wander(HeroPtr h)
 				dests.push_back(townsReachable.back());
 			}
 			else if(townsNotReachable.size())
-			{
-				boost::sort(townsNotReachable, compareReinforcements);
+			{			
 				//TODO pick the truly best
-				const CGTownInstance * t = townsNotReachable.back();
+				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
 				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->name, t->name, t->visitablePos().toString());
 				int3 pos1 = h->pos;
 				striveToGoal(sptr(Goals::ClearWayTo(t->visitablePos()).sethero(h)));
@@ -1612,9 +1610,10 @@ void VCAI::wander(HeroPtr h)
 					}
 					return false;
 				});
-				boost::sort(towns, compareArmyStrength);
-				if(towns.size())
-					recruitHero(towns.back());
+				if (towns.size())
+				{
+					recruitHero(*boost::max_element(towns, compareArmyStrength));
+				}
 				break;
 			}
 			else
@@ -1627,10 +1626,9 @@ void VCAI::wander(HeroPtr h)
 
 		if(dests.size()) //performance improvement
 		{
-			boost::sort(dests, CDistanceSorter(h.get())); //find next closest one
+			const ObjectIdRef & dest = *boost::min_element(dests, CDistanceSorter(h.get())); //find next closest one
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			const ObjectIdRef & dest = dests.front();
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
 			if(!goVisitObj(dest, h))
 			{
@@ -2317,12 +2315,10 @@ bool VCAI::canAct(HeroPtr h) const
 HeroPtr VCAI::primaryHero() const
 {
 	auto hs = cb->getHeroesInfo();
-	boost::sort(hs, compareHeroStrength);
-
-	if(hs.empty())
+	if (hs.empty())
 		return nullptr;
-
-	return hs.back();
+	else
+		return *boost::max_element(hs, compareHeroStrength);
 }
 
 void VCAI::endTurn()

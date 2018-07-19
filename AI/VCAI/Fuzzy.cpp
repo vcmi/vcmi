@@ -313,9 +313,7 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	{
 		return lhs->priority < rhs->priority;
 	};
-	boost::sort(vec, compareGoals);
-
-	return vec.back();
+	return *boost::max_element(vec, compareGoals);
 }
 
 float FuzzyHelper::evaluate(Goals::Explore & g)
