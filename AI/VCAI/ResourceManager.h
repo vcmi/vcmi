@@ -36,7 +36,7 @@ class ResourceManager //: public: IAIManager
 	friend class VCAI;
 
 public:
-	bool containsSavedRes(const TResources & cost) const;
+	bool canAfford(const TResources & cost) const;
 	TResources freeResources() const; //owned resources minus gold reserve
 	TResource freeGold() const; //owned resources minus gold reserve
 	TResources estimateIncome() const;

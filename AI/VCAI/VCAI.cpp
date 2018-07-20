@@ -1195,13 +1195,12 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if(canBuild == EBuildingState::ALLOWED)
 		{
-			if(!rm->containsSavedRes(b->resources))
-			{
-				logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
-				cb->buildBuilding(t, buildID);
-				return true;
-			}
-			continue;
+			//if (rm->canAfford((b->resource)) //Capitol is tricky, since resources will be counted twice
+			logAi->debug("Player %d will build %s in town of %s at %s", playerID, b->Name(), t->name, t->pos.toString());
+			cb->buildBuilding(t, buildID);
+			return true;
+			//}
+			//continue;
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{

@@ -15,7 +15,7 @@
 
 ResourceManager * rm;
 
-const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least this much gold (10000 so at least we'll be able to reach capitol)
+const int GOLD_RESERVE = 10000; //at least we'll be able to reach capitol
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -35,15 +35,10 @@ bool ResourceObjective::operator<(const ResourceObjective & ro)
 	return goal->priority < ro.goal->priority;
 }
 
-bool ResourceManager::containsSavedRes(const TResources & cost) const
-{
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-	{
-		if (saving[i] && cost[i]) //I have no idea WTF does this unction do. Logic and??
-			return true;
-	}
 
-	return false;
+bool ResourceManager::canAfford(const TResources & cost) const
+{
+	return freeResources().canAfford(cost);
 }
 
 TResources ResourceManager::estimateIncome() const
@@ -141,7 +136,7 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 		accumulatedResources += it.resources;
 		if (accumulatedResources > freeResources()) //can't afford
 			return whatToDo(); 
-		else
+		else //can afford all goals up to this point
 		{
 			if (it.goal == goal)
 				return goal; //can afford immediately
