@@ -132,14 +132,24 @@ Goals::TSubgoal ResourceManager::whatToDo()
 
 Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 {
-	if (res <= freeResources())
-		return goal; //can do it immediately
-	else
+	TResources accumulatedResources;
+
+	ResourceObjective ro(res, goal);
+	queue.push(ro);
+	for (auto it : queue) //check if we can afford all the objectives with higher priority
 	{
-		ResourceObjective ro(res, goal);
-		queue.push(ro);
-		return whatToDo(); //should return CollectRes for highest-priority goal
+		accumulatedResources += it.resources;
+		if (accumulatedResources > freeResources()) //can't afford
+			return whatToDo(); 
+		else
+		{
+			if (it.goal == goal)
+				return goal; //can afford immediately
+		}
 	}
+	return whatToDo(); //should return CollectRes for highest-priority goal
+
+	//TODO: consider returning CollectRes for the goal requested (in case it needs different resources than our priority)
 }
 
 bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
