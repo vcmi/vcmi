@@ -137,7 +137,7 @@ EMonsterStrength::EMonsterStrength CMapGenOptions::getMonsterStrength() const
 
 void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value)
 {
-	monsterStrength = value;
+ 	monsterStrength = value;
 }
 
 void CMapGenOptions::resetPlayersMap()
