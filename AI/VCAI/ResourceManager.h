@@ -15,6 +15,22 @@
 #include "../../lib/VCMI_Lib.h"
 #include "VCAI.h"
 
+struct ResourceObjective
+{
+	ResourceObjective(TResources &res, Goals::TSubgoal goal);
+	bool operator < (const ResourceObjective &ro);
+
+	TResources resources; //how many resoures do we need
+	Goals::TSubgoal goal; //what for (build, gather army etc...)
+
+	 //TODO: register?
+	template<typename Handler> void serializeInternal(Handler & h, const int version)
+	{
+		h & resources;
+		//h & goal; //FIXME: goal serialization is broken
+	}
+};
+
 class ResourceManager //: public: IAIManager
 {
 	friend class VCAI;
@@ -25,12 +41,21 @@ public:
 	TResource freeGold() const; //owned resources minus gold reserve
 	TResources estimateIncome() const;
 
+	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
+	Goals::TSubgoal whatToDo(); //pop highest-priority goal
+	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
+	bool notifyGoalCompleted(Goals::TSubgoal goal);
+	bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
+
 private:
 	TResources saving;
+
+	boost::heap::priority_queue<ResourceObjective> queue;
 
 	//TODO: register?
 	template<typename Handler> void serializeInternal(Handler & h, const int version)
 	{
 		h & saving;
+		h & queue;
 	}
 };

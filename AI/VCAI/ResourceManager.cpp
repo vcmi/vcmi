@@ -20,11 +20,26 @@ const int GOLD_RESERVE = 10000; //when buying creatures we want to keep at least
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
+ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
+	: resources(Res), goal(Goal)
+{
+}
+
+bool operator<(const ResourceObjective & lhs, const ResourceObjective & rhs)
+{
+	return lhs.goal->priority < rhs.goal->priority;
+}
+
+bool ResourceObjective::operator<(const ResourceObjective & ro)
+{
+	return goal->priority < ro.goal->priority;
+}
+
 bool ResourceManager::containsSavedRes(const TResources & cost) const
 {
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		if (saving[i] && cost[i])
+		if (saving[i] && cost[i]) //I have no idea WTF does this unction do. Logic and??
 			return true;
 	}
 
@@ -63,6 +78,82 @@ TResources ResourceManager::estimateIncome() const
 	return ret;
 }
 
+void ResourceManager::reserveResoures(TResources & res, Goals::TSubgoal goal)
+{
+	queue.push(ResourceObjective(res, goal));
+}
+
+Goals::TSubgoal ResourceManager::whatToDo()
+{
+	if (queue.size()) //TODO: check if we can afford. if not, then CollectRes
+	{
+		auto o = queue.top();
+		if (o.resources <= freeResources())
+			return o.goal;
+		else
+		{
+			auto income = estimateIncome();
+			Res::ERes resourceType = Res::INVALID; //TODO: unit test
+			TResource amountToCollect = 0;
+
+			typedef std::pair<Res::ERes, TResource> resPair;
+			std::map<Res::ERes, TResource> missingResources;
+			for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
+				missingResources[it->resType] = it->resVal;
+			//TODO: sum missing resources of given type for ALL reserved objectives
+
+			for (const resPair & p: missingResources)
+			{
+				if (!income[p.first]) //prioritize resources with 0 income
+				{
+					resourceType = p.first;
+					amountToCollect = p.second;
+					break;
+				}
+			}
+			if (resourceType == Res::INVALID) //no needed resources has 0 income, 
+			{
+				//find the one which takes longest to collect
+				auto incomeComparer = [&income](const resPair & lhs, const resPair & rhs) -> bool
+				{
+					return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.second]);
+					//theoretically income can be negative, but that falls into this comparison
+				};
+
+				resourceType = boost::max_element(missingResources, incomeComparer)->first;
+				amountToCollect = missingResources[resourceType];
+			}
+			return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
+		}
+	}
+	else
+		return Goals::sptr(Goals::Invalid()); //nothing else to do
+}
+
+Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
+{
+	if (res <= freeResources())
+		return goal; //can do it immediately
+	else
+	{
+		ResourceObjective ro(res, goal);
+		queue.push(ro);
+		return whatToDo(); //should return CollectRes for highest-priority goal
+	}
+}
+
+bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
+{
+	//TODO
+	return false;
+}
+
+bool ResourceManager::updateGoal(Goals::TSubgoal goal)
+{
+	//TODO
+	return false;
+}
+
 TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
@@ -74,7 +165,6 @@ TResources ResourceManager::freeResources() const
 	{
 		myRes[Res::GOLD] -= GOLD_RESERVE;
 		//what if capitol is blocked from building in all possessed towns (set in map editor)?
-		//What about reserve for city hall or something similar in that case?
 	}
 	vstd::amax(myRes[Res::GOLD], 0);
 	return myRes;

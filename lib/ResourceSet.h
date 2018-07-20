@@ -25,7 +25,8 @@ namespace Res
 	{
 		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
 
-		WOOD_AND_ORE = 127 // special case for town bonus resource
+		WOOD_AND_ORE = 127,  // special case for town bonus resource
+		INVALID = -1
 	};
 
 	//class to be representing a vector of resource
