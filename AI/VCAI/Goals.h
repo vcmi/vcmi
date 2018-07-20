@@ -61,9 +61,9 @@ enum EGoals
 
 enum {LOW_PR = -1};
 
-TSubgoal sptr(const AbstractGoal & tmp);
+DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
 
-class AbstractGoal
+class DLL_EXPORT AbstractGoal
 {
 public:
 	bool isElementar; VSETTER(bool, isElementar)
@@ -149,7 +149,7 @@ public:
 	}
 };
 
-template<typename T> class CGoal : public AbstractGoal
+template<typename T> class DLL_EXPORT CGoal : public AbstractGoal
 {
 public:
 	CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
@@ -199,7 +199,7 @@ public:
 	}
 };
 
-class Invalid : public CGoal<Invalid>
+class DLL_EXPORT Invalid : public CGoal<Invalid>
 {
 public:
 	Invalid()
@@ -214,7 +214,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Win : public CGoal<Win>
+class DLL_EXPORT Win : public CGoal<Win>
 {
 public:
 	Win()
@@ -229,7 +229,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class NotLose : public CGoal<NotLose>
+class DLL_EXPORT NotLose : public CGoal<NotLose>
 {
 public:
 	NotLose()
@@ -244,7 +244,7 @@ public:
 	//TSubgoal whatToDoToAchieve() override;
 };
 
-class Conquer : public CGoal<Conquer>
+class DLL_EXPORT Conquer : public CGoal<Conquer>
 {
 public:
 	Conquer()
@@ -256,7 +256,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Build : public CGoal<Build>
+class DLL_EXPORT Build : public CGoal<Build>
 {
 public:
 	Build()
@@ -271,7 +271,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Explore : public CGoal<Explore>
+class DLL_EXPORT Explore : public CGoal<Explore>
 {
 public:
 	Explore()
@@ -291,7 +291,7 @@ public:
 	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class GatherArmy : public CGoal<GatherArmy>
+class DLL_EXPORT GatherArmy : public CGoal<GatherArmy>
 {
 public:
 	GatherArmy()
@@ -309,7 +309,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class BoostHero : public CGoal<BoostHero>
+class DLL_EXPORT BoostHero : public CGoal<BoostHero>
 {
 public:
 	BoostHero()
@@ -324,7 +324,7 @@ public:
 	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());};
 };
 
-class RecruitHero : public CGoal<RecruitHero>
+class DLL_EXPORT RecruitHero : public CGoal<RecruitHero>
 {
 public:
 	RecruitHero()
@@ -339,7 +339,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class BuildThis : public CGoal<BuildThis>
+class DLL_EXPORT BuildThis : public CGoal<BuildThis>
 {
 public:
 	BuildThis()
@@ -367,7 +367,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class CollectRes : public CGoal<CollectRes>
+class DLL_EXPORT CollectRes : public CGoal<CollectRes>
 {
 public:
 	CollectRes()
@@ -388,7 +388,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class GatherTroops : public CGoal<GatherTroops>
+class DLL_EXPORT GatherTroops : public CGoal<GatherTroops>
 {
 public:
 	GatherTroops()
@@ -410,7 +410,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class GetObj : public CGoal<GetObj>
+class DLL_EXPORT GetObj : public CGoal<GetObj>
 {
 public:
 	GetObj() {} // empty constructor not allowed
@@ -434,7 +434,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class FindObj : public CGoal<FindObj>
+class DLL_EXPORT FindObj : public CGoal<FindObj>
 {
 public:
 	FindObj() {} // empty constructor not allowed
@@ -459,7 +459,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class VisitHero : public CGoal<VisitHero>
+class DLL_EXPORT VisitHero : public CGoal<VisitHero>
 {
 public:
 	VisitHero()
@@ -485,7 +485,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class GetArtOfType : public CGoal<GetArtOfType>
+class DLL_EXPORT GetArtOfType : public CGoal<GetArtOfType>
 {
 public:
 	GetArtOfType()
@@ -505,7 +505,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class VisitTile : public CGoal<VisitTile>
+class DLL_EXPORT VisitTile : public CGoal<VisitTile>
 	//tile, in conjunction with hero elementar; assumes tile is reachable
 {
 public:
@@ -526,7 +526,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class ClearWayTo : public CGoal<ClearWayTo>
+class DLL_EXPORT ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
 	ClearWayTo()
@@ -554,7 +554,7 @@ public:
 	}
 };
 
-class DigAtTile : public CGoal<DigAtTile>
+class DLL_EXPORT DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
 {
 public:
@@ -579,7 +579,7 @@ public:
 	}
 };
 
-class CIssueCommand : public CGoal<CIssueCommand>
+class DLL_EXPORT CIssueCommand : public CGoal<CIssueCommand>
 {
 	std::function<bool()> command;
 

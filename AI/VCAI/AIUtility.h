@@ -35,7 +35,7 @@ extern const int GOLD_RESERVE;
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
 
-struct HeroPtr
+struct DLL_EXPORT HeroPtr
 {
 	const CGHeroInstance * h;
 	ObjectInstanceID hid;

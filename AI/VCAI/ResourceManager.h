@@ -15,7 +15,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "VCAI.h"
 
-struct ResourceObjective
+struct DLL_EXPORT ResourceObjective
 {
 	ResourceObjective(TResources &res, Goals::TSubgoal goal);
 	bool operator < (const ResourceObjective &ro);
@@ -31,8 +31,10 @@ struct ResourceObjective
 	}
 };
 
-class ResourceManager //: public: IAIManager
+class DLL_EXPORT ResourceManager //: public: IAIManager
 {
+	/*Resource Manager is a smart shopping list for AI to help
+	Uses priority queue based on CGoal.priority */
 	friend class VCAI;
 
 public:
