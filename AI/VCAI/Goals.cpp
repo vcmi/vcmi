@@ -1156,7 +1156,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	if(ai->canRecruitAnyHero() && rm->freeResources()[Res::GOLD] > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
+	if(ai->canRecruitAnyHero() && rm->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
 		if(auto t = ai->findTownWithTavern())
 		{

@@ -22,6 +22,7 @@ class ResourceManager //: public: IAIManager
 public:
 	bool containsSavedRes(const TResources & cost) const;
 	TResources freeResources() const; //owned resources minus gold reserve
+	TResource freeGold() const; //owned resources minus gold reserve
 	TResources estimateIncome() const;
 
 private:

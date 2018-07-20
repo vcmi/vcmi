@@ -79,3 +79,8 @@ TResources ResourceManager::freeResources() const
 	vstd::amax(myRes[Res::GOLD], 0);
 	return myRes;
 }
+
+TResource ResourceManager::freeGold() const
+{
+	return freeResources()[Res::GOLD];
+}

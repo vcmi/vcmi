@@ -900,8 +900,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			townVisitsThisWeek[h].insert(h->visitedTown);
-			if(!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >=
-				GameConstants::SPELLBOOK_GOLD_COST + rm->freeResources()[Res::GOLD])
+			if(!h->hasSpellbook() && rm->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -1148,7 +1147,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		vstd::amin(count, rm->freeResources() / VLC->creh->creatures[creID]->cost); //TODO: use ResourceManager
+		vstd::amin(count, rm->freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1406,7 +1405,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 		t = findTownWithTavern();
 	if(!t)
 		return false;
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
@@ -3200,8 +3199,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		TResources myRes = rm->freeResources();
-		if(myRes[Res::GOLD] < 1000)
+		if (rm->freeGold() < 1000)
 			return false;
 		break;
 	}
@@ -3226,7 +3224,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		//TODO: only on request
 		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(rm->freeResources()[Res::GOLD] < GameConstants::HERO_GOLD_COST)
+		else if(rm->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}
