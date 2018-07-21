@@ -29,4 +29,7 @@ namespace Goals
 
 	};
 
+	class GatherArmyGoalMock : public GatherArmy
+	{
+	};
 }

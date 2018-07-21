@@ -159,6 +159,11 @@ bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 	return false;
 }
 
+bool ResourceManager::hasTasksLeft()
+{
+	return !queue.empty();
+}
+
 TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();

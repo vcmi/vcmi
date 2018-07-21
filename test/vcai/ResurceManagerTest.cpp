@@ -23,35 +23,81 @@ struct ResourceManagerTest : public Test
 	std::unique_ptr<ResourceManager> rm;
 
 	StrictMock<InvalidGoalMock> igm;
+	StrictMock<GatherArmyGoalMock> gam;
 	ResourceManagerTest()
 	{
 		rm = std::make_unique<ResourceManager>();
 	}
 };
 
+TEST_F(ResourceManagerTest, canAffordMaths)
+{
+	//TODO: how to get free resources?
+
+	TResources buildingCost(10, 0, 10, 0, 0, 0, 5000);
+	EXPECT_TRUE(rm->canAfford(buildingCost));
+
+	TResources armyCost(0, 0, 0, 0, 0, 0, 54321);
+	EXPECT_FALSE(rm->canAfford(armyCost));
+}
+
 TEST_F(ResourceManagerTest, notifyGoalImplemented)
 {
-	auto g = sptr(igm);
-	EXPECT_EQ(rm->notifyGoalCompleted(g), false);
+	ASSERT_FALSE(rm->hasTasksLeft());
+
+	auto ig = sptr(igm);
+	EXPECT_FALSE(rm->notifyGoalCompleted(ig));
+	EXPECT_FALSE(rm->hasTasksLeft());
+
+	TResources res;
+	res[Res::GOLD] = 12345;
+	rm->reserveResoures(res, ig);
+	ASSERT_TRUE(rm->hasTasksLeft()); //TODO: invalid shouldn't be accepted or pushed
+	EXPECT_FALSE(rm->notifyGoalCompleted(ig)); //TODO: invalid should never be completed
+
+	auto ga = sptr(gam);
+	EXPECT_FALSE(rm->notifyGoalCompleted(ga));
+	rm->reserveResoures(res, ga);
+	EXPECT_TRUE(rm->notifyGoalCompleted(ga)); //TODO: try it with not a copy
+	EXPECT_FALSE(rm->notifyGoalCompleted(ga)); //already completed
+}
+
+TEST_F(ResourceManagerTest, complexGoalNotify)
+{
+	ASSERT_FALSE(rm->hasTasksLeft());
+	//TODO
 }
 
 TEST_F(ResourceManagerTest, updateGoalImplemented)
 {
-	//TODO: 
-	//try update with no objectives -> fail
+	ASSERT_FALSE(rm->hasTasksLeft());
 
-	//reserve resources
+	TResources res;
+	res[Res::GOLD] = 12345;
 
-	//try update with wrong goal -> fail
-	//try update with copy of reserved goal -> true
+	auto ga = sptr(gam);
+	ga->setpriority(1);
+	ga->objid = 666; //FIXME: which property actually can be used to tell GatherArmy apart?
 
-	//try different goal subclasses comparisons
+	EXPECT_FALSE(rm->updateGoal(ga)); //try update with no objectives -> fail
 
-	auto g = sptr(igm); //invalid goal must fail
-	EXPECT_EQ(rm->updateGoal(g), false);
+	rm->reserveResoures(res, ga);
+	ASSERT_TRUE(rm->hasTasksLeft());
+	ga->setpriority(4.444f);
+
+	auto ga2 = sptr(StrictMock<GatherArmyGoalMock>());
+	ga->objid = 777; //FIXME: which property actually can be used to tell GatherArmy apart?
+	ga2->setpriority(3.33f);
+
+	EXPECT_FALSE(rm->updateGoal(ga2)); //try update with wrong goal -> fail
+	EXPECT_TRUE(rm->updateGoal(ga)); //try update with copy of reserved goal -> true
+
+	auto ig = sptr(igm);
+	EXPECT_FALSE(rm->updateGoal(ig)); //invalid goal must fail
 }
 
-//TEST(testMath, myCubeTest)
-//{
-//	EXPECT_EQ(1000, cubic(10));
-//}
+TEST_F(ResourceManagerTest, complexGoalUpdates)
+{
+	ASSERT_FALSE(rm->hasTasksLeft());
+	//TODO
+}

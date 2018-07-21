@@ -48,6 +48,7 @@ public:
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
 	bool notifyGoalCompleted(Goals::TSubgoal goal);
 	bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
+	bool hasTasksLeft();
 
 private:
 	TResources saving;
