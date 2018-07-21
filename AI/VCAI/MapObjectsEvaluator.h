@@ -37,7 +37,6 @@ class MapObjectsEvaluator
 {
 private:
 	std::map<AiMapObjectID, int> objectDatabase; //value for each object type
-	static std::unique_ptr<MapObjectsEvaluator> singletonInstance;
 
 public:
 	MapObjectsEvaluator();

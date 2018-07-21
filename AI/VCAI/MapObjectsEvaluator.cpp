@@ -6,6 +6,7 @@
 
 MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 {
+	static std::unique_ptr<MapObjectsEvaluator> singletonInstance;
 	if(singletonInstance == nullptr)
 		singletonInstance.reset(new MapObjectsEvaluator());
 
