@@ -9,15 +9,41 @@
 */
 #pragma once
 
+struct AiMapObjectID
+{
+	int primaryID;
+	int secondaryID;
+
+	AiMapObjectID(int primID, int secID) : primaryID(primID), secondaryID(secID) {};
+};
+
+inline bool operator<(const AiMapObjectID& obj1, const AiMapObjectID& obj2)
+{
+	if(obj1.primaryID != obj2.primaryID)
+		return obj1.primaryID < obj2.primaryID;
+	else
+		return obj1.secondaryID < obj2.secondaryID;
+}
+
+inline bool operator==(const AiMapObjectID& obj1, const AiMapObjectID& obj2)
+{
+	if(obj1.primaryID == obj2.primaryID)
+		return obj1.secondaryID == obj2.secondaryID;
+
+	return false;
+}
+
 class MapObjectsEvaluator
 {
 private:
-	std::map<int, std::map<int, int>> objectDatabase; //each object contains map of subobjects with their values (std::map<ObjID, std::map<SubObjID, Value>>)
+	std::map<AiMapObjectID, int> objectDatabase; //value for each object type
 	static std::unique_ptr<MapObjectsEvaluator> singletonInstance;
 
 public:
 	MapObjectsEvaluator();
 	static MapObjectsEvaluator & getInstance();
 	boost::optional<int> getObjectValue(int primaryID, int secondaryID);
+	void addObjectData(int primaryID, int secondaryID, int value);
+	void removeObjectData(int primaryID, int secondaryID, int value);
 };
 

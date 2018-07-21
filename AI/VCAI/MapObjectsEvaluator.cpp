@@ -12,35 +12,43 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 	return *(singletonInstance.get());
 }
 
-MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<int, std::map<int, int>>())
+MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<AiMapObjectID, int>())
 {
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
-		auto newObject = std::pair<int, std::map<int, int>>(primaryID, std::map<int, int>());
 		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
-				newObject.second.insert(std::pair<int,int>(secondaryID, handler->getRMGInfo().value));
+				AiMapObjectID newObjectType = AiMapObjectID(primaryID, secondaryID);
+				std::pair<AiMapObjectID, int> newObject = { newObjectType, handler->getRMGInfo().value };
+				objectDatabase.insert(newObject);
 			}
-		}
-		objectDatabase.insert(newObject);
+		}	
 	}
 }
 
 boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int secondaryID)
 {
-	auto object = objectDatabase.find(primaryID);
+	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	auto object = objectDatabase.find(internalIdentifier);
 	if(object != objectDatabase.end())
-	{
-		auto subobjects = (*object).second;
-		auto desiredObject = subobjects.find(secondaryID);
-		if(desiredObject != subobjects.end())
-		{
-			return (*desiredObject).second;
-		}
-	}
+		return object->second;
+
 	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + ", SubID: " + std::to_string(secondaryID));
 	return boost::optional<int>();
 }
+
+void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int value) //by current design it updates value if already in AI database
+{
+	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	objectDatabase.insert_or_assign(internalIdentifier, value);
+}
+
+void MapObjectsEvaluator::removeObjectData(int primaryID, int secondaryID, int value)
+{
+	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	vstd::erase_if_present(objectDatabase, internalIdentifier);
+}
+
