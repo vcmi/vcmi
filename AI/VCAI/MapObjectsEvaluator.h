@@ -12,10 +12,12 @@
 class MapObjectsEvaluator
 {
 private:
-	static std::map<int, std::map<int, int>> objectDatabase; //each object contains map of subobjects with their values
+	std::map<int, std::map<int, int>> objectDatabase; //each object contains map of subobjects with their values (std::map<ObjID, std::map<SubObjID, Value>>)
+	static std::unique_ptr<MapObjectsEvaluator> singletonInstance;
 
 public:
-	static void init();
-	static boost::optional<int> getObjectValue(int primaryID, int secondaryID);
+	MapObjectsEvaluator();
+	static MapObjectsEvaluator & getInstance();
+	boost::optional<int> getObjectValue(int primaryID, int secondaryID);
 };
 

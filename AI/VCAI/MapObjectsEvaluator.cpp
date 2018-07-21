@@ -4,9 +4,15 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/mapObjects/CObjectClassesHandler.h"
 
-std::map<int, std::map<int, int>> MapObjectsEvaluator::objectDatabase = std::map<int, std::map<int, int>>();
+MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
+{
+	if(singletonInstance == nullptr)
+		singletonInstance.reset(new MapObjectsEvaluator());
 
-void MapObjectsEvaluator::init()
+	return *(singletonInstance.get());
+}
+
+MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<int, std::map<int, int>>())
 {
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -35,6 +41,6 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 			return (*desiredObject).second;
 		}
 	}
-	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + " SubID: " + std::to_string(secondaryID));
+	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + ", SubID: " + std::to_string(secondaryID));
 	return boost::optional<int>();
 }
