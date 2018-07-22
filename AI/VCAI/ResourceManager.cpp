@@ -22,12 +22,16 @@ ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
 {
 }
 
-bool operator<(const ResourceObjective & lhs, const ResourceObjective & rhs)
-{
-	return lhs.goal->priority < rhs.goal->priority;
-}
+//bool operator<(const ResourceObjective & lhs, const ResourceObjective & rhs)
+//{
+//	return lhs.goal->priority < rhs.goal->priority;
+//}
+//bool operator<(const ResourceObjective lhs, const ResourceObjective rhs)
+//{
+//	return lhs.goal->priority < rhs.goal->priority;
+//}
 
-bool ResourceObjective::operator<(const ResourceObjective & ro)
+bool ResourceObjective::operator<(const ResourceObjective & ro) const
 {
 	return goal->priority < ro.goal->priority;
 }
@@ -167,19 +171,45 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 	if (goal->invalid())
 		logAi->warn("Attempt to complete Invalid goal");
 
-	//TODO
+	bool removedGoal = false;
+	while (true)
+	{ //unfortunatelly we can't use remove_if on heap
+		auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
+		{
+			return ro.goal == goal;
+		});
+		if (it != queue.end()) //removed at least one
+		{
+			queue.erase(queue.s_handle_from_iterator(it));
+			logAi->debug("Removed goal %s from ResourceManager.", goal->name());
+			removedGoal = true;
+		}
+		else
+			return removedGoal;
+	}
 
-	return false;
+	return removedGoal;
 }
 
 bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 {
+	//we update priority of goal if it is easier or more difficult to complete
 	if (goal->invalid())
 		logAi->warn("Attempt to update Invalid goal");
 
-	//TODO
-
-	return false;
+	auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
+	{
+		return ro.goal == goal;
+	});
+	if (it != queue.end())
+	{
+		it->goal->setpriority(goal->priority);
+		auto handle = queue.s_handle_from_iterator(it);
+		queue.update(handle); //restore order
+		return true;
+	}
+	else
+		return false;
 }
 
 bool ResourceManager::hasTasksLeft()

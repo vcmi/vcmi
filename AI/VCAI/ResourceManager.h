@@ -14,11 +14,13 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "VCAI.h"
+#include <boost/heap/binomial_heap.hpp>
 
 struct DLL_EXPORT ResourceObjective
 {
+	ResourceObjective() = default;
 	ResourceObjective(TResources &res, Goals::TSubgoal goal);
-	bool operator < (const ResourceObjective &ro);
+	bool operator < (const ResourceObjective &ro) const;
 
 	TResources resources; //how many resoures do we need
 	Goals::TSubgoal goal; //what for (build, gather army etc...)
@@ -64,7 +66,7 @@ public:
 private:
 	TResources saving;
 
-	boost::heap::priority_queue<ResourceObjective> queue;
+	boost::heap::binomial_heap<ResourceObjective> queue;
 
 	void setCB(CPlayerSpecificInfoCallback * CB);
 	void setAI(VCAI * AI);
