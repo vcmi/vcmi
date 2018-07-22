@@ -23,8 +23,3 @@ GameCallbackMock::GameCallbackMock(CGameState * GS, boost::optional<PlayerColor>
 {
 	gs = nullptr;
 }
-
-//std::vector<const CGTownInstance*> GameCallbackMock::getTownsInfo(bool onlyOur) const
-//{
-//	return std::vector<const CGTownInstance*>();
-//}

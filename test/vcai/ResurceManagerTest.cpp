@@ -22,8 +22,6 @@
 using namespace Goals;
 using namespace ::testing;
 
-//class GameCallbackMock;
-
 struct ResourceManagerTest : public Test
 {
 	std::unique_ptr<ResourceManager> rm;
@@ -38,21 +36,22 @@ struct ResourceManagerTest : public Test
 
 		//auto AI = CDynLibHandler::getNewAI("VCAI.dll");
 		//SET_GLOBAL_STATE(AI);
+
+		ON_CALL(gcm, getTownsInfo(_)) //TODO: probably call to this function needs to be dropped altogether
+			.WillByDefault(Return(std::vector < const CGTownInstance *>())); //gtest couldn't deduce default return value);
 	}
 };
 
 TEST_F(ResourceManagerTest, canAffordMaths)
 {
 	//mocking cb calls inside canAfford()
+
 	ON_CALL(gcm, getResourceAmount())
-		.WillByDefault(InvokeWithoutArgs([]() -> TResources
-		{
-			return TResources(10, 0, 11, 0, 0, 0, 12345);
-		}));
+		.WillByDefault(Return(TResources(10, 0, 11, 0, 0, 0, 12345)));
 
 	TResources buildingCost(10, 0, 10, 0, 0, 0, 5000);
-	EXPECT_CALL(gcm, getResourceAmount()).RetiresOnSaturation();
-	EXPECT_CALL(gcm, getTownsInfo(true)).RetiresOnSaturation();
+	//EXPECT_CALL(gcm, getResourceAmount()).RetiresOnSaturation();
+	//EXPECT_CALL(gcm, getTownsInfo(_)).RetiresOnSaturation();
 	EXPECT_NO_THROW(rm->canAfford(buildingCost));
 	EXPECT_TRUE(rm->canAfford(buildingCost));
 
@@ -77,14 +76,14 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	auto ga = sptr(gam);
 	EXPECT_FALSE(rm->notifyGoalCompleted(ga));
 	rm->reserveResoures(res, ga);
-	EXPECT_TRUE(rm->notifyGoalCompleted(ga)); //TODO: try it with not a copy
+	EXPECT_TRUE(rm->notifyGoalCompleted(ga)) << "Not implemented"; //TODO: try it with not a copy
 	EXPECT_FALSE(rm->notifyGoalCompleted(ga)); //already completed
 }
 
 TEST_F(ResourceManagerTest, complexGoalNotify)
 {
-	ASSERT_FALSE(rm->hasTasksLeft());
 	//TODO
+	ASSERT_FALSE(rm->hasTasksLeft());
 }
 
 TEST_F(ResourceManagerTest, updateGoalImplemented)
@@ -109,7 +108,7 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 	ga2->setpriority(3.33f);
 
 	EXPECT_FALSE(rm->updateGoal(ga2)); //try update with wrong goal -> fail
-	EXPECT_TRUE(rm->updateGoal(ga)); //try update with copy of reserved goal -> true
+	EXPECT_TRUE(rm->updateGoal(ga)) << "Not implemented"; //try update with copy of reserved goal -> true
 
 	auto ig = sptr(igm);
 	EXPECT_FALSE(rm->updateGoal(ig)); //invalid goal must fail
@@ -117,6 +116,19 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 
 TEST_F(ResourceManagerTest, complexGoalUpdates)
 {
-	ASSERT_FALSE(rm->hasTasksLeft());
 	//TODO
+	ASSERT_FALSE(rm->hasTasksLeft());
+}
+
+TEST_F(ResourceManagerTest, tasksLeft)
+{
+	ASSERT_FALSE(rm->hasTasksLeft());
+}
+
+TEST_F(ResourceManagerTest, freeGold)
+{
+	ON_CALL(gcm, getResourceAmount())
+		.WillByDefault(Return(TResources(0, 0, 0, 0, 0, 0, 666)));
+
+	ASSERT_EQ(rm->freeGold(), 666);
 }

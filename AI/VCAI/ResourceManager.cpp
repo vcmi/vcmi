@@ -181,13 +181,16 @@ TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
 	auto towns = cb->getTownsInfo();
-	if (std::none_of(towns.begin(), towns.end(), [](const CGTownInstance * x) -> bool
+	if (towns.size()) //we don't save for Capitol if there are no towns
 	{
-		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
-	}))
-	{
-		myRes[Res::GOLD] -= GOLD_RESERVE;
-		//what if capitol is blocked from building in all possessed towns (set in map editor)?
+		if (std::none_of(towns.begin(), towns.end(), [](const CGTownInstance * x) -> bool
+		{
+			return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
+		}))
+		{
+			myRes[Res::GOLD] -= GOLD_RESERVE;
+			//what if capitol is blocked from building in all possessed towns (set in map editor)?
+		}
 	}
 	vstd::amax(myRes[Res::GOLD], 0);
 	return myRes;
