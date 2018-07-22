@@ -2,7 +2,6 @@
 #include "MapObjectsEvaluator.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
-#include "../../lib/mapObjects/CObjectClassesHandler.h"
 
 MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 {

@@ -8,30 +8,7 @@
 *
 */
 #pragma once
-
-struct AiMapObjectID
-{
-	int primaryID;
-	int secondaryID;
-
-	AiMapObjectID(int primID, int secID) : primaryID(primID), secondaryID(secID) {};
-};
-
-inline bool operator<(const AiMapObjectID& obj1, const AiMapObjectID& obj2)
-{
-	if(obj1.primaryID != obj2.primaryID)
-		return obj1.primaryID < obj2.primaryID;
-	else
-		return obj1.secondaryID < obj2.secondaryID;
-}
-
-inline bool operator==(const AiMapObjectID& obj1, const AiMapObjectID& obj2)
-{
-	if(obj1.primaryID == obj2.primaryID)
-		return obj1.secondaryID == obj2.secondaryID;
-
-	return false;
-}
+#include "../../lib/mapObjects/CObjectClassesHandler.h"
 
 class MapObjectsEvaluator
 {

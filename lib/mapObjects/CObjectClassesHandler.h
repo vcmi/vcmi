@@ -65,6 +65,30 @@ struct DLL_LINKAGE RandomMapInfo
 	}
 };
 
+struct DLL_LINKAGE AiMapObjectID
+{
+	si32 primaryID;
+	si32 secondaryID;
+
+	AiMapObjectID(si32 primID, si32 secID) : primaryID(primID), secondaryID(secID) {};
+
+	bool operator<(const AiMapObjectID& other)
+	{
+		if(this->primaryID != other.primaryID)
+			return this->primaryID < other.primaryID;
+		else
+			return this->secondaryID < other.secondaryID;
+	}
+
+	bool operator==(const AiMapObjectID& other)
+	{
+		if(this->primaryID == other.primaryID)
+			return this->secondaryID == other.secondaryID;
+
+		return false;
+	}
+};
+
 class DLL_LINKAGE IObjectInfo
 {
 public:
@@ -274,6 +298,7 @@ public:
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
 	TObjectTypeHandler getHandlerFor(std::string type, std::string subtype) const;
+	TObjectTypeHandler getHandlerFor(AiMapObjectID compoundIdentifier) const;
 
 	std::string getObjectName(si32 type) const;
 	std::string getObjectName(si32 type, si32 subtype) const;
