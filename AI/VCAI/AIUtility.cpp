@@ -126,6 +126,11 @@ const CGHeroInstance * HeroPtr::operator*() const
 	return get();
 }
 
+bool HeroPtr::operator==(const HeroPtr & rhs) const
+{
+	return h == rhs.get(true);
+}
+
 void foreach_tile_pos(std::function<void(const int3 & pos)> foo)
 {
 	// some micro-optimizations since this function gets called a LOT

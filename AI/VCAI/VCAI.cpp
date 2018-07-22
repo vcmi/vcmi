@@ -1597,7 +1597,7 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 		auto it = lockedHeroes.find(h);
 		if(it != lockedHeroes.end())
 		{
-			if(it->second == goal)
+			if(it->second == goal || it->second->fulfillsMe(goal)) //FIXME this is overspecified, fulfillsMe shoudl be complete
 			{
 				logAi->debug(goal->completeMessage());
 				lockedHeroes.erase(it); //goal fulfilled, free hero

@@ -176,7 +176,7 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 	{ //unfortunatelly we can't use remove_if on heap
 		auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 		{
-			return ro.goal == goal;
+			return *ro.goal == *goal || goal->fulfillsMe (goal);
 		});
 		if (it != queue.end()) //removed at least one
 		{
@@ -184,10 +184,9 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 			logAi->debug("Removed goal %s from ResourceManager.", goal->name());
 			removedGoal = true;
 		}
-		else
+		else //found nothing more to remove
 			return removedGoal;
 	}
-
 	return removedGoal;
 }
 

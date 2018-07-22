@@ -123,14 +123,18 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 	//assigned to hero, no parameters
 	case CONQUER:
 	case EXPLORE:
-	case GATHER_ARMY: //actual value is indifferent
 	case BOOST_HERO:
 		return g.hero.h == hero.h; //how comes HeroPtrs are equal for different heroes?
+		break;
+
+	case GATHER_ARMY: //actual value is indifferent 
+		return (g.hero.h == hero.h || town == g.town); //TODO: gather army for town maybe?
 		break;
 
 	//assigned hero and tile
 	case VISIT_TILE:
 	case CLEAR_WAY_TO:
+	case DIG_AT_TILE:
 		return (g.hero.h == hero.h && g.tile == tile);
 		break;
 
@@ -139,16 +143,20 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 	case FIND_OBJ: //TODO: use subtype?
 	case VISIT_HERO:
 	case GET_ART_TYPE:
-	case DIG_AT_TILE:
 		return (g.hero.h == hero.h && g.objid == objid);
+		break;
+
+	case BUILD_STRUCTURE:
+		return (town == g.town && bid == g.bid); //build specific structure in specific town
 		break;
 
 	//no check atm
 	case COLLECT_RES:
+		return (resID == g.resID); //every hero may collect resources
+		break;
 	case GATHER_TROOPS:
 	case ISSUE_COMMAND:
 	case BUILD: //TODO: should be decomposed to build specific structures
-	case BUILD_STRUCTURE:
 	default:
 		return false;
 	}
@@ -373,6 +381,19 @@ TSubgoal FindObj::whatToDoToAchieve()
 		return sptr(Goals::Explore());
 }
 
+bool Goals::FindObj::fulfillsMe(TSubgoal goal)
+{
+	if (goal->goalType == Goals::VISIT_TILE) //visiting tile visits object at same time
+	{
+		if (!hero || hero == goal->hero)
+			for (auto obj : cb->getVisitableObjs(goal->tile)) //check if any object on that tile matches criteria
+				if (obj->visitablePos() == goal->tile) //object could be removed
+					if (obj->ID == objid && obj->subID == resID) //same type and subtype
+						return true;
+	}
+	return false;
+}
+
 std::string GetObj::completeMessage() const
 {
 	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid);
@@ -405,13 +426,15 @@ TSubgoal GetObj::whatToDoToAchieve()
 
 bool GetObj::fulfillsMe(TSubgoal goal)
 {
-	if(goal->goalType == Goals::VISIT_TILE)
+	if(goal->goalType == Goals::VISIT_TILE) //visiting tile visits object at same time
 	{
-		auto obj = cb->getObj(ObjectInstanceID(objid));
-		if(obj && obj->visitablePos() == goal->tile) //object could be removed
-			return true;
+		if (!hero || hero == goal->hero)
+		{
+			auto obj = cb->getObj(ObjectInstanceID(objid));
+			if (obj && obj->visitablePos() == goal->tile) //object could be removed
+				return true;
+		}
 	}
-
 	return false;
 }
 
@@ -443,17 +466,18 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 bool VisitHero::fulfillsMe(TSubgoal goal)
 {
-	if(goal->goalType != Goals::VISIT_TILE)
+	//TODO: VisitObj shoudl not be used for heroes, but...
+	if(goal->goalType == Goals::VISIT_TILE)
 	{
-		return false;
+		auto obj = cb->getObj(ObjectInstanceID(objid));
+		if (!obj)
+		{
+			logAi->error("Hero %s: VisitHero::fulfillsMe at %s: object %d not found", hero.name, goal->tile.toString(), objid);
+			return false;
+		}
+		return obj->visitablePos() == goal->tile;
 	}
-	auto obj = cb->getObj(ObjectInstanceID(objid));
-	if(!obj)
-	{
-		logAi->error("Hero %s: VisitHero::fulfillsMe at %s: object %d not found", hero.name, goal->tile.toString(), objid);
-		return false;
-	}
-	return obj->visitablePos() == goal->tile;
+	return false;
 }
 
 TSubgoal GetArtOfType::whatToDoToAchieve()
@@ -474,6 +498,14 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	}
 
 	return (fh->chooseSolution(getAllPossibleSubgoals()));
+}
+
+bool Goals::ClearWayTo::fulfillsMe(TSubgoal goal)
+{
+	if (goal->goalType == Goals::VISIT_TILE)
+		if (!hero || hero == goal->hero)
+			return tile == goal->tile;
+	return false;
 }
 
 TGoalVec ClearWayTo::getAllPossibleSubgoals()
@@ -806,6 +838,11 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	return iAmElementar();
 }
 
+bool Goals::BuildThis::fulfillsMe(TSubgoal goal)
+{
+	return *this == *goal; //same conditions
+}
+
 TSubgoal CollectRes::whatToDoToAchieve()
 {
 	std::vector<const IMarket *> markets;
@@ -876,6 +913,15 @@ TSubgoal CollectRes::whatToDoToAchieve()
 		}
 	}
 	return sptr(setisElementar(true)); //all the conditions for trade are met
+}
+
+bool CollectRes::fulfillsMe(TSubgoal goal)
+{
+	if (goal->resID == resID)
+		if (goal->value >= value)
+			return true;
+
+	return false;
 }
 
 TSubgoal GatherTroops::whatToDoToAchieve()
@@ -964,6 +1010,15 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	//TODO: exchange troops between heroes
 }
 
+bool Goals::GatherTroops::fulfillsMe(TSubgoal goal)
+{
+	if (!hero || hero == goal->hero) //we got army for desired hero or any hero
+		if (goal->objid == objid) //same creature type //TODO: consider upgrades?
+			if (goal->value >= value) //notify every time we get resources?
+				return true;
+	return false;
+}
+
 TSubgoal Conquer::whatToDoToAchieve()
 {
 	return fh->chooseSolution(getAllPossibleSubgoals());
@@ -1050,6 +1105,14 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 TSubgoal Build::whatToDoToAchieve()
 {
 	return iAmElementar();
+}
+
+bool Goals::Build::fulfillsMe(TSubgoal goal)
+{
+	if (goal->goalType == Goals::BUILD || goal->goalType == Goals::BUILD_STRUCTURE)
+		return (!town || town == goal->town); //building anything will do, in this town if set
+	else
+		return false;
 }
 
 TSubgoal Invalid::whatToDoToAchieve()

@@ -56,6 +56,7 @@ public:
 	bool operator<(const HeroPtr & rhs) const;
 	const CGHeroInstance * operator->() const;
 	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
+	bool operator==(const HeroPtr & rhs) const;
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;

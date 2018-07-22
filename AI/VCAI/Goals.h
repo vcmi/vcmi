@@ -129,7 +129,7 @@ public:
 	virtual bool operator==(AbstractGoal & g);
 	virtual bool fulfillsMe(Goals::TSubgoal goal) //TODO: multimethod instead of type check
 	{
-		return false;
+		return false; //use this method to check if goal is fulfilled by another (not equal) goal, operator == is handled spearately
 	}
 
 	template<typename Handler> void serialize(Handler & h, const int version)
@@ -269,6 +269,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT Explore : public CGoal<Explore>
@@ -365,6 +366,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT CollectRes : public CGoal<CollectRes>
@@ -386,6 +388,7 @@ public:
 		return TGoalVec();
 	};
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT GatherTroops : public CGoal<GatherTroops>
@@ -408,6 +411,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT GetObj : public CGoal<GetObj>
@@ -457,6 +461,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT VisitHero : public CGoal<VisitHero>
@@ -552,6 +557,7 @@ public:
 	{
 		return g.goalType == goalType && g.tile == tile;
 	}
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT DigAtTile : public CGoal<DigAtTile>
