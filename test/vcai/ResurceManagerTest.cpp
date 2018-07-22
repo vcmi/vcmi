@@ -26,19 +26,24 @@ struct ResourceManagerTest : public Test
 {
 	std::unique_ptr<ResourceManager> rm;
 
-	StrictMock<InvalidGoalMock> igm;
-	StrictMock<GatherArmyGoalMock> gam;
 	NiceMock<GameCallbackMock> gcm;
+	TSubgoal invalidGoal, gatherArmy, buyThis, recruitHero;
 
 	ResourceManagerTest()
 	{
 		rm = std::make_unique<ResourceManager>(&gcm);
 
+		//note: construct new goal for modfications
+		invalidGoal = sptr(StrictMock<InvalidGoalMock>());
+		gatherArmy = sptr(StrictMock<GatherArmyGoalMock>());
+		buyThis = sptr(StrictMock<BuildThis>());
+		recruitHero = sptr(StrictMock<RecruitHero>());
+
 		//auto AI = CDynLibHandler::getNewAI("VCAI.dll");
 		//SET_GLOBAL_STATE(AI);
 
 		ON_CALL(gcm, getTownsInfo(_)) //TODO: probably call to this function needs to be dropped altogether
-			.WillByDefault(Return(std::vector < const CGTownInstance *>())); //gtest couldn't deduce default return value);
+			.WillByDefault(Return(std::vector < const CGTownInstance *>())); //gtest couldn't deduce default return value;
 	}
 };
 
@@ -58,8 +63,7 @@ TEST_F(ResourceManagerTest, canAffordMaths)
 	TResources armyCost(0, 0, 0, 0, 0, 0, 54321);
 	EXPECT_FALSE(rm->canAfford(armyCost));
 
-	auto ga = sptr(gam);
-	rm->reserveResoures(armyCost, ga);
+	rm->reserveResoures(armyCost, gatherArmy);
 	EXPECT_FALSE(rm->canAfford(buildingCost)) << "Reserved value should be substracted from free resources";
 }
 
@@ -67,20 +71,18 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 {
 	ASSERT_FALSE(rm->hasTasksLeft());
 
-	auto ig = sptr(igm);
-	EXPECT_FALSE(rm->notifyGoalCompleted(ig));
+	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
 	EXPECT_FALSE(rm->hasTasksLeft());
 
 	TResources res(0,0,0,0,0,0,12345);;
-	rm->reserveResoures(res, ig);
+	rm->reserveResoures(res, invalidGoal);
 	ASSERT_FALSE(rm->hasTasksLeft()) << "Can't push Invalid goal";
-	EXPECT_FALSE(rm->notifyGoalCompleted(ig));
+	EXPECT_FALSE(rm->notifyGoalCompleted(invalidGoal));
 
-	auto ga = sptr(gam);
-	EXPECT_FALSE(rm->notifyGoalCompleted(ga)) << "Queue should be empty";
-	rm->reserveResoures(res, ga);
-	EXPECT_TRUE(rm->notifyGoalCompleted(ga)) << "Not implemented"; //TODO: try it with not a copy
-	EXPECT_FALSE(rm->notifyGoalCompleted(ga)); //already completed
+	EXPECT_FALSE(rm->notifyGoalCompleted(gatherArmy)) << "Queue should be empty";
+	rm->reserveResoures(res, gatherArmy);
+	EXPECT_TRUE(rm->notifyGoalCompleted(gatherArmy)) << "Not implemented"; //TODO: try it with not a copy
+	EXPECT_FALSE(rm->notifyGoalCompleted(gatherArmy)); //already completed
 }
 
 TEST_F(ResourceManagerTest, complexGoalNotify)
@@ -96,25 +98,23 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 	TResources res;
 	res[Res::GOLD] = 12345;
 
-	auto ga = sptr(gam);
-	ga->setpriority(1);
-	ga->objid = 666; //FIXME: which property actually can be used to tell GatherArmy apart?
+	gatherArmy->setpriority(1);
+	gatherArmy->objid = 666; //FIXME: which property actually can be used to tell GatherArmy apart?
 
-	EXPECT_FALSE(rm->updateGoal(ga)); //try update with no objectives -> fail
+	EXPECT_FALSE(rm->updateGoal(gatherArmy)); //try update with no objectives -> fail
 
-	rm->reserveResoures(res, ga);
+	rm->reserveResoures(res, gatherArmy);
 	ASSERT_TRUE(rm->hasTasksLeft());
-	ga->setpriority(4.444f);
+	gatherArmy->setpriority(4.444f);
 
 	auto ga2 = sptr(StrictMock<GatherArmyGoalMock>());
-	ga->objid = 777; //FIXME: which property actually can be used to tell GatherArmy apart?
+	gatherArmy->objid = 777; //FIXME: which property actually can be used to tell GatherArmy apart?
 	ga2->setpriority(3.33f);
 
-	EXPECT_FALSE(rm->updateGoal(ga2)); //try update with wrong goal -> fail
-	EXPECT_TRUE(rm->updateGoal(ga)) << "Not implemented"; //try update with copy of reserved goal -> true
+	EXPECT_FALSE(rm->updateGoal(ga2)) << "Shouldn't update with wrong goal";
+	EXPECT_TRUE(rm->updateGoal(gatherArmy)) << "Not implemented"; //try update with copy of reserved goal -> true
 
-	auto ig = sptr(igm);
-	EXPECT_FALSE(rm->updateGoal(ig)); //invalid goal must fail
+	EXPECT_FALSE(rm->updateGoal(invalidGoal)) << "Can't update Invalid goal";
 }
 
 TEST_F(ResourceManagerTest, complexGoalUpdates)
@@ -126,6 +126,44 @@ TEST_F(ResourceManagerTest, complexGoalUpdates)
 TEST_F(ResourceManagerTest, tasksLeft)
 {
 	ASSERT_FALSE(rm->hasTasksLeft());
+}
+
+TEST_F(ResourceManagerTest, freeResources)
+{
+	ON_CALL(gcm, getResourceAmount()) //in case callback or gs gets crazy
+		.WillByDefault(Return(TResources(-1, 0, -13.0f, -38763, -93764, -464, -12, -98765)));
+
+	auto res = rm->freeResources();
+	ASSERT_GE(res[Res::WOOD], 0);
+	ASSERT_GE(res[Res::MERCURY], 0);
+	ASSERT_GE(res[Res::ORE], 0);
+	ASSERT_GE(res[Res::SULFUR], 0);
+	ASSERT_GE(res[Res::CRYSTAL], 0);
+	ASSERT_GE(res[Res::GEMS], 0);
+	ASSERT_GE(res[Res::GOLD], 0);
+	ASSERT_GE(res[Res::MITHRIL], 0);
+}
+
+TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)
+{
+	ON_CALL(gcm, getResourceAmount())
+		.WillByDefault(Return(TResources(20, 10, 20, 10, 10, 10, 20000, 0)));
+
+	ASSERT_EQ(rm->freeResources(), TResources(20, 10, 20, 10, 10, 10, 20000, 0));
+
+	rm->reserveResoures(TResources(0, 4, 0, 0, 0, 0, 13000), gatherArmy);
+	ASSERT_EQ(rm->freeResources(), TResources(20, 6, 20, 10, 10, 10, 7000, 0));
+	rm->reserveResoures(TResources(5, 4, 5, 4, 4, 4, 5000), buyThis);
+	ASSERT_EQ(rm->freeResources(), TResources(15, 2, 15, 6, 6, 6, 2000, 0));
+	rm->reserveResoures(TResources(0, 0, 0, 0, 0, 0, 2500), recruitHero);
+	auto res = rm->freeResources();
+	EXPECT_EQ(res[Res::GOLD], 0) << "We should have 0 gold left";
+
+	ON_CALL(gcm, getResourceAmount())
+		.WillByDefault(Return(TResources(20, 10, 20, 10, 10, 10, 30000, 0))); //+10000 gold
+
+	res = rm->freeResources();
+	EXPECT_EQ(res[Res::GOLD], 9500) << "We should have extra savings now";
 }
 
 TEST_F(ResourceManagerTest, freeGold)
