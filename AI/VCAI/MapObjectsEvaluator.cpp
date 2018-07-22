@@ -12,7 +12,7 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 	return *(singletonInstance.get());
 }
 
-MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<AiMapObjectID, int>())
+MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<CompoundMapObjectID, int>())
 {
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -21,17 +21,17 @@ MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<AiMapObject
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
-				AiMapObjectID newObjectType = AiMapObjectID(primaryID, secondaryID);
-				std::pair<AiMapObjectID, int> newObject = { newObjectType, handler->getRMGInfo().value };
+				CompoundMapObjectID newObjectType = CompoundMapObjectID(primaryID, secondaryID);
+				std::pair<CompoundMapObjectID, int> newObject = { newObjectType, handler->getRMGInfo().value };
 				objectDatabase.insert(newObject);
 			}
 		}	
 	}
 }
 
-boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int secondaryID)
+boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int secondaryID) const
 {
-	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
 	auto object = objectDatabase.find(internalIdentifier);
 	if(object != objectDatabase.end())
 		return object->second;
@@ -42,13 +42,13 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 
 void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int value) //by current design it updates value if already in AI database
 {
-	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
 	objectDatabase.insert_or_assign(internalIdentifier, value);
 }
 
 void MapObjectsEvaluator::removeObjectData(int primaryID, int secondaryID, int value)
 {
-	AiMapObjectID internalIdentifier = AiMapObjectID(primaryID, secondaryID);
+	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
 	vstd::erase_if_present(objectDatabase, internalIdentifier);
 }
 

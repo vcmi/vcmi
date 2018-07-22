@@ -285,7 +285,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::s
 	throw std::runtime_error("Object type handler not found");
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(AiMapObjectID compoundIdentifier) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
 {
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }

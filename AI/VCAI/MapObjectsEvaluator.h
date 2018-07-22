@@ -13,12 +13,12 @@
 class MapObjectsEvaluator
 {
 private:
-	std::map<AiMapObjectID, int> objectDatabase; //value for each object type
+	std::map<CompoundMapObjectID, int> objectDatabase; //value for each object type
 
 public:
 	MapObjectsEvaluator();
 	static MapObjectsEvaluator & getInstance();
-	boost::optional<int> getObjectValue(int primaryID, int secondaryID);
+	boost::optional<int> getObjectValue(int primaryID, int secondaryID) const;
 	void addObjectData(int primaryID, int secondaryID, int value);
 	void removeObjectData(int primaryID, int secondaryID, int value);
 };
