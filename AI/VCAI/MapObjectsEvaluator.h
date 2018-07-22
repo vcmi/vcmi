@@ -20,6 +20,6 @@ public:
 	static MapObjectsEvaluator & getInstance();
 	boost::optional<int> getObjectValue(int primaryID, int secondaryID) const;
 	void addObjectData(int primaryID, int secondaryID, int value);
-	void removeObjectData(int primaryID, int secondaryID, int value);
+	void removeObjectData(int primaryID, int secondaryID);
 };
 

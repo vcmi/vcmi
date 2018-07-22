@@ -12,7 +12,7 @@ MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 	return *(singletonInstance.get());
 }
 
-MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<CompoundMapObjectID, int>())
+MapObjectsEvaluator::MapObjectsEvaluator()
 {
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -21,9 +21,7 @@ MapObjectsEvaluator::MapObjectsEvaluator() : objectDatabase(std::map<CompoundMap
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject() && handler->getRMGInfo().value)
 			{
-				CompoundMapObjectID newObjectType = CompoundMapObjectID(primaryID, secondaryID);
-				std::pair<CompoundMapObjectID, int> newObject = { newObjectType, handler->getRMGInfo().value };
-				objectDatabase.insert(newObject);
+				objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getRMGInfo().value;
 			}
 		}	
 	}
@@ -46,7 +44,7 @@ void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int valu
 	objectDatabase.insert_or_assign(internalIdentifier, value);
 }
 
-void MapObjectsEvaluator::removeObjectData(int primaryID, int secondaryID, int value)
+void MapObjectsEvaluator::removeObjectData(int primaryID, int secondaryID)
 {
 	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
 	vstd::erase_if_present(objectDatabase, internalIdentifier);
