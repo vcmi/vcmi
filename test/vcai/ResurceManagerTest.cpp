@@ -57,6 +57,10 @@ TEST_F(ResourceManagerTest, canAffordMaths)
 
 	TResources armyCost(0, 0, 0, 0, 0, 0, 54321);
 	EXPECT_FALSE(rm->canAfford(armyCost));
+
+	auto ga = sptr(gam);
+	rm->reserveResoures(armyCost, ga);
+	EXPECT_FALSE(rm->canAfford(buildingCost)) << "Reserved value should be substracted from free resources";
 }
 
 TEST_F(ResourceManagerTest, notifyGoalImplemented)
@@ -67,14 +71,13 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	EXPECT_FALSE(rm->notifyGoalCompleted(ig));
 	EXPECT_FALSE(rm->hasTasksLeft());
 
-	TResources res;
-	res[Res::GOLD] = 12345;
+	TResources res(0,0,0,0,0,0,12345);;
 	rm->reserveResoures(res, ig);
-	ASSERT_TRUE(rm->hasTasksLeft()); //TODO: invalid shouldn't be accepted or pushed
-	EXPECT_FALSE(rm->notifyGoalCompleted(ig)); //TODO: invalid should never be completed
+	ASSERT_FALSE(rm->hasTasksLeft()) << "Can't push Invalid goal";
+	EXPECT_FALSE(rm->notifyGoalCompleted(ig));
 
 	auto ga = sptr(gam);
-	EXPECT_FALSE(rm->notifyGoalCompleted(ga));
+	EXPECT_FALSE(rm->notifyGoalCompleted(ga)) << "Queue should be empty";
 	rm->reserveResoures(res, ga);
 	EXPECT_TRUE(rm->notifyGoalCompleted(ga)) << "Not implemented"; //TODO: try it with not a copy
 	EXPECT_FALSE(rm->notifyGoalCompleted(ga)); //already completed
@@ -131,4 +134,9 @@ TEST_F(ResourceManagerTest, freeGold)
 		.WillByDefault(Return(TResources(0, 0, 0, 0, 0, 0, 666)));
 
 	ASSERT_EQ(rm->freeGold(), 666);
+
+	ON_CALL(gcm, getResourceAmount())
+		.WillByDefault(Return(TResources(0, 0, 0, 0, 0, 0, -3762363)));
+
+	ASSERT_GE(rm->freeGold(), 0) << "We should never see negative savings";
 }

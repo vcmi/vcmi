@@ -78,7 +78,10 @@ TResources ResourceManager::estimateIncome() const
 
 void ResourceManager::reserveResoures(TResources & res, Goals::TSubgoal goal)
 {
-	queue.push(ResourceObjective(res, goal));
+	if (!goal->invalid())
+		queue.push(ResourceObjective(res, goal));
+	else
+		logAi->warn("Attempt to reserve resources for Invalid goal");
 }
 
 Goals::TSubgoal ResourceManager::whatToDo()
@@ -152,13 +155,21 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 
 bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 {
+	if (goal->invalid())
+		logAi->warn("Attempt to complete Invalid goal");
+
 	//TODO
+
 	return false;
 }
 
 bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 {
+	if (goal->invalid())
+		logAi->warn("Attempt to update Invalid goal");
+
 	//TODO
+
 	return false;
 }
 
@@ -192,7 +203,12 @@ TResources ResourceManager::freeResources() const
 			//what if capitol is blocked from building in all possessed towns (set in map editor)?
 		}
 	}
-	vstd::amax(myRes[Res::GOLD], 0);
+	for (auto it : queue) //substract the value of reserved goals
+		myRes -= it.resources;
+
+	for (auto & val : myRes)
+		vstd::amax(val, 0); //never negative
+
 	return myRes;
 }
 
