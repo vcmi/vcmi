@@ -36,10 +36,9 @@ bool ResourceObjective::operator<(const ResourceObjective & ro) const
 	return goal->priority < ro.goal->priority;
 }
 
-ResourceManager::ResourceManager(CPlayerSpecificInfoCallback * CB)
-	: ai(nullptr)
+ResourceManager::ResourceManager(CPlayerSpecificInfoCallback * CB, VCAI * AI)
+	: ai(AI), cb(CB)
 {
-	cb = CB;
 }
 
 void ResourceManager::setCB(CPlayerSpecificInfoCallback * CB)
@@ -60,31 +59,31 @@ bool ResourceManager::canAfford(const TResources & cost) const
 TResources ResourceManager::estimateIncome() const
 {
 	TResources ret;
-	for (const CGTownInstance * t : cb->getTownsInfo())
-	{
-		ret += t->dailyIncome();
-	}
+	//for (const CGTownInstance * t : cb->getTownsInfo())
+	//{
+	//	ret += t->dailyIncome();
+	//}
 
-	for (const CGObjectInstance * obj : ai->getFlaggedObjects())
-	{
-		if (obj->ID == Obj::MINE)
-		{
-			switch (obj->subID)
-			{
-			case Res::WOOD:
-			case Res::ORE:
-				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
-				break;
-			case Res::GOLD:
-			case 7: //abandoned mine -> also gold
-				ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
-				break;
-			default:
-				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
-				break;
-			}
-		}
-	}
+	//for (const CGObjectInstance * obj : ai->getFlaggedObjects())
+	//{
+	//	if (obj->ID == Obj::MINE)
+	//	{
+	//		switch (obj->subID)
+	//		{
+	//		case Res::WOOD:
+	//		case Res::ORE:
+	//			ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
+	//			break;
+	//		case Res::GOLD:
+	//		case 7: //abandoned mine -> also gold
+	//			ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
+	//			break;
+	//		default:
+	//			ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
+	//			break;
+	//		}
+	//	}
+	//}
 
 	return ret;
 }
@@ -102,7 +101,8 @@ Goals::TSubgoal ResourceManager::whatToDo()
 	if (queue.size()) //TODO: check if we can afford. if not, then CollectRes
 	{
 		auto o = queue.top();
-		if (o.resources <= freeResources())
+		
+		if (freeResources().canAfford(o.resources))
 			return o.goal;
 		else
 		{

@@ -45,7 +45,7 @@ class DLL_EXPORT ResourceManager //: public: IAIManager
 
 public:
 	ResourceManager() = default;
-	ResourceManager(CPlayerSpecificInfoCallback * CB); //for tests only
+	ResourceManager(CPlayerSpecificInfoCallback * CB, VCAI * AI = nullptr); //for tests only
 
 	bool canAfford(const TResources & cost) const;
 	TResources reservedResources() const;

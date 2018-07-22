@@ -24,5 +24,6 @@ public:
 
 	MOCK_CONST_METHOD0(getResourceAmount, TResources());
 	//std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const;
+	MOCK_CONST_METHOD0(getTownsInfo, std::vector <const CGTownInstance *>());
 	MOCK_CONST_METHOD1(getTownsInfo, std::vector <const CGTownInstance *>(bool));
 };

@@ -126,7 +126,7 @@ struct SectorMap
 	int3 findFirstVisitableTile(HeroPtr h, crint3 dst);
 };
 
-class VCAI : public CAdventureAI
+class DLL_EXPORT VCAI : public CAdventureAI
 {
 public:
 	//internal methods for town development
@@ -188,71 +188,70 @@ public:
 	int3 explorationNewPoint(HeroPtr h);
 	int3 explorationDesperate(HeroPtr h);
 	bool isTileNotReserved(const CGHeroInstance * h, int3 t); //the tile is not occupied by allied hero and the object is not reserved
-	void recruitHero();
 
-	virtual std::string getBattleAIName() const override;
+	std::string getBattleAIName() const override;
 
-	virtual void init(std::shared_ptr<CCallback> CB) override;
-	virtual void yourTurn() override;
+	void init(std::shared_ptr<CCallback> CB) override;
+	void yourTurn() override;
 
-	virtual void heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
-	virtual void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	virtual void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
+	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override; //TODO
+	void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	void showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID) override;
 	void showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
-	virtual void saveGame(BinarySerializer & h, const int version) override; //saving
-	virtual void loadGame(BinaryDeserializer & h, const int version) override; //loading
-	virtual void finish() override;
+	void saveGame(BinarySerializer & h, const int version) override; //saving
+	void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	void finish() override;
 
-	virtual void availableCreaturesChanged(const CGDwelling * town) override;
-	virtual void heroMoved(const TryMoveHero & details) override;
-	virtual void heroInGarrisonChange(const CGTownInstance * town) override;
-	virtual void centerView(int3 pos, int focusTime) override;
-	virtual void tileHidden(const std::unordered_set<int3, ShashInt3> & pos) override;
-	virtual void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
-	virtual void artifactAssembled(const ArtifactLocation & al) override;
-	virtual void showTavernWindow(const CGObjectInstance * townOrTavern) override;
-	virtual void showThievesGuildWindow(const CGObjectInstance * obj) override;
-	virtual void playerBlocked(int reason, bool start) override;
-	virtual void showPuzzleMap() override;
-	virtual void showShipyardDialog(const IShipyard * obj) override;
-	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
-	virtual void artifactPut(const ArtifactLocation & al) override;
-	virtual void artifactRemoved(const ArtifactLocation & al) override;
-	virtual void artifactDisassembled(const ArtifactLocation & al) override;
-	virtual void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
-	virtual void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
-	virtual void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
-	virtual void tileRevealed(const std::unordered_set<int3, ShashInt3> & pos) override;
-	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
-	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
-	virtual void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level) override;
-	virtual void heroMovePointsChanged(const CGHeroInstance * hero) override;
-	virtual void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
-	virtual void newObject(const CGObjectInstance * obj) override;
-	virtual void showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor) override;
-	virtual void playerBonusChanged(const Bonus & bonus, bool gain) override;
-	virtual void heroCreated(const CGHeroInstance *) override;
-	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
-	virtual void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
-	virtual void requestRealized(PackageApplied * pa) override;
-	virtual void receivedResource() override;
-	virtual void objectRemoved(const CGObjectInstance * obj) override;
-	virtual void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor) override;
-	virtual void heroManaPointsChanged(const CGHeroInstance * hero) override;
-	virtual void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
-	virtual void battleResultsApplied() override;
-	virtual void objectPropertyChanged(const SetObjectProperty * sop) override;
-	virtual void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
-	virtual void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
-	virtual void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
+	void availableCreaturesChanged(const CGDwelling * town) override;
+	void heroMoved(const TryMoveHero & details) override;
+	void heroInGarrisonChange(const CGTownInstance * town) override;
+	void centerView(int3 pos, int focusTime) override;
+	void tileHidden(const std::unordered_set<int3, ShashInt3> & pos) override;
+	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
+	void artifactAssembled(const ArtifactLocation & al) override;
+	void showTavernWindow(const CGObjectInstance * townOrTavern) override;
+	void showThievesGuildWindow(const CGObjectInstance * obj) override;
+	void playerBlocked(int reason, bool start) override;
+	void showPuzzleMap() override;
+	void showShipyardDialog(const IShipyard * obj) override;
+	void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) override;
+	void artifactPut(const ArtifactLocation & al) override;
+	void artifactRemoved(const ArtifactLocation & al) override;
+	void artifactDisassembled(const ArtifactLocation & al) override;
+	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
+	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
+	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
+	void tileRevealed(const std::unordered_set<int3, ShashInt3> & pos) override;
+	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
+	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level) override;
+	void heroMovePointsChanged(const CGHeroInstance * hero) override;
+	void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2) override;
+	void newObject(const CGObjectInstance * obj) override;
+	void showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor) override;
+	void playerBonusChanged(const Bonus & bonus, bool gain) override;
+	void heroCreated(const CGHeroInstance *) override;
+	void advmapSpellCast(const CGHeroInstance * caster, int spellID) override;
+	void showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID) override;
+	void requestRealized(PackageApplied * pa) override;
+	void receivedResource() override;
+	void objectRemoved(const CGObjectInstance * obj) override;
+	void showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor) override;
+	void heroManaPointsChanged(const CGHeroInstance * hero) override;
+	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
+	void battleResultsApplied() override;
+	void objectPropertyChanged(const SetObjectProperty * sop) override;
+	void buildChanged(const CGTownInstance * town, BuildingID buildingID, int what) override;
+	void heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain) override;
+	void showMarketWindow(const IMarket * market, const CGHeroInstance * visitor) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions) override;
 
-	virtual void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
-	virtual void battleEnd(const BattleResult * br) override;
-	void makeTurn();
+	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
+	void battleEnd(const BattleResult * br) override;
 
+	void makeTurn();
 	void makeTurnInternal();
 	void performTypicalActions();
 
@@ -298,7 +297,7 @@ public:
 	void validateVisitableObjs();
 	void retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned = false) const;
 	void retrieveVisitableObjs();
-	std::vector<const CGObjectInstance *> getFlaggedObjects() const;
+	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	const CGObjectInstance * lookForArt(int aid) const;
 	bool isAccessible(const int3 & pos);

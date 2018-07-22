@@ -16,6 +16,7 @@
 #include "../AI/VCAI/ResourceManager.h"
 #include "../AI/VCAI/Goals.h"
 #include "mock_VCAI_CGoal.h"
+#include "mock_VCAI.h"
 #include "../mock/mock_CPSICallback.h"
 #include "../lib/CGameInfoCallback.h"
 
@@ -27,23 +28,36 @@ struct ResourceManagerTest : public Test
 	std::unique_ptr<ResourceManager> rm;
 
 	NiceMock<GameCallbackMock> gcm;
-	TSubgoal invalidGoal, gatherArmy, buyThis, recruitHero;
+	NiceMock<VCAIMock> aim;
+	TSubgoal invalidGoal, gatherArmy, buildThis, buildAny, recruitHero;
 
 	ResourceManagerTest()
 	{
-		rm = std::make_unique<ResourceManager>(&gcm);
+		rm = std::make_unique<ResourceManager>(&gcm, &aim);
 
 		//note: construct new goal for modfications
 		invalidGoal = sptr(StrictMock<InvalidGoalMock>());
 		gatherArmy = sptr(StrictMock<GatherArmyGoalMock>());
-		buyThis = sptr(StrictMock<BuildThis>());
+		buildThis = sptr(StrictMock<BuildThis>());
+		buildAny = sptr(StrictMock<Build>());
 		recruitHero = sptr(StrictMock<RecruitHero>());
 
 		//auto AI = CDynLibHandler::getNewAI("VCAI.dll");
 		//SET_GLOBAL_STATE(AI);
 
-		ON_CALL(gcm, getTownsInfo(_)) //TODO: probably call to this function needs to be dropped altogether
-			.WillByDefault(Return(std::vector < const CGTownInstance *>())); //gtest couldn't deduce default return value;
+		//gtest couldn't deduce default return value;
+		ON_CALL(gcm, getTownsInfo(_))
+			.WillByDefault(Return(std::vector < const CGTownInstance *>()));
+
+		ON_CALL(gcm, getTownsInfo())
+			.WillByDefault(Return(std::vector < const CGTownInstance *>()));
+
+		ON_CALL(aim, getFlaggedObjects())
+			.WillByDefault(Return(std::vector < const CGObjectInstance *>()));
+
+		//enable if get unexpected exceptions
+		//ON_CALL(gcm, getResourceAmount())
+		//	.WillByDefault(Return(TResources()));
 	}
 };
 
@@ -85,10 +99,56 @@ TEST_F(ResourceManagerTest, notifyGoalImplemented)
 	EXPECT_FALSE(rm->notifyGoalCompleted(gatherArmy)); //already completed
 }
 
-TEST_F(ResourceManagerTest, complexGoalNotify)
+TEST_F(ResourceManagerTest, notifyFulfillsAll)
 {
-	//TODO
+	TResources res;
+	ASSERT_TRUE(buildAny->fulfillsMe(buildThis)) << "Goal dependency implemented incorrectly"; //TODO: goal mock?
+	rm->reserveResoures(res, buildAny);
+	rm->reserveResoures(res, buildAny);
+	rm->reserveResoures(res, buildAny);
+	ASSERT_TRUE(rm->hasTasksLeft()); //regardless if duplicates are allowed or not
+	rm->notifyGoalCompleted(buildThis);
+	ASSERT_FALSE(rm->hasTasksLeft()) << "BuildThis didn't remove Build Any!";
+}
+
+TEST_F(ResourceManagerTest, queueOrder)
+{
 	ASSERT_FALSE(rm->hasTasksLeft());
+
+	TSubgoal buildLow = sptr(StrictMock<BuildThis>()),
+		buildBit = sptr(StrictMock<BuildThis>()),
+		buildMed = sptr(StrictMock<BuildThis>()),
+		buildHigh = sptr(StrictMock<BuildThis>()),
+		buildVeryHigh = sptr(StrictMock<BuildThis>()),
+		buildExtra = sptr(StrictMock<BuildThis>()),
+		buildNotSoExtra = sptr(StrictMock<BuildThis>());
+
+	buildLow->setpriority(0).setobjid(1);
+	buildLow->setpriority(1).setobjid(2);
+	buildMed->setpriority(2).setobjid(3);
+	buildHigh->setpriority(5).setobjid(4);
+	buildVeryHigh->setpriority(10).setobjid(5);
+
+	TResources price(0, 0, 0, 0, 0, 0, 1000);
+	rm->reserveResoures(price, buildLow);
+	rm->reserveResoures(price, buildHigh);
+	rm->reserveResoures(price, buildMed);
+
+	ON_CALL(gcm, getResourceAmount())
+		.WillByDefault(Return(TResources(0,0,0,0,0,0,4000,0))); //we can afford 4 top goals
+
+	ASSERT_EQ(rm->whatToDo()->objid, 4); //TODO: mock ai
+	rm->reserveResoures(price, buildBit);
+	rm->reserveResoures(price, buildVeryHigh);
+	ASSERT_EQ(rm->whatToDo()->objid, 5);
+
+
+	buildExtra->setpriority(3).setobjid(100);
+	EXPECT_EQ(rm->whatToDo(price, buildExtra)->objid, 100);
+
+	buildNotSoExtra->setpriority(0.7f).setobjid(7);
+	EXPECT_NE(rm->whatToDo(price, buildNotSoExtra)->objid, 7);
+	EXPECT_EQ(rm->whatToDo()->goalType, Goals::COLLECT_RES);
 }
 
 TEST_F(ResourceManagerTest, updateGoalImplemented)
@@ -158,7 +218,7 @@ TEST_F(ResourceManagerTest, freeResourcesWithManyGoals)
 
 	rm->reserveResoures(TResources(0, 4, 0, 0, 0, 0, 13000), gatherArmy);
 	ASSERT_EQ(rm->freeResources(), TResources(20, 6, 20, 10, 10, 10, 7000, 0));
-	rm->reserveResoures(TResources(5, 4, 5, 4, 4, 4, 5000), buyThis);
+	rm->reserveResoures(TResources(5, 4, 5, 4, 4, 4, 5000), buildThis);
 	ASSERT_EQ(rm->freeResources(), TResources(15, 2, 15, 6, 6, 6, 2000, 0));
 	rm->reserveResoures(TResources(0, 0, 0, 0, 0, 0, 2500), recruitHero);
 	auto res = rm->freeResources();
