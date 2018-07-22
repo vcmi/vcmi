@@ -11,13 +11,18 @@
 #include "StdInc.h"
 #include "gtest/gtest.h"
 
+#include "../AI/VCAI/VCAI.h"
+#include "ResourceManagerTest.h"
 #include "../AI/VCAI/ResourceManager.h"
 #include "../AI/VCAI/Goals.h"
 #include "mock_VCAI_CGoal.h"
-#include "../mock/mock_CPlayerSpecificInfoCallback.h"
+#include "../mock/mock_CPSICallback.h"
+#include "../lib/CGameInfoCallback.h"
 
 using namespace Goals;
 using namespace ::testing;
+
+//class GameCallbackMock;
 
 struct ResourceManagerTest : public Test
 {
@@ -25,10 +30,11 @@ struct ResourceManagerTest : public Test
 
 	StrictMock<InvalidGoalMock> igm;
 	StrictMock<GatherArmyGoalMock> gam;
-	StrictMock<GameCallbackMock> cb;
+	NiceMock<GameCallbackMock> gcm;
+
 	ResourceManagerTest()
 	{
-		rm = std::make_unique<ResourceManager>();
+		rm = std::make_unique<ResourceManager>(&gcm);
 
 		//auto AI = CDynLibHandler::getNewAI("VCAI.dll");
 		//SET_GLOBAL_STATE(AI);
@@ -38,14 +44,16 @@ struct ResourceManagerTest : public Test
 TEST_F(ResourceManagerTest, canAffordMaths)
 {
 	//mocking cb calls inside canAfford()
-
-	ON_CALL(cb, getResourceAmount())
+	ON_CALL(gcm, getResourceAmount())
 		.WillByDefault(InvokeWithoutArgs([]() -> TResources
 		{
 			return TResources(10, 0, 11, 0, 0, 0, 12345);
 		}));
 
 	TResources buildingCost(10, 0, 10, 0, 0, 0, 5000);
+	EXPECT_CALL(gcm, getResourceAmount()).RetiresOnSaturation();
+	EXPECT_CALL(gcm, getTownsInfo(true)).RetiresOnSaturation();
+	EXPECT_NO_THROW(rm->canAfford(buildingCost));
 	EXPECT_TRUE(rm->canAfford(buildingCost));
 
 	TResources armyCost(0, 0, 0, 0, 0, 0, 54321);

@@ -13,12 +13,9 @@
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
+#define GOLD_RESERVE (10000); //at least we'll be able to reach capitol
+
 ResourceManager * rm;
-
-const int GOLD_RESERVE = 10000; //at least we'll be able to reach capitol
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
 
 ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
 	: resources(Res), goal(Goal)
@@ -35,9 +32,15 @@ bool ResourceObjective::operator<(const ResourceObjective & ro)
 	return goal->priority < ro.goal->priority;
 }
 
+ResourceManager::ResourceManager(CPlayerSpecificInfoCallback * CB)
+	: ai(nullptr)
+{
+	cb = CB;
+}
 
 bool ResourceManager::canAfford(const TResources & cost) const
 {
+	//return false;
 	return freeResources().canAfford(cost);
 }
 
@@ -164,11 +167,21 @@ bool ResourceManager::hasTasksLeft()
 	return !queue.empty();
 }
 
+void ResourceManager::setCB(CPlayerSpecificInfoCallback * CB)
+{
+	cb = CB;
+}
+
+void ResourceManager::setAI(VCAI * AI)
+{
+	ai = AI;
+}
+
 TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
-	auto iterator = cb->getTownsInfo();
-	if (std::none_of(iterator.begin(), iterator.end(), [](const CGTownInstance * x) -> bool
+	auto towns = cb->getTownsInfo();
+	if (std::none_of(towns.begin(), towns.end(), [](const CGTownInstance * x) -> bool
 	{
 		return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
 	}))

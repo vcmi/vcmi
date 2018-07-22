@@ -36,8 +36,15 @@ class DLL_EXPORT ResourceManager //: public: IAIManager
 	/*Resource Manager is a smart shopping list for AI to help
 	Uses priority queue based on CGoal.priority */
 	friend class VCAI;
+	friend struct SetGlobalState;
+
+	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
+	VCAI * ai;
 
 public:
+	ResourceManager() = default;
+	ResourceManager(CPlayerSpecificInfoCallback * CB); //for tests only
+
 	bool canAfford(const TResources & cost) const;
 	TResources freeResources() const; //owned resources minus gold reserve
 	TResource freeGold() const; //owned resources minus gold reserve
@@ -50,10 +57,16 @@ public:
 	bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
 	bool hasTasksLeft();
 
+	//for unit tests. shoudl be private.
+
+
 private:
 	TResources saving;
 
 	boost::heap::priority_queue<ResourceObjective> queue;
+
+	void setCB(CPlayerSpecificInfoCallback * CB);
+	void setAI(VCAI * AI);
 
 	//TODO: register?
 	template<typename Handler> void serializeInternal(Handler & h, const int version)

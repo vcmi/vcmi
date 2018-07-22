@@ -46,9 +46,13 @@ struct SetGlobalState
 
 		ai.reset(AI);
 		cb.reset(AI->myCb.get());
+		rm->setAI(AI);
+		rm->setCB(cb.get());
 	}
 	~SetGlobalState()
 	{
+		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
+		//TODO: to ensure that, make rm unique_ptr
 		ai.release();
 		cb.release();
 	}
@@ -565,15 +569,16 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	LOG_TRACE(logAi);
 	myCb = CB;
 	cbc = CB;
-	NET_EVENT_HANDLER;
+
+	if (!rm)
+		rm = new ResourceManager();
+	NET_EVENT_HANDLER; //sets rm->cb
 	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
 	if(!fh)
 		fh = new FuzzyHelper();
-	if (!rm)
-		rm = new ResourceManager();
 
 	retrieveVisitableObjs();
 }
