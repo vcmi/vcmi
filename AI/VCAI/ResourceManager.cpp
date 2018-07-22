@@ -38,9 +38,18 @@ ResourceManager::ResourceManager(CPlayerSpecificInfoCallback * CB)
 	cb = CB;
 }
 
+void ResourceManager::setCB(CPlayerSpecificInfoCallback * CB)
+{
+	cb = CB;
+}
+
+void ResourceManager::setAI(VCAI * AI)
+{
+	ai = AI;
+}
+
 bool ResourceManager::canAfford(const TResources & cost) const
 {
-	//return false;
 	return freeResources().canAfford(cost);
 }
 
@@ -178,14 +187,12 @@ bool ResourceManager::hasTasksLeft()
 	return !queue.empty();
 }
 
-void ResourceManager::setCB(CPlayerSpecificInfoCallback * CB)
+TResources ResourceManager::reservedResources() const
 {
-	cb = CB;
-}
-
-void ResourceManager::setAI(VCAI * AI)
-{
-	ai = AI;
+	TResources res;
+	for (auto it : queue) //substract the value of reserved goals
+		res += it.resources;
+	return res;
 }
 
 TResources ResourceManager::freeResources() const
@@ -203,8 +210,7 @@ TResources ResourceManager::freeResources() const
 			//what if capitol is blocked from building in all possessed towns (set in map editor)?
 		}
 	}
-	for (auto it : queue) //substract the value of reserved goals
-		myRes -= it.resources;
+	myRes -= reservedResources(); //substract the value of reserved goals
 
 	for (auto & val : myRes)
 		vstd::amax(val, 0); //never negative

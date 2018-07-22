@@ -128,6 +128,11 @@ TEST_F(ResourceManagerTest, tasksLeft)
 	ASSERT_FALSE(rm->hasTasksLeft());
 }
 
+TEST_F(ResourceManagerTest, reservedResources)
+{
+	//TOOO, not worth it now
+}
+
 TEST_F(ResourceManagerTest, freeResources)
 {
 	ON_CALL(gcm, getResourceAmount()) //in case callback or gs gets crazy

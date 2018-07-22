@@ -46,8 +46,9 @@ public:
 	ResourceManager(CPlayerSpecificInfoCallback * CB); //for tests only
 
 	bool canAfford(const TResources & cost) const;
-	TResources freeResources() const; //owned resources minus gold reserve
-	TResource freeGold() const; //owned resources minus gold reserve
+	TResources reservedResources() const;
+	TResources freeResources() const; //owned resources minus reserve
+	TResource freeGold() const;
 	TResources estimateIncome() const;
 
 	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
