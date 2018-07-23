@@ -14,6 +14,7 @@
 #include "ResourceManager.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
+#include "StringConstants.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -58,7 +59,7 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	case BUILD_STRUCTURE:
 		return "BUILD STRUCTURE";
 	case COLLECT_RES:
-		desc = "COLLECT RESOURCE";
+		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + boost::lexical_cast<std::string>(value) + ")";
 		break;
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
@@ -838,24 +839,92 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	return iAmElementar();
 }
 
-bool Goals::BuildThis::fulfillsMe(TSubgoal goal)
+TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 {
-	return *this == *goal; //same conditions
+	TGoalVec ret;
+
+	auto givesResource = [this](const CGObjectInstance * obj) -> bool
+	{
+		//TODO: All other pickables
+		//TODO: Windmills and stuff
+		//TODO: Creature banks
+		switch (obj->ID.num)
+		{
+		case Obj::RESOURCE:
+			return obj->subID == resID;
+			break;
+		case Obj::MINE:
+			return (obj->subID == resID &&
+				(cb->getPlayerRelations(obj->tempOwner, ai->playerID) == PlayerRelations::ENEMIES)); //don't capture our mines
+			break;
+		default:
+			return false;
+			break;
+		}
+	};
+
+	std::vector<const CGObjectInstance *> objs;
+	for (auto obj : ai->visitableObjs)
+	{
+		if (givesResource(obj))
+			objs.push_back(obj);
+	}
+	for (auto h : cb->getHeroesInfo())
+	{
+		auto sm = ai->getCachedSectorMap(h);
+		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
+
+		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
+		{
+			if (givesResource(obj))
+				ourObjs.push_back(obj);
+		}
+		for (auto obj : ourObjs)
+		{
+			int3 dest = obj->visitablePos();
+			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
+			if (t.valid()) //we know any path at all
+			{
+				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
+				{
+					if (isSafeToVisit(h, dest))
+					{
+						if (dest != t) //there is something blocking our way
+							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
+						else
+						{
+							ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+						}
+					}
+					else //we need to get army in order to pick that object
+						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
+				}
+			}
+		}
+	}
+	return ret;
 }
 
 TSubgoal CollectRes::whatToDoToAchieve()
+{	
+	auto goals = getAllPossibleSubgoals();
+	goals.push_back(whatToDoToTrade()); //always returns 1 goal
+	return fh->chooseSolution(goals); //TODO: evaluate trading
+}
+
+TSubgoal Goals::CollectRes::whatToDoToTrade()
 {
 	std::vector<const IMarket *> markets;
 
 	std::vector<const CGObjectInstance *> visObjs;
 	ai->retrieveVisitableObjs(visObjs, true);
-	for(const CGObjectInstance * obj : visObjs)
+	for (const CGObjectInstance * obj : visObjs)
 	{
-		if(const IMarket * m = IMarket::castFrom(obj, false))
+		if (const IMarket * m = IMarket::castFrom(obj, false))
 		{
-			if(obj->ID == Obj::TOWN && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
+			if (obj->ID == Obj::TOWN && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 				markets.push_back(m);
-			else if(obj->ID == Obj::TRADING_POST) //TODO a moze po prostu test na pozwalanie handlu?
+			else if (obj->ID == Obj::TRADING_POST)
 				markets.push_back(m);
 		}
 	}
@@ -867,19 +936,19 @@ TSubgoal CollectRes::whatToDoToAchieve()
 
 	markets.erase(boost::remove_if(markets, [](const IMarket * market) -> bool
 	{
-		if(!(market->o->ID == Obj::TOWN && market->o->tempOwner == ai->playerID))
+		if (!(market->o->ID == Obj::TOWN && market->o->tempOwner == ai->playerID))
 		{
-			if(!ai->isAccessible(market->o->visitablePos()))
+			if (!ai->isAccessible(market->o->visitablePos()))
 				return true;
 		}
 		return false;
 	}), markets.end());
 
-	if(!markets.size())
+	if (!markets.size())
 	{
-		for(const CGTownInstance * t : cb->getTownsInfo())
+		for (const CGTownInstance * t : cb->getTownsInfo())
 		{
-			if(cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
+			if (cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
 				return sptr(Goals::BuildThis(BuildingID::MARKETPLACE, t));
 		}
 	}
@@ -888,9 +957,9 @@ TSubgoal CollectRes::whatToDoToAchieve()
 		const IMarket * m = markets.back();
 		//attempt trade at back (best prices)
 		int howManyCanWeBuy = 0;
-		for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
+		for (Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
 		{
-			if(i == resID)
+			if (i == resID)
 				continue;
 			int toGive = -1, toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
@@ -898,11 +967,11 @@ TSubgoal CollectRes::whatToDoToAchieve()
 			howManyCanWeBuy += toReceive * (cb->getResourceAmount(i) / toGive);
 		}
 
-		if(howManyCanWeBuy + cb->getResourceAmount(static_cast<Res::ERes>(resID)) >= value)
+		if (howManyCanWeBuy + cb->getResourceAmount(static_cast<Res::ERes>(resID)) >= value)
 		{
 			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
-			if(backObj->tempOwner != ai->playerID)
+			if (backObj->tempOwner != ai->playerID)
 			{
 				return sptr(Goals::GetObj(m->o->id.getNum()));
 			}
@@ -912,6 +981,7 @@ TSubgoal CollectRes::whatToDoToAchieve()
 			}
 		}
 	}
+	//TODO: separate goal to executre trade?
 	return sptr(setisElementar(true)); //all the conditions for trade are met
 }
 
@@ -1153,8 +1223,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 					ret.push_back(sptr(Goals::VisitTile(pos).sethero(hero)));
 			}
 			auto bid = ai->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
-			if(bid != BuildingID::NONE)
-				ret.push_back(sptr(BuildThis(bid, t)));
+			if (bid != BuildingID::NONE)
+			{
+				auto cost = (t->getBuildingCost(bid));
+				ret.push_back(rm->whatToDo(cost, sptr(BuildThis(bid, t)))); //TODO: this makes no sense since we already can afford it
+			}
 		}
 	}
 

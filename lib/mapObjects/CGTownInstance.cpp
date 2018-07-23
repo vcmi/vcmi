@@ -1262,6 +1262,18 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 	return false;
 }
 
+TResources CGTownInstance::getBuildingCost(BuildingID buildingID) const
+{ 
+	if (vstd::contains(town->buildings, buildingID))
+		return town->buildings.at(buildingID)->resources;
+	else
+	{
+		logGlobal->error("Town %s at %s has no possible building %d!", name, pos.toString(), buildingID.toEnum());
+		return TResources();
+	}
+
+}
+
 bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 {
 	return vstd::contains(builtBuildings, buildingID);

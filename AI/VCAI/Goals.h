@@ -366,7 +366,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
-	bool fulfillsMe(TSubgoal goal) override;
+	//bool fulfillsMe(TSubgoal goal) override;
 };
 
 class DLL_EXPORT CollectRes : public CGoal<CollectRes>
@@ -383,11 +383,9 @@ public:
 		value = val;
 		priority = 2;
 	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	TSubgoal whatToDoToTrade();
 	bool fulfillsMe(TSubgoal goal) override;
 };
 
@@ -447,6 +445,7 @@ public:
 		: CGoal(Goals::FIND_OBJ)
 	{
 		objid = ID;
+		resID = -1; //subid unspecified
 		priority = 1;
 	}
 	FindObj(int ID, int subID)

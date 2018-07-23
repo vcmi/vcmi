@@ -91,7 +91,7 @@ TResources ResourceManager::estimateIncome() const
 void ResourceManager::reserveResoures(TResources & res, Goals::TSubgoal goal)
 {
 	if (!goal->invalid())
-		queue.push(ResourceObjective(res, goal));
+		tryPush(ResourceObjective(res, goal));
 	else
 		logAi->warn("Attempt to reserve resources for Invalid goal");
 }
@@ -132,7 +132,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 		//find the one which takes longest to collect
 		auto incomeComparer = [&income](const resPair & lhs, const resPair & rhs) -> bool
 		{
-			return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.second]);
+			return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.first]);
 			//theoretically income can be negative, but that falls into this comparison
 		};
 
@@ -164,12 +164,12 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 	auto allResources = cb->getResourceAmount();
 
 	ResourceObjective ro(res, goal);
-	queue.push(ro);
+	tryPush(ro); //TODO: avoid duplicates. choose max priority
 	//check if we can afford all the objectives with higher priority first
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
 		accumulatedResources += it->resources;
-		if (accumulatedResources > allResources) //can't afford
+		if (!accumulatedResources.canBeAfforded(allResources)) //can't afford
 			return collectResourcesForOurGoal(ro);
 		else //can afford all goals up to this point
 		{
@@ -190,12 +190,12 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 	{ //unfortunatelly we can't use remove_if on heap
 		auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 		{
-			return *ro.goal == *goal || goal->fulfillsMe (goal);
+			return *ro.goal == *goal || ro.goal->fulfillsMe (goal);
 		});
 		if (it != queue.end()) //removed at least one
 		{
 			queue.erase(queue.s_handle_from_iterator(it));
-			logAi->debug("Removed goal %s from ResourceManager.", goal->name());
+			logAi->debug("Removed goal %s from ResourceManager.", it->goal->name());
 			removedGoal = true;
 		}
 		else //found nothing more to remove
@@ -223,6 +223,30 @@ bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 	}
 	else
 		return false;
+}
+
+bool ResourceManager::tryPush(ResourceObjective & o)
+{
+	auto goal = o.goal;
+
+	auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
+	{
+		return ro.goal == goal;
+	});
+	if (it != queue.end())
+	{
+		auto handle = queue.s_handle_from_iterator(it);
+		vstd::amax(goal->priority, it->goal->priority); //increase priority if case
+		//update resources with new value
+		queue.update(handle, ResourceObjective(o.resources, goal)); //restore order
+		return false;
+	}
+	else
+	{
+		queue.push(o); //add new objective
+		logAi->debug("Reserved resources (%s) for %s", o.resources.toString(), goal->name());
+		return true;
+	}
 }
 
 bool ResourceManager::hasTasksLeft()

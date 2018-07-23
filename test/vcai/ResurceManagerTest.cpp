@@ -123,11 +123,11 @@ TEST_F(ResourceManagerTest, queueOrder)
 		buildExtra = sptr(StrictMock<BuildThis>()),
 		buildNotSoExtra = sptr(StrictMock<BuildThis>());
 
-	buildLow->setpriority(0).setobjid(1);
-	buildLow->setpriority(1).setobjid(2);
-	buildMed->setpriority(2).setobjid(3);
-	buildHigh->setpriority(5).setobjid(4);
-	buildVeryHigh->setpriority(10).setobjid(5);
+	buildLow->setpriority(0).setbid(1);
+	buildLow->setpriority(1).setbid(2);
+	buildMed->setpriority(2).setbid(3);
+	buildHigh->setpriority(5).setbid(4);
+	buildVeryHigh->setpriority(10).setbid(5);
 
 	TResources price(0, 0, 0, 0, 0, 0, 1000);
 	rm->reserveResoures(price, buildLow);
@@ -139,25 +139,25 @@ TEST_F(ResourceManagerTest, queueOrder)
 
 	auto goal = rm->whatToDo();
 	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
-	ASSERT_EQ(rm->whatToDo()->objid, 4);
+	ASSERT_EQ(rm->whatToDo()->bid, 4);
 	rm->reserveResoures(price, buildBit);
 	rm->reserveResoures(price, buildVeryHigh);
 	goal = rm->whatToDo();
 	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
-	ASSERT_EQ(goal->objid, 5);
+	ASSERT_EQ(goal->bid, 5);
 
-	buildExtra->setpriority(3).setobjid(100);
-	EXPECT_EQ(rm->whatToDo(price, buildExtra)->objid, 100);
+	buildExtra->setpriority(3).setbid(100);
+	EXPECT_EQ(rm->whatToDo(price, buildExtra)->bid, 100);
 
-	buildNotSoExtra->setpriority(0.7f).setobjid(7);
+	buildNotSoExtra->setpriority(0.7f).setbid(7);
 	goal = rm->whatToDo(price, buildNotSoExtra);
-	EXPECT_NE(goal->objid, 7);
+	EXPECT_NE(goal->bid, 7);
 	EXPECT_EQ(goal->goalType, Goals::COLLECT_RES) << "We can't afford this goal, need to collect resources";
 	EXPECT_EQ(goal->resID, Res::GOLD) << "We need to collect gold";
 
 	goal = rm->whatToDo();
 	EXPECT_NE(goal->goalType, Goals::COLLECT_RES);
-	EXPECT_EQ(goal->objid, 5) << "Should return highest-priority goal";
+	EXPECT_EQ(goal->bid, 5) << "Should return highest-priority goal";
 }
 
 TEST_F(ResourceManagerTest, updateGoalImplemented)

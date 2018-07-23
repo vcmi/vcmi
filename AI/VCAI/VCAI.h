@@ -131,14 +131,17 @@ class DLL_EXPORT VCAI : public CAdventureAI
 public:
 	//internal methods for town development
 
+	//try build anything in given town, and execute resulting Goal if any
+	bool tryBuildStructure(const CGTownInstance * t);
+	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
+	//try build first unbuilt structure
 	//try build an unbuilt structure in maxDays at most (0 = indefinite)
 	/*bool canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7);*/
-	bool tryBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays = 7) const;
+	bool tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays = 7);
 	//try build ANY unbuilt structure
 	BuildingID canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
-	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
-	//try build first unbuilt structure
-	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
+	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
+	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	friend class FuzzyHelper;
 	friend class ResourceManager;
@@ -267,7 +270,6 @@ public:
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
-	void buildStructure(const CGTownInstance * t) const;
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	bool canGetArmy(const CGHeroInstance * h, const CGHeroInstance * source); //can we get any better stacks from other hero?
