@@ -23,7 +23,13 @@ namespace Goals
 {
 class AbstractGoal;
 class VisitTile;
-typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
+
+class DLL_EXPORT TSubgoal : public std::shared_ptr<Goals::AbstractGoal>
+{
+	public:
+		bool operator==(const TSubgoal & rhs) const;
+	//TODO: serialize?
+};
 typedef std::vector<TSubgoal> TGoalVec;
 
 enum EGoals
@@ -186,8 +192,8 @@ public:
 	}
 	TSubgoal iAmElementar()
 	{
-		setisElementar(true);
-		std::shared_ptr<AbstractGoal> ptr;
+		setisElementar(true); //FIXME: it's not const-correct, maybe we shoudl only set returned clone?
+		TSubgoal ptr;
 		ptr.reset(clone());
 		return ptr;
 	}

@@ -112,33 +112,46 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
 		//choose specific resources we need for this goal (not 0)
-		for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
-			missingResources[it->resType] += it->resVal;
+		for (auto r = Res::ResourceSet::nziterator(o.resources); r.valid(); r++)
+			missingResources[r->resType] += it->resources[r->resType]; //goal it costs r units of resType
 	}
 	for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
+	{
 		missingResources[it->resType] -= allResources[it->resType]; //missing = (what we need) - (what we have)
+		vstd::amax(missingResources[it->resType], 0); // if we have more resources than reserved, we don't need them
+	}
 
+	float goalPriority = 10; //arbitrary, will be divided
 	for (const resPair & p : missingResources)
 	{
 		if (!income[p.first]) //prioritize resources with 0 income
 		{
 			resourceType = p.first;
 			amountToCollect = p.second;
+			goalPriority /= amountToCollect; //need more resources -> lower priority
 			break;
 		}
 	}
 	if (resourceType == Res::INVALID) //no needed resources has 0 income, 
 	{
 		//find the one which takes longest to collect
-		auto incomeComparer = [&income](const resPair & lhs, const resPair & rhs) -> bool
+		typedef std::pair<Res::ERes, float> timePair;
+		std::map<Res::ERes, float> daysToEarn;
+		for (auto it : missingResources)
+			daysToEarn[it.first] = (float)missingResources[it.first] / income[it.first];
+		auto incomeComparer = [&income](const timePair & lhs, const timePair & rhs) -> bool
 		{
-			return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.first]);
 			//theoretically income can be negative, but that falls into this comparison
+			return lhs.second < rhs.second;
 		};
 
-		resourceType = boost::max_element(missingResources, incomeComparer)->first;
+		resourceType = boost::max_element(daysToEarn, incomeComparer)->first;
 		amountToCollect = missingResources[resourceType];
+		goalPriority /= daysToEarn[resourceType]; //more days - lower priority
 	}
+	if (resourceType == Res::GOLD)
+		goalPriority *= 1000;
+	//TODO: evaluate priority of returned goal
 	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
 }
 
@@ -190,7 +203,7 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 	{ //unfortunatelly we can't use remove_if on heap
 		auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 		{
-			return *ro.goal == *goal || ro.goal->fulfillsMe (goal);
+			return ro.goal == goal || ro.goal->fulfillsMe (goal);
 		});
 		if (it != queue.end()) //removed at least one
 		{
@@ -231,7 +244,7 @@ bool ResourceManager::tryPush(ResourceObjective & o)
 
 	auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 	{
-		return ro.goal == goal;
+		return ro.goal == goal;//do not compare pointers, compare goals. TODO: refactor?
 	});
 	if (it != queue.end())
 	{

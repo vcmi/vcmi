@@ -1222,18 +1222,12 @@ bool VCAI::tryBuildThisStructure(const CGTownInstance * t, BuildingID building, 
 		}
 		else if (canBuild == EBuildingState::NO_RESOURCES)
 		{
-			//try to gather resources for what we need
-			auto goal = rm->whatToDo(t->getBuildingCost(buildID), sptr(Goals::BuildThis(buildID, t)));
-			if (goal->goalType == Goals::BUILD_STRUCTURE)
-			{
-				buildStructure(t, buildID); //do it right now
-				return true;
-			}
-			else
-			{
-				striveToGoal(goal); //try realize: build or gather resources, or something else?
-				return false;
-			}
+			//we may need to gather resources for those
+			PotentialBuilding pb;
+			pb.bid = buildID;
+			pb.price = t->getBuildingCost(buildID);
+			potentialBuildings.push_back(pb); //these are checked again in try
+			return false;
 		}
 		else
 			return false;
@@ -1631,7 +1625,7 @@ void VCAI::completeGoal(Goals::TSubgoal goal)
 	{
 		vstd::erase_if(lockedHeroes, [goal](std::pair<HeroPtr, Goals::TSubgoal> p)
 		{
-			if(*(p.second) == *goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
+			if(p.second == goal || p.second->fulfillsMe(goal)) //we could have fulfilled goals of other heroes by chance
 			{
 				logAi->debug(p.second->completeMessage());
 				return true;
@@ -2196,8 +2190,25 @@ void VCAI::tryRealize(Goals::Build & g)
 	for(const CGTownInstance * t : cb->getTownsInfo())
 	{
 		logAi->debug("Looking into %s", t->name);
+		potentialBuildings.clear(); //start fresh with every town
 		if (tryBuildStructure(t))
 			didWeBuildSomething = true;
+		else if (potentialBuildings.size())
+		{
+			auto pb = potentialBuildings.front(); //gather resources for any we can't afford
+			auto goal = rm->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
+			if (goal->goalType == Goals::BUILD_STRUCTURE)
+			{
+				logAi->error("We were supposed to NOT afford any building");
+				buildStructure(t, pb.bid); //do it right now
+				didWeBuildSomething = true;
+			}
+			else
+			{
+				//TODO: right now we do that for every town in order. Consider comparison of all potential goals.
+				striveToGoal(goal); //gather resources, or something else?
+			}
+		}
 	}
 
 	if (!didWeBuildSomething)
@@ -2321,7 +2332,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				boost::this_thread::interruption_point();
 				goal = goal->whatToDoToAchieve();
 				--maxGoals;
-				if(*goal == *ultimateGoal) //compare objects by value
+				if(goal == ultimateGoal) //compare objects by value
 					throw cannotFulfillGoalException("Goal dependency loop detected!");
 			}
 			catch(goalFulfilledException & e)

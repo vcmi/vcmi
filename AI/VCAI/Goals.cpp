@@ -25,7 +25,7 @@ using namespace Goals;
 
 TSubgoal Goals::sptr(const AbstractGoal & tmp)
 {
-	std::shared_ptr<AbstractGoal> ptr;
+	TSubgoal ptr;
 	ptr.reset(tmp.clone());
 	return ptr;
 }
@@ -167,28 +167,32 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 
 namespace Goals
 {
-template<>
-void CGoal<Win>::accept(VCAI * ai)
-{
-	ai->tryRealize(static_cast<Win &>(*this));
-}
+	template<>
+	void CGoal<Win>::accept(VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Win &>(*this));
+	}
 
-template<>
-void CGoal<Build>::accept(VCAI * ai)
-{
-	ai->tryRealize(static_cast<Build &>(*this));
-}
-template<>
-float CGoal<Win>::accept(FuzzyHelper * f)
-{
-	return f->evaluate(static_cast<Win &>(*this));
-}
+	template<>
+	void CGoal<Build>::accept(VCAI * ai)
+	{
+		ai->tryRealize(static_cast<Build &>(*this));
+	}
+	template<>
+	float CGoal<Win>::accept(FuzzyHelper * f)
+	{
+		return f->evaluate(static_cast<Win &>(*this));
+	}
 
-template<>
-float CGoal<Build>::accept(FuzzyHelper * f)
-{
-	return f->evaluate(static_cast<Build &>(*this));
-}
+	template<>
+	float CGoal<Build>::accept(FuzzyHelper * f)
+	{
+		return f->evaluate(static_cast<Build &>(*this));
+	}
+	bool TSubgoal::operator==(const TSubgoal & rhs) const
+	{
+		return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
+	}
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()

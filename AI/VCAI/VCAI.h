@@ -130,18 +130,26 @@ class DLL_EXPORT VCAI : public CAdventureAI
 {
 public:
 	//internal methods for town development
+	//TODO: refactor to separate class BuildManager
 
 	//try build anything in given town, and execute resulting Goal if any
 	bool tryBuildStructure(const CGTownInstance * t);
 	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
 	//try build first unbuilt structure
-	//try build an unbuilt structure in maxDays at most (0 = indefinite)
-	/*bool canBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays=7);*/
+
 	bool tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays = 7);
 	//try build ANY unbuilt structure
 	BuildingID canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
 	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
-	void buildStructure(const CGTownInstance * t, BuildingID building);
+	void buildStructure(const CGTownInstance * t, BuildingID building); //actually execute build operation
+
+	struct PotentialBuilding
+	{
+		BuildingID bid;
+		TResources price;
+		//days to build?
+	};
+	std::vector<PotentialBuilding> potentialBuildings; //what we can build in current town
 
 	friend class FuzzyHelper;
 	friend class ResourceManager;
