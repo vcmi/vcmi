@@ -768,7 +768,8 @@ void VCAI::makeTurn()
 
 	makeTurnInternal();
 }
-
+/*This method defines core of AI behavior. It is not consistent system, just "a bit of everything for everyone" done in some example order.
+ It is not supposed to work this way in final version of VCAI. It consists of few actions/loops done in particular order, hard parts are explained below with focus on explaining hero management logic*/
 void VCAI::makeTurnInternal()
 {
 	saving = 0;
@@ -779,7 +780,12 @@ void VCAI::makeTurnInternal()
 
 	try
 	{
-		//Pick objects reserved in previous turn - we expect only nerby objects there
+		/*Below loop causes heroes with objects locked to them to keep trying to realize previous goal. By design when object is locked another heroes do not attempt to visit it.
+		Object lock happens on turn when some hero gets assigned visit tile with appropiate map object. So basically all heroes that had VisitTile goal with object assigned and not completed
+		will be in the loop. Sometimes heroes get assigned more important objectives, but still keep reserved objects for later. There is a problem with that - they have
+		reserved objects in the list, so they fall to this loop at start of turn and visiting object isn't delayed. Comments for that function are supposed to help newer VCAI maintainers*/
+
+		//Pick objects reserved in previous turn - we expect only nearby objects there
 		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
 		for(auto hero : reservedHeroesCopy)
 		{
@@ -805,7 +811,13 @@ void VCAI::makeTurnInternal()
 		}
 
 		//now try to win
+		/*below line performs goal decomposition, result of the function is ONE goal for ONE hero to realize.*/
 		striveToGoal(sptr(Goals::Win()));
+
+		/*Explanation of below loop: At the time of writing this - goals get decomposited either to GatherArmy or Visit Tile.
+		Visit tile that is about visiting object gets processed at beginning of MakeTurnInternal without re-evaluation.
+		Rest of goals that got started via striveToGoal(sptr(Goals::Win())); in previous turns and not finished get continued here.
+		Also they are subject for re-evaluation to see if there is better goal to start (still talking only about heroes that got goals started by via striveToGoal(sptr(Goals::Win())); in previous turns.*/
 
 		//finally, continue our abstract long-term goals
 		int oldMovement = 0;
@@ -852,6 +864,9 @@ void VCAI::makeTurnInternal()
 		}
 
 		striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
+
+		/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
+		Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
 		performTypicalActions();
 
 		//for debug purpose
