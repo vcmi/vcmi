@@ -167,21 +167,21 @@ TEST_F(ResourceManagerTest, updateGoalImplemented)
 	TResources res;
 	res[Res::GOLD] = 12345;
 
-	gatherArmy->setpriority(1);
-	gatherArmy->objid = 666; //FIXME: which property actually can be used to tell GatherArmy apart?
+	buildThis->setpriority(1);
+	buildThis->bid = 666;
 
-	EXPECT_FALSE(rm->updateGoal(gatherArmy)); //try update with no objectives -> fail
+	EXPECT_FALSE(rm->updateGoal(buildThis)); //try update with no objectives -> fail
 
-	rm->reserveResoures(res, gatherArmy);
+	rm->reserveResoures(res, buildThis);
 	ASSERT_TRUE(rm->hasTasksLeft());
-	gatherArmy->setpriority(4.444f);
+	buildThis->setpriority(4.444f);
 
-	auto ga2 = sptr(StrictMock<GatherArmyGoalMock>());
-	gatherArmy->objid = 777; //FIXME: which property actually can be used to tell GatherArmy apart?
-	ga2->setpriority(3.33f);
+	auto buildThis2 = sptr(StrictMock<BuildThis>());
+	buildThis2->bid = 777;
+	buildThis2->setpriority(3.33f);
 
-	EXPECT_FALSE(rm->updateGoal(ga2)) << "Shouldn't update with wrong goal";
-	EXPECT_TRUE(rm->updateGoal(gatherArmy)) << "Not implemented"; //try update with copy of reserved goal -> true
+	EXPECT_FALSE(rm->updateGoal(buildThis2)) << "Shouldn't update with wrong goal";
+	EXPECT_TRUE(rm->updateGoal(buildThis)) << "Not implemented"; //try update with copy of reserved goal -> true
 
 	EXPECT_FALSE(rm->updateGoal(invalidGoal)) << "Can't update Invalid goal";
 }
