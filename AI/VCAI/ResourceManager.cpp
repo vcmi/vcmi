@@ -59,31 +59,31 @@ bool ResourceManager::canAfford(const TResources & cost) const
 TResources ResourceManager::estimateIncome() const
 {
 	TResources ret;
-	//for (const CGTownInstance * t : cb->getTownsInfo())
-	//{
-	//	ret += t->dailyIncome();
-	//}
+	for (const CGTownInstance * t : cb->getTownsInfo())
+	{
+		ret += t->dailyIncome();
+	}
 
-	//for (const CGObjectInstance * obj : ai->getFlaggedObjects())
-	//{
-	//	if (obj->ID == Obj::MINE)
-	//	{
-	//		switch (obj->subID)
-	//		{
-	//		case Res::WOOD:
-	//		case Res::ORE:
-	//			ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
-	//			break;
-	//		case Res::GOLD:
-	//		case 7: //abandoned mine -> also gold
-	//			ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
-	//			break;
-	//		default:
-	//			ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
-	//			break;
-	//		}
-	//	}
-	//}
+	for (const CGObjectInstance * obj : ai->getFlaggedObjects())
+	{
+		if (obj->ID == Obj::MINE)
+		{
+			switch (obj->subID)
+			{
+			case Res::WOOD:
+			case Res::ORE:
+				ret[obj->subID] += WOOD_ORE_MINE_PRODUCTION;
+				break;
+			case Res::GOLD:
+			case 7: //abandoned mine -> also gold
+				ret[Res::GOLD] += GOLD_MINE_PRODUCTION;
+				break;
+			default:
+				ret[obj->subID] += RESOURCE_MINE_PRODUCTION;
+				break;
+			}
+		}
+	}
 
 	return ret;
 }
@@ -96,49 +96,63 @@ void ResourceManager::reserveResoures(TResources & res, Goals::TSubgoal goal)
 		logAi->warn("Attempt to reserve resources for Invalid goal");
 }
 
-Goals::TSubgoal ResourceManager::whatToDo()
+Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o) const
+{
+	auto allResources = cb->getResourceAmount();
+	auto income = estimateIncome();
+	Res::ERes resourceType = Res::INVALID;
+	TResource amountToCollect = 0;
+
+	typedef std::pair<Res::ERes, TResource> resPair;
+	std::map<Res::ERes, TResource> missingResources;
+
+	//TODO: unit test for complex resource sets
+
+	//sum missing resources of given type for ALL reserved objectives
+	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
+	{
+		//choose specific resources we need for this goal (not 0)
+		for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
+			missingResources[it->resType] += it->resVal;
+	}
+	for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
+		missingResources[it->resType] -= allResources[it->resType]; //missing = (what we need) - (what we have)
+
+	for (const resPair & p : missingResources)
+	{
+		if (!income[p.first]) //prioritize resources with 0 income
+		{
+			resourceType = p.first;
+			amountToCollect = p.second;
+			break;
+		}
+	}
+	if (resourceType == Res::INVALID) //no needed resources has 0 income, 
+	{
+		//find the one which takes longest to collect
+		auto incomeComparer = [&income](const resPair & lhs, const resPair & rhs) -> bool
+		{
+			return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.second]);
+			//theoretically income can be negative, but that falls into this comparison
+		};
+
+		resourceType = boost::max_element(missingResources, incomeComparer)->first;
+		amountToCollect = missingResources[resourceType];
+	}
+	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
+}
+
+Goals::TSubgoal ResourceManager::whatToDo() //suggest any goal
 {
 	if (queue.size()) //TODO: check if we can afford. if not, then CollectRes
 	{
 		auto o = queue.top();
 		
-		if (freeResources().canAfford(o.resources))
+		auto allResources = cb->getResourceAmount(); //we don't consider savings, it's out top-priority goal
+		if (allResources.canAfford(o.resources))
 			return o.goal;
-		else
-		{
-			auto income = estimateIncome();
-			Res::ERes resourceType = Res::INVALID; //TODO: unit test
-			TResource amountToCollect = 0;
-
-			typedef std::pair<Res::ERes, TResource> resPair;
-			std::map<Res::ERes, TResource> missingResources;
-			for (auto it = Res::ResourceSet::nziterator(o.resources); it.valid(); it++)
-				missingResources[it->resType] = it->resVal;
-			//TODO: sum missing resources of given type for ALL reserved objectives
-
-			for (const resPair & p: missingResources)
-			{
-				if (!income[p.first]) //prioritize resources with 0 income
-				{
-					resourceType = p.first;
-					amountToCollect = p.second;
-					break;
-				}
-			}
-			if (resourceType == Res::INVALID) //no needed resources has 0 income, 
-			{
-				//find the one which takes longest to collect
-				auto incomeComparer = [&income](const resPair & lhs, const resPair & rhs) -> bool
-				{
-					return ((float)lhs.second / income[lhs.first]) < ((float)rhs.second / income[rhs.second]);
-					//theoretically income can be negative, but that falls into this comparison
-				};
-
-				resourceType = boost::max_element(missingResources, incomeComparer)->first;
-				amountToCollect = missingResources[resourceType];
-			}
-			return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
-		}
+		else //we can't afford even top-priority goal, need to collect resources
+			return collectResourcesForOurGoal(o);
 	}
 	else
 		return Goals::sptr(Goals::Invalid()); //nothing else to do
@@ -147,23 +161,23 @@ Goals::TSubgoal ResourceManager::whatToDo()
 Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 {
 	TResources accumulatedResources;
+	auto allResources = cb->getResourceAmount();
 
 	ResourceObjective ro(res, goal);
 	queue.push(ro);
-	for (auto it : queue) //check if we can afford all the objectives with higher priority
+	//check if we can afford all the objectives with higher priority first
+	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
-		accumulatedResources += it.resources;
-		if (accumulatedResources > freeResources()) //can't afford
-			return whatToDo(); 
+		accumulatedResources += it->resources;
+		if (accumulatedResources > allResources) //can't afford
+			return collectResourcesForOurGoal(ro);
 		else //can afford all goals up to this point
 		{
-			if (it.goal == goal)
+			if (it->goal == goal)
 				return goal; //can afford immediately
 		}
 	}
-	return whatToDo(); //should return CollectRes for highest-priority goal
-
-	//TODO: consider returning CollectRes for the goal requested (in case it needs different resources than our priority)
+	return collectResourcesForOurGoal(ro); //fallback, ever needed?
 }
 
 bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)

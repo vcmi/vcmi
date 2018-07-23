@@ -137,18 +137,27 @@ TEST_F(ResourceManagerTest, queueOrder)
 	ON_CALL(gcm, getResourceAmount())
 		.WillByDefault(Return(TResources(0,0,0,0,0,0,4000,0))); //we can afford 4 top goals
 
-	ASSERT_EQ(rm->whatToDo()->objid, 4); //TODO: mock ai
+	auto goal = rm->whatToDo();
+	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
+	ASSERT_EQ(rm->whatToDo()->objid, 4);
 	rm->reserveResoures(price, buildBit);
 	rm->reserveResoures(price, buildVeryHigh);
-	ASSERT_EQ(rm->whatToDo()->objid, 5);
-
+	goal = rm->whatToDo();
+	EXPECT_EQ(goal->goalType, Goals::BUILD_STRUCTURE);
+	ASSERT_EQ(goal->objid, 5);
 
 	buildExtra->setpriority(3).setobjid(100);
 	EXPECT_EQ(rm->whatToDo(price, buildExtra)->objid, 100);
 
 	buildNotSoExtra->setpriority(0.7f).setobjid(7);
-	EXPECT_NE(rm->whatToDo(price, buildNotSoExtra)->objid, 7);
-	EXPECT_EQ(rm->whatToDo()->goalType, Goals::COLLECT_RES);
+	goal = rm->whatToDo(price, buildNotSoExtra);
+	EXPECT_NE(goal->objid, 7);
+	EXPECT_EQ(goal->goalType, Goals::COLLECT_RES) << "We can't afford this goal, need to collect resources";
+	EXPECT_EQ(goal->resID, Res::GOLD) << "We need to collect gold";
+
+	goal = rm->whatToDo();
+	EXPECT_NE(goal->goalType, Goals::COLLECT_RES);
+	EXPECT_EQ(goal->objid, 5) << "Should return highest-priority goal";
 }
 
 TEST_F(ResourceManagerTest, updateGoalImplemented)

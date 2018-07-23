@@ -54,6 +54,7 @@ public:
 	TResources estimateIncome() const;
 
 	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
+	Goals::TSubgoal collectResourcesForOurGoal(ResourceObjective &o) const;
 	Goals::TSubgoal whatToDo(); //pop highest-priority goal
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
 	bool notifyGoalCompleted(Goals::TSubgoal goal);
