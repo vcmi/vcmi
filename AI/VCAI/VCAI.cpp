@@ -2098,40 +2098,19 @@ void VCAI::tryRealize(Goals::VisitHero & g)
 void VCAI::tryRealize(Goals::BuildThis & g)
 {
 	auto b = BuildingID(g.bid);
-
-	const CGTownInstance * t = g.town;
-
-	if(!t && g.hero)
-		t = g.hero->visitedTown;
-
-	if(!t)
-	{
-		for(const CGTownInstance * town : cb->getTownsInfo())
-		{
-			switch(cb->canBuildStructure(town, b))
-			{
-			case EBuildingState::ALLOWED:
-				t = town;
-				break;
-			default:
-				continue;
-			}
-		}
-	}
-	else if(cb->canBuildStructure(t, b) != EBuildingState::ALLOWED)
-	{		
-		t = nullptr;
-	}
+	auto t = g.town;
 
 	if (t)
 	{
-		logAi->debug("Player %d will build %s in town of %s at %s",
-			playerID, t->town->buildings.at(b)->Name(), t->name, t->pos.toString());
-		cb->buildBuilding(t, b);
-		throw goalFulfilledException(sptr(g));
+		if (cb->canBuildStructure(t, b) == EBuildingState::ALLOWED)
+		{
+			logAi->debug("Player %d will build %s in town of %s at %s",
+				playerID, t->town->buildings.at(b)->Name(), t->name, t->pos.toString());
+			cb->buildBuilding(t, b);
+			throw goalFulfilledException(sptr(g));
+		}
 	}
-	else
-		throw cannotFulfillGoalException("Cannot build a given structure!");
+	throw cannotFulfillGoalException("Cannot build a given structure!");
 }
 
 void VCAI::tryRealize(Goals::DigAtTile & g)

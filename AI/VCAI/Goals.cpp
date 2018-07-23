@@ -741,17 +741,15 @@ bool Explore::fulfillsMe(TSubgoal goal)
 	return false;
 }
 
-
 TSubgoal RecruitHero::whatToDoToAchieve()
 {
 	const CGTownInstance * t = ai->findTownWithTavern();
 	if(!t)
 		return sptr(Goals::BuildThis(BuildingID::TAVERN));
 
-	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
-		return sptr(Goals::CollectRes(Res::GOLD, GameConstants::HERO_GOLD_COST));
-
-	return iAmElementar();
+	TResources res;
+	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
+	return rm->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }
 
 std::string VisitTile::completeMessage() const
@@ -837,10 +835,33 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 
 TSubgoal BuildThis::whatToDoToAchieve()
 {
-	//TODO check res
-	//look for town
-	//prerequisites?
-	return iAmElementar();
+	auto b = BuildingID(bid);
+
+	// find town if not set
+	if (!town && hero)
+		town = hero->visitedTown;
+
+	if (!town)
+	{
+		for (const CGTownInstance * t : cb->getTownsInfo())
+		{
+			switch (cb->canBuildStructure(town, b))
+			{
+			case EBuildingState::ALLOWED:
+				town = t;
+				break; //TODO: look for prerequisites? this is not our reponsibility
+			default:
+				continue;
+			}
+		}
+	}
+	if (town) //we have specific town to build this
+	{
+		auto res = town->town->buildings.at(BuildingID(bid))->resources;
+		return rm->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+	}
+	else
+		throw cannotFulfillGoalException("Cannot find town to build this");
 }
 
 TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
