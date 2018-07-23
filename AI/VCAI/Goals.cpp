@@ -117,8 +117,11 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 	case INVALID:
 	case WIN:
 	case DO_NOT_LOSE:
-	case RECRUIT_HERO: //recruit any hero, as yet
 		return true;
+		break;
+
+	case RECRUIT_HERO: //recruit any hero will do
+		return goalType == g.goalType;
 		break;
 
 	//assigned to hero, no parameters
@@ -933,8 +936,14 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 TSubgoal CollectRes::whatToDoToAchieve()
 {	
 	auto goals = getAllPossibleSubgoals();
-	goals.push_back(whatToDoToTrade()); //always returns 1 goal
-	return fh->chooseSolution(goals); //TODO: evaluate trading
+	auto trade = whatToDoToTrade();
+	if (!trade->invalid())
+		goals.push_back(trade);
+
+	if (goals.empty())
+		return sptr(Goals::Explore()); //we can always do that
+	else
+		return fh->chooseSolution(goals); //TODO: evaluate trading
 }
 
 TSubgoal Goals::CollectRes::whatToDoToTrade()
@@ -992,22 +1001,27 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			howManyCanWeBuy += toReceive * (cb->getResourceAmount(i) / toGive);
 		}
 
-		if (howManyCanWeBuy + cb->getResourceAmount(static_cast<Res::ERes>(resID)) >= value)
+		if (howManyCanWeBuy >= value)
 		{
 			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
+			auto objid = m->o->id.getNum();
 			if (backObj->tempOwner != ai->playerID)
 			{
-				return sptr(Goals::GetObj(m->o->id.getNum()));
+				return sptr(Goals::GetObj(objid));
 			}
 			else
 			{
-				return sptr(Goals::GetObj(m->o->id.getNum()).setisElementar(true));
+				if (m->o->ID == Obj::TOWN) //just trade remotely using town objid
+					return sptr(setobjid(objid).setisElementar(true));
+				else //just go there
+					return sptr(Goals::GetObj(objid).setisElementar(true));
 			}
 		}
 	}
-	//TODO: separate goal to executre trade?
-	return sptr(setisElementar(true)); //all the conditions for trade are met
+	return sptr(Goals::Invalid()); //cannot trade
+	//TODO: separate goal to execute trade?
+	//return sptr(setisElementar(true)); //not sure why we are here
 }
 
 bool CollectRes::fulfillsMe(TSubgoal goal)

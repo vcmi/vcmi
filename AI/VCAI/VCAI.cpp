@@ -2128,10 +2128,10 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 	}
 }
 
-void VCAI::tryRealize(Goals::CollectRes & g)
+void VCAI::tryRealize(Goals::CollectRes & g) //trade
 {
-	if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
-		throw cannotFulfillGoalException("Goal is already fulfilled!");
+	if(rm->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this chek, anyway?
+		throw goalFulfilledException(sptr(g));
 
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
@@ -2139,15 +2139,15 @@ void VCAI::tryRealize(Goals::CollectRes & g)
 		{
 			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
 			{
-				if(i == g.resID)
+				if(i == g.resID) //sell any other resource
 					continue;
 				int toGive, toGet;
 				m->getOffer(i, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = toGive * (cb->getResourceAmount(i) / toGive);
 				//TODO trade only as much as needed
 				cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
-				if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
-					return;
+				if (rm->freeResources()[g.resID] >= g.value)
+					throw goalFulfilledException(sptr(g));
 			}
 
 			throw cannotFulfillGoalException("I cannot get needed resources by trade!");
@@ -2732,6 +2732,7 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 				hero = heroes[1];
 		}
 		cb->recruitHero(t, hero);
+		throw goalFulfilledException(sptr(Goals::RecruitHero().settown(t)));
 	}
 	else if(throwing)
 	{
