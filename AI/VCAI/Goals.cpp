@@ -116,11 +116,8 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 	case INVALID:
 	case WIN:
 	case DO_NOT_LOSE:
+	case RECRUIT_HERO: //overloaded
 		return true;
-		break;
-
-	case RECRUIT_HERO: //recruit any hero will do
-		return goalType == g.goalType;
 		break;
 
 	//assigned to hero, no parameters
@@ -752,6 +749,12 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	TResources res;
 	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
 	return ai->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
+}
+
+bool Goals::RecruitHero::operator==(RecruitHero & g)
+{
+	//TODO: check town and hero
+	return true; //for now, recruiting any hero will do
 }
 
 std::string VisitTile::completeMessage() const

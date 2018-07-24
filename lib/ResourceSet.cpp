@@ -32,14 +32,6 @@ Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, 
 							TResource gems, TResource gold, TResource mithril)
 {
 	resize(GameConstants::RESOURCE_QUANTITY);
-	//push_back(wood);
-	//push_back(mercury);
-	//push_back(ore);
-	//push_back(sulfur);
-	//push_back(crystal);
-	//push_back(gems);
-	//push_back(gold);
-	//push_back(mithril);
 	auto d = data();
 	d[Res::WOOD] = wood;
 	d[Res::MERCURY] = mercury;

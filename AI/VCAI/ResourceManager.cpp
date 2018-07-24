@@ -109,8 +109,6 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	//sum missing resources of given type for ALL reserved objectives
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
-		auto res = it->resources;
-		auto goal = it->goal;
 		//choose specific resources we need for this goal (not 0)
 		for (auto r = Res::ResourceSet::nziterator(o.resources); r.valid(); r++)
 			missingResources[r->resType] += it->resources[r->resType]; //goal it costs r units of resType
@@ -119,6 +117,15 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	{
 		missingResources[it->resType] -= allResources[it->resType]; //missing = (what we need) - (what we have)
 		vstd::amax(missingResources[it->resType], 0); // if we have more resources than reserved, we don't need them
+	}
+	vstd::erase_if(missingResources, [=](const resPair & p) -> bool
+	{
+		return !(p.second); //in case evaluated to 0 or less
+	});
+	if (missingResources.empty()) //FIXME: should be unit-tested out
+	{
+		logAi->error("We don't need to collect resources %s for goal %s", o.resources.toString(), o.goal->name());
+		return o.goal;
 	}
 
 	float goalPriority = 10; //arbitrary, will be divided

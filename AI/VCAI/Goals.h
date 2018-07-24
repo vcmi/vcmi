@@ -344,6 +344,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool operator==(RecruitHero & g);
 };
 
 class DLL_EXPORT BuildThis : public CGoal<BuildThis>
