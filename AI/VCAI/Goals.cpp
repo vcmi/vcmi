@@ -875,11 +875,17 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 
 	auto givesResource = [this](const CGObjectInstance * obj) -> bool
 	{
-		//TODO: All other pickables
-		//TODO: Windmills and stuff
+		//TODO: move this logic to object side
+		//TODO: remember mithril exists
+		//TODO: water objects
 		//TODO: Creature banks
+
+		//return false first from once-visitable, before checking if they were even visited
 		switch (obj->ID.num)
 		{
+		case Obj::TREASURE_CHEST:
+			return resID == Res::GOLD;
+			break;
 		case Obj::RESOURCE:
 			return obj->subID == resID;
 			break;
@@ -887,10 +893,35 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 			return (obj->subID == resID &&
 				(cb->getPlayerRelations(obj->tempOwner, ai->playerID) == PlayerRelations::ENEMIES)); //don't capture our mines
 			break;
+		case Obj::CAMPFIRE:
+			return true; //contains all resources
+			break;
+		case Obj::WINDMILL:
+			switch (resID)
+			{
+			case Res::GOLD:
+			case Res::WOOD:
+				return false;
+			}
+			break;
+		case Obj::WATER_WHEEL:
+			if (resID != Res::GOLD)
+				return false;
+			break;
+		case Obj::MYSTICAL_GARDEN:
+			if ((resID != Res::GOLD) && (resID != Res::GEMS))
+				return false;
+			break;
+		case Obj::LEAN_TO:
+		case Obj::WAGON:
+			if (resID != Res::GOLD)
+				return false;
+			break;
 		default:
 			return false;
 			break;
 		}
+		return !vstd::contains(ai->alreadyVisited, obj); //for weekly / once visitable
 	};
 
 	std::vector<const CGObjectInstance *> objs;
