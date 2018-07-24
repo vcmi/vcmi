@@ -74,7 +74,7 @@ public:
 	TResources freeResources() const override;
 	TResource freeGold() const override;
 
-	Goals::TSubgoal whatToDo() const override; //pop highest-priority goal
+	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
 	bool hasTasksLeft() const override;
 

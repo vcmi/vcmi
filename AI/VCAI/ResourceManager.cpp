@@ -149,13 +149,13 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	}
 	if (resourceType == Res::GOLD)
 		goalPriority *= 1000;
-	//TODO: evaluate priority of returned goal
+
 	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
 }
 
 Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
 {
-	if (queue.size()) //TODO: check if we can afford. if not, then CollectRes
+	if (queue.size())
 	{
 		auto o = queue.top();
 		
@@ -175,7 +175,7 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 	auto allResources = cb->getResourceAmount();
 
 	ResourceObjective ro(res, goal);
-	tryPush(ro); //TODO: avoid duplicates. choose max priority
+	tryPush(ro);
 	//check if we can afford all the objectives with higher priority first
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
@@ -242,7 +242,7 @@ bool ResourceManager::tryPush(ResourceObjective & o)
 
 	auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 	{
-		return ro.goal == goal;//do not compare pointers, compare goals. TODO: refactor?
+		return ro.goal == goal;
 	});
 	if (it != queue.end())
 	{
