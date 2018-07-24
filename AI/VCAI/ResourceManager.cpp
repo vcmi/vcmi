@@ -20,15 +20,6 @@ ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
 {
 }
 
-//bool operator<(const ResourceObjective & lhs, const ResourceObjective & rhs)
-//{
-//	return lhs.goal->priority < rhs.goal->priority;
-//}
-//bool operator<(const ResourceObjective lhs, const ResourceObjective rhs)
-//{
-//	return lhs.goal->priority < rhs.goal->priority;
-//}
-
 bool ResourceObjective::operator<(const ResourceObjective & ro) const
 {
 	return goal->priority < ro.goal->priority;
@@ -162,7 +153,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
 }
 
-Goals::TSubgoal ResourceManager::whatToDo() //suggest any goal
+Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
 {
 	if (queue.size()) //TODO: check if we can afford. if not, then CollectRes
 	{
@@ -269,7 +260,7 @@ bool ResourceManager::tryPush(ResourceObjective & o)
 	}
 }
 
-bool ResourceManager::hasTasksLeft()
+bool ResourceManager::hasTasksLeft() const
 {
 	return !queue.empty();
 }

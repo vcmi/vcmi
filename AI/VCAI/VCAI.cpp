@@ -23,6 +23,8 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 
+#include "AIhelper.h"
+
 extern FuzzyHelper * fh;
 
 class CGVisitableOPW;
@@ -32,6 +34,7 @@ const double SAFE_ATTACK_CONSTANT = 1.5;
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
 boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIhelper> ah;
 
 //std::map<int, std::map<int, int> > HeroView::infosCount;
 
@@ -45,8 +48,10 @@ struct SetGlobalState
 
 		ai.reset(AI);
 		cb.reset(AI->myCb.get());
-		ai->rm->setAI(AI); //does this make any sense?
-		ai->rm->setCB(cb.get());
+		if (!ah.get())
+			ah.reset(new AIhelper());
+		ah->setAI(AI); //does this make any sense?
+		ah->setCB(cb.get());
 	}
 	~SetGlobalState()
 	{
@@ -571,9 +576,9 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	myCb = CB;
 	cbc = CB;
 
-	rm.reset(new ResourceManager());
+	ah.reset(new AIhelper());
 
-	NET_EVENT_HANDLER; //sets rm->cb
+	NET_EVENT_HANDLER; //sets ah->rm->cb
 	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
@@ -747,26 +752,6 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 	}
 }
 
-Goals::TSubgoal VCAI::whatToDo(TResources & res, Goals::TSubgoal goal)
-{
-	return rm->whatToDo(res, goal);
-}
-
-TResources VCAI::reservedResources() const
-{
-	return rm->reservedResources();
-}
-
-TResources VCAI::freeResources() const
-{
-	return rm->freeResources();
-}
-
-TResource VCAI::freeGold() const
-{
-	return rm->freeGold();
-}
-
 void VCAI::makeTurn()
 {
 	logGlobal->info("Player %d (%s) starting turn", playerID, playerID.getStr());
@@ -835,8 +820,8 @@ void VCAI::makeTurnInternal()
 		striveToGoal(sptr(Goals::Win()));
 
 		//TODO: add ResourceManager goals to the pool and process them all at once
-		if (rm->hasTasksLeft())
-			striveToGoal(rm->whatToDo());
+		if (ah->hasTasksLeft())
+			striveToGoal(ah->whatToDo());
 
 		//finally, continue our abstract long-term goals
 		int oldMovement = 0;
@@ -931,7 +916,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			townVisitsThisWeek[h].insert(h->visitedTown);
-			if(!h->hasSpellbook() && rm->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
+			if(!h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -1178,7 +1163,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
-		vstd::amin(count, rm->freeResources() / VLC->creh->creatures[creID]->cost);
+		vstd::amin(count, ah->freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1627,7 +1612,7 @@ void VCAI::evaluateGoal(HeroPtr h)
 void VCAI::completeGoal(Goals::TSubgoal goal)
 {
 	logAi->trace("Completing goal: %s", goal->name());
-	rm->notifyGoalCompleted(goal);
+	ah->notifyGoalCompleted(goal);
 	if(const CGHeroInstance * h = goal->hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
@@ -2149,7 +2134,7 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 
 void VCAI::tryRealize(Goals::CollectRes & g) //trade
 {
-	if(rm->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this chek, anyway?
+	if(ah->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this chek, anyway?
 		throw goalFulfilledException(sptr(g));
 
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
@@ -2165,7 +2150,7 @@ void VCAI::tryRealize(Goals::CollectRes & g) //trade
 				toGive = toGive * (cb->getResourceAmount(i) / toGive);
 				//TODO trade only as much as needed
 				cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
-				if (rm->freeResources()[g.resID] >= g.value)
+				if (ah->freeResources()[g.resID] >= g.value)
 					throw goalFulfilledException(sptr(g));
 			}
 
@@ -2194,7 +2179,7 @@ void VCAI::tryRealize(Goals::Build & g)
 		else if (potentialBuildings.size())
 		{
 			auto pb = potentialBuildings.front(); //gather resources for any we can't afford
-			auto goal = rm->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
+			auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
 			if (goal->goalType == Goals::BUILD_STRUCTURE)
 			{
 				logAi->error("We were supposed to NOT afford any building");
@@ -3254,7 +3239,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		if (ai->freeGold() < 1000)
+		if (ah->freeGold() < 1000)
 			return false;
 		break;
 	}
@@ -3264,7 +3249,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		TResources myRes = ai->freeResources();
+		TResources myRes = ah->freeResources();
 		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;
 		break;
@@ -3279,7 +3264,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		//TODO: only on request
 		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(ai->freeGold() < GameConstants::HERO_GOLD_COST)
+		else if(ah->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}

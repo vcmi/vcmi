@@ -13,19 +13,19 @@
 
 #include "../AI/VCAI/VCAI.h"
 #include "ResourceManagerTest.h"
-#include "../AI/VCAI/ResourceManager.h"
 #include "../AI/VCAI/Goals.h"
 #include "mock_VCAI_CGoal.h"
 #include "mock_VCAI.h"
+#include "mock_ResourceManager.h"
 #include "../mock/mock_CPSICallback.h"
 #include "../lib/CGameInfoCallback.h"
 
 using namespace Goals;
 using namespace ::testing;
 
-struct ResourceManagerTest : public Test
+struct ResourceManagerTest : public Test//, public IResourceManager
 {
-	std::unique_ptr<ResourceManager> rm;
+	std::unique_ptr<ResourceManagerMock> rm;
 
 	NiceMock<GameCallbackMock> gcm;
 	NiceMock<VCAIMock> aim;
@@ -33,7 +33,7 @@ struct ResourceManagerTest : public Test
 
 	ResourceManagerTest()
 	{
-		rm = std::make_unique<ResourceManager>(&gcm, &aim);
+		rm = std::make_unique<ResourceManagerMock>(&gcm, &aim);
 
 		//note: construct new goal for modfications
 		invalidGoal = sptr(StrictMock<InvalidGoalMock>());
