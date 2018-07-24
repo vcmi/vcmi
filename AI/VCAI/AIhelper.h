@@ -25,7 +25,7 @@ class DLL_EXPORT AIhelper : public IResourceManager
 	friend struct SetGlobalState; //mess?
 
 	//members are thread_specific. AIhelper is global
-	std::shared_ptr<ResourceManager> rm;
+	std::shared_ptr<ResourceManager> resourceManager;
 	std::shared_ptr<VCAI> ai;
 public:
 	AIhelper();

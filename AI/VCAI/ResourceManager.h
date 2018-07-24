@@ -36,7 +36,7 @@ struct DLL_EXPORT ResourceObjective
 	}
 };
 
-class IResourceManager
+class IResourceManager //: public: IAbstractManager
 {
 public:
 	virtual ~IResourceManager() = default;
@@ -54,7 +54,7 @@ private:
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal) = 0;
 };
 
-class DLL_EXPORT ResourceManager : public IResourceManager//: public: IAIManager
+class DLL_EXPORT ResourceManager : public IResourceManager
 {
 	/*Resource Manager is a smart shopping list for AI to help
 	Uses priority queue based on CGoal.priority */

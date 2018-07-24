@@ -16,7 +16,7 @@ boost::thread_specific_ptr<AIhelper> ah;
 
 AIhelper::AIhelper()
 {
-	rm.reset(new ResourceManager);
+	resourceManager.reset(new ResourceManager);
 }
 
 AIhelper::~AIhelper()
@@ -25,50 +25,50 @@ AIhelper::~AIhelper()
 
 bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 {
-	return rm->notifyGoalCompleted(goal);
+	return resourceManager->notifyGoalCompleted(goal);
 }
 
 void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
 {
-	rm->setCB(CB);
+	resourceManager->setCB(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)
 {
-	rm->setAI(AI);
+	resourceManager->setAI(AI);
 }
 
 Goals::TSubgoal AIhelper::whatToDo(TResources & res, Goals::TSubgoal goal)
 {
-	return rm->whatToDo(res, goal);
+	return resourceManager->whatToDo(res, goal);
 }
 
 Goals::TSubgoal AIhelper::whatToDo() const
 {
-	return rm->whatToDo();
+	return resourceManager->whatToDo();
 }
 
 bool AIhelper::hasTasksLeft() const
 {
-	return rm->hasTasksLeft();
+	return resourceManager->hasTasksLeft();
 }
 
 bool AIhelper::canAfford(const TResources & cost) const
 {
-	return rm->canAfford(cost);
+	return resourceManager->canAfford(cost);
 }
 
 TResources AIhelper::reservedResources() const
 {
-	return rm->reservedResources();
+	return resourceManager->reservedResources();
 }
 
 TResources AIhelper::freeResources() const
 {
-	return rm->freeResources();
+	return resourceManager->freeResources();
 }
 
 TResource AIhelper::freeGold() const
 {
-	return rm->freeGold();
+	return resourceManager->freeGold();
 }
