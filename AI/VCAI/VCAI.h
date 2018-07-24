@@ -176,6 +176,7 @@ public:
 	AIStatus status;
 	std::string battlename;
 
+	std::shared_ptr<ResourceManager> rm;
 	std::shared_ptr<CCallback> myCb;
 
 	std::unique_ptr<boost::thread> makingTurn;
@@ -261,6 +262,13 @@ public:
 
 	void battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side) override;
 	void battleEnd(const BattleResult * br) override;
+
+	//indirection interface
+	//TODO: consider common interface with Resource Manager?
+	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); 
+	TResources reservedResources() const;
+	TResources freeResources() const;
+	TResource freeGold() const;
 
 	void makeTurn();
 	void makeTurnInternal();

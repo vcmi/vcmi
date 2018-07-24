@@ -15,8 +15,6 @@
 
 #define GOLD_RESERVE (10000); //at least we'll be able to reach capitol
 
-ResourceManager * rm;
-
 ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
 	: resources(Res), goal(Goal)
 {
@@ -111,6 +109,8 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	//sum missing resources of given type for ALL reserved objectives
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
+		auto res = it->resources;
+		auto goal = it->goal;
 		//choose specific resources we need for this goal (not 0)
 		for (auto r = Res::ResourceSet::nziterator(o.resources); r.valid(); r++)
 			missingResources[r->resType] += it->resources[r->resType]; //goal it costs r units of resType

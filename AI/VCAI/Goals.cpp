@@ -19,7 +19,6 @@
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 extern FuzzyHelper * fh;
-extern ResourceManager * rm;
 
 using namespace Goals;
 
@@ -752,7 +751,7 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 
 	TResources res;
 	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
-	return rm->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
+	return ai->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }
 
 std::string VisitTile::completeMessage() const
@@ -861,7 +860,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	if (town) //we have specific town to build this
 	{
 		auto res = town->town->buildings.at(BuildingID(bid))->resources;
-		return rm->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+		return ai->whatToDo(res, iAmElementar()); //realize immediately or gather resources
 	}
 	else
 		throw cannotFulfillGoalException("Cannot find town to build this");
@@ -1072,7 +1071,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && rm->freeResources().canAfford(VLC->creh->creatures[type]->cost))
+					if(type == objid && ai->freeResources().canAfford(VLC->creh->creatures[type]->cost))
 						dwellings.push_back(d);
 				}
 			}
@@ -1265,7 +1264,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			if (bid != BuildingID::NONE)
 			{
 				auto cost = (t->getBuildingCost(bid));
-				ret.push_back(rm->whatToDo(cost, sptr(BuildThis(bid, t)))); //TODO: this makes no sense since we already can afford it
+				ret.push_back(ai->whatToDo(cost, sptr(BuildThis(bid, t)))); //TODO: this makes no sense since we already can afford it
 			}
 		}
 	}
@@ -1311,7 +1310,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 						for(auto & creatureID : creLevel.second)
 						{
 							auto creature = VLC->creh->creatures[creatureID];
-							if(rm->freeResources().canAfford(creature->cost))
+							if(ai->freeResources().canAfford(creature->cost))
 								objs.push_back(obj);
 						}
 					}
@@ -1331,7 +1330,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	if(ai->canRecruitAnyHero() && rm->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
+	if(ai->canRecruitAnyHero() && ai->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
 		if(auto t = ai->findTownWithTavern())
 		{

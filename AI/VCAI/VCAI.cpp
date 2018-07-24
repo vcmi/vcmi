@@ -24,7 +24,6 @@
 #include "../../lib/serializer/BinaryDeserializer.h"
 
 extern FuzzyHelper * fh;
-extern ResourceManager * rm;
 
 class CGVisitableOPW;
 
@@ -46,8 +45,8 @@ struct SetGlobalState
 
 		ai.reset(AI);
 		cb.reset(AI->myCb.get());
-		rm->setAI(AI);
-		rm->setCB(cb.get());
+		ai->rm->setAI(AI); //does this make any sense?
+		ai->rm->setCB(cb.get());
 	}
 	~SetGlobalState()
 	{
@@ -572,8 +571,8 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	myCb = CB;
 	cbc = CB;
 
-	if (!rm)
-		rm = new ResourceManager();
+	rm.reset(new ResourceManager());
+
 	NET_EVENT_HANDLER; //sets rm->cb
 	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
@@ -746,6 +745,26 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 			}
 		}
 	}
+}
+
+Goals::TSubgoal VCAI::whatToDo(TResources & res, Goals::TSubgoal goal)
+{
+	return rm->whatToDo(res, goal);
+}
+
+TResources VCAI::reservedResources() const
+{
+	return rm->reservedResources();
+}
+
+TResources VCAI::freeResources() const
+{
+	return rm->freeResources();
+}
+
+TResource VCAI::freeGold() const
+{
+	return rm->freeGold();
 }
 
 void VCAI::makeTurn()
@@ -3235,7 +3254,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		if (rm->freeGold() < 1000)
+		if (ai->freeGold() < 1000)
 			return false;
 		break;
 	}
@@ -3245,7 +3264,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		TResources myRes = rm->freeResources();
+		TResources myRes = ai->freeResources();
 		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;
 		break;
@@ -3260,7 +3279,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		//TODO: only on request
 		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(rm->freeGold() < GameConstants::HERO_GOLD_COST)
+		else if(ai->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}
