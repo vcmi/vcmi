@@ -26,11 +26,11 @@ class CSlider;
 class CArmyTooltip;
 
 // Window GUI class
-class CSimpleWindow : public CIntObject
+class CSimpleWindow : public WindowBase
 {
 public:
 	SDL_Surface * bitmap; //background
-	virtual void show(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
 	CSimpleWindow():bitmap(nullptr){};
 	virtual ~CSimpleWindow();
 };
@@ -58,16 +58,15 @@ public:
 
 	//use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
 	static void showInfoDialog( const std::string & text, const TCompsInfo & components, PlayerColor player = PlayerColor(1));
-	static void showOkDialog(const std::string & text, const TCompsInfo & components, const std::function<void()> & onOk, PlayerColor player = PlayerColor(1));
 	static void showYesNoDialog( const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player = PlayerColor(1));
-	static CInfoWindow * create(const std::string & text, PlayerColor playerID = PlayerColor(1), const TCompsInfo & components = TCompsInfo());
+	static std::shared_ptr<CInfoWindow> create(const std::string & text, PlayerColor playerID = PlayerColor(1), const TCompsInfo & components = TCompsInfo());
 
 	/// create text from title and description: {title}\n\n description
 	static std::string genText(std::string title, std::string description);
 };
 
 /// popup displayed on R-click
-class CRClickPopup : public CIntObject
+class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
@@ -76,7 +75,7 @@ public:
 	CRClickPopup();
 	virtual ~CRClickPopup();
 
-	static CIntObject* createInfoWin(Point position, const CGObjectInstance * specific);
+	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
 	static void createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment = BOTTOMRIGHT);
@@ -85,13 +84,9 @@ public:
 /// popup displayed on R-click
 class CRClickPopupInt : public CRClickPopup
 {
+	std::shared_ptr<CIntObject> inner;
 public:
-	IShowActivatable *inner;
-	bool delInner;
-
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
-	CRClickPopupInt(IShowActivatable *our, bool deleteInt);
+	CRClickPopupInt(std::shared_ptr<CIntObject> our);
 	virtual ~CRClickPopupInt();
 };
 
@@ -123,11 +118,11 @@ public:
 
 /// component selection window
 class CSelWindow : public CInfoWindow
-{ //warning - this window deletes its components by closing!
+{
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string & text, PlayerColor player, int charperline ,const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID);
-	CSelWindow(){};
+	CSelWindow(const std::string & text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID);
+
 	//notification - this class inherits important destructor from CInfoWindow
 };

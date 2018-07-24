@@ -161,7 +161,7 @@ bool CGarrisonSlot::viewInfo()
 		elem->block(true);
 
 	redraw();
-	GH.pushInt(new CStackWindow(myStack, dism, pom, upgr));
+	GH.pushIntT<CStackWindow>(myStack, dism, pom, upgr);
 	return true;
 }
 
@@ -170,7 +170,7 @@ bool CGarrisonSlot::viewInfo()
 bool CGarrisonSlot::highlightOrDropArtifact()
 {
 	bool artSelected = false;
-	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt())) //dirty solution
+	if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt().get())) //dirty solution
 	{
 		const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = chw->getCommonPart();
 		const CArtifactInstance * art = nullptr;
@@ -241,8 +241,8 @@ bool CGarrisonSlot::split()
 	int countLeft = selection->myStack ? selection->myStack->count : 0;
 	int countRight = myStack ? myStack->count : 0;
 
-	GH.pushInt(new CSplitWindow(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
-	                            minLeft, minRight, countLeft, countRight));
+	GH.pushIntT<CSplitWindow>(selection->creature, std::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+		minLeft, minRight, countLeft, countRight);
 	return true;
 }
 
@@ -278,7 +278,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(creature && down)
 	{
-		GH.pushInt(new CStackWindow(myStack, true));
+		GH.pushIntT<CStackWindow>(myStack, true);
 	}
 }
 

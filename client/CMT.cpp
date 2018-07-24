@@ -118,32 +118,13 @@ static void mainLoop();
 
 void init()
 {
-	CStopWatch tmh, pomtime;
+	CStopWatch tmh;
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 
 	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
-
-	if(!settings["session"]["headless"].Bool())
-	{
-		pomtime.getDiff();
-		CCS->curh = new CCursorHandler();
-		graphics = new Graphics(); // should be before curh->init()
-
-		CCS->curh->initCursor();
-		CCS->curh->show();
-		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
-		pomtime.getDiff();
-
-		graphics->load();
-		logGlobal->info("\tMain graphics: %d ms", pomtime.getDiff());
-		logGlobal->info("Initializing game graphics: %d ms", tmh.getDiff());
-
-		CMessage::init();
-		logGlobal->info("Message handler: %d ms", tmh.getDiff());
-	}
 }
 
 static void prog_version()
@@ -466,8 +447,10 @@ int main(int argc, char * argv[])
 			playIntro();
 		SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 255);
 		SDL_RenderClear(mainRenderer);
+		SDL_RenderPresent(mainRenderer);
 	}
-	SDL_RenderPresent(mainRenderer);
+
+
 #ifndef VCMI_NO_THREADED_LOAD
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
@@ -480,6 +463,27 @@ int main(int argc, char * argv[])
 	}
 	#endif // ANDROID
 #endif // THREADED
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		pomtime.getDiff();
+		CCS->curh = new CCursorHandler();
+		graphics = new Graphics(); // should be before curh->init()
+
+		CCS->curh->initCursor();
+		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
+		pomtime.getDiff();
+
+		graphics->load();//must be after Content loading but should be in main thread
+		logGlobal->info("Main graphics: %d ms", pomtime.getDiff());
+
+		CMessage::init();
+		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
+
+		CCS->curh->show();
+	}
+
+
 	logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
 
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
@@ -500,7 +504,7 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		GH.curInt = CMainMenu::create();
+		GH.curInt = CMainMenu::create().get();
 	}
 
 	if(!settings["session"]["headless"].Bool())
@@ -786,9 +790,9 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gui")
 	{
-		for(const IShowActivatable *child : GH.listInt)
+		for(auto child : GH.listInt)
 		{
-			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
+			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child.get()))
 				printInfoAboutIntObject(obj, 0);
 			else
 				std::cout << typeid(*child).name() << std::endl;
@@ -970,9 +974,9 @@ void processCommand(const std::string &message)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 0, 1, screen, true, true))
+	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 0, 1, true, true))
 	{
-		CCS->videoh->openAndPlayVideo("AZVS.SMK", 0, 1, screen, true, true);
+		CCS->videoh->openAndPlayVideo("AZVS.SMK", 0, 1, true, true);
 	}
 }
 
@@ -1044,18 +1048,6 @@ static void cleanupRenderer()
 		SDL_DestroyTexture(screenTexture);
 		screenTexture = nullptr;
 	}
-
-	if(nullptr != mainRenderer)
-	{
-		SDL_DestroyRenderer(mainRenderer);
-		mainRenderer = nullptr;
-	}
-
-	if(nullptr != mainWindow)
-	{
-		SDL_DestroyWindow(mainWindow);
-		mainWindow = nullptr;
-	}
 }
 
 static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIndex)
@@ -1080,46 +1072,84 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 
 	bool bufOnScreen = (screenBuf == screen);
+	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
 	cleanupRenderer();
 
-	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
-
-#ifdef VCMI_ANDROID
-	mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
-#else
-
-	if(fullscreen)
+	if(nullptr == mainWindow)
 	{
-		if(realFullscreen)
-			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), w, h, SDL_WINDOW_FULLSCREEN);
-		else //in windowed full-screen mode use desktop resolution
-			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+
+	#ifdef VCMI_ANDROID
+		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
+	#else
+
+		if(fullscreen)
+		{
+			if(realFullscreen)
+				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), w, h, SDL_WINDOW_FULLSCREEN);
+			else //in windowed full-screen mode use desktop resolution
+				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		}
+		else
+		{
+			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
+		}
+	#endif
+
+		if(nullptr == mainWindow)
+		{
+			throw std::runtime_error("Unable to create window\n");
+		}
+
+		//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
+		mainRenderer = SDL_CreateRenderer(mainWindow,preferredDriverIndex,0);
+
+		if(nullptr == mainRenderer)
+		{
+			throw std::runtime_error("Unable to create renderer\n");
+		}
+
+
+		SDL_RendererInfo info;
+		SDL_GetRendererInfo(mainRenderer, &info);
+		logGlobal->info("Created renderer %s", info.name);
+
 	}
 	else
 	{
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
-	}
+#ifndef VCMI_ANDROID
+
+		if(fullscreen)
+		{
+			if(realFullscreen)
+			{
+				SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN);
+
+				SDL_DisplayMode mode;
+				SDL_GetDesktopDisplayMode(displayIndex, &mode);
+				mode.w = w;
+				mode.h = h;
+
+				SDL_SetWindowDisplayMode(mainWindow, &mode);
+			}
+			else
+			{
+				SDL_SetWindowFullscreen(mainWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			}
+
+			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
+
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		}
+		else
+		{
+			SDL_SetWindowFullscreen(mainWindow, 0);
+			SDL_SetWindowSize(mainWindow, w, h);
+			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
+		}
 #endif
-
-	if(nullptr == mainWindow)
-	{
-		throw std::runtime_error("Unable to create window\n");
 	}
-
-
-	//create first available renderer if preferred not set. Use no flags, so HW accelerated will be preferred but SW renderer also will possible
-	mainRenderer = SDL_CreateRenderer(mainWindow,preferredDriverIndex,0);
-
-	if(nullptr == mainRenderer)
-	{
-		throw std::runtime_error("Unable to create renderer\n");
-	}
-
-	SDL_RendererInfo info;
-	SDL_GetRendererInfo(mainRenderer, &info);
-	logGlobal->info("Created renderer %s", info.name);
 
 	if(!(fullscreen && realFullscreen))
 	{
@@ -1270,7 +1300,7 @@ static void handleEvent(SDL_Event & ev)
 				};
 				if(epilogue.hasPrologEpilog)
 				{
-					GH.pushInt(new CPrologEpilogVideo(epilogue, finisher));
+					GH.pushIntT<CPrologEpilogVideo>(epilogue, finisher);
 				}
 				else
 				{
@@ -1306,6 +1336,13 @@ static void handleEvent(SDL_Event & ev)
 		}
 		return;
 	}
+
+	//preprocessing
+	if(ev.type == SDL_MOUSEMOTION)
+	{
+		CCS->curh->cursorMove(ev.motion.x, ev.motion.y);
+	}
+
 	{
 		boost::unique_lock<boost::mutex> lock(eventsM);
 		events.push(ev);
@@ -1349,6 +1386,19 @@ void handleQuit(bool ask)
 		if(!settings["session"]["headless"].Bool())
 		{
 			cleanupRenderer();
+
+			if(nullptr != mainRenderer)
+			{
+				SDL_DestroyRenderer(mainRenderer);
+				mainRenderer = nullptr;
+			}
+
+			if(nullptr != mainWindow)
+			{
+				SDL_DestroyWindow(mainWindow);
+				mainWindow = nullptr;
+			}
+
 			SDL_Quit();
 		}
 

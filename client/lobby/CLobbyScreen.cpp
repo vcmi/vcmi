@@ -88,7 +88,11 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType)
 
 	buttonStart->assignedKeys.insert(SDLK_RETURN);
 
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [&](){CSH->sendClientDisconnecting(); GH.popIntTotally(this);}, SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [&]()
+	{
+		CSH->sendClientDisconnecting();
+		close();
+	}, SDLK_ESCAPE);
 }
 
 CLobbyScreen::~CLobbyScreen()
@@ -138,7 +142,7 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	}
 	catch(ExceptionNoTemplate & e)
 	{
-		GH.pushInt(CInfoWindow::create(CGI->generaltexth->allTexts[751]));
+		CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[751]), CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(...)
 	{

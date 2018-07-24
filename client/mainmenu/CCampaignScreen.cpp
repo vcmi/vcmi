@@ -79,8 +79,7 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 	if(!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[button["help"].Float()];
 
-	std::function<void()> close = std::bind(&CGuiHandler::popIntTotally, &GH, this);
-	return std::make_shared<CButton>(Point(button["x"].Float(), button["y"].Float()), button["name"].String(), help, close, button["hotkey"].Float());
+	return std::make_shared<CButton>(Point(button["x"].Float(), button["y"].Float()), button["name"].String(), help, [=](){ close();}, button["hotkey"].Float());
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)

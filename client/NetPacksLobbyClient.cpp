@@ -35,7 +35,7 @@ bool LobbyClientConnected::applyOnLobbyHandler(CServerHandler * handler)
 	{
 		handler->c->connectionID = clientId;
 		if(!settings["session"]["headless"].Bool())
-			GH.pushInt(new CLobbyScreen(static_cast<ESelectionScreen>(handler->screenType)));
+			GH.pushIntT<CLobbyScreen>(static_cast<ESelectionScreen>(handler->screenType));
 		handler->state = EClientState::LOBBY;
 		return true;
 	}
@@ -60,7 +60,7 @@ bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.popIntTotally(lobby);
+	GH.popInts(1);
 }
 
 void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
@@ -114,7 +114,7 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.pushInt(new CLoadingScreen(std::bind(&CServerHandler::startGameplay, handler)));
+	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler));
 }
 
 bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
@@ -128,7 +128,7 @@ void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 {
 	if(!lobby->bonusSel && handler->si->campState && handler->state == EClientState::LOBBY_CAMPAIGN)
 	{
-		lobby->bonusSel = new CBonusSelection();
+		lobby->bonusSel = std::make_shared<CBonusSelection>();
 		GH.pushInt(lobby->bonusSel);
 	}
 

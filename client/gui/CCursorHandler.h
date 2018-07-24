@@ -8,9 +8,10 @@
  *
  */
 #pragma once
-
+class CIntObject;
 class CAnimImage;
 struct SDL_Surface;
+struct SDL_Texture;
 
 namespace ECursor
 {
@@ -26,7 +27,10 @@ namespace ECursor
 /// handles mouse cursor
 class CCursorHandler final
 {
-	SDL_Surface * help;
+	bool needUpdate;
+	SDL_Texture * cursorLayer;
+
+	SDL_Surface * buffer;
 	CAnimImage * currentCursor;
 
 	std::unique_ptr<CAnimImage> dndObject; //if set, overrides currentCursor
@@ -35,10 +39,12 @@ class CCursorHandler final
 
 	bool showing;
 
-	/// Draw cursor preserving original image below cursor
-	void drawWithScreenRestore();
-	/// Restore original image below cursor
-	void drawRestored();
+	void clearBuffer();
+	void updateBuffer(CIntObject * payload);
+	void replaceBuffer(CIntObject * payload);
+	void shiftPos( int &x, int &y );
+
+	void updateTexture();
 public:
 	/// position of cursor
 	int xpos, ypos;
@@ -63,9 +69,8 @@ public:
 
 	void render();
 
-	void shiftPos( int &x, int &y );
-	void hide() { showing=0; };
-	void show() { showing=1; };
+	void hide() { showing=false; };
+	void show() { showing=true; };
 
 	/// change cursor's positions to (x, y)
 	void cursorMove(const int & x, const int & y);
