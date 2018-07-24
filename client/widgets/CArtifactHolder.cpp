@@ -126,7 +126,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
 		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-			GH.pushInt(new CSpellWindow(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt));
+			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
 	}
 
 	if (!down && previousState)
@@ -678,14 +678,14 @@ CArtifactsOfHero::~CArtifactsOfHero()
 
 void CArtifactsOfHero::updateParentWindow()
 {
-	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt()))
+	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt().get()))
 	{
 		if(updateState)
 			chw->curHero = curHero;
 		else
 			chw->update(curHero, true);
 	}
-	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
+	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt().get()))
 	{
 		//use our copy of hero to draw window
 		if(cew->heroInst[0]->id == curHero->id)

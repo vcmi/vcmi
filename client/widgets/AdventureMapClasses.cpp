@@ -1250,21 +1250,16 @@ void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
 CAdvMapWorldViewPanel::CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color)
 	: CAdvMapPanel(bg, position), icons(_icons)
 {
-	fillerHeight = bg ? spaceBottom - pos.y - pos.h : 0;
+	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	int fillerHeight = bg ? spaceBottom - pos.y - pos.h : 0;
 
-	if (fillerHeight > 0)
+	if(fillerHeight > 0)
 	{
-		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
+		backgroundFiller = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, pos.h, pos.w, fillerHeight));
 	}
-	else
-		tmpBackgroundFiller = nullptr;
 }
 
-CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel()
-{
-	if (tmpBackgroundFiller)
-		SDL_FreeSurface(tmpBackgroundFiller);
-}
+CAdvMapWorldViewPanel::~CAdvMapWorldViewPanel() = default;
 
 void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor & color, int indexOffset)
 {
@@ -1275,13 +1270,6 @@ void CAdvMapWorldViewPanel::recolorIcons(const PlayerColor & color, int indexOff
 		const auto & data = iconsData.at(idx);
 		currentIcons[idx]->setFrame(data.first + indexOffset);
 	}
-
-	if(fillerHeight > 0)
-	{
-		if(tmpBackgroundFiller)
-			SDL_FreeSurface(tmpBackgroundFiller);
-		tmpBackgroundFiller = CMessage::drawDialogBox(pos.w, fillerHeight, color);
-	}
 }
 
 void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, int indexOffset)
@@ -1289,14 +1277,4 @@ void CAdvMapWorldViewPanel::addChildIcon(std::pair<int, Point> data, int indexOf
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 	iconsData.push_back(data);
 	currentIcons.push_back(std::make_shared<CAnimImage>(icons, data.first + indexOffset, 0, data.second.x, data.second.y));
-}
-
-void CAdvMapWorldViewPanel::showAll(SDL_Surface * to)
-{
-	if (tmpBackgroundFiller)
-	{
-		blitAt(tmpBackgroundFiller, pos.x, pos.y + pos.h, to);
-	}
-
-	CAdvMapPanel::showAll(to);
 }

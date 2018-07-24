@@ -16,6 +16,7 @@ class CArmedInstance;
 class CAnimation;
 class CAnimImage;
 class CShowableAnim;
+class CFilledTexture;
 class CGGarrison;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -384,9 +385,8 @@ class CAdvMapWorldViewPanel : public CAdvMapPanel
 	std::vector<std::pair<int, Point>> iconsData;
 	/// ptrs to child-pictures constructed from iconsData
 	std::vector<std::shared_ptr<CAnimImage>> currentIcons;
-	/// temporary surface drawn below world view panel on higher resolutions (won't be needed when world view panel is configured for extraResolutions mod)
-	SDL_Surface * tmpBackgroundFiller;
-	int fillerHeight;
+	/// surface drawn below world view panel on higher resolutions (won't be needed when world view panel is configured for extraResolutions mod)
+	std::shared_ptr<CFilledTexture> backgroundFiller;
 	std::shared_ptr<CAnimation> icons;
 public:
 	CAdvMapWorldViewPanel(std::shared_ptr<CAnimation> _icons, SDL_Surface * bg, Point position, int spaceBottom, const PlayerColor &color);
@@ -395,7 +395,6 @@ public:
 	void addChildIcon(std::pair<int, Point> data, int indexOffset);
 	/// recreates all pictures from given def to recolor them according to current player color
 	void recolorIcons(const PlayerColor & color, int indexOffset);
-	void showAll(SDL_Surface * to) override;
 };
 
 class CInGameConsole : public CIntObject

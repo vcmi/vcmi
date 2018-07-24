@@ -394,14 +394,14 @@ void CBonusSelection::goBack()
 	}
 	else
 	{
-		GH.popIntTotally(this);
+		close();
 	}
 	// TODO: we can actually only pop bonus selection interface for custom campaigns
 	// Though this would require clearing CLobbyScreen::bonusSel pointer when poping this interface
 /*
 	else
 	{
-		GH.popIntTotally(this);
+		close();
 		CSH->state = EClientState::LOBBY;
 	}
 */
@@ -420,7 +420,7 @@ void CBonusSelection::startMap()
 		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
 		if(scenario.prolog.hasPrologEpilog)
 		{
-			GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
+			GH.pushIntT<CPrologEpilogVideo>(scenario.prolog, exitCb);
 		}
 		else
 		{
@@ -430,7 +430,7 @@ void CBonusSelection::startMap()
 
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game
 	{
-		GH.popInt(this);
+		close();
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 		{
 			showPrologVideo();
@@ -444,7 +444,7 @@ void CBonusSelection::startMap()
 
 void CBonusSelection::restartMap()
 {
-	GH.popInt(this);
+	close();
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 	{
 		CSH->startCampaignScenario();

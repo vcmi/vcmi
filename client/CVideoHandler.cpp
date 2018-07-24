@@ -396,7 +396,7 @@ void CVideoPlayer::close()
 }
 
 // Plays a video. Only works for overlays.
-bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
+bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 {
 	// Note: either the windows player or the linux player is
 	// broken. Compensate here until the bug is found.
@@ -407,11 +407,10 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 	while(nextFrame())
 	{
-
 		if(stopOnKey && keyDown())
 			return false;
 
-		SDL_RenderCopy(mainRenderer, texture, NULL, &pos);
+		SDL_RenderCopy(mainRenderer, texture, nullptr, &pos);
 		SDL_RenderPresent(mainRenderer);
 
 		// Wait 3 frames
@@ -423,10 +422,10 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 	return true;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey, bool scale)
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, bool stopOnKey, bool scale)
 {
 	open(name, false, true, scale);
-	bool ret = playVideo(x, y, dst, stopOnKey);
+	bool ret = playVideo(x, y,  stopOnKey);
 	close();
 	return ret;
 }

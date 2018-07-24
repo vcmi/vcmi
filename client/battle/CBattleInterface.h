@@ -106,7 +106,7 @@ struct CatapultProjectileInfo
 
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
-class CBattleInterface : public CIntObject
+class CBattleInterface : public WindowBase
 {
 	enum PossibleActions // actions performed at l-click
 	{
@@ -121,14 +121,26 @@ class CBattleInterface : public CIntObject
 private:
 	SDL_Surface *background, *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral, *cellBorders, *backgroundWithHexes;
 
-	CButton *bOptions, *bSurrender, *bFlee, *bAutofight, *bSpell,
-		* bWait, *bDefence, *bConsoleUp, *bConsoleDown, *btactNext, *btactEnd;
-	CBattleConsole *console;
-	CBattleHero *attackingHero, *defendingHero; //fighting heroes
-	CStackQueue *queue;
+	std::shared_ptr<CButton> bOptions;
+	std::shared_ptr<CButton> bSurrender;
+	std::shared_ptr<CButton> bFlee;
+	std::shared_ptr<CButton> bAutofight;
+	std::shared_ptr<CButton> bSpell;
+	std::shared_ptr<CButton> bWait;
+	std::shared_ptr<CButton> bDefence;
+	std::shared_ptr<CButton> bConsoleUp;
+	std::shared_ptr<CButton> bConsoleDown;
+	std::shared_ptr<CButton> btactNext;
+	std::shared_ptr<CButton> btactEnd;
+
+	std::shared_ptr<CBattleConsole> console;
+	std::shared_ptr<CBattleHero> attackingHero;
+	std::shared_ptr<CBattleHero> defendingHero;
+	std::shared_ptr<CStackQueue> queue;
+
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
-	std::map<int, CCreatureAnimation *> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 
 	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
 
@@ -154,7 +166,7 @@ private:
 	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
-	BattleAction *spellToCast; //spell for which player is choosing destination
+	std::shared_ptr<BattleAction> spellToCast; //spell for which player is choosing destination
 	const CSpell *sp; //spell pointer for convenience
 	si32 creatureSpellToCast;
 	std::vector<PossibleActions> possibleActions; //all actions possible to call at the moment by player
@@ -284,11 +296,10 @@ public:
 	int getAnimSpeed() const; //speed of animation; range 1..100
 	CPlayerInterface *getCurrentPlayerInterface() const;
 
-	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
+	std::vector<std::shared_ptr<CClickableHex>> bfield; //11 lines, 17 hexes on each
 	SDL_Surface *cellBorder, *cellShade;
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
-	CBattleResultWindow *resWindow; //window of end of battle
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 	int moveSoundHander; // sound handler used when moving a unit
