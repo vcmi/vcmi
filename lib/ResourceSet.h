@@ -25,7 +25,8 @@ namespace Res
 	{
 		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
 
-		WOOD_AND_ORE = 127 // special case for town bonus resource
+		WOOD_AND_ORE = 127,  // special case for town bonus resource
+		INVALID = -1
 	};
 
 	//class to be representing a vector of resource
@@ -35,6 +36,8 @@ namespace Res
 		DLL_LINKAGE ResourceSet();
 		// read resources set from json. Format example: { "gold": 500, "wood":5 }
 		DLL_LINKAGE ResourceSet(const JsonNode & node);
+		DLL_LINKAGE ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
+								TResource gems, TResource gold, TResource mithril = 0);
 
 
 #define scalarOperator(OPSIGN)									\

@@ -35,7 +35,7 @@ extern const int GOLD_RESERVE;
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
 
-struct HeroPtr
+struct DLL_EXPORT HeroPtr
 {
 	const CGHeroInstance * h;
 	ObjectInstanceID hid;
@@ -56,6 +56,7 @@ public:
 	bool operator<(const HeroPtr & rhs) const;
 	const CGHeroInstance * operator->() const;
 	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
+	bool operator==(const HeroPtr & rhs) const;
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
