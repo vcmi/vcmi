@@ -834,6 +834,10 @@ void VCAI::makeTurnInternal()
 		Visit tile that is about visiting object gets processed at beginning of MakeTurnInternal without re-evaluation.
 		Rest of goals that got started via striveToGoal(sptr(Goals::Win())); in previous turns and not finished get continued here.
 		Also they are subject for re-evaluation to see if there is better goal to start (still talking only about heroes that got goals started by via striveToGoal(sptr(Goals::Win())); in previous turns.*/
+<<<<<<< HEAD
+=======
+
+>>>>>>> a2729326bd51a8755853904049dc2c62da89a606
 		//finally, continue our abstract long-term goals
 		int oldMovement = 0;
 		int newMovement = 0;
