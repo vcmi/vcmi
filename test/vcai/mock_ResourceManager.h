@@ -11,7 +11,7 @@ class ResourceManagerMock : public ResourceManager
 {	
 	friend class ResourceManagerTest; //everything is public
 public:
-	ResourceManagerMock(CPlayerSpecificInfoCallback * CB, VCAI * AI = nullptr);
+	using ResourceManager::ResourceManager;
 	//Do not modify to ensure correct testing
 	MOCK_METHOD2(reserveResoures, void(TResources &res, Goals::TSubgoal goal));
 	MOCK_METHOD1(updateGoal, bool(Goals::TSubgoal goal));

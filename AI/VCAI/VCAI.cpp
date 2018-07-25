@@ -2145,6 +2145,7 @@ void VCAI::tryRealize(Goals::CollectRes & g) //trade
 			{
 				if(i == g.resID) //sell any other resource
 					continue;
+				//TODO: check all our reserved resources and avoid them
 				int toGive, toGet;
 				m->getOffer(i, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = toGive * (cb->getResourceAmount(i) / toGive);

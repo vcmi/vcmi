@@ -19,8 +19,7 @@ class CCallback;
 class GameCallbackMock : public CPlayerSpecificInfoCallback
 {
 public:
-	GameCallbackMock();
-	GameCallbackMock(CGameState *GS, boost::optional<PlayerColor> Player);
+	using CPlayerSpecificInfoCallback::CPlayerSpecificInfoCallback;
 
 	MOCK_CONST_METHOD0(getResourceAmount, TResources());
 	//std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const;

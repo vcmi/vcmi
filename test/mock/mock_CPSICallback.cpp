@@ -11,15 +11,3 @@
 #include "StdInc.h"
 
 #include "mock_CPSICallback.h"
-
-GameCallbackMock::GameCallbackMock()
-{
-	gs = nullptr;
-	//battle = nullptr;
-	//gs = (CGameState*)12356789;
-}
-
-GameCallbackMock::GameCallbackMock(CGameState * GS, boost::optional<PlayerColor> Player)
-{
-	gs = nullptr;
-}
