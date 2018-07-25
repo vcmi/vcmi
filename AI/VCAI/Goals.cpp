@@ -53,6 +53,9 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	case GATHER_ARMY:
 		desc = "GATHER ARMY";
 		break;
+	case BUY_ARMY:
+		return "BUY ARMY";
+		break;
 	case BOOST_HERO:
 		desc = "BOOST_HERO (unsupported)";
 		break;
@@ -195,19 +198,24 @@ namespace Goals
 	{
 		return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
 	}
+
 	bool BuyArmy::operator==(BuyArmy & g)
 	{
-		return town == g.town && g.value == value;
+		//if (hero && hero != g.hero)
+		//	return false;
+		return town == g.town;
 	}
 	bool BuyArmy::fulfillsMe(TSubgoal goal)
 	{
+		//if (hero && hero != goal->hero)
+		//	return false;
 		return town == goal->town && goal->value >= value; //can always buy more army
 	}
 	TSubgoal BuyArmy::whatToDoToAchieve()
 	{
 		//TODO: calculate the actual cost of units instead
 		TResources price;
-		price[Res::GOLD] = value;
+		price[Res::GOLD] = value * 0.4f; //some approximate value
 		return ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
 	}
 	std::string BuyArmy::completeMessage() const
@@ -287,7 +295,7 @@ TSubgoal Win::whatToDoToAchieve()
 					if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, BuildingID::GRAIL))
 					{
 						const CGTownInstance * t = h->visitedTown;
-						return sptr(Goals::BuildThis(BuildingID::GRAIL, t));
+						return sptr(Goals::BuildThis(BuildingID::GRAIL, t).setpriority(10));
 					}
 					else
 					{
@@ -766,7 +774,7 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 {
 	const CGTownInstance * t = ai->findTownWithTavern();
 	if(!t)
-		return sptr(Goals::BuildThis(BuildingID::TAVERN));
+		return sptr(Goals::BuildThis(BuildingID::TAVERN).setpriority(2));
 
 	TResources res;
 	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
@@ -1038,7 +1046,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 		for (const CGTownInstance * t : cb->getTownsInfo())
 		{
 			if (cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
-				return sptr(Goals::BuildThis(BuildingID::MARKETPLACE, t));
+				return sptr(Goals::BuildThis(BuildingID::MARKETPLACE, t).setpriority(2));
 		}
 	}
 	else
@@ -1111,7 +1119,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			}
 			else
 			{
-				return sptr(Goals::BuildThis(bid, t));
+				return sptr(Goals::BuildThis(bid, t).setpriority(priority));
 			}
 		}
 	}
@@ -1311,16 +1319,23 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		auto pos = t->visitablePos();
 		if(ai->isAccessibleForHero(pos, hero))
 		{
+			//grab army from town
 			if(!t->visitingHero && howManyReinforcementsCanGet(hero, t))
 			{
 				if(!vstd::contains(ai->townVisitsThisWeek[hero], t))
 					ret.push_back(sptr(Goals::VisitTile(pos).sethero(hero)));
 			}
+			//buy army in town
+			if (!t->visitingHero || t->visitingHero != hero.get(true))
+			{
+				//TODO: calculate how many troops we can actually buy for this hero
+				ret.push_back(sptr(Goals::BuyArmy(t, value).sethero(hero)));
+			}
+			//build dwelling
 			auto bid = ai->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
 			if (bid != BuildingID::NONE)
 			{
-				auto cost = (t->getBuildingCost(bid));
-				ret.push_back(ah->whatToDo(cost, sptr(BuildThis(bid, t)))); //TODO: this makes no sense since we already can afford it
+				ret.push_back(sptr(BuildThis(bid, t).setpriority(priority)));
 			}
 		}
 	}

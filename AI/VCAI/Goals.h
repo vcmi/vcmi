@@ -320,16 +320,17 @@ public:
 
 class DLL_EXPORT BuyArmy : public CGoal<BuyArmy>
 {
-public:
+private:
 	BuyArmy()
 		: CGoal(Goals::BUY_ARMY)
-	{
-	}
-	BuyArmy(CGTownInstance * Town, int val)
+	{}
+public:
+	BuyArmy(const CGTownInstance * Town, int val)
 		: CGoal(Goals::BUY_ARMY)
 	{
 		town = Town; //where to buy this army
 		value = val; //expressed in AI unit strength
+		priority = 2;//TODO: evaluate?
 	}
 	bool operator==(BuyArmy & g);
 	bool fulfillsMe(TSubgoal goal) override;
@@ -372,23 +373,21 @@ public:
 class DLL_EXPORT BuildThis : public CGoal<BuildThis>
 {
 public:
-	BuildThis()
+	BuildThis() //should be private, but unit test uses it
 		: CGoal(Goals::BUILD_STRUCTURE)
-	{
-		//FIXME: should be not allowed (private)
-	}
+	{}
 	BuildThis(BuildingID Bid, const CGTownInstance * tid)
 		: CGoal(Goals::BUILD_STRUCTURE)
 	{
 		bid = Bid;
 		town = tid;
-		priority = 5;
+		priority = 1;
 	}
 	BuildThis(BuildingID Bid)
 		: CGoal(Goals::BUILD_STRUCTURE)
 	{
 		bid = Bid;
-		priority = 5;
+		priority = 1;
 	}
 	TGoalVec getAllPossibleSubgoals() override
 	{

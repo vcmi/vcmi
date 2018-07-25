@@ -207,7 +207,7 @@ bool CDefenceAnimation::init()
 	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
 	{
 		float frameLength = AnimationControls::getCreatureAnimationSpeed(
-		                          stack->getCreature(), owner->creAnims[stack->ID], getMyAnimType());
+		                          stack->getCreature(), owner->creAnims[stack->ID].get(), getMyAnimType());
 
 		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 

@@ -255,7 +255,7 @@ void CSpellWindow::fexitb()
 	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastTabBattle : myInt->spellbookSettings.spellbookLastTabAdvmap) = selectedTab;
 	(myInt->battleInt ? myInt->spellbookSettings.spellbookLastPageBattle : myInt->spellbookSettings.spellbokLastPageAdvmap) = currentPage;
 
-	GH.popIntTotally(this);
+	close();
 }
 
 void CSpellWindow::fadvSpellsb()
@@ -414,13 +414,13 @@ void CSpellWindow::setCurrentPage(int value)
 void CSpellWindow::turnPageLeft()
 {
 	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
+		CCS->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::turnPageRight()
 {
 	if(settings["video"]["spellbookAnimation"].Bool())
-		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
+		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
 void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
@@ -568,7 +568,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		else //adventure spell
 		{
 			const CGHeroInstance * h = owner->myHero;
-			GH.popInt(owner);
+			GH.popInts(1);
 
 			auto guard = vstd::makeScopeGuard([this]()
 			{

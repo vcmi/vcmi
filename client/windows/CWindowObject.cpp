@@ -34,8 +34,7 @@
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-	CIntObject(getUsedEvents(options_), Point()),
-	shadow(nullptr),
+	WindowBase(getUsedEvents(options_), Point()),
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
@@ -56,7 +55,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName):
-	CIntObject(getUsedEvents(options_), Point()),
+	WindowBase(getUsedEvents(options_), Point()),
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
@@ -122,10 +121,10 @@ void CWindowObject::setShadow(bool on)
 	//size of shadow
 	static const int size = 8;
 
-	if(on == bool(shadow))
+	if(on == !shadowParts.empty())
 		return;
 
-	shadow.reset();
+	shadowParts.clear();
 
 	//object too small to cast shadow
 	if(pos.h <= size || pos.w <= size)
@@ -214,15 +213,11 @@ void CWindowObject::setShadow(bool on)
 		//generate "shadow" object with these 3 pieces in it
 		{
 			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-			shadow = std::make_shared<CIntObject>();
-		}
 
-		{
-			OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255);
+			shadowParts.push_back(std::make_shared<CPicture>(shadowCorner, shadowPos.x, shadowPos.y));
+			shadowParts.push_back(std::make_shared<CPicture>(shadowRight, shadowPos.x, shadowStart.y));
+			shadowParts.push_back(std::make_shared<CPicture>(shadowBottom, shadowStart.x, shadowPos.y));
 
-			shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
-			shadow->addChild(new CPicture(shadowRight, shadowPos.x, shadowStart.y));
-			shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));
 		}
 	}
 }
@@ -236,11 +231,6 @@ void CWindowObject::showAll(SDL_Surface *to)
 	CIntObject::showAll(to);
 	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
-}
-
-void CWindowObject::close()
-{
-	GH.popIntTotally(this);
 }
 
 void CWindowObject::clickRight(tribool down, bool previousState)

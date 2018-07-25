@@ -300,3 +300,13 @@ TResource ResourceManager::freeGold() const
 {
 	return freeResources()[Res::GOLD];
 }
+
+TResources ResourceManager::allResources() const
+{
+	return cb->getResourceAmount();
+}
+
+TResource ResourceManager::allGold() const
+{
+	return cb->getResourceAmount()[Res::GOLD];
+}

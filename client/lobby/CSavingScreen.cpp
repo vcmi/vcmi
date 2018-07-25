@@ -80,7 +80,7 @@ void CSavingScreen::saveGame()
 		Settings lastSave = settings.write["general"]["lastSave"];
 		lastSave->String() = path;
 		LOCPLINT->cb->save(path);
-		GH.popIntTotally(this);
+		close();
 	};
 
 	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::CLIENT_SAVEGAME)))

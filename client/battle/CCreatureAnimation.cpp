@@ -34,10 +34,10 @@ SDL_Color AnimationControls::getNoBorder()
 	return creatureNoBorder;
 }
 
-CCreatureAnimation * AnimationControls::getAnimation(const CCreature * creature)
+std::shared_ptr<CCreatureAnimation> AnimationControls::getAnimation(const CCreature * creature)
 {
 	auto func = std::bind(&AnimationControls::getCreatureAnimationSpeed, creature, _1, _2);
-	return new CCreatureAnimation(creature->animDefName, func);
+	return std::make_shared<CCreatureAnimation>(creature->animDefName, func);
 }
 
 float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t group)

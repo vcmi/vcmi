@@ -782,7 +782,8 @@ void VCAI::makeTurn()
 
 	makeTurnInternal();
 }
-
+/*This method defines core of AI behavior. It is not consistent system, just "a bit of everything for everyone" done in some example order.
+ It is not supposed to work this way in final version of VCAI. It consists of few actions/loops done in particular order, hard parts are explained below with focus on explaining hero management logic*/
 void VCAI::makeTurnInternal()
 {
 	//it looks messy here, but it's better to have armed heroes before attempting realizing goals
@@ -791,7 +792,12 @@ void VCAI::makeTurnInternal()
 
 	try
 	{
-		//Pick objects reserved in previous turn - we expect only nerby objects there
+		/*Below loop causes heroes with objects locked to them to keep trying to realize previous goal. By design when object is locked another heroes do not attempt to visit it.
+		Object lock happens on turn when some hero gets assigned visit tile with appropiate map object. So basically all heroes that had VisitTile goal with object assigned and not completed
+		will be in the loop. Sometimes heroes get assigned more important objectives, but still keep reserved objects for later. There is a problem with that - they have
+		reserved objects in the list, so they fall to this loop at start of turn and visiting object isn't delayed. Comments for that function are supposed to help newer VCAI maintainers*/
+
+		//Pick objects reserved in previous turn - we expect only nearby objects there
 		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
 		for(auto hero : reservedHeroesCopy)
 		{
@@ -817,12 +823,17 @@ void VCAI::makeTurnInternal()
 		}
 
 		//now try to win
+		/*below line performs goal decomposition, result of the function is ONE goal for ONE hero to realize.*/
 		striveToGoal(sptr(Goals::Win()));
 
 		//TODO: add ResourceManager goals to the pool and process them all at once
 		if (ah->hasTasksLeft())
 			striveToGoal(ah->whatToDo());
 
+		/*Explanation of below loop: At the time of writing this - goals get decomposited either to GatherArmy or Visit Tile.
+		Visit tile that is about visiting object gets processed at beginning of MakeTurnInternal without re-evaluation.
+		Rest of goals that got started via striveToGoal(sptr(Goals::Win())); in previous turns and not finished get continued here.
+		Also they are subject for re-evaluation to see if there is better goal to start (still talking only about heroes that got goals started by via striveToGoal(sptr(Goals::Win())); in previous turns.*/
 		//finally, continue our abstract long-term goals
 		int oldMovement = 0;
 		int newMovement = 0;
@@ -869,6 +880,9 @@ void VCAI::makeTurnInternal()
 
 		//TODO: striveToGoal
 		striveToGoal(sptr(Goals::Build())); //TODO: smarter building management
+
+		/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
+		Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
 		performTypicalActions();
 
 		//for debug purpose
@@ -1152,6 +1166,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 
 void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
+	//now used only for visited dwellings / towns, not BuyArmy goal
 	for(int i = 0; i < d->creatures.size(); i++)
 	{
 		if(!d->creatures[i].second.size())
@@ -1159,9 +1174,6 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
-//		const CCreature *c = VLC->creh->creatures[creID];
-// 		if(containsSavedRes(c->cost))
-// 			continue;
 
 		vstd::amin(count, ah->freeResources() / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
@@ -2201,9 +2213,66 @@ void VCAI::tryRealize(Goals::Build & g)
 
 void VCAI::tryRealize(Goals::BuyArmy & g)
 {
-	//TODO
-	throw cannotFulfillGoalException("Buy army not implemented");
-	throw goalFulfilledException(sptr(g));
+	auto t = g.town;
+
+	typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+	struct creInfo
+	{
+		int count;
+		CreatureID creID;
+		CCreature * cre;
+		int level;
+	};
+	auto infoFromDC = [](const dwellingContent & dc) -> creInfo
+	{
+		creInfo ci;
+		ci.count = dc.first;
+		ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
+		ci.cre = VLC->creh->creatures[ci.creID];
+		ci.level = ci.cre->level;
+		return ci;
+	};
+
+	ui64 valueBought = 0;
+	//buy the stacks with largest AI value
+
+	while (valueBought < g.value)
+	{
+		auto res = ah->allResources();
+		std::vector<creInfo> creaturesInDwellings;
+		for (int i = 0; i < t->creatures.size(); i++)
+		{
+			auto ci = infoFromDC(t->creatures[i]);
+			ci.level = i; //this is important for Dungeon Summoning Portal
+			creaturesInDwellings.push_back(ci); 
+		}
+		vstd::erase_if(creaturesInDwellings, [](const creInfo & ci) -> bool
+		{
+			return !ci.count || ci.creID == -1;
+		});
+		if (creaturesInDwellings.empty())
+			throw cannotFulfillGoalException("Can't buy any more creatures!");
+
+		creInfo ci =
+			*boost::max_element(creaturesInDwellings, [&res](const creInfo & lhs, const creInfo & rhs)
+		{
+			//max value of creatures we can buy with our res
+			int value1 = lhs.cre->AIValue * (std::min(lhs.count, res / lhs.cre->cost)),
+				value2 = rhs.cre->AIValue * (std::min(rhs.count, res / rhs.cre->cost));
+
+			return value1 < value2;
+		});
+
+		vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
+		if (ci.count > 0)
+		{
+			cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
+			valueBought += ci.count * ci.cre->AIValue;
+		}
+		else
+			throw cannotFulfillGoalException("Can't buy any more creatures!");
+	}
+	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
 }
 
 void VCAI::tryRealize(Goals::Invalid & g)
@@ -2537,22 +2606,6 @@ void VCAI::striveToQuest(const QuestInfo & q)
 
 void VCAI::performTypicalActions()
 {
-	//TODO: build army only on request
-	for (auto t : cb->getTownsInfo())
-	{
-		if (!ai->primaryHero() || //we have spare army in town
-			(t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 &&
-				!isAccessibleForHero(t->visitablePos(), ai->primaryHero())))
-		{
-			recruitHero(t);
-			buildArmyIn(t);
-		}
-	}
-
-	for(auto t : cb->getTownsInfo())
-	{
-		buildArmyIn(t);
-	}
 	for(auto h : getUnblockedHeroes())
 	{
 		if(!h) //hero might be lost. getUnblockedHeroes() called once on start of turn

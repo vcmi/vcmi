@@ -212,7 +212,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 		}
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		GH.pushInt(new CSpellWindow(myHero, myOwner->getCurrentPlayerInterface()));
+		GH.pushIntT<CSpellWindow>(myHero, myOwner->getCurrentPlayerInterface());
 	}
 }
 
@@ -230,7 +230,7 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 	{
 		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.pushInt(new CHeroInfoWindow(targetHero, &windowPosition));
+		GH.pushIntT<CHeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
@@ -391,7 +391,7 @@ void CBattleOptionsWindow::bDefaultf()
 
 void CBattleOptionsWindow::bExitf()
 {
-	GH.popIntTotally(this);
+	close();
 }
 
 CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
@@ -560,8 +560,10 @@ void CBattleResultWindow::show(SDL_Surface * to)
 void CBattleResultWindow::bExitf()
 {
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
-	GH.popIntTotally(this);
-	if(dynamic_cast<CBattleInterface*>(GH.topInt()))
+
+	close();
+
+	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
@@ -689,11 +691,10 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)
 	{
-
 		if(!myst->alive()) return;
 		if(down)
 		{
-			GH.pushInt(new CStackWindow(myst, true));
+			GH.pushIntT<CStackWindow>(myst, true);
 		}
 	}
 }

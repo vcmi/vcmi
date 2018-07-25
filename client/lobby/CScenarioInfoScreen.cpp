@@ -39,7 +39,7 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	card->changeSelection();
 
 	card->iconDifficulty->setSelected(getCurrentDifficulty());
-	buttonBack = std::make_shared<CButton>(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(584, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
 }
 
 CScenarioInfoScreen::~CScenarioInfoScreen()

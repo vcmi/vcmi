@@ -422,7 +422,7 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 		if(settings.hero == -2 && !SEL->getPlayerInfo(settings.color.getNum()).hasCustomMainHero() && CPlayerSettingsHelper::type == HERO)
 			return;
 
-		GH.pushInt(new CPlayerOptionTooltipBox(*this));
+		GH.pushIntT<CPlayerOptionTooltipBox>(*this);
 	}
 }
 

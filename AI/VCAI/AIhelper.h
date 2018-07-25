@@ -36,6 +36,8 @@ public:
 	TResources reservedResources() const override;
 	TResources freeResources() const override;
 	TResource freeGold() const override;
+	TResources allResources() const override;
+	TResource allGold() const override;
 
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) override;
 	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal

@@ -59,7 +59,7 @@
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 
-CAdvMapInt *adventureInt;
+std::shared_ptr<CAdvMapInt> adventureInt;
 
 static void setScrollingCursor(ui8 direction)
 {
@@ -565,7 +565,6 @@ CAdvMapInt::CAdvMapInt():
 	swipeEnabled(settings["general"]["swipe"].Bool()), swipeMovementRequested(false),
 	swipeTargetPosition(int3(-1, -1, -1))
 {
-	adventureInt = this;
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
@@ -723,7 +722,7 @@ CAdvMapInt::~CAdvMapInt()
 
 void CAdvMapInt::fshowOverview()
 {
-	GH.pushInt(new CKingdomInterface());
+	GH.pushIntT<CKingdomInterface>();
 }
 
 void CAdvMapInt::fworldViewBack()
@@ -811,17 +810,17 @@ void CAdvMapInt::fshowSpellbok()
 
 	centerOn(selection);
 
-	GH.pushInt(new CSpellWindow(curHero(), LOCPLINT, false));
+	GH.pushIntT<CSpellWindow>(curHero(), LOCPLINT, false);
 }
 
 void CAdvMapInt::fadventureOPtions()
 {
-	GH.pushInt(new CAdventureOptions());
+	GH.pushIntT<CAdventureOptions>();
 }
 
 void CAdvMapInt::fsystemOptions()
 {
-	GH.pushInt(new CSystemOptionsWindow());
+	GH.pushIntT<CSystemOptionsWindow>();
 }
 
 void CAdvMapInt::fnextHero()
@@ -1088,7 +1087,7 @@ void CAdvMapInt::handleMapScrollingUpdate()
 	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0
-	   && ((GH.topInt() == this) || isCtrlKeyDown()))
+	   && ((GH.topInt().get() == this) || isCtrlKeyDown()))
 	{
 		if((scrollingDir & LEFT) && (position.x > -CGI->mh->frameW))
 			position.x--;
@@ -1224,7 +1223,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_s:
 		if(isActive() && key.type == SDL_KEYUP)
-			GH.pushInt(new CSavingScreen());
+			GH.pushIntT<CSavingScreen>();
 		return;
 	case SDLK_d:
 		{
@@ -1274,7 +1273,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		}
 	case SDLK_ESCAPE:
 		{
-			if(isActive() || GH.topInt() != this || !spellBeingCasted || key.state != SDL_PRESSED)
+			if(isActive() || GH.topInt().get() != this || !spellBeingCasted || key.state != SDL_PRESSED)
 				return;
 
 			leaveCastingMode();
@@ -1300,7 +1299,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				}
 
 				if(townWithMarket) //if any town has marketplace, open window
-					GH.pushInt(new CMarketplaceWindow(townWithMarket));
+					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
 					LOCPLINT->showInfoDialog("No available marketplace!");
 			}
@@ -1957,11 +1956,11 @@ void CAdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.pushInt(new CBonusSelection());
+		GH.pushIntT<CBonusSelection>();
 	}
 	else
 	{
-		GH.pushInt(new CScenarioInfoScreen());
+		GH.pushIntT<CScenarioInfoScreen>();
 	}
 }
 
