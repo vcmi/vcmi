@@ -36,7 +36,8 @@ enum EGoals
 {
 	INVALID = -1,
 	WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
-	EXPLORE, GATHER_ARMY, BOOST_HERO,
+	EXPLORE, GATHER_ARMY,
+	BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
@@ -54,7 +55,8 @@ enum EGoals
 
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
 	CLEAR_WAY_TO,
-	DIG_AT_TILE //elementar with hero on tile
+	DIG_AT_TILE,//elementar with hero on tile
+	BUY_ARMY //at specific town
 };
 
 	//method chaining + clone pattern
@@ -312,6 +314,26 @@ public:
 		priority = 2.5;
 	}
 	TGoalVec getAllPossibleSubgoals() override;
+	TSubgoal whatToDoToAchieve() override;
+	std::string completeMessage() const override;
+};
+
+class DLL_EXPORT BuyArmy : public CGoal<BuyArmy>
+{
+public:
+	BuyArmy()
+		: CGoal(Goals::BUY_ARMY)
+	{
+	}
+	BuyArmy(CGTownInstance * Town, int val)
+		: CGoal(Goals::BUY_ARMY)
+	{
+		town = Town; //where to buy this army
+		value = val; //expressed in AI unit strength
+	}
+	bool operator==(BuyArmy & g);
+	bool fulfillsMe(TSubgoal goal) override;
+
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
 };

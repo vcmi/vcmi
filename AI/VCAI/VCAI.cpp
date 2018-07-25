@@ -2198,6 +2198,14 @@ void VCAI::tryRealize(Goals::Build & g)
 	if (!didWeBuildSomething)
 		throw cannotFulfillGoalException("BUILD has been realized as much as possible."); //who catches it and what for?
 }
+
+void VCAI::tryRealize(Goals::BuyArmy & g)
+{
+	//TODO
+	throw cannotFulfillGoalException("Buy army not implemented");
+	throw goalFulfilledException(sptr(g));
+}
+
 void VCAI::tryRealize(Goals::Invalid & g)
 {
 	throw cannotFulfillGoalException("I don't know how to fulfill this!");

@@ -195,6 +195,25 @@ namespace Goals
 	{
 		return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
 	}
+	bool BuyArmy::operator==(BuyArmy & g)
+	{
+		return town == g.town && g.value == value;
+	}
+	bool BuyArmy::fulfillsMe(TSubgoal goal)
+	{
+		return town == goal->town && goal->value >= value; //can always buy more army
+	}
+	TSubgoal BuyArmy::whatToDoToAchieve()
+	{
+		//TODO: calculate the actual cost of units instead
+		TResources price;
+		price[Res::GOLD] = value;
+		return ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
+	}
+	std::string BuyArmy::completeMessage() const
+	{
+		return boost::format("Bought army of value %d in town of %s") % boost::lexical_cast<std::string>(value), town->name;
+	}
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
