@@ -79,14 +79,14 @@ public:
 	bool hasTasksLeft() const override;
 
 protected: //not-const actions only for AI
-	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
-	bool notifyGoalCompleted(Goals::TSubgoal goal);
-	bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
-	bool tryPush(ResourceObjective &o);
+	virtual void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
+	virtual bool notifyGoalCompleted(Goals::TSubgoal goal);
+	virtual bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
+	virtual bool tryPush(ResourceObjective &o);
 
 	//inner processing
-	TResources estimateIncome() const;
-	Goals::TSubgoal collectResourcesForOurGoal(ResourceObjective &o) const;
+	virtual TResources estimateIncome() const;
+	virtual Goals::TSubgoal collectResourcesForOurGoal(ResourceObjective &o) const;
 
 	void setCB(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;

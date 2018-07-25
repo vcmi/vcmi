@@ -12,8 +12,8 @@ class ResourceManagerMock : public ResourceManager
 	friend class ResourceManagerTest; //everything is public
 public:
 	using ResourceManager::ResourceManager;
-	//Do not modify to ensure correct testing
-	MOCK_METHOD2(reserveResoures, void(TResources &res, Goals::TSubgoal goal));
-	MOCK_METHOD1(updateGoal, bool(Goals::TSubgoal goal));
-	MOCK_METHOD1(notifyGoalCompleted, bool(Goals::TSubgoal goal));
+	//access protected members, TODO: consider other architecture?
+	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal()) override;
+	bool updateGoal(Goals::TSubgoal goal) override;
+	bool notifyGoalCompleted(Goals::TSubgoal goal) override;
 };

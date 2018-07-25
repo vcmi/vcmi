@@ -33,7 +33,7 @@ struct ResourceManagerTest : public Test//, public IResourceManager
 
 	ResourceManagerTest()
 	{
-		rm = std::make_unique<ResourceManagerMock>(&gcm, &aim);
+		rm = std::make_unique<NiceMock<ResourceManagerMock>>(&gcm, &aim);
 
 		//note: construct new goal for modfications
 		invalidGoal = sptr(StrictMock<InvalidGoalMock>());
