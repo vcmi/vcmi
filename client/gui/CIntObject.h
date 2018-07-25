@@ -183,12 +183,9 @@ public:
 /*
  * Functions that should be used only by specific GUI elements. Don't use them unless you really know why they are here
  */
-	//wrappers for CSDL_Ext methods. This versions use coordinates relative to pos
-	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
+
 	//functions for printing text. Use CLabel where possible instead
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtRightLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
@@ -210,4 +207,12 @@ public:
 	CKeyShortcut(int key);
 	CKeyShortcut(std::set<int> Keys);
 	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
+};
+
+class WindowBase : public CIntObject
+{
+public:
+	WindowBase(int used_ = 0, Point pos_ = Point());
+protected:
+    void close();
 };

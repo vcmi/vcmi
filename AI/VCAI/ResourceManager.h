@@ -46,6 +46,8 @@ public:
 	virtual TResources reservedResources() const = 0;
 	virtual TResources freeResources() const = 0;
 	virtual TResource freeGold() const = 0;
+	virtual TResources allResources() const = 0;
+	virtual TResource allGold() const = 0;
 
 	virtual Goals::TSubgoal whatToDo() const = 0;//get highest-priority goal
 	virtual Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) = 0;
@@ -73,6 +75,8 @@ public:
 	TResources reservedResources() const override;
 	TResources freeResources() const override;
 	TResource freeGold() const override;
+	TResources allResources() const override;
+	TResource allGold() const override;
 
 	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?

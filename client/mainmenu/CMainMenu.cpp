@@ -60,7 +60,7 @@
 
 namespace fs = boost::filesystem;
 
-CMainMenu * CMM = nullptr;
+std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL;
 
 static void do_quit()
@@ -176,7 +176,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::newGame, true, nullptr, ELoadMode::NONE);
 				case 1:
-					return []() { GH.pushInt(new CMultiMode(ESelectionScreen::newGame)); };
+					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::campaignList, true, nullptr, ELoadMode::NONE);
 				case 3:
@@ -191,7 +191,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				case 0:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::SINGLE);
 				case 1:
-					return []()     { GH.pushInt(new CMultiMode(ESelectionScreen::loadGame)); };
+					return []() { GH.pushIntT<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
 					return std::bind(CMainMenu::openLobby, ESelectionScreen::loadGame, true, nullptr, ELoadMode::CAMPAIGN);
 				case 3:
@@ -279,8 +279,7 @@ CMainMenu::CMainMenu()
 	pos.h = screen->h;
 
 	GH.defActionsDef = 63;
-	CMM = this;
-	menu = new CMenuScreen(CMainMenuConfig::get().getConfig()["window"]);
+	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	backgroundAroundMenu = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 }
@@ -288,8 +287,6 @@ CMainMenu::CMainMenu()
 CMainMenu::~CMainMenu()
 {
 	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim);
-	if(CMM == this)
-		CMM = nullptr;
 
 	if(GH.curInt == this)
 		GH.curInt = nullptr;
@@ -297,12 +294,12 @@ CMainMenu::~CMainMenu()
 
 void CMainMenu::update()
 {
-	if(CMM != this) //don't update if you are not a main interface
+	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
 		return;
 
 	if(GH.listInt.empty())
 	{
-		GH.pushInt(this);
+		GH.pushInt(CMM);
 		GH.pushInt(menu);
 		menu->switchToTab(0);
 	}
@@ -313,7 +310,7 @@ void CMainMenu::update()
 
 	// check for null othervice crash on finishing a campaign
 	// /FIXME: find out why GH.listInt is empty to begin with
-	if(GH.topInt() != nullptr)
+	if(GH.topInt())
 		GH.topInt()->show(screen);
 }
 
@@ -323,7 +320,7 @@ void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vec
 	CSH->screenType = screenType;
 	CSH->loadMode = loadMode;
 
-	GH.pushInt(new CSimpleJoinScreen(host));
+	GH.pushIntT<CSimpleJoinScreen>(host);
 }
 
 void CMainMenu::openCampaignLobby(const std::string & campaignFileName)
@@ -337,23 +334,23 @@ void CMainMenu::openCampaignLobby(std::shared_ptr<CCampaignState> campaign)
 	CSH->resetStateForLobby(StartInfo::CAMPAIGN);
 	CSH->screenType = ESelectionScreen::campaignList;
 	CSH->campaignStateToSend = campaign;
-	GH.pushInt(new CSimpleJoinScreen());
+	GH.pushIntT<CSimpleJoinScreen>();
 }
 
 void CMainMenu::openCampaignScreen(std::string name)
 {
 	if(vstd::contains(CMainMenuConfig::get().getCampaigns().Struct(), name))
 	{
-		GH.pushInt(new CCampaignScreen(CMainMenuConfig::get().getCampaigns()[name]));
+		GH.pushIntT<CCampaignScreen>(CMainMenuConfig::get().getCampaigns()[name]);
 		return;
 	}
 	logGlobal->error("Unknown campaign set: %s", name);
 }
 
-CMainMenu * CMainMenu::create()
+std::shared_ptr<CMainMenu> CMainMenu::create()
 {
 	if(!CMM)
-		CMM = new CMainMenu();
+		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
 
 	GH.terminate_cond->set(false);
 	return CMM;
@@ -381,19 +378,21 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	buttonHotseat = std::make_shared<CButton>(Point(373, 78), "MUBHOT.DEF", CGI->generaltexth->zelp[266], std::bind(&CMultiMode::hostTCP, this));
 	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 1), "MUBHOST.DEF", CButton::tooltip("Host TCP/IP game", ""), std::bind(&CMultiMode::hostTCP, this));
 	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 2), "MUBJOIN.DEF", CButton::tooltip("Join TCP/IP game", ""), std::bind(&CMultiMode::joinTCP, this));
-	buttonCancel = std::make_shared<CButton>(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [&]() { GH.popIntTotally(this);}, SDLK_ESCAPE);
+	buttonCancel = std::make_shared<CButton>(Point(373, 424), "MUBCANC.DEF", CGI->generaltexth->zelp[288], [=](){ close();}, SDLK_ESCAPE);
 }
 
 void CMultiMode::hostTCP()
 {
-	GH.popIntTotally(this);
-	GH.pushInt(new CMultiPlayers(settings["general"]["playerName"].String(), screenType, true, ELoadMode::MULTI));
+	auto savedScreenType = screenType;
+	close();
+	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, true, ELoadMode::MULTI);
 }
 
 void CMultiMode::joinTCP()
 {
-	GH.popIntTotally(this);
-	GH.pushInt(new CMultiPlayers(settings["general"]["playerName"].String(), screenType, false, ELoadMode::MULTI));
+	auto savedScreenType = screenType;
+	close();
+	GH.pushIntT<CMultiPlayers>(settings["general"]["playerName"].String(), savedScreenType, false, ELoadMode::MULTI);
 }
 
 void CMultiMode::onNameChange(std::string newText)
@@ -420,7 +419,7 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 	}
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
-	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CGuiHandler::popIntTotally, std::ref(GH), this), SDLK_ESCAPE);
+	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, SDLK_ESCAPE);
 	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
 
 	inputNames[0]->setText(firstPlayer, true);
@@ -497,9 +496,9 @@ void CSimpleJoinScreen::leaveScreen()
 		textTitle->setText("Closing...");
 		CSH->state = EClientState::CONNECTION_CANCELLED;
 	}
-	else if(GH.listInt.size() && GH.listInt.front() == this)
+	else if(GH.listInt.size() && GH.listInt.front().get() == this)
 	{
-		GH.popIntTotally(this);
+		close();
 	}
 }
 
@@ -516,9 +515,9 @@ void CSimpleJoinScreen::connectThread(const std::string addr, const ui16 port)
 	else
 		CSH->justConnectToServer(addr, port);
 
-	if(GH.listInt.size() && GH.listInt.front() == this)
+	if(GH.listInt.size() && GH.listInt.front().get() == this)
 	{
-		GH.popIntTotally(this);
+		close();
 	}
 }
 

@@ -72,3 +72,13 @@ TResource AIhelper::freeGold() const
 {
 	return resourceManager->freeGold();
 }
+
+TResources AIhelper::allResources() const
+{
+	return resourceManager->allResources();
+}
+
+TResource AIhelper::allGold() const
+{
+	return resourceManager->allGold();
+}

@@ -12,7 +12,7 @@
 #include "CSelectionBase.h"
 
 /// Scenario information screen shown during the game
-class CScenarioInfoScreen : public CIntObject, public ISelectionScreenInfo
+class CScenarioInfoScreen : public WindowBase, public ISelectionScreenInfo
 {
 public:
 	std::shared_ptr<CButton> buttonBack;

@@ -166,7 +166,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 	return true;
 }
 
-int CBattleCallback::battleMakeAction(BattleAction* action)
+int CBattleCallback::battleMakeAction(const BattleAction * action)
 {
 	assert(action->actionType == EActionType::HERO_SPELL);
 	MakeCustomAction mca(*action);

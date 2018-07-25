@@ -86,7 +86,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	}
 	pos = background->center();
 	card = std::make_shared<InfoCard>();
-	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], std::bind(&CGuiHandler::popIntTotally, &GH, this), SDLK_ESCAPE);
+	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
 }
 
 void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
@@ -367,7 +367,7 @@ void CFlagBox::recreate()
 void CFlagBox::clickRight(tribool down, bool previousState)
 {
 	if(down && SEL->getMapInfo())
-		GH.pushInt(new CFlagBoxTooltipBox(iconsTeamFlags));
+		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);
 }
 
 CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> icons)

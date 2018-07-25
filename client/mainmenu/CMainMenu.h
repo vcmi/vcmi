@@ -69,7 +69,7 @@ public:
 };
 
 /// Multiplayer mode
-class CMultiMode : public CIntObject
+class CMultiMode : public WindowBase
 {
 public:
 	ESelectionScreen screenType;
@@ -89,7 +89,7 @@ public:
 };
 
 /// Hot seat player window
-class CMultiPlayers : public CIntObject
+class CMultiPlayers : public WindowBase
 {
 	bool host;
 	ELoadMode loadMode;
@@ -124,14 +124,14 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public IUpdateable
+class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 
 	CMainMenu(); //Use CMainMenu::create
 
 public:
-	CMenuScreen * menu;
+	std::shared_ptr<CMenuScreen> menu;
 
 	~CMainMenu();
 	void update() override;
@@ -140,14 +140,14 @@ public:
 	static void openCampaignLobby(std::shared_ptr<CCampaignState> campaign);
 	void openCampaignScreen(std::string name);
 
-	static CMainMenu * create();
+	static std::shared_ptr<CMainMenu> create();
 
 	static std::shared_ptr<CPicture> createPicture(const JsonNode & config);
 
 };
 
 /// Simple window to enter the server's address.
-class CSimpleJoinScreen : public CIntObject
+class CSimpleJoinScreen : public WindowBase
 {
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CTextBox> textTitle;
@@ -179,4 +179,4 @@ public:
 	void showAll(SDL_Surface * to) override;
 };
 
-extern CMainMenu * CMM;
+extern std::shared_ptr<CMainMenu> CMM;

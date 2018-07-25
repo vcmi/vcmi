@@ -605,22 +605,19 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 {
 	const IMarket *m = market;
 	const CGHeroInstance *h = hero;
-	CTradeWindow *nwindow = nullptr;
 
-	GH.popIntTotally(this);
+	close();
 
 	switch(Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
 	case EMarketMode::ARTIFACT_EXP:
-		nwindow = new CAltarWindow(m, h, Mode);
+		GH.pushIntT<CAltarWindow>(m, h, Mode);
 		break;
 	default:
-		nwindow = new CMarketplaceWindow(m, h, Mode);
+		GH.pushIntT<CMarketplaceWindow>(m, h, Mode);
 		break;
 	}
-
-	GH.pushInt(nwindow);
 }
 
 void CTradeWindow::artifactSelected(CHeroArtPlace *slot)

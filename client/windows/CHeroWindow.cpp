@@ -78,8 +78,8 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 		owner->update(hero, true);
 		#else
 		const CGHeroInstance * buf = hero;
-		GH.popIntTotally(parent);
-		GH.pushInt(new CHeroWindow(buf));
+		GH.popInts(1);
+		GH.pushIntT<CHeroWindow>(buf);
 		#endif // 0
 	}
 }
@@ -297,16 +297,16 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded)
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	for(IShowActivatable * isa : GH.listInt)
+	for(auto isa : GH.listInt)
 	{
-		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa))
+		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa.get()))
 		{
 			for(int g=0; g < cew->heroInst.size(); ++g)
 				if(cew->heroInst[g] == curHero)
 					noDismiss = true;
 		}
 
-		if(dynamic_cast<CKingdomInterface*>(isa))
+		if(dynamic_cast<CKingdomInterface*>(isa.get()))
 			noDismiss = true;
 	}
 	//if player only have one hero and no towns
@@ -374,7 +374,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		GH.pushInt(new CStackWindow(curHero->commander, false));
+		GH.pushIntT<CStackWindow>(curHero->commander, false);
 	}
 }
 

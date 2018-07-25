@@ -36,8 +36,8 @@ public:
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
-	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
-	virtual bool battleMakeTacticAction(BattleAction * action) =0; // performs tactic phase actions
+	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
+	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
 };
 
 class IGameActionCallback
@@ -88,7 +88,7 @@ protected:
 
 public:
 	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
-	int battleMakeAction(BattleAction* action) override;//for casting spells by hero - DO NOT use it for moving active stack
+	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
 
 	friend class CCallback;
