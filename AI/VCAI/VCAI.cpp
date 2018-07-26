@@ -1520,7 +1520,7 @@ void VCAI::wander(HeroPtr h)
 			std::vector<const CGTownInstance *> townsNotReachable;
 			for(const CGTownInstance * t : cb->getTownsInfo())
 			{
-				if(!t->visitingHero && howManyReinforcementsCanGet(h, t) && !vstd::contains(townVisitsThisWeek[h], t))
+				if(!t->visitingHero && !vstd::contains(townVisitsThisWeek[h], t))
 				{
 					if(isAccessibleForHero(t->visitablePos(), h))
 						townsReachable.push_back(t);
@@ -1528,10 +1528,9 @@ void VCAI::wander(HeroPtr h)
 						townsNotReachable.push_back(t);
 				}
 			}
-			if(townsReachable.size())
+			if(townsReachable.size()) //travel to town with largest garrison, or empty - better than nothing
 			{
-				boost::sort(townsReachable, compareReinforcements);
-				dests.push_back(townsReachable.back());
+				dests.push_back(*boost::max_element(townsReachable, compareReinforcements));
 			}
 			else if(townsNotReachable.size())
 			{			
