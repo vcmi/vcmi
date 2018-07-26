@@ -41,6 +41,7 @@ public:
 
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) override;
 	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal
+	bool containsObjective(Goals::TSubgoal goal) const;
 	bool hasTasksLeft() const override;
 
 private:

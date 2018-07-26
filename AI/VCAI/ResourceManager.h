@@ -51,6 +51,7 @@ public:
 
 	virtual Goals::TSubgoal whatToDo() const = 0;//get highest-priority goal
 	virtual Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) = 0;
+	virtual bool containsObjective(Goals::TSubgoal goal) const = 0;
 	virtual bool hasTasksLeft() const = 0;
 private:
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal) = 0;
@@ -80,6 +81,7 @@ public:
 
 	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
+	bool containsObjective(Goals::TSubgoal goal) const;
 	bool hasTasksLeft() const override;
 
 protected: //not-const actions only for AI

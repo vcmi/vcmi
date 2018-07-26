@@ -191,6 +191,17 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 	return collectResourcesForOurGoal(ro); //fallback, ever needed?
 }
 
+bool ResourceManager::containsObjective(Goals::TSubgoal goal) const
+{
+	//TODO: unit tests for once
+	for (auto objective : queue)
+	{
+		if (objective.goal == goal)
+			return true;
+	}
+	return false;
+}
+
 bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 {
 	if (goal->invalid())

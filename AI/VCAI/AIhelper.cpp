@@ -48,6 +48,11 @@ Goals::TSubgoal AIhelper::whatToDo() const
 	return resourceManager->whatToDo();
 }
 
+bool AIhelper::containsObjective(Goals::TSubgoal goal) const
+{
+	return resourceManager->containsObjective(goal);
+}
+
 bool AIhelper::hasTasksLeft() const
 {
 	return resourceManager->hasTasksLeft();

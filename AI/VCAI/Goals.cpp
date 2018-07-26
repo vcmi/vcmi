@@ -1330,13 +1330,19 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			{
 				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, t));
 				if (val)
-					ret.push_back(sptr(Goals::BuyArmy(t, val).sethero(hero)));
+				{
+					auto goal = sptr(Goals::BuyArmy(t, val).sethero(hero));
+					if (!ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+						ret.push_back(goal);
+				}
 			}
 			//build dwelling
 			auto bid = ai->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
 			if (bid != BuildingID::NONE)
 			{
-				ret.push_back(sptr(BuildThis(bid, t).setpriority(priority)));
+				auto goal = sptr(BuildThis(bid, t).setpriority(priority));
+				if (!ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+					ret.push_back(goal);
 			}
 		}
 	}
