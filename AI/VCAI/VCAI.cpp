@@ -1513,7 +1513,12 @@ void VCAI::wander(HeroPtr h)
 
 			auto compareReinforcements = [h](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
 			{
-				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
+				auto r1 = howManyReinforcementsCanGet(h, lhs),
+					r2 = howManyReinforcementsCanGet(h, rhs);
+				if (r1 != r2)
+					return r1 < r2;
+				else
+					return howManyReinforcementsCanBuy(h, lhs) < howManyReinforcementsCanBuy(h, rhs);
 			};
 
 			std::vector<const CGTownInstance *> townsReachable;
@@ -3340,7 +3345,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 
 	if(sourceSector != destinationSector) //use ships, shipyards etc..
 	{
-		if(ai->isAccessibleForHero(dst, h)) //pathfinder can find a way using ships and gates if tile is not blocked by objects
+		if(ai->isAccessibleForHero(dst, h, true)) //pathfinder can find a way using ships and gates if tile is not blocked by objects
 			return dst;
 
 		std::map<const Sector *, const Sector *> preds;
