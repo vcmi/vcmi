@@ -3345,7 +3345,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 
 	if(sourceSector != destinationSector) //use ships, shipyards etc..
 	{
-		if(ai->isAccessibleForHero(dst, h, true)) //pathfinder can find a way using ships and gates if tile is not blocked by objects
+		if(ai->isAccessibleForHero(dst, h)) //pathfinder can find a way using ships and gates if tile is not blocked by objects
 			return dst;
 
 		std::map<const Sector *, const Sector *> preds;
