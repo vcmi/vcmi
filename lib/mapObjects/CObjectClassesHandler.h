@@ -74,15 +74,15 @@ struct DLL_LINKAGE CompoundMapObjectID
 
 	bool operator<(const CompoundMapObjectID& other) const
 	{
-		return (this->primaryID == other.primaryID) && (this->secondaryID == other.secondaryID);
+		if(this->primaryID != other.primaryID)
+			return this->primaryID < other.primaryID;
+		else
+			return this->secondaryID < other.secondaryID;
 	}
 
 	bool operator==(const CompoundMapObjectID& other) const
 	{
-		if(this->primaryID == other.primaryID)
-			return this->secondaryID == other.secondaryID;
-
-		return false;
+		return (this->primaryID == other.primaryID) && (this->secondaryID == other.secondaryID);
 	}
 };
 
