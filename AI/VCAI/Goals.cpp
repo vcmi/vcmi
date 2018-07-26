@@ -716,6 +716,7 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 	}
 
+	auto primaryHero = ai->primaryHero().h;
 	for(auto h : heroes)
 	{
 		auto sm = ai->getCachedSectorMap(h);
@@ -734,15 +735,18 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 		else
 		{
-			ai->markHeroUnableToExplore(h); //there is no freely accessible tile, do not poll this hero anymore
-			//possible issues when gathering army to break
-
-			if(hero.h == h || (!hero && h == ai->primaryHero().h)) //check this only ONCE, high cost
+			//FIXME: possible issues when gathering army to break
+			if(hero.h == h || //exporation is assigned to this hero
+				(!hero && h == primaryHero)) //not assigned to specific hero, let our main hero do the job
 			{
-				t = ai->explorationDesperate(h);
-				if(t.valid()) //don't waste time if we are completely blocked
+				t = ai->explorationDesperate(h);  //check this only ONCE, high cost
+				if (t.valid()) //don't waste time if we are completely blocked
+				{
 					ret.push_back(sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
+					continue;
+				}
 			}
+			ai->markHeroUnableToExplore(h); //there is no freely accessible tile, do not poll this hero anymore
 		}
 	}
 	//we either don't have hero yet or none of heroes can explore

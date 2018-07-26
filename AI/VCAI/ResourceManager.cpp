@@ -150,7 +150,8 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	if (resourceType == Res::GOLD)
 		goalPriority *= 1000;
 
-	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect));
+	//this is abstract goal and might take soem time to complete
+	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect).setisAbstract(true));
 }
 
 Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
