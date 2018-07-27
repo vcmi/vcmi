@@ -49,8 +49,8 @@ View::~View()
 			removeChild(children.front());
 	}
 
-	if(parent_m)
-		parent_m->removeChild(this);
+	if(getParent())
+		getParent()->removeChild(this);
 }
 
 void View::setTimer(int msToTrigger)
@@ -198,7 +198,7 @@ void View::disable()
 
 void View::enable()
 {
-	if(!active_m && (!parent_m || parent_m->active))
+	if(!active_m && (!getParent() || getParent()->active))
 		activate();
 
 	recActions = 255;
@@ -235,12 +235,12 @@ void View::addChild(View * child, bool adjustPosition)
 	{
 		return;
 	}
-	if (child->parent_m)
+	if (child->getParent())
 	{
-		child->parent_m->removeChild(child, adjustPosition);
+		child->getParent()->removeChild(child, adjustPosition);
 	}
 	children.push_back(child);
-	child->parent_m = this;
+	child->setParent(this);
 	if(adjustPosition)
 		child->pos += pos;
 
@@ -258,11 +258,11 @@ void View::removeChild(View * child, bool adjustPosition)
 	if(!vstd::contains(children, child))
 		throw std::runtime_error("Wrong child object");
 
-	if(child->parent_m != this)
+	if(child->getParent() != this)
 		throw std::runtime_error("Wrong child object");
 
 	children -= child;
-	child->parent_m = nullptr;
+	child->setParent(nullptr);
 	if(adjustPosition)
 		child->pos -= pos;
 }
@@ -273,9 +273,9 @@ void View::redraw()
 	//it should fix glitches when called by inactive elements located below active window
 	if (active)
 	{
-		if (parent_m && (type & REDRAW_PARENT))
+		if (getParent() && (type & REDRAW_PARENT))
 		{
-			parent_m->redraw();
+			getParent()->redraw();
 		}
 		else
 		{

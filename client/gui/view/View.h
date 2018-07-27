@@ -136,7 +136,6 @@ public:
 	
 	std::vector<View *> children;
 	
-	
 	Rect pos;
 	
 	ui8 defActions;
@@ -162,7 +161,6 @@ private:
 	std::map<EIntObjMouseBtnType, bool> currentMouseState;
 	
 	
-	View *parent_m = nullptr;
 	ui16 active_m;
 };
 

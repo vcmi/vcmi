@@ -152,7 +152,7 @@ void CButton::onButtonClicked()
 		logAnim->error("crash1");
 		
 		logAnim->trace("%s%s at %dx%d", prefix, typeid(*parent).name(), parent->pos.x, parent->pos.y);
-		parent = getParent()->getParent();
+		parent = parent->getParent();
 		logAnim->error("crash2");
 		
 		prefix = '\t' + prefix;
