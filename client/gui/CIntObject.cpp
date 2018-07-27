@@ -19,23 +19,21 @@ IShowActivatable::IShowActivatable()
 	type = 0;
 }
 
-CIntObject::CIntObject(int used_, Point pos_):
+CIntObject::CIntObject(ui16 used_, Point pos_):
 	parent_m(nullptr),
 	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	active(active_m),
+	pos(pos_.x, pos_.y),
+	used(used_),
+	hovered(false),
+	captureAllKeys(false),
+	strongInterest(false),
+	toNextTick(0),
+	timerDelay(0),
+	defActions(GH.defActionsDef),
+	recActions(GH.defActionsDef)
 {
-	hovered = captureAllKeys = strongInterest = false;
-	toNextTick = timerDelay = 0;
-	used = used_;
-
-	recActions = defActions = GH.defActionsDef;
-
-	pos.x = pos_.x;
-	pos.y = pos_.y;
-	pos.w = 0;
-	pos.h = 0;
-
 	if(GH.captureChildren)
 		GH.createdObj.front()->addChild(this, true);
 }
@@ -146,7 +144,6 @@ void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState
 {
 	switch(btn)
 	{
-	default:
 	case EIntObjMouseBtnType::LEFT:
 		clickLeft(down, previousState);
 		break;
@@ -157,11 +154,6 @@ void CIntObject::click(EIntObjMouseBtnType btn, tribool down, bool previousState
 		clickRight(down, previousState);
 		break;
 	}
-}
-
-void CIntObject::printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
@@ -186,7 +178,7 @@ void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
 
 void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, static_cast<size_t>(charpr), font), kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)
@@ -217,16 +209,6 @@ void CIntObject::enable()
 		activate();
 
 	recActions = 255;
-}
-
-bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
-{
-	return isItIn(&rect, x - pos.x, y - pos.y);
-}
-
-bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
-{
-	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
 }
 
 void CIntObject::fitToScreen(int borderWidth, bool propagate)
