@@ -146,6 +146,8 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	std::vector<ObjectTemplate> templates;
 
 	SObjectSounds sounds;
+
+	boost::optional<si32> aiValue;
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
@@ -184,6 +186,8 @@ public:
 
 	const RandomMapInfo & getRMGInfo();
 
+	boost::optional<si32> getAiValue() const;
+
 	virtual bool isStaticObject();
 
 	virtual void afterLoadFinalization();
@@ -215,6 +219,10 @@ public:
 		{
 			h & sounds;
 		}
+		if(version >= 788)
+		{
+			h & aiValue;
+		}
 	}
 };
 
@@ -237,6 +245,8 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 		SObjectSounds sounds;
 
+		boost::optional<si32> groupDefaultAiValue;
+
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & name;
@@ -251,6 +261,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 			if(version >= 778)
 			{
 				h & sounds;
+			}
+			if(version >= 788)
+			{
+				h & groupDefaultAiValue;
 			}
 		}
 	};
@@ -306,7 +320,7 @@ public:
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(si32 type) const;
 
-
+	boost::optional<si32> getObjGroupAiValue(si32 primaryID) const; //default AI value of objects belonging to particular primaryID
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

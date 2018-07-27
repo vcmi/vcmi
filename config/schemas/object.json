@@ -13,6 +13,9 @@
 		"name": {
 			"type":"string",
 		},
+		"defaultAiValue": {
+			"type":"number",
+		},
 
 		"handler": {
 			"type":"string",

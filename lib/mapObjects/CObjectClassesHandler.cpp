@@ -206,6 +206,11 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
 	obj->id = selectNextID(json["index"], objects, 256);
+	if(json["defaultAiValue"].isNull())
+		obj->groupDefaultAiValue = boost::none;
+	else
+		obj->groupDefaultAiValue = json["defaultAiValue"].Integer();
+
 	for (auto entry : json["types"].Struct())
 	{
 		loadObjectEntry(entry.first, entry.second, obj);
@@ -387,6 +392,11 @@ std::string CObjectClassesHandler::getObjectHandlerName(si32 type) const
 	return objects.at(type)->handlerName;
 }
 
+boost::optional<si32> CObjectClassesHandler::getObjGroupAiValue(si32 primaryID) const
+{
+	return objects.at(primaryID)->groupDefaultAiValue;
+}
+
 AObjectTypeHandler::AObjectTypeHandler():
 	type(-1), subtype(-1)
 {
@@ -456,6 +466,11 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 
 	for(const JsonNode & node : input["sounds"]["removal"].Vector())
 		sounds.removal.push_back(node.String());
+
+	if(input["aiValue"].isNull())
+		aiValue = boost::none;
+	else
+		aiValue = input["aiValue"].Integer();
 
 	initTypeData(input);
 }
@@ -543,6 +558,11 @@ boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
 {
 	return rmgInfo;
+}
+
+boost::optional<si32> AObjectTypeHandler::getAiValue() const
+{
+	return aiValue;
 }
 
 bool AObjectTypeHandler::isStaticObject()
