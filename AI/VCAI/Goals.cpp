@@ -220,7 +220,7 @@ namespace Goals
 	}
 	std::string BuyArmy::completeMessage() const
 	{
-		return boost::format("Bought army of value %d in town of %s") % boost::lexical_cast<std::string>(value), town->name;
+		return boost::format("Bought army of value %d in town of %s") % value, town->name;
 	}
 }
 
@@ -537,8 +537,10 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 bool Goals::ClearWayTo::fulfillsMe(TSubgoal goal)
 {
 	if (goal->goalType == Goals::VISIT_TILE)
+	{
 		if (!hero || hero == goal->hero)
 			return tile == goal->tile;
+	}
 	return false;
 }
 
@@ -987,9 +989,7 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 						if (dest != t) //there is something blocking our way
 							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
 						else
-						{
 							ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
-						}
 					}
 					else //we need to get army in order to pick that object
 						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));

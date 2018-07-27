@@ -16,7 +16,7 @@ boost::thread_specific_ptr<AIhelper> ah;
 
 AIhelper::AIhelper()
 {
-	resourceManager.reset(new ResourceManager);
+	resourceManager.reset(new ResourceManager());
 }
 
 AIhelper::~AIhelper()

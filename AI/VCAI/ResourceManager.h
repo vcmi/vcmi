@@ -80,12 +80,12 @@ public:
 	TResource allGold() const override;
 
 	Goals::TSubgoal whatToDo() const override; //peek highest-priority goal
-	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
+	Goals::TSubgoal whatToDo(TResources & res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
 	bool containsObjective(Goals::TSubgoal goal) const;
 	bool hasTasksLeft() const override;
 
 protected: //not-const actions only for AI
-	virtual void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
+	virtual void reserveResoures(TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal);
 	virtual bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
 	virtual bool tryPush(const ResourceObjective &o);

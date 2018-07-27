@@ -503,10 +503,10 @@ ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t)
 	ui64 aivalue = 0;
 
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
-	for (auto const dc : t->creatures)
+	for(auto const dc : t->creatures)
 	{
 		creInfo ci = infoFromDC(dc);
-		if (ci.count && ci.creID != -1) //valid creature at this level
+		if(ci.count && ci.creID != -1) //valid creature at this level
 		{
 			//can be merged with another stack?
 			SlotID dst = h->getSlotFor(ci.creID);
