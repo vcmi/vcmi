@@ -22,7 +22,7 @@ class IResourceManager;
 struct DLL_EXPORT ResourceObjective
 {
 	ResourceObjective() = default;
-	ResourceObjective(TResources &res, Goals::TSubgoal goal);
+	ResourceObjective(const TResources &res, Goals::TSubgoal goal);
 	bool operator < (const ResourceObjective &ro) const;
 
 	TResources resources; //how many resoures do we need
@@ -88,7 +88,7 @@ protected: //not-const actions only for AI
 	virtual void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal());
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal);
 	virtual bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
-	virtual bool tryPush(ResourceObjective &o);
+	virtual bool tryPush(const ResourceObjective &o);
 
 	//inner processing
 	virtual TResources estimateIncome() const;

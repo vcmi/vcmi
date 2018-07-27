@@ -15,7 +15,7 @@
 
 #define GOLD_RESERVE (10000); //at least we'll be able to reach capitol
 
-ResourceObjective::ResourceObjective(TResources & Res, Goals::TSubgoal Goal)
+ResourceObjective::ResourceObjective(const TResources & Res, Goals::TSubgoal Goal)
 	: resources(Res), goal(Goal)
 {
 }
@@ -248,7 +248,7 @@ bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 		return false;
 }
 
-bool ResourceManager::tryPush(ResourceObjective & o)
+bool ResourceManager::tryPush(const ResourceObjective & o)
 {
 	auto goal = o.goal;
 
