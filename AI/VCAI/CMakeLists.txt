@@ -9,6 +9,8 @@ set(VCAI_SRCS
 		StdInc.cpp
 
 		AIUtility.cpp
+		AIhelper.cpp
+		ResourceManager.cpp
 		Fuzzy.cpp
 		Goals.cpp
 		main.cpp
@@ -19,6 +21,8 @@ set(VCAI_HEADERS
 		StdInc.h
 
 		AIUtility.h
+		AIhelper.h
+		ResourceManager.h
 		Fuzzy.h
 		Goals.h
 		VCAI.h

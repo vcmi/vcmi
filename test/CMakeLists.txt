@@ -59,10 +59,15 @@ set(test_SRCS
  		spells/targetConditions/ReceptiveFeatureConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
+		
+		vcai/mock_ResourceManager.cpp
+		vcai/mock_VCAI.cpp
+		vcai/ResurceManagerTest.cpp
 
  		mock/mock_IGameCallback.cpp
  		mock/mock_MapService.cpp
  		mock/mock_BonusBearer.cpp
+		mock/mock_CPSICallback.cpp
 )
 
 set(test_HEADERS
@@ -76,11 +81,14 @@ set(test_HEADERS
 		spells/effects/EffectFixture.h
 
 		spells/targetConditions/TargetConditionItemFixture.h
+		
+		vcai/ResourceManagerTest.h
 
 		mock/mock_BonusBearer.h
  		mock/mock_IGameCallback.h
  		mock/mock_MapService.h
 		mock/mock_BonusBearer.h
+		
 )
 
 assign_source_group(${test_SRCS} ${test_HEADERS})
@@ -94,6 +102,11 @@ set(mock_HEADERS
 		mock/mock_spells_Problem.h
 		mock/mock_spells_Spell.h
 		mock/mock_vstd_RNG.h
+		mock/mock_CPSICallback.h
+		
+		vcai/mock_ResourceManager.h
+		vcai/mock_VCAI.h
+		vcai/mock_VCAI_CGoal.h
 )
 
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
