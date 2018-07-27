@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "client/gui/View.h"
+#include "client/gui/view/View.h"
 #include "../gui/SDL_Extensions.h"
 
 struct SDL_Surface;

@@ -13,7 +13,7 @@
 
 #include <SDL.h>
 
-#include "View.h"
+#include "view/View.h"
 #include "CCursorHandler.h"
 
 #include "../CGameInfo.h"

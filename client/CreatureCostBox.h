@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../lib/ResourceSet.h"
-#include "gui/View.h"
+#include "gui/view/View.h"
 
 class CLabel;
 class CAnimImage;

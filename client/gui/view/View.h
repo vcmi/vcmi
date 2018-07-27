@@ -10,8 +10,8 @@
 #pragma once
 
 #include <SDL_events.h>
-#include "Geometries.h"
-#include "../Graphics.h"
+#include "../Geometries.h"
+#include "../../Graphics.h"
 
 struct SDL_Surface;
 class CGuiHandler;

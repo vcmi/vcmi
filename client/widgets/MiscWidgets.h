@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "client/gui/View.h"
+#include "client/gui/view/View.h"
 
 class CLabel;
 class CCreatureAnim;

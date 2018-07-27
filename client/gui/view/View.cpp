@@ -10,9 +10,9 @@
 #include "StdInc.h"
 #include "View.h"
 
-#include "CGuiHandler.h"
-#include "SDL_Extensions.h"
-#include "../CMessage.h"
+#include "../CGuiHandler.h"
+#include "../SDL_Extensions.h"
+#include "../../CMessage.h"
 
 IShowActivatable::IShowActivatable()
 {

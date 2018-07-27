@@ -13,7 +13,7 @@
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
-#include "gui/View.h"
+#include "gui/view/View.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf
