@@ -56,6 +56,8 @@ class FuzzyHelper
 	} vt;
 
 	
+private:
+	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};

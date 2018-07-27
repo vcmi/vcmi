@@ -199,6 +199,20 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 }
 
+float FuzzyHelper::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
+{
+	float turns = 0.0f;
+	float distance = CPathfinderHelper::getMovementCost(h, tile);
+	if(distance)
+	{
+		if(distance < h->movement) //we can move there within one turn
+			turns = (fl::scalar)distance / h->movement;
+		else
+			turns = 1 + (fl::scalar)(distance - h->movement) / h->maxMovePoints(true); //bool on land?
+	}
+	return turns;
+}
+
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
@@ -420,20 +434,7 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
-	float turns = 0;
-	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
-	if(!distance) //we stand on that tile
-	{
-		turns = 0;
-	}
-	else
-	{
-		if(distance < g.hero->movement) //we can move there within one turn
-			turns = (fl::scalar)distance / g.hero->movement;
-		else
-			turns = 1 + (fl::scalar)(distance - g.hero->movement) / g.hero->maxMovePoints(true); //bool on land?
-	}
-
+	float turns = calculateTurnDistanceInputValue(g.hero.h, g.tile);
 	float missionImportance = 0;
 	if(vstd::contains(ai->lockedHeroes, g.hero))
 		missionImportance = ai->lockedHeroes[g.hero]->priority;
