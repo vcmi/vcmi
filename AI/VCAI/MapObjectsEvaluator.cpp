@@ -19,7 +19,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
-			if(!handler->isStaticObject() && handler->getRMGInfo().value)
+			if(!handler->isStaticObject())
 			{
 				objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getRMGInfo().value;
 			}

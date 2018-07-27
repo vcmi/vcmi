@@ -55,7 +55,15 @@ class FuzzyHelper
 		~EvalVisitTile();
 	} vt;
 
-	
+	class EvalWanderTargetObject : public engineBase //designed for use with VCAI::wander()
+	{
+	public:
+		fl::InputVariable * distance;
+		fl::InputVariable * objectValue;
+		fl::OutputVariable * visitGain;
+		~EvalWanderTargetObject();
+	} wanderTarget;
+
 private:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 
@@ -66,6 +74,7 @@ public:
 	FuzzyHelper();
 	void initTacticalAdvantage();
 	void initVisitTile();
+	void initWanderTarget();
 
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
@@ -83,6 +92,7 @@ public:
 
 	ui64 estimateBankDanger(const CBank * bank);
 	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
+	float getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj);
 
 	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
 	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);

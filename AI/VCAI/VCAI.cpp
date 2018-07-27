@@ -1540,7 +1540,12 @@ void VCAI::wander(HeroPtr h)
 
 		if(dests.size()) //performance improvement
 		{
-			const ObjectIdRef & dest = *boost::min_element(dests, CDistanceSorter(h.get())); //find next closest one
+			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool
+			{
+				return fh->getWanderTargetObjectValue( *h.get(), l) < fh->getWanderTargetObjectValue(*h.get(), r);
+			};
+
+			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
