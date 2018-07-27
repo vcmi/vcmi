@@ -1453,6 +1453,17 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
+
+	auto visitTownIfAny = [this](HeroPtr h) -> bool
+	{
+		if (h->visitedTown)
+		{
+			townVisitsThisWeek[h].insert(h->visitedTown);
+			buildArmyIn(h->visitedTown);
+			return true;
+		}
+	};
+
 	//unclaim objects that are now dangerous for us
 	auto reservedObjsSetCopy = reservedHeroesMap[h];
 	for(auto obj : reservedObjsSetCopy)
@@ -1585,26 +1596,23 @@ void VCAI::wander(HeroPtr h)
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
-			if(!goVisitObj(dest, h))
+			if (!goVisitObj(dest, h))
 			{
-				if(!dest)
+				if (!dest)
 				{
 					logAi->debug("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
 				}
 				else
 				{
 					logAi->debug("Hero %s apparently used all MPs (%d left)", h->name, h->movement);
-					return;
+					break;
 				}
 			}
-		}
-
-		if(h->visitedTown)
-		{
-			townVisitsThisWeek[h].insert(h->visitedTown);
-			buildArmyIn(h->visitedTown);
+			else //we reached our destination
+				visitTownIfAny(h);
 		}
 	}
+	visitTownIfAny(h); //in case hero is just sitting in town
 }
 
 void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
