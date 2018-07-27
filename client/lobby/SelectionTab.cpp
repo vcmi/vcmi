@@ -162,8 +162,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->allTexts[726];
 		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
-		pos.w = parent->pos.w;
-		pos.h = parent->pos.h;
+		pos.w = getParent()->pos.w;
+		pos.h = getParent()->pos.h;
 		pos.x += 3;
 		pos.y += 6;
 
@@ -292,7 +292,7 @@ void SelectionTab::onDoubleClick()
 {
 	if(getLine() != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
+		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(false, true);
 	}
 }
 

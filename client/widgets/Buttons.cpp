@@ -145,14 +145,20 @@ void CButton::onButtonClicked()
 {
 	// debug logging to figure out pressed button (and as result - player actions) in case of crash
 	logAnim->trace("Button clicked at %dx%d", pos.x, pos.y);
-	View * parent = this->parent;
+	auto parent = getParent();
 	std::string prefix = "Parent is";
-	while (parent)
+	while (parent != nullptr)
 	{
+		logAnim->error("crash1");
+		
 		logAnim->trace("%s%s at %dx%d", prefix, typeid(*parent).name(), parent->pos.x, parent->pos.y);
-		parent = parent->parent;
+		parent = getParent()->getParent();
+		logAnim->error("crash2");
+		
 		prefix = '\t' + prefix;
 	}
+	logAnim->error("po petli");
+	
 	callback();
 }
 
@@ -440,8 +446,8 @@ void CToggleGroup::selectionChanged(int to)
 		buttons[to]->setSelected(true);
 
 	onChange(to);
-	if (parent)
-		parent->redraw();
+	if (getParent())
+		getParent()->redraw();
 }
 
 CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)

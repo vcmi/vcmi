@@ -38,7 +38,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	assert(getParent() == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -59,7 +59,6 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 

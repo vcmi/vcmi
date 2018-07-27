@@ -362,12 +362,12 @@ ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
 	comp(Comp)
 {
 	//Temporary assign ownership on comp
-	if (parent)
-		parent->removeChild(this);
-	if (comp->parent)
+	if (getParent())
+		getParent()->removeChild(this);
+	if (comp->getParent())
 	{
-		comp->parent->addChild(this);
-		comp->parent->removeChild(comp.get());
+		comp->getParent()->addChild(this);
+		comp->getParent()->removeChild(comp.get());
 	}
 
 	addChild(comp.get());
@@ -380,10 +380,10 @@ ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
 
 ComponentResolved::~ComponentResolved()
 {
-	if (parent)
+	if (getParent())
 	{
 		removeChild(comp.get());
-		parent->addChild(comp.get());
+		getParent()->addChild(comp.get());
 	}
 }
 

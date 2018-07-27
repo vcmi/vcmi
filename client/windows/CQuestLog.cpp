@@ -57,7 +57,7 @@ void CQuestIcon::clickLeft(tribool down, bool previousState)
 
 void CQuestIcon::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
+	CSDL_Ext::CClipRectGuard guard(to, getParent()->pos);
 	CAnimImage::showAll(to);
 }
 

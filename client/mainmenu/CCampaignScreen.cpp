@@ -105,7 +105,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 		graphicsImage = std::make_shared<CPicture>(config["image"].String());
 
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::YELLOW, "");
-		parent->addChild(hoverLabel.get());
+		getParent()->addChild(hoverLabel.get());
 	}
 
 	if(status == CCampaignScreen::COMPLETED)

@@ -72,10 +72,10 @@ void CLabel::setText(const std::string &Txt)
 	text = Txt;
 	if(autoRedraw)
 	{
-		if(background || !parent)
+		if(background || !getParent())
 			redraw();
 		else
-			parent->redraw();
+			getParent()->redraw();
 	}
 }
 
@@ -84,10 +84,10 @@ void CLabel::setColor(const SDL_Color & Color)
 	color = Color;
 	if(autoRedraw)
 	{
-		if(background || !parent)
+		if(background || !getParent())
 			redraw();
 		else
-			parent->redraw();
+			getParent()->redraw();
 	}
 }
 

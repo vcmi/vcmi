@@ -1478,7 +1478,7 @@ void LabeledValue::hover(bool on)
 	else
 	{
 		GH.statusbar->clear();
-		parent->hovered = false;
+		getParent()->hovered = false;
 	}
 }
 

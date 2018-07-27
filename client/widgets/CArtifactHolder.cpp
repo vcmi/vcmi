@@ -707,8 +707,8 @@ void CArtifactsOfHero::safeRedraw()
 {
 	if (active)
 	{
-		if(parent)
-			parent->redraw();
+		if(getParent())
+			getParent()->redraw();
 		else
 			redraw();
 	}
@@ -1039,7 +1039,7 @@ void CCommanderArtPlace::returnArtToHeroCallback()
 	{
 		LOCPLINT->cb->swapArtifacts(src, dst);
 		setArtifact(nullptr);
-		parent->redraw();
+		getParent()->redraw();
 	}
 }
 

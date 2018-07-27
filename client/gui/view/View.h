@@ -67,7 +67,10 @@ class View : public IShowActivatable
 public:
 	View(ui16 used=0, Point offset=Point());
 	virtual ~View();
-
+	
+	View *getParent() const;
+	void setParent(View *parent);
+	
 	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
 	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
@@ -130,11 +133,9 @@ public:
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
 
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
-	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 	
 	std::vector<View *> children;
 	
-	View * const & parent;
 	
 	Rect pos;
 	
@@ -147,6 +148,12 @@ protected:
 	void deactivate(ui16 what);
 	
 private:
+	void onTimer(int timePassed);
+	
+	//TODO make parent const
+	View * parent = nullptr;
+private:
+	
 	ui16 used;
 	
 	int toNextTick;
@@ -154,9 +161,8 @@ private:
 	
 	std::map<EIntObjMouseBtnType, bool> currentMouseState;
 	
-	void onTimer(int timePassed);
 	
-	View *parent_m;
+	View *parent_m = nullptr;
 	ui16 active_m;
 };
 

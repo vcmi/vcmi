@@ -132,10 +132,10 @@ InfoCard::InfoCard()
 	else
 	{
 		background = std::make_shared<CPicture>("GSELPOP1.bmp", 0, 0);
-		parent->addChild(background.get());
-		auto it = vstd::find(parent->children, this); //our position among parent children
-		parent->children.insert(it, background.get()); //put BG before us
-		parent->children.pop_back();
+		getParent()->addChild(background.get());
+		auto it = vstd::find(getParent()->children, this); //our position among parent children
+		getParent()->children.insert(it, background.get()); //put BG before us
+		getParent()->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
 		iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 318, 22); //let it be custom size (frame 4) by default

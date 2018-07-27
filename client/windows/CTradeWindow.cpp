@@ -124,7 +124,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
 
 	Point posToBitmap;
@@ -168,7 +168,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
 	if(down)
 	{

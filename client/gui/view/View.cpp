@@ -20,9 +20,7 @@ IShowActivatable::IShowActivatable()
 }
 
 View::View(ui16 used_, Point pos_):
-	parent_m(nullptr),
 	active_m(0),
-	parent(parent_m),
 	active(active_m),
 	pos(pos_.x, pos_.y),
 	used(used_),
@@ -171,11 +169,6 @@ void View::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 	blitAt(src, pos.x + x, pos.y + y, dst);
 }
 
-void View::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
-{
-	blitAtLoc(src, p.x, p.y, dst);
-}
-
 void View::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, static_cast<size_t>(charpr), font), kolor, Point(pos.x + x, pos.y + y));
@@ -316,6 +309,16 @@ const Rect & View::center(const Point & p, bool propagate)
 bool View::captureThisEvent(const SDL_KeyboardEvent & key)
 {
 	return captureAllKeys;
+}
+
+View *View::getParent() const
+{
+	return parent;
+}
+
+void View::setParent(View *parent)
+{
+	View::parent = parent;
 }
 
 CKeyShortcut::CKeyShortcut()

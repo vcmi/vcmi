@@ -52,7 +52,7 @@ void CreditsScreen::clickLeft(tribool down, bool previousState)
 
 void CreditsScreen::clickRight(tribool down, bool previousState)
 {
-	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(parent);
+	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(getParent());
 	assert(menu);
 	menu->setActive(0);
 }
