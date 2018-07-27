@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/View.h"
 
 class CLabel;
 class CCreatureAnim;
@@ -21,7 +21,7 @@ class IBonusBearer;
 class CAnimImage;
 
 /// Shows a text by moving the mouse cursor over the object
-class CHoverableArea: public virtual CIntObject
+class CHoverableArea: public virtual View
 {
 public:
 	std::string hoverText;
@@ -48,7 +48,7 @@ public:
 };
 
 /// base class for hero/town/garrison tooltips
-class CArmyTooltip : public CIntObject
+class CArmyTooltip : public View
 {
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
@@ -95,7 +95,7 @@ public:
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
-class CCreaturePic : public CIntObject
+class CCreaturePic : public View
 {
 private:
 	std::shared_ptr<CPicture> bg;
@@ -109,7 +109,7 @@ public:
 };
 
 /// Resource bar like that at the bottom of the adventure map screen
-class CMinorResDataBar : public CIntObject
+class CMinorResDataBar : public View
 {
 	std::shared_ptr<CPicture> background;
 public:
@@ -120,7 +120,7 @@ public:
 };
 
 /// Opens hero window by left-clicking on it
-class CHeroArea: public CIntObject
+class CHeroArea: public View
 {
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> portrait;

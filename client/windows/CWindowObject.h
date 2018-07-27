@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/View.h"
 
 class CWindowObject : public WindowBase
 {

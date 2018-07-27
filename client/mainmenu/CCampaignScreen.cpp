@@ -117,7 +117,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	if(status == CCampaignScreen::DISABLED)
 		return;
 
-	CIntObject::show(to);
+	View::show(to);
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if(hovered)

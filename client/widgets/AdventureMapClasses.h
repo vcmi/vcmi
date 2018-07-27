@@ -32,13 +32,13 @@ class CTownTooltip;
 class CTextBox;
 
 /// Base UI Element for hero\town lists
-class CList : public CIntObject
+class CList : public View
 {
 protected:
-	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
+	class CListItem : public View, public std::enable_shared_from_this<CListItem>
 	{
 		CList * parent;
-		std::shared_ptr<CIntObject> selection;
+		std::shared_ptr<View> selection;
 	public:
 		CListItem(CList * parent);
 		~CListItem();
@@ -49,7 +49,7 @@ protected:
 		void onSelect(bool on);
 
 		/// create object with selection rectangle
-		virtual std::shared_ptr<CIntObject> genSelection()=0;
+		virtual std::shared_ptr<View> genSelection()=0;
 		/// reaction on item selection (e.g. enable selection border)
 		/// NOTE: item may be deleted in selected state
 		virtual void select(bool on)=0;
@@ -106,7 +106,7 @@ public:
 class CHeroList	: public CList
 {
 	/// Empty hero item used as placeholder for unused entries in list
-	class CEmptyHeroItem : public CIntObject
+	class CEmptyHeroItem : public View
 	{
 		std::shared_ptr<CAnimImage> movement;
 		std::shared_ptr<CAnimImage> mana;
@@ -125,7 +125,7 @@ class CHeroList	: public CList
 
 		CHeroItem(CHeroList * parent, const CGHeroInstance * hero);
 
-		std::shared_ptr<CIntObject> genSelection() override;
+		std::shared_ptr<View> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
@@ -133,7 +133,7 @@ class CHeroList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	std::shared_ptr<View> createHeroItem(size_t index);
 public:
 	/**
 	 * @brief CHeroList
@@ -159,7 +159,7 @@ class CTownList	: public CList
 
 		CTownItem(CTownList *parent, const CGTownInstance * town);
 
-		std::shared_ptr<CIntObject> genSelection() override;
+		std::shared_ptr<View> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
@@ -167,7 +167,7 @@ class CTownList	: public CList
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createTownItem(size_t index);
+	std::shared_ptr<View> createTownItem(size_t index);
 public:
 	/**
 	 * @brief CTownList
@@ -184,7 +184,7 @@ public:
 
 class CMinimap;
 
-class CMinimapInstance : public CIntObject
+class CMinimapInstance : public View
 {
 	CMinimap * parent;
 	SDL_Surface * minimap;
@@ -208,7 +208,7 @@ public:
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map
-class CMinimap : public CIntObject
+class CMinimap : public View
 {
 protected:
 	std::shared_ptr<CPicture> aiShield; //the graphic displayed during AI turn
@@ -244,17 +244,17 @@ public:
 };
 
 /// Info box which shows next week/day information, hold the current date
-class CInfoBar : public CIntObject
+class CInfoBar : public View
 {
 	//all visible information located in one object - for ease of replacing
-	class CVisibleInfo : public CIntObject
+	class CVisibleInfo : public View
 	{
 	public:
 		void show(SDL_Surface * to) override;
 
 	protected:
 		std::shared_ptr<CPicture> background;
-		std::list<std::shared_ptr<CIntObject>> forceRefresh;
+		std::list<std::shared_ptr<View>> forceRefresh;
 
 		CVisibleInfo();
 	};
@@ -360,17 +360,17 @@ public:
 };
 
 /// simple panel that contains other displayable elements; used to separate groups of controls
-class CAdvMapPanel : public CIntObject
+class CAdvMapPanel : public View
 {
 	std::vector<std::shared_ptr<CButton>> colorableButtons;
-	std::vector<std::shared_ptr<CIntObject>> otherObjects;
+	std::vector<std::shared_ptr<View>> otherObjects;
 	/// the surface passed to this obj will be freed in dtor
 	SDL_Surface * background;
 public:
 	CAdvMapPanel(SDL_Surface * bg, Point position);
 	virtual ~CAdvMapPanel();
 
-	void addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions = 0);
+	void addChildToPanel(std::shared_ptr<View> obj, ui8 actions = 0);
 	void addChildColorableButton(std::shared_ptr<CButton> button);
 	/// recolors all buttons to given player color
 	void setPlayerColor(const PlayerColor & clr);
@@ -397,7 +397,7 @@ public:
 	void recolorIcons(const PlayerColor & color, int indexOffset);
 };
 
-class CInGameConsole : public CIntObject
+class CInGameConsole : public View
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //list<text to show, time of add>

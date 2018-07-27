@@ -76,7 +76,7 @@ public:
 
 class HeroSlots;
 /// Hero icon slot
-class CHeroGSlot : public CIntObject
+class CHeroGSlot : public View
 {
 	std::shared_ptr<CAnimImage> portrait;
 	std::shared_ptr<CAnimImage> flag;
@@ -102,7 +102,7 @@ public:
 };
 
 /// Two hero slots that can interact with each other
-class HeroSlots : public CIntObject
+class HeroSlots : public View
 {
 public:
 	bool showEmpty;
@@ -121,7 +121,7 @@ public:
 };
 
 /// Class for town screen management (town background and structures)
-class CCastleBuildings : public CIntObject
+class CCastleBuildings : public View
 {
 	std::shared_ptr<CPicture> background;
 	//List of buildings and structures that can represent them
@@ -159,7 +159,7 @@ public:
 };
 
 /// Creature info window
-class CCreaInfo : public CIntObject
+class CCreaInfo : public View
 {
 	const CGTownInstance * town;
 	const CCreature * creature;
@@ -181,7 +181,7 @@ public:
 };
 
 /// Town hall and fort icons for town screen
-class CTownInfo : public CIntObject
+class CTownInfo : public View
 {
 	const CGTownInstance * town;
 	const CBuilding * building;
@@ -242,7 +242,7 @@ public:
 /// Hall window where you can build things
 class CHallInterface : public CWindowObject
 {
-	class CBuildingBox : public CIntObject
+	class CBuildingBox : public View
 	{
 		const CGTownInstance * town;
 		const CBuilding * building;
@@ -294,7 +294,7 @@ public:
 };
 
 //Small class to display
-class LabeledValue : public CIntObject
+class LabeledValue : public View
 {
 	std::string hoverText;
 	std::shared_ptr<CLabel> name;
@@ -310,7 +310,7 @@ public:
 /// The fort screen where you can afford units
 class CFortScreen : public CWindowObject
 {
-	class RecruitArea : public CIntObject
+	class RecruitArea : public View
 	{
 		const CGTownInstance * town;
 		int level;
@@ -350,7 +350,7 @@ public:
 /// The mage guild screen where you can see which spells you have
 class CMageGuildScreen : public CWindowObject
 {
-	class Scroll : public CIntObject
+	class Scroll : public View
 	{
 		const CSpell * spell;
 		std::shared_ptr<CAnimImage> image;

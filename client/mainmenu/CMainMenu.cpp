@@ -98,7 +98,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	tabs->type |= REDRAW_PARENT;
 }
 
-std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
+std::shared_ptr<View> CMenuScreen::createTab(size_t index)
 {
 	if(config["items"].Vector().size() == index)
 		return std::make_shared<CreditsScreen>(this->pos);
@@ -110,7 +110,7 @@ void CMenuScreen::show(SDL_Surface * to)
 {
 	if(!config["video"].isNull())
 		CCS->videoh->update(config["video"]["x"].Float() + pos.x, config["video"]["y"].Float() + pos.y, to, true, false);
-	CIntObject::show(to);
+	View::show(to);
 }
 
 void CMenuScreen::activate()
@@ -118,7 +118,7 @@ void CMenuScreen::activate()
 	CCS->musich->playMusic("Music/MainMenu", true);
 	if(!config["video"].isNull())
 		CCS->videoh->open(config["video"]["name"].String());
-	CIntObject::activate();
+	View::activate();
 }
 
 void CMenuScreen::deactivate()
@@ -126,7 +126,7 @@ void CMenuScreen::deactivate()
 	if(!config["video"].isNull())
 		CCS->videoh->close();
 
-	CIntObject::deactivate();
+	View::deactivate();
 }
 
 void CMenuScreen::switchToTab(size_t index)

@@ -13,7 +13,7 @@
 
 #include <SDL.h>
 
-#include "CIntObject.h"
+#include "View.h"
 #include "CCursorHandler.h"
 
 #include "../CGameInfo.h"
@@ -28,7 +28,7 @@ extern boost::mutex eventsM;
 
 boost::thread_specific_ptr<bool> inGuiThread;
 
-SObjectConstruction::SObjectConstruction(CIntObject *obj)
+SObjectConstruction::SObjectConstruction(View *obj)
 :myObj(obj)
 {
 	GH.createdObj.push_front(obj);
@@ -58,37 +58,37 @@ SSetCaptureState::~SSetCaptureState()
 }
 
 static inline void
-processList(const ui16 mask, const ui16 flag, std::list<CIntObject*> *lst, std::function<void (std::list<CIntObject*> *)> cb)
+processList(const ui16 mask, const ui16 flag, std::list<View*> *lst, std::function<void (std::list<View*> *)> cb)
 {
 	if (mask & flag)
 		cb(lst);
 }
 
-void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb)
+void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<View*> *)> cb)
 {
-	processList(CIntObject::LCLICK,activityFlag,&lclickable,cb);
-	processList(CIntObject::RCLICK,activityFlag,&rclickable,cb);
-	processList(CIntObject::MCLICK,activityFlag,&mclickable,cb);
-	processList(CIntObject::HOVER,activityFlag,&hoverable,cb);
-	processList(CIntObject::MOVE,activityFlag,&motioninterested,cb);
-	processList(CIntObject::KEYBOARD,activityFlag,&keyinterested,cb);
-	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
-	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);
-	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
-	processList(CIntObject::TEXTINPUT,activityFlag,&textInterested,cb);
+	processList(View::LCLICK,activityFlag,&lclickable,cb);
+	processList(View::RCLICK,activityFlag,&rclickable,cb);
+	processList(View::MCLICK,activityFlag,&mclickable,cb);
+	processList(View::HOVER,activityFlag,&hoverable,cb);
+	processList(View::MOVE,activityFlag,&motioninterested,cb);
+	processList(View::KEYBOARD,activityFlag,&keyinterested,cb);
+	processList(View::TIME,activityFlag,&timeinterested,cb);
+	processList(View::WHEEL,activityFlag,&wheelInterested,cb);
+	processList(View::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);
+	processList(View::TEXTINPUT,activityFlag,&textInterested,cb);
 }
 
-void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
+void CGuiHandler::handleElementActivate(View * elem, ui16 activityFlag)
 {
-	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
+	processLists(activityFlag,[&](std::list<View*> * lst){
 		lst->push_front(elem);
 	});
 	elem->active_m |= activityFlag;
 }
 
-void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
+void CGuiHandler::handleElementDeActivate(View * elem, ui16 activityFlag)
 {
-	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
+	processLists(activityFlag,[&](std::list<View*> * lst){
 		auto hlp = std::find(lst->begin(),lst->end(),elem);
 		assert(hlp != lst->end());
 		lst->erase(hlp);
@@ -170,7 +170,7 @@ void CGuiHandler::totalRedraw()
 void CGuiHandler::updateTime()
 {
 	int ms = mainFPSmng->getElapsedMilliseconds();
-	std::list<CIntObject*> hlp = timeinterested;
+	std::list<View*> hlp = timeinterested;
 	for (auto & elem : hlp)
 	{
 		if(!vstd::contains(timeinterested,elem)) continue;
@@ -258,7 +258,7 @@ void CGuiHandler::handleCurrentEvent()
 			}
 		}
 
-		std::list<CIntObject*> miCopy = keyinterested;
+		std::list<View*> miCopy = keyinterested;
 		for(auto i = miCopy.begin(); i != miCopy.end() && continueEventHandling; i++)
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
 				(**i).keyPressed(key);
@@ -274,7 +274,7 @@ void CGuiHandler::handleCurrentEvent()
 		case SDL_BUTTON_LEFT:
 			if(lastClick == current->motion && (SDL_GetTicks() - lastClickTime) < 300)
 			{
-				std::list<CIntObject*> hlp = doubleClickInterested;
+				std::list<View*> hlp = doubleClickInterested;
 				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 				{
 					if(!vstd::contains(doubleClickInterested, *i)) continue;
@@ -303,7 +303,7 @@ void CGuiHandler::handleCurrentEvent()
 	}
 	else if(current->type == SDL_MOUSEWHEEL)
 	{
-		std::list<CIntObject*> hlp = wheelInterested;
+		std::list<View*> hlp = wheelInterested;
 		for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 		{
 			if(!vstd::contains(wheelInterested,*i)) continue;
@@ -370,7 +370,7 @@ void CGuiHandler::handleMouseButtonClick(CIntObjectList & interestedObjs, EIntOb
 void CGuiHandler::handleMouseMotion()
 {
 	//sending active, hovered hoverable objects hover() call
-	std::vector<CIntObject*> hlp;
+	std::vector<View*> hlp;
 	for(auto & elem : hoverable)
 	{
 		if(isItIn(&(elem)->pos, current->motion.x, current->motion.y))
@@ -405,7 +405,7 @@ void CGuiHandler::simpleRedraw()
 void CGuiHandler::handleMoveInterested(const SDL_MouseMotionEvent & motion)
 {
 	//sending active, MotionInterested objects mouseMoved() call
-	std::list<CIntObject*> miCopy = motioninterested;
+	std::list<View*> miCopy = motioninterested;
 	for(auto & elem : miCopy)
 	{
 		if(elem->strongInterest || isItInOrLowerBounds(&elem->pos, motion.x, motion.y)) //checking lower bounds fixes bug #2476

@@ -10,12 +10,12 @@
 #pragma once
 
 #include "../lib/ResourceSet.h"
-#include "gui/CIntObject.h"
+#include "gui/View.h"
 
 class CLabel;
 class CAnimImage;
 
-class CreatureCostBox : public CIntObject
+class CreatureCostBox : public View
 {
 public:
 	void set(TResources res);

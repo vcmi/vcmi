@@ -112,7 +112,7 @@ CTerrainRect::~CTerrainRect()
 
 void CTerrainRect::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
 }
 
@@ -547,7 +547,7 @@ void CResDataBar::show(SDL_Surface * to)
 
 void CResDataBar::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	draw(to);
 }
 
@@ -925,9 +925,9 @@ void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 
 void CAdvMapInt::activate()
 {
-	CIntObject::activate();
+	View::activate();
 	if (!(active & KEYBOARD))
-		CIntObject::activate(KEYBOARD);
+		View::activate(KEYBOARD);
 
 	screenBuf = screen;
 	GH.statusbar = &statusbar;
@@ -951,7 +951,7 @@ void CAdvMapInt::activate()
 
 void CAdvMapInt::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 
 	if(!duringAITurn)
 	{
@@ -1489,7 +1489,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 
 bool CAdvMapInt::isActive()
 {
-	return active & ~CIntObject::KEYBOARD;
+	return active & ~View::KEYBOARD;
 }
 
 void CAdvMapInt::startHotSeatWait(PlayerColor Player)

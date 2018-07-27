@@ -528,7 +528,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 		Point(740,44), Point(0,57), dwellSize, visibleObjects.size());
 }
 
-std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
+std::shared_ptr<View> CKingdomInterface::createOwnedObject(size_t index)
 {
 	if(index < objects.size())
 	{
@@ -537,10 +537,10 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 		auto data = std::make_shared<InfoBoxCustom>(value, "", "FLAGPORT", obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
-	return std::shared_ptr<CIntObject>();
+	return std::shared_ptr<View>();
 }
 
-std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
+std::shared_ptr<View> CKingdomInterface::createMainTab(size_t index)
 {
 	size_t size = conf.go()->ac.overviewSize;
 	switch(index)
@@ -550,7 +550,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	case 1:
 		return std::make_shared<CKingdTownList>(size);
 	default:
-		return std::shared_ptr<CIntObject>();
+		return std::shared_ptr<View>();
 	}
 }
 
@@ -690,14 +690,14 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 
 void CKingdHeroList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : heroes->getItems())
+	for(std::shared_ptr<View> object : heroes->getItems())
 	{
 		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
 
-std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
+std::shared_ptr<View> CKingdHeroList::createHeroItem(size_t index)
 {
 	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t heroesCount = LOCPLINT->cb->howManyHeroes(false);
@@ -731,7 +731,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 
 void CKingdTownList::townChanged(const CGTownInstance * town)
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(std::shared_ptr<View> object : towns->getItems())
 	{
 		CTownItem * townItem = dynamic_cast<CTownItem *>(object.get());
 		if(townItem && townItem->town == town)
@@ -741,14 +741,14 @@ void CKingdTownList::townChanged(const CGTownInstance * town)
 
 void CKingdTownList::updateGarrisons()
 {
-	for(std::shared_ptr<CIntObject> object : towns->getItems())
+	for(std::shared_ptr<View> object : towns->getItems())
 	{
 		if(CGarrisonHolder * garrison = dynamic_cast<CGarrisonHolder*>(object.get()))
 			garrison->updateGarrisons();
 	}
 }
 
-std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
+std::shared_ptr<View> CKingdTownList::createTownItem(size_t index)
 {
 	ui32 picCount = conf.go()->ac.overviewPics;
 	size_t townsCount = LOCPLINT->cb->howManyTowns();
@@ -808,7 +808,7 @@ void CTownItem::update()
 	}
 }
 
-class ArtSlotsTab : public CIntObject
+class ArtSlotsTab : public View
 {
 public:
 	std::shared_ptr<CAnimImage> background;
@@ -824,7 +824,7 @@ public:
 	}
 };
 
-class BackpackTab : public CIntObject
+class BackpackTab : public View
 {
 public:
 	std::shared_ptr<CAnimImage> background;
@@ -955,7 +955,7 @@ void CHeroItem::updateGarrisons()
 	garr->recreateSlots();
 }
 
-std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
+std::shared_ptr<View> CHeroItem::onTabSelected(size_t index)
 {
 	return artTabs.at(index);
 }

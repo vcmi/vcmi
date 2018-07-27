@@ -19,7 +19,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 CreditsScreen::CreditsScreen(Rect rect)
-	: CIntObject(LCLICK | RCLICK), positionCounter(0)
+	: View(LCLICK | RCLICK), positionCounter(0)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
@@ -35,7 +35,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 
 void CreditsScreen::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	positionCounter++;
 	if(positionCounter % 2 == 0)
 		credits->scrollTextBy(1);

@@ -548,12 +548,12 @@ CBattleResultWindow::~CBattleResultWindow() = default;
 void CBattleResultWindow::activate()
 {
 	owner.showingDialog->set(true);
-	CIntObject::activate();
+	View::activate();
 }
 
 void CBattleResultWindow::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 

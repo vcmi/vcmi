@@ -18,7 +18,7 @@ CObjectList::CObjectList(CreateFunc create)
 {
 }
 
-void CObjectList::deleteItem(std::shared_ptr<CIntObject> item)
+void CObjectList::deleteItem(std::shared_ptr<View> item)
 {
 	if(!item)
 		return;
@@ -26,12 +26,12 @@ void CObjectList::deleteItem(std::shared_ptr<CIntObject> item)
 	removeChild(item.get());
 }
 
-std::shared_ptr<CIntObject> CObjectList::createItem(size_t index)
+std::shared_ptr<View> CObjectList::createItem(size_t index)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	std::shared_ptr<CIntObject> item = createObject(index);
+	std::shared_ptr<View> item = createObject(index);
 	if(!item)
-		item = std::make_shared<CIntObject>();
+		item = std::make_shared<View>();
 
 	item->recActions = defActions;
 	addChild(item.get());
@@ -68,7 +68,7 @@ void CTabbedInt::reset()
 		redraw();
 }
 
-std::shared_ptr<CIntObject> CTabbedInt::getItem()
+std::shared_ptr<View> CTabbedInt::getItem()
 {
 	return activeTab;
 }
@@ -133,19 +133,19 @@ size_t CListBox::size()
 	return totalSize;
 }
 
-std::shared_ptr<CIntObject> CListBox::getItem(size_t which)
+std::shared_ptr<View> CListBox::getItem(size_t which)
 {
 	if(which < first || which > first + items.size() || which > totalSize)
-		return std::shared_ptr<CIntObject>();
+		return std::shared_ptr<View>();
 
 	size_t i=first;
 	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
 		if( i == which)
 			return *iter;
-	return std::shared_ptr<CIntObject>();
+	return std::shared_ptr<View>();
 }
 
-size_t CListBox::getIndexOf(std::shared_ptr<CIntObject> item)
+size_t CListBox::getIndexOf(std::shared_ptr<View> item)
 {
 	size_t i=first;
 	for(auto iter = items.begin(); iter != items.end(); iter++, i++)
@@ -222,7 +222,7 @@ size_t CListBox::getPos()
 	return first;
 }
 
-const std::list<std::shared_ptr<CIntObject>> & CListBox::getItems()
+const std::list<std::shared_ptr<View>> & CListBox::getItems()
 {
 	return items;
 }

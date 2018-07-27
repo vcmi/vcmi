@@ -97,7 +97,7 @@ public:
 };
 
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
-class CArtifactsOfHero : public CIntObject
+class CArtifactsOfHero : public View
 {
 public:
 	using ArtPlacePtr = std::shared_ptr<CHeroArtPlace>;

@@ -54,7 +54,7 @@ public:
 };
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
-class CTerrainRect : public CIntObject
+class CTerrainRect : public View
 {
 	SDL_Surface * fadeSurface;
 	EMapAnimRedrawStatus lastRedrawStatus;
@@ -98,7 +98,7 @@ public:
 
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
-class CResDataBar : public CIntObject
+class CResDataBar : public View
 {
 public:
 	std::shared_ptr<CPicture> background;
@@ -119,7 +119,7 @@ public:
 /// That's a huge class which handles general adventure map actions and
 /// shows the right menu(questlog, spellbook, end turn,..) from where you
 /// can get to the towns and heroes.
-class CAdvMapInt : public CIntObject
+class CAdvMapInt : public View
 {
 	//Return object that must be active at this tile (=clickable)
 	const CGObjectInstance *getActiveObject(const int3 &tile);

@@ -26,16 +26,16 @@ class CCommanderArtPlace;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
-	std::shared_ptr<CIntObject> object; // passive object that will be used to determine clickable area
+	std::shared_ptr<View> object; // passive object that will be used to determine clickable area
 public:
-	CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback);
+	CCommanderSkillIcon(std::shared_ptr<View> object_, std::function<void()> callback);
 
 	std::function<void()> callback;
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
 
-	void setObject(std::shared_ptr<CIntObject> object);
+	void setObject(std::shared_ptr<View> object);
 };
 
 class CStackWindow : public CWindowObject
@@ -47,7 +47,7 @@ class CStackWindow : public CWindowObject
 		std::string imagePath;
 	};
 
-	class CWindowSection : public CIntObject
+	class CWindowSection : public View
 	{
 	private:
 		std::shared_ptr<CPicture> background;
@@ -165,7 +165,7 @@ class CStackWindow : public CWindowObject
 	si32 selectedSkill;
 
 	void setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIcon> newIcon);
-	std::shared_ptr<CIntObject> switchTab(size_t index);
+	std::shared_ptr<View> switchTab(size_t index);
 
 	void removeStackArtifact(ArtifactPosition pos);
 

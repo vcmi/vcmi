@@ -85,7 +85,7 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 }
 
 CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	owner(owner_),
 	hero(hero_)
 {

@@ -467,7 +467,7 @@ void CBattleInterface::activate()
 		return;
 	}
 
-	CIntObject::activate();
+	View::activate();
 	bOptions->activate();
 	bSurrender->activate();
 	bFlee->activate();
@@ -502,7 +502,7 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 
 	bOptions->deactivate();
 	bSurrender->deactivate();

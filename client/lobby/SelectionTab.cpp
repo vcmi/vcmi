@@ -112,7 +112,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
+	: View(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
 {
 	OBJ_CONSTRUCTION;
 	if(tabType != ESelectionScreen::campaignList)
@@ -595,7 +595,7 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 }
 
 SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss)
-	: CIntObject(LCLICK, position)
+	: View(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);

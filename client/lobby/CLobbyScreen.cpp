@@ -102,7 +102,7 @@ CLobbyScreen::~CLobbyScreen()
 		CSH->sendClientDisconnecting();
 }
 
-void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
+void CLobbyScreen::toggleTab(std::shared_ptr<View> tab)
 {
 	if(tab == curTab)
 		CSH->sendGuiAction(LobbyGuiAction::NO_TAB);

@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/View.h"
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
@@ -17,7 +17,7 @@ class CSlider;
 
 /// Base class for all text-related widgets.
 /// Controls text blitting-related options
-class CTextContainer : public virtual CIntObject
+class CTextContainer : public virtual View
 {
 protected:
 	/// returns size of border, for left- or right-aligned text
@@ -58,7 +58,7 @@ public:
 };
 
 /// Small helper class to manage group of similar labels
-class CLabelGroup : public CIntObject
+class CLabelGroup : public View
 {
 	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
@@ -99,7 +99,7 @@ public:
 
 /// a multi-line label that tries to fit text with given available width and height;
 /// if not possible, it creates a slider for scrolling text
-class CTextBox : public CIntObject
+class CTextBox : public View
 {
 	int sliderStyle;
 public:
@@ -137,7 +137,7 @@ public:
 };
 
 /// UIElement which can get input focus
-class CFocusable : public virtual CIntObject
+class CFocusable : public virtual View
 {
 protected:
 	virtual void focusGot(){};

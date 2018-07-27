@@ -9,14 +9,14 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/View.h"
 
 struct Component;
 class CAnimImage;
 class CLabel;
 
 /// common popup window component
-class CComponent : public virtual CIntObject
+class CComponent : public virtual View
 {
 public:
 	enum Etype
@@ -80,7 +80,7 @@ public:
 
 /// box with multiple components (up to 8?)
 /// will take ownership on components and delete them afterwards
-class CComponentBox : public CIntObject
+class CComponentBox : public View
 {
 	std::vector<std::shared_ptr<CComponent>> components;
 

@@ -121,7 +121,7 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	hero(_hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -184,7 +184,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
@@ -263,13 +263,13 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
-	CIntObject(0, pos)
+	View(0, pos)
 {
 	init(army);
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
-	CIntObject(0, pos)
+	View(0, pos)
 {
 	init(InfoAboutArmy(army, true));
 }

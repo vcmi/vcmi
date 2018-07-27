@@ -28,9 +28,9 @@ public:
 	mapSorter(ESortBy es) : sortBy(es){};
 };
 
-class SelectionTab : public CIntObject
+class SelectionTab : public View
 {
-	struct ListItem : public CIntObject
+	struct ListItem : public View
 	{
 		std::shared_ptr<CLabel> labelAmountOfPlayers;
 		std::shared_ptr<CLabel> labelNumberOfCampaignMaps;

@@ -15,7 +15,7 @@
 
 class CFramerateManager;
 class CGStatusBar;
-class CIntObject;
+class View;
 class IUpdateable;
 class IShowActivatable;
 class IShowable;
@@ -65,7 +65,7 @@ private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
-	typedef std::list<CIntObject*> CIntObjectList;
+	typedef std::list<View*> CIntObjectList;
 
 	//active GUI elements (listening for events
 	CIntObjectList lclickable,
@@ -81,10 +81,10 @@ private:
 
 
 	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void processLists(const ui16 activityFlag, std::function<void (std::list<View*> *)> cb);
 public:
-	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
-	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
+	void handleElementActivate(View * elem, ui16 activityFlag);
+	void handleElementDeActivate(View * elem, ui16 activityFlag);
 
 public:
 	//objs to blit
@@ -98,7 +98,7 @@ public:
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
-	std::list<CIntObject *> createdObj; //stack of objs being created
+	std::list<View *> createdObj; //stack of objs being created
 
 	CGuiHandler();
 	~CGuiHandler();
@@ -145,8 +145,8 @@ extern CGuiHandler GH; //global gui handler
 
 struct SObjectConstruction
 {
-	CIntObject *myObj;
-	SObjectConstruction(CIntObject *obj);
+	View *myObj;
+	SObjectConstruction(View *obj);
 	~SObjectConstruction();
 };
 

@@ -68,7 +68,7 @@ std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
-	: CIntObject(LCLICK | RCLICK),
+	: View(LCLICK | RCLICK),
 	parent(window),
 	selected(false),
 	creature(crea),
@@ -101,7 +101,7 @@ void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousSt
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if(selected)
 		drawBorder(to, pos, int3(248, 0, 0));
 	else
@@ -748,7 +748,7 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	h(H), _sel(&sel), _id(id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1117,7 +1117,7 @@ void CTransformerWindow::CItem::update()
 }
 
 CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id_)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	id(id_),
 	size(size_),
 	parent(parent_)
@@ -1187,7 +1187,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	ID(_ID),
 	parent(_parent)
 {
@@ -1250,7 +1250,7 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	topBar->setFrame(stateIndex);
 	bottomBar->setFrame(stateIndex);
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market)
@@ -1714,7 +1714,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	parent(_parent),
 	index(_id)
 {
@@ -1744,7 +1744,7 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
@@ -1759,7 +1759,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
@@ -1773,7 +1773,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	init(titleWidget_, _title, _descr);
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)
+void CObjectListWindow::init(std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr)
 {
 	titleWidget = titleWidget_;
 
@@ -1796,11 +1796,11 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	list->type |= REDRAW_PARENT;
 }
 
-std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)
+std::shared_ptr<View> CObjectListWindow::genItem(size_t index)
 {
 	if(index < items.size())
 		return std::make_shared<CItem>(this, index, items[index].second);
-	return std::shared_ptr<CIntObject>();
+	return std::shared_ptr<View>();
 }
 
 void CObjectListWindow::elementSelected()
@@ -1825,7 +1825,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	if(selected == which)
 		return;
 
-	for(std::shared_ptr<CIntObject> element : list->getItems())
+	for(std::shared_ptr<View> element : list->getItems())
 	{
 		CItem * item = dynamic_cast<CItem*>(element.get());
 		if(item)

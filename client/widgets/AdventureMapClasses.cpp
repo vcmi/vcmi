@@ -49,7 +49,7 @@
 #include "../../lib/StringConstants.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	parent(Parent),
 	selection()
 {
@@ -102,7 +102,7 @@ void CList::CListItem::onSelect(bool on)
 }
 
 CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create)
-	: CIntObject(0, position),
+	: View(0, position),
 	size(Size),
 	selected(nullptr)
 {
@@ -217,7 +217,7 @@ void CHeroList::CHeroItem::update()
 	redraw();
 }
 
-std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
+std::shared_ptr<View> CHeroList::CHeroItem::genSelection()
 {
 	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1);
 }
@@ -243,7 +243,7 @@ std::string CHeroList::CHeroItem::getHoverText()
 	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
 }
 
-std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
+std::shared_ptr<View> CHeroList::createHeroItem(size_t index)
 {
 	if (LOCPLINT->wanderingHeroes.size() > index)
 		return std::make_shared<CHeroItem>(this, LOCPLINT->wanderingHeroes[index]);
@@ -284,7 +284,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	CList::update();
 }
 
-std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
+std::shared_ptr<View> CTownList::createTownItem(size_t index)
 {
 	if (LOCPLINT->towns.size() > index)
 		return std::make_shared<CTownItem>(this, LOCPLINT->towns[index]);
@@ -301,7 +301,7 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	update();
 }
 
-std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
+std::shared_ptr<View> CTownList::CTownItem::genSelection()
 {
 	return std::make_shared<CAnimImage>("ITPA", 1);
 }
@@ -533,7 +533,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
+	: View(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
 	level(0),
 	colors(loadColors("config/terrains.json"))
 {
@@ -595,7 +595,7 @@ void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 
 void CMinimap::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if(minimap)
 	{
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -674,13 +674,13 @@ void CMinimap::showTile(const int3 &pos)
 }
 
 CInfoBar::CVisibleInfo::CVisibleInfo()
-	: CIntObject(0, Point(8, 12))
+	: View(0, Point(8, 12))
 {
 }
 
 void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	for(auto object : forceRefresh)
 		object->showAll(to);
 }
@@ -892,7 +892,7 @@ void CInfoBar::hover(bool on)
 }
 
 CInfoBar::CInfoBar(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
+	: View(LCLICK | RCLICK | HOVER, position.topLeft()),
 	state(EMPTY)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -968,7 +968,7 @@ void CInfoBar::showGameStatus()
 }
 
 CInGameConsole::CInGameConsole()
-	: CIntObject(KEYBOARD | TEXTINPUT),
+	: View(KEYBOARD | TEXTINPUT),
 	prevEntDisp(-1),
 	defaultTimeout(10000),
 	maxDisplayedTexts(10)
@@ -1197,7 +1197,7 @@ void CInGameConsole::refreshEnteredText()
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
-	: CIntObject(),
+	: View(),
 	  background(bg)
 {
 	defActions = 255;
@@ -1236,10 +1236,10 @@ void CAdvMapPanel::showAll(SDL_Surface * to)
 	if(background)
 		blitAt(background, pos.x, pos.y, to);
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
-void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
+void CAdvMapPanel::addChildToPanel(std::shared_ptr<View> obj, ui8 actions)
 {
 	otherObjects.push_back(obj);
 	obj->recActions |= actions | SHOWALL;

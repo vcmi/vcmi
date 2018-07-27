@@ -440,7 +440,7 @@ void CHeroGSlot::clickRight(tribool down, bool previousState)
 void CHeroGSlot::deactivate()
 {
 	selection->visible = false;
-	CIntObject::deactivate();
+	View::deactivate();
 }
 
 bool CHeroGSlot::isSelected() const
@@ -524,7 +524,7 @@ void HeroSlots::swapArmies()
 class SORTHELP
 {
 public:
-	bool operator() (const CIntObject * a, const CIntObject * b)
+	bool operator() (const View * a, const View * b)
 	{
 		auto b1 = dynamic_cast<const CBuildingRect *>(a);
 		auto b2 = dynamic_cast<const CBuildingRect *>(b);

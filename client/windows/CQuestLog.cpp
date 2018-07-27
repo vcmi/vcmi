@@ -108,7 +108,7 @@ void CQuestMinimap::iconClicked()
 
 void CQuestMinimap::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to); // blitting IntObject directly to hide radar
+	View::showAll(to); // blitting IntObject directly to hide radar
 //	for (auto pic : icons)
 //		pic->showAll(to);
 }

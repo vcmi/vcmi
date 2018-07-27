@@ -81,7 +81,7 @@ void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color co
 	update();
 }
 
-void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
+void CButton::addOverlay(std::shared_ptr<View> newOverlay)
 {
 	overlay = newOverlay;
 	addChild(newOverlay.get());
@@ -145,7 +145,7 @@ void CButton::onButtonClicked()
 {
 	// debug logging to figure out pressed button (and as result - player actions) in case of crash
 	logAnim->trace("Button clicked at %dx%d", pos.x, pos.y);
-	CIntObject * parent = this->parent;
+	View * parent = this->parent;
 	std::string prefix = "Parent is";
 	while (parent)
 	{
@@ -286,7 +286,7 @@ void CButton::setPlayerColor(PlayerColor player)
 
 void CButton::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	auto borderColor = stateToBorderColor[getState()];
 	if (borderColor && borderColor->a == 0)
@@ -402,7 +402,7 @@ void CToggleGroup::resetCallback()
 
 void CToggleGroup::addToggle(int identifier, std::shared_ptr<CToggleBase> button)
 {
-	if(auto intObj = std::dynamic_pointer_cast<CIntObject>(button)) // hack-ish workagound to avoid diamond problem with inheritance
+	if(auto intObj = std::dynamic_pointer_cast<View>(button)) // hack-ish workagound to avoid diamond problem with inheritance
 	{
 		addChild(intObj.get());
 	}
@@ -445,7 +445,7 @@ void CToggleGroup::selectionChanged(int to)
 }
 
 CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
-	: CIntObject(LCLICK | RCLICK | WHEEL),
+	: View(LCLICK | RCLICK | WHEEL),
 	value(value),
 	helpHandlers(help)
 {
@@ -658,7 +658,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 }
 
 CSlider::CSlider(Point position, int totalw, std::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, CSlider::EStyle style)
-	: CIntObject(LCLICK | RCLICK | WHEEL),
+	: View(LCLICK | RCLICK | WHEEL),
 	capacity(Capacity),
 	horizontal(Horizontal),
 	amount(Amount),
@@ -742,7 +742,7 @@ void CSlider::setAmount( int to )
 void CSlider::showAll(SDL_Surface * to)
 {
 	CSDL_Ext::fillRectBlack(to, &pos);
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
 void CSlider::wheelScrolled(bool down, bool in)

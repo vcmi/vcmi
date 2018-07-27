@@ -21,7 +21,7 @@ class CStackInstance;
 class CLabel;
 
 /// A single garrison slot which holds one creature of a specific amount
-class CGarrisonSlot : public CIntObject
+class CGarrisonSlot : public View
 {
 	SlotID ID; //for identification
 	CGarrisonInt *owner;
@@ -62,7 +62,7 @@ public:
 };
 
 /// Class which manages slots of upper and lower garrison, splitting of units
-class CGarrisonInt :public CIntObject
+class CGarrisonInt :public View
 {
 	/// Chosen slot. Should be changed only via selectSlot.
 	CGarrisonSlot * highlighted;

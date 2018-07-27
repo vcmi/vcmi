@@ -22,7 +22,7 @@ public:
 
 private:
 	/// A button which plays a video when you move the mouse cursor over it
-	class CCampaignButton : public CIntObject
+	class CCampaignButton : public View
 	{
 	private:
 		std::shared_ptr<CLabel> hoverLabel;

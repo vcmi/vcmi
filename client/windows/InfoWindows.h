@@ -84,9 +84,9 @@ public:
 /// popup displayed on R-click
 class CRClickPopupInt : public CRClickPopup
 {
-	std::shared_ptr<CIntObject> inner;
+	std::shared_ptr<View> inner;
 public:
-	CRClickPopupInt(std::shared_ptr<CIntObject> our);
+	CRClickPopupInt(std::shared_ptr<View> our);
 	virtual ~CRClickPopupInt();
 };
 

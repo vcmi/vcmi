@@ -228,7 +228,7 @@ void CWindowObject::showAll(SDL_Surface *to)
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }

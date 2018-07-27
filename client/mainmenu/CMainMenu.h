@@ -42,7 +42,7 @@ class CMenuScreen : public CWindowObject
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CPicture>> images;
 
-	std::shared_ptr<CIntObject> createTab(size_t index);
+	std::shared_ptr<View> createTab(size_t index);
 
 public:
 	std::vector<std::string> menuNameToEntry;
@@ -57,7 +57,7 @@ public:
 	void switchToTab(std::string name);
 };
 
-class CMenuEntry : public CIntObject
+class CMenuEntry : public View
 {
 	std::vector<std::shared_ptr<CPicture>> images;
 	std::vector<std::shared_ptr<CButton>> buttons;
@@ -124,7 +124,7 @@ private:
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
-class CMainMenu : public CIntObject, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
+class CMainMenu : public View, public IUpdateable, public std::enable_shared_from_this<CMainMenu>
 {
 	std::shared_ptr<CFilledTexture> backgroundAroundMenu;
 

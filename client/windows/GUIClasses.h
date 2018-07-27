@@ -40,7 +40,7 @@ class CHeroWithMaybePickedArtifact;
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CWindowObject
 {
-	class CCreatureCard : public CIntObject, public std::enable_shared_from_this<CCreatureCard>
+	class CCreatureCard : public View, public std::enable_shared_from_this<CCreatureCard>
 	{
 		CRecruitmentWindow * parent;
 		std::shared_ptr<CCreaturePic> animation;
@@ -148,7 +148,7 @@ public:
 /// Town portal, castle gate window
 class CObjectListWindow : public CWindowObject
 {
-	class CItem : public CIntObject
+	class CItem : public View
 	{
 		CObjectListWindow * parent;
 		std::shared_ptr<CLabel> text;
@@ -162,7 +162,7 @@ class CObjectListWindow : public CWindowObject
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
-	std::shared_ptr<CIntObject> titleWidget;
+	std::shared_ptr<View> titleWidget;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> descr;
 
@@ -172,7 +172,7 @@ class CObjectListWindow : public CWindowObject
 
 	std::vector< std::pair<int, std::string> > items;//all items present in list
 
-	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr);
+	void init(std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item
@@ -182,10 +182,10 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
 
-	std::shared_ptr<CIntObject> genItem(size_t index);
+	std::shared_ptr<View> genItem(size_t index);
 	void elementSelected();//call callback and close this window
 	void changeSelection(size_t which);
 	void keyPressed (const SDL_KeyboardEvent & key) override;
@@ -238,7 +238,7 @@ public:
 class CTavernWindow : public CWindowObject
 {
 public:
-	class HeroPortrait : public CIntObject
+	class HeroPortrait : public View
 	{
 	public:
 		std::string hoverName;
@@ -375,7 +375,7 @@ public:
 /// Creature transformer window
 class CTransformerWindow : public CWindowObject, public CGarrisonHolder
 {
-	class CItem : public CIntObject
+	class CItem : public View
 	{
 	public:
 		int id;//position of creature in hero army
@@ -416,7 +416,7 @@ public:
 
 class CUniversityWindow : public CWindowObject
 {
-	class CItem : public CIntObject
+	class CItem : public View
 	{
 		std::shared_ptr<CAnimImage> icon;
 		std::shared_ptr<CAnimImage> topBar;
@@ -444,7 +444,7 @@ class CUniversityWindow : public CWindowObject
 
 	std::shared_ptr<CButton> cancel;
 	std::shared_ptr<CGStatusBar> statusBar;
-	std::shared_ptr<CIntObject> titlePic;
+	std::shared_ptr<View> titlePic;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CTextBox> clerkSpeech;
 

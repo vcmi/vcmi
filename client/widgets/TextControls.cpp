@@ -29,7 +29,7 @@ std::string CLabel::visibleText()
 
 void CLabel::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	if(!visibleText().empty())
 		blitLine(to, pos, visibleText());
@@ -186,7 +186,7 @@ CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color colo
 
 void CMultiLineLabel::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	const auto f = graphics->fonts[font];
 

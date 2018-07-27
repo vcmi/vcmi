@@ -396,7 +396,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK, position), CPlayerSettingsHelper(settings, type)
+	: View(RCLICK, position), CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 

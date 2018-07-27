@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/View.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
 
@@ -33,7 +33,7 @@ class CAnimImage;
 class CPlayerInterface;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
-class CBattleConsole : public CIntObject
+class CBattleConsole : public View
 {
 private:
 	std::vector< std::string > texts; //a place where texts are stored
@@ -53,7 +53,7 @@ public:
 };
 
 /// Hero battle animation
-class CBattleHero : public CIntObject
+class CBattleHero : public View
 {
 	void switchToNextPhase();
 public:
@@ -126,7 +126,7 @@ public:
 };
 
 /// Class which stands for a single hex field on a battlefield
-class CClickableHex : public CIntObject
+class CClickableHex : public View
 {
 private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
@@ -147,9 +147,9 @@ public:
 };
 
 /// Shows the stack queue
-class CStackQueue : public CIntObject
+class CStackQueue : public View
 {
-	class StackBox : public CIntObject
+	class StackBox : public View
 	{
 	public:
 		std::shared_ptr<CPicture> background;

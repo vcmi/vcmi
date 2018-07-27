@@ -92,7 +92,7 @@ private:
 
 };
 
-CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, std::function<void()> callback)
+CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<View> object_, std::function<void()> callback)
 	: object(),
 	callback(callback)
 {
@@ -100,7 +100,7 @@ CCommanderSkillIcon::CCommanderSkillIcon(std::shared_ptr<CIntObject> object_, st
 	setObject(object_);
 }
 
-void CCommanderSkillIcon::setObject(std::shared_ptr<CIntObject> newObject)
+void CCommanderSkillIcon::setObject(std::shared_ptr<View> newObject)
 {
 	if(object)
 		removeChild(object.get());
@@ -257,7 +257,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	pos.w = owner->pos.w;
 	pos.h = itemHeight * visibleSize;
 
-	auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
+	auto onCreate = [=](size_t index) -> std::shared_ptr<View>
 	{
 		return std::make_shared<BonusLineSection>(owner, index);
 	};
@@ -426,7 +426,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return skillID >= 100;
 		});
 
-		auto onCreate = [=](int index)->std::shared_ptr<CIntObject>
+		auto onCreate = [=](int index)->std::shared_ptr<View>
 		{
 			for(auto skillID : parent->info->levelupInfo->skills)
 			{
@@ -807,7 +807,7 @@ void CStackWindow::initSections()
 
 	if(info->commander)
 	{
-		auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
+		auto onCreate = [=](size_t index) -> std::shared_ptr<View>
 		{
 			auto obj = switchTab(index);
 
@@ -819,7 +819,7 @@ void CStackWindow::initSections()
 			return obj;
 		};
 
-		auto deactivateObj = [=](std::shared_ptr<CIntObject> obj)
+		auto deactivateObj = [=](std::shared_ptr<View> obj)
 		{
 			obj->deactivate();
 			obj->recActions &= ~(UPDATE | SHOWALL);
@@ -932,9 +932,9 @@ void CStackWindow::setSelection(si32 newSkill, std::shared_ptr<CCommanderSkillIc
 	}
 }
 
-std::shared_ptr<CIntObject> CStackWindow::switchTab(size_t index)
+std::shared_ptr<View> CStackWindow::switchTab(size_t index)
 {
-	std::shared_ptr<CIntObject> ret;
+	std::shared_ptr<View> ret;
 	switch(index)
 	{
 	case 0:

@@ -337,7 +337,7 @@ void CHeroArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
-		CIntObject::showAll(to);
+		View::showAll(to);
 	}
 
 	if(marked && active)

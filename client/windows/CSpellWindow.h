@@ -26,7 +26,7 @@ class CSpell;
 /// The spell window
 class CSpellWindow : public CWindowObject
 {
-	class SpellArea : public CIntObject
+	class SpellArea : public View
 	{
 		const CSpell * mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
@@ -46,7 +46,7 @@ class CSpellWindow : public CWindowObject
 		void hover(bool on) override;
 	};
 
-	class InteractiveArea : public CIntObject
+	class InteractiveArea : public View
 	{
 		std::function<void()> onLeft;
 		CSpellWindow * owner;

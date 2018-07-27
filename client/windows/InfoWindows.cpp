@@ -169,7 +169,7 @@ void CInfoWindow::close()
 
 void CInfoWindow::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 }
 
 CInfoWindow::~CInfoWindow() = default;
@@ -177,7 +177,7 @@ CInfoWindow::~CInfoWindow() = default;
 void CInfoWindow::showAll(SDL_Surface * to)
 {
 	CSimpleWindow::show(to);
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
 void CInfoWindow::showInfoDialog(const std::string &text, const TCompsInfo & components, PlayerColor player)
@@ -345,7 +345,7 @@ CRClickPopup::~CRClickPopup()
 {
 }
 
-CRClickPopupInt::CRClickPopupInt(std::shared_ptr<CIntObject> our)
+CRClickPopupInt::CRClickPopupInt(std::shared_ptr<View> our)
 {
 	CCS->curh->hide();
 	defActions = SHOWALL | UPDATE;

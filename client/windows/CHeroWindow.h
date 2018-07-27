@@ -29,7 +29,7 @@ class CGStatusBar;
 class CTextBox;
 
 /// Button which switches hero selection
-class CHeroSwitcher : public CIntObject
+class CHeroSwitcher : public View
 {
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> image;

@@ -89,7 +89,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
 }
 
-void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
+void CSelectionBase::toggleTab(std::shared_ptr<View> tab)
 {
 	if(curTab && curTab->active)
 	{
@@ -114,7 +114,7 @@ InfoCard::InfoCard()
 	: showChat(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	CIntObject::type |= REDRAW_PARENT;
+	View::type |= REDRAW_PARENT;
 	pos.x += 393;
 	pos.y += 6;
 
@@ -292,7 +292,7 @@ void InfoCard::setChat(bool activateChat)
 }
 
 CChatBox::CChatBox(const Rect & rect)
-	: CIntObject(KEYBOARD | TEXTINPUT)
+	: View(KEYBOARD | TEXTINPUT)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
@@ -327,7 +327,7 @@ void CChatBox::addNewMessage(const std::string & text)
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
-	: CIntObject(RCLICK)
+	: View(RCLICK)
 {
 	pos += rect;
 	pos.w = rect.w;

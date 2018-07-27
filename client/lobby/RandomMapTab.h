@@ -18,7 +18,7 @@ class CToggleButton;
 class CLabel;
 class CLabelGroup;
 
-class RandomMapTab : public CIntObject
+class RandomMapTab : public View
 {
 public:
 	RandomMapTab();

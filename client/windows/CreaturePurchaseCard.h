@@ -17,7 +17,7 @@ class CButton;
 class CreatureCostBox;
 class QuickRecruitmentWindow;
 
-class CreaturePurchaseCard : public CIntObject
+class CreaturePurchaseCard : public View
 {
 public:
 	const CCreature * creatureOnTheCard;

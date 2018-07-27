@@ -14,7 +14,7 @@
 class CMultiLineLabel;
 class SDL_Surface;
 
-class CreditsScreen : public CIntObject
+class CreditsScreen : public View
 {
 	int positionCounter;
 	std::shared_ptr<CMultiLineLabel> credits;

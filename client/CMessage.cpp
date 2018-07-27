@@ -36,7 +36,7 @@ template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, co
 }
 
 //One image component + subtitles below it
-class ComponentResolved : public CIntObject
+class ComponentResolved : public View
 {
 public:
 	std::shared_ptr<CComponent> comp;
@@ -220,7 +220,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	if(ret->text->slider)
 	{
-		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
+		ret->text->slider->addUsedEvents(View::WHEEL | View::KEYBOARD);
 	}
 	else
 	{
@@ -389,7 +389,7 @@ ComponentResolved::~ComponentResolved()
 
 void ComponentResolved::showAll(SDL_Surface *to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	comp->showAll(to);
 }
 

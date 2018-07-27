@@ -1239,7 +1239,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	CComponent localIconC(icon);
 
-	std::shared_ptr<CIntObject> localIcon = localIconC.image;
+	std::shared_ptr<View> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
 	std::shared_ptr<CObjectListWindow> wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);

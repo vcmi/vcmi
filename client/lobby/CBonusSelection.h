@@ -42,7 +42,7 @@ public:
 	};
 
 	class CRegion
-		: public CIntObject
+		: public View
 	{
 		CBonusSelection * owner;
 		std::shared_ptr<CPicture> graphicsNotSelected;

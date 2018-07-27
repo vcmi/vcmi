@@ -32,7 +32,7 @@
 #include "../../lib/mapObjects/CGMarket.h"
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | RCLICK, pos),
+	: View(LCLICK | HOVER | RCLICK, pos),
 	type(EType(-1)),// set to invalid, will be corrected in setType
 	id(ID),
 	serial(Serial),
@@ -160,7 +160,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	if (image)
 	{
 		image->moveTo(pos.topLeft() + posToBitmap);
-		CIntObject::showAll(to);
+		View::showAll(to);
 	}
 
 	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);

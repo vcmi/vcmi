@@ -462,7 +462,7 @@ void CBonusSelection::decreaseDifficulty()
 }
 
 CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc)
-	: CIntObject(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
+	: View(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string colors[2][8] =

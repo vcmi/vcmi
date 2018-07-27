@@ -26,7 +26,7 @@ public:
 		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
 	};
 
-	class CTradeableItem : public CIntObject, public std::enable_shared_from_this<CTradeableItem>
+	class CTradeableItem : public View, public std::enable_shared_from_this<CTradeableItem>
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::string getFilename();

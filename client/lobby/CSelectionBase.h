@@ -58,13 +58,13 @@ public:
 	std::shared_ptr<SelectionTab> tabSel;
 	std::shared_ptr<OptionsTab> tabOpt;
 	std::shared_ptr<RandomMapTab> tabRand;
-	std::shared_ptr<CIntObject> curTab;
+	std::shared_ptr<View> curTab;
 
 	CSelectionBase(ESelectionScreen type);
-	virtual void toggleTab(std::shared_ptr<CIntObject> tab);
+	virtual void toggleTab(std::shared_ptr<View> tab);
 };
 
-class InfoCard : public CIntObject
+class InfoCard : public View
 {
 	std::shared_ptr<CPicture> playerListBg;
 	std::shared_ptr<CPicture> background;
@@ -106,7 +106,7 @@ public:
 	void setChat(bool activateChat);
 };
 
-class CChatBox : public CIntObject
+class CChatBox : public View
 {
 public:
 	std::shared_ptr<CTextBox> chatHistory;
@@ -119,7 +119,7 @@ public:
 	void addNewMessage(const std::string & text);
 };
 
-class CFlagBox : public CIntObject
+class CFlagBox : public View
 {
 	std::shared_ptr<CAnimation> iconsTeamFlags;
 	std::shared_ptr<CLabel> labelAllies;
