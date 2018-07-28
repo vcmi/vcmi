@@ -284,6 +284,11 @@ public:
 		int MAX_HEROES_ON_MAP_PER_PLAYER;
 		bool WINNING_HERO_WITH_NO_TROOPS_RETREATS;
 		bool BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
+		double ATTACK_POINT_DMG_MULTIPLIER;
+		double ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+		double DEFENSE_POINT_DMG_MULTIPLIER;
+		double DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -312,6 +317,21 @@ public:
 			else if(!h.saving)
 			{
 				BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = true;
+			}
+			
+			if(version >= 788)
+			{
+				h & ATTACK_POINT_DMG_MULTIPLIER;
+				h & ATTACK_POINTS_DMG_MULTIPLIER_CAP;
+				h & DEFENSE_POINT_DMG_MULTIPLIER;
+				h & DEFENSE_POINTS_DMG_MULTIPLIER_CAP;
+			}
+			else if(!h.saving)
+			{
+				ATTACK_POINT_DMG_MULTIPLIER = 0.05;
+				ATTACK_POINTS_DMG_MULTIPLIER_CAP = 4.0;
+				DEFENSE_POINT_DMG_MULTIPLIER = 0.025;
+				DEFENSE_POINTS_DMG_MULTIPLIER_CAP = 0.7;
 			}
 		}
 	} settings;
