@@ -1073,16 +1073,13 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			auto backObj = cb->getTopObj(m->o->visitablePos()); //it'll be a hero if we have one there; otherwise marketplace
 			assert(backObj);
 			auto objid = m->o->id.getNum();
-			if (backObj->tempOwner != ai->playerID)
+			if (backObj->tempOwner != ai->playerID) //top object not owned
 			{
-				return sptr(Goals::GetObj(objid));
+				return sptr(Goals::GetObj(objid)); //just go there
 			}
-			else
+			else //either it's our town, or we have hero there
 			{
-				if (m->o->ID == Obj::TOWN) //just trade remotely using town objid
-					return sptr(setobjid(objid).setisElementar(true));
-				else //just go there
-					return sptr(Goals::GetObj(objid));
+				return sptr(setobjid(objid).setisElementar(true));
 			}
 		}
 	}

@@ -2158,7 +2158,7 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 
 void VCAI::tryRealize(Goals::CollectRes & g) //trade
 {
-	if(ah->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this chek, anyway?
+	if(ah->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
