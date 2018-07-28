@@ -1082,7 +1082,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 				if (m->o->ID == Obj::TOWN) //just trade remotely using town objid
 					return sptr(setobjid(objid).setisElementar(true));
 				else //just go there
-					return sptr(Goals::GetObj(objid).setisElementar(true));
+					return sptr(Goals::GetObj(objid));
 			}
 		}
 	}
