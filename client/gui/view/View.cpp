@@ -330,7 +330,7 @@ CKeyShortcut::CKeyShortcut(int key)
 		assignedKeys.insert(key);
 }
 
-CKeyShortcut::CKeyShortcut(std::set<int> Keys)
+CKeyShortcut::CKeyShortcut(std::set<int> & Keys)
 	:assignedKeys(Keys)
 {}
 

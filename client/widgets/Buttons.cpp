@@ -149,15 +149,10 @@ void CButton::onButtonClicked()
 	std::string prefix = "Parent is";
 	while (parent != nullptr)
 	{
-		logAnim->error("crash1");
-		
 		logAnim->trace("%s%s at %dx%d", prefix, typeid(*parent).name(), parent->pos.x, parent->pos.y);
 		parent = parent->getParent();
-		logAnim->error("crash2");
-		
 		prefix = '\t' + prefix;
 	}
-	logAnim->error("po petli");
 	
 	callback();
 }

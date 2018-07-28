@@ -21,15 +21,6 @@ struct SDL_KeyboardEvent;
 
 using boost::logic::tribool;
 
-// Defines a activate/deactive method
-class IActivatable
-{
-public:
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-	virtual ~IActivatable(){};
-};
-
 class IUpdateable
 {
 public:
@@ -37,22 +28,19 @@ public:
 	virtual ~IUpdateable(){};
 };
 
-// Defines a show method
-class IShowable
+class IShowActivatable
 {
 public:
+	virtual void activate()=0;
+	virtual void deactivate()=0;
 	virtual void redraw()=0;
 	virtual void show(SDL_Surface * to) = 0;
 	virtual void showAll(SDL_Surface * to)
 	{
 		show(to);
 	}
-	virtual ~IShowable(){};
-};
-
-class IShowActivatable : public IShowable, public IActivatable
-{
-public:
+	
+	
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
 	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
 	int type; //bin flags using etype
@@ -99,7 +87,7 @@ public:
 
 	virtual void onDoubleClick(){}
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024};
 	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
@@ -152,7 +140,6 @@ private:
 	//TODO make parent const
 	View * parent = nullptr;
 private:
-	
 	ui16 used;
 	
 	int toNextTick;
@@ -171,8 +158,8 @@ class CKeyShortcut : public virtual View
 public:
 	std::set<int> assignedKeys;
 	CKeyShortcut();
-	CKeyShortcut(int key);
-	CKeyShortcut(std::set<int> Keys);
+	explicit CKeyShortcut(int key);
+	explicit CKeyShortcut(std::set<int> & Keys);
 	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
 };
 
