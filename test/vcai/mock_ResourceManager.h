@@ -13,7 +13,7 @@ class ResourceManagerMock : public ResourceManager
 public:
 	using ResourceManager::ResourceManager;
 	//access protected members, TODO: consider other architecture?
-	void reserveResoures(TResources &res, Goals::TSubgoal goal = Goals::TSubgoal()) override;
+	void reserveResoures(const TResources &res, Goals::TSubgoal goal = Goals::TSubgoal()) override;
 	bool updateGoal(Goals::TSubgoal goal) override;
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;
 };

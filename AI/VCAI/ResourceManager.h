@@ -85,7 +85,7 @@ public:
 	bool hasTasksLeft() const override;
 
 protected: //not-const actions only for AI
-	virtual void reserveResoures(TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
+	virtual void reserveResoures(const TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal);
 	virtual bool updateGoal(Goals::TSubgoal goal); //new goal must have same properties but different priority
 	virtual bool tryPush(const ResourceObjective &o);

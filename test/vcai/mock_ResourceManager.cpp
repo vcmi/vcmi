@@ -2,7 +2,7 @@
 
 #include "mock_ResourceManager.h"
 
-void ResourceManagerMock::reserveResoures(TResources &res, Goals::TSubgoal goal)
+void ResourceManagerMock::reserveResoures(const TResources &res, Goals::TSubgoal goal)
 {
 	ResourceManager::reserveResoures(res, goal);
 }

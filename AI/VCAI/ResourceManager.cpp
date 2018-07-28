@@ -77,7 +77,7 @@ TResources ResourceManager::estimateIncome() const
 	return ret;
 }
 
-void ResourceManager::reserveResoures(TResources & res, Goals::TSubgoal goal)
+void ResourceManager::reserveResoures(const TResources & res, Goals::TSubgoal goal)
 {
 	if (!goal->invalid())
 		tryPush(ResourceObjective(res, goal));
