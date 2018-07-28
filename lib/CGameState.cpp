@@ -1979,6 +1979,12 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 	pathfinder.calculatePaths();
 }
 
+void CGameState::calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero)
+{
+	CPathfinder pathfinder(this, hero, config);
+	pathfinder.calculatePaths();
+}
+
 /**
  * Tells if the tile is guarded by a monster as well as the position
  * of the monster that will attack on it.

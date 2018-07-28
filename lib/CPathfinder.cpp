@@ -41,7 +41,7 @@ std::vector<CGPathNode *> CNeighbourFinder::calculateNeighbours(
 	{
 		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
 		{
-			auto node = pathfinderConfig->nodeHelper->getNode(neighbour, i);
+			auto node = pathfinderConfig->nodeStorage->getNode(neighbour, i);
 
 			if(node->accessible == CGPathNode::NOT_SET)
 				continue;
@@ -63,7 +63,7 @@ std::vector<CGPathNode *> CNeighbourFinder::calculateTeleportations(
 
 	for(auto & neighbour : accessibleExits)
 	{
-		auto node = pathfinderConfig->nodeHelper->getNode(neighbour, source.node->layer);
+		auto node = pathfinderConfig->nodeStorage->getNode(neighbour, source.node->layer);
 
 		neighbours.push_back(node);
 	}
@@ -96,17 +96,22 @@ std::vector<int3> CNeighbourFinder::getNeighbourTiles(
 	return neighbourTiles;
 }
 
-class CPathfinderNodeHelper : public CNodeHelper
+class CPathfinderNodeStorage : public CNodeStorage
 {
 private:
 	CPathsInfo & out;
 
 public:
-	CPathfinderNodeHelper(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
+	CPathfinderNodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 		:out(pathsInfo)
 	{
 		out.hero = hero;
 		out.hpos = hero->getPosition(false);
+	}
+
+	virtual boost::mutex & getMutex()
+	{
+		return out.pathMx;
 	}
 
 	virtual CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer)
@@ -189,10 +194,10 @@ public:
 };
 
 CPathfinderConfig::CPathfinderConfig(
-	std::shared_ptr<CNodeHelper> nodeHelper,
+	std::shared_ptr<CNodeStorage> nodeStorage,
 	std::shared_ptr<CNeighbourFinder> neighbourFinder,
 	std::vector<std::shared_ptr<IPathfindingRule>> rules)
-	: nodeHelper(nodeHelper), neighbourFinder(neighbourFinder), rules(rules), options()
+	: nodeStorage(nodeStorage), neighbourFinder(neighbourFinder), rules(rules), options()
 {
 }
 
@@ -204,7 +209,7 @@ CPathfinder::CPathfinder(
 		_gs,
 		_hero,
 		std::make_shared<CPathfinderConfig>(
-			std::make_shared<CPathfinderNodeHelper>(_out, _hero),
+			std::make_shared<CPathfinderNodeStorage>(_out, _hero),
 			std::make_shared<CNeighbourFinder>(),
 			std::vector<std::shared_ptr<IPathfindingRule>>{
 				std::make_shared<CMovementCostRule>(),
@@ -238,7 +243,7 @@ void CPathfinder::calculatePaths()
 	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
 
 	//initial tile - set cost on 0 and add to the queue
-	CGPathNode * initialNode = config->nodeHelper->getInitialNode();
+	CGPathNode * initialNode = config->nodeStorage->getInitialNode();
 
 	if(!isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
 	{
@@ -759,7 +764,7 @@ CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 
 bool CPathfinder::isSourceInitialPosition() const
 {
-	return source.node->coord == config->nodeHelper->getInitialNode()->coord;
+	return source.node->coord == config->nodeStorage->getInitialNode()->coord;
 }
 
 bool CPathfinder::isSourceGuarded() const
@@ -810,7 +815,7 @@ void CPathfinder::initializeGraph()
 {
 	auto updateNode = [&](int3 pos, ELayer layer, const TerrainTile * tinfo)
 	{
-		auto node = config->nodeHelper->getNode(pos, layer);
+		auto node = config->nodeStorage->getNode(pos, layer);
 		auto accessibility = evaluateAccessibility(pos, tinfo, layer);
 		node->update(pos, layer, accessibility);
 	};

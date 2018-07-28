@@ -127,11 +127,12 @@ struct DLL_LINKAGE CDestinationNodeInfo : public CPathNodeInfo
 	virtual bool isBetterWay();
 };
 
-class CNodeHelper
+class CNodeStorage
 {
 public:
 	virtual CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer) = 0;
 	virtual CGPathNode * getInitialNode() = 0;
+	virtual boost::mutex & getMutex() = 0;
 };
 
 class CPathfinderHelper;
@@ -237,13 +238,13 @@ struct DLL_LINKAGE PathfinderOptions
 class CPathfinderConfig
 {
 public:
-	std::shared_ptr<CNodeHelper> nodeHelper;
+	std::shared_ptr<CNodeStorage> nodeStorage;
 	std::shared_ptr<CNeighbourFinder> neighbourFinder;
 	std::vector<std::shared_ptr<IPathfindingRule>> rules;
 	PathfinderOptions options;
 
 	CPathfinderConfig(
-		std::shared_ptr<CNodeHelper> nodeHelper,
+		std::shared_ptr<CNodeStorage> nodeStorage,
 		std::shared_ptr<CNeighbourFinder> neighbourFinder,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
 };

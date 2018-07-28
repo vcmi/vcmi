@@ -291,6 +291,11 @@ const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
 	return cl->getPathsInfo(h);
 }
 
+void CCallback::calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero)
+{
+	cl->calculatePaths(config, hero);
+}
+
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
 {
 	if (!gs->map->isInTheMap(tile))

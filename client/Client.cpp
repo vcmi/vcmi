@@ -628,6 +628,13 @@ const CPathsInfo * CClient::getPathsInfo(const CGHeroInstance * h)
 	return pathInfo.get();
 }
 
+void CClient::calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero)
+{
+	boost::unique_lock<boost::mutex> pathLock(config->nodeStorage->getMutex());
+	
+	gs->calculatePaths(config, hero);
+}
+
 PlayerColor CClient::getLocalPlayer() const
 {
 	if(LOCPLINT)
