@@ -21,7 +21,18 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler->isStaticObject())
 			{
-				objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getRMGInfo().value;
+				if(handler->getAiValue().is_initialized())
+				{
+					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = handler->getAiValue().value();
+				}
+				else if(VLC->objtypeh->getObjGroupAiValue(primaryID).is_initialized()) //if value is not initialized - fallback to default value for this object family if it exists
+				{
+					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = VLC->objtypeh->getObjGroupAiValue(primaryID).value();
+				}
+				else
+				{
+					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0; //some default handling when aiValue not found
+				}
 			}
 		}	
 	}
