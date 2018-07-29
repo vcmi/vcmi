@@ -23,14 +23,21 @@ namespace Goals
 {
 class AbstractGoal;
 class VisitTile;
-typedef std::shared_ptr<Goals::AbstractGoal> TSubgoal;
+
+class DLL_EXPORT TSubgoal : public std::shared_ptr<Goals::AbstractGoal>
+{
+	public:
+		bool operator==(const TSubgoal & rhs) const;
+	//TODO: serialize?
+};
 typedef std::vector<TSubgoal> TGoalVec;
 
 enum EGoals
 {
 	INVALID = -1,
 	WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
-	EXPLORE, GATHER_ARMY, BOOST_HERO,
+	EXPLORE, GATHER_ARMY,
+	BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
@@ -48,7 +55,8 @@ enum EGoals
 
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
 	CLEAR_WAY_TO,
-	DIG_AT_TILE //elementar with hero on tile
+	DIG_AT_TILE,//elementar with hero on tile
+	BUY_ARMY //at specific town
 };
 
 	//method chaining + clone pattern
@@ -61,9 +69,9 @@ enum EGoals
 
 enum {LOW_PR = -1};
 
-TSubgoal sptr(const AbstractGoal & tmp);
+DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
 
-class AbstractGoal
+class DLL_EXPORT AbstractGoal
 {
 public:
 	bool isElementar; VSETTER(bool, isElementar)
@@ -129,7 +137,7 @@ public:
 	virtual bool operator==(AbstractGoal & g);
 	virtual bool fulfillsMe(Goals::TSubgoal goal) //TODO: multimethod instead of type check
 	{
-		return false;
+		return false; //use this method to check if goal is fulfilled by another (not equal) goal, operator == is handled spearately
 	}
 
 	template<typename Handler> void serialize(Handler & h, const int version)
@@ -149,7 +157,7 @@ public:
 	}
 };
 
-template<typename T> class CGoal : public AbstractGoal
+template<typename T> class DLL_EXPORT CGoal : public AbstractGoal
 {
 public:
 	CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
@@ -186,8 +194,8 @@ public:
 	}
 	TSubgoal iAmElementar()
 	{
-		setisElementar(true);
-		std::shared_ptr<AbstractGoal> ptr;
+		setisElementar(true); //FIXME: it's not const-correct, maybe we shoudl only set returned clone?
+		TSubgoal ptr;
 		ptr.reset(clone());
 		return ptr;
 	}
@@ -199,7 +207,7 @@ public:
 	}
 };
 
-class Invalid : public CGoal<Invalid>
+class DLL_EXPORT Invalid : public CGoal<Invalid>
 {
 public:
 	Invalid()
@@ -214,7 +222,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Win : public CGoal<Win>
+class DLL_EXPORT Win : public CGoal<Win>
 {
 public:
 	Win()
@@ -229,7 +237,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class NotLose : public CGoal<NotLose>
+class DLL_EXPORT NotLose : public CGoal<NotLose>
 {
 public:
 	NotLose()
@@ -244,7 +252,7 @@ public:
 	//TSubgoal whatToDoToAchieve() override;
 };
 
-class Conquer : public CGoal<Conquer>
+class DLL_EXPORT Conquer : public CGoal<Conquer>
 {
 public:
 	Conquer()
@@ -256,7 +264,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class Build : public CGoal<Build>
+class DLL_EXPORT Build : public CGoal<Build>
 {
 public:
 	Build()
@@ -269,9 +277,10 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class Explore : public CGoal<Explore>
+class DLL_EXPORT Explore : public CGoal<Explore>
 {
 public:
 	Explore()
@@ -291,7 +300,7 @@ public:
 	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class GatherArmy : public CGoal<GatherArmy>
+class DLL_EXPORT GatherArmy : public CGoal<GatherArmy>
 {
 public:
 	GatherArmy()
@@ -309,7 +318,28 @@ public:
 	std::string completeMessage() const override;
 };
 
-class BoostHero : public CGoal<BoostHero>
+class DLL_EXPORT BuyArmy : public CGoal<BuyArmy>
+{
+private:
+	BuyArmy()
+		: CGoal(Goals::BUY_ARMY)
+	{}
+public:
+	BuyArmy(const CGTownInstance * Town, int val)
+		: CGoal(Goals::BUY_ARMY)
+	{
+		town = Town; //where to buy this army
+		value = val; //expressed in AI unit strength
+		priority = 2;//TODO: evaluate?
+	}
+	bool operator==(BuyArmy & g);
+	bool fulfillsMe(TSubgoal goal) override;
+
+	TSubgoal whatToDoToAchieve() override;
+	std::string completeMessage() const override;
+};
+
+class DLL_EXPORT BoostHero : public CGoal<BoostHero>
 {
 public:
 	BoostHero()
@@ -324,7 +354,7 @@ public:
 	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());};
 };
 
-class RecruitHero : public CGoal<RecruitHero>
+class DLL_EXPORT RecruitHero : public CGoal<RecruitHero>
 {
 public:
 	RecruitHero()
@@ -337,37 +367,37 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool operator==(RecruitHero & g);
 };
 
-class BuildThis : public CGoal<BuildThis>
+class DLL_EXPORT BuildThis : public CGoal<BuildThis>
 {
 public:
-	BuildThis()
+	BuildThis() //should be private, but unit test uses it
 		: CGoal(Goals::BUILD_STRUCTURE)
-	{
-		//FIXME: should be not allowed (private)
-	}
+	{}
 	BuildThis(BuildingID Bid, const CGTownInstance * tid)
 		: CGoal(Goals::BUILD_STRUCTURE)
 	{
 		bid = Bid;
 		town = tid;
-		priority = 5;
+		priority = 1;
 	}
 	BuildThis(BuildingID Bid)
 		: CGoal(Goals::BUILD_STRUCTURE)
 	{
 		bid = Bid;
-		priority = 5;
+		priority = 1;
 	}
 	TGoalVec getAllPossibleSubgoals() override
 	{
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	//bool fulfillsMe(TSubgoal goal) override;
 };
 
-class CollectRes : public CGoal<CollectRes>
+class DLL_EXPORT CollectRes : public CGoal<CollectRes>
 {
 public:
 	CollectRes()
@@ -381,14 +411,13 @@ public:
 		value = val;
 		priority = 2;
 	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	};
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	TSubgoal whatToDoToTrade();
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class GatherTroops : public CGoal<GatherTroops>
+class DLL_EXPORT GatherTroops : public CGoal<GatherTroops>
 {
 public:
 	GatherTroops()
@@ -408,9 +437,10 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class GetObj : public CGoal<GetObj>
+class DLL_EXPORT GetObj : public CGoal<GetObj>
 {
 public:
 	GetObj() {} // empty constructor not allowed
@@ -434,7 +464,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class FindObj : public CGoal<FindObj>
+class DLL_EXPORT FindObj : public CGoal<FindObj>
 {
 public:
 	FindObj() {} // empty constructor not allowed
@@ -443,6 +473,7 @@ public:
 		: CGoal(Goals::FIND_OBJ)
 	{
 		objid = ID;
+		resID = -1; //subid unspecified
 		priority = 1;
 	}
 	FindObj(int ID, int subID)
@@ -457,9 +488,10 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class VisitHero : public CGoal<VisitHero>
+class DLL_EXPORT VisitHero : public CGoal<VisitHero>
 {
 public:
 	VisitHero()
@@ -485,7 +517,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class GetArtOfType : public CGoal<GetArtOfType>
+class DLL_EXPORT GetArtOfType : public CGoal<GetArtOfType>
 {
 public:
 	GetArtOfType()
@@ -505,7 +537,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 };
 
-class VisitTile : public CGoal<VisitTile>
+class DLL_EXPORT VisitTile : public CGoal<VisitTile>
 	//tile, in conjunction with hero elementar; assumes tile is reachable
 {
 public:
@@ -526,7 +558,7 @@ public:
 	std::string completeMessage() const override;
 };
 
-class ClearWayTo : public CGoal<ClearWayTo>
+class DLL_EXPORT ClearWayTo : public CGoal<ClearWayTo>
 {
 public:
 	ClearWayTo()
@@ -552,9 +584,10 @@ public:
 	{
 		return g.goalType == goalType && g.tile == tile;
 	}
+	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class DigAtTile : public CGoal<DigAtTile>
+class DLL_EXPORT DigAtTile : public CGoal<DigAtTile>
 	//elementar with hero on tile
 {
 public:
@@ -579,7 +612,7 @@ public:
 	}
 };
 
-class CIssueCommand : public CGoal<CIssueCommand>
+class DLL_EXPORT CIssueCommand : public CGoal<CIssueCommand>
 {
 	std::function<bool()> command;
 

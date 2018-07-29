@@ -28,6 +28,21 @@ Res::ResourceSet::ResourceSet(const JsonNode & node)
 		push_back(node[name].Float());
 }
 
+Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,
+							TResource gems, TResource gold, TResource mithril)
+{
+	resize(GameConstants::RESOURCE_QUANTITY);
+	auto d = data();
+	d[Res::WOOD] = wood;
+	d[Res::MERCURY] = mercury;
+	d[Res::ORE] = ore;
+	d[Res::SULFUR] = sulfur;
+	d[Res::CRYSTAL] = crystal;
+	d[Res::GEMS] = gems;
+	d[Res::GOLD] = gold;
+	d[Res::MITHRIL] = mithril;
+}
+
 void Res::ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	if(!handler.saving)

@@ -322,7 +322,7 @@ float FuzzyHelper::evaluate(Goals::Explore & g)
 }
 float FuzzyHelper::evaluate(Goals::RecruitHero & g)
 {
-	return 1; //just try to recruit hero as one of options
+	return 1;
 }
 FuzzyHelper::EvalVisitTile::~EvalVisitTile()
 {
@@ -518,7 +518,7 @@ float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 
 float FuzzyHelper::evaluate(Goals::BuildThis & g)
 {
-	return 1;
+	return g.priority; //TODO
 }
 float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 {
@@ -526,11 +526,15 @@ float FuzzyHelper::evaluate(Goals::DigAtTile & g)
 }
 float FuzzyHelper::evaluate(Goals::CollectRes & g)
 {
-	return 0;
+	return g.priority; //handled by ResourceManager
 }
 float FuzzyHelper::evaluate(Goals::Build & g)
 {
 	return 0;
+}
+float FuzzyHelper::evaluate(Goals::BuyArmy & g)
+{
+	return g.priority;
 }
 float FuzzyHelper::evaluate(Goals::Invalid & g)
 {
@@ -541,7 +545,7 @@ float FuzzyHelper::evaluate(Goals::AbstractGoal & g)
 	logAi->warn("Cannot evaluate goal %s", g.name());
 	return g.priority;
 }
-void FuzzyHelper::setPriority(Goals::TSubgoal & g)
+void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pattern
 {
 	g->setpriority(g->accept(this)); //this enforces returned value is set
 }
