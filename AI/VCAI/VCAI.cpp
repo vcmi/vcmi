@@ -1540,12 +1540,12 @@ void VCAI::wander(HeroPtr h)
 
 		if(dests.size()) //performance improvement
 		{
-			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool
+			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool //TODO: create elementar GetObj goal usable for goal decomposition and Wander based on VisitTile logic and object value on top of it
 			{
 				return fh->getWanderTargetObjectValue( *h.get(), l) < fh->getWanderTargetObjectValue(*h.get(), r);
 			};
 
-			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation
+			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation, TODO: use elementar version of GetObj here in future
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());

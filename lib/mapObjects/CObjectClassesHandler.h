@@ -219,7 +219,7 @@ public:
 		{
 			h & sounds;
 		}
-		if(version >= 788)
+		if(version >= 789)
 		{
 			h & aiValue;
 		}
@@ -262,7 +262,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 			{
 				h & sounds;
 			}
-			if(version >= 788)
+			if(version >= 789)
 			{
 				h & groupDefaultAiValue;
 			}
