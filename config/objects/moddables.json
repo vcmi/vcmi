@@ -23,6 +23,7 @@
 	"hero" : {
 		"index" :34,
 		"handler": "hero",
+		"defaultAiValue" : 5000,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -63,14 +64,14 @@
 			}
 		},
 		"types" : {
-			"wood" :    { "index" : 0, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
-			"mercury" : { "index" : 1, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
-			"ore" :     { "index" : 2, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
-			"sulfur" :  { "index" : 3, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
-			"crystal" : { "index" : 4, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
-			"gems" :    { "index" : 5, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
-			"gold" :    { "index" : 6, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
-			"mithril" : { "index" : 7 } // TODO: move to WoG?
+			"wood" :    { "index" : 0, "aiValue" : 1400, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTwood0.def" } } },
+			"mercury" : { "index" : 1, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTmerc0.def" } } },
+			"ore" :     { "index" : 2, "aiValue" : 1400, "rmg" : { "value" : 1400, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTore0.def"  } } },
+			"sulfur" :  { "index" : 3, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTsulf0.def" } } },
+			"crystal" : { "index" : 4, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTcrys0.def" } } },
+			"gems" :    { "index" : 5, "aiValue" : 2000, "rmg" : { "value" : 2000, "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgems0.def" } } },
+			"gold" :    { "index" : 6, "aiValue" : 750, "rmg" : { "value" : 750,  "rarity" : 300 }, "templates" : { "res" : { "animation" : "AVTgold0.def" } } },
+			"mithril" : { "index" : 7, "aiValue" : 3500 } // TODO: move to WoG?
 		}
 	},
 	
@@ -78,6 +79,7 @@
 	"town" : {
 		"index" :98,
 		"handler": "town",
+		"defaultAiValue" : 20000,
 		"base" : {
 			"filters" : {
 				// village image - fort not present
@@ -107,6 +109,7 @@
 	"boat" : {
 		"index" :8,
 		"handler": "boat",
+		"defaultAiValue" : 0,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -124,6 +127,7 @@
 	"borderGuard" : {
 		"index" :9,
 		"handler": "borderGuard",
+		"defaultAiValue" : 0,
 		"base" : {
 			"sounds" : {
 				"visit" : ["CAVEHEAD"],
@@ -144,6 +148,7 @@
 	"borderGate" : {
 		"index" :212,
 		"handler": "borderGate",
+		"defaultAiValue" : 0,
 		"base" : {
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
@@ -163,6 +168,7 @@
 	"keymasterTent" : {
 		"index" :10,
 		"handler": "keymaster",
+		"defaultAiValue" : 10000,
 		"base" : {
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
@@ -183,6 +189,7 @@
 	"seerHut" : {
 		"index" :83,
 		"handler": "seerHut",
+		"defaultAiValue" : 10000,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "---", "+++", "+++" ],
@@ -209,9 +216,9 @@
 			}
 		},
 		"types" : {
-			"water" : { "index" : 0, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
-			"land" : { "index" : 1, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
-			"subterra" : { "index" : 2, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
+			"water" : { "index" : 0, "aiValue" : 5000, "rmg" : { "zoneLimit" : 1,  "value" : 5000, "rarity" : 20 } },
+			"land" : { "index" : 1, "aiValue": 10000, "rmg" : { "zoneLimit" : 1,  "value" : 10000, "rarity" : 20 } },
+			"subterra" : { "index" : 2, "aiValue" : 7500, "rmg" : { "zoneLimit" : 1,  "value" : 7500, "rarity" : 20 } }
 		}
 	},
 
@@ -227,6 +234,7 @@
 		"types" : {
 			"sawmill" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value" : 1500
 				},
@@ -236,6 +244,7 @@
 			},
 			"alchemistLab" : {
 				"index" : 1,
+				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
@@ -245,6 +254,7 @@
 			},
 			"orePit" : {
 				"index" : 2,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value" : 1500
 				},
@@ -254,6 +264,7 @@
 			},
 			"sulfurDune" : {
 				"index" : 3,
+				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
@@ -263,6 +274,7 @@
 			},
 			"crystalCavern" : {
 				"index" : 4,
+				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
@@ -272,6 +284,7 @@
 			},
 			"gemPond" : {
 				"index" : 5,
+				"aiValue" : 3500,
 				"rmg" : {
 					"value" : 3500
 				},
@@ -281,6 +294,7 @@
 			},
 			"goldMine" : {
 				"index" : 6,
+				"aiValue" : 7000,
 				"rmg" : {
 					"value" : 7000
 				},
@@ -290,6 +304,7 @@
 			},
 			"abandoned" :	{
 				"index" : 7,
+				"aiValue" : 3500,
 				"sounds" : {
 					"ambient" : ["LOOPCAVE"],
 					"visit" : ["MYSTERY"]
@@ -300,6 +315,7 @@
 	"abandonedMine" : {
 		"index" :220,
 		"handler": "mine",
+		"defaultAiValue" : 3500,
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPCAVE"]
@@ -313,6 +329,7 @@
 	"garrisonHorizontal": {
 		"index" :33,
 		"handler": "garrison",
+		"defaultAiValue" : 0,
 		"base" : {
 			"sounds" : {
 				"visit" : ["MILITARY"]
@@ -336,6 +353,7 @@
 	"garrisonVertical" : {
 		"index" :219,
 		"handler": "garrison",
+		"defaultAiValue" : 0,
 		"base" : {
 			"sounds" : {
 				"visit" : ["MILITARY"]
@@ -454,6 +472,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"templates" : {
 					"normal" : {
 						"visitableFrom" : [ "+++", "+-+", "+++" ],

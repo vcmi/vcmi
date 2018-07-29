@@ -12,6 +12,7 @@
 			{
 				"index" : 0,
 				"name" : "Cyclops Stockpile",
+				"aiValue" : 3000,
 				"sounds" : {
 					"ambient" : ["LOOPCAVE"]
 				},
@@ -120,6 +121,7 @@
 				"index" : 1,
 				"resetDuration" : 0,
 				"name" : "Dwarven Treasury",
+				"aiValue" : 2000,
 				"sounds" : {
 					"ambient" : ["LOOPDWAR"]
 				},
@@ -210,6 +212,7 @@
 				"index" : 2,
 				"resetDuration" : 0,
 				"name" : "Griffin Conservatory",
+				"aiValue" : 9000,
 				"sounds" : {
 					"ambient" : ["LOOPGRIF"]
 				},
@@ -284,6 +287,7 @@
 				"index" : 3,
 				"resetDuration" : 0,
 				"name" : "Imp Cache",
+				"aiValue" : 1500,
 				"sounds" : {
 					"ambient" : ["LOOPFIRE"]
 				},
@@ -373,6 +377,7 @@
 				"index" : 4,
 				"resetDuration" : 0,
 				"name" : "Medusa Stores",
+				"aiValue" : 1500,
 				"sounds" : {
 					"ambient" : ["LOOPMEDU"]
 				},
@@ -463,6 +468,7 @@
 				"index" : 5,
 				"resetDuration" : 0,
 				"name" : "Naga Bank",
+				"aiValue" : 3000,
 				"sounds" : {
 					"ambient" : ["LOOPNAGA"]
 				},
@@ -553,6 +559,7 @@
 				"index" : 6,
 				"resetDuration" : 0,
 				"name" : "Dragon Fly Hive",
+				"aiValue" : 9000,
 				"sounds" : {
 					"ambient" : ["LOOPLEAR"]
 				},
@@ -633,6 +640,7 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Shipwreck",
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -724,6 +732,7 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Derelict Ship",
+				"aiValue" : 4000,
 				"rmg" : {
 					"value"		: 4000,
 					"rarity"	: 20
@@ -822,6 +831,7 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Crypt",
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1000,
 					"rarity"	: 100
@@ -917,6 +927,7 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Dragon Utopia",
+				"aiValue" : 11000,
 				"rmg" : {
 					"value"		: 10000,
 					"rarity"	: 100
@@ -1031,6 +1042,7 @@
 				"index" : 0,
 				"resetDuration" : 0,
 				"name" : "Pyramid",
+				"aiValue" : 8000,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 20
