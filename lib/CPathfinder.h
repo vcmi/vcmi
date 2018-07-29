@@ -96,15 +96,62 @@ struct DLL_LINKAGE CPathsInfo
 	CGPathNode * getNode(const int3 & coord, const ELayer layer);
 };
 
+struct DLL_LINKAGE CPathNodeInfo
+{
+	CGPathNode * node;
+	const CGObjectInstance * nodeObject;
+	const TerrainTile * tile;
+	int3 coord;
+	bool blocked;
+	bool furtherProcessingImpossible;
+
+	CPathNodeInfo();
+
+	void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false);
+
+	bool isNodeObjectVisitable() const;
+};
+
+class CNodeHelper
+{
+public:
+	virtual CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer) = 0;
+	virtual CGPathNode * getInitialNode() = 0;
+};
+
+class CPathfinder;
+
+class CNeighbourFinder
+{
+protected:
+	CPathfinder * pathfinder;
+	std::vector<int3> neighbourTiles;
+	std::vector<int3> accessibleNeighbourTiles;
+	std::vector<CGPathNode *> neighbours;
+
+public:
+	CNeighbourFinder(CPathfinder * pathfinder);
+	virtual std::vector<CGPathNode *> & calculateNeighbours();
+
+protected:
+	void addNeighbourTiles();
+};
+
 class CPathfinder : private CGameInfoCallback
 {
 public:
 	friend class CPathfinderHelper;
 
 	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
+	CPathfinder(
+		CGameState * _gs, 
+		const CGHeroInstance * _hero, 
+		std::shared_ptr<CNodeHelper> nodeHelper, 
+		std::shared_ptr<CNeighbourFinder> neighbourFinder);
+
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
-private:
+//private:
 	typedef EPathfindingLayer ELayer;
 
 	struct PathfinderOptions
@@ -158,10 +205,11 @@ private:
 		PathfinderOptions();
 	} options;
 
-	CPathsInfo & out;
 	const CGHeroInstance * hero;
 	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
+	std::shared_ptr<CNodeHelper> nodeHelper;
+	std::shared_ptr<CNeighbourFinder> neighbourFinder;
 
 	enum EPatrolState {
 		PATROL_NONE = 0,
@@ -187,13 +235,11 @@ private:
 	std::vector<int3> neighbourTiles;
 	std::vector<int3> neighbours;
 
-	CGPathNode * cp; //current (source) path node -> we took it from the queue
-	CGPathNode * dp; //destination node -> it's a neighbour of cp that we consider
-	const TerrainTile * ct, * dt; //tile info for both nodes
-	const CGObjectInstance * ctObj, * dtObj;
+	CPathNodeInfo source; //current (source) path node -> we took it from the queue
+	CPathNodeInfo destination; //destination node -> it's a neighbour of source that we consider
 	CGPathNode::ENodeAction destAction;
 
-	void addNeighbours();
+	void populateNeighbourTiles(std::vector<int3> & neighbourTiles);
 	void addTeleportExits();
 
 	bool isHeroPatrolLocked() const;
@@ -202,14 +248,12 @@ private:
 	bool isLayerTransitionPossible(const ELayer dstLayer) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
-	bool isMovementAfterDestPossible() const;
+	void checkMovementAfterDestPossible();
 	CGPathNode::ENodeAction getDestAction() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 
 	bool isSourceInitialPosition() const;
-	bool isSourceVisitableObj() const;
 	bool isSourceGuarded() const;
-	bool isDestVisitableObj() const;
 	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
 	bool isDestinationGuardian() const;
 
@@ -217,8 +261,6 @@ private:
 	void initializeGraph();
 
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
-	bool isVisitableObj(const CGObjectInstance * obj, const ELayer layer) const;
-	bool canSeeObj(const CGObjectInstance * obj) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
@@ -270,8 +312,37 @@ public:
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 
 	static void getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
+	
+	static int getMovementCost(
+		const CGHeroInstance * h, 
+		const int3 & src, 
+		const int3 & dst, 
+		const TerrainTile * ct,
+		const TerrainTile * dt,
+		const int remainingMovePoints =- 1, 
+		const TurnInfo * ti = nullptr, 
+		const bool checkLast = true);
 
-	static int getMovementCost(const CGHeroInstance * h, const int3 & src, const int3 & dst, const TerrainTile * ct, const TerrainTile * dt, const int remainingMovePoints =- 1, const TurnInfo * ti = nullptr, const bool checkLast = true);
+	static int getMovementCost(
+		const CGHeroInstance * h,
+		const CPathNodeInfo & src,
+		const CPathNodeInfo & dst,
+		const int remainingMovePoints = -1,
+		const TurnInfo * ti = nullptr,
+		const bool checkLast = true)
+	{
+		return getMovementCost(
+			h,
+			src.coord,
+			dst.coord,
+			src.tile,
+			dst.tile,
+			remainingMovePoints,
+			ti,
+			checkLast
+		);
+	}
+
 	static int getMovementCost(const CGHeroInstance * h, const int3 & dst);
 
 private:
