@@ -12,6 +12,7 @@
 #include "VCAI.h"
 #include "Fuzzy.h"
 #include "ResourceManager.h"
+#include "BuildingManager.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
 #include "../../lib/StringConstants.h"
@@ -1367,10 +1368,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				}
 			}
 			//build dwelling
-			auto bid = ai->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
-			if (bid != BuildingID::NONE)
+			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			if (bid.is_initialized())
 			{
-				auto goal = sptr(BuildThis(bid, t).setpriority(priority));
+				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 					ret.push_back(goal);
 			}

@@ -19,6 +19,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../CCallback.h"
 #include "VCAI.h"
+#include "MapObjectsEvaluator.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -97,6 +98,8 @@ FuzzyHelper::FuzzyHelper()
 	ta.configure();
 	initVisitTile();
 	vt.configure();
+	initWanderTarget();
+	wanderTarget.configure();
 }
 
 
@@ -199,6 +202,20 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 }
 
+float FuzzyHelper::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
+{
+	float turns = 0.0f;
+	float distance = CPathfinderHelper::getMovementCost(h, tile);
+	if(distance)
+	{
+		if(distance < h->movement) //we can move there within one turn
+			turns = (fl::scalar)distance / h->movement;
+		else
+			turns = 1 + (fl::scalar)(distance - h->movement) / h->maxMovePoints(true); //bool on land?
+	}
+	return turns;
+}
+
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
@@ -269,6 +286,38 @@ float FuzzyHelper::getTacticalAdvantage(const CArmedInstance * we, const CArmedI
 		assert(false);
 	}
 
+	return output;
+}
+
+float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj)
+{
+	float distFromObject = calculateTurnDistanceInputValue(&h, obj->pos);
+	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
+	int objValue = 0;
+
+	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
+	{
+		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
+	}
+	else
+	{
+		MapObjectsEvaluator::getInstance().addObjectData(obj->ID, obj->subID, 0);
+		logGlobal->warn("AI met object type it doesn't know - ID: " + std::to_string(obj->ID) + ", subID: " + std::to_string(obj->subID) + " - adding to database with value " + std::to_string(objValue));
+	}
+	
+	float output = -1.0f;
+	try
+	{
+		wanderTarget.distance->setValue(distFromObject);
+		wanderTarget.objectValue->setValue(objValue);
+		wanderTarget.engine.process();
+		output = wanderTarget.visitGain->getValue();
+	}
+	catch (fl::Exception & fe)
+	{
+		logAi->error("evaluate getWanderTargetObjectValue: %s", fe.getWhat());
+	}
+	assert(output >= 0.0f);
 	return output;
 }
 
@@ -413,6 +462,55 @@ void FuzzyHelper::initVisitTile()
 	}
 }
 
+void FuzzyHelper::initWanderTarget()
+{
+	try
+	{
+		wanderTarget.distance = new fl::InputVariable("distance"); //distance on map from object
+		wanderTarget.objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
+		wanderTarget.visitGain = new fl::OutputVariable("visitGain");
+		wanderTarget.visitGain->setMinimum(0);
+		wanderTarget.visitGain->setMaximum(10);
+
+		wanderTarget.engine.addInputVariable(wanderTarget.distance);
+		wanderTarget.engine.addInputVariable(wanderTarget.objectValue);
+		wanderTarget.engine.addOutputVariable(wanderTarget.visitGain);
+
+		//for now distance variable same as in as VisitTile
+		wanderTarget.distance->addTerm(new fl::Ramp("SHORT", 0.5, 0)); 
+		wanderTarget.distance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
+		wanderTarget.distance->addTerm(new fl::Ramp("LONG", 0.5, 3));
+		wanderTarget.distance->setRange(0, 3.0);
+
+		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
+		wanderTarget.objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
+		wanderTarget.objectValue->addTerm(new fl::Triangle("MEDIUM", 2500, 6000));
+		wanderTarget.objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
+		wanderTarget.objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
+
+		wanderTarget.visitGain->addTerm(new fl::Ramp("LOW", 5, 0)); 
+		wanderTarget.visitGain->addTerm(new fl::Triangle("MEDIUM", 4, 6));
+		wanderTarget.visitGain->addTerm(new fl::Ramp("HIGH", 5, 10));
+		wanderTarget.visitGain->setRange(0, 10);
+
+		wanderTarget.addRule("if distance is LONG and objectValue is HIGH then visitGain is MEDIUM");
+		wanderTarget.addRule("if distance is MEDIUM and objectValue is HIGH then visitGain is somewhat HIGH");
+		wanderTarget.addRule("if distance is SHORT and objectValue is HIGH then visitGain is HIGH");
+
+		wanderTarget.addRule("if distance is LONG and objectValue is MEDIUM then visitGain is somewhat LOW");
+		wanderTarget.addRule("if distance is MEDIUM and objectValue is MEDIUM then visitGain is MEDIUM");
+		wanderTarget.addRule("if distance is SHORT and objectValue is MEDIUM then visitGain is somewhat HIGH");
+		
+		wanderTarget.addRule("if distance is LONG and objectValue is LOW then visitGain is very LOW");
+		wanderTarget.addRule("if distance is MEDIUM and objectValue is LOW then visitGain is LOW");
+		wanderTarget.addRule("if distance is SHORT and objectValue is LOW then visitGain is MEDIUM");
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("FindWanderTarget: %s", fe.getWhat());
+	}
+}
+
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	//we assume that hero is already set and we want to choose most suitable one for the mission
@@ -420,20 +518,7 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
-	float turns = 0;
-	float distance = CPathfinderHelper::getMovementCost(g.hero.h, g.tile);
-	if(!distance) //we stand on that tile
-	{
-		turns = 0;
-	}
-	else
-	{
-		if(distance < g.hero->movement) //we can move there within one turn
-			turns = (fl::scalar)distance / g.hero->movement;
-		else
-			turns = 1 + (fl::scalar)(distance - g.hero->movement) / g.hero->maxMovePoints(true); //bool on land?
-	}
-
+	float turns = calculateTurnDistanceInputValue(g.hero.h, g.tile);
 	float missionImportance = 0;
 	if(vstd::contains(ai->lockedHeroes, g.hero))
 		missionImportance = ai->lockedHeroes[g.hero]->priority;
@@ -548,4 +633,11 @@ float FuzzyHelper::evaluate(Goals::AbstractGoal & g)
 void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pattern
 {
 	g->setpriority(g->accept(this)); //this enforces returned value is set
+}
+
+FuzzyHelper::EvalWanderTargetObject::~EvalWanderTargetObject()
+{ 
+	delete distance;
+	delete objectValue;
+	delete visitGain;
 }

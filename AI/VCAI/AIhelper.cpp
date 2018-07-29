@@ -11,12 +11,15 @@
 
 #include "AIhelper.h"
 #include "ResourceManager.h"
+#include "BuildingManager.h"
 
 boost::thread_specific_ptr<AIhelper> ah;
 
 AIhelper::AIhelper()
 {
 	resourceManager.reset(new ResourceManager());
+	buildingManager.reset(new BuildingManager());
+	//TODO: push to vector
 }
 
 AIhelper::~AIhelper()
@@ -30,12 +33,36 @@ bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 
 void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
 {
+	//TODO: for
 	resourceManager->setCB(CB);
+	buildingManager->setCB(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)
 {
+	//TODO: for loop
 	resourceManager->setAI(AI);
+	buildingManager->setAI(AI);
+}
+
+bool AIhelper::getBuildingOptions(const CGTownInstance * t)
+{
+	return buildingManager->getBuildingOptions(t);
+}
+
+boost::optional<PotentialBuilding> AIhelper::immediateBuilding() const
+{
+	return buildingManager->immediateBuilding();
+}
+
+boost::optional<PotentialBuilding> AIhelper::expensiveBuilding() const
+{
+	return buildingManager->expensiveBuilding();
+}
+
+boost::optional<BuildingID> AIhelper::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
+{
+	return buildingManager->canBuildAnyStructure(t, buildList, maxDays);
 }
 
 Goals::TSubgoal AIhelper::whatToDo(TResources & res, Goals::TSubgoal goal)

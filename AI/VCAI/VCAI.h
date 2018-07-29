@@ -129,30 +129,10 @@ struct SectorMap
 class DLL_EXPORT VCAI : public CAdventureAI
 {
 public:
-	//internal methods for town development
-	//TODO: refactor to separate class BuildManager
-
-	//try build anything in given town, and execute resulting Goal if any
-	bool tryBuildStructure(const CGTownInstance * t);
-	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
-	//try build first unbuilt structure
-
-	bool tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays = 7);
-	//try build ANY unbuilt structure
-	BuildingID canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7) const;
-	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays = 7);
-	void buildStructure(const CGTownInstance * t, BuildingID building); //actually execute build operation
-
-	struct PotentialBuilding
-	{
-		BuildingID bid;
-		TResources price;
-		//days to build?
-	};
-	std::vector<PotentialBuilding> potentialBuildings; //what we can build in current town
 
 	friend class FuzzyHelper;
 	friend class ResourceManager;
+	friend class BuildingManager;
 
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel>> knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
@@ -289,6 +269,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
 
 	bool moveHeroToTile(int3 dst, HeroPtr h);
+	void buildStructure(const CGTownInstance * t, BuildingID building); //TODO: move to BuildingManager
 
 	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)
 	void waitTillFree();

@@ -11,6 +11,7 @@
 #include "VCAI.h"
 #include "Fuzzy.h"
 #include "ResourceManager.h"
+#include "BuildingManager.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -1181,241 +1182,35 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 	}
 }
 
-bool VCAI::tryBuildThisStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays)
-{
-	if(maxDays == 0)
-	{
-		logAi->warn("Request to build building %d in 0 days!", building.toEnum());
-		return false;
-	}
-
-	if(!vstd::contains(t->town->buildings, building))
-		return false; // no such building in town
-
-	if(t->hasBuilt(building)) //Already built? Shouldn't happen in general
-		return true;
-
-	const CBuilding * buildPtr = t->town->buildings.at(building);
-
-	auto toBuild = buildPtr->requirements.getFulfillmentCandidates([&](const BuildingID & buildID)
-	{
-		return t->hasBuilt(buildID);
-	});
-	toBuild.push_back(building);
-
-	for(BuildingID buildID : toBuild)
-	{
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
-		if(canBuild == EBuildingState::HAVE_CAPITAL || canBuild == EBuildingState::FORBIDDEN || canBuild == EBuildingState::NO_WATER)
-			return false; //we won't be able to build this
-	}
-
-	if(maxDays && toBuild.size() > maxDays)
-		return false;
-
-	//TODO: calculate if we have enough resources to build it in maxDays?
-
-	for(const auto & buildID : toBuild)
-	{
-		const CBuilding * b = t->town->buildings.at(buildID);
-
-		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
-		if (canBuild == EBuildingState::ALLOWED)
-		{
-			buildStructure(t, buildID);
-			return true;
-		}
-		else if (canBuild == EBuildingState::PREREQUIRES)
-		{
-			// can happen when dependencies have their own missing dependencies
-			if (tryBuildThisStructure(t, buildID, maxDays - 1))
-				return true;
-		}
-		else if (canBuild == EBuildingState::MISSING_BASE)
-		{
-			if (tryBuildThisStructure(t, b->upgrade, maxDays - 1))
-				return true;
-		}
-		else if (canBuild == EBuildingState::NO_RESOURCES)
-		{
-			//we may need to gather resources for those
-			PotentialBuilding pb;
-			pb.bid = buildID;
-			pb.price = t->getBuildingCost(buildID);
-			potentialBuildings.push_back(pb); //these are checked again in try
-			return false;
-		}
-		else
-			return false;
-	}
-	return false;
-}
-
-bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
-{
-	for(const auto & building : buildList)
-	{
-		if(t->hasBuilt(building))
-			continue;
-		return tryBuildThisStructure(t, building, maxDays);
-		
-	}
-	return false; //Can't build anything
-}
-
-BuildingID VCAI::canBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays) const
-{
-	for(const auto & building : buildList)
-	{
-		if(t->hasBuilt(building))
-			continue;
-		if(cb->canBuildStructure(t, building))
-			return building;
-	}
-	return BuildingID::NONE; //Can't build anything
-}
-
-bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
-{
-	for(const auto & building : buildList)
-	{
-		if(t->hasBuilt(building))
-			continue;
-		return tryBuildThisStructure(t, building, maxDays);
-	}
-	return false; //Nothing to build
-}
-
-void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
-{
-	auto name = t->town->buildings.at(building)->Name();
-	logAi->debug("Player %d will build %s in town of %s at %s", playerID, name, t->name, t->pos.toString());
-	cb->buildBuilding(t, building); //just do this;
-}
-
-//Set of buildings for different goals. Does not include any prerequisites.
-static const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
-static const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
-static const BuildingID capitolRequirements[] = { BuildingID::FORT, BuildingID::CITADEL };
-static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
-	BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
-static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
-	BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
-static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
-	BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
-static const BuildingID _spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
-	BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
-static const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
-	BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
-
-bool VCAI::tryBuildStructure(const CGTownInstance * t)
-{
-	//TODO make *real* town development system
-	//TODO: faction-specific development: use special buildings, build dwellings in better order, etc
-	//TODO: build resource silo, defences when needed
-	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
-
-	//below algorithm focuses on economy growth at start of the game.
-	TResources currentRes = cb->getResourceAmount();
-	TResources currentIncome = t->dailyIncome();
-
-	if(tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
-		return true;
-
-	//the more gold the better and less problems later
-	if(tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
-		return true;
-
-	//workaround for mantis #2696 - build fort and citadel - building castle will be handled without bug
-	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) &&
-		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL)
-	{
-		if(cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
-		{
-			if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements,
-									capitolRequirements + ARRAY_COUNT(capitolRequirements))))
-				return true;
-		}
-	}
-
-	//TODO: save money for capitol or city hall if capitol unavailable
-	//do not build other things (unless gold source buildings are disabled in map editor)
-
-
-	if(cb->getDate(Date::DAY_OF_WEEK) > 6) // last 2 days of week - try to focus on growth
-	{
-		if(tryBuildNextStructure(t, std::vector<BuildingID>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
-			return true;
-	}
-
-	// first in-game week or second half of any week: try build dwellings
-	if(cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
-	{
-		if(tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource,
-								unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
-			return true;
-	}
-
-	//try to upgrade dwelling
-	for(int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
-	{
-		if(t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]))
-		{
-			if(tryBuildThisStructure(t, unitsUpgrade[i]))
-				return true;
-		}
-	}
-
-	//remaining tasks
-	if(tryBuildNextStructure(t, std::vector<BuildingID>(_spells, _spells + ARRAY_COUNT(_spells))))
-		return true;
-	if(tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
-		return true;
-
-	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
-	std::vector<BuildingID> extraBuildings;
-	for(auto buildingInfo : t->town->buildings)
-	{
-		if(buildingInfo.first > 43)
-			extraBuildings.push_back(buildingInfo.first);
-	}
-	if(tryBuildAnyStructure(t, extraBuildings))
-		return true;
-
-	return false;
-}
-
 bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm)
 {
 	const int3 pos = obj->visitablePos();
 	const int3 targetPos = sm.firstTileToGet(h, pos);
-	if(!targetPos.valid())
+	if (!targetPos.valid())
 		return false;
-	if(!isTileNotReserved(h.get(), targetPos))
+	if (!isTileNotReserved(h.get(), targetPos))
 		return false;
-	if(obj->wasVisited(playerID))
+	if (obj->wasVisited(playerID))
 		return false;
-	if(cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
+	if (cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
 		return false; // Otherwise we flag or get weekly resources / creatures
-	if(!isSafeToVisit(h, pos))
+	if (!isSafeToVisit(h, pos))
 		return false;
-	if(!shouldVisit(h, obj))
+	if (!shouldVisit(h, obj))
 		return false;
-	if(vstd::contains(alreadyVisited, obj))
+	if (vstd::contains(alreadyVisited, obj))
 		return false;
-	if(vstd::contains(reservedObjs, obj))
+	if (vstd::contains(reservedObjs, obj))
 		return false;
-	if(!isAccessibleForHero(targetPos, h))
+	if (!isAccessibleForHero(targetPos, h))
 		return false;
-
 	const CGObjectInstance * topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
-	//we don't try visiting object on which allied or owned hero stands
-	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	if(topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
+																						//we don't try visiting object on which allied or owned hero stands
+																						// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
+	if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
 	else
 		return true; //all of the following is met
-
 }
 
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t)
@@ -1592,7 +1387,12 @@ void VCAI::wander(HeroPtr h)
 
 		if(dests.size()) //performance improvement
 		{
-			const ObjectIdRef & dest = *boost::min_element(dests, CDistanceSorter(h.get())); //find next closest one
+			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool //TODO: create elementar GetObj goal usable for goal decomposition and Wander based on VisitTile logic and object value on top of it
+			{
+				return fh->getWanderTargetObjectValue( *h.get(), l) < fh->getWanderTargetObjectValue(*h.get(), r);
+			};
+
+			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation, TODO: use elementar version of GetObj here in future
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
@@ -2079,6 +1879,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	}
 	return ret;
 }
+
+void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
+{
+	auto name = t->town->buildings.at(building)->Name();
+	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->name, t->pos.toString());
+	cb->buildBuilding(t, building); //just do this;
+}
+
 void VCAI::tryRealize(Goals::Explore & g)
 {
 	throw cannotFulfillGoalException("EXPLORE is not an elementar goal!");
@@ -2211,23 +2019,32 @@ void VCAI::tryRealize(Goals::Build & g)
 	for(const CGTownInstance * t : cb->getTownsInfo())
 	{
 		logAi->debug("Looking into %s", t->name);
-		potentialBuildings.clear(); //start fresh with every town
-		if (tryBuildStructure(t))
-			didWeBuildSomething = true;
-		else if (potentialBuildings.size())
+		//start fresh with every town
+		ah->getBuildingOptions(t);
+		auto ib = ah->immediateBuilding();
+		if (ib.is_initialized())
 		{
-			auto pb = potentialBuildings.front(); //gather resources for any we can't afford
-			auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
-			if (goal->goalType == Goals::BUILD_STRUCTURE)
+			buildStructure(t, ib.get().bid); //do it right now
+			didWeBuildSomething = true;
+		}
+		else
+		{
+			auto eb = ah->expensiveBuilding();
+			if (eb.is_initialized())
 			{
-				logAi->error("We were supposed to NOT afford any building");
-				buildStructure(t, pb.bid); //do it right now
-				didWeBuildSomething = true;
-			}
-			else
-			{
-				//TODO: right now we do that for every town in order. Consider comparison of all potential goals.
-				striveToGoal(goal); //gather resources, or something else?
+				auto pb = eb.get(); //gather resources for any we can't afford
+				auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
+				if (goal->goalType == Goals::BUILD_STRUCTURE)
+				{
+					logAi->error("We were supposed to NOT afford any building");
+					buildStructure(t, pb.bid); //do it right now
+					didWeBuildSomething = true;
+				}
+				else
+				{
+					//TODO: right now we do that for every town in order. Consider comparison of all potential goals.
+					striveToGoal(goal); //gather resources, or something else?
+				}
 			}
 		}
 	}
