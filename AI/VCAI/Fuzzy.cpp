@@ -490,7 +490,7 @@ void FuzzyHelper::initWanderTarget()
 
 		wanderTarget.visitGain->addTerm(new fl::Ramp("LOW", 5, 0)); 
 		wanderTarget.visitGain->addTerm(new fl::Triangle("MEDIUM", 4, 6));
-		wanderTarget.visitGain->addTerm(new fl::Ramp("LOW", 5, 10));
+		wanderTarget.visitGain->addTerm(new fl::Ramp("HIGH", 5, 10));
 		wanderTarget.visitGain->setRange(0, 10);
 
 		wanderTarget.addRule("if distance is LONG and objectValue is HIGH then visitGain is MEDIUM");
