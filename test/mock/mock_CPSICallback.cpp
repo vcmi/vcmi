@@ -1,5 +1,5 @@
 /*
-* {file}.cpp, part of VCMI engine
+* mock_CPLayerSpecificInfoCallback.cpp, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *

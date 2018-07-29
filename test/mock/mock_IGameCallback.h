@@ -1,5 +1,5 @@
 /*
- * {file}.h, part of VCMI engine
+ * mock_IGameCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

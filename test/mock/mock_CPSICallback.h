@@ -16,7 +16,7 @@
 
 class CCallback;
 
-class GameCallbackMock : public CPlayerSpecificInfoCallback
+class CPSICallbackMock : public CPlayerSpecificInfoCallback
 {
 public:
 	using CPlayerSpecificInfoCallback::CPlayerSpecificInfoCallback;

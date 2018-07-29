@@ -14,7 +14,7 @@
 #include "ResourceManager.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
 #include "../../lib/CPathfinder.h"
-#include "StringConstants.h"
+#include "../../lib/StringConstants.h"
 
 #include "AIhelper.h"
 
@@ -133,7 +133,7 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 		return g.hero.h == hero.h; //how comes HeroPtrs are equal for different heroes?
 		break;
 
-	case GATHER_ARMY: //actual value is indifferent 
+	case GATHER_ARMY: //actual value is indifferent
 		return (g.hero.h == hero.h || town == g.town); //TODO: gather army for town maybe?
 		break;
 
@@ -1001,7 +1001,7 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 }
 
 TSubgoal CollectRes::whatToDoToAchieve()
-{	
+{
 	auto goals = getAllPossibleSubgoals();
 	auto trade = whatToDoToTrade();
 	if (!trade->invalid())

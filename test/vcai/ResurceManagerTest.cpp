@@ -27,7 +27,7 @@ struct ResourceManagerTest : public Test//, public IResourceManager
 {
 	std::unique_ptr<ResourceManagerMock> rm;
 
-	NiceMock<GameCallbackMock> gcm;
+	NiceMock<CPSICallbackMock> gcm;
 	NiceMock<VCAIMock> aim;
 	TSubgoal invalidGoal, gatherArmy, buildThis, buildAny, recruitHero;
 
