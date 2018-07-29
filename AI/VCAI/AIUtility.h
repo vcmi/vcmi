@@ -20,9 +20,11 @@
 #include "../../lib/CPathfinder.h"
 
 class CCallback;
+struct creInfo;
 
 typedef const int3 & crint3;
 typedef const std::string & crstring;
+typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
@@ -35,7 +37,7 @@ extern const int GOLD_RESERVE;
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
 
-struct HeroPtr
+struct DLL_EXPORT HeroPtr
 {
 	const CGHeroInstance * h;
 	ObjectInstanceID hid;
@@ -56,6 +58,7 @@ public:
 	bool operator<(const HeroPtr & rhs) const;
 	const CGHeroInstance * operator->() const;
 	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
+	bool operator==(const HeroPtr & rhs) const;
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
@@ -137,6 +140,15 @@ bool objWithID(const CGObjectInstance * obj)
 	return obj->ID == id;
 }
 
+struct creInfo
+{
+	int count;
+	CreatureID creID;
+	CCreature * cre;
+	int level;
+};
+creInfo infoFromDC(const dwellingContent & dc);
+
 void foreach_tile_pos(std::function<void(const int3 & pos)> foo);
 void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
@@ -160,6 +172,7 @@ bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
+ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t);
 ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
 int3 whereToExplore(HeroPtr h);
 

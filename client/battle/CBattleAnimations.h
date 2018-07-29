@@ -39,7 +39,7 @@ public:
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
-	CCreatureAnimation * myAnim; //animation for our stack, managed by CBattleInterface
+	std::shared_ptr<CCreatureAnimation> myAnim; //animation for our stack, managed by CBattleInterface
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);

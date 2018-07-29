@@ -84,6 +84,7 @@ public:
 	float evaluate(Goals::DigAtTile & g);
 	float evaluate(Goals::CollectRes & g);
 	float evaluate(Goals::Build & g);
+	float evaluate(Goals::BuyArmy & g);
 	float evaluate(Goals::GatherArmy & g);
 	float evaluate(Goals::ClearWayTo & g);
 	float evaluate(Goals::Invalid & g);

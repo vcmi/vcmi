@@ -25,7 +25,7 @@ namespace AnimationControls
 	SDL_Color getNoBorder();
 
 	/// creates animation object with preset speed control
-	CCreatureAnimation * getAnimation(const CCreature * creature);
+	std::shared_ptr<CCreatureAnimation> getAnimation(const CCreature * creature);
 
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
 	float getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t groupID);

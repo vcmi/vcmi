@@ -40,8 +40,7 @@ void CQuestLabel::clickLeft(tribool down, bool previousState)
 
 void CQuestLabel::showAll(SDL_Surface * to)
 {
-	if (active)
-		CMultiLineLabel::showAll (to);
+	CMultiLineLabel::showAll (to);
 }
 
 CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
@@ -204,8 +203,9 @@ void CQuestLog::recreateLabelList()
 void CQuestLog::showAll(SDL_Surface * to)
 {
 	CWindowObject::showAll(to);
-	if(labels.size() && labels[questIndex]->active)
+	if(questIndex >= 0 && questIndex < labels.size())
 	{
+		//TODO: use child object to selection rect
 		Rect rect = Rect::around(labels[questIndex]->pos);
 		rect.x -= 2; // Adjustment needed as we want selection box on top of border in graphics
 		rect.w += 2;

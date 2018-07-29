@@ -89,7 +89,7 @@ public:
 };
 
 /// Class which manages the battle options window
-class CBattleOptionsWindow : public CIntObject
+class CBattleOptionsWindow : public WindowBase
 {
 private:
 	std::shared_ptr<CPicture> background;
@@ -106,7 +106,7 @@ public:
 };
 
 /// Class which is responsible for showing the battle result window
-class CBattleResultWindow : public CIntObject
+class CBattleResultWindow : public WindowBase
 {
 private:
 	std::shared_ptr<CPicture> background;

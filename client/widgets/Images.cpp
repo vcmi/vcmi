@@ -173,7 +173,7 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	if(screenFormat)
 		bg = CSDL_Ext::newSurface(r.w, r.h);
 	else
-		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
+		bg = SDL_CreateRGBSurface(0, r.w, r.h, 8, 0, 0, 0, 0);
 
 	SDL_FillRect(bg, nullptr, color);
 	freeSurf = true;
@@ -296,7 +296,7 @@ void CAnimImage::playerColored(PlayerColor currPlayer)
 }
 
 CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group):
-	anim(new CAnimation(name, Flags & USE_RLE)),
+	anim(std::make_shared<CAnimation>(name)),
 	group(Group),
 	frame(0),
 	first(0),
@@ -319,7 +319,6 @@ CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Del
 CShowableAnim::~CShowableAnim()
 {
 	anim->unloadGroup(group);
-	delete anim;
 }
 
 void CShowableAnim::setAlpha(ui32 alphaValue)
@@ -410,8 +409,8 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 	assert(to);
 	Rect src( xOffset, yOffset, pos.w, pos.h);
 	auto img = anim->getImage(frame, group);
-	if (img)
-		img->draw(to, pos.x-xOffset, pos.y-yOffset, &src, alpha);
+	if(img)
+		img->draw(to, pos.x, pos.y, &src, alpha);
 }
 
 void CShowableAnim::rotate(bool on, bool vertical)
@@ -423,15 +422,11 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 flags, EAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, EAnimType type):
 	CShowableAnim(x,y,name,flags,4,type)
 {
-	xOffset = picPos.x;
-	yOffset = picPos.y;
-	if (picPos.w)
-		pos.w = picPos.w;
-	if (picPos.h)
-		pos.h = picPos.h;
+	xOffset = 0;
+	yOffset = 0;
 }
 
 void CCreatureAnim::loopPreview(bool warMachine)

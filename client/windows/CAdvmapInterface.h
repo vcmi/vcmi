@@ -266,4 +266,4 @@ public:
 
 };
 
-extern CAdvMapInt *adventureInt;
+extern std::shared_ptr<CAdvMapInt> adventureInt;

@@ -66,6 +66,8 @@
 			<Add option="-lVCMI_lib" />
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
 			<Add option="-lboost_system$(#boost.libsuffix)" />
+			<Add option="-lboost_thread$(#boost.libsuffix)" />
+			<Add library="../AI/VCAI.dll" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CMakeLists.txt" />
@@ -99,6 +101,8 @@
 		<Unit filename="map/MapComparer.h" />
 		<Unit filename="mock/mock_BonusBearer.cpp" />
 		<Unit filename="mock/mock_BonusBearer.h" />
+		<Unit filename="mock/mock_CPSICallback.cpp" />
+		<Unit filename="mock/mock_CPSICallback.h" />
 		<Unit filename="mock/mock_IGameCallback.cpp" />
 		<Unit filename="mock/mock_IGameCallback.h" />
 		<Unit filename="mock/mock_MapService.cpp" />
@@ -139,6 +143,13 @@
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.cpp" />
 		<Unit filename="spells/targetConditions/TargetConditionItemFixture.h" />
 		<Unit filename="testdata/rmg/1.json" />
+		<Unit filename="vcai/ResourceManagerTest.h" />
+		<Unit filename="vcai/ResurceManagerTest.cpp" />
+		<Unit filename="vcai/mock_ResourceManager.cpp" />
+		<Unit filename="vcai/mock_ResourceManager.h" />
+		<Unit filename="vcai/mock_VCAI.cpp" />
+		<Unit filename="vcai/mock_VCAI.h" />
+		<Unit filename="vcai/mock_VCAI_CGoal.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

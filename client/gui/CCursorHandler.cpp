@@ -18,8 +18,31 @@
 
 #include "../CMT.h"
 
+void CCursorHandler::clearBuffer()
+{
+	Uint32 fillColor = SDL_MapRGBA(buffer->format, 0, 0, 0, 0);
+	CSDL_Ext::fillRect(buffer, nullptr, fillColor);
+}
+
+void CCursorHandler::updateBuffer(CIntObject * payload)
+{
+	payload->moveTo(Point(0,0));
+	payload->showAll(buffer);
+
+	needUpdate = true;
+}
+
+void CCursorHandler::replaceBuffer(CIntObject * payload)
+{
+	clearBuffer();
+	updateBuffer(payload);
+}
+
 void CCursorHandler::initCursor()
 {
+	cursorLayer = SDL_CreateTexture(mainRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 40, 40);
+	SDL_SetTextureBlendMode(cursorLayer, SDL_BLENDMODE_BLEND);
+
 	xpos = ypos = 0;
 	type = ECursor::DEFAULT;
 	dndObject = nullptr;
@@ -34,9 +57,9 @@ void CCursorHandler::initCursor()
 
 	currentCursor = cursors.at(int(ECursor::DEFAULT)).get();
 
-	help = CSDL_Ext::newSurface(40,40);
-	//No blending. Ensure, that we are copying pixels during "screen restore draw"
-	SDL_SetSurfaceBlendMode(help,SDL_BLENDMODE_NONE);
+	buffer = CSDL_Ext::newSurface(40,40);
+
+	SDL_SetSurfaceBlendMode(buffer, SDL_BLENDMODE_NONE);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	changeGraphic(ECursor::ADVENTURE, 0);
@@ -56,51 +79,23 @@ void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 		this->frame = index;
 		currentCursor->setFrame(index);
 	}
+
+	replaceBuffer(currentCursor);
 }
 
 void CCursorHandler::dragAndDropCursor(std::unique_ptr<CAnimImage> object)
 {
 	dndObject = std::move(object);
+	if(dndObject)
+		replaceBuffer(dndObject.get());
+	else
+		replaceBuffer(currentCursor);
 }
 
 void CCursorHandler::cursorMove(const int & x, const int & y)
 {
 	xpos = x;
 	ypos = y;
-}
-
-void CCursorHandler::drawWithScreenRestore()
-{
-	if(!showing) return;
-	int x = xpos, y = ypos;
-	shiftPos(x, y);
-
-	SDL_Rect temp_rect1 = genRect(40,40,x,y);
-	SDL_Rect temp_rect2 = genRect(40,40,0,0);
-	SDL_BlitSurface(screen, &temp_rect1, help, &temp_rect2);
-
-	if (dndObject)
-	{
-		dndObject->moveTo(Point(x - dndObject->pos.w/2, y - dndObject->pos.h/2));
-		dndObject->showAll(screen);
-	}
-	else
-	{
-		currentCursor->moveTo(Point(x,y));
-		currentCursor->showAll(screen);
-	}
-}
-
-void CCursorHandler::drawRestored()
-{
-	if(!showing)
-		return;
-
-	int x = xpos, y = ypos;
-	shiftPos(x, y);
-
-	SDL_Rect temp_rect = genRect(40, 40, x, y);
-	SDL_BlitSurface(help, nullptr, screen, &temp_rect);
 }
 
 void CCursorHandler::shiftPos( int &x, int &y )
@@ -221,15 +216,54 @@ void CCursorHandler::centerCursor()
 
 void CCursorHandler::render()
 {
-	drawWithScreenRestore();
-	CSDL_Ext::update(screen);
-	drawRestored();
+	if(!showing)
+		return;
+
+	//the must update texture in the main (renderer) thread, but changes to cursor type may come from other threads
+	updateTexture();
+
+	int x = xpos;
+	int y = ypos;
+	shiftPos(x, y);
+
+	if(dndObject)
+	{
+		x -= dndObject->pos.w/2;
+		y -= dndObject->pos.h/2;
+	}
+
+	SDL_Rect destRect;
+	destRect.x = x;
+	destRect.y = y;
+	destRect.w = 40;
+	destRect.h = 40;
+
+	SDL_RenderCopy(mainRenderer, cursorLayer, nullptr, &destRect);
 }
 
-CCursorHandler::CCursorHandler() = default;
+void CCursorHandler::updateTexture()
+{
+	if(needUpdate)
+	{
+		SDL_UpdateTexture(cursorLayer, nullptr, buffer->pixels, buffer->pitch);
+		needUpdate = false;
+	}
+}
+
+CCursorHandler::CCursorHandler()
+	: needUpdate(true),
+	buffer(nullptr),
+	cursorLayer(nullptr),
+	showing(false)
+{
+
+}
 
 CCursorHandler::~CCursorHandler()
 {
-	if(help)
-		SDL_FreeSurface(help);
+	if(buffer)
+		SDL_FreeSurface(buffer);
+
+	if(cursorLayer)
+		SDL_DestroyTexture(cursorLayer);
 }

@@ -126,6 +126,11 @@ const CGHeroInstance * HeroPtr::operator*() const
 	return get();
 }
 
+bool HeroPtr::operator==(const HeroPtr & rhs) const
+{
+	return h == rhs.get(true);
+}
+
 void foreach_tile_pos(std::function<void(const int3 & pos)> foo)
 {
 	// some micro-optimizations since this function gets called a LOT
@@ -473,6 +478,50 @@ void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & o
 				out.push_back(neighbour);
 		});
 	}
+}
+
+creInfo infoFromDC(const dwellingContent & dc)
+{
+	creInfo ci;
+	ci.count = dc.first;
+	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
+	if (ci.creID != -1)
+	{
+		ci.cre = VLC->creh->creatures[ci.creID];
+		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
+	}
+	else
+	{
+		ci.cre = nullptr;
+		ci.level = 0;
+	}
+	return ci;
+}
+
+ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t)
+{
+	ui64 aivalue = 0;
+
+	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+	for(auto const dc : t->creatures)
+	{
+		creInfo ci = infoFromDC(dc);
+		if(ci.count && ci.creID != -1) //valid creature at this level
+		{
+			//can be merged with another stack?
+			SlotID dst = h->getSlotFor(ci.creID);
+			if (!h->hasStackAtSlot(dst)) //need another new slot for this stack
+				if (!freeHeroSlots) //no more place for stacks
+					continue;
+				else
+					freeHeroSlots--; //new slot will be occupied
+
+			//we found matching occupied or free slot
+			aivalue += ci.count * ci.cre->AIValue;
+		}
+	}
+
+	return aivalue;
 }
 
 ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t)

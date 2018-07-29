@@ -58,10 +58,12 @@ class CGuiHandler
 {
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
-	std::list<IShowActivatable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
+	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	CGStatusBar * statusbar;
 
 private:
+	std::vector<std::shared_ptr<IShowActivatable>> disposed;
+
 	std::atomic<bool> continueEventHandling;
 	typedef std::list<CIntObject*> CIntObjectList;
 
@@ -86,7 +88,7 @@ public:
 
 public:
 	//objs to blit
-	std::vector<IShowable*> objsToBlit;
+	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
 	SDL_Event * current; //current event - can be set to nullptr to stop handling event
 	IUpdateable *curInt;
@@ -106,11 +108,19 @@ public:
 	void totalRedraw(); //forces total redraw (using showAll), sets a flag, method gets called at the end of the rendering
 	void simpleRedraw(); //update only top interface and draw background from buffer, sets a flag, method gets called at the end of the rendering
 
-	void popInt(IShowActivatable *top); //removes given interface from the top and activates next
-	void popIntTotally(IShowActivatable *top); //deactivates, deletes, removes given interface from the top and activates next
-	void pushInt(IShowActivatable *newInt); //deactivate old top interface, activates this one and pushes to the top
+	void pushInt(std::shared_ptr<IShowActivatable> newInt); //deactivate old top interface, activates this one and pushes to the top
+	template <typename T, typename ... Args>
+	void pushIntT(Args && ... args)
+	{
+		auto newInt = std::make_shared<T>(std::forward<Args>(args)...);
+		pushInt(newInt);
+	}
+
 	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
-	IShowActivatable *topInt(); //returns top interface
+
+	void popInt(std::shared_ptr<IShowActivatable> top); //removes given interface from the top and activates next
+
+	std::shared_ptr<IShowActivatable> topInt(); //returns top interface
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects

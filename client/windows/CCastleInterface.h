@@ -156,9 +156,6 @@ public:
 	void buildingClicked(BuildingID building);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
-
-	void show(SDL_Surface * to) override;
-	void showAll(SDL_Surface * to) override;
 };
 
 /// Creature info window
