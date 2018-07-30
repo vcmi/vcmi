@@ -83,7 +83,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 
 InfoBox::~InfoBox() = default;
 
-void InfoBox::clickRight(tribool down, bool previousState)
+void InfoBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -91,13 +91,13 @@ void InfoBox::clickRight(tribool down, bool previousState)
 		std::string text;
 		data->prepareMessage(text, comp);
 		if (comp)
-			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+			CRClickPopup::createAndPush(event.motion, text, CInfoWindow::TCompsInfo(1, comp));
 		else if (!text.empty())
-			adventureInt->handleRightClick(text, down);
+			adventureInt->handleRightClick(event.motion, text, down);
 	}
 }
 
-void InfoBox::clickLeft(tribool down, bool previousState)
+void InfoBox::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{

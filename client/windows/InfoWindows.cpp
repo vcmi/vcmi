@@ -287,7 +287,7 @@ void CInfoPopup::init(int x, int y)
 }
 
 
-void CRClickPopup::clickRight(tribool down, bool previousState)
+void CRClickPopup::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		return;
@@ -299,28 +299,28 @@ void CRClickPopup::close()
 	WindowBase::close();
 }
 
-void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
+void CRClickPopup::createAndPush(const SDL_MouseMotionEvent & motion, const std::string &txt, const CInfoWindow::TCompsInfo &comps)
 {
 	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue
 	if(settings["session"]["spectate"].Bool())//TODO: there must be better way to implement this
 		player = PlayerColor(1);
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->center(Point(motion)); //center on mouse
 	temp->fitToScreen(10);
 
 	GH.pushIntT<CRClickPopupInt>(temp);
 }
 
-void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CComponent> component)
+void CRClickPopup::createAndPush(const SDL_MouseMotionEvent & motion, const std::string & txt, std::shared_ptr<CComponent> component)
 {
 	CInfoWindow::TCompsInfo intComps;
 	intComps.push_back(component);
 
-	createAndPush(txt, intComps);
+	createAndPush(motion, txt, intComps);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment)
+void CRClickPopup::createAndPush(const SDL_MouseMotionEvent & motion, const CGObjectInstance * obj, const Point & p, EAlignment alignment)
 {
 	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)
@@ -330,9 +330,9 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 	else
 	{
 		if(adventureInt->curHero())
-			CRClickPopup::createAndPush(obj->getHoverText(adventureInt->curHero()));
+			CRClickPopup::createAndPush(motion, obj->getHoverText(adventureInt->curHero()));
 		else
-			CRClickPopup::createAndPush(obj->getHoverText(LOCPLINT->playerID));
+			CRClickPopup::createAndPush(motion, obj->getHoverText(LOCPLINT->playerID));
 	}
 }
 

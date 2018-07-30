@@ -32,7 +32,7 @@
 struct QuestInfo;
 class CAdvmapInterface;
 
-void CQuestLabel::clickLeft(tribool down, bool previousState)
+void CQuestLabel::clickLeft(const SDL_Event & event, tribool down, bool previousState)
 {
 	if (down)
 		callback();
@@ -49,7 +49,7 @@ CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
 	addUsedEvents(LCLICK);
 }
 
-void CQuestIcon::clickLeft(tribool down, bool previousState)
+void CQuestIcon::clickLeft(const SDL_Event & event, tribool down, bool previousState)
 {
 	if (down)
 		callback();
@@ -103,7 +103,6 @@ void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
 		adventureInt->centerOn (currentQuest->obj->pos);
-	//moveAdvMapSelection();
 }
 
 void CQuestMinimap::showAll(SDL_Surface * to)

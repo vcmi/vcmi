@@ -110,16 +110,16 @@ void CCommanderSkillIcon::setObject(std::shared_ptr<View> newObject)
 	redraw();
 }
 
-void CCommanderSkillIcon::clickLeft(tribool down, bool previousState)
+void CCommanderSkillIcon::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		callback();
 }
 
-void CCommanderSkillIcon::clickRight(tribool down, bool previousState)
+void CCommanderSkillIcon::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
-		LRClickableAreaWText::clickRight(down, previousState);
+		LRClickableAreaWText::clickRight(event, down, previousState);
 }
 
 static std::string skillToFile(int skill, int level, bool selected)

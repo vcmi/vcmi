@@ -60,13 +60,13 @@ CList::CListItem::~CListItem()
 {
 }
 
-void CList::CListItem::clickRight(tribool down, bool previousState)
+void CList::CListItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if (down == true)
-		showTooltip();
+		showTooltip(event.motion);
 }
 
-void CList::CListItem::clickLeft(tribool down, bool previousState)
+void CList::CListItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down == true)
 	{
@@ -233,9 +233,9 @@ void CHeroList::CHeroItem::open()
 	LOCPLINT->openHeroWindow(hero);
 }
 
-void CHeroList::CHeroItem::showTooltip()
+void CHeroList::CHeroItem::showTooltip(const SDL_MouseMotionEvent & motion)
 {
-	CRClickPopup::createAndPush(hero, GH.current->motion);
+	CRClickPopup::createAndPush(motion, hero, motion);
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -325,9 +325,9 @@ void CTownList::CTownItem::open()
 	LOCPLINT->openTownWindow(town);
 }
 
-void CTownList::CTownItem::showTooltip()
+void CTownList::CTownItem::showTooltip(const SDL_MouseMotionEvent & motion)
 {
-	CRClickPopup::createAndPush(town, GH.current->motion);
+	CRClickPopup::createAndPush(motion, town, motion);
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -545,11 +545,11 @@ CMinimap::CMinimap(const Rect & position)
 	aiShield->disable();
 }
 
-int3 CMinimap::translateMousePosition()
+int3 CMinimap::translateMousePosition(int x, int y)
 {
 	// 0 = top-left corner, 1 = bottom-right corner
-	double dx = double(GH.current->motion.x - pos.x) / pos.w;
-	double dy = double(GH.current->motion.y - pos.y) / pos.h;
+	double dx = double(x - pos.x) / pos.w;
+	double dy = double(y - pos.y) / pos.h;
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
@@ -557,9 +557,9 @@ int3 CMinimap::translateMousePosition()
 	return tile;
 }
 
-void CMinimap::moveAdvMapSelection()
+void CMinimap::moveAdvMapSelection(int x, int y)
 {
-	int3 newLocation = translateMousePosition();
+	int3 newLocation = translateMousePosition(x, y);
 	adventureInt->centerOn(newLocation);
 
 	if (!(adventureInt->active & GENERAL))
@@ -568,15 +568,15 @@ void CMinimap::moveAdvMapSelection()
 		redraw();//redraw only this
 }
 
-void CMinimap::clickLeft(tribool down, bool previousState)
+void CMinimap::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
-		moveAdvMapSelection();
+		moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
-void CMinimap::clickRight(tribool down, bool previousState)
+void CMinimap::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->zelp[291].second, down);
+	adventureInt->handleRightClick(event.motion, CGI->generaltexth->zelp[291].second, down);
 }
 
 void CMinimap::hover(bool on)
@@ -587,10 +587,10 @@ void CMinimap::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CMinimap::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	if(mouseState(EIntObjMouseBtnType::LEFT))
-		moveAdvMapSelection();
+		moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
 void CMinimap::showAll(SDL_Surface * to)
@@ -865,7 +865,7 @@ void CInfoBar::tick()
 		showSelection();
 }
 
-void CInfoBar::clickLeft(tribool down, bool previousState)
+void CInfoBar::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -878,9 +878,9 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CInfoBar::clickRight(tribool down, bool previousState)
+void CInfoBar::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->allTexts[109], down);
+	adventureInt->handleRightClick(event.motion, CGI->generaltexth->allTexts[109], down);
 }
 
 void CInfoBar::hover(bool on)
@@ -1035,7 +1035,7 @@ void CInGameConsole::print(const std::string &txt)
 	}
 }
 
-void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+void CInGameConsole::keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.type != SDL_KEYDOWN) return;
 

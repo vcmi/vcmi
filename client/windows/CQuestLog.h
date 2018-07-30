@@ -40,7 +40,7 @@ public:
 
 	CQuestLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
 		: CMultiLineLabel (position, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
-	void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event & event, tribool down, bool previousState) override;
 	void showAll(SDL_Surface * to) override;
 };
 
@@ -51,7 +51,7 @@ public:
 
 	CQuestIcon(const std::string &defname, int index, int x=0, int y=0);
 
-	void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event & event, tribool down, bool previousState) override;
 	void showAll(SDL_Surface * to) override;
 };
 
@@ -59,9 +59,9 @@ class CQuestMinimap : public CMinimap
 {
 	std::vector<std::shared_ptr<CQuestIcon>> icons;
 
-	void clickLeft(tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override{}; //minimap ignores clicking on its surface
 	void iconClicked();
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override{};
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override{};
 
 public:
 	const QuestInfo * currentQuest;

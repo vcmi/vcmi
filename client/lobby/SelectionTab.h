@@ -65,9 +65,9 @@ public:
 	SelectionTab(ESelectionScreen Type);
 	void toggleMode();
 
-	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void onDoubleClick() override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key) override;
+	void onDoubleClick(const SDL_Event &event) override;
 
 	void filter(int size, bool selectFirst = false); //0 - all
 	void sortBy(int criteria);
@@ -76,7 +76,7 @@ public:
 	void selectAbs(int position); //position: absolute position in curItems vector
 	void sliderMove(int slidPos);
 	void updateListItems();
-	int getLine();
+	int getLine(int x, int y);
 	void selectFileName(std::string fname);
 	std::shared_ptr<CMapInfo> getSelectedMapInfo() const;
 	void rememberCurrentSelection();

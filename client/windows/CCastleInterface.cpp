@@ -107,24 +107,24 @@ void CBuildingRect::hover(bool on)
 	}
 }
 
-void CBuildingRect::clickLeft(tribool down, bool previousState)
+void CBuildingRect::clickLeft(const SDL_Event & event, tribool down, bool previousState)
 {
 	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
-		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
+		if (!CSDL_Ext::isTransparent(area, event.motion.x-pos.x, event.motion.y-pos.y) ) //inside building image
 			parent->buildingClicked(getBuilding()->bid);
 }
 
-void CBuildingRect::clickRight(tribool down, bool previousState)
+void CBuildingRect::clickRight(const SDL_Event & event, tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
-	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
+	if( !CSDL_Ext::isTransparent(area, event.motion.x-pos.x, event.motion.y-pos.y) ) //inside building image
 	{
 		BuildingID bid = getBuilding()->bid;
 		const CBuilding *bld = town->town->buildings.at(bid);
 		if (bid < BuildingID::DWELL_FIRST)
 		{
-			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
+			CRClickPopup::createAndPush(event.motion, CInfoWindow::genText(bld->Name(), bld->Description()),
 				std::make_shared<CComponent>(CComponent::building, bld->town->faction->index, bld->bid));
 		}
 		else
@@ -236,11 +236,11 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 	}
 }
 
-void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	if(area && isItIn(&pos,sEvent.x, sEvent.y))
 	{
-		if(CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //hovered pixel is inside this building
+		if(CSDL_Ext::isTransparent(area, event.motion.x-pos.x, event.motion.y-pos.y)) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{
@@ -375,7 +375,7 @@ void CHeroGSlot::hover(bool on)
 		GH.statusbar->setText(temp);
 }
 
-void CHeroGSlot::clickLeft(tribool down, bool previousState)
+void CHeroGSlot::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	std::shared_ptr<CHeroGSlot> other = upg ? owner->garrisonedHero : owner->visitingHero;
 	if(!down)
@@ -429,7 +429,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CHeroGSlot::clickRight(tribool down, bool previousState)
+void CHeroGSlot::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(hero && down)
 	{
@@ -1001,7 +1001,7 @@ void CCreaInfo::hover(bool on)
 	}
 }
 
-void CCreaInfo::clickLeft(tribool down, bool previousState)
+void CCreaInfo::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(previousState && (!down))
 	{
@@ -1025,14 +1025,14 @@ std::string CCreaInfo::genGrowthText()
 	return descr;
 }
 
-void CCreaInfo::clickRight(tribool down, bool previousState)
+void CCreaInfo::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{
 		if (showAvailable)
 			GH.pushIntT<CDwellingInfoBox>(screen->w/2, screen->h/2, town, level);
 		else
-			CRClickPopup::createAndPush(genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
+			CRClickPopup::createAndPush(event.motion, genGrowthText(), std::make_shared<CComponent>(CComponent::creature, creature->idNumber));
 	}
 }
 
@@ -1075,12 +1075,12 @@ void CTownInfo::hover(bool on)
 	}
 }
 
-void CTownInfo::clickRight(tribool down, bool previousState)
+void CTownInfo::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(building && down)
 	{
 		auto c =  std::make_shared<CComponent>(CComponent::building, building->town->faction->index, building->bid);
-		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()), c);
+		CRClickPopup::createAndPush(event.motion, CInfoWindow::genText(building->Name(), building->Description()), c);
 	}
 }
 
@@ -1215,7 +1215,7 @@ void CCastleInterface::recreateIcons()
 		creainfo.push_back(std::make_shared<CCreaInfo>(Point(14+55*i, 507), town, i+4));
 }
 
-void CCastleInterface::keyPressed(const SDL_KeyboardEvent & key)
+void CCastleInterface::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED) return;
 
@@ -1292,13 +1292,13 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	}
 }
 
-void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(previousState && (!down))
 		GH.pushIntT<CBuildWindow>(town,building,state,0);
 }
 
-void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
+void CHallInterface::CBuildingBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		GH.pushIntT<CBuildWindow>(town,building,state,1);
@@ -1655,15 +1655,15 @@ void CFortScreen::RecruitArea::creaturesChanged()
 	}
 }
 
-void CFortScreen::RecruitArea::clickLeft(tribool down, bool previousState)
+void CFortScreen::RecruitArea::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(!down && previousState)
 		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
 
-void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
+void CFortScreen::RecruitArea::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
-	clickLeft(down, false); //r-click does same as l-click - opens recr. window
+	clickLeft(event, down, false); //r-click does same as l-click - opens recr. window
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
@@ -1717,16 +1717,16 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 	pos = image->pos;
 }
 
-void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		LOCPLINT->showInfoDialog(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
-void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
+void CMageGuildScreen::Scroll::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
-		CRClickPopup::createAndPush(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
+		CRClickPopup::createAndPush(event.motion, spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)

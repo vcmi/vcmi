@@ -69,7 +69,7 @@ CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts 
 {
 }
 
-void CHeroSwitcher::clickLeft(tribool down, bool previousState)
+void CHeroSwitcher::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(!down)
 	{

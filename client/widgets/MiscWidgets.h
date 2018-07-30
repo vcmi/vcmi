@@ -43,8 +43,8 @@ public:
 	virtual ~LRClickableAreaWText();
 	void init();
 
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void clickRight(tribool down, bool previousState) override;
+	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 };
 
 /// base class for hero/town/garrison tooltips
@@ -128,8 +128,8 @@ class CHeroArea: public View
 public:
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover(bool on) override;
 };
 
@@ -139,8 +139,8 @@ class LRClickableAreaWTextComp: public LRClickableAreaWText
 public:
 	int baseType;
 	int bonusValue;
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void clickRight(tribool down, bool previousState) override;
+	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 	std::shared_ptr<CComponent> createComponent() const;
@@ -151,8 +151,8 @@ class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
 };
 

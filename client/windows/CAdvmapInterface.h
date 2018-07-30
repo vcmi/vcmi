@@ -68,7 +68,7 @@ class CTerrainRect : public View
 	void handleHover(const SDL_MouseMotionEvent & sEvent);
 	void handleSwipeMove(const SDL_MouseMotionEvent & sEvent);
 	/// handles start/finish of swipe (press/release of corresponding button); returns true if state change was handled
-	bool handleSwipeStateChange(bool btnPressed);
+	bool handleSwipeStateChange(int x, int y, bool btnPressed);
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
@@ -78,17 +78,16 @@ public:
 	CTerrainRect();
 	virtual ~CTerrainRect();
 	void deactivate() override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void clickMiddle(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickMiddle(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover(bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void showAnim(SDL_Surface * to);
 	void showPath(const SDL_Rect * extRect, SDL_Surface * to);
 	int3 whichTileIsIt(const int x, const int y); //x,y are cursor position
-	int3 whichTileIsIt(); //uses current cursor pos
 	/// @returns number of visible tiles on screen respecting current map scaling
 	int3 tileCountOnScreen();
 	/// animates view by caching current surface and crossfading it with normal screen
@@ -106,7 +105,7 @@ public:
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
-	void clickRight(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	CResDataBar();
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
@@ -226,9 +225,9 @@ public:
 	void centerOn(int3 on, bool fade = false);
 	void centerOn(const CGObjectInstance *obj, bool fade = false);
 	int3 verifyPos(int3 ver);
-	void handleRightClick(std::string text, tribool down);
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void handleRightClick(const SDL_MouseMotionEvent &motion, std::string text, tribool down);
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	bool isActive();
 
 	bool isHeroSleeping(const CGHeroInstance *hero);
@@ -246,7 +245,7 @@ public:
 	void quickCombatUnlock();
 	void tileLClicked(const int3 &mapPos);
 	void tileHovered(const int3 &mapPos);
-	void tileRClicked(const int3 &mapPos);
+	void tileRClicked(const SDL_MouseMotionEvent & motion, const int3 &mapPos);
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
 	const CGHeroInstance * curHero() const;

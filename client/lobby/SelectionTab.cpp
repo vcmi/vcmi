@@ -247,16 +247,16 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickLeft(tribool down, bool previousState)
+void SelectionTab::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{
-		int line = getLine();
+		int line = getLine(event.button.x, event.button.y);
 		if(line != -1)
 			select(line);
 	}
 }
-void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
+void SelectionTab::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
 		return;
@@ -288,11 +288,11 @@ void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
 	select(selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::onDoubleClick()
+void SelectionTab::onDoubleClick(const SDL_Event &event)
 {
-	if(getLine() != -1) //double clicked scenarios list
+	if(getLine(event.button.x, event.button.y) != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(false, true);
+		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(event, false, true);
 	}
 }
 
@@ -427,10 +427,10 @@ void SelectionTab::updateListItems()
 	}
 }
 
-int SelectionTab::getLine()
+int SelectionTab::getLine(int x, int y)
 {
 	int line = -1;
-	Point clickPos(GH.current->button.x, GH.current->button.y);
+	Point clickPos(x, y);
 	clickPos = clickPos - pos.topLeft();
 
 	// Ignore clicks on save name area

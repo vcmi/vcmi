@@ -114,7 +114,7 @@ public:
 
 	CChatBox(const Rect & rect);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key) override;
 
 	void addNewMessage(const std::string & text);
 };
@@ -130,7 +130,7 @@ class CFlagBox : public View
 public:
 	CFlagBox(const Rect & rect);
 	void recreate();
-	void clickRight(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void showTeamsPopup();
 
 	class CFlagBoxTooltipBox : public CWindowObject

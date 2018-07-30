@@ -157,7 +157,7 @@ void CButton::onButtonClicked()
 	callback();
 }
 
-void CButton::clickLeft(tribool down, bool previousState)
+void CButton::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(isBlocked())
 		return;
@@ -183,10 +183,10 @@ void CButton::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CButton::clickRight(tribool down, bool previousState)
+void CButton::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down && helpBox.size()) //there is no point to show window with nothing inside...
-		CRClickPopup::createAndPush(helpBox);
+		CRClickPopup::createAndPush(event.motion, helpBox);
 }
 
 void CButton::hover (bool on)
@@ -364,7 +364,7 @@ void CToggleButton::doSelect(bool on)
 	}
 }
 
-void CToggleButton::clickLeft(tribool down, bool previousState)
+void CToggleButton::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	// force refresh
 	hover(false);
@@ -480,11 +480,11 @@ void CVolumeSlider::addCallback(std::function<void(int)> callback)
 	onChange += callback;
 }
 
-void CVolumeSlider::clickLeft(tribool down, bool previousState)
+void CVolumeSlider::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = event.motion.x - pos.x;
 		double rx = px / static_cast<double>(pos.w);
 		// setVolume is out of 100
 		setVolume(rx * 100);
@@ -499,16 +499,16 @@ void CVolumeSlider::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CVolumeSlider::clickRight(tribool down, bool previousState)
+void CVolumeSlider::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if (down)
 	{
-		double px = GH.current->motion.x - pos.x;
+		double px = event.motion.x - pos.x;
 		int index = px / static_cast<double>(pos.w) * animImage->size();
 		std::string hoverText = helpHandlers[index].first;
 		std::string helpBox = helpHandlers[index].second;
 		if(!helpBox.empty())
-			CRClickPopup::createAndPush(helpBox);
+			CRClickPopup::createAndPush(event.motion, helpBox);
 		if(GH.statusbar)
 			GH.statusbar->setText(helpBox);
 	}
@@ -531,7 +531,7 @@ void CSlider::sliderClicked()
 		addUsedEvents(MOVE);
 }
 
-void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
+void CSlider::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	double v = 0;
 	if(horizontal)
@@ -630,7 +630,7 @@ void CSlider::moveTo(int to)
 	moved(to);
 }
 
-void CSlider::clickLeft(tribool down, bool previousState)
+void CSlider::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down && !slider->isBlocked())
 	{
@@ -638,19 +638,19 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		double rw = 0;
 		if(horizontal)
 		{
-			pw = GH.current->motion.x-pos.x-25;
+			pw = event.motion.x-pos.x-25;
 			rw = pw / static_cast<double>(pos.w - 48);
 		}
 		else
 		{
-			pw = GH.current->motion.y-pos.y-24;
+			pw = event.motion.y-pos.y-24;
 			rw = pw / (pos.h-48);
 		}
 		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) - 40)
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(true, slider->mouseState(EIntObjMouseBtnType::LEFT));
+		slider->clickLeft(event, true, slider->mouseState(EIntObjMouseBtnType::LEFT));
 		moveTo(rw * positions  +  0.5);
 		return;
 	}
@@ -751,7 +751,7 @@ void CSlider::wheelScrolled(bool down, bool in)
 	moveTo(value + 3 * (down ? +scrollStep : -scrollStep));
 }
 
-void CSlider::keyPressed(const SDL_KeyboardEvent & key)
+void CSlider::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED) return;
 

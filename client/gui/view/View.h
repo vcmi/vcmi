@@ -57,30 +57,34 @@ public:
 	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
 	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	virtual void click(EIntObjMouseBtnType btn, tribool down, bool previousState);
-	virtual void clickLeft(tribool down, bool previousState) {}
-	virtual void clickRight(tribool down, bool previousState) {}
-	virtual void clickMiddle(tribool down, bool previousState) {}
+	virtual void click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState)
+	{}
+	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState)
+	{}
+	virtual void clickMiddle(const SDL_Event &event, tribool down, bool previousState)
+	{}
 
 	bool hovered;
 	virtual void hover (bool on){}
 
 	bool captureAllKeys;
-	virtual void keyPressed(const SDL_KeyboardEvent & key){}
+	virtual void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key);
 
 	virtual void textInputed(const SDL_TextInputEvent & event){};
 	virtual void textEdited(const SDL_TextEditingEvent & event){};
 
 	bool strongInterest;
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+	virtual void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
+	{}
 
 	void setTimer(int msToTrigger);
 	virtual void tick(){}
 
 	virtual void wheelScrolled(bool down, bool in){}
 
-	virtual void onDoubleClick(){}
+	virtual void onDoubleClick(const SDL_Event &event){}
 
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024};
 	const ui16 & active;
@@ -155,7 +159,7 @@ public:
 	CKeyShortcut();
 	explicit CKeyShortcut(int key);
 	explicit CKeyShortcut(std::set<int> & Keys);
-	virtual void keyPressed(const SDL_KeyboardEvent & key) override; //call-in
+	virtual void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override; //call-in
 };
 
 class WindowBase : public View

@@ -52,15 +52,15 @@ CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::fun
 	owner = _owner;
 }
 
-void CSpellWindow::InteractiveArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(!down)
 		onLeft();
 }
 
-void CSpellWindow::InteractiveArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
-	adventureInt->handleRightClick(helpText, down);
+	adventureInt->handleRightClick(event.motion, helpText, down);
 }
 
 void CSpellWindow::InteractiveArea::hover(bool on)
@@ -423,7 +423,7 @@ void CSpellWindow::turnPageRight()
 		CCS->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15);
 }
 
-void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
+void CSpellWindow::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_ESCAPE ||  key.keysym.sym == SDLK_RETURN)
 	{
@@ -484,7 +484,7 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 				return;
 
 			//try casting spell
-			spellAreas[index]->clickLeft(false, true);
+			spellAreas[index]->clickLeft(event, false, true);
 		}
 	}
 }
@@ -518,7 +518,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 CSpellWindow::SpellArea::~SpellArea() = default;
 
-void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(mySpell && !down)
 	{
@@ -586,7 +586,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(mySpell && down)
 	{
@@ -600,7 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(event.motion, mySpell->getLevelInfo(schoolLevel).description + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 

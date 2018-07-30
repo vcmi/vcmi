@@ -87,13 +87,13 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 	redraw();
 }
 
-void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 		GH.pushIntT<CStackWindow>(creature, true);
@@ -735,13 +735,13 @@ void CTavernWindow::show(SDL_Surface * to)
 	}
 }
 
-void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(h && previousState && !down)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(h && down)
 		GH.pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
@@ -1102,7 +1102,7 @@ void CTransformerWindow::CItem::move()
 	left = !left;
 }
 
-void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
+void CTransformerWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(previousState && (!down))
 	{
@@ -1207,7 +1207,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.w = icon->pos.w;
 }
 
-void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
+void CUniversityWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(previousState && (!down))
 	{
@@ -1216,11 +1216,11 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
+void CUniversityWindow::CItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
+		CRClickPopup::createAndPush(event.motion, CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 	}
 }
 
@@ -1738,7 +1738,7 @@ void CObjectListWindow::CItem::select(bool on)
 	redraw();//???
 }
 
-void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
+void CObjectListWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if( previousState && !down)
 		parent->changeSelection(index);
@@ -1840,7 +1840,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+void CObjectListWindow::keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
 		return;

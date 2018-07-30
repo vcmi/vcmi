@@ -43,8 +43,8 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void clickRight(tribool down, bool previousState) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
 		void hover(bool on) override;
 		void onSelect(bool on);
 
@@ -56,7 +56,7 @@ protected:
 		/// open item (town or hero screen)
 		virtual void open()=0;
 		/// show right-click tooltip
-		virtual void showTooltip()=0;
+		virtual void showTooltip(const SDL_MouseMotionEvent & motion)=0;
 		/// get hover text for status bar
 		virtual std::string getHoverText()=0;
 	};
@@ -129,7 +129,7 @@ class CHeroList	: public CList
 		void update();
 		void select(bool on) override;
 		void open() override;
-		void showTooltip() override;
+		void showTooltip(const SDL_MouseMotionEvent & motion) override;
 		std::string getHoverText() override;
 	};
 
@@ -163,7 +163,7 @@ class CTownList	: public CList
 		void update();
 		void select(bool on) override;
 		void open() override;
-		void showTooltip() override;
+		void showTooltip(const SDL_MouseMotionEvent & motion) override;
 		std::string getHoverText() override;
 	};
 
@@ -218,12 +218,12 @@ protected:
 	//to initialize colors
 	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 
-	void moveAdvMapSelection();
+	void moveAdvMapSelection(int x, int y);
 
 public:
 	// terrainID -> (normal color, blocked color)
@@ -232,7 +232,7 @@ public:
 	CMinimap(const Rect & position);
 
 	//should be called to invalidate whole map - different player or level
-	int3 translateMousePosition();
+	int3 translateMousePosition(int x, int y);
 	void update();
 	void setLevel(int level);
 	void setAIRadar(bool on);
@@ -331,8 +331,8 @@ class CInfoBar : public View
 
 	void tick() override;
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();
@@ -410,7 +410,7 @@ public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
 	void print(const std::string &txt);
-	void keyPressed (const SDL_KeyboardEvent & key) override; //call-in
+	void keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key) override; //call-in
 
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;

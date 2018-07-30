@@ -138,18 +138,18 @@ void View::deactivate(ui16 what)
 	GH.handleElementDeActivate(this, what);
 }
 
-void View::click(EIntObjMouseBtnType btn, tribool down, bool previousState)
+void View::click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, bool previousState)
 {
 	switch(btn)
 	{
 	case EIntObjMouseBtnType::LEFT:
-		clickLeft(down, previousState);
+		clickLeft(event, down, previousState);
 		break;
 	case EIntObjMouseBtnType::MIDDLE:
-		clickMiddle(down, previousState);
+		clickMiddle(event, down, previousState);
 		break;
 	case EIntObjMouseBtnType::RIGHT:
-		clickRight(down, previousState);
+		clickRight(event, down, previousState);
 		break;
 	}
 }
@@ -334,14 +334,14 @@ CKeyShortcut::CKeyShortcut(std::set<int> & Keys)
 	:assignedKeys(Keys)
 {}
 
-void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
+void CKeyShortcut::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(vstd::contains(assignedKeys,key.keysym.sym)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
 		bool prev = mouseState(EIntObjMouseBtnType::LEFT);
 		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
-		clickLeft(key.state == SDL_PRESSED, prev);
+		clickLeft(event, key.state == SDL_PRESSED, prev);
 
 	}
 }

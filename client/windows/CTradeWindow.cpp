@@ -166,7 +166,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
 }
 
-void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
@@ -255,7 +255,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -269,7 +269,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
+				adventureInt->handleRightClick(event.motion, CGI->arth->artifacts[id]->Description(), down);
 			break;
 		}
 	}

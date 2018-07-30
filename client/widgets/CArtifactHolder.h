@@ -37,8 +37,8 @@ public:
 	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
 
 	CArtPlace(Point position, const CArtifactInstance * Art = nullptr);
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event,tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event,tribool down, bool previousState) override;
 
 	virtual void setArtifact(const CArtifactInstance *art)=0;
 };
@@ -53,8 +53,8 @@ protected:
 	void returnArtToHeroCallback();
 public:
 	CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art = nullptr);
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event,tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event,tribool down, bool previousState) override;
 
 	virtual void setArtifact(const CArtifactInstance * art) override;
 
@@ -83,8 +83,8 @@ public:
 	void pickSlot(bool on);
 	void selectSlot(bool on);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event,tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event,tribool down, bool previousState) override;
 	void select();
 	void deselect();
 	void showAll(SDL_Surface * to) override;

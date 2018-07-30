@@ -70,15 +70,15 @@ class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
-	void clickRight(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 
 	CRClickPopup();
 	virtual ~CRClickPopup();
 
 	static std::shared_ptr<WindowBase> createInfoWin(Point position, const CGObjectInstance * specific);
-	static void createAndPush(const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
-	static void createAndPush(const std::string & txt, std::shared_ptr<CComponent> component);
-	static void createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment = BOTTOMRIGHT);
+	static void createAndPush(const SDL_MouseMotionEvent & motion, const std::string & txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
+	static void createAndPush(const SDL_MouseMotionEvent & motion, const std::string & txt, std::shared_ptr<CComponent> component);
+	static void createAndPush(const SDL_MouseMotionEvent & motion, const CGObjectInstance * obj, const Point & p, EAlignment alignment = BOTTOMRIGHT);
 };
 
 /// popup displayed on R-click

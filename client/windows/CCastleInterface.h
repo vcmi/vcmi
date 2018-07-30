@@ -52,9 +52,9 @@ public:
 	~CBuildingRect();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void clickLeft(const SDL_Event & event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event & event, tribool down, bool previousState) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -96,8 +96,8 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void deactivate() override;
 };
 
@@ -176,8 +176,8 @@ public:
 
 	void update();
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 };
 
 /// Town hall and fort icons for town screen
@@ -191,7 +191,7 @@ public:
 	CTownInfo(int posX, int posY, const CGTownInstance * town, bool townHall);
 
 	void hover(bool on) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 };
 
 /// Class which manages the castle window
@@ -232,7 +232,7 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	void close();
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
@@ -256,8 +256,8 @@ class CHallInterface : public CWindowObject
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	};
 	const CGTownInstance * town;
 
@@ -330,8 +330,8 @@ class CFortScreen : public CWindowObject
 
 		void creaturesChanged();
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	};
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
@@ -357,8 +357,8 @@ class CMageGuildScreen : public CWindowObject
 
 	public:
 		Scroll(Point position, const CSpell *Spell);
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 		void hover(bool on) override;
 	};
 	std::shared_ptr<CPicture> window;

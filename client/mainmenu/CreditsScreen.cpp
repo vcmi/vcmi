@@ -42,15 +42,15 @@ void CreditsScreen::show(SDL_Surface * to)
 
 	//end of credits, close this screen
 	if(credits->textSize.y + 600 < positionCounter / 2)
-		clickRight(false, false);
+		dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickLeft(tribool down, bool previousState)
+void CreditsScreen::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
-	clickRight(down, previousState);
+	dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickRight(tribool down, bool previousState)
+void CreditsScreen::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(getParent());
 	assert(menu);

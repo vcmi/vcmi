@@ -134,7 +134,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	}
 }
 
-void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+void CCampaignScreen::CCampaignButton::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{

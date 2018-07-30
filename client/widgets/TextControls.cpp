@@ -474,13 +474,13 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft( tribool down, bool previousState )
+void CTextInput::clickLeft(const SDL_Event &event, tribool down, bool previousState )
 {
 	if(down && !focus)
 		giveFocus();
 }
 
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+void CTextInput::keyPressed( const SDL_Event & event, const SDL_KeyboardEvent & key )
 {
 
 	if(!focus || key.state != SDL_PRESSED)

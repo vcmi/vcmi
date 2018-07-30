@@ -307,7 +307,7 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
+void CChatBox::keyPressed(const SDL_Event &event,const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_RETURN && key.state == SDL_PRESSED && inputBox->text.size())
 	{
@@ -315,7 +315,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 		inputBox->setText("");
 	}
 	else
-		inputBox->keyPressed(key);
+		inputBox->keyPressed(event, key);
 }
 
 void CChatBox::addNewMessage(const std::string & text)
@@ -364,7 +364,7 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(tribool down, bool previousState)
+void CFlagBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down && SEL->getMapInfo())
 		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);

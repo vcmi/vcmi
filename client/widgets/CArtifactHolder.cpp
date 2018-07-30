@@ -97,7 +97,7 @@ void CHeroArtPlace::selectSlot(bool on)
 		selection->disable();
 }
 
-void CHeroArtPlace::clickLeft(tribool down, bool previousState)
+void CHeroArtPlace::clickLeft(const SDL_Event &event,tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
 	bool inBackpack = slotID >= GameConstants::BACKPACK_START,
@@ -239,7 +239,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 	return false;
 }
 
-void CHeroArtPlace::clickRight(tribool down, bool previousState)
+void CHeroArtPlace::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
@@ -270,7 +270,7 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 		}
 
 		// Lastly just show the artifact description.
-		LRClickableAreaWTextComp::clickRight(down, previousState);
+		LRClickableAreaWTextComp::clickRight(event, down, previousState);
 	}
 }
 
@@ -986,14 +986,14 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art) : ourArt(Art
 	pos.w = pos.h = 44;
 }
 
-void CArtPlace::clickLeft(tribool down, bool previousState)
+void CArtPlace::clickLeft(const SDL_Event &event,tribool down, bool previousState)
 {
-	LRClickableAreaWTextComp::clickLeft(down, previousState);
+	LRClickableAreaWTextComp::clickLeft(event, down, previousState);
 }
 
-void CArtPlace::clickRight(tribool down, bool previousState)
+void CArtPlace::clickRight(const SDL_Event &event,tribool down, bool previousState)
 {
-	LRClickableAreaWTextComp::clickRight(down, previousState);
+	LRClickableAreaWTextComp::clickRight(event, down, previousState);
 }
 
 CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * commanderOwner, ArtifactPosition artSlot, const CArtifactInstance * Art) : CArtPlace(position, Art), commanderOwner(commanderOwner), commanderSlotID(artSlot.num)
@@ -1002,16 +1002,16 @@ CCommanderArtPlace::CCommanderArtPlace(Point position, const CGHeroInstance * co
 	setArtifact(Art);
 }
 
-void CCommanderArtPlace::clickLeft(tribool down, bool previousState)
+void CCommanderArtPlace::clickLeft(const SDL_Event &event,tribool down, bool previousState)
 {
 	if (ourArt && text.size() && down)
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["commanderWindow"]["artifactMessage"].String(), [this](){ returnArtToHeroCallback(); }, [](){});
 }
 
-void CCommanderArtPlace::clickRight(tribool down, bool previousState)
+void CCommanderArtPlace::clickRight(const SDL_Event &event,tribool down, bool previousState)
 {
 	if (ourArt && text.size() && down)
-		CArtPlace::clickRight(down, previousState);
+		CArtPlace::clickRight(event, down, previousState);
 }
 
 void CCommanderArtPlace::createImage()

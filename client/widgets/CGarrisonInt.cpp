@@ -274,7 +274,7 @@ bool CGarrisonSlot::mustForceReselection() const
 	return false;
 }
 
-void CGarrisonSlot::clickRight(tribool down, bool previousState)
+void CGarrisonSlot::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(creature && down)
 	{
@@ -282,7 +282,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 	}
 }
 
-void CGarrisonSlot::clickLeft(tribool down, bool previousState)
+void CGarrisonSlot::clickLeft(const SDL_Event &event, tribool down, bool previousState)
 {
 	if(down)
 	{

@@ -104,8 +104,8 @@ public:
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
-	void clickRight(tribool down, bool previousState) override;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover (bool on) override;
 	void showAll(SDL_Surface * to) override;
 
@@ -148,7 +148,7 @@ class CToggleButton : public CButton, public CToggleBase
 public:
 	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
 	              CFunctionList<void(bool)> Callback = 0, int key=0, bool playerColoredButton = false );
-	void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
 
 	// bring overrides into scope
 	//using CButton::addCallback;
@@ -196,8 +196,8 @@ public:
 	void addCallback(std::function<void(int)> callback);
 
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void wheelScrolled(bool down, bool in) override;
 };
 
@@ -249,10 +249,10 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	void wheelScrolled(bool down, bool in) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider

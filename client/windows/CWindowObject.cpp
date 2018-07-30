@@ -232,7 +232,7 @@ void CWindowObject::showAll(SDL_Surface *to)
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::clickRight(tribool down, bool previousState)
+void CWindowObject::clickRight(const SDL_Event &event, tribool down, bool previousState)
 {
 	close();
 	CCS->curh->show();
