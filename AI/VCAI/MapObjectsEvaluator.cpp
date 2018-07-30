@@ -52,7 +52,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int value) //by current design it updates value if already in AI database
 {
 	CompoundMapObjectID internalIdentifier = CompoundMapObjectID(primaryID, secondaryID);
-	objectDatabase.insert_or_assign(internalIdentifier, value);
+	objectDatabase[internalIdentifier] = value;
 }
 
 void MapObjectsEvaluator::removeObjectData(int primaryID, int secondaryID)
