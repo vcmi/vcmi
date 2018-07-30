@@ -295,9 +295,9 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
 	int objValue = 0;
 
-	if(objValueKnownByAI.is_initialized()) //consider adding value manipulation based on object instances on map
+	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
 	{
-		objValue = std::min(std::max(objValueKnownByAI.value(), 0), 20000);
+		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
 	}
 	else
 	{
