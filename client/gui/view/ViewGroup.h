@@ -5,6 +5,5 @@
 class ViewGroup : public View
 {
 public:
-
 };
 

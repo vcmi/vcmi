@@ -124,7 +124,7 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleCurrentEvent();
+	void event(const SDL_Event * const event);
 	void handleMouseMotion();
 	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();

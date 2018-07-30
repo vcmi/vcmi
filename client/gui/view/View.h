@@ -35,13 +35,8 @@ public:
 	virtual void deactivate()=0;
 	virtual void redraw()=0;
 	virtual void show(SDL_Surface * to) = 0;
-	virtual void showAll(SDL_Surface * to)
-	{
-		show(to);
-	}
+	virtual void showAll(SDL_Surface * to) = 0;
 	
-	
-	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
 	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivatable();

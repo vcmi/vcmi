@@ -191,16 +191,16 @@ void CGuiHandler::handleEvents()
 		SDL_Event ev = events.front();
 		current = &ev;
 		events.pop();
-		handleCurrentEvent();
+		event(&ev);
 	}
 }
 
-void CGuiHandler::handleCurrentEvent()
+void CGuiHandler::event(const SDL_Event * const event)
 {
-	if(current->type == SDL_KEYDOWN || current->type == SDL_KEYUP)
+	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
 	{
-		SDL_KeyboardEvent key = current->key;
-		if(current->type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
+		SDL_KeyboardEvent key = event->key;
+		if(event->type == SDL_KEYDOWN && key.keysym.sym >= SDLK_F1 && key.keysym.sym <= SDLK_F15 && settings["session"]["spectate"].Bool())
 		{
 			//TODO: we need some central place for all interface-independent hotkeys
 			Settings s = settings.write["session"];
@@ -263,22 +263,22 @@ void CGuiHandler::handleCurrentEvent()
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureThisEvent(key)))
 				(**i).keyPressed(key);
 	}
-	else if(current->type == SDL_MOUSEMOTION)
+	else if(event->type == SDL_MOUSEMOTION)
 	{
 		handleMouseMotion();
 	}
-	else if(current->type == SDL_MOUSEBUTTONDOWN)
+	else if(event->type == SDL_MOUSEBUTTONDOWN)
 	{
-		switch(current->button.button)
+		switch(event->button.button)
 		{
 		case SDL_BUTTON_LEFT:
-			if(lastClick == current->motion && (SDL_GetTicks() - lastClickTime) < 300)
+			if(lastClick == event->motion && (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<View*> hlp = doubleClickInterested;
 				for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 				{
 					if(!vstd::contains(doubleClickInterested, *i)) continue;
-					if(isItIn(&(*i)->pos, current->motion.x, current->motion.y))
+					if(isItIn(&(*i)->pos, event->motion.x, event->motion.y))
 					{
 						(*i)->onDoubleClick();
 					}
@@ -286,7 +286,7 @@ void CGuiHandler::handleCurrentEvent()
 
 			}
 
-			lastClick = current->motion;
+			lastClick = event->motion;
 			lastClickTime = SDL_GetTicks();
 
 			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, true);
@@ -301,7 +301,7 @@ void CGuiHandler::handleCurrentEvent()
 			break;
 		}
 	}
-	else if(current->type == SDL_MOUSEWHEEL)
+	else if(event->type == SDL_MOUSEWHEEL)
 	{
 		std::list<View*> hlp = wheelInterested;
 		for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
@@ -310,27 +310,27 @@ void CGuiHandler::handleCurrentEvent()
 			// SDL doesn't have the proper values for mouse positions on SDL_MOUSEWHEEL, refetch them
 			int x = 0, y = 0;
 			SDL_GetMouseState(&x, &y);
-			(*i)->wheelScrolled(current->wheel.y < 0, isItIn(&(*i)->pos, x, y));
+			(*i)->wheelScrolled(event->wheel.y < 0, isItIn(&(*i)->pos, x, y));
 		}
 	}
-	else if(current->type == SDL_TEXTINPUT)
+	else if(event->type == SDL_TEXTINPUT)
 	{
 		for(auto it : textInterested)
 		{
-			it->textInputed(current->text);
+			it->textInputed(event->text);
 		}
 	}
-	else if(current->type == SDL_TEXTEDITING)
+	else if(event->type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
-			it->textEdited(current->edit);
+			it->textEdited(event->edit);
 		}
 	}
 	//todo: muiltitouch
-	else if(current->type == SDL_MOUSEBUTTONUP)
+	else if(event->type == SDL_MOUSEBUTTONUP)
 	{
-		switch(current->button.button)
+		switch(event->button.button)
 		{
 		case SDL_BUTTON_LEFT:
 			handleMouseButtonClick(lclickable, EIntObjMouseBtnType::LEFT, false);

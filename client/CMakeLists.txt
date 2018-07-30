@@ -15,6 +15,7 @@ set(client_SRCS
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/view/View.cpp
+		gui/view/ViewGroup.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
@@ -86,6 +87,7 @@ set(client_HEADERS
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
 		gui/view/View.h
+		gui/view/ViewGroup.h
 		gui/Fonts.h
 		gui/Geometries.h
 		gui/SDL_Compat.h

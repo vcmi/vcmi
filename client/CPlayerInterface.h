@@ -49,7 +49,6 @@ class Hoverable;
 class KeyInterested;
 class MotionInterested;
 class TimeInterested;
-class IShowable;
 struct CPathsInfo;
 
 namespace boost
