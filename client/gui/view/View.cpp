@@ -20,8 +20,7 @@ IShowActivatable::IShowActivatable()
 }
 
 View::View(ui16 used_, Point pos_):
-	active_m(0),
-	active(active_m),
+	active(0),
 	pos(pos_.x, pos_.y),
 	used(used_),
 	hovered(false),
@@ -38,7 +37,7 @@ View::View(ui16 used_, Point pos_):
 
 View::~View()
 {
-	if(active_m)
+	if(active)
 		deactivate();
 
 	while(!children.empty())
@@ -92,9 +91,9 @@ void View::showAll(SDL_Surface * to)
 
 void View::activate()
 {
-	if (active_m)
+	if (active)
 	{
-		if ((used | GENERAL) == active_m)
+		if ((used | GENERAL) == active)
 			return;
 		else
 		{
@@ -102,8 +101,8 @@ void View::activate()
 			deactivate(); //FIXME: better to avoid such possibility at all
 		}
 	}
-
-	active_m |= GENERAL;
+	
+	active |= GENERAL;
 	activate(used);
 
 	if(defActions & ACTIVATE)
@@ -119,13 +118,13 @@ void View::activate(ui16 what)
 
 void View::deactivate()
 {
-	if (!active_m)
+	if (!active)
 		return;
+	
+	active &= ~ GENERAL;
+	deactivate(active);
 
-	active_m &= ~ GENERAL;
-	deactivate(active_m);
-
-	assert(!active_m);
+	assert(!active);
 
 	if(defActions & DEACTIVATE)
 		for(auto & elem : children)
@@ -176,14 +175,14 @@ void View::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts fo
 
 void View::addUsedEvents(ui16 newActions)
 {
-	if (active_m)
+	if (active)
 		activate(~used & newActions);
 	used |= newActions;
 }
 
 void View::removeUsedEvents(ui16 newActions)
 {
-	if (active_m)
+	if (active)
 		deactivate(used & newActions);
 	used &= ~newActions;
 }
@@ -198,7 +197,7 @@ void View::disable()
 
 void View::enable()
 {
-	if(!active_m && (!getParent() || getParent()->active))
+	if(!active && (!getParent() || getParent()->active))
 		activate();
 
 	recActions = 255;

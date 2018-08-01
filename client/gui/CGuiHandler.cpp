@@ -83,7 +83,7 @@ void CGuiHandler::handleElementActivate(View * elem, ui16 activityFlag)
 	processLists(activityFlag,[&](std::list<View*> * lst){
 		lst->push_front(elem);
 	});
-	elem->active_m |= activityFlag;
+	elem->active |= activityFlag;
 }
 
 void CGuiHandler::handleElementDeActivate(View * elem, ui16 activityFlag)
@@ -93,7 +93,7 @@ void CGuiHandler::handleElementDeActivate(View * elem, ui16 activityFlag)
 		assert(hlp != lst->end());
 		lst->erase(hlp);
 	});
-	elem->active_m &= ~activityFlag;
+	elem->active &= ~activityFlag;
 }
 
 void CGuiHandler::popInt(std::shared_ptr<IShowActivatable> top)

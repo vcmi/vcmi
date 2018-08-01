@@ -87,7 +87,6 @@ public:
 	virtual void onDoubleClick(const SDL_Event &event){}
 
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024};
-	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
@@ -129,6 +128,7 @@ public:
 	ui8 recActions;
 	
 	friend class CGuiHandler;
+	ui16 active;
 protected:
 	void activate(ui16 what);
 	void deactivate(ui16 what);
@@ -145,9 +145,6 @@ private:
 	int timerDelay;
 	
 	std::map<EIntObjMouseBtnType, bool> currentMouseState;
-	
-	
-	ui16 active_m;
 };
 
 /// Class for binding keys to left mouse button clicks
