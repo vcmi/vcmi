@@ -26,13 +26,16 @@ bool canSeeObj(const CGObjectInstance * obj)
 }
 
 CNeighbourFinder::CNeighbourFinder()
-	:neighbours(), neighbourTiles(), accessibleNeighbourTiles()
 {
 }
 
-std::vector<CGPathNode *> & CNeighbourFinder::calculateNeighbours(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper, CNodeHelper * nodeHelper)
+std::vector<CGPathNode *> CNeighbourFinder::calculateNeighbours(
+	CPathNodeInfo & source, 
+	CPathfinderHelper * pathfinderHelper,
+	CNodeHelper * nodeHelper) const
 {
-	addNeighbourTiles(source, pathfinderHelper);
+	std::vector<CGPathNode *> neighbours;
+	auto accessibleNeighbourTiles = getNeighbourTiles(source, pathfinderHelper);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
 	{
@@ -50,11 +53,27 @@ std::vector<CGPathNode *> & CNeighbourFinder::calculateNeighbours(CPathNodeInfo 
 	return neighbours;
 }
 
-void CNeighbourFinder::addNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper)
+std::vector<CGPathNode *> CNeighbourFinder::calculateTeleportations(
+	CPathNodeInfo & source, 
+	CPathfinderHelper * pathfinderHelper, 
+	CNodeHelper * nodeHelper) const
 {
-	neighbourTiles.clear();
-	accessibleNeighbourTiles.clear();
-	neighbours.clear();
+	std::vector<CGPathNode *> neighbours;
+	auto accessibleExits = getTeleportExits(source, pathfinderHelper);
+
+	for(auto & neighbour : accessibleExits)
+	{
+		auto node = nodeHelper->getNode(neighbour, source.node->layer);
+
+		neighbours.push_back(node);
+	}
+
+	return neighbours;
+}
+
+std::vector<int3> CNeighbourFinder::getNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper) const
+{
+	std::vector<int3> neighbourTiles;
 
 	pathfinderHelper->getNeighbours(
 		*source.tile,
@@ -65,14 +84,13 @@ void CNeighbourFinder::addNeighbourTiles(CPathNodeInfo & source, CPathfinderHelp
 
 	if(source.isNodeObjectVisitable())
 	{
-		for(int3 tile : neighbourTiles)
+		vstd::erase_if(neighbourTiles, [&](int3 tile) -> bool
 		{
-			if(pathfinderHelper->canMoveBetween(tile, source.nodeObject->visitablePos()))
-				accessibleNeighbourTiles.push_back(tile);
-		}
+			return !pathfinderHelper->canMoveBetween(tile, source.nodeObject->visitablePos());
+		});
 	}
-	else
-		vstd::concatenate(accessibleNeighbourTiles, neighbourTiles);
+	
+	return neighbourTiles;
 }
 
 class CPathfinderNodeHelper : public CNodeHelper
@@ -154,8 +172,6 @@ CPathfinder::CPathfinder(
 
 	initializePatrol();
 	initializeGraph();
-	neighbourTiles.reserve(8);
-	neighbours.reserve(16);
 }
 
 void CPathfinder::calculatePaths()
@@ -224,9 +240,13 @@ void CPathfinder::calculatePaths()
 				continue;
 		}
 
+		source.guarded = isSourceGuarded();
+		if(source.nodeObject)
+			source.objectRelations = gs->getPlayerRelations(hero->tempOwner, source.nodeObject->tempOwner);
+
 		//add accessible neighbouring nodes to the queue
 		auto neighbourNodes = neighbourFinder->calculateNeighbours(source, hlp.get(), nodeHelper.get());
-		for(auto & neighbour : neighbourNodes)
+		for(CGPathNode * neighbour : neighbourNodes)
 		{
 			destination.setNode(gs, neighbour);
 
@@ -248,6 +268,8 @@ void CPathfinder::calculatePaths()
 				continue;
 
 			destination.guarded = isDestinationGuarded();
+			if(destination.nodeObject)
+				destination.objectRelations = gs->getPlayerRelations(hero->tempOwner, destination.nodeObject->tempOwner);
 
 			if(!isMovementToDestPossible())
 				continue;
@@ -276,7 +298,7 @@ void CPathfinder::calculatePaths()
 			if(isBetterWay(remains, turnAtNextTile) &&
 				((source.node->turns == turnAtNextTile && remains) || passOneTurnLimitCheck()))
 			{
-				assert(dp != source.node->theNodeBefore); //two tiles can't point to each other
+				assert(destination.node != source.node->theNodeBefore); //two tiles can't point to each other
 				destination.node->moveRemains = remains;
 				destination.node->turns = turnAtNextTile;
 				destination.node->theNodeBefore = source.node;
@@ -291,10 +313,15 @@ void CPathfinder::calculatePaths()
 		} //neighbours loop
 
 		//just add all passable teleport exits
-		addTeleportExits();
-		for(auto & neighbour : neighbours)
+
+		/// For now we disable teleports usage for patrol movement
+		/// VCAI not aware about patrol and may stuck while attempt to use teleport
+		if(!source.isNodeObjectVisitable() || patrolState == PATROL_RADIUS)
+			continue;
+
+		auto teleportationNodes = neighbourFinder->calculateTeleportations(source, hlp.get(), nodeHelper.get());
+		for(CGPathNode * teleportNode : teleportationNodes)
 		{
-			auto teleportNode = nodeHelper->getNode(neighbour, source.node->layer);
 			if(teleportNode->locked)
 				continue;
 			/// TODO: We may consider use invisible exits on FoW border in future
@@ -320,50 +347,73 @@ void CPathfinder::calculatePaths()
 	} //queue loop
 }
 
-void CPathfinder::addTeleportExits()
+std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(TeleportChannelID channelID) const
 {
-	neighbours.clear();
-	/// For now we disable teleports usage for patrol movement
-	/// VCAI not aware about patrol and may stuck while attempt to use teleport
-	if(!source.isNodeObjectVisitable() || patrolState == PATROL_RADIUS)
-		return;
+	std::vector<int3> allowedExits;
 
-	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(source.nodeObject);
-	if(hlp->isAllowedTeleportEntrance(objTeleport))
+	for(auto objId : getTeleportChannelExits(channelID, hero->tempOwner))
 	{
-		for(auto objId : getTeleportChannelExits(objTeleport->channel, hero->tempOwner))
+		auto obj = getObj(objId);
+		if(dynamic_cast<const CGWhirlpool *>(obj))
 		{
-			auto obj = getObj(objId);
-			if(dynamic_cast<const CGWhirlpool *>(obj))
+			auto pos = obj->getBlockedPos();
+			for(auto p : pos)
 			{
-				auto pos = obj->getBlockedPos();
-				for(auto p : pos)
-				{
-					if(gs->map->getTile(p).topVisitableId() == obj->ID)
-						neighbours.push_back(p);
-				}
+				if(gs->map->getTile(p).topVisitableId() == obj->ID)
+					allowedExits.push_back(p);
 			}
-			else if(CGTeleport::isExitPassable(gs, hero, obj))
-				neighbours.push_back(obj->visitablePos());
+		}
+		else if(CGTeleport::isExitPassable(gs, hero, obj))
+			allowedExits.push_back(obj->visitablePos());
+	}
+
+	return allowedExits;
+}
+
+std::vector<int3> CPathfinderHelper::getCastleGates(CPathNodeInfo & source) const
+{
+	std::vector<int3> allowedExits;
+
+	auto towns = getPlayer(hero->tempOwner)->towns;
+	for(const auto & town : towns)
+	{
+		if(town->id != source.nodeObject->id && town->visitingHero == nullptr
+			&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+		{
+			allowedExits.push_back(town->visitablePos());
 		}
 	}
 
-	if(options.useCastleGate
+	return allowedExits;
+}
+
+std::vector<int3> CNeighbourFinder::getTeleportExits(
+	CPathNodeInfo & source,
+	CPathfinderHelper * pathfinderHelper) const
+{
+	std::vector<int3> teleportationExits;
+
+	const CGTeleport * objTeleport = dynamic_cast<const CGTeleport *>(source.nodeObject);
+	if(pathfinderHelper->isAllowedTeleportEntrance(objTeleport))
+	{
+		for(auto exit : pathfinderHelper->getAllowedTeleportChannelExits(objTeleport->channel))
+		{
+			teleportationExits.push_back(exit);
+		}
+	}
+	else if(pathfinderHelper->options.useCastleGate
 		&& (source.nodeObject->ID == Obj::TOWN && source.nodeObject->subID == ETownType::INFERNO
-		&& getPlayerRelations(hero->tempOwner, source.nodeObject->tempOwner) != PlayerRelations::ENEMIES))
+		&& source.objectRelations != PlayerRelations::ENEMIES))
 	{
 		/// TODO: Find way to reuse CPlayerSpecificInfoCallback::getTownsInfo
 		/// This may be handy if we allow to use teleportation to friendly towns
-		auto towns = getPlayer(hero->tempOwner)->towns;
-		for(const auto & town : towns)
+		for(auto exit : pathfinderHelper->getCastleGates(source))
 		{
-			if(town->id != source.nodeObject->id && town->visitingHero == nullptr
-				&& town->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
-			{
-				neighbours.push_back(town->visitablePos());
-			}
+			teleportationExits.push_back(exit);
 		}
 	}
+
+	return teleportationExits;
 }
 
 bool CPathfinder::isHeroPatrolLocked() const

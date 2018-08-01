@@ -103,6 +103,7 @@ struct DLL_LINKAGE CPathNodeInfo
 	const TerrainTile * tile;
 	int3 coord;
 	bool guarded;
+	PlayerRelations::PlayerRelations objectRelations;
 
 	CPathNodeInfo();
 
@@ -146,18 +147,21 @@ public:
 
 class CNeighbourFinder
 {
-protected:
-	CPathfinder * pathfinder;
-	std::vector<int3> neighbourTiles;
-	std::vector<int3> accessibleNeighbourTiles;
-	std::vector<CGPathNode *> neighbours;
-
 public:
 	CNeighbourFinder();
-	virtual std::vector<CGPathNode *> & calculateNeighbours(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper, CNodeHelper * nodeHelper);
+	virtual std::vector<CGPathNode *> calculateNeighbours(
+		CPathNodeInfo & source, 
+		CPathfinderHelper * pathfinderHelper, 
+		CNodeHelper * nodeHelper) const;
+
+	virtual std::vector<CGPathNode *> calculateTeleportations(
+		CPathNodeInfo & source, 
+		CPathfinderHelper * pathfinderHelper, 
+		CNodeHelper * nodeHelper) const;
 
 protected:
-	void addNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper);
+	std::vector<int3> getNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper) const;
+	std::vector<int3> getTeleportExits(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper) const;
 };
 
 struct DLL_LINKAGE PathfinderOptions
@@ -256,13 +260,8 @@ private:
 	};
 	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
 
-	std::vector<int3> neighbourTiles;
-	std::vector<int3> neighbours;
-
 	CPathNodeInfo source; //current (source) path node -> we took it from the queue
 	CDestinationNodeInfo destination; //destination node -> it's a neighbour of source that we consider
-
-	void addTeleportExits();
 
 	bool isHeroPatrolLocked() const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
@@ -329,7 +328,9 @@ public:
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 
+	std::vector<int3> CPathfinderHelper::getCastleGates(CPathNodeInfo & source) const;
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
+	std::vector<int3> getAllowedTeleportChannelExits(TeleportChannelID channelID) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
 	bool addTeleportOneWay(const CGTeleport * obj) const;
 	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
