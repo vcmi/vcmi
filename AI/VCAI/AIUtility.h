@@ -176,6 +176,7 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t);
 ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
 int3 whereToExplore(HeroPtr h);
+uint32_t distanceToTile(const CGHeroInstance * hero, int3 pos);
 
 class CDistanceSorter
 {

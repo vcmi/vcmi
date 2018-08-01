@@ -102,14 +102,24 @@ struct DLL_LINKAGE CPathNodeInfo
 	const CGObjectInstance * nodeObject;
 	const TerrainTile * tile;
 	int3 coord;
-	bool blocked;
-	bool furtherProcessingImpossible;
+	bool guarded;
 
 	CPathNodeInfo();
 
-	void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false);
+	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false);
 
 	bool isNodeObjectVisitable() const;
+};
+
+struct DLL_LINKAGE CDestinationNodeInfo : public CPathNodeInfo
+{
+	CGPathNode::ENodeAction action;
+	bool furtherProcessingImpossible;
+	bool blocked;
+
+	CDestinationNodeInfo();
+
+	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false) override;
 };
 
 class CNodeHelper
@@ -119,7 +129,20 @@ public:
 	virtual CGPathNode * getInitialNode() = 0;
 };
 
+class CPathfinderHelper;
 class CPathfinder;
+
+class IPathfindingRule
+{
+public:
+	virtual void process(CPathfinderHelper * pathfinderHelper, CPathNodeInfo & source, CDestinationNodeInfo & destination) = 0;
+};
+
+class CMovementAfterDestinationRule : public IPathfindingRule
+{
+public:
+	virtual void process(CPathfinderHelper * pathfinderHelper, CPathNodeInfo & source, CDestinationNodeInfo & destination) override;
+};
 
 class CNeighbourFinder
 {
@@ -130,11 +153,62 @@ protected:
 	std::vector<CGPathNode *> neighbours;
 
 public:
-	CNeighbourFinder(CPathfinder * pathfinder);
-	virtual std::vector<CGPathNode *> & calculateNeighbours();
+	CNeighbourFinder();
+	virtual std::vector<CGPathNode *> & calculateNeighbours(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper, CNodeHelper * nodeHelper);
 
 protected:
-	void addNeighbourTiles();
+	void addNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper);
+};
+
+struct DLL_LINKAGE PathfinderOptions
+{
+	bool useFlying;
+	bool useWaterWalking;
+	bool useEmbarkAndDisembark;
+	bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
+	bool useTeleportOneWay; // One-way monoliths with one known exit only
+	bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
+	bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
+
+							   /// TODO: Find out with client and server code, merge with normal teleporters.
+							   /// Likely proper implementation would require some refactoring of CGTeleport.
+							   /// So for now this is unfinished and disabled by default.
+	bool useCastleGate;
+
+	/// If true transition into air layer only possible from initial node.
+	/// This is drastically decrease path calculation complexity (and time).
+	/// Downside is less MP effective paths calculation.
+	///
+	/// TODO: If this option end up useful for slow devices it's can be improved:
+	/// - Allow transition into air layer not only from initial position, but also from teleporters.
+	///   Movement into air can be also allowed when hero disembarked.
+	/// - Other idea is to allow transition into air within certain radius of N tiles around hero.
+	///   Patrol support need similar functionality so it's won't be ton of useless code.
+	///   Such limitation could be useful as it's can be scaled depend on device performance.
+	bool lightweightFlyingMode;
+
+	/// This option enable one turn limitation for flying and water walking.
+	/// So if we're out of MP while cp is blocked or water tile we won't add dest tile to queue.
+	///
+	/// Following imitation is default H3 mechanics, but someone may want to disable it in mods.
+	/// After all this limit should benefit performance on maps with tons of water or blocked tiles.
+	///
+	/// TODO:
+	/// - Behavior when option is disabled not implemented and will lead to crashes.
+	bool oneTurnSpecialLayersLimit;
+
+	/// VCMI have different movement rules to solve flaws original engine has.
+	/// If this option enabled you'll able to do following things in fly:
+	/// - Move from blocked tiles to visitable one
+	/// - Move from guarded tiles to blockvis tiles without being attacked
+	/// - Move from guarded tiles to guarded visitable tiles with being attacked after
+	/// TODO:
+	/// - Option should also allow same tile land <-> air layer transitions.
+	///   Current implementation only allow go into (from) air layer only to neighbour tiles.
+	///   I find it's reasonable limitation, but it's will make some movements more expensive than in H3.
+	bool originalMovementRules;
+
+	PathfinderOptions();
 };
 
 class CPathfinder : private CGameInfoCallback
@@ -151,60 +225,10 @@ public:
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
-//private:
+private:
 	typedef EPathfindingLayer ELayer;
-
-	struct PathfinderOptions
-	{
-		bool useFlying;
-		bool useWaterWalking;
-		bool useEmbarkAndDisembark;
-		bool useTeleportTwoWay; // Two-way monoliths and Subterranean Gate
-		bool useTeleportOneWay; // One-way monoliths with one known exit only
-		bool useTeleportOneWayRandom; // One-way monoliths with more than one known exit
-		bool useTeleportWhirlpool; // Force enabled if hero protected or unaffected (have one stack of one creature)
-
-		/// TODO: Find out with client and server code, merge with normal teleporters.
-		/// Likely proper implementation would require some refactoring of CGTeleport.
-		/// So for now this is unfinished and disabled by default.
-		bool useCastleGate;
-
-		/// If true transition into air layer only possible from initial node.
-		/// This is drastically decrease path calculation complexity (and time).
-		/// Downside is less MP effective paths calculation.
-		///
-		/// TODO: If this option end up useful for slow devices it's can be improved:
-		/// - Allow transition into air layer not only from initial position, but also from teleporters.
-		///   Movement into air can be also allowed when hero disembarked.
-		/// - Other idea is to allow transition into air within certain radius of N tiles around hero.
-		///   Patrol support need similar functionality so it's won't be ton of useless code.
-		///   Such limitation could be useful as it's can be scaled depend on device performance.
-		bool lightweightFlyingMode;
-
-		/// This option enable one turn limitation for flying and water walking.
-		/// So if we're out of MP while cp is blocked or water tile we won't add dest tile to queue.
-		///
-		/// Following imitation is default H3 mechanics, but someone may want to disable it in mods.
-		/// After all this limit should benefit performance on maps with tons of water or blocked tiles.
-		///
-		/// TODO:
-		/// - Behavior when option is disabled not implemented and will lead to crashes.
-		bool oneTurnSpecialLayersLimit;
-
-		/// VCMI have different movement rules to solve flaws original engine has.
-		/// If this option enabled you'll able to do following things in fly:
-		/// - Move from blocked tiles to visitable one
-		/// - Move from guarded tiles to blockvis tiles without being attacked
-		/// - Move from guarded tiles to guarded visitable tiles with being attacked after
-		/// TODO:
-		/// - Option should also allow same tile land <-> air layer transitions.
-		///   Current implementation only allow go into (from) air layer only to neighbour tiles.
-		///   I find it's reasonable limitation, but it's will make some movements more expensive than in H3.
-		bool originalMovementRules;
-
-		PathfinderOptions();
-	} options;
-
+	
+	PathfinderOptions options;
 	const CGHeroInstance * hero;
 	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
@@ -236,10 +260,8 @@ public:
 	std::vector<int3> neighbours;
 
 	CPathNodeInfo source; //current (source) path node -> we took it from the queue
-	CPathNodeInfo destination; //destination node -> it's a neighbour of source that we consider
-	CGPathNode::ENodeAction destAction;
+	CDestinationNodeInfo destination; //destination node -> it's a neighbour of source that we consider
 
-	void populateNeighbourTiles(std::vector<int3> & neighbourTiles);
 	void addTeleportExits();
 
 	bool isHeroPatrolLocked() const;
@@ -248,27 +270,18 @@ public:
 	bool isLayerTransitionPossible(const ELayer dstLayer) const;
 	bool isLayerTransitionPossible() const;
 	bool isMovementToDestPossible() const;
-	void checkMovementAfterDestPossible();
 	CGPathNode::ENodeAction getDestAction() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 
 	bool isSourceInitialPosition() const;
 	bool isSourceGuarded() const;
-	bool isDestinationGuarded(const bool ignoreAccessibility = true) const;
+	bool isDestinationGuarded() const;
 	bool isDestinationGuardian() const;
 
 	void initializePatrol();
 	void initializeGraph();
 
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
-	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
-
-	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
-	bool addTeleportTwoWay(const CGTeleport * obj) const;
-	bool addTeleportOneWay(const CGTeleport * obj) const;
-	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
-	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
-
 };
 
 struct DLL_LINKAGE TurnInfo
@@ -300,10 +313,15 @@ struct DLL_LINKAGE TurnInfo
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 };
 
-class DLL_LINKAGE CPathfinderHelper
+class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
 {
 public:
-	CPathfinderHelper(const CGHeroInstance * Hero, const CPathfinder::PathfinderOptions & Options);
+	int turn;
+	const CGHeroInstance * hero;
+	std::vector<TurnInfo *> turnsInfo;
+	const PathfinderOptions & options;
+
+	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	~CPathfinderHelper();
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
@@ -311,43 +329,36 @@ public:
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 
-	static void getNeighbours(const CMap * map, const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
+	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
+	bool addTeleportTwoWay(const CGTeleport * obj) const;
+	bool addTeleportOneWay(const CGTeleport * obj) const;
+	bool addTeleportOneWayRandom(const CGTeleport * obj) const;
+	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
+	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
+
+	void getNeighbours(const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
 	
-	static int getMovementCost(
-		const CGHeroInstance * h, 
+	int getMovementCost(
 		const int3 & src, 
 		const int3 & dst, 
 		const TerrainTile * ct,
 		const TerrainTile * dt,
 		const int remainingMovePoints =- 1, 
-		const TurnInfo * ti = nullptr, 
 		const bool checkLast = true);
 
-	static int getMovementCost(
-		const CGHeroInstance * h,
+	int getMovementCost(
 		const CPathNodeInfo & src,
 		const CPathNodeInfo & dst,
 		const int remainingMovePoints = -1,
-		const TurnInfo * ti = nullptr,
 		const bool checkLast = true)
 	{
 		return getMovementCost(
-			h,
 			src.coord,
 			dst.coord,
 			src.tile,
 			dst.tile,
 			remainingMovePoints,
-			ti,
 			checkLast
 		);
 	}
-
-	static int getMovementCost(const CGHeroInstance * h, const int3 & dst);
-
-private:
-	int turn;
-	const CGHeroInstance * hero;
-	std::vector<TurnInfo *> turnsInfo;
-	const CPathfinder::PathfinderOptions & options;
 };

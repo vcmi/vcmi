@@ -2158,10 +2158,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	auto ti = make_unique<TurnInfo>(h);
-	const bool canFly = ti->hasBonusOfType(Bonus::FLYING_MOVEMENT);
-	const bool canWalkOnSea = ti->hasBonusOfType(Bonus::WATER_WALKING);
-	const int cost = CPathfinderHelper::getMovementCost(h, h->getPosition(), hmpos, nullptr, nullptr, h->movement, ti.get());
+	auto pathfinderHelper = make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
+
+	pathfinderHelper->updateTurnInfo(0);
+	auto ti = pathfinderHelper->getTurnInfo();
+
+	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);
+	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING);
+	const int cost = pathfinderHelper->getMovementCost(h->getPosition(), hmpos, nullptr, nullptr, h->movement);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -2253,14 +2257,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	if (!transit && embarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti.get());
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false, ti);
 		return doMove(TryMoveHero::EMBARK, IGNORE_GUARDS, DONT_VISIT_DEST, LEAVING_TILE);
 		// In H3 embark ignore guards
 	}
 
 	if (disembarking)
 	{
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true, ti.get());
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true, ti);
 		return doMove(TryMoveHero::DISEMBARK, CHECK_FOR_GUARDS, VISIT_DEST, LEAVING_TILE);
 	}
 
