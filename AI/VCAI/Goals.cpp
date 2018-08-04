@@ -1106,8 +1106,6 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 		}
 	}
 	return sptr(Goals::Invalid()); //cannot trade
-	//TODO: separate goal to execute trade?
-	//return sptr(setisElementar(true)); //not sure why we are here
 }
 
 bool CollectRes::fulfillsMe(TSubgoal goal)
