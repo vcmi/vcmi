@@ -27,42 +27,52 @@ public:
 	void addRule(const std::string & txt);
 };
 
+class TacticalAdvantage : public engineBase
+{
+public:
+	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
+	fl::InputVariable * ourSpeed, *enemySpeed;
+	fl::InputVariable * bankPresent;
+	fl::InputVariable * castleWalls;
+	fl::OutputVariable * threat;
+	~TacticalAdvantage();
+};
+
+class HeroMovementGoalEngine : public engineBase
+{
+public:
+	fl::InputVariable * strengthRatio;
+	fl::InputVariable * heroStrength;
+	fl::InputVariable * turnDistance;
+	fl::InputVariable * missionImportance;
+	fl::InputVariable * estimatedReward;
+	fl::OutputVariable * value;
+	~HeroMovementGoalEngine();
+};
+
+class EvalVisitTile : public HeroMovementGoalEngine
+{
+public:
+	~EvalVisitTile();
+};
+
+class EvalWanderTargetObject : public HeroMovementGoalEngine //designed for use with VCAI::wander()
+{
+public:
+	fl::InputVariable * objectValue;
+	fl::OutputVariable * visitGain;
+	~EvalWanderTargetObject();
+};
+
 class FuzzyHelper
 {
 	friend class VCAI;
 
-	class TacticalAdvantage : public engineBase
-	{
-	public:
-		fl::InputVariable * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
-		fl::InputVariable * ourSpeed, * enemySpeed;
-		fl::InputVariable * bankPresent;
-		fl::InputVariable * castleWalls;
-		fl::OutputVariable * threat;
-		~TacticalAdvantage();
-	} ta;
+	TacticalAdvantage ta;
 
-	class EvalVisitTile : public engineBase
-	{
-	public:
-		fl::InputVariable * strengthRatio;
-		fl::InputVariable * heroStrength;
-		fl::InputVariable * turnDistance;
-		fl::InputVariable * missionImportance;
-		fl::InputVariable * estimatedReward;
-		fl::OutputVariable * value;
-		fl::RuleBlock rules;
-		~EvalVisitTile();
-	} vt;
+	EvalVisitTile vt;
 
-	class EvalWanderTargetObject : public engineBase //designed for use with VCAI::wander()
-	{
-	public:
-		fl::InputVariable * distance;
-		fl::InputVariable * objectValue;
-		fl::OutputVariable * visitGain;
-		~EvalWanderTargetObject();
-	} wanderTarget;
+	EvalWanderTargetObject wanderTarget;
 
 private:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;

@@ -308,7 +308,7 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 	float output = -1.0f;
 	try
 	{
-		wanderTarget.distance->setValue(distFromObject);
+		wanderTarget.turnDistance->setValue(distFromObject);
 		wanderTarget.objectValue->setValue(objValue);
 		wanderTarget.engine.process();
 		output = wanderTarget.visitGain->getValue();
@@ -321,7 +321,7 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 	return output;
 }
 
-FuzzyHelper::TacticalAdvantage::~TacticalAdvantage()
+TacticalAdvantage::~TacticalAdvantage()
 {
 	//TODO: smart pointers?
 	delete ourWalkers;
@@ -373,7 +373,7 @@ float FuzzyHelper::evaluate(Goals::RecruitHero & g)
 {
 	return 1;
 }
-FuzzyHelper::EvalVisitTile::~EvalVisitTile()
+HeroMovementGoalEngine::~HeroMovementGoalEngine()
 {
 	delete strengthRatio;
 	delete heroStrength;
@@ -466,21 +466,21 @@ void FuzzyHelper::initWanderTarget()
 {
 	try
 	{
-		wanderTarget.distance = new fl::InputVariable("distance"); //distance on map from object
+		wanderTarget.turnDistance = new fl::InputVariable("turnDistance"); //distance on map from object
 		wanderTarget.objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
-		wanderTarget.visitGain = new fl::OutputVariable("visitGain");
-		wanderTarget.visitGain->setMinimum(0);
-		wanderTarget.visitGain->setMaximum(10);
+		wanderTarget.value = new fl::OutputVariable("value");
+		wanderTarget.value->setMinimum(0);
+		wanderTarget.value->setMaximum(10);
 
-		wanderTarget.engine.addInputVariable(wanderTarget.distance);
+		wanderTarget.engine.addInputVariable(wanderTarget.turnDistance);
 		wanderTarget.engine.addInputVariable(wanderTarget.objectValue);
 		wanderTarget.engine.addOutputVariable(wanderTarget.visitGain);
 
 		//for now distance variable same as in as VisitTile
-		wanderTarget.distance->addTerm(new fl::Ramp("SHORT", 0.5, 0)); 
-		wanderTarget.distance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
-		wanderTarget.distance->addTerm(new fl::Ramp("LONG", 0.5, 3));
-		wanderTarget.distance->setRange(0, 3.0);
+		wanderTarget.turnDistance->addTerm(new fl::Ramp("SHORT", 0.5, 0)); 
+		wanderTarget.turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
+		wanderTarget.turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
+		wanderTarget.turnDistance->setRange(0, 3.0);
 
 		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
 		wanderTarget.objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
@@ -488,22 +488,22 @@ void FuzzyHelper::initWanderTarget()
 		wanderTarget.objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
 		wanderTarget.objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
 
-		wanderTarget.visitGain->addTerm(new fl::Ramp("LOW", 5, 0)); 
-		wanderTarget.visitGain->addTerm(new fl::Triangle("MEDIUM", 4, 6));
-		wanderTarget.visitGain->addTerm(new fl::Ramp("HIGH", 5, 10));
-		wanderTarget.visitGain->setRange(0, 10);
+		wanderTarget.value->addTerm(new fl::Ramp("LOW", 5, 0)); 
+		wanderTarget.value->addTerm(new fl::Triangle("MEDIUM", 4, 6));
+		wanderTarget.value->addTerm(new fl::Ramp("HIGH", 5, 10));
+		wanderTarget.value->setRange(0, 10);
 
-		wanderTarget.addRule("if distance is LONG and objectValue is HIGH then visitGain is MEDIUM");
-		wanderTarget.addRule("if distance is MEDIUM and objectValue is HIGH then visitGain is somewhat HIGH");
-		wanderTarget.addRule("if distance is SHORT and objectValue is HIGH then visitGain is HIGH");
+		wanderTarget.addRule("if turnDistance is LONG and objectValue is HIGH then value is MEDIUM");
+		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is HIGH then value is somewhat HIGH");
+		wanderTarget.addRule("if turnDistance is SHORT and objectValue is HIGH then value is HIGH");
 
-		wanderTarget.addRule("if distance is LONG and objectValue is MEDIUM then visitGain is somewhat LOW");
-		wanderTarget.addRule("if distance is MEDIUM and objectValue is MEDIUM then visitGain is MEDIUM");
-		wanderTarget.addRule("if distance is SHORT and objectValue is MEDIUM then visitGain is somewhat HIGH");
-		
-		wanderTarget.addRule("if distance is LONG and objectValue is LOW then visitGain is very LOW");
-		wanderTarget.addRule("if distance is MEDIUM and objectValue is LOW then visitGain is LOW");
-		wanderTarget.addRule("if distance is SHORT and objectValue is LOW then visitGain is MEDIUM");
+		wanderTarget.addRule("if turnDistance is LONG and objectValue is MEDIUM then value is somewhat LOW");
+		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is MEDIUM then value is MEDIUM");
+		wanderTarget.addRule("if turnDistance is SHORT and objectValue is MEDIUM then value is somewhat HIGH");
+
+		wanderTarget.addRule("if turnDistance is LONG and objectValue is LOW then value is very LOW");
+		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is LOW then value is LOW");
+		wanderTarget.addRule("if turnDistance is SHORT and objectValue is LOW then value is MEDIUM");
 	}
 	catch(fl::Exception & fe)
 	{
@@ -635,9 +635,11 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 	g->setpriority(g->accept(this)); //this enforces returned value is set
 }
 
-FuzzyHelper::EvalWanderTargetObject::~EvalWanderTargetObject()
+EvalWanderTargetObject::~EvalWanderTargetObject()
 { 
-	delete distance;
 	delete objectValue;
-	delete visitGain;
+}
+
+EvalVisitTile::~EvalVisitTile()
+{
 }
