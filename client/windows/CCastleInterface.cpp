@@ -37,6 +37,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/GameConstants.h"
+#include "../../lib/StartInfo.h"
+#include "../../lib/mapping/CCampaignHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
@@ -874,10 +876,18 @@ void CCastleBuildings::enterMagesGuild()
 
 	if(hero && !hero->hasSpellbook()) //hero doesn't have spellbok
 	{
+		const StartInfo *si = LOCPLINT->cb->getStartInfo();
 		if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 500) //not enough gold to buy spellbook
 		{
 			openMagesGuild();
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
+		}
+		else if(si && si->campState && si->campState->camp &&           // We're in campaign,
+			(si->campState->camp->header.filename == "DATA/YOG.H3C") && // which is "Birth of a Barbarian",
+			(hero->subID == 45) && (hero->name == "Yog"))               // and the hero is Yog (based on Solmyr)
+		{
+			// "Yog has given up magic in all its forms..."
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[736]);
 		}
 		else
 		{
