@@ -1548,6 +1548,11 @@ void CGameState::initFogOfWar()
 
 void CGameState::initStartingBonus()
 {
+	if (scenarioOps->mode == StartInfo::CAMPAIGN)
+		return;
+	// These are the single scenario bonuses; predefined
+	// campaign bonuses are spread out over other init* functions.
+
 	logGlobal->debug("\tStarting bonuses");
 	for(auto & elem : players)
 	{
