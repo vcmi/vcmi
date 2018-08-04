@@ -13,6 +13,8 @@ set(VCAI_SRCS
 		ResourceManager.cpp
 		BuildingManager.cpp
 		MapObjectsEvaluator.cpp
+		BuildingManager.cpp
+		MapObjectsEvaluator.cpp
 		Fuzzy.cpp
 		Goals.cpp
 		main.cpp
@@ -25,6 +27,8 @@ set(VCAI_HEADERS
 		AIUtility.h
 		AIhelper.h
 		ResourceManager.h
+		BuildingManager.h
+		MapObjectsEvaluator.h
 		BuildingManager.h
 		MapObjectsEvaluator.h
 		Fuzzy.h
