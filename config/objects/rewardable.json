@@ -12,7 +12,8 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0//,
+				"index" : 0,
+				"aiValue" : 500//,
 				//"rmg" : {
 				//	"zoneLimit"	: 1,
 				//	"value"		: 500,
@@ -35,6 +36,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 50
@@ -54,6 +56,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 80
@@ -73,6 +76,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 750,
 				"rmg" : {
 					"value"		: 750,
 					"rarity"	: 50
@@ -92,6 +96,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 100
@@ -110,6 +115,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 100
@@ -128,6 +134,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 50
@@ -146,6 +153,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 6000,
 				"rmg" : {
 					"value"		: 6000,
 					"rarity"	: 20
@@ -167,6 +175,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 500
@@ -186,6 +195,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -205,6 +215,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 500
@@ -224,6 +235,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 50
@@ -243,6 +255,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 1000
@@ -263,6 +276,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 3000,
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 50
@@ -282,6 +296,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -301,6 +316,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -319,6 +335,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 12000,
 				"rmg" : {
 					"value"		: 12000,
 					"rarity"	: 20
@@ -338,6 +355,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -357,6 +375,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -375,6 +394,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2500,
 				"rmg" : {
 					"mapLimit"	: 100,
 					"value"		: 2500,
@@ -395,6 +415,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1000,
 				"rmg" : {
 					"value"		: 1000,
 					"rarity"	: 50
@@ -414,6 +435,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1000,
 				"rmg" : {
 					"value"		: 1000,
 					"rarity"	: 50
@@ -433,6 +455,7 @@
 		"types" : {
 			"object" : { 
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 200
@@ -454,6 +477,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"value"		: 100,
 					"rarity"	: 100
@@ -472,6 +496,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -492,6 +517,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -512,6 +538,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -532,6 +559,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -551,6 +579,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -573,6 +602,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"value"		: 100,
 					"rarity"	: 20
@@ -591,6 +621,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -611,6 +642,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 200,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 200,
@@ -631,6 +663,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -651,6 +684,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -670,6 +704,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 500,

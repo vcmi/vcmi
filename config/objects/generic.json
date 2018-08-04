@@ -10,7 +10,7 @@
 			}
 		},
 		"types" : {
-			"prison" : { "index" : 0 }
+			"prison" : { "index" : 0, "aiValue" : 5000 }
 		}
 	},
 
@@ -25,6 +25,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -45,6 +46,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -65,6 +67,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -79,6 +82,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -100,6 +104,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 8000,
 				"rmg" : {
 					"value"		: 8000,
 					"rarity"	: 20
@@ -120,6 +125,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 10000,
 				"templates" : {
 					"normal" : { "animation" : "ava0128.def", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VV", "VA"] }
 				},
@@ -151,6 +157,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 750,
 				"templates" :
 				{
 					"base" : { "animation" : "avxredw.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "VV", "VA"], "allowedTerrains":["grass", "swamp", "dirt", "sand", "lava", "rough"] },
@@ -176,6 +183,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 750,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 750,
@@ -195,6 +203,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 				}
 			}
@@ -246,6 +255,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 5000,
 					"rarity"	: 20
@@ -265,6 +275,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 1500,
@@ -285,6 +296,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 					"value"		: 500,
 					"rarity"	: 100
@@ -304,6 +316,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2000,
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100
@@ -323,6 +336,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 3000,
 				"rmg" : {
 					"value"		: 3000,
 					"rarity"	: 100
@@ -344,6 +358,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 0,
 				"rmg" : {
 				}
 			}
@@ -360,6 +375,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 750,
 				"rmg" : {
 				}
 			}
@@ -376,6 +392,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 500,
 				"rmg" : {
 				}
 			}
@@ -392,6 +409,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 350,
 				"rmg" : {
 					"mapLimit"	: 48,
 					"value"		: 3500,
@@ -411,6 +429,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 0,
 				"rmg" : {
 				}
 			}
@@ -428,6 +447,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 100
@@ -447,6 +467,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1000,
 				"rmg" : {
 				}
 			}
@@ -463,6 +484,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 0,
 				"rmg" : {
 				}
 			}
@@ -480,6 +502,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"mapLimit"	: 32,
 					"value"		: 100,
@@ -500,6 +523,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"templates" :
 				{
 					"green" : { "animation" : "avxdent.def", "visitableFrom" : [ "---", "+++", "+++" ], "mask" : [ "VV", "BA"], "allowedTerrains":["grass", "swamp", "dirt"] },
@@ -524,6 +548,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 2500,
 				"rmg" : {
 					"value"		: 2500,
 					"rarity"	: 20
@@ -542,6 +567,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 1500,
 				"rmg" : {
 					"zoneLimit"	: 3,
 					"value"		: 1500,
@@ -565,6 +591,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 10000,
 				"rmg" : {
 				}
 			}
@@ -581,6 +608,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 250,
 				"rmg" : {
 					"zoneLimit" : 1,
 					"value"		: 250,
@@ -819,6 +847,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 7000,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 7000,
@@ -833,6 +862,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 0,
 				"rmg" : {
 				}
 			}
@@ -850,6 +880,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
@@ -870,6 +901,7 @@
 		"types" : {
 			"object" : {
 				"index" : 0,
+				"aiValue" : 100,
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,

@@ -13,6 +13,9 @@
 		"name": {
 			"type":"string",
 		},
+		"aiValue": {
+			"type":"number",
+		},
 
 		"sounds": {
 			"type":"object",
