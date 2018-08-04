@@ -66,6 +66,13 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	case COLLECT_RES:
 		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + boost::lexical_cast<std::string>(value) + ")";
 		break;
+	case TRADE:
+	{
+		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
+		if (obj)
+			desc = (boost::format("TRADE %d of %s at %s") % value % GameConstants::RESOURCE_NAMES[resID] % obj->getObjectName()).str();
+	}
+	break;
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
 		break;
@@ -158,6 +165,7 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 
 	//no check atm
 	case COLLECT_RES:
+	case TRADE: //TODO
 		return (resID == g.resID); //every hero may collect resources
 		break;
 	case GATHER_TROOPS:
@@ -222,6 +230,19 @@ namespace Goals
 	{
 		return boost::format("Bought army of value %d in town of %s") % value, town->name;
 	}
+}
+
+TSubgoal Trade::whatToDoToAchieve()
+{
+	return iAmElementar();
+}
+bool Trade::operator==(CollectRes & g)
+{
+	if (g.resID == resID)
+		if (g.value == value) //TODO: not sure if that logic is consitent
+			return true;
+
+	return false;
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
@@ -1079,7 +1100,8 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			}
 			else //either it's our town, or we have hero there
 			{
-				return sptr(setobjid(objid).setisElementar(true).setpriority(10)); //we can do this immediately - highest priority
+				Goals::Trade trade(resID, value, objid);
+				return sptr(trade.setisElementar(true)); //we can do this immediately - highest priority
 			}
 		}
 	}
@@ -1099,8 +1121,6 @@ bool CollectRes::fulfillsMe(TSubgoal goal)
 
 bool Goals::CollectRes::operator==(CollectRes & g)
 {
-	if (isElementar != g.isElementar) //elementar means ready to trade on Marketplace / Trading Post
-		return false;
 	if (g.resID == resID)
 		if (g.value == value) //TODO: not sure if that logic is consitent
 			return true;

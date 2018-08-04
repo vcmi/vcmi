@@ -2161,11 +2161,12 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 	}
 }
 
-void VCAI::tryRealize(Goals::CollectRes & g) //trade
+void VCAI::tryRealize(Goals::Trade & g) //trade
 {
 	if(ah->freeResources()[g.resID] >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
+	int accquiredResources = 0;
 	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
 	{
 		if(const IMarket * m = IMarket::castFrom(obj, false))
@@ -2179,8 +2180,13 @@ void VCAI::tryRealize(Goals::CollectRes & g) //trade
 				m->getOffer(i, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = toGive * (cb->getResourceAmount(i) / toGive);
 				//TODO trade only as much as needed
-				cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
-				if (ah->freeResources()[g.resID] >= g.value)
+				if (toGive) //don't try to sell 0 resources
+				{
+					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, i, toGet, g.resID, obj->getObjectName());
+					accquiredResources += toGet;
+				}
+				if (accquiredResources >= g.value) //we traded all we needed
 					throw goalFulfilledException(sptr(g));
 			}
 

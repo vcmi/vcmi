@@ -56,7 +56,8 @@ enum EGoals
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
 	CLEAR_WAY_TO,
 	DIG_AT_TILE,//elementar with hero on tile
-	BUY_ARMY //at specific town
+	BUY_ARMY, //at specific town
+	TRADE //val resID at object objid
 };
 
 	//method chaining + clone pattern
@@ -414,7 +415,26 @@ public:
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	TSubgoal whatToDoToTrade();
-	bool fulfillsMe(TSubgoal goal) override;
+	bool fulfillsMe(TSubgoal goal) override; //TODO: Trade
+	bool operator==(CollectRes & g);
+};
+
+class DLL_EXPORT Trade : public CGoal<Trade>
+{
+public:
+	Trade()
+		: CGoal(Goals::TRADE)
+	{
+	}
+	Trade(int rid, int val, int Objid)
+		: CGoal(Goals::TRADE)
+	{
+		resID = rid;
+		value = val;
+		objid = Objid;
+		priority = 10; //do it immediately
+	}
+	TSubgoal whatToDoToAchieve() override;
 	bool operator==(CollectRes & g);
 };
 
