@@ -2171,20 +2171,22 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	{
 		if(const IMarket * m = IMarket::castFrom(obj, false))
 		{
-			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
+			auto freeRes = ah->freeResources(); //trade only resources which are not reserved
+			for(auto it = Res::ResourceSet::nziterator(freeRes); it.valid(); it++)
 			{
-				if(i == g.resID) //sell any other resource
+				auto res = it->resType;
+				if(res == g.resID) //sell any other resource
 					continue;
-				//TODO: check all our reserved resources and avoid them
+
 				int toGive, toGet;
-				m->getOffer(i, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
-				toGive = toGive * (cb->getResourceAmount(i) / toGive);
+				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				toGive = toGive * (it->resVal / toGive);
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, i, toGet, g.resID, obj->getObjectName());
-					accquiredResources += toGet;
+					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, toGet, g.resID, obj->getObjectName());
+					accquiredResources += toGet; //FIXME: this is incorrect, always equal to 1
 				}
 				if (accquiredResources >= g.value) //we traded all we needed
 					throw goalFulfilledException(sptr(g));

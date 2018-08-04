@@ -1086,7 +1086,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			int toGive = -1, toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
-			howManyCanWeBuy += toReceive * (cb->getResourceAmount(i) / toGive);
+			howManyCanWeBuy += toReceive * (ah->freeResources()[i] / toGive);
 		}
 
 		if (howManyCanWeBuy >= value)
