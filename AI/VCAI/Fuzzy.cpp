@@ -202,7 +202,7 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 }
 
-float FuzzyHelper::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
+float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
 {
 	float turns = 0.0f;
 	float distance = CPathfinderHelper::getMovementCost(h, tile);
@@ -311,7 +311,7 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 		wanderTarget.turnDistance->setValue(distFromObject);
 		wanderTarget.objectValue->setValue(objValue);
 		wanderTarget.engine.process();
-		output = wanderTarget.visitGain->getValue();
+		output = wanderTarget.value->getValue();
 	}
 	catch (fl::Exception & fe)
 	{
@@ -373,142 +373,93 @@ float FuzzyHelper::evaluate(Goals::RecruitHero & g)
 {
 	return 1;
 }
-HeroMovementGoalEngine::~HeroMovementGoalEngine()
+HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
+{
+	try
+	{
+		strengthRatio = new fl::InputVariable("strengthRatio"); //hero must be strong enough to defeat guards
+		heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
+		turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
+		missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
+		estimatedReward = new fl::InputVariable("estimatedReward"); //indicate AI that content of the file is important or it is probably bad
+		value = new fl::OutputVariable("Value");
+		value->setMinimum(0);
+		value->setMaximum(5);
+
+		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance, estimatedReward };
+		for(auto val : helper)
+		{
+			engine.addInputVariable(val);
+		}
+		engine.addOutputVariable(value);
+
+		strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
+		strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
+		strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
+
+		//strength compared to our main hero
+		heroStrength->addTerm(new fl::Ramp("LOW", 0.2, 0));
+		heroStrength->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
+		heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
+		heroStrength->setRange(0.0, 1.0);
+
+		turnDistance->addTerm(new fl::Ramp("SMALL", 0.5, 0));
+		turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
+		turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
+		turnDistance->setRange(0.0, 3.0);
+
+		missionImportance->addTerm(new fl::Ramp("LOW", 2.5, 0));
+		missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
+		missionImportance->addTerm(new fl::Ramp("HIGH", 2.5, 5));
+		missionImportance->setRange(0.0, 5.0);
+
+		estimatedReward->addTerm(new fl::Ramp("LOW", 2.5, 0));
+		estimatedReward->addTerm(new fl::Ramp("HIGH", 2.5, 5));
+		estimatedReward->setRange(0.0, 5.0);
+
+		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
+		//should be same as "mission Importance" to keep consistency
+		value->addTerm(new fl::Ramp("LOW", 2.5, 0));
+		value->addTerm(new fl::Triangle("MEDIUM", 2, 3)); //can't be center of mass :/
+		value->addTerm(new fl::Ramp("HIGH", 2.5, 5));
+		value->setRange(0.0, 5.0);
+
+		//use unarmed scouts if possible
+		addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH");
+		//we may want to use secondary hero(es) rather than main hero
+		addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH");
+		addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW");
+		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
+		addRule("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW");
+		//attempt to arm secondary heroes is not stupid
+		addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is somewhat HIGH");
+		addRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW");
+
+		//do not cancel important goals
+		addRule("if lockedMissionImportance is HIGH then Value is very LOW");
+		addRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW");
+		addRule("if lockedMissionImportance is LOW then Value is HIGH");
+		//pick nearby objects if it's easy, avoid long walks
+		addRule("if turnDistance is SMALL then Value is HIGH");
+		addRule("if turnDistance is MEDIUM then Value is MEDIUM");
+		addRule("if turnDistance is LONG then Value is LOW");
+		//some goals are more rewarding by definition f.e. capturing town is more important than collecting resource - experimental
+		addRule("if estimatedReward is HIGH then Value is very HIGH");
+		addRule("if estimatedReward is LOW then Value is somewhat LOW");
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("HeroMovementGoalEngineBase: %s", fe.getWhat());
+	}
+}
+
+HeroMovementGoalEngineBase::~HeroMovementGoalEngineBase()
 {
 	delete strengthRatio;
 	delete heroStrength;
 	delete turnDistance;
 	delete missionImportance;
 	delete estimatedReward;
-}
-
-void FuzzyHelper::initVisitTile()
-{
-	try
-	{
-		vt.strengthRatio = new fl::InputVariable("strengthRatio"); //hero must be strong enough to defeat guards
-		vt.heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
-		vt.turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
-		vt.missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
-		vt.estimatedReward = new fl::InputVariable("estimatedReward"); //indicate AI that content of the file is important or it is probably bad
-		vt.value = new fl::OutputVariable("Value");
-		vt.value->setMinimum(0);
-		vt.value->setMaximum(5);
-
-		std::vector<fl::InputVariable *> helper = {vt.strengthRatio, vt.heroStrength, vt.turnDistance, vt.missionImportance, vt.estimatedReward};
-		for(auto val : helper)
-		{
-			vt.engine.addInputVariable(val);
-		}
-		vt.engine.addOutputVariable(vt.value);
-
-		vt.strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
-		vt.strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
-		vt.strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
-
-		//strength compared to our main hero
-		vt.heroStrength->addTerm(new fl::Ramp("LOW", 0.2, 0));
-		vt.heroStrength->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
-		vt.heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
-		vt.heroStrength->setRange(0.0, 1.0);
-
-		vt.turnDistance->addTerm(new fl::Ramp("SMALL", 0.5, 0));
-		vt.turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
-		vt.turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
-		vt.turnDistance->setRange(0.0, 3.0);
-
-		vt.missionImportance->addTerm(new fl::Ramp("LOW", 2.5, 0));
-		vt.missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
-		vt.missionImportance->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-		vt.missionImportance->setRange(0.0, 5.0);
-
-		vt.estimatedReward->addTerm(new fl::Ramp("LOW", 2.5, 0));
-		vt.estimatedReward->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-		vt.estimatedReward->setRange(0.0, 5.0);
-
-		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
-		//should be same as "mission Importance" to keep consistency
-		vt.value->addTerm(new fl::Ramp("LOW", 2.5, 0));
-		vt.value->addTerm(new fl::Triangle("MEDIUM", 2, 3)); //can't be center of mass :/
-		vt.value->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-		vt.value->setRange(0.0, 5.0);
-
-		//use unarmed scouts if possible
-		vt.addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH");
-		//we may want to use secondary hero(es) rather than main hero
-		vt.addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH");
-		vt.addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW");
-		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
-		vt.addRule("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW");
-		//attempt to arm secondary heroes is not stupid
-		vt.addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is somewhat HIGH");
-		vt.addRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW");
-
-		//do not cancel important goals
-		vt.addRule("if lockedMissionImportance is HIGH then Value is very LOW");
-		vt.addRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW");
-		vt.addRule("if lockedMissionImportance is LOW then Value is HIGH");
-		//pick nearby objects if it's easy, avoid long walks
-		vt.addRule("if turnDistance is SMALL then Value is HIGH");
-		vt.addRule("if turnDistance is MEDIUM then Value is MEDIUM");
-		vt.addRule("if turnDistance is LONG then Value is LOW");
-		//some goals are more rewarding by definition f.e. capturing town is more important than collecting resource - experimental
-		vt.addRule("if estimatedReward is HIGH then Value is very HIGH");
-		vt.addRule("if estimatedReward is LOW then Value is somewhat LOW");
-	}
-	catch(fl::Exception & fe)
-	{
-		logAi->error("visitTile: %s", fe.getWhat());
-	}
-}
-
-void FuzzyHelper::initWanderTarget()
-{
-	try
-	{
-		wanderTarget.turnDistance = new fl::InputVariable("turnDistance"); //distance on map from object
-		wanderTarget.objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
-		wanderTarget.value = new fl::OutputVariable("value");
-		wanderTarget.value->setMinimum(0);
-		wanderTarget.value->setMaximum(10);
-
-		wanderTarget.engine.addInputVariable(wanderTarget.turnDistance);
-		wanderTarget.engine.addInputVariable(wanderTarget.objectValue);
-		wanderTarget.engine.addOutputVariable(wanderTarget.visitGain);
-
-		//for now distance variable same as in as VisitTile
-		wanderTarget.turnDistance->addTerm(new fl::Ramp("SHORT", 0.5, 0)); 
-		wanderTarget.turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
-		wanderTarget.turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
-		wanderTarget.turnDistance->setRange(0, 3.0);
-
-		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
-		wanderTarget.objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
-		wanderTarget.objectValue->addTerm(new fl::Triangle("MEDIUM", 2500, 6000));
-		wanderTarget.objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
-		wanderTarget.objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
-
-		wanderTarget.value->addTerm(new fl::Ramp("LOW", 5, 0)); 
-		wanderTarget.value->addTerm(new fl::Triangle("MEDIUM", 4, 6));
-		wanderTarget.value->addTerm(new fl::Ramp("HIGH", 5, 10));
-		wanderTarget.value->setRange(0, 10);
-
-		wanderTarget.addRule("if turnDistance is LONG and objectValue is HIGH then value is MEDIUM");
-		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is HIGH then value is somewhat HIGH");
-		wanderTarget.addRule("if turnDistance is SHORT and objectValue is HIGH then value is HIGH");
-
-		wanderTarget.addRule("if turnDistance is LONG and objectValue is MEDIUM then value is somewhat LOW");
-		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is MEDIUM then value is MEDIUM");
-		wanderTarget.addRule("if turnDistance is SHORT and objectValue is MEDIUM then value is somewhat HIGH");
-
-		wanderTarget.addRule("if turnDistance is LONG and objectValue is LOW then value is very LOW");
-		wanderTarget.addRule("if turnDistance is MEDIUM and objectValue is LOW then value is LOW");
-		wanderTarget.addRule("if turnDistance is SHORT and objectValue is LOW then value is MEDIUM");
-	}
-	catch(fl::Exception & fe)
-	{
-		logAi->error("FindWanderTarget: %s", fe.getWhat());
-	}
 }
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
@@ -635,9 +586,49 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 	g->setpriority(g->accept(this)); //this enforces returned value is set
 }
 
+EvalWanderTargetObject::EvalWanderTargetObject()
+{
+	try
+	{
+		objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
+		
+		engine.addInputVariable(turnDistance);
+		engine.addInputVariable(objectValue);
+		engine.addOutputVariable(value);
+
+		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
+		objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
+		objectValue->addTerm(new fl::Triangle("MEDIUM", 2500, 6000));
+		objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
+		objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
+
+		addRule("if turnDistance is LONG and objectValue is HIGH then value is MEDIUM");
+		addRule("if turnDistance is MEDIUM and objectValue is HIGH then value is somewhat HIGH");
+		addRule("if turnDistance is SHORT and objectValue is HIGH then value is HIGH");
+
+		addRule("if turnDistance is LONG and objectValue is MEDIUM then value is somewhat LOW");
+		addRule("if turnDistance is MEDIUM and objectValue is MEDIUM then value is MEDIUM");
+		addRule("if turnDistance is SHORT and objectValue is MEDIUM then value is somewhat HIGH");
+
+		addRule("if turnDistance is LONG and objectValue is LOW then value is very LOW");
+		addRule("if turnDistance is MEDIUM and objectValue is LOW then value is LOW");
+		addRule("if turnDistance is SHORT and objectValue is LOW then value is MEDIUM");
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("FindWanderTarget: %s", fe.getWhat());
+	}
+	configure();
+}
+
 EvalWanderTargetObject::~EvalWanderTargetObject()
 { 
 	delete objectValue;
+}
+
+EvalVisitTile::EvalVisitTile()
+{
+	configure();
 }
 
 EvalVisitTile::~EvalVisitTile()

@@ -30,6 +30,7 @@ public:
 class TacticalAdvantage : public engineBase
 {
 public:
+	TacticalAdvantage();
 	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
 	fl::InputVariable * ourSpeed, *enemySpeed;
 	fl::InputVariable * bankPresent;
@@ -38,29 +39,34 @@ public:
 	~TacticalAdvantage();
 };
 
-class HeroMovementGoalEngine : public engineBase
+class HeroMovementGoalEngineBase : public engineBase //abstract class for hero visiting goals, allows evaluating newly added elementar objectives with appropiately broad context data
 {
 public:
+	HeroMovementGoalEngineBase();
 	fl::InputVariable * strengthRatio;
 	fl::InputVariable * heroStrength;
 	fl::InputVariable * turnDistance;
 	fl::InputVariable * missionImportance;
 	fl::InputVariable * estimatedReward;
 	fl::OutputVariable * value;
-	~HeroMovementGoalEngine();
+	~HeroMovementGoalEngineBase();
+
+private:
+	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
-class EvalVisitTile : public HeroMovementGoalEngine
+class EvalVisitTile : public HeroMovementGoalEngineBase
 {
 public:
+	EvalVisitTile();
 	~EvalVisitTile();
 };
 
-class EvalWanderTargetObject : public HeroMovementGoalEngine //designed for use with VCAI::wander()
+class EvalWanderTargetObject : public HeroMovementGoalEngineBase //designed for use with VCAI::wander()
 {
 public:
+	EvalWanderTargetObject();
 	fl::InputVariable * objectValue;
-	fl::OutputVariable * visitGain;
 	~EvalWanderTargetObject();
 };
 
@@ -74,17 +80,12 @@ class FuzzyHelper
 
 	EvalWanderTargetObject wanderTarget;
 
-private:
-	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
-
 public:
 	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
 	//blocks should be initialized in this order, which may be confusing :/
 
 	FuzzyHelper();
 	void initTacticalAdvantage();
-	void initVisitTile();
-	void initWanderTarget();
 
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
