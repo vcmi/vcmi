@@ -55,10 +55,6 @@ bool BuildingManager::tryBuildThisStructure(const CGTownInstance * t, BuildingID
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::ALLOWED)
 		{
-<<<<<<< HEAD
-
-=======
->>>>>>> 079ea69b43b0faabece4e9703ee089eb34486ff2
 			PotentialBuilding pb;
 			pb.bid = buildID;
 			pb.price = t->getBuildingCost(buildID);
@@ -103,10 +99,6 @@ bool BuildingManager::tryBuildAnyStructure(const CGTownInstance * t, std::vector
 	return false; //Can't build anything
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 079ea69b43b0faabece4e9703ee089eb34486ff2
 boost::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays) const
 {
 	for (const auto & building : buildList)
@@ -233,10 +225,6 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		return true;
 
 	return false;
-<<<<<<< HEAD
-
-=======
->>>>>>> 079ea69b43b0faabece4e9703ee089eb34486ff2
 }
 
 boost::optional<PotentialBuilding> BuildingManager::immediateBuilding() const
@@ -254,7 +242,3 @@ boost::optional<PotentialBuilding> BuildingManager::expensiveBuilding() const
 	else
 		return boost::optional<PotentialBuilding>();
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 079ea69b43b0faabece4e9703ee089eb34486ff2

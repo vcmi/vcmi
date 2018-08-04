@@ -71,8 +71,4 @@ private:
 
 	void setCB(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 079ea69b43b0faabece4e9703ee089eb34486ff2
