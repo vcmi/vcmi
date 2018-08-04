@@ -2393,7 +2393,7 @@ Goals::TSubgoal VCAI::striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool on
 				goal = goal->whatToDoToAchieve();
 				--maxGoals;
 				if(goal == ultimateGoal) //compare objects by value
-					throw cannotFulfillGoalException("Goal dependency loop detected!");
+					throw cannotFulfillGoalException((boost::format("Goal dependency loop detected for %s!") % ultimateGoal->name()).str());
 			}
 			catch(goalFulfilledException & e)
 			{

@@ -1079,7 +1079,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			}
 			else //either it's our town, or we have hero there
 			{
-				return sptr(setobjid(objid).setisElementar(true));
+				return sptr(setobjid(objid).setisElementar(true).setpriority(10)); //we can do this immediately - highest priority
 			}
 		}
 	}
@@ -1092,6 +1092,17 @@ bool CollectRes::fulfillsMe(TSubgoal goal)
 {
 	if (goal->resID == resID)
 		if (goal->value >= value)
+			return true;
+
+	return false;
+}
+
+bool Goals::CollectRes::operator==(CollectRes & g)
+{
+	if (isElementar != g.isElementar) //elementar means ready to trade on Marketplace / Trading Post
+		return false;
+	if (g.resID == resID)
+		if (g.value == value) //TODO: not sure if that logic is consitent
 			return true;
 
 	return false;

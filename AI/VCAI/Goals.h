@@ -415,6 +415,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 	TSubgoal whatToDoToTrade();
 	bool fulfillsMe(TSubgoal goal) override;
+	bool operator==(CollectRes & g);
 };
 
 class DLL_EXPORT GatherTroops : public CGoal<GatherTroops>
