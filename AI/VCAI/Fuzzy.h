@@ -51,7 +51,7 @@ public:
 	fl::OutputVariable * value;
 	~HeroMovementGoalEngineBase();
 
-private:
+protected:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
@@ -81,12 +81,6 @@ class FuzzyHelper
 	EvalWanderTargetObject wanderTarget;
 
 public:
-	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE, VISIT_TILE};
-	//blocks should be initialized in this order, which may be confusing :/
-
-	FuzzyHelper();
-	void initTacticalAdvantage();
-
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
 	float evaluate(Goals::VisitTile & g);

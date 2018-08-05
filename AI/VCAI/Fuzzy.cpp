@@ -92,116 +92,6 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	return as;
 }
 
-FuzzyHelper::FuzzyHelper()
-{
-	initTacticalAdvantage();
-	ta.configure();
-	initVisitTile();
-	vt.configure();
-	initWanderTarget();
-	wanderTarget.configure();
-}
-
-
-void FuzzyHelper::initTacticalAdvantage()
-{
-	try
-	{
-		ta.ourShooters = new fl::InputVariable("OurShooters");
-		ta.ourWalkers = new fl::InputVariable("OurWalkers");
-		ta.ourFlyers = new fl::InputVariable("OurFlyers");
-		ta.enemyShooters = new fl::InputVariable("EnemyShooters");
-		ta.enemyWalkers = new fl::InputVariable("EnemyWalkers");
-		ta.enemyFlyers = new fl::InputVariable("EnemyFlyers");
-
-		//Tactical advantage calculation
-		std::vector<fl::InputVariable *> helper =
-		{
-			ta.ourShooters, ta.ourWalkers, ta.ourFlyers, ta.enemyShooters, ta.enemyWalkers, ta.enemyFlyers
-		};
-
-		for(auto val : helper)
-		{
-			ta.engine.addInputVariable(val);
-			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
-			val->addTerm(new fl::Ramp("MANY", 0.4, 1));
-			val->setRange(0.0, 1.0);
-		}
-
-		ta.ourSpeed = new fl::InputVariable("OurSpeed");
-		ta.enemySpeed = new fl::InputVariable("EnemySpeed");
-
-		helper = {ta.ourSpeed, ta.enemySpeed};
-
-		for(auto val : helper)
-		{
-			ta.engine.addInputVariable(val);
-			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
-			val->addTerm(new fl::Triangle("MEDIUM", 5.5, 10.5));
-			val->addTerm(new fl::Ramp("HIGH", 8.5, 16));
-			val->setRange(0, 25);
-		}
-
-		ta.castleWalls = new fl::InputVariable("CastleWalls");
-		ta.engine.addInputVariable(ta.castleWalls);
-		{
-			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
-			ta.castleWalls->addTerm(none);
-
-			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
-								   CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
-			ta.castleWalls->addTerm(medium);
-
-			fl::Ramp * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
-			ta.castleWalls->addTerm(high);
-
-			ta.castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
-		}
-
-
-		ta.bankPresent = new fl::InputVariable("Bank");
-		ta.engine.addInputVariable(ta.bankPresent);
-		{
-			fl::Rectangle * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
-			ta.bankPresent->addTerm(termFalse);
-			fl::Rectangle * termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
-			ta.bankPresent->addTerm(termTrue);
-			ta.bankPresent->setRange(0, 1);
-		}
-
-		ta.threat = new fl::OutputVariable("Threat");
-		ta.engine.addOutputVariable(ta.threat);
-		ta.threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
-		ta.threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
-		ta.threat->addTerm(new fl::Ramp("HIGH", 1, 1.5));
-		ta.threat->setRange(MIN_AI_STRENGHT, 1.5);
-
-		ta.addRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is LOW");
-		ta.addRule("if OurShooters is MANY and EnemyShooters is FEW then Threat is LOW");
-		ta.addRule("if OurSpeed is LOW and EnemyShooters is MANY then Threat is HIGH");
-		ta.addRule("if OurSpeed is HIGH and EnemyShooters is MANY then Threat is LOW");
-
-		ta.addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW");
-		ta.addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH");
-		//just to cover all cases
-		ta.addRule("if OurShooters is FEW and EnemySpeed is HIGH then Threat is MEDIUM");
-		ta.addRule("if EnemySpeed is MEDIUM then Threat is MEDIUM");
-		ta.addRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM");
-
-		ta.addRule("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH");
-		ta.addRule("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW");
-
-		ta.addRule("if CastleWalls is HIGH and OurWalkers is MANY then Threat is very HIGH");
-		ta.addRule("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM");
-		ta.addRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW");
-
-	}
-	catch(fl::Exception & pe)
-	{
-		logAi->error("initTacticalAdvantage: %s", pe.getWhat());
-	}
-}
-
 float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
 {
 	float turns = 0.0f;
@@ -319,6 +209,106 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 	}
 	assert(output >= 0.0f);
 	return output;
+}
+
+TacticalAdvantage::TacticalAdvantage()
+{
+	try
+	{
+		ourShooters = new fl::InputVariable("OurShooters");
+		ourWalkers = new fl::InputVariable("OurWalkers");
+		ourFlyers = new fl::InputVariable("OurFlyers");
+		enemyShooters = new fl::InputVariable("EnemyShooters");
+		enemyWalkers = new fl::InputVariable("EnemyWalkers");
+		enemyFlyers = new fl::InputVariable("EnemyFlyers");
+
+		//Tactical advantage calculation
+		std::vector<fl::InputVariable *> helper =
+		{
+			ourShooters, ourWalkers, ourFlyers, enemyShooters, enemyWalkers, enemyFlyers
+		};
+
+		for(auto val : helper)
+		{
+			engine.addInputVariable(val);
+			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
+			val->addTerm(new fl::Ramp("MANY", 0.4, 1));
+			val->setRange(0.0, 1.0);
+		}
+
+		ourSpeed = new fl::InputVariable("OurSpeed");
+		enemySpeed = new fl::InputVariable("EnemySpeed");
+
+		helper = { ourSpeed, enemySpeed };
+
+		for(auto val : helper)
+		{
+			engine.addInputVariable(val);
+			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
+			val->addTerm(new fl::Triangle("MEDIUM", 5.5, 10.5));
+			val->addTerm(new fl::Ramp("HIGH", 8.5, 16));
+			val->setRange(0, 25);
+		}
+
+		castleWalls = new fl::InputVariable("CastleWalls");
+		engine.addInputVariable(castleWalls);
+		{
+			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
+			castleWalls->addTerm(none);
+
+			fl::Trapezoid * medium = new fl::Trapezoid("MEDIUM", (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f, CGTownInstance::FORT,
+				CGTownInstance::CITADEL, CGTownInstance::CITADEL + (CGTownInstance::CASTLE - CGTownInstance::CITADEL) * 0.5f);
+			castleWalls->addTerm(medium);
+
+			fl::Ramp * high = new fl::Ramp("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE);
+			castleWalls->addTerm(high);
+
+			castleWalls->setRange(CGTownInstance::NONE, CGTownInstance::CASTLE);
+		}
+
+
+		bankPresent = new fl::InputVariable("Bank");
+		engine.addInputVariable(bankPresent);
+		{
+			fl::Rectangle * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
+			bankPresent->addTerm(termFalse);
+			fl::Rectangle * termTrue = new fl::Rectangle("TRUE", 0.5f, 1);
+			bankPresent->addTerm(termTrue);
+			bankPresent->setRange(0, 1);
+		}
+
+		threat = new fl::OutputVariable("Threat");
+		engine.addOutputVariable(threat);
+		threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
+		threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
+		threat->addTerm(new fl::Ramp("HIGH", 1, 1.5));
+		threat->setRange(MIN_AI_STRENGHT, 1.5);
+
+		addRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is LOW");
+		addRule("if OurShooters is MANY and EnemyShooters is FEW then Threat is LOW");
+		addRule("if OurSpeed is LOW and EnemyShooters is MANY then Threat is HIGH");
+		addRule("if OurSpeed is HIGH and EnemyShooters is MANY then Threat is LOW");
+
+		addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW");
+		addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH");
+		//just to cover all cases
+		addRule("if OurShooters is FEW and EnemySpeed is HIGH then Threat is MEDIUM");
+		addRule("if EnemySpeed is MEDIUM then Threat is MEDIUM");
+		addRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM");
+
+		addRule("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH");
+		addRule("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW");
+
+		addRule("if CastleWalls is HIGH and OurWalkers is MANY then Threat is very HIGH");
+		addRule("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM");
+		addRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW");
+
+	}
+	catch(fl::Exception & pe)
+	{
+		logAi->error("initTacticalAdvantage: %s", pe.getWhat());
+	}
+	configure();
 }
 
 TacticalAdvantage::~TacticalAdvantage()
