@@ -18,13 +18,13 @@ struct SectorMap;
 
 class engineBase
 {
-public:
+protected:
 	fl::Engine engine;
 	fl::RuleBlock rules;
-
-	engineBase();
 	virtual void configure();
 	void addRule(const std::string & txt);
+public:
+	engineBase();
 };
 
 class TacticalAdvantageEngine : public engineBase
@@ -85,13 +85,11 @@ class FuzzyHelper
 {
 	friend class VCAI;
 
+public:
 	TacticalAdvantageEngine tacticalAdvantageEngine;
-
 	VisitTileEngine visitTileEngine;
-
 	GetObjEngine getObjEngine;
 
-public:
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
 	float evaluate(Goals::VisitTile & g);
