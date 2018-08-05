@@ -315,14 +315,18 @@ void CGuiHandler::event(const SDL_Event & event)
 	{
 		for(auto it : textInterested)
 		{
-			it->textInputed(event.text);
+			auto cast = dynamic_cast<TextView *>(it);
+			if(cast)
+				cast->textInputed(event.text);
 		}
 	}
 	else if(event.type == SDL_TEXTEDITING)
 	{
 		for(auto it : textInterested)
 		{
-			it->textEdited(event.edit);
+			auto cast = dynamic_cast<TextView *>(it);
+			if(cast)
+				cast->textEdited(event.edit);
 		}
 	}
 	//todo: muiltitouch

@@ -211,6 +211,17 @@ std::string CInfoWindow::genText(std::string title, std::string description)
 	return std::string("{") + title + "}" + "\n\n" + description;
 }
 
+void CInfoWindow::fitToScreen(int borderWidth, bool propagate)
+{
+	Point newPos = pos.topLeft();
+	vstd::amax(newPos.x, borderWidth);
+	vstd::amax(newPos.y, borderWidth);
+	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
+	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
+	if (newPos != pos.topLeft())
+		moveTo(newPos, propagate);
+}
+
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
  :free(Free),bitmap(Bitmap)
 {

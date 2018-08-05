@@ -712,6 +712,11 @@ CTavernWindow::~CTavernWindow()
 	CCS->videoh->close();
 }
 
+void printAtMiddleWBLoc( const std::string & text, int x, int y, Rect pos, EFonts font, int charpr, SDL_Color color, SDL_Surface * dst)
+{
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, static_cast<size_t>(charpr), font), color, Point(pos.x + x, pos.y + y));
+}
+
 void CTavernWindow::show(SDL_Surface * to)
 {
 	CWindowObject::show(to);
@@ -730,7 +735,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->name % sel->h->type->heroClass->name));
 		}
 
-		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
+		printAtMiddleWBLoc(sel->description, 146, 395, pos, FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }

@@ -51,7 +51,9 @@ public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void sliderMoved(int to);
-
+	
+	void fitToScreen(int borderWidth, bool propagate = true);
+	
 	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo & comps = TCompsInfo(), const TButtonsInfo & Buttons = TButtonsInfo());
 	CInfoWindow();
 	~CInfoWindow();

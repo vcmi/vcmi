@@ -17,7 +17,7 @@ class CSlider;
 
 /// Base class for all text-related widgets.
 /// Controls text blitting-related options
-class CTextContainer : public virtual View
+class CTextContainer : public virtual TextView
 {
 protected:
 	/// returns size of border, for left- or right-aligned text
@@ -26,7 +26,8 @@ protected:
 	void blitLine(SDL_Surface * to, Rect where, std::string what);
 
 	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
-
+	void textInputed(const SDL_TextInputEvent & event) override{};
+	void textEdited(const SDL_TextEditingEvent & event) override{};
 public:
 	EAlignment alignment;
 	EFonts font;

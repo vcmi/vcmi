@@ -968,7 +968,7 @@ void CInfoBar::showGameStatus()
 }
 
 CInGameConsole::CInGameConsole()
-	: View(KEYBOARD | TEXTINPUT),
+	: TextView(KEYBOARD | TEXTINPUT),
 	prevEntDisp(-1),
 	defaultTimeout(10000),
 	maxDisplayedTexts(10)

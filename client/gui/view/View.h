@@ -72,9 +72,6 @@ public:
 	virtual void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key){}
 	virtual bool captureThisEvent(const SDL_KeyboardEvent & key);
 
-	virtual void textInputed(const SDL_TextInputEvent & event){};
-	virtual void textEdited(const SDL_TextEditingEvent & event){};
-
 	bool strongInterest;
 	virtual void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 	{}
@@ -107,16 +104,11 @@ public:
 	const Rect & center(const Rect &r, bool propagate = true);
 	const Rect & center(const Point &p, bool propagate = true);
 	const Rect & center(bool propagate = true);
-	void fitToScreen(int borderWidth, bool propagate = true);
 	void moveBy(const Point &p, bool propagate = true);
 	void moveTo(const Point &p, bool propagate = true);
 
 	void addChild(View *child, bool adjustPosition = false);
 	void removeChild(View *child, bool adjustPosition = false);
-
-	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
 
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 	
@@ -145,6 +137,14 @@ private:
 	int timerDelay;
 	
 	std::map<EIntObjMouseBtnType, bool> currentMouseState;
+};
+
+class TextView : public virtual View
+{
+public:
+	TextView(ui16 used=0, Point offset=Point()) : View(used, offset){}
+	virtual void textInputed(const SDL_TextInputEvent & event) = 0;
+	virtual void textEdited(const SDL_TextEditingEvent & event) = 0;
 };
 
 /// Class for binding keys to left mouse button clicks

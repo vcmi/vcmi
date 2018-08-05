@@ -397,7 +397,7 @@ public:
 	void recolorIcons(const PlayerColor & color, int indexOffset);
 };
 
-class CInGameConsole : public View
+class CInGameConsole : public TextView
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //list<text to show, time of add>

@@ -93,7 +93,7 @@ public:
 	void setMode(EMarketMode::EMarketMode Mode); //mode setter
 
 	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
-
+	
 	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;

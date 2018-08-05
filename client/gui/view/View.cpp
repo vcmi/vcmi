@@ -153,25 +153,11 @@ void View::click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, 
 	}
 }
 
-void View::printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
-}
-
-void View::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
-}
-
 void View::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
 {
 	blitAt(src, pos.x + x, pos.y + y, dst);
 }
 
-void View::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
-{
-	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, static_cast<size_t>(charpr), font), kolor, Point(pos.x + x, pos.y + y));
-}
 
 void View::addUsedEvents(ui16 newActions)
 {
@@ -201,17 +187,6 @@ void View::enable()
 		activate();
 
 	recActions = 255;
-}
-
-void View::fitToScreen(int borderWidth, bool propagate)
-{
-	Point newPos = pos.topLeft();
-	vstd::amax(newPos.x, borderWidth);
-	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
-	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
-	if (newPos != pos.topLeft())
-		moveTo(newPos, propagate);
 }
 
 void View::moveBy(const Point & p, bool propagate)

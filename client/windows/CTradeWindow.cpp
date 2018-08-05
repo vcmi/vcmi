@@ -44,6 +44,11 @@ CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool
 	setType(Type);
 }
 
+void printAtMiddleLoc(const std::string & text, const Point p, Rect pos, EFonts font, SDL_Color color, SDL_Surface * dst)
+{
+	graphics->fonts[font]->renderTextCenter(dst, text, color, pos.topLeft() + p);
+}
+
 void CTradeWindow::CTradeableItem::setType(EType newType)
 {
 	if(type != newType)
@@ -163,7 +168,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		View::showAll(to);
 	}
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
+	printAtMiddleLoc(subtitle, posToSubCenter, pos, FONT_SMALL, Colors::WHITE, to);
 }
 
 void CTradeWindow::CTradeableItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
@@ -1468,7 +1473,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = hero->calculateXp(val);
-		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+		printAtMiddleLoc(boost::lexical_cast<std::string>(val), Point(304, 498), pos, FONT_SMALL, Colors::WHITE, to);
 	}
 }
 
