@@ -85,10 +85,14 @@
 		<Unit filename="AIUtility.h" />
 		<Unit filename="AIhelper.cpp" />
 		<Unit filename="AIhelper.h" />
+		<Unit filename="BuildingManager.cpp" />
+		<Unit filename="BuildingManager.h" />
 		<Unit filename="Fuzzy.cpp" />
 		<Unit filename="Fuzzy.h" />
 		<Unit filename="Goals.cpp" />
 		<Unit filename="Goals.h" />
+		<Unit filename="MapObjectsEvaluator.cpp" />
+		<Unit filename="MapObjectsEvaluator.h" />
 		<Unit filename="ResourceManager.cpp" />
 		<Unit filename="ResourceManager.h" />
 		<Unit filename="StdInc.h">
