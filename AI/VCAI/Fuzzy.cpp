@@ -125,38 +125,6 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 }
 
-float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj)
-{
-	float distFromObject = calculateTurnDistanceInputValue(&h, obj->pos);
-	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
-	int objValue = 0;
-
-	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
-	{
-		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
-	}
-	else
-	{
-		MapObjectsEvaluator::getInstance().addObjectData(obj->ID, obj->subID, 0);
-		logGlobal->warn("AI met object type it doesn't know - ID: " + std::to_string(obj->ID) + ", subID: " + std::to_string(obj->subID) + " - adding to database with value " + std::to_string(objValue));
-	}
-	
-	float output = -1.0f;
-	try
-	{
-		wanderTarget.turnDistance->setValue(distFromObject);
-		wanderTarget.objectValue->setValue(objValue);
-		wanderTarget.engine.process();
-		output = wanderTarget.value->getValue();
-	}
-	catch (fl::Exception & fe)
-	{
-		logAi->error("evaluate getWanderTargetObjectValue: %s", fe.getWhat());
-	}
-	assert(output >= 0.0f);
-	return output;
-}
-
 TacticalAdvantageEngine::TacticalAdvantageEngine()
 {
 	try
@@ -287,7 +255,6 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 		else
 			castleWalls->setValue(0);
 
-		//engine.process(TACTICAL_ADVANTAGE);//TODO: Process only Tactical_Advantage
 		engine.process();
 		output = threat->getValue();
 	}
@@ -371,12 +338,11 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
 		turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
 		missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
-		estimatedReward = new fl::InputVariable("estimatedReward"); //indicate AI that content of the file is important or it is probably bad
 		value = new fl::OutputVariable("Value");
 		value->setMinimum(0);
 		value->setMaximum(5);
 
-		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance, estimatedReward };
+		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance };
 		for(auto val : helper)
 		{
 			engine.addInputVariable(val);
@@ -402,10 +368,6 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
 		missionImportance->addTerm(new fl::Ramp("HIGH", 2.5, 5));
 		missionImportance->setRange(0.0, 5.0);
-
-		estimatedReward->addTerm(new fl::Ramp("LOW", 2.5, 0));
-		estimatedReward->addTerm(new fl::Ramp("HIGH", 2.5, 5));
-		estimatedReward->setRange(0.0, 5.0);
 
 		//an issue: in 99% cases this outputs center of mass (2.5) regardless of actual input :/
 		//should be same as "mission Importance" to keep consistency
@@ -433,13 +395,35 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		addRule("if turnDistance is SMALL then Value is HIGH");
 		addRule("if turnDistance is MEDIUM then Value is MEDIUM");
 		addRule("if turnDistance is LONG then Value is LOW");
-		//some goals are more rewarding by definition f.e. capturing town is more important than collecting resource - experimental
-		addRule("if estimatedReward is HIGH then Value is very HIGH");
-		addRule("if estimatedReward is LOW then Value is somewhat LOW");
 	}
 	catch(fl::Exception & fe)
 	{
 		logAi->error("HeroMovementGoalEngineBase: %s", fe.getWhat());
+	}
+}
+
+void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & goal)
+{
+	float turns = calculateTurnDistanceInputValue(goal.hero.h, goal.tile);
+	float missionImportanceData = 0;
+	if(vstd::contains(ai->lockedHeroes, goal.hero))
+		missionImportanceData = ai->lockedHeroes[goal.hero]->priority;
+
+	float strengthRatioData = 10.0f; //we are much stronger than enemy
+	ui64 danger = evaluateDanger(goal.tile, goal.hero.h);
+	if(danger)
+		strengthRatioData = (fl::scalar)goal.hero.h->getTotalStrength() / danger;
+
+	try
+	{
+		strengthRatio->setValue(strengthRatioData);
+		heroStrength->setValue((fl::scalar)goal.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		turnDistance->setValue(turns);
+		missionImportance->setValue(missionImportanceData);
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("HeroMovementGoalEngineBase::setSharedFuzzyVariables: %s", fe.getWhat());
 	}
 }
 
@@ -449,12 +433,15 @@ HeroMovementGoalEngineBase::~HeroMovementGoalEngineBase()
 	delete heroStrength;
 	delete turnDistance;
 	delete missionImportance;
-	delete estimatedReward;
 }
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	return visitTileEngine.evaluate(g);
+}
+float FuzzyHelper::evaluate(Goals::GetObj & g)
+{
+	return getObjEngine.evaluate(g);
 }
 float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {
@@ -533,15 +520,13 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 	g->setpriority(g->accept(this)); //this enforces returned value is set
 }
 
-EvalWanderTargetObject::EvalWanderTargetObject()
+GetObjEngine::GetObjEngine()
 {
 	try
 	{
 		objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
 		
-		engine.addInputVariable(turnDistance);
 		engine.addInputVariable(objectValue);
-		engine.addOutputVariable(value);
 
 		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
 		objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
@@ -568,9 +553,49 @@ EvalWanderTargetObject::EvalWanderTargetObject()
 	configure();
 }
 
-EvalWanderTargetObject::~EvalWanderTargetObject()
+GetObjEngine::~GetObjEngine()
 { 
 	delete objectValue;
+}
+
+float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
+{
+	auto g = dynamic_cast<Goals::GetObj &>(goal);
+
+	if(!g.hero)
+		return 0;
+
+	auto obj = cb->getObj(ObjectInstanceID(g.objid));
+
+
+	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
+	int objValue = 0;
+
+	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map
+	{
+		objValue = std::min(std::max(objValueKnownByAI.get(), 0), 20000);
+	}
+	else
+	{
+		MapObjectsEvaluator::getInstance().addObjectData(obj->ID, obj->subID, 0);
+		logGlobal->warn("AI met object type it doesn't know - ID: " + std::to_string(obj->ID) + ", subID: " + std::to_string(obj->subID) + " - adding to database with value " + std::to_string(objValue));
+	}
+
+	setSharedFuzzyVariables(goal);
+
+	float output = -1.0f;
+	try
+	{
+		objectValue->setValue(objValue);
+		engine.process();
+		output = value->getValue();
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("evaluate getWanderTargetObjectValue: %s", fe.getWhat());
+	}
+	assert(output >= 0.0f);
+	return output;
 }
 
 VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that are not shared with HeroMovementGoalEngineBase
@@ -590,37 +615,12 @@ float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
-	float turns = calculateTurnDistanceInputValue(g.hero.h, g.tile);
-	float missionImportanceData = 0;
-	if(vstd::contains(ai->lockedHeroes, g.hero))
-		missionImportanceData = ai->lockedHeroes[g.hero]->priority;
 
-	float strengthRatioData = 10.0f; //we are much stronger than enemy
-	ui64 danger = evaluateDanger(g.tile, g.hero.h);
-	if(danger)
-		strengthRatioData = (fl::scalar)g.hero.h->getTotalStrength() / danger;
-
-	float tilePriority = 0;
-	if(g.objid == -1)
-	{
-		estimatedReward->setEnabled(false);
-	}
-	else if(g.objid == Obj::TOWN) //TODO: move to getObj eventually and add appropiate logic there
-	{
-		estimatedReward->setEnabled(true);
-		tilePriority = 5;
-	}
+	setSharedFuzzyVariables(goal);
 
 	try
 	{
-		strengthRatio->setValue(strengthRatioData);
-		heroStrength->setValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
-		turnDistance->setValue(turns);
-		missionImportance->setValue(missionImportanceData);
-		estimatedReward->setValue(tilePriority);
-
 		engine.process();
-		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
 		g.priority = value->getValue();
 	}
 	catch(fl::Exception & fe)

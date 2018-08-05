@@ -31,31 +31,35 @@ class TacticalAdvantageEngine : public engineBase
 {
 public:
 	TacticalAdvantageEngine();
+
+	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
+	~TacticalAdvantageEngine();
+private:
 	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
 	fl::InputVariable * ourSpeed, *enemySpeed;
 	fl::InputVariable * bankPresent;
 	fl::InputVariable * castleWalls;
 	fl::OutputVariable * threat;
-
-	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
-	~TacticalAdvantageEngine();
 };
 
-class HeroMovementGoalEngineBase : public engineBase
+class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
 {
 public:
 	HeroMovementGoalEngineBase();
+
+	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
+	virtual ~HeroMovementGoalEngineBase();
+
+protected:
+	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
+
 	fl::InputVariable * strengthRatio;
 	fl::InputVariable * heroStrength;
 	fl::InputVariable * turnDistance;
 	fl::InputVariable * missionImportance;
-	fl::InputVariable * estimatedReward;
 	fl::OutputVariable * value;
 
-	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
-	~HeroMovementGoalEngineBase();
-
-protected:
+private:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
@@ -67,12 +71,14 @@ public:
 	float evaluate(Goals::AbstractGoal & goal) override;
 };
 
-class EvalWanderTargetObject : public HeroMovementGoalEngineBase //designed for use with VCAI::wander()
+class GetObjEngine : public HeroMovementGoalEngineBase
 {
 public:
-	EvalWanderTargetObject();
+	GetObjEngine();
+	~GetObjEngine();
+	float evaluate(Goals::AbstractGoal & goal) override;
+protected:
 	fl::InputVariable * objectValue;
-	~EvalWanderTargetObject();
 };
 
 class FuzzyHelper
@@ -83,12 +89,13 @@ class FuzzyHelper
 
 	VisitTileEngine visitTileEngine;
 
-	EvalWanderTargetObject wanderTargetEngine;
+	GetObjEngine getObjEngine;
 
 public:
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
 	float evaluate(Goals::VisitTile & g);
+	float evaluate(Goals::GetObj & g);
 	float evaluate(Goals::VisitHero & g);
 	float evaluate(Goals::BuildThis & g);
 	float evaluate(Goals::DigAtTile & g);
@@ -102,7 +109,6 @@ public:
 	void setPriority(Goals::TSubgoal & g);
 
 	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
-	float getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj);
 
 	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
 	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);
