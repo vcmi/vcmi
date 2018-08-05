@@ -125,60 +125,6 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 }
 
-float FuzzyHelper::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
-{
-	float output = 1;
-	try
-	{
-		armyStructure ourStructure = evaluateArmyStructure(we);
-		armyStructure enemyStructure = evaluateArmyStructure(enemy);
-
-		ta.ourWalkers->setValue(ourStructure.walkers);
-		ta.ourShooters->setValue(ourStructure.shooters);
-		ta.ourFlyers->setValue(ourStructure.flyers);
-		ta.ourSpeed->setValue(ourStructure.maxSpeed);
-
-		ta.enemyWalkers->setValue(enemyStructure.walkers);
-		ta.enemyShooters->setValue(enemyStructure.shooters);
-		ta.enemyFlyers->setValue(enemyStructure.flyers);
-		ta.enemySpeed->setValue(enemyStructure.maxSpeed);
-
-		bool bank = dynamic_cast<const CBank *>(enemy);
-		if(bank)
-			ta.bankPresent->setValue(1);
-		else
-			ta.bankPresent->setValue(0);
-
-		const CGTownInstance * fort = dynamic_cast<const CGTownInstance *>(enemy);
-		if(fort)
-			ta.castleWalls->setValue(fort->fortLevel());
-		else
-			ta.castleWalls->setValue(0);
-
-		//engine.process(TACTICAL_ADVANTAGE);//TODO: Process only Tactical_Advantage
-		ta.engine.process();
-		output = ta.threat->getValue();
-	}
-	catch(fl::Exception & fe)
-	{
-		logAi->error("getTacticalAdvantage: %s ", fe.getWhat());
-	}
-
-	if(output < 0 || (output != output))
-	{
-		fl::InputVariable * tab[] = {ta.bankPresent, ta.castleWalls, ta.ourWalkers, ta.ourShooters, ta.ourFlyers, ta.ourSpeed, ta.enemyWalkers, ta.enemyShooters, ta.enemyFlyers, ta.enemySpeed};
-		std::string names[] = {"bankPresent", "castleWalls", "ourWalkers", "ourShooters", "ourFlyers", "ourSpeed", "enemyWalkers", "enemyShooters", "enemyFlyers", "enemySpeed" };
-		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
-
-		for(int i = 0; i < boost::size(tab); i++)
-			log << names[i] << ": " << tab[i]->getValue() << " ";
-		logAi->error(log.str());
-		assert(false);
-	}
-
-	return output;
-}
-
 float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj)
 {
 	float distFromObject = calculateTurnDistanceInputValue(&h, obj->pos);
@@ -211,7 +157,7 @@ float FuzzyHelper::getWanderTargetObjectValue(const CGHeroInstance & h, const Ob
 	return output;
 }
 
-TacticalAdvantage::TacticalAdvantage()
+TacticalAdvantageEngine::TacticalAdvantageEngine()
 {
 	try
 	{
@@ -311,7 +257,61 @@ TacticalAdvantage::TacticalAdvantage()
 	configure();
 }
 
-TacticalAdvantage::~TacticalAdvantage()
+float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
+{
+	float output = 1;
+	try
+	{
+		armyStructure ourStructure = evaluateArmyStructure(we);
+		armyStructure enemyStructure = evaluateArmyStructure(enemy);
+
+		ourWalkers->setValue(ourStructure.walkers);
+		ourShooters->setValue(ourStructure.shooters);
+		ourFlyers->setValue(ourStructure.flyers);
+		ourSpeed->setValue(ourStructure.maxSpeed);
+
+		enemyWalkers->setValue(enemyStructure.walkers);
+		enemyShooters->setValue(enemyStructure.shooters);
+		enemyFlyers->setValue(enemyStructure.flyers);
+		enemySpeed->setValue(enemyStructure.maxSpeed);
+
+		bool bank = dynamic_cast<const CBank *>(enemy);
+		if(bank)
+			bankPresent->setValue(1);
+		else
+			bankPresent->setValue(0);
+
+		const CGTownInstance * fort = dynamic_cast<const CGTownInstance *>(enemy);
+		if(fort)
+			castleWalls->setValue(fort->fortLevel());
+		else
+			castleWalls->setValue(0);
+
+		//engine.process(TACTICAL_ADVANTAGE);//TODO: Process only Tactical_Advantage
+		engine.process();
+		output = threat->getValue();
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("getTacticalAdvantage: %s ", fe.getWhat());
+	}
+
+	if(output < 0 || (output != output))
+	{
+		fl::InputVariable * tab[] = { bankPresent, castleWalls, ourWalkers, ourShooters, ourFlyers, ourSpeed, enemyWalkers, enemyShooters, enemyFlyers, enemySpeed };
+		std::string names[] = { "bankPresent", "castleWalls", "ourWalkers", "ourShooters", "ourFlyers", "ourSpeed", "enemyWalkers", "enemyShooters", "enemyFlyers", "enemySpeed" };
+		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
+
+		for(int i = 0; i < boost::size(tab); i++)
+			log << names[i] << ": " << tab[i]->getValue() << " ";
+		logAi->error(log.str());
+		assert(false);
+	}
+
+	return output;
+}
+
+TacticalAdvantageEngine::~TacticalAdvantageEngine()
 {
 	//TODO: smart pointers?
 	delete ourWalkers;
@@ -454,50 +454,7 @@ HeroMovementGoalEngineBase::~HeroMovementGoalEngineBase()
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
-	//we assume that hero is already set and we want to choose most suitable one for the mission
-	if(!g.hero)
-		return 0;
-
-	//assert(cb->isInTheMap(g.tile));
-	float turns = calculateTurnDistanceInputValue(g.hero.h, g.tile);
-	float missionImportance = 0;
-	if(vstd::contains(ai->lockedHeroes, g.hero))
-		missionImportance = ai->lockedHeroes[g.hero]->priority;
-
-	float strengthRatio = 10.0f; //we are much stronger than enemy
-	ui64 danger = evaluateDanger(g.tile, g.hero.h);
-	if(danger)
-		strengthRatio = (fl::scalar)g.hero.h->getTotalStrength() / danger;
-
-	float tilePriority = 0;
-	if(g.objid == -1)
-	{
-		vt.estimatedReward->setEnabled(false);
-	}
-	else if(g.objid == Obj::TOWN) //TODO: move to getObj eventually and add appropiate logic there
-	{
-		vt.estimatedReward->setEnabled(true);
-		tilePriority = 5;
-	}
-
-	try
-	{
-		vt.strengthRatio->setValue(strengthRatio);
-		vt.heroStrength->setValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
-		vt.turnDistance->setValue(turns);
-		vt.missionImportance->setValue(missionImportance);
-		vt.estimatedReward->setValue(tilePriority);
-
-		vt.engine.process();
-		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
-		g.priority = vt.value->getValue();
-	}
-	catch(fl::Exception & fe)
-	{
-		logAi->error("evaluate VisitTile: %s", fe.getWhat());
-	}
-	assert(g.priority >= 0);
-	return g.priority;
+	return visitTileEngine.evaluate(g);
 }
 float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {
@@ -616,11 +573,60 @@ EvalWanderTargetObject::~EvalWanderTargetObject()
 	delete objectValue;
 }
 
-EvalVisitTile::EvalVisitTile()
+VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that are not shared with HeroMovementGoalEngineBase
 {
 	configure();
 }
 
-EvalVisitTile::~EvalVisitTile()
+VisitTileEngine::~VisitTileEngine()
 {
+}
+
+float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
+{
+	auto g = dynamic_cast<Goals::VisitTile &>(goal);
+	//we assume that hero is already set and we want to choose most suitable one for the mission
+	if(!g.hero)
+		return 0;
+
+	//assert(cb->isInTheMap(g.tile));
+	float turns = calculateTurnDistanceInputValue(g.hero.h, g.tile);
+	float missionImportanceData = 0;
+	if(vstd::contains(ai->lockedHeroes, g.hero))
+		missionImportanceData = ai->lockedHeroes[g.hero]->priority;
+
+	float strengthRatioData = 10.0f; //we are much stronger than enemy
+	ui64 danger = evaluateDanger(g.tile, g.hero.h);
+	if(danger)
+		strengthRatioData = (fl::scalar)g.hero.h->getTotalStrength() / danger;
+
+	float tilePriority = 0;
+	if(g.objid == -1)
+	{
+		estimatedReward->setEnabled(false);
+	}
+	else if(g.objid == Obj::TOWN) //TODO: move to getObj eventually and add appropiate logic there
+	{
+		estimatedReward->setEnabled(true);
+		tilePriority = 5;
+	}
+
+	try
+	{
+		strengthRatio->setValue(strengthRatioData);
+		heroStrength->setValue((fl::scalar)g.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		turnDistance->setValue(turns);
+		missionImportance->setValue(missionImportanceData);
+		estimatedReward->setValue(tilePriority);
+
+		engine.process();
+		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
+		g.priority = value->getValue();
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("evaluate VisitTile: %s", fe.getWhat());
+	}
+	assert(g.priority >= 0);
+	return g.priority;
 }

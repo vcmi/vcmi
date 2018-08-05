@@ -23,23 +23,25 @@ public:
 	fl::RuleBlock rules;
 
 	engineBase();
-	void configure();
+	virtual void configure();
 	void addRule(const std::string & txt);
 };
 
-class TacticalAdvantage : public engineBase
+class TacticalAdvantageEngine : public engineBase
 {
 public:
-	TacticalAdvantage();
+	TacticalAdvantageEngine();
 	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
 	fl::InputVariable * ourSpeed, *enemySpeed;
 	fl::InputVariable * bankPresent;
 	fl::InputVariable * castleWalls;
 	fl::OutputVariable * threat;
-	~TacticalAdvantage();
+
+	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
+	~TacticalAdvantageEngine();
 };
 
-class HeroMovementGoalEngineBase : public engineBase //abstract class for hero visiting goals, allows evaluating newly added elementar objectives with appropiately broad context data
+class HeroMovementGoalEngineBase : public engineBase
 {
 public:
 	HeroMovementGoalEngineBase();
@@ -49,17 +51,20 @@ public:
 	fl::InputVariable * missionImportance;
 	fl::InputVariable * estimatedReward;
 	fl::OutputVariable * value;
+
+	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
 	~HeroMovementGoalEngineBase();
 
 protected:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
-class EvalVisitTile : public HeroMovementGoalEngineBase
+class VisitTileEngine : public HeroMovementGoalEngineBase
 {
 public:
-	EvalVisitTile();
-	~EvalVisitTile();
+	VisitTileEngine();
+	~VisitTileEngine();
+	float evaluate(Goals::AbstractGoal & goal) override;
 };
 
 class EvalWanderTargetObject : public HeroMovementGoalEngineBase //designed for use with VCAI::wander()
@@ -74,11 +79,11 @@ class FuzzyHelper
 {
 	friend class VCAI;
 
-	TacticalAdvantage ta;
+	TacticalAdvantageEngine tacticalAdvantageEngine;
 
-	EvalVisitTile vt;
+	VisitTileEngine visitTileEngine;
 
-	EvalWanderTargetObject wanderTarget;
+	EvalWanderTargetObject wanderTargetEngine;
 
 public:
 	float evaluate(Goals::Explore & g);
@@ -96,8 +101,7 @@ public:
 	float evaluate(Goals::AbstractGoal & g);
 	void setPriority(Goals::TSubgoal & g);
 
-	ui64 estimateBankDanger(const CBank * bank);
-	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
+	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 	float getWanderTargetObjectValue(const CGHeroInstance & h, const ObjectIdRef & obj);
 
 	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
