@@ -33,12 +33,13 @@ public:
 	TacticalAdvantageEngine();
 
 	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
+	~TacticalAdvantageEngine();
 private:
-	std::unique_ptr<fl::InputVariable> ourWalkers, ourShooters, ourFlyers, enemyWalkers, enemyShooters, enemyFlyers;
-	std::unique_ptr<fl::InputVariable> ourSpeed, enemySpeed;
-	std::unique_ptr<fl::InputVariable> bankPresent;
-	std::unique_ptr<fl::InputVariable> castleWalls;
-	std::unique_ptr<fl::OutputVariable> threat;
+	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
+	fl::InputVariable * ourSpeed, *enemySpeed;
+	fl::InputVariable * bankPresent;
+	fl::InputVariable * castleWalls;
+	fl::OutputVariable * threat;
 };
 
 class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
@@ -47,15 +48,16 @@ public:
 	HeroMovementGoalEngineBase();
 
 	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
+	virtual ~HeroMovementGoalEngineBase();
 
 protected:
 	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
 
-	std::unique_ptr<fl::InputVariable> strengthRatio;
-	std::unique_ptr<fl::InputVariable> heroStrength;
-	std::unique_ptr<fl::InputVariable> turnDistance;
-	std::unique_ptr<fl::InputVariable> missionImportance;
-	std::unique_ptr<fl::OutputVariable> value;
+	fl::InputVariable * strengthRatio;
+	fl::InputVariable * heroStrength;
+	fl::InputVariable * turnDistance;
+	fl::InputVariable * missionImportance;
+	fl::OutputVariable * value;
 
 private:
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
@@ -65,6 +67,7 @@ class VisitTileEngine : public HeroMovementGoalEngineBase
 {
 public:
 	VisitTileEngine();
+	~VisitTileEngine();
 	float evaluate(Goals::AbstractGoal & goal) override;
 };
 
@@ -72,9 +75,10 @@ class GetObjEngine : public HeroMovementGoalEngineBase
 {
 public:
 	GetObjEngine();
+	~GetObjEngine();
 	float evaluate(Goals::AbstractGoal & goal) override;
 protected:
-	std::unique_ptr<fl::InputVariable> objectValue;
+	fl::InputVariable * objectValue;
 };
 
 class FuzzyHelper

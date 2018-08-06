@@ -129,14 +129,20 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 {
 	try
 	{
-		ourShooters = vstd::make_unique<fl::InputVariable>(fl::InputVariable("OurShooters"));
-		ourWalkers = vstd::make_unique<fl::InputVariable>(fl::InputVariable("OurWalkers"));
-		ourFlyers = vstd::make_unique<fl::InputVariable>(fl::InputVariable("OurFlyers"));
-		enemyShooters = vstd::make_unique<fl::InputVariable>(fl::InputVariable("EnemyShooters"));
-		enemyWalkers = vstd::make_unique<fl::InputVariable>(fl::InputVariable("EnemyWalkers"));
-		enemyFlyers = vstd::make_unique<fl::InputVariable>(fl::InputVariable("EnemyFlyers"));
+		ourShooters = new fl::InputVariable("OurShooters");
+		ourWalkers = new fl::InputVariable("OurWalkers");
+		ourFlyers = new fl::InputVariable("OurFlyers");
+		enemyShooters = new fl::InputVariable("EnemyShooters");
+		enemyWalkers = new fl::InputVariable("EnemyWalkers");
+		enemyFlyers = new fl::InputVariable("EnemyFlyers");
 
-		for(auto val : {ourShooters.get(), ourWalkers.get(), ourFlyers.get(), enemyShooters.get(), enemyWalkers.get(), enemyFlyers.get()})
+		//Tactical advantage calculation
+		std::vector<fl::InputVariable *> helper =
+		{
+			ourShooters, ourWalkers, ourFlyers, enemyShooters, enemyWalkers, enemyFlyers
+		};
+
+		for(auto val : helper)
 		{
 			engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("FEW", 0.6, 0.0));
@@ -144,10 +150,12 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 			val->setRange(0.0, 1.0);
 		}
 
-		ourSpeed = vstd::make_unique<fl::InputVariable>(fl::InputVariable("OurSpeed"));
-		enemySpeed = vstd::make_unique<fl::InputVariable>(fl::InputVariable("EnemySpeed"));
+		ourSpeed = new fl::InputVariable("OurSpeed");
+		enemySpeed = new fl::InputVariable("EnemySpeed");
 
-		for(auto val : {ourSpeed.get(), enemySpeed.get()})
+		helper = { ourSpeed, enemySpeed };
+
+		for(auto val : helper)
 		{
 			engine.addInputVariable(val);
 			val->addTerm(new fl::Ramp("LOW", 6.5, 3));
@@ -156,8 +164,8 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 			val->setRange(0, 25);
 		}
 
-		castleWalls = vstd::make_unique<fl::InputVariable>(fl::InputVariable("CastleWalls"));
-		engine.addInputVariable(castleWalls.get());
+		castleWalls = new fl::InputVariable("CastleWalls");
+		engine.addInputVariable(castleWalls);
 		{
 			fl::Rectangle * none = new fl::Rectangle("NONE", CGTownInstance::NONE, CGTownInstance::NONE + (CGTownInstance::FORT - CGTownInstance::NONE) * 0.5f);
 			castleWalls->addTerm(none);
@@ -173,8 +181,8 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 		}
 
 
-		bankPresent = vstd::make_unique<fl::InputVariable>(fl::InputVariable("Bank"));
-		engine.addInputVariable(bankPresent.get());
+		bankPresent = new fl::InputVariable("Bank");
+		engine.addInputVariable(bankPresent);
 		{
 			fl::Rectangle * termFalse = new fl::Rectangle("FALSE", 0.0, 0.5f);
 			bankPresent->addTerm(termFalse);
@@ -183,8 +191,8 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 			bankPresent->setRange(0, 1);
 		}
 
-		threat = vstd::make_unique<fl::OutputVariable>(fl::OutputVariable("Threat"));
-		engine.addOutputVariable(threat.get());
+		threat = new fl::OutputVariable("Threat");
+		engine.addOutputVariable(threat);
 		threat->addTerm(new fl::Ramp("LOW", 1, MIN_AI_STRENGHT));
 		threat->addTerm(new fl::Triangle("MEDIUM", 0.8, 1.2));
 		threat->addTerm(new fl::Ramp("HIGH", 1, 1.5));
@@ -257,18 +265,33 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 
 	if(output < 0 || (output != output))
 	{
-		fl::scalar tab[] = { bankPresent->getValue(), castleWalls->getValue(), ourWalkers->getValue(), ourShooters->getValue(), ourFlyers->getValue(), ourSpeed->getValue(),
-			enemyWalkers->getValue(), enemyShooters->getValue(), enemyFlyers->getValue(), enemySpeed->getValue() };
+		fl::InputVariable * tab[] = { bankPresent, castleWalls, ourWalkers, ourShooters, ourFlyers, ourSpeed, enemyWalkers, enemyShooters, enemyFlyers, enemySpeed };
 		std::string names[] = { "bankPresent", "castleWalls", "ourWalkers", "ourShooters", "ourFlyers", "ourSpeed", "enemyWalkers", "enemyShooters", "enemyFlyers", "enemySpeed" };
 		std::stringstream log("Warning! Fuzzy engine doesn't cover this set of parameters: ");
 
 		for(int i = 0; i < boost::size(tab); i++)
-			log << names[i] << ": " << tab[i] << " ";
+			log << names[i] << ": " << tab[i]->getValue() << " ";
 		logAi->error(log.str());
 		assert(false);
 	}
 
 	return output;
+}
+
+TacticalAdvantageEngine::~TacticalAdvantageEngine()
+{
+	//TODO: smart pointers?
+	delete ourWalkers;
+	delete ourShooters;
+	delete ourFlyers;
+	delete enemyWalkers;
+	delete enemyShooters;
+	delete enemyFlyers;
+	delete ourSpeed;
+	delete enemySpeed;
+	delete bankPresent;
+	delete castleWalls;
+	delete threat;
 }
 
 //std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
@@ -311,19 +334,20 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 {
 	try
 	{
-		strengthRatio = vstd::make_unique<fl::InputVariable>(fl::InputVariable("strengthRatio")); //hero must be strong enough to defeat guards
-		heroStrength = vstd::make_unique<fl::InputVariable>(fl::InputVariable("heroStrength")); //we want to use weakest possible hero
-		turnDistance = vstd::make_unique<fl::InputVariable>(fl::InputVariable("turnDistance")); //we want to use hero who is near
-		missionImportance = vstd::make_unique<fl::InputVariable>(fl::InputVariable("lockedMissionImportance")); //we may want to preempt hero with low-priority mission
-		value = vstd::make_unique<fl::OutputVariable>(fl::OutputVariable("Value"));
+		strengthRatio = new fl::InputVariable("strengthRatio"); //hero must be strong enough to defeat guards
+		heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
+		turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
+		missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
+		value = new fl::OutputVariable("Value");
 		value->setMinimum(0);
 		value->setMaximum(5);
 
-		for(auto val : { strengthRatio.get(), heroStrength.get(), turnDistance.get(), missionImportance.get() })
+		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance };
+		for(auto val : helper)
 		{
 			engine.addInputVariable(val);
 		}
-		engine.addOutputVariable(value.get());
+		engine.addOutputVariable(value);
 
 		strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
 		strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
@@ -401,6 +425,14 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 	{
 		logAi->error("HeroMovementGoalEngineBase::setSharedFuzzyVariables: %s", fe.getWhat());
 	}
+}
+
+HeroMovementGoalEngineBase::~HeroMovementGoalEngineBase()
+{
+	delete strengthRatio;
+	delete heroStrength;
+	delete turnDistance;
+	delete missionImportance;
 }
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
@@ -492,9 +524,9 @@ GetObjEngine::GetObjEngine()
 {
 	try
 	{
-		objectValue = vstd::make_unique<fl::InputVariable>(fl::InputVariable("objectValue")); //value of that object type known by AI
+		objectValue = new fl::InputVariable("objectValue"); //value of that object type known by AI
 		
-		engine.addInputVariable(objectValue.get());
+		engine.addInputVariable(objectValue);
 
 		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
 		objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
@@ -519,6 +551,11 @@ GetObjEngine::GetObjEngine()
 		logAi->error("FindWanderTarget: %s", fe.getWhat());
 	}
 	configure();
+}
+
+GetObjEngine::~GetObjEngine()
+{ 
+	delete objectValue;
 }
 
 float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
@@ -564,6 +601,10 @@ float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
 VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that are not shared with HeroMovementGoalEngineBase
 {
 	configure();
+}
+
+VisitTileEngine::~VisitTileEngine()
+{
 }
 
 float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
