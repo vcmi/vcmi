@@ -1417,7 +1417,7 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 		auto ib = ah->immediateBuilding();
 		if (ib.is_initialized())
 		{
-			ret.push_back(sptr(Goals::BuildThis(ib.get().bid, t)));
+			ret.push_back(sptr(Goals::BuildThis(ib.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
 		}
 		else //try build later
 		{
@@ -1425,7 +1425,7 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 			if (eb.is_initialized())
 			{
 				auto pb = eb.get(); //gather resources for any we can't afford
-				auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t)));
+				auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t).setpriority(0.5)));
 				ret.push_back(goal);
 			}
 		}
