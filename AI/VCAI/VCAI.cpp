@@ -863,11 +863,12 @@ void VCAI::mainLoop()
 				catch (goalFulfilledException & e)
 				{
 					//it is impossible to continue some goals (like exploration, for example)
-					completeGoal(basicGoal); //put in goalsToRemove
-					logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", basicGoal->name());
+					//complete abstract goal for now, but maybe main goal finds another path
+					logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", e.goal->name());
+					completeGoal(e.goal); //put in goalsToRemove
 					break;
 				}
-				catch (std::exception & e)
+				catch (std::exception & e) //decomposition failed, which means we can't decompose entire tree
 				{
 					goalsToRemove.push_back(basicGoal);
 					logAi->debug("Goal %s decomposition failed: %s", basicGoal->name(), e.what());
@@ -939,7 +940,7 @@ void VCAI::mainLoop()
 			{
 				//the sub-goal was completed successfully
 				completeGoal(e.goal);
-				//local goal was also completed
+				//local goal was also completed?
 				completeGoal(goalToRealize);
 			}
 			catch (std::exception & e)
@@ -1508,6 +1509,9 @@ void VCAI::evaluateGoal(HeroPtr h)
 
 void VCAI::completeGoal(Goals::TSubgoal goal)
 {
+	if (goal->goalType == Goals::WIN) //we can never complete this goal - unless we already won
+		return;
+
 	logAi->trace("Completing goal: %s", goal->name());
 
 	//notify Managers
@@ -2248,8 +2252,8 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 		catch (goalFulfilledException & e)
 		{
 			//it is impossible to continue some goals (like exploration, for example)
-			completeGoal(basicGoal); //put in goalsToRemove
-			logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", basicGoal->name());
+			completeGoal(e.goal); //put in goalsToRemove
+			logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", e.goal->name());
 			return;
 		}
 		catch (std::exception & e)
