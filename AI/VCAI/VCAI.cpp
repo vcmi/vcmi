@@ -2103,11 +2103,6 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	}
 }
 
-void VCAI::tryRealize(Goals::Build & g)
-{
-	throw cannotFulfillGoalException("BUILD is not an elementar goal!");
-}
-
 void VCAI::tryRealize(Goals::BuyArmy & g)
 {
 	auto t = g.town;

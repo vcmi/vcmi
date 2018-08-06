@@ -125,7 +125,6 @@ public:
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
-	void tryRealize(Goals::Build & g);
 	void tryRealize(Goals::BuyArmy & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
