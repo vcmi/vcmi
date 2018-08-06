@@ -16,7 +16,7 @@ class CArmedInstance;
 class CBank;
 struct SectorMap;
 
-class engineBase
+class engineBase //subclasses create fuzzylite variables with "new" that are not freed - this is desired as fl::Engine wants to destroy these...
 {
 protected:
 	fl::Engine engine;
@@ -31,9 +31,7 @@ class TacticalAdvantageEngine : public engineBase
 {
 public:
 	TacticalAdvantageEngine();
-
 	float getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy); //returns factor how many times enemy is stronger than us
-	~TacticalAdvantageEngine();
 private:
 	fl::InputVariable * ourWalkers, *ourShooters, *ourFlyers, *enemyWalkers, *enemyShooters, *enemyFlyers;
 	fl::InputVariable * ourSpeed, *enemySpeed;
@@ -48,7 +46,6 @@ public:
 	HeroMovementGoalEngineBase();
 
 	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
-	virtual ~HeroMovementGoalEngineBase();
 
 protected:
 	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
@@ -67,7 +64,6 @@ class VisitTileEngine : public HeroMovementGoalEngineBase
 {
 public:
 	VisitTileEngine();
-	~VisitTileEngine();
 	float evaluate(Goals::AbstractGoal & goal) override;
 };
 
@@ -75,7 +71,6 @@ class GetObjEngine : public HeroMovementGoalEngineBase
 {
 public:
 	GetObjEngine();
-	~GetObjEngine();
 	float evaluate(Goals::AbstractGoal & goal) override;
 protected:
 	fl::InputVariable * objectValue;

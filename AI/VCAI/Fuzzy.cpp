@@ -278,22 +278,6 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 	return output;
 }
 
-TacticalAdvantageEngine::~TacticalAdvantageEngine()
-{
-	//TODO: smart pointers?
-	delete ourWalkers;
-	delete ourShooters;
-	delete ourFlyers;
-	delete enemyWalkers;
-	delete enemyShooters;
-	delete enemyFlyers;
-	delete ourSpeed;
-	delete enemySpeed;
-	delete bankPresent;
-	delete castleWalls;
-	delete threat;
-}
-
 //std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
@@ -427,14 +411,6 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 	}
 }
 
-HeroMovementGoalEngineBase::~HeroMovementGoalEngineBase()
-{
-	delete strengthRatio;
-	delete heroStrength;
-	delete turnDistance;
-	delete missionImportance;
-}
-
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	return visitTileEngine.evaluate(g);
@@ -553,11 +529,6 @@ GetObjEngine::GetObjEngine()
 	configure();
 }
 
-GetObjEngine::~GetObjEngine()
-{ 
-	delete objectValue;
-}
-
 float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
 {
 	auto g = dynamic_cast<Goals::GetObj &>(goal);
@@ -601,10 +572,6 @@ float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
 VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that are not shared with HeroMovementGoalEngineBase
 {
 	configure();
-}
-
-VisitTileEngine::~VisitTileEngine()
-{
 }
 
 float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
