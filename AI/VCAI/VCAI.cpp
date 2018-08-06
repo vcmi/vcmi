@@ -2006,6 +2006,22 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 	}
 }
 
+void VCAI::tryRealize(Goals::GetObj & g)
+{
+	auto position = cb->getObjInstance((ObjectInstanceID)g.objid)->pos;
+	if(!g.hero->movement)
+		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
+	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
+	{
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		throw goalFulfilledException(sptr(g));
+	}
+	if(ai->moveHeroToTile(position, g.hero.get()))
+	{
+		throw goalFulfilledException(sptr(g));
+	}
+}
+
 void VCAI::tryRealize(Goals::VisitHero & g)
 {
 	if(!g.hero->movement)

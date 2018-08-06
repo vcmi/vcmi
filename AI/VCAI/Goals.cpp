@@ -517,21 +517,35 @@ TSubgoal GetObj::whatToDoToAchieve()
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 	if(!obj)
 		return sptr(Goals::Explore());
-	if(obj->tempOwner == ai->playerID) //we can't capture our own object -> move to Win codition
-		throw cannotFulfillGoalException("Cannot capture my own object " + obj->getObjectName());
 
 	int3 pos = obj->visitablePos();
 	if(hero)
 	{
 		if(ai->isAccessibleForHero(pos, hero))
-			return sptr(Goals::VisitTile(pos).sethero(hero));
+		{
+			if(isSafeToVisit(hero, pos))
+				return sptr(Goals::GetObj(obj->id.getNum()).sethero(hero).setisElementar(true));
+			else
+				return sptr(Goals::GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true));
+		}
 	}
 	else
 	{
+		TGoalVec goalVersionsWithAllPossibleHeroes;
 		for(auto h : cb->getHeroesInfo())
-		{
+		{	
 			if(ai->isAccessibleForHero(pos, h))
-				return sptr(Goals::VisitTile(pos).sethero(h)); //we must visit object with same hero, if any
+			{
+				if(isSafeToVisit(hero, pos))
+					goalVersionsWithAllPossibleHeroes.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
+				else
+					return sptr(Goals::GatherArmy(evaluateDanger(pos, h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true));
+			}
+		}
+		if(!goalVersionsWithAllPossibleHeroes.empty())
+		{
+			auto bestCandidate = fh->chooseSolution(goalVersionsWithAllPossibleHeroes);
+			return bestCandidate;
 		}
 	}
 	return sptr(Goals::ClearWayTo(pos).sethero(hero));
@@ -912,8 +926,6 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	{
 		if(isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
 		{
-			if(cb->getTile(tile)->topVisitableId().num == Obj::TOWN) //if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
-				ret->objid = Obj::TOWN; //TODO: move to getObj eventually and add appropiate logic there
 			ret->setisElementar(true);
 			return ret;
 		}
@@ -1386,13 +1398,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 							{
 								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
 							}
-							else //just visit that tile
+							else //just get that object
 							{
-								if(obj->ID.num == Obj::TOWN)
-									//if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
-									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setobjid(obj->ID.num).setisAbstract(true))); //TODO: change to getObj eventually and and move appropiate logic there
-								else
-									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+								ret.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 							}
 						}
 					}

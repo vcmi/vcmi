@@ -121,6 +121,7 @@ public:
 	void tryRealize(Goals::Explore & g);
 	void tryRealize(Goals::RecruitHero & g);
 	void tryRealize(Goals::VisitTile & g);
+	void tryRealize(Goals::GetObj & g);
 	void tryRealize(Goals::VisitHero & g);
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
