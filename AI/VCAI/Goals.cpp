@@ -512,11 +512,15 @@ std::string GetObj::completeMessage() const
 	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid);
 }
 
-TSubgoal GetObj::whatToDoToAchieve()
+TGoalVec GetObj::getAllPossibleSubgoals()
 {
+	TGoalVec goalList;
 	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 	if(!obj)
-		return sptr(Goals::Explore());
+	{
+		goalList.push_back(sptr(Goals::Explore()));
+		return goalList;
+	}
 
 	int3 pos = obj->visitablePos();
 	if(hero)
@@ -524,31 +528,43 @@ TSubgoal GetObj::whatToDoToAchieve()
 		if(ai->isAccessibleForHero(pos, hero))
 		{
 			if(isSafeToVisit(hero, pos))
-				return sptr(Goals::GetObj(obj->id.getNum()).sethero(hero).setisElementar(true));
+				goalList.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(hero)));
 			else
-				return sptr(Goals::GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true));
+				goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+
+			return goalList;
 		}
 	}
 	else
 	{
-		TGoalVec goalVersionsWithAllPossibleHeroes;
 		for(auto h : cb->getHeroesInfo())
-		{	
+		{
 			if(ai->isAccessibleForHero(pos, h))
 			{
 				if(isSafeToVisit(hero, pos))
-					goalVersionsWithAllPossibleHeroes.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
+					goalList.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
 				else
-					return sptr(Goals::GatherArmy(evaluateDanger(pos, h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true));
+					goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
 			}
 		}
-		if(!goalVersionsWithAllPossibleHeroes.empty())
+		if(!goalList.empty())
 		{
-			auto bestCandidate = fh->chooseSolution(goalVersionsWithAllPossibleHeroes);
-			return bestCandidate;
+			return goalList;
 		}
 	}
-	return sptr(Goals::ClearWayTo(pos).sethero(hero));
+
+	goalList.push_back(sptr(Goals::ClearWayTo(pos).sethero(hero)));
+	return goalList;
+}
+
+TSubgoal GetObj::whatToDoToAchieve()
+{
+	auto bestGoal = fh->chooseSolution(getAllPossibleSubgoals());
+
+	if(bestGoal->goalType == Goals::GET_OBJ && bestGoal->hero)
+		bestGoal->setisElementar(true);
+
+	return bestGoal;
 }
 
 bool Goals::GetObj::operator==(AbstractGoal & g)

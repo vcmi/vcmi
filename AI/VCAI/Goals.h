@@ -472,10 +472,7 @@ public:
 		objid = Objid;
 		priority = 3;
 	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;
