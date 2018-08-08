@@ -217,8 +217,8 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 		});
 		if (it != queue.end()) //removed at least one
 		{
+			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
 			queue.erase(queue.s_handle_from_iterator(it));
-			logAi->debug("Removed goal %s from ResourceManager.", it->goal->name());
 			removedGoal = true;
 		}
 		else //found nothing more to remove
@@ -288,18 +288,6 @@ TResources ResourceManager::reservedResources() const
 TResources ResourceManager::freeResources() const
 {
 	TResources myRes = cb->getResourceAmount();
-	auto towns = cb->getTownsInfo();
-	if (towns.size()) //we don't save for Capitol if there are no towns
-	{
-		if (std::none_of(towns.begin(), towns.end(), [](const CGTownInstance * x) -> bool
-		{
-			return x->builtBuildings.find(BuildingID::CAPITOL) != x->builtBuildings.end();
-		}))
-		{
-			myRes[Res::GOLD] -= GOLD_RESERVE;
-			//what if capitol is blocked from building in all possessed towns (set in map editor)?
-		}
-	}
 	myRes -= reservedResources(); //substract the value of reserved goals
 
 	for (auto & val : myRes)

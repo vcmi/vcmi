@@ -116,12 +116,12 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	return desc;
 }
 
-//TODO: virtualize if code gets complex?
 bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 {
+	/*this operator checks if goals are EQUIVALENT, ie. if they represent same objective
+	it does not not check isAbstract or isElementar, as this is up to VCAI decomposition logic
+	*/
 	if(g.goalType != goalType)
-		return false;
-	if(g.isElementar != isElementar) //elementar goals fulfill long term non-elementar goals (VisitTile)
 		return false;
 
 	switch(goalType)
@@ -169,12 +169,60 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 	case TRADE: //TODO
 		return (resID == g.resID); //every hero may collect resources
 		break;
+	case BUILD: //abstract build is indentical, TODO: consider building anything in town
+		return true;
+		break;
 	case GATHER_TROOPS:
 	case ISSUE_COMMAND:
-	case BUILD: //TODO: should be decomposed to build specific structures
 	default:
 		return false;
 	}
+}
+
+bool Goals::AbstractGoal::operator<(AbstractGoal & g) //for std::unique
+{
+	//TODO: make sure it gets goals consistent with == operator
+	if (goalType < g.goalType)
+		return true;
+	if (goalType > g.goalType)
+		return false;
+	if (hero < g.hero)
+		return true;
+	if (hero > g.hero)
+		return false;
+	if (tile < g.tile)
+		return true;
+	if (g.tile < tile)
+		return false;
+	if (objid < g.objid)
+		return true;
+	if (objid > g.objid)
+		return false;
+	if (town < g.town)
+		return true;
+	if (town > g.town)
+		return false;
+	if (value < g.value)
+		return true;
+	if (value > g.value)
+		return false;
+	if (priority < g.priority)
+		return true;
+	if (priority > g.priority)
+		return false;
+	if (resID < g.resID)
+		return true;
+	if (resID > g.resID)
+		return false;
+	if (bid < g.bid)
+		return true;
+	if (bid > g.bid)
+		return false;
+	if (aid < g.aid)
+		return true;
+	if (aid > g.aid)
+		return false;
+	return false;
 }
 
 //TODO: find out why the following are not generated automatically on MVS?
@@ -208,8 +256,15 @@ namespace Goals
 		return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
 	}
 
-	bool BuyArmy::operator==(BuyArmy & g)
+	bool TSubgoal::operator<(const TSubgoal & rhs) const
 	{
+		return get() < rhs.get(); //compae by value
+	}
+
+	bool BuyArmy::operator==(AbstractGoal & g)
+	{
+		if (g.goalType != goalType)
+			return false;
 		//if (hero && hero != g.hero)
 		//	return false;
 		return town == g.town;
@@ -237,8 +292,10 @@ TSubgoal Trade::whatToDoToAchieve()
 {
 	return iAmElementar();
 }
-bool Trade::operator==(CollectRes & g)
+bool Trade::operator==(AbstractGoal & g)
 {
+	if (g.goalType != goalType)
+		return false;
 	if (g.resID == resID)
 		if (g.value == value) //TODO: not sure if that logic is consitent
 			return true;
@@ -480,6 +537,13 @@ TSubgoal GetObj::whatToDoToAchieve()
 	return sptr(Goals::ClearWayTo(pos).sethero(hero));
 }
 
+bool Goals::GetObj::operator==(AbstractGoal & g)
+{
+	if (g.goalType != goalType)
+		return false;
+	return g.objid == objid;
+}
+
 bool GetObj::fulfillsMe(TSubgoal goal)
 {
 	if(goal->goalType == Goals::VISIT_TILE) //visiting tile visits object at same time
@@ -520,6 +584,13 @@ TSubgoal VisitHero::whatToDoToAchieve()
 	return sptr(Goals::Invalid());
 }
 
+bool Goals::VisitHero::operator==(AbstractGoal & g)
+{
+	if (g.goalType != goalType)
+		return false;
+	return g.hero == hero && g.objid == objid;
+}
+
 bool VisitHero::fulfillsMe(TSubgoal goal)
 {
 	//TODO: VisitObj shoudl not be used for heroes, but...
@@ -554,6 +625,13 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	}
 
 	return (fh->chooseSolution(getAllPossibleSubgoals()));
+}
+
+bool Goals::ClearWayTo::operator==(AbstractGoal & g)
+{
+	if (g.goalType != goalType)
+		return false;
+	return g.goalType == goalType && g.tile == tile;
 }
 
 bool Goals::ClearWayTo::fulfillsMe(TSubgoal goal)
@@ -595,6 +673,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		{
 			//FIXME: this way we'll not visit gate and activate quest :?
 			ret.push_back(sptr(Goals::FindObj(Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
+			return ret; //only option
 		}
 
 		auto topObj = cb->getTopObj(tileToHit);
@@ -621,13 +700,16 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				}
 				else
 				{
-					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
+					//TODO: we should be able to return apriopriate quest here
+					//ret.push_back(ai->questToGoal());
+					//however, visiting obj for firts time will give us quest
 					logAi->debug("Quest guard blocks the way to %s", tile.toString());
 					continue; //do not access quets guard if we can't complete the quest
 				}
+				return ret; //try complete quest as the only option
 			}
 		}
-		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
+		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there is no quest object
 		{
 			ret.push_back(sptr(Goals::VisitTile(tileToHit).sethero(h)));
 		}
@@ -809,8 +891,10 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	return ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }
 
-bool Goals::RecruitHero::operator==(RecruitHero & g)
+bool Goals::RecruitHero::operator==(AbstractGoal & g)
 {
+	if (g.goalType != goalType)
+		return false;
 	//TODO: check town and hero
 	return true; //for now, recruiting any hero will do
 }
@@ -840,6 +924,13 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 	}
 	return ret;
+}
+
+bool Goals::VisitTile::operator==(AbstractGoal & g)
+{
+	if (g.goalType != goalType)
+		return false;
+	return g.goalType == goalType && g.tile == tile;
 }
 
 TGoalVec VisitTile::getAllPossibleSubgoals()
@@ -896,6 +987,13 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	return sptr(Goals::VisitTile(tile));
 }
 
+bool Goals::DigAtTile::operator==(AbstractGoal & g)
+{
+	if (g.goalType != goalType)
+		return false;
+	return g.goalType == goalType && g.tile == tile;
+}
+
 TSubgoal BuildThis::whatToDoToAchieve()
 {
 	auto b = BuildingID(bid);
@@ -920,8 +1018,13 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	}
 	if (town) //we have specific town to build this
 	{
-		auto res = town->town->buildings.at(BuildingID(bid))->resources;
-		return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+		if (cb->canBuildStructure(town, b) != EBuildingState::ALLOWED) //FIXME: decompose further? kind of mess if we're here
+			throw cannotFulfillGoalException("Not possible to build");
+		else
+		{
+			auto res = town->town->buildings.at(BuildingID(bid))->resources;
+			return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+		}
 	}
 	else
 		throw cannotFulfillGoalException("Cannot find town to build this");
@@ -1118,8 +1221,10 @@ bool CollectRes::fulfillsMe(TSubgoal goal)
 	return false;
 }
 
-bool Goals::CollectRes::operator==(CollectRes & g)
+bool Goals::CollectRes::operator==(AbstractGoal & g)
 {
+	if (g.goalType != goalType)
+		return false;
 	if (g.resID == resID)
 		if (g.value == value) //TODO: not sure if that logic is consitent
 			return true;
@@ -1305,9 +1410,40 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 	return ret;
 }
 
+TGoalVec Goals::Build::getAllPossibleSubgoals()
+{
+	TGoalVec ret;
+
+	for (const CGTownInstance * t : cb->getTownsInfo())
+	{
+		//start fresh with every town
+		ah->getBuildingOptions(t);
+		auto ib = ah->immediateBuilding();
+		if (ib.is_initialized())
+		{
+			ret.push_back(sptr(Goals::BuildThis(ib.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
+		}
+		else //try build later
+		{
+			auto eb = ah->expensiveBuilding();
+			if (eb.is_initialized())
+			{
+				auto pb = eb.get(); //gather resources for any we can't afford
+				auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t).setpriority(0.5)));
+				ret.push_back(goal);
+			}
+		}
+	}
+
+	if (ret.empty())
+		throw cannotFulfillGoalException("BUILD has been realized as much as possible."); //who catches it and what for?
+	else
+		return ret;
+}
+
 TSubgoal Build::whatToDoToAchieve()
 {
-	return iAmElementar();
+	return fh->chooseSolution(getAllPossibleSubgoals());
 }
 
 bool Goals::Build::fulfillsMe(TSubgoal goal)
@@ -1386,7 +1522,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			return true;
 		else if(!ai->isAccessibleForHero(heroDummy->visitablePos(), h, true))
 			return true;
-		else if(!ai->canGetArmy(heroDummy.h, h))
+		else if(!ai->canGetArmy(heroDummy.h, h)) //TODO: return actual aiValue
 			return true;
 		else if(ai->getGoal(h)->goalType == Goals::GATHER_ARMY)
 			return true;
@@ -1396,9 +1532,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	for(auto h : otherHeroes)
 	{
 		// Go to the other hero if we are faster
-		ret.push_back(sptr(Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
+		if (!vstd::contains(ai->visitedHeroes[hero], h)) //visit only once each turn //FIXME: this is only bug workaround
+			ret.push_back(sptr(Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
 		// Let the other hero come to us
-		ret.push_back(sptr(Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
+		if (!vstd::contains(ai->visitedHeroes[h], hero))
+			ret.push_back(sptr(Goals::VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
 	}
 
 	std::vector<const CGObjectInstance *> objs;
@@ -1420,7 +1558,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 						{
 							auto creature = VLC->creh->creatures[creatureID];
 							if(ah->freeResources().canAfford(creature->cost))
-								objs.push_back(obj);
+								objs.push_back(obj); //TODO: reserve resources?
 						}
 					}
 				}
@@ -1456,10 +1594,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 	if(ret.empty())
 	{
-		if(hero == ai->primaryHero() || value >= 1.1f) // FIXME: check PR388
+		if(hero == ai->primaryHero())
 			ret.push_back(sptr(Goals::Explore()));
-		else //workaround to break loop - seemingly there are no ways to explore left
-			throw goalFulfilledException(sptr(Goals::GatherArmy(0).sethero(hero)));
+		else
+			throw cannotFulfillGoalException("No ways to gather army");
 	}
 
 	return ret;
