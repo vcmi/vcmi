@@ -1522,7 +1522,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			return true;
 		else if(!ai->isAccessibleForHero(heroDummy->visitablePos(), h, true))
 			return true;
-		else if(!ai->canGetArmy(heroDummy.h, h))
+		else if(!ai->canGetArmy(heroDummy.h, h)) //TODO: return actual aiValue
 			return true;
 		else if(ai->getGoal(h)->goalType == Goals::GATHER_ARMY)
 			return true;
@@ -1558,7 +1558,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 						{
 							auto creature = VLC->creh->creatures[creatureID];
 							if(ah->freeResources().canAfford(creature->cost))
-								objs.push_back(obj);
+								objs.push_back(obj); //TODO: reserve resources?
 						}
 					}
 				}
@@ -1594,10 +1594,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 	if(ret.empty())
 	{
-		if(hero == ai->primaryHero() || value >= 1.1f) // FIXME: check PR388
+		if(hero == ai->primaryHero())
 			ret.push_back(sptr(Goals::Explore()));
-		else //workaround to break loop - seemingly there are no ways to explore left
-			throw goalFulfilledException(sptr(Goals::GatherArmy(0).sethero(hero)));
+		else
+			throw cannotFulfillGoalException("No ways to gather army");
 	}
 
 	return ret;

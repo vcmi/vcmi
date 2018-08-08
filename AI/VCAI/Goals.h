@@ -331,7 +331,7 @@ public:
 	{
 		town = Town; //where to buy this army
 		value = val; //expressed in AI unit strength
-		priority = 2;//TODO: evaluate?
+		priority = 3;//TODO: evaluate?
 	}
 	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;

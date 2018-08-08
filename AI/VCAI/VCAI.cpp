@@ -2583,12 +2583,12 @@ int3 VCAI::explorationNewPoint(HeroPtr h)
 
 			if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
+				auto obj = cb->getTopObj(tile);
+				if (obj)
+					if (obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on that object
+						continue;
 				if(isSafeToVisit(h, tile))
 				{
-					auto obj = cb->getTopObj(tile);
-					if (obj)
-						if(obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on that object
-							continue;
 					bestTile = tile;
 					bestValue = ourValue;
 				}
@@ -2632,14 +2632,14 @@ int3 VCAI::explorationDesperate(HeroPtr h)
 			auto t = sm->firstTileToGet(h, tile);
 			if(t.valid())
 			{
+				auto obj = cb->getTopObj(t);
+				if (obj)
+					if (obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on object or remove it
+						continue;
+
 				ui64 ourDanger = evaluateDanger(t, h.h);
 				if(ourDanger < lowestDanger)
 				{
-					auto obj = cb->getTopObj(t);
-					if (obj)
-						if (obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on objct or remove it
-							continue;
-
 					if(!ourDanger) //at least one safe place found
 						return t;
 
