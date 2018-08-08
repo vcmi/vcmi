@@ -217,8 +217,8 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 		});
 		if (it != queue.end()) //removed at least one
 		{
+			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
 			queue.erase(queue.s_handle_from_iterator(it));
-			logAi->debug("Removed goal %s from ResourceManager.", it->goal->name());
 			removedGoal = true;
 		}
 		else //found nothing more to remove
