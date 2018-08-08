@@ -87,13 +87,13 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 	redraw();
 }
 
-void CRecruitmentWindow::CCreatureCard::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 		parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 		GH.pushIntT<CStackWindow>(creature, true);
@@ -740,13 +740,13 @@ void CTavernWindow::show(SDL_Surface * to)
 	}
 }
 
-void CTavernWindow::HeroPortrait::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(h && previousState && !down)
+	if(h && !down)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickRight(const SDL_Event &event, tribool down)
 {
 	if(h && down)
 		GH.pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
@@ -1107,9 +1107,9 @@ void CTransformerWindow::CItem::move()
 	left = !left;
 }
 
-void CTransformerWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CTransformerWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(previousState && (!down))
+	if(!down)
 	{
 		move();
 		parent->redraw();
@@ -1212,16 +1212,16 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.w = icon->pos.w;
 }
 
-void CUniversityWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CUniversityWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(previousState && (!down))
+	if(!down)
 	{
 		if(state() == 2)
 			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
 	}
 }
 
-void CUniversityWindow::CItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CUniversityWindow::CItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
@@ -1743,9 +1743,9 @@ void CObjectListWindow::CItem::select(bool on)
 	redraw();//???
 }
 
-void CObjectListWindow::CItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CObjectListWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if( previousState && !down)
+	if(!down)
 		parent->changeSelection(index);
 }
 

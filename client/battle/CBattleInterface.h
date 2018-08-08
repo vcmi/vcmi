@@ -330,7 +330,7 @@ public:
 	void deactivate() override;
 	void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key) override;
 	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;

@@ -50,8 +50,8 @@ public:
 	const CArmedInstance * getObj() const;
 	bool our() const;
 	bool ally() const;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * Creature=nullptr);
 

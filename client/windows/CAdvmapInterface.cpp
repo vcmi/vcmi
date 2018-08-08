@@ -116,7 +116,7 @@ void CTerrainRect::deactivate()
 	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
 }
 
-void CTerrainRect::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CTerrainRect::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
@@ -146,7 +146,7 @@ void CTerrainRect::clickLeft(const SDL_Event &event, tribool down, bool previous
 	adventureInt->tileLClicked(mp);
 }
 
-void CTerrainRect::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CTerrainRect::clickRight(const SDL_Event &event, tribool down)
 {
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled && isSwiping)
@@ -160,7 +160,7 @@ void CTerrainRect::clickRight(const SDL_Event &event, tribool down, bool previou
 		adventureInt->tileRClicked(event.motion, mp);
 }
 
-void CTerrainRect::clickMiddle(const SDL_Event &event, tribool down, bool previousState)
+void CTerrainRect::clickMiddle(const SDL_Event &event, tribool down)
 {
 	handleSwipeStateChange(event.motion.x, event.motion.y, down == true);
 }
@@ -462,7 +462,7 @@ bool CTerrainRect::needsAnimUpdate()
 	return fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED;
 }
 
-void CResDataBar::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CResDataBar::clickRight(const SDL_Event &event, tribool down)
 {
 }
 

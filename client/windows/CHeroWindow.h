@@ -35,7 +35,7 @@ class CHeroSwitcher : public View
 	std::shared_ptr<CAnimImage> image;
 	CHeroWindow * owner;
 public:
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
@@ -117,6 +117,6 @@ public:
 	void updateGarrisons() override;
 
 	//friends
-	friend void CHeroArtPlace::clickLeft(const SDL_Event &event,tribool down, bool previousState);
+	friend void CHeroArtPlace::clickLeft(const SDL_Event &event,tribool down);
 	friend class CPlayerInterface;
 };

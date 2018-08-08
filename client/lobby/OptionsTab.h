@@ -91,7 +91,7 @@ public:
 		std::shared_ptr<CLabel> subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 
 		void update();
 	};

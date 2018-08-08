@@ -45,12 +45,12 @@ void CreditsScreen::show(SDL_Surface * to)
 		dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CreditsScreen::clickLeft(const SDL_Event &event, tribool down)
 {
 	dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CreditsScreen::clickRight(const SDL_Event &event, tribool down)
 {
 	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(getParent());
 	assert(menu);

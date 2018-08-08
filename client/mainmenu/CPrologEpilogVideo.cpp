@@ -60,7 +60,7 @@ void CPrologEpilogVideo::show(SDL_Surface * to)
 	}
 }
 
-void CPrologEpilogVideo::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CPrologEpilogVideo::clickLeft(const SDL_Event &event, tribool down)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);

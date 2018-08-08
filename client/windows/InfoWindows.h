@@ -72,7 +72,7 @@ class CRClickPopup : public WindowBase
 {
 public:
 	virtual void close();
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 
 	CRClickPopup();
 	virtual ~CRClickPopup();

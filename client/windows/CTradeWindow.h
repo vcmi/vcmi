@@ -50,10 +50,10 @@ public:
 
 		void showAllAt(const Point & dstPos, const std::string & customSub, SDL_Surface * to);
 
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 		void showAll(SDL_Surface * to) override;
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};

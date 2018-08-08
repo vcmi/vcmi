@@ -474,7 +474,7 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft(const SDL_Event &event, tribool down, bool previousState )
+void CTextInput::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down && !focus)
 		giveFocus();

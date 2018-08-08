@@ -32,8 +32,8 @@ public:
 
 	std::function<void()> callback;
 
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 
 	void setObject(std::shared_ptr<View> object);
 };

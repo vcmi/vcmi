@@ -298,7 +298,7 @@ void CInfoPopup::init(int x, int y)
 }
 
 
-void CRClickPopup::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CRClickPopup::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 		return;

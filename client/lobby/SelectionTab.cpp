@@ -247,7 +247,7 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void SelectionTab::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
@@ -292,7 +292,7 @@ void SelectionTab::onDoubleClick(const SDL_Event &event)
 {
 	if(getLine(event.button.x, event.button.y) != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(event, false, true);
+		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(event, false);
 	}
 }
 

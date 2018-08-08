@@ -177,7 +177,7 @@ public:
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, SDL_Surface *srf = nullptr);
 
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
 

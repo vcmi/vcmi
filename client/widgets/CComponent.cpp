@@ -234,13 +234,13 @@ void CComponent::setSurface(std::string defName, int imgPos)
 	image = std::make_shared<CAnimImage>(defName, imgPos);
 }
 
-void CComponent::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CComponent::clickRight(const SDL_Event &event, tribool down)
 {
 	if(!getDescription().empty())
 		adventureInt->handleRightClick(event.motion,getDescription(), down);
 }
 
-void CSelectableComponent::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CSelectableComponent::clickLeft(const SDL_Event &event, tribool down)
 {
 	if (down)
 	{

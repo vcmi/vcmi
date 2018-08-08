@@ -412,7 +412,7 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void OptionsTab::SelectedBox::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{

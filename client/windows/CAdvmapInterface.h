@@ -78,9 +78,9 @@ public:
 	CTerrainRect();
 	virtual ~CTerrainRect();
 	void deactivate() override;
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickMiddle(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
+	void clickMiddle(const SDL_Event &event, tribool down) override;
 	void hover(bool on) override;
 	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void show(SDL_Surface * to) override;
@@ -105,7 +105,7 @@ public:
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	CResDataBar();
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();

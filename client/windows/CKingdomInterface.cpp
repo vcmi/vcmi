@@ -83,7 +83,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IIn
 
 InfoBox::~InfoBox() = default;
 
-void InfoBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void InfoBox::clickRight(const SDL_Event &event, tribool down)
 {
 	if (down)
 	{
@@ -97,9 +97,9 @@ void InfoBox::clickRight(const SDL_Event &event, tribool down, bool previousStat
 	}
 }
 
-void InfoBox::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void InfoBox::clickLeft(const SDL_Event &event, tribool down)
 {
-	if((!down) && previousState)
+	if(!down)
 	{
 		std::shared_ptr<CComponent> comp;
 		std::string text;

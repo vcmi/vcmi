@@ -738,7 +738,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 		attackingHex = -1;
 }
 
-void CBattleInterface::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CBattleInterface::clickRight(const SDL_Event &event, tribool down)
 {
 	if (!down)
 	{

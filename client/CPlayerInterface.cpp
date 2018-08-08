@@ -1197,7 +1197,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 			charperline = 50;
 		GH.pushIntT<CSelWindow>(text, playerID, charperline, intComps, pom, askID);
 		SDL_Event event;
-		intComps[0]->clickLeft(event, true, false);
+		intComps[0]->clickLeft(event, true);
 	}
 }
 
@@ -1383,8 +1383,8 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
 		SDL_Event event;
-		adventureInt->sleepWake->clickLeft(event, true, false);
-		adventureInt->sleepWake->clickLeft(event, false, true);
+		adventureInt->sleepWake->clickLeft(event, true);
+		adventureInt->sleepWake->clickLeft(event, false);
 		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)

@@ -127,23 +127,18 @@ void View::event(const SDL_Event &event)
 		if (!isItIn(&pos, event.motion.x, event.motion.y) && !down)
 			down = boost::logic::indeterminate;
 		
-		EIntObjMouseBtnType btn;
 		switch (event.button.button)
 		{
 			case SDL_BUTTON_LEFT:
-				clickLeft(event, down, mouseState(EIntObjMouseBtnType::LEFT));
-				btn = EIntObjMouseBtnType::LEFT;
+				clickLeft(event, down);
 				break;
 			case SDL_BUTTON_MIDDLE:
-				clickMiddle(event, down, mouseState(EIntObjMouseBtnType::MIDDLE));
-				btn = EIntObjMouseBtnType::MIDDLE;
+				clickMiddle(event, down);
 				break;
 			case SDL_BUTTON_RIGHT:
-				clickRight(event, down, mouseState(EIntObjMouseBtnType::RIGHT));
-				btn = EIntObjMouseBtnType::RIGHT;
+				clickRight(event, down);
 				break;
 		}
-		updateMouseState(btn, down);
 	}
 }
 
@@ -307,10 +302,7 @@ void CKeyShortcut::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent &
 	if(vstd::contains(assignedKeys,key.keysym.sym)
 	 || vstd::contains(assignedKeys, CGuiHandler::numToDigit(key.keysym.sym)))
 	{
-		bool prev = mouseState(EIntObjMouseBtnType::LEFT);
-		updateMouseState(EIntObjMouseBtnType::LEFT, key.state == SDL_PRESSED);
-		clickLeft(event, key.state == SDL_PRESSED, prev);
-
+		clickLeft(event, key.state == SDL_PRESSED);
 	}
 }
 

@@ -54,8 +54,8 @@ class CRecruitmentWindow : public CWindowObject
 
 		CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount);
 
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void showAll(SDL_Surface * to) override;
 	};
 
@@ -158,7 +158,7 @@ class CObjectListWindow : public CWindowObject
 		CItem(CObjectListWindow * parent, size_t id, std::string text);
 
 		void select(bool on);
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 	};
 
 	std::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
@@ -245,8 +245,8 @@ public:
 		std::string description; // "XXX is a level Y ZZZ with N artifacts"
 		const CGHeroInstance * h;
 
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void hover (bool on) override;
 		HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H);
 
@@ -386,7 +386,7 @@ class CTransformerWindow : public CWindowObject, public CGarrisonHolder
 		std::shared_ptr<CLabel> count;
 
 		void move();
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		void update();
 		CItem(CTransformerWindow * parent, int size, int id);
 	};
@@ -428,8 +428,8 @@ class CUniversityWindow : public CWindowObject
 		CUniversityWindow * parent;
 
 		void showAll(SDL_Surface * to) override;
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 		int state();//0=can't learn, 1=learned, 2=can learn
 		CItem(CUniversityWindow * _parent, int _ID, int X, int Y);

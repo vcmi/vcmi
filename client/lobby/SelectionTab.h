@@ -65,7 +65,7 @@ public:
 	SelectionTab(ESelectionScreen Type);
 	void toggleMode();
 
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 	void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key) override;
 	void onDoubleClick(const SDL_Event &event) override;
 

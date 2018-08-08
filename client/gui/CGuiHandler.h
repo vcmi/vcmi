@@ -18,8 +18,6 @@ class CGStatusBar;
 class View;
 class IUpdateable;
 class IShowActivatable;
-class IShowable;
-enum class EIntObjMouseBtnType;
 template <typename T> struct CondSh;
 
 // TODO: event handling need refactoring

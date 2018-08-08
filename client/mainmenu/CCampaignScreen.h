@@ -34,7 +34,7 @@ private:
 		std::string video; // the resource name of the video
 		std::string hoverText;
 
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 
 	public:

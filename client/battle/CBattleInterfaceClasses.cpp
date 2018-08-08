@@ -192,7 +192,7 @@ void CBattleHero::hover(bool on)
 		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
 }
 
-void CBattleHero::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CBattleHero::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
@@ -216,7 +216,7 @@ void CBattleHero::clickLeft(const SDL_Event &event, tribool down, bool previousS
 	}
 }
 
-void CBattleHero::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CBattleHero::clickRight(const SDL_Event &event, tribool down)
 {
 	if(boost::logic::indeterminate(down))
 		return;
@@ -678,7 +678,7 @@ void CClickableHex::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEven
 	}
 }
 
-void CClickableHex::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CClickableHex::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
@@ -686,7 +686,7 @@ void CClickableHex::clickLeft(const SDL_Event &event, tribool down, bool previou
 	}
 }
 
-void CClickableHex::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CClickableHex::clickRight(const SDL_Event &event, tribool down)
 {
 	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)

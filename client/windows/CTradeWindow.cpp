@@ -171,7 +171,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	printAtMiddleLoc(subtitle, posToSubCenter, pos, FONT_SMALL, Colors::WHITE, to);
 }
 
-void CTradeWindow::CTradeableItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickLeft(const SDL_Event &event, tribool down)
 {
 	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
@@ -260,7 +260,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeWindow::CTradeableItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{

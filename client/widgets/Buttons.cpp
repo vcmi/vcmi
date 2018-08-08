@@ -157,7 +157,7 @@ void CButton::onButtonClicked()
 	callback();
 }
 
-void CButton::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CButton::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(isBlocked())
 		return;
@@ -177,13 +177,13 @@ void CButton::clickLeft(const SDL_Event &event, tribool down, bool previousState
 	{
 		onButtonClicked();
 	}
-	else if (!actOnDown && previousState && (down==false))
+	else if (!actOnDown  && (down==false))
 	{
 		onButtonClicked();
 	}
 }
 
-void CButton::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CButton::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down && helpBox.size()) //there is no point to show window with nothing inside...
 		CRClickPopup::createAndPush(event.motion, helpBox);
@@ -364,7 +364,7 @@ void CToggleButton::doSelect(bool on)
 	}
 }
 
-void CToggleButton::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CToggleButton::clickLeft(const SDL_Event &event, tribool down)
 {
 	// force refresh
 	hover(false);
@@ -378,17 +378,14 @@ void CToggleButton::clickLeft(const SDL_Event &event, tribool down, bool previou
 		CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
 	}
-
-	if(previousState)//mouse up
+	
+	if(down == false && getState() == PRESSED && canActivate())
 	{
-		if(down == false && getState() == PRESSED && canActivate())
-		{
-			onButtonClicked();
-			setSelected(!selected);
-		}
-		else
-			doSelect(selected); // restore
+		onButtonClicked();
+		setSelected(!selected);
 	}
+	else
+		doSelect(selected); // restore
 }
 
 void CToggleGroup::addCallback(std::function<void(int)> callback)
@@ -480,7 +477,7 @@ void CVolumeSlider::addCallback(std::function<void(int)> callback)
 	onChange += callback;
 }
 
-void CVolumeSlider::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CVolumeSlider::clickLeft(const SDL_Event &event, tribool down)
 {
 	if (down)
 	{
@@ -499,7 +496,7 @@ void CVolumeSlider::clickLeft(const SDL_Event &event, tribool down, bool previou
 	}
 }
 
-void CVolumeSlider::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CVolumeSlider::clickRight(const SDL_Event &event, tribool down)
 {
 	if (down)
 	{
@@ -630,7 +627,7 @@ void CSlider::moveTo(int to)
 	moved(to);
 }
 
-void CSlider::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CSlider::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down && !slider->isBlocked())
 	{
@@ -650,7 +647,7 @@ void CSlider::clickLeft(const SDL_Event &event, tribool down, bool previousState
 			return;
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
-		slider->clickLeft(event, true, slider->mouseState(EIntObjMouseBtnType::LEFT));
+		slider->clickLeft(event, true);
 		moveTo(rw * positions  +  0.5);
 		return;
 	}

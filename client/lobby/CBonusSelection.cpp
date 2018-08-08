@@ -510,7 +510,7 @@ void CBonusSelection::CRegion::updateState()
 	}
 }
 
-void CBonusSelection::CRegion::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CBonusSelection::CRegion::clickLeft(const SDL_Event &event, tribool down)
 {
 	//select if selectable & clicked inside our graphic
 	if(indeterminate(down))
@@ -522,7 +522,7 @@ void CBonusSelection::CRegion::clickLeft(const SDL_Event &event, tribool down, b
 	}
 }
 
-void CBonusSelection::CRegion::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CBonusSelection::CRegion::clickRight(const SDL_Event &event, tribool down)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;

@@ -60,13 +60,13 @@ CList::CListItem::~CListItem()
 {
 }
 
-void CList::CListItem::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CList::CListItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if (down == true)
 		showTooltip(event.motion);
 }
 
-void CList::CListItem::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CList::CListItem::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down == true)
 	{
@@ -568,13 +568,13 @@ void CMinimap::moveAdvMapSelection(int x, int y)
 		redraw();//redraw only this
 }
 
-void CMinimap::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CMinimap::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 		moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
-void CMinimap::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CMinimap::clickRight(const SDL_Event &event, tribool down)
 {
 	adventureInt->handleRightClick(event.motion, CGI->generaltexth->zelp[291].second, down);
 }
@@ -589,8 +589,8 @@ void CMinimap::hover(bool on)
 
 void CMinimap::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
-	if(mouseState(EIntObjMouseBtnType::LEFT))
-		moveAdvMapSelection(event.motion.x, event.motion.y);
+		if(event.button.button == SDL_BUTTON_LEFT)
+			moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
 void CMinimap::showAll(SDL_Surface * to)
@@ -865,7 +865,7 @@ void CInfoBar::tick()
 		showSelection();
 }
 
-void CInfoBar::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CInfoBar::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
@@ -878,7 +878,7 @@ void CInfoBar::clickLeft(const SDL_Event &event, tribool down, bool previousStat
 	}
 }
 
-void CInfoBar::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CInfoBar::clickRight(const SDL_Event &event, tribool down)
 {
 	adventureInt->handleRightClick(event.motion, CGI->generaltexth->allTexts[109], down);
 }

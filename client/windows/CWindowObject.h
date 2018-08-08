@@ -26,7 +26,7 @@ protected:
 	std::shared_ptr<CPicture> background;
 
 	//Used only if RCLICK_POPUP was set
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	//To display border
 	void updateShadow();
 	void setBackground(std::string filename);

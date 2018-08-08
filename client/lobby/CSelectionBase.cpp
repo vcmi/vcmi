@@ -364,7 +364,7 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CFlagBox::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down && SEL->getMapInfo())
 		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);

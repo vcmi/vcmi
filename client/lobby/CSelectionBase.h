@@ -130,7 +130,7 @@ class CFlagBox : public View
 public:
 	CFlagBox(const Rect & rect);
 	void recreate();
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void showTeamsPopup();
 
 	class CFlagBoxTooltipBox : public CWindowObject

@@ -52,13 +52,13 @@ CSpellWindow::InteractiveArea::InteractiveArea(const SDL_Rect & myRect, std::fun
 	owner = _owner;
 }
 
-void CSpellWindow::InteractiveArea::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(!down)
 		onLeft();
 }
 
-void CSpellWindow::InteractiveArea::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CSpellWindow::InteractiveArea::clickRight(const SDL_Event &event, tribool down)
 {
 	adventureInt->handleRightClick(event.motion, helpText, down);
 }
@@ -484,7 +484,7 @@ void CSpellWindow::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent &
 				return;
 
 			//try casting spell
-			spellAreas[index]->clickLeft(event, false, true);
+			spellAreas[index]->clickLeft(event, false);
 		}
 	}
 }
@@ -518,7 +518,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 CSpellWindow::SpellArea::~SpellArea() = default;
 
-void CSpellWindow::SpellArea::clickLeft(const SDL_Event &event, tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(mySpell && !down)
 	{
@@ -586,7 +586,7 @@ void CSpellWindow::SpellArea::clickLeft(const SDL_Event &event, tribool down, bo
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(const SDL_Event &event, tribool down, bool previousState)
+void CSpellWindow::SpellArea::clickRight(const SDL_Event &event, tribool down)
 {
 	if(mySpell && down)
 	{

@@ -32,7 +32,7 @@
 struct QuestInfo;
 class CAdvmapInterface;
 
-void CQuestLabel::clickLeft(const SDL_Event & event, tribool down, bool previousState)
+void CQuestLabel::clickLeft(const SDL_Event & event, tribool down)
 {
 	if (down)
 		callback();
@@ -49,7 +49,7 @@ CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
 	addUsedEvents(LCLICK);
 }
 
-void CQuestIcon::clickLeft(const SDL_Event & event, tribool down, bool previousState)
+void CQuestIcon::clickLeft(const SDL_Event & event, tribool down)
 {
 	if (down)
 		callback();

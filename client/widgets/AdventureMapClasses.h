@@ -43,8 +43,8 @@ protected:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
-		void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 		void onSelect(bool on);
 
@@ -218,8 +218,8 @@ protected:
 	//to initialize colors
 	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
 
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void hover (bool on) override;
 	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 
@@ -332,8 +332,8 @@ class CInfoBar : public View
 	void setTimer(int msToTrigger);
 	virtual void tick();
 
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();

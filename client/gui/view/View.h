@@ -43,8 +43,6 @@ public:
 	virtual ~IShowActivatable(){};
 };
 
-enum class EIntObjMouseBtnType { LEFT, MIDDLE, RIGHT };
-
 class View : public IShowActivatable
 {
 public:
@@ -54,14 +52,13 @@ public:
 	View *getParent() const;
 	void setParent(View *parent);
 	
-	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
-	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
-
 	virtual void event(const SDL_Event &event);
 	
-	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState) {}
-	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState) {}
-	virtual void clickMiddle(const SDL_Event &event, tribool down, bool previousState) {}
+	virtual void clickLeft(const SDL_Event &event, tribool down)
+	{}
+	virtual void clickRight(const SDL_Event &event, tribool down) {}
+	virtual void clickMiddle(const SDL_Event &event, tribool down)
+	{}
 	virtual void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key){}
 	virtual void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) {}
 	virtual void wheelScrolled(bool down, bool in){}
@@ -118,8 +115,6 @@ protected:
 private:
 	//TODO make parent const
 	View * parent = nullptr;
-	
-	std::map<EIntObjMouseBtnType, bool> currentMouseState;
 };
 
 class TextView : public virtual View

@@ -73,8 +73,8 @@ public:
 	void show(SDL_Surface * to) override; //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
 	void hover(bool on) override;
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override; //call-in
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override; //call-in
+	void clickLeft(const SDL_Event &event, tribool down) override; //call-in
+	void clickRight(const SDL_Event &event, tribool down) override; //call-in
 	CBattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner);
 	~CBattleHero();
 };
@@ -141,8 +141,8 @@ public:
 	//for user interactions
 	void hover (bool on) override;
 	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
-	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
-	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	CClickableHex();
 };
 
