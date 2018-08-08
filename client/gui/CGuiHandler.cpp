@@ -326,20 +326,8 @@ void CGuiHandler::event(const SDL_Event & event)
 		}
 	}
 	else if(event.type == SDL_MOUSEBUTTONUP)
-	{
-		switch(event.button.button)
-		{
-			case SDL_BUTTON_LEFT:
 				handleMouseButtonClick(event, false);
-				break;
-			case SDL_BUTTON_RIGHT:
-				handleMouseButtonClick(event, false);
-				break;
-			case SDL_BUTTON_MIDDLE:
-				handleMouseButtonClick(event, false);
-				break;
-		}
-	}}
+}
 
 void CGuiHandler::handleMouseButtonClick(const SDL_Event & event, bool isPressed)
 {
