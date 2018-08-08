@@ -115,12 +115,16 @@ struct DLL_LINKAGE CPathNodeInfo
 struct DLL_LINKAGE CDestinationNodeInfo : public CPathNodeInfo
 {
 	CGPathNode::ENodeAction action;
+	int turn;
+	int movementLeft;
 	bool furtherProcessingImpossible;
 	bool blocked;
 
 	CDestinationNodeInfo();
 
 	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false) override;
+
+	virtual bool isBetterWay();
 };
 
 class CNodeHelper
@@ -132,17 +136,26 @@ public:
 
 class CPathfinderHelper;
 class CPathfinder;
+class CPathfinderConfig;
 
 class IPathfindingRule
 {
 public:
-	virtual void process(CPathfinderHelper * pathfinderHelper, CPathNodeInfo & source, CDestinationNodeInfo & destination) = 0;
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) = 0;
 };
 
 class CMovementAfterDestinationRule : public IPathfindingRule
 {
 public:
-	virtual void process(CPathfinderHelper * pathfinderHelper, CPathNodeInfo & source, CDestinationNodeInfo & destination) override;
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
 };
 
 class CNeighbourFinder
@@ -151,17 +164,23 @@ public:
 	CNeighbourFinder();
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		CPathNodeInfo & source, 
-		CPathfinderHelper * pathfinderHelper, 
-		CNodeHelper * nodeHelper) const;
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const;
 
 	virtual std::vector<CGPathNode *> calculateTeleportations(
 		CPathNodeInfo & source, 
-		CPathfinderHelper * pathfinderHelper, 
-		CNodeHelper * nodeHelper) const;
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const;
 
 protected:
-	std::vector<int3> getNeighbourTiles(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper) const;
-	std::vector<int3> getTeleportExits(CPathNodeInfo & source, CPathfinderHelper * pathfinderHelper) const;
+	std::vector<int3> getNeighbourTiles(
+		CPathNodeInfo & source, 
+		CPathfinderConfig * pathfinderConfig, 
+		CPathfinderHelper * pathfinderHelper) const;
+
+	std::vector<int3> getTeleportExits(CPathNodeInfo & source,
+		CPathfinderConfig * pathfinderConfig, 
+		CPathfinderHelper * pathfinderHelper) const;
 };
 
 struct DLL_LINKAGE PathfinderOptions
@@ -215,6 +234,20 @@ struct DLL_LINKAGE PathfinderOptions
 	PathfinderOptions();
 };
 
+class CPathfinderConfig
+{
+public:
+	std::shared_ptr<CNodeHelper> nodeHelper;
+	std::shared_ptr<CNeighbourFinder> neighbourFinder;
+	std::vector<std::shared_ptr<IPathfindingRule>> rules;
+	PathfinderOptions options;
+
+	CPathfinderConfig(
+		std::shared_ptr<CNodeHelper> nodeHelper,
+		std::shared_ptr<CNeighbourFinder> neighbourFinder,
+		std::vector<std::shared_ptr<IPathfindingRule>> rules);
+};
+
 class CPathfinder : private CGameInfoCallback
 {
 public:
@@ -224,20 +257,17 @@ public:
 	CPathfinder(
 		CGameState * _gs, 
 		const CGHeroInstance * _hero, 
-		std::shared_ptr<CNodeHelper> nodeHelper, 
-		std::shared_ptr<CNeighbourFinder> neighbourFinder);
+		std::shared_ptr<CPathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
 	typedef EPathfindingLayer ELayer;
 	
-	PathfinderOptions options;
 	const CGHeroInstance * hero;
 	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
-	std::shared_ptr<CNodeHelper> nodeHelper;
-	std::shared_ptr<CNeighbourFinder> neighbourFinder;
+	std::shared_ptr<CPathfinderConfig> config;
 
 	enum EPatrolState {
 		PATROL_NONE = 0,
@@ -362,4 +392,8 @@ public:
 			checkLast
 		);
 	}
+
+	int getHeroMaxMovementPoints(EPathfindingLayer layer);
+	int movementPointsAfterEmbark(int movement, int cost, int action);
+	bool passOneTurnLimitCheck(CPathNodeInfo & source);
 };
