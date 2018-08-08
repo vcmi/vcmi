@@ -1130,7 +1130,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	Rect barRect(9, 182, 732, 18);
 	auto statusbarBackground = std::make_shared<CPicture>(*(panel.get()), barRect, 9, 555, false);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 	resdatabar = std::make_shared<CResDataBar>("ARESBAR", 3, 575, 32, 2, 85, 85);
 
 	townlist = std::make_shared<CTownList>(3, Point(744, 414), "IAM014", "IAM015");
@@ -1326,7 +1326,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	Rect barRect(5, 556, 740, 18);
 
 	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 5, 556, false);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 
 	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
@@ -1373,7 +1373,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	icon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
 	auto statusbarBackground = std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 
 	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
 	description = std::make_shared<CTextBox>(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
@@ -1549,7 +1549,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	Rect barRect(4, 554, 740, 18);
 
 	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 4, 554, false);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 }
 
 std::string CFortScreen::getBgName(const CGTownInstance * town)
@@ -1690,7 +1690,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
 	Rect barRect(7, 556, 737, 18);
 
 	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 7, 556, false);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->allTexts[593]), [&](){ close(); }, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1757,7 +1757,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	Rect barRect(8, pos.h - 26, pos.w - 16, 19);
 
 	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 8, pos.h - 26, false);
-	statusbar = std::make_shared<CGStatusBar>(statusbarBackground);
+	statusbar = CGStatusBar::create(statusbarBackground);
 
 	animBG = std::make_shared<CPicture>("TPSMITBK", 64, 50);
 	animBG->needRefresh = true;

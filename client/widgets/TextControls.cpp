@@ -351,7 +351,6 @@ void CGStatusBar::clear()
 CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 {
-	init();
 	background = background_;
 	addChild(background.get());
 	pos = background->pos;
@@ -363,7 +362,6 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	: CLabel(x, y, FONT_SMALL, CENTER)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	init();
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
 	if((unsigned int)maxw < pos.w)
@@ -387,7 +385,7 @@ void CGStatusBar::show(SDL_Surface * to)
 void CGStatusBar::init()
 {
 	oldStatusBar = GH.statusbar;
-	GH.statusbar = this;
+	GH.statusbar = shared_from_this();
 }
 
 Point CGStatusBar::getBorderSize()

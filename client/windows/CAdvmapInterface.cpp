@@ -244,7 +244,7 @@ void CTerrainRect::hover(bool on)
 {
 	if (!on)
 	{
-		adventureInt->statusbar.clear();
+		adventureInt->statusbar->clear();
 		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 	}
 	//Hoverable::hover(on);
@@ -555,7 +555,7 @@ CAdvMapInt::CAdvMapInt():
 	mode(EAdvMapMode::NORMAL),
 	worldViewScale(0.0f), //actual init later in changeMode
 	minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
-	statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
+	statusbar(CGStatusBar::create(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG)),
 	heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
 	townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
 	infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192)), state(NA),
@@ -930,7 +930,7 @@ void CAdvMapInt::activate()
 		CIntObject::activate(KEYBOARD);
 
 	screenBuf = screen;
-	GH.statusbar = &statusbar;
+	GH.statusbar = statusbar;
 	if(!duringAITurn)
 	{
 		activeMapPanel->activate();
@@ -1001,7 +1001,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 
 	resdatabar.showAll(to);
 
-	statusbar.show(to);
+	statusbar->show(to);
 
 	LOCPLINT->cingconsole->show(to);
 }
@@ -1079,7 +1079,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 
 	infoBar.show(to);
-	statusbar.showAll(to);
+	statusbar->showAll(to);
 }
 
 void CAdvMapInt::handleMapScrollingUpdate()
@@ -1645,7 +1645,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-		statusbar.clear();
+		statusbar->clear();
 		return;
 	}
 	auto objRelations = PlayerRelations::ALLIES;
@@ -1655,13 +1655,13 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		statusbar.setText(text);
+		statusbar->setText(text);
 	}
 	else
 	{
 		std::string hlp;
 		CGI->mh->getTerrainDescr(mapPos, hlp, false);
-		statusbar.setText(hlp);
+		statusbar->setText(hlp);
 	}
 
 	if(spellBeingCasted)
