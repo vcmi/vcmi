@@ -357,6 +357,26 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	return true; //there's no danger
 }
 
+bool isObjectRemovable(const CGObjectInstance * obj)
+{
+	//FIXME: move logic to object property!
+	switch (obj->ID)
+	{
+	case Obj::MONSTER:
+	case Obj::RESOURCE:
+	case Obj::CAMPFIRE:
+	case Obj::TREASURE_CHEST:
+	case Obj::ARTIFACT:
+	case Obj::BORDERGUARD:
+		return true;
+		break;
+	default:
+		return false;
+		break;
+	}
+
+}
+
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 {
 	// TODO: Such information should be provided by pathfinder
@@ -422,7 +442,7 @@ bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should
 	if(cb->getTile(tileToHit)->topVisitableId() != Obj::BORDER_GATE)
 		return false;
 	auto gate = dynamic_cast<const CGKeys *>(cb->getTile(tileToHit)->topVisitableObj());
-	return !gate->wasMyColorVisited(ai->playerID);
+	return !gate->passableFor(ai->playerID);
 }
 bool isBlockVisitObj(const int3 & pos)
 {

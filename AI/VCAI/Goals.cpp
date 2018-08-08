@@ -673,6 +673,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 		{
 			//FIXME: this way we'll not visit gate and activate quest :?
 			ret.push_back(sptr(Goals::FindObj(Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
+			return ret; //only option
 		}
 
 		auto topObj = cb->getTopObj(tileToHit);
@@ -699,13 +700,16 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				}
 				else
 				{
-					//TODO: we should be able to return apriopriate quest here (VCAI::striveToQuest)
+					//TODO: we should be able to return apriopriate quest here
+					//ret.push_back(ai->questToGoal());
+					//however, visiting obj for firts time will give us quest
 					logAi->debug("Quest guard blocks the way to %s", tile.toString());
 					continue; //do not access quets guard if we can't complete the quest
 				}
+				return ret; //try complete quest as the only option
 			}
 		}
-		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there i no quest object
+		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there is no quest object
 		{
 			ret.push_back(sptr(Goals::VisitTile(tileToHit).sethero(h)));
 		}
