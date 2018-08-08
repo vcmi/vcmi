@@ -2716,6 +2716,11 @@ void VCAI::lostHero(HeroPtr h)
 	}
 	vstd::erase_if_present(reservedHeroesMap, h);
 	vstd::erase_if_present(cachedSectorMaps, h);
+	vstd::erase_if_present(visitedHeroes, h);
+	for (auto heroVec : visitedHeroes)
+	{
+		vstd::erase_if_present(heroVec.second, h);
+	}
 }
 
 void VCAI::answerQuery(QueryID queryID, int selection)
