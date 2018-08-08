@@ -57,7 +57,7 @@ public:
 	void updateMouseState(EIntObjMouseBtnType btn, bool state) { currentMouseState[btn] = state; }
 	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
-	virtual void click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, bool previousState);
+	virtual void event(const SDL_Event &event);
 	
 	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState) {}
 	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState) {}
@@ -109,6 +109,7 @@ public:
 	bool strongInterest;
 	
 	friend class CGuiHandler;
+
 protected:
 	void activate(ui16 what);
 	void deactivate(ui16 what);

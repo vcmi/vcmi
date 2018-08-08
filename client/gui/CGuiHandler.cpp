@@ -67,9 +67,10 @@ processList(const ui16 mask, const ui16 flag, std::list<View*> *lst, std::functi
 
 void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<View*> *)> cb)
 {
-	processList(View::LCLICK,activityFlag,&lclickable,cb);
-	processList(View::RCLICK,activityFlag,&rclickable,cb);
-	processList(View::MCLICK,activityFlag,&mclickable,cb);
+	processList(View::LCLICK,activityFlag,&clickable,cb);
+	processList(View::RCLICK,activityFlag,&clickable,cb);
+	processList(View::MCLICK,activityFlag,&clickable,cb);
+	
 	processList(View::HOVER,activityFlag,&hoverable,cb);
 	processList(View::MOVE,activityFlag,&motioninterested,cb);
 	processList(View::KEYBOARD,activityFlag,&keyinterested,cb);
@@ -82,7 +83,8 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 void CGuiHandler::handleElementActivate(View * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<View*> * lst){
-		lst->push_front(elem);
+		if(vstd::contains(*lst, elem) == false)
+			lst->push_front(elem);
 	});
 	elem->active |= activityFlag;
 }
@@ -91,7 +93,7 @@ void CGuiHandler::handleElementDeActivate(View * elem, ui16 activityFlag)
 {
 	processLists(activityFlag,[&](std::list<View*> * lst){
 		auto hlp = std::find(lst->begin(),lst->end(),elem);
-		assert(hlp != lst->end());
+		if(hlp != lst->end())
 		lst->erase(hlp);
 	});
 	elem->active &= ~activityFlag;
@@ -289,18 +291,9 @@ void CGuiHandler::event(const SDL_Event & event)
 
 			lastClick = event.motion;
 			lastClickTime = SDL_GetTicks();
-
-			handleMouseButtonClick(event, lclickable, EIntObjMouseBtnType::LEFT, true);
-			break;
-		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(event, rclickable, EIntObjMouseBtnType::RIGHT, true);
-			break;
-		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(event, mclickable, EIntObjMouseBtnType::MIDDLE, true);
-			break;
-		default:
 			break;
 		}
+		handleMouseButtonClick(event, true);
 	}
 	else if(event.type == SDL_MOUSEWHEEL)
 	{
@@ -332,42 +325,30 @@ void CGuiHandler::event(const SDL_Event & event)
 				cast->textEdited(event.edit);
 		}
 	}
-	//todo: muiltitouch
 	else if(event.type == SDL_MOUSEBUTTONUP)
 	{
 		switch(event.button.button)
 		{
-		case SDL_BUTTON_LEFT:
-			handleMouseButtonClick(event, lclickable, EIntObjMouseBtnType::LEFT, false);
-			break;
-		case SDL_BUTTON_RIGHT:
-			handleMouseButtonClick(event, rclickable, EIntObjMouseBtnType::RIGHT, false);
-			break;
-		case SDL_BUTTON_MIDDLE:
-			handleMouseButtonClick(event, mclickable, EIntObjMouseBtnType::MIDDLE, false);
-			break;
+			case SDL_BUTTON_LEFT:
+				handleMouseButtonClick(event, false);
+				break;
+			case SDL_BUTTON_RIGHT:
+				handleMouseButtonClick(event, false);
+				break;
+			case SDL_BUTTON_MIDDLE:
+				handleMouseButtonClick(event, false);
+				break;
 		}
-	}
-}
+	}}
 
-void CGuiHandler::handleMouseButtonClick(const SDL_Event & event, CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed)
+void CGuiHandler::handleMouseButtonClick(const SDL_Event & event, bool isPressed)
 {
-	auto hlp = interestedObjs;
+	auto hlp = clickable;
 	for(auto i = hlp.begin(); i != hlp.end() && continueEventHandling; i++)
 	{
-		if(!vstd::contains(interestedObjs, *i)) continue;
-
-		auto prev = (*i)->mouseState(btn);
-		if(!isPressed)
-			(*i)->updateMouseState(btn, isPressed);
-		if(isItIn(&(*i)->pos, event.motion.x, event.motion.y))
-		{
-			if(isPressed)
-				(*i)->updateMouseState(btn, isPressed);
-			(*i)->click(event, btn, isPressed, prev);
-		}
-		else if(!isPressed)
-			(*i)->click(event, btn, boost::logic::indeterminate, prev);
+		if(!vstd::contains(clickable, *i)) continue;
+		if(isItIn(&(*i)->pos, event.motion.x, event.motion.y) || !isPressed)
+			(*i)->event(event);
 	}
 }
 

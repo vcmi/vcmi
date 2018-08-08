@@ -117,19 +117,33 @@ void View::deactivate(ui16 what)
 	GH.handleElementDeActivate(this, what);
 }
 
-void View::click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, bool previousState)
+void View::event(const SDL_Event &event)
 {
-	switch(btn)
+	if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
 	{
-	case EIntObjMouseBtnType::LEFT:
-		clickLeft(event, down, previousState);
-		break;
-	case EIntObjMouseBtnType::MIDDLE:
-		clickMiddle(event, down, previousState);
-		break;
-	case EIntObjMouseBtnType::RIGHT:
-		clickRight(event, down, previousState);
-		break;
+		bool state = (event.type == SDL_MOUSEBUTTONDOWN ? true : false);
+		
+		tribool down = state;
+		if (!isItIn(&pos, event.motion.x, event.motion.y) && !down)
+			down = boost::logic::indeterminate;
+		
+		EIntObjMouseBtnType btn;
+		switch (event.button.button)
+		{
+			case SDL_BUTTON_LEFT:
+				clickLeft(event, down, mouseState(EIntObjMouseBtnType::LEFT));
+				btn = EIntObjMouseBtnType::LEFT;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				clickMiddle(event, down, mouseState(EIntObjMouseBtnType::MIDDLE));
+				btn = EIntObjMouseBtnType::MIDDLE;
+				break;
+			case SDL_BUTTON_RIGHT:
+				clickRight(event, down, mouseState(EIntObjMouseBtnType::RIGHT));
+				btn = EIntObjMouseBtnType::RIGHT;
+				break;
+		}
+		updateMouseState(btn, down);
 	}
 }
 

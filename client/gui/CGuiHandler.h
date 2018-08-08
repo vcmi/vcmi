@@ -68,9 +68,7 @@ private:
 	typedef std::list<View*> CIntObjectList;
 
 	//active GUI elements (listening for events
-	CIntObjectList lclickable,
-				   rclickable,
-				   mclickable,
+	CIntObjectList clickable,
 				   hoverable,
 				   keyinterested,
 				   motioninterested,
@@ -80,7 +78,7 @@ private:
 	               textInterested;
 
 
-	void handleMouseButtonClick(const SDL_Event & event, CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
+	void handleMouseButtonClick(const SDL_Event & event, bool isPressed);
 	void processLists(const ui16 activityFlag, std::function<void (std::list<View*> *)> cb);
 public:
 	void handleElementActivate(View * elem, ui16 activityFlag);
