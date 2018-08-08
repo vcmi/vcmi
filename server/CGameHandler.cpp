@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
+#include "../lib/serializer/StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
