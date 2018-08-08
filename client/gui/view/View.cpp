@@ -26,8 +26,6 @@ View::View(ui16 used_, Point pos_):
 	hovered(false),
 	captureAllKeys(false),
 	strongInterest(false),
-	toNextTick(0),
-	timerDelay(0),
 	defActions(GH.defActionsDef),
 	recActions(GH.defActionsDef)
 {
@@ -50,24 +48,6 @@ View::~View()
 
 	if(getParent())
 		getParent()->removeChild(this);
-}
-
-void View::setTimer(int msToTrigger)
-{
-	if (!(active & TIME))
-		activate(TIME);
-	toNextTick = timerDelay = msToTrigger;
-	used |= TIME;
-}
-
-void View::onTimer(int timePassed)
-{
-	toNextTick -= timePassed;
-	if (toNextTick < 0)
-	{
-		toNextTick += timerDelay;
-		tick();
-	}
 }
 
 void View::show(SDL_Surface * to)

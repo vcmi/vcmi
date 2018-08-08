@@ -328,14 +328,18 @@ class CInfoBar : public View
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
-
-	void tick() override;
+	
+	void setTimer(int msToTrigger);
+	virtual void tick();
 
 	void clickLeft(const SDL_Event &event, tribool down, bool previousState) override;
 	void clickRight(const SDL_Event &event, tribool down, bool previousState) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();
+	
+	int toNextTick;
+	int timerDelay;
 public:
 	CInfoBar(const Rect & pos);
 
@@ -350,6 +354,7 @@ public:
 
 	/// reset to default view - selected object
 	void showSelection();
+	void onTimer(int timePassed);
 
 	/// show hero\town information
 	void showHeroSelection(const CGHeroInstance * hero);

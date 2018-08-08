@@ -22,6 +22,7 @@
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
 #include "../battle/CBattleInterface.h"
+#include "widgets/AdventureMapClasses.h"
 
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
@@ -174,7 +175,9 @@ void CGuiHandler::updateTime()
 	for (auto & elem : hlp)
 	{
 		if(!vstd::contains(timeinterested,elem)) continue;
-		(elem)->onTimer(ms);
+		auto cast = dynamic_cast<CInfoBar *>(elem);
+		if(cast)
+			cast->onTimer(ms);
 	}
 }
 

@@ -58,36 +58,20 @@ public:
 	bool mouseState(EIntObjMouseBtnType btn) const { return currentMouseState.count(btn) ? currentMouseState.at(btn) : false; }
 
 	virtual void click(const SDL_Event &event, EIntObjMouseBtnType btn, tribool down, bool previousState);
-	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState)
-	{}
-	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState)
-	{}
-	virtual void clickMiddle(const SDL_Event &event, tribool down, bool previousState)
-	{}
-
-	bool hovered;
-	virtual void hover (bool on){}
-
-	bool captureAllKeys;
+	
+	virtual void clickLeft(const SDL_Event &event, tribool down, bool previousState) {}
+	virtual void clickRight(const SDL_Event &event, tribool down, bool previousState) {}
+	virtual void clickMiddle(const SDL_Event &event, tribool down, bool previousState) {}
 	virtual void keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key){}
-	virtual bool captureThisEvent(const SDL_KeyboardEvent & key);
-
-	bool strongInterest;
-	virtual void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
-	{}
-
-	void setTimer(int msToTrigger);
-	virtual void tick(){}
-
+	virtual void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) {}
 	virtual void wheelScrolled(bool down, bool in){}
-
 	virtual void onDoubleClick(const SDL_Event &event){}
-
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024};
+	virtual void hover (bool on){}
+	
+	virtual bool captureThisEvent(const SDL_KeyboardEvent & key);
+	
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
-
-	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
 
 	void disable();
 	void enable();
@@ -98,8 +82,6 @@ public:
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 	void redraw() override;
-
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 	
 	const Rect & center(const Rect &r, bool propagate = true);
 	const Rect & center(const Point &p, bool propagate = true);
@@ -112,29 +94,29 @@ public:
 
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 	
-	std::vector<View *> children;
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024};
+	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
+	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 	
+	std::vector<View *> children;
 	Rect pos;
 	
 	ui8 defActions;
 	ui8 recActions;
+	ui16 active;
+	bool hovered;
+	bool captureAllKeys;
+	bool strongInterest;
 	
 	friend class CGuiHandler;
-	ui16 active;
 protected:
 	void activate(ui16 what);
 	void deactivate(ui16 what);
-	
+	ui16 used;
+
 private:
-	void onTimer(int timePassed);
-	
 	//TODO make parent const
 	View * parent = nullptr;
-private:
-	ui16 used;
-	
-	int toNextTick;
-	int timerDelay;
 	
 	std::map<EIntObjMouseBtnType, bool> currentMouseState;
 };

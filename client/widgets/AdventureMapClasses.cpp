@@ -893,7 +893,9 @@ void CInfoBar::hover(bool on)
 
 CInfoBar::CInfoBar(const Rect & position)
 	: View(LCLICK | RCLICK | HOVER, position.topLeft()),
-	state(EMPTY)
+	  toNextTick(0),
+	  timerDelay(0),
+	  state(EMPTY)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
@@ -965,6 +967,24 @@ void CInfoBar::showGameStatus()
 	visibleInfo = std::make_shared<VisibleGameStatusInfo>();
 	setTimer(3000);
 	redraw();
+}
+
+void CInfoBar::setTimer(int msToTrigger)
+{
+	if (!(active & TIME))
+		activate(TIME);
+	toNextTick = timerDelay = msToTrigger;
+	used |= TIME;
+}
+
+void CInfoBar::onTimer(int timePassed)
+{
+	toNextTick -= timePassed;
+	if (toNextTick < 0)
+	{
+		toNextTick += timerDelay;
+		tick();
+	}
 }
 
 CInGameConsole::CInGameConsole()
