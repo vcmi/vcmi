@@ -329,7 +329,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			//throw cannotFulfillGoalException("Inter-sector route detection failed: not connected sectors?");
 		}
 	}
-	else
+	else //tiles are in same sector
 	{
 		return findFirstVisitableTile(h, dst);
 	}

@@ -167,6 +167,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 ui64 evaluateDanger(const CGObjectInstance * obj);
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 bool isSafeToVisit(HeroPtr h, crint3 tile);
+bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);

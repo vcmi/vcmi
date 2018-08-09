@@ -87,6 +87,13 @@ public:
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
 
+	//part of mainLoop, but accessible from outisde
+	std::vector<Goals::TSubgoal> basicGoals;
+	Goals::TGoalVec goalsToRemove;
+	Goals::TGoalVec goalsToAdd;
+	std::map<Goals::TSubgoal, Goals::TGoalVec> ultimateGoalsFromBasic; //theoreticlaly same goal can fulfill multiple basic goals
+
+	std::set<HeroPtr> invalidPathHeroes; //FIXME, just a workaround
 	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
 	std::map<HeroPtr, std::set<const CGObjectInstance *>> reservedHeroesMap; //objects reserved by specific heroes
 	std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
@@ -95,6 +102,7 @@ public:
 	std::set<const CGObjectInstance *> visitableObjs;
 	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
+	std::map<HeroPtr, std::set<HeroPtr>> visitedHeroes; //visited this turn //FIXME: this is just bug workaround
 
 	//TODO: move to separate PathHandler class?
 	std::map<HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
@@ -117,7 +125,6 @@ public:
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
-	void tryRealize(Goals::Build & g);
 	void tryRealize(Goals::BuyArmy & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
@@ -190,18 +197,18 @@ public:
 	void battleEnd(const BattleResult * br) override;
 
 	void makeTurn();
-	void makeTurnInternal();
+	void mainLoop();
 	void performTypicalActions();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void striveToGoal(Goals::TSubgoal ultimateGoal);
-	Goals::TSubgoal striveToGoalInternal(Goals::TSubgoal ultimateGoal, bool onlyAbstract);
+	Goals::TSubgoal decomposeGoal(Goals::TSubgoal ultimateGoal);
 	void endTurn();
 	void wander(HeroPtr h);
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);
 	void evaluateGoal(HeroPtr h); //evaluates goal assigned to hero, if any
 	void completeGoal(Goals::TSubgoal goal); //safely removes goal from reserved hero
-	void striveToQuest(const QuestInfo & q);
+	Goals::TSubgoal questToGoal(const QuestInfo & q);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
