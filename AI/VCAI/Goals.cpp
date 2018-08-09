@@ -1142,7 +1142,7 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 						if (dest != t) //there is something blocking our way
 							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
 						else
-							ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+							ret.push_back(sptr(Goals::GetObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 					}
 					else //we need to get army in order to pick that object
 						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));

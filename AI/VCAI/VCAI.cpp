@@ -1460,17 +1460,18 @@ void VCAI::wander(HeroPtr h)
 		//end of objs empty
 
 		if(dests.size()) //performance improvement
-		{
-			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool //TODO: create elementar GetObj goal usable for goal decomposition and Wander based on VisitTile logic and object value on top of it
+		{			
+			Goals::TGoalVec targetObjectGoals;
+			for(auto destination : dests)
 			{
-				return fh->getWanderTargetObjectValue( *h.get(), l) < fh->getWanderTargetObjectValue(*h.get(), r);
-			};
-
-			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation, TODO: use elementar version of GetObj here in future
+				targetObjectGoals.push_back(sptr(Goals::GetObj(destination.id.getNum()).sethero(h).setisAbstract(true)));
+			}
+			auto bestObjectGoal = fh->chooseSolution(targetObjectGoals);
+			decomposeGoal(bestObjectGoal)->accept(this);
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
-			if (!goVisitObj(dest, h))
+			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), bestObjectGoal->objid);
+			/*if (!goVisitObj(dest, h))
 			{
 				if (!dest)
 				{
@@ -1483,7 +1484,7 @@ void VCAI::wander(HeroPtr h)
 				}
 			}
 			else //we reached our destination
-				visitTownIfAny(h);
+				visitTownIfAny(h);*/
 		}
 	}
 	visitTownIfAny(h); //in case hero is just sitting in town
