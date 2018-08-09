@@ -464,15 +464,9 @@ public:
 class DLL_EXPORT GetObj : public CGoal<GetObj>
 {
 public:
-	GetObj() {} // empty constructor not allowed
+	GetObj() = delete; // empty constructor not allowed
+	GetObj(int Objid);
 
-	GetObj(int Objid)
-		: CGoal(Goals::GET_OBJ)
-	{
-		objid = Objid;
-		tile = cb->getObjInstance(ObjectInstanceID(objid))->visitablePos();
-		priority = 3;
-	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator==(AbstractGoal & g) override;

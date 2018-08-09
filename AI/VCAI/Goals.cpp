@@ -286,6 +286,12 @@ namespace Goals
 	{
 		return boost::format("Bought army of value %d in town of %s") % value, town->name;
 	}
+	GetObj::GetObj(int Objid): CGoal(Goals::GET_OBJ)
+	{	
+		objid = Objid;
+		tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->pos;
+		priority = 3;
+	}
 }
 
 TSubgoal Trade::whatToDoToAchieve()
