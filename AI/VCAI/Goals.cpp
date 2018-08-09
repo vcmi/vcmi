@@ -286,12 +286,6 @@ namespace Goals
 	{
 		return boost::format("Bought army of value %d in town of %s") % value, town->name;
 	}
-	GetObj::GetObj(int Objid): CGoal(Goals::GET_OBJ)
-	{	
-		objid = Objid;
-		tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->pos;
-		priority = 3;
-	}
 }
 
 TSubgoal Trade::whatToDoToAchieve()
@@ -521,7 +515,7 @@ std::string GetObj::completeMessage() const
 TGoalVec GetObj::getAllPossibleSubgoals()
 {
 	TGoalVec goalList;
-	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
+	const CGObjectInstance * obj = cb->getObjInstance(ObjectInstanceID(objid));
 	if(!obj)
 	{
 		goalList.push_back(sptr(Goals::Explore()));
@@ -573,6 +567,13 @@ TSubgoal GetObj::whatToDoToAchieve()
 	return bestGoal;
 }
 
+Goals::GetObj::GetObj(int Objid) : CGoal(Goals::GET_OBJ)
+{
+	objid = Objid;
+	tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->visitablePos();
+	priority = 3;
+}
+
 bool Goals::GetObj::operator==(AbstractGoal & g)
 {
 	if (g.goalType != goalType)
@@ -582,11 +583,11 @@ bool Goals::GetObj::operator==(AbstractGoal & g)
 
 bool GetObj::fulfillsMe(TSubgoal goal)
 {
-	if(goal->goalType == Goals::VISIT_TILE) //visiting tile visits object at same time
+	if(goal->goalType == Goals::GET_OBJ)
 	{
 		if (!hero || hero == goal->hero)
 		{
-			auto obj = cb->getObj(ObjectInstanceID(objid));
+			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 			if (obj && obj->visitablePos() == goal->tile) //object could be removed
 				return true;
 		}
@@ -731,7 +732,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				if(shouldVisit(h, topObj))
 				{
 					//do NOT use VISIT_TILE, as tile with quets guard can't be visited
-					ret.push_back(sptr(Goals::GetObj(topObj->id.getNum()).sethero(h)));
+					ret.push_back(sptr(Goals::GetObj(topObj->id.getNum()).sethero(h))); //TODO: Recheck this code - object visit became elementar goal
 					continue; //do not try to visit tile or gather army
 				}
 				else

@@ -1470,8 +1470,13 @@ void VCAI::wander(HeroPtr h)
 			decomposeGoal(bestObjectGoal)->accept(this);
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
-			logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+			if(bestObjectGoal->goalType == Goals::GET_OBJ)
+			{
+				auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
+				logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+			}
+			else
+				logAi->debug("Trying to realize goal of type %d as part of wandering.", bestObjectGoal->goalType);
 
 			visitTownIfAny(h);
 		}
@@ -1998,9 +2003,9 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 
 void VCAI::tryRealize(Goals::GetObj & g)
 {
-	auto position = cb->getObjInstance((ObjectInstanceID)g.objid)->pos;
+	auto position = g.tile;
 	if(!g.hero->movement)
-		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
+		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
 	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
