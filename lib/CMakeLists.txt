@@ -95,7 +95,6 @@ set(lib_SRCS
 		serializer/JsonDeserializer.cpp
 		serializer/JsonSerializeFormat.cpp
 		serializer/JsonSerializer.cpp
-        serializer/StdInc.cpp
 
 		spells/AbilityCaster.cpp
 		spells/AdventureSpellMechanics.cpp
@@ -268,7 +267,7 @@ set(lib_HEADERS
 		serializer/JsonDeserializer.h
 		serializer/JsonSerializeFormat.h
 		serializer/JsonSerializer.h
-        serializer/StdInc.h
+        serializer/Cast.h
 
 		spells/AbilityCaster.h
 		spells/AdventureSpellMechanics.h

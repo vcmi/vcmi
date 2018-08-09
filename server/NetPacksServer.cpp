@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include "../lib/NetPacks.h"
 
 #include "CGameHandler.h"
@@ -19,7 +20,7 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
-#include "../lib/serializer/StdInc.h"
+#include "../lib/serializer/Cast.h"
 
 bool CPackForServer::isPlayerOwns(CGameHandler * gh, ObjectInstanceID id)
 {

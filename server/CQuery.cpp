@@ -7,11 +7,12 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include "CQuery.h"
 #include "CGameHandler.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
-#include "../lib/serializer/StdInc.h"
+#include "../lib/serializer/Cast.h"
 
 boost::mutex Queries::mx;
 

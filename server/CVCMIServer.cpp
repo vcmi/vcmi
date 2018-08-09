@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include <boost/asio.hpp>
 
 #include "../lib/filesystem/Filesystem.h"
@@ -40,7 +41,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/serializer/CMemorySerializer.h"
-#include "../lib/serializer/StdInc.h"
+#include "../lib/serializer/Cast.h"
 
 #include "../lib/UnlockGuard.h"
 

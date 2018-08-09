@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "../lib/serializer/StdInc.h"
+#include "StdInc.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
@@ -46,6 +46,7 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/serializer/Cast.h"
 
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
