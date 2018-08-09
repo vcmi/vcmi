@@ -470,6 +470,7 @@ public:
 		: CGoal(Goals::GET_OBJ)
 	{
 		objid = Objid;
+		tile = cb->getObjInstance(ObjectInstanceID(objid))->visitablePos();
 		priority = 3;
 	}
 	TGoalVec getAllPossibleSubgoals() override;
