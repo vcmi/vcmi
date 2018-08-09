@@ -1471,20 +1471,8 @@ void VCAI::wander(HeroPtr h)
 
 			//wander should not cause heroes to be reserved - they are always considered free
 			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), bestObjectGoal->objid);
-			/*if (!goVisitObj(dest, h))
-			{
-				if (!dest)
-				{
-					logAi->debug("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
-				}
-				else
-				{
-					logAi->debug("Hero %s apparently used all MPs (%d left)", h->name, h->movement);
-					break;
-				}
-			}
-			else //we reached our destination
-				visitTownIfAny(h);*/
+
+			visitTownIfAny(h);
 		}
 	}
 	visitTownIfAny(h); //in case hero is just sitting in town
