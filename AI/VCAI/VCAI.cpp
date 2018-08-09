@@ -1470,7 +1470,8 @@ void VCAI::wander(HeroPtr h)
 			decomposeGoal(bestObjectGoal)->accept(this);
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), bestObjectGoal->objid);
+			auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
+			logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
 
 			visitTownIfAny(h);
 		}
