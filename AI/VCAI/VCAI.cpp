@@ -1473,7 +1473,8 @@ void VCAI::wander(HeroPtr h)
 			if(bestObjectGoal->goalType == Goals::GET_OBJ)
 			{
 				auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
-				logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+				if(chosenObject != nullptr)
+					logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
 			}
 			else
 				logAi->debug("Trying to realize goal of type %d as part of wandering.", bestObjectGoal->goalType);
