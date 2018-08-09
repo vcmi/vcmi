@@ -1322,7 +1322,6 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
-
 	auto visitTownIfAny = [this](HeroPtr h) -> bool
 	{
 		if (h->visitedTown)
@@ -1331,6 +1330,7 @@ void VCAI::wander(HeroPtr h)
 			buildArmyIn(h->visitedTown);
 			return true;
 		}
+		return false;
 	};
 
 	//unclaim objects that are now dangerous for us
