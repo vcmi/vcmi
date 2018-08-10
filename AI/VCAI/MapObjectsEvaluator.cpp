@@ -2,6 +2,9 @@
 #include "MapObjectsEvaluator.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/CRandomGenerator.h"
 
 MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 {
@@ -29,9 +32,27 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 				{
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = VLC->objtypeh->getObjGroupAiValue(primaryID).get();
 				}
-				else
+				else //some default handling when aiValue not found
 				{
-					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0; //some default handling when aiValue not found
+					if(primaryID == Obj::CREATURE_GENERATOR1 || primaryID == Obj::CREATURE_GENERATOR4)
+					{
+						int aiValue = 0;
+						CGDwelling dwellingMock;
+						CRandomGenerator rngMock;
+						handler->configureObject(&dwellingMock, rngMock);
+						
+						for(auto & creLevel : dwellingMock.creatures)
+						{
+							for(auto & creatureID : creLevel.second)
+							{
+								auto creature = VLC->creh->creatures[creatureID];
+								aiValue += (creature->AIValue * creature->growth);
+							}
+						}
+						objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = aiValue;
+					}
+					else
+						objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;
 				}
 			}
 		}	
