@@ -518,8 +518,7 @@ TGoalVec GetObj::getAllPossibleSubgoals()
 	const CGObjectInstance * obj = cb->getObjInstance(ObjectInstanceID(objid));
 	if(!obj)
 	{
-		goalList.push_back(sptr(Goals::Explore()));
-		return goalList;
+		throw cannotFulfillGoalException("Object is missing - goal is invalid now!");
 	}
 
 	int3 pos = obj->visitablePos();
@@ -583,7 +582,7 @@ bool Goals::GetObj::operator==(AbstractGoal & g)
 
 bool GetObj::fulfillsMe(TSubgoal goal)
 {
-	if(goal->goalType == Goals::GET_OBJ)
+	if(goal->goalType == Goals::VISIT_TILE)
 	{
 		if (!hero || hero == goal->hero)
 		{

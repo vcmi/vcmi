@@ -343,7 +343,7 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
 		heroStrength->setRange(0.0, 1.0);
 
-		turnDistance->addTerm(new fl::Ramp("SMALL", 0.5, 0));
+		turnDistance->addTerm(new fl::Ramp("SHORT", 0.5, 0));
 		turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
 		turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
 		turnDistance->setRange(0.0, 3.0);
@@ -376,7 +376,7 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		addRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW");
 		addRule("if lockedMissionImportance is LOW then Value is HIGH");
 		//pick nearby objects if it's easy, avoid long walks
-		addRule("if turnDistance is SMALL then Value is HIGH");
+		addRule("if turnDistance is SHORT then Value is HIGH");
 		addRule("if turnDistance is MEDIUM then Value is MEDIUM");
 		addRule("if turnDistance is LONG then Value is LOW");
 	}
@@ -510,17 +510,9 @@ GetObjEngine::GetObjEngine()
 		objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
 		objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
 
-		addRule("if turnDistance is LONG and objectValue is HIGH then value is MEDIUM");
-		addRule("if turnDistance is MEDIUM and objectValue is HIGH then value is somewhat HIGH");
-		addRule("if turnDistance is SHORT and objectValue is HIGH then value is HIGH");
-
-		addRule("if turnDistance is LONG and objectValue is MEDIUM then value is somewhat LOW");
-		addRule("if turnDistance is MEDIUM and objectValue is MEDIUM then value is MEDIUM");
-		addRule("if turnDistance is SHORT and objectValue is MEDIUM then value is somewhat HIGH");
-
-		addRule("if turnDistance is LONG and objectValue is LOW then value is very LOW");
-		addRule("if turnDistance is MEDIUM and objectValue is LOW then value is LOW");
-		addRule("if turnDistance is SHORT and objectValue is LOW then value is MEDIUM");
+		addRule("if objectValue is HIGH then value is HIGH");
+		addRule("if objectValue is MEDIUM then value is MEDIUM");
+		addRule("if objectValue is LOW then value is LOW");
 	}
 	catch(fl::Exception & fe)
 	{
