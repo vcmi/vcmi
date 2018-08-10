@@ -15,7 +15,8 @@ set(VCAI_SRCS
 		SectorMap.cpp
 		BuildingManager.cpp
 		MapObjectsEvaluator.cpp
-		Fuzzy.cpp
+		FuzzyEngines.cpp
+		FuzzyHelper.cpp
 		Goals.cpp
 		main.cpp
 		VCAI.cpp
@@ -31,7 +32,8 @@ set(VCAI_HEADERS
 		SectorMap.h
 		BuildingManager.h
 		MapObjectsEvaluator.h
-		Fuzzy.h
+		FuzzyEngines.h
+		FuzzyHelper.h
 		Goals.h
 		VCAI.h
 )

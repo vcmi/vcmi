@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "VCAI.h"
-#include "Fuzzy.h"
+#include "FuzzyHelper.h"
 #include "ResourceManager.h"
 #include "BuildingManager.h"
 
