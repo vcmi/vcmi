@@ -77,7 +77,7 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
 		break;
-	case GET_OBJ:
+	case VISIT_OBJ:
 	{
 		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 		if(obj)
@@ -153,7 +153,7 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 		break;
 
 	//assigned hero and object
-	case GET_OBJ:
+	case VISIT_OBJ:
 	case FIND_OBJ: //TODO: use subtype?
 	case VISIT_HERO:
 	case GET_ART_TYPE:
@@ -560,13 +560,13 @@ TSubgoal VisitObj::whatToDoToAchieve()
 {
 	auto bestGoal = fh->chooseSolution(getAllPossibleSubgoals());
 
-	if(bestGoal->goalType == Goals::GET_OBJ && bestGoal->hero)
+	if(bestGoal->goalType == Goals::VISIT_OBJ && bestGoal->hero)
 		bestGoal->setisElementar(true);
 
 	return bestGoal;
 }
 
-Goals::VisitObj::VisitObj(int Objid) : CGoal(Goals::GET_OBJ)
+Goals::VisitObj::VisitObj(int Objid) : CGoal(Goals::VISIT_OBJ)
 {
 	objid = Objid;
 	tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->visitablePos();

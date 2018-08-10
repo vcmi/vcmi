@@ -46,7 +46,7 @@ enum EGoals
 	GATHER_TROOPS, // val of creatures with objid
 
 	OBJECT_GOALS_BEGIN,
-	GET_OBJ, //visit or defeat or collect the object
+	VISIT_OBJ, //visit or defeat or collect the object
 	FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
 	VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
 

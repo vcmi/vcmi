@@ -1470,7 +1470,7 @@ void VCAI::wander(HeroPtr h)
 			decomposeGoal(bestObjectGoal)->accept(this);
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			if(bestObjectGoal->goalType == Goals::GET_OBJ)
+			if(bestObjectGoal->goalType == Goals::VISIT_OBJ)
 			{
 				auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
 				if(chosenObject != nullptr)
