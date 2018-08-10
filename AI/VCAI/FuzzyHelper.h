@@ -17,7 +17,7 @@ class FuzzyHelper
 public:
 	TacticalAdvantageEngine tacticalAdvantageEngine;
 	VisitTileEngine visitTileEngine;
-	GetObjEngine getObjEngine;
+	VisitObjEngine visitObjEngine;
 
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);

@@ -68,7 +68,7 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 }
 float FuzzyHelper::evaluate(Goals::VisitObj & g)
 {
-	return getObjEngine.evaluate(g);
+	return visitObjEngine.evaluate(g);
 }
 float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {

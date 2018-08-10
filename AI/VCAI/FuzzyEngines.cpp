@@ -342,7 +342,7 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 	}
 }
 
-GetObjEngine::GetObjEngine()
+VisitObjEngine::VisitObjEngine()
 {
 	try
 	{
@@ -367,14 +367,12 @@ GetObjEngine::GetObjEngine()
 	configure();
 }
 
-float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
+float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 {
-	auto g = dynamic_cast<Goals::VisitObj &>(goal);
-
-	if(!g.hero)
+	if(!goal.hero)
 		return 0;
 
-	auto obj = ai->myCb->getObj(ObjectInstanceID(g.objid));
+	auto obj = ai->myCb->getObj(ObjectInstanceID(goal.objid));
 
 
 	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
@@ -412,11 +410,10 @@ VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that
 	configure();
 }
 
-float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
+float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 {
-	auto g = dynamic_cast<Goals::VisitTile &>(goal);
 	//we assume that hero is already set and we want to choose most suitable one for the mission
-	if(!g.hero)
+	if(!goal.hero)
 		return 0;
 
 	//assert(cb->isInTheMap(g.tile));
@@ -426,12 +423,12 @@ float VisitTileEngine::evaluate(Goals::AbstractGoal & goal)
 	try
 	{
 		engine.process();
-		g.priority = value->getValue();
+		goal.priority = value->getValue();
 	}
 	catch(fl::Exception & fe)
 	{
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
-	assert(g.priority >= 0);
-	return g.priority;
+	assert(goal.priority >= 0);
+	return goal.priority;
 }

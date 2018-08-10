@@ -42,8 +42,6 @@ class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive 
 public:
 	HeroMovementGoalEngineBase();
 
-	virtual float evaluate(Goals::AbstractGoal & goal) = 0;
-
 protected:
 	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
 
@@ -61,14 +59,14 @@ class VisitTileEngine : public HeroMovementGoalEngineBase
 {
 public:
 	VisitTileEngine();
-	float evaluate(Goals::AbstractGoal & goal) override;
+	float evaluate(Goals::VisitTile & goal);
 };
 
-class GetObjEngine : public HeroMovementGoalEngineBase
+class VisitObjEngine : public HeroMovementGoalEngineBase
 {
 public:
-	GetObjEngine();
-	float evaluate(Goals::AbstractGoal & goal) override;
+	VisitObjEngine();
+	float evaluate(Goals::VisitObj & goal);
 protected:
 	fl::InputVariable * objectValue;
 };
