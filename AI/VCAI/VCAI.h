@@ -121,7 +121,7 @@ public:
 	void tryRealize(Goals::Explore & g);
 	void tryRealize(Goals::RecruitHero & g);
 	void tryRealize(Goals::VisitTile & g);
-	void tryRealize(Goals::GetObj & g);
+	void tryRealize(Goals::VisitObj & g);
 	void tryRealize(Goals::VisitHero & g);
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
@@ -285,7 +285,7 @@ public:
 		h.template registerType<Goals::AbstractGoal, Goals::GatherArmy>();
 		h.template registerType<Goals::AbstractGoal, Goals::GatherTroops>();
 		h.template registerType<Goals::AbstractGoal, Goals::GetArtOfType>();
-		h.template registerType<Goals::AbstractGoal, Goals::GetObj>();
+		h.template registerType<Goals::AbstractGoal, Goals::VisitObj>();
 		h.template registerType<Goals::AbstractGoal, Goals::Invalid>();
 		//h.template registerType<Goals::AbstractGoal, Goals::NotLose>();
 		h.template registerType<Goals::AbstractGoal, Goals::RecruitHero>();

@@ -268,7 +268,7 @@ void VCAI::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * vi
 	{
 		markObjectVisited(visitedObj);
 		unreserveObject(visitor, visitedObj);
-		completeGoal(sptr(Goals::GetObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
+		completeGoal(sptr(Goals::VisitObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
 		//TODO: what if we visited one-time visitable object that was reserved by another hero (shouldn't, but..)
 		if (visitedObj->ID == Obj::HERO)
 		{
@@ -1013,7 +1013,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		}
 		break;
 	}
-	completeGoal(sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
+	completeGoal(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h)));
 }
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
@@ -1464,7 +1464,7 @@ void VCAI::wander(HeroPtr h)
 			Goals::TGoalVec targetObjectGoals;
 			for(auto destination : dests)
 			{
-				targetObjectGoals.push_back(sptr(Goals::GetObj(destination.id.getNum()).sethero(h).setisAbstract(true)));
+				targetObjectGoals.push_back(sptr(Goals::VisitObj(destination.id.getNum()).sethero(h).setisAbstract(true)));
 			}
 			auto bestObjectGoal = fh->chooseSolution(targetObjectGoals);
 			decomposeGoal(bestObjectGoal)->accept(this);
@@ -2002,7 +2002,7 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 	}
 }
 
-void VCAI::tryRealize(Goals::GetObj & g)
+void VCAI::tryRealize(Goals::VisitObj & g)
 {
 	auto position = g.tile;
 	if(!g.hero->movement)
@@ -2374,7 +2374,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (auto art : q.quest->m5arts)
@@ -2390,7 +2390,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			return sptr(Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
@@ -2403,7 +2403,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero)) //very bad info - stacks can be split between multiple heroes :(
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (auto creature : q.quest->m6creatures)
@@ -2420,7 +2420,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()));
 				}
 				else
 				{
@@ -2440,9 +2440,9 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 		{
 			auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 			if (obj)
-				return sptr(Goals::GetObj(obj->id.getNum()));
+				return sptr(Goals::VisitObj(obj->id.getNum()));
 			else
-				return sptr(Goals::GetObj(q.obj->id.getNum())); //visit seer hut
+				return sptr(Goals::VisitObj(q.obj->id.getNum())); //visit seer hut
 			break;
 		}
 		case CQuest::MISSION_PRIMARY_STAT:
@@ -2452,7 +2452,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (int i = 0; i < q.quest->m2stats.size(); ++i)
@@ -2468,7 +2468,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)); //TODO: causes infinite loop :/
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero)); //TODO: causes infinite loop :/
 				}
 			}
 			logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);

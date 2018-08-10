@@ -461,11 +461,11 @@ public:
 	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class DLL_EXPORT GetObj : public CGoal<GetObj>
+class DLL_EXPORT VisitObj : public CGoal<VisitObj> //this goal was previously known as GetObj
 {
 public:
-	GetObj() = delete; // empty constructor not allowed
-	GetObj(int Objid);
+	VisitObj() = delete; // empty constructor not allowed
+	VisitObj(int Objid);
 
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;

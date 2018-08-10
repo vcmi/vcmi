@@ -88,7 +88,7 @@ public:
 	float evaluate(Goals::Explore & g);
 	float evaluate(Goals::RecruitHero & g);
 	float evaluate(Goals::VisitTile & g);
-	float evaluate(Goals::GetObj & g);
+	float evaluate(Goals::VisitObj & g);
 	float evaluate(Goals::VisitHero & g);
 	float evaluate(Goals::BuildThis & g);
 	float evaluate(Goals::DigAtTile & g);

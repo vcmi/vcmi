@@ -415,7 +415,7 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	return visitTileEngine.evaluate(g);
 }
-float FuzzyHelper::evaluate(Goals::GetObj & g)
+float FuzzyHelper::evaluate(Goals::VisitObj & g)
 {
 	return getObjEngine.evaluate(g);
 }
@@ -523,7 +523,7 @@ GetObjEngine::GetObjEngine()
 
 float GetObjEngine::evaluate(Goals::AbstractGoal & goal)
 {
-	auto g = dynamic_cast<Goals::GetObj &>(goal);
+	auto g = dynamic_cast<Goals::VisitObj &>(goal);
 
 	if(!g.hero)
 		return 0;
