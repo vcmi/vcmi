@@ -1155,10 +1155,12 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	{
 		SDL_RenderSetLogicalSize(mainRenderer, w, h);
 
-#ifndef VCMI_ANDROID
-		// on android this stretches the game to fit the screen, not preserving aspect and apparently this also breaks coordinates scaling in mouse events
-		SDL_RenderSetViewport(mainRenderer, nullptr);
-#endif
+//following line is bugged not only on android, do not re-enable without checking
+//#ifndef VCMI_ANDROID
+//		// on android this stretches the game to fit the screen, not preserving aspect and apparently this also breaks coordinates scaling in mouse events
+//		SDL_RenderSetViewport(mainRenderer, nullptr);
+//#endif
+
 	}
 
 
