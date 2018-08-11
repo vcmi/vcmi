@@ -117,7 +117,6 @@ struct DLL_LINKAGE CDestinationNodeInfo : public CPathNodeInfo
 	CGPathNode::ENodeAction action;
 	int turn;
 	int movementLeft;
-	bool furtherProcessingImpossible;
 	bool blocked;
 
 	CDestinationNodeInfo();
@@ -149,10 +148,70 @@ public:
 		CPathfinderHelper * pathfinderHelper) = 0;
 };
 
-class CMovementAfterDestinationRule : public IPathfindingRule
+class CMovementCostRule : public IPathfindingRule
 {
 public:
 	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
+};
+
+class CPathfinderBlockingRule : public IPathfindingRule
+{
+public:
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override
+	{
+		auto blockingReason = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+
+		destination.blocked = blockingReason != BlockingReason::NONE;
+	}
+
+protected:
+	enum class BlockingReason
+	{
+		NONE = 0,
+		SOURCE_GUARDED = 1,
+		DESTINATION_GUARDED = 2,
+		SOURCE_BLOCKED = 3,
+		DESTINATION_BLOCKED = 4,
+		DESTINATION_BLOCKVIS = 5,
+		DESTINATION_VISIT = 6
+	};
+
+	virtual BlockingReason getBlockingReason(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) = 0;
+};
+
+class CMovementAfterDestinationRule : public CPathfinderBlockingRule
+{
+public:
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
+
+protected:
+	virtual BlockingReason getBlockingReason(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
+};
+
+class CMovementToDestinationRule : public CPathfinderBlockingRule
+{
+protected:
+	virtual BlockingReason getBlockingReason(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
@@ -299,7 +358,6 @@ private:
 
 	bool isLayerTransitionPossible(const ELayer dstLayer) const;
 	bool isLayerTransitionPossible() const;
-	bool isMovementToDestPossible() const;
 	CGPathNode::ENodeAction getDestAction() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 

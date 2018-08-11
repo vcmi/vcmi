@@ -147,51 +147,47 @@ PathfinderOptions::PathfinderOptions()
 	originalMovementRules = settings["pathfinder"]["originalMovementRules"].Bool();
 }
 
-class CMovementCostRule : public IPathfindingRule
+void CMovementCostRule::process(
+	CPathNodeInfo & source,
+	CDestinationNodeInfo & destination,
+	CPathfinderConfig * pathfinderConfig,
+	CPathfinderHelper * pathfinderHelper)
 {
-public:
-	virtual void process(
-		CPathNodeInfo & source,
-		CDestinationNodeInfo & destination,
-		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override
+	int turnAtNextTile = destination.turn, moveAtNextTile = destination.movementLeft;
+	int cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile);
+	int remains = moveAtNextTile - cost;
+	if(remains < 0)
 	{
-		int turnAtNextTile = destination.turn, moveAtNextTile = destination.movementLeft;
-		int cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile);
-		int remains = moveAtNextTile - cost;
-		if(remains < 0)
-		{
-			//occurs rarely, when hero with low movepoints tries to leave the road
-			pathfinderHelper->updateTurnInfo(++turnAtNextTile);
-			moveAtNextTile = pathfinderHelper->getMaxMovePoints(destination.node->layer);
-			cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile); //cost must be updated, movement points changed :(
-			remains = moveAtNextTile - cost;
-		}
-		if(destination.action == CGPathNode::EMBARK || destination.action == CGPathNode::DISEMBARK)
-		{
-			/// FREE_SHIP_BOARDING bonus only remove additional penalty
-			/// land <-> sail transition still cost movement points as normal movement
-			remains = pathfinderHelper->movementPointsAfterEmbark(moveAtNextTile, cost, destination.action - 1);
-		}
-
-		destination.turn = turnAtNextTile;
-		destination.movementLeft = remains;
-
-		if(destination.isBetterWay() &&
-			((source.node->turns == turnAtNextTile && remains) || pathfinderHelper->passOneTurnLimitCheck(source)))
-		{
-			assert(destination.node != source.node->theNodeBefore); //two tiles can't point to each other
-			destination.node->moveRemains = remains;
-			destination.node->turns = turnAtNextTile;
-			destination.node->theNodeBefore = source.node;
-			destination.node->action = destination.action;
-
-			return;
-		}
-
-		destination.blocked = true;
+		//occurs rarely, when hero with low movepoints tries to leave the road
+		pathfinderHelper->updateTurnInfo(++turnAtNextTile);
+		moveAtNextTile = pathfinderHelper->getMaxMovePoints(destination.node->layer);
+		cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile); //cost must be updated, movement points changed :(
+		remains = moveAtNextTile - cost;
 	}
-};
+	if(destination.action == CGPathNode::EMBARK || destination.action == CGPathNode::DISEMBARK)
+	{
+		/// FREE_SHIP_BOARDING bonus only remove additional penalty
+		/// land <-> sail transition still cost movement points as normal movement
+		remains = pathfinderHelper->movementPointsAfterEmbark(moveAtNextTile, cost, destination.action - 1);
+	}
+
+	destination.turn = turnAtNextTile;
+	destination.movementLeft = remains;
+
+	if(destination.isBetterWay() &&
+		((source.node->turns == turnAtNextTile && remains) || pathfinderHelper->passOneTurnLimitCheck(source)))
+	{
+		assert(destination.node != source.node->theNodeBefore); //two tiles can't point to each other
+		destination.node->moveRemains = remains;
+		destination.node->turns = turnAtNextTile;
+		destination.node->theNodeBefore = source.node;
+		destination.node->action = destination.action;
+
+		return;
+	}
+
+	destination.blocked = true;
+}
 
 CPathfinderConfig::CPathfinderConfig(
 	std::shared_ptr<CNodeStorage> nodeStorage,
@@ -212,6 +208,7 @@ CPathfinder::CPathfinder(
 			std::make_shared<CPathfinderNodeStorage>(_out, _hero),
 			std::make_shared<CNeighbourFinder>(),
 			std::vector<std::shared_ptr<IPathfindingRule>>{
+				std::make_shared<CMovementToDestinationRule>(),
 				std::make_shared<CMovementCostRule>(),
 				std::make_shared<CMovementAfterDestinationRule>()
 			}))
@@ -305,9 +302,6 @@ void CPathfinder::calculatePaths()
 			if(destination.nodeObject)
 				destination.objectRelations = gs->getPlayerRelations(hero->tempOwner, destination.nodeObject->tempOwner);
 
-			if(!isMovementToDestPossible())
-				continue;
-
 			destination.action = getDestAction();
 			destination.turn = turn;
 			destination.movementLeft = movement;
@@ -320,7 +314,7 @@ void CPathfinder::calculatePaths()
 					break;
 			}
 
-			if(!destination.blocked && !destination.furtherProcessingImpossible)
+			if(!destination.blocked)
 				pq.push(destination.node);
 			
 		} //neighbours loop
@@ -551,66 +545,94 @@ bool CPathfinder::isLayerTransitionPossible() const
 	return true;
 }
 
-bool CPathfinder::isMovementToDestPossible() const
+CPathfinderBlockingRule::BlockingReason CMovementToDestinationRule::getBlockingReason(
+	CPathNodeInfo & source,
+	CDestinationNodeInfo & destination,
+	CPathfinderConfig * pathfinderConfig,
+	CPathfinderHelper * pathfinderHelper)
 {
+
 	if(destination.node->accessible == CGPathNode::BLOCKED)
-		return false;
+		return BlockingReason::DESTINATION_BLOCKED;
 
 	switch(destination.node->layer)
 	{
-	case ELayer::LAND:
-		if(!hlp->canMoveBetween(source.node->coord, destination.node->coord))
-			return false;
-		if(isSourceGuarded())
+	case EPathfindingLayer::LAND:
+		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord))
+			return BlockingReason::DESTINATION_BLOCKED;
+
+		if(source.guarded)
 		{
-			if(!(config->options.originalMovementRules && source.node->layer == ELayer::AIR) &&
-				!isDestinationGuardian()) // Can step into tile of guard
+			if(!(pathfinderConfig->options.originalMovementRules && source.node->layer == EPathfindingLayer::AIR) &&
+				!destination.guarded) // Can step into tile of guard
 			{
-				return false;
+				return BlockingReason::SOURCE_GUARDED;
 			}
 		}
 
 		break;
 
-	case ELayer::SAIL:
-		if(!hlp->canMoveBetween(source.node->coord, destination.node->coord))
-			return false;
-		if(isSourceGuarded())
+	case EPathfindingLayer::SAIL:
+		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord))
+			return BlockingReason::DESTINATION_BLOCKED;
+
+		if(source.guarded)
 		{
 			// Hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(source.node->action != CGPathNode::EMBARK && !isDestinationGuardian())
-				return false;
+			if(source.node->action != CGPathNode::EMBARK && !destination.guarded)
+				return BlockingReason::SOURCE_GUARDED;
 		}
 
-		if(source.node->layer == ELayer::LAND)
+		if(source.node->layer == EPathfindingLayer::LAND)
 		{
 			if(!destination.isNodeObjectVisitable())
-				return false;
+				return BlockingReason::DESTINATION_BLOCKED;
 
 			if(destination.nodeObject->ID != Obj::BOAT && destination.nodeObject->ID != Obj::HERO)
-				return false;
+				return BlockingReason::DESTINATION_BLOCKED;
 		}
 		else if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::BOAT)
 		{
 			/// Hero in boat can't visit empty boats
-			return false;
+			return BlockingReason::DESTINATION_BLOCKED;
 		}
 
 		break;
 
-	case ELayer::WATER:
-		if(!hlp->canMoveBetween(source.node->coord, destination.node->coord) || destination.node->accessible != CGPathNode::ACCESSIBLE)
-			return false;
-		if(isDestinationGuarded())
-			return false;
+	case EPathfindingLayer::WATER:
+		if(!pathfinderHelper->canMoveBetween(source.coord, destination.coord)
+			|| destination.node->accessible != CGPathNode::ACCESSIBLE)
+		{
+			return BlockingReason::DESTINATION_BLOCKED;
+		}
+
+		if(destination.guarded)
+			return BlockingReason::DESTINATION_GUARDED;
 
 		break;
 	}
 
-	return true;
+	return BlockingReason::NONE;
 }
 
+
 void CMovementAfterDestinationRule::process(
+	CPathNodeInfo & source,
+	CDestinationNodeInfo & destination,
+	CPathfinderConfig * config,
+	CPathfinderHelper * pathfinderHelper)
+{
+	auto blocker = getBlockingReason(source, destination, config, pathfinderHelper);
+
+	if(blocker == BlockingReason::DESTINATION_GUARDED && destination.action == CGPathNode::ENodeAction::BATTLE)
+	{
+		return; // allow bypass guarded tile but only in direction of guard, a bit UI related thing
+	}
+
+	destination.blocked = blocker != BlockingReason::NONE;
+}
+
+CPathfinderBlockingRule::BlockingReason CMovementAfterDestinationRule::getBlockingReason(
 	CPathNodeInfo & source, 
 	CDestinationNodeInfo & destination,
 	CPathfinderConfig * config,
@@ -629,43 +651,48 @@ void CMovementAfterDestinationRule::process(
 		{
 			/// For now we'll always allow transit over teleporters
 			/// Transit over whirlpools only allowed when hero protected
-			return;
+			return BlockingReason::NONE;
 		}
 		else if(destination.nodeObject->ID == Obj::GARRISON
 			|| destination.nodeObject->ID == Obj::GARRISON2
 			|| destination.nodeObject->ID == Obj::BORDER_GATE)
 		{
 			/// Transit via unguarded garrisons is always possible
-			return;
+			return BlockingReason::NONE;
 		}
 
-		break;
+		return BlockingReason::DESTINATION_VISIT;
 	}
 
+	case CGPathNode::BLOCKING_VISIT:
+		return destination.guarded
+			? BlockingReason::DESTINATION_GUARDED
+			: BlockingReason::DESTINATION_BLOCKVIS;
+
 	case CGPathNode::NORMAL:
-		return;
+		return BlockingReason::NONE;
 
 	case CGPathNode::EMBARK:
 		if(pathfinderHelper->options.useEmbarkAndDisembark)
-			return;
+			return BlockingReason::NONE;
 
-		break;
+		return BlockingReason::DESTINATION_BLOCKED;
 
 	case CGPathNode::DISEMBARK:
 		if(pathfinderHelper->options.useEmbarkAndDisembark && !destination.guarded)
-			return;
+			return BlockingReason::NONE;
 
-		break;
+		return BlockingReason::DESTINATION_BLOCKED;
 
 	case CGPathNode::BATTLE:
 		/// Movement after BATTLE action only possible from guarded tile to guardian tile
 		if(destination.guarded)
-			return;
+			return BlockingReason::NONE;
 
 		break;
 	}
 
-	destination.furtherProcessingImpossible = true;
+	return BlockingReason::DESTINATION_BLOCKED;
 }
 
 CGPathNode::ENodeAction CPathfinder::getDestAction() const
@@ -1401,7 +1428,7 @@ void CPathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObje
 }
 
 CDestinationNodeInfo::CDestinationNodeInfo()
-	: CPathNodeInfo(), blocked(false), furtherProcessingImpossible(false), action(CGPathNode::ENodeAction::UNKNOWN)
+	: CPathNodeInfo(), blocked(false), action(CGPathNode::ENodeAction::UNKNOWN)
 {
 }
 
@@ -1410,7 +1437,6 @@ void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool exclude
 	CPathNodeInfo::setNode(gs, n, excludeTopObject);
 
 	blocked = false;
-	furtherProcessingImpossible = false;
 	action = CGPathNode::ENodeAction::UNKNOWN;
 }
 
