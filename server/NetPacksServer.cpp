@@ -20,6 +20,7 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
+#include "../lib/serializer/Cast.h"
 
 bool CPackForServer::isPlayerOwns(CGameHandler * gh, ObjectInstanceID id)
 {

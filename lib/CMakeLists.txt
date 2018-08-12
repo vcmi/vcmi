@@ -267,6 +267,7 @@ set(lib_HEADERS
 		serializer/JsonDeserializer.h
 		serializer/JsonSerializeFormat.h
 		serializer/JsonSerializer.h
+		serializer/Cast.h
 
 		spells/AbilityCaster.h
 		spells/AdventureSpellMechanics.h

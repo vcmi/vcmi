@@ -12,6 +12,7 @@
 #include "CGameHandler.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/serializer/Cast.h"
 
 boost::mutex Queries::mx;
 

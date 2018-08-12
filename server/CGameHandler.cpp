@@ -46,6 +46,7 @@
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/serializer/Cast.h"
 
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>

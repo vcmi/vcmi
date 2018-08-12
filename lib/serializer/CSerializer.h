@@ -99,7 +99,9 @@ public:
 		else
 		{
 			assert(!i->second.empty());
+#ifndef __APPLE__
 			assert(i->second.type() == typeid(VectorizedObjectInfo<T, U>));
+#endif
 			VectorizedObjectInfo<T, U> *ret = &(boost::any_cast<VectorizedObjectInfo<T, U>&>(i->second));
 			return ret;
 		}
