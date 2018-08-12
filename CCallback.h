@@ -107,7 +107,6 @@ public:
 	virtual bool canMoveBetween(const int3 &a, const int3 &b);
 	virtual int3 getGuardingCreaturePosition(int3 tile);
 	virtual const CPathsInfo * getPathsInfo(const CGHeroInstance *h);
-	virtual void calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero);
 
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 

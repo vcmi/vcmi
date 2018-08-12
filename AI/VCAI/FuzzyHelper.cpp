@@ -22,8 +22,6 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	if(vec.empty()) //no possibilities found
 		return sptr(Goals::Invalid());
 
-	ai->cachedSectorMaps.clear();
-
 	//a trick to switch between heroes less often - calculatePaths is costly
 	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 	{
@@ -96,24 +94,7 @@ float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		return 0; //lowest priority
 
-	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
-
-	if(t.valid())
-	{
-		if(isSafeToVisit(g.hero, t))
-		{
-			g.setpriority(Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
-		}
-		else
-		{
-			g.setpriority (Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
-				sethero(g.hero).setisAbstract(true).accept(this));
-		}
-		return g.priority;
-	}
-	else
-		return -1;
-
+	return g.whatToDoToAchieve()->accept(this);
 }
 
 float FuzzyHelper::evaluate(Goals::BuildThis & g)

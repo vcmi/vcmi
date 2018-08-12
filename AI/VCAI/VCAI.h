@@ -25,6 +25,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CondSh.h"
+#include "Pathfinding/AIPathfinder.h"
 
 struct QuestInfo;
 
@@ -106,9 +107,6 @@ public:
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 	std::map<HeroPtr, std::set<HeroPtr>> visitedHeroes; //visited this turn //FIXME: this is just bug workaround
 
-	//TODO: move to separate PathHandler class?
-	std::map<HeroPtr, std::shared_ptr<SectorMap>> cachedSectorMaps; //TODO: serialize? not necessary
-
 	AIStatus status;
 	std::string battlename;
 
@@ -137,7 +135,7 @@ public:
 	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
 	int3 explorationNewPoint(HeroPtr h);
 	int3 explorationDesperate(HeroPtr h);
-	bool isTileNotReserved(const CGHeroInstance * h, int3 t); //the tile is not occupied by allied hero and the object is not reserved
+	bool isTileNotReserved(const CGHeroInstance * h, int3 t) const; //the tile is not occupied by allied hero and the object is not reserved
 
 	std::string getBattleAIName() const override;
 
@@ -216,14 +214,14 @@ public:
 	Goals::TSubgoal questToGoal(const QuestInfo & q);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
-	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, SectorMap & sm);
+	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<uint32_t> movementCostLimit = boost::none);
+	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath & path) const;
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	bool canGetArmy(const CGHeroInstance * h, const CGHeroInstance * source); //can we get any better stacks from other hero?
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 	void moveCreaturesToHero(const CGTownInstance * t);
-	bool goVisitObj(const CGObjectInstance * obj, HeroPtr h);
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
 
 	bool moveHeroToTile(int3 dst, HeroPtr h);
@@ -250,13 +248,12 @@ public:
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	const CGObjectInstance * lookForArt(int aid) const;
-	bool isAccessible(const int3 & pos);
+	bool isAccessible(const int3 & pos) const;
 	HeroPtr getHeroWithGrail() const;
 
 	const CGObjectInstance * getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> & predicate);
 	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 	//optimization - use one SM for every hero call
-	std::shared_ptr<SectorMap> getCachedSectorMap(HeroPtr h);
 
 	const CGTownInstance * findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;

@@ -36,6 +36,11 @@ ObjectIdRef::operator const CGObjectInstance *() const
 	return cb->getObj(id, false);
 }
 
+ObjectIdRef::operator bool() const
+{
+	return cb->getObj(id, false);
+}
+
 ObjectIdRef::ObjectIdRef(ObjectInstanceID _id)
 	: id(_id)
 {
@@ -339,13 +344,17 @@ bool compareDanger(const CGObjectInstance * lhs, const CGObjectInstance * rhs)
 
 bool isSafeToVisit(HeroPtr h, crint3 tile)
 {
+	return isSafeToVisit(h, evaluateDanger(tile));
+}
+
+bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
+{
 	const ui64 heroStrength = h->getTotalStrength();
-	const ui64 dangerStrength = evaluateDanger(tile, *h);
+
 	if(dangerStrength)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-			logAi->trace("It's safe for %s to visit tile %s", h->name, tile.toString());
 			return true;
 		}
 		else
@@ -398,11 +407,11 @@ int3 whereToExplore(HeroPtr h)
 	TimeCheck tc("where to explore");
 	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
-
-	auto sm = ai->getCachedSectorMap(h);
-
+	
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
+	const int MP_LIMIT = DIST_LIMIT * 150; // aproximate cost of diagonal movement
+
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
 	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
 	{
@@ -410,13 +419,9 @@ int3 whereToExplore(HeroPtr h)
 		{
 			for(auto obj : cb->getVisitableObjs(int3(x, y, hpos.z), false))
 			{
-				int3 op = obj->visitablePos();
-				CGPath p;
-				ai->myCb->getPathsInfo(h.get())->getPath(p, op);
-				if(p.nodes.size() && p.endPos() == op && p.nodes.size() <= DIST_LIMIT)
+				if(ai->isGoodForVisit(obj, h, MP_LIMIT))
 				{
-					if(ai->isGoodForVisit(obj, h, *sm))
-						nearbyVisitableObjs.push_back(obj);
+					nearbyVisitableObjs.push_back(obj);
 				}
 			}
 		}

@@ -79,7 +79,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
 {
 	float turns = 0.0f;
-	float distance = CPathfinderHelper::getMovementCost(h, tile);
+	float distance =  distanceToTile(h, tile);
 	if(distance)
 	{
 		if(distance < h->movement) //we can move there within one turn

@@ -22,6 +22,9 @@ struct TerrainTile;
 class CPathfinderHelper;
 class CMap;
 class CGWhirlpool;
+class CPathfinderHelper;
+class CPathfinder;
+class CPathfinderConfig;
 
 struct DLL_LINKAGE CGPathNode
 {
@@ -118,25 +121,14 @@ struct DLL_LINKAGE CDestinationNodeInfo : public CPathNodeInfo
 	int turn;
 	int movementLeft;
 	bool blocked;
+	bool isGuardianTile;
 
 	CDestinationNodeInfo();
 
 	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false) override;
 
-	virtual bool isBetterWay();
+	virtual bool isBetterWay() const;
 };
-
-class CNodeStorage
-{
-public:
-	virtual CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer) = 0;
-	virtual CGPathNode * getInitialNode() = 0;
-	virtual boost::mutex & getMutex() = 0;
-};
-
-class CPathfinderHelper;
-class CPathfinder;
-class CPathfinderConfig;
 
 class IPathfindingRule
 {
@@ -145,27 +137,47 @@ public:
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) = 0;
+		CPathfinderHelper * pathfinderHelper) const = 0;
 };
 
-class CMovementCostRule : public IPathfindingRule
+class DLL_LINKAGE CMovementCostRule : public IPathfindingRule
 {
 public:
 	virtual void process(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class CPathfinderBlockingRule : public IPathfindingRule
+class DLL_LINKAGE CLayerTransitionRule : public IPathfindingRule
 {
 public:
 	virtual void process(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override
+		CPathfinderHelper * pathfinderHelper) const override;
+};
+
+class DLL_LINKAGE CDestinationActionRule : public IPathfindingRule
+{
+public:
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const override;
+};
+
+class DLL_LINKAGE CPathfinderBlockingRule : public IPathfindingRule
+{
+public:
+	virtual void process(
+		CPathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const override
 	{
 		auto blockingReason = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
 
@@ -188,59 +200,83 @@ protected:
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) = 0;
+		CPathfinderHelper * pathfinderHelper) const = 0;
 };
 
-class CMovementAfterDestinationRule : public CPathfinderBlockingRule
+class DLL_LINKAGE CMovementAfterDestinationRule : public CPathfinderBlockingRule
 {
 public:
 	virtual void process(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		CPathfinderHelper * pathfinderHelper) const override;
 
 protected:
 	virtual BlockingReason getBlockingReason(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class CMovementToDestinationRule : public CPathfinderBlockingRule
+class DLL_LINKAGE CMovementToDestinationRule : public CPathfinderBlockingRule
 {
 protected:
 	virtual BlockingReason getBlockingReason(
 		CPathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		CPathfinderHelper * pathfinderHelper) const override;
 };
 
-class CNeighbourFinder
+
+class INodeStorage
 {
 public:
-	CNeighbourFinder();
+	virtual CGPathNode * getInitialNode() = 0;
+	virtual void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility) = 0;
+
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		CPathNodeInfo & source, 
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) const;
+		CPathfinderHelper * pathfinderHelper) = 0;
 
 	virtual std::vector<CGPathNode *> calculateTeleportations(
 		CPathNodeInfo & source, 
 		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) const;
+		CPathfinderHelper * pathfinderHelper) = 0;
 
-protected:
-	std::vector<int3> getNeighbourTiles(
-		CPathNodeInfo & source, 
-		CPathfinderConfig * pathfinderConfig, 
-		CPathfinderHelper * pathfinderHelper) const;
+	virtual void commit(CDestinationNodeInfo & destination, CPathNodeInfo & source) = 0;
+};
 
-	std::vector<int3> getTeleportExits(CPathNodeInfo & source,
-		CPathfinderConfig * pathfinderConfig, 
-		CPathfinderHelper * pathfinderHelper) const;
+class DLL_LINKAGE CNodeStorage : public INodeStorage
+{
+private:
+	CPathsInfo & out;
+
+public:
+	CNodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
+
+	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer);
+	virtual CGPathNode * getInitialNode() override;
+
+	virtual std::vector<CGPathNode *> calculateNeighbours(
+		CPathNodeInfo & source,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
+
+	virtual std::vector<CGPathNode *> calculateTeleportations(
+		CPathNodeInfo & source,
+		CPathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) override;
+
+	virtual void resetTile(
+		const int3 & tile, 
+		EPathfindingLayer layer, 
+		CGPathNode::EAccessibility accessibility) override;
+
+	virtual void commit(CDestinationNodeInfo & destination, CPathNodeInfo & source) override;
 };
 
 struct DLL_LINKAGE PathfinderOptions
@@ -294,17 +330,15 @@ struct DLL_LINKAGE PathfinderOptions
 	PathfinderOptions();
 };
 
-class CPathfinderConfig
+class DLL_LINKAGE CPathfinderConfig
 {
 public:
-	std::shared_ptr<CNodeStorage> nodeStorage;
-	std::shared_ptr<CNeighbourFinder> neighbourFinder;
+	std::shared_ptr<INodeStorage> nodeStorage;
 	std::vector<std::shared_ptr<IPathfindingRule>> rules;
 	PathfinderOptions options;
 
 	CPathfinderConfig(
-		std::shared_ptr<CNodeStorage> nodeStorage,
-		std::shared_ptr<CNeighbourFinder> neighbourFinder,
+		std::shared_ptr<INodeStorage> nodeStorage,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
 };
 
@@ -357,8 +391,6 @@ private:
 	bool isPatrolMovementAllowed(const int3 & dst) const;
 
 	bool isLayerTransitionPossible(const ELayer dstLayer) const;
-	bool isLayerTransitionPossible() const;
-	CGPathNode::ENodeAction getDestAction() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 
 	bool isSourceInitialPosition() const;
@@ -417,7 +449,7 @@ public:
 	bool hasBonusOfType(const Bonus::BonusType type, const int subtype = -1) const;
 	int getMaxMovePoints(const EPathfindingLayer layer) const;
 
-	std::vector<int3> CPathfinderHelper::getCastleGates(CPathNodeInfo & source) const;
+	std::vector<int3> getCastleGates(CPathNodeInfo & source) const;
 	bool isAllowedTeleportEntrance(const CGTeleport * obj) const;
 	std::vector<int3> getAllowedTeleportChannelExits(TeleportChannelID channelID) const;
 	bool addTeleportTwoWay(const CGTeleport * obj) const;
@@ -426,7 +458,15 @@ public:
 	bool addTeleportWhirlpool(const CGWhirlpool * obj) const;
 	bool canMoveBetween(const int3 & a, const int3 & b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
 
-	void getNeighbours(const TerrainTile & srct, const int3 & tile, std::vector<int3> & vec, const boost::logic::tribool & onLand, const bool limitCoastSailing);
+	std::vector<int3> getNeighbourTiles(CPathNodeInfo & source) const;
+	std::vector<int3> getTeleportExits(CPathNodeInfo & source) const;
+
+	void getNeighbours(
+		const TerrainTile & srct,
+		const int3 & tile, 
+		std::vector<int3> & vec, 
+		const boost::logic::tribool & onLand, 
+		const bool limitCoastSailing) const;
 	
 	int getMovementCost(
 		const int3 & src, 
@@ -434,13 +474,13 @@ public:
 		const TerrainTile * ct,
 		const TerrainTile * dt,
 		const int remainingMovePoints =- 1, 
-		const bool checkLast = true);
+		const bool checkLast = true) const;
 
 	int getMovementCost(
 		const CPathNodeInfo & src,
 		const CPathNodeInfo & dst,
 		const int remainingMovePoints = -1,
-		const bool checkLast = true)
+		const bool checkLast = true) const
 	{
 		return getMovementCost(
 			src.coord,
@@ -452,7 +492,7 @@ public:
 		);
 	}
 
-	int getHeroMaxMovementPoints(EPathfindingLayer layer);
-	int movementPointsAfterEmbark(int movement, int cost, int action);
-	bool passOneTurnLimitCheck(CPathNodeInfo & source);
+	int getHeroMaxMovementPoints(EPathfindingLayer layer) const;
+	int movementPointsAfterEmbark(int movement, int cost, int action) const;
+	bool passOneTurnLimitCheck(CPathNodeInfo & source) const;
 };

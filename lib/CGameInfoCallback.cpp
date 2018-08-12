@@ -919,6 +919,11 @@ void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3, ShashInt
 	gs->getTilesInRange(tiles, pos, radious, getLocalPlayer(), -1, distanceFormula);
 }
 
+void CGameInfoCallback::calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero)
+{
+	gs->calculatePaths(config, hero);
+}
+
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {
 	return gs->map->artInstances[aid.num];

@@ -151,7 +151,6 @@ public:
 
 	void invalidatePaths();
 	const CPathsInfo * getPathsInfo(const CGHeroInstance * h);
-	void calculatePaths(std::shared_ptr<CPathfinderConfig> config, const CGHeroInstance * hero);
 	virtual PlayerColor getLocalPlayer() const override;
 
 	friend class CCallback; //handling players actions

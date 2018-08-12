@@ -8,6 +8,10 @@ include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_D
 set(VCAI_SRCS
 		StdInc.cpp
 
+		Pathfinding/AIPathfinderConfig.cpp
+		Pathfinding/AIPathfinder.cpp
+		Pathfinding/AINodeStorage.cpp
+		Pathfinding/CPathfindingManager.cpp
 		AIUtility.cpp
 		AIhelper.cpp
 		ResourceManager.cpp
@@ -24,7 +28,11 @@ set(VCAI_SRCS
 
 set(VCAI_HEADERS
 		StdInc.h
-
+		
+		Pathfinding/AIPathfinderConfig.h
+		Pathfinding/AIPathfinder.h
+		Pathfinding/AINodeStorage.h
+		Pathfinding/CPathfindingManager.h
 		AIUtility.h
 		AIhelper.h
 		ResourceManager.h
