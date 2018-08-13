@@ -43,6 +43,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include "../lib/serializer/Cast.h"
 
 template<typename T> class CApplyOnLobby;
 
@@ -613,7 +614,7 @@ void CServerHandler::threadHandleConnection()
 				// Though currently they'll be delivered and might cause crash.
 				vstd::clear_pointer(pack);
 			}
-			else if(auto lobbyPack = dynamic_cast<CPackForLobby *>(pack))
+			else if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
 			{
 				if(applier->getApplier(typeList.getTypeID(pack))->applyOnLobbyHandler(this, pack))
 				{
@@ -624,7 +625,7 @@ void CServerHandler::threadHandleConnection()
 					}
 				}
 			}
-			else if(auto clientPack = dynamic_cast<CPackForClient *>(pack))
+			else if(auto clientPack = dynamic_ptr_cast<CPackForClient>(pack))
 			{
 				client->handlePack(clientPack);
 			}
