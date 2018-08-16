@@ -375,7 +375,7 @@ float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 	auto obj = ai->myCb->getObj(ObjectInstanceID(goal.objid));
 
 
-	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj->ID, obj->subID);
+	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
 	int objValue = 0;
 
 	if(objValueKnownByAI != boost::none) //consider adding value manipulation based on object instances on map

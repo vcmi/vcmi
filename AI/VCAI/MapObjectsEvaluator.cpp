@@ -34,25 +34,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 				}
 				else //some default handling when aiValue not found
 				{
-					if(primaryID == Obj::CREATURE_GENERATOR1 || primaryID == Obj::CREATURE_GENERATOR4)
-					{
-						int aiValue = 0;
-						CGDwelling dwellingMock;
-						CRandomGenerator rngMock;
-						handler->configureObject(&dwellingMock, rngMock);
-						
-						for(auto & creLevel : dwellingMock.creatures)
-						{
-							for(auto & creatureID : creLevel.second)
-							{
-								auto creature = VLC->creh->creatures[creatureID];
-								aiValue += (creature->AIValue * creature->growth);
-							}
-						}
-						objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = aiValue;
-					}
-					else
-						objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;
+					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;
 				}
 			}
 		}	
@@ -68,6 +50,26 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 
 	logGlobal->trace("Unknown object for AI, ID: " + std::to_string(primaryID) + ", SubID: " + std::to_string(secondaryID));
 	return boost::optional<int>();
+}
+
+boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * obj) const
+{
+	if(obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4)
+	{
+		auto dwelling = dynamic_cast<const CGDwelling *>(obj);
+		int aiValue = 0;
+		for(auto & creLevel : dwelling->creatures)
+		{
+			for(auto & creatureID : creLevel.second)
+			{
+				auto creature = VLC->creh->creatures[creatureID];
+				aiValue += (creature->AIValue * creature->growth);
+			}
+		}
+		return aiValue;
+	}
+	else
+		return getObjectValue(obj->ID, obj->subID);
 }
 
 void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int value) //by current design it updates value if already in AI database
