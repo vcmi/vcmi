@@ -356,9 +356,9 @@ VisitObjEngine::VisitObjEngine()
 		objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
 		objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
 
-		addRule("if objectValue is HIGH then value is HIGH");
-		addRule("if objectValue is MEDIUM then value is MEDIUM");
-		addRule("if objectValue is LOW then value is LOW");
+		addRule("if objectValue is HIGH then Value is HIGH");
+		addRule("if objectValue is MEDIUM then Value is MEDIUM");
+		addRule("if objectValue is LOW then Value is LOW");
 	}
 	catch(fl::Exception & fe)
 	{
