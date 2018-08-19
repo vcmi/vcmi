@@ -536,14 +536,14 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 	}
 	else
 	{
-		for(auto h : cb->getHeroesInfo())
+		for(auto potentialVisitor : cb->getHeroesInfo())
 		{
-			if(ai->isAccessibleForHero(pos, h))
+			if(ai->isAccessibleForHero(pos, potentialVisitor))
 			{
-				if(isSafeToVisit(hero, pos))
-					goalList.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h)));
+				if(isSafeToVisit(potentialVisitor, pos))
+					goalList.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(potentialVisitor)));
 				else
-					goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+					goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT).sethero(potentialVisitor).setisAbstract(true)));
 			}
 		}
 		if(!goalList.empty())
@@ -552,7 +552,7 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 		}
 	}
 
-	goalList.push_back(sptr(Goals::ClearWayTo(pos).sethero(hero)));
+	goalList.push_back(sptr(Goals::ClearWayTo(pos)));
 	return goalList;
 }
 
