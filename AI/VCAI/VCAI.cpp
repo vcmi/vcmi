@@ -441,12 +441,12 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 			return false;
 	};
 
-	basicGoals.erase(std::remove_if(basicGoals.begin(), basicGoals.end(), goalErasePredicate));
-	goalsToAdd.erase(std::remove_if(goalsToAdd.begin(), goalsToAdd.end(), goalErasePredicate));
-	goalsToRemove.erase(std::remove_if(goalsToRemove.begin(), goalsToRemove.end(), goalErasePredicate));
+	vstd::erase_if(basicGoals, goalErasePredicate);
+	vstd::erase_if(goalsToAdd, goalErasePredicate);
+	vstd::erase_if(goalsToRemove, goalErasePredicate);
 
 	for(auto goal : ultimateGoalsFromBasic)
-		goal.second.erase(std::remove_if(goal.second.begin(), goal.second.end(), goalErasePredicate));
+		vstd::erase_if(goal.second, goalErasePredicate);
 	
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
