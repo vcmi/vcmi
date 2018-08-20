@@ -416,6 +416,38 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	for(auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
 
+
+	vstd::erase_if(lockedHeroes, [&](const std::pair<HeroPtr, Goals::TSubgoal> & x) -> bool
+	{
+		if((x.second->goalType == Goals::VISIT_OBJ) && (x.second->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	});
+
+	vstd::erase_if(ultimateGoalsFromBasic, [&](const std::pair<Goals::TSubgoal, Goals::TGoalVec> & x) -> bool
+	{
+		if((x.first->goalType == Goals::VISIT_OBJ) && (x.first->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	});
+
+	auto goalErasePredicate = [&](const Goals::TSubgoal & x) ->bool
+	{
+		if((x->goalType == Goals::VISIT_OBJ) && (x->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	};
+
+	basicGoals.erase(std::remove_if(basicGoals.begin(), basicGoals.end(), goalErasePredicate));
+	goalsToAdd.erase(std::remove_if(goalsToAdd.begin(), goalsToAdd.end(), goalErasePredicate));
+	goalsToRemove.erase(std::remove_if(goalsToRemove.begin(), goalsToRemove.end(), goalErasePredicate));
+
+	for(auto goal : ultimateGoalsFromBasic)
+		goal.second.erase(std::remove_if(goal.second.begin(), goal.second.end(), goalErasePredicate));
+	
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
