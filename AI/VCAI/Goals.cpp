@@ -1137,22 +1137,10 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 		}
 		for (auto obj : ourObjs)
 		{
-			int3 dest = obj->visitablePos();
-			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
-			if (t.valid()) //we know any path at all
+			if (ai->isAccessibleForHero(obj->visitablePos(), h))
 			{
-				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
-				{
-					if (isSafeToVisit(h, dest))
-					{
-						if (dest != t) //there is something blocking our way
-							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
-						else
-							ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
-					}
-					else //we need to get army in order to pick that object
-						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
-				}
+				//further decomposition and evaluation will be handled by VisitObj
+				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 			}
 		}
 	}
