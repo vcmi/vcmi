@@ -105,8 +105,13 @@ boost::optional<BuildingID> BuildingManager::canBuildAnyStructure(const CGTownIn
 	{
 		if (t->hasBuilt(building))
 			continue;
-		if (cb->canBuildStructure(t, building))
-			return boost::optional<BuildingID>(building);
+		switch (cb->canBuildStructure(t, building))
+		{
+			case EBuildingState::ALLOWED:
+			case EBuildingState::NO_RESOURCES: //TODO: allow this via optional parameter?
+				return boost::optional<BuildingID>(building);
+				break;
+		}
 	}
 	return boost::optional<BuildingID>(); //Can't build anything
 }
