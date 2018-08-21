@@ -449,6 +449,7 @@ void Graphics::initializeImageLists()
 		addImageListEntry(hero->imageIndex, "UN44", hero->iconSpecLarge);
 		addImageListEntry(hero->imageIndex, "PORTRAITSLARGE", hero->portraitLarge);
 		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
+		addImageListEntry(hero->imageIndex, "BATTLEIMAGE", hero->battleImage);
 	}
 
 	for(const CArtifact * art : CGI->arth->artifacts)

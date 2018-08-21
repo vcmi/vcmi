@@ -256,10 +256,17 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	if(hero1) // attacking hero
 	{
 		std::string battleImage;
-		if(hero1->sex)
-			battleImage = hero1->type->heroClass->imageBattleFemale;
+		if(!hero1->type->battleImage.empty())
+		{
+			battleImage = hero1->type->battleImage;
+		}
 		else
-			battleImage = hero1->type->heroClass->imageBattleMale;
+		{
+			if(hero1->sex)
+				battleImage = hero1->type->heroClass->imageBattleFemale;
+			else
+				battleImage = hero1->type->heroClass->imageBattleMale;
+		}
 
 		attackingHero = std::make_shared<CBattleHero>(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, this);
 
@@ -272,10 +279,18 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	if(hero2) // defending hero
 	{
 		std::string battleImage;
-		if(hero2->sex)
-			battleImage = hero2->type->heroClass->imageBattleFemale;
+
+		if(!hero2->type->battleImage.empty())
+		{
+			battleImage = hero2->type->battleImage;
+		}
 		else
-			battleImage = hero2->type->heroClass->imageBattleMale;
+		{
+			if(hero2->sex)
+				battleImage = hero2->type->heroClass->imageBattleFemale;
+			else
+				battleImage = hero2->type->heroClass->imageBattleMale;
+		}
 
 		defendingHero = std::make_shared<CBattleHero>(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, this);
 

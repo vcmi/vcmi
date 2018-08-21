@@ -91,6 +91,7 @@ public:
 	std::string iconSpecLarge;
 	std::string portraitSmall;
 	std::string portraitLarge;
+	std::string battleImage;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -121,6 +122,7 @@ public:
 		h & iconSpecLarge;
 		h & portraitSmall;
 		h & portraitLarge;
+		h & battleImage;
 		if(version >= 759)
 		{
 			h & identifier;
