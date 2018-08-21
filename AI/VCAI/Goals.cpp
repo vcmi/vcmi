@@ -1142,10 +1142,11 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 		}
 		for (auto obj : ourObjs)
 		{
-			if (ai->isAccessibleForHero(obj->visitablePos(), h))
-			{
-				//further decomposition and evaluation will be handled by VisitObj
-				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
+			auto pos = obj->visitablePos();
+			if (ai->isAccessibleForHero(pos, h))
+			{		
+				if (ai->isTileNotReserved(h, pos)) //further decomposition and evaluation will be handled by VisitObj
+					ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 			}
 		}
 	}

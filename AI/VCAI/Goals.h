@@ -432,7 +432,7 @@ public:
 		resID = rid;
 		value = val;
 		objid = Objid;
-		priority = 10; //do it immediately
+		priority = 3; //trading is instant, but picking resources is free
 	}
 	TSubgoal whatToDoToAchieve() override;
 	bool operator==(AbstractGoal & g) override;
