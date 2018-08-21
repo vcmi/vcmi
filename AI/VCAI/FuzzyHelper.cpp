@@ -90,8 +90,8 @@ float FuzzyHelper::evaluate(Goals::GatherArmy & g)
 
 float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 {
-	if(!g.hero.h)
-		throw cannotFulfillGoalException("ClearWayTo called without hero!");
+	if (!g.hero.h)
+		return 0; //lowest priority
 
 	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
 
