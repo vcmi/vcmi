@@ -95,6 +95,8 @@
 		<Unit filename="MapObjectsEvaluator.h" />
 		<Unit filename="ResourceManager.cpp" />
 		<Unit filename="ResourceManager.h" />
+		<Unit filename="SectorMap.cpp" />
+		<Unit filename="SectorMap.h" />
 		<Unit filename="StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />

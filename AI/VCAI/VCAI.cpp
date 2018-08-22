@@ -583,9 +583,10 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 void VCAI::buildChanged(const CGTownInstance * town, BuildingID buildingID, int what)
 {
 	LOG_TRACE_PARAMS(logAi, "what '%i'", what);
-	if (town->getOwner() == playerID && what == 1) //built
-		completeGoal(sptr(Goals::BuildThis(buildingID, town)));
 	NET_EVENT_HANDLER;
+
+	if(town->getOwner() == playerID && what == 1) //built
+		completeGoal(sptr(Goals::BuildThis(buildingID, town)));
 }
 
 void VCAI::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain)
@@ -737,6 +738,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 
 void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
+	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
 	requestActionASAP([=](){ answerQuery(askID, 0); });
 
@@ -873,7 +875,7 @@ void VCAI::mainLoop()
 
 	invalidPathHeroes.clear();
 
-	while (basicGoals.size()) 
+	while (basicGoals.size())
 	{
 		vstd::removeDuplicates(basicGoals); //TODO: container which does this automagically without has would be nice
 		goalsToAdd.clear();
@@ -925,7 +927,7 @@ void VCAI::mainLoop()
 					throw cannotFulfillGoalException("Goal %s is neither abstract nor elementar!" + basicGoal->name());
 			}
 		}
-		
+
 		//now choose one elementar goal to realize
 		Goals::TGoalVec possibleGoals(elementarGoals.begin(), elementarGoals.end()); //copy to vector
 		Goals::TSubgoal goalToRealize = sptr(Goals::Invalid());
@@ -1450,7 +1452,7 @@ void VCAI::wander(HeroPtr h)
 				dests.push_back(*boost::max_element(townsReachable, compareReinforcements));
 			}
 			else if(townsNotReachable.size())
-			{			
+			{
 				//TODO pick the truly best
 				const CGTownInstance * t = *boost::max_element(townsNotReachable, compareReinforcements);
 				logAi->debug("%s can't reach any town, we'll try to make our way to %s at %s", h->name, t->name, t->visitablePos().toString());
@@ -2161,7 +2163,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 		{
 			auto ci = infoFromDC(t->creatures[i]);
 			ci.level = i; //this is important for Dungeon Summoning Portal
-			creaturesInDwellings.push_back(ci); 
+			creaturesInDwellings.push_back(ci);
 		}
 		vstd::erase_if(creaturesInDwellings, [](const creInfo & ci) -> bool
 		{
