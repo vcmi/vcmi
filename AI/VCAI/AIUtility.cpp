@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "VCAI.h"
-#include "Fuzzy.h"
+#include "FuzzyHelper.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
@@ -245,7 +245,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 			auto armedObj = dynamic_cast<const CArmedInstance *>(dangerousObject);
 			if(armedObj)
 			{
-				float tacticalAdvantage = fh->getTacticalAdvantage(visitor, armedObj);
+				float tacticalAdvantage = fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, armedObj);
 				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
 			}
 		}
@@ -258,7 +258,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
 				for(auto cre : guards)
 				{
-					vstd::amax(guardDanger, evaluateDanger(cre) * fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre)));
+					vstd::amax(guardDanger, evaluateDanger(cre) * fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre)));
 				}
 			}
 		}
@@ -267,7 +267,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 	auto guards = cb->getGuardingCreatures(tile);
 	for(auto cre : guards)
 	{
-		vstd::amax(guardDanger, evaluateDanger(cre) * fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre))); //we are interested in strongest monster around
+		vstd::amax(guardDanger, evaluateDanger(cre) * fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre))); //we are interested in strongest monster around
 	}
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
