@@ -75,8 +75,11 @@ float FuzzyHelper::evaluate(Goals::VisitHero & g)
 	auto obj = ai->myCb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similar
 	if(!obj)
 		return -100; //hero died in the meantime
-	//TODO: consider direct copy (constructor?)
-	g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
+	else
+	{
+		auto dummyGoal = Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract);
+		g.setpriority(dummyGoal.accept(this));
+	}
 	return g.priority;
 }
 float FuzzyHelper::evaluate(Goals::GatherArmy & g)
