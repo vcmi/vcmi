@@ -2123,15 +2123,14 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 
 				int toGive, toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
-				toGive = toGive * (it->resVal / toGive);
+				toGive = toGive * (it->resVal / toGive); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
 					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, toGet, g.resID, obj->getObjectName());
-					accquiredResources += toGet; //FIXME: this is incorrect, always equal to 1
+					accquiredResources = toGet * (it->resVal / toGive);
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
-				//if (accquiredResources >= g.value)
 				if (ah->freeResources()[g.resID] >= g.value)
 					throw goalFulfilledException(sptr(g)); //we traded all we needed
 			}

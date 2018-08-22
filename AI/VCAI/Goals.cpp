@@ -1052,12 +1052,17 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	}
 	if (town) //we have specific town to build this
 	{
-		if (cb->canBuildStructure(town, b) != EBuildingState::ALLOWED) //FIXME: decompose further? kind of mess if we're here
-			throw cannotFulfillGoalException("Not possible to build");
-		else
+		switch (cb->canBuildStructure(town, b))
 		{
-			auto res = town->town->buildings.at(BuildingID(bid))->resources;
-			return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+			case EBuildingState::ALLOWED:
+			case EBuildingState::NO_RESOURCES:
+			{
+				auto res = town->town->buildings.at(BuildingID(bid))->resources;
+				return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+			}
+				break;
+			default:
+				throw cannotFulfillGoalException("Not possible to build");
 		}
 	}
 	else
@@ -1137,11 +1142,9 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 		}
 		for (auto obj : ourObjs)
 		{
-			if (ai->isAccessibleForHero(obj->visitablePos(), h))
-			{
-				//further decomposition and evaluation will be handled by VisitObj
+			auto pos = obj->visitablePos();	
+			if (ai->isTileNotReserved(h, pos)) //further decomposition and evaluation will be handled by VisitObj
 				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
-			}
 		}
 	}
 	return ret;
@@ -1227,7 +1230,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			else //either it's our town, or we have hero there
 			{
 				Goals::Trade trade(resID, value, objid);
-				return sptr(trade.setisElementar(true)); //we can do this immediately - highest priority
+				return sptr(trade.setisElementar(true)); //we can do this immediately
 			}
 		}
 	}
@@ -1454,7 +1457,7 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 	}
 
 	if (ret.empty())
-		throw cannotFulfillGoalException("BUILD has been realized as much as possible."); //who catches it and what for?
+		throw cannotFulfillGoalException("BUILD has been realized as much as possible.");
 	else
 		return ret;
 }
@@ -1522,7 +1525,9 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				}
 			}
 			//build dwelling
-			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			//TODO: plan building over multiple turns?
+			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
 			if (bid.is_initialized())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
