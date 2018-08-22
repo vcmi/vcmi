@@ -445,6 +445,7 @@
     <ClInclude Include="ScopeGuard.h" />
     <ClInclude Include="serializer\BinaryDeserializer.h" />
     <ClInclude Include="serializer\BinarySerializer.h" />
+    <ClInclude Include="serializer\Cast.h" />
     <ClInclude Include="serializer\CLoadIntegrityValidator.h" />
     <ClInclude Include="serializer\CMemorySerializer.h" />
     <ClInclude Include="serializer\CSerializer.h" />
