@@ -4,7 +4,9 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/spells/CSpellHandler.h"
 
 MapObjectsEvaluator & MapObjectsEvaluator::getInstance()
 {
@@ -32,7 +34,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 				{
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = VLC->objtypeh->getObjGroupAiValue(primaryID).get();
 				}
-				else //some default handling when aiValue not found
+				else //some default handling when aiValue not found, objects that require advanced properties (unavailable from handler) get their value calculated in getObjectValue
 				{
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;
 				}
@@ -68,8 +70,47 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 		}
 		return aiValue;
 	}
-	else
-		return getObjectValue(obj->ID, obj->subID);
+	else if(obj->ID == Obj::ARTIFACT)
+	{
+		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
+		switch(artifactObject->storedArtifact->artType->aClass)
+		{
+		case CArtifact::EartClass::ART_TREASURE:
+			return 2000;
+		case CArtifact::EartClass::ART_MINOR:
+			return 5000;
+		case CArtifact::EartClass::ART_MAJOR:
+			return 10000;
+		case CArtifact::EartClass::ART_RELIC:
+			return 20000;
+		case CArtifact::EartClass::ART_SPECIAL:
+			return 20000;
+		default:
+			return 0; //invalid artifact class
+		}
+	}
+	else if(obj->ID == Obj::SPELL_SCROLL)
+	{
+		auto scrollObject = dynamic_cast<const CGArtifact *>(obj);
+		auto spell = scrollObject->storedArtifact->getGivenSpellID().toSpell();
+		if(spell)
+		{
+			switch(spell->getLevel())
+			{
+			case 0: return 0; //scroll with creature ability? Let's assume it is useless
+			case 1: return 1000;
+			case 2: return 2000;
+			case 3: return 5000;
+			case 4: return 10000;
+			case 5: return 20000;
+			default: logAi->warn("AI detected spell scroll with spell level %s", spell->getLevel());
+			}
+		}
+		else
+			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->storedArtifact->getGivenSpellID());
+	}
+
+	return getObjectValue(obj->ID, obj->subID);
 }
 
 void MapObjectsEvaluator::addObjectData(int primaryID, int secondaryID, int value) //by current design it updates value if already in AI database
