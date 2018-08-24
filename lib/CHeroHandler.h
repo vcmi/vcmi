@@ -122,9 +122,9 @@ public:
 		h & iconSpecLarge;
 		h & portraitSmall;
 		h & portraitLarge;
-		h & battleImage;
 		if(version >= 759)
 		{
+			h & battleImage;
 			h & identifier;
 		}
 	}
