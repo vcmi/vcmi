@@ -29,8 +29,8 @@ public:
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
 private:
-	void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
-	void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
+	void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex, int randIndex = -1, bool animIdfromBtnId = true) const;
+	void addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, bool animIdfromBtnId = true) const;
 	void deactivateButtonsFrom(CToggleGroup * group, int startId);
 	void validatePlayersCnt(int playersCnt);
 	void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
