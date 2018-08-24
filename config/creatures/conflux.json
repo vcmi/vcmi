@@ -197,6 +197,12 @@
 				"subtype" : "spell.fireWall",
 				"val" : 100
 			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
+				"val" : 100
+			},
 			"immuneToWater" :
 			{
 				"type" : "WATER_IMMUNITY",
@@ -344,6 +350,40 @@
 				"type" : "SPELLCASTER",
 				"subtype" : "spell.protectWater",
 				"val" : 2
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"fireShieldVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireShield",
+				"val" : 100
+			},
+			"infernoVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.inferno",
+				"val" : 100
+			},
+			"fireballVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireball",
+				"val" : 100
+			},
+			"fireWallVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireWall",
+				"val" : 100
+			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
+				"val" : 100
 			},
 			"immuneToWater" :
 			{
@@ -518,10 +558,26 @@
 			{
 				"type" : "NON_LIVING"
 			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
 			"immuneToFire" : 
 			{
 				"type" : "FIRE_IMMUNITY",
 				"subtype" : 0
+			},
+			"frostRingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.frostRing",
+				"val" : 100
+			},
+			"iceBoltVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.iceBolt",
+				"val" : 100
 			},
 			"spellPower" : 
 			{
