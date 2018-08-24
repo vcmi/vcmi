@@ -124,8 +124,11 @@ public:
 		h & portraitLarge;
 		if(version >= 759)
 		{
-			h & battleImage;
 			h & identifier;
+		}
+		if(version >= 790)
+		{
+			h & battleImage;
 		}
 	}
 };
