@@ -168,7 +168,7 @@ public:
 	SDL_Surface * bgWorldView;
 	std::vector<std::shared_ptr<CAnimImage>> gems;
 	CMinimap minimap;
-    std::shared_ptr<CGStatusBar> statusbar;
+	std::shared_ptr<CGStatusBar> statusbar;
 
 	std::shared_ptr<CButton> kingOverview;
 	std::shared_ptr<CButton> underground;
