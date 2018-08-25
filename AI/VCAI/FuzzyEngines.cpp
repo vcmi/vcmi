@@ -245,7 +245,7 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 
 //std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec)
 
-HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
+HeroMovementGoalEngineBase::HeroMovementGoalEngineBase(bool defaultTermsAndRules)
 {
 	try
 	{
@@ -254,8 +254,6 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
 		missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
 		value = new fl::OutputVariable("Value");
-		value->setMinimum(0);
-		value->setMaximum(5);
 
 		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance };
 		for(auto val : helper)
@@ -263,7 +261,44 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 			engine.addInputVariable(val);
 		}
 		engine.addOutputVariable(value);
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("HeroMovementGoalEngineBase: %s", fe.getWhat());
+	}
+	if(defaultTermsAndRules)
+		initSharedTermsAndRules();
+}
 
+void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & goal)
+{
+	float turns = calculateTurnDistanceInputValue(goal.hero.h, goal.tile);
+	float missionImportanceData = 0;
+	if(vstd::contains(ai->lockedHeroes, goal.hero))
+		missionImportanceData = ai->lockedHeroes[goal.hero]->priority;
+
+	float strengthRatioData = 10.0f; //we are much stronger than enemy
+	ui64 danger = evaluateDanger(goal.tile, goal.hero.h);
+	if(danger)
+		strengthRatioData = (fl::scalar)goal.hero.h->getTotalStrength() / danger;
+
+	try
+	{
+		strengthRatio->setValue(strengthRatioData);
+		heroStrength->setValue((fl::scalar)goal.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		turnDistance->setValue(turns);
+		missionImportance->setValue(missionImportanceData);
+	}
+	catch(fl::Exception & fe)
+	{
+		logAi->error("HeroMovementGoalEngineBase::setSharedFuzzyVariables: %s", fe.getWhat());
+	}
+}
+
+void HeroMovementGoalEngineBase::initSharedTermsAndRules()
+{
+	try
+	{
 		strengthRatio->addTerm(new fl::Ramp("LOW", SAFE_ATTACK_CONSTANT, 0));
 		strengthRatio->addTerm(new fl::Ramp("HIGH", SAFE_ATTACK_CONSTANT, SAFE_ATTACK_CONSTANT * 3));
 		strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
@@ -313,32 +348,7 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 	}
 	catch(fl::Exception & fe)
 	{
-		logAi->error("HeroMovementGoalEngineBase: %s", fe.getWhat());
-	}
-}
-
-void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & goal)
-{
-	float turns = calculateTurnDistanceInputValue(goal.hero.h, goal.tile);
-	float missionImportanceData = 0;
-	if(vstd::contains(ai->lockedHeroes, goal.hero))
-		missionImportanceData = ai->lockedHeroes[goal.hero]->priority;
-
-	float strengthRatioData = 10.0f; //we are much stronger than enemy
-	ui64 danger = evaluateDanger(goal.tile, goal.hero.h);
-	if(danger)
-		strengthRatioData = (fl::scalar)goal.hero.h->getTotalStrength() / danger;
-
-	try
-	{
-		strengthRatio->setValue(strengthRatioData);
-		heroStrength->setValue((fl::scalar)goal.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
-		turnDistance->setValue(turns);
-		missionImportance->setValue(missionImportanceData);
-	}
-	catch(fl::Exception & fe)
-	{
-		logAi->error("HeroMovementGoalEngineBase::setSharedFuzzyVariables: %s", fe.getWhat());
+		logAi->error("HeroMovementGoalEngineBase::initSharedTermsAndRules(): %s", fe.getWhat());
 	}
 }
 

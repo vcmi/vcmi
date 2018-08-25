@@ -40,10 +40,10 @@ private:
 class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
 {
 public:
-	HeroMovementGoalEngineBase();
+	HeroMovementGoalEngineBase(bool defaultTermsAndRules = true);
 
 protected:
-	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
+	virtual void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
 
 	fl::InputVariable * strengthRatio;
 	fl::InputVariable * heroStrength;
@@ -52,6 +52,7 @@ protected:
 	fl::OutputVariable * value;
 
 private:
+	void initSharedTermsAndRules();
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
