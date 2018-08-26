@@ -370,7 +370,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	blitAt(CPicture("MUMAP.bmp"), 16, 77, *background);
 	pos = background->center(); //center, window has size of bg graphic
 
-	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 465, 440, 18), 0)); //226, 472
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 465, 440, 18), 0)); //226, 472
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), *background);
 	playerName->setText(settings["general"]["playerName"].String());
 	playerName->cb += std::bind(&CMultiMode::onNameChange, this, _1);
@@ -420,7 +420,7 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), SDLK_RETURN);
 	buttonCancel = std::make_shared<CButton>(Point(205, 338), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [=](){ close();}, SDLK_ESCAPE);
-	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
 
 	inputNames[0]->setText(firstPlayer, true);
 	inputNames[0]->giveFocus();
@@ -478,7 +478,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	inputPort->setText(CServerHandler::getDefaultPortStr(), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);
-	statusBar = std::make_shared<CGStatusBar>(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 186, 218, 18), 0));
 }
 
 void CSimpleJoinScreen::connectToServer()
