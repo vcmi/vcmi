@@ -87,8 +87,10 @@
 		<Unit filename="AIhelper.h" />
 		<Unit filename="BuildingManager.cpp" />
 		<Unit filename="BuildingManager.h" />
-		<Unit filename="Fuzzy.cpp" />
-		<Unit filename="Fuzzy.h" />
+		<Unit filename="FuzzyEngines.cpp" />
+		<Unit filename="FuzzyEngines.h" />
+		<Unit filename="FuzzyHelper.cpp" />
+		<Unit filename="FuzzyHelper.h" />
 		<Unit filename="Goals.cpp" />
 		<Unit filename="Goals.h" />
 		<Unit filename="MapObjectsEvaluator.cpp" />
