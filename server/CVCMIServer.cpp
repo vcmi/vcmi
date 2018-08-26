@@ -445,7 +445,8 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 	connections -= c;
 	for(auto it = playerNames.begin(); it != playerNames.end();)
 	{
-		if(it->second.connection != c->connectionID) {
+		if(it->second.connection != c->connectionID)
+		{
 			it++;
 			continue;
 		}
