@@ -397,7 +397,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/E_MORAL"
+			"icon":  "zvs/Lib1.res/NonLiving"
 		}
 	},
 
@@ -443,7 +443,7 @@
 	{
 		"graphics":
 		{
-			"icon":  "zvs/Lib1.res/E_SPAIR"
+			"icon":  "zvs/Lib1.res/SelfLuck"
 		}
 	},
 
