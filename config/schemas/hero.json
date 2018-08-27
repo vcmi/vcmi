@@ -84,6 +84,11 @@
 					"type":"string",
 					"description": "Small image of hero specialty for use in exchange screen",
 					"format" : "imageFile"
+				},
+				"battleImage": {
+					"type":"string",
+					"description": "Custom def used on battle",
+					"format" : "defFile"
 				}
 			}
 		},
