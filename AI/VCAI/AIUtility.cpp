@@ -180,7 +180,7 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCa
 	}
 }
 
-bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs)
+bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
 {
 	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
 	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
