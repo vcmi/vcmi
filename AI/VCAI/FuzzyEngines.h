@@ -71,3 +71,12 @@ public:
 protected:
 	fl::InputVariable * objectValue;
 };
+
+class KillHeroEngine : public HeroMovementGoalEngineBase
+{
+public:
+	KillHeroEngine();
+	float evaluate(Goals::AbstractGoal & goal); //change goal type to KillHero after it gets implemented
+protected:
+	fl::InputVariable * absoluteStrengthRatio; //hero strength compared to our entire army
+};

@@ -442,3 +442,11 @@ float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 	assert(goal.priority >= 0);
 	return goal.priority;
 }
+
+KillHeroEngine::KillHeroEngine() : HeroMovementGoalEngineBase(false)
+{
+	absoluteStrengthRatio = new fl::InputVariable("AbsoluteStrengthRatio");
+	//absoluteStrengthRatio->addTerm(new fl::Concave())
+
+	configure();
+}
