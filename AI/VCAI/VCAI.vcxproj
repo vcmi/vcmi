@@ -139,11 +139,14 @@
   <ItemGroup>
     <ClCompile Include="AIhelper.cpp" />
     <ClCompile Include="AIUtility.cpp" />
-    <ClCompile Include="Fuzzy.cpp" />
+    <ClCompile Include="BuildingManager.cpp" />
+    <ClCompile Include="FuzzyEngines.cpp" />
+    <ClCompile Include="FuzzyHelper.cpp" />
     <ClCompile Include="Goals.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapObjectsEvaluator.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="SectorMap.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -155,10 +158,13 @@
   <ItemGroup>
     <ClInclude Include="AIhelper.h" />
     <ClInclude Include="AIUtility.h" />
-    <ClInclude Include="Fuzzy.h" />
+    <ClInclude Include="BuildingManager.h" />
+    <ClInclude Include="FuzzyEngines.h" />
+    <ClInclude Include="FuzzyHelper.h" />
     <ClInclude Include="Goals.h" />
     <ClInclude Include="MapObjectsEvaluator.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="SectorMap.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="VCAI.h" />
   </ItemGroup>

@@ -46,7 +46,7 @@ enum EGoals
 	GATHER_TROOPS, // val of creatures with objid
 
 	OBJECT_GOALS_BEGIN,
-	GET_OBJ, //visit or defeat or collect the object
+	VISIT_OBJ, //visit or defeat or collect the object
 	FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
 	VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
 
@@ -432,7 +432,7 @@ public:
 		resID = rid;
 		value = val;
 		objid = Objid;
-		priority = 10; //do it immediately
+		priority = 3; //trading is instant, but picking resources is free
 	}
 	TSubgoal whatToDoToAchieve() override;
 	bool operator==(AbstractGoal & g) override;
@@ -461,21 +461,13 @@ public:
 	bool fulfillsMe(TSubgoal goal) override;
 };
 
-class DLL_EXPORT GetObj : public CGoal<GetObj>
+class DLL_EXPORT VisitObj : public CGoal<VisitObj> //this goal was previously known as GetObj
 {
 public:
-	GetObj() {} // empty constructor not allowed
+	VisitObj() = delete; // empty constructor not allowed
+	VisitObj(int Objid);
 
-	GetObj(int Objid)
-		: CGoal(Goals::GET_OBJ)
-	{
-		objid = Objid;
-		priority = 3;
-	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;

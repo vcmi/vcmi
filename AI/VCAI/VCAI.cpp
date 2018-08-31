@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "VCAI.h"
-#include "Fuzzy.h"
+#include "FuzzyHelper.h"
 #include "ResourceManager.h"
 #include "BuildingManager.h"
 
@@ -268,7 +268,7 @@ void VCAI::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * vi
 	{
 		markObjectVisited(visitedObj);
 		unreserveObject(visitor, visitedObj);
-		completeGoal(sptr(Goals::GetObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
+		completeGoal(sptr(Goals::VisitObj(visitedObj->id.getNum()).sethero(visitor))); //we don't need to visit it anymore
 		//TODO: what if we visited one-time visitable object that was reserved by another hero (shouldn't, but..)
 		if (visitedObj->ID == Obj::HERO)
 		{
@@ -416,6 +416,38 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	for(auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
 
+
+	vstd::erase_if(lockedHeroes, [&](const std::pair<HeroPtr, Goals::TSubgoal> & x) -> bool
+	{
+		if((x.second->goalType == Goals::VISIT_OBJ) && (x.second->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	});
+
+	vstd::erase_if(ultimateGoalsFromBasic, [&](const std::pair<Goals::TSubgoal, Goals::TGoalVec> & x) -> bool
+	{
+		if((x.first->goalType == Goals::VISIT_OBJ) && (x.first->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	});
+
+	auto goalErasePredicate = [&](const Goals::TSubgoal & x) ->bool
+	{
+		if((x->goalType == Goals::VISIT_OBJ) && (x->objid == obj->id.getNum()))
+			return true;
+		else
+			return false;
+	};
+
+	vstd::erase_if(basicGoals, goalErasePredicate);
+	vstd::erase_if(goalsToAdd, goalErasePredicate);
+	vstd::erase_if(goalsToRemove, goalErasePredicate);
+
+	for(auto goal : ultimateGoalsFromBasic)
+		vstd::erase_if(goal.second, goalErasePredicate);
+	
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
@@ -1015,7 +1047,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		}
 		break;
 	}
-	completeGoal(sptr(Goals::GetObj(obj->id.getNum()).sethero(h)));
+	completeGoal(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h)));
 }
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
@@ -1324,7 +1356,6 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 
 void VCAI::wander(HeroPtr h)
 {
-
 	auto visitTownIfAny = [this](HeroPtr h) -> bool
 	{
 		if (h->visitedTown)
@@ -1333,6 +1364,7 @@ void VCAI::wander(HeroPtr h)
 			buildArmyIn(h->visitedTown);
 			return true;
 		}
+		return false;
 	};
 
 	//unclaim objects that are now dangerous for us
@@ -1462,30 +1494,26 @@ void VCAI::wander(HeroPtr h)
 		//end of objs empty
 
 		if(dests.size()) //performance improvement
-		{
-			auto fuzzyLogicSorter = [h](const ObjectIdRef & l, const ObjectIdRef & r) -> bool //TODO: create elementar GetObj goal usable for goal decomposition and Wander based on VisitTile logic and object value on top of it
+		{			
+			Goals::TGoalVec targetObjectGoals;
+			for(auto destination : dests)
 			{
-				return fh->getWanderTargetObjectValue( *h.get(), l) < fh->getWanderTargetObjectValue(*h.get(), r);
-			};
-
-			const ObjectIdRef & dest = *boost::max_element(dests, fuzzyLogicSorter); //find best object to visit based on fuzzy logic evaluation, TODO: use elementar version of GetObj here in future
+				targetObjectGoals.push_back(sptr(Goals::VisitObj(destination.id.getNum()).sethero(h).setisAbstract(true)));
+			}
+			auto bestObjectGoal = fh->chooseSolution(targetObjectGoals);
+			decomposeGoal(bestObjectGoal)->accept(this);
 
 			//wander should not cause heroes to be reserved - they are always considered free
-			logAi->debug("Of all %d destinations, object oid=%d seems nice", dests.size(), dest.id.getNum());
-			if (!goVisitObj(dest, h))
+			if(bestObjectGoal->goalType == Goals::VISIT_OBJ)
 			{
-				if (!dest)
-				{
-					logAi->debug("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
-				}
-				else
-				{
-					logAi->debug("Hero %s apparently used all MPs (%d left)", h->name, h->movement);
-					break;
-				}
+				auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
+				if(chosenObject != nullptr)
+					logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
 			}
-			else //we reached our destination
-				visitTownIfAny(h);
+			else
+				logAi->debug("Trying to realize goal of type %d as part of wandering.", bestObjectGoal->goalType);
+
+			visitTownIfAny(h);
 		}
 	}
 	visitTownIfAny(h); //in case hero is just sitting in town
@@ -2008,6 +2036,22 @@ void VCAI::tryRealize(Goals::VisitTile & g)
 	}
 }
 
+void VCAI::tryRealize(Goals::VisitObj & g)
+{
+	auto position = g.tile;
+	if(!g.hero->movement)
+		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
+	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
+	{
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		throw goalFulfilledException(sptr(g));
+	}
+	if(ai->moveHeroToTile(position, g.hero.get()))
+	{
+		throw goalFulfilledException(sptr(g));
+	}
+}
+
 void VCAI::tryRealize(Goals::VisitHero & g)
 {
 	if(!g.hero->movement)
@@ -2079,15 +2123,14 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 
 				int toGive, toGet;
 				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
-				toGive = toGive * (it->resVal / toGive);
+				toGive = toGive * (it->resVal / toGive); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
 					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, res, g.resID, toGive);
-					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, toGet, g.resID, obj->getObjectName());
-					accquiredResources += toGet; //FIXME: this is incorrect, always equal to 1
+					accquiredResources = toGet * (it->resVal / toGive);
+					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, accquiredResources, g.resID, obj->getObjectName());
 				}
-				//if (accquiredResources >= g.value)
 				if (ah->freeResources()[g.resID] >= g.value)
 					throw goalFulfilledException(sptr(g)); //we traded all we needed
 			}
@@ -2364,7 +2407,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (auto art : q.quest->m5arts)
@@ -2380,7 +2423,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			return sptr(Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
@@ -2393,7 +2436,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero)) //very bad info - stacks can be split between multiple heroes :(
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (auto creature : q.quest->m6creatures)
@@ -2410,7 +2453,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()));
 				}
 				else
 				{
@@ -2430,9 +2473,9 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 		{
 			auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 			if (obj)
-				return sptr(Goals::GetObj(obj->id.getNum()));
+				return sptr(Goals::VisitObj(obj->id.getNum()));
 			else
-				return sptr(Goals::GetObj(q.obj->id.getNum())); //visit seer hut
+				return sptr(Goals::VisitObj(q.obj->id.getNum())); //visit seer hut
 			break;
 		}
 		case CQuest::MISSION_PRIMARY_STAT:
@@ -2442,7 +2485,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero));
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
 				}
 			}
 			for (int i = 0; i < q.quest->m2stats.size(); ++i)
@@ -2458,7 +2501,7 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero))
 				{
-					return sptr(Goals::GetObj(q.obj->id.getNum()).sethero(hero)); //TODO: causes infinite loop :/
+					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero)); //TODO: causes infinite loop :/
 				}
 			}
 			logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);

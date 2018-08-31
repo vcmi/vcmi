@@ -58,9 +58,6 @@
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
 				"mask" : [ "VA" ]
-			},
-			"sounds" : {
-				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
 			}
 		},
 		"types" : {

@@ -443,14 +443,17 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
 	connections -= c;
-	for(auto & pair : playerNames)
+	for(auto it = playerNames.begin(); it != playerNames.end();)
 	{
-		if(pair.second.connection != c->connectionID)
+		if(it->second.connection != c->connectionID)
+		{
+			it++;
 			continue;
+		}
 
-		int id = pair.first;
+		int id = it->first;
 		announceTxt(boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID));
-		playerNames.erase(id);
+		playerNames.erase(it++);
 
 		// Reset in-game players client used back to AI
 		if(PlayerSettings * s = si->getPlayersSettings(id))

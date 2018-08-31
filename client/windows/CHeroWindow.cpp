@@ -110,7 +110,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, EAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, EAlignment::CENTER, Colors::WHITE);
 
-	statusBar = std::make_shared<CGStatusBar>(7, 559, "ADROLLVR.bmp", 660);
+	statusBar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);

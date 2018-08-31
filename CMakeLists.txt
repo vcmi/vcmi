@@ -154,6 +154,9 @@ if(WIN32)
 		# Reported to Microsoft here:
 		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+
+		# Required at least for compatibility with Boost 1.68 on Vcpkg
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} bcrypt)
 	endif(MSVC)
 
 	if(MINGW)

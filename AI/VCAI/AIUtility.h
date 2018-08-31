@@ -186,5 +186,5 @@ public:
 		: hero(hero)
 	{
 	}
-	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs);
+	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const;
 };

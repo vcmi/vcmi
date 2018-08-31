@@ -59,7 +59,7 @@ class CGuiHandler
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
 	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	CGStatusBar * statusbar;
+	std::shared_ptr<CGStatusBar> statusbar;
 
 private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;

@@ -114,23 +114,31 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar : public CLabel
+class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>
 {
 	bool textLock; //Used for blocking changes to the text
 	void init();
 
-	CGStatusBar * oldStatusBar;
+	std::shared_ptr<CGStatusBar> oldStatusBar;
+
+	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 protected:
 	Point getBorderSize() override;
 
 public:
+	template<typename ...Args>
+	static std::shared_ptr<CGStatusBar> create(Args... args)
+	{
+		std::shared_ptr<CGStatusBar> ret{new CGStatusBar{args...}};
+		ret->init();
+		return ret;
+	}
 	void clear();//clears statusbar and refreshes
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
-	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
-	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 	~CGStatusBar();
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called

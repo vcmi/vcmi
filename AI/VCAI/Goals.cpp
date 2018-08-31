@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Goals.h"
 #include "VCAI.h"
-#include "Fuzzy.h"
+#include "FuzzyHelper.h"
 #include "ResourceManager.h"
 #include "BuildingManager.h"
 #include "../../lib/mapping/CMap.h" //for victory conditions
@@ -77,7 +77,7 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
 		break;
-	case GET_OBJ:
+	case VISIT_OBJ:
 	{
 		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 		if(obj)
@@ -153,7 +153,7 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 		break;
 
 	//assigned hero and object
-	case GET_OBJ:
+	case VISIT_OBJ:
 	case FIND_OBJ: //TODO: use subtype?
 	case VISIT_HERO:
 	case GET_ART_TYPE:
@@ -350,7 +350,7 @@ TSubgoal Win::whatToDoToAchieve()
 						return sptr(Goals::Conquer());
 
 
-				return sptr(Goals::GetObj(goal.object->id.getNum()));
+				return sptr(Goals::VisitObj(goal.object->id.getNum()));
 			}
 			else
 			{
@@ -404,7 +404,7 @@ TSubgoal Win::whatToDoToAchieve()
 					return sptr(Goals::DigAtTile(grailPos));
 				} //TODO: use FIND_OBJ
 				else if(const CGObjectInstance * obj = ai->getUnvisitedObj(objWithID<Obj::OBELISK>)) //there are unvisited Obelisks
-					return sptr(Goals::GetObj(obj->id.getNum()));
+					return sptr(Goals::VisitObj(obj->id.getNum()));
 				else
 					return sptr(Goals::Explore());
 			}
@@ -414,7 +414,7 @@ TSubgoal Win::whatToDoToAchieve()
 		{
 			if(goal.object)
 			{
-				return sptr(Goals::GetObj(goal.object->id.getNum()));
+				return sptr(Goals::VisitObj(goal.object->id.getNum()));
 			}
 			else
 			{
@@ -489,7 +489,7 @@ TSubgoal FindObj::whatToDoToAchieve()
 		}
 	}
 	if(o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
-		return sptr(Goals::GetObj(o->id.getNum()));
+		return sptr(Goals::VisitObj(o->id.getNum()));
 	else
 		return sptr(Goals::Explore());
 }
@@ -507,50 +507,86 @@ bool Goals::FindObj::fulfillsMe(TSubgoal goal)
 	return false;
 }
 
-std::string GetObj::completeMessage() const
+std::string VisitObj::completeMessage() const
 {
 	return "hero " + hero.get()->name + " captured Object ID = " + boost::lexical_cast<std::string>(objid);
 }
 
-TSubgoal GetObj::whatToDoToAchieve()
+TGoalVec VisitObj::getAllPossibleSubgoals()
 {
-	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
+	TGoalVec goalList;
+	const CGObjectInstance * obj = cb->getObjInstance(ObjectInstanceID(objid));
 	if(!obj)
-		return sptr(Goals::Explore());
-	if(obj->tempOwner == ai->playerID) //we can't capture our own object -> move to Win codition
-		throw cannotFulfillGoalException("Cannot capture my own object " + obj->getObjectName());
+	{
+		throw cannotFulfillGoalException("Object is missing - goal is invalid now!");
+	}
 
 	int3 pos = obj->visitablePos();
 	if(hero)
 	{
 		if(ai->isAccessibleForHero(pos, hero))
-			return sptr(Goals::VisitTile(pos).sethero(hero));
+		{
+			if(isSafeToVisit(hero, pos))
+				goalList.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero)));
+			else
+				goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+
+			return goalList;
+		}
 	}
 	else
 	{
-		for(auto h : cb->getHeroesInfo())
+		for(auto potentialVisitor : cb->getHeroesInfo())
 		{
-			if(ai->isAccessibleForHero(pos, h))
-				return sptr(Goals::VisitTile(pos).sethero(h)); //we must visit object with same hero, if any
+			if(ai->isAccessibleForHero(pos, potentialVisitor))
+			{
+				if(isSafeToVisit(potentialVisitor, pos))
+					goalList.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(potentialVisitor)));
+				else
+					goalList.push_back(sptr(Goals::GatherArmy(evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT).sethero(potentialVisitor).setisAbstract(true)));
+			}
+		}
+		if(!goalList.empty())
+		{
+			return goalList;
 		}
 	}
-	return sptr(Goals::ClearWayTo(pos).sethero(hero));
+
+	goalList.push_back(sptr(Goals::ClearWayTo(pos)));
+	return goalList;
 }
 
-bool Goals::GetObj::operator==(AbstractGoal & g)
+TSubgoal VisitObj::whatToDoToAchieve()
+{
+	auto bestGoal = fh->chooseSolution(getAllPossibleSubgoals());
+
+	if(bestGoal->goalType == Goals::VISIT_OBJ && bestGoal->hero)
+		bestGoal->setisElementar(true);
+
+	return bestGoal;
+}
+
+Goals::VisitObj::VisitObj(int Objid) : CGoal(Goals::VISIT_OBJ)
+{
+	objid = Objid;
+	tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->visitablePos();
+	priority = 3;
+}
+
+bool Goals::VisitObj::operator==(AbstractGoal & g)
 {
 	if (g.goalType != goalType)
 		return false;
 	return g.objid == objid;
 }
 
-bool GetObj::fulfillsMe(TSubgoal goal)
+bool VisitObj::fulfillsMe(TSubgoal goal)
 {
-	if(goal->goalType == Goals::VISIT_TILE) //visiting tile visits object at same time
+	if(goal->goalType == Goals::VISIT_TILE)
 	{
 		if (!hero || hero == goal->hero)
 		{
-			auto obj = cb->getObj(ObjectInstanceID(objid));
+			auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 			if (obj && obj->visitablePos() == goal->tile) //object could be removed
 				return true;
 		}
@@ -695,7 +731,7 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 				if(shouldVisit(h, topObj))
 				{
 					//do NOT use VISIT_TILE, as tile with quets guard can't be visited
-					ret.push_back(sptr(Goals::GetObj(topObj->id.getNum()).sethero(h)));
+					ret.push_back(sptr(Goals::VisitObj(topObj->id.getNum()).sethero(h))); //TODO: Recheck this code - object visit became elementar goal
 					continue; //do not try to visit tile or gather army
 				}
 				else
@@ -912,8 +948,6 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	{
 		if(isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
 		{
-			if(cb->getTile(tile)->topVisitableId().num == Obj::TOWN) //if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
-				ret->objid = Obj::TOWN; //TODO: move to getObj eventually and add appropiate logic there
 			ret->setisElementar(true);
 			return ret;
 		}
@@ -1018,12 +1052,17 @@ TSubgoal BuildThis::whatToDoToAchieve()
 	}
 	if (town) //we have specific town to build this
 	{
-		if (cb->canBuildStructure(town, b) != EBuildingState::ALLOWED) //FIXME: decompose further? kind of mess if we're here
-			throw cannotFulfillGoalException("Not possible to build");
-		else
+		switch (cb->canBuildStructure(town, b))
 		{
-			auto res = town->town->buildings.at(BuildingID(bid))->resources;
-			return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+			case EBuildingState::ALLOWED:
+			case EBuildingState::NO_RESOURCES:
+			{
+				auto res = town->town->buildings.at(BuildingID(bid))->resources;
+				return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+			}
+				break;
+			default:
+				throw cannotFulfillGoalException("Not possible to build");
 		}
 	}
 	else
@@ -1103,23 +1142,9 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 		}
 		for (auto obj : ourObjs)
 		{
-			int3 dest = obj->visitablePos();
-			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
-			if (t.valid()) //we know any path at all
-			{
-				if (ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
-				{
-					if (isSafeToVisit(h, dest))
-					{
-						if (dest != t) //there is something blocking our way
-							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
-						else
-							ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
-					}
-					else //we need to get army in order to pick that object
-						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
-				}
-			}
+			auto pos = obj->visitablePos();	
+			if (ai->isTileNotReserved(h, pos)) //further decomposition and evaluation will be handled by VisitObj
+				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 		}
 	}
 	return ret;
@@ -1200,12 +1225,12 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			auto objid = m->o->id.getNum();
 			if (backObj->tempOwner != ai->playerID) //top object not owned
 			{
-				return sptr(Goals::GetObj(objid)); //just go there
+				return sptr(Goals::VisitObj(objid)); //just go there
 			}
 			else //either it's our town, or we have hero there
 			{
 				Goals::Trade trade(resID, value, objid);
-				return sptr(trade.setisElementar(true)); //we can do this immediately - highest priority
+				return sptr(trade.setisElementar(true)); //we can do this immediately
 			}
 		}
 	}
@@ -1306,7 +1331,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			if(!nearest)
 				throw cannotFulfillGoalException("Cannot find nearest dwelling!");
 
-			return sptr(Goals::GetObj(nearest->id.getNum()));
+			return sptr(Goals::VisitObj(nearest->id.getNum()));
 		}
 		else
 			return sptr(Goals::Explore());
@@ -1386,13 +1411,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 							{
 								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
 							}
-							else //just visit that tile
+							else //just get that object
 							{
-								if(obj->ID.num == Obj::TOWN)
-									//if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
-									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setobjid(obj->ID.num).setisAbstract(true))); //TODO: change to getObj eventually and and move appropiate logic there
-								else
-									ret.push_back(sptr(Goals::VisitTile(dest).sethero(h).setisAbstract(true)));
+								ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 							}
 						}
 					}
@@ -1436,7 +1457,7 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 	}
 
 	if (ret.empty())
-		throw cannotFulfillGoalException("BUILD has been realized as much as possible."); //who catches it and what for?
+		throw cannotFulfillGoalException("BUILD has been realized as much as possible.");
 	else
 		return ret;
 }
@@ -1504,7 +1525,9 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				}
 			}
 			//build dwelling
-			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			//TODO: plan building over multiple turns?
+			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
+			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
 			if (bid.is_initialized())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
@@ -1612,7 +1635,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 TSubgoal AbstractGoal::goVisitOrLookFor(const CGObjectInstance * obj)
 {
 	if(obj)
-		return sptr(Goals::GetObj(obj->id.getNum()));
+		return sptr(Goals::VisitObj(obj->id.getNum()));
 	else
 		return sptr(Goals::Explore());
 }

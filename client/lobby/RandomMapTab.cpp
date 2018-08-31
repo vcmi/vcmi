@@ -139,13 +139,13 @@ RandomMapTab::RandomMapTab()
 	groupMonsterStrength->pos.y += 485;
 	groupMonsterStrength->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	const std::vector<std::string> monsterStrengthBtns = {"RANWEAK", "RANNORM", "RANSTRG"};
-	addButtonsWithRandToGroup(groupMonsterStrength.get(), monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
+	addButtonsWithRandToGroup(groupMonsterStrength.get(), monsterStrengthBtns, 2, 4, WIDE_BTN_WIDTH, 248, 251, EMonsterStrength::RANDOM, false);
 	groupMonsterStrength->addCallback([&](int btnId)
 	{
 		if(btnId < 0)
 			mapGenOptions->setMonsterStrength(EMonsterStrength::RANDOM);
 		else
-			mapGenOptions->setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
+			mapGenOptions->setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId)); //value 2 to 4
 		updateMapInfoByHost();
 	});
 
@@ -212,25 +212,25 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	groupMonsterStrength->setSelected(opts->getMonsterStrength());
 }
 
-void RandomMapTab::addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex) const
+void RandomMapTab::addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex, int randIndex, bool animIdfromBtnId) const
 {
-	addButtonsToGroup(group, defs, nStart, nEnd, btnWidth, helpStartIndex);
+	addButtonsToGroup(group, defs, nStart, nEnd, btnWidth, helpStartIndex, animIdfromBtnId);
 
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
 	const std::string RANDOM_DEF = "RANRAND";
-	group->addToggle(CMapGenOptions::RANDOM_SIZE, std::make_shared<CToggleButton>(Point(256, 0), RANDOM_DEF, CGI->generaltexth->zelp[helpRandIndex]));
-	group->setSelected(CMapGenOptions::RANDOM_SIZE);
+	group->addToggle(randIndex, std::make_shared<CToggleButton>(Point(256, 0), RANDOM_DEF, CGI->generaltexth->zelp[helpRandIndex]));
+	group->setSelected(randIndex);
 }
 
-void RandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex) const
+void RandomMapTab::addButtonsToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, bool animIdfromBtnId) const
 {
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
 	int cnt = nEnd - nStart + 1;
 	for(int i = 0; i < cnt; ++i)
 	{
-		auto button = std::make_shared<CToggleButton>(Point(i * btnWidth, 0), defs[i + nStart], CGI->generaltexth->zelp[helpStartIndex + i]);
+		auto button = std::make_shared<CToggleButton>(Point(i * btnWidth, 0), animIdfromBtnId ? defs[i + nStart] : defs[i], CGI->generaltexth->zelp[helpStartIndex + i]);
 		// For blocked state we should use pressed image actually
 		button->setImageOrder(0, 1, 1, 3);
 		group->addToggle(i + nStart, button);

@@ -911,5 +911,8 @@
     <ClInclude Include="NetPacksLobby.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="serializer\Cast.h">
+      <Filter>serializer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
