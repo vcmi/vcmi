@@ -4,6 +4,12 @@ vcmi (0.99) trusty; urgency=medium
 
  -- Ivan Savenko <saven.ivan@gmail.com>  Tue, 01 Nov 2016 20:41:53 +0200
 
+vcmi (0.98.1) trusty; urgency=medium
+
+  * Development version 0.98b
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Sat, 02 May 2015 09:00:52 +0300
+
 vcmi (0.98) trusty; urgency=medium
 
   * New upstream release
