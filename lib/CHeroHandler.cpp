@@ -322,7 +322,7 @@ CHero * CHeroHandler::loadFromJson(const JsonNode & node, const std::string & id
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
 	hero->portraitSmall = node["images"]["small"].String();
 	hero->portraitLarge = node["images"]["large"].String();
-	hero->battleImage = node["images"]["battleImage"].String();
+	hero->battleImage = node["battleImage"].String();
 
 	loadHeroArmy(hero, node);
 	loadHeroSkills(hero, node);
