@@ -28,6 +28,8 @@
 
 struct QuestInfo;
 
+class AIhelper;
+
 class AIStatus
 {
 	boost::mutex mx;
@@ -113,6 +115,8 @@ public:
 	std::shared_ptr<CCallback> myCb;
 
 	std::unique_ptr<boost::thread> makingTurn;
+
+	AIhelper * ah;
 
 	VCAI();
 	virtual ~VCAI();

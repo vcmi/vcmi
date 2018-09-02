@@ -21,7 +21,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<AIhelper> ah;
 extern FuzzyHelper * fh;
 
 using namespace Goals;
@@ -280,7 +279,7 @@ namespace Goals
 		//TODO: calculate the actual cost of units instead
 		TResources price;
 		price[Res::GOLD] = value * 0.4f; //some approximate value
-		return ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
+		return ai->ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
 	}
 	std::string BuyArmy::completeMessage() const
 	{
@@ -924,7 +923,7 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 
 	TResources res;
 	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
-	return ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
+	return ai->ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }
 
 bool Goals::RecruitHero::operator==(AbstractGoal & g)
@@ -1058,7 +1057,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 			case EBuildingState::NO_RESOURCES:
 			{
 				auto res = town->town->buildings.at(BuildingID(bid))->resources;
-				return ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
+				return ai->ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
 			}
 				break;
 			default:
@@ -1142,7 +1141,7 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 		}
 		for (auto obj : ourObjs)
 		{
-			auto pos = obj->visitablePos();	
+			auto pos = obj->visitablePos();
 			if (ai->isTileNotReserved(h, pos)) //further decomposition and evaluation will be handled by VisitObj
 				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
 		}
@@ -1215,7 +1214,7 @@ TSubgoal Goals::CollectRes::whatToDoToTrade()
 			int toGive = -1, toReceive = -1;
 			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
-			howManyCanWeBuy += toReceive * (ah->freeResources()[i] / toGive);
+			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);
 		}
 
 		if (howManyCanWeBuy >= value)
@@ -1296,7 +1295,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			{
 				for(auto type : creature.second)
 				{
-					if(type == objid && ah->freeResources().canAfford(VLC->creh->creatures[type]->cost))
+					if(type == objid && ai->ah->freeResources().canAfford(VLC->creh->creatures[type]->cost))
 						dwellings.push_back(d);
 				}
 			}
@@ -1438,19 +1437,19 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 	for (const CGTownInstance * t : cb->getTownsInfo())
 	{
 		//start fresh with every town
-		ah->getBuildingOptions(t);
-		auto ib = ah->immediateBuilding();
+		ai->ah->getBuildingOptions(t);
+		auto ib = ai->ah->immediateBuilding();
 		if (ib.is_initialized())
 		{
 			ret.push_back(sptr(Goals::BuildThis(ib.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
 		}
 		else //try build later
 		{
-			auto eb = ah->expensiveBuilding();
+			auto eb = ai->ah->expensiveBuilding();
 			if (eb.is_initialized())
 			{
 				auto pb = eb.get(); //gather resources for any we can't afford
-				auto goal = ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t).setpriority(0.5)));
+				auto goal = ai->ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t).setpriority(0.5)));
 				ret.push_back(goal);
 			}
 		}
@@ -1520,18 +1519,18 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				if (val)
 				{
 					auto goal = sptr(Goals::BuyArmy(t, val).sethero(hero));
-					if (!ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+					if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 						ret.push_back(goal);
 				}
 			}
 			//build dwelling
 			//TODO: plan building over multiple turns?
 			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
-			auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
+			auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
 			if (bid.is_initialized())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
-				if (!ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 					ret.push_back(goal);
 			}
 		}
@@ -1580,7 +1579,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 						for(auto & creatureID : creLevel.second)
 						{
 							auto creature = VLC->creh->creatures[creatureID];
-							if(ah->freeResources().canAfford(creature->cost))
+							if(ai->ah->freeResources().canAfford(creature->cost))
 								objs.push_back(obj); //TODO: reserve resources?
 						}
 					}
@@ -1600,7 +1599,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	if(ai->canRecruitAnyHero() && ah->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
+	if(ai->canRecruitAnyHero() && ai->ah->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
 		if(auto t = ai->findTownWithTavern())
 		{

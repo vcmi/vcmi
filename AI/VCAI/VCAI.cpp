@@ -35,7 +35,6 @@ const double SAFE_ATTACK_CONSTANT = 1.5;
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
 boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<AIhelper> ah;
 
 //std::map<int, std::map<int, int> > HeroView::infosCount;
 
@@ -49,10 +48,6 @@ struct SetGlobalState
 
 		ai.reset(AI);
 		cb.reset(AI->myCb.get());
-		if (!ah.get())
-			ah.reset(new AIhelper());
-		ah->setAI(AI); //does this make any sense?
-		ah->setCB(cb.get());
 	}
 	~SetGlobalState()
 	{
@@ -100,10 +95,14 @@ VCAI::VCAI()
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
+
+	ah = new AIhelper();
+	ah->setAI(this);
 }
 
 VCAI::~VCAI()
 {
+	delete ah;
 	LOG_TRACE(logAi);
 	finish();
 }
@@ -447,7 +446,7 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 
 	for(auto goal : ultimateGoalsFromBasic)
 		vstd::erase_if(goal.second, goalErasePredicate);
-	
+
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
@@ -614,7 +613,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	myCb = CB;
 	cbc = CB;
 
-	ah.reset(new AIhelper());
+	ah->setCB(CB.get());
 
 	NET_EVENT_HANDLER; //sets ah->rm->cb
 	playerID = *myCb->getMyColor();
@@ -1494,7 +1493,7 @@ void VCAI::wander(HeroPtr h)
 		//end of objs empty
 
 		if(dests.size()) //performance improvement
-		{			
+		{
 			Goals::TGoalVec targetObjectGoals;
 			for(auto destination : dests)
 			{
@@ -3083,7 +3082,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		if (ah->freeGold() < 1000)
+		if (ai->ah->freeGold() < 1000)
 			return false;
 		break;
 	}
@@ -3093,7 +3092,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		TResources myRes = ah->freeResources();
+		TResources myRes = ai->ah->freeResources();
 		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;
 		break;
@@ -3108,7 +3107,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		//TODO: only on request
 		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(ah->freeGold() < GameConstants::HERO_GOLD_COST)
+		else if(ai->ah->freeGold() < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}
