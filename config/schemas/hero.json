@@ -59,6 +59,11 @@
 			"type":"boolean",
 			"description": "This hero is female (changeable via editor)"
 		},
+		"battleImage": {
+			"type":"string",
+			"description": "Custom def used on battle",
+			"format" : "defFile"
+		},
 		"images": {
 			"type":"object",
 			"additionalProperties" : false,
@@ -84,11 +89,6 @@
 					"type":"string",
 					"description": "Small image of hero specialty for use in exchange screen",
 					"format" : "imageFile"
-				},
-				"battleImage": {
-					"type":"string",
-					"description": "Custom def used on battle",
-					"format" : "defFile"
 				}
 			}
 		},
