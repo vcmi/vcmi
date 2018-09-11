@@ -102,6 +102,8 @@ private:
 
 	boost::heap::binomial_heap<ResourceObjective> queue;
 
+	void dumpToLog() const;
+
 	//TODO: register?
 	template<typename Handler> void serializeInternal(Handler & h, const int version)
 	{

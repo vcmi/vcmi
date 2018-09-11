@@ -523,7 +523,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	return ci;
 }
 
-ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t)
+ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t)
 {
 	ui64 aivalue = 0;
 

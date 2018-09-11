@@ -933,6 +933,8 @@ void VCAI::mainLoop()
 			}
 		}
 
+		logAi->trace("Main loop: selecting best elementar goal");
+
 		//now choose one elementar goal to realize
 		Goals::TGoalVec possibleGoals(elementarGoals.begin(), elementarGoals.end()); //copy to vector
 		Goals::TSubgoal goalToRealize = sptr(Goals::Invalid());
@@ -2205,7 +2207,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 		});
 
 		vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
-		if (ci.count > 0)
+		if (ci.count > 0 && t->getUpperArmy()->getSlotFor(ci.creID) != SlotID())
 		{
 			cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
 			valueBought += ci.count * ci.cre->AIValue;
@@ -2379,6 +2381,13 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 {
+	if(ultimateGoal->isElementar)
+	{
+		logAi->warn("Trying to decompose elementar goal %s", ultimateGoal->name());
+
+		return ultimateGoal;
+	}
+
 	const int searchDepth = 30;
 	const int searchDepth2 = searchDepth - 2;
 	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());

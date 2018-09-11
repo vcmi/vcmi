@@ -163,6 +163,9 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 		return (town == g.town && bid == g.bid); //build specific structure in specific town
 		break;
 
+	case BUY_ARMY:
+		return town == g.town;
+
 	//no check atm
 	case COLLECT_RES:
 	case TRADE: //TODO
@@ -1441,14 +1444,16 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 					ret.push_back(sptr(Goals::VisitTile(pos).sethero(hero)));
 			}
 			//buy army in town
-			if (!t->visitingHero || t->visitingHero != hero.get(true))
+			if (!t->visitingHero || t->visitingHero == hero.get(true))
 			{
 				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, t));
 				if (val)
 				{
 					auto goal = sptr(Goals::BuyArmy(t, val).sethero(hero));
-					if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+					if(!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 						ret.push_back(goal);
+					else
+						logAi->debug("Can not buy army, because of ai->ah->containsObjective");
 				}
 			}
 			//build dwelling
@@ -1460,6 +1465,8 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 					ret.push_back(goal);
+				else
+					logAi->debug("Can not build a structure, because of ai->ah->containsObjective");
 			}
 		}
 	}
@@ -1501,15 +1508,21 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			if(relationToOwner == PlayerRelations::SAME_PLAYER)
 			{
 				auto dwelling = dynamic_cast<const CGDwelling *>(obj);
-				for(auto & creLevel : dwelling->creatures)
+
+				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, dwelling));
+
+				if(val)
 				{
-					if(creLevel.first)
+					for(auto & creLevel : dwelling->creatures)
 					{
-						for(auto & creatureID : creLevel.second)
+						if(creLevel.first)
 						{
-							auto creature = VLC->creh->creatures[creatureID];
-							if(ai->ah->freeResources().canAfford(creature->cost))
-								objs.push_back(obj); //TODO: reserve resources?
+							for(auto & creatureID : creLevel.second)
+							{
+								auto creature = VLC->creh->creatures[creatureID];
+								if(ai->ah->freeResources().canAfford(creature->cost))
+									objs.push_back(obj); //TODO: reserve resources?
+							}
 						}
 					}
 				}

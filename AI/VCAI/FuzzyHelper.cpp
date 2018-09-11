@@ -19,8 +19,13 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {
-	if(vec.empty()) //no possibilities found
+	if(vec.empty())
+	{
+		logAi->debug("FuzzyHelper found no goals. Returning Goals::Invalid.");
+
+		//no possibilities found
 		return sptr(Goals::Invalid());
+	}
 
 	//a trick to switch between heroes less often - calculatePaths is costly
 	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
@@ -38,7 +43,17 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	{
 		return lhs->priority < rhs->priority;
 	};
-	return *boost::max_element(vec, compareGoals);
+
+	for(auto goal : vec)
+	{
+		logAi->debug("FuzzyHelper evaluated goal %s, priority=%i", goal->name(), goal->priority);
+	}
+
+	Goals::TSubgoal result = *boost::max_element(vec, compareGoals);
+
+	logAi->debug("FuzzyHelper returned goal %s, priority=%i", result->name(), result->priority);
+
+	return result;
 }
 
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
