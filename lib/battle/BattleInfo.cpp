@@ -404,7 +404,9 @@ void BattleInfo::setupObstacles(std::string creatureBankName)
 			obstaclesConfig.push_back(i);
 		}
 		else
+		{
 			randomObstaclesConfig.push_back(i);
+		}
 	}
 	setupInherentObstacles(obstaclesConfig, creatureBankName);
 	setupRandomObstacles(randomObstaclesConfig, creatureBankName);
@@ -959,7 +961,7 @@ void BattleInfo::removeObstacle(UUID id)
 {
 	for(int i=0; i < obstacles.size(); ++i)
 	{
-		if(obstacles[i]->ID.getID() == id.getID())
+		if(obstacles[i]->ID == id)
 		{
 			obstacles.erase(obstacles.begin() + i);
 			break;

@@ -12,9 +12,9 @@
 //RNG that works like H3 one
 struct RandGen
 {
-	int seed;
-	void srand(int s);
+	int64_t seed;
+	void srand(int64_t s);
 	void srand(int3 pos);
-	int rand();
-	int rand(int min, int max);
+	int64_t rand();
+	int64_t rand(int min, int max);
 };

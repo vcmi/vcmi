@@ -2690,17 +2690,13 @@ void CBattleInterface::obstaclePlaced(const Obstacle & oi)
 {
 	waitForAnims();
 	int imageHeight = 0;
-	ResourceID resID(oi.getGraphicsInfo().getGraphicsName());
 
-	std::string graphicsname = "";
-	if(oi.getGraphicsInfo().getAppearAnimation() != "")
-		graphicsname = oi.getGraphicsInfo().getAppearAnimation();
-	else
-		graphicsname = oi.getGraphicsInfo().getGraphicsName();
+	std::string graphicsname = oi.getGraphicsInfo().getGraphics(ObstacleGraphicsInfo::GraphicsType::Appear);
+	
+	ResourceID resID(graphicsname);
 
 	if(resID.getType() == EResType::ANIMATION)
 	{
-		
 		CAnimation anim(graphicsname);
 		anim.preload();
 		int frameIndex = ((animCount + 1) * 25 / getAnimSpeed()) % anim.size();
@@ -3331,11 +3327,11 @@ void CBattleInterface::showObstacles(SDL_Surface * to, std::vector<std::shared_p
 	for(auto & obstacle : obstacles)
 	{
 		
-		ResourceID resID(obstacle->getGraphicsInfo().getGraphicsName());
+		ResourceID resID(obstacle->getGraphicsInfo().getGraphics());
 		Point p(0,0);
 		if(resID.getType() == EResType::ANIMATION)
 		{
-			CAnimation anim(obstacle->getGraphicsInfo().getGraphicsName());
+			CAnimation anim(obstacle->getGraphicsInfo().getGraphics());
 			anim.preload();
 			int frameIndex = ((animCount + 1) * 25 / getAnimSpeed()) % anim.size();
 			auto img = anim.getImage(frameIndex);
@@ -3345,7 +3341,7 @@ void CBattleInterface::showObstacles(SDL_Surface * to, std::vector<std::shared_p
 		}
 		else if(resID.getType() == EResType::IMAGE)
 		{
-			auto bitmap = BitmapHandler::loadBitmap(obstacle->getGraphicsInfo().getGraphicsName());
+			auto bitmap = BitmapHandler::loadBitmap(obstacle->getGraphicsInfo().getGraphics());
 			if(obstacle->getArea().getPosition() != 0)
 				p = getObstaclePosition(bitmap->h, *obstacle);
 			blitAt(bitmap, p.x + obstacle->getGraphicsInfo().getOffsetGraphicsInX(), p.y + obstacle->getGraphicsInfo().getOffsetGraphicsInY(), to);

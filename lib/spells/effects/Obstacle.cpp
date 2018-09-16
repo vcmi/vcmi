@@ -90,11 +90,6 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	return LocationEffect::applicable(problem, m, target);
 }
 
-EffectTarget Obstacle::transformTarget(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
-{
-	return EffectTarget(spellTarget);
-}
-
 void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
 {
 	if(m->isMassive())
@@ -221,7 +216,7 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 		options.moveAreaToField(destination.hexValue);
 		obstacle.setArea(options);
 		
-		obstacle.spellID = SpellID(m->getSpellIndex());
+		obstacle.spellID = m->getSpellId();
 		
 		obstacle.turnsRemaining = turnsRemaining;
 		obstacle.casterSpellPower = m->getEffectPower();

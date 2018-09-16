@@ -96,11 +96,9 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	const JsonNode config(ResourceID("config/battles_graphics.json"));
-
+	
 	for(const JsonNode &t : config["backgrounds"].Vector())
-	{
 		battleBackgrounds.push_back(t.String());
-	}
 
 	//initialization of AC->def name mapping
 	for(const JsonNode &ac : config["ac_mapping"].Vector()) {

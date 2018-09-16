@@ -25,7 +25,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObDino1.def",
+	"graphics" : { "default" : "ObDino1.def" },
 	"canBeRemoved" : true,
 },
 "obstacle002" :
@@ -33,7 +33,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore", "sandMesas", "dirtBirches", "dirtHills", "dirtPines", "subterranean", "rough"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObDino2.def",
+	"graphics" : { "default" : "ObDino2.def" },
 	"canBeRemoved" : true,
 },
 "obstacle003" :
@@ -41,7 +41,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1, -14, -15, -16],
-	"graphics" : "ObDino3.def",
+	"graphics" : { "default" : "ObDino3.def" },
 	"canBeRemoved" : true,
 },
 "obstacle004" :
@@ -49,7 +49,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines", "cursedGround", "rough"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObSkel1.def",
+	"graphics" : { "default" : "ObSkel1.def" },
 	"canBeRemoved" : true,
 },
 "obstacle005" :
@@ -57,7 +57,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore", "dirtBirches", "dirtHills", "dirtPines", "subterranean", "cursedGround", "rough"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObSkel2.def",
+	"graphics" : { "default" : "ObSkel2.def" },
 	"canBeRemoved" : true,
 },
 "obstacle006" :
@@ -65,7 +65,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [1, 2, 3],
-	"graphics" : "ObBDT01.def",
+	"graphics" : { "default" : "ObBDT01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle007" :
@@ -73,7 +73,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [-15, -16],
-	"graphics" : "ObDRk01.def",
+	"graphics" : { "default" : "ObDRk01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle008" :
@@ -81,7 +81,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObDRk02.def",
+	"graphics" : { "default" : "ObDRk02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle009" :
@@ -89,7 +89,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [-16],
-	"graphics" : "ObDRk03.def",
+	"graphics" : { "default" : "ObDRk03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle010" :
@@ -97,7 +97,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObDRk04.def",
+	"graphics" : { "default" : "ObDRk04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle011" :
@@ -105,7 +105,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObDSh01.def",
+	"graphics" : { "default" : "ObDSh01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle012" :
@@ -113,7 +113,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObDTF03.def",
+	"graphics" : { "default" : "ObDTF03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle013" :
@@ -121,7 +121,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines", "cursedGround", "rough"],
 	"blockedTiles" :  [0, 1, 2, 3],
-	"graphics" : "ObDtS03.def",
+	"graphics" : { "default" : "ObDtS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle014" :
@@ -129,7 +129,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines", "cursedGround", "rough"],
 	"blockedTiles" :  [1, 2, -15],
-	"graphics" : "ObDtS04.def",
+	"graphics" : { "default" : "ObDtS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle015" :
@@ -137,7 +137,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines", "cursedGround", "rough"],
 	"blockedTiles" :  [2, -15, -16],
-	"graphics" : "ObDtS14.def",
+	"graphics" : { "default" : "ObDtS14.def" },
 	"canBeRemoved" : true,
 },
 "obstacle016" :
@@ -145,7 +145,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["dirtBirches", "dirtHills", "dirtPines", "cursedGround", "rough"],
 	"blockedTiles" :  [1, -16, -33],
-	"graphics" : "ObDtS15.def",
+	"graphics" : { "default" : "ObDtS15.def" },
 	"canBeRemoved" : true,
 },
 "obstacle017" :
@@ -153,7 +153,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandMesas"],
 	"blockedTiles" :  [-15, -16, -32, -33, -48, -49],
-	"graphics" : "ObDsM01.def",
+	"graphics" : { "default" : "ObDsM01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle018" :
@@ -161,7 +161,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandMesas"],
 	"blockedTiles" :  [1, -15, -16],
-	"graphics" : "ObDsS02.def",
+	"graphics" : { "default" : "ObDsS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle019" :
@@ -169,7 +169,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandMesas"],
 	"blockedTiles" :  [1, 2, 3, -15, -16],
-	"graphics" : "ObDsS17.def",
+	"graphics" : { "default" : "ObDsS17.def" },
 	"canBeRemoved" : true,
 },
 "obstacle020" :
@@ -177,7 +177,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["grassHills", "grassPines", "swampTrees"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObGLg01.def",
+	"graphics" : { "default" : "ObGLg01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle021" :
@@ -185,7 +185,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["grassHills", "grassPines", "magicPlains", "swampTrees"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObGRk01.def",
+	"graphics" : { "default" : "ObGRk01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle022" :
@@ -193,7 +193,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["grassHills", "grassPines", "swampTrees"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObGSt01.def",
+	"graphics" : { "default" : "ObGSt01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle023" :
@@ -201,7 +201,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["grassHills", "grassPines", "magicPlains"],
 	"blockedTiles" :  [1, 2, 3, 4, -13, -14, -15, -16],
-	"graphics" : "ObGrS01.def",
+	"graphics" : { "default" : "ObGrS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle024" :
@@ -209,7 +209,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["grassHills", "grassPines"],
 	"blockedTiles" :  [1, 2],
-	"graphics" : "OBGrS02.def",
+	"graphics" : { "default" : "OBGrS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle025" :
@@ -217,7 +217,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObSnS01.def",
+	"graphics" : { "default" : "ObSnS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle026" :
@@ -225,7 +225,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [1, 2, 3, 4],
-	"graphics" : "ObSnS02.def",
+	"graphics" : { "default" : "ObSnS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle027" :
@@ -233,7 +233,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [0, -16, -33],
-	"graphics" : "ObSnS03.def",
+	"graphics" : { "default" : "ObSnS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle028" :
@@ -241,7 +241,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObSnS04.def",
+	"graphics" : { "default" : "ObSnS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle029" :
@@ -249,7 +249,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [1],
-	"graphics" : "ObSnS05.def",
+	"graphics" : { "default" : "ObSnS05.def" },
 	"canBeRemoved" : true,
 },
 "obstacle030" :
@@ -257,7 +257,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [1, 2],
-	"graphics" : "ObSnS06.def",
+	"graphics" : { "default" : "ObSnS06.def" },
 	"canBeRemoved" : true,
 },
 "obstacle031" :
@@ -265,7 +265,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObSnS07.def",
+	"graphics" : { "default" : "ObSnS07.def" },
 	"canBeRemoved" : true,
 },
 "obstacle032" :
@@ -273,7 +273,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObSnS08.def",
+	"graphics" : { "default" : "ObSnS08.def" },
 	"canBeRemoved" : true,
 },
 "obstacle033" :
@@ -281,7 +281,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [2, 3, 4, 5, -13, -14, -15, -16],
-	"graphics" : "ObSnS09.def",
+	"graphics" : { "default" : "ObSnS09.def" },
 	"canBeRemoved" : true,
 },
 "obstacle034" :
@@ -289,7 +289,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["snowMountains", "snowTrees"],
 	"blockedTiles" :  [3, -13, -14, -15, -33, -49, -66],
-	"graphics" : "ObSnS10.def",
+	"graphics" : { "default" : "ObSnS10.def" },
 	"canBeRemoved" : true,
 },
 "obstacle035" :
@@ -297,7 +297,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObSwS01.def",
+	"graphics" : { "default" : "ObSwS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle036" :
@@ -305,7 +305,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [-10, -11, -12, -13, -14, -15, -16],
-	"graphics" : "ObSwS02.def",
+	"graphics" : { "default" : "ObSwS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle037" :
@@ -313,7 +313,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObSwS03.def",
+	"graphics" : { "default" : "ObSwS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle038" :
@@ -321,7 +321,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObSwS04.def",
+	"graphics" : { "default" : "ObSwS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle039" :
@@ -329,7 +329,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [-13, -14, -15, -16, -30, -31, -32, -33],
-	"graphics" : "ObSwS11b.def",
+	"graphics" : { "default" : "ObSwS11b.def" },
 	"canBeRemoved" : true,
 },
 "obstacle040" :
@@ -337,7 +337,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["swampTrees"],
 	"blockedTiles" :  [-16, -17, -31, -32, -33, -34],
-	"graphics" : "ObSwS13a.def",
+	"graphics" : { "default" : "ObSwS13a.def" },
 	"canBeRemoved" : true,
 },
 "obstacle041" :
@@ -345,7 +345,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cursedGround", "rough"],
 	"blockedTiles" :  [0, 1, -16],
-	"graphics" : "ObRgS01.def",
+	"graphics" : { "default" : "ObRgS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle042" :
@@ -353,7 +353,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cursedGround", "rough"],
 	"blockedTiles" :  [-14, -15, -16, -32, -33],
-	"graphics" : "ObRgS02.def",
+	"graphics" : { "default" : "ObRgS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle043" :
@@ -362,7 +362,7 @@
 	"battlefieldSurface" : ["cursedGround", "rough"],
 	"offsetGraphicsInY" : -42,
 	"blockedTiles" :  [1, 2, -15, -16],
-	"graphics" : "ObRgS03.def",
+	"graphics" : { "default" : "ObRgS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle044" :
@@ -370,7 +370,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cursedGround", "rough"],
 	"blockedTiles" :  [-16, -32, -33],
-	"graphics" : "ObRgS04.def",
+	"graphics" : { "default" : "ObRgS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle045" :
@@ -378,7 +378,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cursedGround", "rough"],
 	"blockedTiles" :  [-15, -16, -32],
-	"graphics" : "ObRgS05.def",
+	"graphics" : { "default" : "ObRgS05.def" },
 	"canBeRemoved" : true,
 },
 "obstacle046" :
@@ -386,7 +386,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["subterranean"],
 	"blockedTiles" :  [0, 1, 2, -15, -16],
-	"graphics" : "ObSuS01.def",
+	"graphics" : { "default" : "ObSuS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle047" :
@@ -394,7 +394,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["subterranean"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObSuS02.def",
+	"graphics" : { "default" : "ObSuS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle048" :
@@ -402,7 +402,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["subterranean"],
 	"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-	"graphics" : "ObSuS11b.def",
+	"graphics" : { "default" : "ObSuS11b.def" },
 	"canBeRemoved" : true,
 },
 "obstacle049" :
@@ -410,7 +410,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [-14, -32, -33],
-	"graphics" : "ObLvS01.def",
+	"graphics" : { "default" : "ObLvS01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle050" :
@@ -418,7 +418,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-	"graphics" : "ObLvS02.def",
+	"graphics" : { "default" : "ObLvS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle051" :
@@ -426,7 +426,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [-13, -14, -15, -30, -31, -32, -33],
-	"graphics" : "ObLvS03.def",
+	"graphics" : { "default" : "ObLvS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle052" :
@@ -434,7 +434,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObLvS04.def",
+	"graphics" : { "default" : "ObLvS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle053" :
@@ -442,7 +442,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [-14, -15, -32, -33, -49, -50],
-	"graphics" : "ObLvS09.def",
+	"graphics" : { "default" : "ObLvS09.def" },
 	"canBeRemoved" : true,
 },
 "obstacle054" :
@@ -450,7 +450,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [-13, -14, -15, -16, -30, -31],
-	"graphics" : "ObLvS17.def",
+	"graphics" : { "default" : "ObLvS17.def" },
 	"canBeRemoved" : true,
 },
 "obstacle055" :
@@ -458,7 +458,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lava"],
 	"blockedTiles" :  [-13, -14, -15, -16, -31, -32, -33],
-	"graphics" : "ObLvS22.def",
+	"graphics" : { "default" : "ObLvS22.def" },
 	"canBeRemoved" : true,
 },
 "obstacle056" :
@@ -467,7 +467,7 @@
 	"battlefieldSurface" : ["shipToShip", "ship"],
 	"offsetGraphicsInY" : -42,
 	"blockedTiles" :  [-15, -16, -33],
-	"graphics" : "ObBtS04.def",
+	"graphics" : { "default" : "ObBtS04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle057" :
@@ -475,7 +475,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore"],
 	"blockedTiles" :  [1, -15, -16],
-	"graphics" : "ObBhS02.def",
+	"graphics" : { "default" : "ObBhS02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle058" :
@@ -483,7 +483,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObBhS03.def",
+	"graphics" : { "default" : "ObBhS03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle059" :
@@ -491,7 +491,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore"],
 	"blockedTiles" :  [1, 2, 3, -14, -15, -16],
-	"graphics" : "ObBhS11a.def",
+	"graphics" : { "default" : "ObBhS11a.def" },
 	"canBeRemoved" : true,
 },
 "obstacle060" :
@@ -499,7 +499,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore"],
 	"blockedTiles" :  [1, 2, -14, -15],
-	"graphics" : "ObBhS12b.def",
+	"graphics" : { "default" : "ObBhS12b.def" },
 	"canBeRemoved" : true,
 },
 "obstacle061" :
@@ -507,7 +507,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["sandShore"],
 	"blockedTiles" :  [0, 1, -16],
-	"graphics" : "ObBhS14b.def",
+	"graphics" : { "default" : "ObBhS14b.def" },
 	"canBeRemoved" : true,
 },
 "obstacle062" :
@@ -515,7 +515,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["holyGround"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObHGs00.def",
+	"graphics" : { "default" : "ObHGs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle063" :
@@ -523,7 +523,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["holyGround"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObHGs01.def",
+	"graphics" : { "default" : "ObHGs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle064" :
@@ -531,7 +531,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["holyGround"],
 	"blockedTiles" :  [1],
-	"graphics" : "ObHGs02.def",
+	"graphics" : { "default" : "ObHGs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle065" :
@@ -539,7 +539,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["holyGround"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObHGs03.def",
+	"graphics" : { "default" : "ObHGs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle066" :
@@ -547,7 +547,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["holyGround"],
 	"blockedTiles" :  [0, 1, 2, 3],
-	"graphics" : "ObHGs04.def",
+	"graphics" : { "default" : "ObHGs04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle067" :
@@ -555,7 +555,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["evilFog"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObEFs00.def",
+	"graphics" : { "default" : "ObEFs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle068" :
@@ -563,7 +563,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["evilFog"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObEFs01.def",
+	"graphics" : { "default" : "ObEFs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle069" :
@@ -571,7 +571,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["evilFog"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObEFs02.def",
+	"graphics" : { "default" : "ObEFs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle070" :
@@ -579,7 +579,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["evilFog"],
 	"blockedTiles" :  [1, 2],
-	"graphics" : "ObEFs03.def",
+	"graphics" : { "default" : "ObEFs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle071" :
@@ -587,7 +587,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["evilFog"],
 	"blockedTiles" :  [1, 2, 3, -12, -13],
-	"graphics" : "ObEFs04.def",
+	"graphics" : { "default" : "ObEFs04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle072" :
@@ -595,7 +595,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cloverField"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObCFs00.def",
+	"graphics" : { "default" : "ObCFs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle073" :
@@ -603,7 +603,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cloverField"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObCFs01.def",
+	"graphics" : { "default" : "ObCFs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle074" :
@@ -611,7 +611,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cloverField"],
 	"blockedTiles" :  [1, 2, -15, -16],
-	"graphics" : "ObCFs02.def",
+	"graphics" : { "default" : "ObCFs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle075" :
@@ -619,7 +619,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["cloverField"],
 	"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-	"graphics" : "ObCFs03.def",
+	"graphics" : { "default" : "ObCFs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle076" :
@@ -627,7 +627,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lucidPools"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObLPs00.def",
+	"graphics" : { "default" : "ObLPs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle077" :
@@ -635,7 +635,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lucidPools"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObLPs01.def",
+	"graphics" : { "default" : "ObLPs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle078" :
@@ -643,7 +643,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lucidPools"],
 	"blockedTiles" :  [0, -15, -16],
-	"graphics" : "ObLPs02.def",
+	"graphics" : { "default" : "ObLPs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle079" :
@@ -651,7 +651,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["lucidPools"],
 	"blockedTiles" :  [1, 2, 3, -13, -14, -15, -16],
-	"graphics" : "ObLPs03.def",
+	"graphics" : { "default" : "ObLPs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle080" :
@@ -659,7 +659,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["fieryFields"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObFFs00.def",
+	"graphics" : { "default" : "ObFFs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle081" :
@@ -667,7 +667,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["fieryFields"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObFFs01.def",
+	"graphics" : { "default" : "ObFFs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle082" :
@@ -675,7 +675,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["fieryFields"],
 	"blockedTiles" :  [0, 1, 2, -15],
-	"graphics" : "ObFFs02.def",
+	"graphics" : { "default" : "ObFFs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle083" :
@@ -683,7 +683,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["fieryFields"],
 	"blockedTiles" :  [1, 2, 3, -15, -16],
-	"graphics" : "ObFFs03.def",
+	"graphics" : { "default" : "ObFFs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle084" :
@@ -691,7 +691,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["fieryFields"],
 	"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-	"graphics" : "ObFFs04.def",
+	"graphics" : { "default" : "ObFFs04.def" },
 	"canBeRemoved" : true,
 },
 "obstacle085" :
@@ -699,7 +699,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["rocklands"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObRLs00.def",
+	"graphics" : { "default" : "ObRLs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle086" :
@@ -707,7 +707,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["rocklands"],
 	"blockedTiles" :  [0, 1],
-	"graphics" : "ObRLs01.def",
+	"graphics" : { "default" : "ObRLs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle087" :
@@ -715,7 +715,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["rocklands"],
 	"blockedTiles" :  [0, 1, 2],
-	"graphics" : "ObRLs02.def",
+	"graphics" : { "default" : "ObRLs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle088" :
@@ -723,7 +723,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["rocklands"],
 	"blockedTiles" :  [1, 2, 3, -15, -16],
-	"graphics" : "ObRLs03.def",
+	"graphics" : { "default" : "ObRLs03.def" },
 	"canBeRemoved" : true,
 },
 "obstacle089" :
@@ -731,7 +731,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["magicClouds"],
 	"blockedTiles" :  [0],
-	"graphics" : "ObMCs00.def",
+	"graphics" : { "default" : "ObMCs00.def" },
 	"canBeRemoved" : true,
 },
 "obstacle090" :
@@ -739,7 +739,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["magicClouds"],
 	"blockedTiles" :  [1, -16],
-	"graphics" : "ObMCs01.def",
+	"graphics" : { "default" : "ObMCs01.def" },
 	"canBeRemoved" : true,
 },
 "obstacle091" :
@@ -747,7 +747,7 @@
 	"type" : "static",
 	"battlefieldSurface" : ["magicClouds"],
 	"blockedTiles" :  [0, 1, -14, -15],
-	"graphics" : "ObMCs02.def",
+	"graphics" : { "default" : "ObMCs02.def" },
 	"canBeRemoved" : true,
 },
 "obstacle092" :
@@ -758,7 +758,7 @@
 	"offsetGraphicsInX" : 124,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [80, 94, 95, 96, 97, 105, 106, 107, 108, 109, 110],
-	"graphics" : "ObDtL04.pcx",
+	"graphics" : { "default" : "ObDtL04.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle093" :
@@ -769,7 +769,7 @@
 	"offsetGraphicsInX" : 256,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-	"graphics" : "ObDtL06.pcx",
+	"graphics" : { "default" : "ObDtL06.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle094" :
@@ -780,7 +780,7 @@
 	"offsetGraphicsInX" : 168,
 	"offsetGraphicsInY" : 212,
 	"blockedTiles" :  [60, 61, 62, 63, 64, 72, 73, 74, 75, 76, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149],
-	"graphics" : "ObDtL10.pcx",
+	"graphics" : { "default" : "ObDtL10.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle095" :
@@ -791,7 +791,7 @@
 	"offsetGraphicsInX" : 124,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-	"graphics" : "ObDtL02.pcx",
+	"graphics" : { "default" : "ObDtL02.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle096" :
@@ -802,7 +802,7 @@
 	"offsetGraphicsInX" : 146,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [76, 77, 78, 79, 80, 89, 90, 91, 92, 93],
-	"graphics" : "ObDtL03.pcx",
+	"graphics" : { "default" : "ObDtL03.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle097" :
@@ -813,7 +813,7 @@
 	"offsetGraphicsInX" : 173,
 	"offsetGraphicsInY" : 221,
 	"blockedTiles" :  [55, 56, 57, 58, 75, 76, 77, 95, 112, 113, 131],
-	"graphics" : "ObGrL01.pcx",
+	"graphics" : { "default" : "ObGrL01.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle098" :
@@ -824,7 +824,7 @@
 	"offsetGraphicsInX" : 180,
 	"offsetGraphicsInY" : 264,
 	"blockedTiles" :  [81, 91, 92, 93, 94, 95, 96, 97, 98, 106, 107, 123],
-	"graphics" : "ObGrL02.pcx",
+	"graphics" : { "default" : "ObGrL02.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle099" :
@@ -835,7 +835,7 @@
 	"offsetGraphicsInX" : 166,
 	"offsetGraphicsInY" : 255,
 	"blockedTiles" :  [76, 77, 78, 79, 91, 92, 93, 97, 98, 106, 107, 108],
-	"graphics" : "ObSnL01.pcx",
+	"graphics" : { "default" : "ObSnL01.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle100" :
@@ -846,7 +846,7 @@
 	"offsetGraphicsInX" : 302,
 	"offsetGraphicsInY" : 172,
 	"blockedTiles" :  [41, 42, 43, 58, 75, 92, 108, 126, 143],
-	"graphics" : "ObSnL14.pcx",
+	"graphics" : { "default" : "ObSnL14.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle101" :
@@ -857,7 +857,7 @@
 	"offsetGraphicsInX" : 300,
 	"offsetGraphicsInY" : 170,
 	"blockedTiles" :  [40, 41, 58, 59, 74, 75, 92, 93, 109, 110, 111, 127, 128, 129, 130],
-	"graphics" : "ObSwL15.pcx",
+	"graphics" : { "default" : "ObSwL15.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle102" :
@@ -868,7 +868,7 @@
 	"offsetGraphicsInX" : 278,
 	"offsetGraphicsInY" : 171,
 	"blockedTiles" :  [43, 60, 61, 77, 93, 94, 95, 109, 110, 126, 127],
-	"graphics" : "ObSwL14.pcx",
+	"graphics" : { "default" : "ObSwL14.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle103" :
@@ -879,7 +879,7 @@
 	"offsetGraphicsInX" : 256,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [74, 75, 76, 77, 91, 92, 93, 94, 95, 109, 110, 111, 112],
-	"graphics" : "ObSwL22.pcx",
+	"graphics" : { "default" : "ObSwL22.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle104" :
@@ -890,7 +890,7 @@
 	"offsetGraphicsInX" : 124,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [77, 78, 79, 80, 81, 91, 92, 93, 94, 105, 106, 107],
-	"graphics" : "ObLvL01.pcx",
+	"graphics" : { "default" : "ObLvL01.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle105" :
@@ -901,7 +901,7 @@
 	"offsetGraphicsInX" : 256,
 	"offsetGraphicsInY" : 128,
 	"blockedTiles" :  [43, 60, 61, 76, 77, 93, 109, 126, 127, 142, 143],
-	"graphics" : "OBLvL02.pcx",
+	"graphics" : { "default" : "OBLvL02.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle106" :
@@ -912,7 +912,7 @@
 	"offsetGraphicsInX" : 186,
 	"offsetGraphicsInY" : 212,
 	"blockedTiles" :  [55, 72, 90, 107, 125, 126, 127, 128, 129, 130, 131, 132],
-	"graphics" : "ObRgL01.pcx",
+	"graphics" : { "default" : "ObRgL01.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle107" :
@@ -923,7 +923,7 @@
 	"offsetGraphicsInX" : 347,
 	"offsetGraphicsInY" : 174,
 	"blockedTiles" :  [41, 59, 76, 94, 111, 129, 143, 144, 145],
-	"graphics" : "ObRgL02.pcx",
+	"graphics" : { "default" : "ObRgL02.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle108" :
@@ -934,7 +934,7 @@
 	"offsetGraphicsInX" : 294,
 	"offsetGraphicsInY" : 169,
 	"blockedTiles" :  [40, 41, 42, 43, 58, 75, 93, 110, 128, 145],
-	"graphics" : "ObRgL03.pcx",
+	"graphics" : { "default" : "ObRgL03.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle109" :
@@ -945,7 +945,7 @@
 	"offsetGraphicsInX" : 165,
 	"offsetGraphicsInY" : 257,
 	"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 105],
-	"graphics" : "ObRgL04.pcx",
+	"graphics" : { "default" : "ObRgL04.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle110" :
@@ -956,7 +956,7 @@
 	"offsetGraphicsInX" : 208,
 	"offsetGraphicsInY" : 268,
 	"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-	"graphics" : "ObRgL05.pcx",
+	"graphics" : { "default" : "ObRgL05.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle111" :
@@ -967,7 +967,7 @@
 	"offsetGraphicsInX" : 252,
 	"offsetGraphicsInY" : 254,
 	"blockedTiles" :  [73, 74, 75, 76, 77, 78, 91, 92, 93, 94],
-	"graphics" : "ObRgL06.pcx",
+	"graphics" : { "default" : "ObRgL06.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle112" :
@@ -978,7 +978,7 @@
 	"offsetGraphicsInX" : 278,
 	"offsetGraphicsInY" : 128,
 	"blockedTiles" :  [23, 40, 58, 75, 93, 110, 128, 145, 163],
-	"graphics" : "ObRgL15.pcx",
+	"graphics" : { "default" : "ObRgL15.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle113" :
@@ -989,7 +989,7 @@
 	"offsetGraphicsInX" : 208,
 	"offsetGraphicsInY" : 268,
 	"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-	"graphics" : "ObRgL05.pcx",
+	"graphics" : { "default" : "ObRgL05.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle114" :
@@ -1000,7 +1000,7 @@
 	"offsetGraphicsInX" : 168,
 	"offsetGraphicsInY" : 212,
 	"blockedTiles" :  [73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 106, 107, 108, 109, 110, 111, 112],
-	"graphics" : "ObRgL22.pcx",
+	"graphics" : { "default" : "ObRgL22.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle115" :
@@ -1011,7 +1011,7 @@
 	"offsetGraphicsInX" : 147,
 	"offsetGraphicsInY" : 264,
 	"blockedTiles" :  [72, 73, 74, 75, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-	"graphics" : "ObBhL02.pcx",
+	"graphics" : { "default" : "ObBhL02.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle116" :
@@ -1022,7 +1022,7 @@
 	"offsetGraphicsInX" : 178,
 	"offsetGraphicsInY" : 262,
 	"blockedTiles" :  [71, 72, 73, 74, 75, 76, 77, 78, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-	"graphics" : "ObBhL03.pcx",
+	"graphics" : { "default" : "ObBhL03.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle117" :
@@ -1033,7 +1033,7 @@
 	"offsetGraphicsInX" : 173,
 	"offsetGraphicsInY" : 257,
 	"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 90, 105, 106],
-	"graphics" : "ObBhL05.pcx",
+	"graphics" : { "default" : "ObBhL05.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle118" :
@@ -1044,7 +1044,7 @@
 	"offsetGraphicsInX" : 241,
 	"offsetGraphicsInY" : 272,
 	"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-	"graphics" : "ObBhL06.pcx",
+	"graphics" : { "default" : "ObBhL06.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle119" :
@@ -1055,7 +1055,7 @@
 	"offsetGraphicsInX" : 261,
 	"offsetGraphicsInY" : 129,
 	"blockedTiles" :  [27, 28, 43, 44, 60, 61, 76, 77, 93, 94, 109, 110, 126, 127, 142, 143, 159],
-	"graphics" : "ObBhL14.pcx",
+	"graphics" : { "default" : "ObBhL14.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle120" :
@@ -1066,7 +1066,7 @@
 	"offsetGraphicsInX" : 180,
 	"offsetGraphicsInY" : 154,
 	"blockedTiles" :  [22, 38, 39, 40, 44, 45, 46, 55, 56, 57, 62, 63, 123, 124, 125, 130, 131, 140, 141, 146, 147, 148],
-	"graphics" : "ObBhL16.pcx",
+	"graphics" : { "default" : "ObBhL16.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle121" :
@@ -1077,7 +1077,7 @@
 	"offsetGraphicsInX" : 304,
 	"offsetGraphicsInY" : 264,
 	"blockedTiles" :  [76, 77, 92, 93, 94, 95, 109, 110, 111],
-	"graphics" : "ObCFL00.pcx",
+	"graphics" : { "default" : "ObCFL00.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle122" :
@@ -1088,7 +1088,7 @@
 	"offsetGraphicsInX" : 256,
 	"offsetGraphicsInY" : 257,
 	"blockedTiles" :  [76, 77, 78, 92, 93, 94, 107, 108, 109],
-	"graphics" : "ObLPL00.pcx",
+	"graphics" : { "default" : "ObLPL00.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle123" :
@@ -1099,7 +1099,7 @@
 	"offsetGraphicsInX" : 257,
 	"offsetGraphicsInY" : 255,
 	"blockedTiles" :  [76, 77, 91, 92, 93, 94, 95, 108, 109, 110, 111],
-	"graphics" : "ObFFL00.pcx",
+	"graphics" : { "default" : "ObFFL00.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle124" :
@@ -1110,7 +1110,7 @@
 	"offsetGraphicsInX" : 277,
 	"offsetGraphicsInY" : 218,
 	"blockedTiles" :  [60, 61, 75, 76, 77, 91, 92, 93, 94, 95],
-	"graphics" : "ObRLL00.pcx",
+	"graphics" : { "default" : "ObRLL00.pcx" },
 	"canBeRemoved" : false,
 },
 "obstacle125" :
@@ -1121,7 +1121,7 @@
 	"offsetGraphicsInX" : 300,
 	"offsetGraphicsInY" : 214,
 	"blockedTiles" :  [59, 60, 74, 75, 76, 93, 94, 95, 111, 112],
-	"graphics" : "ObMCL00.pcx",
+	"graphics" : { "default" : "ObMCL00.pcx" },
 	"canBeRemoved" : false,
 },
 "castleMoat" :
@@ -1131,7 +1131,7 @@
 	"damage" : 70,
 	"offsetGraphicsInX" : 410,
 	"offsetGraphicsInY" : 90,
-	"graphics" : "SgCsMoat.pcx",
+	"graphics" : { "default" : "SgCsMoat.pcx" },
 	"place" : ["Castle"],
 	"inherent" : true
 },
@@ -1142,7 +1142,7 @@
 	"damage" : 70,
 	"offsetGraphicsInX" : 407,
 	"offsetGraphicsInY" : 80,
-	"graphics" : "SgElMoat.pcx",
+	"graphics" : { "default" : "SgElMoat.pcx" },
 	"place" : ["Conflux"],
 	"inherent" : true
 },
@@ -1153,7 +1153,7 @@
 	"damage" : 90,
 	"offsetGraphicsInX" : 284,
 	"offsetGraphicsInY" : 94,
-	"graphics" : "SgDnMoat.pcx",
+	"graphics" : { "default" : "SgDnMoat.pcx" },
 	"place" : ["Dungeon"],
 	"inherent" : true
 },
@@ -1164,7 +1164,7 @@
 	"damage" : 90,
 	"offsetGraphicsInX" : 383,
 	"offsetGraphicsInY" : 95,
-	"graphics" : "SgFrMoat.pcx",
+	"graphics" : { "default" : "SgFrMoat.pcx" },
 	"place" : ["Fortress"],
 	"inherent" : true
 },
@@ -1175,7 +1175,7 @@
 	"damage" : 90,
 	"offsetGraphicsInX" : 403,
 	"offsetGraphicsInY" : 68,
-	"graphics" : "SgInMoat.pcx",
+	"graphics" : { "default" : "SgInMoat.pcx" },
 	"place" : ["Inferno"],
 	"inherent" : true
 },
@@ -1186,7 +1186,7 @@
 	"type" : "moat",
 	"offsetGraphicsInX" : 406,
 	"offsetGraphicsInY" : 77,
-	"graphics" : "SgNcMoat.pcx",
+	"graphics" : { "default" : "SgNcMoat.pcx" },
 	"place" : ["Necropolis"],
 	"inherent" : true
 },
@@ -1197,7 +1197,7 @@
 	"damage" : 70,
 	"offsetGraphicsInX" : 410,
 	"offsetGraphicsInY" : 77,
-	"graphics" : "SgRmMoat.pcx",
+	"graphics" : { "default" : "SgRmMoat.pcx" },
 	"place" : ["Rampart"],
 	"inherent" : true
 },
@@ -1208,7 +1208,7 @@
 	"damage" : 70,
 	"offsetGraphicsInX" : 410,
 	"offsetGraphicsInY" : 90,
-	"graphics" : "SgStMoat.pcx",
+	"graphics" : { "default" : "SgStMoat.pcx" },
 	"place" : ["Stronghold"],
 	"inherent" : true
 },
@@ -1223,7 +1223,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1238,7 +1238,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1253,7 +1253,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1268,7 +1268,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1283,7 +1283,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1298,7 +1298,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1313,7 +1313,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1328,7 +1328,7 @@
 	"visibleForAnotherSide" : 0,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1343,7 +1343,7 @@
 	"spellPower" : 5,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower"],
 	"inherent" : true
 },
@@ -1358,7 +1358,7 @@
 	"spellPower" : 5,
 	"offsetGraphicsInX" : 0,
 	"offsetGraphicsInY" : 0,
-	"graphics" : "C09SPF1.def",
+	"graphics" : { "default" : "C09SPF1.def" },
 	"place" : ["Tower", "Crypt"],
 	"inherent" : true
 }

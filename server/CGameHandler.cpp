@@ -2075,6 +2075,7 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 		terrain = ETerrainType::SAND;
 
 	BattlefieldType terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
+	
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
 		terType = BattlefieldType::SHIP_TO_SHIP;
 

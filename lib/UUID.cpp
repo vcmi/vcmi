@@ -21,3 +21,13 @@ boost::uuids::uuid UUID::generateID()
 	static boost::uuids::random_generator_mt19937 gen;
 	return gen();
 }
+
+bool UUID::operator==(const UUID &rhs) const
+{
+	return ID == rhs.ID;
+}
+
+bool UUID::operator!=(const UUID &rhs) const
+{
+	return !(rhs == *this);
+}

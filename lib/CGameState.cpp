@@ -1820,6 +1820,7 @@ BattlefieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator
 		return BattlefieldType::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
+	
 	//fight in mine -> subterranean
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
 		return BattlefieldType::SUBTERRANEAN;
@@ -1861,13 +1862,13 @@ BattlefieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator
 	switch(t.terType)
 	{
 	case ETerrainType::DIRT:
-		return BattlefieldType(rand.nextInt(3, 5));
+		return BattlefieldType(rand.nextInt(2, 4));
 	case ETerrainType::SAND:
 		return BattlefieldType::SAND_MESAS; //TODO: coast support
 	case ETerrainType::GRASS:
-		return BattlefieldType(rand.nextInt(6, 7));
+		return BattlefieldType(rand.nextInt(5, 6));
 	case ETerrainType::SNOW:
-		return BattlefieldType(rand.nextInt(10, 11));
+		return BattlefieldType(rand.nextInt(9, 10));
 	case ETerrainType::SWAMP:
 		return BattlefieldType::SWAMP_TREES;
 	case ETerrainType::ROUGH:

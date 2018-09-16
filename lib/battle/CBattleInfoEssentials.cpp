@@ -68,7 +68,7 @@ std::shared_ptr<const Obstacle> CBattleInfoEssentials::battleGetObstacleByID(UUI
 
 	for(auto obstacle : getBattle()->getAllObstacles())
 	{
-		if(obstacle->ID.getID() == ID.getID())
+		if(obstacle->ID == ID)
 			return obstacle;
 	}
 

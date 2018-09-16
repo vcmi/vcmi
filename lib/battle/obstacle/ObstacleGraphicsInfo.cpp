@@ -18,15 +18,29 @@ ObstacleGraphicsInfo::ObstacleGraphicsInfo()
 
 ObstacleGraphicsInfo::ObstacleGraphicsInfo(std::string graphicsName, int32_t offsetX, int32_t offsetY)
 {
-	setGraphicsName(graphicsName);
+	setGraphics(graphicsName);
 	setOffsetGraphicsInX(offsetX);
 	setOffsetGraphicsInY(offsetY);
 }
 
 
-void ObstacleGraphicsInfo::setGraphicsName(std::string name)
+void ObstacleGraphicsInfo::setGraphics(const std::string &name, GraphicsType type)
 {
-	graphicsName = name;
+	switch(type)
+	{
+		case GraphicsType::Appear:
+			graphics[0] = name;
+			break;
+		case GraphicsType::Interaction:
+			graphics[2] = name;
+			break;
+		case GraphicsType::Disappear:
+			graphics[3] = name;
+			break;
+		default:
+			graphics[1] = name;
+			break;
+	}
 }
 
 void ObstacleGraphicsInfo::setOffsetGraphicsInX(int32_t value)
@@ -39,9 +53,19 @@ void ObstacleGraphicsInfo::setOffsetGraphicsInY(int32_t value)
 	offsetGraphicsInY = value;
 }
 
-std::string ObstacleGraphicsInfo::getGraphicsName() const
+std::string ObstacleGraphicsInfo::getGraphics(GraphicsType type) const
 {
-	return graphicsName;
+	switch(type)
+	{
+		case GraphicsType::Appear:
+			return graphics[0];
+		case GraphicsType::Interaction:
+			return graphics[2];
+		case GraphicsType::Disappear:
+			return graphics[3];
+		default:
+			return graphics[1];
+	}
 }
 
 int32_t ObstacleGraphicsInfo::getOffsetGraphicsInX() const
@@ -58,17 +82,8 @@ void ObstacleGraphicsInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("offsetGraphicsInY", offsetGraphicsInY);
 	handler.serializeInt("offsetGraphicsInX", offsetGraphicsInX);
-	handler.serializeString("name", graphicsName);
-	handler.serializeString("appearAnimation", appearAnimation);
+	handler.serializeString("appear", graphics[0]);
+	handler.serializeString("default", graphics[1]);
+	handler.serializeString("interaction", graphics[2]);
+	handler.serializeString("disappear", graphics[3]);
 }
-
-const std::string & ObstacleGraphicsInfo::getAppearAnimation() const
-{
-	return appearAnimation;
-}
-
-void ObstacleGraphicsInfo::setAppearAnimation(const std::string & appearAnimation)
-{
-	ObstacleGraphicsInfo::appearAnimation = appearAnimation;
-}
-

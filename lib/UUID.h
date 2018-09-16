@@ -13,6 +13,11 @@ class DLL_LINKAGE UUID
 {
 public:
 	boost::uuids::uuid getID() const;
+	
+	bool operator==(const UUID &rhs) const;
+	
+	bool operator!=(const UUID &rhs) const;
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID;

@@ -12,31 +12,35 @@
 class DLL_LINKAGE ObstacleGraphicsInfo
 {
 public:
+	enum class GraphicsType
+	{
+		Appear, Default, Interaction, Disappear
+	};
+	
 	ObstacleGraphicsInfo();
 	ObstacleGraphicsInfo(std::string graphicsName, int32_t offsetX, int32_t offsetY);
 
-	void setGraphicsName(std::string name);
-	void setAppearAnimation(const std::string & appearAnimation);
+	void setGraphics(const std::string &name, GraphicsType type = GraphicsType::Default);
 	void setOffsetGraphicsInX(int32_t value);
 	void setOffsetGraphicsInY(int32_t value);
 
-	std::string getGraphicsName() const;
-	const std::string &getAppearAnimation() const;
+	std::string getGraphics(GraphicsType type = GraphicsType::Default) const;
 	int32_t getOffsetGraphicsInX() const;
 	int32_t getOffsetGraphicsInY() const;
 	
 	void serializeJson(JsonSerializeFormat & handler);
 	
-	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & offsetGraphicsInX;
 		h & offsetGraphicsInY;
-		h & graphicsName;
+		h & graphics[0];
+		h & graphics[1];
+		h & graphics[2];
+		h & graphics[3];
 	}
 private:
 	int32_t offsetGraphicsInY = 0;
 	int32_t offsetGraphicsInX = 0;
-	std::string graphicsName;
-	std::string appearAnimation;
+	std::string graphics[4];
 };

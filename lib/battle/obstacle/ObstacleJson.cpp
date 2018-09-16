@@ -30,8 +30,27 @@ ObstacleArea ObstacleJson::getArea() const
 ObstacleGraphicsInfo ObstacleJson::getGraphicsInfo() const
 {
 	ObstacleGraphicsInfo info;
-	info.setGraphicsName(config["graphics"].String());
-	info.setAppearAnimation(config["appearAnimation"].String());
+	
+	info.setGraphics(config["graphics"]["default"].String(), ObstacleGraphicsInfo::GraphicsType::Default);
+	
+	if(config["graphics"]["appear"].String().empty())
+		info.setGraphics(info.getGraphics(ObstacleGraphicsInfo::GraphicsType::Default),
+						 ObstacleGraphicsInfo::GraphicsType::Appear);
+	else
+		info.setGraphics(config["graphics"]["appear"].String(), ObstacleGraphicsInfo::GraphicsType::Appear);
+	
+	if(config["graphics"]["interaction"].String().empty())
+		info.setGraphics(info.getGraphics(ObstacleGraphicsInfo::GraphicsType::Default),
+						 ObstacleGraphicsInfo::GraphicsType::Interaction);
+	else
+		info.setGraphics(config["graphics"]["interaction"].String(), ObstacleGraphicsInfo::GraphicsType::Interaction);
+	
+	if(config["graphics"]["disappear"].String().empty())
+		info.setGraphics(info.getGraphics(ObstacleGraphicsInfo::GraphicsType::Default),
+						 ObstacleGraphicsInfo::GraphicsType::Disappear);
+	else
+		info.setGraphics(config["graphics"]["disappear"].String(), ObstacleGraphicsInfo::GraphicsType::Disappear);
+	
 	info.setOffsetGraphicsInX(config["offsetGraphicsInX"].Integer());
 	info.setOffsetGraphicsInY(config["offsetGraphicsInY"].Integer());
 	return info;
