@@ -2714,7 +2714,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 					destinationTeleport = ObjectInstanceID();
 					destinationTeleportPos = int3(-1);
 				}
-				sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+				if(i != path.nodes.size() - 1)
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
 				continue;
 			}
 
