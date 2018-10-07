@@ -21,17 +21,19 @@ AINodeStorage::~AINodeStorage()
 {
 }
 
-AIPathNode * AINodeStorage::getAINode(CPathNodeInfo & nodeInfo) const
+const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
 {
-	return static_cast<AIPathNode *>(nodeInfo.node);
+	return static_cast<const AIPathNode *>(node);
 }
 
-AIPathNode * AINodeStorage::getAINode(CGPathNode * node) const
+void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNode *)> updater)
 {
-	return static_cast<AIPathNode *>(node);
+	auto aiNode = static_cast<AIPathNode *>(node);
+
+	updater(aiNode);
 }
 
-bool AINodeStorage::isBattleNode(CGPathNode * node) const
+bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 {
 	return getAINode(node)->chainMask & BATTLE_CHAIN > 0;
 }
@@ -64,25 +66,26 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 	}
 }
 
-void AINodeStorage::commit(CDestinationNodeInfo & destination, CPathNodeInfo & source)
+void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo & source)
 {
-	auto dstNode = getAINode(destination);
-	auto srcNode = getAINode(source);
+	const AIPathNode * srcNode = getAINode(source.node);
 
-	dstNode->moveRemains = destination.movementLeft;
-	dstNode->turns = destination.turn;
-	dstNode->danger = srcNode->danger;
-	dstNode->action = destination.action;
-	dstNode->theNodeBefore = srcNode->theNodeBefore;
+	updateAINode(destination.node, [&](AIPathNode * dstNode) {
+		dstNode->moveRemains = destination.movementLeft;
+		dstNode->turns = destination.turn;
+		dstNode->danger = srcNode->danger;
+		dstNode->action = destination.action;
+		dstNode->theNodeBefore = srcNode->theNodeBefore; 
+	});
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
-	CPathNodeInfo & source,
-	CPathfinderConfig * pathfinderConfig,
-	CPathfinderHelper * pathfinderHelper)
+	const PathNodeInfo & source,
+	const PathfinderConfig * pathfinderConfig,
+	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
-	auto srcNode = getAINode(source);
+	const AIPathNode * srcNode = getAINode(source.node);
 	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
@@ -102,13 +105,13 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
-	CPathNodeInfo & source,
-	CPathfinderConfig * pathfinderConfig,
-	CPathfinderHelper * pathfinderHelper)
+	const PathNodeInfo & source,
+	const PathfinderConfig * pathfinderConfig,
+	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
 	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
-	auto srcNode = getAINode(source);
+	auto srcNode = getAINode(source.node);
 
 	for(auto & neighbour : accessibleExits)
 	{
@@ -120,11 +123,11 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 	return neighbours;
 }
 
-bool AINodeStorage::hasBetterChain(CPathNodeInfo & source, CDestinationNodeInfo & destination) const
+bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 {
 	auto pos = destination.coord;
 	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
-	auto destinationNode = getAINode(destination);
+	auto destinationNode = getAINode(destination.node);
 
 	for(const AIPathNode & node : chains)
 	{
@@ -154,7 +157,7 @@ bool AINodeStorage::hasBetterChain(CPathNodeInfo & source, CDestinationNodeInfo 
 	return false;
 }
 
-std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos)
+std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos) const
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];

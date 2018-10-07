@@ -12,7 +12,7 @@
 
 #include "AINodeStorage.h"
 
-class AIPathfinderConfig : public CPathfinderConfig
+class AIPathfinderConfig : public PathfinderConfig
 {
 public:
 	AIPathfinderConfig(CPlayerSpecificInfoCallback * cb, std::shared_ptr<AINodeStorage> nodeStorage);

@@ -74,23 +74,24 @@ public:
 	virtual void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility) override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
-		CPathNodeInfo & source,
-		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) override;
 
 	virtual std::vector<CGPathNode *> calculateTeleportations(
-		CPathNodeInfo & source,
-		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) override;
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) override;
 
-	virtual void commit(CDestinationNodeInfo & destination, CPathNodeInfo & source) override;
+	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
-	AIPathNode * getAINode(CPathNodeInfo & nodeInfo) const;
-	AIPathNode * getAINode(CGPathNode * node) const;
-	bool isBattleNode(CGPathNode * node) const;
-	bool hasBetterChain(CPathNodeInfo & source, CDestinationNodeInfo & destination) const;
+	const AIPathNode * getAINode(const CGPathNode * node) const;
+	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
+
+	bool isBattleNode(const CGPathNode * node) const;
+	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 	AIPathNode * getNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber);
-	std::vector<AIPath> getChainInfo(int3 pos);
+	std::vector<AIPath> getChainInfo(int3 pos) const;
 
 	void setHero(HeroPtr heroPtr)
 	{

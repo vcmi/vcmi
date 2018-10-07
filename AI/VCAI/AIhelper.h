@@ -16,7 +16,7 @@
 
 #include "ResourceManager.h"
 #include "BuildingManager.h"
-#include "Pathfinding/CPathfindingManager.h"
+#include "Pathfinding/PathfindingManager.h"
 
 class ResourceManager;
 class BuildingManager;
@@ -30,7 +30,7 @@ class DLL_EXPORT AIhelper : public IResourceManager, public IBuildingManager, pu
 
 	std::shared_ptr<ResourceManager> resourceManager;
 	std::shared_ptr<BuildingManager> buildingManager;
-	std::shared_ptr<CPathfindingManager> pathfindingManager;
+	std::shared_ptr<PathfindingManager> pathfindingManager;
 	//TODO: vector<IAbstractManager>
 public:
 	AIhelper();

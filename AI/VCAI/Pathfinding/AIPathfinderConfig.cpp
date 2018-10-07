@@ -11,30 +11,7 @@
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
 
-class AILayerTransitionRule : public CLayerTransitionRule
-{
-public:
-	virtual void process(
-		CPathNodeInfo & source,
-		CDestinationNodeInfo & destination,
-		CPathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) const override
-	{
-		CLayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
-
-		if(!destination.blocked)
-		{
-			return;
-		}
-
-		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::SAIL)
-		{
-			logAi->debug("Check virtual boat!");
-		}
-	}
-};
-
-class AIMovementAfterDestinationRule : public CMovementAfterDestinationRule
+class AIMovementAfterDestinationRule : public MovementAfterDestinationRule
 {
 private:
 	CPlayerSpecificInfoCallback * cb;
@@ -47,9 +24,9 @@ public:
 	}
 
 	virtual void process(
-		CPathNodeInfo & source,
+		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
-		CPathfinderConfig * pathfinderConfig,
+		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const override
 	{
 		if(nodeStorage->hasBetterChain(source, destination))
@@ -64,7 +41,7 @@ public:
 		if(blocker == BlockingReason::NONE)
 			return;
 
-		auto srcNode = nodeStorage->getAINode(source);
+		auto srcNode = nodeStorage->getAINode(source.node);
 
 		if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
 		{
@@ -113,7 +90,7 @@ public:
 				return;
 			}
 
-			auto destNode = nodeStorage->getAINode(destination);
+			auto destNode = nodeStorage->getAINode(destination.node);
 			auto battleNode = nodeStorage->getNode(destination.coord, destination.node->layer, destNode->chainMask | AINodeStorage::BATTLE_CHAIN);
 
 			if(battleNode->locked)
@@ -152,7 +129,7 @@ public:
 	}
 };
 
-class AIMovementToDestinationRule : public CMovementToDestinationRule
+class AIMovementToDestinationRule : public MovementToDestinationRule
 {
 private:
 	CPlayerSpecificInfoCallback * cb;
@@ -165,9 +142,9 @@ public:
 	}
 
 	virtual void process(
-		CPathNodeInfo & source,
+		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
-		CPathfinderConfig * pathfinderConfig,
+		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const override
 	{
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
@@ -207,7 +184,7 @@ public:
 	}
 };
 
-class AIPreviousNodeRule : public CMovementToDestinationRule
+class AIPreviousNodeRule : public MovementToDestinationRule
 {
 private:
 	CPlayerSpecificInfoCallback * cb;
@@ -220,9 +197,9 @@ public:
 	}
 
 	virtual void process(
-		CPathNodeInfo & source,
+		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
-		CPathfinderConfig * pathfinderConfig,
+		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const override
 	{
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
@@ -261,10 +238,10 @@ std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 	std::shared_ptr<AINodeStorage> nodeStorage)
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> rules = {
-		std::make_shared<AILayerTransitionRule>(),
-		std::make_shared<CDestinationActionRule>(),
+		std::make_shared<LayerTransitionRule>(),
+		std::make_shared<DestinationActionRule>(),
 		std::make_shared<AIMovementToDestinationRule>(cb, nodeStorage),
-		std::make_shared<CMovementCostRule>(),
+		std::make_shared<MovementCostRule>(),
 		std::make_shared<AIPreviousNodeRule>(cb, nodeStorage),
 		std::make_shared<AIMovementAfterDestinationRule>(cb, nodeStorage)
 	};
@@ -275,6 +252,6 @@ std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 AIPathfinderConfig::AIPathfinderConfig(
 	CPlayerSpecificInfoCallback * cb, 
 	std::shared_ptr<AINodeStorage> nodeStorage)
-	:CPathfinderConfig(nodeStorage, makeRuleset(cb, nodeStorage))
+	:PathfinderConfig(nodeStorage, makeRuleset(cb, nodeStorage))
 {
 }

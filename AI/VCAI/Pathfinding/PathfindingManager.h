@@ -13,7 +13,7 @@
 #include "VCAI.h"
 #include "AINodeStorage.h"
 
-class IPathfindingManager // : pulbic IAbstractManager
+class IPathfindingManager
 {
 public:
 	virtual ~IPathfindingManager() = default;
@@ -28,7 +28,7 @@ public:
 	virtual std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) = 0;
 };
 	
-class CPathfindingManager : public IPathfindingManager
+class PathfindingManager : public IPathfindingManager
 {
 	friend class AIhelper;
 
@@ -38,8 +38,8 @@ private:
 	std::unique_ptr<AIPathfinder> pathfinder;
 
 public:
-	CPathfindingManager() = default;
-	CPathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * AI = nullptr); //for tests only
+	PathfindingManager() = default;
+	PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * AI = nullptr); //for tests only
 
 	Goals::TGoalVec howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy = true) override;
 	Goals::TGoalVec howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy = true) override;

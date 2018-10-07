@@ -25,10 +25,10 @@ bool canSeeObj(const CGObjectInstance * obj)
 	return obj != nullptr && obj->ID != Obj::EVENT;
 }
 
-std::vector<CGPathNode *> CNodeStorage::calculateNeighbours(
-	CPathNodeInfo & source,
-	CPathfinderConfig * pathfinderConfig,
-	CPathfinderHelper * pathfinderHelper)
+std::vector<CGPathNode *> NodeStorage::calculateNeighbours(
+	const PathNodeInfo & source,
+	const PathfinderConfig * pathfinderConfig,
+	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
 	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
@@ -49,10 +49,10 @@ std::vector<CGPathNode *> CNodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-std::vector<CGPathNode *> CNodeStorage::calculateTeleportations(
-	CPathNodeInfo & source,
-	CPathfinderConfig * pathfinderConfig,
-	CPathfinderHelper * pathfinderHelper)
+std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
+	const PathNodeInfo & source,
+	const PathfinderConfig * pathfinderConfig,
+	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
 	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
@@ -67,7 +67,7 @@ std::vector<CGPathNode *> CNodeStorage::calculateTeleportations(
 	return neighbours;
 }
 
-std::vector<int3> CPathfinderHelper::getNeighbourTiles(CPathNodeInfo & source) const
+std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
 {
 	std::vector<int3> neighbourTiles;
 
@@ -89,19 +89,19 @@ std::vector<int3> CPathfinderHelper::getNeighbourTiles(CPathNodeInfo & source) c
 	return neighbourTiles;
 }
 
-CNodeStorage::CNodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
+NodeStorage::NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 	:out(pathsInfo)
 {
 	out.hero = hero;
 	out.hpos = hero->getPosition(false);
 }
 
-CGPathNode * CNodeStorage::getNode(const int3 & coord, const EPathfindingLayer layer)
+CGPathNode * NodeStorage::getNode(const int3 & coord, const EPathfindingLayer layer)
 {
 	return out.getNode(coord, layer);
 }
 
-void CNodeStorage::resetTile(
+void NodeStorage::resetTile(
 	const int3 & tile,
 	EPathfindingLayer layer,
 	CGPathNode::EAccessibility accessibility)
@@ -109,7 +109,7 @@ void CNodeStorage::resetTile(
 	getNode(tile, layer)->update(tile, layer, accessibility);
 }
 
-CGPathNode * CNodeStorage::getInitialNode()
+CGPathNode * NodeStorage::getInitialNode()
 {
 	auto initialNode =  getNode(out.hpos, out.hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 
@@ -119,7 +119,7 @@ CGPathNode * CNodeStorage::getInitialNode()
 	return initialNode;
 }
 
-void CNodeStorage::commit(CDestinationNodeInfo & destination, CPathNodeInfo & source)
+void NodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo & source)
 {
 	assert(destination.node != source.node->theNodeBefore); //two tiles can't point to each other
 	destination.node->moveRemains = destination.movementLeft;
@@ -145,10 +145,10 @@ PathfinderOptions::PathfinderOptions()
 	originalMovementRules = settings["pathfinder"]["originalMovementRules"].Bool();
 }
 
-void CMovementCostRule::process(
-	CPathNodeInfo & source,
+void MovementCostRule::process(
+	const PathNodeInfo & source,
 	CDestinationNodeInfo & destination,
-	CPathfinderConfig * pathfinderConfig,
+	const PathfinderConfig * pathfinderConfig,
 	CPathfinderHelper * pathfinderHelper) const
 {
 	int turnAtNextTile = destination.turn, moveAtNextTile = destination.movementLeft;
@@ -183,7 +183,7 @@ void CMovementCostRule::process(
 	destination.blocked = true;
 }
 
-CPathfinderConfig::CPathfinderConfig(
+PathfinderConfig::PathfinderConfig(
 	std::shared_ptr<INodeStorage> nodeStorage,
 	std::vector<std::shared_ptr<IPathfindingRule>> rules)
 	: nodeStorage(nodeStorage), rules(rules), options()
@@ -197,14 +197,14 @@ CPathfinder::CPathfinder(
 	: CPathfinder(
 		_gs,
 		_hero,
-		std::make_shared<CPathfinderConfig>(
-			std::make_shared<CNodeStorage>(_out, _hero),
+		std::make_shared<PathfinderConfig>(
+			std::make_shared<NodeStorage>(_out, _hero),
 			std::vector<std::shared_ptr<IPathfindingRule>>{
-				std::make_shared<CLayerTransitionRule>(),
-				std::make_shared<CDestinationActionRule>(),
-				std::make_shared<CMovementToDestinationRule>(),
-				std::make_shared<CMovementCostRule>(),
-				std::make_shared<CMovementAfterDestinationRule>()
+				std::make_shared<LayerTransitionRule>(),
+				std::make_shared<DestinationActionRule>(),
+				std::make_shared<MovementToDestinationRule>(),
+				std::make_shared<MovementCostRule>(),
+				std::make_shared<MovementAfterDestinationRule>()
 			}))
 {
 }
@@ -212,7 +212,7 @@ CPathfinder::CPathfinder(
 CPathfinder::CPathfinder(
 	CGameState * _gs,
 	const CGHeroInstance * _hero,
-	std::shared_ptr<CPathfinderConfig> config)
+	std::shared_ptr<PathfinderConfig> config)
 	: CGameInfoCallback(_gs, boost::optional<PlayerColor>())
 	, hero(_hero)
 	, FoW(getPlayerTeam(hero->tempOwner)->fogOfWarMap), patrolTiles({})
@@ -368,7 +368,7 @@ std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(TeleportChan
 	return allowedExits;
 }
 
-std::vector<int3> CPathfinderHelper::getCastleGates(CPathNodeInfo & source) const
+std::vector<int3> CPathfinderHelper::getCastleGates(const PathNodeInfo & source) const
 {
 	std::vector<int3> allowedExits;
 
@@ -385,7 +385,7 @@ std::vector<int3> CPathfinderHelper::getCastleGates(CPathNodeInfo & source) cons
 	return allowedExits;
 }
 
-std::vector<int3> CPathfinderHelper::getTeleportExits(CPathNodeInfo & source) const
+std::vector<int3> CPathfinderHelper::getTeleportExits(const PathNodeInfo & source) const
 {
 	std::vector<int3> teleportationExits;
 
@@ -474,10 +474,10 @@ bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
 	return false;
 }
 
-void CLayerTransitionRule::process(
-	CPathNodeInfo & source,
+void LayerTransitionRule::process(
+	const PathNodeInfo & source,
 	CDestinationNodeInfo & destination,
-	CPathfinderConfig * pathfinderConfig,
+	const PathfinderConfig * pathfinderConfig,
 	CPathfinderHelper * pathfinderHelper) const
 {
 	if(source.node->layer == destination.node->layer)
@@ -536,11 +536,11 @@ void CLayerTransitionRule::process(
 	}
 }
 
-CPathfinderBlockingRule::BlockingReason CMovementToDestinationRule::getBlockingReason(
-	CPathNodeInfo & source,
-	CDestinationNodeInfo & destination,
-	CPathfinderConfig * pathfinderConfig,
-	CPathfinderHelper * pathfinderHelper) const
+PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingReason(
+	const PathNodeInfo & source,
+	const CDestinationNodeInfo & destination,
+	const PathfinderConfig * pathfinderConfig,
+	const CPathfinderHelper * pathfinderHelper) const
 {
 
 	if(destination.node->accessible == CGPathNode::BLOCKED)
@@ -607,10 +607,10 @@ CPathfinderBlockingRule::BlockingReason CMovementToDestinationRule::getBlockingR
 }
 
 
-void CMovementAfterDestinationRule::process(
-	CPathNodeInfo & source,
+void MovementAfterDestinationRule::process(
+	const PathNodeInfo & source,
 	CDestinationNodeInfo & destination,
-	CPathfinderConfig * config,
+	const PathfinderConfig * config,
 	CPathfinderHelper * pathfinderHelper) const
 {
 	auto blocker = getBlockingReason(source, destination, config, pathfinderHelper);
@@ -623,11 +623,11 @@ void CMovementAfterDestinationRule::process(
 	destination.blocked = blocker != BlockingReason::NONE;
 }
 
-CPathfinderBlockingRule::BlockingReason CMovementAfterDestinationRule::getBlockingReason(
-	CPathNodeInfo & source, 
-	CDestinationNodeInfo & destination,
-	CPathfinderConfig * config,
-	CPathfinderHelper * pathfinderHelper) const
+PathfinderBlockingRule::BlockingReason MovementAfterDestinationRule::getBlockingReason(
+	const PathNodeInfo & source, 
+	const CDestinationNodeInfo & destination,
+	const PathfinderConfig * config,
+	const CPathfinderHelper * pathfinderHelper) const
 {
 	switch(destination.action)
 	{
@@ -686,10 +686,10 @@ CPathfinderBlockingRule::BlockingReason CMovementAfterDestinationRule::getBlocki
 	return BlockingReason::DESTINATION_BLOCKED;
 }
 
-void CDestinationActionRule::process(
-	CPathNodeInfo & source,
+void DestinationActionRule::process(
+	const PathNodeInfo & source,
 	CDestinationNodeInfo & destination,
-	CPathfinderConfig * pathfinderConfig,
+	const PathfinderConfig * pathfinderConfig,
 	CPathfinderHelper * pathfinderHelper) const
 {
 	if(destination.action != CGPathNode::ENodeAction::UNKNOWN)
@@ -1008,7 +1008,7 @@ int CPathfinderHelper::movementPointsAfterEmbark(int movement, int turn, int act
 	return hero->movementPointsAfterEmbark(movement, turn, action, getTurnInfo());
 }
 
-bool CPathfinderHelper::passOneTurnLimitCheck(CPathNodeInfo & source) const
+bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 {
 
 	if(!options.oneTurnSpecialLayersLimit)
@@ -1419,12 +1419,12 @@ CGPathNode * CPathsInfo::getNode(const int3 & coord, const ELayer layer)
 	return &nodes[coord.x][coord.y][coord.z][layer];
 }
 
-CPathNodeInfo::CPathNodeInfo()
+PathNodeInfo::PathNodeInfo()
 	: node(nullptr), nodeObject(nullptr), tile(nullptr), coord(-1, -1, -1), guarded(false)
 {
 }
 
-void CPathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject)
+void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject)
 {
 	node = n;
 
@@ -1441,13 +1441,13 @@ void CPathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObje
 }
 
 CDestinationNodeInfo::CDestinationNodeInfo()
-	: CPathNodeInfo(), blocked(false), action(CGPathNode::ENodeAction::UNKNOWN)
+	: PathNodeInfo(), blocked(false), action(CGPathNode::ENodeAction::UNKNOWN)
 {
 }
 
 void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject)
 {
-	CPathNodeInfo::setNode(gs, n, excludeTopObject);
+	PathNodeInfo::setNode(gs, n, excludeTopObject);
 
 	blocked = false;
 	action = CGPathNode::ENodeAction::UNKNOWN;
@@ -1466,7 +1466,7 @@ bool CDestinationNodeInfo::isBetterWay() const
 
 }
 
-bool CPathNodeInfo::isNodeObjectVisitable() const
+bool PathNodeInfo::isNodeObjectVisitable() const
 {
 	/// Hero can't visit objects while walking on water or flying
 	return canSeeObj(nodeObject) && (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL);

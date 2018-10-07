@@ -11,7 +11,7 @@ set(VCAI_SRCS
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
-		Pathfinding/CPathfindingManager.cpp
+		Pathfinding/PathfindingManager.cpp
 		AIUtility.cpp
 		AIhelper.cpp
 		ResourceManager.cpp
@@ -32,7 +32,7 @@ set(VCAI_HEADERS
 		Pathfinding/AIPathfinderConfig.h
 		Pathfinding/AIPathfinder.h
 		Pathfinding/AINodeStorage.h
-		Pathfinding/CPathfindingManager.h
+		Pathfinding/PathfindingManager.h
 		AIUtility.h
 		AIhelper.h
 		ResourceManager.h

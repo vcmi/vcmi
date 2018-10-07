@@ -25,7 +25,7 @@ class IShipyard;
 struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
-class CPathfinderConfig;
+class PathfinderConfig;
 struct CPack;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;

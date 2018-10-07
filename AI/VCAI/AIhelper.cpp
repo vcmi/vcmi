@@ -17,8 +17,7 @@ AIhelper::AIhelper()
 {
 	resourceManager.reset(new ResourceManager());
 	buildingManager.reset(new BuildingManager());
-	pathfindingManager.reset(new CPathfindingManager());
-	//TODO: push to vector
+	pathfindingManager.reset(new PathfindingManager());
 }
 
 AIhelper::~AIhelper()
@@ -32,7 +31,6 @@ bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 
 void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
 {
-	//TODO: for
 	resourceManager->setCB(CB);
 	buildingManager->setCB(CB);
 	pathfindingManager->setCB(CB);
@@ -40,7 +38,6 @@ void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
 
 void AIhelper::setAI(VCAI * AI)
 {
-	//TODO: for loop
 	resourceManager->setAI(AI);
 	buildingManager->setAI(AI);
 	pathfindingManager->setAI(AI);
