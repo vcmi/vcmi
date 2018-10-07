@@ -19,10 +19,13 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 {
-	if(vec.empty()) //no possibilities found
-		return sptr(Goals::Invalid());
+	if(vec.empty())
+	{
+		logAi->debug("FuzzyHelper found no goals. Returning Goals::Invalid.");
 
-	ai->cachedSectorMaps.clear();
+		//no possibilities found
+		return sptr(Goals::Invalid());
+	}
 
 	//a trick to switch between heroes less often - calculatePaths is costly
 	auto sortByHeroes = [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
@@ -40,7 +43,17 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 	{
 		return lhs->priority < rhs->priority;
 	};
-	return *boost::max_element(vec, compareGoals);
+
+	for(auto goal : vec)
+	{
+		logAi->debug("FuzzyHelper evaluated goal %s, priority=%i", goal->name(), goal->priority);
+	}
+
+	Goals::TSubgoal result = *boost::max_element(vec, compareGoals);
+
+	logAi->debug("FuzzyHelper returned goal %s, priority=%i", result->name(), result->priority);
+
+	return result;
 }
 
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
@@ -96,24 +109,7 @@ float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		return 0; //lowest priority
 
-	int3 t = ai->getCachedSectorMap(g.hero)->firstTileToGet(g.hero, g.tile);
-
-	if(t.valid())
-	{
-		if(isSafeToVisit(g.hero, t))
-		{
-			g.setpriority(Goals::VisitTile(g.tile).sethero(g.hero).setisAbstract(g.isAbstract).accept(this));
-		}
-		else
-		{
-			g.setpriority (Goals::GatherArmy(evaluateDanger(t, g.hero.h)*SAFE_ATTACK_CONSTANT).
-				sethero(g.hero).setisAbstract(true).accept(this));
-		}
-		return g.priority;
-	}
-	else
-		return -1;
-
+	return g.whatToDoToAchieve()->accept(this);
 }
 
 float FuzzyHelper::evaluate(Goals::BuildThis & g)

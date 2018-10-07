@@ -17,7 +17,7 @@ AIhelper::AIhelper()
 {
 	resourceManager.reset(new ResourceManager());
 	buildingManager.reset(new BuildingManager());
-	//TODO: push to vector
+	pathfindingManager.reset(new PathfindingManager());
 }
 
 AIhelper::~AIhelper()
@@ -31,16 +31,16 @@ bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 
 void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
 {
-	//TODO: for
 	resourceManager->setCB(CB);
 	buildingManager->setCB(CB);
+	pathfindingManager->setCB(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)
 {
-	//TODO: for loop
 	resourceManager->setAI(AI);
 	buildingManager->setAI(AI);
+	pathfindingManager->setAI(AI);
 }
 
 bool AIhelper::getBuildingOptions(const CGTownInstance * t)
@@ -111,4 +111,34 @@ TResources AIhelper::allResources() const
 TResource AIhelper::allGold() const
 {
 	return resourceManager->allGold();
+}
+
+Goals::TGoalVec AIhelper::howToVisitTile(int3 tile)
+{
+	return pathfindingManager->howToVisitTile(tile);
+}
+
+Goals::TGoalVec AIhelper::howToVisitObj(ObjectIdRef obj)
+{
+	return pathfindingManager->howToVisitObj(obj);
+}
+
+Goals::TGoalVec AIhelper::howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy)
+{
+	return pathfindingManager->howToVisitTile(hero, tile, allowGatherArmy);
+}
+
+Goals::TGoalVec AIhelper::howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy)
+{
+	return pathfindingManager->howToVisitObj(hero, obj, allowGatherArmy);
+}
+
+std::vector<AIPath> AIhelper::getPathsToTile(HeroPtr hero, int3 tile)
+{
+	return pathfindingManager->getPathsToTile(hero, tile);
+}
+
+void AIhelper::resetPaths()
+{
+	pathfindingManager->resetPaths();
 }

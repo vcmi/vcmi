@@ -172,6 +172,8 @@ Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
 
 Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 {
+	logAi->trace("ResourceManager: checking goal %s which requires resources %s", goal->name(), res.toString());
+
 	TResources accumulatedResources;
 	auto allResources = cb->getResourceAmount();
 
@@ -181,19 +183,38 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 	for (auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
 	{
 		accumulatedResources += it->resources;
-		if (!accumulatedResources.canBeAfforded(allResources)) //can't afford
-			return collectResourcesForOurGoal(ro);
+
+		logAi->trace(
+			"ResourceManager: checking goal %s, accumulatedResources=%s, available=%s", 
+			it->goal->name(), 
+			accumulatedResources.toString(), 
+			allResources.toString());
+
+		if(!accumulatedResources.canBeAfforded(allResources))
+		{
+			//can't afford
+			break;
+		}
 		else //can afford all goals up to this point
 		{
-			if (it->goal == goal)
+			if(it->goal == goal)
+			{
+				logAi->debug("ResourceManager: can afford goal %s", goal->name());
 				return goal; //can afford immediately
+			}
 		}
 	}
-	return collectResourcesForOurGoal(ro); //fallback, ever needed?
+
+	logAi->debug("ResourceManager: can not afford goal %s", goal->name());
+
+	return collectResourcesForOurGoal(ro);
 }
 
 bool ResourceManager::containsObjective(Goals::TSubgoal goal) const
 {
+	logAi->trace("Entering ResourceManager.containsObjective goal=%s", goal->name());
+	dumpToLog();
+
 	//TODO: unit tests for once
 	for (auto objective : queue)
 	{
@@ -205,6 +226,8 @@ bool ResourceManager::containsObjective(Goals::TSubgoal goal) const
 
 bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 {
+	logAi->trace("Entering ResourceManager.notifyGoalCompleted goal=%s", goal->name());
+
 	if (goal->invalid())
 		logAi->warn("Attempt to complete Invalid goal");
 
@@ -215,15 +238,18 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 		{
 			return ro.goal == goal || ro.goal->fulfillsMe (goal);
 		});
-		if (it != queue.end()) //removed at least one
+		if(it != queue.end()) //removed at least one
 		{
 			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
 			queue.erase(queue.s_handle_from_iterator(it));
 			removedGoal = true;
 		}
 		else //found nothing more to remove
-			return removedGoal;
+			break;
 	}
+
+	dumpToLog();
+
 	return removedGoal;
 }
 
@@ -248,9 +274,20 @@ bool ResourceManager::updateGoal(Goals::TSubgoal goal)
 		return false;
 }
 
+void ResourceManager::dumpToLog() const
+{
+	for(auto it = queue.ordered_begin(); it != queue.ordered_end(); it++)
+	{
+		logAi->trace("ResourceManager contains goal %s which requires resources %s", it->goal->name(), it->resources.toString());
+	}
+}
+
 bool ResourceManager::tryPush(const ResourceObjective & o)
 {
 	auto goal = o.goal;
+
+	logAi->trace("ResourceManager: Trying to add goal %s which requires resources %s", goal->name(), o.resources.toString());
+	dumpToLog();
 
 	auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
 	{

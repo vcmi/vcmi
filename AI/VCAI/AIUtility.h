@@ -59,6 +59,10 @@ public:
 	const CGHeroInstance * operator->() const;
 	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
 	bool operator==(const HeroPtr & rhs) const;
+	bool operator!=(const HeroPtr & rhs) const
+	{
+		return !(*this == rhs);
+	}
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
@@ -88,6 +92,7 @@ struct ObjectIdRef
 
 	const CGObjectInstance * operator->() const;
 	operator const CGObjectInstance *() const;
+	operator bool() const;
 
 	ObjectIdRef(ObjectInstanceID _id);
 	ObjectIdRef(const CGObjectInstance * obj);
@@ -166,16 +171,18 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 
 ui64 evaluateDanger(const CGObjectInstance * obj);
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
-bool isSafeToVisit(HeroPtr h, crint3 tile);
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
+bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength);
+bool isSafeToVisit(HeroPtr h, crint3 tile);
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
-ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGTownInstance * t);
+ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t);
 ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
 int3 whereToExplore(HeroPtr h);
+uint32_t distanceToTile(const CGHeroInstance * hero, int3 pos);
 
 class CDistanceSorter
 {

@@ -163,6 +163,9 @@ bool Goals::AbstractGoal::operator==(AbstractGoal & g)
 		return (town == g.town && bid == g.bid); //build specific structure in specific town
 		break;
 
+	case BUY_ARMY:
+		return town == g.town;
+
 	//no check atm
 	case COLLECT_RES:
 	case TRADE: //TODO
@@ -698,63 +701,10 @@ TGoalVec ClearWayTo::getAllPossibleSubgoals()
 
 		//if our hero is trapped, make sure we request clearing the way from OUR perspective
 
-		auto sm = ai->getCachedSectorMap(h);
-
-		int3 tileToHit = sm->firstTileToGet(h, tile);
-		if(!tileToHit.valid())
-			continue;
-
-		if(isBlockedBorderGate(tileToHit))
-		{
-			//FIXME: this way we'll not visit gate and activate quest :?
-			ret.push_back(sptr(Goals::FindObj(Obj::KEYMASTER, cb->getTile(tileToHit)->visitableObjects.back()->subID)));
-			return ret; //only option
-		}
-
-		auto topObj = cb->getTopObj(tileToHit);
-		if(topObj)
-		{
-			if(vstd::contains(ai->reservedObjs, topObj) && !vstd::contains(ai->reservedHeroesMap[h], topObj))
-			{
-				throw goalFulfilledException(sptr(Goals::ClearWayTo(tile, h)));
-				continue; //do not capure object reserved by other hero
-			}
-
-			if(topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-			{
-				if(topObj != hero.get(true)) //the hero we want to free
-					logAi->error("%s stands in the way of %s", topObj->getObjectName(), h->getObjectName());
-			}
-			if(topObj->ID == Obj::QUEST_GUARD || topObj->ID == Obj::BORDERGUARD)
-			{
-				if(shouldVisit(h, topObj))
-				{
-					//do NOT use VISIT_TILE, as tile with quets guard can't be visited
-					ret.push_back(sptr(Goals::VisitObj(topObj->id.getNum()).sethero(h))); //TODO: Recheck this code - object visit became elementar goal
-					continue; //do not try to visit tile or gather army
-				}
-				else
-				{
-					//TODO: we should be able to return apriopriate quest here
-					//ret.push_back(ai->questToGoal());
-					//however, visiting obj for firts time will give us quest
-					logAi->debug("Quest guard blocks the way to %s", tile.toString());
-					continue; //do not access quets guard if we can't complete the quest
-				}
-				return ret; //try complete quest as the only option
-			}
-		}
-		if(isSafeToVisit(h, tileToHit)) //this makes sense only if tile is guarded, but there is no quest object
-		{
-			ret.push_back(sptr(Goals::VisitTile(tileToHit).sethero(h)));
-		}
-		else
-		{
-			ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(tileToHit, h) * SAFE_ATTACK_CONSTANT).
-					   sethero(h).setisAbstract(true)));
-		}
+		vstd::concatenate(ret, ai->ah->howToVisitTile(h, tile));
 	}
-	if(ai->canRecruitAnyHero())
+
+	if(ret.empty() && ai->canRecruitAnyHero())
 		ret.push_back(sptr(Goals::RecruitHero()));
 
 	if(ret.empty())
@@ -860,13 +810,11 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	auto primaryHero = ai->primaryHero().h;
 	for(auto h : heroes)
 	{
-		auto sm = ai->getCachedSectorMap(h);
-
 		for(auto obj : objs) //double loop, performance risk?
 		{
-			auto t = sm->firstTileToGet(h, obj->visitablePos()); //we assume that no more than one tile on the way is guarded
-			if(ai->isTileNotReserved(h, t))
-				ret.push_back(sptr(Goals::ClearWayTo(obj->visitablePos(), h).setisAbstract(true)));
+			auto waysToVisitObj = ai->ah->howToVisitObj(h, obj);
+
+			vstd::concatenate(ret, waysToVisitObj);
 		}
 
 		int3 t = whereToExplore(h);
@@ -883,7 +831,9 @@ TGoalVec Explore::getAllPossibleSubgoals()
 				t = ai->explorationDesperate(h);  //check this only ONCE, high cost
 				if (t.valid()) //don't waste time if we are completely blocked
 				{
-					ret.push_back(sptr(Goals::ClearWayTo(t, h).setisAbstract(true)));
+					auto waysToVisitTile = ai->ah->howToVisitTile(h, t);
+
+					vstd::concatenate(ret, waysToVisitTile);
 					continue;
 				}
 			}
@@ -1131,7 +1081,6 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 	}
 	for (auto h : cb->getHeroesInfo())
 	{
-		auto sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
 		for (auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
@@ -1139,11 +1088,12 @@ TGoalVec Goals::CollectRes::getAllPossibleSubgoals()
 			if (givesResource(obj))
 				ourObjs.push_back(obj);
 		}
+
 		for (auto obj : ourObjs)
 		{
-			auto pos = obj->visitablePos();
-			if (ai->isTileNotReserved(h, pos)) //further decomposition and evaluation will be handled by VisitObj
-				ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
+			auto waysToGo = ai->ah->howToVisitObj(h, ObjectIdRef(obj));
+
+			vstd::concatenate(ret, waysToGo);
 		}
 	}
 	return ret;
@@ -1384,7 +1334,6 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 
 	for(auto h : cb->getHeroesInfo())
 	{
-		auto sm = ai->getCachedSectorMap(h);
 		std::vector<const CGObjectInstance *> ourObjs(objs); //copy common objects
 
 		for(auto obj : ai->reservedHeroesMap[h]) //add objects reserved by this hero
@@ -1394,32 +1343,9 @@ TGoalVec Conquer::getAllPossibleSubgoals()
 		}
 		for(auto obj : ourObjs)
 		{
-			int3 dest = obj->visitablePos();
-			auto t = sm->firstTileToGet(h, dest); //we assume that no more than one tile on the way is guarded
-			if(t.valid()) //we know any path at all
-			{
-				if(ai->isTileNotReserved(h, t)) //no other hero wants to conquer that tile
-				{
-					if(isSafeToVisit(h, dest))
-					{
-						if(dest != t) //there is something blocking our way
-							ret.push_back(sptr(Goals::ClearWayTo(dest, h).setisAbstract(true)));
-						else
-						{
-							if(obj->ID.num == Obj::HERO) //enemy hero may move to other position
-							{
-								ret.push_back(sptr(Goals::VisitHero(obj->id.getNum()).sethero(h).setisAbstract(true)));
-							}
-							else //just get that object
-							{
-								ret.push_back(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h).setisAbstract(true)));
-							}
-						}
-					}
-					else //we need to get army in order to conquer that place
-						ret.push_back(sptr(Goals::GatherArmy(evaluateDanger(dest, h) * SAFE_ATTACK_CONSTANT).sethero(h).setisAbstract(true)));
-				}
-			}
+			auto waysToGo = ai->ah->howToVisitObj(h, ObjectIdRef(obj));
+
+			vstd::concatenate(ret, waysToGo);
 		}
 	}
 	if(!objs.empty() && ai->canRecruitAnyHero()) //probably no point to recruit hero if we see no objects to capture
@@ -1500,6 +1426,11 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	//get all possible towns, heroes and dwellings we may use
 	TGoalVec ret;
 
+	if(!hero.validAndSet())
+	{
+		return ret;
+	}
+
 	//TODO: include evaluation of monsters gather in calculation
 	for(auto t : cb->getTownsInfo())
 	{
@@ -1513,14 +1444,16 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 					ret.push_back(sptr(Goals::VisitTile(pos).sethero(hero)));
 			}
 			//buy army in town
-			if (!t->visitingHero || t->visitingHero != hero.get(true))
+			if (!t->visitingHero || t->visitingHero == hero.get(true))
 			{
 				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, t));
 				if (val)
 				{
 					auto goal = sptr(Goals::BuyArmy(t, val).sethero(hero));
-					if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+					if(!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 						ret.push_back(goal);
+					else
+						logAi->debug("Can not buy army, because of ai->ah->containsObjective");
 				}
 			}
 			//build dwelling
@@ -1532,6 +1465,8 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
 				if (!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 					ret.push_back(goal);
+				else
+					logAi->debug("Can not build a structure, because of ai->ah->containsObjective");
 			}
 		}
 	}
@@ -1554,7 +1489,8 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	for(auto h : otherHeroes)
 	{
 		// Go to the other hero if we are faster
-		if (!vstd::contains(ai->visitedHeroes[hero], h)) //visit only once each turn //FIXME: this is only bug workaround
+		if (!vstd::contains(ai->visitedHeroes[hero], h)
+			&& ai->isAccessibleForHero(h->visitablePos(), hero, true)) //visit only once each turn //FIXME: this is only bug workaround
 			ret.push_back(sptr(Goals::VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
 		// Let the other hero come to us
 		if (!vstd::contains(ai->visitedHeroes[h], hero))
@@ -1572,15 +1508,21 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			if(relationToOwner == PlayerRelations::SAME_PLAYER)
 			{
 				auto dwelling = dynamic_cast<const CGDwelling *>(obj);
-				for(auto & creLevel : dwelling->creatures)
+
+				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, dwelling));
+
+				if(val)
 				{
-					if(creLevel.first)
+					for(auto & creLevel : dwelling->creatures)
 					{
-						for(auto & creatureID : creLevel.second)
+						if(creLevel.first)
 						{
-							auto creature = VLC->creh->creatures[creatureID];
-							if(ai->ah->freeResources().canAfford(creature->cost))
-								objs.push_back(obj); //TODO: reserve resources?
+							for(auto & creatureID : creLevel.second)
+							{
+								auto creature = VLC->creh->creatures[creatureID];
+								if(ai->ah->freeResources().canAfford(creature->cost))
+									objs.push_back(obj); //TODO: reserve resources?
+							}
 						}
 					}
 				}
@@ -1589,13 +1531,13 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 	for(auto h : cb->getHeroesInfo())
 	{
-		auto sm = ai->getCachedSectorMap(h);
 		for(auto obj : objs)
 		{
 			//find safe dwelling
-			auto pos = obj->visitablePos();
-			if(ai->isGoodForVisit(obj, h, *sm))
-				ret.push_back(sptr(Goals::VisitTile(pos).sethero(h)));
+			if(ai->isGoodForVisit(obj, h))
+			{
+				vstd::concatenate(ret, ai->ah->howToVisitObj(h, obj));
+			}
 		}
 	}
 
