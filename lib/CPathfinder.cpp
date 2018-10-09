@@ -282,11 +282,11 @@ void CPathfinder::calculatePaths()
 			if(!hlp->isLayerAvailable(neighbour->layer))
 				continue;
 
-			/// Check transition without tile accessability rules
-			if(source.node->layer != neighbour->layer && !isLayerTransitionPossible(neighbour->layer))
-				continue;
-
 			destination.setNode(gs, neighbour);
+
+			/// Check transition without tile accessability rules
+			if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
+				continue;
 
 			destination.turn = turn;
 			destination.movementLeft = movement;
@@ -428,8 +428,10 @@ bool CPathfinder::isPatrolMovementAllowed(const int3 & dst) const
 	return true;
 }
 
-bool CPathfinder::isLayerTransitionPossible(const ELayer destLayer) const
+bool CPathfinder::isLayerTransitionPossible() const
 {
+	ELayer destLayer = destination.node->layer;
+
 	/// No layer transition allowed when previous node action is BATTLE
 	if(source.node->action == CGPathNode::BATTLE)
 		return false;
