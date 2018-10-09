@@ -26,7 +26,7 @@ engineBase::engineBase()
 
 void engineBase::configure()
 {
-	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid", "General");
+	engine.configure("Minimum", "Maximum", "Minimum", "AlgebraicSum", "Centroid", "Proportional");
 	logAi->info(engine.toString());
 }
 
