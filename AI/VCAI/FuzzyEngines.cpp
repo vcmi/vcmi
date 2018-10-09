@@ -168,17 +168,17 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 		addRule("if OurSpeed is LOW and EnemyShooters is MANY then Threat is HIGH");
 		addRule("if OurSpeed is HIGH and EnemyShooters is MANY then Threat is LOW");
 
-		addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is somewhat LOW");
-		addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH");
+		addRule("if OurWalkers is FEW and EnemyShooters is MANY then Threat is LOW");
+		addRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is HIGH");
 		//just to cover all cases
 		addRule("if OurShooters is FEW and EnemySpeed is HIGH then Threat is MEDIUM");
 		addRule("if EnemySpeed is MEDIUM then Threat is MEDIUM");
 		addRule("if EnemySpeed is LOW and OurShooters is FEW then Threat is MEDIUM");
 
-		addRule("if Bank is TRUE and OurShooters is MANY then Threat is somewhat HIGH");
+		addRule("if Bank is TRUE and OurShooters is MANY then Threat is HIGH");
 		addRule("if Bank is TRUE and EnemyShooters is MANY then Threat is LOW");
 
-		addRule("if CastleWalls is HIGH and OurWalkers is MANY then Threat is very HIGH");
+		addRule("if CastleWalls is HIGH and OurWalkers is MANY then Threat is HIGH");
 		addRule("if CastleWalls is HIGH and OurFlyers is MANY and OurShooters is MANY then Threat is MEDIUM");
 		addRule("if CastleWalls is MEDIUM and OurShooters is MANY and EnemyWalkers is MANY then Threat is LOW");
 
@@ -269,7 +269,7 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
 
 		//strength compared to our main hero
-		heroStrength->addTerm(new fl::Ramp("LOW", 0.2, 0));
+		heroStrength->addTerm(new fl::Ramp("LOW", 0.5, 0));
 		heroStrength->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
 		heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
 		heroStrength->setRange(0.0, 1.0);
@@ -292,19 +292,19 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		value->setRange(0.0, 5.0);
 
 		//use unarmed scouts if possible
-		addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is very HIGH");
+		addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is HIGH");
 		//we may want to use secondary hero(es) rather than main hero
-		addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is somewhat HIGH");
-		addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is somewhat LOW");
+		addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is MEDIUM");
+		addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is LOW");
 		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
-		addRule("if strengthRatio is LOW and heroStrength is LOW then Value is very LOW");
+		addRule("if strengthRatio is LOW and heroStrength is LOW then Value is LOW");
 		//attempt to arm secondary heroes is not stupid
-		addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is somewhat HIGH");
+		addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is HIGH");
 		addRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW");
 
 		//do not cancel important goals
-		addRule("if lockedMissionImportance is HIGH then Value is very LOW");
-		addRule("if lockedMissionImportance is MEDIUM then Value is somewhat LOW");
+		addRule("if lockedMissionImportance is HIGH then Value is LOW");
+		addRule("if lockedMissionImportance is MEDIUM then Value is MEDIUM");
 		addRule("if lockedMissionImportance is LOW then Value is HIGH");
 		//pick nearby objects if it's easy, avoid long walks
 		addRule("if turnDistance is SHORT then Value is HIGH");
