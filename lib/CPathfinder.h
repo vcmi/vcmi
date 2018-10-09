@@ -390,7 +390,7 @@ private:
 	bool isHeroPatrolLocked() const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
 
-	bool isLayerTransitionPossible(const ELayer dstLayer) const;
+	bool isLayerTransitionPossible() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 
 	bool isSourceInitialPosition() const;
