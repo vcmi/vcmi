@@ -696,6 +696,7 @@ void DestinationActionRule::process(
 {
 	if(destination.action != CGPathNode::ENodeAction::UNKNOWN)
 	{
+		logAi->trace("Accepted precalculated action at %s", destination.coord.toString());
 		return;
 	}
 

@@ -13,17 +13,19 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
+#include "../Goals.h"
 
-class IVirtualObject
+class ISpecialAction
 {
 public:
-	virtual void materialize();
+	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const = 0;
 };
 
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;
 	uint64_t danger;
+	std::shared_ptr<const ISpecialAction> specialAction;
 };
 
 struct AIPathNodeInfo
@@ -38,6 +40,7 @@ struct AIPathNodeInfo
 struct AIPath
 {
 	std::vector<AIPathNodeInfo> nodes;
+	std::shared_ptr<const ISpecialAction> specialAction;
 
 	AIPath();
 
@@ -63,9 +66,13 @@ private:
 
 public:
 	/// more than 1 chain layer allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 2;
-	static const int NORMAL_CHAIN = 0;
-	static const int BATTLE_CHAIN = 1;
+	static const int NUM_CHAINS = 3;
+
+	// chain flags, can be combined
+	static const int NORMAL_CHAIN = 1;
+	static const int BATTLE_CHAIN = 2;
+	static const int CAST_CHAIN = 4;
+	static const int RESOURCE_CHAIN = 8;
 
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
@@ -90,7 +97,7 @@ public:
 
 	bool isBattleNode(const CGPathNode * node) const;
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
-	AIPathNode * getNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber);
+	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber);
 	std::vector<AIPath> getChainInfo(int3 pos) const;
 
 	void setHero(HeroPtr heroPtr)

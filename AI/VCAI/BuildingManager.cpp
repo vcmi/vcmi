@@ -127,7 +127,7 @@ bool BuildingManager::tryBuildNextStructure(const CGTownInstance * t, std::vecto
 	return false; //Nothing to build
 }
 
-void BuildingManager::setCB(CPlayerSpecificInfoCallback * CB)
+void BuildingManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
 }

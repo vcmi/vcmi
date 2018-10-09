@@ -17,7 +17,7 @@ class IPathfindingManager
 {
 public:
 	virtual ~IPathfindingManager() = default;
-	virtual void setCB(CPlayerSpecificInfoCallback * CB) = 0;
+	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 
 	virtual void resetPaths() = 0;
@@ -49,7 +49,7 @@ public:
 	void resetPaths() override;
 
 private:
-	void setCB(CPlayerSpecificInfoCallback * CB) override;
+	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
 
 	Goals::TGoalVec findPath(

@@ -11,9 +11,13 @@
 #pragma once
 
 #include "AINodeStorage.h"
+#include "../VCAI.h"
 
 class AIPathfinderConfig : public PathfinderConfig
 {
 public:
-	AIPathfinderConfig(CPlayerSpecificInfoCallback * cb, std::shared_ptr<AINodeStorage> nodeStorage);
+	AIPathfinderConfig(
+		CPlayerSpecificInfoCallback * cb,
+		VCAI * ai, 
+		std::shared_ptr<AINodeStorage> nodeStorage);
 };

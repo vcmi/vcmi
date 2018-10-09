@@ -115,70 +115,94 @@ std::string Goals::AbstractGoal::name() const //TODO: virtualize
 	return desc;
 }
 
-bool Goals::AbstractGoal::operator==(AbstractGoal & g)
+bool Goals::BuildBoat::operator==(const BuildBoat & other) const
 {
-	/*this operator checks if goals are EQUIVALENT, ie. if they represent same objective
-	it does not not check isAbstract or isElementar, as this is up to VCAI decomposition logic
-	*/
-	if(g.goalType != goalType)
-		return false;
+	return shipyard->o->id == other.shipyard->o->id;
+}
 
-	switch(goalType)
-	{
-	//no parameters
-	case INVALID:
-	case WIN:
-	case DO_NOT_LOSE:
-	case RECRUIT_HERO: //overloaded
-		return true;
-		break;
+bool Goals::Explore::operator==(const Explore & other) const
+{
+	return other.hero.h == hero.h;
+}
 
-	//assigned to hero, no parameters
-	case CONQUER:
-	case EXPLORE:
-	case BOOST_HERO:
-		return g.hero.h == hero.h; //how comes HeroPtrs are equal for different heroes?
-		break;
+bool Goals::Conquer::operator==(const Conquer & other) const
+{
+	return other.hero.h == hero.h;
+}
 
-	case GATHER_ARMY: //actual value is indifferent
-		return (g.hero.h == hero.h || town == g.town); //TODO: gather army for town maybe?
-		break;
+bool Goals::GatherArmy::operator==(const GatherArmy & other) const
+{
+	return other.hero.h == hero.h || town == other.town;
+}
 
-	//assigned hero and tile
-	case VISIT_TILE:
-	case CLEAR_WAY_TO:
-	case DIG_AT_TILE:
-		return (g.hero.h == hero.h && g.tile == tile);
-		break;
+bool Goals::BuyArmy::operator==(const BuyArmy & other) const
+{
+	return town == other.town;
+}
 
-	//assigned hero and object
-	case VISIT_OBJ:
-	case FIND_OBJ: //TODO: use subtype?
-	case VISIT_HERO:
-	case GET_ART_TYPE:
-		return (g.hero.h == hero.h && g.objid == objid);
-		break;
+bool Goals::BoostHero::operator==(const BoostHero & other) const
+{
+	return other.hero.h == hero.h;
+}
 
-	case BUILD_STRUCTURE:
-		return (town == g.town && bid == g.bid); //build specific structure in specific town
-		break;
+bool Goals::BuildThis::operator==(const BuildThis & other) const
+{
+	return town == other.town && bid == other.bid;
+}
 
-	case BUY_ARMY:
-		return town == g.town;
+bool Goals::CollectRes::operator==(const CollectRes & other) const
+{
+	return resID == other.resID;
+}
 
-	//no check atm
-	case COLLECT_RES:
-	case TRADE: //TODO
-		return (resID == g.resID); //every hero may collect resources
-		break;
-	case BUILD: //abstract build is indentical, TODO: consider building anything in town
-		return true;
-		break;
-	case GATHER_TROOPS:
-	case ISSUE_COMMAND:
-	default:
-		return false;
-	}
+bool Goals::Trade::operator==(const Trade & other) const
+{
+	return resID == other.resID;
+}
+
+bool Goals::GatherTroops::operator==(const GatherTroops & other) const
+{
+	return objid == other.objid;
+}
+
+bool Goals::VisitObj::operator==(const VisitObj & other) const
+{
+	return other.hero.h == hero.h && other.objid == objid;
+}
+
+bool Goals::FindObj::operator==(const FindObj & other) const
+{
+	return other.hero.h == hero.h && other.objid == objid;
+}
+
+bool Goals::VisitHero::operator==(const VisitHero & other) const
+{
+	return other.hero.h == hero.h && other.objid == objid;
+}
+
+bool Goals::GetArtOfType::operator==(const GetArtOfType & other) const
+{
+	return other.hero.h == hero.h && other.objid == objid;
+}
+
+bool Goals::VisitTile::operator==(const VisitTile & other) const
+{
+	return other.hero.h == hero.h && other.tile == tile;
+}
+
+bool Goals::ClearWayTo::operator==(const ClearWayTo & other) const
+{
+	return other.hero.h == hero.h && other.tile == tile;
+}
+
+bool Goals::DigAtTile::operator==(const DigAtTile & other) const
+{
+	return other.hero.h == hero.h && other.tile == tile;
+}
+
+bool Goals::AbstractGoal::operator==(const AbstractGoal & g) const
+{
+	return false;
 }
 
 bool Goals::AbstractGoal::operator<(AbstractGoal & g) //for std::unique
@@ -263,14 +287,6 @@ namespace Goals
 		return get() < rhs.get(); //compae by value
 	}
 
-	bool BuyArmy::operator==(AbstractGoal & g)
-	{
-		if (g.goalType != goalType)
-			return false;
-		//if (hero && hero != g.hero)
-		//	return false;
-		return town == g.town;
-	}
 	bool BuyArmy::fulfillsMe(TSubgoal goal)
 	{
 		//if (hero && hero != goal->hero)
@@ -293,16 +309,6 @@ namespace Goals
 TSubgoal Trade::whatToDoToAchieve()
 {
 	return iAmElementar();
-}
-bool Trade::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	if (g.resID == resID)
-		if (g.value == value) //TODO: not sure if that logic is consitent
-			return true;
-
-	return false;
 }
 
 //TSubgoal AbstractGoal::whatToDoToAchieve()
@@ -465,6 +471,57 @@ TSubgoal Win::whatToDoToAchieve()
 	return sptr(Goals::Invalid());
 }
 
+TSubgoal BuildBoat::whatToDoToAchieve()
+{
+	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+	{
+		return fh->chooseSolution(ai->ah->howToVisitObj(shipyard->o));
+	}
+
+	if(shipyard->shipyardStatus() != IShipyard::GOOD)
+	{
+		throw cannotFulfillGoalException("Shipyard is busy.");
+	}
+
+	TResources boatCost;
+	shipyard->getBoatCost(boatCost);
+
+	return ai->ah->whatToDo(boatCost, this->iAmElementar());
+}
+
+void BuildBoat::accept(VCAI * ai)
+{
+	TResources boatCost;
+	shipyard->getBoatCost(boatCost);
+
+	if(!cb->getResourceAmount().canAfford(boatCost))
+	{
+		throw cannotFulfillGoalException("Can not afford boat");
+	}
+
+	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+	{
+		throw cannotFulfillGoalException("Can not build boat in enemy shipyard");
+	}
+
+	if(shipyard->shipyardStatus() != IShipyard::GOOD)
+	{
+		throw cannotFulfillGoalException("Shipyard is busy.");
+	}
+
+	cb->buildBoat(shipyard);
+}
+
+std::string BuildBoat::name() const
+{
+	return "BuildBoat";
+}
+
+std::string BuildBoat::completeMessage() const
+{
+	return "Boat have been built at " + shipyard->o->visitablePos().toString();
+}
+
 TSubgoal FindObj::whatToDoToAchieve()
 {
 	const CGObjectInstance * o = nullptr;
@@ -575,13 +632,6 @@ Goals::VisitObj::VisitObj(int Objid) : CGoal(Goals::VISIT_OBJ)
 	priority = 3;
 }
 
-bool Goals::VisitObj::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	return g.objid == objid;
-}
-
 bool VisitObj::fulfillsMe(TSubgoal goal)
 {
 	if(goal->goalType == Goals::VISIT_TILE)
@@ -622,13 +672,6 @@ TSubgoal VisitHero::whatToDoToAchieve()
 	return sptr(Goals::Invalid());
 }
 
-bool Goals::VisitHero::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	return g.hero == hero && g.objid == objid;
-}
-
 bool VisitHero::fulfillsMe(TSubgoal goal)
 {
 	//TODO: VisitObj shoudl not be used for heroes, but...
@@ -663,13 +706,6 @@ TSubgoal ClearWayTo::whatToDoToAchieve()
 	}
 
 	return (fh->chooseSolution(getAllPossibleSubgoals()));
-}
-
-bool Goals::ClearWayTo::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	return g.goalType == goalType && g.tile == tile;
 }
 
 bool Goals::ClearWayTo::fulfillsMe(TSubgoal goal)
@@ -876,14 +912,6 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 	return ai->ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
 }
 
-bool Goals::RecruitHero::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	//TODO: check town and hero
-	return true; //for now, recruiting any hero will do
-}
-
 std::string VisitTile::completeMessage() const
 {
 	return "Hero " + hero.get()->name + " visited tile " + tile.toString();
@@ -907,13 +935,6 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 	}
 	return ret;
-}
-
-bool Goals::VisitTile::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	return g.goalType == goalType && g.tile == tile;
 }
 
 TGoalVec VisitTile::getAllPossibleSubgoals()
@@ -968,13 +989,6 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	}
 
 	return sptr(Goals::VisitTile(tile));
-}
-
-bool Goals::DigAtTile::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	return g.goalType == goalType && g.tile == tile;
 }
 
 TSubgoal BuildThis::whatToDoToAchieve()
@@ -1190,17 +1204,6 @@ bool CollectRes::fulfillsMe(TSubgoal goal)
 {
 	if (goal->resID == resID)
 		if (goal->value >= value)
-			return true;
-
-	return false;
-}
-
-bool Goals::CollectRes::operator==(AbstractGoal & g)
-{
-	if (g.goalType != goalType)
-		return false;
-	if (g.resID == resID)
-		if (g.value == value) //TODO: not sure if that logic is consitent
 			return true;
 
 	return false;

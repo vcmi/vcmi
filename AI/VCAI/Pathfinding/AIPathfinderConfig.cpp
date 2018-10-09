@@ -10,6 +10,119 @@
 #include "StdInc.h"
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
+#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapObjects/MapObjects.h"
+
+class BuildBoatAction : public ISpecialAction
+{
+private:
+	const IShipyard * shipyard;
+
+public:
+	BuildBoatAction(const IShipyard * shipyard)
+		:shipyard(shipyard)
+	{
+	}
+
+	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const override
+	{
+		return sptr(Goals::BuildBoat(shipyard));
+	}
+};
+
+class AILayerTransitionRule : public LayerTransitionRule
+{
+private:
+	CPlayerSpecificInfoCallback * cb;
+	VCAI * ai;
+	std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
+	std::shared_ptr<AINodeStorage> nodeStorage;
+
+public:
+	AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, VCAI * ai, std::shared_ptr<AINodeStorage> nodeStorage)
+		:cb(cb), ai(ai), nodeStorage(nodeStorage)
+	{
+		setup();
+	}
+
+	virtual void process(
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const override
+	{
+		LayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
+
+		if(!destination.blocked)
+		{
+			return;
+		}
+
+		if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::SAIL
+			&& vstd::contains(virtualBoats, destination.coord))
+		{
+			logAi->trace("Bypassing virtual boat at %s!", destination.coord.toString());
+			
+			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+			{
+				std::shared_ptr<const BuildBoatAction> virtualBoat = virtualBoats.at(destination.coord);
+
+				auto boatNodeOptional = nodeStorage->getOrCreateNode(
+					node->coord,
+					node->layer,
+					node->chainMask | AINodeStorage::RESOURCE_CHAIN);
+
+				if(boatNodeOptional)
+				{
+					AIPathNode * boatNode = boatNodeOptional.get();
+
+					boatNode->specialAction = virtualBoat;
+					destination.blocked = false;
+					destination.action = CGPathNode::ENodeAction::EMBARK;
+					destination.node = boatNode;
+				}
+				else
+				{
+					logAi->trace(
+						"Can not allocate boat node while moving %s -> %s",
+						source.coord.toString(),
+						destination.coord.toString());
+				}
+			});
+		}
+	}
+
+private:
+	void setup()
+	{
+		std::vector<const IShipyard *> shipyards;
+
+		for(const CGTownInstance * t : cb->getTownsInfo())
+		{
+			if(t->hasBuilt(BuildingID::SHIPYARD))
+				shipyards.push_back(t);
+		}
+
+		for(const CGObjectInstance * obj : ai->visitableObjs)
+		{
+			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
+			{
+				if(const IShipyard * shipyard = IShipyard::castFrom(obj))
+					shipyards.push_back(shipyard);
+			}
+		}
+
+		for(const IShipyard * shipyard : shipyards)
+		{
+			if(shipyard->shipyardStatus() == IShipyard::GOOD)
+			{
+				int3 boatLocation = shipyard->bestLocation();
+				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(shipyard);
+				logAi->debug("Virtual boat added at %s", boatLocation.toString());
+			}
+		}
+	}
+};
 
 class AIMovementAfterDestinationRule : public MovementAfterDestinationRule
 {
@@ -88,8 +201,25 @@ public:
 				return;
 			}
 
-			auto destNode = nodeStorage->getAINode(destination.node);
-			auto battleNode = nodeStorage->getNode(destination.coord, destination.node->layer, destNode->chainMask | AINodeStorage::BATTLE_CHAIN);
+			const AIPathNode * destNode = nodeStorage->getAINode(destination.node);
+			auto battleNodeOptional = nodeStorage->getOrCreateNode(
+				destination.coord, 
+				destination.node->layer, 
+				destNode->chainMask | AINodeStorage::BATTLE_CHAIN);
+
+			if(!battleNodeOptional)
+			{
+				logAi->trace(
+					"Can not allocate battle node while moving %s -> %s",
+					source.coord.toString(),
+					destination.coord.toString());
+
+				destination.blocked = true;
+
+				return;
+			}
+
+			AIPathNode *  battleNode = battleNodeOptional.get();
 
 			if(battleNode->locked)
 			{
@@ -150,6 +280,13 @@ public:
 		if(blocker == BlockingReason::NONE)
 			return;
 
+		if(blocker == BlockingReason::DESTINATION_BLOCKED
+			&& destination.action == CGPathNode::EMBARK
+			&& nodeStorage->getAINode(destination.node)->specialAction)
+		{
+			return;
+		}
+		
 		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->isBattleNode(source.node))
 		{
 			auto srcGuardians = cb->getGuardingCreatures(source.coord);
@@ -216,6 +353,8 @@ public:
 					"Link src node %s to destination node %s while bypassing guard",
 					source.coord.toString(),
 					destination.coord.toString());
+
+				return;
 			}
 		}
 
@@ -228,16 +367,27 @@ public:
 				"Link src node %s to destination node %s while bypassing visitable obj",
 				source.coord.toString(),
 				destination.coord.toString());
+
+			return;
+		}
+
+		auto aiSourceNode = nodeStorage->getAINode(source.node);
+
+		if(aiSourceNode->specialAction)
+		{
+			// there is some action on source tile which should be performed before we can bypass it
+			destination.node->theNodeBefore = source.node;
 		}
 	}
 };
 
 std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 	CPlayerSpecificInfoCallback * cb,
+	VCAI * ai,
 	std::shared_ptr<AINodeStorage> nodeStorage)
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> rules = {
-		std::make_shared<LayerTransitionRule>(),
+		std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
 		std::make_shared<DestinationActionRule>(),
 		std::make_shared<AIMovementToDestinationRule>(cb, nodeStorage),
 		std::make_shared<MovementCostRule>(),
@@ -250,7 +400,8 @@ std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 
 AIPathfinderConfig::AIPathfinderConfig(
 	CPlayerSpecificInfoCallback * cb,
+	VCAI * ai,
 	std::shared_ptr<AINodeStorage> nodeStorage)
-	:PathfinderConfig(nodeStorage, makeRuleset(cb, nodeStorage))
+	:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage))
 {
 }

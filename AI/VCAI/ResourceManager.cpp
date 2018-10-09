@@ -30,7 +30,7 @@ ResourceManager::ResourceManager(CPlayerSpecificInfoCallback * CB, VCAI * AI)
 {
 }
 
-void ResourceManager::setCB(CPlayerSpecificInfoCallback * CB)
+void ResourceManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
 }

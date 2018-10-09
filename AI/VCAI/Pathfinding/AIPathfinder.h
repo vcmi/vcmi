@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "../AIUtility.h"
 #include "AINodeStorage.h"
+#include "../AIUtility.h"
+#include "../VCAI.h"
 
 class AIPathfinder
 {
@@ -20,9 +21,10 @@ private:
 	static std::map<HeroPtr, std::shared_ptr<AINodeStorage>> storageMap;
 	static boost::mutex storageMutex;
 	CPlayerSpecificInfoCallback * cb;
+	VCAI * ai;
 
 public:
-	AIPathfinder(CPlayerSpecificInfoCallback * cb);
+	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
 	std::vector<AIPath> getPathInfo(HeroPtr hero, int3 tile);
 	void clear();
 };
