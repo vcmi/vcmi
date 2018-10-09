@@ -350,11 +350,12 @@ VisitObjEngine::VisitObjEngine()
 
 		engine.addInputVariable(objectValue);
 
-		//objectValue ranges are based on checking RMG priorities of some objects and trying to guess sane value ranges
-		objectValue->addTerm(new fl::Ramp("LOW", 3000, 0)); //I have feeling that concave shape might work well instead of ramp for objectValue FL terms
-		objectValue->addTerm(new fl::Triangle("MEDIUM", 2500, 6000));
-		objectValue->addTerm(new fl::Ramp("HIGH", 5000, 20000));
-		objectValue->setRange(0, 20000); //relic artifact value is border value by design, even better things are scaled down.
+		//objectValue ranges are based on checking RMG priorities of some objects and checking LOW/MID/HIGH proportions for various values in QtFuzzyLite
+		objectValue->addTerm(new fl::Ramp("LOW", 3500.0, 0.0));
+		objectValue->addTerm(new fl::Triangle("MEDIUM", 0.0, 8500.0));
+		std::vector<fl::Discrete::Pair> multiRamp = { fl::Discrete::Pair(5000.0, 0.0), fl::Discrete::Pair(10000.0, 0.75), fl::Discrete::Pair(20000.0, 1.0) };
+		objectValue->addTerm(new fl::Discrete("HIGH", multiRamp));
+		objectValue->setRange(0.0, 20000.0); //relic artifact value is border value by design, even better things are scaled down.
 
 		addRule("if objectValue is HIGH then Value is HIGH");
 		addRule("if objectValue is MEDIUM then Value is MEDIUM");
