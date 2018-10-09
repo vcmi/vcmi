@@ -169,11 +169,15 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return true;
 
-	//the more gold the better and less problems later
+	//the more gold the better and less problems later //TODO: what about building mage guild / marketplace etc. with city hall disabled in editor?
 	if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 		return true;
 
-	//workaround for mantis #2696 - build fort and citadel - building castle will be handled without bug
+	if(!t->hasBuilt(BuildingID::FORT)) //in vast majority of situations fort is top priority building if we already have city hall, TODO: unite with unitGrowth building chain
+		if(tryBuildThisStructure(t, BuildingID::FORT))
+			return true;
+
+	//workaround for mantis #2696 - build fort and citadel - building castle will be handled without bug //RECHECK THIS CODE BLOCK - its logic predates building manager
 	if (vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) &&
 		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL)
 	{
@@ -195,8 +199,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 			return true;
 	}
 
-	// first in-game week or second half of any week: try build dwellings
-	if (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
+	// first in-game week or second half of any week: try build dwellings //TODO: this condition looks not optimal, rethink
+	if (t->hasBuilt(BuildingID::FORT) && (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3))
 	{
 		if (tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource,
 			unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
