@@ -206,7 +206,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	//try to upgrade dwelling
 	for (int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
 	{
-		if (t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]))
+		if (t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]) && t->hasBuilt(BuildingID::FORT))
 		{
 			if (tryBuildThisStructure(t, unitsUpgrade[i]))
 				return true;
