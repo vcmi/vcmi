@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="AIhelper.cpp" />
+    <ClCompile Include="AIUtility.cpp" />
+    <ClCompile Include="BuildingManager.cpp" />
+    <ClCompile Include="FuzzyEngines.cpp" />
+    <ClCompile Include="FuzzyHelper.cpp" />
+    <ClCompile Include="Goals.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapObjectsEvaluator.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="SectorMap.cpp" />
+    <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="VCAI.cpp" />
+    <ClCompile Include="Pathfinding\AINodeStorage.cpp">
+      <Filter>Pathfinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\AIPathfinder.cpp">
+      <Filter>Pathfinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\AIPathfinderConfig.cpp">
+      <Filter>Pathfinding</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\PathfindingManager.cpp">
+      <Filter>Pathfinding</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AIhelper.h" />
+    <ClInclude Include="AIUtility.h" />
+    <ClInclude Include="BuildingManager.h" />
+    <ClInclude Include="FuzzyEngines.h" />
+    <ClInclude Include="FuzzyHelper.h" />
+    <ClInclude Include="Goals.h" />
+    <ClInclude Include="MapObjectsEvaluator.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="SectorMap.h" />
+    <ClInclude Include="StdInc.h" />
+    <ClInclude Include="VCAI.h" />
+    <ClInclude Include="Pathfinding\AINodeStorage.h">
+      <Filter>Pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\AIPathfinder.h">
+      <Filter>Pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\AIPathfinderConfig.h">
+      <Filter>Pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\PathfindingManager.h">
+      <Filter>Pathfinding</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Pathfinding">
+      <UniqueIdentifier>{f0ef4866-37a3-4a10-a6bf-34460fcefab5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

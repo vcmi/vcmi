@@ -145,6 +145,10 @@
     <ClCompile Include="Goals.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapObjectsEvaluator.cpp" />
+    <ClCompile Include="Pathfinding\AINodeStorage.cpp" />
+    <ClCompile Include="Pathfinding\AIPathfinder.cpp" />
+    <ClCompile Include="Pathfinding\AIPathfinderConfig.cpp" />
+    <ClCompile Include="Pathfinding\PathfindingManager.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SectorMap.cpp" />
     <ClCompile Include="StdInc.cpp">
@@ -163,6 +167,10 @@
     <ClInclude Include="FuzzyHelper.h" />
     <ClInclude Include="Goals.h" />
     <ClInclude Include="MapObjectsEvaluator.h" />
+    <ClInclude Include="Pathfinding\AINodeStorage.h" />
+    <ClInclude Include="Pathfinding\AIPathfinder.h" />
+    <ClInclude Include="Pathfinding\AIPathfinderConfig.h" />
+    <ClInclude Include="Pathfinding\PathfindingManager.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SectorMap.h" />
     <ClInclude Include="StdInc.h" />
