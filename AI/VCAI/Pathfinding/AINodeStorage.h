@@ -12,7 +12,7 @@
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "AIUtility.h"
+#include "../AIUtility.h"
 
 class IVirtualObject
 {

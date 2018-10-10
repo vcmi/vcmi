@@ -41,13 +41,11 @@ public:
 		if(blocker == BlockingReason::NONE)
 			return;
 
-		auto srcNode = nodeStorage->getAINode(source.node);
-
 		if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
 		{
 			auto objID = destination.nodeObject->ID;
-			if(objID == Obj::HERO && destination.objectRelations != PlayerRelations::ENEMIES
-				|| objID == Obj::SUBTERRANEAN_GATE || objID == Obj::MONOLITH_TWO_WAY 
+			if((objID == Obj::HERO && destination.objectRelations != PlayerRelations::ENEMIES)
+				|| objID == Obj::SUBTERRANEAN_GATE || objID == Obj::MONOLITH_TWO_WAY
 				|| objID == Obj::MONOLITH_ONE_WAY_ENTRANCE || objID == Obj::MONOLITH_ONE_WAY_EXIT
 				|| objID == Obj::WHIRLPOOL)
 			{
@@ -202,7 +200,8 @@ public:
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const override
 	{
-		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
+//FIXME: unused
+//		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
 
 		if(source.guarded)
 		{
@@ -234,7 +233,7 @@ public:
 };
 
 std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
-	CPlayerSpecificInfoCallback * cb, 
+	CPlayerSpecificInfoCallback * cb,
 	std::shared_ptr<AINodeStorage> nodeStorage)
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> rules = {
@@ -250,7 +249,7 @@ std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 }
 
 AIPathfinderConfig::AIPathfinderConfig(
-	CPlayerSpecificInfoCallback * cb, 
+	CPlayerSpecificInfoCallback * cb,
 	std::shared_ptr<AINodeStorage> nodeStorage)
 	:PathfinderConfig(nodeStorage, makeRuleset(cb, nodeStorage))
 {

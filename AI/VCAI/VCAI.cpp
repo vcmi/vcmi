@@ -985,7 +985,7 @@ void VCAI::mainLoop()
 				completeGoal(goalToRealize);
 
 				// remove abstract visit tile if we completed the elementar one
-				vstd::erase_if_present(goalsToAdd, goalToRealize); 
+				vstd::erase_if_present(goalsToAdd, goalToRealize);
 			}
 			catch (std::exception & e)
 			{
@@ -1326,9 +1326,9 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 		return false;
 	if (vstd::contains(reservedObjs, obj))
 		return false;
-	
+
 	// TODO: looks extra if we already have AIPath
-	//if (!isAccessibleForHero(targetPos, h)) 
+	//if (!isAccessibleForHero(targetPos, h))
 	//	return false;
 
 	const CGObjectInstance * topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
@@ -1345,7 +1345,7 @@ bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t) const
 	if(t.valid())
 	{
 		auto obj = cb->getTopObj(t);
-		if(obj && vstd::contains(ai->reservedObjs, obj) 
+		if(obj && vstd::contains(ai->reservedObjs, obj)
 			&& vstd::contains(reservedHeroesMap, h)
 			&& !vstd::contains(reservedHeroesMap.at(h), obj))
 			return false; //do not capture object reserved by another hero
@@ -1402,7 +1402,7 @@ void VCAI::wander(HeroPtr h)
 	{
 		validateVisitableObjs();
 		std::vector<ObjectIdRef> dests;
-		
+
 		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		vstd::copy_if(reservedHeroesMap[h], std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 		{
@@ -2389,7 +2389,6 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	}
 
 	const int searchDepth = 30;
-	const int searchDepth2 = searchDepth - 2;
 	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());
 
 	Goals::TSubgoal goal = ultimateGoal;

@@ -407,7 +407,7 @@ int3 whereToExplore(HeroPtr h)
 	TimeCheck tc("where to explore");
 	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
-	
+
 	//look for nearby objs -> visit them if they're close enouh
 	const int DIST_LIMIT = 3;
 	const int MP_LIMIT = DIST_LIMIT * 150; // aproximate cost of diagonal movement
@@ -535,11 +535,13 @@ ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t)
 		{
 			//can be merged with another stack?
 			SlotID dst = h->getSlotFor(ci.creID);
-			if (!h->hasStackAtSlot(dst)) //need another new slot for this stack
-				if (!freeHeroSlots) //no more place for stacks
+			if(!h->hasStackAtSlot(dst)) //need another new slot for this stack
+			{
+				if(!freeHeroSlots) //no more place for stacks
 					continue;
 				else
 					freeHeroSlots--; //new slot will be occupied
+			}
 
 			//we found matching occupied or free slot
 			aivalue += ci.count * ci.cre->AIValue;
@@ -607,7 +609,7 @@ uint32_t distanceToTile(const CGHeroInstance * hero, int3 pos)
 {
 	auto pathInfo = cb->getPathsInfo(hero)->getPathInfo(pos);
 	uint32_t totalMovementPoints = pathInfo->turns * hero->maxMovePoints(true) + hero->movement;
-	
+
 	if(totalMovementPoints < pathInfo->moveRemains) // should not be but who knows
 		return 0;
 

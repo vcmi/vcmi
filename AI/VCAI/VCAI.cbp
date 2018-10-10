@@ -95,6 +95,14 @@
 		<Unit filename="Goals.h" />
 		<Unit filename="MapObjectsEvaluator.cpp" />
 		<Unit filename="MapObjectsEvaluator.h" />
+		<Unit filename="Pathfinding/AINodeStorage.cpp" />
+		<Unit filename="Pathfinding/AINodeStorage.h" />
+		<Unit filename="Pathfinding/AIPathfinder.cpp" />
+		<Unit filename="Pathfinding/AIPathfinder.h" />
+		<Unit filename="Pathfinding/AIPathfinderConfig.cpp" />
+		<Unit filename="Pathfinding/AIPathfinderConfig.h" />
+		<Unit filename="Pathfinding/PathfindingManager.cpp" />
+		<Unit filename="Pathfinding/PathfindingManager.h" />
 		<Unit filename="ResourceManager.cpp" />
 		<Unit filename="ResourceManager.h" />
 		<Unit filename="SectorMap.cpp" />

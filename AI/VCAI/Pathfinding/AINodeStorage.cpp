@@ -35,7 +35,7 @@ void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNod
 
 bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 {
-	return getAINode(node)->chainMask & BATTLE_CHAIN > 0;
+	return (getAINode(node)->chainMask & BATTLE_CHAIN) > 0;
 }
 
 AIPathNode * AINodeStorage::getNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber)
@@ -75,7 +75,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		dstNode->turns = destination.turn;
 		dstNode->danger = srcNode->danger;
 		dstNode->action = destination.action;
-		dstNode->theNodeBefore = srcNode->theNodeBefore; 
+		dstNode->theNodeBefore = srcNode->theNodeBefore;
 	});
 }
 
@@ -140,12 +140,12 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 		if(node.danger <= destinationNode->danger && destinationNode->chainMask == 1 && node.chainMask == 0)
 		{
 			if(node.turns < destinationNode->turns
-				|| node.turns == destinationNode->turns && node.moveRemains >= destinationNode->moveRemains)
+				|| (node.turns == destinationNode->turns && node.moveRemains >= destinationNode->moveRemains))
 			{
 				logAi->trace(
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
 					source.coord.toString(),
-					destination.coord.toString(), 
+					destination.coord.toString(),
 					destinationNode->chainMask,
 					node.moveRemains - destinationNode->moveRemains);
 

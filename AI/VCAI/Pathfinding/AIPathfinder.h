@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "AIUtility.h"
+#include "../AIUtility.h"
 #include "AINodeStorage.h"
 
 class AIPathfinder
