@@ -1227,10 +1227,10 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			{
 				dwellings.push_back(t);
 			}
-			else
-			{
+			/*else //disable random building requests for now - this code needs to know a lot of town/resource context to do more good than harm
+			{	
 				return sptr(Goals::BuildThis(bid, t).setpriority(priority));
-			}
+			}*/
 		}
 	}
 	for(auto obj : ai->visitableObjs)
@@ -1459,7 +1459,9 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			//build dwelling
 			//TODO: plan building over multiple turns?
 			//auto bid = ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK));
-			auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
+
+			//Do not use below code for now, rely on generic Build. Code below needs to know a lot of town/resource context to do more good than harm
+			/*auto bid = ai->ah->canBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 1);
 			if (bid.is_initialized())
 			{
 				auto goal = sptr(BuildThis(bid.get(), t).setpriority(priority));
@@ -1467,7 +1469,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 					ret.push_back(goal);
 				else
 					logAi->debug("Can not build a structure, because of ai->ah->containsObjective");
-			}
+			}*/
 		}
 	}
 

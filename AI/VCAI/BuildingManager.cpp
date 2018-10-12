@@ -157,6 +157,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	//TODO: faction-specific development: use special buildings, build dwellings in better order, etc
 	//TODO: build resource silo, defences when needed
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
+	
+	//TODO: There is some disabled building code in GatherTroops and GatherArmy - take it into account when enhancing building. For now AI works best with building only via Build goal.
 
 	immediateBuildings.clear();
 	expensiveBuildings.clear();
@@ -169,6 +171,18 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return true;
 
+	//workaround for mantis #2696 - build fort and citadel - building castle prerequisite when trying to build capitol will be then handled without bug
+	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) &&
+		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL)
+	{
+		if(cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
+		{
+			if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements,
+				capitolRequirements + ARRAY_COUNT(capitolRequirements))))
+				return true;
+		}
+	}
+
 	//the more gold the better and less problems later //TODO: what about building mage guild / marketplace etc. with city hall disabled in editor?
 	if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 		return true;
@@ -176,18 +190,6 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	if(!t->hasBuilt(BuildingID::FORT)) //in vast majority of situations fort is top priority building if we already have city hall, TODO: unite with unitGrowth building chain
 		if(tryBuildThisStructure(t, BuildingID::FORT))
 			return true;
-
-	//workaround for mantis #2696 - build fort and citadel - building castle will be handled without bug //RECHECK THIS CODE BLOCK - its logic predates building manager
-	if (vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) &&
-		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL)
-	{
-		if (cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
-		{
-			if (tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements,
-				capitolRequirements + ARRAY_COUNT(capitolRequirements))))
-				return true;
-		}
-	}
 
 	//TODO: save money for capitol or city hall if capitol unavailable
 	//do not build other things (unless gold source buildings are disabled in map editor)
