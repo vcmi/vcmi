@@ -48,6 +48,11 @@ bool AIhelper::getBuildingOptions(const CGTownInstance * t)
 	return buildingManager->getBuildingOptions(t);
 }
 
+BuildingID AIhelper::getMaxPossibleGoldBuilding(const CGTownInstance * t)
+{
+	return buildingManager->getMaxPossibleGoldBuilding(t);
+}
+
 boost::optional<PotentialBuilding> AIhelper::immediateBuilding() const
 {
 	return buildingManager->immediateBuilding();

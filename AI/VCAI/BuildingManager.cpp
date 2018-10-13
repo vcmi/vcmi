@@ -138,8 +138,8 @@ void BuildingManager::setAI(VCAI * AI)
 }
 //Set of buildings for different goals. Does not include any prerequisites.
 static const BuildingID essential[] = { BuildingID::TAVERN, BuildingID::TOWN_HALL };
-static const BuildingID goldSource[] = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL };
-static const BuildingID capitolRequirements[] = { BuildingID::FORT, BuildingID::CITADEL };
+static const BuildingID basicGoldSource[] = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL };
+static const BuildingID capitolAndRequirements[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
 static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
 BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
 static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
@@ -171,21 +171,17 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return true;
 
-	//workaround for mantis #2696 - build fort and citadel - building castle prerequisite when trying to build capitol will be then handled without bug
-	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) &&
-		cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL)
-	{
-		if(cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
-		{
-			if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolRequirements,
-				capitolRequirements + ARRAY_COUNT(capitolRequirements))))
-				return true;
-		}
-	}
-
 	//the more gold the better and less problems later //TODO: what about building mage guild / marketplace etc. with city hall disabled in editor?
-	if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+	if(tryBuildNextStructure(t, std::vector<BuildingID>(basicGoldSource, basicGoldSource + ARRAY_COUNT(basicGoldSource))))
 		return true;
+
+	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
+	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
+	{
+		if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolAndRequirements,
+			capitolAndRequirements + ARRAY_COUNT(capitolAndRequirements))))
+			return true;
+	}
 
 	if(!t->hasBuilt(BuildingID::FORT)) //in vast majority of situations fort is top priority building if we already have city hall, TODO: unite with unitGrowth building chain
 		if(tryBuildThisStructure(t, BuildingID::FORT))
@@ -201,8 +197,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 			return true;
 	}
 
-	// first in-game week or second half of any week: try build dwellings //TODO: this condition looks not optimal, rethink
-	if (t->hasBuilt(BuildingID::FORT) && (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3))
+	//try building dwellings
+	if (t->hasBuilt(BuildingID::FORT))
 	{
 		if (tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource,
 			unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
@@ -236,6 +232,18 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		return true;
 
 	return false;
+}
+
+BuildingID BuildingManager::getMaxPossibleGoldBuilding(const CGTownInstance * t)
+{
+	if(cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::HAVE_CAPITAL && cb->canBuildStructure(t, BuildingID::CAPITOL) != EBuildingState::FORBIDDEN)
+		return BuildingID::CAPITOL;
+	else if(cb->canBuildStructure(t, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		return BuildingID::CITY_HALL;
+	else if(cb->canBuildStructure(t, BuildingID::TOWN_HALL) != EBuildingState::FORBIDDEN)
+		return BuildingID::TOWN_HALL;
+	else
+		return BuildingID::VILLAGE_HALL;
 }
 
 boost::optional<PotentialBuilding> BuildingManager::immediateBuilding() const

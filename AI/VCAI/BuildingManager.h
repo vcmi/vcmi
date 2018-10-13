@@ -51,6 +51,7 @@ public:
 
 	//try build anything in given town, and execute resulting Goal if any
 	bool getBuildingOptions(const CGTownInstance * t) override;
+	BuildingID getMaxPossibleGoldBuilding(const CGTownInstance * t);
 	boost::optional<PotentialBuilding> immediateBuilding() const override;
 	boost::optional<PotentialBuilding> expensiveBuilding() const override;
 	boost::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
