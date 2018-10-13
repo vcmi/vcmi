@@ -1364,18 +1364,39 @@ TGoalVec Goals::Build::getAllPossibleSubgoals()
 	{
 		//start fresh with every town
 		ai->ah->getBuildingOptions(t);
-		auto ib = ai->ah->immediateBuilding();
-		if (ib.is_initialized())
+		auto immediateBuilding = ai->ah->immediateBuilding();
+		auto expensiveBuilding = ai->ah->expensiveBuilding();
+
+		//handling for early town development to save money and focus on income
+		if(!t->hasBuilt(ai->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.is_initialized())
+		{		
+			auto potentialBuilding = expensiveBuilding.get();
+			switch(expensiveBuilding.get().bid)
+			{
+			case BuildingID::TOWN_HALL:
+			case BuildingID::CITY_HALL:
+			case BuildingID::CAPITOL:
+			case BuildingID::FORT:
+			case BuildingID::CITADEL:
+			case BuildingID::CASTLE:
+				//If above buildings are next to be bought, but no money... do not buy anything else, try to gather resources for these. Simple but has to suffice for now.
+				auto goal = ai->ah->whatToDo(potentialBuilding.price, sptr(Goals::BuildThis(potentialBuilding.bid, t).setpriority(2.25)));
+				ret.push_back(goal);
+				return ret;
+				break;
+			}
+		}
+
+		if (immediateBuilding.is_initialized())
 		{
-			ret.push_back(sptr(Goals::BuildThis(ib.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
+			ret.push_back(sptr(Goals::BuildThis(immediateBuilding.get().bid, t).setpriority(2))); //prioritize buildings we can build quick
 		}
 		else //try build later
 		{
-			auto eb = ai->ah->expensiveBuilding();
-			if (eb.is_initialized())
+			if (expensiveBuilding.is_initialized())
 			{
-				auto pb = eb.get(); //gather resources for any we can't afford
-				auto goal = ai->ah->whatToDo(pb.price, sptr(Goals::BuildThis(pb.bid, t).setpriority(0.5)));
+				auto potentialBuilding = expensiveBuilding.get(); //gather resources for any we can't afford
+				auto goal = ai->ah->whatToDo(potentialBuilding.price, sptr(Goals::BuildThis(potentialBuilding.bid, t).setpriority(0.5)));
 				ret.push_back(goal);
 			}
 		}

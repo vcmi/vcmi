@@ -163,7 +163,8 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	immediateBuildings.clear();
 	expensiveBuildings.clear();
 
-	//below algorithm focuses on economy growth at start of the game.
+	//below algorithm focuses on economy growth at start of the game, saving money instead of build rushing is handled by Build goal
+	//changing code blocks order will alter behavior by changing order of adding elements to immediateBuildings / expensiveBuildings
 
 	TResources currentRes = cb->getResourceAmount();
 	TResources currentIncome = t->dailyIncome();
@@ -187,8 +188,6 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		if(tryBuildThisStructure(t, BuildingID::FORT))
 			return true;
 
-	//TODO: save money for capitol or city hall if capitol unavailable
-	//do not build other things (unless gold source buildings are disabled in map editor)
 
 
 	if (cb->getDate(Date::DAY_OF_WEEK) > 6) // last 2 days of week - try to focus on growth
