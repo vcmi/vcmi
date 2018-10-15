@@ -59,6 +59,4 @@ private:
 		const std::function<Goals::TSubgoal(int3)> goalFactory);
 
 	Goals::TSubgoal clearWayTo(HeroPtr hero, int3 firstTileToGet);
-
-	Goals::TSubgoal selectVisitingGoal(HeroPtr hero, ObjectIdRef obj) const;
 };

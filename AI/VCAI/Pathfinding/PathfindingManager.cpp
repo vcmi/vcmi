@@ -77,7 +77,10 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 
 	return findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
-		return selectVisitingGoal(hero, obj);
+		if(obj->ID.num == Obj::HERO && obj->getOwner() == hero->getOwner())
+			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
+		else
+			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setisAbstract(true));
 	});
 }
 
@@ -139,26 +142,6 @@ Goals::TGoalVec PathfindingManager::findPath(
 	}
 
 	return result;
-}
-
-Goals::TSubgoal PathfindingManager::selectVisitingGoal(HeroPtr hero, ObjectIdRef obj) const
-{
-	int3 dest = obj->visitablePos();
-
-	if(obj->ID.num == Obj::HERO) //enemy hero may move to other position
-	{
-		return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
-	}
-	else //just visit that tile
-	{
-		//if target is town, fuzzy system will use additional "estimatedReward" variable to increase priority a bit
-		//TODO: change to getObj eventually and and move appropiate logic there
-		return obj->ID.num == Obj::TOWN
-			? sptr(Goals::VisitTile(dest).sethero(hero).setobjid(obj->ID.num).setisAbstract(true))
-			: sptr(Goals::VisitTile(dest).sethero(hero).setisAbstract(true));
-	}
-
-	return sptr(Goals::VisitTile(dest).sethero(hero).setisAbstract(true));
 }
 
 Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet)
