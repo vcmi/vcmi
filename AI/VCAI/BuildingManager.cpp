@@ -137,18 +137,18 @@ void BuildingManager::setAI(VCAI * AI)
 	ai = AI;
 }
 //Set of buildings for different goals. Does not include any prerequisites.
-static const BuildingID essential[] = { BuildingID::TAVERN, BuildingID::TOWN_HALL };
-static const BuildingID basicGoldSource[] = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL };
-static const BuildingID capitolAndRequirements[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
-static const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+static const std::vector<BuildingID> essential = { BuildingID::TAVERN, BuildingID::TOWN_HALL };
+static const std::vector<BuildingID> basicGoldSource = { BuildingID::TOWN_HALL, BuildingID::CITY_HALL };
+static const std::vector<BuildingID> capitolAndRequirements = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::CAPITOL };
+static const std::vector<BuildingID> unitsSource = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
 BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7 };
-static const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+static const std::vector<BuildingID> unitsUpgrade = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
 BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP };
-static const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+static const std::vector<BuildingID> unitGrowth = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
 BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR };
-static const BuildingID _spells[] = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+static const std::vector<BuildingID> _spells = { BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5 };
-static const BuildingID extra[] = { BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+static const std::vector<BuildingID> extra = { BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
 BuildingID::SPECIAL_4, BuildingID::SHIPYARD }; // all remaining buildings
 
 bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
@@ -169,18 +169,17 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	TResources currentRes = cb->getResourceAmount();
 	TResources currentIncome = t->dailyIncome();
 
-	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
+	if(tryBuildAnyStructure(t, essential))
 		return true;
 
 	//the more gold the better and less problems later //TODO: what about building mage guild / marketplace etc. with city hall disabled in editor?
-	if(tryBuildNextStructure(t, std::vector<BuildingID>(basicGoldSource, basicGoldSource + ARRAY_COUNT(basicGoldSource))))
+	if(tryBuildNextStructure(t, basicGoldSource))
 		return true;
 
 	//workaround for mantis #2696 - build capitol with separate algorithm if it is available
 	if(vstd::contains(t->builtBuildings, BuildingID::CITY_HALL) && getMaxPossibleGoldBuilding(t) == BuildingID::CAPITOL)
 	{
-		if(tryBuildNextStructure(t, std::vector<BuildingID>(capitolAndRequirements,
-			capitolAndRequirements + ARRAY_COUNT(capitolAndRequirements))))
+		if(tryBuildNextStructure(t, capitolAndRequirements))
 			return true;
 	}
 
@@ -192,20 +191,19 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 
 	if (cb->getDate(Date::DAY_OF_WEEK) > 6) // last 2 days of week - try to focus on growth
 	{
-		if (tryBuildNextStructure(t, std::vector<BuildingID>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
+		if (tryBuildNextStructure(t, unitGrowth, 2))
 			return true;
 	}
 
 	//try building dwellings
 	if (t->hasBuilt(BuildingID::FORT))
 	{
-		if (tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource,
-			unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
+		if (tryBuildAnyStructure(t, unitsSource, 8 - cb->getDate(Date::DAY_OF_WEEK)))
 			return true;
 	}
 
 	//try to upgrade dwelling
-	for (int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
+	for (int i = 0; i < unitsUpgrade.size(); i++)
 	{
 		if (t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]) && t->hasBuilt(BuildingID::FORT))
 		{
@@ -215,9 +213,9 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 	}
 
 	//remaining tasks
-	if (tryBuildNextStructure(t, std::vector<BuildingID>(_spells, _spells + ARRAY_COUNT(_spells))))
+	if (tryBuildNextStructure(t, _spells))
 		return true;
-	if (tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
+	if (tryBuildAnyStructure(t, extra))
 		return true;
 
 	//at the end, try to get and build any extra buildings with nonstandard slots (for example HotA 3rd level dwelling)
