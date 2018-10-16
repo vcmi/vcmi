@@ -23,7 +23,7 @@
 	"hero" : {
 		"index" :34,
 		"handler": "hero",
-		"defaultAiValue" : 5000,
+		"defaultAiValue" : 7500,
 		"base" : {
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
