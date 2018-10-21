@@ -627,7 +627,14 @@ void CServerHandler::threadHandleConnection()
 			}
 			else if(auto clientPack = dynamic_ptr_cast<CPackForClient>(pack))
 			{
-				client->handlePack(clientPack);
+				if(client)
+				{
+					client->handlePack(clientPack);
+				}
+				else
+				{
+					logNetwork->error("Client pack araived before client is initialized!");
+				}
 			}
 		}
 	}
