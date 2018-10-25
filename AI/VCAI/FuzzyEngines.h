@@ -40,10 +40,10 @@ private:
 class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
 {
 public:
-	HeroMovementGoalEngineBase();
+	HeroMovementGoalEngineBase(bool defaultTermsAndRules = true);
 
 protected:
-	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
+	virtual void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
 
 	fl::InputVariable * strengthRatio;
 	fl::InputVariable * heroStrength;
@@ -52,6 +52,7 @@ protected:
 	fl::OutputVariable * value;
 
 private:
+	void initSharedTermsAndRules();
 	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
 };
 
@@ -69,4 +70,13 @@ public:
 	float evaluate(Goals::VisitObj & goal);
 protected:
 	fl::InputVariable * objectValue;
+};
+
+class KillHeroEngine : public HeroMovementGoalEngineBase
+{
+public:
+	KillHeroEngine();
+	float evaluate(Goals::AbstractGoal & goal); //change goal type to KillHero after it gets implemented
+protected:
+	fl::InputVariable * absoluteStrengthRatio; //hero strength compared to our entire army
 };
