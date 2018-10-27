@@ -71,8 +71,13 @@ void CMapGenOptions::setPlayerCount(si8 value)
 	if (compOnlyPlayerCount > possibleCompPlayersCount)
 		setCompOnlyPlayerCount(possibleCompPlayersCount);
 
-	if (getPlayerCount() != RANDOM_SIZE && getCompOnlyPlayerCount() != RANDOM_SIZE)
-		humanPlayersCount = getPlayerCount() - getCompOnlyPlayerCount();
+	if (getPlayerCount() != RANDOM_SIZE)
+	{
+		if (getCompOnlyPlayerCount() != RANDOM_SIZE)
+			humanPlayersCount = getPlayerCount() - getCompOnlyPlayerCount();
+		else
+			humanPlayersCount = getPlayerCount();
+	}
 
 	resetPlayersMap();
 }
@@ -167,7 +172,10 @@ void CMapGenOptions::resetPlayersMap()
 		auto pc = PlayerColor(color);
 		player.setColor(pc);
 		auto playerType = EPlayerType::AI;
-		if ((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
+		if (getPlayerCount() != RANDOM_SIZE && color < realPlayersCnt)
+		{
+			playerType = EPlayerType::HUMAN;
+		}else if ((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
 		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
 		{
 			playerType = EPlayerType::COMP_ONLY;
