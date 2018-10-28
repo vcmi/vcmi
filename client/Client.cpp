@@ -321,7 +321,7 @@ void CClient::initMapHandler()
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & elem : CSH->si->playerInfos)
+	for(auto & elem : gs->scenarioOps->playerInfos)
 	{
 		PlayerColor color = elem.first;
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
