@@ -175,7 +175,8 @@ void CMapGenOptions::resetPlayersMap()
 		if (getPlayerCount() != RANDOM_SIZE && color < realPlayersCnt)
 		{
 			playerType = EPlayerType::HUMAN;
-		}else if ((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
+		}
+		else if((getPlayerCount() != RANDOM_SIZE && color >= realPlayersCnt)
 		   || (compOnlyPlayerCount != RANDOM_SIZE && color >= (PlayerColor::PLAYER_LIMIT_I-compOnlyPlayerCount)))
 		{
 			playerType = EPlayerType::COMP_ONLY;
