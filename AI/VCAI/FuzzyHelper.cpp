@@ -11,6 +11,7 @@
 #include "FuzzyHelper.h"
 
 #include "../../lib/mapObjects/CommonConstructors.h"
+#include "Goals.h"
 #include "VCAI.h"
 
 FuzzyHelper * fh;
@@ -79,6 +80,19 @@ float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
 	return visitTileEngine.evaluate(g);
 }
+
+float FuzzyHelper::evaluate(Goals::BuildBoat & g)
+{
+	const float buildBoatPenalty = 0.25;
+
+	if(!g.parent)
+	{
+		return 0;
+	}
+
+	return g.parent->accept(this) - buildBoatPenalty;
+}
+
 float FuzzyHelper::evaluate(Goals::VisitObj & g)
 {
 	return visitObjEngine.evaluate(g);
@@ -90,8 +104,7 @@ float FuzzyHelper::evaluate(Goals::VisitHero & g)
 		return -100; //hero died in the meantime
 	else
 	{
-		auto dummyGoal = Goals::VisitTile(obj->visitablePos()).sethero(g.hero).setisAbstract(g.isAbstract);
-		g.setpriority(dummyGoal.accept(this));
+		g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).accept(this));
 	}
 	return g.priority;
 }

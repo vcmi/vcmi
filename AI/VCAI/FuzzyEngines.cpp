@@ -76,18 +76,14 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	return as;
 }
 
-float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const
+float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const
 {
-	float turns = 0.0f;
-	float distance =  distanceToTile(h, tile);
-	if(distance)
+	if(goal.evaluationContext.movementCost != 0)
 	{
-		if(distance < h->movement) //we can move there within one turn
-			turns = (fl::scalar)distance / h->movement;
-		else
-			turns = 1 + (fl::scalar)(distance - h->movement) / h->maxMovePoints(true); //bool on land?
+		return goal.evaluationContext.movementCost / (float)goal.hero->maxMovePoints(true);
 	}
-	return turns;
+
+	return distanceToTile(goal.hero.h, goal.tile) / (float)goal.hero->maxMovePoints(true);
 }
 
 TacticalAdvantageEngine::TacticalAdvantageEngine()
@@ -276,8 +272,8 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 
 		turnDistance->addTerm(new fl::Ramp("SHORT", 0.5, 0));
 		turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
-		turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 3));
-		turnDistance->setRange(0.0, 3.0);
+		turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 10));
+		turnDistance->setRange(0.0, 10.0);
 
 		missionImportance->addTerm(new fl::Ramp("LOW", 2.5, 0));
 		missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
@@ -319,7 +315,7 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 
 void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & goal)
 {
-	float turns = calculateTurnDistanceInputValue(goal.hero.h, goal.tile);
+	float turns = calculateTurnDistanceInputValue(goal);
 	float missionImportanceData = 0;
 	if(vstd::contains(ai->lockedHeroes, goal.hero))
 		missionImportanceData = ai->lockedHeroes[goal.hero]->priority;

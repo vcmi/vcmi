@@ -29,7 +29,7 @@ class DLL_EXPORT IBuildingManager //: public: IAbstractManager
 { //info about town development
 public:
 	virtual ~IBuildingManager() = default;
-	virtual void setCB(CPlayerSpecificInfoCallback * CB) = 0;
+	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 
 	virtual bool getBuildingOptions(const CGTownInstance * t) = 0;
@@ -70,6 +70,6 @@ private:
 	std::vector<PotentialBuilding> immediateBuildings; //what we can build right now in current town
 	std::vector<PotentialBuilding> expensiveBuildings; //what we coudl build but can't afford
 
-	void setCB(CPlayerSpecificInfoCallback * CB) override;
+	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
 };

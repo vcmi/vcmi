@@ -40,7 +40,7 @@ class IResourceManager //: public: IAbstractManager
 {
 public:
 	virtual ~IResourceManager() = default;
-	virtual void setCB(CPlayerSpecificInfoCallback * CB) = 0;
+	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 
 	virtual TResources reservedResources() const = 0;
@@ -94,7 +94,7 @@ protected: //not-const actions only for AI
 	virtual TResources estimateIncome() const;
 	virtual Goals::TSubgoal collectResourcesForOurGoal(ResourceObjective &o) const;
 
-	void setCB(CPlayerSpecificInfoCallback * CB) override;
+	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
 
 private:

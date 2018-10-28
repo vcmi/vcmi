@@ -38,15 +38,34 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 	return (getAINode(node)->chainMask & BATTLE_CHAIN) > 0;
 }
 
-AIPathNode * AINodeStorage::getNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber)
+boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
-	return &nodes[coord.x][coord.y][coord.z][layer][chainNumber];
+	auto chains = nodes[pos.x][pos.y][pos.z][layer];
+
+	for(AIPathNode & node : chains)
+	{
+		if(node.chainMask == chainNumber)
+		{
+			return &node;
+		}
+
+		if(node.chainMask == 0)
+		{
+			node.chainMask = chainNumber;
+
+			return &node;
+		}
+	}
+
+	return boost::none;
 }
 
 CGPathNode * AINodeStorage::getInitialNode()
 {
 	auto hpos = hero->getPosition(false);
-	auto initialNode = getNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, 0);
+	auto initialNode = 
+		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
+		.get();
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
@@ -61,7 +80,9 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 	{
 		AIPathNode & heroNode = nodes[coord.x][coord.y][coord.z][layer][i];
 
-		heroNode.chainMask = i;
+		heroNode.chainMask = 0;
+		heroNode.danger = 0;
+		heroNode.specialAction.reset();
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -92,12 +113,12 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	{
 		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
 		{
-			auto nextNode = getNode(neighbour, i, srcNode->chainMask);
+			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
 
-			if(nextNode->accessible == CGPathNode::NOT_SET)
+			if(!nextNode || nextNode.get()->accessible == CGPathNode::NOT_SET)
 				continue;
 
-			neighbours.push_back(nextNode);
+			neighbours.push_back(nextNode.get());
 		}
 	}
 
@@ -115,9 +136,12 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 	for(auto & neighbour : accessibleExits)
 	{
-		auto node = getNode(neighbour, source.node->layer, srcNode->chainMask);
+		auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
 
-		neighbours.push_back(node);
+		if(!node)
+			continue;
+
+		neighbours.push_back(node.get());
 	}
 
 	return neighbours;
@@ -183,8 +207,11 @@ std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos) const
 			pathNode.coord = current->coord;
 
 			path.nodes.push_back(pathNode);
+			path.specialAction = current->specialAction;
+
 			current = getAINode(current->theNodeBefore);
 		}
+
 		paths.push_back(path);
 	}
 

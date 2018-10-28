@@ -64,7 +64,7 @@ public:
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal);
 
-	void setCB(CPlayerSpecificInfoCallback * CB) override;
+	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
 };
 

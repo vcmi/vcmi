@@ -16,8 +16,8 @@ std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
 boost::mutex AIPathfinder::storageMutex;
 
-AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb)
-	:cb(cb)
+AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai)
+	:cb(cb), ai(ai)
 {
 }
 
@@ -48,7 +48,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 
 		storageMap[hero] = nodeStorage;
 		
-		auto config = std::make_shared<AIPathfinderConfig>(cb, nodeStorage);
+		auto config = std::make_shared<AIPathfinderConfig>(cb, ai, nodeStorage);
 
 		nodeStorage->setHero(hero.get());
 		cb->calculatePaths(config, hero.get());

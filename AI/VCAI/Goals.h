@@ -59,7 +59,8 @@ enum EGoals
 	CLEAR_WAY_TO,
 	DIG_AT_TILE,//elementar with hero on tile
 	BUY_ARMY, //at specific town
-	TRADE //val resID at object objid
+	TRADE, //val resID at object objid
+	BUILD_BOAT
 };
 
 	//method chaining + clone pattern
@@ -73,6 +74,18 @@ enum EGoals
 enum {LOW_PR = -1};
 
 DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
+
+struct DLL_EXPORT EvaluationContext
+{
+	uint64_t movementCost;
+	int manaCost;
+	uint64_t danger;
+
+	EvaluationContext()
+		:movementCost(0), danger(0), manaCost(0)
+	{
+	}
+};
 
 class DLL_EXPORT AbstractGoal
 {
@@ -88,9 +101,11 @@ public:
 	HeroPtr hero; VSETTER(HeroPtr, hero)
 	const CGTownInstance *town; VSETTER(CGTownInstance *, town)
 	int bid; VSETTER(int, bid)
+	TSubgoal parent; VSETTER(TSubgoal, parent)
+	EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
 	AbstractGoal(EGoals goal = INVALID)
-		: goalType (goal)
+		: goalType (goal), evaluationContext()
 	{
 		priority = 0;
 		isElementar = false;
@@ -120,7 +135,7 @@ public:
 
 	EGoals goalType;
 
-	std::string name() const;
+	virtual std::string name() const;
 	virtual std::string completeMessage() const
 	{
 		return "This goal is unspecified!";
@@ -130,18 +145,22 @@ public:
 
 	static TSubgoal goVisitOrLookFor(const CGObjectInstance * obj); //if obj is nullptr, then we'll explore
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
-	static TSubgoal tryRecruitHero();
 
 	///Visitor pattern
 	//TODO: make accept work for std::shared_ptr... somehow
 	virtual void accept(VCAI * ai); //unhandled goal will report standard error
 	virtual float accept(FuzzyHelper * f);
 
-	virtual bool operator==(AbstractGoal & g);
+	virtual bool operator==(const AbstractGoal & g) const;
 	bool operator<(AbstractGoal & g); //final
 	virtual bool fulfillsMe(Goals::TSubgoal goal) //TODO: multimethod instead of type check
 	{
 		return false; //use this method to check if goal is fulfilled by another (not equal) goal, operator == is handled spearately
+	}
+
+	bool operator!=(const AbstractGoal & g) const
+	{
+		return !(*this == g);
 	}
 
 	template<typename Handler> void serialize(Handler & h, const int version)
@@ -209,6 +228,16 @@ public:
 		//h & goalType & isElementar & isAbstract & priority;
 		//h & value & resID & objid & aid & tile & hero & town & bid;
 	}
+
+	virtual bool operator==(const AbstractGoal & g) const override
+	{
+		if(goalType != g.goalType)
+			return false;
+
+		return (*this) == (dynamic_cast<const T &>(g));
+	}
+
+	virtual bool operator==(const T & other) const = 0;
 };
 
 class DLL_EXPORT Invalid : public CGoal<Invalid>
@@ -224,6 +253,11 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+
+	virtual bool operator==(const Invalid & other) const override
+	{
+		return true;
+	}
 };
 
 class DLL_EXPORT Win : public CGoal<Win>
@@ -239,6 +273,11 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+
+	virtual bool operator==(const Win & other) const override
+	{
+		return true;
+	}
 };
 
 class DLL_EXPORT NotLose : public CGoal<NotLose>
@@ -254,6 +293,11 @@ public:
 		return TGoalVec();
 	}
 	//TSubgoal whatToDoToAchieve() override;
+
+	virtual bool operator==(const NotLose & other) const override
+	{
+		return true;
+	}
 };
 
 class DLL_EXPORT Conquer : public CGoal<Conquer>
@@ -266,6 +310,7 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
+	virtual bool operator==(const Conquer & other) const override;
 };
 
 class DLL_EXPORT Build : public CGoal<Build>
@@ -279,6 +324,33 @@ public:
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool fulfillsMe(TSubgoal goal) override;
+
+	virtual bool operator==(const Build & other) const override
+	{
+		return true;
+	}
+};
+
+class DLL_EXPORT BuildBoat : public CGoal<BuildBoat>
+{
+private:
+	const IShipyard * shipyard;
+
+public:
+	BuildBoat(const IShipyard * shipyard)
+		: CGoal(Goals::BUILD_BOAT), shipyard(shipyard)
+	{
+		priority = 0;
+	}
+	TGoalVec getAllPossibleSubgoals() override
+	{
+		return TGoalVec();
+	}
+	TSubgoal whatToDoToAchieve() override;
+	void accept(VCAI * ai) override;
+	std::string name() const override;
+	std::string completeMessage() const override;
+	virtual bool operator==(const BuildBoat & other) const override;
 };
 
 class DLL_EXPORT Explore : public CGoal<Explore>
@@ -299,6 +371,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
 	bool fulfillsMe(TSubgoal goal) override;
+	virtual bool operator==(const Explore & other) const override;
 };
 
 class DLL_EXPORT GatherArmy : public CGoal<GatherArmy>
@@ -317,6 +390,7 @@ public:
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
+	virtual bool operator==(const GatherArmy & other) const override;
 };
 
 class DLL_EXPORT BuyArmy : public CGoal<BuyArmy>
@@ -333,11 +407,11 @@ public:
 		value = val; //expressed in AI unit strength
 		priority = 3;//TODO: evaluate?
 	}
-	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;
 
 	TSubgoal whatToDoToAchieve() override;
 	std::string completeMessage() const override;
+	virtual bool operator==(const BuyArmy & other) const override;
 };
 
 class DLL_EXPORT BoostHero : public CGoal<BoostHero>
@@ -352,6 +426,7 @@ public:
 	{
 		return TGoalVec();
 	}
+	virtual bool operator==(const BoostHero & other) const override;
 	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());};
 };
 
@@ -363,12 +438,18 @@ public:
 	{
 		priority = 1;
 	}
+
 	TGoalVec getAllPossibleSubgoals() override
 	{
 		return TGoalVec();
 	}
+
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
+
+	virtual bool operator==(const RecruitHero & other) const override
+	{
+		return true;
+	}
 };
 
 class DLL_EXPORT BuildThis : public CGoal<BuildThis>
@@ -396,6 +477,7 @@ public:
 	}
 	TSubgoal whatToDoToAchieve() override;
 	//bool fulfillsMe(TSubgoal goal) override;
+	virtual bool operator==(const BuildThis & other) const override;
 };
 
 class DLL_EXPORT CollectRes : public CGoal<CollectRes>
@@ -416,7 +498,7 @@ public:
 	TSubgoal whatToDoToAchieve() override;
 	TSubgoal whatToDoToTrade();
 	bool fulfillsMe(TSubgoal goal) override; //TODO: Trade
-	bool operator==(AbstractGoal & g) override;
+	virtual bool operator==(const CollectRes & other) const override;
 };
 
 class DLL_EXPORT Trade : public CGoal<Trade>
@@ -435,7 +517,7 @@ public:
 		priority = 3; //trading is instant, but picking resources is free
 	}
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
+	virtual bool operator==(const Trade & other) const override;
 };
 
 class DLL_EXPORT GatherTroops : public CGoal<GatherTroops>
@@ -459,6 +541,7 @@ public:
 	}
 	TSubgoal whatToDoToAchieve() override;
 	bool fulfillsMe(TSubgoal goal) override;
+	virtual bool operator==(const GatherTroops & other) const override;
 };
 
 class DLL_EXPORT VisitObj : public CGoal<VisitObj> //this goal was previously known as GetObj
@@ -469,9 +552,9 @@ public:
 
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;
 	std::string completeMessage() const override;
+	virtual bool operator==(const VisitObj & other) const override;
 };
 
 class DLL_EXPORT FindObj : public CGoal<FindObj>
@@ -499,6 +582,7 @@ public:
 	}
 	TSubgoal whatToDoToAchieve() override;
 	bool fulfillsMe(TSubgoal goal) override;
+	virtual bool operator==(const FindObj & other) const override;
 };
 
 class DLL_EXPORT VisitHero : public CGoal<VisitHero>
@@ -519,9 +603,9 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;
 	std::string completeMessage() const override;
+	virtual bool operator==(const VisitHero & other) const override;
 };
 
 class DLL_EXPORT GetArtOfType : public CGoal<GetArtOfType>
@@ -542,6 +626,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
+	virtual bool operator==(const GetArtOfType & other) const override;
 };
 
 class DLL_EXPORT VisitTile : public CGoal<VisitTile>
@@ -558,8 +643,8 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
 	std::string completeMessage() const override;
+	virtual bool operator==(const VisitTile & other) const override;
 };
 
 class DLL_EXPORT ClearWayTo : public CGoal<ClearWayTo>
@@ -584,8 +669,8 @@ public:
 	}
 	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
 	bool fulfillsMe(TSubgoal goal) override;
+	virtual bool operator==(const ClearWayTo & other) const override;
 };
 
 class DLL_EXPORT DigAtTile : public CGoal<DigAtTile>
@@ -607,28 +692,7 @@ public:
 		return TGoalVec();
 	}
 	TSubgoal whatToDoToAchieve() override;
-	bool operator==(AbstractGoal & g) override;
-};
-
-class DLL_EXPORT CIssueCommand : public CGoal<CIssueCommand>
-{
-	std::function<bool()> command;
-
-public:
-	CIssueCommand()
-		: CGoal(ISSUE_COMMAND)
-	{
-	}
-	CIssueCommand(std::function<bool()> _command)
-		: CGoal(ISSUE_COMMAND), command(_command)
-	{
-		priority = 1e10;
-	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
-	//TSubgoal whatToDoToAchieve() override {return sptr(Invalid());}
+	virtual bool operator==(const DigAtTile & other) const override;
 };
 
 }

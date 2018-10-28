@@ -613,7 +613,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	myCb = CB;
 	cbc = CB;
 
-	ah->setCB(CB.get());
+	ah->init(CB.get());
 
 	NET_EVENT_HANDLER; //sets ah->rm->cb
 	playerID = *myCb->getMyColor();
@@ -905,6 +905,14 @@ void VCAI::mainLoop()
 					//complete abstract goal for now, but maybe main goal finds another path
 					logAi->debug("Goal %s decomposition failed: goal was completed as much as possible", e.goal->name());
 					completeGoal(e.goal); //put in goalsToRemove
+					break;
+				}
+				catch(cannotFulfillGoalException & e)
+				{
+					//it is impossible to continue some goals (like exploration, for example)
+					//complete abstract goal for now, but maybe main goal finds another path
+					goalsToRemove.push_back(basicGoal);
+					logAi->debug("Goal %s decomposition failed: %s", goalToDecompose->name(), e.what());
 					break;
 				}
 				catch (std::exception & e) //decomposition failed, which means we can't decompose entire tree
@@ -2397,6 +2405,7 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	while (maxGoals)
 	{
 		boost::this_thread::interruption_point();
+
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
 		if (goal == ultimateGoal) //compare objects by value

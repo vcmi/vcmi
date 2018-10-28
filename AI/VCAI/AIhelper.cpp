@@ -29,11 +29,11 @@ bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 	return resourceManager->notifyGoalCompleted(goal);
 }
 
-void AIhelper::setCB(CPlayerSpecificInfoCallback * CB)
+void AIhelper::init(CPlayerSpecificInfoCallback * CB)
 {
-	resourceManager->setCB(CB);
-	buildingManager->setCB(CB);
-	pathfindingManager->setCB(CB);
+	resourceManager->init(CB);
+	buildingManager->init(CB);
+	pathfindingManager->init(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)

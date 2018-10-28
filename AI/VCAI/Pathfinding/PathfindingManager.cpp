@@ -19,10 +19,10 @@ PathfindingManager::PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * 
 {
 }
 
-void PathfindingManager::setCB(CPlayerSpecificInfoCallback * CB)
+void PathfindingManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
-	pathfinder.reset(new AIPathfinder(cb));
+	pathfinder.reset(new AIPathfinder(cb, ai));
 }
 
 void PathfindingManager::setAI(VCAI * AI)
@@ -60,10 +60,17 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj)
 
 Goals::TGoalVec PathfindingManager::howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy)
 {
-	return findPath(hero, tile, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
+	auto result = findPath(hero, tile, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
 		return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
 	});
+
+	for(Goals::TSubgoal solution : result)
+	{
+		solution->setparent(sptr(Goals::VisitTile(tile).sethero(hero).setevaluationContext(solution->evaluationContext)));
+	}
+
+	return result;
 }
 
 Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy)
@@ -75,13 +82,20 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 
 	int3 dest = obj->visitablePos();
 
-	return findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
+	auto result = findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
 		if(obj->ID.num == Obj::HERO && obj->getOwner() == hero->getOwner())
 			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
 		else
 			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setisAbstract(true));
 	});
+
+	for(Goals::TSubgoal solution : result)
+	{
+		solution->setparent(sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setevaluationContext(solution->evaluationContext)));
+	}
+
+	return result;
 }
 
 std::vector<AIPath> PathfindingManager::getPathsToTile(HeroPtr hero, int3 tile)
@@ -117,9 +131,24 @@ Goals::TGoalVec PathfindingManager::findPath(
 			{
 				logAi->trace("It's safe for %s to visit tile %s with danger %s", hero->name, dest.toString(), std::to_string(danger));
 
-				auto solution = dest == firstTileToGet
-					? doVisitTile(firstTileToGet)
-					: clearWayTo(hero, firstTileToGet);
+				Goals::TSubgoal solution;
+
+				if(path.specialAction)
+				{
+					solution = path.specialAction->whatToDo(hero);
+				}
+				else
+				{
+					solution = dest == firstTileToGet
+						? doVisitTile(firstTileToGet)
+						: clearWayTo(hero, firstTileToGet);
+				}
+
+				if(solution->evaluationContext.danger < danger)
+					solution->evaluationContext.danger = danger;
+				
+				solution->evaluationContext.movementCost += path.movementCost();
+
 				result.push_back(solution);
 
 				continue;

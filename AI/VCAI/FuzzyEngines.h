@@ -52,7 +52,7 @@ protected:
 	fl::OutputVariable * value;
 
 private:
-	float calculateTurnDistanceInputValue(const CGHeroInstance * h, int3 tile) const;
+	float calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const;
 };
 
 class VisitTileEngine : public HeroMovementGoalEngineBase
