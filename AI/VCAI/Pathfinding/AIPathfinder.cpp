@@ -11,6 +11,7 @@
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
+#include "../../../lib/mapping/CMap.h"
 
 std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
@@ -58,5 +59,12 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 		nodeStorage = storageMap.at(hero);
 	}
 
-	return nodeStorage->getChainInfo(tile);
+	const TerrainTile * tileInfo = cb->getTile(tile, false);
+
+	if(!tileInfo)
+	{
+		return std::vector<AIPath>();
+	}
+
+	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
 }
