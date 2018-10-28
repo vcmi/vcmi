@@ -181,10 +181,10 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	return false;
 }
 
-std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos) const
+std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
-	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
+	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
 
 	for(const AIPathNode & node : chains)
 	{
