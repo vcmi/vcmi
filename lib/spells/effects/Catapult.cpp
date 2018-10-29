@@ -66,7 +66,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 	return true;
 }
 
-void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & /* eTarget */) const
 {
 	//start with all destructible parts
 	static const std::set<EWallPart::EWallPart> possibleTargets =

@@ -49,10 +49,10 @@ void CreatureCostBox::createItems(TResources res)
 	{
 		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
 		//reverse to display gold as first resource
-		for(auto & res : boost::adaptors::reverse(resources))
+		for(auto & currentRes : boost::adaptors::reverse(resources))
 		{
-			res.second.first->moveBy(Point(curx, 22));
-			res.second.second->moveBy(Point(curx, 22));
+			currentRes.second.first->moveBy(Point(curx, 22));
+			currentRes.second.second->moveBy(Point(curx, 22));
 			curx += 48;
 		}
 	}
