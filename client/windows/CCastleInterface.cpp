@@ -1096,7 +1096,7 @@ void CTownInfo::clickRight(tribool down, bool previousState)
 }
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from):
-	CWindowObject(PLAYER_COLORED | BORDERED),
+	CStatusbarWindow(PLAYER_COLORED | BORDERED),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1316,7 +1316,7 @@ void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
 }
 
 CHallInterface::CHallInterface(const CGTownInstance * Town):
-	CWindowObject(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
+	CStatusbarWindow(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
 	town(Town)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1365,7 +1365,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 }
 
 CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int state, bool rightClick):
-	CWindowObject(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), "TPUBUILD"),
+	CStatusbarWindow(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), "TPUBUILD"),
 	town(Town),
 	building(Building)
 {
@@ -1494,7 +1494,7 @@ void LabeledValue::hover(bool on)
 }
 
 CFortScreen::CFortScreen(const CGTownInstance * town):
-	CWindowObject(PLAYER_COLORED | BORDERED, getBgName(town))
+	CStatusbarWindow(PLAYER_COLORED | BORDERED, getBgName(town))
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	ui32 fortSize = town->creatures.size();
@@ -1678,7 +1678,7 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner,std::string imagem)
-	: CWindowObject(BORDERED, imagem)
+	: CStatusbarWindow(BORDERED, imagem)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1750,7 +1750,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 }
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid):
-	CWindowObject(PLAYER_COLORED, "TPSMITH")
+	CStatusbarWindow(PLAYER_COLORED, "TPSMITH")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 

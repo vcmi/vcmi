@@ -11,6 +11,8 @@
 
 #include "../gui/CIntObject.h"
 
+class CGStatusBar;
+
 class CWindowObject : public WindowBase
 {
 	std::shared_ptr<CPicture> createBg(std::string imageName, bool playerColored);
@@ -49,4 +51,14 @@ public:
 	~CWindowObject();
 
 	void showAll(SDL_Surface * to) override;
+};
+
+class CStatusbarWindow : public CWindowObject
+{
+public:
+	CStatusbarWindow(int options, std::string imageName, Point centerAt);
+	CStatusbarWindow(int options, std::string imageName = "");
+	void activate() override;
+protected:
+	std::shared_ptr<CGStatusBar> statusbar;
 };

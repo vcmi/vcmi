@@ -238,3 +238,17 @@ void CWindowObject::clickRight(tribool down, bool previousState)
 	close();
 	CCS->curh->show();
 }
+
+CStatusbarWindow::CStatusbarWindow(int options, std::string imageName, Point centerAt) : CWindowObject(options, imageName, centerAt)
+{
+}
+
+CStatusbarWindow::CStatusbarWindow(int options, std::string imageName) : CWindowObject(options, imageName)
+{
+}
+
+void CStatusbarWindow::activate()
+{
+	CIntObject::activate();
+	GH.statusbar = statusbar;
+}

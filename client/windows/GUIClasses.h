@@ -38,7 +38,7 @@ class CResDataBar;
 class CHeroWithMaybePickedArtifact;
 
 /// Recruitment window where you can recruit creatures
-class CRecruitmentWindow : public CWindowObject
+class CRecruitmentWindow : public CStatusbarWindow
 {
 	class CCreatureCard : public CIntObject, public std::enable_shared_from_this<CCreatureCard>
 	{
@@ -63,8 +63,6 @@ class CRecruitmentWindow : public CWindowObject
 
 	int level;
 	const CArmedInstance * dst;
-
-	std::shared_ptr<CGStatusBar> statusBar;
 
 	std::shared_ptr<CCreatureCard> selected;
 	std::vector<std::shared_ptr<CCreatureCard>> cards;
@@ -235,7 +233,7 @@ public:
 	CSystemOptionsWindow();
 };
 
-class CTavernWindow : public CWindowObject
+class CTavernWindow : public CStatusbarWindow
 {
 public:
 	class HeroPortrait : public CIntObject
@@ -273,7 +271,6 @@ public:
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> cost;
 	std::shared_ptr<CTextBox> rumor;
-	std::shared_ptr<CGStatusBar> statusBar;
 
 	CTavernWindow(const CGObjectInstance * TavernObj);
 	~CTavernWindow();
@@ -283,7 +280,7 @@ public:
 	void show(SDL_Surface * to) override;
 };
 
-class CExchangeWindow : public CWindowObject, public CGarrisonHolder, public CWindowWithArtifacts
+class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
 	std::array<std::shared_ptr<CHeroWithMaybePickedArtifact>, 2> herosWArt;
 
@@ -312,7 +309,6 @@ class CExchangeWindow : public CWindowObject, public CGarrisonHolder, public CWi
 	std::shared_ptr<CButton> quit;
 	std::array<std::shared_ptr<CButton>, 2> questlogButton;
 
-	std::shared_ptr<CGStatusBar> statusBar;
 	std::shared_ptr<CGarrisonInt> garr;
 
 public:
@@ -330,7 +326,7 @@ public:
 };
 
 /// Here you can buy ships
-class CShipyardWindow : public CWindowObject
+class CShipyardWindow : public CStatusbarWindow
 {
 	std::shared_ptr<CPicture> bgWater;
 	std::shared_ptr<CAnimImage> bgShip;
@@ -346,7 +342,6 @@ class CShipyardWindow : public CWindowObject
 	std::shared_ptr<CButton> build;
 	std::shared_ptr<CButton> quit;
 
-	std::shared_ptr<CGStatusBar> statusBar;
 public:
 	CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy);
 };
@@ -373,7 +368,7 @@ public:
 };
 
 /// Creature transformer window
-class CTransformerWindow : public CWindowObject, public CGarrisonHolder
+class CTransformerWindow : public CStatusbarWindow, public CGarrisonHolder
 {
 	class CItem : public CIntObject
 	{
@@ -405,7 +400,6 @@ class CTransformerWindow : public CWindowObject, public CGarrisonHolder
 	std::shared_ptr<CButton> all;
 	std::shared_ptr<CButton> convert;
 	std::shared_ptr<CButton> cancel;
-	std::shared_ptr<CGStatusBar> statusBar;
 public:
 
 	void makeDeal();
@@ -414,7 +408,7 @@ public:
 	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town);
 };
 
-class CUniversityWindow : public CWindowObject
+class CUniversityWindow : public CStatusbarWindow
 {
 	class CItem : public CIntObject
 	{
@@ -443,7 +437,6 @@ class CUniversityWindow : public CWindowObject
 	std::vector<std::shared_ptr<CItem>> items;
 
 	std::shared_ptr<CButton> cancel;
-	std::shared_ptr<CGStatusBar> statusBar;
 	std::shared_ptr<CIntObject> titlePic;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CTextBox> clerkSpeech;
@@ -455,7 +448,7 @@ public:
 };
 
 /// Confirmation window for University
-class CUnivConfirmWindow : public CWindowObject
+class CUnivConfirmWindow : public CStatusbarWindow
 {
 	std::shared_ptr<CTextBox> clerkSpeech;
 	std::shared_ptr<CLabel> name;
@@ -463,7 +456,6 @@ class CUnivConfirmWindow : public CWindowObject
 	std::shared_ptr<CAnimImage> icon;
 
 	CUniversityWindow * owner;
-	std::shared_ptr<CGStatusBar> statusBar;
 	std::shared_ptr<CButton> confirm;
 	std::shared_ptr<CButton> cancel;
 
@@ -494,7 +486,7 @@ public:
 };
 
 /// Hill fort is the building where you can upgrade units
-class CHillFortWindow : public CWindowObject, public CGarrisonHolder
+class CHillFortWindow : public CStatusbarWindow, public CGarrisonHolder
 {
 private:
 	static const int slotsCount = 7;
@@ -522,8 +514,6 @@ private:
 
 	std::shared_ptr<CGarrisonInt> garr;
 
-	std::shared_ptr<CGStatusBar> statusBar;
-
 	std::string getDefForSlot(SlotID slot);
 	std::string getTextForSlot(SlotID slot);
 
@@ -534,11 +524,10 @@ public:
 	void updateGarrisons() override;//update buttons after garrison changes
 };
 
-class CThievesGuildWindow : public CWindowObject
+class CThievesGuildWindow : public CStatusbarWindow
 {
 	const CGObjectInstance * owner;
 
-	std::shared_ptr<CGStatusBar> statusBar;
 	std::shared_ptr<CButton> exitb;
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 
