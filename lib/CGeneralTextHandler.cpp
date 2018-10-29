@@ -484,7 +484,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 				znpc00.push_back(parser.readString());
 			} while (parser.endLine());
 		}
-		catch (std::runtime_error)
+		catch (const std::runtime_error &)
 		{
 			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
 		}

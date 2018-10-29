@@ -1537,7 +1537,7 @@ void VCAI::wander(HeroPtr h)
 			{
 				decomposeGoal(bestObjectGoal)->accept(this);
 			}
-			catch(goalFulfilledException e)
+			catch(const goalFulfilledException & e)
 			{
 				if(e.goal->goalType == Goals::EGoals::VISIT_TILE || e.goal->goalType == Goals::EGoals::VISIT_OBJ)
 					continue;
