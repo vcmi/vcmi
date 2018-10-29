@@ -32,7 +32,7 @@
 #include "../../lib/mapObjects/CGMarket.h"
 
 CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial)
-	: CIntObject(LCLICK | HOVER | RCLICK, pos),
+	: View(LCLICK | HOVER | RCLICK, pos),
 	type(EType(-1)),// set to invalid, will be corrected in setType
 	id(ID),
 	serial(Serial),
@@ -42,6 +42,11 @@ CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool
 	downSelection = false;
 	hlp = nullptr;
 	setType(Type);
+}
+
+void printAtMiddleLoc(const std::string & text, const Point p, Rect pos, EFonts font, SDL_Color color, SDL_Surface * dst)
+{
+	graphics->fonts[font]->renderTextCenter(dst, text, color, pos.topLeft() + p);
 }
 
 void CTradeWindow::CTradeableItem::setType(EType newType)
@@ -124,7 +129,7 @@ int CTradeWindow::CTradeableItem::getIndex()
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
 
 	Point posToBitmap;
@@ -160,15 +165,15 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	if (image)
 	{
 		image->moveTo(pos.topLeft() + posToBitmap);
-		CIntObject::showAll(to);
+		View::showAll(to);
 	}
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
+	printAtMiddleLoc(subtitle, posToSubCenter, pos, FONT_SMALL, Colors::WHITE, to);
 }
 
-void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(parent);
+	CTradeWindow *mw = dynamic_cast<CTradeWindow *>(getParent());
 	assert(mw);
 	if(down)
 	{
@@ -255,7 +260,7 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	}
 }
 
-void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
+void CTradeWindow::CTradeableItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
@@ -269,7 +274,7 @@ void CTradeWindow::CTradeableItem::clickRight(tribool down, bool previousState)
 		case ARTIFACT_PLACEHOLDER:
 			//TODO: it's would be better for market to contain actual CArtifactInstance and not just ids of certain artifact type so we can use getEffectiveDescription.
 			if(id >= 0)
-				adventureInt->handleRightClick(CGI->arth->artifacts[id]->Description(), down);
+				adventureInt->handleRightClick(event.motion, CGI->arth->artifacts[id]->Description(), down);
 			break;
 		}
 	}
@@ -1468,7 +1473,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 		val = hero->calculateXp(val);
-		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
+		printAtMiddleLoc(boost::lexical_cast<std::string>(val), Point(304, 498), pos, FONT_SMALL, Colors::WHITE, to);
 	}
 }
 

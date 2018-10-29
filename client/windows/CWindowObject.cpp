@@ -38,7 +38,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 	options(options_),
 	background(createBg(imageName, options & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+	assert(getParent() == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -59,7 +59,6 @@ CWindowObject::CWindowObject(int options_, std::string imageName):
 	options(options_),
 	background(createBg(imageName, options_ & PLAYER_COLORED))
 {
-	assert(parent == nullptr); //Safe to remove, but windows should not have parent
 
 	defActions = 255-DISPOSE;
 
@@ -228,12 +227,12 @@ void CWindowObject::showAll(SDL_Surface *to)
 	if(settings["session"]["spectate"].Bool())
 		color = PlayerColor(1); // TODO: Spectator shouldn't need special code for UI colors
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
 		CMessage::drawBorder(color, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void CWindowObject::clickRight(tribool down, bool previousState)
+void CWindowObject::clickRight(const SDL_Event &event, tribool down)
 {
 	close();
 	CCS->curh->show();

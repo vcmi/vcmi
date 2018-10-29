@@ -186,7 +186,7 @@ void CPicture::colorize(PlayerColor player)
 }
 
 CFilledTexture::CFilledTexture(std::string imageName, Rect position):
-    CIntObject(0, position.topLeft()),
+    View(0, position.topLeft()),
     texture(BitmapHandler::loadBitmap(imageName))
 {
 	pos.w = position.w;

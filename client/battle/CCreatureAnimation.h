@@ -13,7 +13,7 @@
 #include "../widgets/Images.h"
 #include "../gui/CAnimation.h"
 
-class CIntObject;
+class View;
 class CCreatureAnimation;
 
 /// Namespace for some common controls of animations
@@ -46,7 +46,7 @@ namespace AnimationControls
 
 /// Class which manages animations of creatures/units inside battles
 /// TODO: split into constant image container and class that does *control* of animation
-class CCreatureAnimation : public CIntObject
+class CCreatureAnimation : public View
 {
 public:
 	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;

@@ -21,7 +21,7 @@ class CStackInstance;
 class CLabel;
 
 /// A single garrison slot which holds one creature of a specific amount
-class CGarrisonSlot : public CIntObject
+class CGarrisonSlot : public View
 {
 	SlotID ID; //for identification
 	CGarrisonInt *owner;
@@ -50,8 +50,8 @@ public:
 	const CArmedInstance * getObj() const;
 	bool our() const;
 	bool ally() const;
-	void clickRight(tribool down, bool previousState) override;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * Creature=nullptr);
 
@@ -62,7 +62,7 @@ public:
 };
 
 /// Class which manages slots of upper and lower garrison, splitting of units
-class CGarrisonInt :public CIntObject
+class CGarrisonInt :public View
 {
 	/// Chosen slot. Should be changed only via selectSlot.
 	CGarrisonSlot * highlighted;

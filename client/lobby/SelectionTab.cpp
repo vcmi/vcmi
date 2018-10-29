@@ -112,7 +112,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
+	: View(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
 {
 	OBJ_CONSTRUCTION;
 	if(tabType != ESelectionScreen::campaignList)
@@ -162,8 +162,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->allTexts[726];
 		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
-		pos.w = parent->pos.w;
-		pos.h = parent->pos.h;
+		pos.w = getParent()->pos.w;
+		pos.h = getParent()->pos.h;
 		pos.x += 3;
 		pos.y += 6;
 
@@ -247,16 +247,16 @@ void SelectionTab::toggleMode()
 	redraw();
 }
 
-void SelectionTab::clickLeft(tribool down, bool previousState)
+void SelectionTab::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
-		int line = getLine();
+		int line = getLine(event.button.x, event.button.y);
 		if(line != -1)
 			select(line);
 	}
 }
-void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
+void SelectionTab::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
 		return;
@@ -288,11 +288,11 @@ void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
 	select(selectionPos - slider->getValue() + moveBy);
 }
 
-void SelectionTab::onDoubleClick()
+void SelectionTab::onDoubleClick(const SDL_Event &event)
 {
-	if(getLine() != -1) //double clicked scenarios list
+	if(getLine(event.button.x, event.button.y) != -1) //double clicked scenarios list
 	{
-		(static_cast<CLobbyScreen *>(parent))->buttonStart->clickLeft(false, true);
+		(static_cast<CLobbyScreen *>(getParent()))->buttonStart->clickLeft(event, false);
 	}
 }
 
@@ -427,10 +427,10 @@ void SelectionTab::updateListItems()
 	}
 }
 
-int SelectionTab::getLine()
+int SelectionTab::getLine(int x, int y)
 {
 	int line = -1;
-	Point clickPos(GH.current->button.x, GH.current->button.y);
+	Point clickPos(x, y);
 	clickPos = clickPos - pos.topLeft();
 
 	// Ignore clicks on save name area
@@ -595,7 +595,7 @@ std::unordered_set<ResourceID> SelectionTab::getFiles(std::string dirURI, int re
 }
 
 SelectionTab::ListItem::ListItem(Point position, std::shared_ptr<CAnimation> iconsFormats, std::shared_ptr<CAnimation> iconsVictory, std::shared_ptr<CAnimation> iconsLoss)
-	: CIntObject(LCLICK, position)
+	: View(LCLICK, position)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	labelName = std::make_shared<CLabel>(184, 0, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);

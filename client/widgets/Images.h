@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 #include "../gui/SDL_Extensions.h"
 
 struct SDL_Surface;
@@ -19,7 +19,7 @@ class CLabel;
 class CAnimation;
 
 // Image class
-class CPicture : public CIntObject
+class CPicture : public View
 {
 	void setSurface(SDL_Surface *to);
 public:
@@ -54,7 +54,7 @@ public:
 };
 
 /// area filled with specific texture
-class CFilledTexture : CIntObject
+class CFilledTexture : View
 {
 	SDL_Surface * texture;
 
@@ -65,7 +65,7 @@ public:
 };
 
 /// Class for displaying one image from animation
-class CAnimImage: public CIntObject
+class CAnimImage: public View
 {
 private:
 	std::shared_ptr<CAnimation> anim;
@@ -97,7 +97,7 @@ public:
 };
 
 /// Base class for displaying animation, used as superclass for different animations
-class CShowableAnim: public CIntObject
+class CShowableAnim: public View
 {
 public:
 	enum EFlags

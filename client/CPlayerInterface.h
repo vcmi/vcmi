@@ -13,7 +13,7 @@
 #include "../lib/FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "../lib/NetPacksBase.h"
-#include "gui/CIntObject.h"
+#include "gui/view/View.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf
@@ -49,7 +49,6 @@ class Hoverable;
 class KeyInterested;
 class MotionInterested;
 class TimeInterested;
-class IShowable;
 struct CPathsInfo;
 
 namespace boost

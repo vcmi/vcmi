@@ -48,17 +48,17 @@ CHoverableArea::~CHoverableArea()
 {
 }
 
-void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWText::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(!down && previousState && !text.empty())
+	if(!down && !text.empty())
 	{
 		LOCPLINT->showInfoDialog(text);
 	}
 }
-void LRClickableAreaWText::clickRight(tribool down, bool previousState)
+void LRClickableAreaWText::clickRight(const SDL_Event &event, tribool down)
 {
 	if (!text.empty())
-		adventureInt->handleRightClick(text, down);
+		adventureInt->handleRightClick(event.motion, text, down);
 }
 
 LRClickableAreaWText::LRClickableAreaWText()
@@ -83,9 +83,9 @@ void LRClickableAreaWText::init()
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
-void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
+void LRClickableAreaWTextComp::clickLeft(const SDL_Event &event, tribool down)
 {
-	if((!down) && previousState)
+	if(!down)
 	{
 		std::vector<std::shared_ptr<CComponent>> comp(1, createComponent());
 		LOCPLINT->showInfoDialog(text, comp);
@@ -106,22 +106,22 @@ std::shared_ptr<CComponent> LRClickableAreaWTextComp::createComponent() const
 		return std::shared_ptr<CComponent>();
 }
 
-void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
+void LRClickableAreaWTextComp::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
 		if(auto comp = createComponent())
 		{
-			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
+			CRClickPopup::createAndPush(event.motion, text, CInfoWindow::TCompsInfo(1, comp));
 			return;
 		}
 	}
 
-	LRClickableAreaWText::clickRight(down, previousState); //only if with-component variant not occurred
+	LRClickableAreaWText::clickRight(event, down); //only if with-component variant not occurred
 }
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	hero(_hero)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -135,15 +135,15 @@ CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero)
 		portrait = std::make_shared<CAnimImage>("PortraitsLarge", hero->portrait);
 }
 
-void CHeroArea::clickLeft(tribool down, bool previousState)
+void CHeroArea::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(hero && (!down) && previousState)
+	if(hero && !down)
 		LOCPLINT->openHeroWindow(hero);
 }
 
-void CHeroArea::clickRight(tribool down, bool previousState)
+void CHeroArea::clickRight(const SDL_Event &event, tribool down)
 {
-	if(hero && (!down) && previousState)
+	if(hero && !down)
 		LOCPLINT->openHeroWindow(hero);
 }
 
@@ -155,9 +155,9 @@ void CHeroArea::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
+void LRClickableAreaOpenTown::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(town && (!down) && previousState)
+	if(town && !down)
 	{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )
@@ -167,9 +167,9 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void LRClickableAreaOpenTown::clickRight(tribool down, bool previousState)
+void LRClickableAreaOpenTown::clickRight(const SDL_Event &event, tribool down)
 {
-	if(town && (!down) && previousState)
+	if(town && !down)
 		LOCPLINT->openTownWindow(town);//TODO: popup?
 }
 
@@ -184,7 +184,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
@@ -263,13 +263,13 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
-	CIntObject(0, pos)
+	View(0, pos)
 {
 	init(army);
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
-	CIntObject(0, pos)
+	View(0, pos)
 {
 	init(InfoAboutArmy(army, true));
 }

@@ -19,7 +19,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 CreditsScreen::CreditsScreen(Rect rect)
-	: CIntObject(LCLICK | RCLICK), positionCounter(0)
+	: View(LCLICK | RCLICK), positionCounter(0)
 {
 	pos.w = rect.w;
 	pos.h = rect.h;
@@ -35,24 +35,24 @@ CreditsScreen::CreditsScreen(Rect rect)
 
 void CreditsScreen::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	positionCounter++;
 	if(positionCounter % 2 == 0)
 		credits->scrollTextBy(1);
 
 	//end of credits, close this screen
 	if(credits->textSize.y + 600 < positionCounter / 2)
-		clickRight(false, false);
+		dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickLeft(tribool down, bool previousState)
+void CreditsScreen::clickLeft(const SDL_Event &event, tribool down)
 {
-	clickRight(down, previousState);
+	dynamic_cast<CTabbedInt *>(getParent())->setActive(0);
 }
 
-void CreditsScreen::clickRight(tribool down, bool previousState)
+void CreditsScreen::clickRight(const SDL_Event &event, tribool down)
 {
-	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(parent);
+	CTabbedInt * menu = dynamic_cast<CTabbedInt *>(getParent());
 	assert(menu);
 	menu->setActive(0);
 }

@@ -89,7 +89,7 @@ CSelectionBase::CSelectionBase(ESelectionScreen type)
 	buttonBack = std::make_shared<CButton>(Point(581, 535), "SCNRBACK.DEF", CGI->generaltexth->zelp[105], [=](){ close();}, SDLK_ESCAPE);
 }
 
-void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
+void CSelectionBase::toggleTab(std::shared_ptr<View> tab)
 {
 	if(curTab && curTab->active)
 	{
@@ -114,7 +114,7 @@ InfoCard::InfoCard()
 	: showChat(true)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	CIntObject::type |= REDRAW_PARENT;
+	View::type |= REDRAW_PARENT;
 	pos.x += 393;
 	pos.y += 6;
 
@@ -132,10 +132,10 @@ InfoCard::InfoCard()
 	else
 	{
 		background = std::make_shared<CPicture>("GSELPOP1.bmp", 0, 0);
-		parent->addChild(background.get());
-		auto it = vstd::find(parent->children, this); //our position among parent children
-		parent->children.insert(it, background.get()); //put BG before us
-		parent->children.pop_back();
+		getParent()->addChild(background.get());
+		auto it = vstd::find(getParent()->children, this); //our position among parent children
+		getParent()->children.insert(it, background.get()); //put BG before us
+		getParent()->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
 		iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 318, 22); //let it be custom size (frame 4) by default
@@ -292,7 +292,7 @@ void InfoCard::setChat(bool activateChat)
 }
 
 CChatBox::CChatBox(const Rect & rect)
-	: CIntObject(KEYBOARD | TEXTINPUT)
+	: View(KEYBOARD | TEXTINPUT)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
@@ -307,7 +307,7 @@ CChatBox::CChatBox(const Rect & rect)
 	chatHistory->label->color = Colors::GREEN;
 }
 
-void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
+void CChatBox::keyPressed(const SDL_Event &event,const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_RETURN && key.state == SDL_PRESSED && inputBox->text.size())
 	{
@@ -315,7 +315,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 		inputBox->setText("");
 	}
 	else
-		inputBox->keyPressed(key);
+		inputBox->keyPressed(event, key);
 }
 
 void CChatBox::addNewMessage(const std::string & text)
@@ -327,7 +327,7 @@ void CChatBox::addNewMessage(const std::string & text)
 }
 
 CFlagBox::CFlagBox(const Rect & rect)
-	: CIntObject(RCLICK)
+	: View(RCLICK)
 {
 	pos += rect;
 	pos.w = rect.w;
@@ -364,7 +364,7 @@ void CFlagBox::recreate()
 	}
 }
 
-void CFlagBox::clickRight(tribool down, bool previousState)
+void CFlagBox::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down && SEL->getMapInfo())
 		GH.pushIntT<CFlagBoxTooltipBox>(iconsTeamFlags);

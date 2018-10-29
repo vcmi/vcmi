@@ -482,7 +482,7 @@ void CBattleInterface::activate()
 		return;
 	}
 
-	CIntObject::activate();
+	View::activate();
 	bOptions->activate();
 	bSurrender->activate();
 	bFlee->activate();
@@ -517,7 +517,7 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 
 	bOptions->deactivate();
 	bSurrender->deactivate();
@@ -551,7 +551,7 @@ void CBattleInterface::deactivate()
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
+void CBattleInterface::keyPressed(const SDL_Event &event, const SDL_KeyboardEvent & key)
 {
 	if (key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
@@ -570,7 +570,7 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 		endCastingSpell();
 	}
 }
-void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+void CBattleInterface::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	auto hexItr = std::find_if(bfield.begin(), bfield.end(), [](std::shared_ptr<CClickableHex> hex)
 	{
@@ -753,7 +753,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 		attackingHex = -1;
 }
 
-void CBattleInterface::clickRight(tribool down, bool previousState)
+void CBattleInterface::clickRight(const SDL_Event &event, tribool down)
 {
 	if (!down)
 	{

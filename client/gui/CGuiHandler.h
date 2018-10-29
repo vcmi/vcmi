@@ -15,11 +15,9 @@
 
 class CFramerateManager;
 class CGStatusBar;
-class CIntObject;
+class View;
 class IUpdateable;
 class IShowActivatable;
-class IShowable;
-enum class EIntObjMouseBtnType;
 template <typename T> struct CondSh;
 
 // TODO: event handling need refactoring
@@ -65,12 +63,10 @@ private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;
 
 	std::atomic<bool> continueEventHandling;
-	typedef std::list<CIntObject*> CIntObjectList;
+	typedef std::list<View*> CIntObjectList;
 
 	//active GUI elements (listening for events
-	CIntObjectList lclickable,
-				   rclickable,
-				   mclickable,
+	CIntObjectList clickable,
 				   hoverable,
 				   keyinterested,
 				   motioninterested,
@@ -80,17 +76,16 @@ private:
 	               textInterested;
 
 
-	void handleMouseButtonClick(CIntObjectList & interestedObjs, EIntObjMouseBtnType btn, bool isPressed);
-	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);
+	void handleMouseButtonClick(const SDL_Event & event, bool isPressed);
+	void processLists(const ui16 activityFlag, std::function<void (std::list<View*> *)> cb);
 public:
-	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
-	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
+	void handleElementActivate(View * elem, ui16 activityFlag);
+	void handleElementDeActivate(View * elem, ui16 activityFlag);
 
 public:
 	//objs to blit
 	std::vector<std::shared_ptr<IShowActivatable>> objsToBlit;
 
-	SDL_Event * current; //current event - can be set to nullptr to stop handling event
 	IUpdateable *curInt;
 
 	Point lastClick;
@@ -98,7 +93,7 @@ public:
 
 	ui8 defActionsDef; //default auto actions
 	bool captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
-	std::list<CIntObject *> createdObj; //stack of objs being created
+	std::list<View *> createdObj; //stack of objs being created
 
 	CGuiHandler();
 	~CGuiHandler();
@@ -124,9 +119,9 @@ public:
 
 	void updateTime(); //handles timeInterested
 	void handleEvents(); //takes events from queue and calls interested objects
-	void handleCurrentEvent();
-	void handleMouseMotion();
-	void handleMoveInterested( const SDL_MouseMotionEvent & motion );
+	void event(const SDL_Event & event);
+	void handleMouseMotion(const SDL_Event & event);
+	void handleMoveInterested(const SDL_Event & event, const SDL_MouseMotionEvent & motion );
 	void fakeMouseMove();
 	void breakEventHandling(); //current event won't be propagated anymore
 	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
@@ -145,8 +140,8 @@ extern CGuiHandler GH; //global gui handler
 
 struct SObjectConstruction
 {
-	CIntObject *myObj;
-	SObjectConstruction(CIntObject *obj);
+	View *myObj;
+	SObjectConstruction(View *obj);
 	~SObjectConstruction();
 };
 

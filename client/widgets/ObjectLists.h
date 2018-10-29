@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 
 struct SDL_Surface;
 struct Rect;
@@ -19,18 +19,18 @@ class CLabel;
 class CAnimation;
 
 /// Used as base for Tabs and List classes
-class CObjectList : public CIntObject
+class CObjectList : public View
 {
 public:
-	typedef std::function<std::shared_ptr<CIntObject>(size_t)> CreateFunc;
+	typedef std::function<std::shared_ptr<View>(size_t)> CreateFunc;
 
 private:
 	CreateFunc createObject;
 
 protected:
 	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
-	void deleteItem(std::shared_ptr<CIntObject> item);
-	std::shared_ptr<CIntObject> createItem(size_t index);
+	void deleteItem(std::shared_ptr<View> item);
+	std::shared_ptr<View> createItem(size_t index);
 
 	CObjectList(CreateFunc create);
 };
@@ -39,7 +39,7 @@ protected:
 class CTabbedInt : public CObjectList
 {
 private:
-	std::shared_ptr<CIntObject> activeTab;
+	std::shared_ptr<View> activeTab;
 	size_t activeID;
 
 public:
@@ -53,14 +53,14 @@ public:
 	void reset();
 
 	//return currently active item
-	std::shared_ptr<CIntObject> getItem();
+	std::shared_ptr<View> getItem();
 };
 
 /// List of IntObjects with optional slider
 class CListBox : public CObjectList
 {
 private:
-	std::list<std::shared_ptr<CIntObject>> items;
+	std::list<std::shared_ptr<View>> items;
 	size_t first;
 	size_t totalSize;
 
@@ -87,13 +87,13 @@ public:
 	size_t size();
 
 	//return item with index which or null if not present
-	std::shared_ptr<CIntObject> getItem(size_t which);
+	std::shared_ptr<View> getItem(size_t which);
 
 	//return currently active items
-	const std::list<std::shared_ptr<CIntObject>> & getItems();
+	const std::list<std::shared_ptr<View>> & getItems();
 
 	//get index of this item. -1 if not found
-	size_t getIndexOf(std::shared_ptr<CIntObject> item);
+	size_t getIndexOf(std::shared_ptr<View> item);
 
 	//scroll list to make item which visible
 	void scrollTo(size_t which);

@@ -49,7 +49,7 @@
 #include "../../lib/StringConstants.h"
 
 CList::CListItem::CListItem(CList * Parent)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	parent(Parent),
 	selection()
 {
@@ -60,13 +60,13 @@ CList::CListItem::~CListItem()
 {
 }
 
-void CList::CListItem::clickRight(tribool down, bool previousState)
+void CList::CListItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if (down == true)
-		showTooltip();
+		showTooltip(event.motion);
 }
 
-void CList::CListItem::clickLeft(tribool down, bool previousState)
+void CList::CListItem::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down == true)
 	{
@@ -102,7 +102,7 @@ void CList::CListItem::onSelect(bool on)
 }
 
 CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, size_t listAmount, int helpUp, int helpDown, CListBox::CreateFunc create)
-	: CIntObject(0, position),
+	: View(0, position),
 	size(Size),
 	selected(nullptr)
 {
@@ -217,7 +217,7 @@ void CHeroList::CHeroItem::update()
 	redraw();
 }
 
-std::shared_ptr<CIntObject> CHeroList::CHeroItem::genSelection()
+std::shared_ptr<View> CHeroList::CHeroItem::genSelection()
 {
 	return std::make_shared<CPicture>("HPSYYY", movement->pos.w + 1);
 }
@@ -233,9 +233,9 @@ void CHeroList::CHeroItem::open()
 	LOCPLINT->openHeroWindow(hero);
 }
 
-void CHeroList::CHeroItem::showTooltip()
+void CHeroList::CHeroItem::showTooltip(const SDL_MouseMotionEvent & motion)
 {
-	CRClickPopup::createAndPush(hero, GH.current->motion);
+	CRClickPopup::createAndPush(motion, hero, motion);
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -243,7 +243,7 @@ std::string CHeroList::CHeroItem::getHoverText()
 	return boost::str(boost::format(CGI->generaltexth->allTexts[15]) % hero->name % hero->type->heroClass->name);
 }
 
-std::shared_ptr<CIntObject> CHeroList::createHeroItem(size_t index)
+std::shared_ptr<View> CHeroList::createHeroItem(size_t index)
 {
 	if (LOCPLINT->wanderingHeroes.size() > index)
 		return std::make_shared<CHeroItem>(this, LOCPLINT->wanderingHeroes[index]);
@@ -284,7 +284,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	CList::update();
 }
 
-std::shared_ptr<CIntObject> CTownList::createTownItem(size_t index)
+std::shared_ptr<View> CTownList::createTownItem(size_t index)
 {
 	if (LOCPLINT->towns.size() > index)
 		return std::make_shared<CTownItem>(this, LOCPLINT->towns[index]);
@@ -301,7 +301,7 @@ CTownList::CTownItem::CTownItem(CTownList *parent, const CGTownInstance *Town):
 	update();
 }
 
-std::shared_ptr<CIntObject> CTownList::CTownItem::genSelection()
+std::shared_ptr<View> CTownList::CTownItem::genSelection()
 {
 	return std::make_shared<CAnimImage>("ITPA", 1);
 }
@@ -325,9 +325,9 @@ void CTownList::CTownItem::open()
 	LOCPLINT->openTownWindow(town);
 }
 
-void CTownList::CTownItem::showTooltip()
+void CTownList::CTownItem::showTooltip(const SDL_MouseMotionEvent & motion)
 {
-	CRClickPopup::createAndPush(town, GH.current->motion);
+	CRClickPopup::createAndPush(motion, town, motion);
 }
 
 std::string CTownList::CTownItem::getHoverText()
@@ -533,7 +533,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
+	: View(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
 	level(0),
 	colors(loadColors("config/terrains.json"))
 {
@@ -545,11 +545,11 @@ CMinimap::CMinimap(const Rect & position)
 	aiShield->disable();
 }
 
-int3 CMinimap::translateMousePosition()
+int3 CMinimap::translateMousePosition(int x, int y)
 {
 	// 0 = top-left corner, 1 = bottom-right corner
-	double dx = double(GH.current->motion.x - pos.x) / pos.w;
-	double dy = double(GH.current->motion.y - pos.y) / pos.h;
+	double dx = double(x - pos.x) / pos.w;
+	double dy = double(y - pos.y) / pos.h;
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
@@ -557,9 +557,9 @@ int3 CMinimap::translateMousePosition()
 	return tile;
 }
 
-void CMinimap::moveAdvMapSelection()
+void CMinimap::moveAdvMapSelection(int x, int y)
 {
-	int3 newLocation = translateMousePosition();
+	int3 newLocation = translateMousePosition(x, y);
 	adventureInt->centerOn(newLocation);
 
 	if (!(adventureInt->active & GENERAL))
@@ -568,15 +568,15 @@ void CMinimap::moveAdvMapSelection()
 		redraw();//redraw only this
 }
 
-void CMinimap::clickLeft(tribool down, bool previousState)
+void CMinimap::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
-		moveAdvMapSelection();
+		moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
-void CMinimap::clickRight(tribool down, bool previousState)
+void CMinimap::clickRight(const SDL_Event &event, tribool down)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->zelp[291].second, down);
+	adventureInt->handleRightClick(event.motion, CGI->generaltexth->zelp[291].second, down);
 }
 
 void CMinimap::hover(bool on)
@@ -587,15 +587,15 @@ void CMinimap::hover(bool on)
 		GH.statusbar->clear();
 }
 
-void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CMinimap::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
-	if(mouseState(EIntObjMouseBtnType::LEFT))
-		moveAdvMapSelection();
+		if(event.button.button == SDL_BUTTON_LEFT)
+			moveAdvMapSelection(event.motion.x, event.motion.y);
 }
 
 void CMinimap::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if(minimap)
 	{
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -674,13 +674,13 @@ void CMinimap::showTile(const int3 &pos)
 }
 
 CInfoBar::CVisibleInfo::CVisibleInfo()
-	: CIntObject(0, Point(8, 12))
+	: View(0, Point(8, 12))
 {
 }
 
 void CInfoBar::CVisibleInfo::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	for(auto object : forceRefresh)
 		object->showAll(to);
 }
@@ -865,7 +865,7 @@ void CInfoBar::tick()
 		showSelection();
 }
 
-void CInfoBar::clickLeft(tribool down, bool previousState)
+void CInfoBar::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
@@ -878,9 +878,9 @@ void CInfoBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CInfoBar::clickRight(tribool down, bool previousState)
+void CInfoBar::clickRight(const SDL_Event &event, tribool down)
 {
-	adventureInt->handleRightClick(CGI->generaltexth->allTexts[109], down);
+	adventureInt->handleRightClick(event.motion, CGI->generaltexth->allTexts[109], down);
 }
 
 void CInfoBar::hover(bool on)
@@ -892,8 +892,10 @@ void CInfoBar::hover(bool on)
 }
 
 CInfoBar::CInfoBar(const Rect & position)
-	: CIntObject(LCLICK | RCLICK | HOVER, position.topLeft()),
-	state(EMPTY)
+	: View(LCLICK | RCLICK | HOVER, position.topLeft()),
+	  toNextTick(0),
+	  timerDelay(0),
+	  state(EMPTY)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
@@ -967,8 +969,26 @@ void CInfoBar::showGameStatus()
 	redraw();
 }
 
+void CInfoBar::setTimer(int msToTrigger)
+{
+	if (!(active & TIME))
+		activate(TIME);
+	toNextTick = timerDelay = msToTrigger;
+	used |= TIME;
+}
+
+void CInfoBar::onTimer(int timePassed)
+{
+	toNextTick -= timePassed;
+	if (toNextTick < 0)
+	{
+		toNextTick += timerDelay;
+		tick();
+	}
+}
+
 CInGameConsole::CInGameConsole()
-	: CIntObject(KEYBOARD | TEXTINPUT),
+	: TextView(KEYBOARD | TEXTINPUT),
 	prevEntDisp(-1),
 	defaultTimeout(10000),
 	maxDisplayedTexts(10)
@@ -1035,7 +1055,7 @@ void CInGameConsole::print(const std::string &txt)
 	}
 }
 
-void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+void CInGameConsole::keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.type != SDL_KEYDOWN) return;
 
@@ -1197,7 +1217,7 @@ void CInGameConsole::refreshEnteredText()
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
-	: CIntObject(),
+	: View(),
 	  background(bg)
 {
 	defActions = 255;
@@ -1236,10 +1256,10 @@ void CAdvMapPanel::showAll(SDL_Surface * to)
 	if(background)
 		blitAt(background, pos.x, pos.y, to);
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
-void CAdvMapPanel::addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions)
+void CAdvMapPanel::addChildToPanel(std::shared_ptr<View> obj, ui8 actions)
 {
 	otherObjects.push_back(obj);
 	obj->recActions |= actions | SHOWALL;

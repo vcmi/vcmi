@@ -520,7 +520,7 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
-void printInfoAboutIntObject(const CIntObject *obj, int level)
+void printInfoAboutIntObject(const View *obj, int level)
 {
 	std::stringstream sbuffer;
 	sbuffer << std::string(level, '\t');
@@ -528,7 +528,7 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 	sbuffer << typeid(*obj).name() << " *** ";
 	if (obj->active)
 	{
-#define PRINT(check, text) if (obj->active & CIntObject::check) sbuffer << text
+#define PRINT(check, text) if (obj->active & View::check) sbuffer << text
 		PRINT(LCLICK, 'L');
 		PRINT(RCLICK, 'R');
 		PRINT(HOVER, 'H');
@@ -546,7 +546,7 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 	sbuffer << " (" << obj->pos.w <<"x"<< obj->pos.h << ")";
 	logGlobal->info(sbuffer.str());
 
-	for(const CIntObject *child : obj->children)
+	for(const View *child : obj->children)
 		printInfoAboutIntObject(child, level+1);
 }
 
@@ -792,7 +792,7 @@ void processCommand(const std::string &message)
 	{
 		for(auto child : GH.listInt)
 		{
-			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child.get()))
+			if(const View *obj = dynamic_cast<const View *>(child.get()))
 				printInfoAboutIntObject(obj, 0);
 			else
 				std::cout << typeid(*child).name() << std::endl;

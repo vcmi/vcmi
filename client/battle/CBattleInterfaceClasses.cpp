@@ -192,7 +192,7 @@ void CBattleHero::hover(bool on)
 		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
 }
 
-void CBattleHero::clickLeft(tribool down, bool previousState)
+void CBattleHero::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(myOwner->spellDestSelectMode) //we are casting a spell
 		return;
@@ -216,7 +216,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CBattleHero::clickRight(tribool down, bool previousState)
+void CBattleHero::clickRight(const SDL_Event &event, tribool down)
 {
 	if(boost::logic::indeterminate(down))
 		return;
@@ -548,12 +548,12 @@ CBattleResultWindow::~CBattleResultWindow() = default;
 void CBattleResultWindow::activate()
 {
 	owner.showingDialog->set(true);
-	CIntObject::activate();
+	View::activate();
 }
 
 void CBattleResultWindow::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	View::show(to);
 	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 
@@ -643,7 +643,7 @@ CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(t
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
 
-void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+void CClickableHex::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	if(myInterface->cellShade)
 	{
@@ -678,7 +678,7 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	}
 }
 
-void CClickableHex::clickLeft(tribool down, bool previousState)
+void CClickableHex::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
@@ -686,7 +686,7 @@ void CClickableHex::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CClickableHex::clickRight(tribool down, bool previousState)
+void CClickableHex::clickRight(const SDL_Event &event, tribool down)
 {
 	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)

@@ -29,13 +29,13 @@ class CGStatusBar;
 class CTextBox;
 
 /// Button which switches hero selection
-class CHeroSwitcher : public CIntObject
+class CHeroSwitcher : public View
 {
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> image;
 	CHeroWindow * owner;
 public:
-	void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 
 	CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_);
 };
@@ -117,6 +117,6 @@ public:
 	void updateGarrisons() override;
 
 	//friends
-	friend void CHeroArtPlace::clickLeft(tribool down, bool previousState);
+	friend void CHeroArtPlace::clickLeft(const SDL_Event &event,tribool down);
 	friend class CPlayerInterface;
 };

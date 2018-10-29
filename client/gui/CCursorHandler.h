@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-class CIntObject;
+class View;
 class CAnimImage;
 struct SDL_Surface;
 struct SDL_Texture;
@@ -40,8 +40,8 @@ class CCursorHandler final
 	bool showing;
 
 	void clearBuffer();
-	void updateBuffer(CIntObject * payload);
-	void replaceBuffer(CIntObject * payload);
+	void updateBuffer(View * payload);
+	void replaceBuffer(View * payload);
 	void shiftPos( int &x, int &y );
 
 	void updateTexture();

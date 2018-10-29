@@ -29,7 +29,7 @@ std::string CLabel::visibleText()
 
 void CLabel::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	if(!visibleText().empty())
 		blitLine(to, pos, visibleText());
@@ -72,10 +72,10 @@ void CLabel::setText(const std::string &Txt)
 	text = Txt;
 	if(autoRedraw)
 	{
-		if(background || !parent)
+		if(background || !getParent())
 			redraw();
 		else
-			parent->redraw();
+			getParent()->redraw();
 	}
 }
 
@@ -84,10 +84,10 @@ void CLabel::setColor(const SDL_Color & Color)
 	color = Color;
 	if(autoRedraw)
 	{
-		if(background || !parent)
+		if(background || !getParent())
 			redraw();
 		else
-			parent->redraw();
+			getParent()->redraw();
 	}
 }
 
@@ -186,7 +186,7 @@ CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color colo
 
 void CMultiLineLabel::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 
 	const auto f = graphics->fonts[font];
 
@@ -472,13 +472,13 @@ std::string CTextInput::visibleText()
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft( tribool down, bool previousState )
+void CTextInput::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down && !focus)
 		giveFocus();
 }
 
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+void CTextInput::keyPressed( const SDL_Event & event, const SDL_KeyboardEvent & key )
 {
 
 	if(!focus || key.state != SDL_PRESSED)

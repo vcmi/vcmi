@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 #include "../gui/SDL_Extensions.h"
 #include "../../lib/FunctionList.h"
 
@@ -17,7 +17,7 @@ class CSlider;
 
 /// Base class for all text-related widgets.
 /// Controls text blitting-related options
-class CTextContainer : public virtual CIntObject
+class CTextContainer : public virtual TextView
 {
 protected:
 	/// returns size of border, for left- or right-aligned text
@@ -26,7 +26,8 @@ protected:
 	void blitLine(SDL_Surface * to, Rect where, std::string what);
 
 	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
-
+	void textInputed(const SDL_TextInputEvent & event) override{};
+	void textEdited(const SDL_TextEditingEvent & event) override{};
 public:
 	EAlignment alignment;
 	EFonts font;
@@ -58,7 +59,7 @@ public:
 };
 
 /// Small helper class to manage group of similar labels
-class CLabelGroup : public CIntObject
+class CLabelGroup : public View
 {
 	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
@@ -99,7 +100,7 @@ public:
 
 /// a multi-line label that tries to fit text with given available width and height;
 /// if not possible, it creates a slider for scrolling text
-class CTextBox : public CIntObject
+class CTextBox : public View
 {
 	int sliderStyle;
 public:
@@ -145,7 +146,7 @@ public:
 };
 
 /// UIElement which can get input focus
-class CFocusable : public virtual CIntObject
+class CFocusable : public virtual View
 {
 protected:
 	virtual void focusGot(){};
@@ -184,8 +185,8 @@ public:
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, SDL_Surface *srf = nullptr);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
 
 	void textInputed(const SDL_TextInputEvent & event) override;

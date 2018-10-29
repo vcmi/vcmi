@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 #include "../gui/SDL_Extensions.h"
 
 #include "../../lib/FunctionList.h"
@@ -51,7 +51,7 @@ private:
 	std::string helpBox; //for right-click help
 
 	std::shared_ptr<CAnimImage> image; //image for this button
-	std::shared_ptr<CIntObject> overlay;//object-overlay, can be null
+	std::shared_ptr<View> overlay;//object-overlay, can be null
 	bool animateLonelyFrame = false;
 protected:
 	void onButtonClicked(); // calls callback
@@ -80,7 +80,7 @@ public:
 	void addCallback(std::function<void()> callback);
 
 	/// adds overlay on top of button image. Only one overlay can be active at once
-	void addOverlay(std::shared_ptr<CIntObject> newOverlay);
+	void addOverlay(std::shared_ptr<View> newOverlay);
 	void addTextOverlay(const std::string & Text, EFonts font, SDL_Color color = Colors::WHITE);
 
 	void addImage(std::string filename);
@@ -104,8 +104,8 @@ public:
 	void setPlayerColor(PlayerColor player);
 
 	/// CIntObject overrides
-	void clickRight(tribool down, bool previousState) override;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 	void hover (bool on) override;
 	void showAll(SDL_Surface * to) override;
 
@@ -148,14 +148,14 @@ class CToggleButton : public CButton, public CToggleBase
 public:
 	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
 	              CFunctionList<void(bool)> Callback = 0, int key=0, bool playerColoredButton = false );
-	void clickLeft(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 
 	// bring overrides into scope
 	//using CButton::addCallback;
 	using CToggleBase::addCallback;
 };
 
-class CToggleGroup : public CIntObject
+class CToggleGroup : public View
 {
 	CFunctionList<void(int)> onChange; //called when changing selected button with new button's id
 
@@ -176,7 +176,7 @@ public:
 };
 
 /// A typical slider for volume with an animated indicator
-class CVolumeSlider : public CIntObject
+class CVolumeSlider : public View
 {
 	int value;
 	CFunctionList<void(int)> onChange;
@@ -196,13 +196,13 @@ public:
 	void addCallback(std::function<void(int)> callback);
 
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void wheelScrolled(bool down, bool in) override;
 };
 
 /// A typical slider which can be orientated horizontally/vertically.
-class CSlider : public CIntObject
+class CSlider : public View
 {
 	//if vertical then left=up
 	std::shared_ptr<CButton> left;
@@ -249,10 +249,10 @@ public:
 
 	void addCallback(std::function<void(int)> callback);
 
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	void wheelScrolled(bool down, bool in) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void showAll(SDL_Surface * to) override;
 
 	 /// @param position coordinates of slider

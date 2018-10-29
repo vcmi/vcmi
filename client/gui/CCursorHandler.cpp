@@ -24,7 +24,7 @@ void CCursorHandler::clearBuffer()
 	CSDL_Ext::fillRect(buffer, nullptr, fillColor);
 }
 
-void CCursorHandler::updateBuffer(CIntObject * payload)
+void CCursorHandler::updateBuffer(View * payload)
 {
 	payload->moveTo(Point(0,0));
 	payload->showAll(buffer);
@@ -32,7 +32,7 @@ void CCursorHandler::updateBuffer(CIntObject * payload)
 	needUpdate = true;
 }
 
-void CCursorHandler::replaceBuffer(CIntObject * payload)
+void CCursorHandler::replaceBuffer(View * payload)
 {
 	clearBuffer();
 	updateBuffer(payload);

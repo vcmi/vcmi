@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 
 class CLabel;
 class CCreatureAnim;
@@ -21,7 +21,7 @@ class IBonusBearer;
 class CAnimImage;
 
 /// Shows a text by moving the mouse cursor over the object
-class CHoverableArea: public virtual CIntObject
+class CHoverableArea: public virtual View
 {
 public:
 	std::string hoverText;
@@ -43,12 +43,12 @@ public:
 	virtual ~LRClickableAreaWText();
 	void init();
 
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void clickRight(tribool down, bool previousState) override;
+	virtual void clickLeft(const SDL_Event &event, tribool down) override;
+	virtual void clickRight(const SDL_Event &event, tribool down) override;
 };
 
 /// base class for hero/town/garrison tooltips
-class CArmyTooltip : public CIntObject
+class CArmyTooltip : public View
 {
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
@@ -95,7 +95,7 @@ public:
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
-class CCreaturePic : public CIntObject
+class CCreaturePic : public View
 {
 private:
 	std::shared_ptr<CPicture> bg;
@@ -109,7 +109,7 @@ public:
 };
 
 /// Resource bar like that at the bottom of the adventure map screen
-class CMinorResDataBar : public CIntObject
+class CMinorResDataBar : public View
 {
 	std::shared_ptr<CPicture> background;
 public:
@@ -120,7 +120,7 @@ public:
 };
 
 /// Opens hero window by left-clicking on it
-class CHeroArea: public CIntObject
+class CHeroArea: public View
 {
 	const CGHeroInstance * hero;
 	std::shared_ptr<CAnimImage> portrait;
@@ -128,8 +128,8 @@ class CHeroArea: public CIntObject
 public:
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void hover(bool on) override;
 };
 
@@ -139,8 +139,8 @@ class LRClickableAreaWTextComp: public LRClickableAreaWText
 public:
 	int baseType;
 	int bonusValue;
-	virtual void clickLeft(tribool down, bool previousState) override;
-	virtual void clickRight(tribool down, bool previousState) override;
+	virtual void clickLeft(const SDL_Event &event, tribool down) override;
+	virtual void clickRight(const SDL_Event &event, tribool down) override;
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
 	std::shared_ptr<CComponent> createComponent() const;
@@ -151,8 +151,8 @@ class LRClickableAreaOpenTown: public LRClickableAreaWTextComp
 {
 public:
 	const CGTownInstance * town;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	LRClickableAreaOpenTown(const Rect & Pos, const CGTownInstance * Town);
 };
 

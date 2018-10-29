@@ -42,7 +42,7 @@ public:
 	};
 
 	class CRegion
-		: public CIntObject
+		: public View
 	{
 		CBonusSelection * owner;
 		std::shared_ptr<CPicture> graphicsNotSelected;
@@ -54,8 +54,8 @@ public:
 	public:
 		CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc);
 		void updateState();
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 	};
 
 	void loadPositionsOfGraphics();

@@ -52,9 +52,9 @@ public:
 	~CBuildingRect();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void clickLeft(const SDL_Event & event, tribool down) override;
+	void clickRight(const SDL_Event & event, tribool down) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 };
@@ -76,7 +76,7 @@ public:
 
 class HeroSlots;
 /// Hero icon slot
-class CHeroGSlot : public CIntObject
+class CHeroGSlot : public View
 {
 	std::shared_ptr<CAnimImage> portrait;
 	std::shared_ptr<CAnimImage> flag;
@@ -96,13 +96,13 @@ public:
 	void set(const CGHeroInstance * newHero);
 
 	void hover (bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void deactivate() override;
 };
 
 /// Two hero slots that can interact with each other
-class HeroSlots : public CIntObject
+class HeroSlots : public View
 {
 public:
 	bool showEmpty;
@@ -121,7 +121,7 @@ public:
 };
 
 /// Class for town screen management (town background and structures)
-class CCastleBuildings : public CIntObject
+class CCastleBuildings : public View
 {
 	std::shared_ptr<CPicture> background;
 	//List of buildings and structures that can represent them
@@ -159,7 +159,7 @@ public:
 };
 
 /// Creature info window
-class CCreaInfo : public CIntObject
+class CCreaInfo : public View
 {
 	const CGTownInstance * town;
 	const CCreature * creature;
@@ -176,12 +176,12 @@ public:
 
 	void update();
 	void hover(bool on) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 };
 
 /// Town hall and fort icons for town screen
-class CTownInfo : public CIntObject
+class CTownInfo : public View
 {
 	const CGTownInstance * town;
 	const CBuilding * building;
@@ -191,7 +191,7 @@ public:
 	CTownInfo(int posX, int posY, const CGTownInstance * town, bool townHall);
 
 	void hover(bool on) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 };
 
 /// Class which manages the castle window
@@ -232,7 +232,7 @@ public:
 
 	void castleTeleport(int where);
 	void townChange();
-	void keyPressed(const SDL_KeyboardEvent & key) override;
+	void keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key) override;
 	void close();
 	void addBuilding(BuildingID bid);
 	void removeBuilding(BuildingID bid);
@@ -242,7 +242,7 @@ public:
 /// Hall window where you can build things
 class CHallInterface : public CWindowObject
 {
-	class CBuildingBox : public CIntObject
+	class CBuildingBox : public View
 	{
 		const CGTownInstance * town;
 		const CBuilding * building;
@@ -256,8 +256,8 @@ class CHallInterface : public CWindowObject
 	public:
 		CBuildingBox(int x, int y, const CGTownInstance * Town, const CBuilding * Building);
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 	};
 	const CGTownInstance * town;
 
@@ -294,7 +294,7 @@ public:
 };
 
 //Small class to display
-class LabeledValue : public CIntObject
+class LabeledValue : public View
 {
 	std::string hoverText;
 	std::shared_ptr<CLabel> name;
@@ -310,7 +310,7 @@ public:
 /// The fort screen where you can afford units
 class CFortScreen : public CWindowObject
 {
-	class RecruitArea : public CIntObject
+	class RecruitArea : public View
 	{
 		const CGTownInstance * town;
 		int level;
@@ -330,8 +330,8 @@ class CFortScreen : public CWindowObject
 
 		void creaturesChanged();
 		void hover(bool on) override;
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 	};
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
@@ -350,15 +350,15 @@ public:
 /// The mage guild screen where you can see which spells you have
 class CMageGuildScreen : public CWindowObject
 {
-	class Scroll : public CIntObject
+	class Scroll : public View
 	{
 		const CSpell * spell;
 		std::shared_ptr<CAnimImage> image;
 
 	public:
 		Scroll(Point position, const CSpell *Spell);
-		void clickLeft(tribool down, bool previousState) override;
-		void clickRight(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 	};
 	std::shared_ptr<CPicture> window;

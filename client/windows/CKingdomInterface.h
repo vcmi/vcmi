@@ -47,7 +47,7 @@ class IInfoBoxData;
  */
 
 /// Displays one of object propertries with image and optional labels
-class InfoBox : public CIntObject
+class InfoBox : public View
 {
 public:
 	enum InfoPos
@@ -73,8 +73,8 @@ public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, std::shared_ptr<IInfoBoxData> Data);
 	~InfoBox();
 
-	void clickRight(tribool down, bool previousState) override;
-	void clickLeft(tribool down, bool previousState) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
 
 	//Update object if data may have changed
 	//void update();
@@ -242,8 +242,8 @@ private:
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
 	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects);
 
-	std::shared_ptr<CIntObject> createOwnedObject(size_t index);
-	std::shared_ptr<CIntObject> createMainTab(size_t index);
+	std::shared_ptr<View> createOwnedObject(size_t index);
+	std::shared_ptr<View> createMainTab(size_t index);
 
 public:
 	CKingdomInterface();
@@ -257,7 +257,7 @@ public:
 };
 
 /// List item with town
-class CTownItem : public CIntObject, public CGarrisonHolder
+class CTownItem : public View, public CGarrisonHolder
 {
 	std::shared_ptr<CAnimImage> background;
 	std::shared_ptr<CAnimImage> picture;
@@ -284,11 +284,11 @@ public:
 };
 
 /// List item with hero
-class CHeroItem : public CIntObject, public CGarrisonHolder
+class CHeroItem : public View, public CGarrisonHolder
 {
 	const CGHeroInstance * hero;
 
-	std::vector<std::shared_ptr<CIntObject>> artTabs;
+	std::vector<std::shared_ptr<View>> artTabs;
 
 	std::shared_ptr<CAnimImage> portrait;
 	std::shared_ptr<CLabel> name;
@@ -306,7 +306,7 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 
 	void onArtChange(int tabIndex);
 
-	std::shared_ptr<CIntObject> onTabSelected(size_t index);
+	std::shared_ptr<View> onTabSelected(size_t index);
 
 public:
  	std::shared_ptr<CArtifactsOfHero> heroArts;
@@ -317,7 +317,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public View, public CGarrisonHolder, public CWindowWithArtifacts
 {
 private:
 	std::shared_ptr<CListBox> heroes;
@@ -325,7 +325,7 @@ private:
 	std::shared_ptr<CLabel> heroLabel;
 	std::shared_ptr<CLabel> skillsLabel;
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	std::shared_ptr<View> createHeroItem(size_t index);
 public:
 	CKingdHeroList(size_t maxSize);
 
@@ -333,7 +333,7 @@ public:
 };
 
 /// Tab with all town-specific data
-class CKingdTownList : public CIntObject, public CGarrisonHolder
+class CKingdTownList : public View, public CGarrisonHolder
 {
 private:
 	std::shared_ptr<CListBox> towns;
@@ -342,7 +342,7 @@ private:
 	std::shared_ptr<CLabel> garrHeroLabel;
 	std::shared_ptr<CLabel> visitHeroLabel;
 
-	std::shared_ptr<CIntObject> createTownItem(size_t index);
+	std::shared_ptr<View> createTownItem(size_t index);
 public:
 	CKingdTownList(size_t maxSize);
 

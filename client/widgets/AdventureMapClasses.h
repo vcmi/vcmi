@@ -32,31 +32,31 @@ class CTownTooltip;
 class CTextBox;
 
 /// Base UI Element for hero\town lists
-class CList : public CIntObject
+class CList : public View
 {
 protected:
-	class CListItem : public CIntObject, public std::enable_shared_from_this<CListItem>
+	class CListItem : public View, public std::enable_shared_from_this<CListItem>
 	{
 		CList * parent;
-		std::shared_ptr<CIntObject> selection;
+		std::shared_ptr<View> selection;
 	public:
 		CListItem(CList * parent);
 		~CListItem();
 
-		void clickRight(tribool down, bool previousState) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 		void onSelect(bool on);
 
 		/// create object with selection rectangle
-		virtual std::shared_ptr<CIntObject> genSelection()=0;
+		virtual std::shared_ptr<View> genSelection()=0;
 		/// reaction on item selection (e.g. enable selection border)
 		/// NOTE: item may be deleted in selected state
 		virtual void select(bool on)=0;
 		/// open item (town or hero screen)
 		virtual void open()=0;
 		/// show right-click tooltip
-		virtual void showTooltip()=0;
+		virtual void showTooltip(const SDL_MouseMotionEvent & motion)=0;
 		/// get hover text for status bar
 		virtual std::string getHoverText()=0;
 	};
@@ -106,7 +106,7 @@ public:
 class CHeroList	: public CList
 {
 	/// Empty hero item used as placeholder for unused entries in list
-	class CEmptyHeroItem : public CIntObject
+	class CEmptyHeroItem : public View
 	{
 		std::shared_ptr<CAnimImage> movement;
 		std::shared_ptr<CAnimImage> mana;
@@ -125,15 +125,15 @@ class CHeroList	: public CList
 
 		CHeroItem(CHeroList * parent, const CGHeroInstance * hero);
 
-		std::shared_ptr<CIntObject> genSelection() override;
+		std::shared_ptr<View> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
-		void showTooltip() override;
+		void showTooltip(const SDL_MouseMotionEvent & motion) override;
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createHeroItem(size_t index);
+	std::shared_ptr<View> createHeroItem(size_t index);
 public:
 	/**
 	 * @brief CHeroList
@@ -159,15 +159,15 @@ class CTownList	: public CList
 
 		CTownItem(CTownList *parent, const CGTownInstance * town);
 
-		std::shared_ptr<CIntObject> genSelection() override;
+		std::shared_ptr<View> genSelection() override;
 		void update();
 		void select(bool on) override;
 		void open() override;
-		void showTooltip() override;
+		void showTooltip(const SDL_MouseMotionEvent & motion) override;
 		std::string getHoverText() override;
 	};
 
-	std::shared_ptr<CIntObject> createTownItem(size_t index);
+	std::shared_ptr<View> createTownItem(size_t index);
 public:
 	/**
 	 * @brief CTownList
@@ -184,7 +184,7 @@ public:
 
 class CMinimap;
 
-class CMinimapInstance : public CIntObject
+class CMinimapInstance : public View
 {
 	CMinimap * parent;
 	SDL_Surface * minimap;
@@ -208,7 +208,7 @@ public:
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map
-class CMinimap : public CIntObject
+class CMinimap : public View
 {
 protected:
 	std::shared_ptr<CPicture> aiShield; //the graphic displayed during AI turn
@@ -218,12 +218,12 @@ protected:
 	//to initialize colors
 	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
 
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void hover (bool on) override;
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent) override;
+	void mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent) override;
 
-	void moveAdvMapSelection();
+	void moveAdvMapSelection(int x, int y);
 
 public:
 	// terrainID -> (normal color, blocked color)
@@ -232,7 +232,7 @@ public:
 	CMinimap(const Rect & position);
 
 	//should be called to invalidate whole map - different player or level
-	int3 translateMousePosition();
+	int3 translateMousePosition(int x, int y);
 	void update();
 	void setLevel(int level);
 	void setAIRadar(bool on);
@@ -244,17 +244,17 @@ public:
 };
 
 /// Info box which shows next week/day information, hold the current date
-class CInfoBar : public CIntObject
+class CInfoBar : public View
 {
 	//all visible information located in one object - for ease of replacing
-	class CVisibleInfo : public CIntObject
+	class CVisibleInfo : public View
 	{
 	public:
 		void show(SDL_Surface * to) override;
 
 	protected:
 		std::shared_ptr<CPicture> background;
-		std::list<std::shared_ptr<CIntObject>> forceRefresh;
+		std::list<std::shared_ptr<View>> forceRefresh;
 
 		CVisibleInfo();
 	};
@@ -328,14 +328,18 @@ class CInfoBar : public CIntObject
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset();
+	
+	void setTimer(int msToTrigger);
+	virtual void tick();
 
-	void tick() override;
-
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 	void hover(bool on) override;
 
 	void playNewDaySound();
+	
+	int toNextTick;
+	int timerDelay;
 public:
 	CInfoBar(const Rect & pos);
 
@@ -350,6 +354,7 @@ public:
 
 	/// reset to default view - selected object
 	void showSelection();
+	void onTimer(int timePassed);
 
 	/// show hero\town information
 	void showHeroSelection(const CGHeroInstance * hero);
@@ -360,17 +365,17 @@ public:
 };
 
 /// simple panel that contains other displayable elements; used to separate groups of controls
-class CAdvMapPanel : public CIntObject
+class CAdvMapPanel : public View
 {
 	std::vector<std::shared_ptr<CButton>> colorableButtons;
-	std::vector<std::shared_ptr<CIntObject>> otherObjects;
+	std::vector<std::shared_ptr<View>> otherObjects;
 	/// the surface passed to this obj will be freed in dtor
 	SDL_Surface * background;
 public:
 	CAdvMapPanel(SDL_Surface * bg, Point position);
 	virtual ~CAdvMapPanel();
 
-	void addChildToPanel(std::shared_ptr<CIntObject> obj, ui8 actions = 0);
+	void addChildToPanel(std::shared_ptr<View> obj, ui8 actions = 0);
 	void addChildColorableButton(std::shared_ptr<CButton> button);
 	/// recolors all buttons to given player color
 	void setPlayerColor(const PlayerColor & clr);
@@ -397,7 +402,7 @@ public:
 	void recolorIcons(const PlayerColor & color, int indexOffset);
 };
 
-class CInGameConsole : public CIntObject
+class CInGameConsole : public TextView
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //list<text to show, time of add>
@@ -410,7 +415,7 @@ public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
 	void print(const std::string &txt);
-	void keyPressed (const SDL_KeyboardEvent & key) override; //call-in
+	void keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key) override; //call-in
 
 	void textInputed(const SDL_TextInputEvent & event) override;
 	void textEdited(const SDL_TextEditingEvent & event) override;

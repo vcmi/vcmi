@@ -32,7 +32,7 @@
 struct QuestInfo;
 class CAdvmapInterface;
 
-void CQuestLabel::clickLeft(tribool down, bool previousState)
+void CQuestLabel::clickLeft(const SDL_Event & event, tribool down)
 {
 	if (down)
 		callback();
@@ -49,7 +49,7 @@ CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
 	addUsedEvents(LCLICK);
 }
 
-void CQuestIcon::clickLeft(tribool down, bool previousState)
+void CQuestIcon::clickLeft(const SDL_Event & event, tribool down)
 {
 	if (down)
 		callback();
@@ -57,7 +57,7 @@ void CQuestIcon::clickLeft(tribool down, bool previousState)
 
 void CQuestIcon::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
+	CSDL_Ext::CClipRectGuard guard(to, getParent()->pos);
 	CAnimImage::showAll(to);
 }
 
@@ -103,12 +103,11 @@ void CQuestMinimap::iconClicked()
 {
 	if(currentQuest->obj)
 		adventureInt->centerOn (currentQuest->obj->pos);
-	//moveAdvMapSelection();
 }
 
 void CQuestMinimap::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to); // blitting IntObject directly to hide radar
+	View::showAll(to); // blitting IntObject directly to hide radar
 //	for (auto pic : icons)
 //		pic->showAll(to);
 }

@@ -9,14 +9,14 @@
  */
 #pragma once
 
-#include "../gui/CIntObject.h"
+#include "client/gui/view/View.h"
 
 struct Component;
 class CAnimImage;
 class CLabel;
 
 /// common popup window component
-class CComponent : public virtual CIntObject
+class CComponent : public virtual View
 {
 public:
 	enum Etype
@@ -59,7 +59,7 @@ public:
 	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);
 	CComponent(const Component &c, ESize imageSize=large);
 
-	void clickRight(tribool down, bool previousState) override; //call-in
+	void clickRight(const SDL_Event &event, tribool down) override; //call-in
 };
 
 /// component that can be selected or deselected
@@ -73,14 +73,14 @@ public:
 	void showAll(SDL_Surface * to) override;
 	void select(bool on);
 
-	void clickLeft(tribool down, bool previousState) override; //call-in
+	void clickLeft(const SDL_Event &event, tribool down) override; //call-in
 	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, std::function<void()> OnSelect = nullptr);
 	CSelectableComponent(const Component & c, std::function<void()> OnSelect = nullptr);
 };
 
 /// box with multiple components (up to 8?)
 /// will take ownership on components and delete them afterwards
-class CComponentBox : public CIntObject
+class CComponentBox : public View
 {
 	std::vector<std::shared_ptr<CComponent>> components;
 

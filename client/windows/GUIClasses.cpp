@@ -68,7 +68,7 @@ std::list<CFocusable*> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
 CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow * window, const CCreature * crea, int totalAmount)
-	: CIntObject(LCLICK | RCLICK),
+	: View(LCLICK | RCLICK),
 	parent(window),
 	selected(false),
 	creature(crea),
@@ -87,13 +87,13 @@ void CRecruitmentWindow::CCreatureCard::select(bool on)
 	redraw();
 }
 
-void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 		parent->select(this->shared_from_this());
 }
 
-void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
+void CRecruitmentWindow::CCreatureCard::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 		GH.pushIntT<CStackWindow>(creature, true);
@@ -101,7 +101,7 @@ void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousSt
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	if(selected)
 		drawBorder(to, pos, int3(248, 0, 0));
 	else
@@ -712,6 +712,11 @@ CTavernWindow::~CTavernWindow()
 	CCS->videoh->close();
 }
 
+void printAtMiddleWBLoc( const std::string & text, int x, int y, Rect pos, EFonts font, int charpr, SDL_Color color, SDL_Surface * dst)
+{
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, static_cast<size_t>(charpr), font), color, Point(pos.x + x, pos.y + y));
+}
+
 void CTavernWindow::show(SDL_Surface * to)
 {
 	CWindowObject::show(to);
@@ -730,25 +735,25 @@ void CTavernWindow::show(SDL_Surface * to)
 			recruit->addHoverText(CButton::NORMAL, boost::str(boost::format(CGI->generaltexth->tavernInfo[3]) % sel->h->name % sel->h->type->heroClass->name));
 		}
 
-		printAtMiddleWBLoc(sel->description, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
+		printAtMiddleWBLoc(sel->description, 146, 395, pos, FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
 
-void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(h && previousState && !down)
+	if(h && !down)
 		*_sel = _id;
 }
 
-void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
+void CTavernWindow::HeroPortrait::clickRight(const SDL_Event &event, tribool down)
 {
 	if(h && down)
 		GH.pushIntT<CRClickPopupInt>(std::make_shared<CHeroWindow>(h));
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const CGHeroInstance * H)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	h(H), _sel(&sel), _id(id)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1102,9 +1107,9 @@ void CTransformerWindow::CItem::move()
 	left = !left;
 }
 
-void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
+void CTransformerWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(previousState && (!down))
+	if(!down)
 	{
 		move();
 		parent->redraw();
@@ -1117,7 +1122,7 @@ void CTransformerWindow::CItem::update()
 }
 
 CTransformerWindow::CItem::CItem(CTransformerWindow * parent_, int size_, int id_)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	id(id_),
 	size(size_),
 	parent(parent_)
@@ -1187,7 +1192,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y)
-	: CIntObject(LCLICK | RCLICK | HOVER),
+	: View(LCLICK | RCLICK | HOVER),
 	ID(_ID),
 	parent(_parent)
 {
@@ -1207,20 +1212,20 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	pos.w = icon->pos.w;
 }
 
-void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
+void CUniversityWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if(previousState && (!down))
+	if(!down)
 	{
 		if(state() == 2)
 			GH.pushIntT<CUnivConfirmWindow>(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
 	}
 }
 
-void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
+void CUniversityWindow::CItem::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
+		CRClickPopup::createAndPush(event.motion, CGI->skillh->skillInfo(ID, 1), std::make_shared<CComponent>(CComponent::secskill, ID, 1));
 	}
 }
 
@@ -1250,7 +1255,7 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	topBar->setFrame(stateIndex);
 	bottomBar->setFrame(stateIndex);
 
-	CIntObject::showAll(to);
+	View::showAll(to);
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market)
@@ -1714,7 +1719,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 }
 
 CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::string _text)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	parent(_parent),
 	index(_id)
 {
@@ -1738,13 +1743,13 @@ void CObjectListWindow::CItem::select(bool on)
 	redraw();//???
 }
 
-void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
+void CObjectListWindow::CItem::clickLeft(const SDL_Event &event, tribool down)
 {
-	if( previousState && !down)
+	if(!down)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
@@ -1759,7 +1764,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
 	selected(0)
@@ -1773,7 +1778,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	init(titleWidget_, _title, _descr);
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr)
+void CObjectListWindow::init(std::shared_ptr<View> titleWidget_, std::string _title, std::string _descr)
 {
 	titleWidget = titleWidget_;
 
@@ -1796,11 +1801,11 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	list->type |= REDRAW_PARENT;
 }
 
-std::shared_ptr<CIntObject> CObjectListWindow::genItem(size_t index)
+std::shared_ptr<View> CObjectListWindow::genItem(size_t index)
 {
 	if(index < items.size())
 		return std::make_shared<CItem>(this, index, items[index].second);
-	return std::shared_ptr<CIntObject>();
+	return std::shared_ptr<View>();
 }
 
 void CObjectListWindow::elementSelected()
@@ -1825,7 +1830,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	if(selected == which)
 		return;
 
-	for(std::shared_ptr<CIntObject> element : list->getItems())
+	for(std::shared_ptr<View> element : list->getItems())
 	{
 		CItem * item = dynamic_cast<CItem*>(element.get());
 		if(item)
@@ -1840,7 +1845,7 @@ void CObjectListWindow::changeSelection(size_t which)
 	selected = which;
 }
 
-void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
+void CObjectListWindow::keyPressed (const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
 		return;

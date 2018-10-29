@@ -98,7 +98,7 @@ struct Rect : public SDL_Rect
 	{
 		x = y = w = h = -1;
 	}
-	Rect(int X, int Y, int W, int H)
+	Rect(int X, int Y, int W = 0, int H = 0)
 	{
 		x = X;
 		y = Y;

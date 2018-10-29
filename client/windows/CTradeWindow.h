@@ -26,7 +26,7 @@ public:
 		RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, CREATURE_PLACEHOLDER, ARTIFACT_PLACEHOLDER, ARTIFACT_INSTANCE
 	};
 
-	class CTradeableItem : public CIntObject, public std::enable_shared_from_this<CTradeableItem>
+	class CTradeableItem : public View, public std::enable_shared_from_this<CTradeableItem>
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::string getFilename();
@@ -50,10 +50,10 @@ public:
 
 		void showAllAt(const Point & dstPos, const std::string & customSub, SDL_Surface * to);
 
-		void clickRight(tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 		void showAll(SDL_Surface * to) override;
-		void clickLeft(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		std::string getName(int number = -1) const;
 		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};
@@ -93,7 +93,7 @@ public:
 	void setMode(EMarketMode::EMarketMode Mode); //mode setter
 
 	void artifactSelected(CHeroArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
-
+	
 	virtual void getBaseForPositions(EType type, int &dx, int &dy, int &x, int &y, int &h, int &w, bool Right, int &leftToRightOffset) const = 0;
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;

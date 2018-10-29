@@ -69,7 +69,7 @@ CHeroWithMaybePickedArtifact::CHeroWithMaybePickedArtifact(CWindowWithArtifacts 
 {
 }
 
-void CHeroSwitcher::clickLeft(tribool down, bool previousState)
+void CHeroSwitcher::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(!down)
 	{
@@ -85,7 +85,7 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 }
 
 CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInstance * hero_)
-	: CIntObject(LCLICK),
+	: View(LCLICK),
 	owner(owner_),
 	hero(hero_)
 {

@@ -1196,7 +1196,8 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		if (pom.size() > 1)
 			charperline = 50;
 		GH.pushIntT<CSelWindow>(text, playerID, charperline, intComps, pom, askID);
-		intComps[0]->clickLeft(true, false);
+		SDL_Event event;
+		intComps[0]->clickLeft(event, true);
 	}
 }
 
@@ -1239,7 +1240,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 
 	CComponent localIconC(icon);
 
-	std::shared_ptr<CIntObject> localIcon = localIconC.image;
+	std::shared_ptr<View> localIcon = localIconC.image;
 	localIconC.removeChild(localIcon.get(), false);
 
 	std::shared_ptr<CObjectListWindow> wnd = std::make_shared<CObjectListWindow>(tempList, localIcon, localTitle, localDescription, selectCallback);
@@ -1381,8 +1382,9 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
-		adventureInt->sleepWake->clickLeft(true, false);
-		adventureInt->sleepWake->clickLeft(false, true);
+		SDL_Event event;
+		adventureInt->sleepWake->clickLeft(event, true);
+		adventureInt->sleepWake->clickLeft(event, false);
 		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)

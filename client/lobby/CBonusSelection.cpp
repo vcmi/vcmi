@@ -462,7 +462,7 @@ void CBonusSelection::decreaseDifficulty()
 }
 
 CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc)
-	: CIntObject(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
+	: View(LCLICK | RCLICK), idOfMapAndRegion(id), accessible(accessible), selectable(selectable)
 {
 	OBJ_CONSTRUCTION;
 	static const std::string colors[2][8] =
@@ -510,24 +510,24 @@ void CBonusSelection::CRegion::updateState()
 	}
 }
 
-void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
+void CBonusSelection::CRegion::clickLeft(const SDL_Event &event, tribool down)
 {
 	//select if selectable & clicked inside our graphic
 	if(indeterminate(down))
 		return;
 
-	if(!down && selectable && !CSDL_Ext::isTransparent(*graphicsNotSelected, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y))
+	if(!down && selectable && !CSDL_Ext::isTransparent(*graphicsNotSelected, event.motion.x - pos.x, event.motion.y - pos.y))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
 }
 
-void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
+void CBonusSelection::CRegion::clickRight(const SDL_Event &event, tribool down)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;
-	if(!CSDL_Ext::isTransparent(*graphicsNotSelected, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y) && text.size())
+	if(!CSDL_Ext::isTransparent(*graphicsNotSelected, event.motion.x - pos.x, event.motion.y - pos.y) && text.size())
 	{
-		CRClickPopup::createAndPush(text);
+		CRClickPopup::createAndPush(event.motion, text);
 	}
 }

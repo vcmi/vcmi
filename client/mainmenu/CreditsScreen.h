@@ -14,7 +14,7 @@
 class CMultiLineLabel;
 class SDL_Surface;
 
-class CreditsScreen : public CIntObject
+class CreditsScreen : public View
 {
 	int positionCounter;
 	std::shared_ptr<CMultiLineLabel> credits;
@@ -22,6 +22,6 @@ class CreditsScreen : public CIntObject
 public:
 	CreditsScreen(Rect rect);
 	void show(SDL_Surface * to) override;
-	void clickLeft(tribool down, bool previousState) override;
-	void clickRight(tribool down, bool previousState) override;
+	void clickLeft(const SDL_Event &event, tribool down) override;
+	void clickRight(const SDL_Event &event, tribool down) override;
 };

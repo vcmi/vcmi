@@ -112,11 +112,11 @@ CTerrainRect::~CTerrainRect()
 
 void CTerrainRect::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
 }
 
-void CTerrainRect::clickLeft(tribool down, bool previousState)
+void CTerrainRect::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
@@ -126,7 +126,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled)
 	{
-		if(handleSwipeStateChange(down == true))
+		if(handleSwipeStateChange(event.motion.x, event.motion.y, down == true))
 		{
 			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
 		}
@@ -139,14 +139,14 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #ifdef VCMI_ANDROID
 	}
 #endif
-	int3 mp = whichTileIsIt();
+	int3 mp = whichTileIsIt(event.motion.x, event.motion.y);
 	if(mp.x < 0 || mp.y < 0 || mp.x >= LOCPLINT->cb->getMapSize().x || mp.y >= LOCPLINT->cb->getMapSize().y)
 		return;
 
 	adventureInt->tileLClicked(mp);
 }
 
-void CTerrainRect::clickRight(tribool down, bool previousState)
+void CTerrainRect::clickRight(const SDL_Event &event, tribool down)
 {
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled && isSwiping)
@@ -154,18 +154,18 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 #endif
 	if(adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 		return;
-	int3 mp = whichTileIsIt();
+	int3 mp = whichTileIsIt(event.motion.x, event.motion.y);
 
 	if(CGI->mh->map->isInTheMap(mp) && down)
-		adventureInt->tileRClicked(mp);
+		adventureInt->tileRClicked(event.motion, mp);
 }
 
-void CTerrainRect::clickMiddle(tribool down, bool previousState)
+void CTerrainRect::clickMiddle(const SDL_Event &event, tribool down)
 {
-	handleSwipeStateChange(down == true);
+	handleSwipeStateChange(event.motion.x, event.motion.y, down == true);
 }
 
-void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
+void CTerrainRect::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 	handleHover(sEvent);
 
@@ -206,11 +206,11 @@ void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 	}
 }
 
-bool CTerrainRect::handleSwipeStateChange(bool btnPressed)
+bool CTerrainRect::handleSwipeStateChange(int x, int y, bool btnPressed)
 {
 	if(btnPressed)
 	{
-		swipeInitialRealPos = int3(GH.current->motion.x, GH.current->motion.y, 0);
+		swipeInitialRealPos = int3(x, y, 0);
 		swipeInitialMapPos = int3(adventureInt->position);
 		return true;
 	}
@@ -430,14 +430,6 @@ int3 CTerrainRect::whichTileIsIt(const int x, const int y)
 	return ret;
 }
 
-int3 CTerrainRect::whichTileIsIt()
-{
-	if(GH.current)
-		return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
-	else
-		return int3(-1);
-}
-
 int3 CTerrainRect::tileCountOnScreen()
 {
 	switch (adventureInt->mode)
@@ -470,7 +462,7 @@ bool CTerrainRect::needsAnimUpdate()
 	return fadeAnim->isFading() || lastRedrawStatus == EMapAnimRedrawStatus::REDRAW_REQUESTED;
 }
 
-void CResDataBar::clickRight(tribool down, bool previousState)
+void CResDataBar::clickRight(const SDL_Event &event, tribool down)
 {
 }
 
@@ -547,7 +539,7 @@ void CResDataBar::show(SDL_Surface * to)
 
 void CResDataBar::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	draw(to);
 }
 
@@ -925,9 +917,9 @@ void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 
 void CAdvMapInt::activate()
 {
-	CIntObject::activate();
+	View::activate();
 	if (!(active & KEYBOARD))
-		CIntObject::activate(KEYBOARD);
+		View::activate(KEYBOARD);
 
 	screenBuf = screen;
 	GH.statusbar = statusbar;
@@ -951,7 +943,7 @@ void CAdvMapInt::activate()
 
 void CAdvMapInt::deactivate()
 {
-	CIntObject::deactivate();
+	View::deactivate();
 
 	if(!duringAITurn)
 	{
@@ -1183,7 +1175,7 @@ void CAdvMapInt::centerOn(const CGObjectInstance * obj, bool fade)
 	centerOn(obj->getSightCenter(), fade);
 }
 
-void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
+void CAdvMapInt::keyPressed(const SDL_Event & event, const SDL_KeyboardEvent & key)
 {
 
 	if (mode == EAdvMapMode::WORLD_VIEW)
@@ -1372,11 +1364,11 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	else
 		scrollingDir &= ~Dir;
 }
-void CAdvMapInt::handleRightClick(std::string text, tribool down)
+void CAdvMapInt::handleRightClick(const SDL_MouseMotionEvent &motion, std::string text, tribool down)
 {
 	if(down)
 	{
-		CRClickPopup::createAndPush(text);
+		CRClickPopup::createAndPush(motion, text);
 	}
 }
 int3 CAdvMapInt::verifyPos(int3 ver)
@@ -1442,7 +1434,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 	heroList.redraw();
 }
 
-void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
+void CAdvMapInt::mouseMoved(const SDL_Event &event, const SDL_MouseMotionEvent &sEvent)
 {
 #ifdef VCMI_ANDROID
 	if(swipeEnabled)
@@ -1489,7 +1481,7 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 
 bool CAdvMapInt::isActive()
 {
-	return active & ~CIntObject::KEYBOARD;
+	return active & ~View::KEYBOARD;
 }
 
 void CAdvMapInt::startHotSeatWait(PlayerColor Player)
@@ -1768,7 +1760,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 }
 
-void CAdvMapInt::tileRClicked(const int3 &mapPos)
+void CAdvMapInt::tileRClicked(const SDL_MouseMotionEvent & motion, const int3 &mapPos)
 {
 	if(mode != EAdvMapMode::NORMAL)
 		return;
@@ -1779,7 +1771,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 	}
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
-		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
+		CRClickPopup::createAndPush(motion, VLC->generaltexth->allTexts[61]); //Uncharted Territory
 		return;
 	}
 
@@ -1792,12 +1784,12 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		{
 			std::string hlp;
 			CGI->mh->getTerrainDescr(mapPos, hlp, true);
-			CRClickPopup::createAndPush(hlp);
+			CRClickPopup::createAndPush(motion, hlp);
 		}
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.current->motion, CENTER);
+	CRClickPopup::createAndPush(motion, obj, motion, CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

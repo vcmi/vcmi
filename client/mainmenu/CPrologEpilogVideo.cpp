@@ -53,10 +53,14 @@ void CPrologEpilogVideo::show(SDL_Surface * to)
 		text->showAll(to); // blit text over video, if needed
 
 	if(text->textSize.y + 100 < positionCounter / 5)
-		clickLeft(false, false);
+	{
+		close();
+		CCS->soundh->stopSound(voiceSoundHandle);
+		exitCb();
+	}
 }
 
-void CPrologEpilogVideo::clickLeft(tribool down, bool previousState)
+void CPrologEpilogVideo::clickLeft(const SDL_Event &event, tribool down)
 {
 	close();
 	CCS->soundh->stopSound(voiceSoundHandle);

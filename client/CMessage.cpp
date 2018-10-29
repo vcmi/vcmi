@@ -36,7 +36,7 @@ template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, co
 }
 
 //One image component + subtitles below it
-class ComponentResolved : public CIntObject
+class ComponentResolved : public View
 {
 public:
 	std::shared_ptr<CComponent> comp;
@@ -220,7 +220,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	if(ret->text->slider)
 	{
-		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
+		ret->text->slider->addUsedEvents(View::WHEEL | View::KEYBOARD);
 	}
 	else
 	{
@@ -362,12 +362,12 @@ ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
 	comp(Comp)
 {
 	//Temporary assign ownership on comp
-	if (parent)
-		parent->removeChild(this);
-	if (comp->parent)
+	if (getParent())
+		getParent()->removeChild(this);
+	if (comp->getParent())
 	{
-		comp->parent->addChild(this);
-		comp->parent->removeChild(comp.get());
+		comp->getParent()->addChild(this);
+		comp->getParent()->removeChild(comp.get());
 	}
 
 	addChild(comp.get());
@@ -380,16 +380,16 @@ ComponentResolved::ComponentResolved(std::shared_ptr<CComponent> Comp):
 
 ComponentResolved::~ComponentResolved()
 {
-	if (parent)
+	if (getParent())
 	{
 		removeChild(comp.get());
-		parent->addChild(comp.get());
+		getParent()->addChild(comp.get());
 	}
 }
 
 void ComponentResolved::showAll(SDL_Surface *to)
 {
-	CIntObject::showAll(to);
+	View::showAll(to);
 	comp->showAll(to);
 }
 

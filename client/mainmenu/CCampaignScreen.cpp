@@ -105,7 +105,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 		graphicsImage = std::make_shared<CPicture>(config["image"].String());
 
 		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::YELLOW, "");
-		parent->addChild(hoverLabel.get());
+		getParent()->addChild(hoverLabel.get());
 	}
 
 	if(status == CCampaignScreen::COMPLETED)
@@ -117,7 +117,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	if(status == CCampaignScreen::DISABLED)
 		return;
 
-	CIntObject::show(to);
+	View::show(to);
 
 	// Play the campaign button video when the mouse cursor is placed over the button
 	if(hovered)
@@ -134,7 +134,7 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	}
 }
 
-void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
+void CCampaignScreen::CCampaignButton::clickLeft(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{

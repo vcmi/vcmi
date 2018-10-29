@@ -22,7 +22,7 @@ public:
 
 private:
 	/// A button which plays a video when you move the mouse cursor over it
-	class CCampaignButton : public CIntObject
+	class CCampaignButton : public View
 	{
 	private:
 		std::shared_ptr<CLabel> hoverLabel;
@@ -34,7 +34,7 @@ private:
 		std::string video; // the resource name of the video
 		std::string hoverText;
 
-		void clickLeft(tribool down, bool previousState) override;
+		void clickLeft(const SDL_Event &event, tribool down) override;
 		void hover(bool on) override;
 
 	public:

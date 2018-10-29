@@ -19,7 +19,7 @@ class CFilledTexture;
 class CAnimImage;
 class CComponentBox;
 /// The options tab which is shown at the map selection phase.
-class OptionsTab : public CIntObject
+class OptionsTab : public View
 {
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CLabel> labelTitle;
@@ -85,18 +85,18 @@ public:
 	};
 
 	/// Image with current town/hero/bonus
-	struct SelectedBox : public CIntObject, public CPlayerSettingsHelper
+	struct SelectedBox : public View, public CPlayerSettingsHelper
 	{
 		std::shared_ptr<CAnimImage> image;
 		std::shared_ptr<CLabel> subtitle;
 
 		SelectedBox(Point position, PlayerSettings & settings, SelType type);
-		void clickRight(tribool down, bool previousState) override;
+		void clickRight(const SDL_Event &event, tribool down) override;
 
 		void update();
 	};
 
-	struct PlayerOptionsEntry : public CIntObject
+	struct PlayerOptionsEntry : public View
 	{
 		PlayerInfo pi;
 		PlayerSettings s;

@@ -396,7 +396,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
-	: CIntObject(RCLICK, position), CPlayerSettingsHelper(settings, type)
+	: View(RCLICK, position), CPlayerSettingsHelper(settings, type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -412,7 +412,7 @@ void OptionsTab::SelectedBox::update()
 	subtitle->setText(getName());
 }
 
-void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
+void OptionsTab::SelectedBox::clickRight(const SDL_Event &event, tribool down)
 {
 	if(down)
 	{
