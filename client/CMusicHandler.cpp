@@ -279,27 +279,27 @@ bool CSoundHandler::ambientCheckVisitable() const
 	return !allTilesSource;
 }
 
-void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> sounds)
+void CSoundHandler::ambientUpdateChannels(std::map<std::string, int> soundsArg)
 {
 	boost::mutex::scoped_lock guard(mutex);
 
 	std::vector<std::string> stoppedSounds;
 	for(auto & pair : ambientChannels)
 	{
-		if(!vstd::contains(sounds, pair.first))
+		if(!vstd::contains(soundsArg, pair.first))
 		{
 			ambientStopSound(pair.first);
 			stoppedSounds.push_back(pair.first);
 		}
 		else
 		{
-			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(sounds[pair.first]));
+			CCS->soundh->setChannelVolume(pair.second, ambientDistToVolume(soundsArg[pair.first]));
 		}
 	}
 	for(auto soundId : stoppedSounds)
 		ambientChannels.erase(soundId);
 
-	for(auto & pair : sounds)
+	for(auto & pair : soundsArg)
 	{
 		if(!vstd::contains(ambientChannels, pair.first))
 		{
