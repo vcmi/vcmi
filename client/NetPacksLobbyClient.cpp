@@ -44,9 +44,6 @@ bool LobbyClientConnected::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyClientConnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	if(uuid == handler->c->uuid)
-	{
-	}
 }
 
 bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
