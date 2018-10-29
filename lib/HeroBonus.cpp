@@ -1250,6 +1250,9 @@ std::string Bonus::Description() const
 			case SECONDARY_SKILL:
 				str << VLC->skillh->skillName(sid);
 				break;
+			case HERO_SPECIAL:
+				str << VLC->heroh->heroes[sid]->name;
+				break;
 			default:
 				//todo: handle all possible sources
 				str << "Unknown";
