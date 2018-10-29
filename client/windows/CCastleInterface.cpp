@@ -1671,6 +1671,15 @@ void CFortScreen::RecruitArea::creaturesChanged()
 
 void CFortScreen::RecruitArea::clickLeft(tribool down, bool previousState)
 {
+	if(LOCPLINT == nullptr) //let travis CI eat this code...
+		logGlobal->error("LOCPLINT NULL!");
+	if(LOCPLINT->castleInt == nullptr)
+		logGlobal->error("castleInt NULL!");
+	if(LOCPLINT->castleInt->builds == nullptr)
+		logGlobal->error("builds NULL!");
+	if(LOCPLINT->castleInt->town == nullptr)
+		logGlobal->error("town NULL!");
+
 	if(!down && previousState)
 		LOCPLINT->castleInt->builds->enterDwelling(level);
 }
