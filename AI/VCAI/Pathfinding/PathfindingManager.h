@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "VCAI.h"
+#include "../VCAI.h"
 #include "AINodeStorage.h"
 
 class IPathfindingManager
