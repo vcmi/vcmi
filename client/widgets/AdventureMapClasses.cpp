@@ -277,9 +277,9 @@ void CHeroList::update(const CGHeroInstance * hero)
 	listBox->resize(LOCPLINT->wanderingHeroes.size());
 	if (adventureInt->selection)
 	{
-		auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
-		if (hero)
-			select(hero);
+		auto selectedHero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
+		if (selectedHero)
+			select(selectedHero);
 	}
 	CList::update();
 }

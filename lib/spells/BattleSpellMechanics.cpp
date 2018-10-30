@@ -528,13 +528,13 @@ Target BattleSpellMechanics::transformSpellTarget(const Target & aimPoint) const
 	else
 	{
 		const Destination & primary = aimPoint.at(0);
-		BattleHex aimPoint = primary.hexValue;
+		BattleHex aimPointHex = primary.hexValue;
 
 		//transform primary spell target with spell range (if it`s valid), leave anything else to effects
 
-		if(aimPoint.isValid())
+		if(aimPointHex.isValid())
 		{
-			auto spellRange = spellRangeInHexes(aimPoint);
+			auto spellRange = spellRangeInHexes(aimPointHex);
 			for(auto & hex : spellRange)
 				spellTarget.push_back(Destination(hex));
 		}

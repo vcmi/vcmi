@@ -377,10 +377,10 @@ QStringList CModListView::findInvalidDependencies(QString mod)
 	return ret;
 }
 
-QStringList CModListView::findBlockingMods(QString mod)
+QStringList CModListView::findBlockingMods(QString modUnderTest)
 {
 	QStringList ret;
-	auto required = modModel->getRequirements(mod);
+	auto required = modModel->getRequirements(modUnderTest);
 
 	for(QString name : modModel->getModList())
 	{

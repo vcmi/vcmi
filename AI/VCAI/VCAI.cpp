@@ -2381,8 +2381,8 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 			logAi->debug("The error message was: %s", e.what());
 
 			//erase base goal if we failed to execute decomposed goal
-			for (auto basicGoal : ultimateGoalsFromBasic[elementarGoal])
-				goalsToRemove.push_back(basicGoal);
+			for (auto basicGoalToRemove : ultimateGoalsFromBasic[elementarGoal])
+				goalsToRemove.push_back(basicGoalToRemove);
 		}
 	}
 }

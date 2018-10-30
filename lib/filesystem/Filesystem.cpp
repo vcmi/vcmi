@@ -113,8 +113,8 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	if (filename)
 	{
 		auto configData = CResourceHandler::get("initial")->load(ResourceID(URI, EResType::TEXT))->readAll();
-		const JsonNode config((char*)configData.first.get(), configData.second);
-		filesystem->addLoader(new CMappedFileLoader(mountPoint, config), false);
+		const JsonNode configInitial((char*)configData.first.get(), configData.second);
+		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
 	}
 }
 

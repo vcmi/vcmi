@@ -556,9 +556,9 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 		const PlayerState *ps = getPlayer(t->tempOwner, false);
 		if(ps)
 		{
-			for(const CGTownInstance *t : ps->towns)
+			for(const CGTownInstance *town : ps->towns)
 			{
-				if(t->hasBuilt(BuildingID::CAPITOL))
+				if(town->hasBuilt(BuildingID::CAPITOL))
 				{
 					return EBuildingState::HAVE_CAPITAL; //no more than one capitol
 				}

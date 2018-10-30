@@ -160,15 +160,15 @@ std::vector<std::string> ZipArchive::listFiles(boost::filesystem::path filename)
 		do
 		{
 			unz_file_info64 info;
-			std::vector<char> filename;
+			std::vector<char> zipFilename;
 
 			unzGetCurrentFileInfo64 (file, &info, nullptr, 0, nullptr, 0, nullptr, 0);
 
-			filename.resize(info.size_filename);
+			zipFilename.resize(info.size_filename);
 			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64 (file, &info, filename.data(), filename.size(), nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (file, &info, zipFilename.data(), zipFilename.size(), nullptr, 0, nullptr, 0);
 
-			ret.push_back(std::string(filename.data(), filename.size()));
+			ret.push_back(std::string(zipFilename.data(), zipFilename.size()));
 		}
 		while (unzGoToNextFile(file) == UNZ_OK);
 	}
