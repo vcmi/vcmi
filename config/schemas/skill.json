@@ -41,7 +41,7 @@
 				"effects" : {
 					"type" : "object",
 					"additionalProperties" : {
-						"$ref" : "vcmi:bonus"
+						"$ref" : "bonus.json"
 					}
 				}
 			}

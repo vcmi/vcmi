@@ -8,13 +8,13 @@
 
 	"properties":{
 		"index": {
-			"type":"number",
+			"type":"number"
 		},
 		"name": {
-			"type":"string",
+			"type":"string"
 		},
 		"aiValue": {
-			"type":"number",
+			"type":"number"
 		},
 
 		"sounds": {
@@ -52,7 +52,7 @@
 		"templates": {
 			"type":"object",
 			"additionalProperties": {
-				"$ref" : "vcmi:objectTemplate"
+				"$ref" : "objectTemplate.json"
 			}
 		}
 	}

@@ -41,7 +41,7 @@
 
 						"properties" : {
 							"type" : { "type" : "string" },
-							"messageToSend" : { "type" : "string" },
+							"messageToSend" : { "type" : "string" }
 						}
 					}
 				}

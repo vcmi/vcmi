@@ -8,17 +8,17 @@
 
 	"properties":{
 		"index": {
-			"type":"number",
+			"type":"number"
 		},
 		"name": {
-			"type":"string",
+			"type":"string"
 		},
 		"defaultAiValue": {
-			"type":"number",
+			"type":"number"
 		},
 
 		"handler": {
-			"type":"string",
+			"type":"string"
 		},
 
 		"sounds": {
@@ -56,7 +56,7 @@
 		"types": {
 			"type":"object",
 			"additionalProperties": {
-				"$ref" : "vcmi:objectType"
+				"$ref" : "objectType.json"
 			}
 		}
 	}
