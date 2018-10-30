@@ -564,11 +564,12 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo 
 }
 
 // convert deprecated format
-std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec)
+std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid)
 {
 	std::vector<std::shared_ptr<Bonus>> result;
 	for(std::shared_ptr<Bonus> oldBonus : spec.bonuses)
 	{
+		oldBonus->sid = sid;
 		if(oldBonus->type == Bonus::SPECIAL_SPELL_LEV || oldBonus->type == Bonus::SPECIAL_BLESS_DAMAGE)
 		{
 			// these bonuses used to auto-scale with hero level
@@ -860,6 +861,11 @@ void CHeroHandler::afterLoadFinalization()
 {
 	for(ConstTransitivePtr<CHero> hero : heroes)
 	{
+		for(auto bonus : hero->specialty)
+		{
+			bonus->sid = hero->ID.getNum();
+		}
+
 		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
 		{
 			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
@@ -871,7 +877,7 @@ void CHeroHandler::afterLoadFinalization()
 			}
 			for(const SSpecialtyBonus & spec : hero->specialtyDeprecated)
 			{
-				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec))
+				for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(spec, hero->ID.getNum()))
 					convertedBonuses.push_back(b);
 			}
 			hero->specDeprecated.clear();

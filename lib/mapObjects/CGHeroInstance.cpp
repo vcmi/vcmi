@@ -552,7 +552,7 @@ void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & speci
 
 	for(HeroSpecial * hs : specialtyDeprecated)
 	{
-		for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(HeroSpecialToSpecialtyBonus(*hs)))
+		for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(HeroSpecialToSpecialtyBonus(*hs), type->ID.getNum()))
 			addNewBonus(b);
 	}
 }
