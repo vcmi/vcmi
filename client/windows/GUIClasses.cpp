@@ -194,7 +194,7 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, const CArmedInstance * Dst, const std::function<void(CreatureID,int)> & Recruit, int y_offset):
-	CWindowObject(PLAYER_COLORED, "TPRCRT"),
+	CStatusbarWindow(PLAYER_COLORED, "TPRCRT"),
 	onRecruit(Recruit),
 	level(Level),
 	dst(Dst),
@@ -205,7 +205,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling * Dwelling, int Level, c
 
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	slider = std::make_shared<CSlider>(Point(176,279),135,std::bind(&CRecruitmentWindow::sliderMoved,this, _1),0,0,0,true);
 
@@ -630,7 +630,7 @@ void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
-	: CWindowObject(PLAYER_COLORED, "TPTAVERN"),
+	: CStatusbarWindow(PLAYER_COLORED, "TPTAVERN"),
 	tavernObj(TavernObj)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -656,7 +656,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj)
 	auto rumorText = boost::str(boost::format(CGI->generaltexth->allTexts[216]) % LOCPLINT->cb->getTavernRumor(tavernObj));
 	rumor = std::make_shared<CTextBox>(rumorText, Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = std::make_shared<CButton>(Point(310, 428), "ICANCEL.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[7]), std::bind(&CTavernWindow::close, this), SDLK_ESCAPE);
 	recruit = std::make_shared<CButton>(Point(272, 355), "TPTAV01.DEF", CButton::tooltip(), std::bind(&CTavernWindow::recruitb, this), SDLK_RETURN);
 	thiefGuild = std::make_shared<CButton>(Point(22, 428), "TPTAV02.DEF", CButton::tooltip(CGI->generaltexth->tavernInfo[5]), std::bind(&CTavernWindow::thievesguildb, this), SDLK_t);
@@ -788,7 +788,7 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
+	: CStatusbarWindow(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -920,7 +920,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	questlogButton[1] = std::make_shared<CButton>(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
 
 	//garrison interface
 	garr = std::make_shared<CGarrisonInt>(69, 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
@@ -978,7 +978,7 @@ void CExchangeWindow::updateWidgets()
 }
 
 CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int boatType, const std::function<void()> & onBuy)
-	: CWindowObject(PLAYER_COLORED, "TPSHIP")
+	: CStatusbarWindow(PLAYER_COLORED, "TPSHIP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -1013,7 +1013,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> & cost, int state, int 
 		}
 	}
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	title = std::make_shared<CLabel>(164, 27,  FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
 	costLabel = std::make_shared<CLabel>(164, 220, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[14]);
@@ -1159,7 +1159,7 @@ void CTransformerWindow::updateGarrisons()
 }
 
 CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town)
-	: CWindowObject(PLAYER_COLORED, "SKTRNBK"),
+	: CStatusbarWindow(PLAYER_COLORED, "SKTRNBK"),
 	hero(_hero),
 	town(_town)
 {
@@ -1178,7 +1178,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	all = std::make_shared<CButton>(Point(146, 416), "ALTARMY.DEF", CGI->generaltexth->zelp[590], [&](){ addAll(); }, SDLK_a);
 	convert = std::make_shared<CButton>(Point(269, 416), "ALTSACR.DEF", CGI->generaltexth->zelp[591], [&](){ makeDeal(); }, SDLK_RETURN);
 	cancel = std::make_shared<CButton>(Point(392, 416), "ICANCEL.DEF", CGI->generaltexth->zelp[592], [&](){ close(); },SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	titleLeft = std::make_shared<CLabel>(153, 29,FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area
 	titleRight = std::make_shared<CLabel>(153+295, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
@@ -1254,7 +1254,7 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market)
-	: CWindowObject(PLAYER_COLORED, "UNIVERS1"),
+	: CStatusbarWindow(PLAYER_COLORED, "UNIVERS1"),
 	hero(_hero),
 	market(_market)
 {
@@ -1283,7 +1283,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		items.push_back(std::make_shared<CItem>(this, goods[i], 54+i*104, 234));
 
 	cancel = std::make_shared<CButton>(Point(200, 313), "IOKAY.DEF", CGI->generaltexth->zelp[632], [&](){ close(); }, SDLK_RETURN);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUniversityWindow::makeDeal(int skill)
@@ -1293,7 +1293,7 @@ void CUniversityWindow::makeDeal(int skill)
 
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bool available)
-	: CWindowObject(PLAYER_COLORED, "UNIVERS2.PCX"),
+	: CStatusbarWindow(PLAYER_COLORED, "UNIVERS2.PCX"),
 	owner(owner_)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1324,7 +1324,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, int SKILL, bo
 	confirm->block(!available);
 
 	cancel = std::make_shared<CButton>(Point(252,299), "ICANCEL.DEF", CGI->generaltexth->zelp[631], [&](){ close(); }, SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUnivConfirmWindow::makeDeal(int skill)
@@ -1375,7 +1375,7 @@ void CGarrisonWindow::updateGarrisons()
 }
 
 CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectInstance * object)
-	: CWindowObject(PLAYER_COLORED, "APHLFTBK"),
+	: CStatusbarWindow(PLAYER_COLORED, "APHLFTBK"),
 	fort(object),
 	hero(visitor)
 {
@@ -1409,7 +1409,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance * visitor, const CGObjectI
 		upgradeAll->addImage(image);
 
 	quit = std::make_shared<CButton>(Point(294, 275), "IOKAY.DEF", CButton::tooltip(), std::bind(&CHillFortWindow::close, this), SDLK_RETURN);
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = std::make_shared<CGarrisonInt>(108, 60, 18, Point(), hero, nullptr);
 	updateGarrisons();
@@ -1579,7 +1579,7 @@ int CHillFortWindow::getState(SlotID slot)
 }
 
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
-	CWindowObject(PLAYER_COLORED | BORDERED, "TpRank"),
+	CStatusbarWindow(PLAYER_COLORED | BORDERED, "TpRank"),
 	owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -1590,7 +1590,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	exitb = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(CGI->generaltexth->allTexts[600]), [&](){ close();}, SDLK_RETURN);
 	exitb->assignedKeys.insert(SDLK_ESCAPE);
-	statusBar = CGStatusBar::create(3, 555, "TStatBar.bmp", 742);
+	statusbar = CGStatusBar::create(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
 	resdatabar->moveBy(pos.topLeft(), true);

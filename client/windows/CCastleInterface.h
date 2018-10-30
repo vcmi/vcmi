@@ -195,7 +195,7 @@ public:
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CWindowObject, public CGarrisonHolder
+class CCastleInterface : public CStatusbarWindow, public CGarrisonHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> income;
@@ -203,7 +203,6 @@ class CCastleInterface : public CWindowObject, public CGarrisonHolder
 
 	std::shared_ptr<CPicture> panel;
 	std::shared_ptr<CResDataBar> resdatabar;
-	std::shared_ptr<CGStatusBar> statusbar;
 
 	std::shared_ptr<CTownInfo> hall;
 	std::shared_ptr<CTownInfo> fort;
@@ -240,7 +239,7 @@ public:
 };
 
 /// Hall window where you can build things
-class CHallInterface : public CWindowObject
+class CHallInterface : public CStatusbarWindow
 {
 	class CBuildingBox : public CIntObject
 	{
@@ -264,7 +263,6 @@ class CHallInterface : public CWindowObject
 	std::vector<std::vector<std::shared_ptr<CBuildingBox>>> boxes;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CMinorResDataBar> resdatabar;
-	std::shared_ptr<CGStatusBar> statusbar;
 	std::shared_ptr<CButton> exit;
 
 public:
@@ -272,13 +270,12 @@ public:
 };
 
 ///  Window where you can decide to buy a building or not
-class CBuildWindow: public CWindowObject
+class CBuildWindow: public CStatusbarWindow
 {
 	const CGTownInstance * town;
 	const CBuilding * building;
 
 	std::shared_ptr<CAnimImage> icon;
-	std::shared_ptr<CGStatusBar> statusbar;
 	std::shared_ptr<CLabel> name;
 	std::shared_ptr<CTextBox> description;
 	std::shared_ptr<CTextBox> stateText;
@@ -308,7 +305,7 @@ public:
 };
 
 /// The fort screen where you can afford units
-class CFortScreen : public CWindowObject
+class CFortScreen : public CStatusbarWindow
 {
 	class RecruitArea : public CIntObject
 	{
@@ -336,7 +333,6 @@ class CFortScreen : public CWindowObject
 	std::shared_ptr<CLabel> title;
 	std::vector<std::shared_ptr<RecruitArea>> recAreas;
 	std::shared_ptr<CMinorResDataBar> resdatabar;
-	std::shared_ptr<CGStatusBar> statusbar;
 	std::shared_ptr<CButton> exit;
 
 	std::string getBgName(const CGTownInstance * town);
@@ -348,7 +344,7 @@ public:
 };
 
 /// The mage guild screen where you can see which spells you have
-class CMageGuildScreen : public CWindowObject
+class CMageGuildScreen : public CStatusbarWindow
 {
 	class Scroll : public CIntObject
 	{
@@ -367,14 +363,13 @@ class CMageGuildScreen : public CWindowObject
 	std::vector<std::shared_ptr<CAnimImage>> emptyScrolls;
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
-	std::shared_ptr<CGStatusBar> statusbar;
 
 public:
 	CMageGuildScreen(CCastleInterface * owner,std::string image);
 };
 
 /// The blacksmith window where you can buy available in town war machine
-class CBlacksmithDialog : public CWindowObject
+class CBlacksmithDialog : public CStatusbarWindow
 {
 	std::shared_ptr<CButton> buy;
 	std::shared_ptr<CButton> cancel;
@@ -384,7 +379,6 @@ class CBlacksmithDialog : public CWindowObject
 	std::shared_ptr<CAnimImage> costIcon;
 	std::shared_ptr<CLabel> costText;
 	std::shared_ptr<CLabel> costValue;
-	std::shared_ptr<CGStatusBar> statusbar;
 
 public:
 	CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid);
