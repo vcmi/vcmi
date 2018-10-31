@@ -88,5 +88,5 @@ void MapServiceMock::addToArchive(CZipSaver & saver, const JsonNode & data, cons
 	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
-		throw new std::runtime_error("addToArchive: zip compression failed.");
+		throw std::runtime_error("addToArchive: zip compression failed.");
 }

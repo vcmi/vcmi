@@ -888,7 +888,7 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 	ResourceID resource(archiveFilename, EResType::TEXT);
 
 	if(!loader.existsResource(resource))
-		throw new std::runtime_error(archiveFilename+" not found");
+		throw std::runtime_error(archiveFilename+" not found");
 
 	auto data = loader.load(resource)->readAll();
 
@@ -967,7 +967,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		int rawType = vstd::find_pos(terrainCodes, typeCode);
 
 		if(rawType < 0)
-			throw new std::runtime_error("Invalid terrain type code in "+src);
+			throw std::runtime_error("Invalid terrain type code in "+src);
 
 		tile.terType = ETerrainType(rawType);
 	}
@@ -978,7 +978,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			pos++;
 		int len = pos - startPos;
 		if(len<=0)
-			throw new std::runtime_error("Invalid terrain view in "+src);
+			throw std::runtime_error("Invalid terrain view in "+src);
 		const std::string rawCode = src.substr(startPos, len);
 		tile.terView = atoi(rawCode.c_str());
 		startPos+=len;
@@ -986,7 +986,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//terrain flip
 		int terrainFlip = vstd::find_pos(flipCodes, src.at(startPos++));
 		if(terrainFlip < 0)
-			throw new std::runtime_error("Invalid terrain flip in "+src);
+			throw std::runtime_error("Invalid terrain flip in "+src);
 		else
 			tile.extTileFlags = terrainFlip;
 	}
@@ -1001,7 +1001,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		{
 			rawType = vstd::find_pos(riverCodes, typeCode);
 			if(rawType < 0)
-				throw new std::runtime_error("Invalid river type in "+src);
+				throw std::runtime_error("Invalid river type in "+src);
 			else
 			{
 				tile.riverType = ERiverType::ERiverType(rawType);
@@ -1018,7 +1018,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			pos++;
 		int len = pos - startPos;
 		if(len<=0)
-			throw new std::runtime_error("Invalid road dir in "+src);
+			throw std::runtime_error("Invalid road dir in "+src);
 		const std::string rawCode = src.substr(startPos, len);
 		tile.roadDir = atoi(rawCode.c_str());
 		startPos+=len;
@@ -1027,7 +1027,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//road flip
 		int flip = vstd::find_pos(flipCodes, src.at(startPos++));
 		if(flip < 0)
-			throw new std::runtime_error("Invalid road flip in "+src);
+			throw std::runtime_error("Invalid road flip in "+src);
 		else
 			tile.extTileFlags |= (flip<<4);
 	}
@@ -1039,7 +1039,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		startPos+=2;
 		int rawType = vstd::find_pos(riverCodes, typeCode);
 		if(rawType < 0)
-			throw new std::runtime_error("Invalid river type in "+src);
+			throw std::runtime_error("Invalid river type in "+src);
 		tile.riverType = ERiverType::ERiverType(rawType);
 	}
 	{//river dir
@@ -1048,7 +1048,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			pos++;
 		int len = pos - startPos;
 		if(len<=0)
-			throw new std::runtime_error("Invalid river dir in "+src);
+			throw std::runtime_error("Invalid river dir in "+src);
 		const std::string rawCode = src.substr(startPos, len);
 		tile.riverDir = atoi(rawCode.c_str());
 		startPos+=len;
@@ -1056,7 +1056,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//river flip
 		int flip = vstd::find_pos(flipCodes, src.at(startPos++));
 		if(flip < 0)
-			throw new std::runtime_error("Invalid road flip in "+src);
+			throw std::runtime_error("Invalid road flip in "+src);
 		else
 			tile.extTileFlags |= (flip<<2);
 	}
@@ -1069,14 +1069,14 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode & src, const int index)
 	const JsonVector & rows = src.Vector();
 
 	if(rows.size() != map->height)
-		throw new std::runtime_error("Invalid terrain data");
+		throw std::runtime_error("Invalid terrain data");
 
 	for(pos.y = 0; pos.y < map->height; pos.y++)
 	{
 		const JsonVector & tiles = rows[pos.y].Vector();
 
 		if(tiles.size() != map->width)
-			throw new std::runtime_error("Invalid terrain data");
+			throw std::runtime_error("Invalid terrain data");
 
 		for(pos.x = 0; pos.x < map->width; pos.x++)
 			readTerrainTile(tiles[pos.x].String(), map->getTile(pos));
@@ -1247,7 +1247,7 @@ void CMapSaverJson::addToArchive(const JsonNode & data, const std::string & file
 		std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 		if (stream->write((const ui8*)s.c_str(), s.size()) != s.size())
-			throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
+			throw std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 	}
 }
 
