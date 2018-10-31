@@ -84,7 +84,7 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 	ResourceID resource(archiveFilename, EResType::TEXT);
 
 	if(!archive.existsResource(resource))
-		throw new std::runtime_error(archiveFilename+" not found");
+		throw std::runtime_error(archiveFilename+" not found");
 
 	auto data = archive.load(resource)->readAll();
 
@@ -99,7 +99,7 @@ static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::st
 	std::unique_ptr<COutputStream> stream = saver.addFile(filename);
 
 	if(stream->write((const ui8*)s.c_str(), s.size()) != s.size())
-		throw new std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
+		throw std::runtime_error("CMapSaverJson::saveHeader() zip compression failed.");
 }
 
 static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNode & objects, const JsonNode & surface, const JsonNode & underground)

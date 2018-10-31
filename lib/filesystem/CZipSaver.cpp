@@ -55,7 +55,7 @@ CZipOutputStream::CZipOutputStream(CZipSaver * owner_, zipFile archive, const st
 						);
 
     if(status != ZIP_OK)
-		throw new std::runtime_error("CZipOutputStream: zipOpenNewFileInZip failed");
+		throw std::runtime_error("CZipOutputStream: zipOpenNewFileInZip failed");
 
 	owner->activeStream = this;
 }
@@ -88,7 +88,7 @@ CZipSaver::CZipSaver(std::shared_ptr<CIOApi> api, const boost::filesystem::path 
 	handle = zipOpen2_64((const void *) & path, APPEND_STATUS_CREATE, nullptr, &zipApi);
 
 	if (handle == nullptr)
-		throw new std::runtime_error("CZipSaver: Failed to create archive");
+		throw std::runtime_error("CZipSaver: Failed to create archive");
 }
 
 CZipSaver::~CZipSaver()
@@ -112,7 +112,7 @@ CZipSaver::~CZipSaver()
 std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFilename)
 {
 	if(activeStream != nullptr)
-		throw new std::runtime_error("CZipSaver::addFile: stream already opened");
+		throw std::runtime_error("CZipSaver::addFile: stream already opened");
 
 	std::unique_ptr<COutputStream> stream(new CZipOutputStream(this, handle, archiveFilename));
 	return std::move(stream);
