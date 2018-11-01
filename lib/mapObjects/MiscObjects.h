@@ -523,7 +523,7 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
-	void giveBonusTo( PlayerColor player ) const;
+	void giveBonusTo(PlayerColor player, bool onInit = false) const;
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

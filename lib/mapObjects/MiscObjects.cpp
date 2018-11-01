@@ -2161,7 +2161,8 @@ void CGLighthouse::initObj(CRandomGenerator & rand)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
 	{
-		giveBonusTo(tempOwner);
+		// FIXME: This is dirty hack
+		giveBonusTo(tempOwner, true);
 	}
 }
 
@@ -2171,7 +2172,7 @@ std::string CGLighthouse::getHoverText(PlayerColor player) const
 	return getObjectName();
 }
 
-void CGLighthouse::giveBonusTo( PlayerColor player ) const
+void CGLighthouse::giveBonusTo(PlayerColor player, bool onInit) const
 {
 	GiveBonus gb(GiveBonus::PLAYER);
 	gb.bonus.type = Bonus::SEA_MOVEMENT;
@@ -2180,7 +2181,14 @@ void CGLighthouse::giveBonusTo( PlayerColor player ) const
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.sid = id.getNum();
-	cb->sendAndApply(&gb);
+
+	// FIXME: This is really dirty hack
+	// Proper fix would be to make CGLighthouse into bonus system node
+	// Unfortunately this will cause saves breakage
+	if(onInit)
+		gb.applyGs(cb->gameState());
+	else
+		cb->sendAndApply(&gb);
 }
 
 void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
