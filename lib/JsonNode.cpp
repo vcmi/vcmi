@@ -904,7 +904,7 @@ const JsonNode & getSchemaByName(std::string name)
 	if (vstd::contains(loadedSchemas, name))
 		return loadedSchemas[name];
 
-	std::string filename = "config/schemas/" + name + ".json";
+	std::string filename = "config/schemas/" + name;
 
 	if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 	{
@@ -921,19 +921,20 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 {
 	size_t posColon = URI.find(':');
 	size_t posHash  = URI.find('#');
+	std::string filename;
 	if(posColon == std::string::npos)
 	{
-		logMod->error("Invalid schema URI:%s", URI);
-		return nullNode;
+		filename = URI.substr(0, posHash);
 	}
-
-	std::string protocolName = URI.substr(0, posColon);
-	std::string filename =     URI.substr(posColon + 1, posHash - posColon - 1);
-
-	if(protocolName != "vcmi")
+	else
 	{
-		logMod->error("Error: unsupported URI protocol for schema: %s", URI);
-		return nullNode;
+		std::string protocolName = URI.substr(0, posColon);
+		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json";
+		if(protocolName != "vcmi")
+		{
+			logMod->error("Error: unsupported URI protocol for schema: %s", URI);
+			return nullNode;
+		}
 	}
 
 	// check if json pointer if present (section after hash in string)

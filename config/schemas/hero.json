@@ -136,7 +136,7 @@
 							"bonuses" : {
 								"type" : "array",
 								"description" : "List of bonuses",
-								"items" : { "$ref" : "vcmi:bonus" }
+								"items" : { "$ref" : "bonus.json" }
 							}
 						}
 					}
@@ -153,7 +153,7 @@
 						"bonuses" : {
 							"type" : "object",
 							"description" : "Set of bonuses",
-							"additionalProperties" : { "$ref" : "vcmi:bonus" }
+							"additionalProperties" : { "$ref" : "bonus.json" }
 						},
 						"creature" : {
 							"type" : "string",

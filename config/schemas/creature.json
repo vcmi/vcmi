@@ -135,7 +135,7 @@
 			"description": "Creature abilities described using Bonus system",
 			"type":"object",
 			"additionalProperties": {
-				"$ref" : "vcmi:bonus"
+				"$ref" : "bonus.json"
 			}
 		},
 		"stackExperience": {
@@ -147,7 +147,7 @@
 				"required" : [ "bonus", "values" ],
 				"description": "0",
 				"properties":{
-					"bonus": {"$ref" : "vcmi:bonus" },
+					"bonus": {"$ref" : "bonus.json" },
 					"values": {
 						"type":"array",
 						"minItems" : 10,

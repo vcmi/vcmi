@@ -156,7 +156,7 @@
 				"buildings": {
 					"type" : "object",
 					"additionalProperties" : {
-						"$ref" : "vcmi:townBuilding"
+						"$ref" : "townBuilding.json"
 					}
 				},
 				"creatures": {
@@ -241,12 +241,12 @@
 					"format" : "musicFile"
 				},
 				"siege": {
-					"$ref" : "vcmi:townSiege"
+					"$ref" : "townSiege.json"
 				},
 				"structures": {
 					"type" : "object",
 					"additionalProperties" : {
-						"$ref" : "vcmi:townStructure"
+						"$ref" : "townStructure.json"
 					}
 				},
 				"townBackground": {

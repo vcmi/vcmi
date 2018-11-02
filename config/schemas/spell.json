@@ -73,10 +73,10 @@
 					"description":"Cost in mana points"
 				},
 				"power":{
-					"type": "number",
+					"type": "number"
 				},
 				"aiValue":{
-					"type": "number",
+					"type": "number"
 				},
 
 				"range":{
@@ -87,14 +87,14 @@
 					"type": "object",
 					"description": "Timed effects (updated by prolongation)",
 					"additionalProperties" : {
-						"$ref" : "vcmi:bonus"
+						"$ref" : "bonus.json"
 					}
 				},
 				"cumulativeEffects":{
 					"type": "object",
 					"description": "Timed effects (updated by unique bonus)",
 					"additionalProperties" : {
-						"$ref" : "vcmi:bonus"
+						"$ref" : "bonus.json"
 					}
 				},
 				"battleEffects":{
@@ -175,7 +175,7 @@
 
 		"power":{
 				"type": "number",
-				"description": "Base power",
+				"description": "Base power"
 		},
 
 		"defaultGainChance":{
