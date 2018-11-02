@@ -368,7 +368,9 @@ void RemoveObject::applyFirstCl(CClient *cl)
 	//notify interfaces about removal
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(GS(cl)->isVisible(o, i->first))
+		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
+		//TODO: loose requirements as next AI related crashes appear, for example another player collects object that got re-covered by FoW, unsure if AI code workarounds this
+		if(GS(cl)->isVisible(o, i->first) || (!cl->getPlayer(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 			i->second->objectRemoved(o);
 	}
 }
