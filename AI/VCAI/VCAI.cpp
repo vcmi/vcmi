@@ -404,6 +404,8 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	ah->resetPaths();
 }
 
+//to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
+//see: RemoveObject::applyFirstCl, to keep AI "not cheating" do not use advantage of this and use this function just to prevent crashes
 void VCAI::objectRemoved(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
