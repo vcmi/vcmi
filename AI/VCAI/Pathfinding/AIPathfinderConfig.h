@@ -13,11 +13,14 @@
 #include "AINodeStorage.h"
 #include "../VCAI.h"
 
-class AIPathfinderConfig : public PathfinderConfig
+namespace AIPathfinding
 {
-public:
-	AIPathfinderConfig(
-		CPlayerSpecificInfoCallback * cb,
-		VCAI * ai, 
-		std::shared_ptr<AINodeStorage> nodeStorage);
-};
+	class AIPathfinderConfig : public PathfinderConfig
+	{
+	public:
+		AIPathfinderConfig(
+			CPlayerSpecificInfoCallback * cb,
+			VCAI * ai,
+			std::shared_ptr<AINodeStorage> nodeStorage);
+	};
+}
