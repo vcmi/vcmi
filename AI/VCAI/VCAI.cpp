@@ -2469,7 +2469,6 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			}
 			return sptr(Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
 															 //BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
-			break;
 		}
 		case CQuest::MISSION_ARMY:
 		{
@@ -2513,11 +2512,27 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 		case CQuest::MISSION_KILL_CREATURE:
 		{
 			auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
-			if (obj)
-				return sptr(Goals::VisitObj(obj->id.getNum()));
-			else
+
+			if(!obj)
 				return sptr(Goals::VisitObj(q.obj->id.getNum())); //visit seer hut
-			break;
+
+			if(obj->ID == Obj::HERO)
+			{
+				auto relations = myCb->getPlayerRelations(playerID, obj->tempOwner);
+
+				if(relations == PlayerRelations::SAME_PLAYER)
+				{
+					auto heroToProtect = cb->getHero(obj->id);
+
+					return sptr(Goals::GatherArmy().sethero(heroToProtect));
+				}
+				else if(relations == PlayerRelations::ALLIES)
+				{
+					break;
+				}
+			}
+
+			return sptr(Goals::VisitObj(obj->id.getNum()));
 		}
 		case CQuest::MISSION_PRIMARY_STAT:
 		{
