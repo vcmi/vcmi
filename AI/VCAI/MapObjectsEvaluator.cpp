@@ -3,6 +3,8 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CHeroHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/CRandomGenerator.h"
@@ -56,6 +58,12 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(int primaryID, int seco
 
 boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * obj) const
 {
+	if(obj->ID == Obj::HERO)
+	{
+		//special case handling: in-game heroes have hero ID as object subID, but when reading configs available hero object subID's are hero classes
+		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
+		return getObjectValue(obj->ID, hero->type->heroClass->id);
+	}
 	if(obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4)
 	{
 		auto dwelling = dynamic_cast<const CGDwelling *>(obj);
