@@ -49,7 +49,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 
 		storageMap[hero] = nodeStorage;
 		
-		auto config = std::make_shared<AIPathfinderConfig>(cb, ai, nodeStorage);
+		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
 		nodeStorage->setHero(hero.get());
 		cb->calculatePaths(config, hero.get());
