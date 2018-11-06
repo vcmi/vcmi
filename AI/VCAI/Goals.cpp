@@ -422,7 +422,17 @@ TSubgoal Win::whatToDoToAchieve()
 		{
 			if(goal.object)
 			{
-				return sptr(Goals::VisitObj(goal.object->id.getNum()));
+				auto objRelations = cb->getPlayerRelations(ai->playerID, goal.object->tempOwner);
+				
+				if(objRelations == PlayerRelations::ENEMIES)
+				{
+					return sptr(Goals::VisitObj(goal.object->id.getNum()));
+				}
+				else
+				{
+					// TODO: Defance
+					break;
+				}
 			}
 			else
 			{
