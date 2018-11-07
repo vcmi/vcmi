@@ -2825,6 +2825,30 @@ void VCAI::lostHero(HeroPtr h)
 	{
 		vstd::erase_if_present(heroVec.second, h);
 	}
+
+	//remove goals with removed hero assigned from main loop
+	vstd::erase_if(ultimateGoalsFromBasic, [&](const std::pair<Goals::TSubgoal, Goals::TGoalVec> & x) -> bool
+	{
+		if(x.first->hero == h)
+			return true;
+		else
+			return false;
+	});
+
+	auto removedHeroGoalPredicate = [&](const Goals::TSubgoal & x) ->bool
+	{
+		if(x->hero == h)
+			return true;
+		else
+			return false;
+	};
+
+	vstd::erase_if(basicGoals, removedHeroGoalPredicate);
+	vstd::erase_if(goalsToAdd, removedHeroGoalPredicate);
+	vstd::erase_if(goalsToRemove, removedHeroGoalPredicate);
+
+	for(auto goal : ultimateGoalsFromBasic)
+		vstd::erase_if(goal.second, removedHeroGoalPredicate);
 }
 
 void VCAI::answerQuery(QueryID queryID, int selection)
