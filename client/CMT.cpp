@@ -105,7 +105,6 @@ static po::variables_map vm;
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo=true);
-void dispose();
 void playIntro();
 static void mainLoop();
 
@@ -980,31 +979,6 @@ void playIntro()
 	}
 }
 
-void dispose()
-{
-	if(VLC)
-	{
-		delete VLC;
-		VLC = nullptr;
-	}
-
-	// cleanup, mostly to remove false leaks from analyzer
-	if(CCS)
-	{
-		CCS->musich->release();
-		CCS->soundh->release();
-	}
-	CMessage::dispose();
-
-	vstd::clear_pointer(graphics);
-
-	if(console)
-	{
-		delete console; // should be removed after everything else since used by logging
-		console = nullptr;
-	}
-}
-
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen
@@ -1382,9 +1356,29 @@ void handleQuit(bool ask)
 	{
 		if(CSH->client)
 			CSH->endGameplay();
-		dispose();
-		vstd::clear_pointer(console);
-		boost::this_thread::sleep(boost::posix_time::milliseconds(750));
+
+		GH.listInt.clear();
+		GH.objsToBlit.clear();
+
+		CMM.reset();
+
+		// cleanup, mostly to remove false leaks from analyzer
+		if(CCS)
+		{
+			CCS->musich->release();
+			CCS->soundh->release();
+
+			vstd::clear_pointer(CCS);
+		}
+		CMessage::dispose();
+
+		vstd::clear_pointer(graphics);
+
+		vstd::clear_pointer(VLC);
+
+		vstd::clear_pointer(console);// should be removed after everything else since used by logging
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
 		if(!settings["session"]["headless"].Bool())
 		{
 			cleanupRenderer();
