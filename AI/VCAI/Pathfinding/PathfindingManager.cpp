@@ -144,6 +144,9 @@ Goals::TGoalVec PathfindingManager::findPath(
 						: clearWayTo(hero, firstTileToGet);
 				}
 
+				if(solution->invalid())
+					continue;
+
 				if(solution->evaluationContext.danger < danger)
 					solution->evaluationContext.danger = danger;
 				
@@ -212,6 +215,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 			//ret.push_back(ai->questToGoal());
 			//however, visiting obj for firts time will give us quest
 			//do not access quets guard if we can't complete the quest
+			logAi->trace("Can not visit this quest guard! Not ready!");
 			return sptr(Goals::Invalid());
 		}
 	}

@@ -535,13 +535,13 @@ public:
 		value = val;
 		priority = 2;
 	}
-	TGoalVec getAllPossibleSubgoals() override
-	{
-		return TGoalVec();
-	}
+	TGoalVec getAllPossibleSubgoals() override;
 	TSubgoal whatToDoToAchieve() override;
 	bool fulfillsMe(TSubgoal goal) override;
 	virtual bool operator==(const GatherTroops & other) const override;
+
+private:
+	int getCreaturesCount(const CArmedInstance * army);
 };
 
 class DLL_EXPORT VisitObj : public CGoal<VisitObj> //this goal was previously known as GetObj

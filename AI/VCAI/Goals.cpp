@@ -137,7 +137,7 @@ bool Goals::GatherArmy::operator==(const GatherArmy & other) const
 
 bool Goals::BuyArmy::operator==(const BuyArmy & other) const
 {
-	return town == other.town;
+	return town == other.town && objid == other.objid;
 }
 
 bool Goals::BoostHero::operator==(const BoostHero & other) const
@@ -1219,11 +1219,58 @@ bool CollectRes::fulfillsMe(TSubgoal goal)
 	return false;
 }
 
+int GatherTroops::getCreaturesCount(const CArmedInstance * army)
+{
+	int count = 0;
+
+	for(auto stack : army->Slots())
+	{
+		if(objid == stack.second->getCreatureID().num)
+		{
+			count += stack.second->count;
+		}
+	}
+
+	return count;
+}
+
 TSubgoal GatherTroops::whatToDoToAchieve()
 {
-	std::vector<const CGDwelling *> dwellings;
+	auto heroes = cb->getHeroesInfo(true);
+
+	for(auto hero : heroes)
+	{
+		if(getCreaturesCount(hero) >= this->value)
+		{
+			logAi->trace("Completing GATHER_TROOPS by hero %s", hero->name);
+
+			throw goalFulfilledException(sptr(*this));
+		}
+	}
+
+	TGoalVec solutions = getAllPossibleSubgoals();
+
+	if(solutions.empty())
+		return sptr(Goals::Explore());
+
+	return fh->chooseSolution(solutions);
+}
+
+
+TGoalVec GatherTroops::getAllPossibleSubgoals()
+{
+	TGoalVec solutions;
+
 	for(const CGTownInstance * t : cb->getTownsInfo())
 	{
+		int count = getCreaturesCount(t->getUpperArmy());
+
+		if(count >= this->value)
+		{
+			vstd::concatenate(solutions, ai->ah->howToVisitObj(t));
+			continue;
+		}
+
 		auto creature = VLC->creh->creatures[objid];
 		if(t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
 		{
@@ -1238,7 +1285,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 			BuildingID bid(BuildingID::DWELL_FIRST + creature->level - 1 + upgradeNumber * GameConstants::CREATURES_PER_TOWN);
 			if(t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
 			{
-				dwellings.push_back(t);
+				solutions.push_back(sptr(Goals::BuyArmy(t, creature->AIValue * this->value).setobjid(objid)));
 			}
 			/*else //disable random building requests for now - this code needs to know a lot of town/resource context to do more good than harm
 			{	
@@ -1248,10 +1295,11 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 	}
 	for(auto obj : ai->visitableObjs)
 	{
-		if(obj->ID != Obj::CREATURE_GENERATOR1) //TODO: what with other creature generators?
+		auto d = dynamic_cast<const CGDwelling *>(obj);
+
+		if(!d || obj->ID == Obj::TOWN)
 			continue;
 
-		auto d = dynamic_cast<const CGDwelling *>(obj);
 		for(auto creature : d->creatures)
 		{
 			if(creature.first) //there are more than 0 creatures avaliabe
@@ -1259,49 +1307,13 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 				for(auto type : creature.second)
 				{
 					if(type == objid && ai->ah->freeResources().canAfford(VLC->creh->creatures[type]->cost))
-						dwellings.push_back(d);
+						vstd::concatenate(solutions, ai->ah->howToVisitObj(obj));
 				}
 			}
 		}
 	}
-	if(dwellings.size())
-	{
-		typedef std::map<const CGHeroInstance *, const CGDwelling *> TDwellMap;
 
-		// sorted helper
-		auto comparator = [](const TDwellMap::value_type & a, const TDwellMap::value_type & b) -> bool
-		{
-			const CGPathNode * ln = ai->myCb->getPathsInfo(a.first)->getPathInfo(a.second->visitablePos());
-			const CGPathNode * rn = ai->myCb->getPathsInfo(b.first)->getPathInfo(b.second->visitablePos());
-
-			if(ln->turns != rn->turns)
-				return ln->turns < rn->turns;
-
-			return (ln->moveRemains > rn->moveRemains);
-		};
-
-		// for all owned heroes generate map <hero -> nearest dwelling>
-		TDwellMap nearestDwellings;
-		for(const CGHeroInstance * hero : cb->getHeroesInfo(true))
-		{
-			nearestDwellings[hero] = *boost::range::min_element(dwellings, CDistanceSorter(hero));
-		}
-		if(nearestDwellings.size())
-		{
-			// find hero who is nearest to a dwelling
-			const CGDwelling * nearest = boost::range::min_element(nearestDwellings, comparator)->second;
-			if(!nearest)
-				throw cannotFulfillGoalException("Cannot find nearest dwelling!");
-
-			return sptr(Goals::VisitObj(nearest->id.getNum()));
-		}
-		else
-			return sptr(Goals::Explore());
-	}
-	else
-	{
-		return sptr(Goals::Explore());
-	}
+	return solutions;
 	//TODO: exchange troops between heroes
 }
 
