@@ -47,26 +47,30 @@
 CondSh<bool> CBattleInterface::animsAreDisplayed(false);
 CondSh<BattleAction *> CBattleInterface::givenCommand(nullptr);
 
-static void onAnimationFinished(const CStack *stack, std::shared_ptr<CCreatureAnimation> anim)
+static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnimation> anim)
 {
-	if (anim->isIdle())
+	if(anim.expired())
+		return;
+
+	std::shared_ptr<CCreatureAnimation> animation = anim.lock();
+	if (animation->isIdle())
 	{
 		const CCreature *creature = stack->getCreature();
 
-		if (anim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+		if (animation->framesInGroup(CCreatureAnim::MOUSEON) > 0)
 		{
 			if (CRandomGenerator::getDefault().nextDouble(99.0) < creature->animation.timeBetweenFidgets *10)
-				anim->playOnce(CCreatureAnim::MOUSEON);
+				animation->playOnce(CCreatureAnim::MOUSEON);
 			else
-				anim->setType(CCreatureAnim::HOLDING);
+				animation->setType(CCreatureAnim::HOLDING);
 		}
 		else
 		{
-			anim->setType(CCreatureAnim::HOLDING);
+			animation->setType(CCreatureAnim::HOLDING);
 		}
 	}
 	// always reset callback
-	anim->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
+	animation->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
 }
 
 static void transformPalette(SDL_Surface *surf, double rCor, double gCor, double bCor)
