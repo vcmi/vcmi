@@ -1124,8 +1124,11 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	exit->setImageOrder(4, 5, 6, 7);
 
-	auto split = std::make_shared<CButton>(Point(744, 382), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&](){garr->splitClick();});
-	split->addCallback(std::bind(&HeroSlots::splitClicked, heroes));
+	auto split = std::make_shared<CButton>(Point(744, 382), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[3]), [&]()
+	{
+		garr->splitClick();
+		heroes->splitClicked();
+	});
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);

@@ -923,9 +923,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
 
 	//garrison interface
+
 	garr = std::make_shared<CGarrisonInt>(69, 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
-	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
-	garr->addSplitBtn(std::make_shared<CButton>( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), std::bind(&CGarrisonInt::splitClick, garr)));
+	auto splitButtonCallback = [&](){ garr->splitClick(); };
+	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
 	updateWidgets();
 }
