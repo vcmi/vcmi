@@ -272,7 +272,9 @@ bool HireHero::applyGh(CGameHandler * gh)
 
 bool BuildBoat::applyGh(CGameHandler * gh)
 {
-	throwOnWrongOwner(gh, objid);
+	if(gh->getPlayerRelations(gh->getOwner(objid), gh->getPlayerAt(c)) == PlayerRelations::ENEMIES)
+		throwAndCompain(gh, "Can't build boat at enemy shipyard");
+
 	return gh->buildBoat(objid);
 }
 
