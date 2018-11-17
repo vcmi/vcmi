@@ -21,7 +21,26 @@ set(VCAI_SRCS
 		MapObjectsEvaluator.cpp
 		FuzzyEngines.cpp
 		FuzzyHelper.cpp
-		Goals.cpp
+		Goals/AbstractGoal.cpp
+		Goals/BuildBoat.cpp
+		Goals/Build.cpp
+		Goals/BuildThis.cpp
+		Goals/Explore.cpp
+		Goals/GatherArmy.cpp
+		Goals/GatherTroops.cpp
+		Goals/BuyArmy.cpp
+		Goals/Win.cpp
+		Goals/VisitTile.cpp
+		Goals/VisitObj.cpp
+		Goals/VisitHero.cpp
+		Goals/CollectRes.cpp
+		Goals/Trade.cpp
+		Goals/RecruitHero.cpp
+		Goals/Conquer.cpp
+		Goals/ClearWayTo.cpp
+		Goals/DigAtTile.cpp
+		Goals/GetArtOfType.cpp
+		Goals/FindObj.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -42,7 +61,29 @@ set(VCAI_HEADERS
 		MapObjectsEvaluator.h
 		FuzzyEngines.h
 		FuzzyHelper.h
-		Goals.h
+		Goals/AbstractGoal.h
+		Goals/CGoal.h
+		Goals/Invalid.h
+		Goals/BuildBoat.h
+		Goals/Build.h
+		Goals/BuildThis.h
+		Goals/Explore.h
+		Goals/GatherArmy.h
+		Goals/GatherTroops.h
+		Goals/BuyArmy.h
+		Goals/Win.h
+		Goals/VisitTile.h
+		Goals/VisitObj.h
+		Goals/VisitHero.h
+		Goals/CollectRes.h
+		Goals/Trade.h
+		Goals/RecruitHero.h
+		Goals/Conquer.h
+		Goals/ClearWayTo.h
+		Goals/DigAtTile.h
+		Goals/GetArtOfType.h
+		Goals/FindObj.h
+		Goals/Goals.h
 		VCAI.h
 )
 

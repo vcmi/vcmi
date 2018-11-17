@@ -12,6 +12,7 @@
 #include "FuzzyHelper.h"
 #include "ResourceManager.h"
 #include "BuildingManager.h"
+#include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"

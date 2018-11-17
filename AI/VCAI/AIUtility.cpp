@@ -11,6 +11,7 @@
 #include "AIUtility.h"
 #include "VCAI.h"
 #include "FuzzyHelper.h"
+#include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"

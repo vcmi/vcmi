@@ -9,6 +9,7 @@
 */
 #include "StdInc.h"
 #include "ResourceManager.h"
+#include "Goals/Goals.h"
 
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"

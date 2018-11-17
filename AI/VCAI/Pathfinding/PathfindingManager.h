@@ -1,5 +1,5 @@
 /*
-* AIhelper.h, part of VCMI engine
+* PathfindingManager.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
