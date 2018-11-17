@@ -2193,16 +2193,18 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 	{
 		auto res = ah->allResources();
 		std::vector<creInfo> creaturesInDwellings;
+
 		for (int i = 0; i < t->creatures.size(); i++)
 		{
 			auto ci = infoFromDC(t->creatures[i]);
+
+			if(!ci.count || ci.creID == -1 || (g.objid != -1 && ci.creID != g.objid))
+				continue;
+
 			ci.level = i; //this is important for Dungeon Summoning Portal
 			creaturesInDwellings.push_back(ci);
 		}
-		vstd::erase_if(creaturesInDwellings, [](const creInfo & ci) -> bool
-		{
-			return !ci.count || ci.creID == -1;
-		});
+
 		if (creaturesInDwellings.empty())
 			throw cannotFulfillGoalException("Can't buy any more creatures!");
 
@@ -2433,6 +2435,8 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 
 Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 {
+	Goals::TSubgoal result = sptr(Goals::Invalid());
+
 	if (q.quest->missionType && q.quest->progress != CQuest::COMPLETE)
 	{
 		MetaString ms;
@@ -2476,12 +2480,18 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 			{
 				if (q.quest->checkQuest(hero)) //very bad info - stacks can be split between multiple heroes :(
 				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
+					result = sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
+					break;
 				}
 			}
-			for (auto creature : q.quest->m6creatures)
+
+			if(result->invalid())
 			{
-				return sptr(Goals::GatherTroops(creature.type->idNumber, creature.count));
+				for(auto creature : q.quest->m6creatures)
+				{
+					result = sptr(Goals::GatherTroops(creature.type->idNumber, creature.count));
+					break;
+				}
 			}
 			//TODO: exchange armies... oh my
 			//BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
@@ -2576,7 +2586,15 @@ Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
 		}
 		} //end of switch
 	}
-	return sptr(Goals::Invalid());
+
+	logAi->trace(
+		"Returning %s, tile: %s, objid: %d, hero: %s", 
+		result->name(), 
+		result->tile.toString(), 
+		result->objid, 
+		result->hero.validAndSet() ? result->hero->name : "not specified");
+
+	return result;
 }
 
 void VCAI::performTypicalActions()
