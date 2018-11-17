@@ -121,6 +121,7 @@
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VCMI_Out);$(SolutionDir)\AI</AdditionalLibraryDirectories>
+      <AdditionalOptions>/d2:-notypeopt %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">

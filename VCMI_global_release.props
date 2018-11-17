@@ -4,7 +4,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <Optimization>Full</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
