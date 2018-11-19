@@ -68,7 +68,7 @@ void CPackForServer::throwOnWrongPlayer(CGameHandler * gh, PlayerColor player)
 	}
 }
 
-void CPackForServer::throwAndCompain(CGameHandler * gh, std::string txt)
+void CPackForServer::throwAndComplain(CGameHandler * gh, std::string txt)
 {
 	gh->complain(txt);
 	throwNotAllowedAction();
@@ -98,7 +98,7 @@ bool EndTurn::applyGh(CGameHandler * gh)
 	PlayerColor player = GS(gh)->currentPlayer;
 	throwOnWrongPlayer(gh, player);
 	if(gh->queries.topQuery(player))
-		throwAndCompain(gh, "Cannot end turn before resolving queries!");
+		throwAndComplain(gh, "Cannot end turn before resolving queries!");
 
 	gh->states.setFlag(GS(gh)->currentPlayer, &PlayerStatus::makingTurn, false);
 	return true;
@@ -182,14 +182,14 @@ bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 {
 	const CGObjectInstance * market = gh->getObj(marketId);
 	if(!market)
-		throwAndCompain(gh, "Invalid market object");
+		throwAndComplain(gh, "Invalid market object");
 	const CGHeroInstance * hero = gh->getHero(heroId);
 
 	//market must be owned or visited
 	const IMarket * m = IMarket::castFrom(market);
 
 	if(!m)
-		throwAndCompain(gh, "market is not-a-market! :/");
+		throwAndComplain(gh, "market is not-a-market! :/");
 
 	PlayerColor player = market->tempOwner;
 
@@ -197,10 +197,10 @@ bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
 	if(player >= PlayerColor::PLAYER_LIMIT)
-		throwAndCompain(gh, "No player can use this market!");
+		throwAndComplain(gh, "No player can use this market!");
 
 	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
-		throwAndCompain(gh, "This hero can't use this marketplace!");
+		throwAndComplain(gh, "This hero can't use this marketplace!");
 
 	throwOnWrongPlayer(gh, player);
 
@@ -248,7 +248,7 @@ bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 		return gh->sacrificeArtifact(m, hero, positions);
 	}
 	default:
-		throwAndCompain(gh, "Unknown exchange mode!");
+		throwAndComplain(gh, "Unknown exchange mode!");
 	}
 
 	return result;
@@ -265,14 +265,16 @@ bool HireHero::applyGh(CGameHandler * gh)
 	const CGObjectInstance * obj = gh->getObj(tid);
 	const CGTownInstance * town = dynamic_ptr_cast<CGTownInstance>(obj);
 	if(town && PlayerRelations::ENEMIES == gh->getPlayerRelations(obj->tempOwner, gh->getPlayerAt(c)))
-		throwAndCompain(gh, "Can't buy hero in enemy town!");
+		throwAndComplain(gh, "Can't buy hero in enemy town!");
 
 	return gh->hireHero(obj, hid, player);
 }
 
 bool BuildBoat::applyGh(CGameHandler * gh)
 {
-	throwOnWrongOwner(gh, objid);
+	if(gh->getPlayerRelations(gh->getOwner(objid), gh->getPlayerAt(c)) == PlayerRelations::ENEMIES)
+		throwAndComplain(gh, "Can't build boat at enemy shipyard");
+
 	return gh->buildBoat(objid);
 }
 
@@ -280,11 +282,11 @@ bool QueryReply::applyGh(CGameHandler * gh)
 {
 	auto playerToConnection = gh->connections.find(player);
 	if(playerToConnection == gh->connections.end())
-		throwAndCompain(gh, "No such player!");
+		throwAndComplain(gh, "No such player!");
 	if(!vstd::contains(playerToConnection->second, c))
-		throwAndCompain(gh, "Message came from wrong connection!");
+		throwAndComplain(gh, "Message came from wrong connection!");
 	if(qid == QueryID(-1))
-		throwAndCompain(gh, "Cannot answer the query with id -1!");
+		throwAndComplain(gh, "Cannot answer the query with id -1!");
 
 	assert(vstd::contains(gh->states.players, player));
 	return gh->queryReply(qid, reply, player);

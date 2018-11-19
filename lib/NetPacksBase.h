@@ -79,7 +79,7 @@ protected:
 	void throwNotAllowedAction();
 	void throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id);
 	void throwOnWrongPlayer(CGameHandler * gh, PlayerColor player);
-	void throwAndCompain(CGameHandler * gh, std::string txt);
+	void throwAndComplain(CGameHandler * gh, std::string txt);
 	bool isPlayerOwns(CGameHandler * gh, ObjectInstanceID id);
 
 private:
