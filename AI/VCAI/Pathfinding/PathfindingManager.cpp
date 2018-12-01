@@ -1,5 +1,5 @@
 /*
-* AIhelper.h, part of VCMI engine
+* PathfindingManager.cpp, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -11,6 +11,7 @@
 #include "PathfindingManager.h"
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
+#include "Goals/Goals.h"
 #include "../../../lib/CGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 

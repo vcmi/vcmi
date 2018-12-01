@@ -10,7 +10,6 @@
 #pragma once
 
 #include "AIUtility.h"
-#include "Goals.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMI_Lib.h"
 #include "VCAI.h"

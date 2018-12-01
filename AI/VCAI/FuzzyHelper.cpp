@@ -11,7 +11,7 @@
 #include "FuzzyHelper.h"
 
 #include "../../lib/mapObjects/CommonConstructors.h"
-#include "Goals.h"
+#include "Goals/Goals.h"
 #include "VCAI.h"
 
 FuzzyHelper * fh;

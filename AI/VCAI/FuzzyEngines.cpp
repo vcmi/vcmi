@@ -9,6 +9,7 @@
 */
 #include "StdInc.h"
 #include "FuzzyEngines.h"
+#include "Goals/Goals.h"
 
 #include "../../lib/mapObjects/MapObjects.h"
 #include "VCAI.h"

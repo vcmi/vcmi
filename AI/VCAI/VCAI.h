@@ -10,8 +10,7 @@
 #pragma once
 
 #include "AIUtility.h"
-#include "SectorMap.h"
-#include "Goals.h"
+#include "Goals/AbstractGoal.h"
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
 

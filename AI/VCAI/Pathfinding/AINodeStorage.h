@@ -1,5 +1,5 @@
 /*
-* AIhelper.h, part of VCMI engine
+* AINodeStorage.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -13,7 +13,7 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
-#include "../Goals.h"
+#include "../Goals/AbstractGoal.h"
 
 class ISpecialAction
 {

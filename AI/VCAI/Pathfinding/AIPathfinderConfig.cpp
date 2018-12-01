@@ -1,5 +1,5 @@
 /*
-* AIhelper.h, part of VCMI engine
+* AIPathfinderConfig.cpp, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -9,6 +9,7 @@
 */
 #include "StdInc.h"
 #include "AIPathfinderConfig.h"
+#include "../Goals/Goals.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
