@@ -11,7 +11,7 @@
 #include "PathfindingManager.h"
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
-#include "Goals/Goals.h"
+#include "../Goals/Goals.h"
 #include "../../../lib/CGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 
@@ -130,8 +130,6 @@ Goals::TGoalVec PathfindingManager::findPath(
 
 			if(isSafeToVisit(hero, danger))
 			{
-				logAi->trace("It's safe for %s to visit tile %s with danger %s", hero->name, dest.toString(), std::to_string(danger));
-
 				Goals::TSubgoal solution;
 
 				if(path.specialAction)
@@ -152,6 +150,8 @@ Goals::TGoalVec PathfindingManager::findPath(
 					solution->evaluationContext.danger = danger;
 				
 				solution->evaluationContext.movementCost += path.movementCost();
+
+				logAi->trace("It's safe for %s to visit tile %s with danger %s, goal %s", hero->name, dest.toString(), std::to_string(danger), solution->name());
 
 				result.push_back(solution);
 
@@ -212,11 +212,15 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 				return sptr(Goals::VisitObj(topObj->id.getNum()).sethero(hero));
 			}
 
-			//TODO: we should be able to return apriopriate quest here
-			//ret.push_back(ai->questToGoal());
-			//however, visiting obj for firts time will give us quest
-			//do not access quets guard if we can't complete the quest
-			logAi->trace("Can not visit this quest guard! Not ready!");
+			auto questObj = dynamic_cast<const IQuestObject*>(topObj);
+			
+			if(questObj)
+			{
+				auto questInfo = QuestInfo(questObj->quest, topObj, topObj->visitablePos());
+
+				return sptr(Goals::CompleteQuest(questInfo));
+			}
+
 			return sptr(Goals::Invalid());
 		}
 	}

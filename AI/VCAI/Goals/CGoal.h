@@ -60,11 +60,13 @@ namespace Goals
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}
-		TSubgoal iAmElementar()
+		TSubgoal iAmElementar() const
 		{
-			setisElementar(true); //FIXME: it's not const-correct, maybe we shoudl only set returned clone?
 			TSubgoal ptr;
+
 			ptr.reset(clone());
+			ptr->setisElementar(true);
+
 			return ptr;
 		}
 		template<typename Handler> void serialize(Handler & h, const int version)
@@ -79,7 +81,7 @@ namespace Goals
 			if(goalType != g.goalType)
 				return false;
 
-			return (*this) == (dynamic_cast<const T &>(g));
+			return (*this) == (static_cast<const T &>(g));
 		}
 
 		virtual bool operator==(const T & other) const = 0;

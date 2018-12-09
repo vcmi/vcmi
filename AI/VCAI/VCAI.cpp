@@ -873,7 +873,7 @@ void VCAI::mainLoop()
 		basicGoals.push_back(ah->whatToDo());
 	for (auto quest : myCb->getMyQuests())
 	{
-		basicGoals.push_back(questToGoal(quest));
+		basicGoals.push_back(sptr(Goals::CompleteQuest(quest)));
 	}
 	basicGoals.push_back(sptr(Goals::Build()));
 
@@ -1013,11 +1013,13 @@ void VCAI::mainLoop()
 			//remove goals we couldn't decompose
 			for (auto goal : goalsToRemove)
 				vstd::erase_if_present(basicGoals, goal);
+			
 			//add abstract goals
 			boost::sort(goalsToAdd, [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 			{
 				return lhs->priority > rhs->priority; //highest priority at the beginning
 			});
+			
 			//max number of goals = 10
 			int i = 0;
 			while (basicGoals.size() < 10 && goalsToAdd.size() > i)
@@ -2432,170 +2434,6 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	}
 
 	return abstractGoal;
-}
-
-Goals::TSubgoal VCAI::questToGoal(const QuestInfo & q)
-{
-	Goals::TSubgoal result = sptr(Goals::Invalid());
-
-	if (q.quest->missionType && q.quest->progress != CQuest::COMPLETE)
-	{
-		MetaString ms;
-		q.quest->getRolloverText(ms, false);
-		logAi->debug("Trying to realize quest: %s", ms.toString());
-		auto heroes = cb->getHeroesInfo(); //TODO: choose best / free hero from among many possibilities?
-
-		switch (q.quest->missionType)
-		{
-		case CQuest::MISSION_ART:
-		{
-			for (auto hero : heroes)
-			{
-				if (q.quest->checkQuest(hero))
-				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
-				}
-			}
-			for (auto art : q.quest->m5arts)
-			{
-				return sptr(Goals::GetArtOfType(art)); //TODO: transport?
-			}
-			break;
-		}
-		case CQuest::MISSION_HERO:
-		{
-			//striveToGoal (CGoal(RECRUIT_HERO));
-			for (auto hero : heroes)
-			{
-				if (q.quest->checkQuest(hero))
-				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
-				}
-			}
-			return sptr(Goals::FindObj(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
-															 //BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
-		}
-		case CQuest::MISSION_ARMY:
-		{
-			for (auto hero : heroes)
-			{
-				if (q.quest->checkQuest(hero)) //very bad info - stacks can be split between multiple heroes :(
-				{
-					result = sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
-					break;
-				}
-			}
-
-			if(result->invalid())
-			{
-				for(auto creature : q.quest->m6creatures)
-				{
-					result = sptr(Goals::GatherTroops(creature.type->idNumber, creature.count));
-					break;
-				}
-			}
-			//TODO: exchange armies... oh my
-			//BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
-			break;
-		}
-		case CQuest::MISSION_RESOURCES:
-		{
-			if (heroes.size())
-			{
-				if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
-				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()));
-				}
-				else
-				{
-					for (int i = 0; i < q.quest->m7resources.size(); ++i)
-					{
-						if (q.quest->m7resources[i])
-							return sptr(Goals::CollectRes(i, q.quest->m7resources[i]));
-					}
-				}
-			}
-			else
-				return sptr(Goals::RecruitHero()); //FIXME: checkQuest requires any hero belonging to player :(
-			break;
-		}
-		case CQuest::MISSION_KILL_HERO:
-		case CQuest::MISSION_KILL_CREATURE:
-		{
-			auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
-
-			if(!obj)
-				return sptr(Goals::VisitObj(q.obj->id.getNum())); //visit seer hut
-
-			if(obj->ID == Obj::HERO)
-			{
-				auto relations = myCb->getPlayerRelations(playerID, obj->tempOwner);
-
-				if(relations == PlayerRelations::SAME_PLAYER)
-				{
-					auto heroToProtect = cb->getHero(obj->id);
-
-					return sptr(Goals::GatherArmy().sethero(heroToProtect));
-				}
-				else if(relations == PlayerRelations::ALLIES)
-				{
-					break;
-				}
-			}
-
-			return sptr(Goals::VisitObj(obj->id.getNum()));
-		}
-		case CQuest::MISSION_PRIMARY_STAT:
-		{
-			auto heroes = cb->getHeroesInfo();
-			for (auto hero : heroes)
-			{
-				if (q.quest->checkQuest(hero))
-				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero));
-				}
-			}
-			for (int i = 0; i < q.quest->m2stats.size(); ++i)
-			{
-				logAi->debug("Don't know how to increase primary stat %d", i);
-			}
-			break;
-		}
-		case CQuest::MISSION_LEVEL:
-		{
-			auto heroes = cb->getHeroesInfo();
-			for (auto hero : heroes)
-			{
-				if (q.quest->checkQuest(hero))
-				{
-					return sptr(Goals::VisitObj(q.obj->id.getNum()).sethero(hero)); //TODO: causes infinite loop :/
-				}
-			}
-			logAi->debug("Don't know how to reach hero level %d", q.quest->m13489val);
-			break;
-		}
-		case CQuest::MISSION_PLAYER:
-		{
-			if (playerID.getNum() != q.quest->m13489val)
-				logAi->debug("Can't be player of color %d", q.quest->m13489val);
-			break;
-		}
-		case CQuest::MISSION_KEYMASTER:
-		{
-			return sptr(Goals::FindObj(Obj::KEYMASTER, q.obj->subID));
-			break;
-		}
-		} //end of switch
-	}
-
-	logAi->trace(
-		"Returning %s, tile: %s, objid: %d, hero: %s", 
-		result->name(), 
-		result->tile.toString(), 
-		result->objid, 
-		result->hero.validAndSet() ? result->hero->name : "not specified");
-
-	return result;
 }
 
 void VCAI::performTypicalActions()

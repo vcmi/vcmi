@@ -82,6 +82,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 
 		heroNode.chainMask = 0;
 		heroNode.danger = 0;
+		heroNode.manaCost = 0;
 		heroNode.specialAction.reset();
 		heroNode.update(coord, layer, accessibility);
 	}
@@ -97,6 +98,12 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		dstNode->danger = srcNode->danger;
 		dstNode->action = destination.action;
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
+		dstNode->manaCost = srcNode->manaCost;
+		
+		if(dstNode->specialAction)
+		{
+			dstNode->specialAction->applyOnDestination(getHero(), destination, source, dstNode, srcNode);
+		}
 	});
 }
 
@@ -186,6 +193,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
+	auto initialPos = hero->visitablePos();
 
 	for(const AIPathNode & node : chains)
 	{
@@ -197,7 +205,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 		AIPath path;
 		const AIPathNode * current = &node;
 
-		while(current != nullptr)
+		while(current != nullptr && current->coord != initialPos)
 		{
 			AIPathNodeInfo pathNode;
 

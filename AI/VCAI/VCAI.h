@@ -210,7 +210,6 @@ public:
 	void setGoal(HeroPtr h, Goals::TSubgoal goal);
 	void evaluateGoal(HeroPtr h); //evaluates goal assigned to hero, if any
 	void completeGoal(Goals::TSubgoal goal); //safely removes goal from reserved hero
-	Goals::TSubgoal questToGoal(const QuestInfo & q);
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<uint32_t> movementCostLimit = boost::none);

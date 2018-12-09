@@ -15,16 +15,28 @@
 #include "../AIUtility.h"
 #include "../Goals/AbstractGoal.h"
 
+class AIPathNode;
+
 class ISpecialAction
 {
 public:
 	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const = 0;
+
+	virtual void applyOnDestination(
+		HeroPtr hero,
+		CDestinationNodeInfo & destination, 
+		const PathNodeInfo & source,
+		AIPathNode * dstMode,
+		const AIPathNode * srcNode) const
+	{
+	}
 };
 
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;
 	uint64_t danger;
+	uint32_t manaCost;
 	std::shared_ptr<const ISpecialAction> specialAction;
 };
 

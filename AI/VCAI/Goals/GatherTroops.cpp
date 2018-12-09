@@ -48,6 +48,8 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 
 TSubgoal GatherTroops::whatToDoToAchieve()
 {
+	logAi->trace("Entering GatherTroops::whatToDoToAchieve");
+
 	auto heroes = cb->getHeroesInfo(true);
 
 	for(auto hero : heroes)

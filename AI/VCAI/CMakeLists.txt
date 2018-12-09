@@ -29,6 +29,7 @@ set(VCAI_SRCS
 		Goals/GatherArmy.cpp
 		Goals/GatherTroops.cpp
 		Goals/BuyArmy.cpp
+		Goals/AdventureSpellCast.cpp
 		Goals/Win.cpp
 		Goals/VisitTile.cpp
 		Goals/VisitObj.cpp
@@ -41,6 +42,7 @@ set(VCAI_SRCS
 		Goals/DigAtTile.cpp
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
+		Goals/CompleteQuest.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -71,6 +73,7 @@ set(VCAI_HEADERS
 		Goals/GatherArmy.h
 		Goals/GatherTroops.h
 		Goals/BuyArmy.h
+		Goals/AdventureSpellCast.h
 		Goals/Win.h
 		Goals/VisitTile.h
 		Goals/VisitObj.h
@@ -83,6 +86,7 @@ set(VCAI_HEADERS
 		Goals/DigAtTile.h
 		Goals/GetArtOfType.h
 		Goals/FindObj.h
+		Goals/CompleteQuest.h
 		Goals/Goals.h
 		VCAI.h
 )

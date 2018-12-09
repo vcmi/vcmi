@@ -40,8 +40,6 @@ std::string AbstractGoal::name() const //TODO: virtualize
 		return "INVALID";
 	case WIN:
 		return "WIN";
-	case DO_NOT_LOSE:
-		return "DO NOT LOOSE";
 	case CONQUER:
 		return "CONQUER";
 	case BUILD:
@@ -95,8 +93,6 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	case GET_ART_TYPE:
 		desc = "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
 		break;
-	case ISSUE_COMMAND:
-		return "ISSUE COMMAND (unsupported)";
 	case VISIT_TILE:
 		desc = "VISIT TILE " + tile.toString();
 		break;
