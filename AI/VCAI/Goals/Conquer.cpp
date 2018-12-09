@@ -33,6 +33,8 @@ bool Conquer::operator==(const Conquer & other) const
 
 TSubgoal Conquer::whatToDoToAchieve()
 {
+	logAi->trace("Entering goal CONQUER");
+
 	return fh->chooseSolution(getAllPossibleSubgoals());
 }
 

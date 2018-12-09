@@ -16,20 +16,82 @@
 
 namespace AIPathfinding
 {
-	class BuildBoatAction : public ISpecialAction
+	class VirtualBoatAction : public ISpecialAction
+	{
+	private:
+		uint64_t specialChain;
+
+	public:
+		VirtualBoatAction(uint64_t specialChain)
+			:specialChain(specialChain)
+		{
+		}
+
+		uint64_t getSpecialChain() const
+		{
+			return specialChain;
+		}
+	};
+
+	class BuildBoatAction : public VirtualBoatAction
 	{
 	private:
 		const IShipyard * shipyard;
 
 	public:
 		BuildBoatAction(const IShipyard * shipyard)
-			:shipyard(shipyard)
+			:VirtualBoatAction(AINodeStorage::RESOURCE_CHAIN), shipyard(shipyard)
 		{
 		}
 
 		virtual Goals::TSubgoal whatToDo(HeroPtr hero) const override
 		{
 			return sptr(Goals::BuildBoat(shipyard));
+		}
+	};
+
+	class SummonBoatAction : public VirtualBoatAction
+	{
+	public:
+		SummonBoatAction()
+			:VirtualBoatAction(AINodeStorage::CAST_CHAIN)
+		{
+		}
+
+		virtual Goals::TSubgoal whatToDo(HeroPtr hero) const override
+		{
+			return sptr(Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT));
+		}
+
+		virtual void applyOnDestination(
+			HeroPtr hero,
+			CDestinationNodeInfo & destination,
+			const PathNodeInfo & source,
+			AIPathNode * dstMode,
+			const AIPathNode * srcNode) const override
+		{
+			dstMode->manaCost = srcNode->manaCost + getManaCost(hero);
+			dstMode->theNodeBefore = source.node;
+		}
+
+		bool isAffordableBy(HeroPtr hero, const AIPathNode * source) const
+		{
+			logAi->trace(
+				"Hero %s has %d mana and needed %d and already spent %d", 
+				hero->name, 
+				hero->mana, 
+				getManaCost(hero),
+				source->manaCost);
+
+			return hero->mana >= source->manaCost + getManaCost(hero);
+		}
+
+	private:
+		uint32_t getManaCost(HeroPtr hero) const
+		{
+			SpellID summonBoat = SpellID::SUMMON_BOAT;
+
+			return hero->getSpellCost(summonBoat.toSpell());
 		}
 	};
 
@@ -58,6 +120,7 @@ namespace AIPathfinding
 		VCAI * ai;
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
+		std::shared_ptr<const SummonBoatAction> summonableVirtualBoat;
 
 	public:
 		AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, VCAI * ai, std::shared_ptr<AINodeStorage> nodeStorage)
@@ -79,37 +142,14 @@ namespace AIPathfinding
 				return;
 			}
 
-			if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::SAIL
-				&& vstd::contains(virtualBoats, destination.coord))
+			if(source.node->layer == EPathfindingLayer::LAND && destination.node->layer == EPathfindingLayer::SAIL)
 			{
-				logAi->trace("Bypassing virtual boat at %s!", destination.coord.toString());
+				std::shared_ptr<const VirtualBoatAction> virtualBoat = findVirtualBoat(destination, source);
 
-				nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+				if(virtualBoat && tryEmbarkVirtualBoat(destination, source, virtualBoat))
 				{
-					std::shared_ptr<const BuildBoatAction> virtualBoat = virtualBoats.at(destination.coord);
-
-					auto boatNodeOptional = nodeStorage->getOrCreateNode(
-						node->coord,
-						node->layer,
-						node->chainMask | AINodeStorage::RESOURCE_CHAIN);
-
-					if(boatNodeOptional)
-					{
-						AIPathNode * boatNode = boatNodeOptional.get();
-
-						boatNode->specialAction = virtualBoat;
-						destination.blocked = false;
-						destination.action = CGPathNode::ENodeAction::EMBARK;
-						destination.node = boatNode;
-					}
-					else
-					{
-						logAi->trace(
-							"Can not allocate boat node while moving %s -> %s",
-							source.coord.toString(),
-							destination.coord.toString());
-					}
-				});
+					logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
+				}
 			}
 		}
 
@@ -142,6 +182,84 @@ namespace AIPathfinding
 					logAi->debug("Virtual boat added at %s", boatLocation.toString());
 				}
 			}
+
+			auto hero = nodeStorage->getHero();
+
+			if(vstd::contains(hero->spells, SpellID::SUMMON_BOAT))
+			{
+				auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
+
+				if(hero->getSpellSchoolLevel(summonBoatSpell) == SecSkillLevel::EXPERT)
+				{
+					summonableVirtualBoat.reset(new SummonBoatAction());
+				}
+			}
+		}
+
+		std::shared_ptr<const VirtualBoatAction> findVirtualBoat(
+			CDestinationNodeInfo &destination,
+			const PathNodeInfo &source) const
+		{
+			std::shared_ptr<const VirtualBoatAction> virtualBoat;
+
+			if(vstd::contains(virtualBoats, destination.coord))
+			{
+				virtualBoat = virtualBoats.at(destination.coord);
+			}
+			else if(
+				summonableVirtualBoat
+				&& summonableVirtualBoat->isAffordableBy(nodeStorage->getHero(), nodeStorage->getAINode(source.node)))
+			{
+				virtualBoat = summonableVirtualBoat;
+			}
+
+			return virtualBoat;
+		}
+
+		bool tryEmbarkVirtualBoat(
+			CDestinationNodeInfo &destination, 
+			const PathNodeInfo &source,
+			std::shared_ptr<const VirtualBoatAction> virtualBoat) const
+		{
+			bool result = false;
+
+			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+			{
+				auto boatNodeOptional = nodeStorage->getOrCreateNode(
+					node->coord,
+					node->layer,
+					node->chainMask | virtualBoat->getSpecialChain());
+
+				if(boatNodeOptional)
+				{
+					AIPathNode * boatNode = boatNodeOptional.get();
+
+					if(boatNode->action == CGPathNode::NOT_SET)
+					{
+						boatNode->specialAction = virtualBoat;
+						destination.blocked = false;
+						destination.action = CGPathNode::ENodeAction::EMBARK;
+						destination.node = boatNode;
+						result = true;
+					}
+					else
+					{
+						logAi->trace(
+							"Special transition node already allocated. Blocked moving %s -> %s",
+							source.coord.toString(),
+							destination.coord.toString());
+					}
+				}
+				else
+				{
+					logAi->trace(
+						"Can not allocate special transition node while moving %s -> %s",
+						source.coord.toString(),
+						destination.coord.toString());
+				}
+			});
+
+			return result;
 		}
 	};
 

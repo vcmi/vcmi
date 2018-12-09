@@ -93,6 +93,19 @@ float FuzzyHelper::evaluate(Goals::BuildBoat & g)
 	return g.parent->accept(this) - buildBoatPenalty;
 }
 
+float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
+{
+	// TODO: How to evaluate quest complexity?
+	const float questPenalty = 0.2;
+
+	if(!g.parent)
+	{
+		return 0;
+	}
+
+	return g.parent->accept(this) * questPenalty;
+}
+
 float FuzzyHelper::evaluate(Goals::VisitObj & g)
 {
 	return visitObjEngine.evaluate(g);

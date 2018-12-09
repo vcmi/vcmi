@@ -37,6 +37,35 @@ namespace Goals
 	class ClearWayTo;
 	class Invalid;
 	class Trade;
+	class CompleteQuest;
+	class AdventureSpellCast;
+
+	enum EGoals
+	{
+		INVALID = -1,
+		WIN, CONQUER, BUILD, //build needs to get a real reasoning
+		EXPLORE, GATHER_ARMY,
+		BOOST_HERO,
+		RECRUIT_HERO,
+		BUILD_STRUCTURE, //if hero set, then in visited town
+		COLLECT_RES,
+		GATHER_TROOPS, // val of creatures with objid
+
+		VISIT_OBJ, //visit or defeat or collect the object
+		FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
+		VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
+
+		GET_ART_TYPE,
+
+		VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
+		CLEAR_WAY_TO,
+		DIG_AT_TILE,//elementar with hero on tile
+		BUY_ARMY, //at specific town
+		TRADE, //val resID at object objid
+		BUILD_BOAT,
+		COMPLETE_QUEST,
+		ADVENTURE_SPELL_CAST
+	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
 	{
@@ -47,35 +76,6 @@ namespace Goals
 	};
 
 	typedef std::vector<TSubgoal> TGoalVec;
-
-	enum EGoals
-	{
-		INVALID = -1,
-		WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
-		EXPLORE, GATHER_ARMY,
-		BOOST_HERO,
-		RECRUIT_HERO,
-		BUILD_STRUCTURE, //if hero set, then in visited town
-		COLLECT_RES,
-		GATHER_TROOPS, // val of creatures with objid
-
-		OBJECT_GOALS_BEGIN,
-		VISIT_OBJ, //visit or defeat or collect the object
-		FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
-		VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
-
-		GET_ART_TYPE,
-
-		//BUILD_STRUCTURE,
-		ISSUE_COMMAND,
-
-		VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
-		CLEAR_WAY_TO,
-		DIG_AT_TILE,//elementar with hero on tile
-		BUY_ARMY, //at specific town
-		TRADE, //val resID at object objid
-		BUILD_BOAT
-	};
 
 	//method chaining + clone pattern
 #define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
