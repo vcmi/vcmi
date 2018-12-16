@@ -214,10 +214,10 @@ namespace AIPathfinding
 				auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
 				if(guardsAlreadyBypassed && nodeStorage->isBattleNode(source.node))
 				{
-					logAi->trace(
-						"Bypass guard at destination while moving %s -> %s",
-						source.coord.toString(),
-						destination.coord.toString());
+					//logAi->trace(
+					//	"Bypass guard at destination while moving %s -> %s",
+					//	source.coord.toString(),
+					//	destination.coord.toString());
 
 					return;
 				}
@@ -230,10 +230,10 @@ namespace AIPathfinding
 
 				if(!battleNodeOptional)
 				{
-					logAi->trace(
-						"Can not allocate battle node while moving %s -> %s",
-						source.coord.toString(),
-						destination.coord.toString());
+					//logAi->trace(
+					//	"Can not allocate battle node while moving %s -> %s",
+					//	source.coord.toString(),
+					//	destination.coord.toString());
 
 					destination.blocked = true;
 
@@ -244,10 +244,10 @@ namespace AIPathfinding
 
 				if(battleNode->locked)
 				{
-					logAi->trace(
-						"Block bypass guard at destination while moving %s -> %s",
-						source.coord.toString(),
-						destination.coord.toString());
+					//logAi->trace(
+					//	"Block bypass guard at destination while moving %s -> %s",
+					//	source.coord.toString(),
+					//	destination.coord.toString());
 
 					destination.blocked = true;
 
@@ -267,11 +267,11 @@ namespace AIPathfinding
 
 				battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 
-				logAi->trace(
-					"Begin bypass guard at destination with danger %s while moving %s -> %s",
-					std::to_string(danger),
-					source.coord.toString(),
-					destination.coord.toString());
+				//logAi->trace(
+				//	"Begin bypass guard at destination with danger %s while moving %s -> %s",
+				//	std::to_string(danger),
+				//	source.coord.toString(),
+				//	destination.coord.toString());
 
 				return;
 			}
@@ -312,10 +312,10 @@ namespace AIPathfinding
 
 			if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->isBattleNode(source.node))
 			{
-				logAi->trace(
-					"Bypass src guard while moving from %s to %s",
-					source.coord.toString(),
-					destination.coord.toString());
+				//logAi->trace(
+				//	"Bypass src guard while moving from %s to %s",
+				//	source.coord.toString(),
+				//	destination.coord.toString());
 
 				return;
 			}
@@ -347,10 +347,10 @@ namespace AIPathfinding
 				// we can not directly bypass objects, we need to interact with them first
 				destination.node->theNodeBefore = source.node;
 
-				logAi->trace(
-					"Link src node %s to destination node %s while bypassing visitable obj",
-					source.coord.toString(),
-					destination.coord.toString());
+				//logAi->trace(
+				//	"Link src node %s to destination node %s while bypassing visitable obj",
+				//	source.coord.toString(),
+				//	destination.coord.toString());
 
 				return;
 			}
