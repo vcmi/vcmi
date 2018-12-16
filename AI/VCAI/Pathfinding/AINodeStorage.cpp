@@ -106,6 +106,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
+	neighbours.reserve(16);
 	const AIPathNode * srcNode = getAINode(source.node);
 	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
 

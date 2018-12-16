@@ -31,6 +31,7 @@ std::vector<CGPathNode *> NodeStorage::calculateNeighbours(
 	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
+	neighbours.reserve(16);
 	auto accessibleNeighbourTiles = pathfinderHelper->getNeighbourTiles(source);
 
 	for(auto & neighbour : accessibleNeighbourTiles)
@@ -70,6 +71,7 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 std::vector<int3> CPathfinderHelper::getNeighbourTiles(const PathNodeInfo & source) const
 {
 	std::vector<int3> neighbourTiles;
+	neighbourTiles.reserve(16);
 
 	getNeighbours(
 		*source.tile,

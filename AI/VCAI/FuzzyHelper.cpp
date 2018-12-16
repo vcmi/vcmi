@@ -47,12 +47,12 @@ Goals::TSubgoal FuzzyHelper::chooseSolution(Goals::TGoalVec vec)
 
 	for(auto goal : vec)
 	{
-		logAi->debug("FuzzyHelper evaluated goal %s, priority=%i", goal->name(), goal->priority);
+		logAi->trace("FuzzyHelper evaluated goal %s, priority=%.4f", goal->name(), goal->priority);
 	}
 
 	Goals::TSubgoal result = *boost::max_element(vec, compareGoals);
 
-	logAi->debug("FuzzyHelper returned goal %s, priority=%i", result->name(), result->priority);
+	logAi->debug("FuzzyHelper returned goal %s, priority=%.4f", result->name(), result->priority);
 
 	return result;
 }
