@@ -1020,6 +1020,36 @@ bool CGHeroInstance::hasSpellbook() const
 	return getArt(ArtifactPosition::SPELLBOOK);
 }
 
+void CGHeroInstance::addSpellToSpellbook(SpellID spell)
+{
+	spells.insert(spell);
+}
+
+void CGHeroInstance::removeSpellFromSpellbook(SpellID spell)
+{
+	spells.erase(spell);
+}
+
+bool CGHeroInstance::spellbookContainsSpell(SpellID spell) const
+{
+	return vstd::contains(spells, spell);
+}
+
+void CGHeroInstance::removeSpellbook()
+{
+	spells.clear();
+
+	if(hasSpellbook())
+	{
+		ArtifactLocation(this, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
+	}
+}
+
+const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
+{
+	return spells;
+}
+
 int CGHeroInstance::maxSpellLevel() const
 {
 	return std::min(GameConstants::SPELL_LEVELS, 2 + valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::WISDOM)));

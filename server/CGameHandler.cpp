@@ -700,7 +700,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		{
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			for (const CSpell *sp : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
-				if (sp->level <= eagleEyeLevel && !vstd::contains(finishingBattle->winnerHero->spells, sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
+				if (sp->level <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
 					cs.spells.insert(sp->id);
 		}
 	}
@@ -2087,7 +2087,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 		{
 			for (int j = 0; j < t->spellsAtLevel(i+1, true) && j < t->spells.at(i).size(); j++)
 			{
-				if (!vstd::contains(h->spells, t->spells.at(i).at(j)))
+				if (!h->spellbookContainsSpell(t->spells.at(i).at(j)))
 					cs.spells.insert(t->spells.at(i).at(j));
 			}
 		}
@@ -2612,16 +2612,16 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 	ChangeSpells cs1;
 	cs1.learn = true;
 	cs1.hid = toHero;//giving spells to first hero
-	for (auto it : h1->spells)
-		if (h2Lvl >= it.toSpell()->level && !vstd::contains(h2->spells, it))//hero can learn it and don't have it yet
+	for (auto it : h1->getSpellsInSpellbook())
+		if (h2Lvl >= it.toSpell()->level && !h2->spellbookContainsSpell(it))//hero can learn it and don't have it yet
 			cs1.spells.insert(it);//spell to learn
 
 	ChangeSpells cs2;
 	cs2.learn = true;
 	cs2.hid = fromHero;
 
-	for (auto it : h2->spells)
-		if (h1Lvl >= it.toSpell()->level && !vstd::contains(h1->spells, it))
+	for (auto it : h2->getSpellsInSpellbook())
+		if (h1Lvl >= it.toSpell()->level && !h1->spellbookContainsSpell(it))
 			cs2.spells.insert(it);
 
 	if (!cs1.spells.empty() || !cs2.spells.empty())//create a message

@@ -1597,7 +1597,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
-	else if(vstd::contains(h->spells,spell))//hero already knows the spell
+	else if(h->spellbookContainsSpell(spell))//hero already knows the spell
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,174);
 	}
@@ -1649,7 +1649,7 @@ std::string CGShrine::getHoverText(PlayerColor player) const
 std::string CGShrine::getHoverText(const CGHeroInstance * hero) const
 {
 	std::string hoverName = getHoverText(hero->tempOwner);
-	if(wasVisited(hero->tempOwner) && vstd::contains(hero->spells, spell)) //know what spell there is and hero knows that spell
+	if(wasVisited(hero->tempOwner) && hero->spellbookContainsSpell(spell)) //know what spell there is and hero knows that spell
 		hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
 	return hoverName;
 }

@@ -251,7 +251,7 @@ TEST_F(CGameStateTest, battleResurrection)
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
 	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, true);
-	attacker->spells.insert(SpellID::RESURRECTION);
+	attacker->addSpellToSpellbook(SpellID::RESURRECTION);
 	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, true);
 	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, true);
 	attacker->mana = attacker->manaLimit();
