@@ -46,7 +46,7 @@ TSubgoal Explore::whatToDoToAchieve()
 	else
 	{
 		if(ret->hero.get(true))
-			return sptr(sethero(ret->hero.h).setisAbstract(true)); //choose this hero and then continue with him
+			return sptr(Explore().sethero(ret->hero.h)); //choose this hero and then continue with him
 		else
 			return ret; //other solutions, like buying hero from tavern
 	}

@@ -140,10 +140,10 @@ DLL_LINKAGE void ChangeSpells::applyGs(CGameState *gs)
 
 	if(learn)
 		for(auto sid : spells)
-			hero->spells.insert(sid);
+			hero->addSpellToSpellbook(sid);
 	else
 		for(auto sid : spells)
-			hero->spells.erase(sid);
+			hero->removeSpellFromSpellbook(sid);
 }
 
 DLL_LINKAGE void SetMana::applyGs(CGameState *gs)

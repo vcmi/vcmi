@@ -184,15 +184,13 @@ namespace AIPathfinding
 			}
 
 			auto hero = nodeStorage->getHero();
+			auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
 
-			if(vstd::contains(hero->spells, SpellID::SUMMON_BOAT))
+			if(hero->canCastThisSpell(summonBoatSpell)
+				&& hero->getSpellSchoolLevel(summonBoatSpell) >= SecSkillLevel::ADVANCED)
 			{
-				auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
-
-				if(hero->getSpellSchoolLevel(summonBoatSpell) == SecSkillLevel::EXPERT)
-				{
-					summonableVirtualBoat.reset(new SummonBoatAction());
-				}
+				// TODO: For lower school level we might need to check the existance of some boat
+				summonableVirtualBoat.reset(new SummonBoatAction());
 			}
 		}
 

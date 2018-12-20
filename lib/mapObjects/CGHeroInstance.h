@@ -41,6 +41,11 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 {
 	// We serialize heroes into JSON for crossover
 	friend class CCampaignState;
+	friend class CMapLoaderH3M;
+
+private:
+	std::set<SpellID> spells; //known spells (spell IDs)
+
 public:
 	//////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +77,6 @@ public:
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	std::set<SpellID> spells; //known spells (spell IDs)
 	std::set<ObjectInstanceID> visitedObjects;
 
 	struct DLL_LINKAGE Patrol
@@ -148,6 +152,11 @@ public:
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
+	void addSpellToSpellbook(SpellID spell);
+	void removeSpellFromSpellbook(SpellID spell);
+	bool spellbookContainsSpell(SpellID spell) const;
+	void removeSpellbook();
+	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const override;

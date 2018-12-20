@@ -1195,12 +1195,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 	{
 		for(CGHeroInstance * cgh : crossoverHeroes)
 		{
-			// Trimming spells
-			cgh->spells.clear();
-
-			// Spellbook will also be removed
-			if (cgh->hasSpellbook())
-				ArtifactLocation(cgh, ArtifactPosition(ArtifactPosition::SPELLBOOK)).removeArtifact();
+			cgh->removeSpellbook();
 		}
 	}
 
@@ -1469,7 +1464,7 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 		switch (curBonus->type)
 		{
 		case CScenarioTravel::STravelBonus::SPELL:
-			hero->spells.insert(SpellID(curBonus->info2));
+			hero->addSpellToSpellbook(SpellID(curBonus->info2));
 			break;
 		case CScenarioTravel::STravelBonus::MONSTER:
 			{

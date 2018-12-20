@@ -2404,7 +2404,6 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 	}
 
 	const int searchDepth = 30;
-	Goals::TSubgoal abstractGoal = sptr(Goals::Invalid());
 
 	Goals::TSubgoal goal = ultimateGoal;
 	logAi->debug("Decomposing goal %s", ultimateGoal->name());
@@ -2424,16 +2423,8 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 		else
 			logAi->debug("Considering: %s", goal->name());
 	}
-	if (maxGoals <= 0)
-	{
-		throw cannotFulfillGoalException("Too many subgoals, don't know what to do");
-	}
-	else
-	{
-		return goal;
-	}
 
-	return abstractGoal;
+	throw cannotFulfillGoalException("Too many subgoals, don't know what to do");
 }
 
 void VCAI::performTypicalActions()

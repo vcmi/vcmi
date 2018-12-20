@@ -38,10 +38,10 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(!spell->isAdventureSpell())
 		throw cannotFulfillGoalException(spell->name + " is not an adventure spell.");
 
-	if(!vstd::contains(hero->spells, spellID))
-		throw cannotFulfillGoalException("Hero has no " + spell->name);
+	if(!hero->canCastThisSpell(spell))
+		throw cannotFulfillGoalException("Hero can not cast " + spell->name);
 
-	if(hero->mana < hero->getSpellCost(spellID.toSpell()))
+	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->name);
 
 	return iAmElementar();
