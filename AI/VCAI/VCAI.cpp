@@ -1531,33 +1531,42 @@ void VCAI::wander(HeroPtr h)
 				vstd::concatenate(targetObjectGoals, ah->howToVisitObj(h, destination, false));
 			}
 
-			auto bestObjectGoal = fh->chooseSolution(targetObjectGoals);
-
-			//wander should not cause heroes to be reserved - they are always considered free
-			if(bestObjectGoal->goalType == Goals::VISIT_OBJ)
+			if(targetObjectGoals.size())
 			{
-				auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
-				if(chosenObject != nullptr)
-					logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+				auto bestObjectGoal = fh->chooseSolution(targetObjectGoals);
+
+				//wander should not cause heroes to be reserved - they are always considered free
+				if(bestObjectGoal->goalType == Goals::VISIT_OBJ)
+				{
+					auto chosenObject = cb->getObjInstance(ObjectInstanceID(bestObjectGoal->objid));
+					if(chosenObject != nullptr)
+						logAi->debug("Of all %d destinations, object %s at pos=%s seems nice", dests.size(), chosenObject->getObjectName(), chosenObject->pos.toString());
+				}
+				else
+					logAi->debug("Trying to realize goal of type %s as part of wandering.", bestObjectGoal->name());
+
+				try
+				{
+					decomposeGoal(bestObjectGoal)->accept(this);
+				}
+				catch(const goalFulfilledException & e)
+				{
+					if(e.goal->goalType == Goals::EGoals::VISIT_TILE || e.goal->goalType == Goals::EGoals::VISIT_OBJ)
+						continue;
+
+					throw e;
+				}
 			}
 			else
-				logAi->debug("Trying to realize goal of type %s as part of wandering.", bestObjectGoal->name());
-
-			try
 			{
-				decomposeGoal(bestObjectGoal)->accept(this);
-			}
-			catch(const goalFulfilledException & e)
-			{
-				if(e.goal->goalType == Goals::EGoals::VISIT_TILE || e.goal->goalType == Goals::EGoals::VISIT_OBJ)
-					continue;
-
-				throw e;
+				logAi->debug("Nowhere more to go...");
+				break;
 			}
 
 			visitTownIfAny(h);
 		}
 	}
+
 	visitTownIfAny(h); //in case hero is just sitting in town
 }
 
@@ -2470,154 +2479,6 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
-}
-
-int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
-{
-	std::map<int3, int> dstToRevealedTiles;
-
-	for(crint3 dir : int3::getDirs())
-	{
-		int3 tile = hpos + dir;
-		if(cb->isInTheMap(tile))
-		{
-			if(isBlockVisitObj(tile))
-				continue;
-
-			if(isSafeToVisit(h, tile) && isAccessibleForHero(tile, h))
-			{
-				auto distance = hpos.dist2d(tile); // diagonal movement opens more tiles but spends more mp
-				dstToRevealedTiles[tile] = howManyTilesWillBeDiscovered(tile, radius, cb.get(), h) / distance;
-			}
-		}
-	}
-
-	if(dstToRevealedTiles.empty()) //yes, it DID happen!
-		throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
-
-	auto best = dstToRevealedTiles.begin();
-	for(auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
-	{
-		const CGPathNode * pn = cb->getPathsInfo(h.get())->getPathInfo(i->first);
-		//const TerrainTile *t = cb->getTile(i->first);
-		if(best->second < i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
-			best = i;
-	}
-
-	if(best->second)
-		return best->first;
-
-	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
-}
-
-int3 VCAI::explorationNewPoint(HeroPtr h)
-{
-	int radius = h->getSightRadius();
-	CCallback * cbp = cb.get();
-	const CGHeroInstance * hero = h.get();
-
-	std::vector<std::vector<int3>> tiles; //tiles[distance_to_fow]
-	tiles.resize(radius);
-
-	foreach_tile_pos([&](const int3 & pos)
-	{
-		if(!cbp->isVisible(pos))
-			tiles[0].push_back(pos);
-	});
-
-	float bestValue = 0; //discovered tile to node distance ratio
-	int3 bestTile(-1, -1, -1);
-	int3 ourPos = h->convertPosition(h->pos, false);
-
-	for(int i = 1; i < radius; i++)
-	{
-		getVisibleNeighbours(tiles[i - 1], tiles[i]);
-		vstd::removeDuplicates(tiles[i]);
-
-		for(const int3 & tile : tiles[i])
-		{
-			if(tile == ourPos) //shouldn't happen, but it does
-				continue;
-			if(!cb->getPathsInfo(hero)->getPathInfo(tile)->reachable()) //this will remove tiles that are guarded by monsters (or removable objects)
-				continue;
-
-			CGPath path;
-			cb->getPathsInfo(hero)->getPath(path, tile);
-			float ourValue = (float)howManyTilesWillBeDiscovered(tile, radius, cbp, h) / (path.nodes.size() + 1); //+1 prevents erratic jumps
-
-			if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
-			{
-				auto obj = cb->getTopObj(tile);
-				if (obj)
-					if (obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on that object
-						continue;
-				if(isSafeToVisit(h, tile))
-				{
-					bestTile = tile;
-					bestValue = ourValue;
-				}
-			}
-		}
-	}
-	return bestTile;
-}
-
-int3 VCAI::explorationDesperate(HeroPtr h)
-{
-	int radius = h->getSightRadius();
-
-	std::vector<std::vector<int3>> tiles; //tiles[distance_to_fow]
-	tiles.resize(radius);
-
-	CCallback * cbp = cb.get();
-
-	foreach_tile_pos([&](const int3 & pos)
-	{
-		if(!cbp->isVisible(pos))
-			tiles[0].push_back(pos);
-	});
-
-	ui64 lowestDanger = -1;
-	int3 bestTile(-1, -1, -1);
-
-	for(int i = 1; i < radius; i++)
-	{
-		getVisibleNeighbours(tiles[i - 1], tiles[i]);
-		vstd::removeDuplicates(tiles[i]);
-
-		for(const int3 & tile : tiles[i])
-		{
-			if(cbp->getTile(tile)->blocked) //does it shorten the time?
-				continue;
-			if(!howManyTilesWillBeDiscovered(tile, radius, cbp, h)) //avoid costly checks of tiles that don't reveal much
-				continue;
-
-			auto paths = ah->getPathsToTile(h, tile);
-			for(auto path : paths)
-			{
-				auto t = path.firstTileToGet();
-
-				if(t == bestTile)
-					continue;
-
-				auto obj = cb->getTopObj(t);
-				if (obj)
-					if (obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on object or remove it
-						continue;
-
-				ui64 ourDanger = path.getTotalDanger(h);
-				if(ourDanger < lowestDanger)
-				{
-					if(!ourDanger) //at least one safe place found
-						return t;
-
-					bestTile = t;
-					lowestDanger = ourDanger;
-				}
-			}
-		}
-	}
-	return bestTile;
 }
 
 void VCAI::checkHeroArmy(HeroPtr h)

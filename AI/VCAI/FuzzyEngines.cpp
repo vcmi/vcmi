@@ -318,8 +318,15 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 {
 	float turns = calculateTurnDistanceInputValue(goal);
 	float missionImportanceData = 0;
+
 	if(vstd::contains(ai->lockedHeroes, goal.hero))
+	{
 		missionImportanceData = ai->lockedHeroes[goal.hero]->priority;
+	}
+	else if(goal.parent)
+	{
+		missionImportanceData = goal.parent->priority;
+	}
 
 	float strengthRatioData = 10.0f; //we are much stronger than enemy
 	ui64 danger = evaluateDanger(goal.tile, goal.hero.h);
@@ -410,6 +417,9 @@ VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that
 
 float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 {
+	// for now any visit tile is usually much more in priority then visit obj so lets reduce it
+	const int scale = 2;
+
 	//we assume that hero is already set and we want to choose most suitable one for the mission
 	if(!goal.hero)
 		return 0;
@@ -421,7 +431,8 @@ float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 	try
 	{
 		engine.process();
-		goal.priority = value->getValue();
+
+		goal.priority = value->getValue() / scale;
 	}
 	catch(fl::Exception & fe)
 	{

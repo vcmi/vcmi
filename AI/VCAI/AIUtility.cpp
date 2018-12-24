@@ -403,46 +403,6 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	return false;
 }
 
-int3 whereToExplore(HeroPtr h)
-{
-	TimeCheck tc("where to explore");
-	int radius = h->getSightRadius();
-	int3 hpos = h->visitablePos();
-
-	//look for nearby objs -> visit them if they're close enouh
-	const int DIST_LIMIT = 3;
-	const int MP_LIMIT = DIST_LIMIT * 150; // aproximate cost of diagonal movement
-
-	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
-	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
-	{
-		for(int y = hpos.y - DIST_LIMIT; y <= hpos.y + DIST_LIMIT; ++y)
-		{
-			for(auto obj : cb->getVisitableObjs(int3(x, y, hpos.z), false))
-			{
-				if(ai->isGoodForVisit(obj, h, MP_LIMIT))
-				{
-					nearbyVisitableObjs.push_back(obj);
-				}
-			}
-		}
-	}
-	vstd::removeDuplicates(nearbyVisitableObjs); //one object may occupy multiple tiles
-	boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
-	if(nearbyVisitableObjs.size())
-		return nearbyVisitableObjs.back()->visitablePos();
-
-	try //check if nearby tiles allow us to reveal anything - this is quick
-	{
-		return ai->explorationBestNeighbour(hpos, radius, h);
-	}
-	catch(cannotFulfillGoalException & e)
-	{
-		//perform exhaustive search
-		return ai->explorationNewPoint(h);
-	}
-}
-
 bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should be handled by pathfinder
 {
 	if(cb->getTile(tileToHit)->topVisitableId() != Obj::BORDER_GATE)
@@ -459,51 +419,6 @@ bool isBlockVisitObj(const int3 & pos)
 	}
 
 	return false;
-}
-
-bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp)
-{
-	for(crint3 dir : int3::getDirs())
-	{
-		int3 tile = pos + dir;
-		if(cbp->isInTheMap(tile) && cbp->getPathsInfo(hero.get())->getPathInfo(tile)->reachable())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, HeroPtr hero)
-{
-	int ret = 0;
-	for(int x = pos.x - radious; x <= pos.x + radious; x++)
-	{
-		for(int y = pos.y - radious; y <= pos.y + radious; y++)
-		{
-			int3 npos = int3(x, y, pos.z);
-			if(cbp->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious && !cbp->isVisible(npos))
-			{
-				if(hasReachableNeighbor(npos, hero, cbp))
-					ret++;
-			}
-		}
-	}
-
-	return ret;
-}
-
-void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out)
-{
-	for(const int3 & tile : tiles)
-	{
-		foreach_neighbour(tile, [&](int3 neighbour)
-		{
-			if(cb->isVisible(neighbour))
-				out.push_back(neighbour);
-		});
-	}
 }
 
 creInfo infoFromDC(const dwellingContent & dc)

@@ -36,5 +36,18 @@ namespace Goals
 		std::string completeMessage() const override;
 		bool fulfillsMe(TSubgoal goal) override;
 		virtual bool operator==(const Explore & other) const override;
+
+	private:
+		TSubgoal howToExplore(HeroPtr h) const;
+		TSubgoal explorationNewPoint(HeroPtr h) const;
+		TSubgoal explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) const;
+		bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp, VCAI * vcai) const;
+		void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out, CCallback * cbp) const;
+		int howManyTilesWillBeDiscovered(
+			const int3 & pos,
+			int radious,
+			CCallback * cbp,
+			HeroPtr hero, 
+			std::function<bool(const int3 &)> filter) const;
 	};
 }
