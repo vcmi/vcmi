@@ -823,6 +823,7 @@ void VCAI::makeTurn()
 	}
 	markHeroAbleToExplore(primaryHero());
 	visitedHeroes.clear();
+	ai->ah->resetPaths();
 
 	try
 	{
@@ -1006,6 +1007,9 @@ void VCAI::mainLoop()
 				//erase base goal if we failed to execute decomposed goal
 				for (auto basicGoal : ultimateGoalsFromBasic[goalToRealize])
 					goalsToRemove.push_back(basicGoal);
+
+				// sometimes resource manager contains an elementar goal which is not able to execute anymore and just fails each turn.
+				ai->ah->notifyGoalCompleted(goalToRealize);
 
 				//we failed to realize best goal, but maybe others are still possible?
 			}
@@ -2055,6 +2059,10 @@ void VCAI::tryRealize(Goals::RecruitHero & g)
 		recruitHero(t, true);
 		//TODO try to free way to blocked town
 		//TODO: adventure map tavern or prison?
+	}
+	else
+	{
+		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
 }
 
