@@ -189,6 +189,23 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	return false;
 }
 
+bool AINodeStorage::isTileAccessible(int3 pos, const EPathfindingLayer layer) const
+{
+	std::vector<AIPath> paths;
+	auto chains = nodes[pos.x][pos.y][pos.z][layer];
+	auto initialPos = hero->visitablePos();
+
+	for(const AIPathNode & node : chains)
+	{
+		if(node.action != CGPathNode::ENodeAction::UNKNOWN)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;

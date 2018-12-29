@@ -26,6 +26,7 @@ public:
 	virtual Goals::TGoalVec howToVisitTile(int3 tile) = 0;
 	virtual Goals::TGoalVec howToVisitObj(ObjectIdRef obj) = 0;
 	virtual std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) = 0;
+	virtual bool isTileAccessible(HeroPtr hero, int3 tile) = 0;
 };
 	
 class PathfindingManager : public IPathfindingManager
@@ -46,6 +47,7 @@ public:
 	Goals::TGoalVec howToVisitTile(int3 tile) override;
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) override;
 	std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) override;
+	bool isTileAccessible(HeroPtr hero, int3 tile) override;
 	void resetPaths() override;
 
 private:

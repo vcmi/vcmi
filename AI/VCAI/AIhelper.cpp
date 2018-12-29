@@ -148,6 +148,11 @@ std::vector<AIPath> AIhelper::getPathsToTile(HeroPtr hero, int3 tile)
 	return pathfindingManager->getPathsToTile(hero, tile);
 }
 
+bool AIhelper::isTileAccessible(HeroPtr hero, int3 tile)
+{
+	return pathfindingManager->isTileAccessible(hero, tile);
+}
+
 void AIhelper::resetPaths()
 {
 	pathfindingManager->resetPaths();

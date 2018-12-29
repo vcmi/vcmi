@@ -28,6 +28,16 @@ void AIPathfinder::clear()
 	storageMap.clear();
 }
 
+bool AIPathfinder::isTileAccessible(HeroPtr hero, int3 tile)
+{
+	boost::unique_lock<boost::mutex> storageLock(storageMutex);
+
+	std::shared_ptr<AINodeStorage> nodeStorage = getOrCreateStorage(hero);
+
+	return nodeStorage->isTileAccessible(tile, EPathfindingLayer::LAND)
+		|| nodeStorage->isTileAccessible(tile, EPathfindingLayer::SAIL);
+}
+
 void AIPathfinder::init()
 {
 	boost::unique_lock<boost::mutex> storageLock(storageMutex);
@@ -38,6 +48,21 @@ void AIPathfinder::init()
 std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 {
 	boost::unique_lock<boost::mutex> storageLock(storageMutex);
+
+	std::shared_ptr<AINodeStorage> nodeStorage = getOrCreateStorage(hero);
+
+	const TerrainTile * tileInfo = cb->getTile(tile, false);
+
+	if(!tileInfo)
+	{
+		return std::vector<AIPath>();
+	}
+
+	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
+}
+
+std::shared_ptr<AINodeStorage> AIPathfinder::getOrCreateStorage(HeroPtr hero)
+{
 	std::shared_ptr<AINodeStorage> nodeStorage;
 
 	if(!vstd::contains(storageMap, hero))
@@ -56,7 +81,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 
 		storageMap[hero] = nodeStorage;
 		nodeStorage->setHero(hero.get());
-		
+
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
 		cb->calculatePaths(config, hero.get());
@@ -66,12 +91,6 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 		nodeStorage = storageMap.at(hero);
 	}
 
-	const TerrainTile * tileInfo = cb->getTile(tile, false);
-
-	if(!tileInfo)
-	{
-		return std::vector<AIPath>();
-	}
-
-	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
+	return nodeStorage;
 }
+
