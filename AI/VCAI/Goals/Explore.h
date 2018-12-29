@@ -42,12 +42,19 @@ namespace Goals
 		TSubgoal explorationNewPoint(HeroPtr h) const;
 		TSubgoal explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) const;
 		bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp, VCAI * vcai) const;
-		void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out, CCallback * cbp) const;
+
+		void getVisibleNeighbours(
+			const std::vector<int3> & tiles, 
+			std::vector<int3> & out, 
+			CCallback * cbp, 
+			const TeamState * ts) const;
+
 		int howManyTilesWillBeDiscovered(
 			const int3 & pos,
 			int radious,
 			CCallback * cbp,
-			HeroPtr hero, 
-			std::function<bool(const int3 &)> filter) const;
+			const TeamState * ts,
+			VCAI * aip,
+			HeroPtr h) const;
 	};
 }

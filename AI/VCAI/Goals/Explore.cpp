@@ -18,6 +18,7 @@
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
+#include "../../../lib/CPlayerState.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -175,9 +176,10 @@ bool Explore::hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cb
 		int3 tile = pos + dir;
 		if(cbp->isInTheMap(tile))
 		{
-			auto paths = vcai->ah->getPathsToTile(hero, tile);
+			auto isAccessible = vcai->ah->isTileAccessible(hero, tile);
 
-			return paths.size();
+			if(isAccessible)
+				return true;
 		}
 	}
 
@@ -188,8 +190,9 @@ int Explore::howManyTilesWillBeDiscovered(
 	const int3 & pos, 
 	int radious, 
 	CCallback * cbp, 
-	HeroPtr hero, 
-	std::function<bool (const int3 &)> filter) const
+	const TeamState * ts,
+	VCAI * aip,
+	HeroPtr h) const
 {
 	int ret = 0;
 	for(int x = pos.x - radious; x <= pos.x + radious; x++)
@@ -199,8 +202,8 @@ int Explore::howManyTilesWillBeDiscovered(
 			int3 npos = int3(x, y, pos.z);
 			if(cbp->isInTheMap(npos) 
 				&& pos.dist2d(npos) - 0.5 < radious 
-				&& !cbp->isVisible(npos)
-				&& filter(npos))
+				&& !ts->fogOfWarMap[npos.x][npos.y][npos.z]
+				&& hasReachableNeighbor(npos, h, cbp, aip))
 			{
 				ret++;
 			}
@@ -215,6 +218,7 @@ TSubgoal Explore::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) con
 	std::map<int3, int> dstToRevealedTiles;
 	VCAI * aip = ai.get();
 	CCallback * cbp = cb.get();
+	const TeamState * ts = cbp->getPlayerTeam(ai->playerID);
 
 	for(crint3 dir : int3::getDirs())
 	{
@@ -227,9 +231,7 @@ TSubgoal Explore::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) con
 			if(isSafeToVisit(h, tile) && ai->isAccessibleForHero(tile, h))
 			{
 				auto distance = hpos.dist2d(tile); // diagonal movement opens more tiles but spends more mp
-				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, h, [&](int3 neighbor) -> bool { 
-					return hasReachableNeighbor(neighbor, h, cbp, aip);
-				});
+				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, ts, aip, h);
 
 				dstToRevealedTiles[tile] = tilesDiscovered / distance;
 			}
@@ -259,6 +261,7 @@ TSubgoal Explore::explorationNewPoint(HeroPtr h) const
 	int radius = h->getSightRadius();
 	CCallback * cbp = cb.get();
 	VCAI *aip = ai.get();
+	const TeamState * ts = cbp->getPlayerTeam(aip->playerID);
 
 	std::vector<std::vector<int3>> tiles; //tiles[distance_to_fow]
 	tiles.resize(radius);
@@ -275,7 +278,7 @@ TSubgoal Explore::explorationNewPoint(HeroPtr h) const
 
 	for(int i = 1; i < radius; i++)
 	{
-		getVisibleNeighbours(tiles[i - 1], tiles[i], cbp);
+		getVisibleNeighbours(tiles[i - 1], tiles[i], cbp, ts);
 		vstd::removeDuplicates(tiles[i]);
 
 		for(const int3 & tile : tiles[i])
@@ -289,7 +292,7 @@ TSubgoal Explore::explorationNewPoint(HeroPtr h) const
 				if(goal->evaluationContext.movementCost == 0) // should not happen
 					continue;
 				
-				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, h, [](int3 neighbor) -> bool { return true; });
+				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, ts, aip, h);
 				float ourValue = (float) tilesDiscovered / goal->evaluationContext.movementCost; //+1 prevents erratic jumps
 
 				if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
@@ -368,17 +371,17 @@ TSubgoal Explore::howToExplore(HeroPtr h) const
 	return result;
 }
 
-void Explore::getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out, CCallback * cbp) const
+void Explore::getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out, CCallback * cbp, const TeamState * ts) const
 {
 	for(const int3 & tile : tiles)
 	{
-		foreach_neighbour(tile, [&](int3 neighbour)
+		foreach_neighbour(cbp, tile, [&](CCallback * cbp, int3 neighbour)
 		{
-			if(cbp->isVisible(neighbour))
+			if(ts->fogOfWarMap[neighbour.x][neighbour.y][neighbour.z])
 			{
-				auto tile = cbp->getTile(neighbour);
+				//auto tile = cbp->getTile(neighbour);
 
-				if(tile && !tile->blocked)
+				//if(tile && !tile->blocked)
 					out.push_back(neighbour);
 			}
 		});
