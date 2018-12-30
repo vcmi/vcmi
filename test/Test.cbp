@@ -61,6 +61,7 @@
 			<Add directory="../include" />
 			<Add directory="googletest/googletest" />
 			<Add directory="googletest/googlemock" />
+			<Add directory="../AI/FuzzyLite/fuzzylite" />
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />

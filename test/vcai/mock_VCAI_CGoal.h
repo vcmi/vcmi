@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../AI/VCAI/Goals.h"
+#include "../../AI/VCAI/Goals/Goals.h"
 
 namespace Goals
 {

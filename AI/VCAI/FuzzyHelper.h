@@ -12,7 +12,7 @@
 
 class CBank;
 
-class FuzzyHelper
+class DLL_EXPORT FuzzyHelper
 {
 public:
 	TacticalAdvantageEngine tacticalAdvantageEngine;
