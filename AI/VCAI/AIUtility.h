@@ -179,8 +179,8 @@ bool compareMovement(HeroPtr lhs, HeroPtr rhs);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
-ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t);
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t);
+ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t);
+ui64 howManyReinforcementsCanGet(const CArmedInstance * h, const CGTownInstance * t);
 int3 whereToExplore(HeroPtr h);
 uint32_t distanceToTile(const CGHeroInstance * hero, int3 pos);
 

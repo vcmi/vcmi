@@ -1456,12 +1456,13 @@ void VCAI::wander(HeroPtr h)
 
 			auto compareReinforcements = [h](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
 			{
-				auto r1 = howManyReinforcementsCanGet(h, lhs),
-					r2 = howManyReinforcementsCanGet(h, rhs);
+				const CGHeroInstance * hptr = h.get();
+				auto r1 = howManyReinforcementsCanGet(hptr, lhs),
+					r2 = howManyReinforcementsCanGet(hptr, rhs);
 				if (r1 != r2)
 					return r1 < r2;
 				else
-					return howManyReinforcementsCanBuy(h, lhs) < howManyReinforcementsCanBuy(h, rhs);
+					return howManyReinforcementsCanBuy(hptr, lhs) < howManyReinforcementsCanBuy(hptr, rhs);
 			};
 
 			std::vector<const CGTownInstance *> townsReachable;
@@ -2200,6 +2201,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value
 
+	makePossibleUpgrades(t);
+
 	while (valueBought < g.value)
 	{
 		auto res = ah->allResources();
@@ -2209,7 +2212,15 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 		{
 			auto ci = infoFromDC(t->creatures[i]);
 
-			if(!ci.count || ci.creID == -1 || (g.objid != -1 && ci.creID != g.objid))
+			if(!ci.count 
+				|| ci.creID == -1 
+				|| (g.objid != -1 && ci.creID != g.objid)
+				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
+				continue;
+
+			vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
+
+			if(!ci.count)
 				continue;
 
 			ci.level = i; //this is important for Dungeon Summoning Portal
@@ -2223,21 +2234,17 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			*boost::max_element(creaturesInDwellings, [&res](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->AIValue * (std::min(lhs.count, res / lhs.cre->cost)),
-				value2 = rhs.cre->AIValue * (std::min(rhs.count, res / rhs.cre->cost));
+			int value1 = lhs.cre->AIValue * lhs.count,
+				value2 = rhs.cre->AIValue * rhs.count;
 
 			return value1 < value2;
 		});
 
-		vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
-		if (ci.count > 0 && t->getUpperArmy()->getSlotFor(ci.creID) != SlotID())
-		{
-			cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
-			valueBought += ci.count * ci.cre->AIValue;
-		}
-		else
-			throw cannotFulfillGoalException("Can't buy any more creatures!");
+
+		cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
+		valueBought += ci.count * ci.cre->AIValue;
 	}
+
 	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
 }
 
