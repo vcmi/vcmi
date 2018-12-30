@@ -524,7 +524,8 @@ creInfo infoFromDC(const dwellingContent & dc)
 	return ci;
 }
 
-ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t)
+
+ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t)
 {
 	ui64 aivalue = 0;
 
@@ -552,7 +553,7 @@ ui64 howManyReinforcementsCanBuy(HeroPtr h, const CGDwelling * t)
 	return aivalue;
 }
 
-ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance * t)
+ui64 howManyReinforcementsCanGet(const CArmedInstance * h, const CGTownInstance * t)
 {
 	ui64 ret = 0;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();

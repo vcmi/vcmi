@@ -64,7 +64,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		if(ai->isAccessibleForHero(pos, hero))
 		{
 			//grab army from town
-			if(!t->visitingHero && howManyReinforcementsCanGet(hero, t))
+			if(!t->visitingHero && howManyReinforcementsCanGet(hero.get(), t))
 			{
 				if(!vstd::contains(ai->townVisitsThisWeek[hero], t))
 					ret.push_back(sptr(VisitTile(pos).sethero(hero)));
@@ -72,10 +72,23 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			//buy army in town
 			if (!t->visitingHero || t->visitingHero == hero.get(true))
 			{
-				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, t));
+				std::vector<int> values = {
+					value,
+					(int)howManyReinforcementsCanBuy(t->getUpperArmy(), t),
+					(int)howManyReinforcementsCanBuy(hero.get(), t) };
+
+				int val = *std::min_element(values.begin(), values.end());
+
+				logAi->trace(
+					"Army value need %i, to hero %i, to town %i",
+					value,
+					(int)howManyReinforcementsCanBuy(hero.get(), t),
+					(int)howManyReinforcementsCanBuy(t->getUpperArmy(), t));
+
 				if (val)
 				{
 					auto goal = sptr(BuyArmy(t, val).sethero(hero));
+
 					if(!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 						ret.push_back(goal);
 					else
@@ -137,7 +150,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			{
 				auto dwelling = dynamic_cast<const CGDwelling *>(obj);
 
-				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero, dwelling));
+				ui32 val = std::min<ui32>(value, howManyReinforcementsCanBuy(hero.get(), dwelling));
 
 				if(val)
 				{
