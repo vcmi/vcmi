@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{276C3DB0-7A6B-4417-8E5C-322B08633AAC}</ProjectGuid>
     <RootNamespace>StupidAI</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -117,6 +117,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -144,12 +145,14 @@
     <ClCompile Include="FuzzyEngines.cpp" />
     <ClCompile Include="FuzzyHelper.cpp" />
     <ClCompile Include="Goals\AbstractGoal.cpp" />
+    <ClCompile Include="Goals\AdventureSpellCast.cpp" />
     <ClCompile Include="Goals\Build.cpp" />
     <ClCompile Include="Goals\BuildBoat.cpp" />
     <ClCompile Include="Goals\BuildThis.cpp" />
     <ClCompile Include="Goals\BuyArmy.cpp" />
     <ClCompile Include="Goals\ClearWayTo.cpp" />
     <ClCompile Include="Goals\CollectRes.cpp" />
+    <ClCompile Include="Goals\CompleteQuest.cpp" />
     <ClCompile Include="Goals\Conquer.cpp" />
     <ClCompile Include="Goals\DigAtTile.cpp" />
     <ClCompile Include="Goals\Explore.cpp" />
@@ -186,6 +189,7 @@
     <ClInclude Include="FuzzyEngines.h" />
     <ClInclude Include="FuzzyHelper.h" />
     <ClInclude Include="Goals\AbstractGoal.h" />
+    <ClInclude Include="Goals\AdventureSpellCast.h" />
     <ClInclude Include="Goals\Build.h" />
     <ClInclude Include="Goals\BuildBoat.h" />
     <ClInclude Include="Goals\BuildThis.h" />
@@ -193,6 +197,7 @@
     <ClInclude Include="Goals\CGoal.h" />
     <ClInclude Include="Goals\ClearWayTo.h" />
     <ClInclude Include="Goals\CollectRes.h" />
+    <ClInclude Include="Goals\CompleteQuest.h" />
     <ClInclude Include="Goals\Conquer.h" />
     <ClInclude Include="Goals\DigAtTile.h" />
     <ClInclude Include="Goals\Explore.h" />

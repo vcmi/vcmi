@@ -84,6 +84,12 @@
     <ClCompile Include="Goals\Win.cpp">
       <Filter>Goals</Filter>
     </ClCompile>
+    <ClCompile Include="Goals\CompleteQuest.cpp">
+      <Filter>Goals</Filter>
+    </ClCompile>
+    <ClCompile Include="Goals\AdventureSpellCast.cpp">
+      <Filter>Goals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIhelper.h" />
@@ -175,6 +181,12 @@
       <Filter>Goals</Filter>
     </ClInclude>
     <ClInclude Include="Goals\Win.h">
+      <Filter>Goals</Filter>
+    </ClInclude>
+    <ClInclude Include="Goals\CompleteQuest.h">
+      <Filter>Goals</Filter>
+    </ClInclude>
+    <ClInclude Include="Goals\AdventureSpellCast.h">
       <Filter>Goals</Filter>
     </ClInclude>
   </ItemGroup>
