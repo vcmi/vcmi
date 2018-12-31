@@ -418,37 +418,49 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	for(auto h : cb->getHeroesInfo())
 		unreserveObject(h, obj);
 
-
-	vstd::erase_if(lockedHeroes, [&](const std::pair<HeroPtr, Goals::TSubgoal> & x) -> bool
-	{
-		if((x.second->goalType == Goals::VISIT_OBJ) && (x.second->objid == obj->id.getNum()))
-			return true;
-		else
-			return false;
-	});
-
-	vstd::erase_if(ultimateGoalsFromBasic, [&](const std::pair<Goals::TSubgoal, Goals::TGoalVec> & x) -> bool
-	{
-		if((x.first->goalType == Goals::VISIT_OBJ) && (x.first->objid == obj->id.getNum()))
-			return true;
-		else
-			return false;
-	});
-
-	auto goalErasePredicate = [&](const Goals::TSubgoal & x) ->bool
+	std::function<bool(const Goals::TSubgoal &)> checkRemovalValidity = [&](const Goals::TSubgoal & x) -> bool
 	{
 		if((x->goalType == Goals::VISIT_OBJ) && (x->objid == obj->id.getNum()))
+			return true;
+		else if(x->parent && checkRemovalValidity(x->parent)) //repeat this lambda check recursively on parent goal
 			return true;
 		else
 			return false;
 	};
 
-	vstd::erase_if(basicGoals, goalErasePredicate);
-	vstd::erase_if(goalsToAdd, goalErasePredicate);
-	vstd::erase_if(goalsToRemove, goalErasePredicate);
+	//clear VCAI / main loop caches
+	vstd::erase_if(lockedHeroes, [&](const std::pair<HeroPtr, Goals::TSubgoal> & x) -> bool
+	{
+		return checkRemovalValidity(x.second);
+	});
+
+	vstd::erase_if(ultimateGoalsFromBasic, [&](const std::pair<Goals::TSubgoal, Goals::TGoalVec> & x) -> bool
+	{
+		return checkRemovalValidity(x.first);
+	});
+
+	vstd::erase_if(basicGoals, checkRemovalValidity);
+	vstd::erase_if(goalsToAdd, checkRemovalValidity);
+	vstd::erase_if(goalsToRemove, checkRemovalValidity);
 
 	for(auto goal : ultimateGoalsFromBasic)
-		vstd::erase_if(goal.second, goalErasePredicate);
+		vstd::erase_if(goal.second, checkRemovalValidity);
+
+	//clear resource manager goal cache - logic copied from ResourceManager::notifyGoalCompleted
+	while(true)
+	{ //unfortunately we can't use remove_if on heap
+		auto queue = ah->resourceManager->queue;
+		auto iteratorToRemove = boost::find_if(queue, [&](const ResourceObjective & x) -> bool
+		{
+			return checkRemovalValidity(x.goal);
+		});
+		if(iteratorToRemove != queue.end()) //removed at least one
+		{
+			queue.erase(queue.s_handle_from_iterator(iteratorToRemove));
+		}
+		else //found nothing more to remove
+			break;
+	}
 
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
