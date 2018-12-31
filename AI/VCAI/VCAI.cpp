@@ -449,7 +449,7 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	//clear resource manager goal cache - logic copied from ResourceManager::notifyGoalCompleted
 	while(true)
 	{ //unfortunately we can't use remove_if on heap
-		auto queue = ah->resourceManager->queue;
+		auto & queue = ah->resourceManager->queue;
 		auto iteratorToRemove = boost::find_if(queue, [&](const ResourceObjective & x) -> bool
 		{
 			return checkRemovalValidity(x.goal);
