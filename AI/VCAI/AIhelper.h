@@ -47,6 +47,7 @@ public:
 	Goals::TSubgoal whatToDo() const override;
 	bool containsObjective(Goals::TSubgoal goal) const;
 	bool hasTasksLeft() const override;
+	bool removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal &)> predicate) override;
 
 	bool getBuildingOptions(const CGTownInstance * t) override;
 	BuildingID getMaxPossibleGoldBuilding(const CGTownInstance * t);

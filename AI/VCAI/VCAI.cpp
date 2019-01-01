@@ -446,21 +446,8 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	for(auto goal : ultimateGoalsFromBasic)
 		vstd::erase_if(goal.second, checkRemovalValidity);
 
-	//clear resource manager goal cache - logic copied from ResourceManager::notifyGoalCompleted
-	while(true)
-	{ //unfortunately we can't use remove_if on heap
-		auto & queue = ah->resourceManager->queue;
-		auto iteratorToRemove = boost::find_if(queue, [&](const ResourceObjective & x) -> bool
-		{
-			return checkRemovalValidity(x.goal);
-		});
-		if(iteratorToRemove != queue.end()) //removed at least one
-		{
-			queue.erase(queue.s_handle_from_iterator(iteratorToRemove));
-		}
-		else //found nothing more to remove
-			break;
-	}
+	//clear resource manager goal cache
+	ah->removeOutdatedObjectives(checkRemovalValidity);
 
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))

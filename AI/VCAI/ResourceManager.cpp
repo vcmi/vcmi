@@ -232,22 +232,12 @@ bool ResourceManager::notifyGoalCompleted(Goals::TSubgoal goal)
 	if (goal->invalid())
 		logAi->warn("Attempt to complete Invalid goal");
 
-	bool removedGoal = false;
-	while (true)
-	{ //unfortunatelly we can't use remove_if on heap
-		auto it = boost::find_if(queue, [goal](const ResourceObjective & ro) -> bool
-		{
-			return ro.goal == goal || ro.goal->fulfillsMe (goal);
-		});
-		if(it != queue.end()) //removed at least one
-		{
-			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
-			queue.erase(queue.s_handle_from_iterator(it));
-			removedGoal = true;
-		}
-		else //found nothing more to remove
-			break;
-	}
+	std::function<bool(const Goals::TSubgoal &)> equivalentGoalsCheck = [goal](const Goals::TSubgoal & x) -> bool
+	{
+		return x == goal || x->fulfillsMe(goal);
+	};
+
+	bool removedGoal = removeOutdatedObjectives(equivalentGoalsCheck);
 
 	dumpToLog();
 
@@ -313,6 +303,27 @@ bool ResourceManager::tryPush(const ResourceObjective & o)
 bool ResourceManager::hasTasksLeft() const
 {
 	return !queue.empty();
+}
+
+bool ResourceManager::removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal &)> predicate)
+{
+	bool removedAnything = false;
+	while(true)
+	{ //unfortunately we can't use remove_if on heap
+		auto it = boost::find_if(queue, [&](const ResourceObjective & ro) -> bool
+		{
+			predicate(ro.goal);
+		});
+		if(it != queue.end()) //removed at least one
+		{
+			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
+			queue.erase(queue.s_handle_from_iterator(it));
+			removedAnything = true;
+		}
+		else //found nothing more to remove
+			break;
+	}
+	return removedAnything;
 }
 
 TResources ResourceManager::reservedResources() const

@@ -52,7 +52,7 @@ public:
 	virtual Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) = 0;
 	virtual bool containsObjective(Goals::TSubgoal goal) const = 0;
 	virtual bool hasTasksLeft() const = 0;
-private:
+	virtual bool removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal &)> predicate) = 0; //remove ResourceObjectives from queue if ResourceObjective->goal meets specific criteria
 	virtual bool notifyGoalCompleted(Goals::TSubgoal goal) = 0;
 };
 
@@ -82,6 +82,7 @@ public:
 	Goals::TSubgoal whatToDo(TResources & res, Goals::TSubgoal goal); //can we afford this goal or need to CollectRes?
 	bool containsObjective(Goals::TSubgoal goal) const;
 	bool hasTasksLeft() const override;
+	bool removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal &)> predicate) override;
 
 protected: //not-const actions only for AI
 	virtual void reserveResoures(const TResources & res, Goals::TSubgoal goal = Goals::TSubgoal());
