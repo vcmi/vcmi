@@ -90,7 +90,7 @@ float FuzzyHelper::evaluate(Goals::BuildBoat & g)
 		return 0;
 	}
 
-	return g.parent->accept(this) - buildBoatPenalty;
+	return g.parent->evaluatePriority(this) - buildBoatPenalty;
 }
 
 float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
@@ -103,7 +103,7 @@ float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
 		return 0;
 	}
 
-	return g.parent->accept(this) * questPenalty;
+	return g.parent->evaluatePriority(this) * questPenalty;
 }
 
 float FuzzyHelper::evaluate(Goals::VisitObj & g)
@@ -117,7 +117,7 @@ float FuzzyHelper::evaluate(Goals::VisitHero & g)
 		return -100; //hero died in the meantime
 	else
 	{
-		g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).accept(this));
+		g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).evaluatePriority(this));
 	}
 	return g.priority;
 }
@@ -135,7 +135,7 @@ float FuzzyHelper::evaluate(Goals::ClearWayTo & g)
 	if (!g.hero.h)
 		return 0; //lowest priority
 
-	return g.whatToDoToAchieve()->accept(this);
+	return g.whatToDoToAchieve()->evaluatePriority(this);
 }
 
 float FuzzyHelper::evaluate(Goals::BuildThis & g)
@@ -177,5 +177,5 @@ float FuzzyHelper::evaluate(Goals::AbstractGoal & g)
 }
 void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pattern
 {
-	g->setpriority(g->accept(this)); //this enforces returned value is set
+	g->setpriority(g->evaluatePriority(this)); //this enforces returned value is set
 }

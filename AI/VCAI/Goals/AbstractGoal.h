@@ -160,7 +160,7 @@ namespace Goals
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(VCAI * ai); //unhandled goal will report standard error
-		virtual float accept(FuzzyHelper * f);
+		virtual float evaluatePriority(FuzzyHelper * f);
 
 		virtual bool operator==(const AbstractGoal & g) const;
 		bool operator<(AbstractGoal & g); //final

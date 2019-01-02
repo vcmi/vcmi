@@ -51,7 +51,7 @@ namespace Goals
 			ai->tryRealize(static_cast<T &>(*this)); //casting enforces template instantiation
 		}
 
-		float accept(FuzzyHelper * f) override
+		float evaluatePriority(FuzzyHelper * f) override
 		{
 			return f->evaluate(static_cast<T &>(*this)); //casting enforces template instantiation
 		}
