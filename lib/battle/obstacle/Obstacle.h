@@ -26,6 +26,8 @@ public:
 	virtual bool triggersEffects() const = 0;
 
 	UUID ID;
+	ObstacleState state = ObstacleState::Appear;
+	
 	ObstacleArea getArea() const;
 	void setArea(ObstacleArea zone);
 
@@ -42,6 +44,7 @@ public:
 			h & id;
 			h & uniqueID;
 			h & obstacleType;
+			h & state;
 			h & pos;
 		}
 		h & ID;

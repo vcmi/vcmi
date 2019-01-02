@@ -31,7 +31,7 @@
 							"blockedTiles" :  [0],
 							"graphics" : {
 								"appear" : "C17SPE0.def",
-								"default" : "C17SPE1.def"
+								"default" : "C17SPE1.def",
 							},
 							"offsetGraphicsInY" : -42
 						}
@@ -82,14 +82,16 @@
 							"blockedTiles" :  [0],
 							"graphics" : {
 								"appear" : "C09SPF0.def",
-								"default" : "C09SPF1.def"
+								"default" : "C09SPF1.def",
+								"disappear" : "C09SPF3.def"
 							},
 						},
 						"defender" :{
 							"blockedTiles" :  [0],
 							"graphics" : {
 								"appear" : "C09SPF0.def",
-								"default" : "C09SPF1.def"
+								"default" : "C09SPF1.def",
+								"disappear" : "C09SPF3.def"
 							 },
 						}
 					},
@@ -97,7 +99,6 @@
 						"type":"core:damage",
 						"optional":false,
 						"indirect":true,
-						"customEffectId" : 82
 					}
 				}
 			},
@@ -250,7 +251,7 @@
 							"blockedTiles" :  [0, 18],
 							"graphics" : {
 								"appear" : "C07SPF60.def",
-								 "default" : "C07SPF61.def"
+								"default" : "C07SPF61.def"
 							 },
 						},
 						"defender" :{

@@ -234,7 +234,7 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 		pack.changes.emplace_back();
 		obstacle.toInfo(pack.changes.back());
 	}
-
+	
 	if(!pack.changes.empty())
 		battleState->apply(&pack);
 }

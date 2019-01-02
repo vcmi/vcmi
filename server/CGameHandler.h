@@ -204,6 +204,8 @@ public:
 	bool makeCustomAction(BattleAction &ba);
 	void stackEnchantedTrigger(const CStack * stack);
 	void stackTurnTrigger(const CStack *stack);
+	
+	void obstaclesInteraction();
 	bool handleDamageFromObstacle(const CStack * curStack, bool stackIsMoving = false); //checks if obstacle is land mine and handles possible consequences
 
 	void removeObstacle(const Obstacle &obstacle);

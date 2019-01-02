@@ -219,6 +219,7 @@ set(lib_HEADERS
 		battle/obstacle/ObstacleRandomGenerator.h
 		battle/obstacle/ObstacleSurface.h
 		battle/obstacle/ObstacleType.h
+		battle/obstacle/ObstacleState.h
 		battle/obstacle/SpellCreatedObstacle.h
 		battle/obstacle/StaticObstacle.h
 		battle/obstacle/MoatObstacle.h

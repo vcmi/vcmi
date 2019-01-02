@@ -24,17 +24,17 @@ ObstacleGraphicsInfo::ObstacleGraphicsInfo(std::string graphicsName, int32_t off
 }
 
 
-void ObstacleGraphicsInfo::setGraphics(const std::string &name, GraphicsType type)
+void ObstacleGraphicsInfo::setGraphics(const std::string &name, ObstacleState state)
 {
-	switch(type)
+	switch(state)
 	{
-		case GraphicsType::Appear:
+		case ObstacleState::Appear:
 			graphics[0] = name;
 			break;
-		case GraphicsType::Interaction:
+		case ObstacleState::Interaction:
 			graphics[2] = name;
 			break;
-		case GraphicsType::Disappear:
+		case ObstacleState::Disappear:
 			graphics[3] = name;
 			break;
 		default:
@@ -53,15 +53,15 @@ void ObstacleGraphicsInfo::setOffsetGraphicsInY(int32_t value)
 	offsetGraphicsInY = value;
 }
 
-std::string ObstacleGraphicsInfo::getGraphics(GraphicsType type) const
+std::string ObstacleGraphicsInfo::getGraphics(ObstacleState state) const
 {
-	switch(type)
+	switch(state)
 	{
-		case GraphicsType::Appear:
+		case ObstacleState::Appear:
 			return graphics[0];
-		case GraphicsType::Interaction:
+		case ObstacleState::Interaction:
 			return graphics[2];
-		case GraphicsType::Disappear:
+		case ObstacleState::Disappear:
 			return graphics[3];
 		default:
 			return graphics[1];

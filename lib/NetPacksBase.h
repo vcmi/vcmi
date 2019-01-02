@@ -25,6 +25,8 @@ struct ArtSlotInfo;
 #include "GameConstants.h"
 #include "JsonNode.h"
 #include "UUID.h"
+#include "battle/obstacle/ObstacleState.h"
+
 
 struct DLL_LINKAGE CPack
 {
@@ -328,6 +330,7 @@ class ObstacleChanges : public BattleChanges
 public:
 	UUID id;
 	SpellID spellID;
+	ObstacleState state = ObstacleState::Appear;
 
 	ObstacleChanges()
 		: BattleChanges(EOperation::RESET_STATE)
@@ -340,11 +343,19 @@ public:
 	{
 	}
 
+	ObstacleChanges(UUID id_, ObstacleState obstacleState, EOperation operation_)
+			: BattleChanges(operation_),
+			  state(obstacleState),
+			  id(id_)
+	{
+	}
+
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & id;
 		h & data;
 		h & operation;
 		h & spellID;
+		h & state;
 	}
 };

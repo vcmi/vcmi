@@ -9,22 +9,19 @@
  */
 #pragma once
 
+#include "ObstacleState.h"
+
 class DLL_LINKAGE ObstacleGraphicsInfo
 {
 public:
-	enum class GraphicsType
-	{
-		Appear, Default, Interaction, Disappear
-	};
-	
 	ObstacleGraphicsInfo();
 	ObstacleGraphicsInfo(std::string graphicsName, int32_t offsetX, int32_t offsetY);
 
-	void setGraphics(const std::string &name, GraphicsType type = GraphicsType::Default);
+	void setGraphics(const std::string &name, ObstacleState state = ObstacleState::Default);
 	void setOffsetGraphicsInX(int32_t value);
 	void setOffsetGraphicsInY(int32_t value);
 
-	std::string getGraphics(GraphicsType type = GraphicsType::Default) const;
+	std::string getGraphics(ObstacleState state = ObstacleState::Default) const;
 	int32_t getOffsetGraphicsInX() const;
 	int32_t getOffsetGraphicsInY() const;
 	
@@ -34,10 +31,7 @@ public:
 	{
 		h & offsetGraphicsInX;
 		h & offsetGraphicsInY;
-		h & graphics[0];
-		h & graphics[1];
-		h & graphics[2];
-		h & graphics[3];
+		h & graphics;
 	}
 private:
 	int32_t offsetGraphicsInY = 0;

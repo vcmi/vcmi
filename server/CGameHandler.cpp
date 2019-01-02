@@ -1476,6 +1476,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				tiles.clear();
 			}
 
+			
+			obstaclesInteraction();
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if (curStack->getPosition() != dest)
 			{
@@ -1502,12 +1504,12 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 				}
 			}
 			else
-				//movement finished normally: we reached destination
 				stackIsMoving = false;
 		}
 	}
 
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
+	obstaclesInteraction();
 	handleDamageFromObstacle(curStack);
 
 	return ret;
@@ -4830,7 +4832,6 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 	bool movementStoped = false;
 	for(auto & obstacle : getAllAffectedObstaclesByStack(curStack))
 	{
-		
 		if(obstacle->getType() == ObstacleType::MOAT)
 		{
 			if(!containDamageFromMoat)
@@ -6515,9 +6516,16 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 
 void CGameHandler::removeObstacle(const Obstacle &obstacle)
 {
+	{
+		BattleObstaclesChanged obsRem;
+		obsRem.changes.emplace_back(obstacle.ID, ObstacleState::Disappear, BattleChanges::EOperation::UPDATE);
+		sendAndApply(&obsRem);
+	}
+	{
 	BattleObstaclesChanged obsRem;
-	obsRem.changes.emplace_back(obstacle.ID, BattleChanges::EOperation::REMOVE);
+		obsRem.changes.emplace_back(obstacle.ID, ObstacleState::Disappear, BattleChanges::EOperation::REMOVE);
 	sendAndApply(&obsRem);
+	}
 }
 
 void CGameHandler::synchronizeArtifactHandlerLists()
@@ -6773,6 +6781,18 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 CRandomGenerator & CGameHandler::getRandomGenerator()
 {
 	return CRandomGenerator::getDefault();
+}
+
+void CGameHandler::obstaclesInteraction()
+{
+	BattleObstaclesChanged interactionObs;
+	
+	for(auto obs : gs->curB->obstacles)
+			interactionObs.changes.emplace_back(obs->ID, ObstacleState::Default, BattleChanges::EOperation::UPDATE);
+	for(auto unit : gs->curB->stacks)
+		for(auto obs : getAllAffectedObstaclesByStack(unit))
+			interactionObs.changes.emplace_back(obs->ID, ObstacleState::Interaction, BattleChanges::EOperation::UPDATE);
+	sendAndApply(&interactionObs);
 }
 
 ///ServerSpellCastEnvironment

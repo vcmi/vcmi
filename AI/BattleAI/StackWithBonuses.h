@@ -98,6 +98,7 @@ public:
 	void setWallState(int partOfWall, si8 state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
+	void updateObstacle(const ObstacleChanges & changes) override;
 	void removeObstacle(UUID id) override;
 
 	uint32_t nextUnitId() const override;

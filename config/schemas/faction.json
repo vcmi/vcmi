@@ -226,10 +226,6 @@
 					"type":"number",
 					"description": "Maximal level of mage guild"
 				},
-				"moatDamage": {
-					"type":"number",
-					"description": "Damage dealt to creature that entered town moat during siege"
-				},
 				"moatHexes": {
 					"type" : "array",
 					"description" : "Numbers of battlefield hexes affected by moat during siege",

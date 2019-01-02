@@ -390,3 +390,8 @@ int64_t HypotheticBattle::getTreeVersion() const
 {
 	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
 }
+
+void HypotheticBattle::updateObstacle(const ObstacleChanges & changes)
+{
+
+}
