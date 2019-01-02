@@ -19,12 +19,21 @@ namespace Goals
 {
 	class DLL_EXPORT Explore : public CGoal<Explore>
 	{
+	private:
+		bool allowGatherArmy;
+
 	public:
-		Explore()
-			: CGoal(Goals::EXPLORE)
+		Explore(bool allowGatherArmy)
+			: CGoal(Goals::EXPLORE), allowGatherArmy(allowGatherArmy)
 		{
 			priority = 1;
 		}
+
+		Explore()
+			: Explore(true)
+		{
+		}
+
 		Explore(HeroPtr h)
 			: CGoal(Goals::EXPLORE)
 		{
@@ -38,9 +47,10 @@ namespace Goals
 		virtual bool operator==(const Explore & other) const override;
 
 	private:
-		TSubgoal howToExplore(HeroPtr h) const;
+		TSubgoal exploreNearestNeighbour(HeroPtr h) const;
 		TSubgoal explorationNewPoint(HeroPtr h) const;
 		TSubgoal explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) const;
+		TSubgoal explorationScanRange(HeroPtr h, std::vector<int3> & range) const;
 		bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp, VCAI * vcai) const;
 
 		void getVisibleNeighbours(

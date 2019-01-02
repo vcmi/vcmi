@@ -28,7 +28,7 @@ using namespace Goals;
 
 bool Explore::operator==(const Explore & other) const
 {
-	return other.hero.h == hero.h;
+	return other.hero.h == hero.h && other.allowGatherArmy == allowGatherArmy;
 }
 
 std::string Explore::completeMessage() const
@@ -127,20 +127,33 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		for(auto obj : objs) //double loop, performance risk?
 		{
-			auto waysToVisitObj = ai->ah->howToVisitObj(h, obj);
+			auto waysToVisitObj = ai->ah->howToVisitObj(h, obj, allowGatherArmy);
 
 			vstd::concatenate(ret, waysToVisitObj);
 		}
 
-		TSubgoal goal = howToExplore(h);
+		TSubgoal goal = exploreNearestNeighbour(h);
 
-		if(goal->invalid())
-		{
-			ai->markHeroUnableToExplore(h); //there is no freely accessible tile, do not poll this hero anymore
-		}
-		else
+		if(!goal->invalid())
 		{
 			ret.push_back(goal);
+		}
+	}
+
+	if(ret.empty())
+	{
+		for(auto h : heroes)
+		{
+			TSubgoal goal = explorationNewPoint(h);
+
+			if(goal->invalid())
+			{
+				ai->markHeroUnableToExplore(h); //there is no freely accessible tile, do not poll this hero anymore
+			}
+			else
+			{
+				ret.push_back(goal);
+			}
 		}
 	}
 
@@ -152,7 +165,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	{
 		throw goalFulfilledException(sptr(Explore().sethero(hero)));
 	}
-	//throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
 
 	return ret;
 }
@@ -263,65 +275,98 @@ TSubgoal Explore::explorationNewPoint(HeroPtr h) const
 	VCAI *aip = ai.get();
 	const TeamState * ts = cbp->getPlayerTeam(aip->playerID);
 
-	std::vector<std::vector<int3>> tiles; //tiles[distance_to_fow]
-	tiles.resize(radius);
+	int3 mapSize = cbp->getMapSize();
+	int perimiter = 2 * radius * (mapSize.x + mapSize.y);
+	
+	std::vector<int3> from;
+	std::vector<int3> to;
+
+	from.reserve(perimiter);
+	to.reserve(perimiter);
 
 	foreach_tile_pos([&](const int3 & pos)
 	{
-		if(!cbp->isVisible(pos))
-			tiles[0].push_back(pos);
+		if(ts->fogOfWarMap[pos.x][pos.y][pos.z])
+		{
+			bool hasInvisibleNeighbor = false;
+
+			foreach_neighbour(cbp, pos, [&](CCallback * cbp, int3 neighbour)
+			{
+				if(!ts->fogOfWarMap[neighbour.x][neighbour.y][neighbour.z])
+				{
+					hasInvisibleNeighbor = true;
+				}
+			});
+
+			if(hasInvisibleNeighbor)
+				from.push_back(pos);
+		}
 	});
+
+	for(int i = 0; i < radius; i++)
+	{
+		getVisibleNeighbours(from, to, cbp, ts);
+		vstd::concatenate(from, to);
+		vstd::removeDuplicates(from);
+	}
+
+	return explorationScanRange(h, from);
+}
+
+TSubgoal Explore::explorationScanRange(HeroPtr h, std::vector<int3> & range) const
+{
+	int radius = h->getSightRadius();
+	CCallback * cbp = cb.get();
+	VCAI *aip = ai.get();
+	const TeamState * ts = cbp->getPlayerTeam(aip->playerID);
 
 	float bestValue = 0; //discovered tile to node distance ratio
 	TSubgoal bestWay = sptr(Invalid());
 	int3 ourPos = h->convertPosition(h->pos, false);
 
-	for(int i = 1; i < radius; i++)
+	for(const int3 & tile : range)
 	{
-		getVisibleNeighbours(tiles[i - 1], tiles[i], cbp, ts);
-		vstd::removeDuplicates(tiles[i]);
+		if(tile == ourPos) //shouldn't happen, but it does
+			continue;
 
-		for(const int3 & tile : tiles[i])
+		int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, ts, aip, h);
+		if(!tilesDiscovered)
+			continue;
+
+		auto waysToVisit = aip->ah->howToVisitTile(h, tile, allowGatherArmy);
+		for(auto goal : waysToVisit)
 		{
-			if(tile == ourPos) //shouldn't happen, but it does
+			if(goal->evaluationContext.movementCost == 0) // should not happen
 				continue;
-						
-			auto waysToVisit = aip->ah->howToVisitTile(h, tile);
-			for(auto goal : waysToVisit)
+
+			float ourValue = (float)tilesDiscovered * tilesDiscovered / goal->evaluationContext.movementCost;
+
+			if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 			{
-				if(goal->evaluationContext.movementCost == 0) // should not happen
-					continue;
-				
-				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, ts, aip, h);
-				float ourValue = (float) tilesDiscovered / goal->evaluationContext.movementCost; //+1 prevents erratic jumps
-
-				if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
+				auto obj = cb->getTopObj(tile);
+				if(obj && obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on that object
 				{
-					auto obj = cb->getTopObj(tile);
-					if(obj && obj->blockVisit && !isObjectRemovable(obj)) //we can't stand on that object
-					{
-						continue;
-					}
+					continue;
+				}
 
-					if(isSafeToVisit(h, tile))
-					{
-						bestWay = goal;
-						bestValue = ourValue;
-					}
+				if(isSafeToVisit(h, tile))
+				{
+					bestWay = goal;
+					bestValue = ourValue;
 				}
 			}
 		}
+	}
 
-		if(!bestWay->invalid())
-		{
-			return bestWay;
-		}
+	if(!bestWay->invalid())
+	{
+		return bestWay;
 	}
 
 	return bestWay;
 }
 
-TSubgoal Explore::howToExplore(HeroPtr h) const
+TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 {
 	TimeCheck tc("where to explore");
 	int radius = h->getSightRadius();
@@ -346,11 +391,11 @@ TSubgoal Explore::howToExplore(HeroPtr h) const
 		}
 	}
 
-	vstd::removeDuplicates(nearbyVisitableObjs); //one object may occupy multiple tiles
-	boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
-
 	if(nearbyVisitableObjs.size())
 	{
+		vstd::removeDuplicates(nearbyVisitableObjs); //one object may occupy multiple tiles
+		boost::sort(nearbyVisitableObjs, CDistanceSorter(h.get()));
+
 		TSubgoal pickupNearestObj = fh->chooseSolution(ai->ah->howToVisitObj(h, nearbyVisitableObjs.back(), false));
 
 		if(!pickupNearestObj->invalid())
@@ -360,15 +405,7 @@ TSubgoal Explore::howToExplore(HeroPtr h) const
 	}
 
 	//check if nearby tiles allow us to reveal anything - this is quick
-	TSubgoal result = explorationBestNeighbour(hpos, radius, h);
-	
-	if(result->invalid())
-	{
-		//perform exhaustive search
-		result = explorationNewPoint(h);
-	}
-
-	return result;
+	return explorationBestNeighbour(hpos, radius, h);
 }
 
 void Explore::getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out, CCallback * cbp, const TeamState * ts) const
@@ -379,10 +416,7 @@ void Explore::getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<
 		{
 			if(ts->fogOfWarMap[neighbour.x][neighbour.y][neighbour.z])
 			{
-				//auto tile = cbp->getTile(neighbour);
-
-				//if(tile && !tile->blocked)
-					out.push_back(neighbour);
+				out.push_back(neighbour);
 			}
 		});
 	}

@@ -193,8 +193,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 	if(ret.empty())
 	{
+		const bool allowGatherArmy = false;
+
 		if(hero == ai->primaryHero())
-			ret.push_back(sptr(Explore()));
+			ret.push_back(sptr(Explore(allowGatherArmy)));
 		else
 			throw cannotFulfillGoalException("No ways to gather army");
 	}
