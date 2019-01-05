@@ -24,6 +24,7 @@ void PathfindingManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
 	pathfinder.reset(new AIPathfinder(cb, ai));
+	pathfinder->init();
 }
 
 void PathfindingManager::setAI(VCAI * AI)

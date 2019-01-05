@@ -27,4 +27,5 @@ public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
 	std::vector<AIPath> getPathInfo(HeroPtr hero, int3 tile);
 	void clear();
+	void init();
 };

@@ -28,6 +28,13 @@ void AIPathfinder::clear()
 	storageMap.clear();
 }
 
+void AIPathfinder::init()
+{
+	boost::unique_lock<boost::mutex> storageLock(storageMutex);
+	storagePool.clear();
+	storageMap.clear();
+}
+
 std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 {
 	boost::unique_lock<boost::mutex> storageLock(storageMutex);
