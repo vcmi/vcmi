@@ -79,12 +79,6 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 
 				int val = *std::min_element(values.begin(), values.end());
 
-				logAi->trace(
-					"Army value need %i, to hero %i, to town %i",
-					value,
-					(int)howManyReinforcementsCanBuy(hero.get(), t),
-					(int)howManyReinforcementsCanBuy(t->getUpperArmy(), t));
-
 				if (val)
 				{
 					auto goal = sptr(BuyArmy(t, val).sethero(hero));

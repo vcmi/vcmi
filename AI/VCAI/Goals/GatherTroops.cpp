@@ -81,7 +81,15 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 
 		if(count >= this->value)
 		{
-			vstd::concatenate(solutions, ai->ah->howToVisitObj(t));
+			if(t->visitingHero)
+			{
+				solutions.push_back(sptr(VisitObj(t->id.getNum()).sethero(t->visitingHero.get())));
+			}
+			else
+			{
+				vstd::concatenate(solutions, ai->ah->howToVisitObj(t));
+			}
+
 			continue;
 		}
 
@@ -97,7 +105,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 				continue;
 
 			BuildingID bid(BuildingID::DWELL_FIRST + creature->level - 1 + upgradeNumber * GameConstants::CREATURES_PER_TOWN);
-			if(t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
+			if(t->hasBuilt(bid) && ai->ah->freeResources().canAfford(creature->cost)) //this assumes only creatures with dwellings are assigned to faction
 			{
 				solutions.push_back(sptr(BuyArmy(t, creature->AIValue * this->value).setobjid(objid)));
 			}
