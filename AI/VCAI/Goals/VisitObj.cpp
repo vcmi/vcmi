@@ -53,7 +53,7 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 			if(isSafeToVisit(hero, pos))
 				goalList.push_back(sptr(VisitObj(obj->id.getNum()).sethero(hero)));
 			else
-				goalList.push_back(sptr(GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+				goalList.push_back(sptr(GatherArmy(evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setstate(GoalState::ABSTRACT)));
 
 			return goalList;
 		}
@@ -67,7 +67,7 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 				if(isSafeToVisit(potentialVisitor, pos))
 					goalList.push_back(sptr(VisitObj(obj->id.getNum()).sethero(potentialVisitor)));
 				else
-					goalList.push_back(sptr(GatherArmy(evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT).sethero(potentialVisitor).setisAbstract(true)));
+					goalList.push_back(sptr(GatherArmy(evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT).sethero(potentialVisitor).setstate(GoalState::ABSTRACT)));
 			}
 		}
 		if(!goalList.empty())
@@ -85,7 +85,7 @@ TSubgoal VisitObj::whatToDoToAchieve()
 	auto bestGoal = fh->chooseSolution(getAllPossibleSubgoals());
 
 	if(bestGoal->goalType == VISIT_OBJ && bestGoal->hero)
-		bestGoal->setisElementar(true);
+		bestGoal->setstate(GoalState::ELEMENTARY);
 
 	return bestGoal;
 }

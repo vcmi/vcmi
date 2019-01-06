@@ -67,6 +67,13 @@ namespace Goals
 		ADVENTURE_SPELL_CAST
 	};
 
+	enum class GoalState : si8
+	{
+		INVALID = -1,
+		ABSTRACT,
+		ELEMENTARY
+	};
+
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
 	{
 	public:
@@ -104,26 +111,24 @@ namespace Goals
 	class DLL_EXPORT AbstractGoal
 	{
 	public:
-		bool isElementar; VSETTER(bool, isElementar)
-			bool isAbstract; VSETTER(bool, isAbstract)
-			float priority; VSETTER(float, priority)
-			int value; VSETTER(int, value)
-			int resID; VSETTER(int, resID)
-			int objid; VSETTER(int, objid)
-			int aid; VSETTER(int, aid)
-			int3 tile; VSETTER(int3, tile)
-			HeroPtr hero; VSETTER(HeroPtr, hero)
-			const CGTownInstance *town; VSETTER(CGTownInstance *, town)
-			int bid; VSETTER(int, bid)
-			TSubgoal parent; VSETTER(TSubgoal, parent)
-			EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
+		GoalState state; VSETTER(GoalState, state)
+		float priority; VSETTER(float, priority)
+		int value; VSETTER(int, value)
+		int resID; VSETTER(int, resID)
+		int objid; VSETTER(int, objid)
+		int aid; VSETTER(int, aid)
+		int3 tile; VSETTER(int3, tile)
+		HeroPtr hero; VSETTER(HeroPtr, hero)
+		const CGTownInstance *town; VSETTER(CGTownInstance *, town)
+		int bid; VSETTER(int, bid)
+		TSubgoal parent; VSETTER(TSubgoal, parent)
+		EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
-			AbstractGoal(EGoals goal = EGoals::INVALID)
-			: goalType(goal), evaluationContext()
+		AbstractGoal(EGoals goal = EGoals::INVALID)
+		: goalType(goal), evaluationContext()
 		{
 			priority = 0;
-			isElementar = false;
-			isAbstract = false;
+			state = GoalState::INVALID;
 			value = 0;
 			aid = -1;
 			resID = -1;
@@ -177,8 +182,7 @@ namespace Goals
 		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & goalType;
-			h & isElementar;
-			h & isAbstract;
+			h & state;
 			h & priority;
 			h & value;
 			h & resID;

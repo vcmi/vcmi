@@ -24,8 +24,7 @@ namespace Goals
 		CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
 			priority = 0;
-			isElementar = false;
-			isAbstract = false;
+			state = GoalState::INVALID;
 			value = 0;
 			aid = -1;
 			objid = -1;
@@ -34,8 +33,7 @@ namespace Goals
 			town = nullptr;
 		}
 
-		OSETTER(bool, isElementar)
-		OSETTER(bool, isAbstract)
+		OSETTER(GoalState, state)
 		OSETTER(float, priority)
 		OSETTER(int, value)
 		OSETTER(int, resID)
@@ -60,19 +58,19 @@ namespace Goals
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
 		}
-		TSubgoal iAmElementar() const
+		TSubgoal iAmElementary() const
 		{
 			TSubgoal ptr;
 
 			ptr.reset(clone());
-			ptr->setisElementar(true);
+			ptr->setstate(GoalState::ELEMENTARY);
 
 			return ptr;
 		}
 		template<typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & static_cast<AbstractGoal &>(*this);
-			//h & goalType & isElementar & isAbstract & priority;
+			//h & goalType & state & priority;
 			//h & value & resID & objid & aid & tile & hero & town & bid;
 		}
 

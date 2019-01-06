@@ -30,7 +30,7 @@ namespace Goals
 		}
 		TSubgoal whatToDoToAchieve() override
 		{
-			return iAmElementar();
+			return iAmElementary();
 		}
 
 		virtual bool operator==(const Invalid & other) const override

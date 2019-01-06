@@ -132,10 +132,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		// Go to the other hero if we are faster
 		if (!vstd::contains(ai->visitedHeroes[hero], h)
 			&& ai->isAccessibleForHero(h->visitablePos(), hero, true)) //visit only once each turn //FIXME: this is only bug workaround
-			ret.push_back(sptr(VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
+			ret.push_back(sptr(VisitHero(h->id.getNum()).setstate(GoalState::ABSTRACT).sethero(hero)));
 		// Let the other hero come to us
 		if (!vstd::contains(ai->visitedHeroes[h], hero))
-			ret.push_back(sptr(VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
+			ret.push_back(sptr(VisitHero(hero->id.getNum()).setstate(GoalState::ABSTRACT).sethero(h)));
 	}
 
 	std::vector<const CGObjectInstance *> objs;

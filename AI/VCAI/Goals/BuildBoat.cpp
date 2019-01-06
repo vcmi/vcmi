@@ -41,7 +41,7 @@ TSubgoal BuildBoat::whatToDoToAchieve()
 	TResources boatCost;
 	shipyard->getBoatCost(boatCost);
 
-	return ai->ah->whatToDo(boatCost, this->iAmElementar());
+	return ai->ah->whatToDo(boatCost, this->iAmElementary());
 }
 
 void BuildBoat::accept(VCAI * ai)

@@ -191,7 +191,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 			}
 			else //either it's our town, or we have hero there
 			{
-				return sptr(Trade(resID, value, objid).setisElementar(true)); //we can do this immediately
+				return sptr(Trade(resID, value, objid).setstate(GoalState::ELEMENTARY)); //we can do this immediately
 			}
 		}
 	}

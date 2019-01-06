@@ -63,7 +63,7 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(HeroPtr hero, int3 tile, bool
 {
 	auto result = findPath(hero, tile, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
-		return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
+		return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setstate(Goals::GoalState::ABSTRACT));
 	});
 
 	for(Goals::TSubgoal solution : result)
@@ -86,9 +86,9 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 	auto result = findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
 		if(obj->ID.num == Obj::HERO && obj->getOwner() == hero->getOwner())
-			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
+			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setstate(Goals::GoalState::ABSTRACT));
 		else
-			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setisAbstract(true));
+			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setstate(Goals::GoalState::ABSTRACT));
 	});
 
 	for(Goals::TSubgoal solution : result)
@@ -171,7 +171,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 	{
 		//we need to get army in order to conquer that place
 		logAi->trace("Gather army for %s, value=%s", hero->name, std::to_string(danger));
-		result.push_back(sptr(Goals::GatherArmy(danger * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+		result.push_back(sptr(Goals::GatherArmy(danger * SAFE_ATTACK_CONSTANT).sethero(hero).setstate(Goals::GoalState::ABSTRACT)));
 	}
 
 	return result;
@@ -225,7 +225,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 		}
 	}
 
-	return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
+	return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setstate(Goals::GoalState::ABSTRACT));
 }
 
 void PathfindingManager::resetPaths()

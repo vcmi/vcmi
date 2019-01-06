@@ -152,7 +152,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 		goalPriority *= 1000;
 
 	//this is abstract goal and might take soem time to complete
-	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect).setisAbstract(true));
+	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect).setstate(Goals::GoalState::ABSTRACT));
 }
 
 Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
