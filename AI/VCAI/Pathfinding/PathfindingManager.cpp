@@ -37,6 +37,7 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(int3 tile)
 	Goals::TGoalVec result;
 
 	auto heroes = cb->getHeroesInfo();
+	result.reserve(heroes.size());
 
 	for(auto hero : heroes)
 	{
@@ -51,6 +52,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj)
 	Goals::TGoalVec result;
 
 	auto heroes = cb->getHeroesInfo();
+	result.reserve(heroes.size());
 
 	for(auto hero : heroes)
 	{
@@ -154,7 +156,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 
 				if(solution->evaluationContext.danger < danger)
 					solution->evaluationContext.danger = danger;
-				
+
 				solution->evaluationContext.movementCost += path.movementCost();
 
 				logAi->trace("It's safe for %s to visit tile %s with danger %s, goal %s", hero->name, dest.toString(), std::to_string(danger), solution->name());
@@ -219,7 +221,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 			}
 
 			auto questObj = dynamic_cast<const IQuestObject*>(topObj);
-			
+
 			if(questObj)
 			{
 				auto questInfo = QuestInfo(questObj->quest, topObj, topObj->visitablePos());

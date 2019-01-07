@@ -23,11 +23,11 @@ private:
 	CPlayerSpecificInfoCallback * cb;
 	VCAI * ai;
 
+	std::shared_ptr<AINodeStorage> getOrCreateStorage(HeroPtr hero);
 public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
 	std::vector<AIPath> getPathInfo(HeroPtr hero, int3 tile);
 	bool isTileAccessible(HeroPtr hero, int3 tile);
-	std::shared_ptr<AINodeStorage> getOrCreateStorage(HeroPtr hero);
 	void clear();
 	void init();
 };
